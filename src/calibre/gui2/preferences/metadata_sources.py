@@ -224,6 +224,20 @@ class FieldsModel(QAbstractListModel): # {{{
             Qt.Unchecked])
         msprefs['ignore_fields'] = list(ignored_fields.union(changed))
 
+    def user_default_state(self, field):
+        return (Qt.Unchecked if field in msprefs.get('user_default_ignore_fields',[])
+                    else Qt.Checked)
+
+    def select_user_defaults(self):
+        self.overrides = dict([(f, self.user_default_state(f)) for f in self.fields])
+        self.reset()
+
+    def commit_user_defaults(self):
+        default_ignored_fields = set([x for x in msprefs['user_default_ignore_fields'] if x not in
+            self.overrides])
+        changed = set([k for k, v in self.overrides.iteritems() if v ==
+            Qt.Unchecked])
+        msprefs['user_default_ignore_fields'] = list(default_ignored_fields.union(changed))
 
 # }}}
 
@@ -286,6 +300,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.select_all_button.clicked.connect(self.changed_signal)
         self.clear_all_button.clicked.connect(self.fields_model.clear_all)
         self.clear_all_button.clicked.connect(self.changed_signal)
+        self.select_default_button.clicked.connect(self.fields_model.select_user_defaults)
+        self.select_default_button.clicked.connect(self.changed_signal)
+        self.set_as_default_button.clicked.connect(self.fields_model.commit_user_defaults)
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():

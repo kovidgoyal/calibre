@@ -26,6 +26,7 @@ class Perfil(BasicNewsRecipe):
                                 .foto1 h1{font-size: x-small}
                                 h1{font-family: Georgia,"Times New Roman",serif}
                                 img{margin-bottom: 0.4em}
+                                .hora{font-size: x-small; color: red}
                             """
 
     conversion_options = {
@@ -60,7 +61,26 @@ class Perfil(BasicNewsRecipe):
              ,(u'Tecnologia'     , u'http://www.perfil.com/rss/tecnologia.xml'   )
             ]
 
+    def get_article_url(self, article):
+        return article.get('guid',  None)
+            
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
         return soup
+        

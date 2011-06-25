@@ -27,7 +27,6 @@ def partial(*args, **kwargs):
     _keep_refs.append(ans)
     return ans
 
-
 class LibraryViewMixin(object): # {{{
 
     def __init__(self, db):
@@ -145,6 +144,7 @@ class UpdateLabel(QLabel): # {{{
 
     def __init__(self, *args, **kwargs):
         QLabel.__init__(self, *args, **kwargs)
+        self.setCursor(Qt.PointingHandCursor)
 
     def contextMenuEvent(self, e):
         pass
@@ -181,14 +181,6 @@ class StatusBar(QStatusBar): # {{{
         self.device_string = ''
         self.defmsg.setText(self.default_message)
         self.clearMessage()
-
-    def new_version_available(self, ver, url):
-        msg = (u'<span style="color:red; font-weight: bold">%s: <a'
-               ' href="update:%s">%s<a></span>') % (
-                _('Update found'), ver, ver)
-        self.update_label.setText(msg)
-        self.update_label.setCursor(Qt.PointingHandCursor)
-        self.update_label.setVisible(True)
 
     def get_version(self):
         dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
@@ -256,12 +248,6 @@ class LayoutMixin(object): # {{{
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
-
-    def update_link_clicked(self, url):
-        url = unicode(url)
-        if url.startswith('update:'):
-            version = url.partition(':')[-1]
-            self.update_found(version, force=True)
 
     def finalize_layout(self):
         self.status_bar.initialize(self.system_tray_icon)

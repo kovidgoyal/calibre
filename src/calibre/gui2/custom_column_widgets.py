@@ -25,7 +25,7 @@ class Base(object):
     def __init__(self, db, col_id, parent=None):
         self.db, self.col_id = db, col_id
         self.col_metadata = db.custom_column_num_map[col_id]
-        self.initial_val = None
+        self.initial_val = self.widgets = None
         self.setup_ui(parent)
 
     def initialize(self, book_id):
@@ -53,6 +53,9 @@ class Base(object):
 
     def normalize_ui_val(self, val):
         return val
+
+    def break_cycles(self):
+        self.db = self.widgets = self.initial_val = None
 
 class Bool(Base):
 

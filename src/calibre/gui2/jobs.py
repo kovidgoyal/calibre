@@ -432,6 +432,10 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             self.jobs_view.horizontalHeader().restoreState(QByteArray(state))
         except:
             pass
+        idx = self.jobs_view.model().index(0, 0)
+        if idx.isValid():
+            sm = self.jobs_view.selectionModel()
+            sm.select(idx, sm.ClearAndSelect|sm.Rows)
 
     def save_state(self):
         try:

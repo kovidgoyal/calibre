@@ -24,6 +24,8 @@ class PreferencesAction(InterfaceAction):
             pm.addAction(QIcon(I('config.png')), _('Change calibre behavior'), self.do_config)
         pm.addAction(QIcon(I('wizard.png')), _('Run welcome wizard'),
                 self.gui.run_wizard)
+        pm.addAction(QIcon(I('plugins/plugin_updater.png')),
+                _('Get plugins to enhance calibre'), self.get_plugins)
         if not DEBUG:
             pm.addSeparator()
             ac = pm.addAction(QIcon(I('debug.png')), _('Restart in debug mode'),
@@ -36,6 +38,12 @@ class PreferencesAction(InterfaceAction):
         for x in (self.gui.preferences_action, self.qaction):
             x.triggered.connect(self.do_config)
 
+    def get_plugins(self):
+        from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
+                FILTER_NOT_INSTALLED)
+        d = PluginUpdaterDialog(self.gui,
+                initial_filter=FILTER_NOT_INSTALLED)
+        d.exec_()
 
     def do_config(self, checked=False, initial_plugin=None,
             close_after_initial=False):

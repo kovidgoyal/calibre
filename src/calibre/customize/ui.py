@@ -493,6 +493,8 @@ def initialize_plugin(plugin, path_to_zip_file):
         raise InvalidPlugin((_('Initialization of plugin %s failed with traceback:')
                             %tb) + '\n'+tb)
 
+def has_external_plugins():
+    return bool(config['plugins'])
 
 def initialize_plugins():
     global _initialized_plugins

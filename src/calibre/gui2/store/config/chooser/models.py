@@ -133,7 +133,7 @@ class Matches(QAbstractItemModel):
                 return QVariant('<p>%s</p>' % result.description)
             elif col == 2:
                 if result.drm_free_only:
-                    return QVariant('<p>' + _('This store only distributes ebooks with DRM.') + '</p>')
+                    return QVariant('<p>' + _('This store only distributes ebooks without DRM.') + '</p>')
                 else:
                     return QVariant('<p>' + _('This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')
             elif col == 3:

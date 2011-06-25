@@ -149,7 +149,8 @@ class TagsView(QTreeView): # {{{
                                 hidden_categories=self.hidden_categories,
                                 search_restriction=None,
                                 drag_drop_finished=self.drag_drop_finished,
-                                collapse_model=self.collapse_model)
+                                collapse_model=self.collapse_model,
+                                state_map={})
         self.pane_is_visible = True # because TagsModel.init did a recount
         self.sort_by = sort_by
         self.tag_match = tag_match
@@ -173,6 +174,7 @@ class TagsView(QTreeView): # {{{
             self.made_connections = True
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
+        self.expanded.connect(self.item_expanded)
 
     def database_changed(self, event, ids):
         if self.refresh_signal_processed:
@@ -541,6 +543,10 @@ class TagsView(QTreeView): # {{{
         return self.isExpanded(idx)
 
     def recount(self, *args):
+        '''
+        Rebuild the category tree, expand any categories that were expanded,
+        reset the search states, and reselect the current node.
+        '''
         if self.disable_recounting or not self.pane_is_visible:
             return
         self.refresh_signal_processed = True
@@ -548,18 +554,23 @@ class TagsView(QTreeView): # {{{
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
         path = self.model().path_for_index(ci) if self.is_visible(ci) else None
-        try:
-            if not self.model().refresh(): # categories changed!
-                self.set_new_model()
-                path = None
-        except: #Database connection could be closed if an integrity check is happening
-            pass
+        expanded_categories, state_map = self.model().get_state()
+        self.set_new_model(state_map=state_map)
+        for category in expanded_categories:
+            self.expand(self.model().index_for_category(category))
         self._model.show_item_at_path(path)
 
-    # If the number of user categories changed,  if custom columns have come or
-    # gone, or if columns have been hidden or restored, we must rebuild the
-    # model. Reason: it is much easier than reconstructing the browser tree.
-    def set_new_model(self, filter_categories_by=None):
+    def item_expanded(self, idx):
+        '''
+        Called by the expanded signal
+        '''
+        self.setCurrentIndex(idx)
+
+    def set_new_model(self, filter_categories_by=None, state_map={}):
+        '''
+        There are cases where we need to rebuild the category tree without
+        attempting to reposition the current node.
+        '''
         try:
             old = getattr(self, '_model', None)
             if old is not None:
@@ -569,7 +580,8 @@ class TagsView(QTreeView): # {{{
                                     search_restriction=self.search_restriction,
                                     drag_drop_finished=self.drag_drop_finished,
                                     filter_categories_by=filter_categories_by,
-                                    collapse_model=self.collapse_model)
+                                    collapse_model=self.collapse_model,
+                                    state_map=state_map)
             self.setModel(self._model)
         except:
             # The DB must be gone. Set the model to None and hope that someone
@@ -627,7 +639,8 @@ class TagTreeItem(object): # {{{
             except:
                 pass
         self.parent = self.icon_state_map = self.bold_font = self.tag = \
-                self.icon = self.children = None
+                      self.icon = self.children = self.tooltip = \
+                      self.py_name = self.id_set = self.category_key = None
 
     def __str__(self):
         if self.type == self.ROOT:
@@ -727,6 +740,15 @@ class TagTreeItem(object): # {{{
         else:
             self.tag.state = set_to
 
+    def all_children(self):
+        res = []
+        def recurse(nodes, res):
+            for t in nodes:
+                res.append(t)
+                recurse(t.children, res)
+        recurse(self.children, res)
+        return res
+
     def child_tags(self):
         res = []
         def recurse(nodes, res):
@@ -742,7 +764,8 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def __init__(self, db, parent, hidden_categories=None,
             search_restriction=None, drag_drop_finished=None,
-            filter_categories_by=None, collapse_model='disable'):
+            filter_categories_by=None, collapse_model='disable',
+            state_map={}):
         QAbstractItemModel.__init__(self, parent)
 
         # must do this here because 'QPixmap: Must construct a QApplication
@@ -766,10 +789,10 @@ class TagsModel(QAbstractItemModel): # {{{
         self.filter_categories_by = filter_categories_by
         self.collapse_model = collapse_model
 
-        # get_node_tree cannot return None here, because row_map is empty. Note
-        # that get_node_tree can indirectly change the user_categories dict.
+        # Note that _get_category_nodes can indirectly change the
+        # user_categories dict.
 
-        data = self.get_node_tree(config['sort_tags_by'])
+        data = self._get_category_nodes(config['sort_tags_by'])
         gst = db.prefs.get('grouped_search_terms', {})
         self.root_item = TagTreeItem(icon_map=self.icon_state_map)
         self.category_nodes = []
@@ -834,7 +857,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 category_node_map[key] = node
                 last_category_node = node
                 self.category_nodes.append(node)
-        self.refresh(data=data)
+        self._create_node_tree(data, state_map)
 
     def break_cycles(self):
         self.root_item.break_cycles()
@@ -1111,8 +1134,10 @@ class TagsModel(QAbstractItemModel): # {{{
     def set_search_restriction(self, s):
         self.search_restriction = s
 
-    def get_node_tree(self, sort):
-        old_row_map = self.row_map[:]
+    def _get_category_nodes(self, sort):
+        '''
+        Called by __init__. Do not directly call this method.
+        '''
         self.row_map = []
         self.categories = {}
 
@@ -1166,19 +1191,27 @@ class TagsModel(QAbstractItemModel): # {{{
             if category in data: # The search category can come and go
                 self.row_map.append(category)
                 self.categories[category] = tb_categories[category]['name']
-
-        if len(old_row_map) != 0 and len(old_row_map) != len(self.row_map):
-            # A category has been added or removed. We must force a rebuild of
-            # the model
-            return None
         return data
 
     def refresh(self, data=None):
+        '''
+        Here to trap usages of refresh in the old architecture. Can eventually
+        be removed.
+        '''
+        print 'TagsModel: refresh called!'
+        traceback.print_stack()
+        return False
+
+    def _create_node_tree(self, data, state_map):
+        '''
+        Called by __init__. Do not directly call this method.
+        '''
         sort_by = config['sort_tags_by']
+
         if data is None:
-            data = self.get_node_tree(sort_by) # get category data
-        if data is None:
-            return False
+            print '_create_node_tree: no data!'
+            traceback.print_stack()
+            return
 
         collapse = gprefs['tags_browser_collapse_at']
         collapse_model = self.collapse_model
@@ -1269,6 +1302,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
+                            sub_cat.tag.is_searchable = False
                             self.endInsertRows()
                     else: # by 'first letter'
                         cl = cl_list[idx]
@@ -1343,26 +1377,23 @@ class TagsModel(QAbstractItemModel): # {{{
         # }}}
 
         for category in self.category_nodes:
-            if len(category.children) > 0:
-                child_map = category.children
-                states = [c.tag.state for c in category.child_tags()]
-                names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
-                state_map = dict(izip(names, states))
-                # temporary sub-categories (the partitioning ones) must follow
-                # the permanent sub-categories. This will happen naturally if
-                # the temp ones are added by process_node
-                ctags = [c for c in child_map if
-                         c.type == TagTreeItem.CATEGORY and not c.temporary]
-                start = len(ctags)
-                self.beginRemoveRows(self.createIndex(category.row(), 0, category),
-                                     start, len(child_map)-1)
-                category.children = ctags
-                self.endRemoveRows()
-            else:
-                state_map = {}
+            process_one_node(category, state_map.get(category.py_name, {}))
 
-            process_one_node(category, state_map)
-        return True
+    def get_state(self):
+        state_map = {}
+        expanded_categories = []
+        for row, category in enumerate(self.category_nodes):
+            if self.tags_view.isExpanded(self.index(row, 0, QModelIndex())):
+                expanded_categories.append(category.py_name)
+            states = [c.tag.state for c in category.child_tags()]
+            names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
+            state_map[category.py_name] = dict(izip(names, states))
+        return expanded_categories, state_map
+
+    def index_for_category(self, name):
+        for row, category in enumerate(self.category_nodes):
+            if category.py_name == name:
+                return self.index(row, 0, QModelIndex())
 
     def columnCount(self, parent):
         return 1
@@ -1462,7 +1493,7 @@ class TagsModel(QAbstractItemModel): # {{{
             self.tags_view.tag_item_renamed.emit()
             item.tag.name = val
             self.rename_item_in_all_user_categories(name, key, val)
-            self.refresh() # Should work, because no categories can have disappeared
+            self.refresh_required.emit()
         self.show_item_at_path(path)
         return True
 
@@ -1644,14 +1675,23 @@ class TagsModel(QAbstractItemModel): # {{{
             if node.tag.state:
                 if node.category_key == "news":
                     if node_searches[node.tag.state] == 'true':
-                        ans.append('tags:=news')
+                        ans.append('tags:"=' + _('News') + '"')
                     else:
-                        ans.append('( not tags:=news )')
+                        ans.append('( not tags:"=' + _('News') + '")')
                 else:
                     ans.append('%s:%s'%(node.category_key, node_searches[node.tag.state]))
 
             key = node.category_key
-            for tag_item in node.child_tags():
+            for tag_item in node.all_children():
+                if tag_item.type == TagTreeItem.CATEGORY:
+                    if self.collapse_model == 'first letter' and \
+                            tag_item.temporary and not key.startswith('@') \
+                            and tag_item.tag.state:
+                        if node_searches[tag_item.tag.state] == 'true':
+                            ans.append('%s:~^%s'%(key, tag_item.py_name))
+                        else:
+                            ans.append('(not %s:~^%s )'%(key, tag_item.py_name))
+                    continue
                 tag = tag_item.tag
                 if tag.state != TAG_SEARCH_STATES['clear']:
                     if tag.state == TAG_SEARCH_STATES['mark_minus'] or \
@@ -1766,19 +1806,22 @@ class TagsModel(QAbstractItemModel): # {{{
                         return v
         return None
 
-    def show_item_at_path(self, path, box=False):
+    def show_item_at_path(self, path, box=False,
+                          position=QTreeView.PositionAtCenter):
         '''
         Scroll the browser and open categories to show the item referenced by
         path. If possible, the item is placed in the center. If box=True, a
         box is drawn around the item.
         '''
         if path:
-            self.show_item_at_index(self.index_for_path(path), box)
+            self.show_item_at_index(self.index_for_path(path), box=box,
+                                    position=position)
 
-    def show_item_at_index(self, idx, box=False):
+    def show_item_at_index(self, idx, box=False,
+                           position=QTreeView.PositionAtCenter):
         if idx.isValid():
             self.tags_view.setCurrentIndex(idx)
-            self.tags_view.scrollTo(idx, QTreeView.PositionAtCenter)
+            self.tags_view.scrollTo(idx, position)
             if box:
                 tag_item = idx.internalPointer()
                 tag_item.boxed = True

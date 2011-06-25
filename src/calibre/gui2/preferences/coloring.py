@@ -22,11 +22,7 @@ from calibre.library.coloring import (Rule, conditionable_columns,
 
 class ConditionEditor(QWidget): # {{{
 
-    def __init__(self, fm, parent=None):
-        QWidget.__init__(self, parent)
-        self.fm = fm
-
-        self.action_map = {
+    ACTION_MAP = {
             'bool' : (
                     (_('is true'), 'is true',),
                     (_('is false'), 'is false'),
@@ -61,27 +57,42 @@ class ConditionEditor(QWidget): # {{{
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set'),
             ),
-        }
+    }
 
-        for x in ('float', 'rating', 'datetime'):
-            self.action_map[x] = self.action_map['int']
+    for x in ('float', 'rating', 'datetime'):
+        ACTION_MAP[x] = ACTION_MAP['int']
+
+
+    def __init__(self, fm, parent=None):
+        QWidget.__init__(self, parent)
+        self.fm = fm
+
+        self.action_map = self.ACTION_MAP
 
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
-        self.l1 = l1 = QLabel(_('If the '))
+        texts = _('If the ___ column ___ values')
+        try:
+            one, two, three = texts.split('___')
+        except:
+            one, two, three = 'If the ', ' column ', ' value '
+
+        self.l1 = l1 = QLabel(one)
         l.addWidget(l1, 0, 0)
 
         self.column_box = QComboBox(self)
         l.addWidget(self.column_box, 0, 1)
 
-        self.l2 = l2 = QLabel(_(' column '))
+
+
+        self.l2 = l2 = QLabel(two)
         l.addWidget(l2, 0, 2)
 
         self.action_box = QComboBox(self)
         l.addWidget(self.action_box, 0, 3)
 
-        self.l3 = l3 = QLabel(_(' value '))
+        self.l3 = l3 = QLabel(three)
         l.addWidget(l3, 0, 4)
 
         self.value_box = QLineEdit(self)
@@ -446,9 +457,15 @@ class RulesModel(QAbstractListModel): # {{{
 
     def condition_to_html(self, condition):
         c, a, v = condition
+        action_name = a
+        for actions in ConditionEditor.ACTION_MAP.itervalues():
+            for trans, ac in actions:
+                if ac == a:
+                    action_name = trans
+
         return (
             _('<li>If the <b>%s</b> column <b>%s</b> value: <b>%s</b>') %
-                (c, a, prepare_string_for_xml(v)))
+                (c, action_name, prepare_string_for_xml(v)))
 
 # }}}
 

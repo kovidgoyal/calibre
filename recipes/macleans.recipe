@@ -1,239 +1,28 @@
 #!/usr/bin/env  python
+from calibre.web.feeds.news import BasicNewsRecipe
 
-__license__   = 'GPL v3'
-
-'''
-macleans.ca
-'''
-from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
-from datetime import timedelta, date
-
-class Macleans(BasicNewsRecipe):
+class AdvancedUserRecipe1308306308(BasicNewsRecipe):
     title          = u'Macleans Magazine'
-    __author__     = 'Nick Redding'
     language = 'en_CA'
-    description = ('Macleans Magazine')
+    __author__ = 'sexymax15'
+    oldest_article = 30
+    max_articles_per_feed = 12
 
+    use_embedded_content = False
+
+    remove_empty_feeds = True
     no_stylesheets = True
-    timefmt = ' [%b %d]'
+    remove_javascript = True
+    remove_tags = [dict(name ='img'),dict (id='header'),{'class':'postmetadata'}]
+    remove_tags_after = {'class':'postmetadata'}
 
-    # customization notes: delete sections you are not interested in
-    # set oldest_article to the maximum number of days back from today to include articles
-    sectionlist = [
-                        ['http://www2.macleans.ca/','Front Page'],
-                        ['http://www2.macleans.ca/category/canada/','Canada'],
-                        ['http://www2.macleans.ca/category/world-from-the-magazine/','World'],
-                        ['http://www2.macleans.ca/category/business','Business'],
-                        ['http://www2.macleans.ca/category/arts-culture/','Culture'],
-                        ['http://www2.macleans.ca/category/opinion','Opinion'],
-                        ['http://www2.macleans.ca/category/health-from-the-magazine/','Health'],
-                        ['http://www2.macleans.ca/category/environment-from-the-magazine/','Environment'],
-                        ['http://www2.macleans.ca/category/education/','On Campus'],
-                        ['http://www2.macleans.ca/category/travel-from-the-magazine/','Travel']
-                    ]
-    oldest_article = 7
-
-    # formatting for print version of articles
-    extra_css   =   '''h2{font-family:Times,serif; font-size:large;}
-                        small {font-family:Times,serif; font-size:xx-small; list-style-type: none;}
-                    '''
-
-    # tag handling for print version of articles
-    keep_only_tags = [dict(id='tw-print')]
-    remove_tags =   [dict({'class':'postmetadata'})]
-
-
-    def preprocess_html(self,soup):
-        for img_tag in soup.findAll('img'):
-            parent_tag = img_tag.parent
-            if parent_tag.name == 'a':
-                new_tag = Tag(soup,'p')
-                new_tag.insert(0,img_tag)
-                parent_tag.replaceWith(new_tag)
-            elif parent_tag.name == 'p':
-                if not self.tag_to_string(parent_tag) == '':
-                    new_div = Tag(soup,'div')
-                    new_tag = Tag(soup,'p')
-                    new_tag.insert(0,img_tag)
-                    parent_tag.replaceWith(new_div)
-                    new_div.insert(0,new_tag)
-                    new_div.insert(1,parent_tag)
-        return soup
-
-    def parse_index(self):
-
-
-
-        articles = {}
-        key = None
-        ans = []
-
-        def parse_index_page(page_url,page_title):
-
-            def decode_date(datestr):
-                dmysplit = datestr.strip().lower().split(',')
-                mdsplit = dmysplit[1].split()
-                m = ['january','february','march','april','may','june','july','august','september','october','november','december'].index(mdsplit[0])+1
-                d = int(mdsplit[1])
-                y = int(dmysplit[2].split()[0])
-                return date(y,m,d)
-
-            def article_title(tag):
-                atag = tag.find('a',href=True)
-                if not atag:
-                    return ''
-                return self.tag_to_string(atag)
-
-            def article_url(tag):
-                atag = tag.find('a',href=True)
-                if not atag:
-                    return ''
-                return atag['href']+'print/'
-
-            def article_description(tag):
-                for p_tag in tag.findAll('p'):
-                    d = self.tag_to_string(p_tag,False)
-                    if not d == '':
-                        return d
-                return ''
-
-            def compound_h4_h3_title(tag):
-                if tag.h4:
-                    if tag.h3:
-                        return self.tag_to_string(tag.h4,False)+u'\u2014'+self.tag_to_string(tag.h3,False)
-                    else:
-                        return self.tag_to_string(tag.h4,False)
-                elif tag.h3:
-                    return self.tag_to_string(tag.h3,False)
-                else:
-                    return ''
-
-            def compound_h2_h4_title(tag):
-                if tag.h2:
-                    if tag.h4:
-                        return self.tag_to_string(tag.h2,False)+u'\u2014'+self.tag_to_string(tag.h4,False)
-                    else:
-                        return self.tag_to_string(tag.h2,False)
-                elif tag.h4:
-                    return self.tag_to_string(tag.h4,False)
-                else:
-                    return ''
-
-
-            def handle_article(header_tag, outer_tag):
-                if header_tag:
-                    url = article_url(header_tag)
-                    title = article_title(header_tag)
-                    author_date_tag = outer_tag.h4
-                    if author_date_tag:
-                        author_date = self.tag_to_string(author_date_tag,False).split(' - ')
-                        author = author_date[0].strip()
-                        article_date = decode_date(author_date[1])
-                        earliest_date = date.today() - timedelta(days=self.oldest_article)
-                        if article_date < earliest_date:
-                            self.log("Skipping article dated %s" % author_date[1])
-                        else:
-                            excerpt_div = outer_tag.find('div','excerpt')
-                            if excerpt_div:
-                                description = article_description(excerpt_div)
-                            else:
-                                description = ''
-                            if not articles.has_key(page_title):
-                                articles[page_title] = []
-                            articles[page_title].append(dict(title=title,url=url,date=author_date[1],description=description,author=author,content=''))
-
-            def handle_category_article(cat, header_tag, outer_tag):
-                url = article_url(header_tag)
-                title = article_title(header_tag)
-                if not title == '':
-                    title = cat+u'\u2014'+title
-                a_tag = outer_tag.find('span','authorLink')
-                if a_tag:
-                    author = self.tag_to_string(a_tag,False)
-                    a_tag.parent.extract()
-                else:
-                    author = ''
-                description = article_description(outer_tag)
-                if not articles.has_key(page_title):
-                    articles[page_title] = []
-                articles[page_title].append(dict(title=title,url=url,date='',description=description,author=author,content=''))
-
-
-            soup = self.index_to_soup(page_url)
-
-            if page_title == 'Front Page':
-                # special processing for the front page
-                top_stories = soup.find('div',{ "id" : "macleansFeatured" })
-                if top_stories:
-                    for div_slide in top_stories.findAll('div','slide'):
-                        url = article_url(div_slide)
-                        div_title = div_slide.find('div','header')
-                        if div_title:
-                            title = self.tag_to_string(div_title,False)
-                        else:
-                            title = ''
-                        description = article_description(div_slide)
-                        if not articles.has_key(page_title):
-                             articles[page_title] = []
-                        articles[page_title].append(dict(title=title,url=url,date='',description=description,author='',content=''))
-
-                from_macleans = soup.find('div',{ "id" : "fromMacleans" })
-                if from_macleans:
-                    for li_tag in from_macleans.findAll('li','fromMacleansArticle'):
-                        title = compound_h4_h3_title(li_tag)
-                        url = article_url(li_tag)
-                        description = article_description(li_tag)
-                        if not articles.has_key(page_title):
-                            articles[page_title] = []
-                        articles[page_title].append(dict(title=title,url=url,date='',description=description,author='',content=''))
-
-                blog_central = soup.find('div',{ "id" : "bloglist" })
-                if blog_central:
-                    for li_tag in blog_central.findAll('li'):
-                        title = compound_h2_h4_title(li_tag)
-                        if li_tag.h4:
-                            url = article_url(li_tag.h4)
-                            if not articles.has_key(page_title):
-                                articles[page_title] = []
-                            articles[page_title].append(dict(title=title,url=url,date='',description='',author='',content=''))
-
-#                need_to_know = soup.find('div',{ "id" : "needToKnow" })
-#                if need_to_know:
-#                    for div_tag in need_to_know('div',attrs={'class' : re.compile("^needToKnowArticle")}):
-#                        title = compound_h4_h3_title(div_tag)
-#                        url = article_url(div_tag)
-#                        description = article_description(div_tag)
-#                        if not articles.has_key(page_title):
-#                            articles[page_title] = []
-#                        articles[page_title].append(dict(title=title,url=url,date='',description=description,author='',content=''))
-
-                for news_category in soup.findAll('div','newsCategory'):
-                    news_cat = self.tag_to_string(news_category.h4,False)
-                    handle_category_article(news_cat, news_category.find('h2'), news_category.find('div'))
-                    for news_item in news_category.findAll('li'):
-                        handle_category_article(news_cat,news_item.h3,news_item)
-
-                return
-
-            # find the div containing the highlight article
-            div_post = soup.find('div','post')
-            if div_post:
-                h1_tag = div_post.h1
-                handle_article(h1_tag,div_post)
-
-            # find the divs containing the rest of the articles
-            div_other = div_post.find('div', { "id" : "categoryOtherPosts" })
-            if div_other:
-                for div_entry in div_other.findAll('div','entry'):
-                    h2_tag = div_entry.h2
-                    handle_article(h2_tag,div_entry)
-
-
-
-        for page_name,page_title in self.sectionlist:
-            parse_index_page(page_name,page_title)
-            ans.append(page_title)
-
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
-        return ans
+    feeds          = [(u'Blog Central', u'http://www2.macleans.ca/category/blog-central/feed/'),
+ (u'Canada', u'http://www2.macleans.ca/category/canada/feed/'),
+(u'World', u'http://www2.macleans.ca/category/world-from-the-magazine/feed/'),
+(u'Business', u'http://www2.macleans.ca/category/business/feed/'),
+(u'Arts & Culture', u'http://www2.macleans.ca/category/arts-culture/feed/'),
+(u'Opinion', u'http://www2.macleans.ca/category/opinion/feed/'),
+(u'Health', u'http://www2.macleans.ca/category/health-from-the-magazine/feed/'),
+ (u'Environment', u'http://www2.macleans.ca/category/environment-from-the-magazine/feed/')]
+    def print_version(self, url):
+        return url + 'print/'

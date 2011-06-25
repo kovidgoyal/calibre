@@ -35,29 +35,11 @@ What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In order of decreasing preference: LIT, MOBI, EPUB, FB2, HTML, PRC, RTF, PDB, TXT, PDF
 
-Why does the PDF conversion lose some images/tables?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The PDF conversion tries to extract the text and images from the PDF file and convert them to and HTML based ebook. Some PDF files have images in a format that cannot be extracted (vector images). All tables
-are also represented as vector diagrams, thus they cannot be extracted.
+I converted a PDF file, but the result has various problems?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-How do I convert a collection of HTML files in a specific order?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
+PDF is a terrible format to convert from. For a list of the various issues you will encounter when converting PDF, see: :ref:`pdfconversion`.
 
-   <html>
-      <body>
-        <h1>Table of Contents</h1>
-        <p style="text-indent:0pt">
-           <a href="file1.html">First File</a><br/>
-           <a href="file2.html">Second File</a><br/>
-           .
-           .
-           .
-        </p>
-      </body>
-   </html>
-
-Then just add this HTML file to the GUI and use the convert button to create your ebook.
 
 .. _char-encoding-faq:
 
@@ -84,6 +66,26 @@ When converting to MOBI, calibre detects the *metadata TOC* in the input documen
 If you have a hand edited TOC in the input document, you can use the TOC detection options in calibre to automatically generate the metadata TOC from it. See the conversion section of the User Manual for more details on how to use these options.
 
 Finally, I encourage you to ditch the content TOC and only have a metadata TOC in your ebooks. Metadata TOCs will give the people reading your ebooks a much superior navigation experience (except on the Kindle, where they are essentially the same as a content TOC).
+
+How do I convert a collection of HTML files in a specific order?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
+
+   <html>
+      <body>
+        <h1>Table of Contents</h1>
+        <p style="text-indent:0pt">
+           <a href="file1.html">First File</a><br/>
+           <a href="file2.html">Second File</a><br/>
+           .
+           .
+           .
+        </p>
+      </body>
+   </html>
+
+Then just add this HTML file to the GUI and use the convert button to create your ebook.
+
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,7 +133,7 @@ Follow these steps to find the problem:
     * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
     * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
     * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
-    * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is.
+    * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk, that you can access using Windows explorer or whatever the file management program on your computer is. On Windows your device **must have been assigned a drive letter**, like K:.
     * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
     * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
@@ -515,7 +517,7 @@ Downloading from the internet can sometimes result in a corrupted download. If t
     * Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_.
     * Try downloading the installer with an alternate browser. For example if you are using Internet Explorer, try using Firefox or Chrome instead.
       
-Best place to ask for more help is in the `forums <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
+If you still cannot get the installer to work and you are on windows, you can use the `calibre portable install <http://calibre-ebook.com/download_portable>`_, which does not need an installer (it is just a zip file).
 
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

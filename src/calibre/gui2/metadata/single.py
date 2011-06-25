@@ -388,6 +388,10 @@ class MetadataSingleDialogBase(ResizableDialog):
 
     def apply_changes(self):
         self.changed.add(self.book_id)
+        if self.db is None:
+            # break_cycles has already been called, don't know why this should
+            # happen but a user reported it
+            return True
         for widget in self.basic_metadata_widgets:
             try:
                 if not widget.commit(self.db, self.book_id):
@@ -477,6 +481,13 @@ class MetadataSingleDialogBase(ResizableDialog):
             x = getattr(self, b, None)
             if x is not None:
                 disconnect(x.clicked)
+        for widget in self.basic_metadata_widgets:
+            bc = getattr(widget, 'break_cycles', None)
+            if bc is not None and callable(bc):
+                bc()
+        for widget in getattr(self, 'custom_metadata_widgets', []):
+            widget.break_cycles()
+
     # }}}
 
 class Splitter(QSplitter):

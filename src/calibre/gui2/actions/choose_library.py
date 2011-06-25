@@ -252,11 +252,12 @@ class ChooseLibraryAction(InterfaceAction):
 
     def delete_requested(self, name, location):
         loc = location.replace('/', os.sep)
-        if not question_dialog(self.gui, _('Are you sure?'), '<p>'+
+        if not question_dialog(self.gui, _('Are you sure?'),
+                _('<h1 style="color:red">WARNING</h1>')+
                 _('<b style="color: red">All files</b> (not just ebooks) '
                     'from <br><br><b>%s</b><br><br> will be '
                 '<b>permanently deleted</b>. Are you sure?') % loc,
-                show_copy_button=False):
+                show_copy_button=False, default_yes=False):
             return
         exists = self.gui.library_view.model().db.exists_at(loc)
         if exists:
@@ -287,6 +288,18 @@ class ChooseLibraryAction(InterfaceAction):
               'rate of approximately 1 book every three seconds.'), show=True)
 
     def restore_database(self):
+        m = self.gui.library_view.model()
+        db = m.db
+        if (iswindows and len(db.library_path) >
+                LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+            return error_dialog(self.gui, _('Too long'),
+                    _('Path to library too long. Must be less than'
+                    ' %d characters. Move your library to a location with'
+                    ' a shorter path using Windows Explorer, then point'
+                    ' calibre to the new location and try again.')%
+                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    show=True)
+
         from calibre.gui2.dialogs.restore_library import restore_database
         m = self.gui.library_view.model()
         m.stop_metadata_backup()

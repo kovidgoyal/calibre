@@ -5,7 +5,7 @@ __copyright__ = '2010, Gregory Riker'
 __docformat__ = 'restructuredtext en'
 
 
-import cStringIO, ctypes, datetime, os, re, shutil, subprocess, sys, tempfile, time
+import cStringIO, ctypes, datetime, os, re, sys, tempfile, time
 from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image, confirm_config_name
 from calibre.constants import isosx, iswindows
@@ -13,8 +13,7 @@ from calibre.devices.errors import OpenFeedback, UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre.ebooks.metadata import authors_to_string, MetaInformation, \
-    title_sort
+from calibre.ebooks.metadata import authors_to_string, MetaInformation, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.epub import set_metadata
 from calibre.library.server.utils import strftime
@@ -107,6 +106,7 @@ class DriverBase(DeviceConfig, DevicePlugin):
     # Needed for config_widget to work
     FORMATS = ['epub', 'pdf']
     USER_CAN_ADD_NEW_FORMATS = False
+    KEEP_TEMP_FILES_AFTER_UPLOAD = True
 
     # Hide the standard customization widgets
     SUPPORTS_SUB_DIRS = False
@@ -135,7 +135,8 @@ class ITUNES(DriverBase):
     '''
     Calling sequences:
     Initialization:
-        can_handle() or can_handle_windows()
+        can_handle() | can_handle_windows()
+         _launch_iTunes()
         reset()
         open()
         card_prefix()
@@ -163,8 +164,12 @@ class ITUNES(DriverBase):
         settings()
         set_progress_reporter()
         upload_books()
-         _get_fpath()
-          _update_epub_metadata()
+         _remove_existing_copy()
+          _remove_from_device()
+          _remove_from_iTunes()
+         _add_new_copy()
+          _add_library_book()
+         _update_iTunes_metadata()
         add_books_to_metadata()
         use_plugboard_ext()
         set_plugboard()
@@ -181,7 +186,7 @@ class ITUNES(DriverBase):
     supported_platforms = ['osx','windows']
     author = 'GRiker'
     #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (1,0,0)
+    version        = (1,1,0)
 
     DISPLAY_DISABLE_DIALOG = "display_disable_apple_driver_dialog"
 
@@ -276,7 +281,6 @@ class ITUNES(DriverBase):
     description_prefix = "added by calibre"
     ejected = False
     iTunes= None
-    iTunes_media = None
     library_orphans = None
     log = Log()
     manual_sync_mode = False
@@ -412,11 +416,11 @@ class ITUNES(DriverBase):
                             this_book.datetime = parse_date(str(book.date_added())).timetuple()
                         except:
                             this_book.datetime = time.gmtime()
-                        this_book.db_id = None
                         this_book.device_collections = []
                         this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
                         this_book.size = book.size()
                         this_book.uuid = book.composer()
+                        this_book.cid = None
                         # Hack to discover if we're running in GUI environment
                         if self.report_progress is not None:
                             this_book.thumbnail = self._generate_thumbnail(this_book.path, book)
@@ -451,10 +455,10 @@ class ITUNES(DriverBase):
                                 this_book.datetime = parse_date(str(book.DateAdded)).timetuple()
                             except:
                                 this_book.datetime = time.gmtime()
-                            this_book.db_id = None
                             this_book.device_collections = []
                             this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
                             this_book.size = book.Size
+                            this_book.cid = None
                             # Hack to discover if we're running in GUI environment
                             if self.report_progress is not None:
                                 this_book.thumbnail = self._generate_thumbnail(this_book.path, book)
@@ -490,7 +494,7 @@ class ITUNES(DriverBase):
 
     def can_handle(self, device_info, debug=False):
         '''
-        Unix version of :method:`can_handle_windows`
+        OSX version of :method:`can_handle_windows`
 
         :param device_info: Is a tupe of (vid, pid, bcd, manufacturer, product,
         serial number)
@@ -1020,17 +1024,14 @@ class ITUNES(DriverBase):
 
         if DEBUG:
             self.log.info("ITUNES.upload_books()")
-            self._dump_files(files, header='upload_books()',indent=2)
-            self._dump_update_list(header='upload_books()',indent=2)
 
         if isosx:
-            for (i,file) in enumerate(files):
-                format = file.rpartition('.')[2].lower()
+            for (i,fpath) in enumerate(files):
+                format = fpath.rpartition('.')[2].lower()
                 path = self.path_template % (metadata[i].title,
                                              authors_to_string(metadata[i].authors),
                                              format)
                 self._remove_existing_copy(path, metadata[i])
-                fpath = self._get_fpath(file, metadata[i], format, update_md=True)
                 db_added, lb_added = self._add_new_copy(fpath, metadata[i])
                 thumb = self._cover_to_thumb(path, metadata[i], db_added, lb_added, format)
                 this_book = self._create_new_book(fpath, metadata[i], path, db_added, lb_added, thumb, format)
@@ -1061,13 +1062,12 @@ class ITUNES(DriverBase):
                 pythoncom.CoInitialize()
                 self.iTunes = win32com.client.Dispatch("iTunes.Application")
 
-                for (i,file) in enumerate(files):
-                    format = file.rpartition('.')[2].lower()
+                for (i,fpath) in enumerate(files):
+                    format = fpath.rpartition('.')[2].lower()
                     path = self.path_template % (metadata[i].title,
                                                  authors_to_string(metadata[i].authors),
                                                  format)
                     self._remove_existing_copy(path, metadata[i])
-                    fpath = self._get_fpath(file, metadata[i],format, update_md=True)
                     db_added, lb_added = self._add_new_copy(fpath, metadata[i])
 
                     if self.manual_sync_mode and not db_added:
@@ -1211,7 +1211,8 @@ class ITUNES(DriverBase):
         '''
         windows assumes pythoncom wrapper
         '''
-        self.log.info(" ITUNES._add_library_book()")
+        if DEBUG:
+            self.log.info(" ITUNES._add_library_book()")
         if isosx:
             added = self.iTunes.add(appscript.mactypes.File(file))
 
@@ -1274,24 +1275,59 @@ class ITUNES(DriverBase):
 
     def _add_new_copy(self, fpath, metadata):
         '''
+        fp = cached_book['lib_book'].location().path
+        fp = cached_book['lib_book'].Location
         '''
         if DEBUG:
             self.log.info(" ITUNES._add_new_copy()")
+
+        def _save_last_known_iTunes_storage(lb_added):
+            if isosx:
+                fp = lb_added.location().path
+                index = fp.rfind('/Books') + len('/Books')
+                last_known_iTunes_storage = fp[:index]
+            elif iswindows:
+                fp = lb_added.Location
+                index = fp.rfind('\Books') + len('\Books')
+                last_known_iTunes_storage = fp[:index]
+            dynamic['last_known_iTunes_storage'] = last_known_iTunes_storage
+            self.log.warning("  last_known_iTunes_storage: %s" % last_known_iTunes_storage)
 
         db_added = None
         lb_added = None
 
         if self.manual_sync_mode:
+            '''
+            This is the unsupported direct-connect mode.
+            In an attempt to avoid resetting the iTunes library Media folder, don't try to
+            add the book to iTunes if the last_known_iTunes_storage path is inaccessible.
+            This means that the path has to be set at least once, probably by using
+            'Connect to iTunes' and doing a transfer.
+            '''
+            self.log.warning("  unsupported direct connect mode")
             db_added = self._add_device_book(fpath, metadata)
-            if not getattr(fpath, 'deleted_after_upload', False):
-                lb_added = self._add_library_book(fpath, metadata)
-                if lb_added:
+            last_known_iTunes_storage = dynamic.get('last_known_iTunes_storage', None)
+            if last_known_iTunes_storage is not None:
+                if os.path.exists(last_known_iTunes_storage):
                     if DEBUG:
-                        self.log.info("  file added to Library|Books for iTunes<->iBooks tracking")
+                        self.log.warning("  iTunes storage online, adding to library")
+                    lb_added = self._add_library_book(fpath, metadata)
+                else:
+                    if DEBUG:
+                        self.log.warning("  iTunes storage not online, can't add to library")
+
+            if lb_added:
+                _save_last_known_iTunes_storage(lb_added)
+            if not lb_added and DEBUG:
+                self.log.warn("  failed to add '%s' to iTunes, iTunes Media folder inaccessible" % metadata.title)
         else:
             lb_added = self._add_library_book(fpath, metadata)
-            if DEBUG:
-                self.log.info("  file added to Library|Books for pending sync")
+            if lb_added:
+                _save_last_known_iTunes_storage(lb_added)
+            else:
+                raise UserFeedback("iTunes Media folder inaccessible",
+                                   details="Failed to add '%s' to iTunes" % metadata.title,
+                                   level=UserFeedback.WARN)
 
         return db_added, lb_added
 
@@ -1300,14 +1336,17 @@ class ITUNES(DriverBase):
         assumes pythoncom wrapper for db_added
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
-        self.log.info(" ITUNES._cover_to_thumb()")
+        if DEBUG:
+            self.log.info(" ITUNES._cover_to_thumb()")
 
         thumb = None
         if metadata.cover:
 
             if format == 'epub':
-                # Pre-shrink cover
-                # self.MAX_COVER_WIDTH, self.MAX_COVER_HEIGHT
+                '''
+                Pre-shrink cover
+                self.MAX_COVER_WIDTH, self.MAX_COVER_HEIGHT
+                '''
                 try:
                     img = PILImage.open(metadata.cover)
                     width = img.size[0]
@@ -1315,8 +1354,8 @@ class ITUNES(DriverBase):
                     scaled, nwidth, nheight = fit_image(width, height, self.MAX_COVER_WIDTH, self.MAX_COVER_HEIGHT)
                     if scaled:
                         if DEBUG:
-                            self.log.info("   '%s' scaled from %sx%s to %sx%s" %
-                                          (metadata.cover,width,height,nwidth,nheight))
+                            self.log.info("   cover scaled from %sx%s to %sx%s" %
+                                          (width,height,nwidth,nheight))
                         img = img.resize((nwidth, nheight), PILImage.ANTIALIAS)
                         cd = cStringIO.StringIO()
                         img.convert('RGB').save(cd, 'JPEG')
@@ -1335,9 +1374,11 @@ class ITUNES(DriverBase):
                     return thumb
 
                 if isosx:
-                    # The following commands generate an error, but the artwork does in fact
-                    # get sent to the device.  Seems like a bug in Apple's automation interface?
-                    # Could also be a problem with the integrity of the cover data?
+                    '''
+                    The following commands generate an error, but the artwork does in fact
+                    get sent to the device.  Seems like a bug in Apple's automation interface?
+                    Could also be a problem with the integrity of the cover data?
+                    '''
                     if lb_added:
                         try:
                             lb_added.artworks[1].data_.set(cover_data)
@@ -1360,9 +1401,8 @@ class ITUNES(DriverBase):
                             #ipython(user_ns=locals())
                             pass
 
-
                 elif iswindows:
-                    # Write the data to a real file for Windows iTunes
+                    ''' Write the data to a real file for Windows iTunes '''
                     tc = os.path.join(tempfile.gettempdir(), "cover.jpg")
                     with open(tc,'wb') as tmp_cover:
                         tmp_cover.write(cover_data)
@@ -1421,7 +1461,8 @@ class ITUNES(DriverBase):
 
         this_book = Book(metadata.title, authors_to_string(metadata.authors))
         this_book.datetime = time.gmtime()
-        this_book.db_id = None
+        #this_book.cid = metadata.id
+        this_book.cid = None
         this_book.device_collections = []
         this_book.format = format
         this_book.library_id = lb_added     # ??? GR
@@ -1429,7 +1470,6 @@ class ITUNES(DriverBase):
         this_book.thumbnail = thumb
         this_book.iTunes_id = lb_added      # ??? GR
         this_book.uuid = metadata.uuid
-
         if isosx:
             if lb_added:
                 this_book.size = self._get_device_book_size(fpath, lb_added.size())
@@ -1459,24 +1499,6 @@ class ITUNES(DriverBase):
                     pass
 
         return this_book
-
-    def _delete_iTunesMetadata_plist(self,fpath):
-        '''
-        Delete the plist file from the file to force recache
-        '''
-        zf = ZipFile(fpath,'a')
-        fnames = zf.namelist()
-        pl_name = 'iTunesMetadata.plist'
-        try:
-            plist = [x for x in fnames if pl_name in x][0]
-        except:
-            plist = None
-        if plist:
-            if DEBUG:
-                self.log.info("  _delete_iTunesMetadata_plist():")
-                self.log.info("    deleting '%s'\n   from '%s'" % (pl_name,fpath))
-                zf.delete(pl_name)
-        zf.close()
 
     def _discover_manual_sync_mode(self, wait=0):
         '''
@@ -1662,18 +1684,6 @@ class ITUNES(DriverBase):
         zf.close()
         return (title, author, timestamp)
 
-    def _dump_files(self, files, header=None,indent=0):
-        if header:
-            msg = '\n%sfiles passed to %s:' % (' '*indent,header)
-            self.log.info(msg)
-            self.log.info( "%s%s" % (' '*indent,'-' * len(msg)))
-        for file in files:
-            if getattr(file, 'orig_file_path', None) is not None:
-                self.log.info(" %s%s" % (' '*indent,file.orig_file_path))
-            elif getattr(file, 'name', None) is not None:
-                self.log.info(" %s%s" % (' '*indent,file.name))
-        self.log.info()
-
     def _dump_hex(self, src, length=16):
         '''
         '''
@@ -1697,7 +1707,7 @@ class ITUNES(DriverBase):
         self.log.info()
 
     def _dump_update_list(self,header=None,indent=0):
-        if header:
+        if header and self.update_list:
             msg = '\n%sself.update_list %s' % (' '*indent,header)
             self.log.info(msg)
             self.log.info( "%s%s" % (' '*indent,'-' * len(msg)))
@@ -1716,7 +1726,6 @@ class ITUNES(DriverBase):
                  (' '*indent,
                   ub['title'],
                   ub['author']))
-        self.log.info()
 
     def _find_device_book(self, search):
         '''
@@ -2115,35 +2124,6 @@ class ITUNES(DriverBase):
                         self.log.error("  no iPad|Books playlist found")
                 return pl
 
-    def _get_fpath(self,file, metadata, format, update_md=False):
-        '''
-        If the database copy will be deleted after upload, we have to
-        use file (the PersistentTemporaryFile), which will be around until
-        calibre exits.
-        If we're using the database copy, delete the plist
-        '''
-        if DEBUG:
-            self.log.info(" ITUNES._get_fpath()")
-
-        fpath = file
-        if not getattr(fpath, 'deleted_after_upload', False):
-            if getattr(file, 'orig_file_path', None) is not None:
-                # Database copy
-                fpath = file.orig_file_path
-                self._delete_iTunesMetadata_plist(fpath)
-            elif getattr(file, 'name', None) is not None:
-                # PTF
-                fpath = file.name
-        else:
-            # Recipe - PTF
-            if DEBUG:
-                self.log.info("   file will be deleted after upload")
-
-        if format == 'epub' and update_md:
-            self._update_epub_metadata(fpath, metadata)
-
-        return fpath
-
     def _get_library_books(self):
         '''
         Populate a dict of paths from iTunes Library|Books
@@ -2347,6 +2327,7 @@ class ITUNES(DriverBase):
                 self.iTunes = appscript.app('iTunes')
                 self.initial_status = 'already running'
 
+            '''
             # Read the current storage path for iTunes media
             cmd = "defaults read com.apple.itunes NSNavLastRootDirectory"
             proc = subprocess.Popen( cmd, shell=True, cwd=os.curdir, stdout=subprocess.PIPE)
@@ -2357,12 +2338,13 @@ class ITUNES(DriverBase):
             else:
                 self.log.error("  could not confirm valid iTunes.media_dir from %s" % 'com.apple.itunes')
                 self.log.error("  media_dir: %s" % media_dir)
+            '''
+
             if DEBUG:
                 self.log.info("  %s %s" % (__appname__, __version__))
                 self.log.info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
                  (self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
-                self.log.info("  iTunes_media: %s" % self.iTunes_media)
                 self.log.info("  calibre_library_path: %s" % self.calibre_library_path)
 
         if iswindows:
@@ -2402,6 +2384,7 @@ class ITUNES(DriverBase):
                              ' iTunes automation interface non-responsive, ' +
                              'recommend reinstalling iTunes')
 
+            '''
             # Read the current storage path for iTunes media from the XML file
             media_dir = ''
             string = None
@@ -2420,13 +2403,13 @@ class ITUNES(DriverBase):
                     self.log.error("  '%s' not found" % media_dir)
                 else:
                     self.log.error("  no media dir found: string: %s" % string)
+            '''
 
             if DEBUG:
                 self.log.info("  %s %s" % (__appname__, __version__))
                 self.log.info("  [Windows %s - %s (%s), driver version %d.%d.%d]" %
                  (self.iTunes.Windows[0].name, self.iTunes.Version, self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
-                self.log.info("  iTunes_media: %s" % self.iTunes_media)
                 self.log.info("  calibre_library_path: %s" % self.calibre_library_path)
 
     def _purge_orphans(self,library_books, cached_books):
@@ -2476,13 +2459,14 @@ class ITUNES(DriverBase):
                    (self.cached_books[book]['title'] == metadata.title and \
                    self.cached_books[book]['author'] == authors_to_string(metadata.authors)):
                     self.update_list.append(self.cached_books[book])
-                    self._remove_from_device(self.cached_books[book])
+
                     if DEBUG:
                         self.log.info( "  deleting device book '%s'" % (metadata.title))
-                    if not getattr(file, 'deleted_after_upload', False):
-                        self._remove_from_iTunes(self.cached_books[book])
-                        if DEBUG:
-                            self.log.info("  deleting library book '%s'" % metadata.title)
+                    self._remove_from_device(self.cached_books[book])
+
+                    if DEBUG:
+                        self.log.info("  deleting library book '%s'" % metadata.title)
+                    self._remove_from_iTunes(self.cached_books[book])
                     break
             else:
                 if DEBUG:
@@ -2495,9 +2479,9 @@ class ITUNES(DriverBase):
                    (self.cached_books[book]['title'] == metadata.title and \
                     self.cached_books[book]['author'] == authors_to_string(metadata.authors)):
                     self.update_list.append(self.cached_books[book])
-                    self._remove_from_iTunes(self.cached_books[book])
                     if DEBUG:
                         self.log.info( "  deleting library book '%s'" %  metadata.title)
+                    self._remove_from_iTunes(self.cached_books[book])
                     break
             else:
                 if DEBUG:
@@ -2507,7 +2491,8 @@ class ITUNES(DriverBase):
         '''
         Windows assumes pythoncom wrapper
         '''
-        self.log.info(" ITUNES._remove_from_device()")
+        if DEBUG:
+            self.log.info(" ITUNES._remove_from_device()")
         if isosx:
             if DEBUG:
                 self.log.info("  deleting '%s' from iDevice" % cached_book['title'])
@@ -2528,96 +2513,105 @@ class ITUNES(DriverBase):
 
     def _remove_from_iTunes(self, cached_book):
         '''
-        iTunes does not delete books from storage when removing from database
-        We only want to delete stored copies if the file is stored in iTunes
-        We don't want to delete files stored outside of iTunes.
-        Also confirm that storage_path does not point into calibre's storage.
+        iTunes does not delete books from storage when removing from database via automation
         '''
         if DEBUG:
             self.log.info(" ITUNES._remove_from_iTunes():")
 
         if isosx:
+            ''' Manually remove the book from iTunes storage '''
             try:
-                storage_path = os.path.split(cached_book['lib_book'].location().path)
-                if cached_book['lib_book'].location().path.startswith(self.iTunes_media) and \
-                   not storage_path[0].startswith(prefs['library_path']):
-                    title_storage_path = storage_path[0]
-                    if DEBUG:
-                        self.log.info("  removing title_storage_path: %s" % title_storage_path)
-                    try:
-                        shutil.rmtree(title_storage_path)
-                    except:
-                        self.log.info("  '%s' not empty" % title_storage_path)
-
-                    # Clean up title/author directories
-                    author_storage_path = os.path.split(title_storage_path)[0]
-                    self.log.info("  author_storage_path: %s" % author_storage_path)
-                    author_files = os.listdir(author_storage_path)
-                    if '.DS_Store' in author_files:
-                        author_files.pop(author_files.index('.DS_Store'))
-                    if not author_files:
-                        shutil.rmtree(author_storage_path)
-                        if DEBUG:
-                            self.log.info("  removing empty author_storage_path")
-                    else:
-                        if DEBUG:
-                            self.log.info("  author_storage_path not empty (%d objects):" % len(author_files))
-                            self.log.info("  %s" % '\n'.join(author_files))
+                fp = cached_book['lib_book'].location().path
+                if DEBUG:
+                    self.log.info("  processing %s" % fp)
+                if fp.startswith(prefs['library_path']):
+                    self.log.info("  '%s' stored in calibre database, not removed" % cached_book['title'])
                 else:
-                    self.log.info("  '%s' (stored external to iTunes, no files deleted)" % cached_book['title'])
+                    if os.path.exists(fp):
+                        os.remove(fp)
+                        if DEBUG:
+                            self.log.info("   deleting from iTunes storage")
+                        author_storage_path = os.path.split(fp)[0]
+                        try:
+                            os.rmdir(author_storage_path)
+                            if DEBUG:
+                                self.log.info("   removing empty author directory")
+                        except:
+                            author_files = os.listdir(author_storage_path)
+                            if '.DS_Store' in author_files:
+                                author_files.pop(author_files.index('.DS_Store'))
+                            if not author_files:
+                                os.rmdir(author_storage_path)
+                                if DEBUG:
+                                    self.log.info("   removing empty author directory")
+                            '''
+                            else:
+                                if DEBUG:
+                                    self.log.info("   author_storage_path not empty:")
+                                    self.log.info("   %s" % '\n'.join(author_files))
+                            '''
+                    else:
+                        self.log.info("   '%s' does not exist at storage location" % cached_book['title'])
 
             except:
                 # We get here if there was an error with .location().path
                 if DEBUG:
-                    self.log.info("   '%s' not in iTunes storage" % cached_book['title'])
+                    self.log.info("   '%s' not found in iTunes storage" % cached_book['title'])
 
+            # Delete the book from the iTunes database
             try:
                 self.iTunes.delete(cached_book['lib_book'])
+                if DEBUG:
+                    self.log.info("   removing from iTunes database")
             except:
                 if DEBUG:
-                    self.log.info("   unable to remove '%s' from iTunes" % cached_book['title'])
+                    self.log.info("   unable to remove from iTunes database")
 
         elif iswindows:
             '''
             Assume we're wrapped in a pythoncom
             Windows stores the book under a common author directory, so we just delete the .epub
             '''
+            fp = None
             try:
                 book = cached_book['lib_book']
-                path = book.Location
+                fp = book.Location
             except:
                 book = self._find_library_book(cached_book)
                 if book:
-                    path = book.Location
+                    fp = book.Location
 
             if book:
-                if self.iTunes_media and path.startswith(self.iTunes_media) and \
-                   not path.startswith(prefs['library_path']):
-                    storage_path = os.path.split(path)
-                    if DEBUG:
-                        self.log.info("   removing '%s' at %s" %
-                            (cached_book['title'], path))
-                    try:
-                        os.remove(path)
-                    except:
-                        self.log.warning("   '%s' not in iTunes storage" % path)
-                    try:
-                        os.rmdir(storage_path[0])
-                        self.log.info("   removed folder '%s'" % storage_path[0])
-                    except:
-                        self.log.info("   folder '%s' not found or not empty" % storage_path[0])
-
-                    # Delete from iTunes database
+                if DEBUG:
+                    self.log.info("  processing %s" % fp)
+                if fp.startswith(prefs['library_path']):
+                    self.log.info("  '%s' stored in calibre database, not removed" % cached_book['title'])
                 else:
-                    self.log.info("   '%s' (stored external to iTunes, no files deleted)" % cached_book['title'])
+                    if os.path.exists(fp):
+                        os.remove(fp)
+                        if DEBUG:
+                            self.log.info("   deleting from iTunes storage")
+                        author_storage_path = os.path.split(fp)[0]
+                        try:
+                            os.rmdir(author_storage_path)
+                            if DEBUG:
+                                self.log.info("   removing empty author directory")
+                        except:
+                            pass
+                    else:
+                        self.log.info("   '%s' does not exist at storage location" % cached_book['title'])
             else:
                 if DEBUG:
-                    self.log.info("   '%s' not found in iTunes" % cached_book['title'])
+                    self.log.info("   '%s' not found in iTunes storage" % cached_book['title'])
+
+            # Delete the book from the iTunes database
             try:
                 book.Delete()
+                if DEBUG:
+                    self.log.info("   removing from iTunes database")
             except:
                 if DEBUG:
-                    self.log.info("   unable to remove '%s' from iTunes" % cached_book['title'])
+                    self.log.info("   unable to remove from iTunes database")
 
     def title_sorter(self, title):
         return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', title).rstrip()
@@ -2625,7 +2619,8 @@ class ITUNES(DriverBase):
     def _update_epub_metadata(self, fpath, metadata):
         '''
         '''
-        self.log.info(" ITUNES._update_epub_metadata()")
+        if DEBUG:
+            self.log.info(" ITUNES._update_epub_metadata()")
 
         # Fetch plugboard updates
         metadata_x = self._xform_metadata_via_plugboard(metadata, 'epub')
@@ -2796,7 +2791,7 @@ class ITUNES(DriverBase):
             if metadata_x.series and self.settings().extra_customization[self.USE_SERIES_AS_CATEGORY]:
                 if DEBUG:
                     self.log.info(" ITUNES._update_iTunes_metadata()")
-                    self.log.info("   using Series name as Genre")
+                    self.log.info("   using Series name '%s' as Genre" % metadata_x.series)
 
                 # Format the index as a sort key
                 index = metadata_x.series_index
@@ -2976,8 +2971,8 @@ class ITUNES(DriverBase):
             newmi = book.deepcopy_metadata()
             newmi.template_to_attribute(book, pb)
             if pb is not None and DEBUG:
-                self.log.info(" transforming %s using %s:" % (format, pb))
-                self.log.info("       title: %s %s" % (book.title, ">>> %s" %
+                #self.log.info(" transforming %s using %s:" % (format, pb))
+                self.log.info("       title: '%s' %s" % (book.title, ">>> '%s'" %
                                            newmi.title if book.title != newmi.title else ''))
                 self.log.info("  title_sort: %s %s" % (book.title_sort, ">>> %s" %
                                            newmi.title_sort if book.title_sort != newmi.title_sort else ''))
@@ -2992,7 +2987,8 @@ class ITUNES(DriverBase):
                 self.log.info("        tags: %s %s" % (book.tags, ">>> %s" %
                                            newmi.tags if book.tags != newmi.tags else ''))
             else:
-                self.log("  matching plugboard not found")
+                if DEBUG:
+                    self.log("  matching plugboard not found")
 
         else:
             newmi = book
@@ -3081,12 +3077,12 @@ class ITUNES_ASYNC(ITUNES):
                         this_book.datetime = parse_date(str(library_books[book].date_added())).timetuple()
                     except:
                         this_book.datetime = time.gmtime()
-                    this_book.db_id = None
                     this_book.device_collections = []
                     #this_book.library_id = library_books[this_book.path] if this_book.path in library_books else None
                     this_book.library_id = library_books[book]
                     this_book.size = library_books[book].size()
                     this_book.uuid = library_books[book].composer()
+                    this_book.cid = None
                     # Hack to discover if we're running in GUI environment
                     if self.report_progress is not None:
                         this_book.thumbnail = self._generate_thumbnail(this_book.path, library_books[book])
@@ -3122,11 +3118,11 @@ class ITUNES_ASYNC(ITUNES):
                             this_book.datetime = parse_date(str(library_books[book].DateAdded)).timetuple()
                         except:
                             this_book.datetime = time.gmtime()
-                        this_book.db_id = None
                         this_book.device_collections = []
                         this_book.library_id = library_books[book]
                         this_book.size = library_books[book].Size
                         this_book.uuid = library_books[book].Composer
+                        this_book.cid = None
                         # Hack to discover if we're running in GUI environment
                         if self.report_progress is not None:
                             this_book.thumbnail = self._generate_thumbnail(this_book.path, library_books[book])

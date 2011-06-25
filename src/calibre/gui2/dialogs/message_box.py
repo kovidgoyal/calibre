@@ -23,7 +23,7 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
                  det_msg='',
                  q_icon=None,
                  show_copy_button=True,
-                 parent=None):
+                 parent=None, default_yes=True):
         QDialog.__init__(self, parent)
         if q_icon is None:
             icon = {
@@ -65,7 +65,9 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
         self.is_question = type_ == self.QUESTION
         if self.is_question:
             self.bb.setStandardButtons(self.bb.Yes|self.bb.No)
-            self.bb.button(self.bb.Yes).setDefault(True)
+            self.bb.button(self.bb.Yes if default_yes else self.bb.No
+                    ).setDefault(True)
+            self.default_yes = default_yes
         else:
             self.bb.button(self.bb.Ok).setDefault(True)
 
@@ -101,7 +103,8 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
         ret = QDialog.showEvent(self, ev)
         if self.is_question:
             try:
-                self.bb.button(self.bb.Yes).setFocus(Qt.OtherFocusReason)
+                self.bb.button(self.bb.Yes if self.default_yes else self.bb.No
+                        ).setFocus(Qt.OtherFocusReason)
             except:
                 pass# Buttons were changed
         else:
