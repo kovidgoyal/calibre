@@ -22,7 +22,7 @@ from calibre.utils.icu import sort_key
 class TagDelegate(QItemDelegate): # {{{
 
     def paint(self, painter, option, index):
-        item = index.internalPointer()
+        item = index.data(Qt.UserRole).toPyObject()
         if item.type != TagTreeItem.TAG:
             QItemDelegate.paint(self, painter, option, index)
             return
@@ -301,7 +301,7 @@ class TagsView(QTreeView): # {{{
         self.context_menu = QMenu(self)
 
         if index.isValid():
-            item = index.internalPointer()
+            item = index.data(Qt.UserRole).toPyObject()
             tag = None
 
             if item.type == TagTreeItem.TAG:
@@ -486,7 +486,7 @@ class TagsView(QTreeView): # {{{
         if not index.isValid():
             return
         src_is_tb = event.mimeData().hasFormat('application/calibre+from_tag_browser')
-        item = index.internalPointer()
+        item = index.data(Qt.UserRole).toPyObject()
         flags = self._model.flags(index)
         if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
             self.setDropIndicatorShown(not src_is_tb)
@@ -520,7 +520,7 @@ class TagsView(QTreeView): # {{{
             self.model().clear_state()
 
     def is_visible(self, idx):
-        item = idx.internalPointer()
+        item = idx.data(Qt.UserRole).toPyObject()
         if getattr(item, 'type', None) == TagTreeItem.TAG:
             idx = idx.parent()
         return self.isExpanded(idx)

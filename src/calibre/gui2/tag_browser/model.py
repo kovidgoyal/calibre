@@ -25,7 +25,6 @@ from calibre.utils.search_query_parser import saved_searches
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
 
-
 class TagTreeItem(object): # {{{
 
     CATEGORY = 0
@@ -201,6 +200,7 @@ class TagsModel(QAbstractItemModel): # {{{
             filter_categories_by=None, collapse_model='disable',
             state_map={}):
         QAbstractItemModel.__init__(self, parent)
+        self.node_map = {}
 
         # must do this here because 'QPixmap: Must construct a QApplication
         # before a QPaintDevice'. The ':' at the end avoids polluting either of
@@ -228,7 +228,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
         data = self._get_category_nodes(config['sort_tags_by'])
         gst = db.prefs.get('grouped_search_terms', {})
-        self.root_item = TagTreeItem(icon_map=self.icon_state_map)
+        self.root_item = self.create_node(icon_map=self.icon_state_map)
         self.category_nodes = []
 
         last_category_node = None
@@ -261,7 +261,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 for i,p in enumerate(path_parts):
                     path += p
                     if path not in category_node_map:
-                        node = TagTreeItem(parent=last_category_node,
+                        node = self.create_node(parent=last_category_node,
                                            data=p[1:] if i == 0 else p,
                                            category_icon=self.category_icon_map[key],
                                            tooltip=tt if path == key else path,
@@ -282,7 +282,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         tree_root = tree_root[p]
                     path += '.'
             else:
-                node = TagTreeItem(parent=self.root_item,
+                node = self.create_node(parent=self.root_item,
                                    data=self.categories[key],
                                    category_icon=self.category_icon_map[key],
                                    tooltip=tt, category_key=key,
@@ -296,6 +296,9 @@ class TagsModel(QAbstractItemModel): # {{{
     def break_cycles(self):
         self.root_item.break_cycles()
         self.db = self.root_item = None
+        self.node_map = {}
+        #traceback.print_stack()
+        #print
 
     # Drag'n Drop {{{
     def mimeTypes(self):
@@ -307,7 +310,7 @@ class TagsModel(QAbstractItemModel): # {{{
         for idx in indexes:
             if idx.isValid():
                 # get some useful serializable data
-                node = idx.internalPointer()
+                node = self.get_node(idx)
                 path = self.path_for_index(idx)
                 if node.type == TagTreeItem.CATEGORY:
                     d = (node.type, node.py_name, node.category_key)
@@ -340,7 +343,7 @@ class TagsModel(QAbstractItemModel): # {{{
     def do_drop_from_tag_browser(self, md, action, row, column, parent):
         if not parent.isValid():
             return False
-        dest = parent.internalPointer()
+        dest = self.get_node(parent)
         if dest.type != TagTreeItem.CATEGORY:
             return False
         if not md.hasFormat('application/calibre+from_tag_browser'):
@@ -418,7 +421,8 @@ class TagsModel(QAbstractItemModel): # {{{
             node = self.index_for_path(path)
             if node:
                 copied = process_source_node(user_cats, src_parent, src_parent_is_gst,
-                                             is_uc, dest_key, node.internalPointer())
+                                             is_uc, dest_key,
+                                             self.get_node(node))
 
         self.db.prefs.set('user_categories', user_cats)
         self.tags_view.recount()
@@ -435,7 +439,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     path[-1] = p - 1
             idx = m.index_for_path(path)
             self.tags_view.setExpanded(idx, True)
-            if idx.internalPointer().type == TagTreeItem.TAG:
+            if self.get_node(idx).type == TagTreeItem.TAG:
                 m.show_item_at_index(idx, box=True)
             else:
                 m.show_item_at_index(idx)
@@ -638,6 +642,20 @@ class TagsModel(QAbstractItemModel): # {{{
         traceback.print_stack()
         return False
 
+    def create_node(self, *args, **kwargs):
+        node = TagTreeItem(*args, **kwargs)
+        self.node_map[id(node)] = node
+        return node
+
+    def get_node(self, idx):
+        ans = self.node_map.get(idx.internalId(), self.root_item)
+        return ans
+
+    def createIndex(self, row, column, internal_pointer=None):
+        idx = QAbstractItemModel.createIndex(self, row, column,
+                id(internal_pointer))
+        return idx
+
     def _create_node_tree(self, data, state_map):
         '''
         Called by __init__. Do not directly call this method.
@@ -666,7 +684,7 @@ class TagsModel(QAbstractItemModel): # {{{
         def process_one_node(category, state_map): # {{{
             collapse_letter = None
             category_index = self.createIndex(category.row(), 0, category)
-            category_node = category_index.internalPointer()
+            category_node = category
             key = category_node.category_key
             if key not in data:
                 return
@@ -733,7 +751,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             name = eval_formatter.safe_format(collapse_template,
                                                               d, 'TAG_VIEW', None)
                             self.beginInsertRows(category_index, 999998, 999999) #len(data[key])-1)
-                            sub_cat = TagTreeItem(parent=category, data = name,
+                            sub_cat = self.create_node(parent=category, data = name,
                                      tooltip = None, temporary=True,
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key,
@@ -744,7 +762,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         cl = cl_list[idx]
                         if cl != collapse_letter:
                             collapse_letter = cl
-                            sub_cat = TagTreeItem(parent=category,
+                            sub_cat = self.create_node(parent=category,
                                      data = collapse_letter,
                                      category_icon = category_node.icon,
                                      tooltip = None, temporary=True,
@@ -767,7 +785,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         key not in self.db.prefs.get('categories_using_hierarchy', []) or
                         len(components) == 1):
                     self.beginInsertRows(category_index, 999998, 999999)
-                    n = TagTreeItem(parent=node_parent, data=tag, tooltip=tt,
+                    n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     if tag.id_set is not None:
                         n.id_set |= tag.id_set
@@ -803,7 +821,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
                             self.beginInsertRows(category_index, 999998, 999999)
-                            node_parent = TagTreeItem(parent=node_parent, data=t,
+                            node_parent = self.create_node(parent=node_parent, data=t,
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent
                             self.endInsertRows()
@@ -837,7 +855,7 @@ class TagsModel(QAbstractItemModel): # {{{
     def data(self, index, role):
         if not index.isValid():
             return NONE
-        item = index.internalPointer()
+        item = self.get_node(index)
         return item.data(role)
 
     def setData(self, index, value, role=Qt.EditRole):
@@ -852,7 +870,7 @@ class TagsModel(QAbstractItemModel): # {{{
             error_dialog(self.tags_view, _('Item is blank'),
                         _('An item cannot be set to nothing. Delete it instead.')).exec_()
             return False
-        item = index.internalPointer()
+        item = self.get_node(index)
         if item.type == TagTreeItem.CATEGORY and item.category_key.startswith('@'):
             if val.find('.') >= 0:
                 error_dialog(self.tags_view, _('Rename user category'),
@@ -1022,7 +1040,7 @@ class TagsModel(QAbstractItemModel): # {{{
         if not parent.isValid():
             parent_item = self.root_item
         else:
-            parent_item = parent.internalPointer()
+            parent_item = self.get_node(parent)
 
         try:
             child_item = parent_item.children[row]
@@ -1036,7 +1054,7 @@ class TagsModel(QAbstractItemModel): # {{{
         if not index.isValid():
             return QModelIndex()
 
-        child_item = index.internalPointer()
+        child_item = self.get_node(index)
         parent_item = getattr(child_item, 'parent', None)
 
         if parent_item is self.root_item or parent_item is None:
@@ -1052,7 +1070,7 @@ class TagsModel(QAbstractItemModel): # {{{
         if not parent.isValid():
             parent_item = self.root_item
         else:
-            parent_item = parent.internalPointer()
+            parent_item = self.get_node(parent)
 
         return len(parent_item.children)
 
@@ -1083,7 +1101,7 @@ class TagsModel(QAbstractItemModel): # {{{
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
         '''
         if not index.isValid(): return False
-        item = index.internalPointer()
+        item = self.get_node(index)
         item.toggle(set_to=set_to)
         if exclusive:
             self.reset_all_states(except_=item.tag)
@@ -1212,10 +1230,10 @@ class TagsModel(QAbstractItemModel): # {{{
                     return False
                 if path[depth] > start_path[depth]:
                     start_path = path
-            my_key = category_index.internalPointer().category_key
+            my_key = self.get_node(category_index).category_key
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
-                tag_item = tag_index.internalPointer()
+                tag_item = self.get_node(tag_index)
                 if tag_item.type == TagTreeItem.CATEGORY:
                     if process_level(depth+1, tag_index, start_path):
                         return True
@@ -1240,7 +1258,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
         for i in xrange(self.rowCount(parent)):
             idx = self.index(i, 0, parent)
-            node = idx.internalPointer()
+            node = self.get_node(idx)
             if node.type == TagTreeItem.CATEGORY:
                 ckey = node.category_key
                 if strcmp(ckey, key) == 0:
@@ -1269,7 +1287,7 @@ class TagsModel(QAbstractItemModel): # {{{
             self.tags_view.scrollTo(idx, position)
             self.tags_view.setCurrentIndex(idx)
             if box:
-                tag_item = idx.internalPointer()
+                tag_item = self.get_node(idx)
                 tag_item.boxed = True
                 self.dataChanged.emit(idx, idx)
 
@@ -1287,7 +1305,7 @@ class TagsModel(QAbstractItemModel): # {{{
         def process_level(category_index):
             for j in xrange(self.rowCount(category_index)):
                 tag_index = self.index(j, 0, category_index)
-                tag_item = tag_index.internalPointer()
+                tag_item = self.get_node(tag_index)
                 if tag_item.boxed:
                     tag_item.boxed = False
                     self.dataChanged.emit(tag_index, tag_index)
