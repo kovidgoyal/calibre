@@ -1831,6 +1831,7 @@ class TagsModel(QAbstractItemModel): # {{{
         if idx.isValid():
             self.tags_view.setCurrentIndex(idx)
             self.tags_view.scrollTo(idx, position)
+            self.tags_view.setCurrentIndex(idx)
             if box:
                 tag_item = idx.internalPointer()
                 tag_item.boxed = True
