@@ -1686,10 +1686,19 @@ class TagsModel(QAbstractItemModel): # {{{
                     if self.collapse_model == 'first letter' and \
                             tag_item.temporary and not key.startswith('@') \
                             and tag_item.tag.state:
-                        if node_searches[tag_item.tag.state] == 'true':
-                            ans.append('%s:~^%s'%(key, tag_item.py_name))
+                        k = 'author_sort' if key == 'authors' else key
+                        letters_seen = {}
+                        for subnode in tag_item.children:
+                            letters_seen[subnode.tag.sort[0]] = True
+                        charclass = ''.join(letters_seen)
+                        if k == 'author_sort':
+                            expr = r'%s:"~(^[%s])|(&\\s*[%s])"'%(k, charclass, charclass)
                         else:
-                            ans.append('(not %s:~^%s )'%(key, tag_item.py_name))
+                            expr = r'%s:"~^[%s]"'%(k, charclass)
+                        if node_searches[tag_item.tag.state] == 'true':
+                            ans.append(expr)
+                        else:
+                            ans.append('(not ' + expr + ')')
                     continue
                 tag = tag_item.tag
                 if tag.state != TAG_SEARCH_STATES['clear']:
