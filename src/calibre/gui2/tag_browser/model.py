@@ -683,7 +683,6 @@ class TagsModel(QAbstractItemModel): # {{{
 
         def process_one_node(category, state_map): # {{{
             collapse_letter = None
-            category_index = self.createIndex(category.row(), 0, category)
             category_node = category
             key = category_node.category_key
             if key not in data:
@@ -750,14 +749,12 @@ class TagsModel(QAbstractItemModel): # {{{
                                 d['last'] = data[key][cat_len-1]
                             name = eval_formatter.safe_format(collapse_template,
                                                               d, 'TAG_VIEW', None)
-                            self.beginInsertRows(category_index, 999998, 999999) #len(data[key])-1)
                             sub_cat = self.create_node(parent=category, data = name,
                                      tooltip = None, temporary=True,
                                      category_icon = category_node.icon,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
                             sub_cat.tag.is_searchable = False
-                            self.endInsertRows()
                     else: # by 'first letter'
                         cl = cl_list[idx]
                         if cl != collapse_letter:
@@ -784,13 +781,11 @@ class TagsModel(QAbstractItemModel): # {{{
                         key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
                         key not in self.db.prefs.get('categories_using_hierarchy', []) or
                         len(components) == 1):
-                    self.beginInsertRows(category_index, 999998, 999999)
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     if tag.id_set is not None:
                         n.id_set |= tag.id_set
                     category_child_map[tag.name, tag.category] = n
-                    self.endInsertRows()
                 else:
                     for i,comp in enumerate(components):
                         if i == 0:
@@ -820,11 +815,9 @@ class TagsModel(QAbstractItemModel): # {{{
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
-                            self.beginInsertRows(category_index, 999998, 999999)
                             node_parent = self.create_node(parent=node_parent, data=t,
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent
-                            self.endInsertRows()
                         # This id_set must not be None
                         node_parent.id_set |= tag.id_set
             return
