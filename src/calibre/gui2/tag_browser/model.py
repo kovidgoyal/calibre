@@ -2,16 +2,17 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from future_builtins import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import traceback, cPickle, copy
-from itertools import repeat, izip
+from itertools import repeat
 
 from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
-        QMimeData, QModelIndex, QTreeView)
+        QMimeData, QModelIndex, pyqtSignal)
 
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
@@ -24,6 +25,15 @@ from calibre.utils.search_query_parser import saved_searches
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
+
+_bf = None
+def bf():
+    global _bf
+    if _bf is None:
+        _bf = QFont()
+        _bf.setBold(True)
+        _bf = QVariant(_bf)
+    return _bf
 
 class TagTreeItem(object): # {{{
 
@@ -41,16 +51,15 @@ class TagTreeItem(object): # {{{
         self.icon_state_map = list(map(QVariant, icon_map))
         if self.parent is not None:
             self.parent.append(self)
+
         if data is None:
             self.type = self.ROOT
         else:
             self.type = self.TAG if category_icon is None else self.CATEGORY
+
         if self.type == self.CATEGORY:
             self.name, self.icon = map(QVariant, (data, category_icon))
             self.py_name = data
-            self.bold_font = QFont()
-            self.bold_font.setBold(True)
-            self.bold_font = QVariant(self.bold_font)
             self.category_key = category_key
             self.temporary = temporary
             self.tag = Tag(data, category=category_key,
@@ -60,27 +69,21 @@ class TagTreeItem(object): # {{{
         elif self.type == self.TAG:
             self.icon_state_map[0] = QVariant(data.icon)
             self.tag = data
-        if tooltip:
-            self.tooltip = tooltip + ' '
-        else:
-            self.tooltip = ''
+
+        self.tooltip = (tooltip + ' ') if tooltip else ''
 
     def break_cycles(self):
-        for x in self.children:
-            try:
-                x.break_cycles()
-            except:
-                pass
-        self.parent = self.icon_state_map = self.bold_font = self.tag = \
-                      self.icon = self.children = self.tooltip = \
-                      self.py_name = self.id_set = self.category_key = None
+        del self.parent
+        del self.children
 
     def __str__(self):
         if self.type == self.ROOT:
             return 'ROOT'
         if self.type == self.CATEGORY:
-            return 'CATEGORY:'+str(QVariant.toString(self.name))+':%d'%len(self.children)
-        return 'TAG:'+self.tag.name
+            return 'CATEGORY:'+str(QVariant.toString(
+                self.name))+':%d'%len(getattr(self,
+                    'children', []))
+        return 'TAG: %s'%self.tag.name
 
     def row(self):
         if self.parent is not None:
@@ -110,7 +113,7 @@ class TagTreeItem(object): # {{{
                 return self.icon_state_map[self.tag.state]
             return self.icon
         if role == Qt.FontRole:
-            return self.bold_font
+            return bf()
         if role == Qt.ToolTipRole and self.tooltip is not None:
             return QVariant(self.tooltip)
         return NONE
@@ -195,41 +198,81 @@ class TagTreeItem(object): # {{{
 
 class TagsModel(QAbstractItemModel): # {{{
 
-    def __init__(self, db, parent, hidden_categories=None,
-            search_restriction=None, drag_drop_finished=None,
-            filter_categories_by=None, collapse_model='disable',
-            state_map={}):
+    search_item_renamed = pyqtSignal()
+    tag_item_renamed = pyqtSignal()
+    refresh_required = pyqtSignal()
+    restriction_error = pyqtSignal()
+    drag_drop_finished = pyqtSignal(object)
+    user_categories_edited = pyqtSignal(object, object)
+
+    def __init__(self, parent):
         QAbstractItemModel.__init__(self, parent)
         self.node_map = {}
-
-        # must do this here because 'QPixmap: Must construct a QApplication
-        # before a QPaintDevice'. The ':' at the end avoids polluting either of
-        # the other namespaces (alpha, '#', or '@')
+        self.category_nodes = []
         iconmap = {}
         for key in category_icon_map:
             iconmap[key] = QIcon(I(category_icon_map[key]))
         self.category_icon_map = TagsIcons(iconmap)
-
         self.categories_with_ratings = ['authors', 'series', 'publisher', 'tags']
-        self.drag_drop_finished = drag_drop_finished
-
         self.icon_state_map = [None, QIcon(I('plus.png')), QIcon(I('plusplus.png')),
-                               QIcon(I('minus.png')), QIcon(I('minusminus.png'))]
-        self.db = db
-        self.tags_view = parent
-        self.hidden_categories = hidden_categories
-        self.search_restriction = search_restriction
-        self.row_map = []
-        self.filter_categories_by = filter_categories_by
-        self.collapse_model = collapse_model
+                             QIcon(I('minus.png')), QIcon(I('minusminus.png'))]
 
+        self.hidden_categories = set()
+        self.search_restriction = None
+        self.filter_categories_by = None
+        self.collapse_model = 'disable'
+        self.row_map = []
+        self.root_item = self.create_node(icon_map=self.icon_state_map)
+        self.db = None
+
+    def reread_collapse_model(self, state_map):
+        if gprefs['tags_browser_collapse_at'] == 0:
+            self.collapse_model = 'disable'
+        else:
+            self.collapse_model = gprefs['tags_browser_partition_method']
+        self.rebuild_node_tree(state_map)
+
+    def set_search_restriction(self, s):
+        self.search_restriction = s
+        self.rebuild_node_tree()
+
+    def set_database(self, db):
+        self.beginResetModel()
+        self.search_restriction = None
+        hidden_cats = db.prefs.get('tag_browser_hidden_categories', None)
+        # migrate from config to db prefs
+        if hidden_cats is None:
+            hidden_cats = config['tag_browser_hidden_categories']
+        self.hidden_categories = set()
+        # strip out any non-existence field keys
+        for cat in hidden_cats:
+            if cat in db.field_metadata:
+                self.hidden_categories.add(cat)
+        db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
+
+        self.db = db
+        self._run_rebuild()
+        self.endResetModel()
+
+    def rebuild_node_tree(self, state_map={}):
+        self.beginResetModel()
+        self._run_rebuild(state_map=state_map)
+        self.endResetModel()
+
+    def _run_rebuild(self, state_map={}):
+        for node in self.node_map.itervalues():
+            node.break_cycles()
+        del node #Clear reference to node in the current frame
+        self.node_map.clear()
+        self.category_nodes = []
+        self.root_item = self.create_node(icon_map=self.icon_state_map)
+        self._rebuild_node_tree(state_map=state_map)
+
+    def _rebuild_node_tree(self, state_map):
         # Note that _get_category_nodes can indirectly change the
         # user_categories dict.
-
         data = self._get_category_nodes(config['sort_tags_by'])
-        gst = db.prefs.get('grouped_search_terms', {})
-        self.root_item = self.create_node(icon_map=self.icon_state_map)
-        self.category_nodes = []
+        gst = self.db.prefs.get('grouped_search_terms', {})
 
         last_category_node = None
         category_node_map = {}
@@ -293,373 +336,7 @@ class TagsModel(QAbstractItemModel): # {{{
                 self.category_nodes.append(node)
         self._create_node_tree(data, state_map)
 
-    def break_cycles(self):
-        self.root_item.break_cycles()
-        self.db = self.root_item = None
-        self.node_map = {}
-        #traceback.print_stack()
-        #print
-
-    # Drag'n Drop {{{
-    def mimeTypes(self):
-        return ["application/calibre+from_library",
-                'application/calibre+from_tag_browser']
-
-    def mimeData(self, indexes):
-        data = []
-        for idx in indexes:
-            if idx.isValid():
-                # get some useful serializable data
-                node = self.get_node(idx)
-                path = self.path_for_index(idx)
-                if node.type == TagTreeItem.CATEGORY:
-                    d = (node.type, node.py_name, node.category_key)
-                else:
-                    t = node.tag
-                    p = node
-                    while p.type != TagTreeItem.CATEGORY:
-                        p = p.parent
-                    d = (node.type, p.category_key, p.is_gst, t.original_name,
-                         t.category, path)
-                data.append(d)
-            else:
-                data.append(None)
-        raw = bytearray(cPickle.dumps(data, -1))
-        ans = QMimeData()
-        ans.setData('application/calibre+from_tag_browser', raw)
-        return ans
-
-    def dropMimeData(self, md, action, row, column, parent):
-        fmts = set([unicode(x) for x in md.formats()])
-        if not fmts.intersection(set(self.mimeTypes())):
-            return False
-        if "application/calibre+from_library" in fmts:
-            if action != Qt.CopyAction:
-                return False
-            return self.do_drop_from_library(md, action, row, column, parent)
-        elif 'application/calibre+from_tag_browser' in fmts:
-            return self.do_drop_from_tag_browser(md, action, row, column, parent)
-
-    def do_drop_from_tag_browser(self, md, action, row, column, parent):
-        if not parent.isValid():
-            return False
-        dest = self.get_node(parent)
-        if dest.type != TagTreeItem.CATEGORY:
-            return False
-        if not md.hasFormat('application/calibre+from_tag_browser'):
-            return False
-        data = str(md.data('application/calibre+from_tag_browser'))
-        src = cPickle.loads(data)
-        for s in src:
-            if s[0] != TagTreeItem.TAG:
-                return False
-        return self.move_or_copy_item_to_user_category(src, dest, action)
-
-    def move_or_copy_item_to_user_category(self, src, dest, action):
-        '''
-        src is a list of tuples representing items to copy. The tuple is
-        (type, containing category key, category key is global search term,
-         full name, category key, path to node)
-        The type must be TagTreeItem.TAG
-        dest is the TagTreeItem node to receive the items
-        action is Qt.CopyAction or Qt.MoveAction
-        '''
-        def process_source_node(user_cats, src_parent, src_parent_is_gst,
-                                is_uc, dest_key, node):
-            '''
-            Copy/move an item and all its children to the destination
-            '''
-            copied = False
-            src_name = node.tag.original_name
-            src_cat = node.tag.category
-            # delete the item if the source is a user category and action is move
-            if is_uc and not src_parent_is_gst and src_parent in user_cats and \
-                                    action == Qt.MoveAction:
-                new_cat = []
-                for tup in user_cats[src_parent]:
-                    if src_name == tup[0] and src_cat == tup[1]:
-                        continue
-                    new_cat.append(list(tup))
-                user_cats[src_parent] = new_cat
-            else:
-                copied = True
-
-            # Now add the item to the destination user category
-            add_it = True
-            if not is_uc and src_cat == 'news':
-                src_cat = 'tags'
-            for tup in user_cats[dest_key]:
-                if src_name == tup[0] and src_cat == tup[1]:
-                    add_it = False
-            if add_it:
-                user_cats[dest_key].append([src_name, src_cat, 0])
-
-            for c in node.children:
-                copied = process_source_node(user_cats, src_parent, src_parent_is_gst,
-                                             is_uc, dest_key, c)
-            return copied
-
-        user_cats = self.db.prefs.get('user_categories', {})
-        parent_node = None
-        copied = False
-        path = None
-        for s in src:
-            src_parent, src_parent_is_gst = s[1:3]
-            path = s[5]
-            parent_node = src_parent
-
-            if src_parent.startswith('@'):
-                is_uc = True
-                src_parent = src_parent[1:]
-            else:
-                is_uc = False
-            dest_key = dest.category_key[1:]
-
-            if dest_key not in user_cats:
-                continue
-
-            node = self.index_for_path(path)
-            if node:
-                copied = process_source_node(user_cats, src_parent, src_parent_is_gst,
-                                             is_uc, dest_key,
-                                             self.get_node(node))
-
-        self.db.prefs.set('user_categories', user_cats)
-        self.tags_view.recount()
-
-        # Scroll to the item copied. If it was moved, scroll to the parent
-        if parent_node is not None:
-            self.clear_boxed()
-            m = self.tags_view.model()
-            if not copied:
-                p = path[-1]
-                if p == 0:
-                    path = m.find_category_node(parent_node)
-                else:
-                    path[-1] = p - 1
-            idx = m.index_for_path(path)
-            self.tags_view.setExpanded(idx, True)
-            if self.get_node(idx).type == TagTreeItem.TAG:
-                m.show_item_at_index(idx, box=True)
-            else:
-                m.show_item_at_index(idx)
-        return True
-
-    def do_drop_from_library(self, md, action, row, column, parent):
-        idx = parent
-        if idx.isValid():
-            self.tags_view.setCurrentIndex(idx)
-            node = self.data(idx, Qt.UserRole)
-            if node.type == TagTreeItem.TAG:
-                fm = self.db.metadata_for_field(node.tag.category)
-                if node.tag.category in \
-                    ('tags', 'series', 'authors', 'rating', 'publisher') or \
-                    (fm['is_custom'] and (
-                            fm['datatype'] in ['text', 'rating', 'series',
-                                               'enumeration'] or
-                                (fm['datatype'] == 'composite' and
-                                 fm['display'].get('make_category', False)))):
-                    mime = 'application/calibre+from_library'
-                    ids = list(map(int, str(md.data(mime)).split()))
-                    self.handle_drop(node, ids)
-                    return True
-            elif node.type == TagTreeItem.CATEGORY:
-                fm_dest = self.db.metadata_for_field(node.category_key)
-                if fm_dest['kind'] == 'user':
-                    fm_src = self.db.metadata_for_field(md.column_name)
-                    if md.column_name in ['authors', 'publisher', 'series'] or \
-                            (fm_src['is_custom'] and (
-                             (fm_src['datatype'] in ['series', 'text', 'enumeration'] and
-                              not fm_src['is_multiple']))or
-                             (fm_src['datatype'] == 'composite' and
-                              fm_src['display'].get('make_category', False))):
-                        mime = 'application/calibre+from_library'
-                        ids = list(map(int, str(md.data(mime)).split()))
-                        self.handle_user_category_drop(node, ids, md.column_name)
-                        return True
-        return False
-
-    def handle_user_category_drop(self, on_node, ids, column):
-        categories = self.db.prefs.get('user_categories', {})
-        category = categories.get(on_node.category_key[1:], None)
-        if category is None:
-            return
-        fm_src = self.db.metadata_for_field(column)
-        for id in ids:
-            label = fm_src['label']
-            if not fm_src['is_custom']:
-                if label == 'authors':
-                    items = self.db.get_authors_with_ids()
-                    items = [(i[0], i[1].replace('|', ',')) for i in items]
-                    value = self.db.authors(id, index_is_id=True)
-                    value = [v.replace('|', ',') for v in value.split(',')]
-                elif label == 'publisher':
-                    items = self.db.get_publishers_with_ids()
-                    value = self.db.publisher(id, index_is_id=True)
-                elif label == 'series':
-                    items = self.db.get_series_with_ids()
-                    value = self.db.series(id, index_is_id=True)
-            else:
-                items = self.db.get_custom_items_with_ids(label=label)
-                if fm_src['datatype'] != 'composite':
-                    value = self.db.get_custom(id, label=label, index_is_id=True)
-                else:
-                    value = self.db.get_property(id, loc=fm_src['rec_index'],
-                                                 index_is_id=True)
-            if value is None:
-                return
-            if not isinstance(value, list):
-                value = [value]
-            for val in value:
-                for (v, c, id) in category:
-                    if v == val and c == column:
-                        break
-                else:
-                    category.append([val, column, 0])
-            categories[on_node.category_key[1:]] = category
-            self.db.prefs.set('user_categories', categories)
-            self.tags_view.recount()
-
-    def handle_drop(self, on_node, ids):
-        #print 'Dropped ids:', ids, on_node.tag
-        key = on_node.tag.category
-        if (key == 'authors' and len(ids) >= 5):
-            if not confirm('<p>'+_('Changing the authors for several books can '
-                           'take a while. Are you sure?')
-                        +'</p>', 'tag_browser_drop_authors', self.tags_view):
-                return
-        elif len(ids) > 15:
-            if not confirm('<p>'+_('Changing the metadata for that many books '
-                           'can take a while. Are you sure?')
-                        +'</p>', 'tag_browser_many_changes', self.tags_view):
-                return
-
-        fm = self.db.metadata_for_field(key)
-        is_multiple = fm['is_multiple']
-        val = on_node.tag.original_name
-        for id in ids:
-            mi = self.db.get_metadata(id, index_is_id=True)
-
-            # Prepare to ignore the author, unless it is changed. Title is
-            # always ignored -- see the call to set_metadata
-            set_authors = False
-
-            # Author_sort cannot change explicitly. Changing the author might
-            # change it.
-            mi.author_sort = None # Never will change by itself.
-
-            if key == 'authors':
-                mi.authors = [val]
-                set_authors=True
-            elif fm['datatype'] == 'rating':
-                mi.set(key, len(val) * 2)
-            elif fm['is_custom'] and fm['datatype'] == 'series':
-                mi.set(key, val, extra=1.0)
-            elif is_multiple:
-                new_val = mi.get(key, [])
-                if val in new_val:
-                    # Fortunately, only one field can change, so the continue
-                    # won't break anything
-                    continue
-                new_val.append(val)
-                mi.set(key, new_val)
-            else:
-                mi.set(key, val)
-            self.db.set_metadata(id, mi, set_title=False,
-                                 set_authors=set_authors, commit=False)
-        self.db.commit()
-        self.drag_drop_finished.emit(ids)
-    # }}}
-
-    def set_search_restriction(self, s):
-        self.search_restriction = s
-
-    def _get_category_nodes(self, sort):
-        '''
-        Called by __init__. Do not directly call this method.
-        '''
-        self.row_map = []
-        self.categories = {}
-
-        # Get the categories
-        if self.search_restriction:
-            try:
-                data = self.db.get_categories(sort=sort,
-                        icon_map=self.category_icon_map,
-                        ids=self.db.search('', return_matches=True))
-            except:
-                data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
-                self.tags_view.restriction_error.emit()
-        else:
-            data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
-
-        # Reconstruct the user categories, putting them into metadata
-        self.db.field_metadata.remove_dynamic_categories()
-        tb_cats = self.db.field_metadata
-        for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
-                               key=sort_key):
-            cat_name = '@' + user_cat # add the '@' to avoid name collision
-            while True:
-                try:
-                    tb_cats.add_user_category(label=cat_name, name=user_cat)
-                    dot = cat_name.rfind('.')
-                    if dot < 0:
-                        break
-                    cat_name = cat_name[:dot]
-                except ValueError:
-                    break
-
-        for cat in sorted(self.db.prefs.get('grouped_search_terms', {}).keys(),
-                          key=sort_key):
-            if (u'@' + cat) in data:
-                try:
-                    tb_cats.add_user_category(label=u'@' + cat, name=cat)
-                except ValueError:
-                    traceback.print_exc()
-        self.db.data.change_search_locations(self.db.field_metadata.get_search_terms())
-
-        if len(saved_searches().names()):
-            tb_cats.add_search_category(label='search', name=_('Searches'))
-
-        if self.filter_categories_by:
-            for category in data.keys():
-                data[category] = [t for t in data[category]
-                        if lower(t.name).find(self.filter_categories_by) >= 0]
-
-        tb_categories = self.db.field_metadata
-        for category in tb_categories:
-            if category in data: # The search category can come and go
-                self.row_map.append(category)
-                self.categories[category] = tb_categories[category]['name']
-        return data
-
-    def refresh(self, data=None):
-        '''
-        Here to trap usages of refresh in the old architecture. Can eventually
-        be removed.
-        '''
-        print ('TagsModel: refresh called!')
-        traceback.print_stack()
-        return False
-
-    def create_node(self, *args, **kwargs):
-        node = TagTreeItem(*args, **kwargs)
-        self.node_map[id(node)] = node
-        return node
-
-    def get_node(self, idx):
-        ans = self.node_map.get(idx.internalId(), self.root_item)
-        return ans
-
-    def createIndex(self, row, column, internal_pointer=None):
-        idx = QAbstractItemModel.createIndex(self, row, column,
-                id(internal_pointer))
-        return idx
-
     def _create_node_tree(self, data, state_map):
-        '''
-        Called by __init__. Do not directly call this method.
-        '''
         sort_by = config['sort_tags_by']
 
         if data is None:
@@ -826,16 +503,338 @@ class TagsModel(QAbstractItemModel): # {{{
         for category in self.category_nodes:
             process_one_node(category, state_map.get(category.py_name, {}))
 
-    def get_state(self):
-        state_map = {}
-        expanded_categories = []
-        for row, category in enumerate(self.category_nodes):
-            if self.tags_view.isExpanded(self.index(row, 0, QModelIndex())):
-                expanded_categories.append(category.py_name)
-            states = [c.tag.state for c in category.child_tags()]
-            names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
-            state_map[category.py_name] = dict(izip(names, states))
-        return expanded_categories, state_map
+    # Drag'n Drop {{{
+    def mimeTypes(self):
+        return ["application/calibre+from_library",
+                'application/calibre+from_tag_browser']
+
+    def mimeData(self, indexes):
+        data = []
+        for idx in indexes:
+            if idx.isValid():
+                # get some useful serializable data
+                node = self.get_node(idx)
+                path = self.path_for_index(idx)
+                if node.type == TagTreeItem.CATEGORY:
+                    d = (node.type, node.py_name, node.category_key)
+                else:
+                    t = node.tag
+                    p = node
+                    while p.type != TagTreeItem.CATEGORY:
+                        p = p.parent
+                    d = (node.type, p.category_key, p.is_gst, t.original_name,
+                         t.category, path)
+                data.append(d)
+            else:
+                data.append(None)
+        raw = bytearray(cPickle.dumps(data, -1))
+        ans = QMimeData()
+        ans.setData('application/calibre+from_tag_browser', raw)
+        return ans
+
+    def dropMimeData(self, md, action, row, column, parent):
+        fmts = set([unicode(x) for x in md.formats()])
+        if not fmts.intersection(set(self.mimeTypes())):
+            return False
+        if "application/calibre+from_library" in fmts:
+            if action != Qt.CopyAction:
+                return False
+            return self.do_drop_from_library(md, action, row, column, parent)
+        elif 'application/calibre+from_tag_browser' in fmts:
+            return self.do_drop_from_tag_browser(md, action, row, column, parent)
+
+    def do_drop_from_tag_browser(self, md, action, row, column, parent):
+        if not parent.isValid():
+            return False
+        dest = self.get_node(parent)
+        if dest.type != TagTreeItem.CATEGORY:
+            return False
+        if not md.hasFormat('application/calibre+from_tag_browser'):
+            return False
+        data = str(md.data('application/calibre+from_tag_browser'))
+        src = cPickle.loads(data)
+        for s in src:
+            if s[0] != TagTreeItem.TAG:
+                return False
+        return self.move_or_copy_item_to_user_category(src, dest, action)
+
+    def move_or_copy_item_to_user_category(self, src, dest, action):
+        '''
+        src is a list of tuples representing items to copy. The tuple is
+        (type, containing category key, category key is global search term,
+         full name, category key, path to node)
+        The type must be TagTreeItem.TAG
+        dest is the TagTreeItem node to receive the items
+        action is Qt.CopyAction or Qt.MoveAction
+        '''
+        def process_source_node(user_cats, src_parent, src_parent_is_gst,
+                                is_uc, dest_key, node):
+            '''
+            Copy/move an item and all its children to the destination
+            '''
+            copied = False
+            src_name = node.tag.original_name
+            src_cat = node.tag.category
+            # delete the item if the source is a user category and action is move
+            if is_uc and not src_parent_is_gst and src_parent in user_cats and \
+                                    action == Qt.MoveAction:
+                new_cat = []
+                for tup in user_cats[src_parent]:
+                    if src_name == tup[0] and src_cat == tup[1]:
+                        continue
+                    new_cat.append(list(tup))
+                user_cats[src_parent] = new_cat
+            else:
+                copied = True
+
+            # Now add the item to the destination user category
+            add_it = True
+            if not is_uc and src_cat == 'news':
+                src_cat = 'tags'
+            for tup in user_cats[dest_key]:
+                if src_name == tup[0] and src_cat == tup[1]:
+                    add_it = False
+            if add_it:
+                user_cats[dest_key].append([src_name, src_cat, 0])
+
+            for c in node.children:
+                copied = process_source_node(user_cats, src_parent, src_parent_is_gst,
+                                             is_uc, dest_key, c)
+            return copied
+
+        user_cats = self.db.prefs.get('user_categories', {})
+        path = None
+        for s in src:
+            src_parent, src_parent_is_gst = s[1:3]
+            path = s[5]
+
+            if src_parent.startswith('@'):
+                is_uc = True
+                src_parent = src_parent[1:]
+            else:
+                is_uc = False
+            dest_key = dest.category_key[1:]
+
+            if dest_key not in user_cats:
+                continue
+
+            node = self.index_for_path(path)
+            if node:
+                process_source_node(user_cats, src_parent, src_parent_is_gst,
+                                             is_uc, dest_key,
+                                             self.get_node(node))
+
+        self.db.prefs.set('user_categories', user_cats)
+        self.refresh_required.emit()
+
+        return True
+
+    def do_drop_from_library(self, md, action, row, column, parent):
+        idx = parent
+        if idx.isValid():
+            node = self.data(idx, Qt.UserRole)
+            if node.type == TagTreeItem.TAG:
+                fm = self.db.metadata_for_field(node.tag.category)
+                if node.tag.category in \
+                    ('tags', 'series', 'authors', 'rating', 'publisher') or \
+                    (fm['is_custom'] and (
+                            fm['datatype'] in ['text', 'rating', 'series',
+                                               'enumeration'] or
+                                (fm['datatype'] == 'composite' and
+                                 fm['display'].get('make_category', False)))):
+                    mime = 'application/calibre+from_library'
+                    ids = list(map(int, str(md.data(mime)).split()))
+                    self.handle_drop(node, ids)
+                    return True
+            elif node.type == TagTreeItem.CATEGORY:
+                fm_dest = self.db.metadata_for_field(node.category_key)
+                if fm_dest['kind'] == 'user':
+                    fm_src = self.db.metadata_for_field(md.column_name)
+                    if md.column_name in ['authors', 'publisher', 'series'] or \
+                            (fm_src['is_custom'] and (
+                             (fm_src['datatype'] in ['series', 'text', 'enumeration'] and
+                              not fm_src['is_multiple']))or
+                             (fm_src['datatype'] == 'composite' and
+                              fm_src['display'].get('make_category', False))):
+                        mime = 'application/calibre+from_library'
+                        ids = list(map(int, str(md.data(mime)).split()))
+                        self.handle_user_category_drop(node, ids, md.column_name)
+                        return True
+        return False
+
+    def handle_user_category_drop(self, on_node, ids, column):
+        categories = self.db.prefs.get('user_categories', {})
+        category = categories.get(on_node.category_key[1:], None)
+        if category is None:
+            return
+        fm_src = self.db.metadata_for_field(column)
+        for id in ids:
+            label = fm_src['label']
+            if not fm_src['is_custom']:
+                if label == 'authors':
+                    items = self.db.get_authors_with_ids()
+                    items = [(i[0], i[1].replace('|', ',')) for i in items]
+                    value = self.db.authors(id, index_is_id=True)
+                    value = [v.replace('|', ',') for v in value.split(',')]
+                elif label == 'publisher':
+                    items = self.db.get_publishers_with_ids()
+                    value = self.db.publisher(id, index_is_id=True)
+                elif label == 'series':
+                    items = self.db.get_series_with_ids()
+                    value = self.db.series(id, index_is_id=True)
+            else:
+                items = self.db.get_custom_items_with_ids(label=label)
+                if fm_src['datatype'] != 'composite':
+                    value = self.db.get_custom(id, label=label, index_is_id=True)
+                else:
+                    value = self.db.get_property(id, loc=fm_src['rec_index'],
+                                                 index_is_id=True)
+            if value is None:
+                return
+            if not isinstance(value, list):
+                value = [value]
+            for val in value:
+                for (v, c, id) in category:
+                    if v == val and c == column:
+                        break
+                else:
+                    category.append([val, column, 0])
+            categories[on_node.category_key[1:]] = category
+            self.db.prefs.set('user_categories', categories)
+            self.refresh_required.emit()
+
+    def handle_drop(self, on_node, ids):
+        #print 'Dropped ids:', ids, on_node.tag
+        key = on_node.tag.category
+        if (key == 'authors' and len(ids) >= 5):
+            if not confirm('<p>'+_('Changing the authors for several books can '
+                           'take a while. Are you sure?')
+                        +'</p>', 'tag_browser_drop_authors', self.parent()):
+                return
+        elif len(ids) > 15:
+            if not confirm('<p>'+_('Changing the metadata for that many books '
+                           'can take a while. Are you sure?')
+                        +'</p>', 'tag_browser_many_changes', self.parent()):
+                return
+
+        fm = self.db.metadata_for_field(key)
+        is_multiple = fm['is_multiple']
+        val = on_node.tag.original_name
+        for id in ids:
+            mi = self.db.get_metadata(id, index_is_id=True)
+
+            # Prepare to ignore the author, unless it is changed. Title is
+            # always ignored -- see the call to set_metadata
+            set_authors = False
+
+            # Author_sort cannot change explicitly. Changing the author might
+            # change it.
+            mi.author_sort = None # Never will change by itself.
+
+            if key == 'authors':
+                mi.authors = [val]
+                set_authors=True
+            elif fm['datatype'] == 'rating':
+                mi.set(key, len(val) * 2)
+            elif fm['is_custom'] and fm['datatype'] == 'series':
+                mi.set(key, val, extra=1.0)
+            elif is_multiple:
+                new_val = mi.get(key, [])
+                if val in new_val:
+                    # Fortunately, only one field can change, so the continue
+                    # won't break anything
+                    continue
+                new_val.append(val)
+                mi.set(key, new_val)
+            else:
+                mi.set(key, val)
+            self.db.set_metadata(id, mi, set_title=False,
+                                 set_authors=set_authors, commit=False)
+        self.db.commit()
+        self.drag_drop_finished.emit(ids)
+    # }}}
+
+    def _get_category_nodes(self, sort):
+        '''
+        Called by __init__. Do not directly call this method.
+        '''
+        self.row_map = []
+        self.categories = {}
+
+        # Get the categories
+        if self.search_restriction:
+            try:
+                data = self.db.get_categories(sort=sort,
+                        icon_map=self.category_icon_map,
+                        ids=self.db.search('', return_matches=True))
+            except:
+                data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
+                self.restriction_error.emit()
+        else:
+            data = self.db.get_categories(sort=sort, icon_map=self.category_icon_map)
+
+        # Reconstruct the user categories, putting them into metadata
+        self.db.field_metadata.remove_dynamic_categories()
+        tb_cats = self.db.field_metadata
+        for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
+                               key=sort_key):
+            cat_name = '@' + user_cat # add the '@' to avoid name collision
+            while True:
+                try:
+                    tb_cats.add_user_category(label=cat_name, name=user_cat)
+                    dot = cat_name.rfind('.')
+                    if dot < 0:
+                        break
+                    cat_name = cat_name[:dot]
+                except ValueError:
+                    break
+
+        for cat in sorted(self.db.prefs.get('grouped_search_terms', {}).keys(),
+                          key=sort_key):
+            if (u'@' + cat) in data:
+                try:
+                    tb_cats.add_user_category(label=u'@' + cat, name=cat)
+                except ValueError:
+                    traceback.print_exc()
+        self.db.data.change_search_locations(self.db.field_metadata.get_search_terms())
+
+        if len(saved_searches().names()):
+            tb_cats.add_search_category(label='search', name=_('Searches'))
+
+        if self.filter_categories_by:
+            for category in data.keys():
+                data[category] = [t for t in data[category]
+                        if lower(t.name).find(self.filter_categories_by) >= 0]
+
+        tb_categories = self.db.field_metadata
+        for category in tb_categories:
+            if category in data: # The search category can come and go
+                self.row_map.append(category)
+                self.categories[category] = tb_categories[category]['name']
+        return data
+
+    def refresh(self, data=None):
+        '''
+        Here to trap usages of refresh in the old architecture. Can eventually
+        be removed.
+        '''
+        print ('TagsModel: refresh called!')
+        traceback.print_stack()
+        return False
+
+    def create_node(self, *args, **kwargs):
+        node = TagTreeItem(*args, **kwargs)
+        self.node_map[id(node)] = node
+        return node
+
+    def get_node(self, idx):
+        ans = self.node_map.get(idx.internalId(), self.root_item)
+        return ans
+
+    def createIndex(self, row, column, internal_pointer=None):
+        idx = QAbstractItemModel.createIndex(self, row, column,
+                id(internal_pointer))
+        return idx
 
     def index_for_category(self, name):
         for row, category in enumerate(self.category_nodes):
@@ -853,20 +852,19 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def setData(self, index, value, role=Qt.EditRole):
         if not index.isValid():
-            return NONE
+            return False
         # set up to reposition at the same item. We can do this except if
         # working with the last item and that item is deleted, in which case
         # we position at the parent label
-        path = index.model().path_for_index(index)
         val = unicode(value.toString()).strip()
         if not val:
-            error_dialog(self.tags_view, _('Item is blank'),
+            error_dialog(self.parent(), _('Item is blank'),
                         _('An item cannot be set to nothing. Delete it instead.')).exec_()
             return False
         item = self.get_node(index)
         if item.type == TagTreeItem.CATEGORY and item.category_key.startswith('@'):
             if val.find('.') >= 0:
-                error_dialog(self.tags_view, _('Rename user category'),
+                error_dialog(self.parent(), _('Rename user category'),
                     _('You cannot use periods in the name when '
                       'renaming user categories'), show=True)
                 return False
@@ -886,7 +884,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     if len(c) == len(ckey):
                         if strcmp(ckey, nkey) != 0 and \
                                 nkey_lower in user_cat_keys_lower:
-                            error_dialog(self.tags_view, _('Rename user category'),
+                            error_dialog(self.parent(), _('Rename user category'),
                                 _('The name %s is already used')%nkey, show=True)
                             return False
                         user_cats[nkey] = user_cats[ckey]
@@ -895,16 +893,12 @@ class TagsModel(QAbstractItemModel): # {{{
                         rest = c[len(ckey):]
                         if strcmp(ckey, nkey) != 0 and \
                                     icu_lower(nkey + rest) in user_cat_keys_lower:
-                            error_dialog(self.tags_view, _('Rename user category'),
+                            error_dialog(self.parent(), _('Rename user category'),
                                 _('The name %s is already used')%(nkey+rest), show=True)
                             return False
                         user_cats[nkey + rest] = user_cats[ckey + rest]
                         del user_cats[ckey + rest]
-            self.db.prefs.set('user_categories', user_cats)
-            self.tags_view.set_new_model()
-            # must not use 'self' below because the model has changed!
-            p = self.tags_view.model().find_category_node('@' + nkey)
-            self.tags_view.model().show_item_at_path(p)
+            self.user_categories_edited.emit(user_cats, nkey) # Does a refresh
             return True
 
         key = item.tag.category
@@ -914,17 +908,17 @@ class TagsModel(QAbstractItemModel): # {{{
             return False
         if key == 'authors':
             if val.find('&') >= 0:
-                error_dialog(self.tags_view, _('Invalid author name'),
+                error_dialog(self.parent(), _('Invalid author name'),
                         _('Author names cannot contain & characters.')).exec_()
                 return False
         if key == 'search':
             if val in saved_searches().names():
-                error_dialog(self.tags_view, _('Duplicate search name'),
+                error_dialog(self.parent(), _('Duplicate search name'),
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
             saved_searches().rename(unicode(item.data(role).toString()), val)
             item.tag.name = val
-            self.tags_view.search_item_renamed.emit() # Does a refresh
+            self.search_item_renamed.emit() # Does a refresh
         else:
             if key == 'series':
                 self.db.rename_series(item.tag.id, val)
@@ -937,18 +931,17 @@ class TagsModel(QAbstractItemModel): # {{{
             elif self.db.field_metadata[key]['is_custom']:
                 self.db.rename_custom_item(item.tag.id, val,
                                     label=self.db.field_metadata[key]['label'])
-            self.tags_view.tag_item_renamed.emit()
+            self.tag_item_renamed.emit()
             item.tag.name = val
             self.rename_item_in_all_user_categories(name, key, val)
-            self.tags_view.refresh_required.emit()
-        self.show_item_at_path(path)
+            self.refresh_required.emit()
         return True
 
     def rename_item_in_all_user_categories(self, item_name, item_category, new_name):
         '''
         Search all user categories for items named item_name with category
         item_category and rename them to new_name. The caller must arrange to
-        redisplay the tree as appropriate (recount or set_new_model)
+        redisplay the tree as appropriate.
         '''
         user_cats = self.db.prefs.get('user_categories', {})
         for k in user_cats.keys():
@@ -965,7 +958,7 @@ class TagsModel(QAbstractItemModel): # {{{
         '''
         Search all user categories for items named item_name with category
         item_category and delete them. The caller must arrange to redisplay the
-        tree as appropriate (recount or set_new_model)
+        tree as appropriate.
         '''
         user_cats = self.db.prefs.get('user_categories', {})
         for cat in user_cats.keys():
@@ -1262,27 +1255,10 @@ class TagsModel(QAbstractItemModel): # {{{
                         return v
         return None
 
-    def show_item_at_path(self, path, box=False,
-                          position=QTreeView.PositionAtCenter):
-        '''
-        Scroll the browser and open categories to show the item referenced by
-        path. If possible, the item is placed in the center. If box=True, a
-        box is drawn around the item.
-        '''
-        if path:
-            self.show_item_at_index(self.index_for_path(path), box=box,
-                                    position=position)
-
-    def show_item_at_index(self, idx, box=False,
-                           position=QTreeView.PositionAtCenter):
-        if idx.isValid():
-            self.tags_view.setCurrentIndex(idx)
-            self.tags_view.scrollTo(idx, position)
-            self.tags_view.setCurrentIndex(idx)
-            if box:
-                tag_item = self.get_node(idx)
-                tag_item.boxed = True
-                self.dataChanged.emit(idx, idx)
+    def set_boxed(self, idx):
+        tag_item = self.get_node(idx)
+        tag_item.boxed = True
+        self.dataChanged.emit(idx, idx)
 
     def clear_boxed(self):
         '''
@@ -1309,9 +1285,6 @@ class TagsModel(QAbstractItemModel): # {{{
 
         for i in xrange(self.rowCount(QModelIndex())):
             process_level(self.index(i, 0, QModelIndex()))
-
-    def get_filter_categories_by(self):
-        return self.filter_categories_by
 
     # }}}
 
