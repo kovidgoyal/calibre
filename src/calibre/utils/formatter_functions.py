@@ -785,7 +785,7 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         except:
             return ''
         i = d1 - d2
-        return str(i.days)
+        return str('%d.%d'%(i.days, i.seconds/8640))
 
 
 builtin_add         = BuiltinAdd()
