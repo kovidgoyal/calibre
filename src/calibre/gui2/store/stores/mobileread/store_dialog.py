@@ -9,9 +9,9 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (Qt, QDialog, QIcon, QComboBox)
 
-from calibre.gui2.store.mobileread.adv_search_builder import AdvSearchBuilderDialog
-from calibre.gui2.store.mobileread.models import BooksModel
-from calibre.gui2.store.mobileread.store_dialog_ui import Ui_Dialog
+from calibre.gui2.store.stores.mobileread.adv_search_builder import AdvSearchBuilderDialog
+from calibre.gui2.store.stores.mobileread.models import BooksModel
+from calibre.gui2.store.stores.mobileread.store_dialog_ui import Ui_Dialog
 
 class MobileReadStoreDialog(QDialog, Ui_Dialog):
     

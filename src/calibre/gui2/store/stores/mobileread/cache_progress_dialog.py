@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import QDialog
 
-from calibre.gui2.store.mobileread.cache_progress_dialog_ui import Ui_Dialog
+from calibre.gui2.store.stores.mobileread.cache_progress_dialog_ui import Ui_Dialog
 
 class CacheProgressDialog(QDialog, Ui_Dialog):
 
