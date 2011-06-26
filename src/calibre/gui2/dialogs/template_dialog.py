@@ -11,7 +11,7 @@ from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.utils.formatter_functions import formatter_functions
-from calibre.ebooks.metadata.book.base import composite_formatter, Metadata
+from calibre.ebooks.metadata.book.base import SafeFormat, Metadata
 from calibre.library.coloring import (displayable_columns)
 
 
@@ -270,7 +270,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.highlighter.regenerate_paren_positions()
             self.text_cursor_changed()
             self.template_value.setText(
-                composite_formatter.safe_format(cur_text, self.mi,
+                SafeFormat().safe_format(cur_text, self.mi,
                                                 _('EXCEPTION: '), self.mi))
 
     def text_cursor_changed(self):
