@@ -23,10 +23,13 @@ class OpenSearchStore(StorePlugin):
     web_url = ''
 
     def open(self, parent=None, detail_item=None, external=False):
+        if not hasattr(self, 'web_url'):
+            return
+        
         if external or self.config.get('open_external', False):
-            open_url(QUrl(detail_item if detail_item else self.url))
+            open_url(QUrl(detail_item if detail_item else self.web_url))
         else:
-            d = WebStoreDialog(self.gui, self.url, parent, detail_item)
+            d = WebStoreDialog(self.gui, self.web_url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
