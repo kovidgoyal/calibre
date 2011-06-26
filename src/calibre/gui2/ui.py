@@ -39,7 +39,7 @@ from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
-from calibre.gui2.tag_view import TagBrowserMixin
+from calibre.gui2.tag_browser.ui import TagBrowserMixin
 
 
 class Listener(Thread): # {{{

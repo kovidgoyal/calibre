@@ -17,6 +17,8 @@ def decompress_doc(data):
     return cPalmdoc.decompress(data)
 
 def compress_doc(data):
+    if not data:
+        return u''
     return cPalmdoc.compress(data)
 
 def test():
