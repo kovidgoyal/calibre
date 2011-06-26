@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-24 18:42+0000\n"
-"PO-Revision-Date: 2011-05-22 18:57+0000\n"
-"Last-Translator: Claus Dam Nielsen <Unknown>\n"
+"PO-Revision-Date: 2011-06-25 19:18+0000\n"
+"Last-Translator: Glenn <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-25 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-06-26 04:32+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -235,11 +235,11 @@ msgstr "Indstillinger"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:36
 msgid "Store"
-msgstr ""
+msgstr "Butik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "En e-bog butik."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:18
 msgid ""
@@ -329,65 +329,67 @@ msgstr "Sæt metadata fra %s filer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Tilføj bøger til calibre eller den forbundne enhed"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Hent kommentarer fra en forbunden Kindle (eksperimentiel)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Dan et katalog over bøger i dit calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Konvertér bøger til forskellige ebogsformater"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Slet bøger fra dit calibre-bibliotek eller forbundne enhed"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Redigér bøgernes metadata i dit calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Løs bøger i dit calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Hent nyheder fra internettet i ebogsform"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Vis en liste af relaterede bøger hurtigt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Eksportér bøger fra dit calibre-bibliotek til harddisken"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:815
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Vis bogdetaljer i et separat pop-up vindue"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
 msgid "Restart calibre"
-msgstr ""
+msgstr "Genstart calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:825
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "Åben mappen som indeholder calibre-bibliotekets bogfiler"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:831
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Send bøger til den forbundne enhed"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Send bøger via email eller web; forbind også til iTunes eller mapper på din "
+"computer, da de også er enheder"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -396,46 +398,49 @@ msgstr "Browse calibre brugermanualen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid "Customize calibre"
-msgstr ""
+msgstr "Tilpas calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:852
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Find let lignende bøger til den aktuelt valgte"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
+"Skift mellem forskellige calibre-bibliotekter og udfør vedligeholdelse på dem"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Kopiér bøger fra enheden til dit calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Redigér collection i hvilken bøger er placeret på din enhed"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:873
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Kopiér en bog fra et calibre-bibliotek til et andet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "Udfør små tweaks på epub-filer i dit calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:883
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Find det næste eller forrige match, når der søges i dit calibre-bibliotek i "
+"fremhæv-mode"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:890
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Søg efter bøger fra forskellige bogforhandlere"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Hent nye calibre-plugins eller opdatér dine nuværende"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:925
 msgid "Look and Feel"
@@ -484,11 +489,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:971
 msgid "Searching"
-msgstr ""
+msgstr "Søger..."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:977
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Tilpas måden søg-efter-bøger virker på i calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:982
 msgid "Input Options"
@@ -565,7 +570,7 @@ msgstr "Ændre metadata felter før gem/send"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1062
 msgid "Template Functions"
-msgstr ""
+msgstr "Skabelonsfunktioner"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1064
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1111
@@ -576,7 +581,7 @@ msgstr "Avanceret"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1068
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Dan dine egne skabelonsfunktioner"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1073
 msgid "Sharing books by email"
@@ -614,7 +619,7 @@ msgstr "Download metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1104
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Styr hvordan calibre henter ebogsmetadata fra nettet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:275
@@ -671,7 +676,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Konvertér ebøger til %s formatet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -786,6 +791,8 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Tilsigtet Samsung Galaxy og ligende tavlecomputer enheder med en opløsning "
+"på 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:472
 msgid "This profile is intended for the Kobo Reader."
@@ -797,11 +804,11 @@ msgstr "Denne profil er beregnet til SONY's PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Egnet til brug med enhver e-blæk enhed"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:510
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "Egnet til brug med enhver storskærms e-blæk enhed"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "This profile is intended for the 5-inch JetBook."
@@ -904,7 +911,7 @@ msgstr "Deaktivér det angivne udvidelsesmodul"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:127
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:136
 msgid "Path to library too long. Must be less than %d characters."
-msgstr ""
+msgstr "Sti til bibliotek for lang. Skal være kortere end %d tegn."
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
@@ -940,11 +947,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:64
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Deaktivér Apple driver"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:68
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Aktivér Apple driver"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:117
 msgid "Use Series as Category in iTunes/iBooks"
@@ -952,7 +959,7 @@ msgstr "Brug serier som kategori i iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "Aktivér til at anvende series navn som iTunes Genre, iBooks Category"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Cache covers from iTunes/iBooks"
@@ -960,7 +967,7 @@ msgstr "Cache omslag fra iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Aktivér til at cache og vise omslag fra iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:183
 msgid "Apple device"
@@ -1053,26 +1060,30 @@ msgstr "Kommunikér med iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Kommunikér med Sanda Bambook eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "Enheds ip-adresse (genstart calibre efter ændring)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:47
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Ikke istand til at tilføje bog til bibliotek direkte fra Bambook. Venligst "
+"gem bogen til disk og tilføj filen til bibliotek - fra disk."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:67
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Ikke istand til at forbinde til Bambook, do skal først installere Bambook "
+"bibliotek."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -1080,6 +1091,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Ikke istand til at forbinde til Bambook. \n"
+"Hvis du prøver at forbinde via Wi-Fi, venligst vær sikker på at Bambooks ip-"
+"adresse er korrekt konfigureret."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
@@ -1144,7 +1158,7 @@ msgstr "Sender metadata til enhed..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:129
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Bambook SDK er ikke blevet installeret."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -1163,11 +1177,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Kommunikér med BOEYE BEX Serial eBook readers"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Kommunikér med BOEYE BDX serial eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1191,15 +1205,15 @@ msgstr "Kommunikér med PocketBook 301 læseren."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:232
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Kommunikér med PocketBook 602/603/902/903 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Kommunikér med PocketBook 360+ reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Kommunikér med PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1257,7 +1271,7 @@ msgstr "Kommunikér med The Book læser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:58
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Kommunikér med Libre Air reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:71
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1311,11 +1325,11 @@ msgstr "Kommunikér med JetBook Mini reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Ikke en gyldig MOBI-fil. Reporterer %s identiteten"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "Kunne ikke danne side kortlægning."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1327,7 +1341,7 @@ msgstr "Kommunikér med Kindle 2/3 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Send sidenummer information, når bøger sendes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1336,10 +1350,14 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Kindle 3 og nyere versioner kan anvende sidenummer information i MOBI-filer. "
+"Med denne valgmulighed, vil calibre beregne og sende denne information til "
+"Kindle når der sendes MOBI-filer via USB. Bemærk at sidenumrene ikke svarer "
+"til bogens papirsidenumre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "Anvend langsommere, men mere præcis sidenummer kortlægning"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -1348,6 +1366,10 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Der er to metoder til at danne sidenummer information. Ved at anvende den "
+"præcise generator vil de dannede sidenumrene svarer mere hen i retning af "
+"trkt bog. Men denne metode er langsommere og gøre overførselsbehandlingen "
+"til Kindle langsommere."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1384,11 +1406,11 @@ msgstr "Kommunikér med Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Kommunikér med Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Kommunikér med Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1409,23 +1431,23 @@ msgstr "Kommunikér med Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:199
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Kommunikér med Aluratek Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:219
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Kommunikér med Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:242
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Kommunikér med EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Kommunikér med Adam tablet"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Kommunikér med Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1449,7 +1471,7 @@ msgstr "Kommunikér med Nook e-bogslæser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color and TSR eBook readers."
-msgstr ""
+msgstr "Kommunikér med Nook Color og TSR eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1465,11 +1487,11 @@ msgstr "Kommunikér med alle Sony eBook læsere."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:62
 msgid "All by title"
-msgstr ""
+msgstr "Alle efter titel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:63
 msgid "All by author"
-msgstr ""
+msgstr "Alle efter forfatter"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid ""
@@ -1485,10 +1507,13 @@ msgid ""
 "to the list to enable them. The collections will be given the name provided "
 "after the \":\" character."
 msgstr ""
+". To specielle collections er tilgængelige: %s:%s og %s:%s. Tilføj disse "
+"værdier til listen for at aktivere dem. Collections vil få navnet angivet "
+"efter \":\"-tegnet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:73
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "Upload separate omslagsminiaturer til bøger (nyere readers)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid ""
@@ -1513,7 +1538,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
 msgid "Preserve cover aspect ratio when building thumbnails"
-msgstr ""
+msgstr "Bevar omslags aspektforhold når miniaturer dannes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:88
 msgid ""
@@ -1552,7 +1577,7 @@ msgstr "Kommunikér med Newsmy læser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:48
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Kommunikér med Archos reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:58
 msgid "Communicate with the Pico reader."
@@ -1568,15 +1593,15 @@ msgstr "Kommunikér med Sovos reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:89
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Kommunikér med Sunstech EB700 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:100
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Kommunikér med Stash W950 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:112
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Kommunikér med Wexler reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 msgid "Unable to detect the %s disk drive. Try rebooting."
@@ -1599,6 +1624,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Ikke istand til at finde %s disken. Enten er enheden allerede skubbet ud, "
+"eller din kerne har sat en forældet version af SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:645
 msgid "Unable to mount main memory (Error code: %d)"
@@ -1674,7 +1701,7 @@ msgstr "Hent enhedsoplysninger..."
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "USB Vendor ID (i hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1683,21 +1710,23 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
+"Hent denne ID ved at anvende Preferences -> Misc -> Get information til at "
+"oprette den brugerdefinerede enhed"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "USB Product ID (i hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "USB Revision ID (i hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Windows main memory vendor string"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1707,25 +1736,27 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
+"Dette felt anvendes kun på windows. Hent denne ID ved at anvende Preferences "
+"-> Misc -> Get information til at oprette den brugerdefinerede enhed"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "Windows main memory ID string"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Windows card A vendor string"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "Windows card A ID string"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "Main memory mappe"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -1733,10 +1764,12 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
+"Indtast mappen hvor bøgerne skal gemmes. Denne mappe er foranstillet til "
+"enhver send_to_device skabelon"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr ""
+msgstr "Card A mappe"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:207
 msgid "Rendered %s"
@@ -1848,6 +1881,9 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Angiv billedstørrelse som breddexhøjde pixels. Normalt bliver en "
+"billedstørrelse automatisk beregnet fra output-profilen. Denne valgmulighed "
+"tilsidesætter den automatiske beregning."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:325
 msgid ""
@@ -3055,7 +3091,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:56
 msgid "Value: unknown field "
-msgstr ""
+msgstr "Værdi: Ukendt felt "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:152
 msgid "TEMPLATE ERROR"
@@ -3294,52 +3330,52 @@ msgstr "Omslag"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:386
 msgid "Downloads metadata and covers from Amazon"
-msgstr ""
+msgstr "Hent metadata og omslag fra Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:396
 msgid "US"
-msgstr ""
+msgstr "US"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:397
 msgid "France"
-msgstr ""
+msgstr "Frankrig"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:398
 msgid "Germany"
-msgstr ""
+msgstr "Tyskland"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:399
 msgid "UK"
-msgstr ""
+msgstr "UK"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:400
 msgid "Italy"
-msgstr ""
+msgstr "Italien"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:404
 msgid "Amazon website to use:"
-msgstr ""
+msgstr "Amazon website som skal anvendes:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:405
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
-msgstr ""
+msgstr "Metadata fra Amazon vil blive hentet fra dette lands Amazon website."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:532
 msgid "Amazon timed out. Try again later."
-msgstr ""
+msgstr "Amazon timede out. Prøv igen senere."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:160
 msgid "Metadata source"
-msgstr ""
+msgstr "Metadata kilde"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:156
 msgid "Downloads metadata and covers from Douban.com"
-msgstr ""
+msgstr "Hent metadata og omslag fra Douban.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata and covers from Google Books"
-msgstr ""
+msgstr "Hent metadata og omslag fra Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:27
 msgid "Downloads metadata from isbndb.com"
@@ -3347,13 +3383,15 @@ msgstr "Downloads metadata fra isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "IsbnDB key:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
 msgstr ""
+"For at anvende isbndb.com skal du ansøge om en gratis konto hos isbndb.com "
+"og få en access key."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3364,19 +3402,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "Hent omslag fra The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata and covers from Overdrive's Content Reserve"
-msgstr ""
+msgstr "Hent metadata og omslag fra Overdrive's Content Reserve"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Hent alle metadata (langsom)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
+"Aktivér denne valgmulighed for at samle alle tilgængelige metadata fra "
+"Overdrive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""

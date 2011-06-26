@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-24 18:42+0000\n"
-"PO-Revision-Date: 2011-06-24 16:43+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-06-25 13:58+0000\n"
+"Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-25 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-06-26 04:34+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -327,65 +327,66 @@ msgstr "%sファイルから書誌情報を設定する"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "書籍をCalibreか接続したデバイスに追加"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "接続されているKindleからアノテーションを取得（実験的）"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Calibreライブラリになる書籍のカタログを生成"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "書籍を各種ebookフォーマットに変換"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "書籍をcalibreライブラリか接続されたデバイスから削除"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Calibreライブラリの書籍の書誌情報を編集"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Calibreライブラリの書籍を読む"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "インターネットからニュースをEbookの形でダウンロードする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "関連する書籍のリストをすばやく表示"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Calibreライブラリからハードディスクへ書籍をエクスポート"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:815
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "書籍の詳細を別ウインドウで表示"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
 msgid "Restart calibre"
-msgstr ""
+msgstr "Calibreを再起動"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:825
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "Calibreライブラリの書籍ファイルがあるフォルダーを開く"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:831
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "接続されたデバイスに書籍を送る"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"書籍をe-mailやWebで送る。あるいはiTuneやコンピューター上のフォルダーへ、まるでそれらがデバイスであるかのように接続して送る。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -394,46 +395,46 @@ msgstr "calibreユーザーマニュアルを見る"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid "Customize calibre"
-msgstr ""
+msgstr "Calibreを設定"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:852
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "現在選択されている物に似ている書籍を簡単に探す"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "違ったCalibreのライブラリとの間をスイッチし、それらのメインテナンスを行う。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "デバイスから書籍をCalibreのライブラリへコピーする。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "デバイス上にある書籍のコレクションを編集する"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:873
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "一つのCalibreライブラリから他へ書籍をコピーする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "CalibreライブラリにあるEPubファイルにちょっとした修正を加える"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:883
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
-msgstr ""
+msgstr "Calibreライブラリをハイライトモードで検索時に、次や前のマッチを見つける"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:890
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "数々のEBook販売サイトから書籍を検索する"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "新しいCalibreのプラグインを取得したり、既にあるものをアップデートする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:925
 msgid "Look and Feel"
@@ -659,7 +660,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "%sフォーマットへEBookを変換する"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -1719,7 +1720,8 @@ msgstr "メインメモリー・ディレクトリ"
 msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
-msgstr "EBookを保存するディレクトリを入力してください。このディレクトリは"
+msgstr ""
+"EBookを保存するディレクトリを入力してください。このディレクトリは全てのsend_to_deviceテンプレートの先頭に付けられます。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
@@ -4441,7 +4443,7 @@ msgstr "よろしいですか?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:256
 msgid "<h1 style=\"color:red\">WARNING</h1>"
-msgstr ""
+msgstr "<h1 style=\"color:red\">注意</h1>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:257
 msgid ""
@@ -5187,19 +5189,19 @@ msgstr "デバイス上の書籍に詳細な情報が存在しません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Q"
-msgstr ""
+msgstr "Q"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Show quickview"
-msgstr ""
+msgstr "クイックビューを表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:31
 msgid "No quickview available"
-msgstr ""
+msgstr "クイックビューが使えません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:32
 msgid "Quickview is not available for books on the device."
-msgstr ""
+msgstr "クイックビューはデバイス上の書籍には使えません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
@@ -5467,7 +5469,7 @@ msgstr "保存中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:448
 msgid "Collecting data, please wait..."
-msgstr ""
+msgstr "データを集めています、お待ちください、、、"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:520
 msgid "Saved"
@@ -7214,7 +7216,7 @@ msgstr "共通"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:96
 msgid "Preserve &spaces"
-msgstr "スペースを保全する(&s)"
+msgstr "スペースを保持する(&s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:97
 msgid "Remove indents at the beginning of lines"
@@ -7376,10 +7378,11 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>."
 msgstr ""
-"<p>例えば、すべてのclass=\"chapter\"を持つh2タグにマッチさせるには、タグを<i>h2</i>に、アトリビュートを<i>class</"
-"i>そしてアトリビュートの値を<i>chapter</i>にしてください。</p><p>アトリビュート欄を空白にすると、すべてのアトリビュートに、アトリビ"
-"ュートの値欄を空白にすると、すべてのアトリビュートの値にマッチします。タグ名を*にするとすべてのタグにマッチします。</p><p>もっと高度なXPathの"
-"使い方については<a href=\"http://manual.calibre-"
+"<p>例えば、すべてのclass=\\\"chapter\\"
+"\"\"を持つh2タグにマッチさせるには、タグを<i>h2</i>に、アトリビュートを<i>class</i>そしてアトリビュートの値を<i>chapte"
+"r</i>にしてください。</p><p>アトリビュート欄を空白にすると、すべてのアトリビュートに、アトリビュートの値欄を空白にすると、すべてのアトリビュー"
+"トの値にマッチします。タグ名を*にするとすべてのタグにマッチします。</p><p>もっと高度なXPathの使い方については<a "
+"href=\"http://manual.calibre-"
 "ebook.com/xpath.html\">XPathチュートリアル</a>を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:128
@@ -8068,7 +8071,7 @@ msgstr "新しい場所(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:80
 msgid "Use the previously &existing library at the new location"
-msgstr ""
+msgstr "新しい場所で前に使用していた存在するライブラリを使用する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:81
 msgid "&Create an empty library at the new location"
@@ -9245,21 +9248,21 @@ msgstr "著者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:166
 msgid "Books with selected item: {0}"
-msgstr ""
+msgstr "選択した項目の書籍: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:171
 msgid ""
 "Double-click on a book to change the selection in the library view. Shift- "
 "or control-double-click to edit the metadata of a book"
-msgstr ""
+msgstr "ライブラリビューでのダブルクリックで書籍の選択を変更する。シフト＋、コントロール＋ダブルクリックで書籍の書誌情報を編修する。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:75
 msgid "Quickview"
-msgstr ""
+msgstr "クイックビュー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:76
 msgid "Items"
-msgstr ""
+msgstr "項目"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:95
@@ -9275,7 +9278,7 @@ msgstr "検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:78
 msgid "Search in the library view for the selected item"
-msgstr ""
+msgstr "ライブラリビューで選択した物を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:23
 msgid ""
@@ -11803,7 +11806,7 @@ msgstr "パーターンがマッチしない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
-msgstr ""
+msgstr "フィールド ___ 条件 ___ 値"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:210
 msgid ""
@@ -12748,7 +12751,7 @@ msgstr "ディフォールトを選択(&S)"
 msgid ""
 "Restore your own subset of checked fields that you define using the 'Set as "
 "default' button"
-msgstr ""
+msgstr "「ディフォールトに設定」で設定した、フィールドのサブセットに戻す。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:127
 msgid "&Set as default"
@@ -12758,7 +12761,7 @@ msgstr "ディフォールトとして設定(&S)"
 msgid ""
 "Store the currently checked fields as a default you can restore using the "
 "'Select default' button"
-msgstr ""
+msgstr "現在チェックされているフィールドをディフォールトとして記憶し、「ディフォールトを選択」ボタンを押したときにそれらを呼び出す。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:129
 msgid "Convert all downloaded comments to plain &text"
@@ -12807,11 +12810,11 @@ msgstr "少ないタグを優先"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:38
 msgid "No proxies used"
-msgstr ""
+msgstr "プロキシー非使用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "<b>Using proxies:</b>"
-msgstr ""
+msgstr "<b>プロキシー使用:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:64
 msgid "Failed to install command line tools."
@@ -13505,6 +13508,50 @@ msgid ""
 "        </p>\n"
 "        "
 msgstr ""
+"\n"
+"        <p>ここではテンプレート処理で使われる関数の追加や削除ができます。テンプレート関数はPythonで書かれます。\n"
+"        関数は書籍からの情報を受け取り、何らかの処理を行い、文字列の結果を返します。 \n"
+"        ここで定義された関数は組み込み関数と同様にテンプレート上で使用することができます。\n"
+"        このPython関数は必ず<b>evaluate</b>と言う名前で、下のような宣言でなければなりません。</p>\n"
+"        <p><code>evaluate(self, formatter, kwargs, mi, locals, your "
+"parameters)\n"
+"        &rarr; returning a unicode string</code></p>\n"
+"        <p>evaluate関数のパラメーターは:\n"
+"        <ul>\n"
+"        <li><b>formatter</b>: 現在のテンプレートを評価するためのフォーマッター・インスタンスです。\n"
+"        これを使って再帰的なテンプレート評価ができます。</li>\n"
+"        <li><b>kwargs</b>: 書誌情報のdictionaryです。フィールド値はこのdictionaryに入っています。\n"
+"        <li><b>mi</b>: 書誌情報のインスタンス。フィールド情報を取得するのに使います。\n"
+"        このパラメータは、例えば書籍ではないテンプレートを評価するときなど、Noneであることもありえます。</li>\n"
+"        <li><b>locals</b>: 現在のテンプレート・プログラムに設定されているローカル変数。</li>\n"
+"        <li><b>your parameters</b>: 1つ以上のパラメータを与えなければなりません。\n"
+"        パラメータの数は「引数の数」ボックスに入れた数と同じにしてください。\n"
+"        （ボックスに‐1を入れたときには、可変の変数となるので、最後に*argsと入れます）\n"
+"        最低でも１つの引数が必要ですが、大抵の場合はそれは操作するフィールド値となるでしょう。\n"
+"        注意すべきは、基本のテンプレート・モードでは ユーザーはこの最初の引数を与えません。\n"
+"        代わりにそれはフォーマッターから与えられます。</li>\n"
+"        </ul></p>\n"
+"        <p>\n"
+"        次の関数例では、フィールドの値をチェックする物です。\n"
+"        もしフィールドが空でなければ、フィールドの値が返ります。出なければ値EMPTYが返ります。\n"
+"        <pre>\n"
+"        name: my_ifempty\n"
+"        arg count: 1\n"
+"        doc: my_ifempty(val) -- return val if it is not empty, otherwise the "
+"string 'EMPTY'\n"
+"        program code:\n"
+"        def evaluate(self, formatter, kwargs, mi, locals, val):\n"
+"            if val:\n"
+"                return val\n"
+"            else:\n"
+"                return 'EMPTY'</pre>\n"
+"        この関数はどの3つのテンプレート・プログラム・モードからでも呼ぶことができます:\n"
+"        <ul>\n"
+"        <li>シングル関数モード: {tags:my_ifempty()}</li>\n"
+"        <li>テンプレート・プログラム・モード: {tags:'my_ifempty($)'}</li>\n"
+"        <li>一般・プログラム・モード: program: my_ifempty(field('tags'))</li>\n"
+"        </p>\n"
+"        "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:146
@@ -13516,45 +13563,45 @@ msgstr "テンプレート関数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:137
 msgid "You cannot delete a built-in function"
-msgstr ""
+msgstr "内蔵関数は消去できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:147
 msgid "Function not defined"
-msgstr ""
+msgstr "関数が未定義"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:158
 msgid ""
 "Argument count should be -1 or greater than zero.Setting it to zero means "
 "that this function cannot be used in single function mode."
-msgstr ""
+msgstr "引数の数は-1かゼロより大きいかです。0に設定すると、この関数はシングル関数モードでは使えなくなります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"
-msgstr ""
+msgstr "関数コンパイル中に例外が発生"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:202
 msgid "function source code not available"
-msgstr ""
+msgstr "関数のソースコードがありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
-msgstr ""
+msgstr "関数(&F):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:97
 msgid "Enter the name of the function to create."
-msgstr ""
+msgstr "作成する関数の名前を入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:98
 msgid "Arg &count:"
-msgstr ""
+msgstr "引数の数(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
-msgstr ""
+msgstr "-1に設定すると、不定数の引数をこの関数で使います。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
-msgstr ""
+msgstr "削除(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:103
 msgid "&Replace"
@@ -13562,19 +13609,19 @@ msgstr "置換(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "作成(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
-msgstr ""
+msgstr "プログラムコード(&P): (pythonのインデントルールを守ってください)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
-msgstr ""
+msgstr "ライブラリビューとデバイスビューとの間を切り替え"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:41
 msgid "Separator"
-msgstr ""
+msgstr "区切り線"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:58
 msgid "Choose library"
@@ -13582,75 +13629,75 @@ msgstr "ライブラリの選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:219
 msgid "The main toolbar"
-msgstr ""
+msgstr "メイン･ツールバー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:220
 msgid "The main toolbar when a device is connected"
-msgstr ""
+msgstr "デバイス接続時のメイン･ツールバー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:221
 msgid "The optional second toolbar"
-msgstr ""
+msgstr "オプションの第2ツールバー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:222
 msgid "The menubar"
-msgstr ""
+msgstr "メニューバー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:223
 msgid "The menubar when a device is connected"
-msgstr ""
+msgstr "デバイス接続時のメニューバー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:224
 msgid "The context menu for the books in the calibre library"
-msgstr ""
+msgstr "Calibreライブラリ中の書籍のコンテクスト・メニュー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:226
 msgid "The context menu for the books on the device"
-msgstr ""
+msgstr "デバイス中の書籍のコンテクスト・メニュー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:260
 msgid "Cannot add"
-msgstr ""
+msgstr "追加できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:261
 msgid "Cannot add the actions %s to this location"
-msgstr ""
+msgstr "アクション %s を個の場所に追加できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:279
 msgid "Cannot remove"
-msgstr ""
+msgstr "削除できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:280
 msgid "Cannot remove the actions %s from this location"
-msgstr ""
+msgstr "アクション %s をこの場所から削除できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:108
 msgid "Choose the &toolbar to customize:"
-msgstr ""
+msgstr "カスタマイズするツールバーを選択(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:109
 msgid "A&vailable actions"
-msgstr ""
+msgstr "使用できるアクション(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:110
 msgid "&Current actions"
-msgstr ""
+msgstr "現在のアクション(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:111
 msgid "Move selected action up"
-msgstr ""
+msgstr "選択したアクションを上に"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:113
 msgid "Move selected action down"
-msgstr ""
+msgstr "選択したアクションを下に"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:116
 msgid "Add selected actions to toolbar"
-msgstr ""
+msgstr "ツールバーに選択したアクションを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:118
 msgid "Remove selected actions from toolbar"
-msgstr ""
+msgstr "ツールバーから選択したアクションを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:114
 msgid "This tweak has it default value"

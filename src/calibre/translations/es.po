@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-24 18:42+0000\n"
-"PO-Revision-Date: 2011-06-23 16:31+0000\n"
-"Last-Translator: Jonay <jonay.santana@gmail.com>\n"
+"PO-Revision-Date: 2011-06-25 09:56+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-25 04:53+0000\n"
+"X-Launchpad-Export-Date: 2011-06-26 04:34+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -372,7 +372,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Modificar los metadatos de los libros de la biblioteca de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Read books in your calibre library"
@@ -384,7 +384,7 @@ msgstr "Descargar noticias de internet en formato ebook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Mostrar rápidamente una lista de libros relacionados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Export books from your calibre library to the hard disk"
@@ -412,6 +412,8 @@ msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Enviar libros por correo electrónico y conectar a iTunes o carpetas locales "
+"como si fueran dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -424,42 +426,48 @@ msgstr "Personalizar calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:852
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Encontrar libros parecidos al seleccionado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
+"Alternar entre distintas bibliotecas de calibre y realizar labores de "
+"mantenimiento sobre ellas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Copiar libros del dispositivo a la biblioteca de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Edit the collections in which books are placed on your device"
 msgstr ""
+"Modificar las colecciones donde se colocan los libros en el dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:873
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Copiar un libro de una biblioteca de calibre a otra"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
 msgid "Make small tweaks to epub files in your calibre library"
 msgstr ""
+"Hacer pequeños cambios en los ficheros epub de la biblioteca de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:883
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Ir a la siguiente o anterior coincidencia al buscar en la biblioteca de "
+"calibre en modo de resaltado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:890
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Buscar libros de distintos vendedores"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Obtener nuevos complementos de calibre o actualizar los existentes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:925
 msgid "Look and Feel"
@@ -707,7 +715,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Convertir libros al formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -4876,7 +4884,7 @@ msgstr "¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:256
 msgid "<h1 style=\"color:red\">WARNING</h1>"
-msgstr ""
+msgstr "<h1 style=\"color:red\">ADVERTENCIA</h1>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:257
 msgid ""
@@ -5680,15 +5688,15 @@ msgstr "Q"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Show quickview"
-msgstr ""
+msgstr "Mostrar vista rápida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:31
 msgid "No quickview available"
-msgstr ""
+msgstr "No hay vista rápida disponible"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:32
 msgid "Quickview is not available for books on the device."
-msgstr ""
+msgstr "La vista rápida no está disponible para los libros del dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
@@ -5971,7 +5979,7 @@ msgstr "Guardando..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:448
 msgid "Collecting data, please wait..."
-msgstr ""
+msgstr "Recogiendo datos, espere por favor..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:520
 msgid "Saved"
@@ -8667,7 +8675,7 @@ msgstr "Nueva &ubicación:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:80
 msgid "Use the previously &existing library at the new location"
-msgstr ""
+msgstr "Usar la biblioteca &existente en la nueva ubicación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:81
 msgid "&Create an empty library at the new location"
@@ -9915,21 +9923,24 @@ msgstr "Autores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:166
 msgid "Books with selected item: {0}"
-msgstr ""
+msgstr "Libros con elemento seleccionado: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:171
 msgid ""
 "Double-click on a book to change the selection in the library view. Shift- "
 "or control-double-click to edit the metadata of a book"
 msgstr ""
+"Pulse dos veces sobre un libre para cambiar su selección en la vista de "
+"biblioteca. Mantenga pulsada la tecla de mayúsculas o control para modificar "
+"los metadatos de un libro."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:75
 msgid "Quickview"
-msgstr ""
+msgstr "Vista rápida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:76
 msgid "Items"
-msgstr ""
+msgstr "Elementos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:95
@@ -9945,7 +9956,7 @@ msgstr "Buscar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:78
 msgid "Search in the library view for the selected item"
-msgstr ""
+msgstr "Buscar en la vista de biblioteca los siguientes elementos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:23
 msgid ""
@@ -12641,7 +12652,7 @@ msgstr "no coincide con el patrón"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
-msgstr ""
+msgstr "Si la columna ___ ___"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:210
 msgid ""
@@ -13657,6 +13668,8 @@ msgid ""
 "Restore your own subset of checked fields that you define using the 'Set as "
 "default' button"
 msgstr ""
+"Recuperar el conjunto de campos seleccionados que ha definide previamente "
+"con el botón «Establecer como predeterminado»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:127
 msgid "&Set as default"
@@ -13667,6 +13680,8 @@ msgid ""
 "Store the currently checked fields as a default you can restore using the "
 "'Select default' button"
 msgstr ""
+"Almacenar los campos seleccionados para poder recuperarlos con el botón "
+"«Seleccionar predeterminado»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:129
 msgid "Convert all downloaded comments to plain &text"
@@ -13719,11 +13734,11 @@ msgstr "Mejor con &menos etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:38
 msgid "No proxies used"
-msgstr ""
+msgstr "No se usan proxies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "<b>Using proxies:</b>"
-msgstr ""
+msgstr "<b>Usando proxies:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:64
 msgid "Failed to install command line tools."
@@ -18950,6 +18965,9 @@ msgid ""
 "format_date or days_between, but can be manipulated like any other string. "
 "The date is in ISO format."
 msgstr ""
+"today() -- devuelve un texto para la fecha de hoy. Este valor está preparado "
+"para usarse con «format_date» o «days_between», pero puede manipularse como "
+"cualquier otro texto. La fecha está en formato ISO."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:772
 msgid ""
@@ -18958,6 +18976,10 @@ msgid ""
 "negative. If either date1 or date2 are not dates, the function returns the "
 "empty string."
 msgstr ""
+"days_between(fecha1, fecha2) -- devuelve el número de días entre «fecha1» y "
+"«fecha2». El número es positivo si «fecha1» es posterior a «fecha2», en caso "
+"contrario es negativo. Si «fecha1» o «fecha2» no son fechas, la función "
+"devuelve un texto vacío."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."

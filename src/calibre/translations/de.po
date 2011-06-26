@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-24 18:42+0000\n"
-"PO-Revision-Date: 2011-06-23 12:20+0000\n"
-"Last-Translator: Dietmar Stockinger <Unknown>\n"
+"PO-Revision-Date: 2011-06-25 13:33+0000\n"
+"Last-Translator: Armin Geller <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-25 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-06-26 04:33+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -367,11 +367,11 @@ msgstr "Nachrichten aus dem Internet als E-Book herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Schnell eine Liste ähnlicher Bücher anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Bücher aus der Calibre Bibliothek auf der Festplatte speichern"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:815
 msgid "Show book details in a separate popup"
@@ -437,10 +437,12 @@ msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Nächsten oder vorherigen Treffer finden bei der Suche in der Calibre "
+"Bibliothek im Markierungsmodus"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:890
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Bücher bei verschiedenen Händlern suchen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
 msgid "Get new calibre plugins or update your existing ones"
@@ -1784,6 +1786,9 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
+"Dieses Feld wird nur in Windows benutzt. Um diese ID zu erhalten, benutze: "
+"Einstellungen -> Erweitert -> Verschiedenes -> Hole Informationen zum Setup "
+"über benutzerdefiniertes Gerät"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
@@ -1813,7 +1818,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr ""
+msgstr "Ordner der Karte A"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:207
 msgid "Rendered %s"
@@ -4883,6 +4888,10 @@ msgid ""
 "to a location with a shorter path using Windows Explorer, then point calibre "
 "to the new location and try again."
 msgstr ""
+"Der Verzeichnispfad zur Datenbank ist zu lang. Dieser muss kürzer als %d "
+"Zeichen sein. Verschieben Sie die Datenbank mit dem Windows Explorer an eine "
+"Stelle mit kürzerer Pfadlänge, dann fügen Sie den neuen Verzeichnispfad in "
+"Calibre ein und versuchen es erneut."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:331
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:731
@@ -5642,15 +5651,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Show quickview"
-msgstr ""
+msgstr "Zeige Schnellanzeige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:31
 msgid "No quickview available"
-msgstr ""
+msgstr "Keine Schnellanzeige vorhanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:32
 msgid "Quickview is not available for books on the device."
-msgstr ""
+msgstr "Die Schnellanzeige ist für Bücher auf dem Gerät nicht vorhanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
@@ -5935,7 +5944,7 @@ msgstr "Speichere..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:448
 msgid "Collecting data, please wait..."
-msgstr ""
+msgstr "Sammle Daten, bitte warten..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:520
 msgid "Saved"
@@ -6112,7 +6121,7 @@ msgstr "Zum Öffnen klicken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:123
 msgid "Ids"
-msgstr ""
+msgstr "Ids"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:133
 msgid "Book %s of <span class=\"series_name\">%s</span>"
@@ -8751,7 +8760,7 @@ msgstr "Großschreiben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:141
 msgid "Copy to author sort"
-msgstr ""
+msgstr "Kopiere zu Autoren-Sortierung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:144
 msgid "Copy to author"
