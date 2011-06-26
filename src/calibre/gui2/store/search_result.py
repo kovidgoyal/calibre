@@ -22,6 +22,7 @@ class SearchResult(object):
         self.detail_item = ''
         self.drm = None
         self.formats = ''
+        self.downloads = []
         self.affiliate = False
         self.plugin_author = ''
 
