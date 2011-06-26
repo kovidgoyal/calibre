@@ -22,4 +22,6 @@ class EpubBudStore(BasicStoreConfig, OpenSearchStore):
             s.price = '$0.00'
             s.drm = SearchResult.DRM_UNLOCKED
             s.formats = 'EPUB'
+            # Download links are broken for this store.
+            s.downloads = {}
             yield s

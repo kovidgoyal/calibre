@@ -59,14 +59,14 @@ class OpenSearchStore(StorePlugin):
                     elif l['rel'] == u'http://opds-spec.org/acquisition/buy':
                         s.detail_item = l.get('href', s.detail_item)
                     elif l['rel'] == u'http://opds-spec.org/acquisition':
-                        s.downloads.append((l.get('type', ''), l.get('href', '')))
+                        mime = l.get('type', '')
+                        if mime:
+                            ext = mimetypes.guess_extension(mime)
+                            if ext:
+                                ext = ext[1:].upper()
+                                s.downloads[ext] = l.get('href', '')
 
-            formats = []
-            for mime, url in s.downloads:
-                ext = mimetypes.guess_extension(mime)
-                if ext:
-                    formats.append(ext[1:])
-            s.formats = ', '.join(formats)
+            s.formats = ', '.join(s.downloads.keys())
 
             s.title = r.get('title', '')
             s.author = r.get('author', '')

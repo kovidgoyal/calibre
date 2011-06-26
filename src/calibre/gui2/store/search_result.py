@@ -22,7 +22,9 @@ class SearchResult(object):
         self.detail_item = ''
         self.drm = None
         self.formats = ''
-        self.downloads = []
+        # key = format in upper case.
+        # value = url to download the file.
+        self.downloads = {}
         self.affiliate = False
         self.plugin_author = ''
 
