@@ -224,13 +224,15 @@ class TagsModel(QAbstractItemModel): # {{{
         self.row_map = []
         self.root_item = self.create_node(icon_map=self.icon_state_map)
         self.db = None
+        self.reread_collapse_model({}, rebuild=False)
 
-    def reread_collapse_model(self, state_map):
+    def reread_collapse_model(self, state_map, rebuild=True):
         if gprefs['tags_browser_collapse_at'] == 0:
             self.collapse_model = 'disable'
         else:
             self.collapse_model = gprefs['tags_browser_partition_method']
-        self.rebuild_node_tree(state_map)
+        if rebuild:
+            self.rebuild_node_tree(state_map)
 
     def set_search_restriction(self, s):
         self.search_restriction = s
