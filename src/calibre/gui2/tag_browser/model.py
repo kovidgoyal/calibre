@@ -20,7 +20,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, lower, strcmp
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.utils.formatter import eval_formatter
+from calibre.utils.formatter import EvalFormatter
 from calibre.utils.search_query_parser import saved_searches
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
@@ -340,6 +340,8 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def _create_node_tree(self, data, state_map):
         sort_by = config['sort_tags_by']
+
+        eval_formatter = EvalFormatter()
 
         if data is None:
             print ('_create_node_tree: no data!')

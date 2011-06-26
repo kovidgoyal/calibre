@@ -12,7 +12,7 @@ from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
-from calibre.ebooks.metadata.book.base import composite_formatter
+from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, \
     gprefs, question_dialog
@@ -499,7 +499,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def s_r_get_field(self, mi, field):
         if field:
             if field == '{template}':
-                v = composite_formatter.safe_format\
+                v = SafeFormat().safe_format\
                     (unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
                 return [v]
             fm = self.db.metadata_for_field(field)
