@@ -5,7 +5,6 @@ www.ft.com
 '''
 
 import datetime
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class FinancialTimes_rss(BasicNewsRecipe):
@@ -104,4 +103,4 @@ class FinancialTimes_rss(BasicNewsRecipe):
         if cdate.isoweekday() == 7:
            cdate -= datetime.timedelta(days=1)
         return cdate.strftime('http://specials.ft.com/vtf_pdf/%d%m%y_FRONT1_USA.pdf')
-        
+
