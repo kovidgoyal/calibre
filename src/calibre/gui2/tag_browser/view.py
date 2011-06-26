@@ -117,6 +117,10 @@ class TagsView(QTreeView): # {{{
     def db(self):
         return self._model.db
 
+    @property
+    def collapse_model(self):
+        return self._model.collapse_model
+
     def set_pane_is_visible(self, to_what):
         pv = self.pane_is_visible
         self.pane_is_visible = to_what
@@ -285,7 +289,7 @@ class TagsView(QTreeView): # {{{
                 self.hidden_categories.discard(category)
             elif action == 'categorization':
                 changed = self.collapse_model != category
-                self.collapse_model = category
+                self._model.collapse_model = category
                 if changed:
                     reset_filter_categories = False
                     gprefs['tags_browser_partition_method'] = category
