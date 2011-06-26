@@ -46,8 +46,8 @@ _debug = 0
 # If you are embedding feedparser in a larger application, you should
 # change this to your application name and URL.
 # Changed by John Schember
-from calibre import random_user_agent
-USER_AGENT = random_user_agent()
+from calibre import USER_AGENT
+USER_AGENT = USER_AGENT
 
 # HTTP "Accept" header to send to servers when downloading feeds.  If you don't
 # want to send an Accept header, set this to None.

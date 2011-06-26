@@ -87,7 +87,7 @@ class Description:
             return self.urls[0].template
 
         # out of luck
-        return Nil
+        return None
         
 
     # these are internal methods for querying xml
