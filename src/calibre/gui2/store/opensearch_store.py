@@ -54,7 +54,7 @@ class OpenSearchStore(StorePlugin):
             links = r.get('links', None)
             for l in links:
                 if l.get('rel', None):
-                    if l['rel'] == u'http://opds-spec.org/image/thumbnail':
+                    if l['rel'] in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
                         s.cover_url = l.get('href', '')
                     elif l['rel'] == u'http://opds-spec.org/acquisition/buy':
                         s.detail_item = l.get('href', s.detail_item)
