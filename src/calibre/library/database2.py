@@ -2016,7 +2016,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 val = mi.get(key, None)
                 if force_changes or val is not None:
                     doit(self.set_custom, id, val=val, extra=mi.get_extra(key),
-                         label=user_mi[key]['label'], commit=False)
+                         label=user_mi[key]['label'], commit=False, notify=False)
         if commit:
             self.conn.commit()
         if notify:
