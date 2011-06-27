@@ -571,6 +571,9 @@ class TagsView(QTreeView): # {{{
     def show_item_at_index(self, idx, box=False,
                            position=QTreeView.PositionAtCenter):
         if idx.isValid() and idx.data(Qt.UserRole).toPyObject() is not self._model.root_item:
+            self.setExpanded(idx, True) # Needed otherwise Qt segfaults if the
+                                        # node is buried in a collapsed, off
+                                        # screen hierarchy
             self.setCurrentIndex(idx)
             self.scrollTo(idx, position)
             self.setCurrentIndex(idx)
