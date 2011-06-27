@@ -16,9 +16,10 @@ from PyQt4.Qt import (QItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon,
 
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
-from calibre.gui2 import config, gprefs
+from calibre.gui2 import config, gprefs, is_gui_thread
 from calibre.utils.search_query_parser import saved_searches
 from calibre.utils.icu import sort_key
+from calibre.constants import DEBUG
 
 class TagDelegate(QItemDelegate): # {{{
 
@@ -125,6 +126,8 @@ class TagsView(QTreeView): # {{{
             self.recount()
 
     def get_state(self):
+        if not is_gui_thread():
+            return self.debug_threading()
         state_map = {}
         expanded_categories = []
         for row, category in enumerate(self._model.category_nodes):
@@ -136,9 +139,13 @@ class TagsView(QTreeView): # {{{
         return expanded_categories, state_map
 
     def reread_collapse_parameters(self):
+        if not is_gui_thread():
+            return self.debug_threading()
         self._model.reread_collapse_parameters(self.get_state()[1])
 
     def set_database(self, db, tag_match, sort_by):
+        if not is_gui_thread():
+            return self.debug_threading()
         self._model.set_database(db)
 
         self.pane_is_visible = True # because TagsModel.set_database did a recount
@@ -165,6 +172,8 @@ class TagsView(QTreeView): # {{{
         self.expanded.connect(self.item_expanded)
 
     def database_changed(self, event, ids):
+        if not is_gui_thread():
+            return self.debug_threading()
         if self.refresh_signal_processed:
             self.refresh_signal_processed = False
             self.refresh_required.emit()
@@ -191,6 +200,8 @@ class TagsView(QTreeView): # {{{
             pass
 
     def set_search_restriction(self, s):
+        if not is_gui_thread():
+            return self.debug_threading()
         s = s if s else None
         self._model.set_search_restriction(s)
 
@@ -217,6 +228,8 @@ class TagsView(QTreeView): # {{{
         set_to: if None, advance the state. Otherwise must be one of the values
         in TAG_SEARCH_STATES
         '''
+        if not is_gui_thread():
+            return self.debug_threading()
         modifiers = int(QApplication.keyboardModifiers())
         exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
         if self._model.toggle(index, exclusive, set_to=set_to):
@@ -529,11 +542,21 @@ class TagsView(QTreeView): # {{{
                               fm_src['display'].get('make_category', False)))):
                         self.setDropIndicatorShown(True)
 
+    def debug_threading(self):
+        if DEBUG:
+            import traceback
+            print ('Attempt to use Tab Browser in non GUI thread')
+            traceback.print_stack()
+
     def clear(self):
+        if not is_gui_thread():
+            return self.debug_threading()
         if self.model():
             self.model().clear_state()
 
     def is_visible(self, idx):
+        if not is_gui_thread():
+            return self.debug_threading()
         item = idx.data(Qt.UserRole).toPyObject()
         if getattr(item, 'type', None) == TagTreeItem.TAG:
             idx = idx.parent()
@@ -544,6 +567,9 @@ class TagsView(QTreeView): # {{{
         Rebuild the category tree, expand any categories that were expanded,
         reset the search states, and reselect the current node.
         '''
+        if not is_gui_thread():
+            return self.debug_threading()
+
         if self.disable_recounting or not self.pane_is_visible:
             return
         self.refresh_signal_processed = True
@@ -570,6 +596,8 @@ class TagsView(QTreeView): # {{{
 
     def show_item_at_index(self, idx, box=False,
                            position=QTreeView.PositionAtCenter):
+        if not is_gui_thread():
+            return self.debug_threading()
         if idx.isValid() and idx.data(Qt.UserRole).toPyObject() is not self._model.root_item:
             self.setCurrentIndex(idx)
             self.scrollTo(idx, position)
