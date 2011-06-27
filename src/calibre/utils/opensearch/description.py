@@ -1,71 +1,95 @@
-from urllib2 import urlopen, Request
-from xml.dom.minidom import parse
-from url import URL
+# -*- coding: utf-8 -*-
 
-class Description:
-    """A class for representing OpenSearch Description files.
-    """
+from __future__ import (unicode_literals, division, absolute_import, print_function)
 
-    def __init__(self, url="", agent=""):
-        """The constructor which may pass an optional url to load from.
+__license__ = 'GPL 3'
+__copyright__ = '''
+2011, John Schember <john@nachtimwald.com>,
+2006, Ed Summers <ehs@pobox.com>
+'''
+__docformat__ = 'restructuredtext en'
+
+from contextlib import closing
+
+from lxml import etree
+
+from calibre import browser
+from calibre.utils.opensearch.url import URL
+
+class Description(object):
+    '''
+    A class for representing OpenSearch Description files.
+    '''
+
+    def __init__(self, url=""):
+        '''
+        The constructor which may pass an optional url to load from.
 
         d = Description("http://www.example.com/description")
-        """
-        self.agent = agent
+        '''
         if url: 
             self.load(url)
 
 
     def load(self, url):
-        """For loading up a description object from a url. Normally
+        '''
+        For loading up a description object from a url. Normally
         you'll probably just want to pass a URL into the constructor.
-        """
-        req = Request(url, headers={'User-Agent':self.agent})
-        self.dom = parse(urlopen(req))
-
+        '''
+        br = browser()
+        with closing(br.open(url, timeout=15)) as f:
+            doc = etree.fromstring(f.read())
+        
         # version 1.1 has repeating Url elements
-        self.urls = self._get_urls()
+        self.urls = []
+        for element in doc.xpath('//*[local-name() = "Url"]'):
+            template = element.get('template')
+            type = element.get('type')
+            if template and type:
+                url = URL()
+                url.template = template
+                url.type = type
+                self.urls.append(url)
 
         # this is version 1.0 specific
-        self.url = self._get_element_text('Url')
-        self.format = self._get_element_text('Format')
+        self.url = ''.join(doc.xpath('//*[local-name() = "Url"][1]//text()'))
+        self.format = ''.join(doc.xpath('//*[local-name() = "Format"][1]//text()'))
 
-        self.shortname = self._get_element_text('ShortName')
-        self.longname = self._get_element_text('LongName')
-        self.description = self._get_element_text('Description')
-        self.image = self._get_element_text('Image')
-        self.samplesearch = self._get_element_text('SampleSearch')
-        self.developer = self._get_element_text('Developer')
-        self.contact = self._get_element_text('Contact')
-        self.attribution = self._get_element_text('Attribution')
-        self.syndicationright = self._get_element_text('SyndicationRight')
+        self.shortname = ''.join(doc.xpath('//*[local-name() = "ShortName"][1]//text()'))
+        self.longname = ''.join(doc.xpath('//*[local-name() = "LongName"][1]//text()'))
+        self.description = ''.join(doc.xpath('//*[local-name() = "Description"][1]//text()'))
+        self.image = ''.join(doc.xpath('//*[local-name() = "Image"][1]//text()'))
+        self.sameplesearch = ''.join(doc.xpath('//*[local-name() = "SampleSearch"][1]//text()'))
+        self.developer = ''.join(doc.xpath('//*[local-name() = "Developer"][1]//text()'))
+        self.contact = ''.join(doc.xpath('/*[local-name() = "Contact"][1]//text()'))
+        self.attribution = ''.join(doc.xpath('//*[local-name() = "Attribution"][1]//text()'))
+        self.syndicationright = ''.join(doc.xpath('//*[local-name() = "SyndicationRight"][1]//text()'))
 
-        tag_text = self._get_element_text('Tags')
+        tag_text = ' '.join(doc.xpath('//*[local-name() = "Tags"]//text()'))
         if tag_text != None:
-            self.tags = tag_text.split(" ")
+            self.tags = tag_text.split(' ')
 
-        if self._get_element_text('AdultContent') == 'true':
-            self.adultcontent = True
-        else:
-            self.adultcontent = False
+        self.adultcontent = doc.xpath('boolean(//*[local-name() = "AdultContent" and contains(., "true")])')
 
     def get_url_by_type(self, type):
-        """Walks available urls and returns them by type. Only 
+        '''
+        Walks available urls and returns them by type. Only 
         appropriate in opensearch v1.1 where there can be multiple
         query targets. Returns none if no such type is found.
 
         url = description.get_url_by_type('application/rss+xml')
-        """
+        '''
         for url in self.urls:
             if url.type == type:
                 return url
         return None
 
     def get_best_template(self):
-        """OK, best is a value judgement, but so be it. You'll get 
+        '''
+        OK, best is a value judgement, but so be it. You'll get 
         back either the atom, rss or first template available. This
         method handles the main difference between opensearch v1.0 and v1.1
-        """
+        '''
         # version 1.0
         if self.url: 
             return self.url
@@ -88,40 +112,3 @@ class Description:
 
         # out of luck
         return None
-        
-
-    # these are internal methods for querying xml
-
-    def _get_element_text(self, tag):
-        elements = self._get_elements(tag)
-        if not elements:
-            return None 
-        return self._get_text(elements[0].childNodes)
-
-    def _get_attribute_text(self, tag, attribute):
-        elements = self._get_elements(tag)
-        if not elements:
-            return ''
-        return elements[0].getAttribute('template')
-
-    def _get_elements(self, tag):
-        return self.dom.getElementsByTagName(tag)
-
-    def _get_text(self, nodes):
-        text = ''
-        for node in nodes:
-            if node.nodeType == node.TEXT_NODE:
-                text += node.data
-        return text.strip()
-
-    def _get_urls(self):
-        urls = []
-        for element in self._get_elements('Url'):
-            template = element.getAttribute('template')
-            type = element.getAttribute('type')
-            if template and type:
-                url = URL()
-                url.template = template
-                url.type = type
-                urls.append(url)
-        return urls
