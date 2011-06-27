@@ -67,7 +67,7 @@ class OpenSearchStore(StorePlugin):
     
                 s = SearchResult()
                 
-                s.detail_item = ''.join(data.xpath('./*[local-name() = "id"]/text()'))
+                s.detail_item = ''.join(data.xpath('./*[local-name() = "id"]/text()')).strip()
 
                 for link in data.xpath('./*[local-name() = "link"]'):
                     rel = link.get('rel')
@@ -83,12 +83,20 @@ class OpenSearchStore(StorePlugin):
                             if type:
                                 ext = mimetypes.guess_extension(type)
                                 if ext:
-                                    ext = ext[1:].upper()
+                                    ext = ext[1:].upper().strip()
                                     s.downloads[ext] = href
-                s.formats = ', '.join(s.downloads.keys())
+                s.formats = ', '.join(s.downloads.keys()).strip()
                 
-                s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()'))
-                s.author = ', '.join(data.xpath('./*[local-name() = "author"]//*[local-name() = "name"]//text()'))
-                s.price = ' '.join(data.xpath('.//*[local-name() = "price"]//text()'))
+                s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
+                s.author = ', '.join(data.xpath('./*[local-name() = "author"]//*[local-name() = "name"]//text()')).strip()
+                
+                price_e = data.xpath('.//*[local-name() = "price"][1]')
+                if price_e:
+                    price_e = price_e[0]
+                    currency_code = price_e.get('currencycode', '')
+                    price = ''.join(price_e.xpath('.//text()')).strip()
+                    s.price = currency_code + ' ' + price
+                    s.price = s.price.strip()
+                
 
                 yield s
