@@ -514,7 +514,7 @@ class TagsModel(QAbstractItemModel): # {{{
         # }}}
 
         for category in self.category_nodes:
-            process_one_node(category, state_map.get(category.py_name, {}))
+            process_one_node(category, state_map.get(category.category_key, {}))
 
     # Drag'n Drop {{{
     def mimeTypes(self):
@@ -851,7 +851,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def index_for_category(self, name):
         for row, category in enumerate(self.category_nodes):
-            if category.py_name == name:
+            if category.category_key == name:
                 return self.index(row, 0, QModelIndex())
 
     def columnCount(self, parent):

@@ -129,10 +129,10 @@ class TagsView(QTreeView): # {{{
         expanded_categories = []
         for row, category in enumerate(self._model.category_nodes):
             if self.isExpanded(self._model.index(row, 0, QModelIndex())):
-                expanded_categories.append(category.py_name)
+                expanded_categories.append(category.category_key)
             states = [c.tag.state for c in category.child_tags()]
             names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
-            state_map[category.py_name] = dict(izip(names, states))
+            state_map[category.category_key] = dict(izip(names, states))
         return expanded_categories, state_map
 
     def reread_collapse_parameters(self):
