@@ -15,10 +15,10 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
-from calibre.gui2.store.mobileread.models import SearchFilter
-from calibre.gui2.store.mobileread.cache_progress_dialog import CacheProgressDialog
-from calibre.gui2.store.mobileread.cache_update_thread import CacheUpdateThread
-from calibre.gui2.store.mobileread.store_dialog import MobileReadStoreDialog
+from calibre.gui2.store.stores.mobileread.models import SearchFilter
+from calibre.gui2.store.stores.mobileread.cache_progress_dialog import CacheProgressDialog
+from calibre.gui2.store.stores.mobileread.cache_update_thread import CacheUpdateThread
+from calibre.gui2.store.stores.mobileread.store_dialog import MobileReadStoreDialog
 
 class MobileReadStore(BasicStoreConfig, StorePlugin):
     

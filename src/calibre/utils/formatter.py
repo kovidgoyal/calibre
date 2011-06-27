@@ -347,5 +347,6 @@ class EvalFormatter(TemplateFormatter):
         key = key.lower()
         return kwargs.get(key, _('No such variable ') + key)
 
+# DEPRECATED. This is not thread safe. Do not use.
 eval_formatter = EvalFormatter()
 
