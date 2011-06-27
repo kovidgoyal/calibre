@@ -3,6 +3,8 @@ __copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.ft.com/uk-edition
 '''
+
+import datetime
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -20,7 +22,6 @@ class FinancialTimes(BasicNewsRecipe):
     needs_subscription    = True
     encoding              = 'utf8'
     publication_type      = 'newspaper'
-    cover_url             = strftime('http://specials.ft.com/vtf_pdf/%d%m%y_FRONT1_LON.pdf')
     masthead_url          = 'http://im.media.ft.com/m/img/masthead_main.jpg'
     LOGIN                 = 'https://registration.ft.com/registration/barrier/login'
     INDEX                 = 'http://www.ft.com/uk-edition'
@@ -128,3 +129,10 @@ class FinancialTimes(BasicNewsRecipe):
             if not item.has_key('alt'):
                item['alt'] = 'image'
         return soup
+
+    def get_cover_url(self):
+        cdate = datetime.date.today()
+        if cdate.isoweekday() == 7:
+           cdate -= datetime.timedelta(days=1)
+        return cdate.strftime('http://specials.ft.com/vtf_pdf/%d%m%y_FRONT1_LON.pdf')
+        
