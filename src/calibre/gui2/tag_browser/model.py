@@ -262,6 +262,8 @@ class TagsModel(QAbstractItemModel): # {{{
             print ('Tag Browser build already in progress')
             traceback.print_stack()
             return
+        #traceback.print_stack()
+        #print ()
         self._build_in_progress = True
         self.beginResetModel()
         self._run_rebuild(state_map=state_map)
