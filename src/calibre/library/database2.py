@@ -1442,7 +1442,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             raise ValueError('sort ' + sort + ' not a valid value')
 
         self.books_list_filter.change([] if not ids else ids)
-        id_filter = None if not ids else frozenset(ids)
+        id_filter = None if ids is None else frozenset(ids)
 
         tb_cats = self.field_metadata
         tcategories = {}
@@ -1520,7 +1520,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         rating_dex = self.FIELD_MAP['rating']
         tag_class = LibraryDatabase2.TCat_Tag
         for book in self.data.iterall():
-            if id_filter and book[id_dex] not in id_filter:
+            if id_filter is not None and book[id_dex] not in id_filter:
                 continue
             rating = book[rating_dex]
             # We kept track of all possible category field_map positions above
