@@ -28,6 +28,7 @@ class ArchiveOrgStore(BasicStoreConfig, OpenSearchStore):
             s.price = '$0.00'
             s.drm = SearchResult.DRM_UNLOCKED
             yield s
+
 '''
     def get_details(self, search_result, timeout):
         br = browser()

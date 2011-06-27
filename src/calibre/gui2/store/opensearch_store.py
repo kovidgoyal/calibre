@@ -8,14 +8,20 @@ __docformat__ = 'restructuredtext en'
 
 import mimetypes
 import urllib
+from contextlib import closing
+
+from lxml import etree
 
 from PyQt4.Qt import QUrl
 
+from calibre import browser
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
-from calibre.utils.opensearch import Client
+#from calibre.utils.opensearch import Client
+from calibre.utils.opensearch.description import Description
+from calibre.utils.opensearch.query import Query
 
 class OpenSearchStore(StorePlugin):
 
@@ -38,38 +44,51 @@ class OpenSearchStore(StorePlugin):
         if not hasattr(self, 'open_search_url'):
             return
 
-        client = Client(self.open_search_url)
-        results = client.search(urllib.quote_plus(query), max_results)
+        description = Description(self.open_search_url)
+        url_template = description.get_best_template()
+        if not url_template:
+            return
+        oquery = Query(url_template)
+
+        # set up initial values
+        oquery.searchTerms = urllib.quote_plus(query)
+        oquery.count = max_results
+        url = oquery.url()
         
         counter = max_results
-        for r in results:
-            if counter <= 0:
-                break            
-            counter -= 1
+        br = browser()
+        with closing(br.open(url, timeout=timeout)) as f:
+            doc = etree.fromstring(f.read())
+            for data in doc.xpath('//*[local-name() = "entry"]'):
+                if counter <= 0:
+                    break
             
-            s = SearchResult()
-            
-            s.detail_item = r.get('id', '')
-            
-            links = r.get('links', None)
-            for l in links:
-                if l.get('rel', None):
-                    if l['rel'] in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
-                        s.cover_url = l.get('href', '')
-                    elif l['rel'] == u'http://opds-spec.org/acquisition/buy':
-                        s.detail_item = l.get('href', s.detail_item)
-                    elif l['rel'] == u'http://opds-spec.org/acquisition':
-                        mime = l.get('type', '')
-                        if mime:
-                            ext = mimetypes.guess_extension(mime)
-                            if ext:
-                                ext = ext[1:].upper()
-                                s.downloads[ext] = l.get('href', '')
+                counter -= 1
+    
+                s = SearchResult()
+                
+                s.detail_item = ''.join(data.xpath('./*[local-name() = "id"]/text()'))
 
-            s.formats = ', '.join(s.downloads.keys())
+                for link in data.xpath('./*[local-name() = "link"]'):
+                    rel = link.get('rel')
+                    href = link.get('href')
+                    type = link.get('type')
+                    
+                    if rel and href and type:
+                        if rel in ('http://opds-spec.org/thumbnail', 'http://opds-spec.org/image/thumbnail'):
+                            s.cover_url = href
+                        elif rel == u'http://opds-spec.org/acquisition/buy':
+                            s.detail_item = href
+                        elif rel == u'http://opds-spec.org/acquisition':
+                            if type:
+                                ext = mimetypes.guess_extension(type)
+                                if ext:
+                                    ext = ext[1:].upper()
+                                    s.downloads[ext] = href
+                s.formats = ', '.join(s.downloads.keys())
+                
+                s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()'))
+                s.author = ', '.join(data.xpath('./*[local-name() = "author"]//*[local-name() = "name"]//text()'))
+                s.price = ' '.join(data.xpath('.//*[local-name() = "price"]//text()'))
 
-            s.title = r.get('title', '')
-            s.author = r.get('author', '')
-            s.price = r.get('price', '')
-            
-            yield s
+                yield s
