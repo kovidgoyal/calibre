@@ -1,10 +1,17 @@
-from urlparse import urlparse, urlunparse
-from urllib import urlencode
-from cgi import parse_qs
+# -*- coding: utf-8 -*-
 
-class Query:
-    """Represents an opensearch query. Used internally by the Client to 
-    construct an opensearch url to request. Really this class is just a 
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+
+__license__ = 'GPL 3'
+__copyright__ = '2006, Ed Summers <ehs@pobox.com>'
+__docformat__ = 'restructuredtext en'
+
+from urlparse import urlparse, urlunparse, parse_qs
+from urllib import urlencode
+
+class Query(object):
+    '''
+    Represents an opensearch query Really this class is just a 
     helper for substituting values into the macros in a format. 
 
     format = 'http://beta.indeed.com/opensearch?q={searchTerms}&start={startIndex}&limit={count}'
@@ -12,16 +19,17 @@ class Query:
     q.searchTerms('zx81')
     q.startIndex = 1
     q.count = 25
-    print q.to_url()
-    """
+    print q.url()
+    '''
 
-    standard_macros = ['searchTerms','count','startIndex','startPage', 
+    standard_macros = ['searchTerms', 'count', 'startIndex', 'startPage', 
         'language', 'outputEncoding', 'inputEncoding']
 
     def __init__(self, format):
-        """Create a query object by passing it the url format obtained
+        '''
+        Create a query object by passing it the url format obtained
         from the opensearch Description.
-        """
+        '''
         self.format = format
 
         # unpack the url to a tuple
@@ -37,7 +45,7 @@ class Query:
         for key,values in self.query_string.items():
             # TODO eventually optional/required params should be 
             # distinguished somehow (the ones with/without trailing ?
-            macro = values[0].replace('{','').replace('}','').replace('?','')
+            macro = values[0].replace('{', '').replace('}', '').replace('?', '')
             if macro in Query.standard_macros:
                 self.macro_map[macro] = key
 
