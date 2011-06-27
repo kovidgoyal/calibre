@@ -71,7 +71,6 @@ class TagsView(QTreeView): # {{{
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
     restriction_error       = pyqtSignal()
-    show_at_path            = pyqtSignal()
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -96,8 +95,6 @@ class TagsView(QTreeView): # {{{
         self.user_category_icon = QIcon(I('tb_folder.png'))
         self.delete_icon = QIcon(I('list_remove.png'))
         self.rename_icon = QIcon(I('edit-undo.png'))
-        self.show_at_path.connect(self.show_item_at_path,
-                type=Qt.QueuedConnection)
 
         self._model = TagsModel(self)
         self._model.search_item_renamed.connect(self.search_item_renamed)
@@ -176,7 +173,8 @@ class TagsView(QTreeView): # {{{
         state_map = self.get_state()[1]
         self.db.prefs.set('user_categories', user_cats)
         self._model.rebuild_node_tree(state_map=state_map)
-        self.show_at_path.emit('@'+nkey)
+        p = self._model.find_category_node('@'+nkey)
+        self.show_item_at_path(p)
 
     @property
     def match_all(self):

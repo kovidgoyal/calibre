@@ -416,10 +416,10 @@ class TagBrowserWidget(QWidget): # {{{
             self.tags_view.set_new_model(filter_categories_by=txt[1:])
             self.current_find_position = None
             return
-        if model.get_filter_categories_by():
-            self.tags_view.set_new_model(filter_categories_by=None)
+        if model.filter_categories_by:
+            model.filter_categories_by = None
+            self.tags_view.recount()
             self.current_find_position = None
-            model = self.tags_view.model()
 
         if not txt:
             return
@@ -438,7 +438,7 @@ class TagBrowserWidget(QWidget): # {{{
         self.current_find_position = \
             model.find_item_node(key, txt, self.current_find_position)
         if self.current_find_position:
-            model.show_item_at_path(self.current_find_position, box=True)
+            self.tags_view.show_item_at_path(self.current_find_position, box=True)
         elif self.item_search.text():
             self.not_found_label.setVisible(True)
             if self.tags_view.verticalScrollBar().isVisible():
