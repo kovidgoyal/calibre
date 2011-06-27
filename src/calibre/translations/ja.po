@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-24 18:42+0000\n"
-"PO-Revision-Date: 2011-06-25 13:58+0000\n"
+"PO-Revision-Date: 2011-06-27 04:31+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-26 04:34+0000\n"
+"X-Launchpad-Export-Date: 2011-06-27 04:33+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -13701,11 +13701,11 @@ msgstr "ツールバーから選択したアクションを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:114
 msgid "This tweak has it default value"
-msgstr ""
+msgstr "このTweakにはディフォールト値があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:116
 msgid "This tweak has been customized"
-msgstr ""
+msgstr "このTweakはカスタマイズされています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:237
 msgid ""
@@ -13713,23 +13713,25 @@ msgid ""
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
 msgstr ""
+"インストールされたカスタム・プラグインへのTweakを追加/編集する。これらのTweakに関するドキュメントはプラグインをダウンロードしたWebサイトにあ"
+"るはずです。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:278
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:318
 msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
-msgstr ""
+msgstr "Tweakにシンタックス・エラーがあります。詳しくは「詳細を表示」ボタンを押してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:331
 msgid "Invalid tweaks"
-msgstr ""
+msgstr "無効なTweak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:332
 msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
-msgstr ""
+msgstr "入力されたTweakは無効です。Tweakを一度ディフォールトにリセットしてみて、一つ一つ変更し無効な設定を見つけてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:88
 msgid ""
@@ -13737,42 +13739,44 @@ msgid ""
 "calibre. Your changes will only take effect <b>after a restart</b> of "
 "calibre."
 msgstr ""
+"Tweakの値は以下に表示されます。これを編集してCalibreの動作を変更してください。変更はCalibreの<b>リスタート後</b>に有効になります"
+"。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:89
 msgid "Edit tweaks for any custom plugins you have installed"
-msgstr ""
+msgstr "インストールされたカスタムプラグインのTweakを編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:90
 msgid "&Plugin tweaks"
-msgstr ""
+msgstr "プラグインTweak(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:92
 msgid "Edit tweak"
-msgstr ""
+msgstr "Tweak編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:93
 msgid "Restore this tweak to its default value"
-msgstr ""
+msgstr "このTweakをディフォールト値に戻す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:94
 msgid "Restore &default"
-msgstr ""
+msgstr "ディフォールトに戻す(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:95
 msgid "Apply any changes you made to this tweak"
-msgstr ""
+msgstr "このTweakへの変更を適用する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:339
 msgid "Delete current search"
-msgstr ""
+msgstr "現在の検索を削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:340
 msgid "No search is selected"
-msgstr ""
+msgstr "検索が選択されていません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:342
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
-msgstr ""
+msgstr "選択された検索は<b>永久に削除</b>されます。よろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:367
 msgid "Search (For Advanced Search click the button to the left)"
@@ -13780,7 +13784,7 @@ msgstr "検索 (高度な検索は左のボタンをクリック)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:390
 msgid "Enable or disable search highlighting."
-msgstr ""
+msgstr "検索ハイライトを有効、あるいは無効にする"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:445
 msgid "Saved Searches"
@@ -13788,29 +13792,29 @@ msgstr "保存された検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:447
 msgid "Choose saved search or enter name for new saved search"
-msgstr ""
+msgstr "保存された検索を選ぶか、新しく保存する検索の名前を入力してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:453
 msgid ""
 "Save current search under the name shown in the box. Press and hold for a "
 "pop-up options menu."
-msgstr ""
+msgstr "現在の検索をボックスにある名前で保存します。押し続ければポップアップ・オプション・メニューが表示されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:458
 msgid "Create saved search"
-msgstr ""
+msgstr "保存された検索を作成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:462
 msgid "Delete saved search"
-msgstr ""
+msgstr "保存された検索を削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:466
 msgid "Manage saved searches"
-msgstr ""
+msgstr "保存された検索を編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:476
 msgid "*Current search"
-msgstr ""
+msgstr "*現在の検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
@@ -13824,19 +13828,19 @@ msgstr "（すべての書籍)"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:21
 msgid ""
 "Books display will be restricted to those matching a selected saved search"
-msgstr ""
+msgstr "表示される書籍は選択された、保存された検索、にマッチした書籍だけになります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:53
 msgid " or the search "
-msgstr ""
+msgstr " あるいは検索： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:87
 msgid "({0} of {1})"
-msgstr ""
+msgstr "({0} / {1})"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:94
 msgid "({0} of all)"
-msgstr ""
+msgstr "({0} / all)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
@@ -13854,16 +13858,16 @@ msgstr "キーを打鍵..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:80
 msgid "Already assigned"
-msgstr ""
+msgstr "すでに定義されています"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:82
 msgid "already assigned to"
-msgstr ""
+msgstr "すでに定義されています："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid " or "
-msgstr ""
+msgstr " か "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:74
@@ -13872,7 +13876,7 @@ msgstr "既定(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:136
 msgid "Customize shortcuts for"
-msgstr ""
+msgstr "このショートカットを編集："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid "Keys"
@@ -13884,7 +13888,7 @@ msgstr "変更するにはダブルクリック"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 msgid "Frame"
-msgstr ""
+msgstr "フレーム"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:75
 msgid "&Custom"
@@ -13901,110 +13905,110 @@ msgstr "クリックして変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:81
 msgid "&Alternate shortcut:"
-msgstr ""
+msgstr "別のショートカット(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:38
 msgid "Added Tags:"
-msgstr ""
+msgstr "追加されたタグ："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:39
 msgid "Open store in external web browswer"
-msgstr ""
+msgstr "ストアを外部Webブラウザでオープン"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:219
 msgid "&Name:"
-msgstr ""
+msgstr "名前(&N)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:221
 msgid "&Description:"
-msgstr ""
+msgstr "説明(&D):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:222
 msgid "&Headquarters:"
-msgstr ""
+msgstr "本社(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:226
 msgid "Enabled:"
-msgstr ""
+msgstr "有効:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:227
 msgid "DRM:"
-msgstr ""
+msgstr "DRM:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:228
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:233
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:207
 msgid "true"
-msgstr ""
+msgstr "true"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:229
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:234
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:208
 msgid "false"
-msgstr ""
+msgstr "false"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:206
 msgid "Affiliate:"
-msgstr ""
+msgstr "アフィリエイト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:235
 msgid "Nam&e/Description ..."
-msgstr ""
+msgstr "名前/説明(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
 msgid "Query:"
-msgstr ""
+msgstr "クエリー:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
 msgid "Enable"
-msgstr ""
+msgstr "有効にする"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:112
 msgid "Invert"
-msgstr ""
+msgstr "反転"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Affiliate"
-msgstr ""
+msgstr "アフィリエイト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Enabled"
-msgstr ""
+msgstr "有効"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Headquarters"
-msgstr ""
+msgstr "本社"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "No DRM"
-msgstr ""
+msgstr "DRMなし"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:129
 msgid ""
 "This store is currently diabled and cannot be used in other parts of calibre."
-msgstr ""
+msgstr "このストアは現在無効化されているので、Calibreの他の部分で使うことができません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:131
 msgid ""
 "This store is currently enabled and can be used in other parts of calibre."
-msgstr ""
+msgstr "このストアは現在有効化されているので、Calibreの他の部分で使うことができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
 msgid "This store only distributes ebooks with DRM."
-msgstr ""
+msgstr "このストアはDRMのあるEBookのみを販売しています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:138
 msgid ""
 "This store distributes ebooks with DRM. It may have some titles without DRM, "
 "but you will need to check on a per title basis."
-msgstr ""
+msgstr "このストアはDRMのあるEBookを販売しています。いくつかのタイトルはDRMがないので、タイトルごとにチェックする必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:140
 msgid ""
@@ -14012,93 +14016,96 @@ msgid ""
 "the store caters to. However, this does not necessarily mean that the store "
 "is limited to that market only."
 msgstr ""
+"このストアの本社は %s "
+"にあります。これは、このストアが注力しているマーケットを判断するのによい情報です。しかしながら、それは、このストアがそのマーケットのみにしか販売しない、と"
+"は限りません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:203
 msgid "Buying from this store supports the calibre developer: %s."
-msgstr ""
+msgstr "このストアからの購入はCalibreのデベロッパ %s をサポートします。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:145
 msgid "This store distributes ebooks in the following formats: %s"
-msgstr ""
+msgstr "このストアのEBookフォーマットは以下のとおりです：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
 msgid "Configure..."
-msgstr ""
+msgstr "設定する…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:99
 msgid "Time"
-msgstr ""
+msgstr "時間"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:100
 msgid "Number of seconds to wait for a store to respond"
-msgstr ""
+msgstr "ストアが応答するのを待つ秒数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:101
 msgid "Number of seconds to let a store process results"
-msgstr ""
+msgstr "ストアが結果を処理するのを待つ秒数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:102
 msgid "Display"
-msgstr ""
+msgstr "表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:103
 msgid "Maximum number of results to show per store"
-msgstr ""
+msgstr "1ストアごと、表示する最大の結果数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:104
 msgid "Open search result in system browser"
-msgstr ""
+msgstr "検索結果をシステムのブラウザで表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:105
 msgid "Threads"
-msgstr ""
+msgstr "スレッド"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:106
 msgid "Number of search threads to use"
-msgstr ""
+msgstr "使用する、検索スレッドの数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:107
 msgid "Number of cache update threads to use"
-msgstr ""
+msgstr "使用する、キャッシュの更新スレッドの数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:108
 msgid "Number of conver download threads to use"
-msgstr ""
+msgstr "使用する、表紙ダウンロード・スレッドの数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:109
 msgid "Number of details threads to use"
-msgstr ""
+msgstr "使用する、詳細スレッドの数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:105
 msgid "Performance"
-msgstr ""
+msgstr "パフォーマンス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:106
 msgid "Number of simultaneous searches"
-msgstr ""
+msgstr "同時検索数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:107
 msgid "Number of simultaneous cache updates"
-msgstr ""
+msgstr "同時キャッシュ更新数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:108
 msgid "Number of simultaneous cover downloads"
-msgstr ""
+msgstr "同時、表紙ダウンロード数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:109
 msgid "Number of simultaneous details downloads"
-msgstr ""
+msgstr "同時、詳細ダウンロード数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/ebooks_com_plugin.py:96
 msgid "Not Available"
-msgstr ""
+msgstr "利用不可"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:179
 msgid ""
@@ -14111,41 +14118,41 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/adv_search_builder_ui.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:209
 msgid "Titl&e/Author/Price ..."
-msgstr ""
+msgstr "タイトル/著者/価格、、、(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_progress_dialog_ui.py:51
 msgid "Updating book cache"
-msgstr ""
+msgstr "書籍キャッシュを更新中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_update_thread.py:42
 msgid "Checking last download date."
-msgstr ""
+msgstr "最新ダウンロード日時をチェック中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_update_thread.py:48
 msgid "Downloading book list from MobileRead."
-msgstr ""
+msgstr "MobileReadから書籍リストをダウンロード中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_update_thread.py:61
 msgid "Processing books."
-msgstr ""
+msgstr "書籍を処理中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/cache_update_thread.py:70
 msgid "%s of %s books processed."
-msgstr ""
+msgstr "%s / %s 書籍処理中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/mobileread_plugin.py:62
 msgid "Updating MobileRead book cache..."
-msgstr ""
+msgstr "MobileRead 書籍キャッシュを更新中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/store_dialog_ui.py:74
 msgid "&Query:"
-msgstr ""
+msgstr "クエリ(&Q):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/store_dialog_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:142
 msgid "Books:"
-msgstr ""
+msgstr "書籍："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread/store_dialog_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:65
@@ -14153,23 +14160,23 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:63
 msgid "Close"
-msgstr ""
+msgstr "閉じる"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
-msgstr ""
+msgstr "検索："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:202
 msgid "&Price:"
-msgstr ""
+msgstr "価格(&P)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:36
 msgid "DRM"
-msgstr ""
+msgstr "DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:36
 msgid "Price"
-msgstr ""
+msgstr "価格"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:191
 msgid ""
@@ -14177,6 +14184,7 @@ msgid ""
 "verify this price is correct. This price often does not include promotions "
 "the store may be running."
 msgstr ""
+"見つかった価格：%s。この価格が正しいか購入する前にストアで確認してください。この価格には大抵の場合、ストアのプロモーション価格が入っていません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:194
 msgid ""
@@ -14185,6 +14193,8 @@ msgid ""
 "what you can do with this book. Check with the store before making any "
 "purchases to ensure you can actually read this book."
 msgstr ""
+"この書籍にはDRMがかかっている事を見つけました。この書籍はあなたのリーダーで読めないかもしれませんし、あるいはこの本に対しての色々な制限があるかもしれま"
+"せん。本当にこの書籍が読めるか、購入する前にストアで確認してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:196
 msgid ""
@@ -14193,41 +14203,43 @@ msgid ""
 "conversion. However, before making a purchase double check the DRM status "
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
+"この書籍にはDRMが掛かっていない事が見つかりました。Calibreがサポートしているフォーマット変換機能で、どのデバイスでもこの書籍が読めるはずです。し"
+"かしながら、購入する前にもう一度ストアでDRMステータスをチェックしてください。ストアにはDRMの使用を明記していない所もあります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:198
 msgid ""
 "The DRM status of this book could not be determined. There is a very high "
 "likelihood that this book is actually DRM restricted."
-msgstr ""
+msgstr "この書籍のDRMステータスが判りませんでした。これは高い可能性で、この書籍はDRMが掛かっていると思われます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:110
 msgid "Buying from this store supports the calibre developer: %s</p>"
-msgstr ""
+msgstr "このストアからの購入で、以下のCalibreのデベロッパをサポートできます: %s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:268
 msgid "Customize get books search"
-msgstr ""
+msgstr "書籍購入検索をカスタマイズ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:278
 msgid "Configure search"
-msgstr ""
+msgstr "検索を設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:328
 msgid "Couldn't find any books matching your query."
-msgstr ""
+msgstr "クエリーにマッチした書籍が見つかりませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr ""
+msgstr "書籍を取得"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:140
 msgid "Open a selected book in the system's web browser"
-msgstr ""
+msgstr "選択した書籍をシステムのブラウザーで開く"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:141
 msgid "Open in &external browser"
-msgstr ""
+msgstr "外部ブラウザーで開く(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:73
 msgid ""
@@ -14238,68 +14250,73 @@ msgid ""
 "will be a .epub file. You can add this book to calibre using \"Add Books\" "
 "and selecting the file from the ADE library folder."
 msgstr ""
+"このEBookはDRMの掛かっているEPubファイルです。このファイルをコンピューターに保存するか聞かれます。それを保存した後、<a "
+"href=\"http://www.adobe.com/products/digitaleditions/\">Adobe Digital "
+"Editions</a> "
+"(ADE)で開いてください。<p>ADEは実際のEBook（.epubファイル）をダウンロードするでしょう。Calibreから「書籍を追加」を使い、ADE"
+"のライブラリ・フォルダーにあるこの書籍を選択して、Calibreに追加することができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
 msgid "File is not a supported ebook type. Save to disk?"
-msgstr ""
+msgstr "ファイルはサポートされているEBookのタイプではありません。ディスクに保存しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
-msgstr ""
+msgstr "ホーム"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:60
 msgid "Reload"
-msgstr ""
+msgstr "再読み込み"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:61
 msgid "%p%"
-msgstr ""
+msgstr "%p%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:347
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:406
 msgid "Rename %s"
-msgstr ""
+msgstr "名前の変更 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:351
 msgid "Edit sort for %s"
-msgstr ""
+msgstr "%s のソートを変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:358
 msgid "Add %s to user category"
-msgstr ""
+msgstr "%s をユーザーカテゴリに追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:371
 msgid "Children of %s"
-msgstr ""
+msgstr "%s の子ノード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:381
 msgid "Delete search %s"
-msgstr ""
+msgstr "検索 %s を削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:386
 msgid "Remove %s from category %s"
-msgstr ""
+msgstr "%s をカテゴリ %s から削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:393
 msgid "Search for %s"
-msgstr ""
+msgstr "%s を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:398
 msgid "Search for everything but %s"
-msgstr ""
+msgstr "%s 以外のすべてを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:410
 msgid "Add sub-category to %s"
-msgstr ""
+msgstr "%s にサブカテゴリを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:414
 msgid "Delete user category %s"
-msgstr ""
+msgstr "ユーザーカテゴリ %s を削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:419
 msgid "Hide category %s"
-msgstr ""
+msgstr "カテゴリ %s を隠す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:423
 msgid "Show category"
@@ -14307,11 +14324,11 @@ msgstr "カテゴリ表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:433
 msgid "Search for books in category %s"
-msgstr ""
+msgstr "カテゴリ %s の中で書籍を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:439
 msgid "Search for books not in category %s"
-msgstr ""
+msgstr "カテゴリ %s に無い書籍を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:448
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:453
@@ -14321,35 +14338,35 @@ msgstr "%sの管理"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:456
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1893
 msgid "Manage Saved Searches"
-msgstr ""
+msgstr "保存された検索を管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:464
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:468
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1891
 msgid "Manage User Categories"
-msgstr ""
+msgstr "ユーザーカテゴリを管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:475
 msgid "Show all categories"
-msgstr ""
+msgstr "全てのカテゴリを表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:478
 msgid "Change sub-categorization scheme"
-msgstr ""
+msgstr "サブカテゴリ化方法を変える"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:815
 msgid "The grouped search term name is \"{0}\""
-msgstr ""
+msgstr "グループ化検索語の名前は \"{0}\"です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1088
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
-msgstr ""
+msgstr "複数の書籍の著者を変更するのには、いくらか時間がかかります。よろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1093
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
-msgstr ""
+msgstr "いくつかの書籍の書誌情報を変更するのには、いくらか時間がかかります。よろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1182
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:447
@@ -14360,85 +14377,85 @@ msgstr "検索"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1442
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1451
 msgid "Rename user category"
-msgstr ""
+msgstr "ユーザーカテゴリの名前を変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1423
 msgid "You cannot use periods in the name when renaming user categories"
-msgstr ""
+msgstr "ユーザーカテゴリの名前を変更する時に、名前にピリオドは使用できません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1443
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1452
 msgid "The name %s is already used"
-msgstr ""
+msgstr "名前 %s はすでに使われています"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1475
 msgid "Duplicate search name"
-msgstr ""
+msgstr "検索名が重複"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1476
 msgid "The saved search name %s is already used."
-msgstr ""
+msgstr "保存された検索の名前 %s はすでに使われています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1883
 msgid "Manage Authors"
-msgstr ""
+msgstr "著者を管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1885
 msgid "Manage Series"
-msgstr ""
+msgstr "シリーズを管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1887
 msgid "Manage Publishers"
-msgstr ""
+msgstr "出版社を管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1889
 msgid "Manage Tags"
-msgstr ""
+msgstr "タグを管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1901
 msgid "Invalid search restriction"
-msgstr ""
+msgstr "無効な検索制限"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1902
 msgid "The current search restriction is invalid"
-msgstr ""
+msgstr "現在の検索制限は無効です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1918
 msgid "New Category"
-msgstr ""
+msgstr "新規カテゴリ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1969
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1972
 msgid "Delete user category"
-msgstr ""
+msgstr "ユーザーカテゴリを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1970
 msgid "%s is not a user category"
-msgstr ""
+msgstr "%s はユーザーカテゴリではありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1973
 msgid "%s contains items. Do you really want to delete it?"
-msgstr ""
+msgstr "%s には項目を含みます。本当にこれを削除しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1994
 msgid "Remove category"
-msgstr ""
+msgstr "カテゴリを削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:1995
 msgid "User category %s does not exist"
-msgstr ""
+msgstr "ユーザーカテゴリ %s は存在しません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2014
 msgid "Add to user category"
-msgstr ""
+msgstr "ユーザーカテゴリに追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2015
 msgid "A user category %s does not exist"
-msgstr ""
+msgstr "ユーザーカテゴリ %s は存在しません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2138
 msgid "Find item in tag browser"
-msgstr ""
+msgstr "タグブラウザで項目を見つける"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2141
 msgid ""
@@ -14449,22 +14466,27 @@ msgid ""
 "*foo will filter all categories at once, showing only those items\n"
 "containing the text \"foo\""
 msgstr ""
+"項目を検索。これは「含有」検索です。つまりこのテキストが名前のどこかに\n"
+"あってもマッチします。検索の書式と同様に検索を特定のカテゴリに制限する\n"
+"こともできます。例えば、「tags:foo」はタグの中でfooを探しますが、著者\n"
+"などでは探しません。「*foo」はすべてのカテゴリ中でテキストfooを含有す\n"
+"る項目のみを表示します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2150
 msgid "ALT+f"
-msgstr ""
+msgstr "ALT+f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2155
 msgid "Find the first/next matching item"
-msgstr ""
+msgstr "最初/次のマッチ項目を見つける"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2160
 msgid "Collapse all categories"
-msgstr ""
+msgstr "すべてのカテゴリを閉じる"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2184
 msgid "No More Matches.</b><p> Click Find again to go to first match"
-msgstr ""
+msgstr "これ以上検索結果はありません。</b><p> 検索をもう一度クリックすると最初の検索結果へ行きます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2197
 msgid "Sort by name"
@@ -14480,7 +14502,7 @@ msgstr "平均評価で並べ替え"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2201
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr ""
+msgstr "タグブラウザ中のエントリーの、ソート順を設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2208
 msgid "Match all"
@@ -14493,45 +14515,45 @@ msgstr "どれかに合致"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2213
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
-msgstr ""
+msgstr "タグブラウザで複数の項目を選択している時、全て、あるいはどれかにマッチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2220
 msgid "Manage authors, tags, etc"
-msgstr ""
+msgstr "著者、タグ等を管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_view.py:2221
 msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"
-msgstr ""
+msgstr "これら全てのカテゴリー管理は、上のタグブラウザの項目を右クリックする事で現れます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:68
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr ""
+msgstr "%(num)d / %(total)d 書籍を変換 (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:211
 msgid "Could not convert some books"
-msgstr ""
+msgstr "いくつかの書籍を変換できませんでした"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:212
 msgid ""
 "Could not convert %d of %d books, because no suitable source format was "
 "found."
-msgstr ""
+msgstr "%d (/ %d)冊の書籍が、適切な元フォーマットが無かったため変換できませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:128
 msgid "Queueing books for bulk conversion"
-msgstr ""
+msgstr "一括変換の待ち行列に書籍を入れる"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:189
 msgid "Queueing "
-msgstr ""
+msgstr "待ち行列 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:190
 msgid "Convert book %d of %d (%s)"
-msgstr ""
+msgstr "%d / %d 書籍を変換(%s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:260
 msgid "Fetch news from "
@@ -14539,13 +14561,13 @@ msgstr "次のニュースを読み込む： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:333
 msgid "Convert existing"
-msgstr ""
+msgstr "再変換"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:334
 msgid ""
 "The following books have already been converted to %s format. Do you wish to "
 "reconvert them?"
-msgstr ""
+msgstr "これらの書籍はすでに %s フォーマットを持っています。これらを再変換しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:196
 msgid "&Donate to support calibre"
@@ -14561,7 +14583,7 @@ msgstr "接続されたデバイスを取り外し(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:345
 msgid "Debug mode"
-msgstr ""
+msgstr "デバッグモード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:346
 msgid ""
@@ -14569,6 +14591,7 @@ msgid ""
 "log will be available in the file: %s<p>The log will be displayed "
 "automatically."
 msgstr ""
+"Calibreをデバッグモードで起動しました。Calibreの終了時、デバッグログが次のファイルに保存されます: %s<p>ログは自動的に表示されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:548
 msgid "Conversion Error"
@@ -14580,11 +14603,11 @@ msgstr "レシピを無効化"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:587
 msgid "<b>Failed</b>"
-msgstr ""
+msgstr "<b>失敗</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:621
 msgid "There are active jobs. Are you sure you want to quit?"
-msgstr ""
+msgstr "ジョブが実行中です。本当に終了しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:624
 msgid ""
@@ -14592,48 +14615,54 @@ msgid ""
 "                      Quitting may cause corruption on the device.<br>\n"
 "                      Are you sure you want to quit?"
 msgstr ""
+" はデバイスと通信中です！<br>\n"
+"                      終了するとデバイスに問題を引き起こすかもしれません。<br>\n"
+"                      本当に終了しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:628
 msgid "Active jobs"
-msgstr ""
+msgstr "アクティブ・ジョブ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:696
 msgid ""
 "will keep running in the system tray. To close it, choose <b>Quit</b> in the "
 "context menu of the system tray."
-msgstr ""
+msgstr "はシステム・トレイで動作し続けます。終了するにはシステムトレイのコンテキストメニューから<b>終了</b>を選択してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:73
 msgid ""
 "%s has been updated to version <b>%s</b>. See the <a href=\"http://calibre-"
 "ebook.com/whats-new\">new features</a>."
 msgstr ""
+"%s はヴァージョン <b>%s</b>にアップデートされました。<a href=\"http://calibre-ebook.com/whats-"
+"new\">新しい機能</a>を見てください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:75
 msgid ""
 "Update <b>only</b> if one of the new features or bug fixes is important to "
 "you. If the current version works well for you, do not update."
 msgstr ""
+"新しい機能やバグフィックスが重要な時<b>のみ</b>にアップデートしてください。現在のヴァージョンで十分な場合にはアップデートしないでください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:81
 msgid "Update available!"
-msgstr ""
+msgstr "アップデートがあります！"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:86
 msgid "Show this notification for future updates"
-msgstr ""
+msgstr "この通知を将来のアップデートでも表示する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:91
 msgid "&Get update"
-msgstr ""
+msgstr "アップデートを取得(&G)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:95
 msgid "Update &plugins"
-msgstr ""
+msgstr "プラグインをアップデート(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:154
 msgid " (%d plugin updates)"
-msgstr ""
+msgstr " (%d プラグインのアップデート)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:157
 msgid "Update found"
@@ -14641,16 +14670,16 @@ msgstr "アップデートが見つかりました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:160
 msgid "updated plugins"
-msgstr ""
+msgstr "アップデートされたプラグイン"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:191
 msgid "Plugin Updates"
-msgstr ""
+msgstr "プラグインのアップデート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:189
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "%d プラグインのアップデートがあります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:193
 msgid "Install and configure user plugins"
