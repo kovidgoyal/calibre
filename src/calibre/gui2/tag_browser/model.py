@@ -224,6 +224,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.row_map = []
         self.root_item = self.create_node(icon_map=self.icon_state_map)
         self.db = None
+        self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
 
     def reread_collapse_model(self, state_map, rebuild=True):
@@ -257,9 +258,15 @@ class TagsModel(QAbstractItemModel): # {{{
         self.endResetModel()
 
     def rebuild_node_tree(self, state_map={}):
+        if self._build_in_progress:
+            print ('Tag Browser build already in progress')
+            traceback.print_stack()
+            return
+        self._build_in_progress = True
         self.beginResetModel()
         self._run_rebuild(state_map=state_map)
         self.endResetModel()
+        self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
         for node in self.node_map.itervalues():
