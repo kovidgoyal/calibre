@@ -173,7 +173,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def refresh_gui(self, gui):
         gui.set_highlight_only_button_icon()
         if self.muc_changed:
-            gui.tags_view.set_new_model()
+            gui.tags_view.recount()
         gui.search.search_as_you_type(config['search_as_you_type'])
         gui.search.do_search()
 
