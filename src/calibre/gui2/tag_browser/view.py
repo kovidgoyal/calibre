@@ -574,9 +574,7 @@ class TagsView(QTreeView): # {{{
             self.setExpanded(idx, True) # Needed otherwise Qt segfaults if the
                                         # node is buried in a collapsed, off
                                         # screen hierarchy
-            self.setCurrentIndex(idx)
             self.scrollTo(idx, position)
-            self.setCurrentIndex(idx)
             if box:
                 self._model.set_boxed(idx)
 
