@@ -18,16 +18,29 @@ class TableItem(QTableWidgetItem):
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
     '''
 
-    def __init__(self, val, sort):
+    def __init__(self, val, sort, idx=0):
         self.sort = sort
+        self.sort_idx = idx
         QTableWidgetItem.__init__(self, val)
         self.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
 
     def __ge__(self, other):
-        return sort_key(self.sort) >= sort_key(other.sort)
+        l = sort_key(self.sort)
+        r = sort_key(other.sort)
+        if l > r:
+            return 1
+        if l == r:
+            return self.sort_idx >= other.sort_idx
+        return 0
 
     def __lt__(self, other):
-        return sort_key(self.sort) < sort_key(other.sort)
+        l = sort_key(self.sort)
+        r = sort_key(other.sort)
+        if l < r:
+            return 1
+        if l == r:
+            return self.sort_idx < other.sort_idx
+        return 0
 
 class Quickview(QDialog, Ui_Quickview):
 
@@ -185,7 +198,7 @@ class Quickview(QDialog, Ui_Quickview):
             series = mi.format_field('series')[1]
             if series is None:
                 series = ''
-            a = TableItem(series, series)
+            a = TableItem(series, mi.series, mi.series_index)
             a.setToolTip(tt)
             self.books_table.setItem(row, 2, a)
             self.books_table.setRowHeight(row, self.books_table_row_height)
