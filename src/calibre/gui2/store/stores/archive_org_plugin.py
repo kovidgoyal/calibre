@@ -29,8 +29,11 @@ class ArchiveOrgStore(BasicStoreConfig, OpenSearchStore):
             s.drm = SearchResult.DRM_UNLOCKED
             yield s
 
-'''
     def get_details(self, search_result, timeout):
+        '''
+        The opensearch feed only returns a subset of formats that are available.
+        We want to get a list of all formats that the user can get.
+        '''
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
@@ -38,4 +41,3 @@ class ArchiveOrgStore(BasicStoreConfig, OpenSearchStore):
             search_result.formats = formats.upper()
             
         return True
-'''

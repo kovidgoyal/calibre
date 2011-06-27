@@ -19,7 +19,6 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
-#from calibre.utils.opensearch import Client
 from calibre.utils.opensearch.description import Description
 from calibre.utils.opensearch.query import Query
 
