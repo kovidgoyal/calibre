@@ -91,10 +91,10 @@ class TagBrowserMixin(object): # {{{
         # Add the new category
         user_cats[new_cat] = []
         db.prefs.set('user_categories', user_cats)
-        self.tags_view.set_new_model()
+        self.tags_view.recount()
         m = self.tags_view.model()
         idx = m.index_for_path(m.find_category_node('@' + new_cat))
-        m.show_item_at_index(idx)
+        self.tags_view.show_item_at_index(idx)
         # Open the editor on the new item to rename it
         if new_category_name is None:
             self.tags_view.edit(idx)
@@ -111,7 +111,7 @@ class TagBrowserMixin(object): # {{{
             for k in d.categories:
                 db.field_metadata.add_user_category('@' + k, k)
             db.data.change_search_locations(db.field_metadata.get_search_terms())
-            self.tags_view.set_new_model()
+            self.tags_view.recount()
 
     def do_delete_user_category(self, category_name):
         '''
@@ -144,7 +144,7 @@ class TagBrowserMixin(object): # {{{
             elif k.startswith(category_name + '.'):
                 del user_cats[k]
         db.prefs.set('user_categories', user_cats)
-        self.tags_view.set_new_model()
+        self.tags_view.recount()
 
     def do_del_item_from_user_cat(self, user_cat, item_name, item_category):
         '''
@@ -413,7 +413,8 @@ class TagBrowserWidget(QWidget): # {{{
         txt = unicode(self.item_search.currentText()).strip()
 
         if txt.startswith('*'):
-            self.tags_view.set_new_model(filter_categories_by=txt[1:])
+            model.filter_categories_by = txt[1:]
+            self.tags_view.recount()
             self.current_find_position = None
             return
         if model.filter_categories_by:
@@ -437,6 +438,7 @@ class TagBrowserWidget(QWidget): # {{{
 
         self.current_find_position = \
             model.find_item_node(key, txt, self.current_find_position)
+
         if self.current_find_position:
             self.tags_view.show_item_at_path(self.current_find_position, box=True)
         elif self.item_search.text():
