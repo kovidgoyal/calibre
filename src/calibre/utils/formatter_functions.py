@@ -202,9 +202,9 @@ class BuiltinEval(BuiltinFormatterFunction):
             'results from local variables.')
 
     def evaluate(self, formatter, kwargs, mi, locals, template):
-        from formatter import eval_formatter
+        from formatter import EvalFormatter
         template = template.replace('[[', '{').replace(']]', '}')
-        return eval_formatter.safe_format(template, locals, 'EVAL', None)
+        return EvalFormatter().safe_format(template, locals, 'EVAL', None)
 
 class BuiltinAssign(BuiltinFormatterFunction):
     name = 'assign'
@@ -785,7 +785,7 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         except:
             return ''
         i = d1 - d2
-        return str(i.days)
+        return str('%d.%d'%(i.days, i.seconds/8640))
 
 
 builtin_add         = BuiltinAdd()

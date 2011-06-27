@@ -85,7 +85,7 @@ def serialize_builtin_recipes():
     return serialize_collection(recipe_mapping)
 
 def get_builtin_recipe_collection():
-    return etree.parse(P('builtin_recipes.xml')).getroot()
+    return etree.parse(P('builtin_recipes.xml', allow_user_override=False)).getroot()
 
 def get_custom_recipe_collection(*args):
     from calibre.web.feeds.recipes import compile_recipe, \
@@ -179,7 +179,7 @@ def download_builtin_recipe(urn):
     return br.open_novisit('http://status.calibre-ebook.com/recipe/'+urn).read()
 
 def get_builtin_recipe(urn):
-    with zipfile.ZipFile(P('builtin_recipes.zip'), 'r') as zf:
+    with zipfile.ZipFile(P('builtin_recipes.zip', allow_user_override=False), 'r') as zf:
         return zf.read(urn+'.recipe')
 
 def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
