@@ -108,6 +108,15 @@ class Quickview(QDialog, Ui_Quickview):
         self.search_button.clicked.connect(self.do_search)
         view.model().new_bookdisplay_data.connect(self.book_was_changed)
 
+    def set_database(self, db):
+        self.db = db
+        self.items.blockSignals(True)
+        self.books_table.blockSignals(True)
+        self.items.clear()
+        self.books_table.setRowCount(0)
+        self.books_table.blockSignals(False)
+        self.items.blockSignals(False)
+
     # search button
     def do_search(self):
         if self.last_search is not None:
