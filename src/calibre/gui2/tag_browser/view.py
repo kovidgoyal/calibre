@@ -499,6 +499,8 @@ class TagsView(QTreeView): # {{{
             return
         src_is_tb = event.mimeData().hasFormat('application/calibre+from_tag_browser')
         item = index.data(Qt.UserRole).toPyObject()
+        if item.type == TagTreeItem.ROOT:
+            return
         flags = self._model.flags(index)
         if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
             self.setDropIndicatorShown(not src_is_tb)
