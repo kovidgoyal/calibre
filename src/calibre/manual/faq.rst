@@ -558,11 +558,16 @@ Most readers do not support this. You should complain to the manufacturer about 
 
 Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click the arrow next to the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
 
+How do I get |app| to use my HTTP proxy?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, |app| uses whatever proxy settings are set in your OS. Sometimes these are incorrect, for example, on windows if you don't use Internet Explorer then the proxy settings may not be up to date. You can tell |app| to use a particular proxy server by setting the http_proxy environment variable. The format of the variable is: http://username:password@servername you should ask your network admin to give you the correct value for this variable. Note that |app| only supports HTTP proxies not SOCKS proxies. You can see the current proxies used by |app| in Preferences->Miscellaneous.
+
 I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
- 2. `Open a ticket <http://calibre-ebook.com/bugs>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
+ 2. `Open a bug requesting the feature <http://calibre-ebook.com/bugs>`_ . Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
 
 Why doesn't |app| have an automatic update?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
