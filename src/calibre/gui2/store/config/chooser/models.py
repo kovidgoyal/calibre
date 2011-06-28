@@ -126,7 +126,7 @@ class Matches(QAbstractItemModel):
         elif role == Qt.ToolTipRole:
             if col == 0:
                 if is_disabled(result):
-                    return QVariant('<p>' + _('This store is currently diabled and cannot be used in other parts of calibre.') + '</p>')
+                    return QVariant('<p>' + _('This store is currently disabled and cannot be used in other parts of calibre.') + '</p>')
                 else:
                     return QVariant('<p>' + _('This store is currently enabled and can be used in other parts of calibre.') + '</p>')
             elif col == 1:
