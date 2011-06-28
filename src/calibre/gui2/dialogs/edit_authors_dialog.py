@@ -33,7 +33,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         # Set up the column headings
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.table.setColumnCount(2)
+        self.table.setColumnCount(3)
         self.down_arrow_icon = QIcon(I('arrow-down.png'))
         self.up_arrow_icon = QIcon(I('arrow-up.png'))
         self.blank_icon = QIcon(I('blank.png'))
@@ -43,26 +43,33 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.aus_col = QTableWidgetItem(_('Author sort'))
         self.table.setHorizontalHeaderItem(1, self.aus_col)
         self.aus_col.setIcon(self.up_arrow_icon)
+        self.aul_col = QTableWidgetItem(_('Link'))
+        self.table.setHorizontalHeaderItem(2, self.aul_col)
+        self.aus_col.setIcon(self.blank_icon)
 
         # Add the data
         self.authors = {}
         auts = db.get_authors_with_ids()
         self.table.setRowCount(len(auts))
         select_item = None
-        for row, (id, author, sort) in enumerate(auts):
+        for row, (id, author, sort, link) in enumerate(auts):
             author = author.replace('|', ',')
-            self.authors[id] = (author, sort)
+            self.authors[id] = (author, sort, link)
             aut = tableItem(author)
             aut.setData(Qt.UserRole, id)
             sort = tableItem(sort)
+            link = tableItem(link)
             self.table.setItem(row, 0, aut)
             self.table.setItem(row, 1, sort)
+            self.table.setItem(row, 2, link)
             if id == id_to_select:
                 if select_sort:
                     select_item = sort
                 else:
                     select_item = aut
         self.table.resizeColumnsToContents()
+        if self.table.columnWidth(2) < 200:
+            self.table.setColumnWidth(2, 200)
 
         # set up the cellChanged signal only after the table is filled
         self.table.cellChanged.connect(self.cell_changed)
@@ -236,9 +243,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             id   = self.table.item(row, 0).data(Qt.UserRole).toInt()[0]
             aut  = unicode(self.table.item(row, 0).text()).strip()
             sort = unicode(self.table.item(row, 1).text()).strip()
-            orig_aut,orig_sort = self.authors[id]
-            if orig_aut != aut or orig_sort != sort:
-                self.result.append((id, orig_aut, aut, sort))
+            link = unicode(self.table.item(row, 2).text()).strip()
+            orig_aut,orig_sort,orig_link = self.authors[id]
+            if orig_aut != aut or orig_sort != sort or orig_link != link:
+                self.result.append((id, orig_aut, aut, sort, link))
 
     def do_recalc_author_sort(self):
         self.table.cellChanged.disconnect()
@@ -276,6 +284,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             c.setText(author_to_author_sort(aut))
             item = c
         else:
-            item  = self.table.item(row, 1)
+            item  = self.table.item(row, col)
         self.table.setCurrentItem(item)
         self.table.scrollToItem(item)

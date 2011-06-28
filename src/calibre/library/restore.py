@@ -53,6 +53,7 @@ class Restore(Thread):
         self.mismatched_dirs = []
         self.successes = 0
         self.tb = None
+        self.authors_links = {}
 
     @property
     def errors_occurred(self):
@@ -160,6 +161,12 @@ class Restore(Thread):
         else:
             self.mismatched_dirs.append(dirpath)
 
+        alm = mi.get('author_link_map', {})
+        for author, link in alm.iteritems():
+            existing_link, timestamp = self.authors_links.get(author, (None, None))
+            if existing_link is None or existing_link != link and timestamp < mi.timestamp:
+                self.authors_links[author] = (link, mi.timestamp)
+
     def create_cc_metadata(self):
         self.books.sort(key=itemgetter('timestamp'))
         self.custom_columns = {}
@@ -206,6 +213,11 @@ class Restore(Thread):
                 self.failed_restores.append((book, traceback.format_exc()))
             self.progress_callback(book['mi'].title, i+1)
 
+        for author in self.authors_links.iterkeys():
+            link, ign = self.authors_links[author]
+            db.conn.execute('UPDATE authors SET link=? WHERE name=?',
+                            (link, author.replace(',', '|')))
+        db.conn.commit()
         db.conn.close()
 
     def restore_book(self, book, db):
