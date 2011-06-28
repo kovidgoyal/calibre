@@ -149,7 +149,7 @@
              </size>
             </property>
             <property name="text">
-             <string>See the &lt;a href=&quot;http://manual.calibre-ebook.com/gui.html#the-search-interface&quot;&gt;User Manual&lt;/a&gt; for more help</string>
+             <string>See the &lt;a href=&quot;http://calibre-ebook.com/user_manual/gui.html#the-search-interface&quot;&gt;User Manual&lt;/a&gt; for more help</string>
             </property>
             <property name="openExternalLinks">
              <bool>true</bool>
@@ -216,17 +216,7 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="price_label">
-         <property name="text">
-          <string>&amp;Price:</string>
-         </property>
-         <property name="buddy">
-          <cstring>price_box</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0" colspan="2">
+       <item row="5" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
           <widget class="QPushButton" name="clear_button">
@@ -244,7 +234,7 @@
          </item>
         </layout>
        </item>
-       <item row="7" column="1">
+       <item row="4" column="1">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -267,10 +257,10 @@
        <item row="2" column="1">
         <widget class="EnLineEdit" name="author_box"/>
        </item>
-       <item row="4" column="1">
+       <item row="3" column="1">
         <widget class="QLineEdit" name="format_box"/>
        </item>
-       <item row="4" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="label_10">
          <property name="text">
           <string>&amp;Format:</string>
@@ -278,61 +268,6 @@
          <property name="buddy">
           <cstring>format_box</cstring>
          </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="EnLineEdit" name="price_box"/>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>Affiliate:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QComboBox" name="affiliate_combo">
-         <item>
-          <property name="text">
-           <string/>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>true</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>false</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>Download:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QComboBox" name="download_combo">
-         <item>
-          <property name="text">
-           <string/>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>true</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>false</string>
-          </property>
-         </item>
         </widget>
        </item>
       </layout>
@@ -369,7 +304,6 @@
   <tabstop>buttonBox</tabstop>
   <tabstop>title_box</tabstop>
   <tabstop>author_box</tabstop>
-  <tabstop>price_box</tabstop>
   <tabstop>format_box</tabstop>
   <tabstop>clear_button</tabstop>
   <tabstop>tab_2_button_box</tabstop>
