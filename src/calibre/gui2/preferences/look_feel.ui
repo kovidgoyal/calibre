@@ -250,11 +250,6 @@
            <property name="text">
             <string>Default author link template:</string>
            </property>
-           <property name="toolTip">
-            <string><p>Enter a template that will be used to create a link for
-an author in the books information dialog. Used when no link has been
-provided for the author in Manage Authors.</p></string>
-           </property>
            <property name="buddy">
             <cstring>opt_default_author_link</cstring>
            </property>
@@ -275,7 +270,7 @@ provided for the author in Manage Authors.</p></string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="1" column="1">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Note that &lt;b&gt;comments&lt;/b&gt; will always be displayed at the end, regardless of the position you assign here.</string>
