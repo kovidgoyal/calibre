@@ -34,6 +34,7 @@ NULL_VALUES = {
                 'authors'      : [_('Unknown')],
                 'title'        : _('Unknown'),
                 'user_categories' : {},
+                'author_link_map' : {},
                 'language'     : 'und'
 }
 

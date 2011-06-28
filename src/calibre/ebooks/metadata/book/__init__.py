@@ -86,6 +86,8 @@ CALIBRE_METADATA_FIELDS = frozenset([
     # a dict of user category names, where the value is a list of item names
     # from the book that are in that category
     'user_categories',
+    # a dict of author to an associated hyperlink
+    'author_link_map',
 
     ]
 )

@@ -270,11 +270,13 @@ class TagBrowserMixin(object): # {{{
         editor = EditAuthorsDialog(parent, db, id, select_sort)
         d = editor.exec_()
         if d:
-            for (id, old_author, new_author, new_sort) in editor.result:
+            for (id, old_author, new_author, new_sort, new_link) in editor.result:
                 if old_author != new_author:
                     # The id might change if the new author already exists
                     id = db.rename_author(id, new_author)
                 db.set_sort_field_for_author(id, unicode(new_sort),
+                                             commit=False, notify=False)
+                db.set_link_field_for_author(id, unicode(new_link),
                                              commit=False, notify=False)
             db.commit()
             self.library_view.model().refresh()

@@ -1092,11 +1092,12 @@ class IdentifiersEdit(QLineEdit): # {{{
             for x in parts:
                 c = x.split(':')
                 if len(c) > 1:
-                    if c[0] == 'isbn':
+                    itype = c[0].lower()
+                    if itype == 'isbn':
                         v = check_isbn(c[1])
                         if v is not None:
                             c[1] = v
-                    ans[c[0]] = c[1]
+                    ans[itype] = c[1]
             return ans
         def fset(self, val):
             if not val:
@@ -1112,7 +1113,7 @@ class IdentifiersEdit(QLineEdit): # {{{
                     if v is not None:
                         val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
-            txt = ', '.join(['%s:%s'%(k, v) for k, v in ids])
+            txt = ', '.join(['%s:%s'%(k.lower(), v) for k, v in ids])
             self.setText(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)

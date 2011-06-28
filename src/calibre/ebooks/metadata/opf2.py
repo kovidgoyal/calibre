@@ -474,7 +474,7 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
         metadata_elem.append(meta)
 
 
-def dump_user_categories(cats):
+def dump_dict(cats):
     if not cats:
         cats = {}
     from calibre.ebooks.metadata.book.json_codec import object_to_unicode
@@ -537,8 +537,9 @@ class OPF(object): # {{{
                                     formatter=parse_date, renderer=isoformat)
     user_categories = MetadataField('user_categories', is_dc=False,
                                     formatter=json.loads,
-                                    renderer=dump_user_categories)
-
+                                    renderer=dump_dict)
+    author_link_map = MetadataField('author_link_map', is_dc=False,
+                                formatter=json.loads, renderer=dump_dict)
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
             populate_spine=True):
@@ -1039,7 +1040,7 @@ class OPF(object): # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments',
-                     'pubdate', 'user_categories'):
+                     'pubdate', 'user_categories', 'author_link_map'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
@@ -1336,6 +1337,8 @@ def metadata_to_opf(mi, as_string=True):
         for tag in mi.tags:
             factory(DC('subject'), tag)
     meta = lambda n, c: factory('meta', name='calibre:'+n, content=c)
+    if getattr(mi, 'author_link_map', None) is not None:
+        meta('author_link_map', dump_dict(mi.author_link_map))
     if mi.series:
         meta('series', mi.series)
     if mi.series_index is not None:
@@ -1349,7 +1352,7 @@ def metadata_to_opf(mi, as_string=True):
     if mi.title_sort:
         meta('title_sort', mi.title_sort)
     if mi.user_categories:
-        meta('user_categories', dump_user_categories(mi.user_categories))
+        meta('user_categories', dump_dict(mi.user_categories))
 
     serialize_user_metadata(metadata, mi.get_all_user_metadata(False))
 
