@@ -129,10 +129,10 @@ class TagsView(QTreeView): # {{{
         expanded_categories = []
         for row, category in enumerate(self._model.category_nodes):
             if self.isExpanded(self._model.index(row, 0, QModelIndex())):
-                expanded_categories.append(category.py_name)
+                expanded_categories.append(category.category_key)
             states = [c.tag.state for c in category.child_tags()]
             names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
-            state_map[category.py_name] = dict(izip(names, states))
+            state_map[category.category_key] = dict(izip(names, states))
         return expanded_categories, state_map
 
     def reread_collapse_parameters(self):
@@ -571,9 +571,11 @@ class TagsView(QTreeView): # {{{
     def show_item_at_index(self, idx, box=False,
                            position=QTreeView.PositionAtCenter):
         if idx.isValid() and idx.data(Qt.UserRole).toPyObject() is not self._model.root_item:
+            self.expand(self._model.parent(idx)) # Needed otherwise Qt sometimes segfaults if the
+                                                 # node is buried in a collapsed, off
+                                                 # screen hierarchy
             self.setCurrentIndex(idx)
             self.scrollTo(idx, position)
-            self.setCurrentIndex(idx)
             if box:
                 self._model.set_boxed(idx)
 

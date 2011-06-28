@@ -57,19 +57,6 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <spacer>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="3" column="0" colspan="2">
     <layout class="QHBoxLayout">
      <item>
