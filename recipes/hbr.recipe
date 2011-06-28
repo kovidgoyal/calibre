@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
+from datetime import date, timedelta
 
 class HBR(BasicNewsRecipe):
 
@@ -12,13 +13,14 @@ class HBR(BasicNewsRecipe):
     no_stylesheets = True
 
     LOGIN_URL = 'http://hbr.org/login?request_url=/'
-    INDEX = 'http://hbr.org/current'
+    INDEX = 'http://hbr.org/archive-toc/BR'
 
     keep_only_tags = [dict(name='div', id='pageContainer')]
     remove_tags = [dict(id=['mastheadContainer', 'magazineHeadline',
         'articleToolbarTopRD', 'pageRightSubColumn', 'pageRightColumn',
         'todayOnHBRListWidget', 'mostWidget', 'keepUpWithHBR',
         'mailingListTout', 'partnerCenter', 'pageFooter',
+        'superNavHeadContainer', 'hbrDisqus',
         'articleToolbarTop', 'articleToolbarBottom', 'articleToolbarRD']),
         dict(name='iframe')]
     extra_css = '''
@@ -55,9 +57,14 @@ class HBR(BasicNewsRecipe):
 
 
     def hbr_get_toc(self):
-        soup = self.index_to_soup(self.INDEX)
-        url = soup.find('a', text=lambda t:'Full Table of Contents' in t).parent.get('href')
-        return self.index_to_soup('http://hbr.org'+url)
+        today = date.today()
+        future = today + timedelta(days=30)
+        for x in [x.strftime('%y%m') for x in (future, today)]:
+            url = self.INDEX + x
+            soup = self.index_to_soup(url)
+            if not soup.find(text='Issue Not Found'):
+                return soup
+        raise Exception('Could not find current issue')
 
     def hbr_parse_section(self, container, feeds):
         current_section = None
