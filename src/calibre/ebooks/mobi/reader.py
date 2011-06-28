@@ -957,7 +957,10 @@ def get_metadata(stream):
         return get_metadata(stream)
     from calibre.utils.logging import Log
     log = Log()
-    mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
+    try:
+        mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
+    except:
+        mi = MetaInformation(_('Unknown'), [_('Unknown')])
     mh = MetadataHeader(stream, log)
     if mh.title and mh.title != _('Unknown'):
         mi.title = mh.title
