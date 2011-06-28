@@ -83,13 +83,14 @@ gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
 gprefs.defaults['book_display_fields'] = [
-        ('title', False), ('authors', False), ('formats', True),
+        ('title', False), ('authors', True), ('formats', True),
         ('series', True), ('identifiers', True), ('tags', True),
         ('path', True), ('publisher', False), ('rating', False),
         ('author_sort', False), ('sort', False), ('timestamp', False),
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
         ('last_modified', False), ('size', False),
         ]
+gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 
 # }}}
 
@@ -181,14 +182,6 @@ def _config(): # {{{
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,
             help=_('Disable UI animations'))
-    c.add_opt('default_author_link',
-              default='http://en.wikipedia.org/w/index.php?search={author}',
-              help='<p>' +
-                _('Enter a template to be used to create a link for'
-                  'an author in the books information dialog. This template will '
-                  'be used when no link has been provided for the author using '
-                  'Manage Authors. You can use the values {author} and '
-                  '{author_sort}, and any template function.') + '</p>')
 
     # This option is no longer used. It remains for compatibility with upgrades
     # so the value can be migrated

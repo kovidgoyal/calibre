@@ -129,14 +129,14 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             for aut in mi.authors:
                 if mi.author_link_map[aut]:
                     link = mi.author_link_map[aut]
-                elif config.get('default_author_link'):
+                elif gprefs.get('default_author_link'):
                     vals = {'author': aut}
                     try:
                         vals['author_sort'] =  mi.author_sort_map[aut]
                     except:
                         vals['author_sort'] = aut
                     link = formatter.safe_format(
-                            config.get('default_author_link'), vals, '', vals)
+                            gprefs.get('default_author_link'), vals, '', vals)
                 if link:
                     authors.append(u'<a href="%s">%s</a>'%(urllib2.quote(link), aut))
                 else:
