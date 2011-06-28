@@ -130,15 +130,16 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 if mi.author_link_map[aut]:
                     link = mi.author_link_map[aut]
                 elif gprefs.get('default_author_link'):
-                    vals = {'author': aut}
+                    vals = {'author': aut.replace(' ', '+')}
                     try:
-                        vals['author_sort'] =  mi.author_sort_map[aut]
+                        vals['author_sort'] =  mi.author_sort_map[aut].replace(' ', '+')
                     except:
-                        vals['author_sort'] = aut
+                        vals['author_sort'] = aut.replace(' ', '+')
                     link = formatter.safe_format(
                             gprefs.get('default_author_link'), vals, '', vals)
                 if link:
-                    authors.append(u'<a href="%s">%s</a>'%(urllib2.quote(link), aut))
+                    link = prepare_string_for_xml(link)
+                    authors.append(u'<a href="%s">%s</a>'%(link, aut))
                 else:
                     authors.append(aut)
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
