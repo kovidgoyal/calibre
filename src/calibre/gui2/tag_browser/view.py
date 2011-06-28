@@ -12,7 +12,7 @@ from functools import partial
 from itertools import izip
 
 from PyQt4.Qt import (QItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon,
-        QApplication, QMenu, QPoint, QModelIndex)
+        QApplication, QMenu, QPoint, QModelIndex, QCursor, QToolTip)
 
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
@@ -477,6 +477,7 @@ class TagsView(QTreeView): # {{{
             partial(self.context_menu_handler, action='categorization', category='first letter'))
         pa = m.addAction('Partition',
             partial(self.context_menu_handler, action='categorization', category='partition'))
+
         if self.collapse_model == 'disable':
             da.setCheckable(True)
             da.setChecked(True)
@@ -487,9 +488,24 @@ class TagsView(QTreeView): # {{{
             pa.setCheckable(True)
             pa.setChecked(True)
 
+        if config['sort_tags_by'] != "name":
+            fla.setEnabled(False)
+            m.hovered.connect(self.collapse_menu_hovered)
+            fla.setToolTip(_('First letter is usable only when sorting by name'))
+            # Apparently one cannot set a tooltip to empty, so use a star and
+            # deal with it in the hover method
+            da.setToolTip('*')
+            pa.setToolTip('*')
+
         if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True
+
+    def collapse_menu_hovered(self, action):
+        tip = action.toolTip()
+        if tip == '*':
+            tip = ''
+        QToolTip.showText(QCursor.pos(), tip)
 
     def dragMoveEvent(self, event):
         QTreeView.dragMoveEvent(self, event)
