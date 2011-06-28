@@ -181,6 +181,14 @@ def _config(): # {{{
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,
             help=_('Disable UI animations'))
+    c.add_opt('default_author_link',
+              default='http://en.wikipedia.org/w/index.php?search={author}',
+              help='<p>' +
+                _('Enter a template to be used to create a link for'
+                  'an author in the books information dialog. This template will '
+                  'be used when no link has been provided for the author using '
+                  'Manage Authors. You can use the values {author} and '
+                  '{author_sort}, and any template function.') + '</p>')
 
     # This option is no longer used. It remains for compatibility with upgrades
     # so the value can be migrated

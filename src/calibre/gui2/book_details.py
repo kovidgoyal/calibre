@@ -5,6 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import urllib2
 
 from PyQt4.Qt import (QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl,
     QPropertyAnimation, QEasingCurve, QApplication, QFontInfo,
@@ -23,6 +24,7 @@ from calibre.library.comments import comments_to_html
 from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
         gprefs)
 from calibre.utils.icu import sort_key
+from calibre.utils.formatter import EvalFormatter
 
 def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     table = render_data(mi, all_fields=all_fields,
@@ -123,10 +125,20 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                     _('Ids')+':', links)))
         elif field == 'authors' and not isdevice:
             authors = []
+            formatter = EvalFormatter()
             for aut in mi.authors:
                 if mi.author_link_map[aut]:
-                    authors.append(u'<a href="%s">%s</a>' %
-                                            (mi.author_link_map[aut], aut))
+                    link = mi.author_link_map[aut]
+                elif config.get('default_author_link'):
+                    vals = {'author': aut}
+                    try:
+                        vals['author_sort'] =  mi.author_sort_map[aut]
+                    except:
+                        vals['author_sort'] = aut
+                    link = formatter.safe_format(
+                            config.get('default_author_link'), vals, '', vals)
+                if link:
+                    authors.append(u'<a href="%s">%s</a>'%(urllib2.quote(link), aut))
                 else:
                     authors.append(aut)
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,

@@ -481,6 +481,13 @@ def dump_user_categories(cats):
     return json.dumps(object_to_unicode(cats), ensure_ascii=False,
             skipkeys=True)
 
+def dump_author_links(links):
+    if not links:
+        links = {}
+    from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+    return json.dumps(object_to_unicode(links), ensure_ascii=False,
+            skipkeys=True)
+
 class OPF(object): # {{{
 
     MIMETYPE         = 'application/oebps-package+xml'
@@ -539,7 +546,7 @@ class OPF(object): # {{{
                                     formatter=json.loads,
                                     renderer=dump_user_categories)
     author_link_map = MetadataField('author_link_map', is_dc=False,
-                                    formatter=json.loads)
+                                formatter=json.loads, renderer=dump_author_links)
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
             populate_spine=True):
@@ -1338,7 +1345,7 @@ def metadata_to_opf(mi, as_string=True):
             factory(DC('subject'), tag)
     meta = lambda n, c: factory('meta', name='calibre:'+n, content=c)
     if getattr(mi, 'author_link_map', None) is not None:
-        meta('author_link_map', json.dumps(mi.author_link_map))
+        meta('author_link_map', dump_author_links(mi.author_link_map))
     if mi.series:
         meta('series', mi.series)
     if mi.series_index is not None:

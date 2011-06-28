@@ -136,7 +136,7 @@ class TagsView(QTreeView): # {{{
         return expanded_categories, state_map
 
     def reread_collapse_parameters(self):
-        self._model.reread_collapse_parameters(self.get_state()[1])
+        self._model.reread_collapse_model(self.get_state())
 
     def set_database(self, db, tag_match, sort_by):
         self._model.set_database(db)
