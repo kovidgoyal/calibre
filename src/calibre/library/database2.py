@@ -1245,6 +1245,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     ret = tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE)
                     shutil.copyfileobj(f, ret)
                     ret.seek(0)
+                    # Various bits of code try to use the name as the default
+                    # title when reading metadata, so set it
                     ret.name = f.name
                 else:
                     ret = f.read()
