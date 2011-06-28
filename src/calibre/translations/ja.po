@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-24 18:42+0000\n"
-"PO-Revision-Date: 2011-06-27 04:31+0000\n"
+"PO-Revision-Date: 2011-06-27 08:43+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-27 04:33+0000\n"
+"X-Launchpad-Export-Date: 2011-06-28 04:38+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -14683,7 +14683,7 @@ msgstr "%d プラグインのアップデートがあります"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:193
 msgid "Install and configure user plugins"
-msgstr ""
+msgstr "ユーザープラグインのインストールと設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -14691,7 +14691,7 @@ msgstr "ブックマーク編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "New title for bookmark:"
-msgstr ""
+msgstr "ブックマークの新しいタイトル："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:52
 msgid "Export Bookmarks"
@@ -14699,7 +14699,7 @@ msgstr "ブックマークのエキスポート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:54
 msgid "Saved Bookmarks (*.pickle)"
-msgstr ""
+msgstr "保存されたブックマーク(*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:62
 msgid "Import Bookmarks"
@@ -14707,15 +14707,15 @@ msgstr "ブックマークのインポート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:62
 msgid "Pickled Bookmarks (*.pickle)"
-msgstr ""
+msgstr "ピックル化ブックマーク(*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:61
 msgid "Bookmark Manager"
-msgstr ""
+msgstr "ブックマーク マネージャ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:62
 msgid "Actions"
-msgstr ""
+msgstr "操作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:63
 msgid "Edit"
@@ -14735,7 +14735,7 @@ msgstr "インポート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:178
 msgid "Configure Ebook viewer"
-msgstr ""
+msgstr "EBookビューワーを設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:179
 msgid "&Font options"
@@ -14785,45 +14785,45 @@ msgstr "等幅フォント"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:191
 msgid "Remember last used &window size"
-msgstr ""
+msgstr "最後に使ったウインドウの大きさを覚える(&W)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:192
 msgid "Remember the &current page when quitting"
-msgstr ""
+msgstr "終了時に現在ページを覚える(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:193
 msgid "H&yphenate (break line in the middle of large words)"
-msgstr ""
+msgstr "ハイフォン化（長いワードの途中で行を区切る &H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:194
 msgid ""
 "The default language to use for hyphenation rules. If the book does not "
 "specify a language, this will be used."
-msgstr ""
+msgstr "ハイフォン化に使われるディフォールトの言語。もし書籍に言語が指定されていない場合、これが使われます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:195
 msgid "Default &language for hyphenation:"
-msgstr ""
+msgstr "ハイフォン化のディフォールト言語(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:196
 msgid "&Resize images larger than the viewer window (needs restart)"
-msgstr ""
+msgstr "ビューワーのウインドウより大きい画像をリサイズ。（要リスタート　&R）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "Page flip &duration:"
-msgstr ""
+msgstr "ページめくり時間(&D)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "disabled"
-msgstr ""
+msgstr "無効化"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Mouse &wheel flips pages"
-msgstr ""
+msgstr "マウス・ホイールでページめくり(&W)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
 msgid "Maximum &view width:"
-msgstr ""
+msgstr "最大のビュー幅(&V)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:203
 msgid "&General"
@@ -14831,11 +14831,11 @@ msgstr "全般(&G)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:204
 msgid "Double click to change a keyboard shortcut"
-msgstr ""
+msgstr "ダブルクリックでキーボード・ショートカットを変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:205
 msgid "&Keyboard shortcuts"
-msgstr ""
+msgstr "キーボード・ショートカット(&K)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:206
 msgid ""
@@ -14843,59 +14843,62 @@ msgid ""
 "For examples, click <a "
 "href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">here</a>."
 msgstr ""
+"<p>書籍のルック＆フィールを調整するためのCSSスタイルシート。例としては<a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">このフォーラム</a>を"
+"クリックして見てください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:207
 msgid "User &Stylesheet"
-msgstr ""
+msgstr "ユーザースタイルシート(&S)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
-msgstr ""
+msgstr "結果が見つかりませんでした："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:41
 msgid "Options to customize the ebook viewer"
-msgstr ""
+msgstr "EBookビューワーをカスタマイズするためのオプション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:794
 msgid "Remember last used window size"
-msgstr ""
+msgstr "最後に使ったウインドウのサイズを覚える"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:97
 msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
-msgstr ""
+msgstr "ユーザー・スタイルシートを設定。これはすべての書籍の見た目をカスタマイズすることができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:52
 msgid "Maximum width of the viewer window, in pixels."
-msgstr ""
+msgstr "ビューワー・ウインドウ幅の最大値ピクセル。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:54
 msgid "Resize images larger than the viewer window to fit inside it"
-msgstr ""
+msgstr "ビューワー・ウインドウより大きな画像を、中にフィットするようにリサイズ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
 msgid "Hyphenate text"
-msgstr ""
+msgstr "テキストをハイフン化"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
 msgid "Default language for hyphenation rules"
-msgstr ""
+msgstr "ハイフン化のルールのディフォールト言語"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 msgid "Save the current position in the document, when quitting"
-msgstr ""
+msgstr "終了時に、ドキュメントの現在の位置を覚える"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
 msgid "Have the mouse wheel turn pages"
-msgstr ""
+msgstr "マウスホイールでページめくりをする"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:63
 msgid ""
 "The time, in seconds, for the page flip animation. Default is half a second."
-msgstr ""
+msgstr "ページめくりアニメーションをする時間。ディフォールトは0.5秒。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:66
 msgid "Font options"
@@ -14903,37 +14906,37 @@ msgstr "フォントオプション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:68
 msgid "The serif font family"
-msgstr ""
+msgstr "セリフ(serif)フォントファミリー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:70
 msgid "The sans-serif font family"
-msgstr ""
+msgstr "サンセリフ(sans-serif)フォントファミリー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:72
 msgid "The monospaced font family"
-msgstr ""
+msgstr "等幅のフォントファミリー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:73
 msgid "The standard font size in px"
-msgstr ""
+msgstr "標準フォントサイズ・ピクセル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:74
 msgid "The monospaced font size in px"
-msgstr ""
+msgstr "等幅フォントサイズ・ピクセル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:75
 msgid "The standard font type"
-msgstr ""
+msgstr "標準フォントタイプ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:126
 msgid "Still editing"
-msgstr ""
+msgstr "編集中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:127
 msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
-msgstr ""
+msgstr "キーボード・ショートカットの編集の途中です。まず、ショートカット編集ボックスの外側をクリックして終了してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
 msgid "&Lookup in dictionary"
