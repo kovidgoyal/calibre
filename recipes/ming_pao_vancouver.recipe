@@ -179,17 +179,17 @@ class MPRecipe(BasicNewsRecipe):
     def get_dtlocal(self):
         dt_utc = datetime.datetime.utcnow()
         if __Region__ == 'Hong Kong':
-            # convert UTC to local hk time - at HKT 4.30am, all news are available
-            dt_local = dt_utc + datetime.timedelta(8.0/24) - datetime.timedelta(4.5/24)
-            # dt_local = dt_utc.astimezone(pytz.timezone('Asia/Hong_Kong')) - datetime.timedelta(4.5/24)
+            # convert UTC to local hk time - at HKT 5.30am, all news are available
+            dt_local = dt_utc + datetime.timedelta(8.0/24) - datetime.timedelta(5.5/24)
+            # dt_local = dt_utc.astimezone(pytz.timezone('Asia/Hong_Kong')) - datetime.timedelta(5.5/24)
         elif __Region__ == 'Vancouver':
-            # convert UTC to local Vancouver time - at PST time 4.30am, all news are available
-            dt_local = dt_utc + datetime.timedelta(-8.0/24) - datetime.timedelta(4.5/24)
-            #dt_local = dt_utc.astimezone(pytz.timezone('America/Vancouver')) - datetime.timedelta(4.5/24)
+            # convert UTC to local Vancouver time - at PST time 5.30am, all news are available
+            dt_local = dt_utc + datetime.timedelta(-8.0/24) - datetime.timedelta(5.5/24)
+            #dt_local = dt_utc.astimezone(pytz.timezone('America/Vancouver')) - datetime.timedelta(5.5/24)
         elif __Region__ == 'Toronto':
-            # convert UTC to local Toronto time - at EST time 4.30am, all news are available
-            dt_local = dt_utc + datetime.timedelta(-5.0/24) - datetime.timedelta(4.5/24)
-            #dt_local = dt_utc.astimezone(pytz.timezone('America/Toronto')) - datetime.timedelta(4.5/24)
+            # convert UTC to local Toronto time - at EST time 8.30am, all news are available
+            dt_local = dt_utc + datetime.timedelta(-5.0/24) - datetime.timedelta(8.5/24)
+            #dt_local = dt_utc.astimezone(pytz.timezone('America/Toronto')) - datetime.timedelta(8.5/24)
         return dt_local
 
     def get_fetchdate(self):
