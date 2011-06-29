@@ -44,13 +44,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-24 18:42+0000\n"
-"PO-Revision-Date: 2011-06-27 23:24+0000\n"
+"PO-Revision-Date: 2011-06-28 14:49+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-28 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-06-29 04:42+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -459,7 +459,7 @@ msgstr "Kopieer boeken van  het apparaat naar uw calibre bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Edit the collections in which books are placed on your device"
-msgstr "Bewerk de collecties waar de boeken zich in bevinden op het apparaat"
+msgstr "Bewerk de collecties waar de boeken zich in bevinden op uw apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:873
 msgid "Copy a book from one calibre library to another"
@@ -468,7 +468,7 @@ msgstr "Kopieer een boek van de ene calibre bibliotheek naar een andere"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:878
 msgid "Make small tweaks to epub files in your calibre library"
 msgstr ""
-"Maak kleine aanpassingen aan epub bestanden in je calibre bibliotheek"
+"Maak kleine aanpassingen aan epub bestanden in uw calibre bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:883
 msgid ""
@@ -989,9 +989,9 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
-"<p>Als je niet wil dat calibre je Apple iDevice herkent als die met de "
-"computer verbonden wordt, klik je op <b>Apple-driver "
-"uitschakelen</b>.</p><p>Om boeken naar je iDevice over te zetten klik je op "
+"<p>Als u niet wil dat calibre uw Apple iDevice herkent als die met de "
+"computer verbonden wordt, klikt u op <b>Apple-driver "
+"uitschakelen</b>.</p><p>Om boeken naar uw iDevice over te zetten klikt u op "
 "<b>Apple-driver uitschakelen</b>, en gebruik de 'Verbinden met iTunes'-"
 "methode aanbevolen in de <a "
 "href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
@@ -1116,7 +1116,7 @@ msgstr "Communiceer met iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr "Communiceer met de Sanda Bambook E-boek lezer."
+msgstr "Communiceer met de Sanda Bambook E-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -1140,7 +1140,7 @@ msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
 "Niet in staat om verbinding te maken met Bambook, u moet eerst de Bambook-"
-"library installeren."
+"bibliotheek installeren."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -1234,7 +1234,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr "Communiceer met BOEYE BEX Seriële e-boeklezers."
+msgstr "Communiceer met BOEYE BEX Seriële E-readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
@@ -2819,7 +2819,7 @@ msgid ""
 "JetBook Lite. Without this option, such devices will display the cover as a "
 "blank page."
 msgstr ""
-"Gebruik geen SVG voor de omslag van het boek. Gebruik deze optie als je EPUB "
+"Gebruik geen SVG voor de omslag van het boek. Gebruik deze optie als uw EPUB "
 "gebruikt gaat worden op een apparaat dat SVG niet ondersteunt, zoals de "
 "iPhone of de JetBook Lite. Zonder deze optie zullen deze apparaten de omslag "
 "van het boek als een lege pagina laten zien."
@@ -4391,7 +4391,7 @@ msgstr "Start content-server automatisch bij het starten van het programma"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
 msgid "Oldest news kept in database"
-msgstr "Bewaar oudste nieuws in database"
+msgstr "Oudste nieuws bewaard in database"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:130
 msgid "Show system tray icon"
@@ -4539,7 +4539,7 @@ msgstr "Boeken toevoegen"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:48
 msgid "Add books to the calibre library/device from files on your computer"
 msgstr ""
-"Boeken uit bestanden aan de calibrebibliotheek of het apparaat toevoegen"
+"Boeken uit bestanden aan de calibre-bibliotheek of het apparaat toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:49
 msgid "A"
@@ -4634,7 +4634,7 @@ msgid ""
 msgstr ""
 "De volgende boeken werden in tweevoud gevonden. Binnenkomende boekformaten "
 "werden verwerkt en volgens de instellingen voor automatisch samenvoegen aan "
-"uw calibredatabank toegevoegd."
+"uw calibredatabase toegevoegd."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:349
 msgid "Failed to read metadata"
@@ -4665,7 +4665,7 @@ msgstr "Geen boek geselecteerd"
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
-"De volgende boeken zijn virtueel en kunnen niet aan de calibrebibliotheek "
+"De volgende boeken zijn virtueel en kunnen niet aan de calibre-bibliotheek "
 "toegevoegd worden:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:395
@@ -4679,7 +4679,7 @@ msgstr "Voeg boeken aan de bibliotheek toe"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
 msgstr ""
-"Voeg boeken van uw aangesloten apparaat aan de calibrebibliotheek toe"
+"Voeg boeken van uw aangesloten apparaat aan de calibre-bibliotheek toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:591
@@ -4702,8 +4702,7 @@ msgstr "Alleen de bibliotheek gebruiken"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:246
 msgid "User annotations generated from main library only"
-msgstr ""
-"Annotaties van de gebruiker alleen gegenereerd in de hoofdbibliotheek"
+msgstr "Annotaties van de gebruiker gegenereerd uit de hoofdbibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:33
@@ -4807,11 +4806,11 @@ msgstr "Kies een willekeurig boek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:133
 msgid "Library Maintenance"
-msgstr "Bibliotheek onderhouden"
+msgstr "Bibliotheek onderhoud"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:134
 msgid "Library metadata backup status"
-msgstr "backupstatus van metadata van bibliotheek"
+msgstr "Backupstatus van metadata van bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:138
 msgid "Start backing up metadata of all books"
@@ -4962,7 +4961,7 @@ msgstr "Mislukt"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:338
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
-"Controle database-integriteit mislukt. Klik op ‘Details tonen’ voor details."
+"Controle database-integriteit mislukt. Klik op ‘Toon details’ voor details."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 msgid "No problems found"
@@ -4982,7 +4981,7 @@ msgid ""
 "No existing calibre library was found at %s. It will be removed from the "
 "list of known libraries."
 msgstr ""
-"Geen bestaande calibrebibliotheek op %s gevonden. Deze wordt verwijderd van "
+"Geen bestaande calibre-bibliotheek op %s gevonden. Deze wordt verwijderd van "
 "de lijst van bestaande bibliotheken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:420
@@ -5057,7 +5056,7 @@ msgstr "Geen bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:142
 msgid "No library found at %s"
-msgstr "Geen bibliotheek gevonden op %s"
+msgstr "Geen bibliotheek gevonden in %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:145
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:149
@@ -5367,8 +5366,8 @@ msgid ""
 "Finished downloading metadata for <b>%d book(s)</b>. Proceed with updating "
 "the metadata in your library?"
 msgstr ""
-"Downloaden metadata voor <b>%d boek(en)</b> voltooid. Doorgaan met het "
-"bijwerken van metadata in de bibliotheek?"
+"Metadata voor <b>%d boek(en)</b> gedownload. Doorgaan met het bijwerken van "
+"metadata in de bibliotheek?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:101
 msgid ""
@@ -5489,7 +5488,7 @@ msgid ""
 "\"Show Details\" to see details."
 msgstr ""
 "Updaten van metadata is voor enkele boeken in de bibliotheek mislukt. Klik "
-"op ‘Details tonen’ voor meer informatie."
+"op ‘Toon details’ voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "F"
@@ -5644,7 +5643,7 @@ msgid ""
 msgstr ""
 "U probeert bestanden in de calibre-bibliotheek op te slaan. Dit kan "
 "corruptie van de bibliotheek veroorzaken. De optie ‘Op schijf opslaan’  is "
-"om bestanden uit de calibre-bibliotheek te exporteren."
+"bedoeld om bestanden uit de calibre-bibliotheek te exporteren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:135
 msgid "Error while saving"
@@ -6067,8 +6066,8 @@ msgid ""
 "This folder and its sub-folders will be scanned for books to import into "
 "calibre's library"
 msgstr ""
-"Deze map en de deelmappen worden gescand op te importeren boeken voor "
-"calibres bibliotheek"
+"Deze map en de deelmappen worden gescand op boeken te importeren in "
+"calibre's bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:57
@@ -6177,7 +6176,7 @@ msgstr "Omslag kopiëren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:513
 msgid "Double-click to open Book Details window"
-msgstr "Klik dubbel om de boekdetails te zien"
+msgstr "Dubbelklikken om de boekdetails te zien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:514
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
@@ -8354,11 +8353,11 @@ msgstr "Integriteit database verifiëren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:55
 msgid "Dumping database to SQL"
-msgstr "Databank wordt naar SQL gedumpt"
+msgstr "Database naar SQL dumpen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:81
 msgid "Loading database from SQL"
-msgstr "Databank wordt uit SQL ingeladen"
+msgstr "Database uit SQL laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:148
 msgid "Check Library -- Problems Found"
@@ -8494,7 +8493,7 @@ msgstr ""
 "de \n"
 "        database een omslag heeft maar waarvoor geen omslag gevonden is in "
 "de map.</li>\n"
-"        <li><b>Omslagen ontbreken in databank</b>: Deze boeken hebben wel "
+"        <li><b>Omslagen ontbreken in database</b>: Deze boeken hebben wel "
 "een omslag in de map\n"
 "        maar in de database wordt aangegeven dat er geen omslag is.</li>\n"
 "        <li><b>Mappen die voor fouten zorgen</b>: Dit zijn mappen in de "
@@ -8615,7 +8614,7 @@ msgstr "Omzetbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:44
 msgid "Choose location for calibre library"
-msgstr "Kies locatie voor calibrebibliotheek"
+msgstr "Kies locatie voor calibre-bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 msgid "Same as current"
@@ -8623,7 +8622,7 @@ msgstr "Zelfde als huidige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:52
 msgid "The location %s contains the current calibre library"
-msgstr "De locatie %s bevat de huidige calibrebibliotheek"
+msgstr "De locatie %s bevat de huidige calibre-bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:57
 msgid "No existing library found"
@@ -8631,7 +8630,7 @@ msgstr "Geen bestaande bibliotheek gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:58
 msgid "There is no existing calibre library at %s"
-msgstr "Er bevindt zich geen bestaande calibrebibliotheek in %s"
+msgstr "Er bevindt zich geen bestaande calibre-bibliotheek in %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:63
 msgid "Not empty"
@@ -8660,11 +8659,11 @@ msgstr "%s is geen bestaande map"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:77
 msgid "Choose your calibre library"
-msgstr "Kies uw calibrebibliotheek"
+msgstr "Kies uw calibre-bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:78
 msgid "Your calibre library is currently located at {0}"
-msgstr "Uw calibrebibliotheek bevindt zich in {0}"
+msgstr "Uw calibre-bibliotheek bevindt zich in {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:79
 msgid "New &Location:"
@@ -9846,8 +9845,8 @@ msgid ""
 "thread for this plugin and restart Calibre."
 msgstr ""
 "Er is een probleem opgetreden tijdens de installatie van deze plugin. Deze "
-"plugin zal nu worden verwijderd. Geef de onderstaande foutmelding a.u.b. "
-"door bij het forumonderwerp voor deze plugin en herstart Calibre."
+"plugin zal nu worden verwijderd. Plaats de foutmelding uit de details "
+"hieronder a.u.b. bij het forumonderwerp voor deze plugin en herstart Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:770
 msgid "Version history missing"
@@ -9970,7 +9969,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:102
 msgid "Restoring database failed, click Show details to see details"
 msgstr ""
-"Herstellen van de databank is mislukt. Klik op ‘Details tonen’ voor meer "
+"Herstellen van de database is mislukt. Klik op ‘Toon details’ voor meer "
 "informatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:107
@@ -9978,8 +9977,8 @@ msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details."
 msgstr ""
-"Herstellen van de databank is gelukt, maar er zijn waarschuwingen. Klik op "
-"‘Details tonen’ voor meer informatie."
+"Herstellen van de database is gelukt, maar er zijn waarschuwingen. Klik op "
+"‘Toon details’ voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:112
 msgid "Restoring database was successful"
@@ -11343,7 +11342,7 @@ msgstr "Ontkoppel dit apparaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:69
 msgid "Show books in calibre library"
-msgstr "Geef de boeken in de calibrebibliotheek weer"
+msgstr "Geef de boeken in de calibre-bibliotheek weer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:71
 msgid "Show books in the main memory of the device"
@@ -11393,7 +11392,7 @@ msgstr "&Ga!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:201
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr "Snel zoeken (je kunt ook Enter drukken)"
+msgstr "Snel zoeken (u kunt ook Enter drukken)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:207
 msgid "Reset Quick Search"
@@ -11434,7 +11433,7 @@ msgstr "De UUID van dit boek is \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1014
 msgid "In Library"
-msgstr "In de bibliotheek"
+msgstr "In bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1018
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:328
@@ -11495,7 +11494,7 @@ msgid ""
 "library."
 msgstr ""
 "Direct naar een apparaat slepen wordt niet ondersteund. Voeg het boek eerst "
-"toe aan de calibrebibliotheek."
+"toe aan de calibre-bibliotheek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:52
 msgid "Configure Viewer"
@@ -11608,7 +11607,7 @@ msgstr "Calibrebibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:96
 msgid "Choose a location for your calibre e-book library"
-msgstr "Kies een locatie voor je calibre e-boek bibliotheek"
+msgstr "Kies een locatie voor uw calibre e-boek bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:105
 msgid "Failed to create library"
@@ -11621,7 +11620,7 @@ msgstr "Creëren van de bibliotheek is mislukt op: %r."
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:195
 msgid "Choose a location for your new calibre e-book library"
-msgstr "Kies een locatie voor je nieuwe calibre e-boek bibliotheek"
+msgstr "Kies een locatie voor uw nieuwe calibre e-boek bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:164
 msgid "Initializing user interface..."
@@ -11634,17 +11633,17 @@ msgstr "Herstellen mislukt"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:190
 msgid "The database repair failed. Starting with a new empty library."
 msgstr ""
-"Het herstel van de database is mislukt. Opnieuw beginnen met een nieuwe "
+"Het herstellen van de database is mislukt. Start met een nieuwe, lege "
 "bibliotheek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:236
 msgid "Bad database location"
-msgstr "Ongeldige databaselocatie"
+msgstr "Ongeldige database-locatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:205
 msgid "Bad database location %r. calibre will now quit."
-msgstr "Verkeerde databaselocatie %r. calibre wordt nu afgesloten."
+msgstr "Verkeerde database-locatie %r. Calibre wordt nu afgesloten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:217
 msgid "Corrupted database"
@@ -11656,9 +11655,9 @@ msgid ""
 "and repair it automatically? If you say No, a new empty calibre library will "
 "be created."
 msgstr ""
-"Je calibredatabank lijkt te zijn beschadigd. Wil je dat calibre tracht deze "
+"Uw calibre-database lijkt te zijn beschadigd. Wil je dat calibre tracht deze "
 "automatisch te herstellen? Indien je nee antwoord, zal er een nieuwe lege "
-"calibredatabank gemaakt worden."
+"calibre-bibliotheek gemaakt worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:224
 msgid ""
@@ -11671,7 +11670,7 @@ msgstr ""
 msgid ""
 "Bad database location %r. Will start with  a new, empty calibre library"
 msgstr ""
-"Slechte databaselocatie %r. Zal starten met een nieuwe, lege calibre "
+"Slechte database-locatie %r. Zal starten met een nieuwe, lege calibre-"
 "bibliotheek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:247
@@ -12238,7 +12237,7 @@ msgstr ""
 "Geen boeken gevonden voor de zoekopdracht. Probeer de zoekopdracht <b>minder "
 "specifiek</b> te maken. Gebruik bijvoorbeeld alleen de achternaam van de "
 "auteur of één enkel sleutelwoord uit de titel. Om alle meldingen te zien "
-"klik je op \"Toon details\"."
+"klikt u op \"Toon details\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:538
 msgid "Current cover"
@@ -12375,9 +12374,9 @@ msgstr ""
 "automatisch bij de bestaande boekrecords toegevoegd. Dit vak geeft aan wat "
 "gebeurt als de bestaande record het formaat al heeft: \n"
 "\n"
-"Negeer inkomende bestanden - bestaande bestanden in je bibliotheek worden "
+"Negeer inkomende bestanden - bestaande bestanden in uw bibliotheek worden "
 "niet overschreven\n"
-"Overschrijf bestaande bestanden - bestaande bestanden worden uit je "
+"Overschrijf bestaande bestanden - bestaande bestanden worden uit uw "
 "bibliotheek verwijderd.\n"
 "Maak een nieuwe record voor elke dubbel - als er een duplicaat is wordt een "
 "nieuwe boekrecord aangemaakt voor elk duplicaat\n"
@@ -13183,11 +13182,11 @@ msgstr "Apparaatdetectie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:52
 msgid "Ensure your device is disconnected, then press OK"
-msgstr "Verzeker je ervan dat het apparaat is ontkoppeld en druk dan op OK"
+msgstr "Verzeker u ervan dat het apparaat is ontkoppeld en druk dan op OK"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:58
 msgid "Ensure your device is connected, then press OK"
-msgstr "Verzeker je ervan dat het apparaat is aangesloten en druk dan op OK"
+msgstr "Verzeker u ervan dat het apparaat is aangesloten en druk dan op OK"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:88
 msgid ""
@@ -13208,7 +13207,7 @@ msgid ""
 "automatically sent for downloaded news to all email addresses that have Auto-"
 "send checked."
 msgstr ""
-"calibre kan boeken naar jou (of je E-reader) sturen via e-mail. E-mails "
+"calibre kan boeken naar jou (of uw E-reader) sturen via e-mail. E-mails "
 "worden automatisch gestuurd voor gedownload nieuws naar alle e-mailadressen "
 "waarvoor automatisch opsturen is aangevinkt."
 
@@ -14023,16 +14022,16 @@ msgid ""
 "have hierarchical categories (categories that contain categories)."
 msgstr ""
 "<b>Kolomgroepen</b> zijn zoeknamen die een zoekactie toelaten automatisch in "
-"meer dan een kolom te zoeken. Als je bijvoorbeeld een kolomgroep "
+"meer dan een kolom te zoeken. Als u bijvoorbeeld een kolomgroep "
 "<code>allereeksen</code> maakt met de waarde <code>series, #mijnreeks1, "
 "#mijnreeks2</code> dan zal de zoekactie <code>allereeksen:adhoc</code> "
 "zoekterm 'adhoc' zoeken in alledrie de de kolommen <code>series</code>, "
 "<code>#mijnreeks1</code> en <code>#mijnreeks2</code>.<p>Geef de naam van de "
 "kolomgroep in het uitrolvak en de lijst van kolommen in het waardevak, en "
 "klik op de bewaarknop.<p>Opmerking: zoektermen worden naar kleine letters "
-"omgezet.<p> Je kan je kolomgroepen zichtbaar maken in de labelbrowser. Voeg "
+"omgezet.<p> U kan uw kolomgroepen zichtbaar maken in de labelbrowser. Voeg "
 "eenvoudigweg de kolomgroepnamen toe aan het vak 'Maak gebruikerscategorie "
-"van:' waar je meer dan een naam kan opgeven door te scheiden met komma's. De "
+"van:' waar u meer dan een naam kan opgeven door te scheiden met komma's. De "
 "nieuwe gebruikerscategorie zal automatisch bevolkt worden met alle items in "
 "kolommen uit de kolomgroep.<p>Met het voorbeeld hierboven zal de "
 "automatische categorie alle reeksen vermeld in <code>series</code>, "
@@ -14112,8 +14111,8 @@ msgid ""
 "\"series:Foundation\" rather than just \"Foundation\" in  a saved search"
 msgstr ""
 "Merk op dat deze optie alle zoekopdrachten beïnvloedt, ook bewaarde "
-"zoekopdrachten en restricties. Je gebruikt dus bij voorkeur altijd prefixen "
-"bij je bewaarde opdrachten, bijvoorbeeld \"series:bouquetreeks\" in plaats "
+"zoekopdrachten en restricties. U gebruikt dus bij voorkeur altijd prefixen "
+"bij uw bewaarde opdrachten, bijvoorbeeld \"series:bouquetreeks\" in plaats "
 "van \"bouquetreeks\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:117
@@ -14213,7 +14212,7 @@ msgstr ""
 "verandert collecties voor een boek alleen wanneer het naar het apparaat "
 "wordt verzonden.</li>\n"
 "<li><b>Automatisch onderhouden</b>: calibre houdt automatisch de metadata op "
-"het apparaat gelijk met de calibrebibliotheek bij elke verbinding.</li></ul>"
+"het apparaat gelijk met de calibre-bibliotheek bij elke verbinding.</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:77
 msgid ""
@@ -14221,10 +14220,10 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
-"Hier kan je instellen hoe calibre je boeken moet bewaren als je 'Verstuur "
-"naar apparaat' kiest. Deze instelling kan overschreven worden voor "
-"individuele apparaten door de apparaatverbindingplug-ins aan te passen in "
-"Voorkeuren->Geavanceerd->plug-ins"
+"Hier kan u instellen hoe calibre uw boeken moet bewaren als u 'Verstuur naar "
+"apparaat' kiest. Deze instelling kan overschreven worden voor individuele "
+"apparaten door de apparaatverbindingplug-ins aan te passen in Voorkeuren-"
+">Geavanceerd->plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:422
@@ -14252,8 +14251,8 @@ msgid ""
 "If you leave the password blank, anyone will be able to access your book "
 "collection using the web interface."
 msgstr ""
-"Als je het wachtwoord blank laat, dan kan iedereen je boekencollectie zien "
-"via de webinterface"
+"Als u het wachtwoord leeg laat, dan kan iedereen uw boekencollectie zien via "
+"de webinterface."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:128
 msgid ""
@@ -14308,7 +14307,7 @@ msgid ""
 "collection using a browser from anywhere in the world. Any changes to the "
 "settings will only take effect after a server restart."
 msgstr ""
-"calibre bevat een netwerkserver die toestaat om je boekencollectie te "
+"calibre bevat een netwerkserver die toestaat om uw boekencollectie te "
 "bekijken in een webbrowser van waar dan ook ter wereld. Wijzigingen in de "
 "instellingen hebben pas effect na het herstarten van de server."
 
@@ -14332,9 +14331,9 @@ msgid ""
 msgstr ""
 "<p>Denk eraan om calibre te laten draaien, aangezien de server alleen werkt "
 "zo lang calibre actief is.\n"
-"<p>Stanza zou je calibrecollectie automatisch moeten zien. Zo niet, probeer "
+"<p>Stanza zou uw calibrecollectie automatisch moeten zien. Zo niet, probeer "
 "dan de URL http://mijnhostnaam:8080 toe te voegen als een nieuwe catalogus "
-"in de Stanza reader op je iPhone. Voor mijnhostnaam, dien je de volledig "
+"in de Stanza reader op je iPhone. Voor mijnhostnaam, dient u de volledig "
 "hostnaam of het IP-adres van de computer waar calibre op draait te gebruiken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
@@ -14405,7 +14404,7 @@ msgid ""
 "        "
 msgstr ""
 "\n"
-"        <p>Hier kan je functies toevoegen of verwijderen, gebruikt bij "
+"        <p>Hier kan u functies toevoegen of verwijderen, gebruikt bij "
 "sjabloon-\n"
 "        verwerking. een sjabloonfunctie wordt geschreven in python. Ze "
 "haalt\n"
@@ -14423,7 +14422,7 @@ msgstr ""
 "        <ul>\n"
 "        <li><b>formatter</b>: de instanties van de opmaker worden gebruikt "
 "om\n"
-"        de huidige sjabloon te evalueren. Je kan dit gebruiken om sjablonen "
+"        de huidige sjabloon te evalueren. U kan dit gebruiken om sjablonen "
 "recursief\n"
 "        te evalueren.</li>\n"
 "        <li><b>kwargs</b>: een woordenboek van metadata. Veld staan in dit\n"
@@ -14435,7 +14434,7 @@ msgstr ""
 "        sjablonen worden geëvalueerd.</li>\n"
 "        <li><b>locals</b>: de lokale variabelen toegewezen door het huidige\n"
 "        sjabloonprogramma.</li>\n"
-"        <li><b>persoonlijke waarde</b>: Je moet één of meerdere formele "
+"        <li><b>persoonlijke waarde</b>: u moet één of meerdere formele "
 "parameters\n"
 "        opgeven. Het aantal moet overeenkomen met het \"aantal parameters\"-"
 "vak, tenzij \n"
@@ -14572,7 +14571,7 @@ msgstr "De menubalk als een apparaat verbonden is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:224
 msgid "The context menu for the books in the calibre library"
-msgstr "Het contextmenu voor de boeken in de calibrebibliotheek"
+msgstr "Het contextmenu voor de boeken in de calibre-bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:226
 msgid "The context menu for the books on the device"
@@ -14646,7 +14645,7 @@ msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr ""
-"Syntaxfout in je tweak. Klik op \"Toon details\" voor meer informatie."
+"Syntaxfout in uw tweak. Klik op \"Toon details\" voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:331
 msgid "Invalid tweaks"
@@ -15045,7 +15044,7 @@ msgstr "Aantal gelijktijdige omslagdownloads"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:109
 msgid "Number of simultaneous details downloads"
-msgstr "Aantal gelijktijdige informatiedownloads"
+msgstr "Aantal gelijktijdige detail-downloads"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/ebooks_com_plugin.py:96
 msgid "Not Available"
@@ -15141,9 +15140,9 @@ msgid ""
 "purchases to ensure you can actually read this book."
 msgstr ""
 "Er is een DRM-beperking gedetecteerd bij dit boek. Dit boek werkt mogelijk "
-"niet op je leesapparaat en er is een beperking aanwezig op het aantal "
+"niet op uw E-reader en er is een beperking aanwezig op het aantal "
 "handelingen die je met dit boek mag uitvoeren. Controleer in de winkel voor "
-"je tot aanschaf overgaat of je dit boek kan lezen."
+"u tot aanschaf overgaat of u dit boek kan lezen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:196
 msgid ""
@@ -15181,7 +15180,7 @@ msgstr "Zoeken configureren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:328
 msgid "Couldn't find any books matching your query."
-msgstr "Geen boeken overeenkomstig je zoekterm gevonden"
+msgstr "Geen boeken overeenkomstig uw zoekterm gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
@@ -15206,10 +15205,10 @@ msgid ""
 "and selecting the file from the ADE library folder."
 msgstr ""
 "Dit E-boek is een EPUB-DRM-bestand. Jou zal worden gevraagd dit bestand op "
-"te slaan op je computer. Open het na het opslaan met <a "
+"te slaan op uw computer. Open het na het opslaan met <a "
 "href=\"http://www.adobe.com/products/digitaleditions/\">Adobe Digital "
 "Editions</a> (ADE).<p>ADE zal het echte E-boek downloaden, het .epub-"
-"bestand. Je kan dit boek toevoegen aan calibre met \"Boeken toevoegen\" en "
+"bestand. U kan dit boek toevoegen aan calibre met \"Boeken toevoegen\" en "
 "het boek dan selecteren in de ADE-bibliotheekmap."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
@@ -15618,7 +15617,7 @@ msgid ""
 "you. If the current version works well for you, do not update."
 msgstr ""
 "Update <b>alleen</b> als een van de nieuwe functies of probleem oplossingen "
-"belangrijk zijn voor je. Als de huidige versie goed werkt, update dan niet."
+"belangrijk zijn voor u. Als de huidige versie goed werkt, update dan niet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:81
 msgid "Update available!"
@@ -16212,7 +16211,7 @@ msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
 msgstr ""
-"Kies je E-reader. Als je apparaat niet in de lijst staat, kies een \"%s\" "
+"Kies uw E-reader. Als uw apparaat niet in de lijst staat, kies een \"%s\" "
 "apparaat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
@@ -16222,7 +16221,7 @@ msgstr "Bibliotheek verplaatsen..."
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:515
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:516
 msgid "Failed to move library"
-msgstr "Bibliotheek kon niet worden verplaatst"
+msgstr "Bibliotheek verplaatsen mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:570
 msgid "Invalid database"
@@ -16248,7 +16247,7 @@ msgstr "Selecteer de locatie voor boeken"
 msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
 msgstr ""
-"Je moet een lege map kiezen voor de calibrebibliotheek. %s is niet leeg."
+"U moet een lege map kiezen voor de calibrebibliotheek. %s is niet leeg."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:752
 msgid "welcome wizard"
@@ -16269,7 +16268,7 @@ msgstr "Welkom bij calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:48
 msgid "The one stop solution to all your e-book needs."
-msgstr "De complete oplossing voor al je e-boek wensen."
+msgstr "De complete oplossing voor al uw e-boek wensen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:57
 msgid "&Manufacturers"
@@ -16285,7 +16284,7 @@ msgid ""
 "button to apply your settings."
 msgstr ""
 "<h2>Gefeliciteerd!</h2> De installatie van calibre is gelukt. Druk op de %s "
-"knop om je instellingen toe te passen."
+"knop om uw instellingen toe te passen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
@@ -16311,12 +16310,12 @@ msgid ""
 "button below. You will also have to register your gmail address in your "
 "Amazon account."
 msgstr ""
-"<p>Calibre kan automatisch boeken via e-mail naar je Kindle versturen. Om "
-"dat te doen, moet je de e-mailinstellingen hieronder opgeven. De "
-"makkelijkste manier om dit te doen is een gratis <a "
+"<p>Calibre kan automatisch boeken via e-mail naar uw Kindle versturen. Om "
+"dat te doen, moet u de e-mailinstellingen hieronder opgeven. De makkelijkste "
+"manier om dit te doen is een gratis <a "
 "href=\"http://gmail.com\">gmailaccount</a> aan te vragen, en op de 'gebruik "
-"gmail' knop te klikken. Je zult je gmailacccount ook moeten registreren bij "
-"je Amazonaccount."
+"gmail' knop te klikken. U zult uw gmailacccount ook moeten registreren bij "
+"uw Amazonaccount."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:50
 msgid "&Kindle email:"
@@ -16324,16 +16323,16 @@ msgstr "&Kindle e-mail:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:57
 msgid "Choose your &language:"
-msgstr "Kies je taa&l:"
+msgstr "Kies uw taa&l:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
-"<p>Kies een locatie voor uw boeken. Als je boeken toevoegt aan calibre "
-"zullen ze hierheen gekopieerd worden. Gebruik een <b>lege map</b> voor een "
-"nieuwe calibrebibliotheek."
+"<p>Kies een locatie voor uw boeken. Als u boeken toevoegt aan calibre zullen "
+"ze hierheen gekopieerd worden. Gebruik een <b>lege map</b> voor een nieuwe "
+"calibrebibliotheek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -16345,7 +16344,7 @@ msgid ""
 "location. If a calibre library already exists at the new location, calibre "
 "will switch to using it."
 msgstr ""
-"Als je een bestaande calibrebibliotheek hebt, dan zal deze naar de nieuwe "
+"Als u een bestaande calibrebibliotheek hebt, dan zal deze naar de nieuwe "
 "locatie worden gekopieerd. Als er al een calibre bibliotheek is op de nieuwe "
 "locatie, dan zal calibre daar naar overschakelen."
 
@@ -16375,15 +16374,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:68
 msgid "Your %s &email address:"
-msgstr "Je %s &e-mailadres:"
+msgstr "Uw %s &e-mailadres:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:69
 msgid "Your %s &username:"
-msgstr "Je %s gebr&uikersnaam"
+msgstr "Uw %s gebr&uikersnaam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:70
 msgid "Your %s &password:"
-msgstr "Je %s wachtwoord/&pin"
+msgstr "Uw %s wachtwoord/&pin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:88
 msgid ""
@@ -16391,8 +16390,8 @@ msgid ""
 "your %s email address to the allowed email addresses in your Amazon.com "
 "Kindle management page."
 msgstr ""
-"Als je e-mail wilt gebruiken om boeken naar je Kindle te sturen, denk er dan "
-"aan dat je je %s e-mailadres bij de toegestane e-mailadressen moet toevoegen "
+"Als uw e-mail wilt gebruiken om boeken naar uw Kindle te sturen, denk er dan "
+"aan dat u uw %s e-mailadres bij de toegestane e-mailadressen moet toevoegen "
 "op de Amazon.com Kindle management pagina."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
@@ -16415,7 +16414,7 @@ msgstr "OK om verder te gaan?"
 msgid ""
 "This will display your email password on the screen. Is it OK to proceed?"
 msgstr ""
-"Dit zal je wachtwoord voor e-mail op het scherm tonen. Wil je doorgaan?"
+"Dit zal uw wachtwoord voor e-mail op het scherm tonen. Wilt u doorgaan?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:199
 msgid ""
@@ -16423,7 +16422,7 @@ msgid ""
 "verify your account periodically, before it will let calibre send email. In "
 "this case, I strongly suggest you setup a free gmail account instead."
 msgstr ""
-"Als u een nieuw Hotmailaccount aanmaakt, eist Microsoft dat u uw account "
+"Als u een nieuw Hotmailaccount aanmaakt, vereist Microsoft dat u uw account "
 "regelmatig verifieert voor dat het calibre mail laat versturen.  In dit "
 "geval adviseer ik u sterk om in plaats daar van een gratis Gmailaccount aan "
 "te maken."
@@ -16493,7 +16492,7 @@ msgstr "&Hostnaam:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:130
 msgid "The hostname of your mail server. For e.g. smtp.gmail.com"
-msgstr "De hostnaam van je mailserver. Bijvoorbeeld: smtp.gmail.com"
+msgstr "De hostnaam van uw mailserver. Bijvoorbeeld: smtp.gmail.com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:131
 msgid "&Port:"
@@ -16503,15 +16502,15 @@ msgstr "&Poort:"
 msgid ""
 "The port your mail server listens for connections on. The default is 25"
 msgstr ""
-"De poort waarop je mailserver luistert voor verbindingen. Standaard is 25"
+"De poort waarop uw mailserver luistert voor verbindingen. Standaard is 25"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:134
 msgid "Your username on the mail server"
-msgstr "Je gebruikersnaam op de mailserver"
+msgstr "Uw gebruikersnaam op de mailserver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:136
 msgid "Your password on the mail server"
-msgstr "Je wachtwoord op de mailserver"
+msgstr "Uw wachtwoord op de mailserver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:137
 msgid "&Show"
@@ -16568,10 +16567,10 @@ msgid ""
 "directly on the device. To do this you have to turn on the calibre content "
 "server."
 msgstr ""
-"<p>Als je de <a href=\"http://www.lexcycle.com/download\">Stanza</a> e-"
-"boekapplicatie op je iPhone/iTouch gebruikt, dan kan je je calibre-"
-"boekcollectie direct benaderen vanaf het apparaat. Om dit te kunnen doen zul "
-"je de calibre-inhoudsserver moeten activeren."
+"<p>Als u de <a href=\"http://www.lexcycle.com/download\">Stanza</a> e-"
+"boekapplicatie op uw iPhone/iTouch gebruikt, dan kan u uw calibre-"
+"boekcollectie direct benaderen vanaf het apparaat. Om dit te kunnen doen "
+"zult u de calibre-inhoudsserver moeten activeren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:50
 msgid "Turn on the &content server"
@@ -16648,8 +16647,8 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
-"De velden die worden weggeschreven als je boeken in de databank catalogeert. "
-"Lijst van velden gescheiden door komma's.\n"
+"De velden die worden weggeschreven als je boeken in de database "
+"catalogiseert. Lijst van velden gescheiden door komma's.\n"
 "Beschikbare velden: %s,\n"
 "en door jou gemaakte velden.\n"
 "Voorbeeld: %s=title,authors,tags\n"
@@ -16678,8 +16677,8 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"De velden die worden weggeschreven als je boeken in de databank catalogeert. "
-"Lijst van velden gescheiden door komma's.\n"
+"De velden die worden weggeschreven als je boeken in de database "
+"catalogiseert. Lijst van velden gescheiden door komma's.\n"
 "Beschikbare velden: %s,\n"
 "en door jou gemaakte velden.\n"
 "Voorbeeld: %s=title,authors,tags\n"
@@ -17059,7 +17058,7 @@ msgstr "Ontbrekende omslagen"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
-msgstr "Omslagen ontbreken in databank"
+msgstr "Omslagen ontbreken in database"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
@@ -17070,7 +17069,7 @@ msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
 msgstr ""
-"Pad naar de calibrebibliotheek. Standaard word het pad gebruikt dat is "
+"Pad naar de calibre-bibliotheek. Standaard word het pad gebruikt dat is "
 "opgeslagen in de instellingen."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:124
@@ -17081,7 +17080,7 @@ msgid ""
 msgstr ""
 "%prog list [opties]\n"
 "\n"
-"Geef de beschikbare boeken in de calibredatabank weer\n"
+"Geef de beschikbare boeken in de calibredatabase weer\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:132
 msgid ""
@@ -17287,7 +17286,7 @@ msgstr ""
 "\n"
 "%prog show_metadata [opties] id\n"
 "\n"
-"Geef de metadata weer die zijn opgeslagen in de calibredatabank voor het "
+"Geef de metadata weer die zijn opgeslagen in de calibre-database voor het "
 "boek dat word geïdentificeerd door id.\n"
 "id is een nummer verkregen met het commando list.\n"
 
@@ -17657,14 +17656,14 @@ msgstr ""
 "\n"
 "Herstel deze database met de metadata die opgeslagen zijn in de OPF-"
 "bestanden\n"
-"in elke map van de bibliotheek. Dit is nuttig als je metadata.db-bestand "
+"in elke map van de bibliotheek. Dit is nuttig als uw metadata.db-bestand "
 "corrupt is.\n"
 "\n"
-"WAARSCHUWING: Dit zal je database compleet herbouwen. Je raakt alle\n"
+"WAARSCHUWING: Dit zal uw database compleet herbouwen. U raakt alle\n"
 "bewaarde zoektermen, gebruikerscategorieën, adapters, conversie-"
 "instellingen\n"
-"en recepten kwijt. Herstelde metadata zullen maar zo accuraat zijn als wat "
-"er\n"
+"en recepten kwijt. Herstelde metadata zullen slechts zo accuraat zijn als "
+"wat er\n"
 "gevonden is in de OPF-bestanden.\n"
 "    "
 
@@ -17768,7 +17767,7 @@ msgstr "Algemeen"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3260
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
-msgstr "<p>Migreer oude database naar e-boek bibliotheek op %s<br><center>"
+msgstr "<p>Migreer oude database naar E-boek bibliotheek op %s<br><center>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3289
 msgid "Copying <b>%s</b>"
@@ -17776,7 +17775,7 @@ msgstr "<b>%s</b> kopiëren"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3306
 msgid "Compacting database"
-msgstr "Comprimeren database"
+msgstr "Database comprimeren"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:159
 msgid "Ratings"
@@ -17872,8 +17871,8 @@ msgid ""
 "in the calibre library. Makes saving to disk slower."
 msgstr ""
 "Normaal gesproken zal calibre de metadata in opgeslagen bestanden bijwerken "
-"aan de hand van de informatie in de calibrebibliotheek. Dit maakt opslaan op "
-"schijf langzamer."
+"aan de hand van de informatie in de calibre-bibliotheek. Dit maakt opslaan "
+"op schijf langzamer."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:85
 msgid ""
@@ -18151,8 +18150,8 @@ msgstr ""
 "[opties]\n"
 "\n"
 "Start de calibre-inhoudsserver. De calibre-inhoudsserver\n"
-"toont je bibliotheek op het Internet. De standaardweergave\n"
-"laat je je bibliotheek verkennen per categorie. Je kunt ook\n"
+"toont uw bibliotheek op het Internet. De standaardweergave\n"
+"laat u uw bibliotheek verkennen per categorie. U kunt ook\n"
 "een weergave bereiken die optimaal is ingesteld voor mobiele \n"
 "browsers op /mobiel en een op OPDS gebaseerde interface\n"
 "voor gebruik met leesprogramma's op /opds.\n"
@@ -18206,7 +18205,7 @@ msgstr "REEKS: %s [%s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:270
 msgid "Books in your library"
-msgstr "Boeken in jouw bibliotheek"
+msgstr "Boeken in uw bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:276
 msgid "By "
@@ -18250,7 +18249,7 @@ msgstr "Standaard time-out voor netwerkacties (seconden)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:382
 msgid "Path to directory in which your library of books is stored"
-msgstr "Pad naar map waarin je bibliotheek is opgeslagen"
+msgstr "Pad naar map waarin uw bibliotheek is opgeslagen"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:384
 msgid "The language in which to display the user interface"
@@ -19181,7 +19180,7 @@ msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
 msgstr ""
-"Inloggen niet gelukt. Controleer je gebruikersnaam en wachtwoord voor de "
+"Inloggen niet gelukt. Controleer uw gebruikersnaam en wachtwoord voor de "
 "calibre periodiekendienst."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1475
@@ -19189,9 +19188,8 @@ msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
-"Je hebt geen toestemming dit nummer te downloaden. Je abonnement is "
-"verlopen, of je hebt het maximaal aantal toegestane downloads voor vandaag "
-"bereikt."
+"U hebt geen toestemming dit nummer te downloaden. Uw abonnement is verlopen, "
+"of u hebt het maximaal aantal toegestane downloads voor vandaag bereikt."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 msgid "You"
@@ -19989,7 +19987,7 @@ msgstr ""
 "schrijver en voetnoot bij het maken van een standaardomslag. Bruikbaar als "
 "het standaard-\n"
 "lettertype (Liberation Serif) niet de lettertekens bevat voor de taal van de "
-"boeken in jouw bibliotheek."
+"boeken in uw bibliotheek."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:294
 msgid "Control behavior of double clicks on the book list"
@@ -20094,7 +20092,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:334
 msgid "The maximum width and height for covers saved in the calibre library"
-msgstr "De maximumbreedte en -hoogte voor omslagen in de calibrebibliotheek"
+msgstr "De maximumbreedte en -hoogte voor omslagen in de calibre-bibliotheek"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:335
 msgid ""
@@ -20102,7 +20100,7 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
-"Alle omslagen in de calibrebibliotheek zullen worden herschaald met behoud "
+"Alle omslagen in de calibre-bibliotheek zullen worden herschaald met behoud "
 "van breedte-hoogteverhouding,\n"
 "om binnen deze omvang te passen. Dit is om vertraging te voorkomen "
 "veroorzaakt door\n"
@@ -20170,7 +20168,7 @@ msgid ""
 "it\n"
 "on at your own risk!"
 msgstr ""
-"Als je deze optie activeert en calibre herstart, zal de werkbalk worden\n"
+"Als u deze optie activeert en calibre herstart, zal de werkbalk worden\n"
 "'samengevoegd' met de titelbalk zoals gebruikelijk voor OS X-programma's.\n"
 "Echter, als dit wordt toegepast ontstaan diverse fouten, bijvoorbeeld, de "
 "minimale\n"

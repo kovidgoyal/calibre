@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-06-24 18:42+0000\n"
-"PO-Revision-Date: 2011-06-27 08:43+0000\n"
+"PO-Revision-Date: 2011-06-28 09:59+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-28 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-06-29 04:42+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -14940,12 +14940,12 @@ msgstr "キーボード・ショートカットの編集の途中です。まず
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
 msgid "&Lookup in dictionary"
-msgstr ""
+msgstr "辞書を検索(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:540
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
 msgid "Go to..."
-msgstr ""
+msgstr "ジャンプ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:552
 msgid "Next Section"
@@ -14973,15 +14973,15 @@ msgstr "章末"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
-msgstr ""
+msgstr "次ページにスクロール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:15
 msgid "Scroll to the previous page"
-msgstr ""
+msgstr "前ページにスクロール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:18
 msgid "Scroll to the next section"
-msgstr ""
+msgstr "次のセクションへスクロール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:21
 msgid "Scroll to the previous section"
@@ -14989,19 +14989,19 @@ msgstr "前の章までスクロール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:24
 msgid "Scroll to the bottom of the section"
-msgstr ""
+msgstr "最後のセクションへスクロール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:27
 msgid "Scroll to the top of the section"
-msgstr ""
+msgstr "最初のセクションへスクロール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:30
 msgid "Scroll to the end of the document"
-msgstr ""
+msgstr "ドキュメントの最後へスクロール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:33
 msgid "Scroll to the start of the document"
-msgstr ""
+msgstr "ドキュメントの最初へスクロール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:36
 msgid "Scroll down"
@@ -15025,15 +15025,15 @@ msgstr "本のフォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:199
 msgid "Position in book"
-msgstr ""
+msgstr "書籍内のポジション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:206
 msgid "Go to a reference. To get reference numbers, use the reference mode."
-msgstr ""
+msgstr "レファレンスへ行く。レファレンス番号を取得するには、レファレンスモードを使ってください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:214
 msgid "Search for text in book"
-msgstr ""
+msgstr "書籍内のテキストを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:293
 msgid "Print Preview"
@@ -15041,11 +15041,11 @@ msgstr "印刷プレビュー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:304
 msgid "Clear list of recently opened books"
-msgstr ""
+msgstr "最近開いた書籍のリストをクリア"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:366
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr ""
+msgstr "dict.orgに接続して検索: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:472
 msgid "Choose ebook"
@@ -15060,30 +15060,32 @@ msgid ""
 "Make font size %s\n"
 "Current magnification: %.1f"
 msgstr ""
+"フォントサイズを %s にする\n"
+"現在の拡大率: %.1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:497
 msgid "larger"
-msgstr ""
+msgstr "大きく"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:499
 msgid "smaller"
-msgstr ""
+msgstr "小さく"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:515
 msgid "No matches found for: %s"
-msgstr ""
+msgstr "見つかりませんでした: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:552
 msgid "Loading flow..."
-msgstr ""
+msgstr "Flowをロード中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:590
 msgid "Laying out %s"
-msgstr ""
+msgstr "%s をレイアウト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:621
 msgid "Bookmark #%d"
-msgstr ""
+msgstr "ブックマーク #%d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:625
 msgid "Add bookmark"
@@ -15091,37 +15093,37 @@ msgstr "ブックマークの追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:626
 msgid "Enter title for bookmark:"
-msgstr ""
+msgstr "ブックマークのタイトルを入力："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:636
 msgid "Manage Bookmarks"
-msgstr ""
+msgstr "ブックマークの管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:676
 msgid "Loading ebook..."
-msgstr ""
+msgstr "EBookをロード中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:688
 msgid "Could not open ebook"
-msgstr ""
+msgstr "EBookが開けませんでした"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:781
 msgid "Options to control the ebook viewer"
-msgstr ""
+msgstr "EBookビューワーをコントロールするオプション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:788
 msgid ""
 "If specified, viewer window will try to come to the front when started."
-msgstr ""
+msgstr "もし指定すれば、ビューワーウインドウは起動時に前面へ来ようとします。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:791
 msgid ""
 "If specified, viewer window will try to open full screen when started."
-msgstr ""
+msgstr "もし指定すれば、ビューワーウインドウは起動時に全画面になろうととします。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:796
 msgid "Print javascript alert and console messages to the console"
-msgstr ""
+msgstr "Javascriptアラートとコンソールメッセージをコンソールへ表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:802
 msgid ""
@@ -15129,18 +15131,21 @@ msgid ""
 "\n"
 "View an ebook.\n"
 msgstr ""
+"%prog [options] file\n"
+"\n"
+"ebookを表示。\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
-msgstr ""
+msgstr "E-book ビューワー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Close dictionary"
-msgstr ""
+msgstr "辞書を閉じる"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:192
 msgid "toolBar"
-msgstr ""
+msgstr "ツールバー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:195
 msgid "Next page"
@@ -15164,11 +15169,11 @@ msgstr "次を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:203
 msgid "Find next occurrence"
-msgstr ""
+msgstr "次を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:207
 msgid "Reference Mode"
-msgstr ""
+msgstr "レファレンス・モード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Bookmark"
@@ -15176,7 +15181,7 @@ msgstr "ブックマーク"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:209
 msgid "Toggle full screen"
-msgstr ""
+msgstr "全画面・通常画面をトグル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:210
 msgid "Print"
@@ -15184,15 +15189,15 @@ msgstr "印刷"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:211
 msgid "Find previous"
-msgstr ""
+msgstr "前を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
 msgid "Find previous occurrence"
-msgstr ""
+msgstr "前を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
-msgstr ""
+msgstr "EBookをプリント"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:984
 msgid "Drag to resize"
@@ -15214,7 +15219,7 @@ msgstr "切り替え"
 msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
-msgstr ""
+msgstr "あなたのe-bookデバイスを選択してください。もしリストにない場合には\"%s\"デバイスを選んでください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
 msgid "Moving library..."
@@ -15223,34 +15228,34 @@ msgstr "ライブラリの移動中..."
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:515
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:516
 msgid "Failed to move library"
-msgstr ""
+msgstr "ライブラリの移動が失敗"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:570
 msgid "Invalid database"
-msgstr ""
+msgstr "無効なデーターベース"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:571
 msgid ""
 "<p>An invalid library already exists at %s, delete it before trying to move "
 "the existing library.<br>Error: %s"
-msgstr ""
+msgstr "<p>無効なライブラリがすでに %s に存在しています、ライブラリを移動する前に削除してください。<br>Error: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:582
 msgid "Could not move library"
-msgstr ""
+msgstr "ライブラリを移動できませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:657
 msgid "Select location for books"
-msgstr ""
+msgstr "書籍の場所を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:678
 msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
-msgstr ""
+msgstr "Calibreのライブラリには空のフォルダを選択しなくてはなりません。%sは空ではありません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:752
 msgid "welcome wizard"
-msgstr ""
+msgstr "ウエルカム・ウィザード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:55
@@ -15267,7 +15272,7 @@ msgstr "calibre へようこそ"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:48
 msgid "The one stop solution to all your e-book needs."
-msgstr ""
+msgstr "EBookに必要な全てへのワンストップ・ソリューション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:57
 msgid "&Manufacturers"
@@ -15296,6 +15301,8 @@ msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a "
 "href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
+"<h2>ユーザーマニュアル</h2>ユーザーマニュアルは<a href=\"http://manual.calibre-"
+"ebook.com\">オンライン</a>にもあります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -15305,20 +15312,25 @@ msgid ""
 "button below. You will also have to register your gmail address in your "
 "Amazon account."
 msgstr ""
+"<p>Calibreは自動的にemailで書籍をあなたのKindleへ送る事ができます。そうするには下のemail配信を設定しなければなりません。一番簡単"
+"な方法は無料の <a href=\"http://gmail.com\">gmail "
+"アカウント</a>を取得し、下のgmailを使うボタンをクリックする事です。それとgmailアドレスをAmazonのアカウントに登録する必要もあります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:50
 msgid "&Kindle email:"
-msgstr ""
+msgstr "&Kindle email:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:57
 msgid "Choose your &language:"
-msgstr ""
+msgstr "言語を選択(&L)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
+"<p>書籍の場所を選択。Calibreへ書籍を追加した場合、それらはここにコピーされます。新しいCalibreライブラリには<b>空のフォルダ</b>を使"
+"ってください:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
@@ -15335,7 +15347,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 msgid "Using: %s:%s@%s:%s and %s encryption"
-msgstr ""
+msgstr "email: %s:%s@%s:%s と %s エンクリプションを使用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
@@ -15343,29 +15355,31 @@ msgstr "送信中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:44
 msgid "Mail successfully sent"
-msgstr ""
+msgstr "メールが問題なく送られました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:59
 msgid "Setup sending email using"
-msgstr ""
+msgstr "このウイザードで以下を使ってメールを送信："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:61
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
+"もしアカウントが無い場合には、無料の {name} email アカウントに以下でサインアップできます： <a "
+"href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:68
 msgid "Your %s &email address:"
-msgstr ""
+msgstr "あなたの %s &email アドレス:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:69
 msgid "Your %s &username:"
-msgstr ""
+msgstr "あなたの %s ユーザー名(&U):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:70
 msgid "Your %s &password:"
-msgstr ""
+msgstr "あなたの %s パスワード(&P):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:88
 msgid ""
@@ -15373,27 +15387,29 @@ msgid ""
 "your %s email address to the allowed email addresses in your Amazon.com "
 "Kindle management page."
 msgstr ""
+"もしKindleにemailで書籍を送る場合には、忘れずにあなたの%s "
+"emailアドレスを、Amazon.comのあなたのKindle管理ページで「allowed email addresses」に追加してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "Setup"
-msgstr ""
+msgstr "セットアップ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:102
 msgid "Incorrect username"
-msgstr ""
+msgstr "ユーザ名が間違っています"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:103
 msgid "%s needs the full email address as your username"
-msgstr ""
+msgstr "%s はフルemailアドレスをユーザー名として必要とします"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
 msgid "OK to proceed?"
-msgstr ""
+msgstr "進んでもよろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
 msgid ""
 "This will display your email password on the screen. Is it OK to proceed?"
-msgstr ""
+msgstr "これはあなたのemailパスワードを画面に表示します。進んでもよろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:199
 msgid ""
@@ -15401,111 +15417,115 @@ msgid ""
 "verify your account periodically, before it will let calibre send email. In "
 "this case, I strongly suggest you setup a free gmail account instead."
 msgstr ""
+"新しいhotmailアカウントを設定するとCalibreがemailを送る前に、Microsoftは定期的にアカウントをあなたに確認させます。そのため、も"
+"しそうしようとしているのなら替わりに無料のgmailアカウントを取ることを強くおすすめします。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:237
 msgid "Bad configuration"
-msgstr ""
+msgstr "おかしな設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:222
 msgid "You must set the From email address"
-msgstr ""
+msgstr "Fromに使用するemailアドレスを設定する必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:233
 msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
-msgstr ""
+msgstr "必ず、メールサーバーのユーザー名とパスワードの<b>両方</b>を設定するか、両方共空にする必要があります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:238
 msgid "Please enter a username and password or set encryption to None "
-msgstr ""
+msgstr "ユーザー名とパスワードを入力するか、エンクリプションを無し(None)に設定してください。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:243
 msgid ""
 "No username and password set for mailserver. Most  mailservers need a "
 "username and password. Are you sure?"
 msgstr ""
+"メールサーバーのユーザー名とパスワードが設定されていません。ほとんどのメールサーバーにはユーザー名とパスワードが必要です。よろしいですか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
-msgstr ""
+msgstr "送信元のメールアドレス(&f)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:125
 msgid ""
 "<p>This is what will be present in the From: field of emails sent by "
 "calibre.<br> Set it to your email address"
 msgstr ""
+"<p>これはCalibreがメールを送信する時の From: フィールドに現れるものです。<br>あなたのemailアドレスを設定してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:126
 msgid ""
 "<p>A mail server is useful if the service you are sending mail to only "
 "accepts email from well know mail services."
-msgstr ""
+msgstr "<p>メールサーバーは、もしあなたがメールを送ろうとするサービスが、有名なメールサービスからのメールしか受け付けない場合に有用です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:127
 msgid "Mail &Server"
-msgstr ""
+msgstr "メール・サーバー(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
 msgid "calibre can <b>optionally</b> use a server to send mail"
-msgstr ""
+msgstr "Calibreは<b>オプション</b>で、メールを送るのにサーバーを使うことができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:129
 msgid "&Hostname:"
-msgstr ""
+msgstr "ホスト名(&H):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:130
 msgid "The hostname of your mail server. For e.g. smtp.gmail.com"
-msgstr ""
+msgstr "あなたのメールサーバーのホスト名。例えば、smtp.gmail.com 等"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:131
 msgid "&Port:"
-msgstr ""
+msgstr "ポート番号(&P):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:132
 msgid ""
 "The port your mail server listens for connections on. The default is 25"
-msgstr ""
+msgstr "メールサーバーが接続を受け付けるポート番号。ディフォールとでは25番。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:134
 msgid "Your username on the mail server"
-msgstr ""
+msgstr "メールサーバーでのあなたのユーザー名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:136
 msgid "Your password on the mail server"
-msgstr ""
+msgstr "メールサーバーでのあなたのパスワード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:137
 msgid "&Show"
-msgstr ""
+msgstr "表示(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:138
 msgid "&Encryption:"
-msgstr ""
+msgstr "暗号化(&E):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:139
 msgid ""
 "Use TLS encryption when connecting to the mail server. This is the most "
 "common."
-msgstr ""
+msgstr "TLS暗号化をメールサーバーへ接続時に使う。これは一番よくある設定です。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:140
 msgid "&TLS"
-msgstr ""
+msgstr "&TLS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:141
 msgid "Use SSL encryption when connecting to the mail server."
-msgstr ""
+msgstr "SSL暗号化をメールサーバーに接続時に使用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:142
 msgid "&SSL"
-msgstr ""
+msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr ""
+msgstr "注意：暗号化なしは非常に危険です"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
