@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010-2011, Eddie Lau'
 
 # Region - Hong Kong, Vancouver, Toronto
-__Region__ = 'Hong Kong'
+__Region__ = 'Vancouver'
 # Users of Kindle 3 with limited system-level CJK support
 # please replace the following "True" with "False".
 __MakePeriodical__ = True

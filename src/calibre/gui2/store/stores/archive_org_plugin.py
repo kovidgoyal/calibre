@@ -6,11 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from contextlib import closing
 
-from lxml import html
-
-from calibre import browser
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.opensearch_store import OpenSearchStore
 from calibre.gui2.store.search_result import SearchResult
@@ -19,9 +15,9 @@ class ArchiveOrgStore(BasicStoreConfig, OpenSearchStore):
 
     open_search_url = 'http://bookserver.archive.org/catalog/opensearch.xml'
     web_url = 'http://www.archive.org/details/texts'
-    
+
     # http://bookserver.archive.org/catalog/
-    
+
     def search(self, query, max_results=10, timeout=60):
         for s in OpenSearchStore.search(self, query, max_results, timeout):
             s.detail_item = 'http://www.archive.org/details/' + s.detail_item.split(':')[-1]
@@ -39,5 +35,5 @@ class ArchiveOrgStore(BasicStoreConfig, OpenSearchStore):
             idata = html.fromstring(nf.read())
             formats = ', '.join(idata.xpath('//p[@id="dl" and @class="content"]//a/text()'))
             search_result.formats = formats.upper()
-            
+
         return True

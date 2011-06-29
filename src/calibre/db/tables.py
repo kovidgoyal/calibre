@@ -105,11 +105,13 @@ class ManyToManyTable(ManyToOneTable):
 class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
+        self.alink_map = {}
         for row in db.conn.execute(
-                'SELECT id, name, sort FROM authors'):
+                'SELECT id, name, sort, link FROM authors'):
             self.id_map[row[0]] = row[1]
             self.extra_map[row[0]] = (row[2] if row[2] else
                     author_to_author_sort(row[1]))
+            self.alink_map[row[0]] = row[3]
 
 class FormatsTable(ManyToManyTable):
 

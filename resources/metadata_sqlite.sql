@@ -1,6 +1,7 @@
 CREATE TABLE authors ( id   INTEGER PRIMARY KEY,
                               name TEXT NOT NULL COLLATE NOCASE,
                               sort TEXT COLLATE NOCASE,
+                              link TEXT NOT NULL DEFAULT "",
                               UNIQUE(name)
                              );
 CREATE TABLE books ( id      INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -545,4 +546,4 @@ CREATE TRIGGER series_update_trg
         BEGIN
           UPDATE series SET sort=NEW.name WHERE id=NEW.id;
         END;
-pragma user_version=20;
+pragma user_version=21;

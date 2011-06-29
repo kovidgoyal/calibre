@@ -91,10 +91,10 @@ class TagBrowserMixin(object): # {{{
         # Add the new category
         user_cats[new_cat] = []
         db.prefs.set('user_categories', user_cats)
-        self.tags_view.set_new_model()
+        self.tags_view.recount()
         m = self.tags_view.model()
         idx = m.index_for_path(m.find_category_node('@' + new_cat))
-        m.show_item_at_index(idx)
+        self.tags_view.show_item_at_index(idx)
         # Open the editor on the new item to rename it
         if new_category_name is None:
             self.tags_view.edit(idx)
@@ -111,7 +111,7 @@ class TagBrowserMixin(object): # {{{
             for k in d.categories:
                 db.field_metadata.add_user_category('@' + k, k)
             db.data.change_search_locations(db.field_metadata.get_search_terms())
-            self.tags_view.set_new_model()
+            self.tags_view.recount()
 
     def do_delete_user_category(self, category_name):
         '''
@@ -144,7 +144,7 @@ class TagBrowserMixin(object): # {{{
             elif k.startswith(category_name + '.'):
                 del user_cats[k]
         db.prefs.set('user_categories', user_cats)
-        self.tags_view.set_new_model()
+        self.tags_view.recount()
 
     def do_del_item_from_user_cat(self, user_cat, item_name, item_category):
         '''
@@ -262,19 +262,21 @@ class TagBrowserMixin(object): # {{{
         self.library_view.select_rows(ids)
         # refreshing the tags view happens at the emit()/call() site
 
-    def do_author_sort_edit(self, parent, id, select_sort=True):
+    def do_author_sort_edit(self, parent, id, select_sort=True, select_link=False):
         '''
         Open the manage authors dialog
         '''
         db = self.library_view.model().db
-        editor = EditAuthorsDialog(parent, db, id, select_sort)
+        editor = EditAuthorsDialog(parent, db, id, select_sort, select_link)
         d = editor.exec_()
         if d:
-            for (id, old_author, new_author, new_sort) in editor.result:
+            for (id, old_author, new_author, new_sort, new_link) in editor.result:
                 if old_author != new_author:
                     # The id might change if the new author already exists
                     id = db.rename_author(id, new_author)
                 db.set_sort_field_for_author(id, unicode(new_sort),
+                                             commit=False, notify=False)
+                db.set_link_field_for_author(id, unicode(new_link),
                                              commit=False, notify=False)
             db.commit()
             self.library_view.model().refresh()
@@ -413,13 +415,14 @@ class TagBrowserWidget(QWidget): # {{{
         txt = unicode(self.item_search.currentText()).strip()
 
         if txt.startswith('*'):
-            self.tags_view.set_new_model(filter_categories_by=txt[1:])
+            model.filter_categories_by = txt[1:]
+            self.tags_view.recount()
             self.current_find_position = None
             return
-        if model.get_filter_categories_by():
-            self.tags_view.set_new_model(filter_categories_by=None)
+        if model.filter_categories_by:
+            model.filter_categories_by = None
+            self.tags_view.recount()
             self.current_find_position = None
-            model = self.tags_view.model()
 
         if not txt:
             return
@@ -437,8 +440,9 @@ class TagBrowserWidget(QWidget): # {{{
 
         self.current_find_position = \
             model.find_item_node(key, txt, self.current_find_position)
+
         if self.current_find_position:
-            model.show_item_at_path(self.current_find_position, box=True)
+            self.tags_view.show_item_at_path(self.current_find_position, box=True)
         elif self.item_search.text():
             self.not_found_label.setVisible(True)
             if self.tags_view.verticalScrollBar().isVisible():

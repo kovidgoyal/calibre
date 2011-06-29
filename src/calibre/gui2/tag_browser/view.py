@@ -7,11 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cPickle, traceback
+import cPickle
 from functools import partial
+from itertools import izip
 
 from PyQt4.Qt import (QItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon,
-        QApplication, QMenu, QPoint)
+        QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor)
 
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
@@ -65,7 +66,7 @@ class TagsView(QTreeView): # {{{
     tag_list_edit           = pyqtSignal(object, object)
     saved_search_edit       = pyqtSignal(object)
     rebuild_saved_searches  = pyqtSignal()
-    author_sort_edit        = pyqtSignal(object, object)
+    author_sort_edit        = pyqtSignal(object, object, object, object)
     tag_item_renamed        = pyqtSignal()
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
@@ -90,14 +91,32 @@ class TagsView(QTreeView): # {{{
         self.setDropIndicatorShown(True)
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
-        if gprefs['tags_browser_collapse_at'] == 0:
-            self.collapse_model = 'disable'
-        else:
-            self.collapse_model = gprefs['tags_browser_partition_method']
         self.search_icon = QIcon(I('search.png'))
         self.user_category_icon = QIcon(I('tb_folder.png'))
         self.delete_icon = QIcon(I('list_remove.png'))
         self.rename_icon = QIcon(I('edit-undo.png'))
+
+        self._model = TagsModel(self)
+        self._model.search_item_renamed.connect(self.search_item_renamed)
+        self._model.refresh_required.connect(self.refresh_required,
+                type=Qt.QueuedConnection)
+        self._model.tag_item_renamed.connect(self.tag_item_renamed)
+        self._model.restriction_error.connect(self.restriction_error)
+        self._model.user_categories_edited.connect(self.user_categories_edited,
+                type=Qt.QueuedConnection)
+        self._model.drag_drop_finished.connect(self.drag_drop_finished)
+
+    @property
+    def hidden_categories(self):
+        return self._model.hidden_categories
+
+    @property
+    def db(self):
+        return self._model.db
+
+    @property
+    def collapse_model(self):
+        return self._model.collapse_model
 
     def set_pane_is_visible(self, to_what):
         pv = self.pane_is_visible
@@ -105,40 +124,26 @@ class TagsView(QTreeView): # {{{
         if to_what and not pv:
             self.recount()
 
+    def get_state(self):
+        state_map = {}
+        expanded_categories = []
+        for row, category in enumerate(self._model.category_nodes):
+            if self.isExpanded(self._model.index(row, 0, QModelIndex())):
+                expanded_categories.append(category.category_key)
+            states = [c.tag.state for c in category.child_tags()]
+            names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
+            state_map[category.category_key] = dict(izip(names, states))
+        return expanded_categories, state_map
+
     def reread_collapse_parameters(self):
-        if gprefs['tags_browser_collapse_at'] == 0:
-            self.collapse_model = 'disable'
-        else:
-            self.collapse_model = gprefs['tags_browser_partition_method']
-        self.set_new_model(self._model.get_filter_categories_by())
+        self._model.reread_collapse_model(self.get_state()[1])
 
     def set_database(self, db, tag_match, sort_by):
-        hidden_cats = db.prefs.get('tag_browser_hidden_categories', None)
-        self.hidden_categories = []
-        # migrate from config to db prefs
-        if hidden_cats is None:
-            hidden_cats = config['tag_browser_hidden_categories']
-        # strip out any non-existence field keys
-        for cat in hidden_cats:
-            if cat in db.field_metadata:
-                self.hidden_categories.append(cat)
-        db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
-        self.hidden_categories = set(self.hidden_categories)
+        self._model.set_database(db)
 
-        old = getattr(self, '_model', None)
-        if old is not None:
-            old.break_cycles()
-        self._model = TagsModel(db, parent=self,
-                                hidden_categories=self.hidden_categories,
-                                search_restriction=None,
-                                drag_drop_finished=self.drag_drop_finished,
-                                collapse_model=self.collapse_model,
-                                state_map={})
-        self.pane_is_visible = True # because TagsModel.init did a recount
+        self.pane_is_visible = True # because TagsModel.set_database did a recount
         self.sort_by = sort_by
         self.tag_match = tag_match
-        self.db = db
-        self.search_restriction = None
         self.setModel(self._model)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         pop = config['sort_tags_by']
@@ -164,6 +169,13 @@ class TagsView(QTreeView): # {{{
             self.refresh_signal_processed = False
             self.refresh_required.emit()
 
+    def user_categories_edited(self, user_cats, nkey):
+        state_map = self.get_state()[1]
+        self.db.prefs.set('user_categories', user_cats)
+        self._model.rebuild_node_tree(state_map=state_map)
+        p = self._model.find_category_node('@'+nkey)
+        self.show_item_at_path(p)
+
     @property
     def match_all(self):
         return self.tag_match and self.tag_match.currentIndex() > 0
@@ -179,11 +191,8 @@ class TagsView(QTreeView): # {{{
             pass
 
     def set_search_restriction(self, s):
-        if s:
-            self.search_restriction = s
-        else:
-            self.search_restriction = None
-        self.set_new_model()
+        s = s if s else None
+        self._model.set_search_restriction(s)
 
     def mouseReleaseEvent(self, event):
         # Swallow everything except leftButton so context menus work correctly
@@ -268,23 +277,29 @@ class TagsView(QTreeView): # {{{
                 self.saved_search_edit.emit(category)
                 return
             if action == 'edit_author_sort':
-                self.author_sort_edit.emit(self, index)
+                self.author_sort_edit.emit(self, index, True, False)
+                return
+            if action == 'edit_author_link':
+                self.author_sort_edit.emit(self, index, False, True)
                 return
 
+            reset_filter_categories = True
             if action == 'hide':
                 self.hidden_categories.add(category)
             elif action == 'show':
                 self.hidden_categories.discard(category)
             elif action == 'categorization':
                 changed = self.collapse_model != category
-                self.collapse_model = category
+                self._model.collapse_model = category
                 if changed:
-                    self.set_new_model(self._model.get_filter_categories_by())
+                    reset_filter_categories = False
                     gprefs['tags_browser_partition_method'] = category
             elif action == 'defaults':
                 self.hidden_categories.clear()
             self.db.prefs.set('tag_browser_hidden_categories', list(self.hidden_categories))
-            self.set_new_model()
+            if reset_filter_categories:
+                self._model.filter_categories_by = None
+            self._model.rebuild_node_tree()
         except:
             return
 
@@ -334,6 +349,9 @@ class TagsView(QTreeView): # {{{
                             self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
                                             action='edit_author_sort', index=tag.id))
+                            self.context_menu.addAction(_('Edit link for %s')%display_name(tag),
+                                    partial(self.context_menu_handler,
+                                            action='edit_author_link', index=tag.id))
 
                         # is_editable is also overloaded to mean 'can be added
                         # to a user category'
@@ -475,9 +493,24 @@ class TagsView(QTreeView): # {{{
             pa.setCheckable(True)
             pa.setChecked(True)
 
+        if config['sort_tags_by'] != "name":
+            fla.setEnabled(False)
+            m.hovered.connect(self.collapse_menu_hovered)
+            fla.setToolTip(_('First letter is usable only when sorting by name'))
+            # Apparently one cannot set a tooltip to empty, so use a star and
+            # deal with it in the hover method
+            da.setToolTip('*')
+            pa.setToolTip('*')
+
         if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True
+
+    def collapse_menu_hovered(self, action):
+        tip = action.toolTip()
+        if tip == '*':
+            tip = ''
+        QToolTip.showText(QCursor.pos(), tip)
 
     def dragMoveEvent(self, event):
         QTreeView.dragMoveEvent(self, event)
@@ -487,6 +520,8 @@ class TagsView(QTreeView): # {{{
             return
         src_is_tb = event.mimeData().hasFormat('application/calibre+from_tag_browser')
         item = index.data(Qt.UserRole).toPyObject()
+        if item.type == TagTreeItem.ROOT:
+            return
         flags = self._model.flags(index)
         if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
             self.setDropIndicatorShown(not src_is_tb)
@@ -537,11 +572,33 @@ class TagsView(QTreeView): # {{{
         if not ci.isValid():
             ci = self.indexAt(QPoint(10, 10))
         path = self.model().path_for_index(ci) if self.is_visible(ci) else None
-        expanded_categories, state_map = self.model().get_state()
-        self.set_new_model(state_map=state_map)
+        expanded_categories, state_map = self.get_state()
+        self._model.rebuild_node_tree(state_map=state_map)
         for category in expanded_categories:
-            self.expand(self.model().index_for_category(category))
-        self._model.show_item_at_path(path)
+            self.expand(self._model.index_for_category(category))
+        self.show_item_at_path(path)
+
+    def show_item_at_path(self, path, box=False,
+                          position=QTreeView.PositionAtCenter):
+        '''
+        Scroll the browser and open categories to show the item referenced by
+        path. If possible, the item is placed in the center. If box=True, a
+        box is drawn around the item.
+        '''
+        if path:
+            self.show_item_at_index(self._model.index_for_path(path), box=box,
+                                    position=position)
+
+    def show_item_at_index(self, idx, box=False,
+                           position=QTreeView.PositionAtCenter):
+        if idx.isValid() and idx.data(Qt.UserRole).toPyObject() is not self._model.root_item:
+            self.expand(self._model.parent(idx)) # Needed otherwise Qt sometimes segfaults if the
+                                                 # node is buried in a collapsed, off
+                                                 # screen hierarchy
+            self.setCurrentIndex(idx)
+            self.scrollTo(idx, position)
+            if box:
+                self._model.set_boxed(idx)
 
     def item_expanded(self, idx):
         '''
@@ -549,30 +606,6 @@ class TagsView(QTreeView): # {{{
         '''
         self.setCurrentIndex(idx)
 
-    def set_new_model(self, filter_categories_by=None, state_map={}):
-        '''
-        There are cases where we need to rebuild the category tree without
-        attempting to reposition the current node.
-        '''
-        try:
-            old = getattr(self, '_model', None)
-            if old is not None:
-                old.break_cycles()
-            self._model = TagsModel(self.db, parent=self,
-                                    hidden_categories=self.hidden_categories,
-                                    search_restriction=self.search_restriction,
-                                    drag_drop_finished=self.drag_drop_finished,
-                                    filter_categories_by=filter_categories_by,
-                                    collapse_model=self.collapse_model,
-                                    state_map=state_map)
-            self.setModel(self._model)
-        except:
-            # The DB must be gone. Set the model to None and hope that someone
-            # will call set_database later. I don't know if this in fact works.
-            # But perhaps a Bad Thing Happened, so print the exception
-            traceback.print_exc()
-            self._model = None
-            self.setModel(None)
     # }}}
 
 

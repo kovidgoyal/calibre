@@ -367,7 +367,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'uuid',
              'has_cover',
             ('au_map', 'authors', 'author',
-                'aum_sortconcat(link.id, authors.name, authors.sort)'),
+                'aum_sortconcat(link.id, authors.name, authors.sort, authors.link)'),
             'last_modified',
             '(SELECT identifiers_concat(type, val) FROM identifiers WHERE identifiers.book=books.id) identifiers',
             ]
@@ -894,13 +894,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             aut_list = []
         aum = []
         aus = {}
-        for (author, author_sort) in aut_list:
-            aum.append(author.replace('|', ','))
-            aus[author] = author_sort.replace('|', ',')
+        aul = {}
+        for (author, author_sort, link) in aut_list:
+            aut = author.replace('|', ',')
+            aum.append(aut)
+            aus[aut] = author_sort.replace('|', ',')
+            aul[aut] = link
         mi.title       = row[fm['title']]
         mi.authors     = aum
         mi.author_sort = row[fm['author_sort']]
         mi.author_sort_map = aus
+        mi.author_link_map = aul
         mi.comments    = row[fm['comments']]
         mi.publisher   = row[fm['publisher']]
         mi.timestamp   = row[fm['timestamp']]
@@ -1245,6 +1249,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     ret = tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE)
                     shutil.copyfileobj(f, ret)
                     ret.seek(0)
+                    # Various bits of code try to use the name as the default
+                    # title when reading metadata, so set it
+                    ret.name = f.name
                 else:
                     ret = f.read()
             return ret
@@ -1442,7 +1449,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             raise ValueError('sort ' + sort + ' not a valid value')
 
         self.books_list_filter.change([] if not ids else ids)
-        id_filter = None if not ids else frozenset(ids)
+        id_filter = None if ids is None else frozenset(ids)
 
         tb_cats = self.field_metadata
         tcategories = {}
@@ -1520,7 +1527,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         rating_dex = self.FIELD_MAP['rating']
         tag_class = LibraryDatabase2.TCat_Tag
         for book in self.data.iterall():
-            if id_filter and book[id_dex] not in id_filter:
+            if id_filter is not None and book[id_dex] not in id_filter:
                 continue
             rating = book[rating_dex]
             # We kept track of all possible category field_map positions above
@@ -2038,13 +2045,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def authors_with_sort_strings(self, id, index_is_id=False):
         id = id if index_is_id else self.id(id)
         aut_strings = self.conn.get('''
-                        SELECT authors.id, authors.name, authors.sort
+                        SELECT authors.id, authors.name, authors.sort, authors.link
                         FROM authors, books_authors_link as bl
                         WHERE bl.book=? and authors.id=bl.author
                         ORDER BY bl.id''', (id,))
         result = []
-        for (id_, author, sort,) in aut_strings:
-            result.append((id_, author.replace('|', ','), sort))
+        for (id_, author, sort, link) in aut_strings:
+            result.append((id_, author.replace('|', ','), sort, link))
         return result
 
     # Given a book, return the author_sort string for authors of the book
@@ -2084,7 +2091,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         aum = self.authors_with_sort_strings(id_, index_is_id=True)
         self.data.set(id_, self.FIELD_MAP['au_map'],
-            ':#:'.join([':::'.join((au.replace(',', '|'), aus)) for (_, au, aus) in aum]),
+            ':#:'.join([':::'.join((au.replace(',', '|'), aus, aul))
+                                            for (_, au, aus, aul) in aum]),
             row_is_id=True)
 
     def _set_authors(self, id, authors, allow_case_change=False):
@@ -2435,7 +2443,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.commit()
 
     def get_authors_with_ids(self):
-        result = self.conn.get('SELECT id,name,sort FROM authors')
+        result = self.conn.get('SELECT id,name,sort,link FROM authors')
         if not result:
             return []
         return result
@@ -2445,6 +2453,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         result = self.conn.get('SELECT id FROM authors WHERE name=?',
                                (author,), all=False)
         return result
+
+    def set_link_field_for_author(self, aid, link, commit=True, notify=False):
+        if not link:
+            link = ''
+        self.conn.execute('UPDATE authors SET link=? WHERE id=?', (link.strip(), aid))
+        if commit:
+            self.conn.commit()
 
     def set_sort_field_for_author(self, old_id, new_sort, commit=True, notify=False):
         self.conn.execute('UPDATE authors SET sort=? WHERE id=?', \
