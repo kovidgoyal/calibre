@@ -56,7 +56,7 @@ You should not change the files in this resources folder, as your changes will g
 |app| will automatically use your custom file in preference to the builtin one the next time it is started.
 
 For example, if you wanted to change the icon for the :guilabel:`Remove books` action, you would first look in the builtin resources folder and see that the relevant file is
-:file:`resources/images/trash.svg`. Assuming you have an alternate icon in svg format called :file:`mytrash.svg` you would save it in the configuration directory as :file:`resources/images/trash.svg`. All the icons used by the calibre user interface are in :file:`resources/images` and its sub-folders.
+:file:`resources/images/trash.png`. Assuming you have an alternate icon in PNG format called :file:`mytrash.png` you would save it in the configuration directory as :file:`resources/images/trash.png`. All the icons used by the calibre user interface are in :file:`resources/images` and its sub-folders.
 
 Customizing |app| with plugins
 --------------------------------
