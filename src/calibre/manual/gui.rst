@@ -166,7 +166,7 @@ Library
 
 |lii| The :guilabel:`Library` action allows you to create, switch between, rename or delete a Library.  |app| allows you to create as many libraries as you wish. You could for instance create a fiction library, a non fiction library, a foreign language library, a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
 
-    1. **Switch\Create library**: This action allows you to; a) connect to a pre-existing |app| library at another location from your currently open library, b) Create and empty library at a new location or, c) Move the current Library to a newly specified location.
+    1. **Switch/Create library**: This action allows you to; a) connect to a pre-existing |app| library at another location from your currently open library, b) Create and empty library at a new location or, c) Move the current Library to a newly specified location.
     2. **Quick Switch**: This action allows you to switch between libraries that have been registered or created within |app|.
     3. **Rename Library**: This action allows you to rename a Library.
     4. **Remove Library**: This action allows you to unregister a library from |app|.
