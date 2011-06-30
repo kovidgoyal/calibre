@@ -219,7 +219,7 @@ class BooksView(QTableView): # {{{
 
             self.column_header_context_menu.addSeparator()
             self.column_header_context_menu.addAction(
-                    _('Resize column to fit'),
+                    _('Shrink column if it is too wide to fit'),
                     partial(self.resize_column_to_fit, column=self.column_map[idx]))
             self.column_header_context_menu.addAction(
                     _('Restore default layout'),
