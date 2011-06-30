@@ -235,13 +235,8 @@ class BooksView(QTableView): # {{{
         self.selected_ids = [idc(r) for r in selected_rows]
 
     def sorting_done(self, indexc):
-        if self.selected_ids:
-            indices = [self.model().index(indexc(i), 0) for i in
-                    self.selected_ids]
-            sm = self.selectionModel()
-            for idx in indices:
-                sm.select(idx, sm.Select|sm.Rows)
-            self.scroll_to_row(indices[0].row())
+        self.select_rows(self.selected_ids, using_ids=True, change_current=True,
+            scroll=True)
         self.selected_ids = []
 
     def sort_by_named_field(self, field, order, reset=True):
