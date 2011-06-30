@@ -51,7 +51,8 @@ class BooksView(QTableView): # {{{
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
 
-        self.setHorizontalScrollMode(self.ScrollPerPixel)
+        if not tweaks['horizontal_scrolling_per_column']:
+            self.setHorizontalScrollMode(self.ScrollPerPixel)
 
         self.setEditTriggers(self.EditKeyPressed)
         if tweaks['doubleclick_on_library_view'] == 'edit_cell':
@@ -112,6 +113,7 @@ class BooksView(QTableView): # {{{
         self.column_header.sectionMoved.connect(self.save_state)
         self.column_header.setContextMenuPolicy(Qt.CustomContextMenu)
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
+        self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
         # }}}
 
         self._model.database_changed.connect(self.database_changed)
@@ -216,6 +218,9 @@ class BooksView(QTableView): # {{{
 
 
             self.column_header_context_menu.addSeparator()
+            self.column_header_context_menu.addAction(
+                    _('Shrink column if it is too wide to fit'),
+                    partial(self.resize_column_to_fit, column=self.column_map[idx]))
             self.column_header_context_menu.addAction(
                     _('Restore default layout'),
                     partial(self.column_header_context_handler,
@@ -463,6 +468,19 @@ class BooksView(QTableView): # {{{
             self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
 
         self.was_restored = True
+
+    def resize_column_to_fit(self, column):
+        col = self.column_map.index(column)
+        self.column_resized(col, self.columnWidth(col), self.columnWidth(col))
+
+    def column_resized(self, col, old_size, new_size):
+        # arbitrary: scroll bar + header + some
+        max_width = self.width() - (self.verticalScrollBar().width() +
+                                    self.verticalHeader().width() + 10)
+        if new_size > max_width:
+            self.column_header.blockSignals(True)
+            self.setColumnWidth(col, max_width)
+            self.column_header.blockSignals(False)
 
     # }}}
 

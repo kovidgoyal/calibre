@@ -292,13 +292,17 @@ maximum_resort_levels = 5
 generate_cover_title_font = None
 generate_cover_foot_font = None
 
-#: Control behavior of double clicks on the book list
-# Behavior of doubleclick on the books list. Choices: open_viewer, do_nothing,
+#: Control behavior of the book list
+# You can control the behavior of doubleclicks on the books list.
+# Choices: open_viewer, do_nothing,
 # edit_cell, edit_metadata. Selecting edit_metadata has the side effect of
 # disabling editing a field using a single click.
 # Default: open_viewer.
 # Example: doubleclick_on_library_view = 'do_nothing'
+# You can also control whether the book list scrolls horizontal per column or
+# per pixel. Default is per column.
 doubleclick_on_library_view = 'open_viewer'
+horizontal_scrolling_per_column = True
 
 #: Language to use when sorting.
 # Setting this tweak will force sorting to use the
