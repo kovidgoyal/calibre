@@ -260,7 +260,8 @@ class ChooseLibraryAction(InterfaceAction):
                     'The files remain on your computer, if you want '
                     'to delete them, you will have to do so manually.') % loc,
                 show=True)
-        open_local_file(loc)
+        if os.path.exists(loc):
+            open_local_file(loc)
 
     def backup_status(self, location):
         dirty_text = 'no'
