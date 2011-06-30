@@ -417,6 +417,18 @@ class BuiltinRe(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
         return re.sub(pattern, replacement, val, flags=re.I)
 
+class BuiltinSwapAroundComma(BuiltinFormatterFunction):
+    name = 'swap_around_comma'
+    arg_count = 1
+    category = 'String Manipulation'
+    __doc__ = doc = _('swap_around_comma(val) -- given a value of the form '
+            '"B, A", return "A B". This is most useful for converting names '
+            'in LN, FN format to FN LN. If there is no comma, the function '
+            'returns val unchanged')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val):
+        return re.sub(r'^(.*?),(.*$)', r'\2 \1', val, flags=re.I)
+
 class BuiltinIfempty(BuiltinFormatterFunction):
     name = 'ifempty'
     arg_count = 2
@@ -825,6 +837,7 @@ builtin_subitems    = BuiltinSubitems()
 builtin_sublist     = BuiltinSublist()
 builtin_substr      = BuiltinSubstr()
 builtin_subtract    = BuiltinSubtract()
+builtin_swaparound  = BuiltinSwapAroundComma()
 builtin_switch      = BuiltinSwitch()
 builtin_template    = BuiltinTemplate()
 builtin_test        = BuiltinTest()

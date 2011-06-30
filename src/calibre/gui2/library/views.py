@@ -110,6 +110,7 @@ class BooksView(QTableView): # {{{
         self.column_header.sectionMoved.connect(self.save_state)
         self.column_header.setContextMenuPolicy(Qt.CustomContextMenu)
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
+        self.column_header.sectionResized.connect(self.column_resized)
         # }}}
 
         self._model.database_changed.connect(self.database_changed)
@@ -235,13 +236,8 @@ class BooksView(QTableView): # {{{
         self.selected_ids = [idc(r) for r in selected_rows]
 
     def sorting_done(self, indexc):
-        if self.selected_ids:
-            indices = [self.model().index(indexc(i), 0) for i in
-                    self.selected_ids]
-            sm = self.selectionModel()
-            for idx in indices:
-                sm.select(idx, sm.Select|sm.Rows)
-            self.scroll_to_row(indices[0].row())
+        self.select_rows(self.selected_ids, using_ids=True, change_current=True,
+            scroll=True)
         self.selected_ids = []
 
     def sort_by_named_field(self, field, order, reset=True):
@@ -456,7 +452,9 @@ class BooksView(QTableView): # {{{
                 traceback.print_exc()
             old_state['sort_history'] = sh
 
+        self.column_header.blockSignals(True)
         self.apply_state(old_state)
+        self.column_header.blockSignals(False)
 
         # Resize all rows to have the correct height
         if self.model().rowCount(QModelIndex()) > 0:
@@ -464,6 +462,15 @@ class BooksView(QTableView): # {{{
             self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
 
         self.was_restored = True
+
+    def column_resized(self, col, old_size, new_size):
+        # arbitrary: scroll bar + header + some
+        max_width = self.width() - (self.verticalScrollBar().width() +
+                                    self.verticalHeader().width() + 10)
+        if new_size > max_width:
+            self.column_header.blockSignals(True)
+            self.setColumnWidth(col, max_width)
+            self.column_header.blockSignals(False)
 
     # }}}
 
