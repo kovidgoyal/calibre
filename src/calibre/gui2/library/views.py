@@ -110,7 +110,7 @@ class BooksView(QTableView): # {{{
         self.column_header.sectionMoved.connect(self.save_state)
         self.column_header.setContextMenuPolicy(Qt.CustomContextMenu)
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
-        self.column_header.sectionResized.connect(self.column_resized)
+        self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
         # }}}
 
         self._model.database_changed.connect(self.database_changed)
