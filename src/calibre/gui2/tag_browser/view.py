@@ -12,7 +12,7 @@ from functools import partial
 from itertools import izip
 
 from PyQt4.Qt import (QItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon,
-        QApplication, QMenu, QPoint, QModelIndex, QCursor, QToolTip)
+        QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor)
 
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
@@ -66,7 +66,7 @@ class TagsView(QTreeView): # {{{
     tag_list_edit           = pyqtSignal(object, object)
     saved_search_edit       = pyqtSignal(object)
     rebuild_saved_searches  = pyqtSignal()
-    author_sort_edit        = pyqtSignal(object, object)
+    author_sort_edit        = pyqtSignal(object, object, object, object)
     tag_item_renamed        = pyqtSignal()
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
@@ -277,7 +277,10 @@ class TagsView(QTreeView): # {{{
                 self.saved_search_edit.emit(category)
                 return
             if action == 'edit_author_sort':
-                self.author_sort_edit.emit(self, index)
+                self.author_sort_edit.emit(self, index, True, False)
+                return
+            if action == 'edit_author_link':
+                self.author_sort_edit.emit(self, index, False, True)
                 return
 
             reset_filter_categories = True
@@ -346,6 +349,9 @@ class TagsView(QTreeView): # {{{
                             self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
                                             action='edit_author_sort', index=tag.id))
+                            self.context_menu.addAction(_('Edit link for %s')%display_name(tag),
+                                    partial(self.context_menu_handler,
+                                            action='edit_author_link', index=tag.id))
 
                         # is_editable is also overloaded to mean 'can be added
                         # to a user category'
@@ -477,7 +483,6 @@ class TagsView(QTreeView): # {{{
             partial(self.context_menu_handler, action='categorization', category='first letter'))
         pa = m.addAction('Partition',
             partial(self.context_menu_handler, action='categorization', category='partition'))
-
         if self.collapse_model == 'disable':
             da.setCheckable(True)
             da.setChecked(True)

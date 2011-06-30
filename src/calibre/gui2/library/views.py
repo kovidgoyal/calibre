@@ -51,6 +51,8 @@ class BooksView(QTableView): # {{{
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
 
+        self.setHorizontalScrollMode(self.ScrollPerPixel)
+
         self.setEditTriggers(self.EditKeyPressed)
         if tweaks['doubleclick_on_library_view'] == 'edit_cell':
             self.setEditTriggers(self.DoubleClicked|self.editTriggers())
@@ -235,13 +237,8 @@ class BooksView(QTableView): # {{{
         self.selected_ids = [idc(r) for r in selected_rows]
 
     def sorting_done(self, indexc):
-        if self.selected_ids:
-            indices = [self.model().index(indexc(i), 0) for i in
-                    self.selected_ids]
-            sm = self.selectionModel()
-            for idx in indices:
-                sm.select(idx, sm.Select|sm.Rows)
-            self.scroll_to_row(indices[0].row())
+        self.select_rows(self.selected_ids, using_ids=True, change_current=True,
+            scroll=True)
         self.selected_ids = []
 
     def sort_by_named_field(self, field, order, reset=True):
@@ -456,7 +453,9 @@ class BooksView(QTableView): # {{{
                 traceback.print_exc()
             old_state['sort_history'] = sh
 
+        self.column_header.blockSignals(True)
         self.apply_state(old_state)
+        self.column_header.blockSignals(False)
 
         # Resize all rows to have the correct height
         if self.model().rowCount(QModelIndex()) > 0:

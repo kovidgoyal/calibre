@@ -109,6 +109,7 @@ _extra_lang_codes = {
         'en_AU' : _('English (Australia)'),
         'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
+        'en_GR' : _('English (Greece)'),
         'en_IN' : _('English (India)'),
         'en_TH' : _('English (Thailand)'),
         'en_CY' : _('English (Cyprus)'),

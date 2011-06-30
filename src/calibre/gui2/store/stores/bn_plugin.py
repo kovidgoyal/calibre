@@ -24,18 +24,16 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class BNStore(BasicStoreConfig, StorePlugin):
     
     def open(self, parent=None, detail_item=None, external=False):
-        pub_id = '21000000000352219'
+        pub_id = 'sHa5EXvYOwA'
         # Use Kovid's affiliate id 30% of the time.
         if random.randint(1, 10) in (1, 2, 3):
-            pub_id = '21000000000352583'
+            pub_id = '0dsO3kDu/AU'
         
-        url = 'http://gan.doubleclick.net/gan_click?lid=41000000028437369&pubid=' + pub_id
+        base_url = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=229293.1&type=10&tmpid=8433&RD_PARM1=' % pub_id
+        url = base_url + 'http%253A%252F%252Fwww.barnesandnoble.com%252F'
 
         if detail_item:
-            mo = re.search(r'(?<=/)(?P<isbn>\d+)(?=/|$)', detail_item)
-            if mo:
-                isbn = mo.group('isbn')
-                detail_item = 'http://gan.doubleclick.net/gan_click?lid=41000000012871747&pid=' + isbn + '&adurl=' + detail_item + '&pubid=' + pub_id
+            detail_item = base_url + detail_item
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
