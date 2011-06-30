@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-24 18:42+0000\n"
-"PO-Revision-Date: 2011-06-24 16:39+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-06-29 21:02+0000\n"
+"Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-25 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-06-30 04:32+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -335,65 +335,69 @@ msgstr "Estableix les metadades des dels fitxers %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Afegeix llibres al calibre o al dispositiu que hi hagi connectat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Obté anotacions des d'un Kindle connectat (experimental)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Genera un catàleg de la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Converteix llibres a diversos formats de llibre electrònic"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Suprimeix llibres del calibre o del dispositiu que hi hagi connectat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Edita les metadades dels llibres de la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Llegeix llibres de la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Baixa notícies des d'internet en format de llibre electrònic"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:805
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Mostra ràpidament una llista de llibres seleccionats"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:810
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Exporta llibres des de la biblioteca del calibre al disc dur"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:815
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Mostra els detalls del llibre en una finestra emergent a part"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:820
 msgid "Restart calibre"
-msgstr ""
+msgstr "Reinicia el calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:825
 msgid "Open the folder that contains the book files in your calibre library"
 msgstr ""
+"Obre la carpeta que conté els fitxers dels llibres de la biblioteca del "
+"calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:831
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Envia llibres al dispositiu connectat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:836
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Envia llibres per correu electrònic o per web i també connecta a iTunes o a "
+"fitxers de l'ordinador com si fossin dispositius"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -402,24 +406,27 @@ msgstr "Explora el manual de l'usuari del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid "Customize calibre"
-msgstr ""
+msgstr "Personalitza el calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:852
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Troba fàcilment llibres similars al seleccionat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
+"Canvia entre biblioteques del calibre diferents i fes-hi tasques de "
+"manteniment"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:863
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Copia llibres des del dispositiu a la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:868
 msgid "Edit the collections in which books are placed on your device"
 msgstr ""
+"Edita les col·leccions en què es col·loquen els llibres al dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:873
 msgid "Copy a book from one calibre library to another"
@@ -3464,8 +3471,8 @@ msgstr ""
 "\n"
 "%prog [opcions] ISBN\n"
 "\n"
-"Aconsegueix una imatge de portada o bé metadades socials per al llibre "
-"identificat amb ISBN des de LibraryThing.com\n"
+"Obté una imatge de portada o bé metadades socials per al llibre identificat "
+"amb ISBN des de LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1363
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1499
@@ -4643,7 +4650,7 @@ msgstr "Afegeix llibres a la biblioteca des del dispositiu connectat"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:591
 msgid "Fetch annotations (experimental)"
-msgstr "Recull les anotacions (experimental)"
+msgstr "Obté les anotacions (experimental)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:56
 msgid "Not supported"
@@ -4651,7 +4658,7 @@ msgstr "No està implementat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:57
 msgid "Fetching annotations is not supported for this device"
-msgstr "No es pot aconseguir anotacions per a aquest dispositiu"
+msgstr "No es pot obtenir anotacions per a aquest dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:245
@@ -4678,7 +4685,7 @@ msgstr "No s'ha seleccionat cap llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:70
 msgid "No books selected to fetch annotations from"
-msgstr "No s'ha seleccionat cap llibre per recollir les anotacions"
+msgstr "No s'ha seleccionat cap llibre del qual obtenir-ne anotacions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:95
 msgid "Merging user annotations into database"
@@ -5460,11 +5467,11 @@ msgstr "Notí­cies (RSS)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:54
 msgid "Fetching news from "
-msgstr "S'està recollint notícies de "
+msgstr "S'està obtenint notícies de "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:83
 msgid " fetched."
-msgstr " s'ha recollit"
+msgstr " s'ha obtingut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "F1"
