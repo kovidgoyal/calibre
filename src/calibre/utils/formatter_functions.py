@@ -519,6 +519,41 @@ class BuiltinSelect(BuiltinFormatterFunction):
                 return v[len(key)+1:]
         return ''
 
+class BuiltinFormatsModtimes(BuiltinFormatterFunction):
+    name = 'formats_modtimes'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('formats_modtimes() -- return a comma-separated list of '
+                      'colon_separated items representing modification times '
+                      'for the formats of a book. You can use the select '
+                      'function to get the mod time for a specific '
+                      'format. Note that format names are always uppercase, '
+                      'as in EPUB.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        fmt_data = mi.get('format_metadata', {})
+        print fmt_data
+        return ','.join(k.upper()+':'+format_date(v['mtime'], 'iso')
+                        for k,v in fmt_data.iteritems())
+
+class BuiltinFormatsSizes(BuiltinFormatterFunction):
+    name = 'formats_sizes'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('formats_sizes() -- return a comma-separated list of '
+                      'colon_separated items representing sizes '
+                      'of the formats of a book. You can use the select '
+                      'function to get the size for a specific '
+                      'format. Note that format names are always uppercase, '
+                      'as in EPUB.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        fmt_data = mi.get('format_metadata', {})
+        print fmt_data
+        return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
+
 class BuiltinSublist(BuiltinFormatterFunction):
     name = 'sublist'
     arg_count = 4
@@ -814,6 +849,8 @@ builtin_eval        = BuiltinEval()
 builtin_first_non_empty = BuiltinFirstNonEmpty()
 builtin_field       = BuiltinField()
 builtin_format_date = BuiltinFormatDate()
+builtin_formats_modt= BuiltinFormatsModtimes()
+builtin_formats_size= BuiltinFormatsSizes()
 builtin_identifier_in_list = BuiltinIdentifierInList()
 builtin_ifempty     = BuiltinIfempty()
 builtin_in_list     = BuiltinInList()

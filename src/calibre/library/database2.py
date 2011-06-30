@@ -8,6 +8,7 @@ The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
         json, uuid, tempfile, hashlib
+from collections import defaultdict
 import threading, random
 from itertools import repeat
 from math import ceil
@@ -487,6 +488,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
         self.refresh()
         self.last_update_check = self.last_modified()
+        self.format_metadata_cache = defaultdict(dict)
 
     def break_cycles(self):
         self.data.break_cycles()
@@ -914,11 +916,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.book_size   = row[fm['size']]
         mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
+        id = idx if index_is_id else self.id(idx)
         formats = row[fm['formats']]
+        mi.format_metadata = {}
         if not formats:
             formats = None
         else:
             formats = formats.split(',')
+            for f in formats:
+                mi.format_metadata[f] = self.format_metadata(id, f, allow_cache=True)
         mi.formats = formats
         tags = row[fm['tags']]
         if tags:
@@ -927,7 +933,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.series:
             mi.series_index = row[fm['series_index']]
         mi.rating = row[fm['rating']]
-        id = idx if index_is_id else self.id(idx)
         mi.set_identifiers(self.get_identifiers(id, index_is_id=True))
         mi.application_id = id
         mi.id = id
@@ -1126,13 +1131,16 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if m:
             return m['mtime']
 
-    def format_metadata(self, id_, fmt):
+    def format_metadata(self, id_, fmt, allow_cache=True):
+        if allow_cache and fmt in self.format_metadata_cache.get(id_, {}):
+            return self.format_metadata_cache[id_][fmt]
         path = self.format_abspath(id_, fmt, index_is_id=True)
         ans = {}
         if path is not None:
             stat = os.stat(path)
             ans['size'] = stat.st_size
             ans['mtime'] = utcfromtimestamp(stat.st_mtime)
+            self.format_metadata_cache[id_][fmt] = ans
         return ans
 
     def format_hash(self, id_, fmt):
@@ -1254,6 +1262,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     ret.name = f.name
                 else:
                     ret = f.read()
+            try:
+                self.format_metadata(index if index_is_id else self.id(index),
+                                     format, allow_cache=False)
+            except:
+                traceback.print_exc()
             return ret
 
     def add_format_with_hooks(self, index, format, fpath, index_is_id=False,
