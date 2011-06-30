@@ -216,6 +216,9 @@ class BooksView(QTableView): # {{{
 
             self.column_header_context_menu.addSeparator()
             self.column_header_context_menu.addAction(
+                    _('Resize column to fit'),
+                    partial(self.resize_column_to_fit, column=self.column_map[idx]))
+            self.column_header_context_menu.addAction(
                     _('Restore default layout'),
                     partial(self.column_header_context_handler,
                         action='defaults', column=col))
@@ -462,6 +465,10 @@ class BooksView(QTableView): # {{{
             self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
 
         self.was_restored = True
+
+    def resize_column_to_fit(self, column):
+        col = self.column_map.index(column)
+        self.column_resized(col, self.columnWidth(col), self.columnWidth(col))
 
     def column_resized(self, col, old_size, new_size):
         # arbitrary: scroll bar + header + some
