@@ -51,6 +51,8 @@ class BooksView(QTableView): # {{{
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
 
+        self.setHorizontalScrollMode(self.ScrollPerPixel)
+
         self.setEditTriggers(self.EditKeyPressed)
         if tweaks['doubleclick_on_library_view'] == 'edit_cell':
             self.setEditTriggers(self.DoubleClicked|self.editTriggers())
