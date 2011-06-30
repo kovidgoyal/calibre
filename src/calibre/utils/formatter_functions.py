@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback
 
+from calibre import human_readable
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
@@ -521,20 +522,21 @@ class BuiltinSelect(BuiltinFormatterFunction):
 
 class BuiltinFormatsModtimes(BuiltinFormatterFunction):
     name = 'formats_modtimes'
-    arg_count = 0
+    arg_count = 1
     category = 'Get values from metadata'
-    __doc__ = doc = _('formats_modtimes() -- return a comma-separated list of '
-                      'colon_separated items representing modification times '
-                      'for the formats of a book. You can use the select '
-                      'function to get the mod time for a specific '
-                      'format. Note that format names are always uppercase, '
-                      'as in EPUB.'
+    __doc__ = doc = _('formats_modtimes(date_format) -- return a comma-separated '
+                  'list of colon_separated items representing modification times '
+                  'for the formats of a book. The date_format parameter '
+                  'specifies how the date is to be formatted. See the '
+                  'date_format function for details. You can use the select '
+                  'function to get the mod time for a specific '
+                  'format. Note that format names are always uppercase, '
+                  'as in EPUB.'
             )
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, fmt):
         fmt_data = mi.get('format_metadata', {})
-        print fmt_data
-        return ','.join(k.upper()+':'+format_date(v['mtime'], 'iso')
+        return ','.join(k.upper()+':'+format_date(v['mtime'], fmt)
                         for k,v in fmt_data.iteritems())
 
 class BuiltinFormatsSizes(BuiltinFormatterFunction):
@@ -551,8 +553,46 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals):
         fmt_data = mi.get('format_metadata', {})
-        print fmt_data
         return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
+
+class BuiltinHumanReadable(BuiltinFormatterFunction):
+    name = 'human_readable'
+    arg_count = 1
+    category = 'Formatting values'
+    __doc__ = doc = _('human_readable(v) -- return a string '
+                      'representing the number v in KB, MB, GB, etc.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals, val):
+        try:
+            return human_readable(long(val))
+        except:
+            return ''
+
+class BuiltinFormatNumber(BuiltinFormatterFunction):
+    name = 'format_number'
+    arg_count = 2
+    category = 'Formatting values'
+    __doc__ = doc = _('format_number(v, template) -- format the number v using '
+                      'a python formatting template such as "{0:5.2f}" or '
+                      '"{0:,d}" or "${0:5,.2f}". The field_name part of the '
+                      'template must be a 0 (zero), as shown in the examples. See '
+                      'the template language and python documentation for more '
+                      'examples. Returns the empty string if formatting fails.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, template):
+        if val == '' or val == 'None':
+            return ''
+        try:
+            return template.format(float(val))
+        except:
+            pass
+        try:
+            return template.format(int(val))
+        except:
+            pass
+        return ''
 
 class BuiltinSublist(BuiltinFormatterFunction):
     name = 'sublist'
@@ -626,7 +666,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
 class BuiltinFormatDate(BuiltinFormatterFunction):
     name = 'format_date'
     arg_count = 2
-    category = 'Date functions'
+    category = 'Formatting values'
     __doc__ = doc = _('format_date(val, format_string) -- format the value, '
             'which must be a date, using the format_string, returning a string. '
             'The formatting codes are: '
@@ -849,8 +889,10 @@ builtin_eval        = BuiltinEval()
 builtin_first_non_empty = BuiltinFirstNonEmpty()
 builtin_field       = BuiltinField()
 builtin_format_date = BuiltinFormatDate()
+builtin_format_numb = BuiltinFormatNumber()
 builtin_formats_modt= BuiltinFormatsModtimes()
 builtin_formats_size= BuiltinFormatsSizes()
+builtin_human_rable = BuiltinHumanReadable()
 builtin_identifier_in_list = BuiltinIdentifierInList()
 builtin_ifempty     = BuiltinIfempty()
 builtin_in_list     = BuiltinInList()

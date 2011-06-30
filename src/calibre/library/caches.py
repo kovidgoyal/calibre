@@ -1024,7 +1024,14 @@ class SortKeyGenerator(object):
                     dt = 'datetime'
                 elif sb == 'number':
                     try:
-                        val = float(val)
+                        val = val.replace(',', '').strip()
+                        p = 1
+                        for i, candidate in enumerate(
+                                    (' B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
+                            if val.endswith(candidate):
+                                p = 1024**(i)
+                                val = val[:-len(candidate)]
+                        val = float(val) * p
                     except:
                         val = 0.0
                     dt = 'float'
