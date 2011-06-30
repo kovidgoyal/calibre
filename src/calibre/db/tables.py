@@ -48,6 +48,12 @@ class Table(object):
 
 class OneToOneTable(Table):
 
+    '''
+    Represents data that is unique per book (it may not actually be unique) but
+    each item is assigned to a book in a one-to-one mapping. For example: uuid,
+    timestamp, size, etc.
+    '''
+
     def read(self, db):
         self.book_col_map = {}
         idcol = 'id' if self.metadata['table'] == 'books' else 'book'
@@ -65,6 +71,13 @@ class SizeTable(OneToOneTable):
             self.book_col_map[row[0]] = self.adapt(row[1])
 
 class ManyToOneTable(Table):
+
+    '''
+    Represents data where one data item can map to many books, for example:
+    series or publisher.
+
+    Each book however has only one value for data of this type.
+    '''
 
     def read(self, db):
         self.id_map = {}
@@ -90,6 +103,12 @@ class ManyToOneTable(Table):
             self.book_col_map[row[0]] = row[1]
 
 class ManyToManyTable(ManyToOneTable):
+
+    '''
+    Represents data that has a many-to-many mapping with books. i.e. each book
+    can have more than one value and each value can be mapped to more than one
+    book. For example: tags or authors.
+    '''
 
     def read_maps(self, db):
         for row in db.conn.execute(

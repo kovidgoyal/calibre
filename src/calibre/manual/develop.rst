@@ -187,6 +187,26 @@ in your favorite editor and add the line::
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
+Having separate "normal" and "development" |app| installs on the same computer
+-------------------------------------------------------------------------------
+
+The calibre source tree is very stable, it rarely breaks, but if you feel the need to run from source on a separate
+test library and run the released calibre version with your everyday library, you can achieve this easily using
+.bat files or shell scripts to launch |app|. The example below shows how to do this on windows using .bat files (the
+instructions for other platforms are the same, just use a BASh script instead of a .bat file)
+
+To launch the relase version of |app| with your everyday library:
+
+calibre-normal.bat::
+
+    calibre.exe "--with-library=C:\path\to\everyday\library folder"
+
+calibre-dev.bat::
+
+    set CALIBRE_DEVELOP_FROM=C:\path\to\calibre\checkout\src
+    calibre.exe "--with-library=C:\path\to\test\library folder"
+
+
 Debugging tips
 ----------------
 
