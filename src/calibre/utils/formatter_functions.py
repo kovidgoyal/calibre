@@ -544,7 +544,7 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
     arg_count = 0
     category = 'Get values from metadata'
     __doc__ = doc = _('formats_sizes() -- return a comma-separated list of '
-                      'colon_separated items representing sizes '
+                      'colon_separated items representing sizes in bytes'
                       'of the formats of a book. You can use the select '
                       'function to get the size for a specific '
                       'format. Note that format names are always uppercase, '
@@ -574,11 +574,11 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
     arg_count = 2
     category = 'Formatting values'
     __doc__ = doc = _('format_number(v, template) -- format the number v using '
-                      'a python formatting template such as "{0:5.2f}" or '
-                      '"{0:,d}" or "${0:5,.2f}". The field_name part of the '
-                      'template must be a 0 (zero), as shown in the examples. See '
-                      'the template language and python documentation for more '
-                      'examples. Returns the empty string if formatting fails.'
+                  'a python formatting template such as "{0:5.2f}" or '
+                  '"{0:,d}" or "${0:5,.2f}". The field_name part of the '
+                  'template must be a 0 (zero) (the "{0:" in the above examples). '
+                  'See the template language and python documentation for more '
+                  'examples. Returns the empty string if formatting fails.'
             )
 
     def evaluate(self, formatter, kwargs, mi, locals, val, template):
