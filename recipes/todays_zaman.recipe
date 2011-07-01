@@ -1,0 +1,53 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TodaysZaman_en(BasicNewsRecipe):
+    title          = u'Todays Zaman'
+    __author__            = u'thomass'
+    description            = 'a Turkey based daily for national and international news in the fields of business, diplomacy, politics, culture, arts, sports and economics, in addition to commentaries, specials and features'
+    oldest_article         = 2
+    max_articles_per_feed  =100
+    no_stylesheets         = True
+    #delay                  = 1
+    #use_embedded_content   = False
+    encoding               = 'utf-8'
+    #publisher              = '  '
+    category               = 'news, haberler,TR,gazete'
+    language               = 'en_TR'
+    publication_type = 'newspaper'
+    #extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    #keep_only_tags    = [dict(name='font', attrs={'class':['newsDetail','agenda2NewsSpot']}),dict(name='span', attrs={'class':['agenda2Title']}),dict(name='div', attrs={'id':['gallery']})]
+    keep_only_tags    = [dict(name='h1', attrs={'class':['georgia_30']}),dict(name='span', attrs={'class':['left-date','detailDate','detailCName']}),dict(name='td', attrs={'id':['newsSpot','newsText']})] #resim ekleme:  ,dict(name='div', attrs={'id':['gallery','detailDate',]})
+
+    remove_attributes = ['aria-describedby']
+    remove_tags  = [dict(name='img', attrs={'src':['/images/icon_print.gif','http://gmodules.com/ig/images/plus_google.gif','/images/template/jazz/agenda/i1.jpg', 'http://medya.todayszaman.com/todayszaman/images/logo/logo.bmp']}),dict(name='hr', attrs={'class':[ 'interactive-hr']}),dict(name='div', attrs={'class':[ 'empty_height_18','empty_height_9']}) ,dict(name='td', attrs={'id':[ 'superTitle']}),dict(name='span', attrs={'class':[ 't-count enabled t-count-focus']}),dict(name='a', attrs={'id':[ 'count']}),dict(name='td', attrs={'class':[ 'left-date']})  ]
+    cover_img_url = 'http://medya.todayszaman.com/todayszaman/images/logo/logo.bmp'
+    masthead_url = 'http://medya.todayszaman.com/todayszaman/images/logo/logo.bmp'
+    remove_empty_feeds= True
+   # remove_attributes = ['width','height']
+
+    feeds          = [
+                      ( u'Home', u'http://www.todayszaman.com/rss?sectionId=0'),
+                      ( u'News', u'http://www.todayszaman.com/rss?sectionId=100'),
+                      ( u'Business', u'http://www.todayszaman.com/rss?sectionId=105'),
+                      ( u'Interviews', u'http://www.todayszaman.com/rss?sectionId=8'),
+                      ( u'Columnists', u'http://www.todayszaman.com/rss?sectionId=6'),
+                      ( u'Op-Ed', u'http://www.todayszaman.com/rss?sectionId=109'),
+                      ( u'Arts & Culture', u'http://www.todayszaman.com/rss?sectionId=110'),
+                      ( u'Expat Zone', u'http://www.todayszaman.com/rss?sectionId=132'),
+                      ( u'Sports', u'http://www.todayszaman.com/rss?sectionId=5'),
+                      ( u'Features', u'http://www.todayszaman.com/rss?sectionId=116'),
+                      ( u'Travel', u'http://www.todayszaman.com/rss?sectionId=117'),
+                      ( u'Leisure', u'http://www.todayszaman.com/rss?sectionId=118'),
+                      ( u'Weird But True', u'http://www.todayszaman.com/rss?sectionId=134'),
+                      ( u'Life', u'http://www.todayszaman.com/rss?sectionId=133'),
+                      ( u'Health', u'http://www.todayszaman.com/rss?sectionId=126'),
+                      ( u'Press Review', u'http://www.todayszaman.com/rss?sectionId=130'),
+                      ( u'Todays think tanks', u'http://www.todayszaman.com/rss?sectionId=159'),
+
+                        ]
+
+    #def preprocess_html(self, soup):
+     #   return self.adeify_images(soup)
+    #def print_version(self, url):       #there is a probem caused by table format
+     #return url.replace('http://www.todayszaman.com/newsDetail_getNewsById.action?load=detay&', 'http://www.todayszaman.com/newsDetail_openPrintPage.action?')
+
