@@ -101,6 +101,9 @@ class ANDROID(USBMS):
             # ZTE
             0x19d2 : { 0x1353 : [0x226] },
 
+            # Advent
+            0x0955 : { 0x7100 : [0x9999] }, # This is the same as the Notion Ink Adam
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '

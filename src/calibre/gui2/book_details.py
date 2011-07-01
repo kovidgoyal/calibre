@@ -5,8 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
-
 from PyQt4.Qt import (QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl,
     QPropertyAnimation, QEasingCurve, QApplication, QFontInfo,
     QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu)
