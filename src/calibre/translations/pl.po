@@ -912,7 +912,7 @@ msgstr "Wyłącz wtyczkę"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:127
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:136
 msgid "Path to library too long. Must be less than %d characters."
-msgstr "Zbyt długa ścieżka. Ś"
+msgstr "Zbyt długa ścieżka. Ś %d"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
@@ -9702,7 +9702,7 @@ msgstr "&Dostosuj wtyczkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:675
 msgid "Are you sure you want to uninstall the <b>%s</b> plugin?"
-msgstr "Czy na pewno chcesz odinstalować wtyczkę <b>%S</b>?"
+msgstr "Czy na pewno chcesz odinstalować wtyczkę <b>%s</b>?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:687
 msgid "Install %s"
