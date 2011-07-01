@@ -295,6 +295,16 @@ and end with &lt;code&gt;}&lt;/code&gt; You can have text before and after the f
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="composite_contains_html">
+           <property name="toolTip">
+               <string>&lt;p&gt;If checked, this column will be displayed as HTML in book details and the content server. This is useful, for example, to create a link based on the book's metadata. </string>
+           </property>
+           <property name="text">
+            <string>Show as HTML in book details</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_24">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">

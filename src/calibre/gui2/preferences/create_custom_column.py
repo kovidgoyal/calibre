@@ -127,6 +127,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.composite_sort_by.setCurrentIndex(sb)
             self.composite_make_category.setChecked(
                                 c['display'].get('make_category', False))
+            self.composite_make_category.setChecked(
+                                c['display'].get('contains_html', False))
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
             self.enum_colors.setText(','.join(c['display'].get('enum_colors', [])))
@@ -179,7 +181,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
             getattr(self, 'number_format_'+x).setVisible(col_type in ['int', 'float'])
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
-                  'make_category'):
+                  'make_category', 'contains_html'):
             getattr(self, 'composite_'+x).setVisible(col_type in ['composite', '*composite'])
         for x in ('box', 'default_label', 'label', 'colors', 'colors_label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
@@ -257,6 +259,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                             'composite_sort': ['text', 'number', 'date', 'bool']
                                         [self.composite_sort_by.currentIndex()],
                             'make_category': self.composite_make_category.isChecked(),
+                            'contains_html': self.composite_contains_html.isChecked(),
                         }
         elif col_type == 'enumeration':
             if not unicode(self.enum_box.text()).strip():

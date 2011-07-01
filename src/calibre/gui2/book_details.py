@@ -100,6 +100,14 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 val = force_unicode(val)
                 ans.append((field,
                     u'<td class="comments" colspan="2">%s</td>'%comments_to_html(val)))
+        elif metadata['datatype'] == 'composite' and \
+                            metadata['display'].get('contains_html', False):
+            val = getattr(mi, field)
+            if val:
+                val = force_unicode(val)
+                ans.append((field,
+                    u'<td class="title">%s</td><td>%s</td>'%
+                        (name, comments_to_html(val))))
         elif field == 'path':
             if mi.path:
                 path = force_unicode(mi.path, filesystem_encoding)
