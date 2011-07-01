@@ -575,7 +575,8 @@ class TagsView(QTreeView): # {{{
         expanded_categories, state_map = self.get_state()
         self._model.rebuild_node_tree(state_map=state_map)
         for category in expanded_categories:
-            self.expand(self._model.index_for_category(category))
+            if self._model.index_for_category(category) is not None:
+                self.expand(self._model.index_for_category(category))
         self.show_item_at_path(path)
 
     def show_item_at_path(self, path, box=False,
