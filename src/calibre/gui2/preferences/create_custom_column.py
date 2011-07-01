@@ -143,6 +143,21 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
         all_colors = [unicode(s) for s in list(QColor.colorNames())]
         self.enum_colors_label.setToolTip('<p>' + ', '.join(all_colors) + '</p>')
+
+        self.composite_contains_html.setToolTip('<p>' +
+                _('If checked, this column will be displayed as HTML in '
+                  'book details and the content server. This can be used to '
+                  'construct links with the template language. For example, '
+                  'the template '
+                  '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
+                  '{series:| [|}{series_index:| [|]]}</pre>'
+                  'will create a field displaying the title in bold large '
+                  'characters, along with the series, for example <br>"<big><b>'
+                  'An Oblique Approach</b></big> [Belisarius [1]]". The template '
+                  '<pre>&lt;a href="http://www.beam-ebooks.de/ebook/{identifiers'
+                  ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
+                  'will generate a link to the book on the Beam ebooks site.')
+                        + '</p>')
         self.exec_()
 
     def shortcut_activated(self, url):
