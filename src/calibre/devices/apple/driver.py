@@ -120,7 +120,7 @@ class DriverBase(DeviceConfig, DevicePlugin):
             _('Cache covers from iTunes/iBooks') +
                 ':::' +
                 _('Enable to cache and display covers from iTunes/iBooks'),
-            _("'Copy files to iTunes Media folder" u"\u2026" "' is enabled in iTunes Preferences|Advanced") +
+            _(u'"Copy files to iTunes Media folder %s" is enabled in iTunes Preferences|Advanced')%u'\u2026' +
                 ':::' +
                 _("<p>This setting should match your iTunes <i>Preferences</i>|<i>Advanced</i> setting.</p>"
                   "<p>Disabling will store copies of books transferred to iTunes in your calibre configuration directory.</p>"

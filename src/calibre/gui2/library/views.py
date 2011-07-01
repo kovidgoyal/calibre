@@ -51,7 +51,8 @@ class BooksView(QTableView): # {{{
     def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
 
-        self.setHorizontalScrollMode(self.ScrollPerPixel)
+        if not tweaks['horizontal_scrolling_per_column']:
+            self.setHorizontalScrollMode(self.ScrollPerPixel)
 
         self.setEditTriggers(self.EditKeyPressed)
         if tweaks['doubleclick_on_library_view'] == 'edit_cell':
@@ -218,7 +219,7 @@ class BooksView(QTableView): # {{{
 
             self.column_header_context_menu.addSeparator()
             self.column_header_context_menu.addAction(
-                    _('Resize column to fit'),
+                    _('Shrink column if it is too wide to fit'),
                     partial(self.resize_column_to_fit, column=self.column_map[idx]))
             self.column_header_context_menu.addAction(
                     _('Restore default layout'),
