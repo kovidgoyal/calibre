@@ -5,7 +5,6 @@ www.diariobae.com
 '''
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class BsAsEconomico(BasicNewsRecipe):
     title                 = 'Buenos Aires Economico'
@@ -22,8 +21,8 @@ class BsAsEconomico(BasicNewsRecipe):
     cover_url             = strftime('http://www.diariobae.com/imgs_portadas/%Y%m%d_portadasBAE.jpg')
     masthead_url          = 'http://www.diariobae.com/img/logo_bae.png'
     remove_empty_feeds    = True
-    publication_type      = 'newspaper'    
-    extra_css             = """ 
+    publication_type      = 'newspaper'
+    extra_css             = """
                                body{font-family: Georgia,"Times New Roman",Times,serif}
                                #titulo{font-size: x-large}
                                #epi{font-size: small; font-style: italic; font-weight: bold}
@@ -43,7 +42,7 @@ class BsAsEconomico(BasicNewsRecipe):
                            ,dict(attrs={'id':'barra_tw'})
                         ]
     remove_attributes = ['data-count','data-via']
-    
+
     feeds = [
                (u'Argentina'   , u'http://www.diariobae.com/rss/argentina.xml'   )
               ,(u'Valores'     , u'http://www.diariobae.com/rss/valores.xml'     )
