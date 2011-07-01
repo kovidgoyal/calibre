@@ -186,8 +186,8 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
                                     CFM[key]['is_multiple']['ui_to_list'],
                                     ignore_max=True, no_tag_count=True,
                                     joinval=CFM[key]['is_multiple']['list_to_ui']))))
-            elif datatype == 'comments' or CFM[key]['datatype'] == 'composite' and \
-                            CFM[key]['display'].get('contains_html', False):
+            elif datatype == 'comments' or (CFM[key]['datatype'] == 'composite' and
+                            CFM[key]['display'].get('contains_html', False)):
                 extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode(val))))
             else:
                 extra.append('%s: %s<br />'%(xml(name), xml(unicode(val))))
