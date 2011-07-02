@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback
 
+from calibre import human_readable
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
@@ -519,6 +520,80 @@ class BuiltinSelect(BuiltinFormatterFunction):
                 return v[len(key)+1:]
         return ''
 
+class BuiltinFormatsModtimes(BuiltinFormatterFunction):
+    name = 'formats_modtimes'
+    arg_count = 1
+    category = 'Get values from metadata'
+    __doc__ = doc = _('formats_modtimes(date_format) -- return a comma-separated '
+                  'list of colon_separated items representing modification times '
+                  'for the formats of a book. The date_format parameter '
+                  'specifies how the date is to be formatted. See the '
+                  'date_format function for details. You can use the select '
+                  'function to get the mod time for a specific '
+                  'format. Note that format names are always uppercase, '
+                  'as in EPUB.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals, fmt):
+        fmt_data = mi.get('format_metadata', {})
+        return ','.join(k.upper()+':'+format_date(v['mtime'], fmt)
+                        for k,v in fmt_data.iteritems())
+
+class BuiltinFormatsSizes(BuiltinFormatterFunction):
+    name = 'formats_sizes'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('formats_sizes() -- return a comma-separated list of '
+                      'colon_separated items representing sizes in bytes'
+                      'of the formats of a book. You can use the select '
+                      'function to get the size for a specific '
+                      'format. Note that format names are always uppercase, '
+                      'as in EPUB.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        fmt_data = mi.get('format_metadata', {})
+        return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
+
+class BuiltinHumanReadable(BuiltinFormatterFunction):
+    name = 'human_readable'
+    arg_count = 1
+    category = 'Formatting values'
+    __doc__ = doc = _('human_readable(v) -- return a string '
+                      'representing the number v in KB, MB, GB, etc.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals, val):
+        try:
+            return human_readable(long(val))
+        except:
+            return ''
+
+class BuiltinFormatNumber(BuiltinFormatterFunction):
+    name = 'format_number'
+    arg_count = 2
+    category = 'Formatting values'
+    __doc__ = doc = _('format_number(v, template) -- format the number v using '
+                  'a python formatting template such as "{0:5.2f}" or '
+                  '"{0:,d}" or "${0:5,.2f}". The field_name part of the '
+                  'template must be a 0 (zero) (the "{0:" in the above examples). '
+                  'See the template language and python documentation for more '
+                  'examples. Returns the empty string if formatting fails.'
+            )
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, template):
+        if val == '' or val == 'None':
+            return ''
+        try:
+            return template.format(float(val))
+        except:
+            pass
+        try:
+            return template.format(int(val))
+        except:
+            pass
+        return ''
+
 class BuiltinSublist(BuiltinFormatterFunction):
     name = 'sublist'
     arg_count = 4
@@ -591,7 +666,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
 class BuiltinFormatDate(BuiltinFormatterFunction):
     name = 'format_date'
     arg_count = 2
-    category = 'Date functions'
+    category = 'Formatting values'
     __doc__ = doc = _('format_date(val, format_string) -- format the value, '
             'which must be a date, using the format_string, returning a string. '
             'The formatting codes are: '
@@ -811,52 +886,22 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         i = d1 - d2
         return str('%d.%d'%(i.days, i.seconds/8640))
 
-
-builtin_add         = BuiltinAdd()
-builtin_and         = BuiltinAnd()
-builtin_assign      = BuiltinAssign()
-builtin_booksize    = BuiltinBooksize()
-builtin_capitalize  = BuiltinCapitalize()
-builtin_cmp         = BuiltinCmp()
-builtin_contains    = BuiltinContains()
-builtin_count       = BuiltinCount()
-builtin_days_between= BuiltinDaysBetween()
-builtin_divide      = BuiltinDivide()
-builtin_eval        = BuiltinEval()
-builtin_first_non_empty = BuiltinFirstNonEmpty()
-builtin_field       = BuiltinField()
-builtin_format_date = BuiltinFormatDate()
-builtin_has_cover   = BuiltinHasCover()
-builtin_identifier_in_list = BuiltinIdentifierInList()
-builtin_ifempty     = BuiltinIfempty()
-builtin_in_list     = BuiltinInList()
-builtin_list_item   = BuiltinListitem()
-builtin_lookup      = BuiltinLookup()
-builtin_lowercase   = BuiltinLowercase()
-builtin_merge_lists = BuiltinMergeLists()
-builtin_multiply    = BuiltinMultiply()
-builtin_not         = BuiltinNot()
-builtin_ondevice    = BuiltinOndevice()
-builtin_or          = BuiltinOr()
-builtin_print       = BuiltinPrint()
-builtin_raw_field   = BuiltinRawField()
-builtin_re          = BuiltinRe()
-builtin_select      = BuiltinSelect()
-builtin_shorten     = BuiltinShorten()
-builtin_strcat      = BuiltinStrcat()
-builtin_strcmp      = BuiltinStrcmp()
-builtin_str_in_list = BuiltinStrInList()
-builtin_subitems    = BuiltinSubitems()
-builtin_sublist     = BuiltinSublist()
-builtin_substr      = BuiltinSubstr()
-builtin_subtract    = BuiltinSubtract()
-builtin_swaparound  = BuiltinSwapAroundComma()
-builtin_switch      = BuiltinSwitch()
-builtin_template    = BuiltinTemplate()
-builtin_test        = BuiltinTest()
-builtin_titlecase   = BuiltinTitlecase()
-builtin_today       = BuiltinToday()
-builtin_uppercase   = BuiltinUppercase()
+formatter_builtins = [
+    BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
+    BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
+    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
+    BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
+    BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
+    BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
+    BuiltinIfempty(), BuiltinInList(), BuiltinListitem(), BuiltinLookup(),
+    BuiltinLowercase(), BuiltinMergeLists(), BuiltinMultiply(), BuiltinNot(),
+    BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
+    BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),
+    BuiltinStrcmp(), BuiltinStrInList(), BuiltinSubitems(), BuiltinSublist(),
+    BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
+    BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
+    BuiltinToday(), BuiltinUppercase(),
+]
 
 class FormatterUserFunction(FormatterFunction):
     def __init__(self, name, doc, arg_count, program_text):
