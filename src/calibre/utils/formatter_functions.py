@@ -886,56 +886,22 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         i = d1 - d2
         return str('%d.%d'%(i.days, i.seconds/8640))
 
-
-builtin_add         = BuiltinAdd()
-builtin_and         = BuiltinAnd()
-builtin_assign      = BuiltinAssign()
-builtin_booksize    = BuiltinBooksize()
-builtin_capitalize  = BuiltinCapitalize()
-builtin_cmp         = BuiltinCmp()
-builtin_contains    = BuiltinContains()
-builtin_count       = BuiltinCount()
-builtin_days_between= BuiltinDaysBetween()
-builtin_divide      = BuiltinDivide()
-builtin_eval        = BuiltinEval()
-builtin_first_non_empty = BuiltinFirstNonEmpty()
-builtin_field       = BuiltinField()
-builtin_format_date = BuiltinFormatDate()
-builtin_format_numb = BuiltinFormatNumber()
-builtin_formats_modt= BuiltinFormatsModtimes()
-builtin_formats_size= BuiltinFormatsSizes()
-builtin_has_cover   = BuiltinHasCover()
-builtin_human_rable = BuiltinHumanReadable()
-builtin_identifier_in_list = BuiltinIdentifierInList()
-builtin_ifempty     = BuiltinIfempty()
-builtin_in_list     = BuiltinInList()
-builtin_list_item   = BuiltinListitem()
-builtin_lookup      = BuiltinLookup()
-builtin_lowercase   = BuiltinLowercase()
-builtin_merge_lists = BuiltinMergeLists()
-builtin_multiply    = BuiltinMultiply()
-builtin_not         = BuiltinNot()
-builtin_ondevice    = BuiltinOndevice()
-builtin_or          = BuiltinOr()
-builtin_print       = BuiltinPrint()
-builtin_raw_field   = BuiltinRawField()
-builtin_re          = BuiltinRe()
-builtin_select      = BuiltinSelect()
-builtin_shorten     = BuiltinShorten()
-builtin_strcat      = BuiltinStrcat()
-builtin_strcmp      = BuiltinStrcmp()
-builtin_str_in_list = BuiltinStrInList()
-builtin_subitems    = BuiltinSubitems()
-builtin_sublist     = BuiltinSublist()
-builtin_substr      = BuiltinSubstr()
-builtin_subtract    = BuiltinSubtract()
-builtin_swaparound  = BuiltinSwapAroundComma()
-builtin_switch      = BuiltinSwitch()
-builtin_template    = BuiltinTemplate()
-builtin_test        = BuiltinTest()
-builtin_titlecase   = BuiltinTitlecase()
-builtin_today       = BuiltinToday()
-builtin_uppercase   = BuiltinUppercase()
+formatter_builtins = [
+    BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
+    BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
+    BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
+    BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
+    BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
+    BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
+    BuiltinIfempty(), BuiltinInList(), BuiltinListitem(), BuiltinLookup(),
+    BuiltinLowercase(), BuiltinMergeLists(), BuiltinMultiply(), BuiltinNot(),
+    BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
+    BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),
+    BuiltinStrcmp(), BuiltinStrInList(), BuiltinSubitems(), BuiltinSublist(),
+    BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
+    BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
+    BuiltinToday(), BuiltinUppercase(),
+]
 
 class FormatterUserFunction(FormatterFunction):
     def __init__(self, name, doc, arg_count, program_text):
