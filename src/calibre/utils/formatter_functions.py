@@ -679,6 +679,18 @@ class BuiltinOndevice(BuiltinFormatterFunction):
             return _('Yes')
         return ''
 
+class BuiltinHasCover(BuiltinFormatterFunction):
+    name = 'has_cover'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('has_cover() -- return Yes if the book has a cover, '
+                      'otherwise return the empty string')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        if mi.has_cover:
+            return _('Yes')
+        return ''
+
 class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
     name = 'first_non_empty'
     arg_count = -1
@@ -814,6 +826,7 @@ builtin_eval        = BuiltinEval()
 builtin_first_non_empty = BuiltinFirstNonEmpty()
 builtin_field       = BuiltinField()
 builtin_format_date = BuiltinFormatDate()
+builtin_has_cover   = BuiltinHasCover()
 builtin_identifier_in_list = BuiltinIdentifierInList()
 builtin_ifempty     = BuiltinIfempty()
 builtin_in_list     = BuiltinInList()
