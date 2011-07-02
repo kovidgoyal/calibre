@@ -968,6 +968,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     mi.cover_data = ('jpeg', cdata)
             else:
                 mi.cover = self.cover(id, index_is_id=True, as_path=True)
+        mi.has_cover = _('Yes') if self.has_cover(id) else ''
         return mi
 
     def has_book(self, mi):

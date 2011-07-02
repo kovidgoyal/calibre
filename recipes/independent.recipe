@@ -6,7 +6,7 @@ class TheIndependent(BasicNewsRecipe):
     language       = 'en_GB'
     __author__     = 'Krittika Goyal'
     oldest_article = 1 #days
-    max_articles_per_feed = 25
+    max_articles_per_feed = 30
     encoding = 'latin1'
 
     no_stylesheets = True
@@ -25,24 +25,39 @@ class TheIndependent(BasicNewsRecipe):
             'http://www.independent.co.uk/news/uk/rss'),
             ('World',
             'http://www.independent.co.uk/news/world/rss'),
-            ('Sport',
-            'http://www.independent.co.uk/sport/rss'),
-            ('Arts and Entertainment',
-            'http://www.independent.co.uk/arts-entertainment/rss'),
             ('Business',
             'http://www.independent.co.uk/news/business/rss'),
-            ('Life and Style',
-            'http://www.independent.co.uk/life-style/gadgets-and-tech/news/rss'),
-            ('Science',
-            'http://www.independent.co.uk/news/science/rss'),
             ('People',
             'http://www.independent.co.uk/news/people/rss'),
+            ('Science',
+            'http://www.independent.co.uk/news/science/rss'),
             ('Media',
             'http://www.independent.co.uk/news/media/rss'),
-            ('Health and Families',
-            'http://www.independent.co.uk/life-style/health-and-families/rss'),
+            ('Education',
+            'http://www.independent.co.uk/news/education/rss'),
             ('Obituaries',
             'http://www.independent.co.uk/news/obituaries/rss'),
+
+            ('Opinion',
+            'http://www.independent.co.uk/opinion/rss'),
+
+            ('Environment',
+            'http://www.independent.co.uk/environment/rss'),
+
+            ('Sport',
+            'http://www.independent.co.uk/sport/rss'),
+
+            ('Life and Style',
+            'http://www.independent.co.uk/life-style/rss'),
+
+            ('Arts and Entertainment',
+            'http://www.independent.co.uk/arts-entertainment/rss'),
+
+            ('Travel',
+            'http://www.independent.co.uk/travel/rss'),
+
+            ('Money',
+            'http://www.independent.co.uk/money/rss'),
     ]
 
     def preprocess_html(self, soup):
