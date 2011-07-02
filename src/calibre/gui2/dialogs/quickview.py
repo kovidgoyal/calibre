@@ -73,6 +73,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.last_search = None
         self.current_column = None
         self.current_item = None
+        self.no_valid_items = False
 
         self.items.setSelectionMode(QAbstractItemView.SingleSelection)
         self.items.currentTextChanged.connect(self.item_selected)
@@ -119,6 +120,8 @@ class Quickview(QDialog, Ui_Quickview):
 
     # search button
     def do_search(self):
+        if self.no_valid_items:
+            return
         if self.last_search is not None:
             self.gui.search.set_search_string(self.last_search)
 
@@ -132,6 +135,8 @@ class Quickview(QDialog, Ui_Quickview):
 
     # clicks on the items listWidget
     def item_selected(self, txt):
+        if self.no_valid_items:
+            return
         self.fill_in_books_box(unicode(txt))
 
     # Given a cell in the library view, display the information
@@ -144,6 +149,7 @@ class Quickview(QDialog, Ui_Quickview):
         # Only show items for categories
         if not self.db.field_metadata[key]['is_category']:
             if self.current_key is None:
+                self.indicate_no_items()
                 return
             key = self.current_key
         self.items_label.setText('{0} ({1})'.format(
@@ -157,6 +163,7 @@ class Quickview(QDialog, Ui_Quickview):
         vals = mi.get(key, None)
 
         if vals:
+            self.no_valid_items = False
             if not isinstance(vals, list):
                 vals = [vals]
             vals.sort(key=sort_key)
@@ -170,7 +177,18 @@ class Quickview(QDialog, Ui_Quickview):
             self.current_key = key
 
             self.fill_in_books_box(vals[0])
+        else:
+            self.indicate_no_items()
+
         self.items.blockSignals(False)
+
+    def indicate_no_items(self):
+        print 'no items'
+        self.no_valid_items = True
+        self.items.clear()
+        self.items.addItem(QListWidgetItem(_('**No items found**')))
+        self.books_label.setText(_('Click in a column  in the library view '
+                                   'to see the information for that book'))
 
     def fill_in_books_box(self, selected_item):
         self.current_item = selected_item
@@ -185,7 +203,8 @@ class Quickview(QDialog, Ui_Quickview):
                                            self.db.data.search_restriction)
 
         self.books_table.setRowCount(len(books))
-        self.books_label.setText(_('Books with selected item: {0}').format(len(books)))
+        self.books_label.setText(_('Books with selected item "{0}": {1}').
+                                 format(selected_item, len(books)))
 
         select_item = None
         self.books_table.setSortingEnabled(False)
@@ -235,6 +254,8 @@ class Quickview(QDialog, Ui_Quickview):
         self.save_state()
 
     def book_doubleclicked(self, row, column):
+        if self.no_valid_items:
+            return
         book_id = self.books_table.item(row, 0).data(Qt.UserRole).toInt()[0]
         self.view.select_rows([book_id])
         modifiers = int(QApplication.keyboardModifiers())

@@ -5,8 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
-
 from PyQt4.Qt import (QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl,
     QPropertyAnimation, QEasingCurve, QApplication, QFontInfo,
     QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu)
@@ -100,6 +98,14 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 val = force_unicode(val)
                 ans.append((field,
                     u'<td class="comments" colspan="2">%s</td>'%comments_to_html(val)))
+        elif metadata['datatype'] == 'composite' and \
+                            metadata['display'].get('contains_html', False):
+            val = getattr(mi, field)
+            if val:
+                val = force_unicode(val)
+                ans.append((field,
+                    u'<td class="title">%s</td><td>%s</td>'%
+                        (name, comments_to_html(val))))
         elif field == 'path':
             if mi.path:
                 path = force_unicode(mi.path, filesystem_encoding)

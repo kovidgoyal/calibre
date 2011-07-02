@@ -30,6 +30,9 @@ class ArchiveOrgStore(BasicStoreConfig, OpenSearchStore):
         The opensearch feed only returns a subset of formats that are available.
         We want to get a list of all formats that the user can get.
         '''
+        from calibre import browser
+        from contextlib import closing
+        from lxml import html
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
