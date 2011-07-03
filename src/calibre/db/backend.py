@@ -519,6 +519,8 @@ class DB(SchemaUpgrade):
                 'timestamp', 'pubdate', 'uuid', 'path', 'cover',
                 'last_modified'):
             metadata = self.field_metadata[col].copy()
+            if col == 'comments':
+                metadata['table'], metadata['column'] = 'comments', 'text'
             if not metadata['table']:
                 metadata['table'], metadata['column'] = 'books', ('has_cover'
                         if col == 'cover' else col)
