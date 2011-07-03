@@ -35,8 +35,8 @@ class Table(object):
     def __init__(self, name, metadata, link_table=None):
         self.name, self.metadata = name, metadata
 
-        # self.adapt() maps values from the db to python objects
-        self.adapt = \
+        # self.unserialize() maps values from the db to python objects
+        self.unserialize = \
             {
                 'datetime': _c_convert_timestamp,
                 'bool': bool
@@ -44,7 +44,7 @@ class Table(object):
                 metadata['datatype'], lambda x: x)
         if name == 'authors':
             # Legacy
-            self.adapt = lambda x: x.replace('|', ',') if x else None
+            self.unserialize = lambda x: x.replace('|', ',') if x else None
 
         self.link_table = (link_table if link_table else
                 'books_%s_link'%self.metadata['table'])
@@ -62,7 +62,7 @@ class OneToOneTable(Table):
         idcol = 'id' if self.metadata['table'] == 'books' else 'book'
         for row in db.conn.execute('SELECT {0}, {1} FROM {2}'.format(idcol,
             self.metadata['column'], self.metadata['table'])):
-            self.book_col_map[row[0]] = self.adapt(row[1])
+            self.book_col_map[row[0]] = self.unserialize(row[1])
 
 class SizeTable(OneToOneTable):
 
@@ -71,7 +71,7 @@ class SizeTable(OneToOneTable):
         for row in db.conn.execute(
                 'SELECT books.id, (SELECT MAX(uncompressed_size) FROM data '
                 'WHERE data.book=books.id) FROM books'):
-            self.book_col_map[row[0]] = self.adapt(row[1])
+            self.book_col_map[row[0]] = self.unserialize(row[1])
 
 class ManyToOneTable(Table):
 
@@ -94,7 +94,7 @@ class ManyToOneTable(Table):
         for row in db.conn.execute('SELECT id, {0} FROM {1}'.format(
             self.metadata['name'], self.metadata['table'])):
             if row[1]:
-                self.id_map[row[0]] = self.adapt(row[1])
+                self.id_map[row[0]] = self.unserialize(row[1])
 
     def read_maps(self, db):
         for row in db.conn.execute(
