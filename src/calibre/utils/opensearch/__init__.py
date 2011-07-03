@@ -28,7 +28,7 @@ if not url_template:
 query = Query(url_template)
 
 # set up initial values.
-query.searchTerms = urllib.quote_plus(search_terms)
+query.searchTerms = search_terms
 # Note the count is ignored by some feeds.
 query.count = max_results
 

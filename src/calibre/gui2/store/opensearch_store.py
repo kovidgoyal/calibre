@@ -7,7 +7,6 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import mimetypes
-import urllib
 from contextlib import closing
 
 from lxml import etree
@@ -50,7 +49,7 @@ class OpenSearchOPDSStore(StorePlugin):
         oquery = Query(url_template)
 
         # set up initial values
-        oquery.searchTerms = urllib.quote_plus(query)
+        oquery.searchTerms = query
         oquery.count = max_results
         url = oquery.url()
         
@@ -99,7 +98,3 @@ class OpenSearchOPDSStore(StorePlugin):
                 
 
                 yield s
-
-class OpenSearchOPDSDetailStore(OpenSearchOPDSStore):
-    
-    pass
