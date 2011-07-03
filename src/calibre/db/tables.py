@@ -92,7 +92,7 @@ class ManyToOneTable(Table):
 
     def read_id_maps(self, db):
         for row in db.conn.execute('SELECT id, {0} FROM {1}'.format(
-            self.metadata['name'], self.metadata['table'])):
+            self.metadata['column'], self.metadata['table'])):
             if row[1]:
                 self.id_map[row[0]] = self.unserialize(row[1])
 
@@ -102,7 +102,7 @@ class ManyToOneTable(Table):
                     self.metadata['link_column'], self.link_table)):
             if row[1] not in self.col_book_map:
                 self.col_book_map[row[1]] = []
-            self.col_book_map.append(row[0])
+            self.col_book_map[row[1]].append(row[0])
             self.book_col_map[row[0]] = row[1]
 
 class ManyToManyTable(ManyToOneTable):
@@ -119,7 +119,7 @@ class ManyToManyTable(ManyToOneTable):
                     self.metadata['link_column'], self.link_table)):
             if row[1] not in self.col_book_map:
                 self.col_book_map[row[1]] = []
-            self.col_book_map.append(row[0])
+            self.col_book_map[row[1]].append(row[0])
             if row[0] not in self.book_col_map:
                 self.book_col_map[row[0]] = []
             self.book_col_map[row[0]].append(row[1])
@@ -145,7 +145,7 @@ class FormatsTable(ManyToManyTable):
             if row[1] is not None:
                 if row[1] not in self.col_book_map:
                     self.col_book_map[row[1]] = []
-                self.col_book_map.append(row[0])
+                self.col_book_map[row[1]].append(row[0])
                 if row[0] not in self.book_col_map:
                     self.book_col_map[row[0]] = []
                 self.book_col_map[row[0]].append((row[1], row[2]))
@@ -160,7 +160,7 @@ class IdentifiersTable(ManyToManyTable):
             if row[1] is not None and row[2] is not None:
                 if row[1] not in self.col_book_map:
                     self.col_book_map[row[1]] = []
-                self.col_book_map.append(row[0])
+                self.col_book_map[row[1]].append(row[0])
                 if row[0] not in self.book_col_map:
                     self.book_col_map[row[0]] = []
                 self.book_col_map[row[0]].append((row[1], row[2]))

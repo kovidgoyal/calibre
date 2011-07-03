@@ -31,6 +31,7 @@ from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
 Differences in semantics from pysqlite:
 
     1. execute/executemany/executescript operate in autocommit mode
+    2. There is no fetchone() method on cursor objects, instead use next()
 
 '''
 
@@ -128,32 +129,31 @@ class Connection(apsw.Connection): # {{{
 
         self.setbusytimeout(self.BUSY_TIMEOUT)
         self.execute('pragma cache_size=5000')
-        self.conn.execute('pragma temp_store=2')
+        self.execute('pragma temp_store=2')
 
-        encoding = self.execute('pragma encoding').fetchone()[0]
-        self.conn.create_collation('PYNOCASE', partial(pynocase,
+        encoding = self.execute('pragma encoding').next()[0]
+        self.createcollation('PYNOCASE', partial(pynocase,
             encoding=encoding))
 
-        self.conn.create_function('title_sort', 1, title_sort)
-        self.conn.create_function('author_to_author_sort', 1,
-                _author_to_author_sort)
-
-        self.conn.create_function('uuid4', 0, lambda : str(uuid.uuid4()))
+        self.createscalarfunction('title_sort', title_sort, 1)
+        self.createscalarfunction('author_to_author_sort',
+                _author_to_author_sort, 1)
+        self.createscalarfunction('uuid4', lambda : str(uuid.uuid4()),
+                0)
 
         # Dummy functions for dynamically created filters
-        self.conn.create_function('books_list_filter', 1, lambda x: 1)
-        self.conn.create_collation('icucollate', icu_collator)
+        self.createscalarfunction('books_list_filter', lambda x: 1, 1)
+        self.createcollation('icucollate', icu_collator)
 
     def create_dynamic_filter(self, name):
         f = DynamicFilter(name)
-        self.conn.create_function(name, 1, f)
+        self.createscalarfunction(name, f, 1)
 
     def get(self, *args, **kw):
         ans = self.cursor().execute(*args)
         if kw.get('all', True):
             return ans.fetchall()
-        for row in ans:
-            return ans[0]
+        return ans.next()[0]
 
     def execute(self, sql, bindings=None):
         cursor = self.cursor()
@@ -169,7 +169,7 @@ class Connection(apsw.Connection): # {{{
             return self.cursor().execute(sql)
 # }}}
 
-class DB(object, SchemaUpgrade):
+class DB(SchemaUpgrade):
 
     PATH_LIMIT = 40 if iswindows else 100
     WINDOWS_LIBRARY_PATH_LIMIT = 75
@@ -516,12 +516,14 @@ class DB(object, SchemaUpgrade):
     def initialize_tables(self): # {{{
         tables = self.tables = {}
         for col in ('title', 'sort', 'author_sort', 'series_index', 'comments',
-                'timestamp', 'published', 'uuid', 'path', 'cover',
+                'timestamp', 'pubdate', 'uuid', 'path', 'cover',
                 'last_modified'):
             metadata = self.field_metadata[col].copy()
-            if metadata['table'] is None:
-                metadata['table'], metadata['column'] == 'books', ('has_cover'
+            if not metadata['table']:
+                metadata['table'], metadata['column'] = 'books', ('has_cover'
                         if col == 'cover' else col)
+            if not metadata['column']:
+                metadata['column'] = col
             tables[col] = OneToOneTable(col, metadata)
 
         for col in ('series', 'publisher', 'rating'):
@@ -538,6 +540,7 @@ class DB(object, SchemaUpgrade):
         tables['size'] = SizeTable('size', self.field_metadata['size'].copy())
 
         for label, data in self.custom_column_label_map.iteritems():
+            label = '#' + label
             metadata = self.field_metadata[label].copy()
             link_table = self.custom_table_names(data['num'])[1]
 
@@ -562,11 +565,11 @@ class DB(object, SchemaUpgrade):
     @property
     def conn(self):
         if self._conn is None:
-            self._conn = apsw.Connection(self.dbpath)
+            self._conn = Connection(self.dbpath)
             if self._exists and self.user_version == 0:
                 self._conn.close()
                 os.remove(self.dbpath)
-                self._conn = apsw.Connection(self.dbpath)
+                self._conn = Connection(self.dbpath)
         return self._conn
 
     @dynamic_property
@@ -641,9 +644,11 @@ class DB(object, SchemaUpgrade):
                         # the db while we are reading
             for table in self.tables.itervalues():
                 try:
-                    table.read()
+                    table.read(self)
                 except:
                     prints('Failed to read table:', table.name)
+                    import pprint
+                    pprint.pprint(table.metadata)
                     raise
 
    # }}}
