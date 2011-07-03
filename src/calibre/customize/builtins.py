@@ -1505,7 +1505,6 @@ plugins += [
     StoreMobileReadStore,
     StoreNextoStore,
     StoreOpenBooksStore,
-    StoreOpenLibraryStore,
     StoreOReillyStore,
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
