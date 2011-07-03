@@ -270,6 +270,7 @@ Preferences
 .. |cbi| image:: images/preferences.png
 
 The Preferences Action allows you to change the way various aspects of |app| work. To access it, click the |cbi|.
+You can also re-run the Welcome Wizard by clicking the arrow next to the preferences button.
 
 .. _catalogs:
 
