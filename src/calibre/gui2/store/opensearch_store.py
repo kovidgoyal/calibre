@@ -22,7 +22,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 from calibre.utils.opensearch.description import Description
 from calibre.utils.opensearch.query import Query
 
-class OpenSearchStore(StorePlugin):
+class OpenSearchOPDSStore(StorePlugin):
 
     open_search_url = ''
     web_url = ''
@@ -99,3 +99,7 @@ class OpenSearchStore(StorePlugin):
                 
 
                 yield s
+
+class OpenSearchOPDSDetailStore(OpenSearchOPDSStore):
+    
+    pass
