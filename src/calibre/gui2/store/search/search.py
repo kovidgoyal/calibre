@@ -349,7 +349,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         d = ChooseFormatDialog(self, _('Choose format to download to your library.'), result.downloads.keys())
         if d.exec_() == d.Accepted:
             ext = d.format()
-            self.gui.download_ebook(result.downloads[ext])
+            fname = result.title + '.' + ext.lower()
+            self.gui.download_ebook(result.downloads[ext], filename=fname)
     
     def open_store(self, result):
         self.gui.istores[result.store_name].open(self, result.detail_item, self.open_external.isChecked())
