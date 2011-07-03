@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008 - 2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = 'Copyright 2011 Starson17'
 '''
 engadget.com
 '''
@@ -9,14 +9,29 @@ engadget.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Engadget(BasicNewsRecipe):
-    title                 = u'Engadget'
-    __author__            = 'Darko Miletic'
+    title                 = u'Engadget_Full'
+    __author__            = 'Starson17'
+    __version__           = 'v1.00'
+    __date__              = '02, July 2011'
     description           = 'Tech news'
     language              = 'en'
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
-    use_embedded_content  = True
+    use_embedded_content  = False
+    remove_javascript     = True
+    remove_empty_feeds    = True
 
-    feeds = [ (u'Posts', u'http://www.engadget.com/rss.xml')]
+    keep_only_tags = [dict(name='div', attrs={'class':['post_content permalink ','post_content permalink alt-post-full']})]
+    remove_tags = [dict(name='div', attrs={'class':['filed_under','post_footer']})]
+    remove_tags_after =  [dict(name='div', attrs={'class':['post_footer']})]
+
+    feeds = [(u'Posts', u'http://www.engadget.com/rss.xml')]
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
 
