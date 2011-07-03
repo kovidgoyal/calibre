@@ -32,7 +32,7 @@ def _c_convert_timestamp(val):
 
 class Table(object):
 
-    def __init__(self, name, metadata):
+    def __init__(self, name, metadata, link_table=None):
         self.name, self.metadata = name, metadata
 
         # self.adapt() maps values from the db to python objects
@@ -45,6 +45,9 @@ class Table(object):
         if name == 'authors':
             # Legacy
             self.adapt = lambda x: x.replace('|', ',') if x else None
+
+        self.link_table = (link_table if link_table else
+                'books_%s_link'%self.metadata['table'])
 
 class OneToOneTable(Table):
 
@@ -95,8 +98,8 @@ class ManyToOneTable(Table):
 
     def read_maps(self, db):
         for row in db.conn.execute(
-                'SELECT book, {0} FROM books_{1}_link'.format(
-                    self.metadata['link_column'], self.metadata['table'])):
+                'SELECT book, {0} FROM {1}'.format(
+                    self.metadata['link_column'], self.link_table)):
             if row[1] not in self.col_book_map:
                 self.col_book_map[row[1]] = []
             self.col_book_map.append(row[0])
@@ -112,8 +115,8 @@ class ManyToManyTable(ManyToOneTable):
 
     def read_maps(self, db):
         for row in db.conn.execute(
-                'SELECT book, {0} FROM books_{1}_link'.format(
-                    self.metadata['link_column'], self.metadata['table'])):
+                'SELECT book, {0} FROM {1}'.format(
+                    self.metadata['link_column'], self.link_table)):
             if row[1] not in self.col_book_map:
                 self.col_book_map[row[1]] = []
             self.col_book_map.append(row[0])
