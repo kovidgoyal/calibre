@@ -251,6 +251,99 @@ class DB(object, SchemaUpgrade):
         self.initialize_custom_columns()
         self.initialize_tables()
 
+    def initialize_prefs(self, default_prefs): # {{{
+        self.prefs = DBPrefs(self)
+
+        if default_prefs is not None and not self._exists:
+            # Only apply default prefs to a new database
+            for key in default_prefs:
+                # be sure that prefs not to be copied are listed below
+                if key not in frozenset(['news_to_be_synced']):
+                    self.prefs[key] = default_prefs[key]
+            if 'field_metadata' in default_prefs:
+                fmvals = [f for f in default_prefs['field_metadata'].values()
+                                if f['is_custom']]
+                for f in fmvals:
+                    self.create_custom_column(f['label'], f['name'],
+                            f['datatype'], f['is_multiple'] is not None,
+                            f['is_editable'], f['display'])
+
+        defs = self.prefs.defaults
+        defs['gui_restriction'] = defs['cs_restriction'] = ''
+        defs['categories_using_hierarchy'] = []
+        defs['column_color_rules'] = []
+
+        # Migrate the bool tristate tweak
+        defs['bools_are_tristate'] = \
+                tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
+        if self.prefs.get('bools_are_tristate') is None:
+            self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
+
+        # Migrate column coloring rules
+        if self.prefs.get('column_color_name_1', None) is not None:
+            from calibre.library.coloring import migrate_old_rule
+            old_rules = []
+            for i in range(1, 6):
+                col = self.prefs.get('column_color_name_'+str(i), None)
+                templ = self.prefs.get('column_color_template_'+str(i), None)
+                if col and templ:
+                    try:
+                        del self.prefs['column_color_name_'+str(i)]
+                        rules = migrate_old_rule(self.field_metadata, templ)
+                        for templ in rules:
+                            old_rules.append((col, templ))
+                    except:
+                        pass
+            if old_rules:
+                self.prefs['column_color_rules'] += old_rules
+
+        # Migrate saved search and user categories to db preference scheme
+        def migrate_preference(key, default):
+            oldval = prefs[key]
+            if oldval != default:
+                self.prefs[key] = oldval
+                prefs[key] = default
+            if key not in self.prefs:
+                self.prefs[key] = default
+
+        migrate_preference('user_categories', {})
+        migrate_preference('saved_searches', {})
+
+        # migrate grouped_search_terms
+        if self.prefs.get('grouped_search_terms', None) is None:
+            try:
+                ogst = tweaks.get('grouped_search_terms', {})
+                ngst = {}
+                for t in ogst:
+                    ngst[icu_lower(t)] = ogst[t]
+                self.prefs.set('grouped_search_terms', ngst)
+            except:
+                pass
+
+        # Rename any user categories with names that differ only in case
+        user_cats = self.prefs.get('user_categories', [])
+        catmap = {}
+        for uc in user_cats:
+            ucl = icu_lower(uc)
+            if ucl not in catmap:
+                catmap[ucl] = []
+            catmap[ucl].append(uc)
+        cats_changed = False
+        for uc in catmap:
+            if len(catmap[uc]) > 1:
+                prints('found user category case overlap', catmap[uc])
+                cat = catmap[uc][0]
+                suffix = 1
+                while icu_lower((cat + unicode(suffix))) in catmap:
+                    suffix += 1
+                prints('Renaming user category %s to %s'%(cat, cat+unicode(suffix)))
+                user_cats[cat + unicode(suffix)] = user_cats[cat]
+                del user_cats[cat]
+                cats_changed = True
+        if cats_changed:
+            self.prefs.set('user_categories', user_cats)
+    # }}}
+
     def initialize_custom_columns(self): # {{{
         with self.conn:
             # Delete previously marked custom columns
@@ -418,99 +511,6 @@ class DB(object, SchemaUpgrade):
                     is_multiple=is_m, is_category=is_category,
                     is_editable=v['editable'], is_csp=False)
 
-    # }}}
-
-    def initialize_prefs(self, default_prefs): # {{{
-        self.prefs = DBPrefs(self)
-
-        if default_prefs is not None and not self._exists:
-            # Only apply default prefs to a new database
-            for key in default_prefs:
-                # be sure that prefs not to be copied are listed below
-                if key not in frozenset(['news_to_be_synced']):
-                    self.prefs[key] = default_prefs[key]
-            if 'field_metadata' in default_prefs:
-                fmvals = [f for f in default_prefs['field_metadata'].values()
-                                if f['is_custom']]
-                for f in fmvals:
-                    self.create_custom_column(f['label'], f['name'],
-                            f['datatype'], f['is_multiple'] is not None,
-                            f['is_editable'], f['display'])
-
-        defs = self.prefs.defaults
-        defs['gui_restriction'] = defs['cs_restriction'] = ''
-        defs['categories_using_hierarchy'] = []
-        defs['column_color_rules'] = []
-
-        # Migrate the bool tristate tweak
-        defs['bools_are_tristate'] = \
-                tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
-        if self.prefs.get('bools_are_tristate') is None:
-            self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
-
-        # Migrate column coloring rules
-        if self.prefs.get('column_color_name_1', None) is not None:
-            from calibre.library.coloring import migrate_old_rule
-            old_rules = []
-            for i in range(1, 6):
-                col = self.prefs.get('column_color_name_'+str(i), None)
-                templ = self.prefs.get('column_color_template_'+str(i), None)
-                if col and templ:
-                    try:
-                        del self.prefs['column_color_name_'+str(i)]
-                        rules = migrate_old_rule(self.field_metadata, templ)
-                        for templ in rules:
-                            old_rules.append((col, templ))
-                    except:
-                        pass
-            if old_rules:
-                self.prefs['column_color_rules'] += old_rules
-
-        # Migrate saved search and user categories to db preference scheme
-        def migrate_preference(key, default):
-            oldval = prefs[key]
-            if oldval != default:
-                self.prefs[key] = oldval
-                prefs[key] = default
-            if key not in self.prefs:
-                self.prefs[key] = default
-
-        migrate_preference('user_categories', {})
-        migrate_preference('saved_searches', {})
-
-        # migrate grouped_search_terms
-        if self.prefs.get('grouped_search_terms', None) is None:
-            try:
-                ogst = tweaks.get('grouped_search_terms', {})
-                ngst = {}
-                for t in ogst:
-                    ngst[icu_lower(t)] = ogst[t]
-                self.prefs.set('grouped_search_terms', ngst)
-            except:
-                pass
-
-        # Rename any user categories with names that differ only in case
-        user_cats = self.prefs.get('user_categories', [])
-        catmap = {}
-        for uc in user_cats:
-            ucl = icu_lower(uc)
-            if ucl not in catmap:
-                catmap[ucl] = []
-            catmap[ucl].append(uc)
-        cats_changed = False
-        for uc in catmap:
-            if len(catmap[uc]) > 1:
-                prints('found user category case overlap', catmap[uc])
-                cat = catmap[uc][0]
-                suffix = 1
-                while icu_lower((cat + unicode(suffix))) in catmap:
-                    suffix += 1
-                prints('Renaming user category %s to %s'%(cat, cat+unicode(suffix)))
-                user_cats[cat + unicode(suffix)] = user_cats[cat]
-                del user_cats[cat]
-                cats_changed = True
-        if cats_changed:
-            self.prefs.set('user_categories', user_cats)
     # }}}
 
     def initialize_tables(self): # {{{
