@@ -1387,15 +1387,6 @@ class StoreOpenBooksStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
 
-class StoreOpenLibraryStore(StoreBase):
-    name = 'Open Library'
-    description = u'One web page for every book ever published. The goal is to be a true online library. Over 20 million records from a variety of large catalogs as well as single contributions, with more on the way.'
-    actual_plugin = 'calibre.gui2.store.stores.open_library_plugin:OpenLibraryStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-    formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
-
 class StoreOReillyStore(StoreBase):
     name = 'OReilly'
     description = u'Programming and tech ebooks from OReilly.'
