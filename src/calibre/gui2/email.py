@@ -9,10 +9,11 @@ __docformat__ = 'restructuredtext en'
 import os, socket, time
 from binascii import unhexlify
 from functools import partial
+from threading import Thread
 from itertools import repeat
 
-from calibre.utils.smtp import compose_mail, sendmail, extract_email_address, \
-        config as email_config
+from calibre.utils.smtp import (compose_mail, sendmail, extract_email_address,
+        config as email_config)
 from calibre.utils.filenames import ascii_filename
 from calibre.customize.ui import available_input_formats, available_output_formats
 from calibre.ebooks.metadata import authors_to_string
@@ -22,9 +23,30 @@ from calibre.library.save_to_disk import get_components
 from calibre.utils.config import tweaks
 from calibre.gui2.threaded_jobs import ThreadedJob
 
+class Worker(Thread):
+
+    def __init__(self, func, args):
+        Thread.__init__(self)
+        self.daemon = True
+        self.exception = self.tb = None
+        self.func, self.args = func, args
+
+    def run(self):
+        #time.sleep(1000)
+        try:
+            self.func(*self.args)
+        except Exception as e:
+            import traceback
+            self.exception = e
+            self.tb = traceback.format_exc()
+        finally:
+            self.func = self.args = None
+
+
 class Sendmail(object):
 
     MAX_RETRIES = 1
+    TIMEOUT = 15 * 60 # seconds
 
     def __init__(self):
         self.calculate_rate_limit()
@@ -42,22 +64,32 @@ class Sendmail(object):
             abort=None, notifications=None):
 
         try_count = 0
-        while try_count <= self.MAX_RETRIES:
+        while True:
             if try_count > 0:
                 log('\nRetrying in %d seconds...\n' %
                         self.rate_limit)
-            try:
-                self.sendmail(attachment, aname, to, subject, text, log)
-                try_count = self.MAX_RETRIES
-                log('Email successfully sent')
-            except:
+            worker = Worker(self.sendmail,
+                    (attachment, aname, to, subject, text, log))
+            worker.start()
+            start_time = time.time()
+            while worker.is_alive():
+                worker.join(0.2)
                 if abort.is_set():
+                    log('Sending aborted by user')
                     return
-                if try_count == self.MAX_RETRIES:
-                    raise
-                log.exception('\nSending failed...\n')
-
+                if time.time() - start_time > self.TIMEOUT:
+                    log('Sending timed out')
+                    raise Exception(
+                            'Sending email %r to %r timed out, aborting'% (subject,
+                                to))
+            if worker.exception is None:
+                log('Email successfully sent')
+                return
+            log.error('\nSending failed...\n')
+            log.debug(worker.tb)
             try_count += 1
+            if try_count > self.MAX_RETRIES:
+                raise worker.exception
 
     def sendmail(self, attachment, aname, to, subject, text, log):
         while time.time() - self.last_send_time <= self.rate_limit:
@@ -67,8 +99,8 @@ class Sendmail(object):
             from_ = opts.from_
             if not from_:
                 from_ = 'calibre <calibre@'+socket.getfqdn()+'>'
-            msg = compose_mail(from_, to, text, subject, open(attachment, 'rb'),
-                    aname)
+            with lopen(attachment, 'rb') as f:
+                msg = compose_mail(from_, to, text, subject, f, aname)
             efrom, eto = map(extract_email_address, (from_, to))
             eto = [eto]
             sendmail(msg, efrom, eto, localhost=None,
@@ -90,7 +122,7 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
             attachments, to_s, subjects, texts, attachment_names):
         description = _('Email %s to %s') % (name, to)
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
-                subject, text), {}, callback, killable=False)
+                subject, text), {}, callback)
         job_manager.run_threaded_job(job)
 
 
@@ -142,7 +174,8 @@ class EmailMixin(object): # {{{
         else:
             _auto_ids = []
 
-        full_metadata = self.library_view.model().metadata_for(ids)
+        full_metadata = self.library_view.model().metadata_for(ids,
+                get_cover=False)
 
         bad, remove_ids, jobnames = [], [], []
         texts, subjects, attachments, attachment_names = [], [], [], []

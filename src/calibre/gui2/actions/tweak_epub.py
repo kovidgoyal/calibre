@@ -5,6 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.tweak_epub import TweakEpub
@@ -30,8 +32,8 @@ class TweakEpubAction(InterfaceAction):
         # Confirm 'EPUB' in formats
         book_id = self.gui.library_view.model().id(row)
         try:
-            path_to_epub = self.gui.library_view.model().db.format_abspath(
-                    book_id, 'EPUB', index_is_id=True)
+            path_to_epub = self.gui.library_view.model().db.format(
+                    book_id, 'EPUB', index_is_id=True, as_path=True)
         except:
             path_to_epub = None
 
@@ -45,6 +47,7 @@ class TweakEpubAction(InterfaceAction):
         if dlg.exec_() == dlg.Accepted:
             self.update_db(book_id, dlg._output)
         dlg.cleanup()
+        os.remove(path_to_epub)
 
     def update_db(self, book_id, rebuilt):
         '''

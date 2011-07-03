@@ -5,16 +5,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
+import os
 from functools import partial
 
 from PyQt4.Qt import QMenu, Qt, QInputDialog, QToolButton
 
 from calibre import isbytestring
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.config import prefs
-from calibre.gui2 import gprefs, warning_dialog, Dispatcher, error_dialog, \
-    question_dialog, info_dialog
+from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
+    question_dialog, info_dialog, open_local_file)
+from calibre.library.database2 import LibraryDatabase2
 from calibre.gui2.actions import InterfaceAction
 
 class LibraryUsageStats(object): # {{{
@@ -106,7 +107,7 @@ class ChooseLibraryAction(InterfaceAction):
             self.quick_menu_action = self.choose_menu.addMenu(self.quick_menu)
             self.rename_menu = QMenu(_('Rename library'))
             self.rename_menu_action = self.choose_menu.addMenu(self.rename_menu)
-            self.delete_menu = QMenu(_('Delete library'))
+            self.delete_menu = QMenu(_('Remove library'))
             self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
 
         ac = self.create_action(spec=(_('Pick a random book'), 'catalog.png',
@@ -229,6 +230,12 @@ class ChooseLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('Already exists'),
                     _('The folder %s already exists. Delete it first.') %
                     newloc, show=True)
+        if (iswindows and len(newloc) >
+                LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+            return error_dialog(self.gui, _('Too long'),
+                    _('Path to library too long. Must be less than'
+                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    show=True)
         try:
             os.rename(loc, newloc)
         except:
@@ -245,21 +252,16 @@ class ChooseLibraryAction(InterfaceAction):
 
     def delete_requested(self, name, location):
         loc = location.replace('/', os.sep)
-        if not question_dialog(self.gui, _('Are you sure?'), '<p>'+
-                _('<b style="color: red">All files</b> (not just ebooks) '
-                    'from <br><br><b>%s</b><br><br> will be '
-                '<b>permanently deleted</b>. Are you sure?') % loc,
-                show_copy_button=False):
-            return
-        exists = self.gui.library_view.model().db.exists_at(loc)
-        if exists:
-            try:
-                shutil.rmtree(loc, ignore_errors=True)
-            except:
-                pass
         self.stats.remove(location)
         self.build_menus()
         self.gui.iactions['Copy To Library'].build_menus()
+        info_dialog(self.gui, _('Library removed'),
+                _('The library %s has been removed from calibre. '
+                    'The files remain on your computer, if you want '
+                    'to delete them, you will have to do so manually.') % loc,
+                show=True)
+        if os.path.exists(loc):
+            open_local_file(loc)
 
     def backup_status(self, location):
         dirty_text = 'no'
@@ -280,6 +282,18 @@ class ChooseLibraryAction(InterfaceAction):
               'rate of approximately 1 book every three seconds.'), show=True)
 
     def restore_database(self):
+        m = self.gui.library_view.model()
+        db = m.db
+        if (iswindows and len(db.library_path) >
+                LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+            return error_dialog(self.gui, _('Too long'),
+                    _('Path to library too long. Must be less than'
+                    ' %d characters. Move your library to a location with'
+                    ' a shorter path using Windows Explorer, then point'
+                    ' calibre to the new location and try again.')%
+                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    show=True)
+
         from calibre.gui2.dialogs.restore_library import restore_database
         m = self.gui.library_view.model()
         m.stop_metadata_backup()

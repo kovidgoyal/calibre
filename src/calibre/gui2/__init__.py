@@ -7,12 +7,13 @@ from urllib import unquote
 from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDate, QDesktopServices,
-                    QFileDialog, QFileIconProvider,
+                    QFileDialog, QFileIconProvider, QSettings,
                     QIcon, QApplication, QDialog, QUrl, QFont)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre.constants import islinux, iswindows, isbsd, isfrozen, isosx
+from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
+        config_dir)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata import MetaInformation
@@ -82,13 +83,14 @@ gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
 gprefs.defaults['book_display_fields'] = [
-        ('title', False), ('authors', False), ('formats', True),
+        ('title', False), ('authors', True), ('formats', True),
         ('series', True), ('identifiers', True), ('tags', True),
         ('path', True), ('publisher', False), ('rating', False),
         ('author_sort', False), ('sort', False), ('timestamp', False),
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
         ('last_modified', False), ('size', False),
         ]
+gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 
 # }}}
 
@@ -192,6 +194,11 @@ def _config(): # {{{
 config = _config()
 # }}}
 
+QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, config_dir)
+QSettings.setPath(QSettings.IniFormat, QSettings.SystemScope,
+        config_dir)
+QSettings.setDefaultFormat(QSettings.IniFormat)
+
 # Turn off DeprecationWarnings in windows GUI
 if iswindows:
     import warnings
@@ -248,10 +255,11 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
         return d.exec_()
     return d
 
-def question_dialog(parent, title, msg, det_msg='', show_copy_button=False):
+def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
+        default_yes=True):
     from calibre.gui2.dialogs.message_box import MessageBox
     d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
-                    show_copy_button=show_copy_button)
+                    show_copy_button=show_copy_button, default_yes=default_yes)
     return d.exec_() == d.Accepted
 
 def info_dialog(parent, title, msg, det_msg='', show=False,
@@ -271,6 +279,9 @@ class Dispatcher(QObject):
     Convenience class to use Qt signals with arbitrary python callables.
     By default, ensures that a function call always happens in the
     thread this Dispatcher was created in.
+
+    Note that if you create the Dispatcher in a thread without an event loop of
+    its own, the function call will happen in the GUI thread (I think).
     '''
     dispatch_signal = pyqtSignal(object, object)
 
@@ -292,11 +303,20 @@ class FunctionDispatcher(QObject):
     '''
     Convenience class to use Qt signals with arbitrary python functions.
     By default, ensures that a function call always happens in the
-    thread this Dispatcher was created in.
+    thread this FunctionDispatcher was created in.
+
+    Note that you must create FunctionDispatcher objects in the GUI thread.
     '''
     dispatch_signal = pyqtSignal(object, object, object)
 
     def __init__(self, func, queued=True, parent=None):
+        global gui_thread
+        if gui_thread is None:
+            gui_thread = QThread.currentThread()
+        if not is_gui_thread():
+            raise ValueError(
+                'You can only create a FunctionDispatcher in the GUI thread')
+
         QObject.__init__(self, parent)
         self.func = func
         typ = Qt.QueuedConnection
@@ -307,6 +327,8 @@ class FunctionDispatcher(QObject):
         self.lock = threading.Lock()
 
     def __call__(self, *args, **kwargs):
+        if is_gui_thread():
+            return self.func(*args, **kwargs)
         with self.lock:
             self.dispatch_signal.emit(self.q, args, kwargs)
             res = self.q.get()

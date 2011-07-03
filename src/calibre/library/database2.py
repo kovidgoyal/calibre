@@ -7,12 +7,11 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, tempfile
+        json, uuid, tempfile, hashlib
+from collections import defaultdict
 import threading, random
 from itertools import repeat
 from math import ceil
-
-from PyQt4.QtGui import QImage
 
 from calibre import prints
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
@@ -26,8 +25,8 @@ from calibre.library.custom_columns import CustomColumns
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
+from calibre.ptempfile import PersistentTemporaryFile, base_dir
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
@@ -39,8 +38,10 @@ from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
+from calibre.db.errors import NoSuchFormat
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
+SPOOL_SIZE = 30*1024*1024
 
 class Tag(object):
 
@@ -82,6 +83,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     An ebook metadata database that stores references to ebook files on disk.
     '''
     PATH_LIMIT = 40 if 'win32' in sys.platform else 100
+    WINDOWS_LIBRARY_PATH_LIMIT = 75
 
     @dynamic_property
     def user_version(self):
@@ -122,9 +124,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return property(doc=doc, fget=fget, fset=fset)
 
     def connect(self):
-        if 'win32' in sys.platform and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
-            raise ValueError('Path to library too long. Must be less than %d characters.'%(259-4*self.PATH_LIMIT-10))
+        if iswindows and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
+            raise ValueError(_(
+                'Path to library too long. Must be less than'
+                ' %d characters.')%(259-4*self.PATH_LIMIT-10))
         exists = os.path.exists(self.dbpath)
+        if not exists:
+            # Be more strict when creating new libraries as the old calculation
+            # allowed for max path lengths of 265 chars.
+            if (iswindows and len(self.library_path) >
+                    self.WINDOWS_LIBRARY_PATH_LIMIT):
+                raise ValueError(_(
+                    'Path to library too long. Must be less than'
+                    ' %d characters.')%self.WINDOWS_LIBRARY_PATH_LIMIT)
+
         self.conn = connect(self.dbpath, self.row_factory)
         if exists and self.user_version == 0:
             self.conn.close()
@@ -176,8 +189,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         apply_default_prefs = not os.path.exists(self.dbpath)
         self.connect()
 
-        self.is_case_sensitive = not iswindows and not isosx and \
-            not os.path.exists(self.dbpath.replace('metadata.db', 'MeTAdAtA.dB'))
+        self.is_case_sensitive = (not iswindows and
+            not os.path.exists(self.dbpath.replace('metadata.db',
+                'MeTAdAtA.dB')))
         SchemaUpgrade.__init__(self)
         # Guarantee that the library_id is set
         self.library_id
@@ -188,16 +202,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             dbprefs = DBPrefs(self)
             for key in default_prefs:
                 # be sure that prefs not to be copied are listed below
-                if key in ['news_to_be_synced']:
+                if key in frozenset(['news_to_be_synced']):
                     continue
-                try:
-                    dbprefs[key] = default_prefs[key]
-                except:
-                    pass # ignore options that don't exist anymore
-            fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
-            for f in fmvals:
-                self.create_custom_column(f['label'], f['name'], f['datatype'],
-                        f['is_multiple'] is not None, f['is_editable'], f['display'])
+                dbprefs[key] = default_prefs[key]
+            if 'field_metadata' in default_prefs:
+                fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
+                for f in fmvals:
+                    self.create_custom_column(f['label'], f['name'], f['datatype'],
+                            f['is_multiple'] is not None, f['is_editable'], f['display'])
         self.initialize_dynamic()
 
     def get_property(self, idx, index_is_id=False, loc=-1):
@@ -356,7 +368,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'uuid',
              'has_cover',
             ('au_map', 'authors', 'author',
-                'aum_sortconcat(link.id, authors.name, authors.sort)'),
+                'aum_sortconcat(link.id, authors.name, authors.sort, authors.link)'),
             'last_modified',
             '(SELECT identifiers_concat(type, val) FROM identifiers WHERE identifiers.book=books.id) identifiers',
             ]
@@ -476,6 +488,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
         self.refresh()
         self.last_update_check = self.last_modified()
+        self.format_metadata_cache = defaultdict(dict)
 
     def break_cycles(self):
         self.data.break_cycles()
@@ -590,14 +603,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
                     f.write(cdata)
             for format in formats:
-                # Get data as string (can't use file as source and target files may be the same)
-                f = self.format(id, format, index_is_id=True, as_file=True)
-                if f is None:
-                    continue
-                with tempfile.SpooledTemporaryFile(max_size=100*(1024**2)) as stream:
-                    with f:
-                        shutil.copyfileobj(f, stream)
-                    stream.seek(0)
+                with tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE) as stream:
+                    try:
+                        self.copy_format_to(id, format, stream, index_is_id=True)
+                        stream.seek(0)
+                    except NoSuchFormat:
+                        continue
                     self.add_format(id, format, stream, index_is_id=True,
                         path=tpath, notify=False)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
@@ -650,32 +661,53 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 continue
 
     def cover(self, index, index_is_id=False, as_file=False, as_image=False,
-              as_path=False):
+            as_path=False):
         '''
         Return the cover image as a bytestring (in JPEG format) or None.
 
-        `as_file` : If True return the image as an open file object
-        `as_image`: If True return the image as a QImage object
+        WARNING: Using as_path will copy the cover to a temp file and return
+        the path to the temp file. You should delete the temp file when you are
+        done with it.
+
+        :param as_file: If True return the image as an open file object (a SpooledTemporaryFile)
+        :param as_image: If True return the image as a QImage object
         '''
-        id = index if  index_is_id else self.id(index)
+        id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.access(path, os.R_OK):
-            if as_path:
-                return path
             try:
                 f = lopen(path, 'rb')
             except (IOError, OSError):
                 time.sleep(0.2)
                 f = lopen(path, 'rb')
-            if as_image:
-                img = QImage()
-                img.loadFromData(f.read())
-                f.close()
-                return img
-            ans = f if as_file else f.read()
-            if ans is not f:
-                f.close()
-            return ans
+            with f:
+                if as_path:
+                    pt = PersistentTemporaryFile('_dbcover.jpg')
+                    with pt:
+                        shutil.copyfileobj(f, pt)
+                    return pt.name
+                if as_file:
+                    ret = tempfile.SpooledTemporaryFile(SPOOL_SIZE)
+                    shutil.copyfileobj(f, ret)
+                    ret.seek(0)
+                else:
+                    ret = f.read()
+                    if as_image:
+                        from PyQt4.Qt import QImage
+                        i = QImage()
+                        i.loadFromData(ret)
+                        ret = i
+            return ret
+
+    def cover_last_modified(self, index, index_is_id=False):
+        id = index if  index_is_id else self.id(index)
+        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        try:
+            return utcfromtimestamp(os.stat(path).st_mtime)
+        except:
+            # Cover doesn't exist
+            pass
+        return self.last_modified()
 
     ### The field-style interface. These use field keys.
 
@@ -848,7 +880,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return (path, mi, sequence)
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False,
-                     get_user_categories=True):
+                     get_user_categories=True, cover_as_data=False):
         '''
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
@@ -864,13 +896,17 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             aut_list = []
         aum = []
         aus = {}
-        for (author, author_sort) in aut_list:
-            aum.append(author.replace('|', ','))
-            aus[author] = author_sort.replace('|', ',')
+        aul = {}
+        for (author, author_sort, link) in aut_list:
+            aut = author.replace('|', ',')
+            aum.append(aut)
+            aus[aut] = author_sort.replace('|', ',')
+            aul[aut] = link
         mi.title       = row[fm['title']]
         mi.authors     = aum
         mi.author_sort = row[fm['author_sort']]
         mi.author_sort_map = aus
+        mi.author_link_map = aul
         mi.comments    = row[fm['comments']]
         mi.publisher   = row[fm['publisher']]
         mi.timestamp   = row[fm['timestamp']]
@@ -880,11 +916,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.book_size   = row[fm['size']]
         mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
+        id = idx if index_is_id else self.id(idx)
         formats = row[fm['formats']]
+        mi.format_metadata = {}
         if not formats:
             formats = None
         else:
             formats = formats.split(',')
+            for f in formats:
+                mi.format_metadata[f] = self.format_metadata(id, f)
         mi.formats = formats
         tags = row[fm['tags']]
         if tags:
@@ -893,7 +933,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.series:
             mi.series_index = row[fm['series_index']]
         mi.rating = row[fm['rating']]
-        id = idx if index_is_id else self.id(idx)
         mi.set_identifiers(self.get_identifiers(id, index_is_id=True))
         mi.application_id = id
         mi.id = id
@@ -923,7 +962,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.user_categories = user_cat_vals
 
         if get_cover:
-            mi.cover = self.cover(id, index_is_id=True, as_path=True)
+            if cover_as_data:
+                cdata = self.cover(id, index_is_id=True)
+                if cdata:
+                    mi.cover_data = ('jpeg', cdata)
+            else:
+                mi.cover = self.cover(id, index_is_id=True, as_path=True)
+        mi.has_cover = _('Yes') if self.has_cover(id) else ''
         return mi
 
     def has_book(self, mi):
@@ -1083,12 +1128,67 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return self.format_abspath(index, format, index_is_id) is not None
 
     def format_last_modified(self, id_, fmt):
+        m = self.format_metadata(id_, fmt)
+        if m:
+            return m['mtime']
+
+    def format_metadata(self, id_, fmt, allow_cache=True):
+        if not fmt:
+            return {}
+        fmt = fmt.upper()
+        if allow_cache:
+            x = self.format_metadata_cache[id_].get(fmt, None)
+            if x is not None:
+                return x
         path = self.format_abspath(id_, fmt, index_is_id=True)
+        ans = {}
         if path is not None:
-            return utcfromtimestamp(os.stat(path).st_mtime)
+            stat = os.stat(path)
+            ans['size'] = stat.st_size
+            ans['mtime'] = utcfromtimestamp(stat.st_mtime)
+            self.format_metadata_cache[id_][fmt] = ans
+        return ans
+
+    def format_hash(self, id_, fmt):
+        path = self.format_abspath(id_, fmt, index_is_id=True)
+        if path is None:
+            raise NoSuchFormat('Record %d has no fmt: %s'%(id_, fmt))
+        sha = hashlib.sha256()
+        with lopen(path, 'rb') as f:
+            while True:
+                raw = f.read(SPOOL_SIZE)
+                sha.update(raw)
+                if len(raw) < SPOOL_SIZE:
+                    break
+        return sha.hexdigest()
+
+    def format_path(self, index, fmt, index_is_id=False):
+        '''
+        This method is intended to be used only in those rare situations, like
+        Drag'n Drop, when you absolutely need the path to the original file.
+        Otherwise, use format(..., as_path=True).
+
+        Note that a networked backend will always return None.
+        '''
+        path = self.format_abspath(index, fmt, index_is_id=index_is_id)
+        if path is None:
+            id_ = index if index_is_id else self.id(index)
+            raise NoSuchFormat('Record %d has no format: %s'%(id_, fmt))
+        return path
 
     def format_abspath(self, index, format, index_is_id=False):
-        'Return absolute path to the ebook file of format `format`'
+        '''
+        Return absolute path to the ebook file of format `format`
+
+        WARNING: This method will return a dummy path for a network backend DB,
+        so do not rely on it, use format(..., as_path=True) instead.
+
+        Currently used only in calibredb list, the viewer and the catalogs (via
+        get_data_as_dict()).
+
+        Apart from the viewer, I don't believe any of the others do any file
+        I/O with the results of this call.
+        '''
         id = index if index_is_id else self.id(index)
         try:
             name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
@@ -1108,25 +1208,66 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 shutil.copyfile(candidates[0], fmt_path)
                 return fmt_path
 
-    def format(self, index, format, index_is_id=False, as_file=False, mode='r+b'):
+    def copy_format_to(self, index, fmt, dest, index_is_id=False):
+        '''
+        Copy the format ``fmt`` to the file like object ``dest``. If the
+        specified format does not exist, raises :class:`NoSuchFormat` error.
+        '''
+        path = self.format_abspath(index, fmt, index_is_id=index_is_id)
+        if path is None:
+            id_ = index if index_is_id else self.id(index)
+            raise NoSuchFormat('Record %d has no %s file'%(id_, fmt))
+        with lopen(path, 'rb') as f:
+            shutil.copyfileobj(f, dest)
+        if hasattr(dest, 'flush'):
+            dest.flush()
+
+    def format(self, index, format, index_is_id=False, as_file=False,
+            mode='r+b', as_path=False, preserve_filename=False):
         '''
         Return the ebook format as a bytestring or `None` if the format doesn't exist,
         or we don't have permission to write to the ebook file.
 
-        `as_file`: If True the ebook format is returned as a file object opened in `mode`
+        :param as_file: If True the ebook format is returned as a file object. Note
+                        that the file object is a SpooledTemporaryFile, so if what you want to
+                        do is copy the format to another file, use :method:`copy_format_to`
+                        instead for performance.
+        :param as_path: Copies the format file to a temp file and returns the
+                        path to the temp file
+        :param preserve_filename: If True and returning a path the filename is
+                                  the same as that used in the library. Note that using
+                                  this means that repeated calls yield the same
+                                  temp file (which is re-created each time)
+        :param mode: This is ignored (present for legacy compatibility)
         '''
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
-            f = lopen(path, mode)
-            try:
-                ret = f if as_file else f.read()
-            except IOError:
-                f.seek(0)
-                out = cStringIO.StringIO()
-                shutil.copyfileobj(f, out)
-                ret = out.getvalue()
-            if not as_file:
-                f.close()
+            with lopen(path, mode) as f:
+                if as_path:
+                    if preserve_filename:
+                        bd = base_dir()
+                        d = os.path.join(bd, 'format_abspath')
+                        try:
+                            os.makedirs(d)
+                        except:
+                            pass
+                        fname = os.path.basename(path)
+                        ret = os.path.join(d, fname)
+                        with lopen(ret, 'wb') as f2:
+                            shutil.copyfileobj(f, f2)
+                    else:
+                        with PersistentTemporaryFile('.'+format.lower()) as pt:
+                            shutil.copyfileobj(f, pt)
+                            ret = pt.name
+                elif as_file:
+                    ret = tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE)
+                    shutil.copyfileobj(f, ret)
+                    ret.seek(0)
+                    # Various bits of code try to use the name as the default
+                    # title when reading metadata, so set it
+                    ret.name = f.name
+                else:
+                    ret = f.read()
             return ret
 
     def add_format_with_hooks(self, index, format, fpath, index_is_id=False,
@@ -1141,6 +1282,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def add_format(self, index, format, stream, index_is_id=False, path=None,
             notify=True, replace=True):
         id = index if index_is_id else self.id(index)
+        if format:
+            self.format_metadata_cache[id].pop(format.upper(), None)
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
@@ -1193,6 +1336,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def remove_format(self, index, format, index_is_id=False, notify=True,
                       commit=True, db_only=False):
         id = index if index_is_id else self.id(index)
+        if format:
+            self.format_metadata_cache[id].pop(format.upper(), None)
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
             if not db_only:
@@ -1322,7 +1467,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             raise ValueError('sort ' + sort + ' not a valid value')
 
         self.books_list_filter.change([] if not ids else ids)
-        id_filter = None if not ids else frozenset(ids)
+        id_filter = None if ids is None else frozenset(ids)
 
         tb_cats = self.field_metadata
         tcategories = {}
@@ -1400,7 +1545,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         rating_dex = self.FIELD_MAP['rating']
         tag_class = LibraryDatabase2.TCat_Tag
         for book in self.data.iterall():
-            if id_filter and book[id_dex] not in id_filter:
+            if id_filter is not None and book[id_dex] not in id_filter:
                 continue
             rating = book[rating_dex]
             # We kept track of all possible category field_map positions above
@@ -1892,7 +2037,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 val = mi.get(key, None)
                 if force_changes or val is not None:
                     doit(self.set_custom, id, val=val, extra=mi.get_extra(key),
-                         label=user_mi[key]['label'], commit=False)
+                         label=user_mi[key]['label'], commit=False, notify=False)
         if commit:
             self.conn.commit()
         if notify:
@@ -1918,19 +2063,28 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def authors_with_sort_strings(self, id, index_is_id=False):
         id = id if index_is_id else self.id(id)
         aut_strings = self.conn.get('''
-                        SELECT authors.name, authors.sort
+                        SELECT authors.id, authors.name, authors.sort, authors.link
                         FROM authors, books_authors_link as bl
                         WHERE bl.book=? and authors.id=bl.author
                         ORDER BY bl.id''', (id,))
         result = []
-        for (author, sort,) in aut_strings:
-            result.append((author.replace('|', ','), sort))
+        for (id_, author, sort, link) in aut_strings:
+            result.append((id_, author.replace('|', ','), sort, link))
         return result
 
     # Given a book, return the author_sort string for authors of the book
     def author_sort_from_book(self, id, index_is_id=False):
         auts = self.authors_sort_strings(id, index_is_id)
         return ' & '.join(auts).replace('|', ',')
+
+    # Given an author, return a list of books with that author
+    def books_for_author(self, id_, index_is_id=False):
+        id_ = id_ if index_is_id else self.id(id_)
+        books = self.conn.get('''
+                        SELECT bl.book
+                        FROM books_authors_link as bl
+                        WHERE bl.author=?''', (id_,))
+        return [b[0] for b in books]
 
     # Given a list of authors, return the author_sort string for the authors,
     # preferring the author sort associated with the author over the computed
@@ -1955,7 +2109,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         aum = self.authors_with_sort_strings(id_, index_is_id=True)
         self.data.set(id_, self.FIELD_MAP['au_map'],
-            ':#:'.join([':::'.join((au.replace(',', '|'), aus)) for (au, aus) in aum]),
+            ':#:'.join([':::'.join((au.replace(',', '|'), aus, aul))
+                                            for (_, au, aus, aul) in aum]),
             row_is_id=True)
 
     def _set_authors(self, id, authors, allow_case_change=False):
@@ -2306,7 +2461,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.commit()
 
     def get_authors_with_ids(self):
-        result = self.conn.get('SELECT id,name,sort FROM authors')
+        result = self.conn.get('SELECT id,name,sort,link FROM authors')
         if not result:
             return []
         return result
@@ -2316,6 +2471,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         result = self.conn.get('SELECT id FROM authors WHERE name=?',
                                (author,), all=False)
         return result
+
+    def set_link_field_for_author(self, aid, link, commit=True, notify=False):
+        if not link:
+            link = ''
+        self.conn.execute('UPDATE authors SET link=? WHERE id=?', (link.strip(), aid))
+        if commit:
+            self.conn.commit()
 
     def set_sort_field_for_author(self, old_id, new_sort, commit=True, notify=False):
         self.conn.execute('UPDATE authors SET sort=? WHERE id=?', \

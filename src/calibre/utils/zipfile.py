@@ -148,6 +148,12 @@ def decode_arcname(name):
                 name = name.decode('utf-8', 'replace')
     return name
 
+# Added by Kovid to reset timestamp to default if it overflows the DOS
+# limits
+def fixtimevar(val):
+    if val < 0 or val > 0xffff:
+        val = 0
+    return val
 
 def _check_zipfile(fp):
     try:
@@ -341,6 +347,7 @@ class ZipInfo (object):
         dt = self.date_time
         dosdate = (dt[0] - 1980) << 9 | dt[1] << 5 | dt[2]
         dostime = dt[3] << 11 | dt[4] << 5 | (dt[5] // 2)
+
         if self.flag_bits & 0x08:
             # Set these to zero because we write them after the file data
             CRC = compress_size = file_size = 0
@@ -365,7 +372,7 @@ class ZipInfo (object):
         filename, flag_bits = self._encodeFilenameFlags()
         header = struct.pack(structFileHeader, stringFileHeader,
                  self.extract_version, self.reserved, flag_bits,
-                 self.compress_type, dostime, dosdate, CRC,
+                 self.compress_type, fixtimevar(dostime), fixtimevar(dosdate), CRC,
                  compress_size, file_size,
                  len(filename), len(extra))
         return header + filename + extra
@@ -1290,7 +1297,9 @@ class ZipFile:
         Add a directory recursively to the zip file with an optional prefix.
         '''
         if prefix:
-            self.writestr(prefix+'/', '', 0700)
+            zi = ZipInfo(prefix+'/')
+            zi.external_attr = 16
+            self.writestr(zi, '')
         cwd = os.path.abspath(os.getcwd())
         try:
             os.chdir(path)
@@ -1321,8 +1330,8 @@ class ZipFile:
             for zinfo in self.filelist:         # write central directory
                 count = count + 1
                 dt = zinfo.date_time
-                dosdate = (dt[0] - 1980) << 9 | dt[1] << 5 | dt[2]
-                dostime = dt[3] << 11 | dt[4] << 5 | (dt[5] // 2)
+                dosdate = fixtimevar((dt[0] - 1980) << 9 | dt[1] << 5 | dt[2])
+                dostime = fixtimevar(dt[3] << 11 | dt[4] << 5 | (dt[5] // 2))
                 extra = []
                 if zinfo.file_size > ZIP64_LIMIT \
                         or zinfo.compress_size > ZIP64_LIMIT:

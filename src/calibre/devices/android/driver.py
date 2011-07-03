@@ -19,10 +19,11 @@ class ANDROID(USBMS):
 
     VENDOR_ID   = {
             # HTC
-            0x0bb4 : { 0x0c02 : [0x100, 0x0227, 0x0226, 0x222],
-                       0x0c01 : [0x100, 0x0227, 0x0226],
-                       0x0ff9 : [0x0100, 0x0227, 0x0226],
-                       0x0c87 : [0x0100, 0x0227, 0x0226],
+            0x0bb4 : { 0xc02 : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc01 : [0x100, 0x0227, 0x0226],
+                       0xff9 : [0x0100, 0x0227, 0x0226],
+                       0xc87 : [0x0100, 0x0227, 0x0226],
+                       0xc91 : [0x0100, 0x0227, 0x0226],
                        0xc92  : [0x100],
                        0xc97  : [0x226],
                        0xc99  : [0x0100],
@@ -45,13 +46,17 @@ class ANDROID(USBMS):
             0xfce : { 0xd12e : [0x0100]},
 
             # Google
-            0x18d1 : { 0x4e11 : [0x0100, 0x226, 0x227], 0x4e12: [0x0100, 0x226,
-                0x227], 0x4e21: [0x0100, 0x226, 0x227], 0xb058: [0x0222]},
+            0x18d1 : {
+                0x4e11 : [0x0100, 0x226, 0x227],
+                0x4e12: [0x0100, 0x226, 0x227],
+                0x4e21: [0x0100, 0x226, 0x227],
+                0xb058: [0x0222, 0x226, 0x227]},
 
             # Samsung
             0x04e8 : { 0x681d : [0x0222, 0x0223, 0x0224, 0x0400],
                        0x681c : [0x0222, 0x0224, 0x0400],
                        0x6640 : [0x0100],
+                       0x685b : [0x0400],
                        0x685e : [0x0400],
                        0x6860 : [0x0400],
                        0x6877 : [0x0400],
@@ -93,6 +98,12 @@ class ANDROID(USBMS):
             # CREEL?? Also Nextbook
             0x5e3 : { 0x726 : [0x222] },
 
+            # ZTE
+            0x19d2 : { 0x1353 : [0x226] },
+
+            # Advent
+            0x0955 : { 0x7100 : [0x9999] }, # This is the same as the Notion Ink Adam
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
@@ -103,7 +114,7 @@ class ANDROID(USBMS):
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
-            'GENERIC-']
+            'GENERIC-', 'ZTE', 'MID']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -112,7 +123,7 @@ class ANDROID(USBMS):
             'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD',
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
-            'MB525']
+            'MB525', 'ANDROID2.3']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',

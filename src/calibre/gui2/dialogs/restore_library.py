@@ -54,7 +54,7 @@ class DBRestore(QDialog):
     def reject(self):
         self.rejected = True
         self.restorer.progress_callback = lambda x, y: x
-        QDialog.rejecet(self)
+        QDialog.reject(self)
 
     def update(self):
         if self.restorer.is_alive():

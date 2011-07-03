@@ -6,7 +6,7 @@ class HBR(BasicNewsRecipe):
     title = 'Harvard Business Review Blogs'
     description = 'To subscribe go to http://hbr.harvardbusiness.org'
     needs_subscription = True
-    __author__ = 'Kovid Goyal and Sujata Raman, enhanced by BrianG'
+    __author__ = 'Kovid Goyal, enhanced by BrianG'
     language = 'en'
     no_stylesheets = True
 

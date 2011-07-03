@@ -145,7 +145,7 @@ def _match(query, value, matchkind):
                             return True
                 elif query == t:
                     return True
-            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
+            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I|re.UNICODE)) or ### search unanchored
                   (matchkind == CONTAINS_MATCH and query in t)):
                     return True
         except re.error:
@@ -1024,7 +1024,15 @@ class SortKeyGenerator(object):
                     dt = 'datetime'
                 elif sb == 'number':
                     try:
-                        val = float(val)
+                        val = val.replace(',', '').strip()
+                        p = 1
+                        for i, candidate in enumerate(
+                                    (' B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
+                            if val.endswith(candidate):
+                                p = 1024**(i)
+                                val = val[:-len(candidate)].strip()
+                                break
+                        val = float(val) * p
                     except:
                         val = 0.0
                     dt = 'float'

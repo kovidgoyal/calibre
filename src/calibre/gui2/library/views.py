@@ -48,8 +48,11 @@ class BooksView(QTableView): # {{{
     files_dropped = pyqtSignal(object)
     add_column_signal = pyqtSignal()
 
-    def __init__(self, parent, modelcls=BooksModel):
+    def __init__(self, parent, modelcls=BooksModel, use_edit_metadata_dialog=True):
         QTableView.__init__(self, parent)
+
+        if not tweaks['horizontal_scrolling_per_column']:
+            self.setHorizontalScrollMode(self.ScrollPerPixel)
 
         self.setEditTriggers(self.EditKeyPressed)
         if tweaks['doubleclick_on_library_view'] == 'edit_cell':
@@ -60,8 +63,12 @@ class BooksView(QTableView): # {{{
         elif tweaks['doubleclick_on_library_view'] == 'edit_metadata':
             # Must not enable single-click to edit, or the field will remain
             # open in edit mode underneath the edit metadata dialog
-            self.doubleClicked.connect(
-                        partial(parent.iactions['Edit Metadata'].edit_metadata, checked=False))
+            if use_edit_metadata_dialog:
+                self.doubleClicked.connect(
+                        partial(parent.iactions['Edit Metadata'].edit_metadata,
+                                checked=False))
+            else:
+                self.setEditTriggers(self.DoubleClicked|self.editTriggers())
 
         self.drag_allowed = True
         self.setDragEnabled(True)
@@ -106,6 +113,7 @@ class BooksView(QTableView): # {{{
         self.column_header.sectionMoved.connect(self.save_state)
         self.column_header.setContextMenuPolicy(Qt.CustomContextMenu)
         self.column_header.customContextMenuRequested.connect(self.show_column_header_context_menu)
+        self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
         # }}}
 
         self._model.database_changed.connect(self.database_changed)
@@ -211,6 +219,9 @@ class BooksView(QTableView): # {{{
 
             self.column_header_context_menu.addSeparator()
             self.column_header_context_menu.addAction(
+                    _('Shrink column if it is too wide to fit'),
+                    partial(self.resize_column_to_fit, column=self.column_map[idx]))
+            self.column_header_context_menu.addAction(
                     _('Restore default layout'),
                     partial(self.column_header_context_handler,
                         action='defaults', column=col))
@@ -231,13 +242,8 @@ class BooksView(QTableView): # {{{
         self.selected_ids = [idc(r) for r in selected_rows]
 
     def sorting_done(self, indexc):
-        if self.selected_ids:
-            indices = [self.model().index(indexc(i), 0) for i in
-                    self.selected_ids]
-            sm = self.selectionModel()
-            for idx in indices:
-                sm.select(idx, sm.Select|sm.Rows)
-            self.scroll_to_row(indices[0].row())
+        self.select_rows(self.selected_ids, using_ids=True, change_current=True,
+            scroll=True)
         self.selected_ids = []
 
     def sort_by_named_field(self, field, order, reset=True):
@@ -452,7 +458,9 @@ class BooksView(QTableView): # {{{
                 traceback.print_exc()
             old_state['sort_history'] = sh
 
+        self.column_header.blockSignals(True)
         self.apply_state(old_state)
+        self.column_header.blockSignals(False)
 
         # Resize all rows to have the correct height
         if self.model().rowCount(QModelIndex()) > 0:
@@ -460,6 +468,19 @@ class BooksView(QTableView): # {{{
             self.verticalHeader().setDefaultSectionSize(self.rowHeight(0))
 
         self.was_restored = True
+
+    def resize_column_to_fit(self, column):
+        col = self.column_map.index(column)
+        self.column_resized(col, self.columnWidth(col), self.columnWidth(col))
+
+    def column_resized(self, col, old_size, new_size):
+        # arbitrary: scroll bar + header + some
+        max_width = self.width() - (self.verticalScrollBar().width() +
+                                    self.verticalHeader().width() + 10)
+        if new_size > max_width:
+            self.column_header.blockSignals(True)
+            self.setColumnWidth(col, max_width)
+            self.column_header.blockSignals(False)
 
     # }}}
 
@@ -580,14 +601,17 @@ class BooksView(QTableView): # {{{
         m = self.model()
         db = m.db
         rows = self.selectionModel().selectedRows()
-        selected = map(m.id, rows)
+        selected = list(map(m.id, rows))
         ids = ' '.join(map(str, selected))
         md = QMimeData()
         md.setData('application/calibre+from_library', ids)
         fmt = prefs['output_format']
 
         def url_for_id(i):
-            ans = db.format_abspath(i, fmt, index_is_id=True)
+            try:
+                ans = db.format_path(i, fmt, index_is_id=True)
+            except:
+                ans = None
             if ans is None:
                 fmts = db.formats(i, index_is_id=True)
                 if fmts:
@@ -595,9 +619,10 @@ class BooksView(QTableView): # {{{
                 else:
                     fmts = []
                 for f in fmts:
-                    ans = db.format_abspath(i, f, index_is_id=True)
-                    if ans is not None:
-                        break
+                    try:
+                        ans = db.format_path(i, f, index_is_id=True)
+                    except:
+                        ans = None
             if ans is None:
                 ans = db.abspath(i, index_is_id=True)
             return QUrl.fromLocalFile(ans)
@@ -792,7 +817,8 @@ class BooksView(QTableView): # {{{
 class DeviceBooksView(BooksView): # {{{
 
     def __init__(self, parent):
-        BooksView.__init__(self, parent, DeviceBooksModel)
+        BooksView.__init__(self, parent, DeviceBooksModel,
+                           use_edit_metadata_dialog=False)
         self.can_add_columns = False
         self.columns_resized = False
         self.resize_on_select = False

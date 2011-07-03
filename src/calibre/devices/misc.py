@@ -255,6 +255,28 @@ class EEEREADER(USBMS):
     VENDOR_NAME = 'LINUX'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
+class ADAM(USBMS):
+
+    name = 'Notion Ink Adam device interface'
+    gui_name = 'Adam'
+
+    description    = _('Communicate with the Adam tablet')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'pdf', 'doc']
+
+    VENDOR_ID   = [0x0955]
+    PRODUCT_ID  = [0x7100]
+    BCD         = [0x9999]
+
+    EBOOK_DIR_MAIN = 'eBooks'
+
+    VENDOR_NAME = 'NI'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['ADAM']
+    SUPPORTS_SUB_DIRS = True
+
 class NEXTBOOK(USBMS):
 
     name           = 'Nextbook device interface'
@@ -306,4 +328,26 @@ class NEXTBOOK(USBMS):
             with open(os.path.join(thumbnail_dir, filename+'.jpg'), 'wb') as f:
                 f.write(metadata.thumbnail[-1])
     '''
+
+class MOOVYBOOK(USBMS):
+
+    name           = 'Moovybook device interface'
+    gui_name       = 'Moovybook'
+    description    = _('Communicate with the Moovybook Reader')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'txt', 'pdf']
+
+    VENDOR_ID   = [0x1cae]
+    PRODUCT_ID  = [0x9b08]
+    BCD         = [0x02]
+
+    EBOOK_DIR_MAIN = ''
+
+    SUPPORTS_SUB_DIRS = True
+
+    def get_main_ebook_dir(self, for_upload=False):
+        return 'Books' if for_upload else self.EBOOK_DIR_MAIN
 

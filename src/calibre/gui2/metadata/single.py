@@ -315,7 +315,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                          show=True)
             return
 
-    def update_from_mi(self, mi, update_sorts=True):
+    def update_from_mi(self, mi, update_sorts=True, merge_tags=True):
         if not mi.is_null('title'):
             self.title.current_val = mi.title
             if update_sorts:
@@ -334,7 +334,11 @@ class MetadataSingleDialogBase(ResizableDialog):
         if not mi.is_null('publisher'):
             self.publisher.current_val = mi.publisher
         if not mi.is_null('tags'):
-            self.tags.current_val = mi.tags
+            old_tags = self.tags.current_val
+            tags = mi.tags if mi.tags else []
+            if old_tags and merge_tags:
+                tags += old_tags
+            self.tags.current_val = tags
         if not mi.is_null('identifiers'):
             current = self.identifiers.current_val
             current.update(mi.identifiers)
@@ -384,6 +388,10 @@ class MetadataSingleDialogBase(ResizableDialog):
 
     def apply_changes(self):
         self.changed.add(self.book_id)
+        if self.db is None:
+            # break_cycles has already been called, don't know why this should
+            # happen but a user reported it
+            return True
         for widget in self.basic_metadata_widgets:
             try:
                 if not widget.commit(self.db, self.book_id):
@@ -473,6 +481,13 @@ class MetadataSingleDialogBase(ResizableDialog):
             x = getattr(self, b, None)
             if x is not None:
                 disconnect(x.clicked)
+        for widget in self.basic_metadata_widgets:
+            bc = getattr(widget, 'break_cycles', None)
+            if bc is not None and callable(bc):
+                bc()
+        for widget in getattr(self, 'custom_metadata_widgets', []):
+            widget.break_cycles()
+
     # }}}
 
 class Splitter(QSplitter):

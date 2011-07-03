@@ -41,7 +41,7 @@
    <item row="4" column="0" colspan="4">
     <widget class="QRadioButton" name="existing_library">
      <property name="text">
-      <string>Use &amp;existing library at the new location</string>
+      <string>Use the previously &amp;existing library at the new location</string>
      </property>
      <property name="checked">
       <bool>true</bool>

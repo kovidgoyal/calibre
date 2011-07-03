@@ -144,9 +144,9 @@ class AumSortedConcatenate(object):
     def __init__(self):
         self.ans = {}
 
-    def step(self, ndx, author, sort):
+    def step(self, ndx, author, sort, link):
         if author is not None:
-            self.ans[ndx] = author + ':::' + sort
+            self.ans[ndx] = ':::'.join((author, sort, link))
 
     def finalize(self):
         keys = self.ans.keys()
@@ -229,7 +229,7 @@ class DBThread(Thread):
         load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
-        self.conn.create_aggregate('aum_sortconcat', 3, AumSortedConcatenate)
+        self.conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)
         self.conn.create_collation('PYNOCASE', partial(pynocase,
             encoding=encoding))
         self.conn.create_function('title_sort', 1, title_sort)

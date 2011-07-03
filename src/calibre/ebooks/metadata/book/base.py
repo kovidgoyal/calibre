@@ -34,6 +34,7 @@ NULL_VALUES = {
                 'authors'      : [_('Unknown')],
                 'title'        : _('Unknown'),
                 'user_categories' : {},
+                'author_link_map' : {},
                 'language'     : 'und'
 }
 
@@ -70,6 +71,7 @@ class SafeFormat(TemplateFormatter):
             return ''
         return v
 
+# DEPRECATED. This is not thread safe. Do not use.
 composite_formatter = SafeFormat()
 
 class Metadata(object):
@@ -110,6 +112,7 @@ class Metadata(object):
                 # List of strings or []
                 self.author = list(authors) if authors else []# Needed for backward compatibility
                 self.authors = list(authors) if authors else []
+        self.formatter = SafeFormat()
 
     def is_null(self, field):
         '''
@@ -146,7 +149,7 @@ class Metadata(object):
                 return val
             if val is None:
                 d['#value#'] = 'RECURSIVE_COMPOSITE FIELD (Metadata) ' + field
-                val = d['#value#'] = composite_formatter.safe_format(
+                val = d['#value#'] = self.formatter.safe_format(
                                             d['display']['composite_template'],
                                             self,
                                             _('TEMPLATE ERROR'),
@@ -423,11 +426,12 @@ class Metadata(object):
         '''
         if not ops:
             return
+        formatter = SafeFormat()
         for op in ops:
             try:
                 src = op[0]
                 dest = op[1]
-                val = composite_formatter.safe_format\
+                val = formatter.safe_format\
                     (src, other, 'PLUGBOARD TEMPLATE ERROR', other)
                 if dest == 'tags':
                     self.set(dest, [f.strip() for f in val.split(',') if f.strip()])

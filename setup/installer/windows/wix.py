@@ -35,7 +35,6 @@ class WixMixIn:
                 exe_map           = self.smap,
                 main_icon         = self.j(self.src_root, 'icons', 'library.ico'),
                 web_icon          = self.j(self.src_root, 'icons', 'web.ico'),
-                crt_msm           = self.j(self.SW, 'Microsoft_VC90_CRT_x86.msm')
                 )
         template = open(self.j(self.d(__file__), 'en-us.xml'),
                 'rb').read()

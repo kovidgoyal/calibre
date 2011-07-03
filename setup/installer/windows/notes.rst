@@ -53,6 +53,13 @@ SQLite
 
 Put sqlite3*.h from the sqlite windows amlgamation in ~/sw/include
 
+APSW
+-----
+
+Download source from http://code.google.com/p/apsw/downloads/list and run in visual studio prompt
+
+python setup.py fetch --all build --missing-checksum-ok --enable-all-extensions install test
+
 OpenSSL
 --------
 
@@ -88,7 +95,9 @@ Qt uses its own routine to locate and load "system libraries" including the open
 
 Now, run configure and make::
 
-    configure -opensource -release -qt-zlib -qt-gif -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -openssl -I Q:\openssl\include -L Q:\openssl\lib && nmake
+-no-plugin-manifests is needed so that loading the plugins does not fail looking for the CRT assembly
+
+    configure -opensource -release -qt-zlib -qt-gif -qt-libmng -qt-libpng -qt-libtiff -qt-libjpeg -release -platform win32-msvc2008 -no-qt3support -webkit -xmlpatterns -no-phonon -no-style-plastique -no-style-cleanlooks -no-style-motif -no-style-cde -no-declarative -no-scripttools -no-audio-backend -no-multimedia -no-dbus -no-openvg -no-opengl -no-qt3support -confirm-license -nomake examples -nomake demos -nomake docs -no-plugin-manifests -openssl -I Q:\openssl\include -L Q:\openssl\lib && nmake
 
 SIP
 -----

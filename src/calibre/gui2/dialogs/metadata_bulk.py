@@ -12,7 +12,7 @@ from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
-from calibre.ebooks.metadata.book.base import composite_formatter
+from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, \
     gprefs, question_dialog
@@ -24,7 +24,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import identify_data
 from calibre.utils.date import qt_to_dt
 
-def get_cover_data(path): # {{{
+def get_cover_data(stream, ext): # {{{
     from calibre.ebooks.metadata.meta import get_metadata
     old = prefs['read_file_metadata']
     if not old:
@@ -32,8 +32,8 @@ def get_cover_data(path): # {{{
     cdata = area = None
 
     try:
-        mi = get_metadata(open(path, 'rb'),
-                os.path.splitext(path)[1][1:].lower())
+        with stream:
+            mi = get_metadata(stream, ext)
         if mi.cover and os.access(mi.cover, os.R_OK):
             cdata = open(mi.cover).read()
         elif mi.cover_data[1] is not None:
@@ -186,9 +186,10 @@ class MyBlockingBusy(QDialog): # {{{
                 if fmts:
                     covers = []
                     for fmt in fmts.split(','):
-                        fmt = self.db.format_abspath(id, fmt, index_is_id=True)
-                        if not fmt: continue
-                        cdata, area = get_cover_data(fmt)
+                        fmtf = self.db.format(id, fmt, index_is_id=True,
+                                as_file=True)
+                        if fmtf is None: continue
+                        cdata, area = get_cover_data(fmtf, fmt)
                         if cdata:
                             covers.append((cdata, area))
                     covers.sort(key=lambda x: x[1])
@@ -361,7 +362,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         fm = self.db.field_metadata
         for f in fm:
             if (f in ['author_sort'] or
-                    (fm[f]['datatype'] in ['text', 'series', 'enumeration']
+                    (fm[f]['datatype'] in ['text', 'series', 'enumeration', 'comments']
                      and fm[f].get('search_terms', None)
                      and f not in ['formats', 'ondevice']) or
                     (fm[f]['datatype'] in ['int', 'float', 'bool'] and
@@ -498,7 +499,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
     def s_r_get_field(self, mi, field):
         if field:
             if field == '{template}':
-                v = composite_formatter.safe_format\
+                v = SafeFormat().safe_format\
                     (unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
                 return [v]
             fm = self.db.metadata_for_field(field)
