@@ -93,3 +93,24 @@ def find_executable_in_path(name, path=None):
         q = os.path.abspath(os.path.join(x, name))
         if os.access(q, os.X_OK):
             return q
+
+def is_case_sensitive(path):
+    '''
+    Return True if the filesystem is case sensitive.
+
+    path must be the path to an existing directory. You must have permission
+    to create and delete files in this directory. The results of this test
+    apply to the filesystem containing the directory in path.
+    '''
+    is_case_sensitive = False
+    if not iswindows:
+        name1, name2 = ('calibre_test_case_sensitivity.txt',
+                        'calibre_TesT_CaSe_sensitiVitY.Txt')
+        f1, f2 = os.path.join(path, name1), os.path.join(path, name2)
+        if os.path.exists(f1):
+            os.remove(f1)
+        open(f1, 'w').close()
+        is_case_sensitive = not os.path.exists(f2)
+        os.remove(f1)
+    return is_case_sensitive
+

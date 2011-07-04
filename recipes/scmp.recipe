@@ -1,0 +1,80 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+scmp.com
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class SCMP(BasicNewsRecipe):
+    title                 = 'South China Morning Post'
+    __author__            = 'llam'
+    description           = "SCMP.com, Hong Kong's premier online English daily provides exclusive up-to-date news, audio video news, podcasts, RSS Feeds, Blogs, breaking news, top stories, award winning news and analysis on Hong Kong and China."
+    publisher             = 'South China Morning Post Publishers Ltd.'
+    category              = 'SCMP, Online news, Hong Kong News, China news, Business news, English newspaper, daily newspaper, Lifestyle news, Sport news, Audio Video news, Asia news, World news, economy news, investor relations news, RSS Feeds'
+    oldest_article        = 2
+    delay                 = 1
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    use_embedded_content  = False
+    language              = 'en_CN'
+    remove_empty_feeds    = True
+    needs_subscription    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.scmp.com/images/logo_scmp_home.gif'
+    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } '
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        #br.set_debug_http(True)
+        #br.set_debug_responses(True)
+        #br.set_debug_redirects(True)
+        if self.username is not None and self.password is not None:
+           br.open('http://www.scmp.com/portal/site/SCMP/')
+           br.select_form(name='loginForm')
+           br['Login'   ] = self.username
+           br['Password'] = self.password
+           br.submit()
+        return br
+
+    remove_attributes=['width','height','border']
+
+    keep_only_tags = [
+                        dict(attrs={'id':['ART','photoBox']})
+                       ,dict(attrs={'class':['article_label','article_byline','article_body']})
+                     ]
+
+    preprocess_regexps = [
+       (re.compile(r'<P><table((?!<table).)*class="embscreen"((?!</table>).)*</table>', re.DOTALL|re.IGNORECASE),
+        lambda match: ''),
+    ]
+
+    feeds = [
+              (u'Business'     , u'http://www.scmp.com/rss/business.xml'       )
+             ,(u'Hong Kong'    , u'http://www.scmp.com/rss/hong_kong.xml'      )
+             ,(u'China'        , u'http://www.scmp.com/rss/china.xml'          )
+             ,(u'Asia & World' , u'http://www.scmp.com/rss/news_asia_world.xml')
+             ,(u'Opinion'      , u'http://www.scmp.com/rss/opinion.xml'        )
+             ,(u'LifeSTYLE'    , u'http://www.scmp.com/rss/lifestyle.xml'      )
+             ,(u'Sport'        , u'http://www.scmp.com/rss/sport.xml'          )
+            ]
+
+    def print_version(self, url):
+        rpart, sep, rest = url.rpartition('&')
+        return rpart #+ sep + urllib.quote_plus(rest)
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        items = soup.findAll(src="/images/label_icon.gif")
+        [item.extract() for item in items]
+        return self.adeify_images(soup)

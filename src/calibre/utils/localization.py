@@ -150,7 +150,9 @@ def get_language(lang):
     global _iso639
     lang = _lcase_map.get(lang, lang)
     if lang in _extra_lang_codes:
-        return _extra_lang_codes[lang]
+        # The translator was not active when _extra_lang_codes was defined, so
+        # re-translate
+        return _(_extra_lang_codes[lang])
     ip = P('localization/iso639.pickle')
     if not os.path.exists(ip):
         return lang
