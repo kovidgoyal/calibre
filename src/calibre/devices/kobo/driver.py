@@ -137,7 +137,7 @@ class KOBO(USBMS):
                     bl_cache[lpath] = None
                     if ImageID is not None:
                         imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
-                        if not os.path.exists(imagename): 
+                        if not os.path.exists(imagename):
                             # Try the Touch version if the image does not exist
                             imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - N3_LIBRARY_FULL.parsed')
 
@@ -210,7 +210,14 @@ class KOBO(USBMS):
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                 'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null'
 
-        cursor.execute (query)
+        try:
+            cursor.execute (query)
+        except Exception as e:
+            if '___ExpirationStatus' not in str(e):
+                raise
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null'
+            cursor.execute(query)
 
         changed = False
         for i, row in enumerate(cursor):
@@ -577,7 +584,7 @@ class KOBO(USBMS):
                     for book in books:
 #                        debug_print('Title:', book.title, 'lpath:', book.path)
                         if 'Im_Reading' not in book.device_collections:
-                            book.device_collections.append('Im_Reading') 
+                            book.device_collections.append('Im_Reading')
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
@@ -621,7 +628,7 @@ class KOBO(USBMS):
                     for book in books:
 #                       debug_print('Title:', book.title, 'lpath:', book.path)
                         if 'Read' not in book.device_collections:
-                            book.device_collections.append('Read') 
+                            book.device_collections.append('Read')
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
@@ -658,7 +665,7 @@ class KOBO(USBMS):
                     for book in books:
 #                       debug_print('Title:', book.title, 'lpath:', book.path)
                         if 'Closed' not in book.device_collections:
-                            book.device_collections.append('Closed') 
+                            book.device_collections.append('Closed')
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
@@ -695,8 +702,8 @@ class KOBO(USBMS):
                     for book in books:
 #                        debug_print('Title:', book.title, 'lpath:', book.path)
                         if 'Shortlist' not in book.device_collections:
-                            book.device_collections.append('Shortlist') 
-                        # debug_print ("Shortlist found for: ", book.title) 
+                            book.device_collections.append('Shortlist')
+                        # debug_print ("Shortlist found for: ", book.title)
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
 
