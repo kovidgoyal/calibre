@@ -294,6 +294,7 @@ class SearchFilter(SearchQueryParser):
         return self.srs
 
     def get_matches(self, location, query):
+        query = query.strip()
         location = location.lower().strip()
         if location == 'authors':
             location = 'author'
