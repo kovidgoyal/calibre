@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-01 17:31+0000\n"
-"PO-Revision-Date: 2011-06-02 09:38+0000\n"
+"PO-Revision-Date: 2011-07-03 19:43+0000\n"
 "Last-Translator: Alan <Unknown>\n"
 "Language-Team: Breton <br@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-02 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-07-04 04:44+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -217,11 +217,11 @@ msgstr "Skriverez metaroadennoù"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr ""
+msgstr "Ganer katalog"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
-msgstr ""
+msgstr "Gwezh ketal an arveriaded"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:557
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
@@ -248,12 +248,17 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
+"Heuliañ an holl ereoù en ur restr mod HTML ha krouiñ ur restr mod ZIP gant "
+"an holl restroù ereet. Erounezet e vo an enlugellad-mañ bewech ma vo "
+"ouzhpennet ganeoc'h ur restr mod HTML el levraoueg."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:54
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "latin1, iso-8859-1 and utf-8."
 msgstr ""
+"Envonegañ an arouezennoù evit ar restroù enankañ mod HTML. Enlaket e vez "
+"cp1252, latin1, iso-8859-1 hag utf-8 gant an dibaboù boutin."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:61
 msgid ""
@@ -261,6 +266,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"Krouiñ un diell mod PMLZ gant an holl restroù mod PML hag an holl skeudennoù "
+"e kavlec'hiad pmlname_img pe skeudennoù. Erounezet e vo an enlugellad-mañ "
+"bewech ma vo ouzhpennet ganeoc'h ur restr mod PML el levraoueg."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:91
 msgid ""
@@ -295,15 +303,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:416
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:427
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "Lenn metaroadennoù diwar restroù %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:364
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "Lenn metaroadennoù diwar ebookoù e dielloù mod RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:438
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr ""
+msgstr "Lenn metaroadennoù diwar ebookoù e dielloù mod ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:451
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:472
@@ -497,7 +505,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:994
 msgid "Common Options"
-msgstr ""
+msgstr "Dibarzhioù boutin"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1000
 msgid "Set conversion options common to all formats"
@@ -575,7 +583,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1088
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1101
 msgid "Sharing"
-msgstr ""
+msgstr "Rannañ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1080
 msgid ""

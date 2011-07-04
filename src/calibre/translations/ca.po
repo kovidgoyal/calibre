@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-07-01 17:31+0000\n"
-"PO-Revision-Date: 2011-06-29 21:02+0000\n"
+"PO-Revision-Date: 2011-07-03 18:50+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-02 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-07-04 04:44+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -431,25 +431,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Copia un llibre des d'una biblioteca del calibre a una altra"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:879
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "Fes petits ajustaments als fitxers epub de la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:884
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Vés a la coincidència següent a o l'anterior en cercar a la biblioteca del "
+"caibre en mode realçat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Cerca llibres de diferents botigues de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:907
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Aconsegueix connectors nous del calibre o actualitza els existents"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:926
 msgid "Look and Feel"
@@ -693,7 +695,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Converteix llibres al format %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -1005,6 +1007,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"«Copia els fitxers a la carpeta d'iTunes Media» s'activa a Preferències "
+"d'iTunes|Avançades"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:125
 msgid ""
@@ -1013,6 +1017,11 @@ msgid ""
 "your calibre configuration directory.</p><p>Enabling indicates that iTunes "
 "is configured to store copies in your iTunes Media folder.</p>"
 msgstr ""
+"<p>Aquest paràmetre ha de coincidir amb el d'iTunes "
+"<i>Preferències</i>|<i>Avançades.</i></p><p>Si s'inhabilita es desaran "
+"còpies dels llibres transferits a iTunes a la carpeta de configuració del "
+"calibre.</p><p>Si s'habilita indica que iTunes està configurat per desar "
+"còpies a la carpeta d'iTunes Media.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:189
 msgid "Apple device"
@@ -1500,7 +1509,7 @@ msgstr "Comunica't amb un Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "Comunica't amb un lector Moovybook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -4788,7 +4797,7 @@ msgstr "Canvia el nom de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:110
 msgid "Remove library"
-msgstr ""
+msgstr "Suprimeix la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:113
 msgid "Pick a random book"
@@ -4859,13 +4868,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:258
 msgid "Library removed"
-msgstr ""
+msgstr "S'ha suprimit la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:259
 msgid ""
 "The library %s has been removed from calibre. The files remain on your "
 "computer, if you want to delete them, you will have to do so manually."
 msgstr ""
+"S'ha suprimit del calibre la biblioteca %s. Els fitxers encara són a "
+"l'ordinador, si el voleu suprimir heu de fer-ho manualment."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:272
 msgid "none"
@@ -5667,19 +5678,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Q"
-msgstr ""
+msgstr "Q"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Show quickview"
-msgstr ""
+msgstr "Mostra la vista ràpida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:31
 msgid "No quickview available"
-msgstr ""
+msgstr "No es disposa de vista ràpida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:32
 msgid "Quickview is not available for books on the device."
-msgstr ""
+msgstr "No es disposa de vista ràpida per als llibres del dispositiu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
@@ -5962,7 +5973,7 @@ msgstr "S’està desant…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:448
 msgid "Collecting data, please wait..."
-msgstr ""
+msgstr "S'està recollint les dades, espereu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:520
 msgid "Saved"
@@ -8693,7 +8704,7 @@ msgstr "Nova &ubicació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:80
 msgid "Use the previously &existing library at the new location"
-msgstr ""
+msgstr "Utilitzeu la biblioteca que ja &existeix a la nova ubicació"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:81
 msgid "&Create an empty library at the new location"
@@ -8857,7 +8868,7 @@ msgstr "Ordre per autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:55
 msgid "Link"
-msgstr ""
+msgstr "Enllaça"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
@@ -9946,30 +9957,34 @@ msgstr "Autors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:189
 msgid "**No items found**"
-msgstr ""
+msgstr "**No s'ha trobat cap element**"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:190
 msgid ""
 "Click in a column  in the library view to see the information for that book"
 msgstr ""
+"Feu clic a una columna a la vista de biblioteca per veure informació del "
+"llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:206
 msgid "Books with selected item \"{0}\": {1}"
-msgstr ""
+msgstr "Llibres amb l'element «{0}» seleccionat: {1}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:212
 msgid ""
 "Double-click on a book to change the selection in the library view. Shift- "
 "or control-double-click to edit the metadata of a book"
 msgstr ""
+"Feu doble clic a un llibre per canviar la selecció a la vista de biblioteca. "
+"Majúscula o Control més doble clic per editar les metadades d'un llibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:73
 msgid "Quickview"
-msgstr ""
+msgstr "Vista ràpida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:74
 msgid "Items"
-msgstr ""
+msgstr "Elements"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:95
@@ -9985,7 +10000,7 @@ msgstr "Cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:76
 msgid "Search in the library view for the selected item"
-msgstr ""
+msgstr "Cerca l'element seleccionat a la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:23
 msgid ""
@@ -11564,7 +11579,7 @@ msgstr "Mostra la columna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:222
 msgid "Shrink column if it is too wide to fit"
-msgstr ""
+msgstr "Encongeix la columna si és massa ampla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:225
 msgid "Restore default layout"
@@ -13267,10 +13282,12 @@ msgid ""
 "If checked, this column will be displayed as HTML in book details and the "
 "content server"
 msgstr ""
+"Si s'activa, aquesta columna es visualitzarà com a HTML als detalls del "
+"llibre i al servidor de continguts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
 msgid "Show as HTML in book details"
-msgstr ""
+msgstr "Mostra com a HTML els detalls dels llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:256
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:261
@@ -13532,7 +13549,7 @@ msgstr "Desplaça cap avall"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:224
 msgid "Default author link template:"
-msgstr ""
+msgstr "Plantilla d'enllaç d'autor per defecte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:225
 msgid ""
@@ -13745,6 +13762,8 @@ msgid ""
 "Restore your own subset of checked fields that you define using the 'Set as "
 "default' button"
 msgstr ""
+"Restaureu el conjunt de camps seleccionats que definiu amb el botó "
+"«Estableix com a predeterminat»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:127
 msgid "&Set as default"
@@ -13755,6 +13774,8 @@ msgid ""
 "Store the currently checked fields as a default you can restore using the "
 "'Select default' button"
 msgstr ""
+"Emmagatzema els camps seleccionats com a predeterminats per restaurar-los "
+"amb el botó «Selecciona els predeterminats»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:129
 msgid "Convert all downloaded comments to plain &text"
@@ -13808,11 +13829,11 @@ msgstr "Prefereix &menys etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:38
 msgid "No proxies used"
-msgstr ""
+msgstr "No s'utilitza cap servidor intermediari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "<b>Using proxies:</b>"
-msgstr ""
+msgstr "<b>S'està utilitzant els servidors intermediaris:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:64
 msgid "Failed to install command line tools."
@@ -14087,6 +14108,8 @@ msgstr "Qualsevol camp personalitzat"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field (these names begin with \"#\")."
 msgstr ""
+"El nom de la cerca de qualsevol camp personalitzat (aquests nomes comencen "
+"per «#»)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Constant template"
@@ -15112,6 +15135,8 @@ msgid ""
 "This store is currently disabled and cannot be used in other parts of "
 "calibre."
 msgstr ""
+"Aquesta botiga està inhabilitada i no es pot utilitzar a d'altres parts del "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:131
 msgid ""
@@ -15122,7 +15147,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
 msgid "This store only distributes ebooks without DRM."
-msgstr ""
+msgstr "Aquesta botiga només distribueix llibres sense DRM:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:138
 msgid ""
@@ -15251,7 +15276,7 @@ msgstr "&Preu:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:219
 msgid "Download:"
-msgstr ""
+msgstr "Baixada:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:187
@@ -15264,7 +15289,7 @@ msgstr "DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:36
 msgid "Download"
-msgstr ""
+msgstr "Baixada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:36
 msgid "Price"
@@ -15315,15 +15340,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:207
 msgid "The following formats can be downloaded directly: %s."
-msgstr ""
+msgstr "Es pot descarregar directament els formats següents: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:41
 msgid "Download..."
-msgstr ""
+msgstr "Baixada..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:45
 msgid "Goto in store..."
-msgstr ""
+msgstr "Vés a la botiga..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:113
 msgid "Buying from this store supports the calibre developer: %s</p>"
@@ -15345,7 +15370,7 @@ msgstr "No s'ha trobat cap llibre que coincideixi amb la consulta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:349
 msgid "Choose format to download to your library."
-msgstr ""
+msgstr "Trieu un format per baixar a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
@@ -15644,7 +15669,7 @@ msgstr "Edita l'ordre de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:352
 msgid "Edit link for %s"
-msgstr ""
+msgstr "Modifica l'enllaç de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:359
 msgid "Add %s to user category"
@@ -15709,7 +15734,7 @@ msgstr "Canvia el mètode de divisió per categories"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:499
 msgid "First letter is usable only when sorting by name"
-msgstr ""
+msgstr "Només es pot utilitzar la primera lletra quan s'ordena per nom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:68
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
@@ -19147,7 +19172,7 @@ msgstr "Anglès (Canadà)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "English (Greece)"
-msgstr ""
+msgstr "Anglès (Grècia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English (India)"
@@ -19159,7 +19184,7 @@ msgstr "Anglès (Tailàndia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Turkey)"
-msgstr ""
+msgstr "Anglès (Turquia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (Cyprus)"
@@ -20370,7 +20395,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:294
 msgid "Control behavior of the book list"
-msgstr ""
+msgstr "Controla el comportament de la llista de llibres"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:295
 msgid ""

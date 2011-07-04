@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-01 17:31+0000\n"
-"PO-Revision-Date: 2011-07-01 14:16+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-07-03 10:52+0000\n"
+"Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-02 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-07-04 04:45+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4238,7 +4238,7 @@ msgstr "以下からの書誌情報の読み込みに失敗"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:395
 msgid "Add to library"
-msgstr "書庫に追加"
+msgstr "ライブラリに追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:130
@@ -4262,7 +4262,7 @@ msgstr "本が見つかりません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
-msgstr "書庫に本を追加"
+msgstr "ライブラリに本を追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
@@ -8963,7 +8963,7 @@ msgstr "%sのヴァージョン履歴"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 msgid "Update available"
-msgstr "アップデートがあります"
+msgstr "アップデート有り"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
