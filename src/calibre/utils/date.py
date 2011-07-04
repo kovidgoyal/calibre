@@ -121,7 +121,8 @@ def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
         date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
                 _local_tz)
     date_time = date_time.astimezone(_utc_tz if as_utc else _local_tz)
-    return unicode(date_time.isoformat(sep))
+    # str(sep) because isoformat barfs with unicode sep on python 2.x
+    return unicode(date_time.isoformat(str(sep)))
 
 def as_local_time(date_time, assume_utc=True):
     if not hasattr(date_time, 'tzinfo'):

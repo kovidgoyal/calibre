@@ -63,5 +63,4 @@ Various things that require other things before they can be migrated:
                     columns/categories/searches info into
                     self.field_metadata. Finally, implement metadata dirtied
                     functionality.
-    2. Test Schema upgrades
 '''

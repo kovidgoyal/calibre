@@ -17,12 +17,13 @@ from calibre import isbytestring, force_unicode, prints
 from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.library.schema_upgrades import SchemaUpgrade
+from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.icu import strcmp
 from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
+from calibre.utils.filenames import is_case_sensitive
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable)
 # }}}
@@ -30,8 +31,9 @@ from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
 '''
 Differences in semantics from pysqlite:
 
-    1. execute/executemany/executescript operate in autocommit mode
+    1. execute/executemany operate in autocommit mode
     2. There is no fetchone() method on cursor objects, instead use next()
+    3. There is no executescript
 
 '''
 
@@ -120,6 +122,66 @@ def icu_collator(s1, s2):
     return strcmp(force_unicode(s1, 'utf-8'), force_unicode(s2, 'utf-8'))
 # }}}
 
+# Unused aggregators {{{
+def Concatenate(sep=','):
+    '''String concatenation aggregator for sqlite'''
+
+    def step(ctxt, value):
+        if value is not None:
+            ctxt.append(value)
+
+    def finalize(ctxt):
+        if not ctxt:
+            return None
+        return sep.join(ctxt)
+
+    return ([], step, finalize)
+
+def SortedConcatenate(sep=','):
+    '''String concatenation aggregator for sqlite, sorted by supplied index'''
+
+    def step(ctxt, ndx, value):
+        if value is not None:
+            ctxt[ndx] = value
+
+    def finalize(ctxt):
+        if len(ctxt) == 0:
+            return None
+        return sep.join(map(ctxt.get, sorted(ctxt.iterkeys())))
+
+    return ({}, step, finalize)
+
+def IdentifiersConcat():
+    '''String concatenation aggregator for the identifiers map'''
+
+    def step(ctxt, key, val):
+        ctxt.append(u'%s:%s'%(key, val))
+
+    def finalize(ctxt):
+        return ','.join(ctxt)
+
+    return ([], step, finalize)
+
+def AumSortedConcatenate():
+    '''String concatenation aggregator for the author sort map'''
+
+    def step(ctxt, ndx, author, sort, link):
+        if author is not None:
+            ctxt[ndx] = ':::'.join((author, sort, link))
+
+    def finalize(ctxt):
+        keys = list(ctxt.iterkeys())
+        l = len(keys)
+        if l == 0:
+            return None
+        if l == 1:
+            return ctxt[keys[0]]
+        return ':#:'.join([ctxt[v] for v in sorted(keys)])
+
+    return ({}, step, finalize)
+
+# }}}
+
 class Connection(apsw.Connection): # {{{
 
     BUSY_TIMEOUT = 2000 # milliseconds
@@ -145,6 +207,18 @@ class Connection(apsw.Connection): # {{{
         self.createscalarfunction('books_list_filter', lambda x: 1, 1)
         self.createcollation('icucollate', icu_collator)
 
+        # Legacy aggregators (never used) but present for backwards compat
+        self.createaggregatefunction('sortconcat', SortedConcatenate, 2)
+        self.createaggregatefunction('sortconcat_bar',
+                partial(SortedConcatenate, sep='|'), 2)
+        self.createaggregatefunction('sortconcat_amper',
+                partial(SortedConcatenate, sep='&'), 2)
+        self.createaggregatefunction('identifiers_concat',
+                IdentifiersConcat, 2)
+        self.createaggregatefunction('concat', Concatenate, 1)
+        self.createaggregatefunction('aum_sortconcat',
+                AumSortedConcatenate, 4)
+
     def create_dynamic_filter(self, name):
         f = DynamicFilter(name)
         self.createscalarfunction(name, f, 1)
@@ -153,7 +227,10 @@ class Connection(apsw.Connection): # {{{
         ans = self.cursor().execute(*args)
         if kw.get('all', True):
             return ans.fetchall()
-        return ans.next()[0]
+        try:
+            return ans.next()[0]
+        except (StopIteration, IndexError):
+            return None
 
     def execute(self, sql, bindings=None):
         cursor = self.cursor()
@@ -162,14 +239,9 @@ class Connection(apsw.Connection): # {{{
     def executemany(self, sql, sequence_of_bindings):
         return self.cursor().executemany(sql, sequence_of_bindings)
 
-    def executescript(self, sql):
-        with self:
-            # Use an explicit savepoint so that even if this is called
-            # while a transaction is active, it is atomic
-            return self.cursor().execute(sql)
 # }}}
 
-class DB(SchemaUpgrade):
+class DB(object):
 
     PATH_LIMIT = 40 if iswindows else 100
     WINDOWS_LIBRARY_PATH_LIMIT = 75
@@ -213,25 +285,24 @@ class DB(SchemaUpgrade):
             shutil.copyfile(self.dbpath, pt.name)
             self.dbpath = pt.name
 
-        self.is_case_sensitive = (not iswindows and
-            not os.path.exists(self.dbpath.replace('metadata.db',
-                'MeTAdAtA.dB')))
+        if not os.path.exists(os.path.dirname(self.dbpath)):
+            os.makedirs(os.path.dirname(self.dbpath))
 
         self._conn = None
-
         if self.user_version == 0:
             self.initialize_database()
 
-        with self.conn:
-            SchemaUpgrade.__init__(self)
+        if not os.path.exists(self.library_path):
+            os.makedirs(self.library_path)
+        self.is_case_sensitive = is_case_sensitive(self.library_path)
+
+        SchemaUpgrade(self.conn, self.library_path, self.field_metadata)
 
         # Guarantee that the library_id is set
         self.library_id
 
-        self.initialize_prefs(default_prefs)
-
         # Fix legacy triggers and columns
-        self.conn.executescript('''
+        self.conn.execute('''
         DROP TRIGGER IF EXISTS author_insert_trg;
         CREATE TEMP TRIGGER author_insert_trg
             AFTER INSERT ON authors
@@ -248,6 +319,7 @@ class DB(SchemaUpgrade):
         UPDATE authors SET sort=author_to_author_sort(name) WHERE sort IS NULL;
         ''')
 
+        self.initialize_prefs(default_prefs)
         self.initialize_custom_columns()
         self.initialize_tables()
 
@@ -589,7 +661,14 @@ class DB(SchemaUpgrade):
     def initialize_database(self):
         metadata_sqlite = P('metadata_sqlite.sql', data=True,
                 allow_user_override=False).decode('utf-8')
-        self.conn.executescript(metadata_sqlite)
+        cur = self.conn.cursor()
+        cur.execute('BEGIN EXCLUSIVE TRANSACTION')
+        try:
+            cur.execute(metadata_sqlite)
+        except:
+            cur.execute('ROLLBACK')
+        else:
+            cur.execute('COMMIT')
         if self.user_version == 0:
             self.user_version = 1
     # }}}
@@ -629,7 +708,7 @@ class DB(SchemaUpgrade):
             self.conn.execute('''
                     DELETE FROM library_id;
                     INSERT INTO library_id (uuid) VALUES (?);
-                    ''', self._library_id_)
+                    ''', (self._library_id_,))
 
         return property(doc=doc, fget=fget, fset=fset)
 
