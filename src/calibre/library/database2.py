@@ -924,7 +924,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         else:
             formats = formats.split(',')
             for f in formats:
-                mi.format_metadata[f] = self.format_metadata(id, f, allow_cache=True)
+                mi.format_metadata[f] = self.format_metadata(id, f)
         mi.formats = formats
         tags = row[fm['tags']]
         if tags:
@@ -1133,8 +1133,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return m['mtime']
 
     def format_metadata(self, id_, fmt, allow_cache=True):
-        if allow_cache and fmt in self.format_metadata_cache.get(id_, {}):
-            return self.format_metadata_cache[id_][fmt]
+        if not fmt:
+            return {}
+        fmt = fmt.upper()
+        if allow_cache:
+            x = self.format_metadata_cache[id_].get(fmt, None)
+            if x is not None:
+                return x
         path = self.format_abspath(id_, fmt, index_is_id=True)
         ans = {}
         if path is not None:
@@ -1263,11 +1268,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     ret.name = f.name
                 else:
                     ret = f.read()
-            try:
-                self.format_metadata(index if index_is_id else self.id(index),
-                                     format, allow_cache=False)
-            except:
-                traceback.print_exc()
             return ret
 
     def add_format_with_hooks(self, index, format, fpath, index_is_id=False,
@@ -1282,6 +1282,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def add_format(self, index, format, stream, index_is_id=False, path=None,
             notify=True, replace=True):
         id = index if index_is_id else self.id(index)
+        if format:
+            self.format_metadata_cache[id].pop(format.upper(), None)
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
@@ -1334,7 +1336,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def remove_format(self, index, format, index_is_id=False, notify=True,
                       commit=True, db_only=False):
         id = index if index_is_id else self.id(index)
-        del self.format_metadata_cache[id]
+        if format:
+            self.format_metadata_cache[id].pop(format.upper(), None)
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
             if not db_only:

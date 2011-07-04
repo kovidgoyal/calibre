@@ -1030,7 +1030,8 @@ class SortKeyGenerator(object):
                                     (' B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
                             if val.endswith(candidate):
                                 p = 1024**(i)
-                                val = val[:-len(candidate)]
+                                val = val[:-len(candidate)].strip()
+                                break
                         val = float(val) * p
                     except:
                         val = 0.0

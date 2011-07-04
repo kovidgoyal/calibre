@@ -7,7 +7,6 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import mimetypes
-import urllib
 from contextlib import closing
 
 from lxml import etree
@@ -22,7 +21,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 from calibre.utils.opensearch.description import Description
 from calibre.utils.opensearch.query import Query
 
-class OpenSearchStore(StorePlugin):
+class OpenSearchOPDSStore(StorePlugin):
 
     open_search_url = ''
     web_url = ''
@@ -50,7 +49,7 @@ class OpenSearchStore(StorePlugin):
         oquery = Query(url_template)
 
         # set up initial values
-        oquery.searchTerms = urllib.quote_plus(query)
+        oquery.searchTerms = query
         oquery.count = max_results
         url = oquery.url()
         
