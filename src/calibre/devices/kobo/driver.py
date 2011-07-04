@@ -206,9 +206,12 @@ class KOBO(USBMS):
         if self.dbversion >= 14:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                 'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex from content where BookID is Null'
-        else:
+        elif self.dbversion < 14 and self.dbversion >= 8:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                 'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null'
+        else:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null'
 
         try:
             cursor.execute (query)
