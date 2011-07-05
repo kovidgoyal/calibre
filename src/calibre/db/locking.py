@@ -40,7 +40,8 @@ def create_locks():
 class SHLock(object):
     '''
     Shareable lock class. Used to implement the Multiple readers-single writer
-    paradigm.
+    paradigm. As best as I can tell, neither writer nor reader starvation
+    should be possible.
 
     Based on code from: https://github.com/rfk/threading2
     '''
