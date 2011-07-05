@@ -24,7 +24,7 @@ def create_locks():
     other threads can acquire read locks. The write_lock can also be acquired
     multiple times by the same thread.
 
-    Both read_lock and write_lock are meant to be use in with statements (they
+    Both read_lock and write_lock are meant to be used in with statements (they
     operate on a single underlying lock.
 
     WARNING: Be very careful to not try to acquire a read lock while the same
