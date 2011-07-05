@@ -203,12 +203,13 @@ class KOBO(USBMS):
         result = cursor.fetchone()
         self.dbversion = result[0]
 
+        debug_print("Database Version: ", self.dbversion)
         if self.dbversion >= 14:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex from content where BookID is Null'
+                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex from content where BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
         elif self.dbversion < 14 and self.dbversion >= 8:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null'
+                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
         else:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                 'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null'
