@@ -4,10 +4,11 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 from PyQt4.Qt import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
-                  QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication)
+                  QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication,
+                  QByteArray)
 
 from calibre.ebooks.metadata import author_to_author_sort
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
 from calibre.utils.icu import sort_key
 
@@ -20,7 +21,7 @@ class tableItem(QTableWidgetItem):
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
-    def __init__(self, parent, db, id_to_select, select_sort):
+    def __init__(self, parent, db, id_to_select, select_sort, select_link):
         QDialog.__init__(self, parent)
         Ui_EditAuthorsDialog.__init__(self)
         self.setupUi(self)
@@ -29,11 +30,19 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
+        try:
+            self.table_column_widths = \
+                        gprefs.get('manage_authors_table_widths', None)
+            geom = gprefs.get('manage_authors_dialog_geometry', bytearray(''))
+            self.restoreGeometry(QByteArray(geom))
+        except:
+            pass
+
         self.buttonBox.accepted.connect(self.accepted)
 
         # Set up the column headings
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.table.setColumnCount(2)
+        self.table.setColumnCount(3)
         self.down_arrow_icon = QIcon(I('arrow-down.png'))
         self.up_arrow_icon = QIcon(I('arrow-up.png'))
         self.blank_icon = QIcon(I('blank.png'))
@@ -43,26 +52,35 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.aus_col = QTableWidgetItem(_('Author sort'))
         self.table.setHorizontalHeaderItem(1, self.aus_col)
         self.aus_col.setIcon(self.up_arrow_icon)
+        self.aul_col = QTableWidgetItem(_('Link'))
+        self.table.setHorizontalHeaderItem(2, self.aul_col)
+        self.aus_col.setIcon(self.blank_icon)
 
         # Add the data
         self.authors = {}
         auts = db.get_authors_with_ids()
         self.table.setRowCount(len(auts))
         select_item = None
-        for row, (id, author, sort) in enumerate(auts):
+        for row, (id, author, sort, link) in enumerate(auts):
             author = author.replace('|', ',')
-            self.authors[id] = (author, sort)
+            self.authors[id] = (author, sort, link)
             aut = tableItem(author)
             aut.setData(Qt.UserRole, id)
             sort = tableItem(sort)
+            link = tableItem(link)
             self.table.setItem(row, 0, aut)
             self.table.setItem(row, 1, sort)
+            self.table.setItem(row, 2, link)
             if id == id_to_select:
                 if select_sort:
                     select_item = sort
+                elif select_link:
+                    select_item = link
                 else:
                     select_item = aut
         self.table.resizeColumnsToContents()
+        if self.table.columnWidth(2) < 200:
+            self.table.setColumnWidth(2, 200)
 
         # set up the cellChanged signal only after the table is filled
         self.table.cellChanged.connect(self.cell_changed)
@@ -114,6 +132,28 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         self.table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table.customContextMenuRequested .connect(self.show_context_menu)
+
+    def save_state(self):
+        self.table_column_widths = []
+        for c in range(0, self.table.columnCount()):
+            self.table_column_widths.append(self.table.columnWidth(c))
+        gprefs['manage_authors_table_widths'] = self.table_column_widths
+        gprefs['manage_authors_dialog_geometry'] = bytearray(self.saveGeometry())
+
+    def resizeEvent(self, *args):
+        QDialog.resizeEvent(self, *args)
+        if self.table_column_widths is not None:
+            for c,w in enumerate(self.table_column_widths):
+                self.table.setColumnWidth(c, w)
+        else:
+            # the vertical scroll bar might not be rendered, so might not yet
+            # have a width. Assume 25. Not a problem because user-changed column
+            # widths will be remembered
+            w = self.table.width() - 25 - self.table.verticalHeader().width()
+            w /= self.table.columnCount()
+            for c in range(0, self.table.columnCount()):
+                self.table.setColumnWidth(c, w)
+        self.save_state()
 
     def show_context_menu(self, point):
         self.context_item = self.table.itemAt(point)
@@ -231,14 +271,16 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.auth_col.setIcon(self.blank_icon)
 
     def accepted(self):
+        self.save_state()
         self.result = []
         for row in range(0,self.table.rowCount()):
             id   = self.table.item(row, 0).data(Qt.UserRole).toInt()[0]
             aut  = unicode(self.table.item(row, 0).text()).strip()
             sort = unicode(self.table.item(row, 1).text()).strip()
-            orig_aut,orig_sort = self.authors[id]
-            if orig_aut != aut or orig_sort != sort:
-                self.result.append((id, orig_aut, aut, sort))
+            link = unicode(self.table.item(row, 2).text()).strip()
+            orig_aut,orig_sort,orig_link = self.authors[id]
+            if orig_aut != aut or orig_sort != sort or orig_link != link:
+                self.result.append((id, orig_aut, aut, sort, link))
 
     def do_recalc_author_sort(self):
         self.table.cellChanged.disconnect()
@@ -276,6 +318,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             c.setText(author_to_author_sort(aut))
             item = c
         else:
-            item  = self.table.item(row, 1)
+            item  = self.table.item(row, col)
         self.table.setCurrentItem(item)
         self.table.scrollToItem(item)

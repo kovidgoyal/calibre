@@ -224,6 +224,7 @@ class TagsModel(QAbstractItemModel): # {{{
         self.row_map = []
         self.root_item = self.create_node(icon_map=self.icon_state_map)
         self.db = None
+        self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
 
     def reread_collapse_model(self, state_map, rebuild=True):
@@ -257,9 +258,17 @@ class TagsModel(QAbstractItemModel): # {{{
         self.endResetModel()
 
     def rebuild_node_tree(self, state_map={}):
+        if self._build_in_progress:
+            print ('Tag Browser build already in progress')
+            traceback.print_stack()
+            return
+        #traceback.print_stack()
+        #print ()
+        self._build_in_progress = True
         self.beginResetModel()
         self._run_rebuild(state_map=state_map)
         self.endResetModel()
+        self._build_in_progress = False
 
     def _run_rebuild(self, state_map={}):
         for node in self.node_map.itervalues():
@@ -505,7 +514,7 @@ class TagsModel(QAbstractItemModel): # {{{
         # }}}
 
         for category in self.category_nodes:
-            process_one_node(category, state_map.get(category.py_name, {}))
+            process_one_node(category, state_map.get(category.category_key, {}))
 
     # Drag'n Drop {{{
     def mimeTypes(self):
@@ -842,7 +851,7 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def index_for_category(self, name):
         for row, category in enumerate(self.category_nodes):
-            if category.py_name == name:
+            if category.category_key == name:
                 return self.index(row, 0, QModelIndex())
 
     def columnCount(self, parent):

@@ -12,7 +12,7 @@ from functools import partial
 from itertools import izip
 
 from PyQt4.Qt import (QItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon,
-        QApplication, QMenu, QPoint, QModelIndex)
+        QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor)
 
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel)
@@ -66,12 +66,11 @@ class TagsView(QTreeView): # {{{
     tag_list_edit           = pyqtSignal(object, object)
     saved_search_edit       = pyqtSignal(object)
     rebuild_saved_searches  = pyqtSignal()
-    author_sort_edit        = pyqtSignal(object, object)
+    author_sort_edit        = pyqtSignal(object, object, object, object)
     tag_item_renamed        = pyqtSignal()
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
     restriction_error       = pyqtSignal()
-    show_at_path            = pyqtSignal()
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -96,8 +95,6 @@ class TagsView(QTreeView): # {{{
         self.user_category_icon = QIcon(I('tb_folder.png'))
         self.delete_icon = QIcon(I('list_remove.png'))
         self.rename_icon = QIcon(I('edit-undo.png'))
-        self.show_at_path.connect(self.show_item_at_path,
-                type=Qt.QueuedConnection)
 
         self._model = TagsModel(self)
         self._model.search_item_renamed.connect(self.search_item_renamed)
@@ -132,14 +129,14 @@ class TagsView(QTreeView): # {{{
         expanded_categories = []
         for row, category in enumerate(self._model.category_nodes):
             if self.isExpanded(self._model.index(row, 0, QModelIndex())):
-                expanded_categories.append(category.py_name)
+                expanded_categories.append(category.category_key)
             states = [c.tag.state for c in category.child_tags()]
             names = [(c.tag.name, c.tag.category) for c in category.child_tags()]
-            state_map[category.py_name] = dict(izip(names, states))
+            state_map[category.category_key] = dict(izip(names, states))
         return expanded_categories, state_map
 
     def reread_collapse_parameters(self):
-        self._model.reread_collapse_parameters(self.get_state()[1])
+        self._model.reread_collapse_model(self.get_state()[1])
 
     def set_database(self, db, tag_match, sort_by):
         self._model.set_database(db)
@@ -176,7 +173,8 @@ class TagsView(QTreeView): # {{{
         state_map = self.get_state()[1]
         self.db.prefs.set('user_categories', user_cats)
         self._model.rebuild_node_tree(state_map=state_map)
-        self.show_at_path.emit('@'+nkey)
+        p = self._model.find_category_node('@'+nkey)
+        self.show_item_at_path(p)
 
     @property
     def match_all(self):
@@ -279,7 +277,10 @@ class TagsView(QTreeView): # {{{
                 self.saved_search_edit.emit(category)
                 return
             if action == 'edit_author_sort':
-                self.author_sort_edit.emit(self, index)
+                self.author_sort_edit.emit(self, index, True, False)
+                return
+            if action == 'edit_author_link':
+                self.author_sort_edit.emit(self, index, False, True)
                 return
 
             reset_filter_categories = True
@@ -348,6 +349,9 @@ class TagsView(QTreeView): # {{{
                             self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
                                             action='edit_author_sort', index=tag.id))
+                            self.context_menu.addAction(_('Edit link for %s')%display_name(tag),
+                                    partial(self.context_menu_handler,
+                                            action='edit_author_link', index=tag.id))
 
                         # is_editable is also overloaded to mean 'can be added
                         # to a user category'
@@ -489,9 +493,24 @@ class TagsView(QTreeView): # {{{
             pa.setCheckable(True)
             pa.setChecked(True)
 
+        if config['sort_tags_by'] != "name":
+            fla.setEnabled(False)
+            m.hovered.connect(self.collapse_menu_hovered)
+            fla.setToolTip(_('First letter is usable only when sorting by name'))
+            # Apparently one cannot set a tooltip to empty, so use a star and
+            # deal with it in the hover method
+            da.setToolTip('*')
+            pa.setToolTip('*')
+
         if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True
+
+    def collapse_menu_hovered(self, action):
+        tip = action.toolTip()
+        if tip == '*':
+            tip = ''
+        QToolTip.showText(QCursor.pos(), tip)
 
     def dragMoveEvent(self, event):
         QTreeView.dragMoveEvent(self, event)
@@ -501,6 +520,8 @@ class TagsView(QTreeView): # {{{
             return
         src_is_tb = event.mimeData().hasFormat('application/calibre+from_tag_browser')
         item = index.data(Qt.UserRole).toPyObject()
+        if item.type == TagTreeItem.ROOT:
+            return
         flags = self._model.flags(index)
         if item.type == TagTreeItem.TAG and flags & Qt.ItemIsDropEnabled:
             self.setDropIndicatorShown(not src_is_tb)
@@ -554,7 +575,9 @@ class TagsView(QTreeView): # {{{
         expanded_categories, state_map = self.get_state()
         self._model.rebuild_node_tree(state_map=state_map)
         for category in expanded_categories:
-            self.expand(self._model.index_for_category(category))
+            idx = self._model.index_for_category(category)
+            if idx is not None and idx.isValid():
+                self.expand(idx)
         self.show_item_at_path(path)
 
     def show_item_at_path(self, path, box=False,
@@ -570,10 +593,12 @@ class TagsView(QTreeView): # {{{
 
     def show_item_at_index(self, idx, box=False,
                            position=QTreeView.PositionAtCenter):
-        if idx.isValid():
+        if idx.isValid() and idx.data(Qt.UserRole).toPyObject() is not self._model.root_item:
+            self.expand(self._model.parent(idx)) # Needed otherwise Qt sometimes segfaults if the
+                                                 # node is buried in a collapsed, off
+                                                 # screen hierarchy
             self.setCurrentIndex(idx)
             self.scrollTo(idx, position)
-            self.setCurrentIndex(idx)
             if box:
                 self._model.set_boxed(idx)
 

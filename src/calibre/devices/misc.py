@@ -329,3 +329,25 @@ class NEXTBOOK(USBMS):
                 f.write(metadata.thumbnail[-1])
     '''
 
+class MOOVYBOOK(USBMS):
+
+    name           = 'Moovybook device interface'
+    gui_name       = 'Moovybook'
+    description    = _('Communicate with the Moovybook Reader')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'txt', 'pdf']
+
+    VENDOR_ID   = [0x1cae]
+    PRODUCT_ID  = [0x9b08]
+    BCD         = [0x02]
+
+    EBOOK_DIR_MAIN = ''
+
+    SUPPORTS_SUB_DIRS = True
+
+    def get_main_ebook_dir(self, for_upload=False):
+        return 'Books' if for_upload else self.EBOOK_DIR_MAIN
+

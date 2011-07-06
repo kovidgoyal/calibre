@@ -40,7 +40,7 @@ class Description(object):
         with closing(br.open(url, timeout=15)) as f:
             doc = etree.fromstring(f.read())
         
-        # version 1.1 has repeating Url elements
+        # version 1.1 has repeating Url elements.
         self.urls = []
         for element in doc.xpath('//*[local-name() = "Url"]'):
             template = element.get('template')
@@ -50,9 +50,22 @@ class Description(object):
                 url.template = template
                 url.type = type
                 self.urls.append(url)
+        # Stanza catalogs.
+        for element in doc.xpath('//*[local-name() = "link"]'):
+            if element.get('rel') != 'search':
+                continue
+            href = element.get('href')
+            type = element.get('type')
+            if href and type:
+                url = URL()
+                url.template = href
+                url.type = type
+                self.urls.append(url)
 
-        # this is version 1.0 specific
-        self.url = ''.join(doc.xpath('//*[local-name() = "Url"][1]//text()'))
+        # this is version 1.0 specific.
+        self.url = ''
+        if not self.urls:
+            self.url = ''.join(doc.xpath('//*[local-name() = "Url"][1]//text()'))
         self.format = ''.join(doc.xpath('//*[local-name() = "Format"][1]//text()'))
 
         self.shortname = ''.join(doc.xpath('//*[local-name() = "ShortName"][1]//text()'))

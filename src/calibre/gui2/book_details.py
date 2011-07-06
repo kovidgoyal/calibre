@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-
 from PyQt4.Qt import (QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl,
     QPropertyAnimation, QEasingCurve, QApplication, QFontInfo,
     QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu)
@@ -23,6 +22,7 @@ from calibre.library.comments import comments_to_html
 from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
         gprefs)
 from calibre.utils.icu import sort_key
+from calibre.utils.formatter import EvalFormatter
 
 def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     table = render_data(mi, all_fields=all_fields,
@@ -98,6 +98,14 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 val = force_unicode(val)
                 ans.append((field,
                     u'<td class="comments" colspan="2">%s</td>'%comments_to_html(val)))
+        elif metadata['datatype'] == 'composite' and \
+                            metadata['display'].get('contains_html', False):
+            val = getattr(mi, field)
+            if val:
+                val = force_unicode(val)
+                ans.append((field,
+                    u'<td class="title">%s</td><td>%s</td>'%
+                        (name, comments_to_html(val))))
         elif field == 'path':
             if mi.path:
                 path = force_unicode(mi.path, filesystem_encoding)
@@ -121,6 +129,27 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             if links:
                 ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(
                     _('Ids')+':', links)))
+        elif field == 'authors' and not isdevice:
+            authors = []
+            formatter = EvalFormatter()
+            for aut in mi.authors:
+                if mi.author_link_map[aut]:
+                    link = mi.author_link_map[aut]
+                elif gprefs.get('default_author_link'):
+                    vals = {'author': aut.replace(' ', '+')}
+                    try:
+                        vals['author_sort'] =  mi.author_sort_map[aut].replace(' ', '+')
+                    except:
+                        vals['author_sort'] = aut.replace(' ', '+')
+                    link = formatter.safe_format(
+                            gprefs.get('default_author_link'), vals, '', vals)
+                if link:
+                    link = prepare_string_for_xml(link)
+                    authors.append(u'<a href="%s">%s</a>'%(link, aut))
+                else:
+                    authors.append(aut)
+            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
+                u' & '.join(authors))))
         else:
             val = mi.format_field(field)[-1]
             if val is None:

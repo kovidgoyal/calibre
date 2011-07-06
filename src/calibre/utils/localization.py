@@ -109,8 +109,10 @@ _extra_lang_codes = {
         'en_AU' : _('English (Australia)'),
         'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
+        'en_GR' : _('English (Greece)'),
         'en_IN' : _('English (India)'),
         'en_TH' : _('English (Thailand)'),
+        'en_TR' : _('English (Turkey)'),
         'en_CY' : _('English (Cyprus)'),
         'en_CZ' : _('English (Czechoslovakia)'),
         'en_PK' : _('English (Pakistan)'),
@@ -148,7 +150,9 @@ def get_language(lang):
     global _iso639
     lang = _lcase_map.get(lang, lang)
     if lang in _extra_lang_codes:
-        return _extra_lang_codes[lang]
+        # The translator was not active when _extra_lang_codes was defined, so
+        # re-translate
+        return _(_extra_lang_codes[lang])
     ip = P('localization/iso639.pickle')
     if not os.path.exists(ip):
         return lang
