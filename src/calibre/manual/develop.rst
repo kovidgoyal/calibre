@@ -122,7 +122,7 @@ Setting this environment variable means that |app| will now load all its Python 
 That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src\\calibre\\__init__.py`
 in your favorite editor and add the line::
     
-    print "Hello, world!"
+    print ("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
@@ -151,7 +151,7 @@ Setting this environment variable means that |app| will now load all its Python 
 That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src/calibre/__init__.py`
 in your favorite editor and add the line::
     
-    print "Hello, world!"
+    print ("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
@@ -161,7 +161,8 @@ Linux development environment
 |app| is primarily developed on linux. You have two choices in setting up the development environment. You can install the
 |app| binary as normal and use that as a runtime environment to do your development. This approach is similar to that
 used in windows and OS X. Alternatively, you can install |app| from source. Instructions for setting up a development
-environment from source are in the INSTALL file in the source tree. Here we will address using the binary a runtime.
+environment from source are in the INSTALL file in the source tree. Here we will address using the binary a runtime, which is the
+recommended method.
 
 Install the |app| using the binary installer. Then open a terminal and change to the previously checked out |app| code directory, for example::
 
@@ -183,7 +184,7 @@ Setting this environment variable means that |app| will now load all its Python 
 That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src/calibre/__init__.py`
 in your favorite editor and add the line::
     
-    print "Hello, world!"
+    print ("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
@@ -193,9 +194,9 @@ Having separate "normal" and "development" |app| installs on the same computer
 The calibre source tree is very stable, it rarely breaks, but if you feel the need to run from source on a separate
 test library and run the released calibre version with your everyday library, you can achieve this easily using
 .bat files or shell scripts to launch |app|. The example below shows how to do this on windows using .bat files (the
-instructions for other platforms are the same, just use a BASh script instead of a .bat file)
+instructions for other platforms are the same, just use a BASH script instead of a .bat file)
 
-To launch the relase version of |app| with your everyday library:
+To launch the release version of |app| with your everyday library:
 
 calibre-normal.bat::
 
