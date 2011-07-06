@@ -9,7 +9,7 @@ Setting up a |app| development environment
 This means that you are free to download and modify the program to your hearts content. In this section, 
 you will learn how to get a |app| development environment setup on the operating system of your choice. 
 |app| is written primarily in `Python <http://www.python.org>`_ with some C/C++ code for speed and system interfacing. 
-Note that |app| is not compatible with Python 3 and requires at least Python 2.6.
+Note that |app| is not compatible with Python 3 and requires at least Python 2.7.
 
 .. contents:: Contents
   :depth: 2
