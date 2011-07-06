@@ -57,11 +57,34 @@ def is_worker_alive(workers):
 
 # Merge results from different sources {{{
 
+class xISBN(Thread):
+
+    def __init__(self, isbn):
+        Thread.__init__(self)
+        self.isbn = isbn
+        self.isbns = frozenset()
+        self.min_year = None
+        self.daemon = True
+        self.exception = self.tb = None
+
+    def run(self):
+        time.sleep(20)
+        try:
+            self.isbns, self.min_year = xisbn.get_isbn_pool(self.isbn)
+        except Exception as e:
+            import traceback
+            self.exception = e
+            self.tb = traceback.format_exception()
+
+
+
 class ISBNMerge(object):
 
-    def __init__(self):
+    def __init__(self, log):
         self.pools = {}
         self.isbnless_results = []
+        self.log = log
+        self.use_xisbn = True
 
     def isbn_in_pool(self, isbn):
         if isbn:
@@ -82,7 +105,20 @@ class ISBNMerge(object):
         if isbn:
             pool = self.isbn_in_pool(isbn)
             if pool is None:
-                isbns, min_year = xisbn.get_isbn_pool(isbn)
+                isbns = min_year = None
+                if self.use_xisbn:
+                    xw = xISBN(isbn)
+                    xw.start()
+                    xw.join(10)
+                    if xw.is_alive():
+                        self.log.error('Query to xISBN timed out')
+                        self.use_xisbn = False
+                    else:
+                        if xw.exception:
+                            self.log.error('Query to xISBN failed:')
+                            self.log.debug(xw.tb)
+                        else:
+                            isbns, min_year = xw.isbns, xw.min_year
                 if not isbns:
                     isbns = frozenset([isbn])
                 if isbns in self.pools:
@@ -293,7 +329,7 @@ class ISBNMerge(object):
 
 
 def merge_identify_results(result_map, log):
-    isbn_merge = ISBNMerge()
+    isbn_merge = ISBNMerge(log)
     for plugin, results in result_map.iteritems():
         for result in results:
             isbn_merge.add_result(result)
