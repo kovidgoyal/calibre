@@ -68,7 +68,6 @@ class xISBN(Thread):
         self.exception = self.tb = None
 
     def run(self):
-        time.sleep(20)
         try:
             self.isbns, self.min_year = xisbn.get_isbn_pool(self.isbn)
         except Exception as e:
