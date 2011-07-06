@@ -5,7 +5,7 @@ __copyright__ = '2010, Gregory Riker'
 __docformat__ = 'restructuredtext en'
 
 
-import cStringIO, ctypes, datetime, os, re, sys, tempfile, time
+import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
 from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image, confirm_config_name
 from calibre.constants import isosx, iswindows
@@ -119,11 +119,17 @@ class DriverBase(DeviceConfig, DevicePlugin):
                     'iBooks Category'),
             _('Cache covers from iTunes/iBooks') +
                 ':::' +
-                _('Enable to cache and display covers from iTunes/iBooks')
+                _('Enable to cache and display covers from iTunes/iBooks'),
+            _(u'"Copy files to iTunes Media folder %s" is enabled in iTunes Preferences|Advanced')%u'\u2026' +
+                ':::' +
+                _("<p>This setting should match your iTunes <i>Preferences</i>|<i>Advanced</i> setting.</p>"
+                  "<p>Disabling will store copies of books transferred to iTunes in your calibre configuration directory.</p>"
+                  "<p>Enabling indicates that iTunes is configured to store copies in your iTunes Media folder.</p>")
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 True,
                 True,
+                False,
     ]
 
 
@@ -193,6 +199,7 @@ class ITUNES(DriverBase):
     # EXTRA_CUSTOMIZATION_MESSAGE indexes
     USE_SERIES_AS_CATEGORY = 0
     CACHE_COVERS = 1
+    USE_ITUNES_STORAGE = 2
 
     OPEN_FEEDBACK_MESSAGE = _(
         'Apple device detected, launching iTunes, please wait ...')
@@ -281,6 +288,7 @@ class ITUNES(DriverBase):
     description_prefix = "added by calibre"
     ejected = False
     iTunes= None
+    iTunes_local_storage = None
     library_orphans = None
     log = Log()
     manual_sync_mode = False
@@ -825,7 +833,7 @@ class ITUNES(DriverBase):
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
             if DEBUG:
-                self.log.info(" creating thumb cache '%s'" % self.cache_dir)
+                self.log.info(" creating thumb cache at '%s'" % self.cache_dir)
             os.makedirs(self.cache_dir)
 
         if not os.path.exists(self.archive_path):
@@ -836,6 +844,17 @@ class ITUNES(DriverBase):
         else:
             if DEBUG:
                 self.log.info(" existing thumb cache at '%s'" % self.archive_path)
+
+        # If enabled in config options, create/confirm an iTunes storage folder
+        if not self.settings().extra_customization[self.USE_ITUNES_STORAGE]:
+            self.iTunes_local_storage = os.path.join(config_dir,'iTunes storage')
+            if not os.path.exists(self.iTunes_local_storage):
+                if DEBUG:
+                    self.log(" creating iTunes_local_storage at '%s'" % self.iTunes_local_storage)
+                os.mkdir(self.iTunes_local_storage)
+            else:
+                if DEBUG:
+                    self.log(" existing iTunes_local_storage at '%s'" % self.iTunes_local_storage)
 
     def remove_books_from_metadata(self, paths, booklists):
         '''
@@ -1281,50 +1300,27 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info(" ITUNES._add_new_copy()")
 
-        def _save_last_known_iTunes_storage(lb_added):
-            if isosx:
-                fp = lb_added.location().path
-                index = fp.rfind('/Books') + len('/Books')
-                last_known_iTunes_storage = fp[:index]
-            elif iswindows:
-                fp = lb_added.Location
-                index = fp.rfind('\Books') + len('\Books')
-                last_known_iTunes_storage = fp[:index]
-            dynamic['last_known_iTunes_storage'] = last_known_iTunes_storage
-            self.log.warning("  last_known_iTunes_storage: %s" % last_known_iTunes_storage)
-
         db_added = None
         lb_added = None
 
+        # If using iTunes_local_storage, copy the file, redirect iTunes to use local copy
+        if not self.settings().extra_customization[self.USE_ITUNES_STORAGE]:
+            local_copy = os.path.join(self.iTunes_local_storage, str(metadata.uuid) + os.path.splitext(fpath)[1])
+            shutil.copyfile(fpath,local_copy)
+            fpath = local_copy
+
         if self.manual_sync_mode:
             '''
-            This is the unsupported direct-connect mode.
-            In an attempt to avoid resetting the iTunes library Media folder, don't try to
-            add the book to iTunes if the last_known_iTunes_storage path is inaccessible.
-            This means that the path has to be set at least once, probably by using
-            'Connect to iTunes' and doing a transfer.
+            Unsupported direct-connect mode.
             '''
             self.log.warning("  unsupported direct connect mode")
             db_added = self._add_device_book(fpath, metadata)
-            last_known_iTunes_storage = dynamic.get('last_known_iTunes_storage', None)
-            if last_known_iTunes_storage is not None:
-                if os.path.exists(last_known_iTunes_storage):
-                    if DEBUG:
-                        self.log.warning("  iTunes storage online, adding to library")
-                    lb_added = self._add_library_book(fpath, metadata)
-                else:
-                    if DEBUG:
-                        self.log.warning("  iTunes storage not online, can't add to library")
-
-            if lb_added:
-                _save_last_known_iTunes_storage(lb_added)
+            lb_added = self._add_library_book(fpath, metadata)
             if not lb_added and DEBUG:
                 self.log.warn("  failed to add '%s' to iTunes, iTunes Media folder inaccessible" % metadata.title)
         else:
             lb_added = self._add_library_book(fpath, metadata)
-            if lb_added:
-                _save_last_known_iTunes_storage(lb_added)
-            else:
+            if not lb_added:
                 raise UserFeedback("iTunes Media folder inaccessible",
                                    details="Failed to add '%s' to iTunes" % metadata.title,
                                    level=UserFeedback.WARN)
@@ -1520,7 +1516,7 @@ class ITUNES(DriverBase):
             else:
                 self.log.error("   book_playlist not found")
 
-            if len(dev_books):
+            if dev_books is not None and len(dev_books):
                 first_book = dev_books[0]
                 if False:
                     self.log.info("  determing manual mode by modifying '%s' by %s" % (first_book.name(), first_book.artist()))
@@ -1551,7 +1547,7 @@ class ITUNES(DriverBase):
                     dev_books = pl.Tracks
                     break
 
-            if dev_books.Count:
+            if dev_books is not None and dev_books.Count:
                 first_book = dev_books.Item(1)
                 #if DEBUG:
                     #self.log.info(" determing manual mode by modifying '%s' by %s" % (first_book.Name, first_book.Artist))
@@ -2526,7 +2522,15 @@ class ITUNES(DriverBase):
                     self.log.info("  processing %s" % fp)
                 if fp.startswith(prefs['library_path']):
                     self.log.info("  '%s' stored in calibre database, not removed" % cached_book['title'])
+                elif not self.settings().extra_customization[self.USE_ITUNES_STORAGE] and \
+                  fp.startswith(self.iTunes_local_storage) and \
+                  os.path.exists(fp):
+                    # Delete the copy in iTunes_local_storage
+                    os.remove(fp)
+                    if DEBUG:
+                        self.log("   removing from iTunes_local_storage")
                 else:
+                    # Delete from iTunes Media folder
                     if os.path.exists(fp):
                         os.remove(fp)
                         if DEBUG:
@@ -2544,12 +2548,6 @@ class ITUNES(DriverBase):
                                 os.rmdir(author_storage_path)
                                 if DEBUG:
                                     self.log.info("   removing empty author directory")
-                            '''
-                            else:
-                                if DEBUG:
-                                    self.log.info("   author_storage_path not empty:")
-                                    self.log.info("   %s" % '\n'.join(author_files))
-                            '''
                     else:
                         self.log.info("   '%s' does not exist at storage location" % cached_book['title'])
 
@@ -2586,7 +2584,15 @@ class ITUNES(DriverBase):
                     self.log.info("  processing %s" % fp)
                 if fp.startswith(prefs['library_path']):
                     self.log.info("  '%s' stored in calibre database, not removed" % cached_book['title'])
+                elif not self.settings().extra_customization[self.USE_ITUNES_STORAGE] and \
+                  fp.startswith(self.iTunes_local_storage) and \
+                  os.path.exists(fp):
+                    # Delete the copy in iTunes_local_storage
+                    os.remove(fp)
+                    if DEBUG:
+                        self.log("   removing from iTunes_local_storage")
                 else:
+                    # Delete from iTunes Media folder
                     if os.path.exists(fp):
                         os.remove(fp)
                         if DEBUG:
@@ -3233,6 +3239,17 @@ class ITUNES_ASYNC(ITUNES):
         else:
             if DEBUG:
                 self.log.info(" existing thumb cache at '%s'" % self.archive_path)
+
+        # If enabled in config options, create/confirm an iTunes storage folder
+        if not self.settings().extra_customization[self.USE_ITUNES_STORAGE]:
+            self.iTunes_local_storage = os.path.join(config_dir,'iTunes storage')
+            if not os.path.exists(self.iTunes_local_storage):
+                if DEBUG:
+                    self.log(" creating iTunes_local_storage at '%s'" % self.iTunes_local_storage)
+                os.mkdir(self.iTunes_local_storage)
+            else:
+                if DEBUG:
+                    self.log(" existing iTunes_local_storage at '%s'" % self.iTunes_local_storage)
 
     def sync_booklists(self, booklists, end_session=True):
         '''

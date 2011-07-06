@@ -600,4 +600,15 @@ class SchemaUpgrade(object):
                 with open(os.path.join(bdir, fname), 'wb') as f:
                     f.write(script)
 
+    def upgrade_version_20(self):
+        '''
+        Add a link column to the authors table.
+        '''
+
+        script = '''
+        BEGIN TRANSACTION;
+        ALTER TABLE authors ADD COLUMN link TEXT NOT NULL DEFAULT "";
+        '''
+        self.conn.executescript(script)
+
 

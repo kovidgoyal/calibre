@@ -18,16 +18,29 @@ class TableItem(QTableWidgetItem):
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
     '''
 
-    def __init__(self, val, sort):
+    def __init__(self, val, sort, idx=0):
         self.sort = sort
+        self.sort_idx = idx
         QTableWidgetItem.__init__(self, val)
         self.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
 
     def __ge__(self, other):
-        return sort_key(self.sort) >= sort_key(other.sort)
+        l = sort_key(self.sort)
+        r = sort_key(other.sort)
+        if l > r:
+            return 1
+        if l == r:
+            return self.sort_idx >= other.sort_idx
+        return 0
 
     def __lt__(self, other):
-        return sort_key(self.sort) < sort_key(other.sort)
+        l = sort_key(self.sort)
+        r = sort_key(other.sort)
+        if l < r:
+            return 1
+        if l == r:
+            return self.sort_idx < other.sort_idx
+        return 0
 
 class Quickview(QDialog, Ui_Quickview):
 
@@ -60,6 +73,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.last_search = None
         self.current_column = None
         self.current_item = None
+        self.no_valid_items = False
 
         self.items.setSelectionMode(QAbstractItemView.SingleSelection)
         self.items.currentTextChanged.connect(self.item_selected)
@@ -95,8 +109,19 @@ class Quickview(QDialog, Ui_Quickview):
         self.search_button.clicked.connect(self.do_search)
         view.model().new_bookdisplay_data.connect(self.book_was_changed)
 
+    def set_database(self, db):
+        self.db = db
+        self.items.blockSignals(True)
+        self.books_table.blockSignals(True)
+        self.items.clear()
+        self.books_table.setRowCount(0)
+        self.books_table.blockSignals(False)
+        self.items.blockSignals(False)
+
     # search button
     def do_search(self):
+        if self.no_valid_items:
+            return
         if self.last_search is not None:
             self.gui.search.set_search_string(self.last_search)
 
@@ -110,6 +135,8 @@ class Quickview(QDialog, Ui_Quickview):
 
     # clicks on the items listWidget
     def item_selected(self, txt):
+        if self.no_valid_items:
+            return
         self.fill_in_books_box(unicode(txt))
 
     # Given a cell in the library view, display the information
@@ -122,6 +149,7 @@ class Quickview(QDialog, Ui_Quickview):
         # Only show items for categories
         if not self.db.field_metadata[key]['is_category']:
             if self.current_key is None:
+                self.indicate_no_items()
                 return
             key = self.current_key
         self.items_label.setText('{0} ({1})'.format(
@@ -135,6 +163,7 @@ class Quickview(QDialog, Ui_Quickview):
         vals = mi.get(key, None)
 
         if vals:
+            self.no_valid_items = False
             if not isinstance(vals, list):
                 vals = [vals]
             vals.sort(key=sort_key)
@@ -148,7 +177,18 @@ class Quickview(QDialog, Ui_Quickview):
             self.current_key = key
 
             self.fill_in_books_box(vals[0])
+        else:
+            self.indicate_no_items()
+
         self.items.blockSignals(False)
+
+    def indicate_no_items(self):
+        print 'no items'
+        self.no_valid_items = True
+        self.items.clear()
+        self.items.addItem(QListWidgetItem(_('**No items found**')))
+        self.books_label.setText(_('Click in a column  in the library view '
+                                   'to see the information for that book'))
 
     def fill_in_books_box(self, selected_item):
         self.current_item = selected_item
@@ -163,7 +203,8 @@ class Quickview(QDialog, Ui_Quickview):
                                            self.db.data.search_restriction)
 
         self.books_table.setRowCount(len(books))
-        self.books_label.setText(_('Books with selected item: {0}').format(len(books)))
+        self.books_label.setText(_('Books with selected item "{0}": {1}').
+                                 format(selected_item, len(books)))
 
         select_item = None
         self.books_table.setSortingEnabled(False)
@@ -185,7 +226,7 @@ class Quickview(QDialog, Ui_Quickview):
             series = mi.format_field('series')[1]
             if series is None:
                 series = ''
-            a = TableItem(series, series)
+            a = TableItem(series, mi.series, mi.series_index)
             a.setToolTip(tt)
             self.books_table.setItem(row, 2, a)
             self.books_table.setRowHeight(row, self.books_table_row_height)
@@ -213,6 +254,8 @@ class Quickview(QDialog, Ui_Quickview):
         self.save_state()
 
     def book_doubleclicked(self, row, column):
+        if self.no_valid_items:
+            return
         book_id = self.books_table.item(row, 0).data(Qt.UserRole).toInt()[0]
         self.view.select_rows([book_id])
         modifiers = int(QApplication.keyboardModifiers())

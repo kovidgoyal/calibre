@@ -1,72 +1,59 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
-cronista.com
+www.cronista.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class ElCronista(BasicNewsRecipe):
-    title                 = 'El Cronista'
+class Pagina12(BasicNewsRecipe):
+    title                 = 'El Cronista Comercial'
     __author__            = 'Darko Miletic'
-    description           = 'Noticias de Argentina'
+    description           = 'El Cronista Comercial es el Diario economico-politico mas valorado. Es la fuente mas confiable de informacion en temas de economia, finanzas y negocios enmarcados politicamente.'
+    publisher             = 'Cronista.com'
+    category              = 'news, politics, economy, finances, Argentina'
     oldest_article        = 2
-    language = 'es_AR'
-
-    max_articles_per_feed = 100
+    max_articles_per_feed = 200
     no_stylesheets        = True
+    encoding              = 'utf8'
     use_embedded_content  = False
-    encoding              = 'cp1252'
+    language              = 'es_AR'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.cronista.com/export/sites/diarioelcronista/arte/header-logo.gif'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               h2{font-family: Georgia,"Times New Roman",Times,serif }
+                               img{margin-bottom: 0.4em; display:block}
+                               .nom{font-weight: bold; vertical-align: baseline}
+                               .autor-cfoto{border-bottom: 1px solid #D2D2D2;
+                                            border-top: 1px solid #D2D2D2;
+                                            display: inline-block;
+                                            margin: 0 10px 10px 0;
+                                            padding: 10px;
+                                            width: 210px}
+                                .under{font-weight: bold}
+                                .time{font-size: small}
+                            """
 
-    html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Argentina'
-                        , '--publisher'     , title
-                        ]
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
 
-    keep_only_tags = [
-                        dict(name='table', attrs={'width':'100%'             })
-                       ,dict(name='h1'   , attrs={'class':'Arialgris16normal'})
-                     ]
+    remove_tags = [
+                     dict(name=['meta','link','base','iframe','object','embed'])
+                    ,dict(attrs={'class':['user-tools','tabsmedia']})
+                  ]
+    remove_attributes  = ['lang']
+    remove_tags_before = dict(attrs={'class':'top'})
+    remove_tags_after  = dict(attrs={'class':'content-nota'})
+    feeds = [(u'Ultimas noticias', u'http://www.cronista.com/rss.html')]
 
-    remove_tags = [dict(name='a', attrs={'class':'Arialazul12'})]
-
-    feeds = [
-               (u'Economia'                , u'http://www.cronista.com/adjuntos/8/rss/Economia_EI.xml'             )
-              ,(u'Negocios'                , u'http://www.cronista.com/adjuntos/8/rss/negocios_EI.xml'             )
-              ,(u'Ultimo momento'          , u'http://www.cronista.com/adjuntos/8/rss/ultimo_momento.xml'          )
-              ,(u'Finanzas y Mercados'     , u'http://www.cronista.com/adjuntos/8/rss/Finanzas_Mercados_EI.xml'    )
-              ,(u'Financial Times'         , u'http://www.cronista.com/adjuntos/8/rss/FT_EI.xml'                   )
-              ,(u'Opinion edicion impresa' , u'http://www.cronista.com/adjuntos/8/rss/opinion_edicion_impresa.xml' )
-              ,(u'Socialmente Responsables', u'http://www.cronista.com/adjuntos/8/rss/Socialmente_Responsables.xml')
-              ,(u'Asuntos Legales'         , u'http://www.cronista.com/adjuntos/8/rss/asuntoslegales.xml'          )
-              ,(u'IT Business'             , u'http://www.cronista.com/adjuntos/8/rss/itbusiness.xml'              )
-              ,(u'Management y RR.HH.'     , u'http://www.cronista.com/adjuntos/8/rss/management.xml'              )
-              ,(u'Inversiones Personales'  , u'http://www.cronista.com/adjuntos/8/rss/inversionespersonales.xml'   )
-            ]
-
-    def print_version(self, url):
-        main, sep, rest = url.partition('.com/notas/')
-        article_id, lsep, rrest = rest.partition('-')
-        return 'http://www.cronista.com/interior/index.php?p=imprimir_nota&idNota=' + article_id
 
     def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
-        soup.head.insert(0,mtag)
-        soup.head.base.extract()
-        htext = soup.find('h1',attrs={'class':'Arialgris16normal'})
-        htext.name = 'p'
-        soup.prettify()
+        for item in soup.findAll(style=True):
+            del item['style']
         return soup
-
-    def get_cover_url(self):
-        cover_url = None
-        index = 'http://www.cronista.com/contenidos/'
-        soup = self.index_to_soup(index + 'ee.html')
-        link_item = soup.find('a',attrs={'href':"javascript:Close()"})
-        if link_item:
-           cover_url = index + link_item.img['src']
-        return cover_url
-

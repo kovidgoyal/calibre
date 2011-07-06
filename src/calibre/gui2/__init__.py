@@ -7,12 +7,13 @@ from urllib import unquote
 from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDate, QDesktopServices,
-                    QFileDialog, QFileIconProvider,
+                    QFileDialog, QFileIconProvider, QSettings,
                     QIcon, QApplication, QDialog, QUrl, QFont)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre.constants import islinux, iswindows, isbsd, isfrozen, isosx
+from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
+        config_dir)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata import MetaInformation
@@ -82,13 +83,14 @@ gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
 gprefs.defaults['book_display_fields'] = [
-        ('title', False), ('authors', False), ('formats', True),
+        ('title', False), ('authors', True), ('formats', True),
         ('series', True), ('identifiers', True), ('tags', True),
         ('path', True), ('publisher', False), ('rating', False),
         ('author_sort', False), ('sort', False), ('timestamp', False),
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
         ('last_modified', False), ('size', False),
         ]
+gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 
 # }}}
 
@@ -191,6 +193,11 @@ def _config(): # {{{
 
 config = _config()
 # }}}
+
+QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, config_dir)
+QSettings.setPath(QSettings.IniFormat, QSettings.SystemScope,
+        config_dir)
+QSettings.setDefaultFormat(QSettings.IniFormat)
 
 # Turn off DeprecationWarnings in windows GUI
 if iswindows:

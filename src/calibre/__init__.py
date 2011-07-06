@@ -106,10 +106,12 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
         name = name.encode(filesystem_encoding, 'ignore')
     one = _filename_sanitize.sub(substitute, name)
     one = re.sub(r'\s', ' ', one).strip()
-    one = re.sub(r'^\.+$', '_', one)
+    bname, ext = os.path.splitext(one)
+    one = re.sub(r'^\.+$', '_', bname)
     if as_unicode:
         one = one.decode(filesystem_encoding)
     one = one.replace('..', substitute)
+    one += ext
     # Windows doesn't like path components that end with a period
     if one and one[-1] in ('.', ' '):
         one = one[:-1]+'_'
@@ -132,8 +134,10 @@ def sanitize_file_name_unicode(name, substitute='_'):
             name]
     one = u''.join(chars)
     one = re.sub(r'\s', ' ', one).strip()
-    one = re.sub(r'^\.+$', '_', one)
+    bname, ext = os.path.splitext(one)
+    one = re.sub(r'^\.+$', '_', bname)
     one = one.replace('..', substitute)
+    one += ext
     # Windows doesn't like path components that end with a period or space
     if one and one[-1] in ('.', ' '):
         one = one[:-1]+'_'

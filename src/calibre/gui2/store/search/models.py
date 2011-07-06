@@ -22,6 +22,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 
 def comparable_price(text):
+    text = re.sub(r'[^0-9.,]', '', text)
     if len(text) < 3 or text[-3] not in ('.', ','):
         text += '00'
     text = re.sub(r'\D', '', text)
@@ -33,7 +34,7 @@ class Matches(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
 
-    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), '']
+    HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), _('Download'), _('Affiliate')]
     HTML_COLS = (1, 4)
 
     def __init__(self, cover_thread_count=2, detail_thread_count=4):
@@ -46,6 +47,8 @@ class Matches(QAbstractItemModel):
         self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_question.png')).scaledToHeight(64,
                 Qt.SmoothTransformation)
         self.DONATE_ICON = QPixmap(I('donate.png')).scaledToHeight(16,
+                Qt.SmoothTransformation)
+        self.DOWNLOAD_ICON = QPixmap(I('arrow-down.png')).scaledToHeight(16,
                 Qt.SmoothTransformation)
 
         # All matches. Used to determine the order to display
@@ -181,9 +184,11 @@ class Matches(QAbstractItemModel):
                 elif result.drm == SearchResult.DRM_UNKNOWN:
                     return QVariant(self.DRM_UNKNOWN_ICON)
             if col == 5:
+                if result.downloads:
+                    return QVariant(self.DOWNLOAD_ICON)
+            if col == 6:
                 if result.affiliate:
                     return QVariant(self.DONATE_ICON)
-                return NONE
         elif role == Qt.ToolTipRole:
             if col == 1:
                 return QVariant('<p>%s</p>' % result.title)
@@ -199,6 +204,9 @@ class Matches(QAbstractItemModel):
             elif col == 4:
                 return QVariant('<p>%s</p>' % result.formats)
             elif col == 5:
+                if result.downloads:
+                    return QVariant('<p>' + _('The following formats can be downloaded directly: %s.') % ', '.join(result.downloads.keys()) + '</p>')
+            elif col == 6:
                 if result.affiliate:
                     return QVariant('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.plugin_author + '</p>')
         elif role == Qt.SizeHintRole:
@@ -221,6 +229,11 @@ class Matches(QAbstractItemModel):
         elif col == 4:
             text = result.store_name
         elif col == 5:
+            if result.downloads:
+                text = 'a'
+            else:
+                text = 'b'
+        elif col == 6:
             if result.affiliate:
                 text = 'a'
             else:
@@ -257,6 +270,8 @@ class SearchFilter(SearchQueryParser):
         'author',
         'authors',
         'cover',
+        'download',
+        'downloads',
         'drm',
         'format',
         'formats',
@@ -279,9 +294,12 @@ class SearchFilter(SearchQueryParser):
         return self.srs
 
     def get_matches(self, location, query):
+        query = query.strip()
         location = location.lower().strip()
         if location == 'authors':
             location = 'author'
+        elif location == 'downloads':
+            location = 'download'
         elif location == 'formats':
             location = 'format'
 
@@ -308,12 +326,13 @@ class SearchFilter(SearchQueryParser):
              'author': lambda x: x.author.lower(),
              'cover': attrgetter('cover_url'),
              'drm': attrgetter('drm'),
+             'download': attrgetter('downloads'),
              'format': attrgetter('formats'),
              'price': lambda x: comparable_price(x.price),
              'store': lambda x: x.store_name.lower(),
              'title': lambda x: x.title.lower(),
         }
-        for x in ('author', 'format'):
+        for x in ('author', 'download', 'format'):
             q[x+'s'] = q[x]
         for sr in self.srs:
             for locvalue in locations:
@@ -347,7 +366,7 @@ class SearchFilter(SearchQueryParser):
                             matches.add(sr)
                     continue
                 # this is bool or treated as bool, so can't match below.
-                if locvalue in ('affiliate', 'drm'):
+                if locvalue in ('affiliate', 'drm', 'download', 'downloads'):
                     continue
                 try:
                     ### Can't separate authors because comma is used for name sep and author sep

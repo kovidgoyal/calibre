@@ -14,6 +14,7 @@ from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
                       QComboBox)
 
 from calibre.gui2 import JSONConfig, info_dialog
+from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
 from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
@@ -21,6 +22,7 @@ from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
+from calibre.utils.filenames import ascii_filename
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -72,7 +74,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.search.clicked.connect(self.do_search)
         self.checker.timeout.connect(self.get_results)
         self.progress_checker.timeout.connect(self.check_progress)
-        self.results_view.activated.connect(self.open_store)
+        self.results_view.activated.connect(self.result_item_activated)
+        self.results_view.download_requested.connect(self.download_book)
+        self.results_view.open_requested.connect(self.open_store)
         self.results_view.model().total_changed.connect(self.update_book_total)
         self.select_all_stores.clicked.connect(self.stores_select_all)
         self.select_invert_stores.clicked.connect(self.stores_select_invert)
@@ -129,11 +133,15 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Title / Author
         self.results_view.setColumnWidth(1,int(total*.40))
         # Price
-        self.results_view.setColumnWidth(2,int(total*.20))
+        self.results_view.setColumnWidth(2,int(total*.12))
         # DRM
         self.results_view.setColumnWidth(3, int(total*.15))
         # Store / Formats
         self.results_view.setColumnWidth(4, int(total*.25))
+        # Download
+        self.results_view.setColumnWidth(5, 20)
+        # Affiliate
+        self.results_view.setColumnWidth(6, 20)
 
     def do_search(self):
         # Stop all running threads.
@@ -183,7 +191,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
             query = query.replace('%s:' % loc, '')
         # Remove the prefix and search text.
-        for loc in ('cover', 'drm', 'format', 'formats', 'price', 'store'):
+        for loc in ('cover', 'download', 'downloads', 'drm', 'format', 'formats', 'price', 'store'):
             query = re.sub(r'%s:"[^"]"' % loc, '', query)
             query = re.sub(r'%s:[^\s]*' % loc, '', query)
         # Remove logic.
@@ -330,8 +338,23 @@ class SearchDialog(QDialog, Ui_Dialog):
     def update_book_total(self, total):
         self.total.setText('%s' % total)
 
-    def open_store(self, index):
+    def result_item_activated(self, index):
         result = self.results_view.model().get_result(index)
+        
+        if result.downloads:
+            self.download_book(result)
+        else:
+            self.open_store(result)
+
+    def download_book(self, result):
+        d = ChooseFormatDialog(self, _('Choose format to download to your library.'), result.downloads.keys())
+        if d.exec_() == d.Accepted:
+            ext = d.format()
+            fname = result.title + '.' + ext.lower()
+            fname = ascii_filename(fname)
+            self.gui.download_ebook(result.downloads[ext], filename=fname)
+    
+    def open_store(self, result):
         self.gui.istores[result.store_name].open(self, result.detail_item, self.open_external.isChecked())
 
     def check_progress(self):

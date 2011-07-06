@@ -54,7 +54,7 @@ cpalmdoc_decompress(PyObject *self, PyObject *args) {
     // Map chars to bytes
     for (j = 0; j < input_len; j++) 
         input[j] = (_input[j] < 0) ? _input[j]+256 : _input[j];
-    output = (char *)PyMem_Malloc(sizeof(char)*(MAX(BUFFER, 5*input_len)));
+    output = (char *)PyMem_Malloc(sizeof(char)*(MAX(BUFFER, 8*input_len)));
     if (output == NULL) return PyErr_NoMemory();
 
     while (i < input_len) {
