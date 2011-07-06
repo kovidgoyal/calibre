@@ -82,6 +82,7 @@ class ISBNMerge(object):
     def __init__(self, log):
         self.pools = {}
         self.isbnless_results = []
+        self.results = []
         self.log = log
         self.use_xisbn = True
 
@@ -137,15 +138,19 @@ class ISBNMerge(object):
             if results:
                 has_isbn_result = True
                 break
-        self.has_isbn_result = has_isbn_result
 
+        isbn_sources = frozenset()
         if has_isbn_result:
-            self.merge_isbn_results()
-        else:
-            results = sorted(self.isbnless_results,
-                    key=attrgetter('relevance_in_source'))
+            isbn_sources = self.merge_isbn_results()
+
+        # Now handle results that have no ISBNs
+        results = sorted(self.isbnless_results,
+                key=attrgetter('relevance_in_source'))
+        # Only use results that are from sources that have not also returned a
+        # result with an ISBN
+        results = [r for r in results if r.identify_plugin not in isbn_sources]
+        if results:
             # Pick only the most relevant result from each source
-            self.results = []
             seen = set()
             for result in results:
                 if result.identify_plugin not in seen:
@@ -225,11 +230,15 @@ class ISBNMerge(object):
 
     def merge_isbn_results(self):
         self.results = []
+        sources = set()
         for min_year, results in self.pools.itervalues():
             if results:
+                for r in results:
+                    sources.add(r.identify_plugin)
                 self.results.append(self.merge(results, min_year))
 
         self.results.sort(key=attrgetter('average_source_relevance'))
+        return sources
 
     def length_merge(self, attr, results, null_value=None, shortest=True):
         values = [getattr(x, attr) for x in results if not x.is_null(attr)]
