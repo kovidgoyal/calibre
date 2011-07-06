@@ -254,6 +254,10 @@ class ResultsView(QTableView): # {{{
             '<h2>%s</h2>'%book.title,
             '<div><i>%s</i></div>'%authors_to_string(book.authors),
         ]
+        if not book.is_null('series'):
+            series = book.format_field('series')
+            if series[1]:
+                parts.append('<div>%s: %s</div>'%series)
         if not book.is_null('rating'):
             parts.append('<div>%s</div>'%('\u2605'*int(book.rating)))
         parts.append('</center>')
