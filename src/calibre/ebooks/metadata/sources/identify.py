@@ -19,7 +19,7 @@ from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log, msprefs
 from calibre.ebooks.metadata.xisbn import xisbn
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import utc_tz
+from calibre.utils.date import utc_tz, as_utc
 from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower
 
@@ -311,8 +311,10 @@ class ISBNMerge(object):
         else:
             min_date = datetime(3001, 1, 1, tzinfo=utc_tz)
             for r in results:
-                if r.pubdate is not None and r.pubdate < min_date:
-                    min_date = r.pubdate
+                if r.pubdate is not None:
+                    candidate = as_utc(r.pubdate)
+                    if candidate < min_date:
+                        min_date = candidate
             if min_date.year < 3000:
                 ans.pubdate = min_date
 
