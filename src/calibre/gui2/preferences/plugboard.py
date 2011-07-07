@@ -58,7 +58,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.device_to_formats_map = {}
         for device in device_plugins():
             n = device_name_for_plugboards(device)
-            self.device_to_formats_map[n] = device.FORMATS
+            self.device_to_formats_map[n] = set(device.FORMATS)
+            if getattr(device, 'CAN_DO_DEVICE_DB_PLUGBOARD', False):
+                self.device_to_formats_map[n].add('device_db')
             if n not in self.devices:
                 self.devices.append(n)
         self.devices.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
@@ -241,8 +243,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if self.current_format != plugboard_any_format_value and \
                     self.current_device in self.device_to_formats_map:
             allowable_formats = self.device_to_formats_map[self.current_device]
-            if (self.current_format not in allowable_formats and
-                    self.current_format != 'device_db'):
+            if self.current_format not in allowable_formats:
                 error_dialog(self, '',
                      _('The {0} device does not support the {1} format.').
                                 format(self.current_device, self.current_format),
