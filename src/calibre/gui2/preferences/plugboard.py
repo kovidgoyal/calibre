@@ -241,7 +241,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if self.current_format != plugboard_any_format_value and \
                     self.current_device in self.device_to_formats_map:
             allowable_formats = self.device_to_formats_map[self.current_device]
-            if self.current_format not in allowable_formats:
+            if (self.current_format not in allowable_formats and
+                    self.current_format != 'device_db'):
                 error_dialog(self, '',
                      _('The {0} device does not support the {1} format.').
                                 format(self.current_device, self.current_format),
@@ -358,5 +359,5 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     app = QApplication([])
-    test_widget('Import/Export', 'plugboards')
+    test_widget('Import/Export', 'Plugboard')
 

@@ -121,14 +121,16 @@ class DetectStructure(object):
                     if not self.oeb.toc.has_href(href):
                         text = xml2text(a)
                         text = text[:100].strip()
-                        if not self.oeb.toc.has_text(text):
-                            num += 1
-                            self.oeb.toc.add(text, href,
-                                play_order=self.oeb.toc.next_play_order())
-                            if self.opts.max_toc_links > 0 and \
-                                    num >= self.opts.max_toc_links:
-                                self.log('Maximum TOC links reached, stopping.')
-                                return
+                        if (not self.opts.duplicate_links_in_toc and
+                                self.oeb.toc.has_text(text)):
+                            continue
+                        num += 1
+                        self.oeb.toc.add(text, href,
+                            play_order=self.oeb.toc.next_play_order())
+                        if self.opts.max_toc_links > 0 and \
+                                num >= self.opts.max_toc_links:
+                            self.log('Maximum TOC links reached, stopping.')
+                            return
 
 
 

@@ -336,7 +336,12 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.download_button.setVisible(True)
         self.detail_box.setCurrentIndex(0)
         recipe = self.recipe_model.recipe_from_urn(urn)
-        schedule_info = self.recipe_model.schedule_info_from_urn(urn)
+        try:
+            schedule_info = self.recipe_model.schedule_info_from_urn(urn)
+        except:
+            # Happens if user does something stupid like unchecking all the
+            # days of the week
+            schedule_info = None
         account_info = self.recipe_model.account_info_from_urn(urn)
         customize_info = self.recipe_model.get_customize_info(urn)
 
