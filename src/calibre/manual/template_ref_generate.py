@@ -11,10 +11,10 @@ PREAMBLE = '''\
 
 .. _templaterefcalibre:
 
-Reference for all builtin template language functions
+Reference for all built-in template language functions
 ========================================================
 
-Here, we document all the builtin functions available in the |app| template language. Every function is implemented as a class in python and you can click the source links to see the source code, in case the documentation is insufficient. The functions are arranged in logical groups by type.
+Here, we document all the built-in functions available in the |app| template language. Every function is implemented as a class in python and you can click the source links to see the source code, in case the documentation is insufficient. The functions are arranged in logical groups by type.
 
 .. contents::
     :depth: 2
