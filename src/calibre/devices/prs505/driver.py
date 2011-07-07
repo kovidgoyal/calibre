@@ -28,6 +28,7 @@ class PRS505(USBMS):
 
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
     CAN_SET_METADATA = ['title', 'authors', 'collections']
+    CAN_DO_DEVICE_DB_PLUGBOARD = True
 
     VENDOR_ID    = [0x054c]   #: SONY Vendor Id
     PRODUCT_ID   = [0x031e]
