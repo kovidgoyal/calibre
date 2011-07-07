@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-07-01 17:31+0000\n"
-"PO-Revision-Date: 2011-07-04 16:30+0000\n"
-"Last-Translator: nooperation <Unknown>\n"
+"PO-Revision-Date: 2011-07-06 15:57+0000\n"
+"Last-Translator: Rudolf Metz <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-05 04:32+0000\n"
+"X-Launchpad-Export-Date: 2011-07-07 04:37+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -4790,7 +4790,7 @@ msgstr "Bibliothek umbenennen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:110
 msgid "Remove library"
-msgstr ""
+msgstr "Bibliothek entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:113
 msgid "Pick a random book"
@@ -4861,7 +4861,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:258
 msgid "Library removed"
-msgstr ""
+msgstr "Bibliothek entfernt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:259
 msgid ""
@@ -8657,7 +8657,7 @@ msgstr "&OK"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:233
 msgid "&Cancel"
-msgstr "&Abbruch"
+msgstr "Abbrechen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:96
@@ -8971,7 +8971,7 @@ msgstr "Buch %d:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:401
 msgid "Enter an identifier type"
-msgstr ""
+msgstr "Erkennungstyp eingeben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:406
 msgid ""
@@ -9041,7 +9041,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:655
 msgid "You must specify a destination identifier type"
-msgstr ""
+msgstr "Ein Zielerkennungstyp muss angeben werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:753
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:772
@@ -9349,7 +9349,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:615
 msgid "Identifier type:"
-msgstr ""
+msgstr "Erkennungstyp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:616
@@ -9564,7 +9564,7 @@ msgstr "Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Released"
-msgstr ""
+msgstr "Freigegeben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:328
 msgid "PayPal"
@@ -9633,7 +9633,7 @@ msgstr "Dieses Plugin ist Installiert und ist aktuell"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:473
 msgid "Update Check Failed"
-msgstr ""
+msgstr "Aktualisierungsprüfung fehlgeschlagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:474
 msgid "Unable to reach the MobileRead plugins forum index page."
@@ -9649,16 +9649,16 @@ msgstr "User Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:494
 msgid "Filter list of plugins"
-msgstr ""
+msgstr "Plugin-Liste filtern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:512
 msgid "Description"
-msgstr ""
+msgstr "Beschreibung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:535
 msgid "&Install"
-msgstr ""
+msgstr "&Installieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:536
@@ -9667,12 +9667,12 @@ msgstr "Installiere das ausgewählte Plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:527
 msgid "&Customize plugin "
-msgstr ""
+msgstr "Plugin anpassen "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:528
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:580
 msgid "Customize the options for this plugin"
-msgstr ""
+msgstr "Optionen diese Plugins anpassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:540
 msgid "Version &History"
@@ -9680,7 +9680,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:541
 msgid "Show history of changes to this plugin"
-msgstr ""
+msgstr "Änderungshistorie dieses Plugins anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:545
 msgid "Plugin &Forum Thread"
@@ -9779,7 +9779,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:770
 msgid "Version history missing"
-msgstr ""
+msgstr "Versionshistorie fehlt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:771
 msgid "Unable to find the version history for %s"
@@ -9850,7 +9850,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:73
 msgid "Quickview"
-msgstr ""
+msgstr "Kurzansicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:74
 msgid "Items"
@@ -10749,7 +10749,7 @@ msgstr "Vorschau nicht möglich"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:101
 msgid "You must first explode the epub before previewing."
-msgstr ""
+msgstr "Vor der Vorschau  zuerst das epub entpacken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -10788,7 +10788,7 @@ msgstr "ePub neu &packen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 msgid "&Preview ePub"
-msgstr "& vorschau ePub"
+msgstr "& Vorschau ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
@@ -11850,7 +11850,7 @@ msgstr "&Löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:800
 msgid "Download co&ver"
-msgstr "Co&ver herunterladen"
+msgstr "Umschlagbild herunterladen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:801
 msgid "&Generate cover"
@@ -11927,11 +11927,11 @@ msgstr "Diese ISBN ist ungültig"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1167
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1189
 msgid "Invalid ISBN"
-msgstr ""
+msgstr "Fehlerhafte ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1168
 msgid "Enter an ISBN"
-msgstr ""
+msgstr "ISBN angebens"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1190
 msgid "The ISBN you entered is not valid. Try again."
@@ -12543,11 +12543,11 @@ msgstr "ist nicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
-msgstr ""
+msgstr "stimmt mit dem Muster überein"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "does not match pattern"
-msgstr ""
+msgstr "stimmt nicht mit dem Muster überein"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
@@ -13099,7 +13099,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
 msgid "Show as HTML in book details"
-msgstr ""
+msgstr "Als HTML in den Buchdetails anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:256
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:261
@@ -13627,11 +13627,11 @@ msgstr "&Weniger Schlagworte bevorzugen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:38
 msgid "No proxies used"
-msgstr ""
+msgstr "Keine proxies verwendet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "<b>Using proxies:</b>"
-msgstr ""
+msgstr "<b>Verwendete Proxies:</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:64
 msgid "Failed to install command line tools."
@@ -15135,6 +15135,8 @@ msgstr "Benutzerkategorie umbenennen"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:881
 msgid "You cannot use periods in the name when renaming user categories"
 msgstr ""
+"Hochkommas können bei der Umbezeichnung von Benutzerkategorien nicht im "
+"Namen verwendet werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:901
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:910
@@ -15178,11 +15180,11 @@ msgstr "Gespeicherte Suchen verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:66
 msgid "Invalid search restriction"
-msgstr ""
+msgstr "Fehlerhafte Suchbedingung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:67
 msgid "The current search restriction is invalid"
-msgstr ""
+msgstr "Die aktuelle Suchbedingung ist fehlerhaft"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:83
 msgid "New Category"
@@ -15199,7 +15201,7 @@ msgstr "%s ist keine Benutzer kategorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:138
 msgid "%s contains items. Do you really want to delete it?"
-msgstr ""
+msgstr "%s enthält Einträge. Sollen diese wirklich gelöscht werden?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:159
 msgid "Remove category"
@@ -15523,16 +15525,16 @@ msgstr "Neue Version gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:158
 msgid "updated plugins"
-msgstr ""
+msgstr "aktualisierte Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:189
 msgid "Plugin Updates"
-msgstr ""
+msgstr "Plugin-Aktualisierungen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:187
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "Es sind %d Plugin-Aktualisierungen verfügbar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:191
 msgid "Install and configure user plugins"
@@ -15926,11 +15928,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:497
 msgid "larger"
-msgstr ""
+msgstr "breiter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:499
 msgid "smaller"
-msgstr ""
+msgstr "schmaler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:515
 msgid "No matches found for: %s"
@@ -18618,7 +18620,7 @@ msgstr "Englisch (China)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (South Africa)"
-msgstr ""
+msgstr "Englisch (Südafrika)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "Spanish (Paraguay)"
@@ -19174,7 +19176,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:113
 msgid "Control how dates are displayed"
-msgstr "Datumsanzeige einstellungen"
+msgstr "Datumsanzeige Einstellungen"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:114
 msgid ""
@@ -19471,7 +19473,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:306
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Beim Sortieren zu verwendende Sprache."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:307
 msgid ""
