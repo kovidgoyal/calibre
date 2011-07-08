@@ -100,7 +100,7 @@ class KOBO(USBMS):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType, expired, favouritesindex):
+        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType, expired, favouritesindex, accessibility):
             changed = False
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
@@ -128,6 +128,10 @@ class KOBO(USBMS):
                 # A SHORTLIST is supported on the touch but the data field is there on most earlier models
                 if favouritesindex == 1:
                     playlist_map[lpath].append('Shortlist')
+
+                # Label Previews
+                if accessibility == 6:
+                    playlist_map[lpath].append('Preview')
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -204,15 +208,21 @@ class KOBO(USBMS):
         self.dbversion = result[0]
 
         debug_print("Database Version: ", self.dbversion)
-        if self.dbversion >= 14:
+        if self.dbversion >= 16:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex from content where BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility from content where ' \
+                'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+        elif self.dbversion < 16 and self.dbversion >= 14:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
+                'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
         elif self.dbversion < 14 and self.dbversion >= 8:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
+                'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
         else:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex from content where BookID is Null'
+                'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility from content where BookID is Null'
 
         try:
             cursor.execute (query)
@@ -234,10 +244,10 @@ class KOBO(USBMS):
             # debug_print("mime:", mime)
 
             if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9])
+                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9], row[10])
                 # print "shortbook: " + path
             elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9])
+                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9], row[10])
 
             if changed:
                 need_sync = True
@@ -616,7 +626,6 @@ class KOBO(USBMS):
             connection.commit()
             debug_print('    Commit: Set FavouritesIndex')
         
-
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
         # Define lists for the ReadStatus
         readstatuslist = {
@@ -624,6 +633,10 @@ class KOBO(USBMS):
             "Read":2,
             "Closed":3,
         }	
+
+        accessibilitylist = {
+            "Preview":6,
+       }
 #        debug_print('Starting update_device_database_collections', collections_attributes)
 
         # Force collections_attributes to be 'tags' as no other is currently supported
@@ -668,6 +681,9 @@ class KOBO(USBMS):
                         if category == 'Shortlist':
                             # Manage FavouritesIndex/Shortlist
                             self.set_favouritesindex(connection, ContentID)
+                        if category in accessibilitylist.keys():
+                            # Do not manage the Accessibility List 
+                            pass
         else: # No collections
             # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
             debug_print("No Collections - reseting ReadStatus")
