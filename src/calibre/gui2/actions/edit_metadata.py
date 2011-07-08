@@ -284,7 +284,7 @@ class EditMetadataAction(InterfaceAction):
             if not confirm('<p>'+_(
                 'Book formats from the selected books will be merged '
                 'into the <b>first selected book</b> (%s). '
-                'Metadata in the first selected book will not be changed.'
+                'Metadata in the first selected book will not be changed. '
                 'Author, Title, ISBN and all other metadata will <i>not</i> be merged.<br><br>'
                 'After merger the second and subsequently '
                 'selected books, with any metadata they have will be <b>deleted</b>. <br><br>'
