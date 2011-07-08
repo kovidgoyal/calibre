@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-01 17:31+0000\n"
-"PO-Revision-Date: 2011-07-03 10:52+0000\n"
+"PO-Revision-Date: 2011-07-07 06:38+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-04 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-07-08 04:43+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -17539,7 +17539,7 @@ msgstr "英語(カナダ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "English (Greece)"
-msgstr ""
+msgstr "英語（ギリシャ）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English (India)"
@@ -17551,7 +17551,7 @@ msgstr "英語(タイ）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Turkey)"
-msgstr ""
+msgstr "英語（トルコ）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (Cyprus)"
@@ -17595,7 +17595,7 @@ msgstr "英語（中国）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (South Africa)"
-msgstr ""
+msgstr "英語 (南アフリカ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "Spanish (Paraguay)"
