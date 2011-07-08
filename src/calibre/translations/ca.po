@@ -1007,7 +1007,7 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
-"«Copia els fitxers a la carpeta d'iTunes Media» s'activa a Preferències "
+"«Copia els fitxers a la carpeta d'iTunes Media %s» s'activa a Preferències "
 "d'iTunes|Avançades"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:125

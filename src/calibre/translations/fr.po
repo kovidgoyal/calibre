@@ -1019,7 +1019,7 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
-"\"Copier les fichiers vers le répertoire média d'iTunes %\" est activé dans "
+"\"Copier les fichiers vers le répertoire média d'iTunes %s\" est activé dans "
 "les préférences iTunes|Avancé"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:125
