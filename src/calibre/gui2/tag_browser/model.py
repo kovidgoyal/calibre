@@ -12,7 +12,7 @@ import traceback, cPickle, copy
 from itertools import repeat
 
 from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
-        QMimeData, QModelIndex, pyqtSignal)
+        QMimeData, QModelIndex, pyqtSignal, QObject)
 
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
@@ -226,6 +226,10 @@ class TagsModel(QAbstractItemModel): # {{{
         self.db = None
         self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
+
+    @property
+    def gui_parent(self):
+        return QObject.parent(self)
 
     def reread_collapse_model(self, state_map, rebuild=True):
         if gprefs['tags_browser_collapse_at'] == 0:
@@ -726,12 +730,12 @@ class TagsModel(QAbstractItemModel): # {{{
         if (key == 'authors' and len(ids) >= 5):
             if not confirm('<p>'+_('Changing the authors for several books can '
                            'take a while. Are you sure?')
-                        +'</p>', 'tag_browser_drop_authors', self.parent()):
+                        +'</p>', 'tag_browser_drop_authors', self.gui_parent):
                 return
         elif len(ids) > 15:
             if not confirm('<p>'+_('Changing the metadata for that many books '
                            'can take a while. Are you sure?')
-                        +'</p>', 'tag_browser_many_changes', self.parent()):
+                        +'</p>', 'tag_browser_many_changes', self.gui_parent):
                 return
 
         fm = self.db.metadata_for_field(key)
@@ -875,13 +879,13 @@ class TagsModel(QAbstractItemModel): # {{{
         # we position at the parent label
         val = unicode(value.toString()).strip()
         if not val:
-            error_dialog(self.parent(), _('Item is blank'),
+            error_dialog(self.gui_parent, _('Item is blank'),
                         _('An item cannot be set to nothing. Delete it instead.')).exec_()
             return False
         item = self.get_node(index)
         if item.type == TagTreeItem.CATEGORY and item.category_key.startswith('@'):
             if val.find('.') >= 0:
-                error_dialog(self.parent(), _('Rename user category'),
+                error_dialog(self.gui_parent, _('Rename user category'),
                     _('You cannot use periods in the name when '
                       'renaming user categories'), show=True)
                 return False
@@ -901,7 +905,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     if len(c) == len(ckey):
                         if strcmp(ckey, nkey) != 0 and \
                                 nkey_lower in user_cat_keys_lower:
-                            error_dialog(self.parent(), _('Rename user category'),
+                            error_dialog(self.gui_parent, _('Rename user category'),
                                 _('The name %s is already used')%nkey, show=True)
                             return False
                         user_cats[nkey] = user_cats[ckey]
@@ -910,7 +914,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         rest = c[len(ckey):]
                         if strcmp(ckey, nkey) != 0 and \
                                     icu_lower(nkey + rest) in user_cat_keys_lower:
-                            error_dialog(self.parent(), _('Rename user category'),
+                            error_dialog(self.gui_parent, _('Rename user category'),
                                 _('The name %s is already used')%(nkey+rest), show=True)
                             return False
                         user_cats[nkey + rest] = user_cats[ckey + rest]
@@ -925,12 +929,12 @@ class TagsModel(QAbstractItemModel): # {{{
             return False
         if key == 'authors':
             if val.find('&') >= 0:
-                error_dialog(self.parent(), _('Invalid author name'),
+                error_dialog(self.gui_parent, _('Invalid author name'),
                         _('Author names cannot contain & characters.')).exec_()
                 return False
         if key == 'search':
             if val in saved_searches().names():
-                error_dialog(self.parent(), _('Duplicate search name'),
+                error_dialog(self.gui_parent, _('Duplicate search name'),
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
             saved_searches().rename(unicode(item.data(role).toString()), val)
