@@ -72,8 +72,19 @@ class PersistentTemporaryFile(object):
             prefix = ""
         if dir is None:
             dir = base_dir()
-        fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
+        try:
+            fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
                                     dir=dir)
+        except UnicodeDecodeError:
+            global _base_dir
+            from calibre.constants import filesystem_encoding
+            base_dir()
+            if not isinstance(_base_dir, unicode):
+                _base_dir = _base_dir.decode(filesystem_encoding)
+            dir = dir.decode(filesystem_encoding)
+            fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
+                                    dir=dir)
+
         self._file = os.fdopen(fd, mode)
         self._name = name
         self._fd = fd

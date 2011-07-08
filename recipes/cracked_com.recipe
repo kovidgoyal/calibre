@@ -1,83 +1,63 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class Cracked(BasicNewsRecipe):
     title                 = u'Cracked.com'
-    __author__            = u'Nudgenudge'
+    __author__            = 'UnWeave'
     language              = 'en'
-    description            = 'America''s Only Humor and Video Site, since 1958'
+    description           = "America's Only HumorSite since 1958"
     publisher             = 'Cracked'
     category              = 'comedy, lists'
-    oldest_article        = 2
-    delay                 = 10
-    max_articles_per_feed = 2
+    oldest_article        = 3 #days
+    max_articles_per_feed = 100
     no_stylesheets        = True
-    encoding              = 'cp1252'
+    encoding              = 'ascii'
     remove_javascript     = True
     use_embedded_content  = False
-    INDEX                 = u'http://www.cracked.com'
-    extra_css             = """
-                                .pageheader_type{font-size: x-large; font-weight: bold; color: #828D74}
-                                .pageheader_title{font-size: xx-large; color: #394128}
-                                .pageheader_byline{font-size: small; font-weight: bold; color: #394128}
-                                .score_bg {display: inline; width: 100%; margin-bottom: 2em}
-                                .score_column_1{ padding-left: 10px; font-size: small; width: 50%}
-                                .score_column_2{ padding-left: 10px; font-size: small; width: 50%}
-                                .score_column_3{ padding-left: 10px; font-size: small; width: 50%}
-                                .score_header{font-size: large; color: #50544A}
-                                .bodytext{display: block}
-                                body{font-family: Helvetica,Arial,sans-serif}
-                            """
+
+    feeds = [ (u'Articles', u'http://feeds.feedburner.com/CrackedRSS/') ]
 
     conversion_options = {
                           'comment'   : description
                         , 'tags'      : category
                         , 'publisher' : publisher
                         , 'language'  : language
-                        , 'linearize_tables' : True
                         }
 
-    keep_only_tags    =  [
-                        dict(name='div', attrs={'class':['Column1']})
-                        ]
+    remove_tags_before = dict(id='PrimaryContent')
 
-    feeds = [(u'Articles', u'http://feeds.feedburner.com/CrackedRSS')]
+    remove_tags_after = dict(name='div', attrs={'class':'shareBar'})
 
-    def get_article_url(self, article):
-        return article.get('guid',  None)
+    remove_tags = [ dict(name='div', attrs={'class':['social',
+                                                     'FacebookLike',
+                                                     'shareBar'
+                                                     ]}),
 
-    def cleanup_page(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for alink in soup.findAll('a'):
-            if alink.string is not None:
-                tstr = alink.string
-                alink.replaceWith(tstr)
-        for div_to_remove in soup.findAll('div', attrs={'id':['googlead_1','fb-like-article','comments_section']}):
-            div_to_remove.extract()
-        for div_to_remove in soup.findAll('div', attrs={'class':['share_buttons_col_1','GenericModule1']}):
-            div_to_remove.extract()
-        for div_to_remove in soup.findAll('div', attrs={'class':re.compile("prev_next")}):
-            div_to_remove.extract()
-        for ul_to_remove in soup.findAll('ul', attrs={'class':['Nav6']}):
-            ul_to_remove.extract()
-        for image in soup.findAll('img', attrs={'alt': 'article image'}):
-            image.extract()
+                    dict(name='div', attrs={'id':['inline-share-buttons',
+                                                  ]}),
 
-    def append_page(self, soup, appendtag, position):
-        pager = soup.find('a',attrs={'class':'next_arrow_active'})
-        if pager:
-            nexturl = self.INDEX + pager['href']
-            soup2 = self.index_to_soup(nexturl)
-            texttag = soup2.find('div', attrs={'class':re.compile("userStyled")})
-            newpos = len(texttag.contents)
-            self.append_page(soup2,texttag,newpos)
-            texttag.extract()
-            self.cleanup_page(appendtag)
-            appendtag.insert(position,texttag)
-        else:
-            self.cleanup_page(appendtag)
+                    dict(name='span', attrs={'class':['views',
+                                                      'KonaFilter'
+                                                      ]}),
+                    #dict(name='img'),
+                    ]
+
+    def appendPage(self, soup, appendTag, position):
+        # Check if article has multiple pages
+        pageNav = soup.find('nav', attrs={'class':'PaginationContent'})
+        if pageNav:
+            # Check not at last page
+            nextPage = pageNav.find('a', attrs={'class':'next'})
+            if nextPage:
+                nextPageURL = nextPage['href']
+                nextPageSoup = self.index_to_soup(nextPageURL)
+                # 8th <section> tag contains article content
+                nextPageContent = nextPageSoup.findAll('section')[7]
+                newPosition = len(nextPageContent.contents)
+                self.appendPage(nextPageSoup,nextPageContent,newPosition)
+                nextPageContent.extract()
+                pageNav.extract()
+                appendTag.insert(position,nextPageContent)
 
     def preprocess_html(self, soup):
-        self.append_page(soup, soup.body, 3)
-        return self.adeify_images(soup)
+        self.appendPage(soup, soup.body, 3)
+        return soup

@@ -155,7 +155,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return
         if self.argument_count.value() == 0:
             box = warning_dialog(self.gui, _('Template functions'),
-                         _('Argument count should be -1 or greater than zero.'
+                         _('Argument count should be -1 or greater than zero. '
                            'Setting it to zero means that this function cannot '
                            'be used in single function mode.'), det_msg = '',
                          show=False)
