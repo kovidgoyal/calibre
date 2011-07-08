@@ -20,7 +20,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     remove_tags_before = dict(name='div', attrs={'id':'date'})
     remove_tags_after = dict(name='div', attrs={'id':'column-1-3'})
     encoding              = 'utf-8'
-    extra_css = '#date {font-size: 10px} .article-image-caption {font-size: 8px}'
+    extra_css = 'body{font-size:12px} #date, .article-image-caption {font-size: 0.583em} h2 {font-size: 0.917em} p.small, span, li, li span span, p, b, i, u, p.small.article-paragraph,  p.small.article-paragraph p, p.small.article-paragraph span, p span, span {font-size: 0.833em} h1 {font-size: 1em}'
 
     remove_tags = [dict(name='div', attrs={'class':[ 'metroCommentFormWrap',
         'commentForm', 'metroCommentInnerWrap', 'article-slideshow-counter-container', 'article-slideshow-control', 'ad', 'header-links',
