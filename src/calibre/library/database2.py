@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, tempfile, hashlib
+        json, uuid, tempfile, hashlib, copy
 from collections import defaultdict
 import threading, random
 from itertools import repeat
@@ -1794,10 +1794,22 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         for user_cat in sorted(user_categories.keys(), key=sort_key):
             items = []
+            names_seen = {}
             for (name,label,ign) in user_categories[user_cat]:
                 n = icu_lower(name)
                 if label in taglist and n in taglist[label]:
-                    items.append(taglist[label][n])
+                    if user_cat in gst:
+                        # for gst items, make copy and consolidate the tags by name.
+                        if n in names_seen:
+                            names_seen[n].id_set |= taglist[label][n].id_set
+                            names_seen[n].count += taglist[label][n].count
+                        else:
+                            t = copy.copy(taglist[label][n])
+                            t.icon = icon_map['gst']
+                            names_seen[t.name] = t
+                            items.append(t)
+                    else:
+                        items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
             cat_name = '@' + user_cat # add the '@' to avoid name collision
             # Not a problem if we accumulate entries in the icon map

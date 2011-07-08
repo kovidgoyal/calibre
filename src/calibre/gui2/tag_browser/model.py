@@ -21,6 +21,7 @@ from calibre.utils.icu import sort_key, lower, strcmp
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.search_query_parser import saved_searches
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
@@ -315,9 +316,11 @@ class TagsModel(QAbstractItemModel): # {{{
                 for i,p in enumerate(path_parts):
                     path += p
                     if path not in category_node_map:
+                        icon = self.category_icon_map['gst'] if is_gst else \
+                                                    self.category_icon_map[key]
                         node = self.create_node(parent=last_category_node,
                                            data=p[1:] if i == 0 else p,
-                                           category_icon=self.category_icon_map[key],
+                                           category_icon=icon,
                                            tooltip=tt if path == key else path,
                                            category_key=path,
                                            icon_map=self.icon_state_map)
@@ -375,6 +378,7 @@ class TagsModel(QAbstractItemModel): # {{{
             collapse_letter = None
             category_node = category
             key = category_node.category_key
+            is_gst = category_node.is_gst
             if key not in data:
                 return
             cat_len = len(data[key])
@@ -455,6 +459,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                      tooltip = None, temporary=True,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
+                    sub_cat.is_gst = is_gst
                     node_parent = sub_cat
                 else:
                     node_parent = category
@@ -1161,7 +1166,10 @@ class TagsModel(QAbstractItemModel): # {{{
                         prefix = ' not '
                     else:
                         prefix = ''
-                    category = tag.category if key != 'news' else 'tag'
+                    if node.is_gst:
+                        category = key
+                    else:
+                        category = tag.category if key != 'news' else 'tag'
                     add_colon = False
                     if self.db.field_metadata[tag.category]['is_csp']:
                         add_colon = True
