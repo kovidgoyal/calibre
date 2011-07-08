@@ -596,12 +596,27 @@ class KOBO(USBMS):
         try:
             cursor.execute (query)
         except:
-            debug_print('Database Exception:  Unable to reset Shortlist list')
+            debug_print('    Database Exception:  Unable to reset Shortlist list')
             raise
         else:
             connection.commit()
             debug_print('    Commit: Reset FavouritesIndex list')
         
+    def set_favouritesindex(self, connection, ContentID):
+        cursor = connection.cursor()
+
+        t = (ContentID,)
+
+        try:
+            cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
+        except:
+            debug_print('    Database Exception:  Unable set book as Shortlist')
+            raise
+        else:
+            connection.commit()
+            debug_print('    Commit: Set FavouritesIndex')
+        
+
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
         # Define lists for the ReadStatus
         readstatuslist = {
@@ -636,11 +651,7 @@ class KOBO(USBMS):
 
             # Process any collections that exist
             for category, books in collections.items():
-                # This is used to reset the Im_Reading, Read and Closed list
-                # in the ReadStatus column of the Content table
-                if category in readstatuslist.keys():
                     debug_print("Category: ", category, " id = ", readstatuslist.get(category))
-
                     for book in books:
                         debug_print('    Title:', book.title, 'category: ', category)
                         if category not in book.device_collections:
@@ -650,35 +661,16 @@ class KOBO(USBMS):
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
 
                         ContentID = self.contentid_from_path(book.path, ContentType)
-                        self.set_readstatus(connection, ContentID, readstatuslist.get(category))
-                if category == 'Shortlist':
-                    debug_print("Category: ", category)
-                    cursor = connection.cursor()
-                    for book in books:
-                        debug_print('    Title:', book.title, 'category: ', category)
-                        if 'Shortlist' not in book.device_collections:
-                            book.device_collections.append('Shortlist')
-                        # debug_print ("Shortlist found for: ", book.title)
-                        extension =  os.path.splitext(book.path)[1]
-                        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
 
-                        ContentID = self.contentid_from_path(book.path, ContentType)
-#                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
-
-                        t = (ContentID,)
-
-                        try:
-                            cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
-                        except:
-                            debug_print('Database Exception:  Unable set book as Shortlist')
-                            raise
-                        else:
-                            connection.commit()
-#                            debug_print('Database: Commit set Shortlist as Shortlist')
-
+                        if category in readstatuslist.keys():
+                            # Manage ReadStatus 
+                            self.set_readstatus(connection, ContentID, readstatuslist.get(category))
+                        if category == 'Shortlist':
+                            # Manage FavouritesIndex/Shortlist
+                            self.set_favouritesindex(connection, ContentID)
         else: # No collections
             # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
-            debug_print("No Collections - reseting ReadStatus to 0")
+            debug_print("No Collections - reseting ReadStatus")
             self.reset_readstatus(connection, oncard)
             debug_print("No Collections - reseting FavouritesIndex")
             self.reset_favouritesindex(connection, oncard)
