@@ -1801,8 +1801,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if user_cat in gst:
                         # for gst items, make copy and consolidate the tags by name.
                         if n in names_seen:
-                            names_seen[n].id_set |= taglist[label][n].id_set
-                            names_seen[n].count += taglist[label][n].count
+                            t = names_seen[n]
+                            t.id_set |= taglist[label][n].id_set
+                            t.count += taglist[label][n].count
+                            t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
                         else:
                             t = copy.copy(taglist[label][n])
                             t.icon = icon_map['gst']
