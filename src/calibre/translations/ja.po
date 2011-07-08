@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-06-30 21:31+0000\n"
-"PO-Revision-Date: 2011-06-30 08:23+0000\n"
+"POT-Creation-Date: 2011-07-01 17:31+0000\n"
+"PO-Revision-Date: 2011-07-07 06:38+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-01 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-07-08 04:43+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -134,7 +134,7 @@ msgstr "まったく何もしません。（何も影響しません。）"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:379
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:167
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:542
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:548
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:151
@@ -180,7 +180,7 @@ msgstr "まったく何もしません。（何も影響しません。）"
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:156
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:159
 #: /home/kovid/work/calibre/src/calibre/library/server/xml.py:79
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:64
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:78
@@ -887,13 +887,13 @@ msgstr "デバッグ・ログ"
 msgid "Communicate with Android phones."
 msgstr "Androidフォンと通信します。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:106
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:109
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr "電子書籍を送るためのデバイス上のディレクトリ名。カンマ区切りのリストで、最初に見つかったものが利用される"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:158
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:161
 msgid "Communicate with S60 phones."
 msgstr "電話機 S60 と通信します。"
 
@@ -3008,7 +3008,7 @@ msgstr "Yes"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:36
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/models.py:23
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:348
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:577
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:578
 msgid "Title"
 msgstr "書籍名"
 
@@ -4238,7 +4238,7 @@ msgstr "以下からの書誌情報の読み込みに失敗"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:395
 msgid "Add to library"
-msgstr "書庫に追加"
+msgstr "ライブラリに追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:130
@@ -4262,7 +4262,7 @@ msgstr "本が見つかりません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
-msgstr "書庫に本を追加"
+msgstr "ライブラリに本を追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
@@ -5649,44 +5649,44 @@ msgstr "１つのディレクトリに複数の書籍。すべての違うEBook�
 msgid "Donate"
 msgstr "寄付"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:116
 msgid "Click to open"
 msgstr "クリックして開く"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:131
 msgid "Ids"
 msgstr "Ids"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:162
 msgid "Book %s of <span class=\"series_name\">%s</span>"
 msgstr "%s (シリーズ：<span class=\"series_name\">%s</span>)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:167
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1020
 msgid "Collections"
 msgstr "コレクション"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:269
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:247
 msgid "Paste Cover"
 msgstr "表紙を貼り付け"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:270
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:276
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:248
 msgid "Copy Cover"
 msgstr "表紙をコピー"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:542
 msgid "Double-click to open Book Details window"
 msgstr "ダブルクリックで書籍の詳細ウインドウを開く"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:537
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:543
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:278
 msgid "Path"
 msgstr "パス名"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:538
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:544
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 msgid "Cover size: %dx%d"
 msgstr "表紙サイズ: %dx%d"
@@ -7397,10 +7397,10 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>."
 msgstr ""
-"<p>例えば、すべてのclass=\"chapter\"を持つh2タグにマッチさせるには、タグを<i>h2</i>に、アトリビュートを<i>class</i"
-">そしてアトリビュートの値を<i>chapter</i>にしてください。</p><p>アトリビュート欄を空白にすると、すべてのアトリビュートに、アトリビ"
-"ュートの値欄を空白にすると、すべてのアトリビュートの値にマッチします。タグ名を*にするとすべてのタグにマッチします。</p><p>もっと高度なXPath"
-"の使い方については<a href=\"http://manual.calibre-"
+"<p>例えば、すべてのclass=\"chapter\"を持つh2タグにマッチさせるには、タグを<i>h2</i>に、アトリビュートを<i>class</"
+"i>そしてアトリビュートの値を<i>chapter</i>にしてください。</p><p>アトリビュート欄を空白にすると、すべてのアトリビュートに、アトリビ"
+"ュートの値欄を空白にすると、すべてのアトリビュートの値にマッチします。タグ名を*にするとすべてのタグにマッチします。</p><p>もっと高度なXPathの"
+"使い方については<a href=\"http://manual.calibre-"
 "ebook.com/xpath.html\">XPathチュートリアル</a>を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:128
@@ -8171,7 +8171,7 @@ msgstr "どこから削除しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:68
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:231
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:232
 msgid "Library"
 msgstr "ライブラリ"
 
@@ -8208,7 +8208,7 @@ msgstr "位置"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:76
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:338
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:576
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:577
 msgid "Date"
 msgstr "日付"
 
@@ -8963,7 +8963,7 @@ msgstr "%sのヴァージョン履歴"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 msgid "Update available"
-msgstr "アップデートがあります"
+msgstr "アップデート有り"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
@@ -11631,8 +11631,8 @@ msgid ""
 "punctuation, case, etc.\n"
 "Author matching is exact."
 msgstr ""
-"オートマージ:もし類似したタイトルや作者の書籍が見つかった場合、そのフォーマットが自動的にすでにある書籍のレコードに追加されます。このボックスではそのフ"
-"ォーマットと同じフォーマットがすでに書籍レコードに存在した場合にどうするかを設定します: \n"
+"オートマージ:もし類似したタイトルや作者の書籍が見つかった場合、そのフォーマットが自動的にすでにある書籍のレコードに追加されます。このボックスではそのフォ"
+"ーマットと同じフォーマットがすでに書籍レコードに存在した場合にどうするかを設定します: \n"
 "\n"
 "同じフォーマットの新しいファイルを無視 - 現在ライブラリにあるファイルはそのまま残ります。\n"
 "現在のものを上書き - 現在ライブラリにあるファイルは置き換えられます\n"
@@ -12072,7 +12072,7 @@ msgstr "格付けを星で表示"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:76
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:159
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:176
 msgid "Yes/No"
 msgstr "Yes/No"
 
@@ -12098,7 +12098,7 @@ msgid "ISBN"
 msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:68
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:175
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:135
@@ -12134,23 +12134,37 @@ msgstr "列が選択されていません"
 msgid "Selected column is not a user-defined column"
 msgstr "選択されている列はユーザー定義列ではありません"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:160
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:148
+msgid ""
+"If checked, this column will be displayed as HTML in book details and the "
+"content server. This can be used to construct links with the template "
+"language. For example, the template "
+"<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;{series:| "
+"[|}{series_index:| [|]]}</pre>will create a field displaying the title in "
+"bold large characters, along with the series, for example <br>\"<big><b>An "
+"Oblique Approach</b></big> [Belisarius [1]]\". The template <pre>&lt;a "
+"href=\"http://www.beam-ebooks.de/ebook/{identifiers:select(beam)}\"&gt;Beam "
+"book&lt;/a&gt;</pre> will generate a link to the book on the Beam ebooks "
+"site."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:177
 msgid "My Tags"
 msgstr "私のタグ"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:178
 msgid "My Series"
 msgstr "私のシリーズ"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:179
 msgid "My Rating"
 msgstr "私の評価"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:163
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:180
 msgid "People"
 msgstr "人々"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:207
 msgid ""
 "Examples: The format <code>{0:0>4d}</code> gives a 4-digit number with "
 "leading zeros. The format <code>{0:d}&nbsp;days</code> prints the number "
@@ -12159,7 +12173,7 @@ msgstr ""
 "例:<code>{0:0>4d}</code>と言うフォーマットは、空きが0で埋められる4桁の数字となります。 "
 "<code>{0:d}&nbsp;日</code> は数字と「日」と言う文字を表示します。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:212
 msgid ""
 "Examples: The format <code>{0:.1f}</code> gives a floating point number with "
 "1 digit after the decimal point. The format "
@@ -12171,88 +12185,88 @@ msgstr ""
 "と言うフォーマットは、小数点以下1桁の数字になります。<code>価格:&nbsp;$&nbsp;{0:,.2f}</code> "
 "と言うフォーマットは「価格&nbsp;$&nbsp;」の後に千の位にカンマがあり、小数点以下2桁の数字を表示します。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:204
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:221
 msgid "No lookup name was provided"
 msgstr "検索名がありません"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:225
 msgid ""
 "The lookup name must contain only lower case letters, digits and "
 "underscores, and start with a letter"
 msgstr "検索名は小文字（アルファベット）と数字、アンダースコアからなり、小文字で始まらなくてはいけません"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:228
 msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr "検索名は_indexで終わることはできません。それらは、シリーズ列のインデックス用途に予約されています。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:238
 msgid "No column heading was provided"
 msgstr "列名がありません"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:231
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:248
 msgid "The lookup name %s is already used"
 msgstr "検索名 %s はすでに使われています"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:243
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:260
 msgid "The heading %s is already used"
 msgstr "列名 %s はすでに使われています"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:254
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:271
 msgid "You must enter a template for composite columns"
 msgstr "複合列のテンプレートを入力してください"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:263
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:281
 msgid "You must enter at least one value for enumeration columns"
 msgstr "最低１つの列挙列の値を入力する必要があります。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:267
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:285
 msgid "You cannot provide the empty value, as it is included by default"
 msgstr "ディフォールトで引用されるので、空の値にすることはできません。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:271
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:289
 msgid "The value \"{0}\" is in the list more than once"
 msgstr "\"{0}\" の値がリスト中に1つ以上あります"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:279
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:297
 msgid ""
 "The colors box must be empty or contain the same number of items as the "
 "value box"
 msgstr "色のボックスは空か、あるいは値のボックスの値と同じ数無ければいけません"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:284
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:302
 msgid "The color {0} is unknown"
 msgstr "色 {0} は不明です"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:220
 msgid "&Lookup name"
 msgstr "検索名(&L)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:221
 msgid "Column &heading"
 msgstr "列名(&H)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:219
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:222
 msgid ""
 "Used for searching the column. Must contain only digits and lower case "
 "letters."
 msgstr "列を探す時に使われます。小文字（アルファベット）と数字のみが使えます。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:220
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:223
 msgid ""
 "Column heading in the library view and category name in the tag browser"
 msgstr "ライブラリ表示の列名と、タグ・ブラウザのカテゴリ名に使われます。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:224
 msgid "&Column type"
 msgstr "列タイプ(&C)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:225
 msgid "What kind of information will be kept in the column."
 msgstr "どのような種類の情報が列に入れられるか。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:226
 msgid ""
 "Show check marks in the GUI. Values of 'yes', 'checked', and 'true'\n"
 "will show a green check. Values of 'no', 'unchecked', and 'false' will show "
@@ -12262,20 +12276,20 @@ msgstr ""
 "GUIにチェックマークを表示します。値が 'yes', 'checked', 'true'の時は緑のチェックマークが、 'no', "
 "'unchecked', 'false'の時には赤いXが表示されます。それ以外の場合には何も表示されません。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:226
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:229
 msgid "Show checkmarks"
 msgstr "チェックマークを表示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:227
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:230
 msgid ""
 "Check this box if this column contains names, like the authors column."
 msgstr "著者列のように、名前を含む列の時にはこのボックスをチェックしてください。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:228
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:231
 msgid "Contains names"
 msgstr "名前を含む"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:229
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:232
 msgid ""
 "<p>Date format. Use 1-4 'd's for day, 1-4 'M's for month, and 2 or 4 'y's "
 "for year.</p>\n"
@@ -12292,15 +12306,15 @@ msgstr ""
 "<li>dd MMMM yy は 05 January 10 になります。</li>\n"
 "</ul> "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:235
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:238
 msgid "Use MMM yyyy for month + year, yyyy for year only"
 msgstr "月＋年の時には、MMM yyyy を使ってください、年だけの時には yyyy を使ってください。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:236
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:239
 msgid "Default: dd MMM yyyy."
 msgstr "ディフォールト： dd MMM yyyy."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:237
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:240
 msgid ""
 "<p>The format specifier must begin with <code>{0:</code>\n"
 "and end with <code>}</code> You can have text before and after the format "
@@ -12312,7 +12326,7 @@ msgstr ""
 "ます。\n"
 "            "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:240
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:243
 msgid ""
 "<p>Default: Not formatted. For format language details see <a "
 "href=\"http://docs.python.org/library/string.html#format-string-syntax\">the "
@@ -12322,52 +12336,62 @@ msgstr ""
 "href=\"http://docs.python.org/library/string.html#format-string-"
 "syntax\">pythonドキュメント</a>を参照してください。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:241
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:244
 msgid "Format for &dates"
 msgstr "日付(&d)のフォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:242
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:245
 msgid "Format for &numbers"
 msgstr "数値のフォーマット(&F)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:243
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:246
 msgid "&Template"
 msgstr "テンプレート(&T)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:244
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:247
 msgid "Field template. Uses the same syntax as save templates."
 msgstr "フィールド・テンプレート。保存テンプレートと同じ構文です。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:245
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:248
 msgid "Similar to save templates. For example, {title} {isbn}"
 msgstr "保存テンプレートと似ています。例えば：{title} {isbn}"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:246
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:249
 msgid "Default: (nothing)"
 msgstr "ディフォールト：（なし）"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:247
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:250
 msgid "&Sort/search column by"
 msgstr "列のソート/検索方法(&S)："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:248
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:251
 msgid "How this column should handled in the GUI when sorting and searching"
 msgstr "GUIでのソートや検索時にこの列をどのように取り扱うか"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:249
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:252
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr "もしチェックされると、この列はタグブラウザにカテゴリとして現れます"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:250
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:253
 msgid "Show in tags browser"
 msgstr "タグブラウザに表示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:251
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:254
+msgid ""
+"If checked, this column will be displayed as HTML in book details and the "
+"content server"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
+msgid "Show as HTML in book details"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:256
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:261
 msgid "Values"
 msgstr "値"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:252
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:257
 msgid ""
 "A comma-separated list of permitted values. The empty value is always\n"
 "included, and is the default. For example, the list 'one,two,three' has\n"
@@ -12376,17 +12400,17 @@ msgstr ""
 "コンマ区切りでの、許可される値のリスト。空欄は必ず含まれ、それがディフォールトです。例えば 'one,two,three' "
 "は４つの値があります。最初の一つが空欄になるからです。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:260
 msgid "The empty string is always the first value"
 msgstr "空文字列は必ず最初の値です"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:257
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:262
 msgid ""
 "A list of color names to use when displaying an item. The\n"
 "list must be empty or contain a color for each value."
 msgstr "表示するときに使われるカラーの名前のリスト。リストは空か、もしくは各値に対応するカラー名からなります。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:259
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:264
 msgid "Colors"
 msgstr "カラー"
 
@@ -16838,7 +16862,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:340
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:612
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:576
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:577
 msgid "Newest"
 msgstr "最新順"
 
@@ -16900,11 +16924,11 @@ msgstr ""
 msgid "This book has been deleted"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:866
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:868
 msgid "in search"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:868
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:870
 msgid "Matching books"
 msgstr ""
 
@@ -16961,15 +16985,15 @@ msgstr ""
 msgid "SERIES: %s [%s]<br />"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:270
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:271
 msgid "Books in your library"
 msgstr "ライブラリ中の本"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:276
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:277
 msgid "By "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:277
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:278
 msgid "Books sorted by "
 msgstr "本を並べ替え "
 
@@ -17515,7 +17539,7 @@ msgstr "英語(カナダ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "English (Greece)"
-msgstr ""
+msgstr "英語（ギリシャ）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English (India)"
@@ -17526,106 +17550,110 @@ msgid "English (Thailand)"
 msgstr "英語(タイ）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
+msgid "English (Turkey)"
+msgstr "英語（トルコ）"
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (Cyprus)"
 msgstr "英語（キプロス）"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Czechoslovakia)"
 msgstr "英語（チェコスロバキア）"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (Pakistan)"
 msgstr "英語（パキスタン）"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "English (Croatia)"
 msgstr "英語（クロアチア）"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English (Indonesia)"
 msgstr "英語(インドネシア)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Israel)"
 msgstr "英語（イスラエル）"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Singapore)"
 msgstr "英語 (シンガポール)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Yemen)"
 msgstr "英語(イエメン）"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Ireland)"
 msgstr "英語 (アイルランド)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (China)"
 msgstr "英語（中国）"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
-msgid "English (South Africa)"
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
+msgid "English (South Africa)"
+msgstr "英語 (南アフリカ)"
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "Spanish (Paraguay)"
 msgstr "スペイン語(パラグアイ)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "Spanish (Uruguay)"
 msgstr "スペイン語 (ウルグアイ)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "Spanish (Argentina)"
 msgstr "スペイン語（アルゼンチン）"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "Spanish (Mexico)"
 msgstr "スペイン語 (メキシコ)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "Spanish (Cuba)"
 msgstr "スペイン語 (キューバ)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "Spanish (Chile)"
 msgstr "スペイン語 (チリ)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "Spanish (Ecuador)"
 msgstr "スペイン語 (エクアドル)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
 msgid "Spanish (Honduras)"
 msgstr "スペイン語 (ホンジュラス)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
 msgid "Spanish (Venezuela)"
 msgstr "スペイン語 (ベネズエラ)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "Spanish (Bolivia)"
 msgstr "スペイン語 (ボリビア)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "Spanish (Nicaragua)"
 msgstr "スペイン語 (ニカラグア)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "German (AT)"
 msgstr "ドイツ語（オーストリア）"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "French (BE)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
 msgid "Dutch (NL)"
 msgstr "ドイツ語(オランダ)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
 msgid "Dutch (BE)"
 msgstr "ドイツ語（ベルギー)"
 
