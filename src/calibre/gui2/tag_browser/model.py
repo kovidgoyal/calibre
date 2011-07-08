@@ -21,7 +21,6 @@ from calibre.utils.icu import sort_key, lower, strcmp
 from calibre.library.field_metadata import TagsIcons, category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
-from calibre.utils.ordered_dict import OrderedDict
 from calibre.utils.search_query_parser import saved_searches
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
