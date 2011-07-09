@@ -559,7 +559,7 @@ if __name__ == '__main__': # tests {{{
               # unknown to Amazon
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
-                [title_test('The Invisible Gorilla', exact=True)]
+                [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us', exact=True)]
 
             ),
 

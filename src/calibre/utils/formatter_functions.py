@@ -544,7 +544,7 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
     arg_count = 0
     category = 'Get values from metadata'
     __doc__ = doc = _('formats_sizes() -- return a comma-separated list of '
-                      'colon_separated items representing sizes in bytes'
+                      'colon_separated items representing sizes in bytes '
                       'of the formats of a book. You can use the select '
                       'function to get the size for a specific '
                       'format. Note that format names are always uppercase, '
