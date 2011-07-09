@@ -1,10 +1,10 @@
 #!/usr/bin/env  python
 __license__     = 'GPL v3'
-__author__      = 'Lorenzo Vigentini'
-__copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
-__version__     = 'v1.01'
-__date__        = '14, January 2010'
-__description__ = 'Computeractive publishes new downloads, reviews, news stories, step-by-step guides and answers to PC problems every day.'
+__author__      = 'DrMerry Based on v1.01 by Lorenzo Vigentini'
+__copyright__   = 'For version 1.02: DrMerry'
+__version__     = 'v1.02'
+__date__        = '08, July 2011'
+__description__ = 'Computeractive publishes new downloads, reviews, news stories, step-by-step guides and answers to PC problems every day. Original version (c): 2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
 
 '''
 http://www.computeractive.co.uk/
@@ -33,12 +33,12 @@ class computeractive(BasicNewsRecipe):
     no_stylesheets        = True
 
     keep_only_tags     = [
-                            dict(name='div', attrs={'id':'main'})
+                            dict(name='div', attrs={'id':'container_left'})
                         ]
 
     remove_tags        = [
-                            dict(name='div', attrs={'id':['seeAlsoTags','commentsModule','relatedArticles','mainLeft','mainRight']}),
-                            dict(name='div', attrs={'class':['buyIt','detailMpu']}),
+                            dict(name='div', attrs={'id':['seeAlsoTags','commentsModule','relatedArticles','mainLeft','mainRight','recent_comment_block_parent','reviewDetails']}),
+                            dict(name='div', attrs={'class':['buyIt','detailMpu','small_section','recent_comment_block_parent','title_right_button_fix','section_title.title_right_button_fix','common_button']}),
                             dict(name='a', attrs={'class':'largerImage'})
                         ]
 

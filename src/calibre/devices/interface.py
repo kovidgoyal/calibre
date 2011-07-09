@@ -49,6 +49,9 @@ class DevicePlugin(Plugin):
     #: Whether the metadata on books can be set via the GUI.
     CAN_SET_METADATA = ['title', 'authors', 'collections']
 
+    #: Whether the device can handle device_db metadata plugboards
+    CAN_DO_DEVICE_DB_PLUGBOARD = False
+
     # Set this to None if the books on the device are files that the GUI can
     # access in order to add the books from the device to the library
     BACKLOADING_ERROR_MESSAGE = _('Cannot get files from this device')

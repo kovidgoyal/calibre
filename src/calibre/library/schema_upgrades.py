@@ -606,6 +606,7 @@ class SchemaUpgrade(object):
         '''
 
         script = '''
+        BEGIN TRANSACTION;
         ALTER TABLE authors ADD COLUMN link TEXT NOT NULL DEFAULT "";
         '''
         self.conn.executescript(script)

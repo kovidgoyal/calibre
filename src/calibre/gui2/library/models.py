@@ -950,11 +950,11 @@ class OnDeviceSearch(SearchQueryParser): # {{{
             for locvalue in locations:
                 accessor = q[locvalue]
                 if query == 'true':
-                    if accessor(row) is not None:
+                    if accessor(row):
                         matches.add(index)
                     continue
                 if query == 'false':
-                    if accessor(row) is None:
+                    if not accessor(row):
                         matches.add(index)
                     continue
                 if locvalue == 'inlibrary':

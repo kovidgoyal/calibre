@@ -22,6 +22,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 
 def comparable_price(text):
+    text = re.sub(r'[^0-9.,]', '', text)
     if len(text) < 3 or text[-3] not in ('.', ','):
         text += '00'
     text = re.sub(r'\D', '', text)
@@ -293,6 +294,7 @@ class SearchFilter(SearchQueryParser):
         return self.srs
 
     def get_matches(self, location, query):
+        query = query.strip()
         location = location.lower().strip()
         if location == 'authors':
             location = 'author'

@@ -20,6 +20,7 @@ from calibre.ebooks.metadata.sources.covers import download_cover
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.customize.ui import metadata_plugins
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.date import as_utc
 
 # Start download {{{
 def show_config(gui, parent):
@@ -124,10 +125,18 @@ def merge_result(oldmi, newmi):
     for plugin in metadata_plugins(['identify']):
         fields |= plugin.touched_fields
 
+    def is_equal(x, y):
+        if hasattr(x, 'tzinfo'):
+            x = as_utc(x)
+        if hasattr(y, 'tzinfo'):
+            y = as_utc(y)
+        return x == y
+
     for f in fields:
         # Optimize so that set_metadata does not have to do extra work later
         if not f.startswith('identifier:'):
-            if (not newmi.is_null(f) and getattr(newmi, f) == getattr(oldmi, f)):
+            if (not newmi.is_null(f) and is_equal(getattr(newmi, f),
+                    getattr(oldmi, f))):
                 setattr(newmi, f, getattr(dummy, f))
 
     newmi.last_modified = oldmi.last_modified
