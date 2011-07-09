@@ -20,7 +20,7 @@ class HTMLZInput(InputFormatPlugin):
     author      = 'John Schember'
     description = 'Convert HTML files to HTML'
     file_types  = set(['htmlz'])
-    
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         self.log = log
@@ -35,14 +35,14 @@ class HTMLZInput(InputFormatPlugin):
                 with open(x, 'rb') as tf:
                     html = tf.read()
                     break
-        
+
         # Encoding
         if options.input_encoding:
             ienc = options.input_encoding
         else:
             ienc = xml_to_unicode(html[:4096])[-1]
         html = html.decode(ienc, 'replace')
-        
+
         # Run the HTML through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
@@ -71,7 +71,7 @@ class HTMLZInput(InputFormatPlugin):
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
-        
+
         # Get the cover path from the OPF.
         cover_path = None
         opf = None
