@@ -319,8 +319,15 @@ class KOBO(USBMS):
         # Kobo does not delete the Book row (ie the row where the BookID is Null)
         # The next server sync should remove the row
         cursor.execute('delete from content where BookID = ?', t)
-        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
+        try:
+            cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
                 'where BookID is Null and ContentID =?',t)
+        except Exception as e:
+            if 'no such column' not in str(e):
+                raise
+            cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                'where BookID is Null and ContentID =?',t)
+
 
         connection.commit()
 
@@ -609,9 +616,10 @@ class KOBO(USBMS):
         cursor = connection.cursor()
         try:
             cursor.execute (query)
-        except:
+        except Exception as e:
             debug_print('    Database Exception:  Unable to reset Shortlist list')
-            raise
+            if 'no such column' not in str(e):
+                raise
         else:
             connection.commit()
             debug_print('    Commit: Reset FavouritesIndex list')
@@ -625,7 +633,8 @@ class KOBO(USBMS):
             cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
         except:
             debug_print('    Database Exception:  Unable set book as Shortlist')
-            raise
+            if 'no such column' not in str(e):
+                raise
         else:
             connection.commit()
             debug_print('    Commit: Set FavouritesIndex')
