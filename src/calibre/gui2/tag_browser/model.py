@@ -394,7 +394,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                 not fm['is_custom'] and \
                                 not fm['kind'] == 'user' \
                             else False
-            in_uc = fm['kind'] == 'user'
+            in_uc = fm['kind'] == 'user' and not is_gst
             tt = key if in_uc else None
 
             if collapse_model == 'first letter':
