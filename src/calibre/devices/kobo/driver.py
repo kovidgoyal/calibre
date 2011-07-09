@@ -227,7 +227,9 @@ class KOBO(USBMS):
         try:
             cursor.execute (query)
         except Exception as e:
-            if '___ExpirationStatus' not in str(e):
+            err = str(e)
+            if not ('___ExpirationStatus' in err or 'FavouritesIndex' in err or
+                    'Accessibility' in err):
                 raise
             query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                 'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as '
