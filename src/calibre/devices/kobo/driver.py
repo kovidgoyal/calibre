@@ -631,7 +631,7 @@ class KOBO(USBMS):
 
         try:
             cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
-        except:
+        except Exception as e:
             debug_print('    Database Exception:  Unable set book as Shortlist')
             if 'no such column' not in str(e):
                 raise
