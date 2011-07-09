@@ -107,6 +107,7 @@ class DriverBase(DeviceConfig, DevicePlugin):
     FORMATS = ['epub', 'pdf']
     USER_CAN_ADD_NEW_FORMATS = False
     KEEP_TEMP_FILES_AFTER_UPLOAD = True
+    CAN_DO_DEVICE_DB_PLUGBOARD = True
 
     # Hide the standard customization widgets
     SUPPORTS_SUB_DIRS = False

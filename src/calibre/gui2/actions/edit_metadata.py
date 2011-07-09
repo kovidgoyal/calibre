@@ -284,7 +284,7 @@ class EditMetadataAction(InterfaceAction):
             if not confirm('<p>'+_(
                 'Book formats from the selected books will be merged '
                 'into the <b>first selected book</b> (%s). '
-                'Metadata in the first selected book will not be changed.'
+                'Metadata in the first selected book will not be changed. '
                 'Author, Title, ISBN and all other metadata will <i>not</i> be merged.<br><br>'
                 'After merger the second and subsequently '
                 'selected books, with any metadata they have will be <b>deleted</b>. <br><br>'
@@ -446,9 +446,8 @@ class EditMetadataAction(InterfaceAction):
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of new text to old ids
             to_delete = d.to_delete # list of ids
-            for text in to_rename:
-                for old_id in to_rename[text]:
-                    model.rename_collection(old_id, new_name=unicode(text))
+            for old_id, new_name in to_rename.iteritems():
+                model.rename_collection(old_id, new_name=unicode(new_name))
             for item in to_delete:
                 model.delete_collection_using_id(item)
             self.gui.upload_collections(model.db, view=view, oncard=oncard)

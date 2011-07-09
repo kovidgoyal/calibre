@@ -1,0 +1,138 @@
+# -*- coding: utf-8 -*-
+
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.web.feeds import Feed
+
+class Menorca(BasicNewsRecipe):
+
+    title       = 'Menorca'
+    publisher   = 'Editorial Menorca S.A. '
+    __author__  = 'M. Sintes'
+    description = u'Peri\xf3dico con informaci\xf3n de Menorca, Espa\xf1a'
+    category    = 'news, politics, economy, culture, Menorca, Spain '
+    language    = 'es'
+    enconding   = 'cp1252'
+
+    no_stylesheets = True
+    oldest_article = 5
+    max_articles_per_feed = 25
+
+
+    feeds = [   (u'Principal',u'http://www.menorca.info/rss'),
+                (u'Opini\xf3n',u'http://www.menorca.info/rss?seccion=opinion'),
+                (u'Menorca',u'http://www.menorca.info/rss?seccion=menorca'),
+                (u'Alaior',u'http://www.menorca.info/rss?seccion=pueblos/alaior'),
+                (u'Ciutadella', u'http://www.menorca.info/rss?seccion=pueblos/ciutadella'),
+                (u'Es Castell', u'http://www.menorca.info/rss?seccion=pueblos/escastell'),
+                (u'Es Mercadal', u'http://www.menorca.info/rss?seccion=pueblos/esmercadal'),
+                (u'Es Migjorn', u'http://www.menorca.info/rss?seccion=pueblos/esmigjorn'),
+                (u'Ferreries', u'http://www.menorca.info/rss?seccion=pueblos/ferreries'),
+                (u'Fornells', u'http://www.menorca.info/rss?seccion=pueblos/fornells'),
+                (u'Llucma\xe7anes', u'http://www.menorca.info/rss?seccion=pueblos/llucmaanes'),
+                (u'Ma\xf3', u'http://www.menorca.info/rss?seccion=pueblos/mao'),
+                (u'Sant Climent', u'http://www.menorca.info/rss?seccion=pueblos/santcliment'),
+                (u'Sant Llu\xeds', u'http://www.menorca.info/rss?seccion=pueblos/santlluis'),
+                (u'Deportes',u'http://www.menorca.info/rss?seccion=deportes'),
+                (u'Balears', u'http://www.menorca.info/rss?seccion=balears')]
+
+    #Seccions amb link rss erroni. Es recupera directament de la pagina web
+    seccions_web = [(u'Mundo',u'http://www.menorca.info/actualidad/mundo'),
+                (u'Econom\xeda',u'http://www.menorca.info/actualidad/economia'),
+                (u'Espa\xf1a',u'http://www.menorca.info/actualidad/espana')]
+
+    remove_tags_before = dict(name='div', attrs={'class':'bloqueTitulosNoticia'})
+    remove_tags_after = dict(name='div', attrs={'class':'compartir'})
+    remove_tags = [dict(id = 'utilidades'),
+                dict(name='div', attrs={'class': 'totalComentarios'}),
+                dict(name='div', attrs={'class': 'compartir'}),
+                dict(name='div', attrs={'class': re.compile("img_noticia*")})
+                ]
+
+    def print_version(self, url):
+        url_imprimir = url + '?d=print'
+        return url.replace(url, url_imprimir)
+
+    def feed_to_index_append(self, feedObject, masterFeed):
+
+        # Loop thru the feed object and build the correct type of article list
+        for feed in feedObject:
+            newArticles = []
+            for article in feed.articles:
+                newArt = {
+                                  'title' : article.title,
+                                      'url'   : article.url,
+                                              'date'  : article.date,
+                                      'description' : article.text_summary
+                    }
+
+                newArticles.append(newArt)
+
+            # append the newly-built list object to the index object                     # passed in as masterFeed.
+            masterFeed.append((feed.title,newArticles))
+
+
+    def parse_index(self):
+
+        rssFeeds = Feed()
+        rssFeeds = BasicNewsRecipe.parse_feeds(self)
+
+        articles = []
+        feeds = []
+
+        self.feed_to_index_append(rssFeeds,feeds)
+
+
+
+        for (nom_seccio, url_seccio) in self.seccions_web:
+
+
+            articles = []
+
+            soup = self.index_to_soup(url_seccio)
+            for article in soup.findAll('div', attrs={'class':re.compile("articulo noticia|cajaNoticiaPortada")}):
+                h = article.find(['h2','h3'])
+                titol = self.tag_to_string(h)
+                a = article.find('a', href=True)
+                url = 'http://www.menorca.info' +  a['href']
+
+                desc = None
+                autor = ''
+                dt = ''
+
+                soup_art = self.index_to_soup(url)
+                aut = soup_art.find('div', attrs={'class':'autor'})
+                tx = self.tag_to_string(aut)
+                ls = re.split('[,;]',tx)
+
+                t = len(ls)
+                if t >= 1:
+                    autor = ls[0]
+
+                    if t > 1:
+                        d = ls[t-1]
+
+                        if len(d) >= 10:
+                            lt = len(d) - 10
+                            dt = d[lt:]
+
+
+
+                self.log('\tTrobat article: ', titol, 'a', url, 'Seccio: ', nom_seccio, 'Autor: ',  autor, 'Data: ', dt)
+
+                articles.append({'title': titol, 'url': url, 'description': desc, 'date':dt, 'author': autor})
+
+
+
+
+
+            if articles:
+                feeds.append((nom_seccio, articles))
+
+
+
+
+        return feeds
+
+
+
