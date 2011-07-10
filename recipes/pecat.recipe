@@ -1,0 +1,72 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.pecat.co.rs
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Pecat_rs(BasicNewsRecipe):
+    title                 = 'Pecat'
+    __author__            = 'Darko Miletic'
+    description           = 'Internet portal slobodne Srbije'    
+    oldest_article        = 15
+    max_articles_per_feed = 100
+    language              = 'sr'
+    encoding              = 'utf-8'
+    no_stylesheets        = True
+    use_embedded_content  = True
+    masthead_url          = 'http://www.pecat.co.rs/wp-content/themes/zenko-v1/images/logo.jpg'
+    publication_type      = 'magazine'    
+    extra_css             = """ 
+                                @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                                body{font-family: Arial,Helvetica,sans1,sans-serif}
+                                img{display: block; margin-bottom: 1em; margin-top: 1em}
+                                p{display: block; margin-bottom: 1em; margin-top: 1em}
+                            """
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : 'politika, Srbija'
+                        , 'publisher': 'Pecat'
+                        , 'language' : language
+                        }
+
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+
+    feeds = [(u'Clanci', u'http://www.pecat.co.rs/feed/')]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']           
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  limg.extract()
+                  item.replaceWith(limg)
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)            
+        for item in soup.findAll('img'):
+            dad = item.findParent('p')
+            if dad:
+               mydad = dad.parent
+               myIndex = mydad.contents.index(dad)
+               item.extract()
+               mydad.insert(myIndex,item)
+        for item in soup.findAll('strong'):
+            dad = item.findParent('p')
+            if dad:
+               mydad = dad.parent
+               myIndex = mydad.contents.index(dad)
+               item.extract()
+               item.name='h4'
+               mydad.insert(myIndex,item)
+        return soup

@@ -159,9 +159,9 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 sidx = mi.get(field+'_index')
                 if sidx is None:
                     sidx = 1.0
-                val = _('Book %s of <span class="series_name">%s</span>')%(fmt_sidx(sidx,
-                    use_roman=use_roman_numbers),
-                    prepare_string_for_xml(getattr(mi, field)))
+                val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>')%dict(
+                        sidx=fmt_sidx(sidx, use_roman=use_roman_numbers),
+                        series=prepare_string_for_xml(getattr(mi, field)))
 
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name, val)))
 
@@ -541,7 +541,8 @@ class BookDetails(QWidget): # {{{
         self.setToolTip(
             '<p>'+_('Double-click to open Book Details window') +
             '<br><br>' + _('Path') + ': ' + self.current_path +
-            '<br><br>' + _('Cover size: %dx%d')%(sz.width(), sz.height())
+            '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
+                width=sz.width(), height=sz.height())
         )
 
     def reset_info(self):

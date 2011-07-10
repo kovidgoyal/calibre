@@ -57,7 +57,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                            lambda: [n for (id, n) in self.db.all_publishers()],
                            lambda: self.db.all_tags()
                           ]
-        category_names  = ['', _('Authors'), _('Series'), _('Publishers'), _('Tags')]
+        category_names  = ['', _('Authors'), ngettext('Series', 'Series', 2), _('Publishers'), _('Tags')]
 
         cvals = {}
         for key,cc in self.db.custom_field_metadata().iteritems():

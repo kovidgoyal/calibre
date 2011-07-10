@@ -95,9 +95,9 @@ class CoverManager(object):
         authors = [unicode(x) for x in m.creator if x.role == 'aut']
         series_string = None
         if m.series and m.series_index:
-            series_string = _('Book %s of %s')%(
-                    fmt_sidx(m.series_index[0], use_roman=True),
-                    unicode(m.series[0]))
+            series_string = _('Book %(sidx)s of %(series)s')%dict(
+                    sidx=fmt_sidx(m.series_index[0], use_roman=True),
+                    series=unicode(m.series[0]))
 
         try:
             from calibre.ebooks import calibre_cover

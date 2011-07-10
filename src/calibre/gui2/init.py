@@ -62,7 +62,6 @@ class LibraryViewMixin(object): # {{{
             view = getattr(self, view+'_view')
             view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
-        self.build_context_menus()
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def build_context_menus(self):
@@ -81,6 +80,11 @@ class LibraryViewMixin(object): # {{{
         for v in (self.memory_view, self.card_a_view, self.card_b_view):
             v.set_context_menu(dm, ec)
 
+        if self.cover_flow is not None:
+            cm = QMenu(self.cover_flow)
+            populate_menu(cm,
+                    gprefs['action-layout-context-menu-cover-browser'])
+            self.cover_flow.set_context_menu(cm)
 
     def search_done(self, view, ok):
         if view is self.current_view():

@@ -492,11 +492,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.set_page_number(frac)
 
     def magnification_changed(self, val):
-        tt = _('Make font size %s\nCurrent magnification: %.1f')
+        tt = _('Make font size %(which)s\nCurrent magnification: %(mag).1f')
         self.action_font_size_larger.setToolTip(
-                tt %(_('larger'), val))
+                tt %dict(which=_('larger'), mag=val))
         self.action_font_size_smaller.setToolTip(
-                tt %(_('smaller'), val))
+                tt %dict(which=_('smaller'), mag=val))
 
     def find(self, text, repeat=False, backwards=False):
         if not text:

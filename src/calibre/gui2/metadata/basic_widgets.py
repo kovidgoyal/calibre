@@ -878,9 +878,10 @@ class Cover(ImageView): # {{{
         series = self.dialog.series.current_val
         series_string = None
         if series:
-            series_string = _('Book %s of %s')%(
-                    fmt_sidx(self.dialog.series_index.current_val,
-                    use_roman=config['use_roman_numerals_for_series_number']), series)
+            series_string = _('Book %(sidx)s of %(series)s')%dict(
+                    sidx=fmt_sidx(self.dialog.series_index.current_val,
+                    use_roman=config['use_roman_numerals_for_series_number']),
+                    series=series)
         self.current_val = calibre_cover(title, author,
                 series_string=series_string)
 
@@ -921,8 +922,8 @@ class Cover(ImageView): # {{{
             self.setPixmap(pm)
             tt = _('This book has no cover')
             if self._cdata:
-                tt = _('Cover size: %dx%d pixels') % \
-                (pm.width(), pm.height())
+                tt = _('Cover size: %(width)d x %(height)d pixels') % \
+                dict(width=pm.width(), height=pm.height())
             self.setToolTip(tt)
 
         return property(fget=fget, fset=fset)

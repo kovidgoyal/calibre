@@ -742,7 +742,7 @@ class Metadata(object):
         ans += [('ISBN', unicode(self.isbn))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
-            ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]
+            ans += [_('Series'), unicode(self.series) + ' #%s'%self.format_series_index()]
         ans += [(_('Language'), unicode(self.language))]
         if self.timestamp is not None:
             ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]

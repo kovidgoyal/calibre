@@ -308,6 +308,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
 
+        self.build_context_menus()
+
         for ac in self.iactions.values():
             try:
                 ac.gui_layout_complete()

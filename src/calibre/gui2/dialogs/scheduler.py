@@ -381,7 +381,9 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             d = utcnow() - last_downloaded
             def hm(x): return (x-x%3600)//3600, (x%3600 - (x%3600)%60)//60
             hours, minutes = hm(d.seconds)
-            tm = _('%d days, %d hours and %d minutes ago')%(d.days, hours, minutes)
+            tm = _('%(days)d days, %(hours)d hours'
+                    ' and %(mins)d minutes ago')%dict(
+                            days=d.days, hours=hours, mins=minutes)
             if d < timedelta(days=366):
                 ld_text = tm
         else:
