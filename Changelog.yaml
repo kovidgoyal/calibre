@@ -19,12 +19,92 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.8
+  date: 2011-07-01
+
+  new features:
+    - title: "Make author names in the Book Details panel clickable. Clicking them takes you to the wikipedia page for the author by default. You may have to tell calibre to display author names in the Book details panel first via Preferences->Look & Feel->Book details. You can change the link for individual authors by right clicking on the author's name in the Tag Browser and selecting Manage Authors."
+
+    - title: "Get Books: Add 'Open Books' as an available book source"
+
+    - title: "Get Books: When a free download is available for a search result, for example, for public domain books, allow direct download of the book into your calibre library."
+
+    - title: "Support for detecting and mounting reader devices on FreeBSD."
+      tickets: [802708]
+
+    - title: "When creating a composite custom column, allow the use of HTML to create links and other markup that display in the Book details panel"
+
+    - title: "Add the swap_around_comma function to the template language." 
+
+    - title: "Drivers for HTC G2, Advent Vega, iRiver Story HD, Lark FreeMe and Moovyman mp7"
+
+    - title: "Quick View: Survives changing libraries. Also allow sorting by series index as well as name."
+
+    - title: "Connect to iTunes: Add an option to control how the driver works depending on whether you have iTunes setup to copy files to its media directory or not. Set this option by customizing the Apple driver in Preferences->Plugins. Having iTunes copy media to its storage folder is no longer neccessary. See http://www.mobileread.com/forums/showthread.php?t=118559 for details"
+
+    - title: "Remove the delete library functionality from calibre, instead you can now remove a library, so calibre will forget about it, but you have to delete the files manually"
+  
+  bug fixes:
+    - title: "Fix a regression introduced in 0.8.7 in the Tag Browser that could cause calibre to crash after performing various actions"
+
+    - title: "Fix an unhandled error when deleting all saved searches"
+      tickets: [804383]
+
+    - title: "Fix row numbers in a previous selection being incorrect after a sort operation."
+
+    - title: "Fix ISBN identifier type not recognized if it is in upper case"
+      tickets: [802288]
+
+    - title: "Fix a regression in 0.8.7 that broke reading metadata from MOBI files in the Edit metadata dialog."
+      tickets: [801981]
+
+    - title: "Fix handling of filenames that have an even number of periods before the file extension."
+      tickets: [801939]
+
+    - title: "Fix lack of thread saefty in template format system, that could lead to incorrect template evaluation in some cases."
+      tickets: [801944]
+
+    - title: "Fix conversion to PDB when the input document has no text"
+      tickets: [801888]
+
+    - title: "Fix clicking on first letter of author names generating incorrect search."
+    
+    - title: "Also fix updating bulk metadata in custom column causing unnneccessary Tag Browser refreshes."
+
+    - title: "Fix a regression in 0.8.7 that broke renaming items via the Tag Browser"
+
+    - title: "Fix a regression in 0.8.7 that caused the regex builder wizard to fail with LIT files as the input"
+
+  improved recipes:
+    - Zaman Gazetesi
+    - Infobae
+    - El Cronista
+    - Critica de la Argentina
+    - Buenos Aires Economico
+    - El Universal (Venezuela)
+    - wprost
+    - Financial Times UK
+
+  new recipes:
+    - title: "Today's Zaman by thomass"
+
+    - title: "Athens News by Darko Miletic"
+
+    - title: "Catholic News Agency"
+      author: Jetkey
+
+    - title: "Arizona Republic"
+      author: Jim Olo
+
+    - title: "Add Ming Pao Vancouver and Toronto"
+      author: Eddie Lau
+
+
 - version: 0.8.7
   date: 2011-06-24
 
   new features:
     - title: "Connect to iTunes: You now need to tell iTunes to keep its own copy of every ebook. Do this in iTunes by going to Preferences->Advanced and setting the 'Copy files to iTunes Media folder when adding to library' option. To learn about why this is necessary, see: http://www.mobileread.com/forums/showthread.php?t=140260"
-      type: major
 
     - title: "Add a couple of date related functions to the calibre template langauge to get 'todays' date and create text based on the value of a date type field"
 

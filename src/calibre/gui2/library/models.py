@@ -14,7 +14,7 @@ from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
 from calibre.gui2 import NONE, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
-from calibre.ebooks.metadata.book.base import composite_formatter
+from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt
@@ -91,6 +91,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.current_highlighted_idx = None
         self.highlight_only = False
         self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
+        self.formatter = SafeFormat()
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -711,7 +712,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 try:
                     if mi is None:
                         mi = self.db.get_metadata(id_, index_is_id=True)
-                    color = composite_formatter.safe_format(fmt, mi, '', mi)
+                    color = self.formatter.safe_format(fmt, mi, '', mi)
                     if color in self.colors:
                         color = QColor(color)
                         if color.isValid():

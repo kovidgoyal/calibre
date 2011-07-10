@@ -31,7 +31,7 @@ class SaveTemplate(QWidget, Ui_Form):
                     (var, FORMAT_ARG_DESCS[var]))
         rows.append(u'<tr><td>%s&nbsp;</td><td>&nbsp;</td><td>%s</td></tr>'%(
             _('Any custom field'),
-            _('The lookup name of any custom field. These names begin with "#")')))
+            _('The lookup name of any custom field (these names begin with "#").')))
         table = u'<table>%s</table>'%(u'\n'.join(rows))
         self.template_variables.setText(table)
 

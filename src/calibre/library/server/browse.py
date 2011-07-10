@@ -795,7 +795,9 @@ class BrowseServer(object):
                     list(mi.get_all_user_metadata(False).items()):
                 if m['is_custom'] and field not in displayed_custom_fields:
                     continue
-                if m['datatype'] == 'comments' or field == 'comments':
+                if m['datatype'] == 'comments' or field == 'comments' or (
+                        m['datatype'] == 'composite' and \
+                            m['display'].get('contains_html', False)):
                     val = mi.get(field, '')
                     if val and val.strip():
                         comments.append((m['name'], comments_to_html(val)))
