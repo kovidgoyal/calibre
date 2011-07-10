@@ -211,6 +211,26 @@ if __name__ == '__main__':
     class TestSHLock(unittest.TestCase):
         """Testcases for SHLock class."""
 
+        def test_multithread_deadlock(self):
+            lock = SHLock()
+            def two_shared():
+                lock.acquire(shared=True)
+                time.sleep(0.2)
+                lock.acquire(blocking=True, shared=True)
+                lock.release()
+                lock.release()
+            def one_exclusive():
+                time.sleep(0.1)
+                lock.acquire(blocking=True, shared=False)
+            threads = [Thread(target=two_shared), Thread(target=one_exclusive)]
+            for t in threads:
+                t.daemon = True
+                t.start()
+            for t in threads:
+                t.join(5)
+            live = [t for t in threads if t.is_alive()]
+            self.assertListEqual(live, [], 'ShLock hung')
+
         def test_upgrade(self):
             lock = SHLock()
             lock.acquire(shared=True)
