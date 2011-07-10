@@ -121,7 +121,7 @@ class FieldMetadata(dict):
                            'datatype':'series',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':_('Series'),
+                           'name':ngettext('Series', 'Series', 2),
                            'search_terms':['series'],
                            'is_custom':False,
                            'is_category':True,

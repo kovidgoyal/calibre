@@ -73,9 +73,9 @@ class POT(Command):
         "Language-Team: LANGUAGE\\n"
         "MIME-Version: 1.0\\n"
         "Report-Msgid-Bugs-To: https://bugs.launchpad.net/calibre\\n"
+        "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\\n"
         "Content-Type: text/plain; charset=UTF-8\\n"
         "Content-Transfer-Encoding: 8bit\\n"
-        "Generated-By: xgettext\\n"
 
         ''')%dict(appname=__appname__, version=__version__,
                 year=time.strftime('%Y'),
@@ -90,7 +90,7 @@ class POT(Command):
             self.info('Creating translations template...')
             subprocess.check_call(['xgettext', '-f', fl.name,
                 '--default-domain=calibre', '-o', out.name, '-L', 'Python',
-                '--from-code=UTF-8', '--omit-header', '--sort-by-file',
+                '--from-code=UTF-8', '--sort-by-file', '--omit-header',
                 '--no-wrap', '-k__',
                 ])
             with open(out.name, 'rb') as f:

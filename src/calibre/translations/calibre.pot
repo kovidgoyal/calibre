@@ -5,15 +5,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.9\n"
-"POT-Creation-Date: 2011-07-10 13:08+MDT\n"
-"PO-Revision-Date: 2011-07-10 13:08+MDT\n"
+"POT-Creation-Date: 2011-07-10 13:28+MDT\n"
+"PO-Revision-Date: 2011-07-10 13:28+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/calibre\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: xgettext\n"
 
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2587,7 +2587,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:163
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:124
 msgid "Series"
-msgstr ""
+msgid_plural "Series"
+msgstr[0] ""
+msgstr[1] ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:746
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
