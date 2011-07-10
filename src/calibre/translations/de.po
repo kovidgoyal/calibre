@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-07-08 19:01+0000\n"
-"PO-Revision-Date: 2011-07-06 15:57+0000\n"
+"PO-Revision-Date: 2011-07-09 22:26+0000\n"
 "Last-Translator: Rudolf Metz <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-09 04:39+0000\n"
+"X-Launchpad-Export-Date: 2011-07-10 04:32+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -8675,7 +8675,7 @@ msgstr "&OK"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:233
 msgid "&Cancel"
-msgstr "Abbrechen"
+msgstr "&Abbrechen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:96
@@ -8980,8 +8980,6 @@ msgid ""
 "Immediately make all changes without closing the dialog. This operation "
 "cannot be canceled or undone"
 msgstr ""
-"Wende sofort alle Änderungen an, ohne den Dialog zu schließen. Diese "
-"Operation kann nicht unterbrochen werden oder rückgängig gemacht werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:383
 msgid "Book %d:"
@@ -13467,7 +13465,7 @@ msgstr "Änderungen speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:239
 msgid "Cancel and return to overview"
-msgstr "Abbrechen und zur Übersicht zurückkehren"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:295
 msgid "Restoring to defaults not supported for"

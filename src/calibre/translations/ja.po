@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-08 19:01+0000\n"
-"PO-Revision-Date: 2011-07-08 12:01+0000\n"
+"PO-Revision-Date: 2011-07-09 11:05+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-09 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-07-10 04:33+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -932,6 +932,7 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"iTunesの「設定｜詳細」にある、「ライブラリへの追加時にファイルを[iTunes Media]フォルダにコピーする」が有効になっています。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid ""
@@ -2099,6 +2100,7 @@ msgid ""
 "entries, i.e. allow more than one entry with the same text, provided that "
 "they point to a different location."
 msgstr ""
+"もし目次を入力ドキュメントのリンクから作成する場合、重複するエントリーを許す。例えば、1つ以上のリンクが同じテキストで、違う場所を指している場合など。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:281
 msgid ""
@@ -2677,11 +2679,11 @@ msgstr ""
 msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "cp1251, latin1 and utf-8."
-msgstr ""
+msgstr "入力HTMLファイルのキャラクター・エンコーディング。よくある設定：cp1252, cp1251, latin1 and utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
-msgstr ""
+msgstr "リンクされたファイルを名前の順に追加する"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:92
 msgid ""
@@ -2690,6 +2692,8 @@ msgid ""
 "the order A, B, D, C.  With this option, they will instead be added as A, B, "
 "C, D"
 msgstr ""
+"通常、CalibreはHTMLファイルのリンクを深さの順にたどって行きます。つまり、もし、ファイルAがBとCにリンクしていて、BはDにリンクしている場合、"
+"ファイルはA,B,D,Cの順に追加されます。このオプションを使うと、替わりにA,B,C,Dの順に追加されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:30
 msgid ""
@@ -3271,7 +3275,7 @@ msgstr "書誌情報のソース"
 msgid ""
 "Downloads metadata and covers from Douban.com. Useful only for chinese "
 "language books."
-msgstr ""
+msgstr "書誌情報と表紙をDouban.comからダウンロード。中国語の書籍のみ。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata and covers from Google Books"
@@ -5013,6 +5017,11 @@ msgid ""
 "and subsequently selected books will be permanently <b>deleted</b> from your "
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"選択された書籍のフォーマットと書籍情報は<b>最初の選択された書籍</b> "
+"(%s)に追加されます。最初の選択された書籍の書籍情報は変更されません。著者, タイトル, "
+"ISBN等のすべての書籍情報はマージ<i>されません</i>。<br><br>マージ後、２つ目以降の選択された書籍は、書籍情報とも<b>削除されます</b"
+">。<br><br>最初の選択された書籍のすべてのフォーマットはそのままで、2つ目以降の書籍のフォーマットで前と同じものはcalibreライブラリから<b"
+">削除されます</b>。<br><br><b>本当に</b>実行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:300
 msgid ""
@@ -7240,7 +7249,7 @@ msgstr "目次フィルタ(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:76
 msgid "Allow &duplicate links when creating the Table of Contents"
-msgstr ""
+msgstr "目次の作成時に重複するリンクを許す(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -10836,7 +10845,7 @@ msgstr "列を表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:222
 msgid "Shrink column if it is too wide to fit"
-msgstr ""
+msgstr "列が広すぎて入りきらない場合にシュリンクする。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:225
 msgid "Restore default layout"
@@ -12176,6 +12185,13 @@ msgid ""
 "book&lt;/a&gt;</pre> will generate a link to the book on the Beam ebooks "
 "site."
 msgstr ""
+"もし、チェックされると、書籍の詳細表示とコンテントサーバーで、この列はHTMLで表示されます。これはテンプレート言語でリンクを作成する際にも使えます。例え"
+"ば、テンプレート<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;{series:| "
+"[|}{series_index:| "
+"[|]]}</pre>は、ボールドの大きい文字でのタイトルとシリーズ名のフィールドを作成します。例：<br>\"<big><b>An Oblique "
+"Approach</b></big> [Belisarius [1]]\". テンプレート<pre>&lt;a "
+"href=\"http://www.beam-ebooks.de/ebook/{identifiers:select(beam)}\"&gt;Beam "
+"book&lt;/a&gt;</pre>はBeam ebookサイトの書籍へのリンクを生成します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:177
 msgid "My Tags"
@@ -12407,7 +12423,7 @@ msgstr "タグブラウザに表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:254
 msgid "Show as HTML in book details"
-msgstr ""
+msgstr "書籍詳細をHTMLで表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:260
@@ -12657,7 +12673,7 @@ msgstr "下へ移動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:224
 msgid "Default author link template:"
-msgstr ""
+msgstr "ディフォールトの著者リンク・テンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:225
 msgid ""
@@ -12667,6 +12683,8 @@ msgid ""
 "Manage Authors. You can use the values {author} and \n"
 "{author_sort}, and any template function."
 msgstr ""
+"<p>書籍情報ダイアログ内の著者リンクを作成するのに使われるテンプレートを入力。このテンプレートは「著者を管理」で著者のリンクが与えられなかったときに使わ"
+"れます。ここでは{author} と {author_sort} そして任意のテンプレート関数が使用できます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:230
 msgid "Use &Roman numerals for series"
@@ -12794,7 +12812,7 @@ msgstr "この情報源は設定する必要があります。"
 msgid ""
 "This plugin is useful only for <b>Chinese</b> language books. It can return "
 "incorrect results for books in English. Are you sure you want to enable it?"
-msgstr ""
+msgstr "このプラグインは<b>中国</b>語の書籍のみに有用です。他の言語の書籍には無効な結果を返します。本当に有効にしますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:158
 msgid "Published date"
@@ -13170,7 +13188,7 @@ msgstr "(任意のカスタム・フィールド)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "The lookup name of any custom field (these names begin with \"#\")."
-msgstr ""
+msgstr "任意のカスタム・フィールドに対する検索名（\"#\"で始まる名前）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:57
 msgid "Constant template"
@@ -13678,7 +13696,7 @@ msgstr "関数が未定義"
 msgid ""
 "Argument count should be -1 or greater than zero. Setting it to zero means "
 "that this function cannot be used in single function mode."
-msgstr ""
+msgstr "引数の数は-1か0より大きい数でなければなりません。0にするとこの関数はシングル関数モードでは使用できない、と言う意味になります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"
@@ -14102,7 +14120,7 @@ msgstr "アフィリエイト"
 msgid ""
 "This store is currently disabled and cannot be used in other parts of "
 "calibre."
-msgstr ""
+msgstr "このストアは現在無効で、Calibreのどの部分からも使用することができません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:131
 msgid ""
@@ -14111,7 +14129,7 @@ msgstr "このストアは現在有効化されているので、Calibreの他�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
 msgid "This store only distributes ebooks without DRM."
-msgstr ""
+msgstr "このストアはDRMなしの電子書籍のみを配布しています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:138
 msgid ""
@@ -14236,7 +14254,7 @@ msgstr "価格(&P)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:219
 msgid "Download:"
-msgstr ""
+msgstr "ダウンロード:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:187
@@ -14249,7 +14267,7 @@ msgstr "DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
 msgid "Download"
-msgstr ""
+msgstr "ダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
 msgid "Price"
@@ -14291,15 +14309,15 @@ msgstr "この書籍のDRMステータスが判りませんでした。これは
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:208
 msgid "The following formats can be downloaded directly: %s."
-msgstr ""
+msgstr "次のフォーマットは直接ダウンロードすることができます: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:41
 msgid "Download..."
-msgstr ""
+msgstr "ダウンロード..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:45
 msgid "Goto in store..."
-msgstr ""
+msgstr "ストアへ行く…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:114
 msgid "Buying from this store supports the calibre developer: %s</p>"
@@ -14319,7 +14337,7 @@ msgstr "クエリーにマッチした書籍が見つかりませんでした。
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:350
 msgid "Choose format to download to your library."
-msgstr ""
+msgstr "ライブラリにダウンロードするフォーマットを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
@@ -14601,7 +14619,7 @@ msgstr "%s のソートを変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:352
 msgid "Edit link for %s"
-msgstr ""
+msgstr "%sのリンクを編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:359
 msgid "Add %s to user category"
@@ -14666,7 +14684,7 @@ msgstr "サブカテゴリ化方法を変える"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:499
 msgid "First letter is usable only when sorting by name"
-msgstr ""
+msgstr "最初の文字、は名前でソートする場合のみに使えます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:68
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
@@ -15927,6 +15945,9 @@ msgid ""
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"ジャンルとして使用しないタグを指定する正規表現、\n"
+"ディフォールト: '%default' は括弧つきのタグを除きます, 例 '[<tag>]'\n"
+"適用対象: ePub, MOBI 出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:655
 msgid ""
@@ -15935,6 +15956,9 @@ msgid ""
 "this'.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"出力から排除される書籍を表すタグの、コンマ区切りのリスト。例えば: 'skip' は 'skip this book' と 'Skip will "
+"like this'を排除します。ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:663
 msgid ""
@@ -15942,6 +15966,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"カタログに'著者'セクションを含める\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:670
 msgid ""
@@ -15949,6 +15976,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"カタログに'ディスクリプション'セクションを含める\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:677
 msgid ""
@@ -15956,6 +15986,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"カタログに'ジャンル'セクションを含める\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:684
 msgid ""
@@ -15963,6 +15996,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"カタログに'タイトル'セクションを含める\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:691
 msgid ""
@@ -15970,6 +16006,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"カタログに'シリーズ'セクションを含める\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:698
 msgid ""
@@ -15977,6 +16016,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"カタログに'最近の追加'セクションを含める\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:705
 msgid ""
@@ -15984,6 +16026,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"ディスクリプションのヘッダーに挿入されるノートテキストを含むカスタムフィールド\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:712
 msgid ""
@@ -15994,6 +16039,12 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"<custom field>:[before|after]:[True|False]\n"
+" <custom field> コメントにマージするノートを含んでいるカスタムフィールド\n"
+" [before|after] コメントにノートを入れる位置\n"
+" [True|False] - ノートとコメントとの間に水平線を入れる\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:722
 msgid ""
@@ -16004,6 +16055,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"出力プロファイルを指定。場合によっては、デバイスのカタログを最適化するために出力プロファイルが必要になる時があります。例えば'kindle'や'kindl"
+"e_dx'ではセクションやアーティクルからなる構造的な目次を作ります。\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:729
 msgid ""
@@ -16011,6 +16066,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"読んだ書籍を表すfield:pattern \n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:735
 msgid ""
@@ -16019,6 +16077,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"カタログの書籍表紙のサイズのヒント(インチ表記)\n"
+"レンジ：1.0 - 2.0\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:743
 msgid ""
@@ -16026,14 +16088,17 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"ウイッシュリスト項目として表示される書籍を指定するタグ\n"
+"ディフォールト: '%default'\n"
+"適用対象: ePub, MOBI出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1427
 msgid "No enabled genres found to catalog.\n"
-msgstr ""
+msgstr "カタログへの有効なジャンルが見つかりませんでした。\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1431
 msgid "No books available to catalog"
-msgstr ""
+msgstr "カタログへの書籍がありません"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1506
 msgid ""
@@ -16045,6 +16110,12 @@ msgid ""
 "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
 "dialog, then rebuild the catalog.\n"
 msgstr ""
+"著者ソート値が矛盾しています：\n"
+"著者 '{0}':\n"
+"'{1}' <> '{2}'\n"
+"MOBI カタログが作成できません。\n"
+"\n"
+"'{0}'の書籍全てを選択し、書誌情報編集ダイアログで正しい著者ソート値を入力し、カタログを再構築してください。\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1523
 msgid ""
@@ -16052,68 +16123,75 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
+"注意: 矛盾する著者ソート値：\n"
+"著者 '{0}':\n"
+"'{1}' <> '{2}'\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1719
 msgid ""
 "No books found to catalog.\n"
 "Check 'Excluded books' criteria in E-book options.\n"
 msgstr ""
+"カタログへの書籍が見つかりませんでした。\n"
+"EBookオプションの'排除する書籍’を確認してください。\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1721
 msgid "No books available to include in catalog"
-msgstr ""
+msgstr "カタログへ入れる書籍がありません"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:5063
 msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
 msgstr ""
+"\n"
+"*** MOBI出力には'著者別'セクションを追加することが必要です ***"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
-msgstr ""
+msgstr "無効なタイトル"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:27
 msgid "Extra titles"
-msgstr ""
+msgstr "余計なタイトル"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:28
 msgid "Invalid authors"
-msgstr ""
+msgstr "無効な著者"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:29
 msgid "Extra authors"
-msgstr ""
+msgstr "余分な著者"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:30
 msgid "Missing book formats"
-msgstr ""
+msgstr "書籍フォーマットが不足"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:31
 msgid "Extra book formats"
-msgstr ""
+msgstr "余分な書籍フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:32
 msgid "Unknown files in books"
-msgstr ""
+msgstr "書籍内に余分なファイル"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
-msgstr ""
+msgstr "表紙ファイルが不明"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
-msgstr ""
+msgstr "表紙ファイルがデーターベースに無い"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:35
 msgid "Folders raising exception"
-msgstr ""
+msgstr "フォルダーがエクセプションを上げた"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:43
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr ""
+msgstr "Calibreライブラリへのパス。ディフォールトは設定に保存されているパス。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:124
 msgid ""
@@ -16121,6 +16199,9 @@ msgid ""
 "\n"
 "List the books available in the calibre database.\n"
 msgstr ""
+"%prog list [options]\n"
+"\n"
+"Calibreデーターベースに存在する書籍のリスト\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:132
 msgid ""
@@ -16130,6 +16211,11 @@ msgid ""
 "Default: %%default. The special field \"all\" can be used to select all "
 "fields. Only has effect in the text output format."
 msgstr ""
+"The fields to display when listing books in the database. Should be a comma "
+"separated list of fields.\n"
+"Available fields: %s\n"
+"Default: %%default. The special field \"all\" can be used to select all "
+"fields. Only has effect in the text output format."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:139
 msgid ""
@@ -16137,6 +16223,9 @@ msgid ""
 "Available fields: %s\n"
 "Default: %%default"
 msgstr ""
+"結果をソートするフィールド\n"
+"使用できるフィールド：%s\n"
+"ディフォールト： %%default"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:141
 msgid "Sort results in ascending order"
@@ -16148,13 +16237,15 @@ msgid ""
 "please see the search related documentation in the User Manual. Default is "
 "to do no filtering."
 msgstr ""
+"検索文字列で結果をフィルターする。検索文字列のフォーマットについては、ユーザーマニュアルの検索関連のドキュメントを参照してください。ディフォールトは何もフ"
+"ィルターしません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:145
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1044
 msgid ""
 "The maximum width of a single line in the output. Defaults to detecting "
 "screen size."
-msgstr ""
+msgstr "出力ファイル中の、1行の最大の長さ。ディフォールトはスクリーンサイズから判別。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:146
 msgid "The string used to separate fields. Default is a space."
@@ -16164,7 +16255,7 @@ msgstr "区切り文字(デフォルトは半角スペース）"
 msgid ""
 "The prefix for all file paths. Default is the absolute path to the library "
 "folder."
-msgstr ""
+msgstr "すべてのファイルパスの接頭辞。ディフォールトはライブラリ・フォルダーへの絶対パス。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:169
 msgid "Invalid fields. Available fields:"
@@ -16178,7 +16269,7 @@ msgstr "無効な並び替えフィールド。有効なフィールド:"
 msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
-msgstr ""
+msgstr "次の書籍は、すでにデーターベース中に存在するので、追加されませんでした。（--duplicatesオプションを参照）"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:272
 msgid ""
@@ -16188,6 +16279,9 @@ msgid ""
 "directories, see\n"
 "the directory related options below.\n"
 msgstr ""
+"%prog add [options] file1 file2 file3 ...\n"
+"\n"
+"指定したファイルをデーターベースに追加する。ディレクトリを追加することもできます。下のディレクトリ関連オプションも参照してください。\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:281
 msgid ""

@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-07-08 19:01+0000\n"
-"PO-Revision-Date: 2011-07-01 20:01+0000\n"
+"PO-Revision-Date: 2011-07-09 07:32+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-09 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-07-10 04:33+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -2288,6 +2288,9 @@ msgid ""
 "entries, i.e. allow more than one entry with the same text, provided that "
 "they point to a different location."
 msgstr ""
+"Al crear un Índice a partir de enlaces en el documento de entrada, permitir "
+"entradas duplicadas, es decir, permitir más de una entrada con el mismo "
+"texto, siempre que apunten a diferentes partes del texto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:281
 msgid ""
@@ -2973,10 +2976,12 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "cp1251, latin1 and utf-8."
 msgstr ""
+"Codificación de caracteres para los ficheros HTML de entrada. Algunas "
+"posibilidades comunes son: cp1252, cp1251, latin1 y utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
-msgstr ""
+msgstr "Añadir ficheros enlazados por orden de nivel."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:92
 msgid ""
@@ -2985,6 +2990,10 @@ msgid ""
 "the order A, B, D, C.  With this option, they will instead be added as A, B, "
 "C, D"
 msgstr ""
+"Normalmente, al seguir los enlaces en los ficheros HTML calibre va siguiendo "
+"primero la máxima profundidad; esto es, si el fichero A enlaza a B y C, pero "
+"B enlaza a D, los ficheros se añadirán en el orden A, B, D, C. Con esta "
+"opción se añadirán en el orden A, B, C, D"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:30
 msgid ""
@@ -3599,6 +3608,8 @@ msgid ""
 "Downloads metadata and covers from Douban.com. Useful only for chinese "
 "language books."
 msgstr ""
+"Descarga metadatos y portadas de Douban.com. Sólo es útil para libros en "
+"chino."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata and covers from Google Books"
@@ -5500,6 +5511,16 @@ msgid ""
 "and subsequently selected books will be permanently <b>deleted</b> from your "
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"Los formatos de los libros seleccionados se combinarán en el <b>primer libro "
+"seleccionado</b> (%s). Los metadatos del primer libro seleccionado no se "
+"cambiarán. El autor, título, ISBN y el resto de metadatos <i>no</i> se "
+"combinarán.<br><br>\r\n"
+"Tras la combinación el segundo libro y sucesivos, con todos sus metadatos, "
+"serán <b>borrados</b>.<br><br>\r\n"
+"Todos los formatos del primer libro seleccionado se mantendrán y cualquier "
+"formato duplicado en el segundo libro y sucesivos se <b>borrará</b> "
+"permanentemente de la biblioteca de calibre.<br><br> ¿Está <b>seguro</b> de "
+"que quiere continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:300
 msgid ""
@@ -7802,7 +7823,7 @@ msgstr "Fi&ltro para el Índice:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:76
 msgid "Allow &duplicate links when creating the Table of Contents"
-msgstr ""
+msgstr "Permitir enlaces &duplicados al crear el Índice"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -13720,6 +13741,9 @@ msgid ""
 "This plugin is useful only for <b>Chinese</b> language books. It can return "
 "incorrect results for books in English. Are you sure you want to enable it?"
 msgstr ""
+"Este complemento sólo es útil para libros en <b>chino</b>. Puede dar "
+"resultados incorrectos para libros en otros idiomas. ¿Está seguro de que "
+"quiere activarlo?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:158
 msgid "Published date"
@@ -14700,6 +14724,8 @@ msgid ""
 "Argument count should be -1 or greater than zero. Setting it to zero means "
 "that this function cannot be used in single function mode."
 msgstr ""
+"El número de argumentos debe ser -1 o mayor que cero. Si es cero significa "
+"que esta función no puede usarse en el modo de función única."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"
@@ -18955,6 +18981,13 @@ msgid ""
 "get the mod time for a specific format. Note that format names are always "
 "uppercase, as in EPUB."
 msgstr ""
+"formats_modtimes(formato_fecha) -- devuelve una lista de elementos "
+"(separados por dos puntos) separados por comas que representa las fechas de "
+"modificación para los formatos de un libro. El argumento «formato_fecha» "
+"especifica cómo se da formato a la fecha. Véase la función «date_format» "
+"para más detalles. Puede usar la función «select» para obtener la fecha de "
+"modificación de un formato específico. Tenga en cuenta que los nombres de "
+"formato siempre están en mayúsculas, como en «EPUB»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:546
 msgid ""
@@ -18963,12 +18996,19 @@ msgid ""
 "function to get the size for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
+"formats_sizes() -- devuelve una lista de elementos (separados por dos "
+"puntos) separados por comas que representa los tamaños en bytes de los "
+"formatos de un libro. Puede usar la función «select» para obtener el tamaño "
+"de un formato específico. Tenga en cuenta que los nombres de formato siempre "
+"están en mayúsculas, como en «EPUB»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:562
 msgid ""
 "human_readable(v) -- return a string representing the number v in KB, MB, "
 "GB, etc."
 msgstr ""
+"human_readabe(v) -- devuelve un texto que representa el número «v» en KB, "
+"MB, GB, etc."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:576
 msgid ""
@@ -18978,6 +19018,11 @@ msgid ""
 "examples). See the template language and python documentation for more "
 "examples. Returns the empty string if formatting fails."
 msgstr ""
+"format_number(v, plantilla) -- da formato al número «v» usando una plantilla "
+"de formato de python como «{0:5.2f}» o «{0:,d}» o «{0:5,.2f}». La parte del "
+"nombre de la plantilla debe ser un 0 (cero) (el «{0:» en los ejemplos "
+"anteriores). Véase la documentación del lenguaje de plantillas y de python "
+"para más ejemplos. Devuelve un texto vacío si el formato falla."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:601
 msgid ""
@@ -19097,6 +19142,8 @@ msgid ""
 "has_cover() -- return Yes if the book has a cover, otherwise return the "
 "empty string"
 msgstr ""
+"has_cover() -- devuelve «Yes» si el libro tiene portada, en caso contrario "
+"devuelve un texto vacío."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:773
 msgid ""
