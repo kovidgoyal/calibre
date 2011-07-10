@@ -214,7 +214,7 @@ class KOBO(USBMS):
                 'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
         elif self.dbversion < 16 and self.dbversion >= 14:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
+                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility  from content where ' \
                 'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
         elif self.dbversion < 14 and self.dbversion >= 8:
             query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
@@ -673,7 +673,8 @@ class KOBO(USBMS):
             # Need to reset the collections outside the particular loops
             # otherwise the last item will not be removed
             self.reset_readstatus(connection, oncard)
-            self.reset_favouritesindex(connection, oncard)
+            if self.dbversion >= 14:
+                self.reset_favouritesindex(connection, oncard)
 
             # Process any collections that exist
             for category, books in collections.items():
@@ -691,7 +692,7 @@ class KOBO(USBMS):
                         if category in readstatuslist.keys():
                             # Manage ReadStatus
                             self.set_readstatus(connection, ContentID, readstatuslist.get(category))
-                        if category == 'Shortlist':
+                        if category == 'Shortlist' and self.dbversion >= 14:
                             # Manage FavouritesIndex/Shortlist
                             self.set_favouritesindex(connection, ContentID)
                         if category in accessibilitylist.keys():
@@ -701,8 +702,9 @@ class KOBO(USBMS):
             # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
             debug_print("No Collections - reseting ReadStatus")
             self.reset_readstatus(connection, oncard)
-            debug_print("No Collections - reseting FavouritesIndex")
-            self.reset_favouritesindex(connection, oncard)
+            if self.dbversion >= 14:
+                debug_print("No Collections - reseting FavouritesIndex")
+                self.reset_favouritesindex(connection, oncard)
 
         connection.close()
 
