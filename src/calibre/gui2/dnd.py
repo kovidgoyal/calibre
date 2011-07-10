@@ -51,8 +51,8 @@ class DownloadDialog(QDialog): # {{{
         self.setWindowTitle(_('Download %s')%fname)
         self.l = QVBoxLayout(self)
         self.purl = urlparse(url)
-        self.msg = QLabel(_('Downloading <b>%s</b> from %s')%(fname,
-            self.purl.netloc))
+        self.msg = QLabel(_('Downloading <b>%(fname)s</b> from %(url)s')%dict(
+            fname=fname, url=self.purl.netloc))
         self.msg.setWordWrap(True)
         self.l.addWidget(self.msg)
         self.pb = QProgressBar(self)
@@ -82,9 +82,9 @@ class DownloadDialog(QDialog): # {{{
         self.exec_()
         if self.worker.err is not None:
             error_dialog(self.parent(), _('Download failed'),
-                    _('Failed to download from %r with error: %s')%(
-                        self.worker.url, self.worker.err),
-                    det_msg=self.worker.tb, show=True)
+                _('Failed to download from %(url)r with error: %(err)s')%dict(
+                    url=self.worker.url, err=self.worker.err),
+                det_msg=self.worker.tb, show=True)
 
     def update(self):
         if self.rejected:

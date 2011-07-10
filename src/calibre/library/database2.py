@@ -62,7 +62,8 @@ class Tag(object):
         if self.avg_rating > 0:
             if tooltip:
                 tooltip = tooltip + ': '
-            tooltip = _('%sAverage rating is %3.1f')%(tooltip, self.avg_rating)
+            tooltip = _('%(tt)sAverage rating is %(rating)3.1f')%dict(
+                    tt=tooltip, rating=self.avg_rating)
         self.tooltip = tooltip
         self.icon = icon
         self.category = category

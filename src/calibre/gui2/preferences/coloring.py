@@ -445,15 +445,15 @@ class RulesModel(QAbstractListModel): # {{{
     def rule_to_html(self, col, rule):
         if not isinstance(rule, Rule):
             return _('''
-            <p>Advanced Rule for column <b>%s</b>:
-            <pre>%s</pre>
-            ''')%(col, prepare_string_for_xml(rule))
+            <p>Advanced Rule for column <b>%(col)s</b>:
+            <pre>%(rule)s</pre>
+            ''')%dict(col=col, rule=prepare_string_for_xml(rule))
         conditions = [self.condition_to_html(c) for c in rule.conditions]
         return _('''\
-            <p>Set the color of <b>%s</b> to <b>%s</b> if the following
+            <p>Set the color of <b>%(col)s</b> to <b>%(color)s</b> if the following
             conditions are met:</p>
-            <ul>%s</ul>
-            ''') % (col, rule.color, ''.join(conditions))
+            <ul>%(rule)s</ul>
+            ''') % dict(col=col, color=rule.color, rule=''.join(conditions))
 
     def condition_to_html(self, condition):
         c, a, v = condition
@@ -464,8 +464,8 @@ class RulesModel(QAbstractListModel): # {{{
                     action_name = trans
 
         return (
-            _('<li>If the <b>%s</b> column <b>%s</b> value: <b>%s</b>') %
-                (c, action_name, prepare_string_for_xml(v)))
+            _('<li>If the <b>%(col)s</b> column <b>%(action)s</b> value: <b>%(val)s</b>') %
+                dict(col=c, action=action_name, val=prepare_string_for_xml(v)))
 
 # }}}
 

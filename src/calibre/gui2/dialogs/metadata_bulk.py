@@ -173,10 +173,10 @@ class MyBlockingBusy(QDialog): # {{{
                 mi = self.db.get_metadata(id, index_is_id=True)
                 series_string = None
                 if mi.series:
-                    series_string = _('Book %s of %s')%(
-                        fmt_sidx(mi.series_index,
+                    series_string = _('Book %(sidx)s of %(series)s')%dict(
+                        sidx=fmt_sidx(mi.series_index,
                         use_roman=config['use_roman_numerals_for_series_number']),
-                        mi.series)
+                        series=mi.series)
 
                 cdata = calibre_cover(mi.title, mi.format_field('authors')[-1],
                         series_string=series_string)
