@@ -214,14 +214,16 @@ if __name__ == '__main__':
         def test_multithread_deadlock(self):
             lock = SHLock()
             def two_shared():
-                lock.acquire(shared=True)
-                time.sleep(0.2)
-                lock.acquire(blocking=True, shared=True)
-                lock.release()
-                lock.release()
+                r = RWLockWrapper(lock)
+                with r:
+                    time.sleep(0.2)
+                    with r:
+                        pass
             def one_exclusive():
                 time.sleep(0.1)
-                lock.acquire(blocking=True, shared=False)
+                w = RWLockWrapper(lock, is_shared=False)
+                with w:
+                    pass
             threads = [Thread(target=two_shared), Thread(target=one_exclusive)]
             for t in threads:
                 t.daemon = True
