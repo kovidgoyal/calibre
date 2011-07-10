@@ -124,11 +124,11 @@ class ANDROID(USBMS):
             'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD',
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
-            'MB525', 'ANDROID2.3']
+            'MB525', 'ANDROID2.3', 'SGH-I997']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
-            '__UMS_COMPOSITE']
+            '__UMS_COMPOSITE', 'SGH-I997_CARD']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
