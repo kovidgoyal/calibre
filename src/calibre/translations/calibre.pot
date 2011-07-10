@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.9\n"
-"POT-Creation-Date: 2011-07-08 12:48+MDT\n"
-"PO-Revision-Date: 2011-07-08 12:48+MDT\n"
+"POT-Creation-Date: 2011-07-10 10:21+MDT\n"
+"PO-Revision-Date: 2011-07-10 10:21+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:77
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/books.py:24
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:541
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:551
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:71
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/books.py:267
@@ -125,8 +125,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:313
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:315
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:370
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:377
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:385
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:379
@@ -178,7 +178,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:156
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:159
 #: /home/kovid/work/calibre/src/calibre/library/server/xml.py:79
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:64
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:78
@@ -976,10 +976,10 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:67
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:73
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:278
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:281
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:122
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:125
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:128
@@ -999,8 +999,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:285
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:299
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:399
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:434
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:409
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:444
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:279
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:310
 msgid "Adding books to device metadata listing..."
@@ -1010,8 +1010,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:309
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:114
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:125
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:351
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:383
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:361
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:393
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:316
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:334
 msgid "Removing books from device..."
@@ -1019,8 +1019,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:324
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:329
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:387
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:394
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:397
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:404
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:341
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:346
 msgid "Removing books from device metadata listing..."
@@ -1238,12 +1238,12 @@ msgstr ""
 msgid "The Kobo supports only one collection currently: the \"Im_Reading\" list.  Create a tag called \"Im_Reading\" "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:521
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:531
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:388
 msgid "Not Implemented"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:522
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:532
 msgid "\".kobo\" files do not exist on the device as books instead, they are rows in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
 
@@ -2289,29 +2289,29 @@ msgstr ""
 msgid "Failed to process opf file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:136
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
 msgid ""
 "%prog book.lrf\n"
 "Convert an LRF file into an LRS (XML UTF-8 encoded) file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:137
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:138
 msgid "Output LRS file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:139
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:140
 msgid "Do not save embedded image and font files to disk"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:158
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:159
 msgid "Parsing LRF..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:161
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:162
 msgid "Creating XML..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:163
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrfparser.py:164
 msgid "LRS written to "
 msgstr ""
 
@@ -3250,131 +3250,131 @@ msgstr ""
 msgid "Do not remove font color from output. This is only useful when txt-output-formatting is set to textile. Textile is the only formatting that supports setting font color. If this option is not specified font color will not be set and default to the color displayed by the reader (generally this is black)."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:113
 msgid "Send file to storage card instead of main memory by default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:108
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:115
 msgid "Confirm before deleting"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:117
 msgid "Main window geometry"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:119
 msgid "Notify when a new version is available"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:121
 msgid "Use Roman numerals for series number"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:116
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 msgid "Sort tags list by name, popularity, or rating"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:118
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:125
 msgid "Match tags by any or all."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 msgid "Number of covers to show in the cover browsing mode"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:122
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
 msgid "Defaults for conversion to LRF"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
 msgid "Options for the LRF ebook viewer"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:134
 msgid "Formats that are viewed using the internal viewer"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:136
 msgid "Columns to be displayed in the book list"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:137
 msgid "Automatically launch content server on application startup"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
 msgid "Oldest news kept in database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:139
 msgid "Show system tray icon"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:141
 msgid "Upload downloaded news to device"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:143
 msgid "Delete books from library after uploading to device"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
 msgid "Show the cover flow in a separate window instead of in the main calibre window"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
 msgid "Disable notifications from the system tray icon"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:149
 msgid "Default action to perform when send to device button is clicked"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:154
 msgid "Start searching as you type. If this is disabled then search will only take place when the Enter or Return key is pressed."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:150
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:157
 msgid "When searching, show all books with search results highlighted instead of showing only the matches. You can use the N or F3 keys to go to the next match."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:175
 msgid "Maximum number of simultaneous conversion/news download jobs. This number is twice the actual value for historical reasons."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:172
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:179
 msgid "Download social metadata (tags/rating/etc.)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:181
 msgid "Overwrite author and title with new metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:176
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:183
 msgid "Automatically download the cover, if available"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:185
 msgid "Limit max simultaneous jobs to number of CPUs"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:180
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:187
 msgid "The layout of the user interface"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:182
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:189
 msgid "Show the average rating per item indication in the tag browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:191
 msgid "Disable UI animations"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:196
 msgid "tag browser categories not to display"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:484
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:491
 msgid "Choose Files"
 msgstr ""
 
@@ -3840,7 +3840,7 @@ msgid "Bulk convert"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:86
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:560
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:562
 msgid "Cannot convert"
 msgstr ""
 
@@ -6508,11 +6508,11 @@ msgstr ""
 msgid "<p>For example, to match all h2 tags that have class=\"chapter\", set tag to <i>h2</i>, attribute to <i>class</i> and value to <i>chapter</i>.</p><p>Leaving attribute blank will match any attribute and leaving value blank will match any value. Setting tag to * will match any tag.</p><p>To learn more advanced usage of XPath see the <a href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:140
 msgid "Browse by covers"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:171
 msgid "Cover browser could not be loaded"
 msgstr ""
 
@@ -9381,49 +9381,49 @@ msgstr ""
 msgid "Regular expression (?P<published>)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:104
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:253
 msgid "Cover Browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:113
 msgid "Shift+Alt+B"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:123
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:250
 msgid "Tag Browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:129
 msgid "Shift+Alt+T"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:29
 msgid "version"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:30
 msgid "created by Kovid Goyal"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:179
 msgid "Connected "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:215
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:225
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:219
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:229
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:232
 msgid "Book Details"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:221
 msgid "Alt+D"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/init.py:227
+#: /home/kovid/work/calibre/src/calibre/gui2/init.py:231
 msgid "Shift+Alt+D"
 msgstr ""
 
@@ -12011,7 +12011,7 @@ msgid "Here you can control how calibre will save your books when you click the 
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:70
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:424
 msgid "Failed to start content server"
 msgstr ""
 
@@ -12259,19 +12259,23 @@ msgstr ""
 msgid "The context menu for the books on the device"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:260
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:228
+msgid "The context menu for the cover browser"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:262
 msgid "Cannot add"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:261
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:263
 msgid "Cannot add the actions %s to this location"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:279
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:281
 msgid "Cannot remove"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:280
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:282
 msgid "Cannot remove the actions %s from this location"
 msgstr ""
 
@@ -13199,42 +13203,42 @@ msgstr ""
 msgid "&Eject connected device"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:345
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:347
 msgid "Debug mode"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:346
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:348
 msgid "You have started calibre in debug mode. After you quit calibre, the debug log will be available in the file: %s<p>The log will be displayed automatically."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:548
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:550
 msgid "Conversion Error"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:571
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:573
 msgid "Recipe Disabled"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:587
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:589
 msgid "<b>Failed</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:621
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:623
 msgid "There are active jobs. Are you sure you want to quit?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:624
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:626
 msgid ""
 " is communicating with the device!<br>\n"
 "                      Quitting may cause corruption on the device.<br>\n"
 "                      Are you sure you want to quit?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:628
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:630
 msgid "Active jobs"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:696
+#: /home/kovid/work/calibre/src/calibre/gui2/ui.py:698
 msgid "will keep running in the system tray. To close it, choose <b>Quit</b> in the context menu of the system tray."
 msgstr ""
 
@@ -15607,159 +15611,159 @@ msgstr ""
 msgid "Working..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:103
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:104
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (UK)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:105
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Simplified Chinese"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:106
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "Chinese (HK)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:107
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "Traditional Chinese"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
 msgid "English (Australia)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (New Zealand)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (Canada)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Greece)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (India)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "English (Thailand)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English (Turkey)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Cyprus)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Czechoslovakia)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Pakistan)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Croatia)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Indonesia)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (Israel)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "English (Singapore)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Yemen)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "English (Ireland)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "English (China)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "English (South Africa)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "Spanish (Paraguay)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "Spanish (Uruguay)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
 msgid "Spanish (Argentina)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
 msgid "Spanish (Mexico)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "Spanish (Cuba)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "Spanish (Chile)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "Spanish (Ecuador)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "Spanish (Honduras)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
 msgid "Spanish (Venezuela)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
 msgid "Spanish (Bolivia)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
 msgid "Spanish (Nicaragua)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "German (AT)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "French (BE)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "Dutch (NL)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "Dutch (BE)"
 msgstr ""
 
