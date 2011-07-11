@@ -1196,7 +1196,7 @@ class StoreEbookNLStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.ebook_nl_plugin:EBookNLStore'
 
     headquarters = 'NL'
-    formats = ['EPUB']
+    formats = ['EPUB', 'PDF']
     affiliate = True
 
 class StoreEbookscomStore(StoreBase):
