@@ -1332,6 +1332,7 @@ void PictureFlow::mousePressEvent(QMouseEvent* event)
 
 void PictureFlow::mouseReleaseEvent(QMouseEvent* event)
 {
+  bool accepted = false;
   int sideWidth = (d->buffer.width() - slideSize().width()) /2;
 
   if (d->singlePress)
@@ -1339,13 +1340,20 @@ void PictureFlow::mouseReleaseEvent(QMouseEvent* event)
     if (event->x() < sideWidth )
     {
       showPrevious();
+      accepted = true;
     } else if ( event->x() > sideWidth + slideSize().width() ) {
       showNext();
+      accepted = true;
     } else {
-      emit itemActivated(d->getTarget());
+        if (event->button() == Qt::LeftButton) {
+              emit itemActivated(d->getTarget());
+              accepted = true;
+        }
     }
 
-    event->accept();
+    if (accepted) {
+        event->accept();
+    }
   }
 
   emit inputReceived();

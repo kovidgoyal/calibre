@@ -49,6 +49,9 @@ class DevicePlugin(Plugin):
     #: Whether the metadata on books can be set via the GUI.
     CAN_SET_METADATA = ['title', 'authors', 'collections']
 
+    #: Whether the device can handle device_db metadata plugboards
+    CAN_DO_DEVICE_DB_PLUGBOARD = False
+
     # Set this to None if the books on the device are files that the GUI can
     # access in order to add the books from the device to the library
     BACKLOADING_ERROR_MESSAGE = _('Cannot get files from this device')
@@ -327,12 +330,7 @@ class DevicePlugin(Plugin):
         free space on the device. The text of the FreeSpaceError must contain the
         word "card" if ``on_card`` is not None otherwise it must contain the word "memory".
 
-        :param files: A list of paths and/or file-like objects. If they are paths and
-                      the paths point to temporary files, they may have an additional
-                      attribute, original_file_path pointing to the originals. They may have
-                      another optional attribute, deleted_after_upload which if True means
-                      that the file pointed to by original_file_path will be deleted after
-                      being uploaded to the device.
+        :param files: A list of paths
         :param names: A list of file names that the books should have
                       once uploaded to the device. len(names) == len(files)
         :param metadata: If not None, it is a list of :class:`Metadata` objects.

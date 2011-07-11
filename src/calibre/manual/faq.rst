@@ -35,29 +35,11 @@ What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 In order of decreasing preference: LIT, MOBI, EPUB, FB2, HTML, PRC, RTF, PDB, TXT, PDF
 
-Why does the PDF conversion lose some images/tables?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The PDF conversion tries to extract the text and images from the PDF file and convert them to and HTML based ebook. Some PDF files have images in a format that cannot be extracted (vector images). All tables
-are also represented as vector diagrams, thus they cannot be extracted.
+I converted a PDF file, but the result has various problems?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-How do I convert a collection of HTML files in a specific order?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
+PDF is a terrible format to convert from. For a list of the various issues you will encounter when converting PDF, see: :ref:`pdfconversion`.
 
-   <html>
-      <body>
-        <h1>Table of Contents</h1>
-        <p style="text-indent:0pt">
-           <a href="file1.html">First File</a><br/>
-           <a href="file2.html">Second File</a><br/>
-           .
-           .
-           .
-        </p>
-      </body>
-   </html>
-
-Then just add this HTML file to the GUI and use the convert button to create your ebook.
 
 .. _char-encoding-faq:
 
@@ -84,6 +66,26 @@ When converting to MOBI, calibre detects the *metadata TOC* in the input documen
 If you have a hand edited TOC in the input document, you can use the TOC detection options in calibre to automatically generate the metadata TOC from it. See the conversion section of the User Manual for more details on how to use these options.
 
 Finally, I encourage you to ditch the content TOC and only have a metadata TOC in your ebooks. Metadata TOCs will give the people reading your ebooks a much superior navigation experience (except on the Kindle, where they are essentially the same as a content TOC).
+
+How do I convert a collection of HTML files in a specific order?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
+
+   <html>
+      <body>
+        <h1>Table of Contents</h1>
+        <p style="text-indent:0pt">
+           <a href="file1.html">First File</a><br/>
+           <a href="file2.html">Second File</a><br/>
+           .
+           .
+           .
+        </p>
+      </body>
+   </html>
+
+Then just add this HTML file to the GUI and use the convert button to create your ebook.
+
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,7 +133,7 @@ Follow these steps to find the problem:
     * Make sure that you are connecting only a single device to your computer at a time. Do not have another |app| supported device like an iPhone/iPad etc. at the same time.
     * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
     * Make sure you are running the latest version of |app|. The latest version can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
-    * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk that you can access using Windows explorer or whatever the file management program on your computer is.
+    * Ensure your operating system is seeing the device. That is, the device should be mounted as a disk, that you can access using Windows explorer or whatever the file management program on your computer is. On Windows your device **must have been assigned a drive letter**, like K:.
     * In calibre, go to Preferences->Plugins->Device Interface plugin and make sure the plugin for your device is enabled, the plugin icon next to it should be green when it is enabled.
     * If all the above steps fail, go to Preferences->Miscellaneous and click debug device detection with your device attached and post the output as a ticket on `the calibre bug tracker <http://bugs.calibre-ebook.com>`_.
 
@@ -338,6 +340,10 @@ When you first run |app|, it will ask you for a folder in which to store your bo
 
 Metadata about the books is stored in the file ``metadata.db`` at the top level of the library folder This file is is a sqlite database. When backing up your library make sure you copy the entire folder and all its sub-folders.
 
+The library folder and all it's contents make up what is called a *|app| library*. You can have multiple such libraries. To manage the libraries, click the |app| icon on the toolbar. You can create new libraries, remove/rename existing ones and switch between libraries easily.
+
+You can copy or move books between different libraries (once you have more than one library setup) by right clicking on a book and selecting the :guilabel:`Copy to library` action. 
+
 How does |app| manage author names and sorting?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -515,7 +521,7 @@ Downloading from the internet can sometimes result in a corrupted download. If t
     * Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_.
     * Try downloading the installer with an alternate browser. For example if you are using Internet Explorer, try using Firefox or Chrome instead.
       
-Best place to ask for more help is in the `forums <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
+If you still cannot get the installer to work and you are on windows, you can use the `calibre portable install <http://calibre-ebook.com/download_portable>`_, which does not need an installer (it is just a zip file).
 
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -556,11 +562,16 @@ Most readers do not support this. You should complain to the manufacturer about 
 
 Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click the arrow next to the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
 
+How do I get |app| to use my HTTP proxy?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, |app| uses whatever proxy settings are set in your OS. Sometimes these are incorrect, for example, on windows if you don't use Internet Explorer then the proxy settings may not be up to date. You can tell |app| to use a particular proxy server by setting the http_proxy environment variable. The format of the variable is: http://username:password@servername you should ask your network admin to give you the correct value for this variable. Note that |app| only supports HTTP proxies not SOCKS proxies. You can see the current proxies used by |app| in Preferences->Miscellaneous.
+
 I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
- 2. `Open a ticket <http://calibre-ebook.com/bugs>`_ (you have to register and login first). Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
+ 2. `Open a bug requesting the feature <http://calibre-ebook.com/bugs>`_ . Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
 
 Why doesn't |app| have an automatic update?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

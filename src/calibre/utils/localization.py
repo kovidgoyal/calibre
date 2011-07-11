@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, locale, re, cStringIO, cPickle
-from gettext import GNUTranslations
+from gettext import GNUTranslations, NullTranslations
 from zipfile import ZipFile
 
 _available_translations = None
@@ -91,12 +91,17 @@ def set_translators():
                 except:
                     pass # No iso639 translations for this lang
 
+        t = None
         if buf is not None:
             t = GNUTranslations(buf)
             if iso639 is not None:
                 iso639 = GNUTranslations(iso639)
                 t.add_fallback(iso639)
-            t.install(unicode=True)
+
+        if t is None:
+            t = NullTranslations()
+
+        t.install(unicode=True, names=('ngettext',))
 
 _iso639 = None
 _extra_lang_codes = {
@@ -109,8 +114,10 @@ _extra_lang_codes = {
         'en_AU' : _('English (Australia)'),
         'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
+        'en_GR' : _('English (Greece)'),
         'en_IN' : _('English (India)'),
         'en_TH' : _('English (Thailand)'),
+        'en_TR' : _('English (Turkey)'),
         'en_CY' : _('English (Cyprus)'),
         'en_CZ' : _('English (Czechoslovakia)'),
         'en_PK' : _('English (Pakistan)'),
@@ -121,6 +128,7 @@ _extra_lang_codes = {
         'en_YE' : _('English (Yemen)'),
         'en_IE' : _('English (Ireland)'),
         'en_CN' : _('English (China)'),
+        'en_ZA' : _('English (South Africa)'),
         'es_PY' : _('Spanish (Paraguay)'),
         'es_UY' : _('Spanish (Uruguay)'),
         'es_AR' : _('Spanish (Argentina)'),
@@ -145,9 +153,12 @@ for k in _extra_lang_codes:
 
 def get_language(lang):
     global _iso639
+    translate = _
     lang = _lcase_map.get(lang, lang)
     if lang in _extra_lang_codes:
-        return _extra_lang_codes[lang]
+        # The translator was not active when _extra_lang_codes was defined, so
+        # re-translate
+        return translate(_extra_lang_codes[lang])
     ip = P('localization/iso639.pickle')
     if not os.path.exists(ip):
         return lang
@@ -162,7 +173,7 @@ def get_language(lang):
             ans = _iso639['by_3b'][lang]
         else:
             ans = _iso639['by_3t'].get(lang, ans)
-    return _(ans)
+    return translate(ans)
 
 
 def set_qt_translator(translator):

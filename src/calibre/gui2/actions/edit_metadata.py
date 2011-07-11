@@ -17,6 +17,7 @@ from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.actions import InterfaceAction
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.icu import sort_key
+from calibre.db.errors import NoSuchFormat
 
 class EditMetadataAction(InterfaceAction):
 
@@ -265,7 +266,7 @@ class EditMetadataAction(InterfaceAction):
                                 +'</p>', 'merge_too_many_books', self.gui):
                 return
 
-        dest_id, src_books, src_ids = self.books_to_merge(rows)
+        dest_id, src_ids = self.books_to_merge(rows)
         title = self.gui.library_view.model().db.title(dest_id, index_is_id=True)
         if safe_merge:
             if not confirm('<p>'+_(
@@ -277,13 +278,13 @@ class EditMetadataAction(InterfaceAction):
                 'Please confirm you want to proceed.')%title
             +'</p>', 'merge_books_safe', self.gui):
                 return
-            self.add_formats(dest_id, src_books)
+            self.add_formats(dest_id, self.formats_for_books(rows))
             self.merge_metadata(dest_id, src_ids)
         elif merge_only_formats:
             if not confirm('<p>'+_(
                 'Book formats from the selected books will be merged '
                 'into the <b>first selected book</b> (%s). '
-                'Metadata in the first selected book will not be changed.'
+                'Metadata in the first selected book will not be changed. '
                 'Author, Title, ISBN and all other metadata will <i>not</i> be merged.<br><br>'
                 'After merger the second and subsequently '
                 'selected books, with any metadata they have will be <b>deleted</b>. <br><br>'
@@ -293,7 +294,7 @@ class EditMetadataAction(InterfaceAction):
                 'Are you <b>sure</b> you want to proceed?')%title
             +'</p>', 'merge_only_formats', self.gui):
                 return
-            self.add_formats(dest_id, src_books)
+            self.add_formats(dest_id, self.formats_for_books(rows))
             self.delete_books_after_merge(src_ids)
         else:
             if not confirm('<p>'+_(
@@ -308,7 +309,7 @@ class EditMetadataAction(InterfaceAction):
                 'Are you <b>sure</b> you want to proceed?')%title
             +'</p>', 'merge_books', self.gui):
                 return
-            self.add_formats(dest_id, src_books)
+            self.add_formats(dest_id, self.formats_for_books(rows))
             self.merge_metadata(dest_id, src_ids)
             self.delete_books_after_merge(src_ids)
             # leave the selection highlight on first selected book
@@ -329,8 +330,22 @@ class EditMetadataAction(InterfaceAction):
                     self.gui.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True,
                             notify=False, replace=replace)
 
+    def formats_for_books(self, rows):
+        m = self.gui.library_view.model()
+        ans = []
+        for id_ in map(m.id, rows):
+            dbfmts = m.db.formats(id_, index_is_id=True)
+            if dbfmts:
+                for fmt in dbfmts.split(','):
+                    try:
+                        path = m.db.format(id_, fmt, index_is_id=True,
+                                as_path=True)
+                        ans.append(path)
+                    except NoSuchFormat:
+                        continue
+        return ans
+
     def books_to_merge(self, rows):
-        src_books = []
         src_ids = []
         m = self.gui.library_view.model()
         for i, row in enumerate(rows):
@@ -339,22 +354,19 @@ class EditMetadataAction(InterfaceAction):
                 dest_id = id_
             else:
                 src_ids.append(id_)
-                dbfmts = m.db.formats(id_, index_is_id=True)
-                if dbfmts:
-                    for fmt in dbfmts.split(','):
-                        src_books.append(m.db.format_abspath(id_, fmt,
-                            index_is_id=True))
-        return [dest_id, src_books, src_ids]
+        return [dest_id, src_ids]
 
     def delete_books_after_merge(self, ids_to_delete):
         self.gui.library_view.model().delete_books_by_id(ids_to_delete)
 
     def merge_metadata(self, dest_id, src_ids):
         db = self.gui.library_view.model().db
-        dest_mi = db.get_metadata(dest_id, index_is_id=True, get_cover=True)
+        dest_mi = db.get_metadata(dest_id, index_is_id=True)
         orig_dest_comments = dest_mi.comments
+        dest_cover = db.cover(dest_id, index_is_id=True)
+        had_orig_cover = bool(dest_cover)
         for src_id in src_ids:
-            src_mi = db.get_metadata(src_id, index_is_id=True, get_cover=True)
+            src_mi = db.get_metadata(src_id, index_is_id=True)
             if src_mi.comments and orig_dest_comments != src_mi.comments:
                 if not dest_mi.comments:
                     dest_mi.comments = src_mi.comments
@@ -372,8 +384,10 @@ class EditMetadataAction(InterfaceAction):
                     dest_mi.tags = src_mi.tags
                 else:
                     dest_mi.tags.extend(src_mi.tags)
-            if src_mi.cover and not dest_mi.cover:
-                dest_mi.cover = src_mi.cover
+            if not dest_cover:
+                src_cover = db.cover(src_id, index_is_id=True)
+                if src_cover:
+                    dest_cover = src_cover
             if not dest_mi.publisher:
                 dest_mi.publisher = src_mi.publisher
             if not dest_mi.rating:
@@ -382,6 +396,8 @@ class EditMetadataAction(InterfaceAction):
                 dest_mi.series = src_mi.series
                 dest_mi.series_index = src_mi.series_index
         db.set_metadata(dest_id, dest_mi, ignore_errors=False)
+        if not had_orig_cover and dest_cover:
+            db.set_cover(dest_id, dest_cover)
 
         for key in db.field_metadata: #loop thru all defined fields
           if db.field_metadata[key]['is_custom']:
@@ -430,9 +446,8 @@ class EditMetadataAction(InterfaceAction):
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of new text to old ids
             to_delete = d.to_delete # list of ids
-            for text in to_rename:
-                for old_id in to_rename[text]:
-                    model.rename_collection(old_id, new_name=unicode(text))
+            for old_id, new_name in to_rename.iteritems():
+                model.rename_collection(old_id, new_name=unicode(new_name))
             for item in to_delete:
                 model.delete_collection_using_id(item)
             self.gui.upload_collections(model.db, view=view, oncard=oncard)

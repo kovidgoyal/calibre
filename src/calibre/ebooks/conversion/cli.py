@@ -144,9 +144,9 @@ def add_pipeline_options(parser, plumber):
 
               'HEURISTIC PROCESSING' : (
                   _('Modify the document text and structure using common'
-                     ' patterns. Disabled by default. Use %s to enable. '
-                     ' Individual actions can be disabled with the %s options.')
-                  % ('--enable-heuristics', '--disable-*'),
+                     ' patterns. Disabled by default. Use %(en)s to enable. '
+                     ' Individual actions can be disabled with the %(dis)s options.')
+                  % dict(en='--enable-heuristics', dis='--disable-*'),
                   ['enable_heuristics'] + HEURISTIC_OPTIONS
                   ),
 
@@ -176,7 +176,7 @@ def add_pipeline_options(parser, plumber):
                   [
                     'level1_toc', 'level2_toc', 'level3_toc',
                     'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
-                    'use_auto_toc', 'toc_filter',
+                    'use_auto_toc', 'toc_filter', 'duplicate_links_in_toc',
                   ]
                   ),
 

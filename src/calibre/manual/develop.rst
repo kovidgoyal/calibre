@@ -9,7 +9,7 @@ Setting up a |app| development environment
 This means that you are free to download and modify the program to your hearts content. In this section, 
 you will learn how to get a |app| development environment setup on the operating system of your choice. 
 |app| is written primarily in `Python <http://www.python.org>`_ with some C/C++ code for speed and system interfacing. 
-Note that |app| is not compatible with Python 3 and requires at least Python 2.6.
+Note that |app| is not compatible with Python 3 and requires at least Python 2.7.
 
 .. contents:: Contents
   :depth: 2
@@ -28,7 +28,7 @@ For example, adding support for a new device to |app| typically involves writing
 a device driver plugin. You can browse the 
 `built-in drivers <http://bazaar.launchpad.net/%7Ekovid/calibre/trunk/files/head%3A/src/calibre/devices/>`_. Similarly, adding support 
 for new conversion formats involves writing input/output format plugins. Another example of the modular design is the :ref:`recipe system <news>` for 
-fetching news. 
+fetching news. For more examples of plugins designed to add features to |app|, see the `plugin index <http://www.mobileread.com/forums/showthread.php?t=118764>`_.
 
 Code layout
 ^^^^^^^^^^^^^^
@@ -36,10 +36,21 @@ Code layout
 All the |app| python code is in the ``calibre`` package. This package contains the following main sub-packages
 
     * devices - All the device drivers. Just look through some of the built-in drivers to get an idea for how they work.
-    * ebooks  - All the ebook conversion code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
-      module powering the :command:`ebook-convert` command.
-    * library - The database backed and the content server. 
-    * gui2 - The Graphical User Interface. 
+
+      * For details, see: devices.interface which defines the interface supported by device drivers and devices.usbms which
+        defines a generic driver that connects to a USBMS device. All USBMS based drivers in calibre inherit from it.
+
+    * ebooks  - All the ebook conversion/metadata code. A good starting point is ``calibre.ebooks.conversion.cli`` which is the
+      module powering the :command:`ebook-convert` command. The conversion process is controlled via conversion.plumber.
+      The format independent code is all in ebooks.oeb and the format dependent stuff is in ebooks.format_name.
+
+        * Metadata reading writing and downloading is all in ebooks.metadata
+
+    * library - The database backed and the content server. See library.database2 for the interface to the calibre library. library.server is the calibre Content Server.
+    * gui2 - The Graphical User Interface. GUI initialization happens in gui2.main and gui2.ui. The ebook-viewer is in gui2.viewer.
+
+If you need help understanding the code, post in the `development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`_
+and you will most likely get help from one of |app|'s many developers.
 
 Getting the code
 ------------------
@@ -82,9 +93,9 @@ Now whenever you commit changes to your branch with the command::
 
     bzr commit -m "Comment describing your change"
 
-I can merge it directly from you branch into the main |app| source tree. You should also subscribe to the |app|
-developers mailing list `calibre-devs <https://launchpad.net/~calibre-devs>`_. Before making major changes, you should
-discuss them on the mailing list or the #calibre IRC channel on Freenode to ensure that the changes will be accepted once you're done. 
+I can merge it directly from you branch into the main |app| source tree. You should also keep an eye on the |app|
+`development forum <http://www.mobileread.com/forums/forumdisplay.php?f=240>`. Before making major changes, you should
+discuss them in the forum or contact Kovid directly (his email address is all over the source code). 
 
 Windows development environment
 ---------------------------------
@@ -111,7 +122,7 @@ Setting this environment variable means that |app| will now load all its Python 
 That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src\\calibre\\__init__.py`
 in your favorite editor and add the line::
     
-    print "Hello, world!"
+    print ("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
@@ -140,7 +151,7 @@ Setting this environment variable means that |app| will now load all its Python 
 That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src/calibre/__init__.py`
 in your favorite editor and add the line::
     
-    print "Hello, world!"
+    print ("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
 
@@ -150,7 +161,8 @@ Linux development environment
 |app| is primarily developed on linux. You have two choices in setting up the development environment. You can install the
 |app| binary as normal and use that as a runtime environment to do your development. This approach is similar to that
 used in windows and OS X. Alternatively, you can install |app| from source. Instructions for setting up a development
-environment from source are in the INSTALL file in the source tree. Here we will address using the binary a runtime.
+environment from source are in the INSTALL file in the source tree. Here we will address using the binary a runtime, which is the
+recommended method.
 
 Install the |app| using the binary installer. Then open a terminal and change to the previously checked out |app| code directory, for example::
 
@@ -172,9 +184,29 @@ Setting this environment variable means that |app| will now load all its Python 
 That's it! You are now ready to start hacking on the |app| code. For example, open the file :file:`src/calibre/__init__.py`
 in your favorite editor and add the line::
     
-    print "Hello, world!"
+    print ("Hello, world!")
 
 near the top of the file. Now run the command :command:`calibredb`. The very first line of output should be ``Hello, world!``.
+
+Having separate "normal" and "development" |app| installs on the same computer
+-------------------------------------------------------------------------------
+
+The calibre source tree is very stable, it rarely breaks, but if you feel the need to run from source on a separate
+test library and run the released calibre version with your everyday library, you can achieve this easily using
+.bat files or shell scripts to launch |app|. The example below shows how to do this on windows using .bat files (the
+instructions for other platforms are the same, just use a BASH script instead of a .bat file)
+
+To launch the release version of |app| with your everyday library:
+
+calibre-normal.bat::
+
+    calibre.exe "--with-library=C:\path\to\everyday\library folder"
+
+calibre-dev.bat::
+
+    set CALIBRE_DEVELOP_FROM=C:\path\to\calibre\checkout\src
+    calibre.exe "--with-library=C:\path\to\test\library folder"
+
 
 Debugging tips
 ----------------

@@ -5,8 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, functools, re, os, traceback
-from contextlib import closing
+import functools, re, os, traceback
 from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
@@ -15,7 +14,7 @@ from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
 from calibre.gui2 import NONE, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
-from calibre.ebooks.metadata.book.base import composite_formatter
+from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt
@@ -35,14 +34,6 @@ TIME_FMT = '%d %b %Y'
 
 ALIGNMENT_MAP = {'left': Qt.AlignLeft, 'right': Qt.AlignRight, 'center':
         Qt.AlignHCenter}
-
-class FormatPath(unicode):
-
-    def __new__(cls, path, orig_file_path):
-        ans = unicode.__new__(cls, path)
-        ans.orig_file_path = orig_file_path
-        ans.deleted_after_upload = False
-        return ans
 
 _default_image = None
 
@@ -100,6 +91,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.current_highlighted_idx = None
         self.highlight_only = False
         self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
+        self.formatter = SafeFormat()
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -391,10 +383,14 @@ class BooksModel(QAbstractTableModel): # {{{
         data = self.current_changed(index, None, False)
         return data
 
-    def metadata_for(self, ids):
+    def metadata_for(self, ids, get_cover=True):
+        '''
+        WARNING: if get_cover=True temp files are created for mi.cover.
+        Remember to delete them once you are done with them.
+        '''
         ans = []
         for id in ids:
-            mi = self.db.get_metadata(id, index_is_id=True, get_cover=True)
+            mi = self.db.get_metadata(id, index_is_id=True, get_cover=get_cover)
             ans.append(mi)
         return ans
 
@@ -449,18 +445,14 @@ class BooksModel(QAbstractTableModel): # {{{
                     format = f
                     break
             if format is not None:
-                pt = PersistentTemporaryFile(suffix='.'+format)
-                with closing(self.db.format(id, format, index_is_id=True,
-                    as_file=True)) as src:
-                    shutil.copyfileobj(src, pt)
-                    pt.flush()
-                    if getattr(src, 'name', None):
-                        pt.orig_file_path = os.path.abspath(src.name)
+                pt = PersistentTemporaryFile(suffix='caltmpfmt.'+format)
+                self.db.copy_format_to(id, format, pt, index_is_id=True)
                 pt.seek(0)
                 if set_metadata:
                     try:
-                        _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
-                                  format)
+                        _set_metadata(pt, self.db.get_metadata(
+                            id, get_cover=True, index_is_id=True,
+                            cover_as_data=True), format)
                     except:
                         traceback.print_exc()
                 pt.close()
@@ -468,9 +460,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     if isbytestring(x):
                         x = x.decode(filesystem_encoding)
                     return x
-                name, op = map(to_uni, map(os.path.abspath, (pt.name,
-                    pt.orig_file_path)))
-                ans.append(FormatPath(name, op))
+                ans.append(to_uni(os.path.abspath(pt.name)))
             else:
                 need_auto.append(id)
                 if not exclude_auto:
@@ -499,13 +489,11 @@ class BooksModel(QAbstractTableModel): # {{{
                     break
             if format is not None:
                 pt = PersistentTemporaryFile(suffix='.'+format)
-                with closing(self.db.format(row, format, as_file=True)) as src:
-                    shutil.copyfileobj(src, pt)
-                    pt.flush()
+                self.db.copy_format_to(id, format, pt, index_is_id=True)
                 pt.seek(0)
                 if set_metadata:
-                    _set_metadata(pt, self.db.get_metadata(row, get_cover=True),
-                                  format)
+                    _set_metadata(pt, self.db.get_metadata(row, get_cover=True,
+                        cover_as_data=True), format)
                 pt.close() if paths else pt.seek(0)
                 ans.append(pt)
             else:
@@ -724,7 +712,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 try:
                     if mi is None:
                         mi = self.db.get_metadata(id_, index_is_id=True)
-                    color = composite_formatter.safe_format(fmt, mi, '', mi)
+                    color = self.formatter.safe_format(fmt, mi, '', mi)
                     if color in self.colors:
                         color = QColor(color)
                         if color.isValid():
@@ -962,11 +950,11 @@ class OnDeviceSearch(SearchQueryParser): # {{{
             for locvalue in locations:
                 accessor = q[locvalue]
                 if query == 'true':
-                    if accessor(row) is not None:
+                    if accessor(row):
                         matches.add(index)
                     continue
                 if query == 'false':
-                    if accessor(row) is None:
+                    if not accessor(row):
                         matches.add(index)
                     continue
                 if locvalue == 'inlibrary':

@@ -15,7 +15,7 @@ from calibre.utils.ipc.server import Server
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre import prints, isbytestring
 from calibre.constants import filesystem_encoding
-
+from calibre.db.errors import NoSuchFormat
 
 def debug(*args):
     prints(*args)
@@ -201,27 +201,35 @@ class SaveWorker(Thread):
         self.spare_server = spare_server
         self.start()
 
-    def collect_data(self, ids):
+    def collect_data(self, ids, tdir):
         from calibre.ebooks.metadata.opf2 import metadata_to_opf
         data = {}
         for i in set(ids):
-            mi = self.db.get_metadata(i, index_is_id=True, get_cover=True)
+            mi = self.db.get_metadata(i, index_is_id=True, get_cover=True,
+                    cover_as_data=True)
             opf = metadata_to_opf(mi)
             if isbytestring(opf):
                 opf = opf.decode('utf-8')
             cpath = None
-            if mi.cover:
-                cpath = mi.cover
+            if mi.cover_data and mi.cover_data[1]:
+                cpath = os.path.join(tdir, 'cover_%s.jpg'%i)
+                with lopen(cpath, 'wb') as f:
+                    f.write(mi.cover_data[1])
                 if isbytestring(cpath):
                     cpath = cpath.decode(filesystem_encoding)
             formats = {}
             if mi.formats:
                 for fmt in mi.formats:
-                    fpath = self.db.format_abspath(i, fmt, index_is_id=True)
-                    if fpath is not None:
-                        if isbytestring(fpath):
-                            fpath = fpath.decode(filesystem_encoding)
-                        formats[fmt.lower()] = fpath
+                    fpath = os.path.join(tdir, 'fmt_%s.%s'%(i, fmt.lower()))
+                    with lopen(fpath, 'wb') as f:
+                        try:
+                            self.db.copy_format_to(i, fmt, f, index_is_id=True)
+                        except NoSuchFormat:
+                            continue
+                        else:
+                            if isbytestring(fpath):
+                                fpath = fpath.decode(filesystem_encoding)
+                            formats[fmt.lower()] = fpath
             data[i] = [opf, cpath, formats, mi.last_modified.isoformat()]
         return data
 
@@ -244,7 +252,7 @@ class SaveWorker(Thread):
 
         for i, task in enumerate(tasks):
             tids = [x[-1] for x in task]
-            data = self.collect_data(tids)
+            data = self.collect_data(tids, tdir)
             dpath = os.path.join(tdir, '%d.json'%i)
             with open(dpath, 'wb') as f:
                 f.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))

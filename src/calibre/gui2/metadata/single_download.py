@@ -236,6 +236,11 @@ class ResultsView(QTableView): # {{{
         self.resizeRowsToContents()
         self.resizeColumnsToContents()
         self.setFocus(Qt.OtherFocusReason)
+        idx = self.model().index(0, 0)
+        if idx.isValid() and self.model().rowCount() > 0:
+            self.show_details(idx)
+            sm = self.selectionModel()
+            sm.select(idx, sm.ClearAndSelect|sm.Rows)
 
     def currentChanged(self, current, previous):
         ret = QTableView.currentChanged(self, current, previous)
@@ -249,6 +254,10 @@ class ResultsView(QTableView): # {{{
             '<h2>%s</h2>'%book.title,
             '<div><i>%s</i></div>'%authors_to_string(book.authors),
         ]
+        if not book.is_null('series'):
+            series = book.format_field('series')
+            if series[1]:
+                parts.append('<div>%s: %s</div>'%series)
         if not book.is_null('rating'):
             parts.append('<div>%s</div>'%('\u2605'*int(book.rating)))
         parts.append('</center>')
@@ -480,12 +489,6 @@ class IdentifyWidget(QWidget): # {{{
             return
 
         self.results_view.show_results(self.worker.results)
-
-        self.comments_view.show_data('''
-            <div style="margin-bottom:2ex">Found <b>%d</b> results</div>
-            <div>To see <b>details</b>, click on any result</div>''' %
-                len(self.worker.results))
-
         self.results_found.emit()
 
 
@@ -723,8 +726,8 @@ class CoversWidget(QWidget): # {{{
         if num < 2:
             txt = _('Could not find any covers for <b>%s</b>')%self.book.title
         else:
-            txt = _('Found <b>%d</b> covers of %s. Pick the one you like'
-                    ' best.')%(num-1, self.title)
+            txt = _('Found <b>%(num)d</b> covers of %(title)s. Pick the one you like'
+                    ' best.')%dict(num=num-1, title=self.title)
         self.msg.setText(txt)
 
         self.finished.emit()

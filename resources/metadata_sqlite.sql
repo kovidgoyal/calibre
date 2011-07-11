@@ -1,6 +1,7 @@
 CREATE TABLE authors ( id   INTEGER PRIMARY KEY,
                               name TEXT NOT NULL COLLATE NOCASE,
                               sort TEXT COLLATE NOCASE,
+                              link TEXT NOT NULL DEFAULT "",
                               UNIQUE(name)
                              );
 CREATE TABLE books ( id      INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -13,8 +14,10 @@ CREATE TABLE books ( id      INTEGER PRIMARY KEY AUTOINCREMENT,
                              isbn TEXT DEFAULT "" COLLATE NOCASE,
                              lccn TEXT DEFAULT "" COLLATE NOCASE,
                              path TEXT NOT NULL DEFAULT "",
-                             flags INTEGER NOT NULL DEFAULT 1
-                        , uuid TEXT, has_cover BOOL DEFAULT 0, last_modified TIMESTAMP NOT NULL DEFAULT "2000-01-01 00:00:00+00:00");
+                             flags INTEGER NOT NULL DEFAULT 1,
+                             uuid TEXT,
+                             has_cover BOOL DEFAULT 0,
+                             last_modified TIMESTAMP NOT NULL DEFAULT "2000-01-01 00:00:00+00:00");
 CREATE TABLE books_authors_link ( id INTEGER PRIMARY KEY,
                                           book INTEGER NOT NULL,
                                           author INTEGER NOT NULL,
@@ -543,4 +546,4 @@ CREATE TRIGGER series_update_trg
         BEGIN
           UPDATE series SET sort=NEW.name WHERE id=NEW.id;
         END;
-pragma user_version=20;
+pragma user_version=21;

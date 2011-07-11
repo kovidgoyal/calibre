@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 infobae.com
 '''
@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Infobae(BasicNewsRecipe):
     title                 = 'Infobae.com'
     __author__            = 'Darko Miletic and Sujata Raman'
-    description           = 'Informacion Libre las 24 horas'
+    description           = 'Infobae.com es el sitio de noticias con mayor actualizacion de Latinoamérica. Noticias actualizadas las 24 horas, los 365 días del año.'
     publisher             = 'Infobae.com'
     category              = 'news, politics, Argentina'
     oldest_article        = 1
@@ -17,13 +17,13 @@ class Infobae(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     language              = 'es_AR'
-    encoding              = 'cp1252'
-    masthead_url          = 'http://www.infobae.com/imgs/header/header.gif'
-    remove_javascript     = True
+    encoding              = 'utf8'
+    masthead_url          = 'http://www.infobae.com/media/img/static/logo-infobae.gif'
     remove_empty_feeds    = True
     extra_css             = '''
-                              body{font-family:Arial,Helvetica,sans-serif;}
-                              .popUpTitulo{color:#0D4261; font-size: xx-large}
+                              body{font-family: Arial,Helvetica,sans-serif}
+                              img{display: block}
+                              .categoria{font-size: small; text-transform: uppercase}
                             '''
 
     conversion_options = {
@@ -31,26 +31,44 @@ class Infobae(BasicNewsRecipe):
                         , 'tags'             : category
                         , 'publisher'        : publisher
                         , 'language'         : language
-                        , 'linearize_tables' : True
                         }
-
-
+    
+    keep_only_tags    = [dict(attrs={'class':['titularnota','nota','post-title','post-entry','entry-title','entry-info','entry-content']})]
+    remove_tags_after = dict(attrs={'class':['interior-noticia','nota-desc','tags']})
+    remove_tags       = [
+                          dict(name=['base','meta','link','iframe','object','embed','ins'])
+                         ,dict(attrs={'class':['barranota','tags']})
+                        ]
+    
     feeds = [
-              (u'Noticias'  , u'http://www.infobae.com/adjuntos/html/RSS/hoy.xml'       )
-             ,(u'Salud'     , u'http://www.infobae.com/adjuntos/html/RSS/salud.xml'     )
-             ,(u'Tecnologia', u'http://www.infobae.com/adjuntos/html/RSS/tecnologia.xml')
-             ,(u'Deportes'  , u'http://www.infobae.com/adjuntos/html/RSS/deportes.xml'  )
+              (u'Saludable' , u'http://www.infobae.com/rss/saludable.xml')
+             ,(u'Economia'  , u'http://www.infobae.com/rss/economia.xml' )
+             ,(u'En Numeros', u'http://www.infobae.com/rss/rating.xml'   )
+             ,(u'Finanzas'  , u'http://www.infobae.com/rss/finanzas.xml' )
+             ,(u'Mundo'     , u'http://www.infobae.com/rss/mundo.xml'    )
+             ,(u'Sociedad'  , u'http://www.infobae.com/rss/sociedad.xml' )
+             ,(u'Politica'  , u'http://www.infobae.com/rss/politica.xml' )
+             ,(u'Deportes'  , u'http://www.infobae.com/rss/deportes.xml' )
             ]
 
-    def print_version(self, url):
-        article_part = url.rpartition('/')[2]
-        article_id= article_part.partition('-')[0]
-        return 'http://www.infobae.com/notas/nota_imprimir.php?Idx=' + article_id
-
-    def postprocess_html(self, soup, first):
-        for tag in soup.findAll(name='strong'):
-             tag.name = 'b'
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
         return soup
-
 
 

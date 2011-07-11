@@ -53,6 +53,13 @@ SQLite
 
 Put sqlite3*.h from the sqlite windows amlgamation in ~/sw/include
 
+APSW
+-----
+
+Download source from http://code.google.com/p/apsw/downloads/list and run in visual studio prompt
+
+python setup.py fetch --all build --missing-checksum-ok --enable-all-extensions install test
+
 OpenSSL
 --------
 

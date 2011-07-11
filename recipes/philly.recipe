@@ -1,85 +1,45 @@
 #!/usr/bin/env  python
-__license__   = 'GPL v3'
-'''
-philly.com/inquirer/
-'''
-from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe
 
-class Philly(BasicNewsRecipe):
-
-    title       = 'Philadelphia Inquirer'
-    __author__  = 'RadikalDissent and Sujata Raman'
+class AdvancedUserRecipe1308312288(BasicNewsRecipe):
+    title          = u'Philadelphia Inquirer'
+    __author__ = 'sexymax15'
     language = 'en'
     description = 'Daily news from the Philadelphia Inquirer'
-    no_stylesheets        = True
-    use_embedded_content  = False
-    oldest_article = 1
-    max_articles_per_feed = 25
+    oldest_article = 15
+    max_articles_per_feed = 20
+    use_embedded_content = False
+    remove_empty_feeds = True
+    no_stylesheets = True
+    remove_javascript = True
 
-    extra_css = '''
-        h1{font-family:verdana,arial,helvetica,sans-serif; font-size: large;}
-        h2{font-family:verdana,arial,helvetica,sans-serif; font-size: small;}
-        .body-content{font-family:verdana,arial,helvetica,sans-serif; font-size: small;}
-        .byline {font-size: small; color: #666666; font-style:italic; }
-        .lastline {font-size: small; color: #666666; font-style:italic;}
-        .contact {font-size: small; color: #666666;}
-        .contact p {font-size: small; color: #666666;}
-        #photoCaption { font-family:verdana,arial,helvetica,sans-serif; font-size:x-small;}
-        .photoCaption { font-family:verdana,arial,helvetica,sans-serif; font-size:x-small;}
-        #photoCredit{ font-family:verdana,arial,helvetica,sans-serif; font-size:x-small; color:#666666;}
-        .photoCredit{ font-family:verdana,arial,helvetica,sans-serif; font-size:x-small; color:#666666;}
-        .article_timestamp{font-size:x-small; color:#666666;}
-        a {font-family:verdana,arial,helvetica,sans-serif; font-size: x-small;}
-                '''
+   # remove_tags_before = {'class':'article_timestamp'}
+    #remove_tags_after = {'class':'graylabel'}
+    keep_only_tags= [dict(name=['h1','p'])]
+    remove_tags = [dict(name=['hr','dl','dt','img','meta','iframe','link','script','form','input','label']),
+dict(id=['toggleConfirmEmailDiv','toggleTOS','toggleUsernameMsgDiv','toggleConfirmYear','navT1_philly','secondaryNav','navPlacement','globalPrimaryNav'
+,'ugc-footer-philly','bv_footer_include','footer','header',
+'container_rag_bottom','section_rectangle','contentrightside'])
+,{'class':['megamenu3 megamenu','container misc','container_inner misc_inner'
+,'misccontainer_left_32','headlineonly','misccontainer_middle_32'
+,'misccontainer_right_32','headline formBegin',
+'post_balloon','relatedlist','linkssubhead','b_sq','dotted-rule-above'
+,'container','headlines-digest','graylabel','container_inner'
+,'rlinks_colorbar1','rlinks_colorbar2','supercontainer','container_5col_left','container_image_left',
+'digest-headline2','digest-lead','container_5col_leftmiddle',
+'container_5col_middlemiddle','container_5col_rightmiddle'
+,'container_5col_right','divclear','supercontainer_outer force-width',
+'supercontainer','containertitle  kicker-title',
+'pollquestion','pollchoice','photomore','pollbutton','container rssbox','containertitle video ',
+'containertitle_image ','container_tabtwo','selected'
+,'shadetabs','selected','tabcontentstyle','tabcontent','inner_container'
+,'arrow','container_ad','containertitlespacer','adUnit','tracking','sitemsg_911 clearfix']}]
 
-    keep_only_tags = [
-               dict(name='div', attrs={'class':'story-content'}),
-               dict(name='div', attrs={'id': 'contentinside'})
-                    ]
+    extra_css             = """
+                               h1{font-family: Georgia,serif; font-size: xx-large}
 
-    remove_tags = [
-         dict(name='div', attrs={'class':['linkssubhead','post_balloon','relatedlist','pollquestion','b_sq']}),
-         dict(name='dl', attrs={'class':'relatedlist'}),
-        dict(name='div', attrs={'id':['photoNav','sidebar_adholder']}),
-        dict(name='a', attrs={'class': ['headlineonly','bl']}),
-         dict(name='img', attrs={'class':'img_noborder'})
-    ]
-   # def print_version(self, url):
-   #     return url + '?viewAll=y'
+                            """
 
 
-    feeds = [
-        ('Front Page', 'http://www.philly.com/inquirer_front_page.rss'),
-        ('Business', 'http://www.philly.com/inq_business.rss'),
-        #('News', 'http://www.philly.com/inquirer/news/index.rss'),
-        ('Nation', 'http://www.philly.com/inq_news_world_us.rss'),
-        ('Local', 'http://www.philly.com/inquirer_local.rss'),
-        ('Health', 'http://www.philly.com/inquirer_health_science.rss'),
-        ('Education', 'http://www.philly.com/inquirer_education.rss'),
-        ('Editorial and opinion', 'http://www.philly.com/inq_news_editorial.rss'),
-        ('Sports', 'http://www.philly.com/inquirer_sports.rss')
-        ]
+    feeds          = [(u'News', u'http://www.philly.com/philly_news.rss')]
 
-    def get_article_url(self, article):
-        ans = article.link
-
-        try:
-            self.log('Looking for full story link in', ans)
-            soup = self.index_to_soup(ans)
-            x = soup.find(text="View All")
-
-            if x is not None:
-                ans = ans + '?viewAll=y'
-                self.log('Found full story link', ans)
-        except:
-            pass
-        return ans
-
-    def postprocess_html(self, soup,first):
-
-         for tag in soup.findAll(name='div',attrs={'class':"container_ate_qandatitle"}):
-                tag.extract()
-         for tag in soup.findAll(name='br'):
-                tag.extract()
-
-         return soup

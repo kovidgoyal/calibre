@@ -633,6 +633,7 @@ TXT input supports a number of options to differentiate how paragraphs are detec
     :guilabel:`Formatting Style: None`
         Applies no special formatting to the text, the document is converted to html with no other changes.
 
+.. _pdfconversion:
 
 Convert PDF documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -657,6 +658,7 @@ Some limitations of PDF input are:
     * Some PDFs store their images upside down with a rotation instruction, |app| currently doesn't support that instruction, so the images will be rotated in the output as well. 
     * Links and Tables of Contents are not supported
     * PDFs that use embedded non-unicode fonts to represent non-English characters will result in garbled output for those characters
+    * Some PDFs are made up of photographs of the page with OCRed text behind them. In such cases |app| uses the OCRed text, which can be very different from what you see when you view the PDF file
 
 To re-iterate **PDF is a really, really bad** format to use as input. If you absolutely must use PDF, then be prepared for an
 output ranging anywhere from decent to unusable, depending on the input PDF.
