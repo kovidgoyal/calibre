@@ -569,9 +569,9 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
             det = traceback.format_exc()
             error_dialog(parent, _('Invalid database'),
                 _('<p>An invalid library already exists at '
-                    '%s, delete it before trying to move the '
-                    'existing library.<br>Error: %s')%(newloc,
-                        str(err)), det, show=True)
+                    '%(loc)s, delete it before trying to move the '
+                    'existing library.<br>Error: %(err)s')%dict(loc=newloc,
+                        err=str(err)), det, show=True)
             callback(None)
             return
         else:

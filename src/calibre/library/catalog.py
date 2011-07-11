@@ -54,12 +54,12 @@ class CSV_XML(CatalogPlugin): # {{{
                 action = None,
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: %s,\n'
+                    'Available fields: %(fields)s,\n'
                     'plus user-created custom fields.\n'
-                    'Example: %s=title,authors,tags\n'
+                    'Example: %(opt)s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: CSV, XML output formats")%(', '.join(FIELDS),
-                        '--fields')),
+                    "Applies to: CSV, XML output formats")%dict(
+                        fields=', '.join(FIELDS), opt='--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -250,12 +250,12 @@ class BIBTEX(CatalogPlugin): # {{{
                 action = None,
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: %s.\n'
+                    'Available fields: %(fields)s.\n'
                     'plus user-created custom fields.\n'
-                    'Example: %s=title,authors,tags\n'
+                    'Example: %(opt)s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: BIBTEX output format")%(', '.join(FIELDS),
-                        '--fields')),
+                    "Applies to: BIBTEX output format")%dict(
+                        fields=', '.join(FIELDS), opt='--fields')),
 
             Option('--sort-by',
                 default = 'id',

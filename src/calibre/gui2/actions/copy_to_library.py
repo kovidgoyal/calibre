@@ -160,8 +160,9 @@ class CopyToLibraryAction(InterfaceAction):
             error_dialog(self.gui, _('Failed'), _('Could not copy books: ') + e,
                     det_msg=tb, show=True)
         else:
-            self.gui.status_bar.show_message(_('Copied %d books to %s') %
-                    (len(ids), loc), 2000)
+            self.gui.status_bar.show_message(
+                    _('Copied %(num)d books to %(loc)s') %
+                    dict(num=len(ids), loc=loc), 2000)
             if delete_after and self.worker.processed:
                 v = self.gui.library_view
                 ci = v.currentIndex()

@@ -529,8 +529,8 @@ class Metadata(object):
                             for t in st.intersection(ot):
                                 sidx = lstags.index(t)
                                 oidx = lotags.index(t)
-                                self_tags[sidx] = other.tags[oidx]
-                            self_tags += [t for t in other.tags if t.lower() in ot-st]
+                                self_tags[sidx] = other_tags[oidx]
+                            self_tags += [t for t in other_tags if t.lower() in ot-st]
                             setattr(self, x, self_tags)
 
             my_comments = getattr(self, 'comments', '')
@@ -742,7 +742,7 @@ class Metadata(object):
         ans += [('ISBN', unicode(self.isbn))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
-            ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]
+            ans += [_('Series'), unicode(self.series) + ' #%s'%self.format_series_index()]
         ans += [(_('Language'), unicode(self.language))]
         if self.timestamp is not None:
             ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]

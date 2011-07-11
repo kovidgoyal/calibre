@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import sys, struct, zlib, bz2, os
 
 from calibre import guess_type
+from calibre.utils.filenames import ascii_filename
 
 class FileStream:
     def IsBinary(self):
@@ -156,6 +157,8 @@ class SNBFile:
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
+        if isinstance(f.fileName, unicode):
+            f.fileName = ascii_filename(f.fileName).encode('ascii')
         self.files.append(f)
 
     def AppendBinary(self, fileName, tdir):
@@ -164,6 +167,8 @@ class SNBFile:
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
+        if isinstance(f.fileName, unicode):
+            f.fileName = ascii_filename(f.fileName).encode('ascii')
         self.files.append(f)
 
     def GetFileStream(self, fileName):

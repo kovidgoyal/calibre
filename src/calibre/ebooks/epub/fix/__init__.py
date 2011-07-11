@@ -17,7 +17,8 @@ class ParseError(ValueError):
         self.name = name
         self.desc = desc
         ValueError.__init__(self,
-            _('Failed to parse: %s with error: %s')%(name, desc))
+            _('Failed to parse: %(name)s with error: %(err)s')%dict(
+                name=name, err=desc))
 
 class ePubFixer(Plugin):
 

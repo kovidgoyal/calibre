@@ -2,16 +2,16 @@
 
 .. _conversion:
 
-E-book Conversion
+Ebook Conversion
 ===================
 
 |app| has a conversion system that is designed to be very easy to use. Normally, you just
 add a book to |app|, click convert and |app| will try hard to generate output that is as
 close as possible to the input. However, |app| accepts a very large number of input formats,
-not all of which are as suitable as others for conversion to e-books. In the case of
+not all of which are as suitable as others for conversion to ebooks. In the case of
 such input formats, or if you just want greater control over the conversion system,
 |app| has a lot of options to fine tune the conversion process. Note however that |app|'s
-conversion system is not a substitute for a full blown e-book editor. To edit e-books, I
+conversion system is not a substitute for a full blown ebook editor. To edit ebooks, I
 would recommend first converting them to EPUB using |app| and then using a dedicated EPUB editor,
 like `Sigil <http://code.google.com/p/sigil/>`_ to get the book into perfect shape. You can then
 use the edited EPUB as input for conversion into other formats in |app|.
@@ -23,7 +23,7 @@ mouse over it, a tooltip will appear describing the setting.
 
 .. image:: images/conv_dialog.png
     :align: center
-    :alt: E-book conversion dialog
+    :alt: Ebook conversion dialog
     :scale: 50 
 
 .. contents:: Contents
@@ -75,7 +75,7 @@ The four sub-directories are:
     input         This contains the HTML output by the Input Plugin. Use this to debug the Input Plugin.
     parsed        The result of pre-processing and converting to XHTML the output from the Input Plugin. Use to debug structure detection. 
     structure     Post structure detection, but before CSS flattening and font size conversion. Use to debug font size conversion and CSS transforms.
-    processed     Just before the e-book is passed to the output plugin. Use to debug the Output Plugin.
+    processed     Just before the ebook is passed to the output plugin. Use to debug the Output Plugin.
     ==========    =============
 
 If you want to edit the input document a little before having |app| convert it, the best thing to 
@@ -94,7 +94,7 @@ Look & Feel
   :depth: 1
   :local:
 
-This group of options controls various aspects of the look and feel of the converted e-book. 
+This group of options controls various aspects of the look and feel of the converted ebook. 
 
 .. _font-size-rescaling:
 
@@ -209,7 +209,7 @@ Miscellaneous
 There are a few more options in this section.
 
 :guilabel:`No text justification`
-    Normally, if the output format supports it, |app| will force the output e-book
+    Normally, if the output format supports it, |app| will force the output ebook
     to have *justified* text (i.e., a smooth right margin). This option will turn
     off this behavior, in which case whatever justification is specified in the input document
     will be used instead.
@@ -227,7 +227,7 @@ There are a few more options in this section.
     with "Mikhail Gorbachiov". Also, note that in cases where there are multiple representations
     of a character (characters shared by Chinese and Japanese for instance) the representation used
     by the largest number of people will be used (Chinese in the previous example).
-    This option is mainly useful if you are going to view the e-book on a device that does not
+    This option is mainly useful if you are going to view the ebook on a device that does not
     have support for unicode.
 
 :guilabel:`Input character encoding`
@@ -416,7 +416,7 @@ There are a few more options in this section.
 :guilabel:`Insert metadata as page at start of book`
     One of the great things about |app| is that it allows you to maintain very complete metadata
     about all of your books, for example, a rating, tags, comments, etc. This option will create
-    a single page with all this metadata and insert it into the converted e-book, typically just
+    a single page with all this metadata and insert it into the converted ebook, typically just
     after the cover. Think of it as a way to create your own customised book jacket.
 
 :guilabel:`Remove first image`
@@ -432,7 +432,7 @@ Table of Contents
 When the input document has a Table of Contents in its metadata, |app| will just use that. However,
 a number of older formats either do not support a metadata based Table of Contents, or individual
 documents do not have one. In these cases, the options in this section can help you automatically
-generate a Table of Contents in the converted e-book, based on the actual content in the input document.
+generate a Table of Contents in the converted ebook, based on the actual content in the input document.
 
 The first option is :guilabel:`Force use of auto-generated Table of Contents`. By checking this option
 you can have |app| override any Table of Contents found in the metadata of the input document with the
@@ -681,7 +681,7 @@ The .cbc file will then contain::
     two.cbz
     three.cbz
 
-|app| will automatically convert this .cbc file into a e-book with a Table of Contents pointing to each entry in comics.txt.
+|app| will automatically convert this .cbc file into a ebook with a Table of Contents pointing to each entry in comics.txt.
 
 
 EPUB advanced formatting demo
@@ -695,5 +695,5 @@ EPUB from the ZIP file are::
 
     ebook-convert demo.zip .epub -vv --authors "Kovid Goyal" --language en --level1-toc '//*[@class="title"]' --disable-font-rescaling --page-breaks-before / --no-default-epub-cover
 
-Note that because this file explores the potential of EPUB, most of the advanced formatting is not going to work on readers less capable than |app|'s builtin EPUB viewer. 
+Note that because this file explores the potential of EPUB, most of the advanced formatting is not going to work on readers less capable than |app|'s built-in EPUB viewer. 
 
