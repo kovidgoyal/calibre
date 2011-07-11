@@ -179,7 +179,7 @@ The example shows several things:
 
     * program mode is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be single-function.
     * the variable ``$`` stands for the field the expression is operating upon, ``#series`` in this case.
-    * functions must be given all their arguments. There is no default value. For example, the standard builtin functions must be given an additional initial parameter indicating the source field, which is a significant difference from single-function mode.
+    * functions must be given all their arguments. There is no default value. For example, the standard built-in functions must be given an additional initial parameter indicating the source field, which is a significant difference from single-function mode.
     * white space is ignored and can be used anywhere within the expression.
     * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
     

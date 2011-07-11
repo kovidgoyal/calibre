@@ -9,7 +9,7 @@ Frequently Asked Questions
   :depth: 1
   :local:
 
-E-book Format Conversion
+Ebook Format Conversion
 -------------------------
 .. contents:: Contents
   :depth: 1
@@ -112,8 +112,8 @@ How can I help get my device supported in |app|?
 If your device appears as a USB disk to the operating system, adding support for it to |app| is very easy.
 We just need some information from you:
 
-  * What e-book formats does your device support?
-  * Is there a special directory on the device in which all e-book files should be placed?
+  * What ebook formats does your device support?
+  * Is there a special directory on the device in which all ebook files should be placed?
   * We also need information about your device that |app| will collect automatically. First, if your
     device supports SD cards, insert them. Then connect your device. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file
@@ -259,7 +259,7 @@ This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux
 How do I use |app| with my Android phone?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First install the WordPlayer e-book reading app from the Android Marketplace onto you phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single androind device out there, so if you would like to have support for your device added, follow the instructions above for getting your device supported in |app|.
+First install the WordPlayer ebook reading app from the Android Marketplace onto you phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single androind device out there, so if you would like to have support for your device added, follow the instructions above for getting your device supported in |app|.
 
 Can I access my |app| books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -442,16 +442,16 @@ Miscellaneous
 Why the name calibre?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Take your pick:
-  * Convertor And LIBRary for E-books
+  * Convertor And LIBRary for Ebooks
   * A high *calibre* product
-  * A tribute to the SONY Librie which was the first e-ink based e-book reader
+  * A tribute to the SONY Librie which was the first e-ink based ebook reader
   * My wife chose it ;-)
 
 |app| is pronounced as cal-i-ber *not* ca-li-bre. If you're wondering, |app| is the British/commonwealth spelling for caliber. Being Indian, that's the natural spelling for me. 
 
 Why does |app| show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| embeds fonts in ebook files it creates. E-book files support embedding only TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they cannot be embedded. |app| shows only TrueType fonts found on your system. You can obtain many TrueType fonts on the web. Simply download the .ttf files and add them to the Library/Fonts directory in your home directory.
+|app| embeds fonts in ebook files it creates. Ebook files support embedding only TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they cannot be embedded. |app| shows only TrueType fonts found on your system. You can obtain many TrueType fonts on the web. Simply download the .ttf files and add them to the Library/Fonts directory in your home directory.
 
 |app| is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -462,7 +462,7 @@ There can be several causes for this:
        * Uninstall calibre
        * Reboot your computer
        * Re-install calibre. But do not start calibre from the installation wizard.
-       * Temporarily disable your antivirus program (disconnect from the internet before doing so, to be safe)
+       * Temporarily disable your antivirus program (disconnect from the Internet before doing so, to be safe)
        * Look inside the folder you chose for your calibre library. If you see a file named metadata.db, delete it.
        * Start calibre
        * From now on you should be able to start calibre normally.
@@ -515,7 +515,7 @@ menu, choose "Validate fonts".
 I downloaded the installer, but it is not working?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Downloading from the internet can sometimes result in a corrupted download. If the |app| installer you downloaded is not opening, try downloading it again. If re-downloading it does not work, download it from `an alternate location <http://sourceforge.net/projects/calibre/files/>`_. If the installer still doesn't work, then something on your computer is preventing it from running. 
+Downloading from the Internet can sometimes result in a corrupted download. If the |app| installer you downloaded is not opening, try downloading it again. If re-downloading it does not work, download it from `an alternate location <http://sourceforge.net/projects/calibre/files/>`_. If the installer still doesn't work, then something on your computer is preventing it from running. 
 
     * Try temporarily disabling your antivirus program (Microsoft Security Essentials, or Kaspersky or Norton or McAfee or whatever). This is most likely the culprit if the upgrade process is hanging in the middle.
     * Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_.
@@ -539,7 +539,7 @@ If you want to backup the |app| configuration/plugins, you have to backup the co
 
 How do I use purchased EPUB books with |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Most purchased EPUB books have `DRM <http://wiki.mobileread.com/wiki/DRM>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your e-book reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" e-book. The e-book file will be stored in the folder "My Digital Editions", from where you can add it to |app|.
+Most purchased EPUB books have `DRM <http://drmfree.calibre-ebook.com/about#drm>`_. This prevents |app| from opening them. You can still use |app| to store and transfer them to your ebook reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with |app| will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" ebook. The ebook file will be stored in the folder "My Digital Editions", from where you can add it to |app|.
 
 I am getting a "Permission Denied" error?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
