@@ -749,15 +749,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         val = self.s_r_do_regexp(mi)
         val = self.s_r_do_destination(mi, val)
         if dfm['is_multiple']:
-            if dest == 'authors' and len(val) == 0:
-                error_dialog(self, _('Search/replace invalid'),
-                             _('Authors cannot be set to the empty string. '
-                               'Book title %s not processed')%mi.title,
-                             show=True)
-                return
-            # convert the colon-separated pair strings back into a dict, which
-            # is what set_identifiers wants
             if dfm['is_csp']:
+                # convert the colon-separated pair strings back into a dict,
+                # which is what set_identifiers wants
                 dst_id_type = unicode(self.s_r_dst_ident.text())
                 if dst_id_type:
                     v = ''.join(val)
@@ -769,11 +763,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         else:
             val = self.s_r_replace_mode_separator().join(val)
             if dest == 'title' and len(val) == 0:
-                error_dialog(self, _('Search/replace invalid'),
-                             _('Title cannot be set to the empty string. '
-                               'Book title %s not processed')%mi.title,
-                             show=True)
-                return
+                val = _('Unknown')
 
         if dfm['is_custom']:
             extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)
