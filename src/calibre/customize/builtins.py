@@ -1190,6 +1190,15 @@ class StoreDieselEbooksStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreEbookNLStore(StoreBase):
+    name = 'eBook.nl'
+    description = u'De eBookwinkel van Nederland'
+    actual_plugin = 'calibre.gui2.store.stores.ebook_nl_plugin:EBookNLStore'
+
+    headquarters = 'NL'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
+
 class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
     description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'
@@ -1447,6 +1456,7 @@ plugins += [
     StoreBeamEBooksDEStore,
     StoreBeWriteStore,
     StoreDieselEbooksStore,
+    StoreEbookNLStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
     StoreEPubBuyDEStore,
