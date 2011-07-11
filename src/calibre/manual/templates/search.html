@@ -1,0 +1,49 @@
+{#
+    basic/search.html
+    ~~~~~~~~~~~~~~~~~
+
+    Template for the search page, using google adsense search
+
+    :copyright: Copyright 2007-2011 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+#}
+{% extends "layout.html" %}
+{% set title = _('Search') %}
+{% block extrahead %}
+    <link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+  {{ super() }}
+{% endblock %}
+{% block body %}
+  <h1 id="search-documentation">{{ _('Search') }}</h1>
+  <div id="fallback" class="admonition warning">
+  <script type="text/javascript">$('#fallback').hide();</script>
+  <p>
+    {% trans %}Please activate JavaScript to enable the search
+    functionality.{% endtrans %}
+  </p>
+  </div>
+  <p>
+    {% trans %}From here you can search these documents. Enter your search
+    words into the box below and click "search". Note that the search
+    function will automatically search for all of the words. Pages
+    containing fewer words won't appear in the result list.{% endtrans %}
+  </p>
+  <div id="cse" style="width: 100%;">Loading</div>
+<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script type="text/javascript"> 
+  google.load('search', '1');
+  google.setOnLoadCallback(function() {
+    var customSearchControl = new google.search.CustomSearchControl('partner-pub-2595272032872519:0657791363');
+    customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+    var options = new google.search.DrawOptions();
+    options.setAutoComplete(true);
+    customSearchControl.draw('cse', options);
+    var params = $.getQueryParameters();
+    if (params.q) {
+        var query = params.q[0];
+        $('input[name="search"]')[0].value = query;
+        $('input.gsc-search-button')[0].click();
+    }
+  }, true);
+</script>
+{% endblock %}

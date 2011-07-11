@@ -1,0 +1,25 @@
+#recipe created by sexymax15.....sexymax15@gmail.com
+#Words without Borders recipe
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1308302002(BasicNewsRecipe):
+    title          = u'Words Without Borders'
+    language = 'en'
+    __author__ = 'sexymax15'
+    oldest_article = 90
+    max_articles_per_feed = 30
+    use_embedded_content = False
+
+    remove_empty_feeds = True
+    no_stylesheets = True
+    remove_javascript = True
+    keep_only_tags = {'class':'span-14 article'}
+    remove_tags_after = [{'class':'addthis_toolbox addthis_default_style no_print'}]
+    remove_tags = [{'class':['posterous_quote_citation','button']}]
+    extra_css             = """
+                               h1{font-family: Georgia,serif; font-size: large}h2{font-family: Georgia,serif; font-size: large} """
+
+
+
+    feeds          = [(u'wwb', u'http://feeds.feedburner.com/wwborders?format=xml')]

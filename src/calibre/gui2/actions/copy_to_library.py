@@ -53,13 +53,18 @@ class Worker(Thread): # {{{
         from calibre.library.database2 import LibraryDatabase2
         newdb = LibraryDatabase2(self.loc)
         for i, x in enumerate(self.ids):
-            mi = self.db.get_metadata(x, index_is_id=True, get_cover=True)
+            mi = self.db.get_metadata(x, index_is_id=True, get_cover=True,
+                    cover_as_data=True)
             self.progress(i, mi.title)
             fmts = self.db.formats(x, index_is_id=True)
             if not fmts: fmts = []
             else: fmts = fmts.split(',')
-            paths = [self.db.format_abspath(x, fmt, index_is_id=True) for fmt in
-                    fmts]
+            paths = []
+            for fmt in fmts:
+                p = self.db.format(x, fmt, index_is_id=True,
+                    as_path=True)
+                if p:
+                    paths.append(p)
             added = False
             if prefs['add_formats_to_existing']:
                 identical_book_list = newdb.find_identical_books(mi)
@@ -75,6 +80,11 @@ class Worker(Thread): # {{{
                 if co is not None:
                     newdb.set_conversion_options(x, 'PIPE', co)
             self.processed.add(x)
+            for path in paths:
+                try:
+                    os.remove(path)
+                except:
+                    pass
 # }}}
 
 class CopyToLibraryAction(InterfaceAction):
@@ -150,8 +160,9 @@ class CopyToLibraryAction(InterfaceAction):
             error_dialog(self.gui, _('Failed'), _('Could not copy books: ') + e,
                     det_msg=tb, show=True)
         else:
-            self.gui.status_bar.show_message(_('Copied %d books to %s') %
-                    (len(ids), loc), 2000)
+            self.gui.status_bar.show_message(
+                    _('Copied %(num)d books to %(loc)s') %
+                    dict(num=len(ids), loc=loc), 2000)
             if delete_after and self.worker.processed:
                 v = self.gui.library_view
                 ci = v.currentIndex()

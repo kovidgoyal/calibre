@@ -19,6 +19,398 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.9
+  date: 2011-07-08
+
+  new features:
+    - title: "Kobo Touch: Display Preview Tag for book previews on the device"
+
+    - title: "Improved display of grouped search terms in Tag Browser"
+
+    - title: "When adding HTML files to calibre, add an option to process links in breadth first rather than depth first order. Access it via Preferences->Plugins and customize the HTML to ZIP plugin"
+
+    - title: "Conversion pipeline: Add option to control if duplicate entries are allowed when generating the Table of Contents from links."
+      tickets: [806095]
+
+    - title: "Metadata download: When merging results, if the query to the xisbn service hangs, wait no more than 10 seconds. Also try harder to preserve the month when downlaoding published date. Do not throw away isbnless results if there are some sources that return isbns and some that do not."
+      tickets: [798309]
+
+    - title: "Get Books: Remove OpenLibrary since it has the same files as archive.org. Allow direct downloading from Project Gutenberg."
+
+    - title: "Add functions to the template language that allow getting the last modified time and size of the individual format files for a book. Also add a has_cover() function."
+  
+  bug fixes:
+    - title: "Fix true/false searches dont work on device views"
+      tickets: [807262]
+
+    - title: "Fix renaming of collections in device views"
+      tickets: [807256]
+
+    - title: "Fix regression that broke the use of the device_db plugboard"
+      tickets: [806483]
+
+    - title: "Kobo driver: Hide Expired Book Status for deleted books. Also fix regression that broke connecting to Kobo devices running very old firmware."
+      tickets: [802083]
+
+    - title: "Fix bug in 0.8.8 that could cause the metadata.db to be left in an unusable state if calibre is interrupted at just the wrong moment or if the db is stored in dropbox"
+
+    - title: "Fix sorting of composite custom columns that display numbers."
+
+  improved recipes:
+    - "Computer Act!ve"
+    - Metro News NL
+    - Spiegel Online International
+    - cracked.com
+    - Endgadget
+    - Independent
+    - Telegraph UK
+
+  new recipes:
+    - title: "Blog da Cidadania and Noticias UnB"
+      author: Diniz Bortolotto
+
+    - title: "Galicia Confidential"
+      author: Susana Sotelo Docio
+
+    - title: "South China Morning Post"
+      author: llam
+
+    - title: "Szinti Derigisi"
+      author: thomass
+
+
+- version: 0.8.8
+  date: 2011-07-01
+
+  new features:
+    - title: "Make author names in the Book Details panel clickable. Clicking them takes you to the wikipedia page for the author by default. You may have to tell calibre to display author names in the Book details panel first via Preferences->Look & Feel->Book details. You can change the link for individual authors by right clicking on the author's name in the Tag Browser and selecting Manage Authors."
+
+    - title: "Get Books: Add 'Open Books' as an available book source"
+
+    - title: "Get Books: When a free download is available for a search result, for example, for public domain books, allow direct download of the book into your calibre library."
+
+    - title: "Support for detecting and mounting reader devices on FreeBSD."
+      tickets: [802708]
+
+    - title: "When creating a composite custom column, allow the use of HTML to create links and other markup that display in the Book details panel"
+
+    - title: "Add the swap_around_comma function to the template language." 
+
+    - title: "Drivers for HTC G2, Advent Vega, iRiver Story HD, Lark FreeMe and Moovyman mp7"
+
+    - title: "Quick View: Survives changing libraries. Also allow sorting by series index as well as name."
+
+    - title: "Connect to iTunes: Add an option to control how the driver works depending on whether you have iTunes setup to copy files to its media directory or not. Set this option by customizing the Apple driver in Preferences->Plugins. Having iTunes copy media to its storage folder is no longer neccessary. See http://www.mobileread.com/forums/showthread.php?t=118559 for details"
+
+    - title: "Remove the delete library functionality from calibre, instead you can now remove a library, so calibre will forget about it, but you have to delete the files manually"
+  
+  bug fixes:
+    - title: "Fix a regression introduced in 0.8.7 in the Tag Browser that could cause calibre to crash after performing various actions"
+
+    - title: "Fix an unhandled error when deleting all saved searches"
+      tickets: [804383]
+
+    - title: "Fix row numbers in a previous selection being incorrect after a sort operation."
+
+    - title: "Fix ISBN identifier type not recognized if it is in upper case"
+      tickets: [802288]
+
+    - title: "Fix a regression in 0.8.7 that broke reading metadata from MOBI files in the Edit metadata dialog."
+      tickets: [801981]
+
+    - title: "Fix handling of filenames that have an even number of periods before the file extension."
+      tickets: [801939]
+
+    - title: "Fix lack of thread saefty in template format system, that could lead to incorrect template evaluation in some cases."
+      tickets: [801944]
+
+    - title: "Fix conversion to PDB when the input document has no text"
+      tickets: [801888]
+
+    - title: "Fix clicking on first letter of author names generating incorrect search."
+    
+    - title: "Also fix updating bulk metadata in custom column causing unnneccessary Tag Browser refreshes."
+
+    - title: "Fix a regression in 0.8.7 that broke renaming items via the Tag Browser"
+
+    - title: "Fix a regression in 0.8.7 that caused the regex builder wizard to fail with LIT files as the input"
+
+  improved recipes:
+    - Zaman Gazetesi
+    - Infobae
+    - El Cronista
+    - Critica de la Argentina
+    - Buenos Aires Economico
+    - El Universal (Venezuela)
+    - wprost
+    - Financial Times UK
+
+  new recipes:
+    - title: "Today's Zaman by thomass"
+
+    - title: "Athens News by Darko Miletic"
+
+    - title: "Catholic News Agency"
+      author: Jetkey
+
+    - title: "Arizona Republic"
+      author: Jim Olo
+
+    - title: "Add Ming Pao Vancouver and Toronto"
+      author: Eddie Lau
+
+
+- version: 0.8.7
+  date: 2011-06-24
+
+  new features:
+    - title: "Connect to iTunes: You now need to tell iTunes to keep its own copy of every ebook. Do this in iTunes by going to Preferences->Advanced and setting the 'Copy files to iTunes Media folder when adding to library' option. To learn about why this is necessary, see: http://www.mobileread.com/forums/showthread.php?t=140260"
+
+    - title: "Add a couple of date related functions to the calibre template langauge to get 'todays' date and create text based on the value of a date type field"
+
+    - title: "Improved reading of metadata from FB2 files, with support for reading isbns, tags, published date, etc."
+
+    - title: "Driver for the Imagine IMEB5"
+      tickets: [800642]
+
+    - title: "Show the currently used network proxies in Preferences->Miscellaneous"
+
+    - title: "Kobo Touch driver: Show Favorites as a device collection. Various other minor fixes."
+
+    - title: "Content server now sends the Content-Disposition header when sending ebook files."
+
+    - title: "Allow search and replace on comments custom columns."
+
+    - title: "Add a new action 'Quick View' to show the books in your library by the author/tags/series/etc. of the currently selected book, in a separate window. You can add it to your toolbar or right click menu by going to Preferences->Toolbars."
+
+    - title: "Get Books: Add libri.de as a book source. Fix a bug that caused some books downloads to fail. Fixes to the Legimi and  beam-ebooks.de stores"
+      tickets: [799367]
+  
+  bug fixes:
+    - title: "Fix a memory leak that could result in the leaking of several MB of memory with large libraries"
+      tickets: [800952]
+
+    - title: "Fix the read metadata from format button in the edit metadata dialog using the wrong timezone when setting published date"
+      tickets: [799777]
+
+    - title: "Generating catalog: Fix occassional file in use errors when generating catalogs on windows"
+
+    - title: "Fix clicking on News in Tag Browser not working in non English locales."
+      tickets: [799471]
+
+    - title: "HTML Input: Fix a regression in 0.8.6 that caused CSS stylesheets to be ignored"
+      tickets: [799171]
+
+    - title: "Fix a regression that caused restore database to stop working on some windows sytems"
+
+    - title: "EPUB Output: Convert <br> tags with text in them into <divs> as ADE cannot handle them."
+      tickets: [794427]
+
+  improved recipes:
+    - Le Temps
+    - Perfil
+    - Financial Times UK
+
+  new recipes:
+    - title: "Daytona Beach Journal"
+      author: BRGriff
+
+    - title: "El club del ebook and Frontline"
+      author: Darko Miletic
+
+
+- version: 0.8.6
+  date: 2011-06-17
+
+  new features:
+    - title: "Builtin support for downloading and installing/updating calibre plugins. Go to Preferences->Plugins and click 'Get new plugins'"
+      description: "When updates for installed plugins are available, calibre will automatically (unobtrusively) notify you"
+      type: major
+
+    - title: "Metadata download configuration: Allow defining a set of 'default' fields for metadata download and quichly switching to/from them"
+
+    - title: "Allow clicking on the news category in the Tag Browser to display all downloaded periodicals"
+
+    - title: "Driver for the Libre Air"
+
+    - title: "Email sending: Allow user to stop email jobs (note that stopping may not actually prevent the email from being sent, depending on when the stop happens). Also automatically abort email sending if it takes longer than 15mins."
+      tickets: [795960]
+  
+  bug fixes:
+    - title: "MOBI Output: Allow setting of background color on tables also set the border attribute on the table if the table has any border related css defined."
+      tickets: [797580]
+
+    - title: "Nook TSR: Put news sent to the device in My Files/Newspapers instaed of My Files/Books."
+      tickets: [796674]
+
+    - title: "MOBI Output: Fix a bug where linking to the very first element in an HTML file could sometimes result in the link pointing to the last element in the previous file."
+      tickets: [797214]
+
+    - title: "CSV catalog: Convert HTML comments to plain text"
+
+    - title: "HTML Input: Ignore links to text files."
+      tickets: [791568]
+
+    - title: "EPUB Output: Change orphaned <td> tags to <div> as they cause ADE to crash."
+
+    - title: "Fix 'Stop selected jobs' button trying to stop the same job multiple times"
+
+    - title: "Database: Explicitly test for case sensitivity on OS X instead of assuming a case insensitive filesystem."
+      tickets: [796258]
+
+    - title: "Get Books: More fixes to the Amazon store plugin"
+
+    - title: "FB2 Input: Do not specify font families/background colors"
+
+
+  improved recipes:
+    - Philadelphia Inquirer
+    - Macleans Magazone
+    - Metro UK
+
+  new recipes:
+    - title: "Christian Post, Down To Earth and Words Without Borders"
+      author: sexymax15
+
+    - title: "Noticias R7"
+      author: Diniz Bortolotto
+
+    - title: "UK Daily Mirror"
+      author: Dave Asbury
+
+    - title: "New Musical Express Magazine"
+      author: scissors
+
+
+- version: 0.8.5
+  date: 2011-06-10
+
+  new features:
+    - title: "A new 'portable' calibre build, useful if you like to carry around calibre and its library on a USB key"
+      type: major
+      description: "For details, see: http://calibre-ebook.com/download_portable"
+
+    - title: "E-book viewer: Remember the last used font size multiplier."
+      tickets: [774343]
+
+    - title: "Preliminary support for the Kobo Touch. Drivers for the ZTE v9 tablet, Samsung S2, Notion Ink Adam and PocketBook 360+"
+
+    - title: "When downloading metadata merge rather than replace tags"
+
+    - title: "Edit metadata dialog: When pasting in an ISBN, if not valid ISBN if present on the clipboard popup a box for the user to enter the ISBN"
+
+    - title: "Windows build: Add code to load .pyd python extensions from a zip file. This allows many more files in the calibre installation to be zipped up, speeding up the installer."
+    - title: "Add an action to remove all formats from the selected books to the remove books button"
+
+  
+  bug fixes:
+    - title: "Various minor bug fixes to the column coloring code"
+
+    - title: "Fix the not() template function"
+
+    - title: "Nook Color/TSR: When sending books to the storage card place them in the My Files/Books subdirectory. Also do not upload cover thumbnails as users report that the NC/TSR don't use them."
+      tickets: [792842]
+
+    - title: "Get Books: Update plugins for Amazon and B&N stores to handle website changes. Enable some stores by default on first run. Add Zixo store"
+      tickets: [792762]
+
+    - title: "Comic Input: Replace the # character in filenames as it can cause problem with conversion/vieweing."
+      tickets: [792723]
+
+    - title: "When writing files to zipfile, reset timestamp if it doesn't fit in 1980's vintage storage structures"
+
+    - title: "Amazon metadata plugin: Fix parsing of published date from amazon.de when it has februar in it"
+
+  improved recipes:
+    - Ambito
+    - GoComics
+    - Le Monde Diplomatique
+    - Max Planck
+    - express.de
+
+  new recipes:
+    - title: Ambito Financiero
+      author: Darko Miletic
+
+    - title: Stiin Tas Technica
+      author: Silviu Cotoara
+
+    - title: "Metro News NL"
+      author: DrMerry
+
+    - title: "Brigitte.de, Polizeipresse DE and Heise Online"
+      author: schuster
+
+
+
+- version: 0.8.4
+  date: 2011-06-03
+
+  new features:
+    - title: "New and much simpler interface for specifying column coloring via Preferences->Look & Feel->Column Coloring"
+
+    - title: "Driver for Trekstor eBook Player 5M, Samsung Galaxy SII I9100, Motorola Defy and miBuk GAMMA 6.2"
+      tickets: [792091, 791216]
+
+    - title: "Get Books: Add EpubBud, WH Smits and E-book Shoppe stores"
+
+    - title: "When deleting 'all formats except ...', do not delete if it leaves a book with no formats"
+
+    - title: "Change default toolbar to make it a little more new user friendly. The icons have been re-arranged and now the text is always visiblke by default. You can change that in Preferences->Look & Feeel and Preferences->Toolbar"
+
+    - title: "Windows installer: Remember and use previous settings for installing desktop icons, adding to path, etc. This makes the installer a little slower, complaints should go to Microsoft."
+
+    - title: "Template language: Add str_in_list and on_device formatter functions. Make debugging templates a little easier"
+
+    - title: "Allow the user to specify formatting for number type custom columns"
+  
+  bug fixes:
+    - title: "Fix typo in NOOK TSR driver that prevented it from working on windows"
+
+    - title: "Fix quotes in identifiers causing Tag Browser to be blank."
+      tickets: [791044]
+
+    - title: "Speedup auto complete when there are lots of items (>2500) the downside being that non ASCII characters are not sorted correctly. The threshold can be controlled via Preferences->Tweaks"
+      tickets: [792191]
+
+    - title: "RTF Output: Fix handling of curly brackets"
+      tickets: [791805]
+
+    - title: "Fix searching in Get Books not working with non ASCII characters"
+      tickets: [791788]
+
+    - title: "Fix excessive memory consumption when moving very large files during a metadata change"
+      tickets: [791806]
+
+    - title: "Fix series index being overwritten even when series is turned off in bulk metadata download"
+      tickets: [789990]
+
+    - title: "Fix regression in templates where id and other non standard fields no longer worked."
+
+    - title: "EPUB Output: Fix crash caused by ids with non-ascii characters in them"
+
+    - title: "Try to preserve the timestamps of files in a ZIP container"
+
+    - title: "After adding books always select the most recently added book."
+      tickets: [789343]
+
+  improved recipes:
+    - bild.de
+    - CNN
+    - BBC News (fast)
+    - Dilema Veche
+
+  new recipes:
+    - title: Metro UK
+      author: Dave Asbury
+
+    - title: Alt om Herning and Version2.dk
+      author: Rasmus Lauritsen
+
+    - title: Observatorul cultural
+      author: song2
+
+
 - version: 0.8.3
   date: 2011-05-27
 

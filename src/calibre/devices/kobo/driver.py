@@ -21,7 +21,7 @@ class KOBO(USBMS):
     name = 'Kobo Reader Device Interface'
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
-    author = 'Timothy Legge and Kovid Goyal'
+    author = 'Timothy Legge'
     version = (1, 0, 9)
 
     dbversion = 0
@@ -37,8 +37,8 @@ class KOBO(USBMS):
     CAN_SET_METADATA = ['collections']
 
     VENDOR_ID   = [0x2237]
-    PRODUCT_ID  = [0x4161]
-    BCD         = [0x0110, 0x0323]
+    PRODUCT_ID  = [0x4161, 0x4163]
+    BCD         = [0x0110, 0x0323, 0x0326]
 
     VENDOR_NAME = ['KOBO_INC', 'KOBO']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['.KOBOEREADER', 'EREADER']
@@ -57,6 +57,7 @@ class KOBO(USBMS):
     def initialize(self):
         USBMS.initialize(self)
         self.book_class = Book
+        self.dbversion = 7
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -100,7 +101,7 @@ class KOBO(USBMS):
         for idx,b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
-        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType):
+        def update_booklist(prefix, path, title, authors, mime, date, ContentType, ImageID, readstatus, MimeType, expired, favouritesindex, accessibility):
             changed = False
             try:
                 lpath = path.partition(self.normalize_path(prefix))[2]
@@ -111,12 +112,27 @@ class KOBO(USBMS):
 
                 playlist_map = {}
 
+                if lpath not in playlist_map:
+                    playlist_map[lpath] = []
+
                 if readstatus == 1:
-                    playlist_map[lpath]= "Im_Reading"
+                    playlist_map[lpath].append('Im_Reading')
                 elif readstatus == 2:
-                    playlist_map[lpath]= "Read"
+                    playlist_map[lpath].append('Read')
                 elif readstatus == 3:
-                    playlist_map[lpath]= "Closed"
+                    playlist_map[lpath].append('Closed')
+
+                # Related to a bug in the Kobo firmware that leaves an expired row for deleted books
+                # this shows an expired Collection so the user can decide to delete the book
+                if expired == 3:
+                    playlist_map[lpath].append('Expired')
+                # A SHORTLIST is supported on the touch but the data field is there on most earlier models
+                if favouritesindex == 1:
+                    playlist_map[lpath].append('Shortlist')
+
+                # Label Previews
+                if accessibility == 6:
+                    playlist_map[lpath].append('Preview')
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -126,7 +142,13 @@ class KOBO(USBMS):
                     bl_cache[lpath] = None
                     if ImageID is not None:
                         imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - NickelBookCover.parsed')
+                        if not os.path.exists(imagename):
+                            # Try the Touch version if the image does not exist
+                            imagename = self.normalize_path(self._main_prefix + '.kobo/images/' + ImageID + ' - N3_LIBRARY_FULL.parsed')
+
                         #print "Image name Normalized: " + imagename
+                        if not os.path.exists(imagename):
+                            debug_print("Strange - The image name does not exist - title: ", title)
                         if imagename is not None:
                             bl[idx].thumbnail = ImageWrapper(imagename)
                     if (ContentType != '6' and MimeType != 'Shortcover'):
@@ -138,7 +160,7 @@ class KOBO(USBMS):
                              debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
                     if lpath in playlist_map and \
                         playlist_map[lpath] not in bl[idx].device_collections:
-                            bl[idx].device_collections.append(playlist_map[lpath])
+                            bl[idx].device_collections = playlist_map.get(lpath,[])
                 else:
                     if ContentType == '6' and MimeType == 'Shortcover':
                         book =  Book(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
@@ -157,7 +179,7 @@ class KOBO(USBMS):
                             raise
 
                     # print 'Update booklist'
-                    book.device_collections = [playlist_map[lpath]] if lpath in playlist_map else []
+                    book.device_collections = playlist_map.get(lpath,[])# if lpath in playlist_map else []
 
                     if bl.add_book(book, replace_metadata=False):
                         changed = True
@@ -186,24 +208,51 @@ class KOBO(USBMS):
         result = cursor.fetchone()
         self.dbversion = result[0]
 
-        query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus from content where BookID is Null'
+        debug_print("Database Version: ", self.dbversion)
+        if self.dbversion >= 16:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility from content where ' \
+                'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+        elif self.dbversion < 16 and self.dbversion >= 14:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility  from content where ' \
+                'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+        elif self.dbversion < 14 and self.dbversion >= 8:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
+                'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+        else:
+            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility from content where BookID is Null'
 
-        cursor.execute (query)
+        try:
+            cursor.execute (query)
+        except Exception as e:
+            err = str(e)
+            if not ('___ExpirationStatus' in err or 'FavouritesIndex' in err or
+                    'Accessibility' in err):
+                raise
+            query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
+                'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as '
+                'FavouritesIndex, "-1" as Accessibility from content where '
+                'BookID is Null')
+            cursor.execute(query)
 
         changed = False
         for i, row in enumerate(cursor):
         #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
-
+            if row[3].startswith("file:///usr/local/Kobo/help/"):
+                # These are internal to the Kobo device and do not exist
+                continue
             path = self.path_from_contentid(row[3], row[5], row[4], oncard)
             mime = mime_type_ext(path_to_ext(path)) if path.find('kepub') == -1 else 'application/epub+zip'
             # debug_print("mime:", mime)
 
             if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4])
+                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9], row[10])
                 # print "shortbook: " + path
             elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4])
+                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9], row[10])
 
             if changed:
                 need_sync = True
@@ -267,8 +316,19 @@ class KOBO(USBMS):
             cursor.execute('delete from content_keys where volumeid = ?', t)
 
         # Delete the chapters associated with the book next
-        t = (ContentID,ContentID,)
-        cursor.execute('delete from content where BookID  = ? or ContentID = ?', t)
+        t = (ContentID,)
+        # Kobo does not delete the Book row (ie the row where the BookID is Null)
+        # The next server sync should remove the row
+        cursor.execute('delete from content where BookID = ?', t)
+        try:
+            cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
+                'where BookID is Null and ContentID =?',t)
+        except Exception as e:
+            if 'no such column' not in str(e):
+                raise
+            cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                'where BookID is Null and ContentID =?',t)
+
 
         connection.commit()
 
@@ -286,7 +346,7 @@ class KOBO(USBMS):
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
-            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed',)
+            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed',)
 
             for ending in file_endings:
                 fpath = path + ending
@@ -450,7 +510,10 @@ class KOBO(USBMS):
                 path = self._main_prefix + path + '.kobo'
                 # print "Path: " + path
             elif (ContentType == "6" or ContentType == "10") and MimeType == 'application/x-kobo-epub+zip':
-                path = self._main_prefix + '.kobo/kepub/' + path
+                if path.startswith("file:///mnt/onboard/"):
+                    path = self._main_prefix + path.replace("file:///mnt/onboard/", '')
+                else:
+                    path = self._main_prefix + '.kobo/kepub/' + path
                 # print "Internal: " + path
             else:
                 # if path.startswith("file:///mnt/onboard/"):
@@ -502,7 +565,92 @@ class KOBO(USBMS):
                 paths[source_id] = os.path.join(prefix, *(path.split('/')))
         return paths
 
+    def reset_readstatus(self, connection, oncard):
+        cursor = connection.cursor()
+
+        # Reset Im_Reading list in the database
+        if oncard == 'carda':
+            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID like \'file:///mnt/sd/%\''
+        elif oncard != 'carda' and oncard != 'cardb':
+            query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
+
+        try:
+            cursor.execute (query)
+        except:
+            debug_print('    Database Exception:  Unable to reset ReadStatus list')
+            raise
+        else:
+            connection.commit()
+            debug_print('    Commit: Reset ReadStatus list')
+
+        cursor.close()
+
+    def set_readstatus(self, connection, ContentID, ReadStatus):
+        cursor = connection.cursor()
+        t = (ContentID,)
+        cursor.execute('select DateLastRead from Content where BookID is Null and ContentID = ?', t)
+        result = cursor.fetchone()
+        if result is None:
+            datelastread = '1970-01-01T00:00:00'
+        else:
+            datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00'
+
+        t = (ReadStatus,datelastread,ContentID,)
+
+        try:
+            cursor.execute('update content set ReadStatus=?,FirstTimeReading=\'false\',DateLastRead=? where BookID is Null and ContentID = ?', t)
+        except:
+            debug_print('    Database Exception:  Unable update ReadStatus')
+            raise
+        else:
+            connection.commit()
+            debug_print('    Commit: Setting ReadStatus List')
+        cursor.close()
+
+    def reset_favouritesindex(self, connection, oncard):
+        # Reset FavouritesIndex list in the database
+        if oncard == 'carda':
+            query= 'update content set FavouritesIndex=-1 where BookID is Null and ContentID like \'file:///mnt/sd/%\''
+        elif oncard != 'carda' and oncard != 'cardb':
+            query= 'update content set FavouritesIndex=-1 where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
+
+        cursor = connection.cursor()
+        try:
+            cursor.execute (query)
+        except Exception as e:
+            debug_print('    Database Exception:  Unable to reset Shortlist list')
+            if 'no such column' not in str(e):
+                raise
+        else:
+            connection.commit()
+            debug_print('    Commit: Reset FavouritesIndex list')
+
+    def set_favouritesindex(self, connection, ContentID):
+        cursor = connection.cursor()
+
+        t = (ContentID,)
+
+        try:
+            cursor.execute('update content set FavouritesIndex=1 where BookID is Null and ContentID = ?', t)
+        except Exception as e:
+            debug_print('    Database Exception:  Unable set book as Shortlist')
+            if 'no such column' not in str(e):
+                raise
+        else:
+            connection.commit()
+            debug_print('    Commit: Set FavouritesIndex')
+
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
+        # Define lists for the ReadStatus
+        readstatuslist = {
+            "Im_Reading":1,
+            "Read":2,
+            "Closed":3,
+        }
+
+        accessibilitylist = {
+            "Preview":6,
+       }
 #        debug_print('Starting update_device_database_collections', collections_attributes)
 
         # Force collections_attributes to be 'tags' as no other is currently supported
@@ -521,146 +669,44 @@ class KOBO(USBMS):
         # return bytestrings if the content cannot the decoded as unicode
         connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
-        cursor = connection.cursor()
-
-
         if collections:
+
+            # Need to reset the collections outside the particular loops
+            # otherwise the last item will not be removed
+            self.reset_readstatus(connection, oncard)
+            if self.dbversion >= 14:
+                self.reset_favouritesindex(connection, oncard)
+
             # Process any collections that exist
             for category, books in collections.items():
-                if category == 'Im_Reading':
-                    # Reset Im_Reading list in the database
-                    if oncard == 'carda':
-                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 1 and ContentID like \'file:///mnt/sd/%\''
-                    elif oncard != 'carda' and oncard != 'cardb':
-                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 1 and ContentID not like \'file:///mnt/sd/%\''
-
-                    try:
-                        cursor.execute (query)
-                    except:
-                        debug_print('Database Exception:  Unable to reset Im_Reading list')
-                        raise
-                    else:
-#                       debug_print('Commit: Reset Im_Reading list')
-                        connection.commit()
-
+                    debug_print("Category: ", category, " id = ", readstatuslist.get(category))
                     for book in books:
-#                        debug_print('Title:', book.title, 'lpath:', book.path)
-                        book.device_collections = ['Im_Reading']
+                        debug_print('    Title:', book.title, 'category: ', category)
+                        if category not in book.device_collections:
+                            book.device_collections.append(category)
 
                         extension =  os.path.splitext(book.path)[1]
                         ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
 
                         ContentID = self.contentid_from_path(book.path, ContentType)
 
-                        t = (ContentID,)
-                        cursor.execute('select DateLastRead from Content where BookID is Null and ContentID = ?', t)
-                        result = cursor.fetchone()
-                        if result is None:
-                            datelastread = '1970-01-01T00:00:00'
-                        else:
-                            datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00'
-
-                        t = (datelastread,ContentID,)
-
-                        try:
-                            cursor.execute('update content set ReadStatus=1,FirstTimeReading=\'false\',DateLastRead=? where BookID is Null and ContentID = ?', t)
-                        except:
-                            debug_print('Database Exception:  Unable create Im_Reading list')
-                            raise
-                        else:
-                            connection.commit()
- #                           debug_print('Database: Commit create Im_Reading list')
-                if category == 'Read':
-                    # Reset Im_Reading list in the database
-                    if oncard == 'carda':
-                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 2 and ContentID like \'file:///mnt/sd/%\''
-                    elif oncard != 'carda' and oncard != 'cardb':
-                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 2 and ContentID not like \'file:///mnt/sd/%\''
-
-                    try:
-                        cursor.execute (query)
-                    except:
-                        debug_print('Database Exception:  Unable to reset Im_Reading list')
-                        raise
-                    else:
-#                       debug_print('Commit: Reset Im_Reading list')
-                        connection.commit()
-
-                    for book in books:
-#                       debug_print('Title:', book.title, 'lpath:', book.path)
-                        book.device_collections = ['Read']
-
-                        extension =  os.path.splitext(book.path)[1]
-                        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
-
-                        ContentID = self.contentid_from_path(book.path, ContentType)
-#                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
-
-                        t = (ContentID,)
-
-                        try:
-                            cursor.execute('update content set ReadStatus=2,FirstTimeReading=\'true\' where BookID is Null and ContentID = ?', t)
-                        except:
-                            debug_print('Database Exception:  Unable set book as Finished')
-                            raise
-                        else:
-                            connection.commit()
-#                            debug_print('Database: Commit set ReadStatus as Finished')
-                if category == 'Closed':
-                    # Reset Im_Reading list in the database
-                    if oncard == 'carda':
-                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 3 and ContentID like \'file:///mnt/sd/%\''
-                    elif oncard != 'carda' and oncard != 'cardb':
-                        query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ReadStatus = 3 and ContentID not like \'file:///mnt/sd/%\''
-
-                    try:
-                        cursor.execute (query)
-                    except:
-                        debug_print('Database Exception:  Unable to reset Closed list')
-                        raise
-                    else:
-#                       debug_print('Commit: Reset Closed list')
-                        connection.commit()
-
-                    for book in books:
-#                       debug_print('Title:', book.title, 'lpath:', book.path)
-                        book.device_collections = ['Closed']
-
-                        extension =  os.path.splitext(book.path)[1]
-                        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
-
-                        ContentID = self.contentid_from_path(book.path, ContentType)
-#                        datelastread = time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
-
-                        t = (ContentID,)
-
-                        try:
-                            cursor.execute('update content set ReadStatus=3,FirstTimeReading=\'true\' where BookID is Null and ContentID = ?', t)
-                        except:
-                            debug_print('Database Exception:  Unable set book as Closed')
-                            raise
-                        else:
-                            connection.commit()
-#                            debug_print('Database: Commit set ReadStatus as Closed')
+                        if category in readstatuslist.keys():
+                            # Manage ReadStatus
+                            self.set_readstatus(connection, ContentID, readstatuslist.get(category))
+                        if category == 'Shortlist' and self.dbversion >= 14:
+                            # Manage FavouritesIndex/Shortlist
+                            self.set_favouritesindex(connection, ContentID)
+                        if category in accessibilitylist.keys():
+                            # Do not manage the Accessibility List
+                            pass
         else: # No collections
             # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
-            print "Reseting ReadStatus to 0"
-            # Reset Im_Reading list in the database
-            if oncard == 'carda':
-                query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID like \'file:///mnt/sd/%\''
-            elif oncard != 'carda' and oncard != 'cardb':
-                query= 'update content set ReadStatus=0, FirstTimeReading = \'true\' where BookID is Null and ContentID not like \'file:///mnt/sd/%\''
+            debug_print("No Collections - reseting ReadStatus")
+            self.reset_readstatus(connection, oncard)
+            if self.dbversion >= 14:
+                debug_print("No Collections - reseting FavouritesIndex")
+                self.reset_favouritesindex(connection, oncard)
 
-            try:
-                cursor.execute (query)
-            except:
-                debug_print('Database Exception:  Unable to reset Im_Reading list')
-                raise
-            else:
-#               debug_print('Commit: Reset Im_Reading list')
-                connection.commit()
-
-        cursor.close()
         connection.close()
 
 #        debug_print('Finished update_device_database_collections', collections_attributes)

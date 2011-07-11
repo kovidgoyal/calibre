@@ -126,14 +126,14 @@ class Matches(QAbstractItemModel):
         elif role == Qt.ToolTipRole:
             if col == 0:
                 if is_disabled(result):
-                    return QVariant('<p>' + _('This store is currently diabled and cannot be used in other parts of calibre.') + '</p>')
+                    return QVariant('<p>' + _('This store is currently disabled and cannot be used in other parts of calibre.') + '</p>')
                 else:
                     return QVariant('<p>' + _('This store is currently enabled and can be used in other parts of calibre.') + '</p>')
             elif col == 1:
                 return QVariant('<p>%s</p>' % result.description)
             elif col == 2:
                 if result.drm_free_only:
-                    return QVariant('<p>' + _('This store only distributes ebooks with DRM.') + '</p>')
+                    return QVariant('<p>' + _('This store only distributes ebooks without DRM.') + '</p>')
                 else:
                     return QVariant('<p>' + _('This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')
             elif col == 3:

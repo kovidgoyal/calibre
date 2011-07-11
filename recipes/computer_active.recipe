@@ -1,19 +1,20 @@
 #!/usr/bin/env  python
 __license__     = 'GPL v3'
-__author__      = 'Lorenzo Vigentini'
-__copyright__   = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
-__version__     = 'v1.01'
-__date__        = '14, January 2010'
-__description__ = 'Computeractive publishes new downloads, reviews, news stories, step-by-step guides and answers to PC problems every day.'
+__author__      = 'DrMerry Based on v1.01 by Lorenzo Vigentini'
+__copyright__   = 'For version 1.02, 1.03: DrMerry'
+__version__     = 'v1.03'
+__date__        = '11, July 2011'
+__description__ = 'Computeractive publishes new downloads, reviews, news stories, step-by-step guides and answers to PC problems every day. Original version (c): 2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
 
 '''
 http://www.computeractive.co.uk/
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class computeractive(BasicNewsRecipe):
-    __author__    = 'Lorenzo Vigentini'
+    __author__      = 'DrMerry'
     description   = 'Computeractive publishes new downloads, reviews, news stories, step-by-step guides and answers to PC problems every day.'
     cover_url     = 'http://images.pcworld.com/images/common/header/header-logo.gif'
 
@@ -31,24 +32,27 @@ class computeractive(BasicNewsRecipe):
 
     remove_javascript     = True
     no_stylesheets        = True
+    remove_empty_feeds   = True
+    remove_tags_after = dict(name='div', attrs={'class':'article_tags_block'})
 
     keep_only_tags     = [
-                            dict(name='div', attrs={'id':'main'})
+                            dict(name='div', attrs={'id':'container_left'})
                         ]
 
     remove_tags        = [
-                            dict(name='div', attrs={'id':['seeAlsoTags','commentsModule','relatedArticles','mainLeft','mainRight']}),
-                            dict(name='div', attrs={'class':['buyIt','detailMpu']}),
+                            dict(name='div', attrs={'id':['seeAlsoTags','commentsModule','relatedArticles','mainLeft','mainRight','recent_comment_block_parent','reviewDetails']}),
+                            dict(name='div', attrs={'class':['buyIt','detailMpu','small_section','recent_comment_block_parent','title_right_button_fix','section_title.title_right_button_fix','common_button']}),
                             dict(name='a', attrs={'class':'largerImage'})
                         ]
+
+    preprocess_regexps = [
+        (re.compile(r'(<a [^>]*>|</a>)', re.DOTALL|re.IGNORECASE),
+        lambda match: ''),
+    ]
 
     feeds          = [
                        (u'General content', u'http://feeds.computeractive.co.uk/rss/latest/computeractive/all'),
                        (u'News', u'http://feeds.computeractive.co.uk/rss/latest/computeractive/news'),
-                       (u'Downloads', u'http://feeds.computeractive.co.uk/rss/latest/computeractive/downloads'),
-                       (u'Hardware', u'http://feeds.computeractive.co.uk/rss/latest/computeractive/hardware'),
-                       (u'Software', u'http://feeds.computeractive.co.uk/rss/latest/computeractive/software'),
-                       (u'Competitions', u'http://www.v3.co.uk/feeds/rss20/personal-technology/competitions')
                      ]
 
 

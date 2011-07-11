@@ -11,8 +11,8 @@ import textwrap, re, os
 
 from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
-    QPushButton, QSpinBox, QLineEdit, QSizePolicy)
+    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog,
+    QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
@@ -21,9 +21,10 @@ from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (title_sort, authors_to_string,
         string_to_authors, check_isbn, authors_to_sort_string)
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE,
+from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE,
         choose_files, error_dialog, choose_images)
-from calibre.utils.date import local_tz, qt_to_dt
+from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
+        UNDEFINED_DATE)
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
@@ -125,6 +126,9 @@ class TitleEdit(EnLineEdit):
 
         return property(fget=fget, fset=fset)
 
+    def break_cycles(self):
+        self.dialog = None
+
 class TitleSortEdit(TitleEdit):
 
     TITLE_ATTR = 'title_sort'
@@ -150,6 +154,7 @@ class TitleSortEdit(TitleEdit):
         self.title_edit.textChanged.connect(self.update_state)
         self.textChanged.connect(self.update_state)
 
+        self.autogen_button = autogen_button
         autogen_button.clicked.connect(self.auto_generate)
         self.update_state()
 
@@ -169,6 +174,20 @@ class TitleSortEdit(TitleEdit):
     def auto_generate(self, *args):
         self.current_val = title_sort(self.title_edit.current_val)
 
+    def break_cycles(self):
+        try:
+            self.title_edit.textChanged.disconnect()
+        except:
+            pass
+        try:
+            self.textChanged.disconnect()
+        except:
+            pass
+        try:
+            self.autogen_button.clicked.disconnect()
+        except:
+            pass
+
 # }}}
 
 # Authors {{{
@@ -185,6 +204,7 @@ class AuthorsEdit(MultiCompleteComboBox):
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.manage_authors_signal = manage_authors
         manage_authors.triggered.connect(self.manage_authors)
 
     def manage_authors(self):
@@ -269,6 +289,13 @@ class AuthorsEdit(MultiCompleteComboBox):
 
         return property(fget=fget, fset=fset)
 
+    def break_cycles(self):
+        self.db = self.dialog = None
+        try:
+            self.manage_authors_signal.triggered.disconnect()
+        except:
+            pass
+
 class AuthorSortEdit(EnLineEdit):
 
     TOOLTIP = _('Specify how the author(s) of this book should be sorted. '
@@ -296,6 +323,10 @@ class AuthorSortEdit(EnLineEdit):
 
         self.authors_edit.editTextChanged.connect(self.update_state_and_val)
         self.textChanged.connect(self.update_state)
+
+        self.autogen_button = autogen_button
+        self.copy_a_to_as_action = copy_a_to_as_action
+        self.copy_as_to_a_action = copy_as_to_a_action
 
         autogen_button.clicked.connect(self.auto_generate)
         copy_a_to_as_action.triggered.connect(self.auto_generate)
@@ -368,6 +399,30 @@ class AuthorSortEdit(EnLineEdit):
         db.set_author_sort(id_, aus, notify=False, commit=False)
         return True
 
+    def break_cycles(self):
+        self.db = None
+        try:
+            self.authors_edit.editTextChanged.disconnect()
+        except:
+            pass
+        try:
+            self.textChanged.disconnect()
+        except:
+            pass
+        try:
+            self.autogen_button.clicked.disconnect()
+        except:
+            pass
+        try:
+            self.copy_a_to_as_action.triggered.disconnect()
+        except:
+            pass
+        try:
+            self.copy_as_to_a_action.triggered.disconnect()
+        except:
+            pass
+        self.authors_edit = None
+
 # }}}
 
 # Series {{{
@@ -426,6 +481,10 @@ class SeriesEdit(MultiCompleteComboBox):
         self.books_to_refresh |= db.set_series(id_, series, notify=False,
                                             commit=True, allow_case_change=True)
         return True
+
+    def break_cycles(self):
+        self.dialog = None
+
 
 class SeriesIndexEdit(QDoubleSpinBox):
 
@@ -488,6 +547,20 @@ class SeriesIndexEdit(QDoubleSpinBox):
                 import traceback
                 traceback.print_exc()
 
+    def break_cycles(self):
+        try:
+            self.series_edit.currentIndexChanged.disconnect()
+        except:
+            pass
+        try:
+            self.series_edit.editTextChanged.disconnect()
+        except:
+            pass
+        try:
+            self.series_edit.lineEdit().editingFinished.disconnect()
+        except:
+            pass
+        self.db = self.series_edit = self.dialog = None
 
 # }}}
 
@@ -688,7 +761,8 @@ class FormatsManager(QWidget): # {{{
             else:
                 stream = open(fmt.path, 'r+b')
             try:
-                mi = get_metadata(stream, ext)
+                with stream:
+                    mi = get_metadata(stream, ext)
                 return mi, ext
             except:
                 error_dialog(self, _('Could not read metadata'),
@@ -698,6 +772,8 @@ class FormatsManager(QWidget): # {{{
             if old != prefs['read_file_metadata']:
                 prefs['read_file_metadata'] = old
 
+    def break_cycles(self):
+        self.dialog = None
 # }}}
 
 class Cover(ImageView): # {{{
@@ -802,9 +878,10 @@ class Cover(ImageView): # {{{
         series = self.dialog.series.current_val
         series_string = None
         if series:
-            series_string = _('Book %s of %s')%(
-                    fmt_sidx(self.dialog.series_index.current_val,
-                    use_roman=config['use_roman_numerals_for_series_number']), series)
+            series_string = _('Book %(sidx)s of %(series)s')%dict(
+                    sidx=fmt_sidx(self.dialog.series_index.current_val,
+                    use_roman=config['use_roman_numerals_for_series_number']),
+                    series=series)
         self.current_val = calibre_cover(title, author,
                 series_string=series_string)
 
@@ -845,8 +922,8 @@ class Cover(ImageView): # {{{
             self.setPixmap(pm)
             tt = _('This book has no cover')
             if self._cdata:
-                tt = _('Cover size: %dx%d pixels') % \
-                (pm.width(), pm.height())
+                tt = _('Cover size: %(width)d x %(height)d pixels') % \
+                dict(width=pm.width(), height=pm.height())
             self.setToolTip(tt)
 
         return property(fget=fget, fset=fset)
@@ -858,6 +935,13 @@ class Cover(ImageView): # {{{
             else:
                 db.remove_cover(id_, notify=False, commit=False)
         return True
+
+    def break_cycles(self):
+        try:
+            self.cover_changed.disconnect()
+        except:
+            pass
+        self.dialog = self._cdata = self.current_val = self.original_val = None
 
 # }}}
 
@@ -1009,11 +1093,12 @@ class IdentifiersEdit(QLineEdit): # {{{
             for x in parts:
                 c = x.split(':')
                 if len(c) > 1:
-                    if c[0] == 'isbn':
+                    itype = c[0].lower()
+                    if itype == 'isbn':
                         v = check_isbn(c[1])
                         if v is not None:
                             c[1] = v
-                    ans[c[0]] = c[1]
+                    ans[itype] = c[1]
             return ans
         def fset(self, val):
             if not val:
@@ -1029,7 +1114,7 @@ class IdentifiersEdit(QLineEdit): # {{{
                     if v is not None:
                         val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
-            txt = ', '.join(['%s:%s'%(k, v) for k, v in ids])
+            txt = ', '.join(['%s:%s'%(k.lower(), v) for k, v in ids])
             self.setText(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
@@ -1061,10 +1146,68 @@ class IdentifiersEdit(QLineEdit): # {{{
 
     def paste_isbn(self):
         text = unicode(QApplication.clipboard().text()).strip()
-        if text:
-            vals = self.current_val
-            vals['isbn'] = text
-            self.current_val = vals
+        if not text or not check_isbn(text):
+            d = ISBNDialog(self, text)
+            if not d.exec_():
+                return
+            text = d.text()
+            if not text:
+                return
+        vals = self.current_val
+        vals['isbn'] = text
+        self.current_val = vals
+
+# }}}
+
+class ISBNDialog(QDialog) : # {{{
+
+    def __init__(self, parent, txt):
+        QDialog.__init__(self, parent)
+        l = QGridLayout()
+        self.setLayout(l)
+        self.setWindowTitle(_('Invalid ISBN'))
+        w = QLabel(_('Enter an ISBN'))
+        l.addWidget(w, 0, 0, 1, 2)
+        w = QLabel(_('ISBN:'))
+        l.addWidget(w, 1, 0, 1, 1)
+        self.line_edit = w = QLineEdit();
+        w.setText(txt)
+        w.selectAll()
+        w.textChanged.connect(self.checkText)
+        l.addWidget(w, 1, 1, 1, 1)
+        w = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        l.addWidget(w, 2, 0, 1, 2)
+        w.accepted.connect(self.accept)
+        w.rejected.connect(self.reject)
+        self.checkText(self.text())
+        sz = self.sizeHint()
+        sz.setWidth(sz.width()+50)
+        self.resize(sz)
+
+    def accept(self):
+        isbn = unicode(self.line_edit.text())
+        if not check_isbn(isbn):
+            return error_dialog(self, _('Invalid ISBN'),
+                    _('The ISBN you entered is not valid. Try again.'),
+                    show=True)
+        QDialog.accept(self)
+
+    def checkText(self, txt):
+        isbn = unicode(txt)
+        if not isbn:
+            col = 'none'
+            extra = ''
+        elif check_isbn(isbn) is not None:
+            col = 'rgba(0,255,0,20%)'
+            extra = _('This ISBN number is valid')
+        else:
+            col = 'rgba(255,0,0,20%)'
+            extra = _('This ISBN number is invalid')
+        self.line_edit.setToolTip(extra)
+        self.line_edit.setStyleSheet('QLineEdit { background-color: %s }'%col)
+
+    def text(self):
+        return unicode(self.line_edit.text())
 
 # }}}
 
@@ -1152,6 +1295,7 @@ class DateEdit(QDateEdit): # {{{
         def fset(self, val):
             if val is None:
                 val = UNDEFINED_DATE
+            val = as_local_time(val)
             self.setDate(QDate(val.year, val.month, val.day))
         return property(fget=fget, fset=fset)
 

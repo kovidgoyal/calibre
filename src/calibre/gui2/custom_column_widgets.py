@@ -25,7 +25,7 @@ class Base(object):
     def __init__(self, db, col_id, parent=None):
         self.db, self.col_id = db, col_id
         self.col_metadata = db.custom_column_num_map[col_id]
-        self.initial_val = None
+        self.initial_val = self.widgets = None
         self.setup_ui(parent)
 
     def initialize(self, book_id):
@@ -53,6 +53,9 @@ class Base(object):
 
     def normalize_ui_val(self, val):
         return val
+
+    def break_cycles(self):
+        self.db = self.widgets = self.initial_val = None
 
 class Bool(Base):
 
@@ -226,16 +229,14 @@ class Comments(Base):
 class Text(Base):
 
     def setup_ui(self, parent):
-        if self.col_metadata['display'].get('is_names', False):
-            self.sep = u' & '
-        else:
-            self.sep = u', '
+        self.sep = self.col_metadata['multiple_seps']
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
+
         if self.col_metadata['is_multiple']:
             w = MultiCompleteLineEdit(parent)
-            w.set_separator(self.sep.strip())
-            if self.sep == u' & ':
+            w.set_separator(self.sep['ui_to_list'])
+            if self.sep['ui_to_list'] == '&':
                 w.set_space_before_sep(True)
                 w.set_add_separator(tweaks['authors_completer_append_separator'])
             w.update_items_cache(values)
@@ -269,12 +270,12 @@ class Text(Base):
         if self.col_metadata['is_multiple']:
             if not val:
                 val = []
-            self.widgets[1].setText(self.sep.join(val))
+            self.widgets[1].setText(self.sep['list_to_ui'].join(val))
 
     def getter(self):
         if self.col_metadata['is_multiple']:
             val = unicode(self.widgets[1].text()).strip()
-            ans = [x.strip() for x in val.split(self.sep.strip()) if x.strip()]
+            ans = [x.strip() for x in val.split(self.sep['ui_to_list']) if x.strip()]
             if not ans:
                 ans = None
             return ans
@@ -899,9 +900,10 @@ class BulkText(BulkBase):
         if not self.a_c_checkbox.isChecked():
             return
         if self.col_metadata['is_multiple']:
+            ism = self.col_metadata['multiple_seps']
             if self.col_metadata['display'].get('is_names', False):
                 val = self.gui_val
-                add = [v.strip() for v in val.split('&') if v.strip()]
+                add = [v.strip() for v in val.split(ism['ui_to_list']) if v.strip()]
                 self.db.set_custom_bulk(book_ids, add, num=self.col_id)
             else:
                 remove_all, adding, rtext = self.gui_val
@@ -911,10 +913,10 @@ class BulkText(BulkBase):
                 else:
                     txt = rtext
                     if txt:
-                        remove = set([v.strip() for v in txt.split(',')])
+                        remove = set([v.strip() for v in txt.split(ism['ui_to_list'])])
                 txt = adding
                 if txt:
-                    add = set([v.strip() for v in txt.split(',')])
+                    add = set([v.strip() for v in txt.split(ism['ui_to_list'])])
                 else:
                     add = set()
                 self.db.set_custom_bulk_multiple(book_ids, add=add,

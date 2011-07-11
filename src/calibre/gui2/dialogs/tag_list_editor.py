@@ -18,7 +18,8 @@ class ListWidgetItem(QListWidgetItem):
     def data(self, role):
         if role == Qt.DisplayRole:
             if self.initial_value != self.current_value:
-                return _('%s (was %s)')%(self.current_value, self.initial_value)
+                return _('%(curr)s (was %(initial)s)')%dict(
+                        curr=self.current_value, initial=self.initial_value)
             else:
                 return self.current_value
         elif role == Qt.EditRole:

@@ -34,6 +34,7 @@ NULL_VALUES = {
                 'authors'      : [_('Unknown')],
                 'title'        : _('Unknown'),
                 'user_categories' : {},
+                'author_link_map' : {},
                 'language'     : 'und'
 }
 
@@ -44,12 +45,20 @@ class SafeFormat(TemplateFormatter):
     def get_value(self, orig_key, args, kwargs):
         if not orig_key:
             return ''
-        key = orig_key.lower()
+        orig_key = orig_key.lower()
+        key = orig_key
         if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
             key = field_metadata.search_term_to_field_key(key)
-        if key is None or (self.book and key not in self.book.all_field_keys()):
-            raise ValueError(_('Value: unknown field ') + orig_key)
-        b = self.book.get_user_metadata(key, False)
+            if key is None or (self.book and
+                                key not in self.book.all_field_keys()):
+                if hasattr(self.book, orig_key):
+                    key = orig_key
+                else:
+                    raise ValueError(_('Value: unknown field ') + orig_key)
+        try:
+            b = self.book.get_user_metadata(key, False)
+        except:
+            b = None
         if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
             v = ''
         elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
@@ -62,6 +71,7 @@ class SafeFormat(TemplateFormatter):
             return ''
         return v
 
+# DEPRECATED. This is not thread safe. Do not use.
 composite_formatter = SafeFormat()
 
 class Metadata(object):
@@ -102,6 +112,7 @@ class Metadata(object):
                 # List of strings or []
                 self.author = list(authors) if authors else []# Needed for backward compatibility
                 self.authors = list(authors) if authors else []
+        self.formatter = SafeFormat()
 
     def is_null(self, field):
         '''
@@ -138,7 +149,7 @@ class Metadata(object):
                 return val
             if val is None:
                 d['#value#'] = 'RECURSIVE_COMPOSITE FIELD (Metadata) ' + field
-                val = d['#value#'] = composite_formatter.safe_format(
+                val = d['#value#'] = self.formatter.safe_format(
                                             d['display']['composite_template'],
                                             self,
                                             _('TEMPLATE ERROR'),
@@ -415,11 +426,12 @@ class Metadata(object):
         '''
         if not ops:
             return
+        formatter = SafeFormat()
         for op in ops:
             try:
                 src = op[0]
                 dest = op[1]
-                val = composite_formatter.safe_format\
+                val = formatter.safe_format\
                     (src, other, 'PLUGBOARD TEMPLATE ERROR', other)
                 if dest == 'tags':
                     self.set(dest, [f.strip() for f in val.split(',') if f.strip()])
@@ -517,8 +529,8 @@ class Metadata(object):
                             for t in st.intersection(ot):
                                 sidx = lstags.index(t)
                                 oidx = lotags.index(t)
-                                self_tags[sidx] = other.tags[oidx]
-                            self_tags += [t for t in other.tags if t.lower() in ot-st]
+                                self_tags[sidx] = other_tags[oidx]
+                            self_tags += [t for t in other_tags if t.lower() in ot-st]
                             setattr(self, x, self_tags)
 
             my_comments = getattr(self, 'comments', '')
@@ -613,10 +625,7 @@ class Metadata(object):
             orig_res = res
             datatype = cmeta['datatype']
             if datatype == 'text' and cmeta['is_multiple']:
-                if cmeta['display'].get('is_names', False):
-                    res = u' & '.join(res)
-                else:
-                    res = u', '.join(sorted(res, key=sort_key))
+                res = cmeta['is_multiple']['list_to_ui'].join(res)
             elif datatype == 'series' and series_with_index:
                 if self.get_extra(key) is not None:
                     res = res + \
@@ -660,7 +669,7 @@ class Metadata(object):
             elif datatype == 'text' and fmeta['is_multiple']:
                 if isinstance(res, dict):
                     res = [k + ':' + v for k,v in res.items()]
-                res = u', '.join(sorted(res, key=sort_key))
+                res = fmeta['is_multiple']['list_to_ui'].join(sorted(res, key=sort_key))
             elif datatype == 'series' and series_with_index:
                 res = res + ' [%s]'%self.format_series_index()
             elif datatype == 'datetime':
@@ -733,7 +742,7 @@ class Metadata(object):
         ans += [('ISBN', unicode(self.isbn))]
         ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
         if self.series:
-            ans += [(_('Series'), unicode(self.series)+ ' #%s'%self.format_series_index())]
+            ans += [_('Series'), unicode(self.series) + ' #%s'%self.format_series_index()]
         ans += [(_('Language'), unicode(self.language))]
         if self.timestamp is not None:
             ans += [(_('Timestamp'), unicode(self.timestamp.isoformat(' ')))]

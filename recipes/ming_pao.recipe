@@ -1,17 +1,23 @@
-# -*- coding: utf-8 -*-
 __license__   = 'GPL v3'
 __copyright__ = '2010-2011, Eddie Lau'
 
+# Region - Hong Kong, Vancouver, Toronto
+__Region__ = 'Hong Kong'
 # Users of Kindle 3 with limited system-level CJK support
 # please replace the following "True" with "False".
 __MakePeriodical__ = True
 # Turn below to true if your device supports display of CJK titles
 __UseChineseTitle__ = False
-# Trun below to true if you wish to use life.mingpao.com as the main article source
+# Set it to False if you want to skip images
+__KeepImages__ = True
+# (HK only) Turn below to true if you wish to use life.mingpao.com as the main article source
 __UseLife__ = True
+
 
 '''
 Change Log:
+2011/06/26: add fetching Vancouver and Toronto versions of the paper, also provide captions for images using life.mingpao fetch source
+            provide options to remove all images in the file
 2011/05/12: switch the main parse source to life.mingpao.com, which has more photos on the article pages
 2011/03/06: add new articles for finance section, also a new section "Columns"
 2011/02/28: rearrange the sections
@@ -34,21 +40,96 @@ Change Log:
 import os, datetime, re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
-
-
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
 
-class MPHKRecipe(BasicNewsRecipe):
-    title          = 'Ming Pao - Hong Kong'
+# MAIN CLASS
+class MPRecipe(BasicNewsRecipe):
+    if __Region__ == 'Hong Kong':
+        title       = 'Ming Pao - Hong Kong'
+        description = 'Hong Kong Chinese Newspaper (http://news.mingpao.com)'
+        category    = 'Chinese, News, Hong Kong'
+        extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} font>b {font-size:200%; font-weight:bold;}'
+        masthead_url = 'http://news.mingpao.com/image/portals_top_logo_news.gif'
+        keep_only_tags = [dict(name='h1'),
+                          dict(name='font', attrs={'style':['font-size:14pt; line-height:160%;']}), # for entertainment page title
+                          dict(name='font', attrs={'color':['AA0000']}), # for column articles title
+                          dict(attrs={'id':['newscontent']}), # entertainment and column page content
+                          dict(attrs={'id':['newscontent01','newscontent02']}),
+                          dict(attrs={'class':['photo']}),
+                          dict(name='table', attrs={'width':['100%'], 'border':['0'], 'cellspacing':['5'], 'cellpadding':['0']}),  # content in printed version of life.mingpao.com
+                          dict(name='img', attrs={'width':['180'], 'alt':['按圖放大']}) # images for source from life.mingpao.com
+                          ]
+        if __KeepImages__:
+            remove_tags = [dict(name='style'),
+                           dict(attrs={'id':['newscontent135']}),  # for the finance page from mpfinance.com
+                           dict(name='font', attrs={'size':['2'], 'color':['666666']}), # article date in life.mingpao.com article
+                           #dict(name='table')  # for content fetched from life.mingpao.com
+                          ]
+        else:
+            remove_tags = [dict(name='style'),
+                           dict(attrs={'id':['newscontent135']}),  # for the finance page from mpfinance.com
+                           dict(name='font', attrs={'size':['2'], 'color':['666666']}), # article date in life.mingpao.com article
+                           dict(name='img'),
+                           #dict(name='table')  # for content fetched from life.mingpao.com
+                          ]
+        remove_attributes = ['width']
+        preprocess_regexps = [
+                              (re.compile(r'<h5>', re.DOTALL|re.IGNORECASE),
+                              lambda match: '<h1>'),
+                              (re.compile(r'</h5>', re.DOTALL|re.IGNORECASE),
+                              lambda match: '</h1>'),
+                              (re.compile(r'<p><a href=.+?</a></p>', re.DOTALL|re.IGNORECASE), # for entertainment page
+                              lambda match: ''),
+                              # skip <br> after title in life.mingpao.com fetched article
+                              (re.compile(r"<div id='newscontent'><br>", re.DOTALL|re.IGNORECASE),
+                              lambda match: "<div id='newscontent'>"),
+                              (re.compile(r"<br><br></b>", re.DOTALL|re.IGNORECASE),
+                              lambda match: "</b>")
+                             ]
+    elif __Region__ == 'Vancouver':
+        title       = 'Ming Pao - Vancouver'
+        description = 'Vancouver Chinese Newspaper (http://www.mingpaovan.com)'
+        category    = 'Chinese, News, Vancouver'
+        extra_css   = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} b>font {font-size:200%; font-weight:bold;}'
+        masthead_url = 'http://www.mingpaovan.com/image/mainlogo2_VAN2.gif'
+        keep_only_tags = [dict(name='table', attrs={'width':['450'], 'border':['0'], 'cellspacing':['0'], 'cellpadding':['1']}),
+                          dict(name='table', attrs={'width':['450'], 'border':['0'], 'cellspacing':['3'], 'cellpadding':['3'], 'id':['tblContent3']}),
+                          dict(name='table', attrs={'width':['180'], 'border':['0'], 'cellspacing':['0'], 'cellpadding':['0'], 'bgcolor':['F0F0F0']}),
+                          ]
+        if __KeepImages__:
+            remove_tags = [dict(name='img', attrs={'src':['../../../image/magnifier.gif']})]  # the magnifier icon
+        else:
+            remove_tags = [dict(name='img')]
+        remove_attributes = ['width']
+        preprocess_regexps = [(re.compile(r'&nbsp;', re.DOTALL|re.IGNORECASE),
+                              lambda match: ''),
+                             ]
+    elif __Region__ == 'Toronto':
+        title       = 'Ming Pao - Toronto'
+        description = 'Toronto Chinese Newspaper (http://www.mingpaotor.com)'
+        category    = 'Chinese, News, Toronto'
+        extra_css   = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} b>font {font-size:200%; font-weight:bold;}'
+        masthead_url = 'http://www.mingpaotor.com/image/mainlogo2_TOR2.gif'
+        keep_only_tags = [dict(name='table', attrs={'width':['450'], 'border':['0'], 'cellspacing':['0'], 'cellpadding':['1']}),
+                          dict(name='table', attrs={'width':['450'], 'border':['0'], 'cellspacing':['3'], 'cellpadding':['3'], 'id':['tblContent3']}),
+                          dict(name='table', attrs={'width':['180'], 'border':['0'], 'cellspacing':['0'], 'cellpadding':['0'], 'bgcolor':['F0F0F0']}),
+                          ]
+        if __KeepImages__:
+            remove_tags = [dict(name='img', attrs={'src':['../../../image/magnifier.gif']})]  # the magnifier icon
+        else:
+            remove_tags = [dict(name='img')]
+        remove_attributes = ['width']
+        preprocess_regexps = [(re.compile(r'&nbsp;', re.DOTALL|re.IGNORECASE),
+                              lambda match: ''),
+                             ]
+
     oldest_article = 1
     max_articles_per_feed = 100
     __author__            = 'Eddie Lau'
-    description           = 'Hong Kong Chinese Newspaper (http://news.mingpao.com)'
     publisher             = 'MingPao'
-    category              = 'Chinese, News, Hong Kong'
     remove_javascript = True
     use_embedded_content   = False
     no_stylesheets = True
@@ -57,33 +138,6 @@ class MPHKRecipe(BasicNewsRecipe):
     recursions = 0
     conversion_options = {'linearize_tables':True}
     timefmt = ''
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} font>b {font-size:200%; font-weight:bold;}'
-    masthead_url = 'http://news.mingpao.com/image/portals_top_logo_news.gif'
-    keep_only_tags = [dict(name='h1'),
-                      dict(name='font', attrs={'style':['font-size:14pt; line-height:160%;']}), # for entertainment page title
-                      dict(name='font', attrs={'color':['AA0000']}), # for column articles title
-                      dict(attrs={'id':['newscontent']}), # entertainment and column page content
-                      dict(attrs={'id':['newscontent01','newscontent02']}),
-                      dict(attrs={'class':['photo']}),
-                      dict(name='img', attrs={'width':['180'], 'alt':['按圖放大']}) # images for source from life.mingpao.com
-                      ]
-    remove_tags = [dict(name='style'),
-                   dict(attrs={'id':['newscontent135']}),  # for the finance page from mpfinance.com
-                   dict(name='table')]  # for content fetched from life.mingpao.com
-    remove_attributes = ['width']
-    preprocess_regexps = [
-                          (re.compile(r'<h5>', re.DOTALL|re.IGNORECASE),
-                          lambda match: '<h1>'),
-                          (re.compile(r'</h5>', re.DOTALL|re.IGNORECASE),
-                          lambda match: '</h1>'),
-                          (re.compile(r'<p><a href=.+?</a></p>', re.DOTALL|re.IGNORECASE), # for entertainment page
-                          lambda match: ''),
-                          # skip <br> after title in life.mingpao.com fetched article
-                          (re.compile(r"<div id='newscontent'><br>", re.DOTALL|re.IGNORECASE),
-                          lambda match: "<div id='newscontent'>"),
-                          (re.compile(r"<br><br></b>", re.DOTALL|re.IGNORECASE),
-                          lambda match: "</b>")
-                         ]
 
     def image_url_processor(cls, baseurl, url):
         # trick: break the url at the first occurance of digit, add an additional
@@ -124,8 +178,18 @@ class MPHKRecipe(BasicNewsRecipe):
 
     def get_dtlocal(self):
         dt_utc = datetime.datetime.utcnow()
-        # convert UTC to local hk time - at around HKT 6.00am, all news are available
-        dt_local = dt_utc - datetime.timedelta(-2.0/24)
+        if __Region__ == 'Hong Kong':
+            # convert UTC to local hk time - at HKT 5.30am, all news are available
+            dt_local = dt_utc + datetime.timedelta(8.0/24) - datetime.timedelta(5.5/24)
+            # dt_local = dt_utc.astimezone(pytz.timezone('Asia/Hong_Kong')) - datetime.timedelta(5.5/24)
+        elif __Region__ == 'Vancouver':
+            # convert UTC to local Vancouver time - at PST time 5.30am, all news are available
+            dt_local = dt_utc + datetime.timedelta(-8.0/24) - datetime.timedelta(5.5/24)
+            #dt_local = dt_utc.astimezone(pytz.timezone('America/Vancouver')) - datetime.timedelta(5.5/24)
+        elif __Region__ == 'Toronto':
+            # convert UTC to local Toronto time - at EST time 8.30am, all news are available
+            dt_local = dt_utc + datetime.timedelta(-5.0/24) - datetime.timedelta(8.5/24)
+            #dt_local = dt_utc.astimezone(pytz.timezone('America/Toronto')) - datetime.timedelta(8.5/24)
         return dt_local
 
     def get_fetchdate(self):
@@ -135,13 +199,15 @@ class MPHKRecipe(BasicNewsRecipe):
         return self.get_dtlocal().strftime("%Y-%m-%d")
 
     def get_fetchday(self):
-        # dt_utc = datetime.datetime.utcnow()
-        # convert UTC to local hk time - at around HKT 6.00am, all news are available
-        # dt_local = dt_utc - datetime.timedelta(-2.0/24)
         return self.get_dtlocal().strftime("%d")
 
     def get_cover_url(self):
-        cover = 'http://news.mingpao.com/' + self.get_fetchdate() + '/' + self.get_fetchdate() + '_' + self.get_fetchday() + 'gacov.jpg'
+        if __Region__ == 'Hong Kong':
+            cover = 'http://news.mingpao.com/' + self.get_fetchdate() + '/' + self.get_fetchdate() + '_' + self.get_fetchday() + 'gacov.jpg'
+        elif __Region__ == 'Vancouver':
+            cover = 'http://www.mingpaovan.com/ftp/News/' + self.get_fetchdate() + '/' + self.get_fetchday() + 'pgva1s.jpg'
+        elif __Region__ == 'Toronto':
+            cover = 'http://www.mingpaotor.com/ftp/News/' + self.get_fetchdate() + '/' + self.get_fetchday() + 'pgtas.jpg'
         br = BasicNewsRecipe.get_browser()
         try:
             br.open(cover)
@@ -153,76 +219,104 @@ class MPHKRecipe(BasicNewsRecipe):
         feeds = []
         dateStr = self.get_fetchdate()
 
-        if __UseLife__:
-            for title, url, keystr in [(u'\u8981\u805e Headline', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalga', 'nal'),
-                                       (u'\u6e2f\u805e Local', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalgb', 'nal'),
-                                       (u'\u6559\u80b2 Education', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalgf', 'nal'),
-                                       (u'\u793e\u8a55/\u7b46\u9663 Editorial', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalmr', 'nal'),
-                                       (u'\u8ad6\u58c7 Forum', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalfa', 'nal'),
-                                       (u'\u4e2d\u570b China', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalca', 'nal'),
-                                       (u'\u570b\u969b World', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalta', 'nal'),
-                                       (u'\u7d93\u6fdf Finance', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea', 'nal'),
-                                       (u'\u9ad4\u80b2 Sport', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalsp', 'nal'),
-                                       (u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal'),
-                                       (u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')]:
-                articles = self.parse_section2(url, keystr)
+        if __Region__ == 'Hong Kong':
+            if __UseLife__:
+                for title, url, keystr in [(u'\u8981\u805e Headline', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalga', 'nal'),
+                                           (u'\u6e2f\u805e Local', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalgb', 'nal'),
+                                           (u'\u6559\u80b2 Education', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalgf', 'nal'),
+                                           (u'\u793e\u8a55/\u7b46\u9663 Editorial', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalmr', 'nal'),
+                                           (u'\u8ad6\u58c7 Forum', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalfa', 'nal'),
+                                           (u'\u4e2d\u570b China', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalca', 'nal'),
+                                           (u'\u570b\u969b World', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalta', 'nal'),
+                                           (u'\u7d93\u6fdf Finance', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea', 'nal'),
+                                           (u'\u9ad4\u80b2 Sport', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalsp', 'nal'),
+                                           (u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal'),
+                                           (u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')]:
+                    articles = self.parse_section2(url, keystr)
+                    if articles:
+                        feeds.append((title, articles))
+
+                for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
+                                   (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
+                    articles = self.parse_section(url)
+                    if articles:
+                        feeds.append((title, articles))
+            else:
+                for title, url in [(u'\u8981\u805e Headline', 'http://news.mingpao.com/' + dateStr + '/gaindex.htm'),
+                                   (u'\u6e2f\u805e Local', 'http://news.mingpao.com/' + dateStr + '/gbindex.htm'),
+                                   (u'\u6559\u80b2 Education', 'http://news.mingpao.com/' + dateStr + '/gfindex.htm')]:
+                    articles = self.parse_section(url)
+                    if articles:
+                        feeds.append((title, articles))
+
+                # special- editorial
+                ed_articles = self.parse_ed_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalmr')
+                if ed_articles:
+                    feeds.append((u'\u793e\u8a55/\u7b46\u9663 Editorial', ed_articles))
+
+                for title, url in [(u'\u8ad6\u58c7 Forum', 'http://news.mingpao.com/' + dateStr + '/faindex.htm'),
+                                   (u'\u4e2d\u570b China', 'http://news.mingpao.com/' + dateStr + '/caindex.htm'),
+                                   (u'\u570b\u969b World', 'http://news.mingpao.com/' + dateStr + '/taindex.htm')]:
+                    articles = self.parse_section(url)
+                    if articles:
+                        feeds.append((title, articles))
+
+                # special - finance
+                #fin_articles = self.parse_fin_section('http://www.mpfinance.com/htm/Finance/' + dateStr + '/News/ea,eb,ecindex.htm')
+                fin_articles = self.parse_fin_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea')
+                if fin_articles:
+                    feeds.append((u'\u7d93\u6fdf Finance', fin_articles))
+
+                for title, url in [('Tech News', 'http://news.mingpao.com/' + dateStr + '/naindex.htm'),
+                                   (u'\u9ad4\u80b2 Sport', 'http://news.mingpao.com/' + dateStr + '/spindex.htm')]:
+                    articles = self.parse_section(url)
+                    if articles:
+                        feeds.append((title, articles))
+
+                # special - entertainment
+                ent_articles = self.parse_ent_section('http://ol.mingpao.com/cfm/star1.cfm')
+                if ent_articles:
+                    feeds.append((u'\u5f71\u8996 Film/TV', ent_articles))
+
+                for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
+                                   (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
+                    articles = self.parse_section(url)
+                    if articles:
+                        feeds.append((title, articles))
+
+
+                # special- columns
+                col_articles = self.parse_col_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn')
+                if col_articles:
+                    feeds.append((u'\u5c08\u6b04 Columns', col_articles))
+        elif __Region__ == 'Vancouver':
+            for title, url in [(u'\u8981\u805e Headline', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VAindex.htm'),
+                               (u'\u52a0\u570b Canada', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VBindex.htm'),
+                               (u'\u793e\u5340 Local', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VDindex.htm'),
+                               (u'\u6e2f\u805e Hong Kong', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/HK-VGindex.htm'),
+                               (u'\u570b\u969b World', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VTindex.htm'),
+                               (u'\u4e2d\u570b China', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VCindex.htm'),
+                               (u'\u7d93\u6fdf Economics', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VEindex.htm'),
+                               (u'\u9ad4\u80b2 Sports', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VSindex.htm'),
+                               (u'\u5f71\u8996 Film/TV', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/HK-MAindex.htm'),
+                               (u'\u526f\u520a Supplements', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/WWindex.htm'),]:
+                articles = self.parse_section3(url, 'http://www.mingpaovan.com/')
                 if articles:
                     feeds.append((title, articles))
-
-            for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
-                               (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
-                articles = self.parse_section(url)
+        elif __Region__ == 'Toronto':
+            for title, url in [(u'\u8981\u805e Headline', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/TAindex.htm'),
+                               (u'\u52a0\u570b Canada', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/TDindex.htm'),
+                               (u'\u793e\u5340 Local', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/TFindex.htm'),
+                               (u'\u4e2d\u570b China', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/TCAindex.htm'),
+                               (u'\u570b\u969b World', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/TTAindex.htm'),
+                               (u'\u6e2f\u805e Hong Kong', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/HK-GAindex.htm'),
+                               (u'\u7d93\u6fdf Economics', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/THindex.htm'),
+                               (u'\u9ad4\u80b2 Sports', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/TSindex.htm'),
+                               (u'\u5f71\u8996 Film/TV', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/HK-MAindex.htm'),
+                               (u'\u526f\u520a Supplements', 'http://www.mingpaotor.com/htm/News/' + dateStr + '/WWindex.htm'),]:
+                articles = self.parse_section3(url, 'http://www.mingpaotor.com/')
                 if articles:
                     feeds.append((title, articles))
-        else:
-            for title, url in [(u'\u8981\u805e Headline', 'http://news.mingpao.com/' + dateStr + '/gaindex.htm'),
-                               (u'\u6e2f\u805e Local', 'http://news.mingpao.com/' + dateStr + '/gbindex.htm'),
-                               (u'\u6559\u80b2 Education', 'http://news.mingpao.com/' + dateStr + '/gfindex.htm')]:
-                articles = self.parse_section(url)
-                if articles:
-                    feeds.append((title, articles))
-
-            # special- editorial
-            ed_articles = self.parse_ed_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalmr')
-            if ed_articles:
-                feeds.append((u'\u793e\u8a55/\u7b46\u9663 Editorial', ed_articles))
-
-            for title, url in [(u'\u8ad6\u58c7 Forum', 'http://news.mingpao.com/' + dateStr + '/faindex.htm'),
-                               (u'\u4e2d\u570b China', 'http://news.mingpao.com/' + dateStr + '/caindex.htm'),
-                               (u'\u570b\u969b World', 'http://news.mingpao.com/' + dateStr + '/taindex.htm')]:
-                articles = self.parse_section(url)
-                if articles:
-                    feeds.append((title, articles))
-
-            # special - finance
-            #fin_articles = self.parse_fin_section('http://www.mpfinance.com/htm/Finance/' + dateStr + '/News/ea,eb,ecindex.htm')
-            fin_articles = self.parse_fin_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea')
-            if fin_articles:
-                feeds.append((u'\u7d93\u6fdf Finance', fin_articles))
-
-            for title, url in [('Tech News', 'http://news.mingpao.com/' + dateStr + '/naindex.htm'),
-                               (u'\u9ad4\u80b2 Sport', 'http://news.mingpao.com/' + dateStr + '/spindex.htm')]:
-                articles = self.parse_section(url)
-                if articles:
-                    feeds.append((title, articles))
-
-            # special - entertainment
-            ent_articles = self.parse_ent_section('http://ol.mingpao.com/cfm/star1.cfm')
-            if ent_articles:
-                feeds.append((u'\u5f71\u8996 Film/TV', ent_articles))
-
-            for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
-                               (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
-                articles = self.parse_section(url)
-                if articles:
-                    feeds.append((title, articles))
-
-
-            # special- columns
-            col_articles = self.parse_col_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn')
-            if col_articles:
-                feeds.append((u'\u5c08\u6b04 Columns', col_articles))
-
         return feeds
 
     # parse from news.mingpao.com
@@ -256,8 +350,27 @@ class MPHKRecipe(BasicNewsRecipe):
             title = self.tag_to_string(i)
             url = 'http://life.mingpao.com/cfm/' + i.get('href', False)
             if (url not in included_urls) and (not url.rfind('.txt') == -1) and (not url.rfind(keystr) == -1):
+                url = url.replace('dailynews3.cfm', 'dailynews3a.cfm')  # use printed version of the article
                 current_articles.append({'title': title, 'url': url, 'description': ''})
                 included_urls.append(url)
+        current_articles.reverse()
+        return current_articles
+
+    # parse from www.mingpaovan.com
+    def parse_section3(self, url, baseUrl):
+        self.get_fetchdate()
+        soup = self.index_to_soup(url)
+        divs = soup.findAll(attrs={'class': ['ListContentLargeLink']})
+        current_articles = []
+        included_urls = []
+        divs.reverse()
+        for i in divs:
+            title = self.tag_to_string(i)
+            urlstr = i.get('href', False)
+            urlstr = baseUrl + '/' + urlstr.replace('../../../', '')
+            if urlstr not in included_urls:
+                current_articles.append({'title': title, 'url': urlstr, 'description': '', 'date': ''})
+                included_urls.append(urlstr)
         current_articles.reverse()
         return current_articles
 
@@ -338,7 +451,12 @@ class MPHKRecipe(BasicNewsRecipe):
         if dir is None:
             dir = self.output_dir
         if __UseChineseTitle__ == True:
-            title = u'\u660e\u5831 (\u9999\u6e2f)'
+            if __Region__ == 'Hong Kong':
+                title = u'\u660e\u5831 (\u9999\u6e2f)'
+            elif __Region__ == 'Vancouver':
+                title = u'\u660e\u5831 (\u6eab\u54e5\u83ef)'
+            elif __Region__ == 'Toronto':
+                title = u'\u660e\u5831 (\u591a\u502b\u591a)'
         else:
             title = self.short_title()
         # if not generating a periodical, force date to apply in title

@@ -11,10 +11,16 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import os, itertools, re, logging, copy, unicodedata
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
-import cssutils
 from cssutils.css import (CSSStyleRule, CSSPageRule, CSSStyleDeclaration,
-    CSSValueList, CSSFontFaceRule, cssproperties)
-from cssutils import profile as cssprofiles
+    CSSFontFaceRule, cssproperties)
+try:
+    from cssutils.css import CSSValueList
+    CSSValueList
+except ImportError:
+    # cssutils >= 0.9.8
+    from cssutils.css import PropertyValue as CSSValueList
+from cssutils import (profile as cssprofiles, parseString, parseStyle, log as
+        cssutils_log, CSSParser, profiles)
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError, SelectorSyntaxError
 from calibre import force_unicode
@@ -22,7 +28,7 @@ from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
 
-cssutils.log.setLevel(logging.WARN)
+cssutils_log.setLevel(logging.WARN)
 
 _html_css_stylesheet = None
 
@@ -30,7 +36,7 @@ def html_css_stylesheet():
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
         html_css = open(P('templates/html.css'), 'rb').read()
-        _html_css_stylesheet = cssutils.parseString(html_css)
+        _html_css_stylesheet = parseString(html_css)
         _html_css_stylesheet.namespaces['h'] = XHTML_NS
     return _html_css_stylesheet
 
@@ -151,11 +157,11 @@ class Stylizer(object):
 
         # Add cssutils parsing profiles from output_profile
         for profile in self.opts.output_profile.extra_css_modules:
-            cssutils.profile.addProfile(profile['name'],
+            cssprofiles.addProfile(profile['name'],
                                         profile['props'],
                                         profile['macros'])
 
-        parser = cssutils.CSSParser(fetcher=self._fetch_css_file,
+        parser = CSSParser(fetcher=self._fetch_css_file,
                 log=logging.getLogger('calibre.css'))
         self.font_face_rules = []
         for elem in head:
@@ -467,6 +473,7 @@ class Style(object):
         self._width = None
         self._height = None
         self._lineHeight = None
+        self._bgcolor = None
         stylizer._styles[element] = self
 
     def set(self, prop, val):
@@ -526,6 +533,48 @@ class Style(object):
 
     def pt_to_px(self, value):
         return (self._profile.dpi / 72.0) * value
+
+    @property
+    def backgroundColor(self):
+        '''
+        Return the background color by parsing both the background-color and
+        background shortcut properties. Note that inheritance/default values
+        are not used. None is returned if no background color is set.
+        '''
+
+        def validate_color(col):
+            return cssprofiles.validateWithProfile('color',
+                        col,
+                        profiles=[profiles.Profiles.CSS_LEVEL_2])[1]
+
+        if self._bgcolor is None:
+            col = None
+            val = self._style.get('background-color', None)
+            if val and validate_color(val):
+                col = val
+            else:
+                val = self._style.get('background', None)
+                if val is not None:
+                    try:
+                        style = parseStyle('background: '+val)
+                        val = style.getProperty('background').cssValue
+                        try:
+                            val = list(val)
+                        except:
+                            # val is CSSPrimitiveValue
+                            val = [val]
+                        for c in val:
+                            c = c.cssText
+                            if validate_color(c):
+                                col = c
+                                break
+                    except:
+                        pass
+            if col is None:
+                self._bgcolor = False
+            else:
+                self._bgcolor = col
+        return self._bgcolor if self._bgcolor else None
 
     @property
     def fontSize(self):

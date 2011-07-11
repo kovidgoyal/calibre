@@ -19,7 +19,7 @@ from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log, msprefs
 from calibre.ebooks.metadata.xisbn import xisbn
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import utc_tz
+from calibre.utils.date import utc_tz, as_utc
 from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower
 
@@ -57,11 +57,34 @@ def is_worker_alive(workers):
 
 # Merge results from different sources {{{
 
+class xISBN(Thread):
+
+    def __init__(self, isbn):
+        Thread.__init__(self)
+        self.isbn = isbn
+        self.isbns = frozenset()
+        self.min_year = None
+        self.daemon = True
+        self.exception = self.tb = None
+
+    def run(self):
+        try:
+            self.isbns, self.min_year = xisbn.get_isbn_pool(self.isbn)
+        except Exception as e:
+            import traceback
+            self.exception = e
+            self.tb = traceback.format_exception()
+
+
+
 class ISBNMerge(object):
 
-    def __init__(self):
+    def __init__(self, log):
         self.pools = {}
         self.isbnless_results = []
+        self.results = []
+        self.log = log
+        self.use_xisbn = True
 
     def isbn_in_pool(self, isbn):
         if isbn:
@@ -82,10 +105,27 @@ class ISBNMerge(object):
         if isbn:
             pool = self.isbn_in_pool(isbn)
             if pool is None:
-                isbns, min_year = xisbn.get_isbn_pool(isbn)
+                isbns = min_year = None
+                if self.use_xisbn:
+                    xw = xISBN(isbn)
+                    xw.start()
+                    xw.join(10)
+                    if xw.is_alive():
+                        self.log.error('Query to xISBN timed out')
+                        self.use_xisbn = False
+                    else:
+                        if xw.exception:
+                            self.log.error('Query to xISBN failed:')
+                            self.log.debug(xw.tb)
+                        else:
+                            isbns, min_year = xw.isbns, xw.min_year
                 if not isbns:
                     isbns = frozenset([isbn])
-                self.pools[isbns] = pool = (min_year, [])
+                if isbns in self.pools:
+                    # xISBN had a brain fart
+                    pool = self.pools[isbns]
+                else:
+                    self.pools[isbns] = pool = (min_year, [])
 
             if not self.pool_has_result_from_same_source(pool, result):
                 pool[1].append(result)
@@ -98,15 +138,19 @@ class ISBNMerge(object):
             if results:
                 has_isbn_result = True
                 break
-        self.has_isbn_result = has_isbn_result
 
+        isbn_sources = frozenset()
         if has_isbn_result:
-            self.merge_isbn_results()
-        else:
-            results = sorted(self.isbnless_results,
-                    key=attrgetter('relevance_in_source'))
+            isbn_sources = self.merge_isbn_results()
+
+        # Now handle results that have no ISBNs
+        results = sorted(self.isbnless_results,
+                key=attrgetter('relevance_in_source'))
+        # Only use results that are from sources that have not also returned a
+        # result with an ISBN
+        results = [r for r in results if r.identify_plugin not in isbn_sources]
+        if results:
             # Pick only the most relevant result from each source
-            self.results = []
             seen = set()
             for result in results:
                 if result.identify_plugin not in seen:
@@ -186,11 +230,15 @@ class ISBNMerge(object):
 
     def merge_isbn_results(self):
         self.results = []
+        sources = set()
         for min_year, results in self.pools.itervalues():
             if results:
+                for r in results:
+                    sources.add(r.identify_plugin)
                 self.results.append(self.merge(results, min_year))
 
         self.results.sort(key=attrgetter('average_source_relevance'))
+        return sources
 
     def length_merge(self, attr, results, null_value=None, shortest=True):
         values = [getattr(x, attr) for x in results if not x.is_null(attr)]
@@ -250,13 +298,23 @@ class ISBNMerge(object):
 
         # Published date
         if min_year:
-            min_date = datetime(min_year, 1, 2, tzinfo=utc_tz)
+            for r in results:
+                year = getattr(r.pubdate, 'year', None)
+                if year == min_year:
+                    ans.pubdate = r.pubdate
+                    break
+            if getattr(ans.pubdate, 'year', None) == min_year:
+                min_date = datetime(min_year, ans.pubdate.month, ans.pubdate.day)
+            else:
+                min_date = datetime(min_year, 1, 2, tzinfo=utc_tz)
             ans.pubdate = min_date
         else:
             min_date = datetime(3001, 1, 1, tzinfo=utc_tz)
             for r in results:
-                if r.pubdate is not None and r.pubdate < min_date:
-                    min_date = r.pubdate
+                if r.pubdate is not None:
+                    candidate = as_utc(r.pubdate)
+                    if candidate < min_date:
+                        min_date = candidate
             if min_date.year < 3000:
                 ans.pubdate = min_date
 
@@ -289,7 +347,7 @@ class ISBNMerge(object):
 
 
 def merge_identify_results(result_map, log):
-    isbn_merge = ISBNMerge()
+    isbn_merge = ISBNMerge(log)
     for plugin, results in result_map.iteritems():
         for result in results:
             isbn_merge.add_result(result)
@@ -408,6 +466,8 @@ def identify(log, abort, # {{{
             for f in plugin.prefs['ignore_fields']:
                 if ':' not in f:
                     setattr(result, f, getattr(dummy, f))
+                if f == 'series':
+                    result.series_index = dummy.series_index
             result.relevance_in_source = i
             result.has_cached_cover_url = (plugin.cached_cover_url_is_reliable
                     and plugin.get_cached_cover_url(result.identifiers) is not
@@ -499,7 +559,7 @@ if __name__ == '__main__': # tests {{{
               # unknown to Amazon
                 {'identifiers':{'isbn': '9780307459671'},
                     'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
-                [title_test('The Invisible Gorilla', exact=True)]
+                [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us', exact=True)]
 
             ),
 

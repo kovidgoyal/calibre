@@ -189,7 +189,7 @@ Extra CSS
 
 This option allows you to specify arbitrary CSS that will be applied to all HTML files in the
 input. This CSS is applied with very high priority and so should override most CSS present in
-the input document itself. You can use this setting to fine tune the presentation/layout of your
+the **input document** itself. You can use this setting to fine tune the presentation/layout of your
 document. For example, if you want all paragraphs of class `endnote` to be right aligned, just 
 add::
     
@@ -200,7 +200,8 @@ or if you want to change the indentation of all paragraphs::
     p { text-indent: 5mm; }
 
 :guilabel:`Extra CSS` is a very powerful option, but you do need an understanding of how CSS works
-to use it to its full potential.
+to use it to its full potential. You can use the debug pipeline option described above to see what
+CSS is present in your input document.
 
 Miscellaneous
 ~~~~~~~~~~~~~~
@@ -632,6 +633,7 @@ TXT input supports a number of options to differentiate how paragraphs are detec
     :guilabel:`Formatting Style: None`
         Applies no special formatting to the text, the document is converted to html with no other changes.
 
+.. _pdfconversion:
 
 Convert PDF documents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -656,6 +658,7 @@ Some limitations of PDF input are:
     * Some PDFs store their images upside down with a rotation instruction, |app| currently doesn't support that instruction, so the images will be rotated in the output as well. 
     * Links and Tables of Contents are not supported
     * PDFs that use embedded non-unicode fonts to represent non-English characters will result in garbled output for those characters
+    * Some PDFs are made up of photographs of the page with OCRed text behind them. In such cases |app| uses the OCRed text, which can be very different from what you see when you view the PDF file
 
 To re-iterate **PDF is a really, really bad** format to use as input. If you absolutely must use PDF, then be prepared for an
 output ranging anywhere from decent to unusable, depending on the input PDF.

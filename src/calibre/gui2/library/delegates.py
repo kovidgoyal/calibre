@@ -288,6 +288,8 @@ class CcNumberDelegate(QStyledItemDelegate): # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
+        if val is None:
+            val = 0
         editor.setValue(val)
 
 # }}}
@@ -426,7 +428,7 @@ class CcTemplateDelegate(QStyledItemDelegate): # {{{
         editor.textbox.setTabStopWidth(20)
         d = editor.exec_()
         if d:
-            m.setData(index, QVariant(editor.textbox.toPlainText()), Qt.EditRole)
+            m.setData(index, QVariant(editor.rule[1]), Qt.EditRole)
         return None
 
     def setModelData(self, editor, model, index):

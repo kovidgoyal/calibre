@@ -39,7 +39,7 @@ from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
 from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
-from calibre.gui2.tag_view import TagBrowserMixin
+from calibre.gui2.tag_browser.ui import TagBrowserMixin
 
 
 class Listener(Thread): # {{{
@@ -307,6 +307,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self._calculated_available_height = min(max_available_height()-15,
                 self.height())
         self.resize(self.width(), self._calculated_available_height)
+
+        self.build_context_menus()
 
         for ac in self.iactions.values():
             try:

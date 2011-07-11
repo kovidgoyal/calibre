@@ -357,7 +357,6 @@ class Preferences(QMainWindow):
                 bytearray(self.saveGeometry()))
         if self.committed:
             self.gui.must_restart_before_config = self.must_restart
-            self.gui.tags_view.set_new_model() # in case columns changed
             self.gui.tags_view.recount()
             self.gui.create_device_menu()
             self.gui.set_device_menu_items_state(bool(self.gui.device_connected))

@@ -6,11 +6,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cStringIO, tempfile, shutil, atexit, subprocess, glob, re
+import os, tempfile, shutil, subprocess, glob, re, time, textwrap
 from distutils import sysconfig
 
-from setup import Command, __appname__
-from setup.pygettext import main as pygettext
+from setup import Command, __appname__, __version__
 from setup.build_environment import pyqt
 
 class POT(Command):
@@ -60,19 +59,50 @@ class POT(Command):
 
 
     def run(self, opts):
+        pot_header = textwrap.dedent('''\
+        # Translation template file..
+        # Copyright (C) %(year)s Kovid Goyal
+        # Kovid Goyal <kovid@kovidgoyal.net>, %(year)s.
+        #
+        msgid ""
+        msgstr ""
+        "Project-Id-Version: %(appname)s %(version)s\\n"
+        "POT-Creation-Date: %(time)s\\n"
+        "PO-Revision-Date: %(time)s\\n"
+        "Last-Translator: Automatically generated\\n"
+        "Language-Team: LANGUAGE\\n"
+        "MIME-Version: 1.0\\n"
+        "Report-Msgid-Bugs-To: https://bugs.launchpad.net/calibre\\n"
+        "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\\n"
+        "Content-Type: text/plain; charset=UTF-8\\n"
+        "Content-Transfer-Encoding: 8bit\\n"
+
+        ''')%dict(appname=__appname__, version=__version__,
+                year=time.strftime('%Y'),
+                time=time.strftime('%Y-%m-%d %H:%M+%Z'))
+
         files = self.source_files()
-        buf = cStringIO.StringIO()
-        self.info('Creating translations template...')
-        tempdir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, tempdir)
-        pygettext(buf, ['-k', '__', '-p', tempdir]+files)
-        src = buf.getvalue()
-        src += '\n\n' + self.get_tweaks_docs()
-        pot = os.path.join(self.PATH, __appname__+'.pot')
-        with open(pot, 'wb') as f:
-            f.write(src)
-        self.info('Translations template:', os.path.abspath(pot))
-        return pot
+        with tempfile.NamedTemporaryFile() as fl:
+            fl.write('\n'.join(files))
+            fl.flush()
+            out = tempfile.NamedTemporaryFile(suffix='.pot', delete=False)
+            out.close()
+            self.info('Creating translations template...')
+            subprocess.check_call(['xgettext', '-f', fl.name,
+                '--default-domain=calibre', '-o', out.name, '-L', 'Python',
+                '--from-code=UTF-8', '--sort-by-file', '--omit-header',
+                '--no-wrap', '-k__',
+                ])
+            with open(out.name, 'rb') as f:
+                src = f.read()
+            os.remove(out.name)
+            src = pot_header + '\n' + src
+            src += '\n\n' + self.get_tweaks_docs()
+            pot = os.path.join(self.PATH, __appname__+'.pot')
+            with open(pot, 'wb') as f:
+                f.write(src)
+            self.info('Translations template:', os.path.abspath(pot))
+            return pot
 
 
 class Translations(POT):
@@ -85,7 +115,7 @@ class Translations(POT):
 
     def mo_file(self, po_file):
         locale = os.path.splitext(os.path.basename(po_file))[0]
-        return locale, os.path.join(self.DEST, locale, 'LC_MESSAGES', 'messages.mo')
+        return locale, os.path.join(self.DEST, locale, 'messages.mo')
 
 
     def run(self, opts):
@@ -94,9 +124,8 @@ class Translations(POT):
             base = os.path.dirname(dest)
             if not os.path.exists(base):
                 os.makedirs(base)
-            if self.newer(dest, f):
-                self.info('\tCompiling translations for', locale)
-                subprocess.check_call(['msgfmt', '-o', dest, f])
+            self.info('\tCompiling translations for', locale)
+            subprocess.check_call(['msgfmt', '-o', dest, f])
             if locale in ('en_GB', 'nds', 'te', 'yi'):
                 continue
             pycountry = self.j(sysconfig.get_python_lib(), 'pycountry',
@@ -123,6 +152,16 @@ class Translations(POT):
                 shutil.copy2(f, dest)
 
         self.write_stats()
+        self.freeze_locales()
+
+    def freeze_locales(self):
+        zf = self.DEST + '.zip'
+        from calibre import CurrentDir
+        from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED
+        with ZipFile(zf, 'w', ZIP_DEFLATED) as zf:
+            with CurrentDir(self.DEST):
+                zf.add_dir('.')
+        shutil.rmtree(self.DEST)
 
     @property
     def stats(self):

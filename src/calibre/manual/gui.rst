@@ -74,10 +74,7 @@ Edit metadata
     1. **Edit metadata individually**: This allows you to edit the metadata of books one-by-one, with the option of fetching metadata, including covers from the internet. It also allows you to add/remove particular ebook formats from a book. 
     2. **Edit metadata in bulk**: This allows you to edit common metadata fields for large numbers of books simulataneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     3. **Download metadata and covers**: Downloads metadata and covers (if available), for the books that are selected in the book list.
-    4. **Download only metadata**: Downloads only metadata (if available), for the books that are selected in the book list.
-    5. **Download only covers**: Downloads only covers (if available), for the books that are selected in the book list.
-    6. **Download only social metadata**: Downloads only social metadata such as tags and reviews (if available), for the books that are selected in the book list.
-    7. **Merge Book Records**: Gives you the capability of merging the metadata and formats of two or more book records together. You can choose to either delete or keep the records that were not clicked first.
+    4. **Merge Book Records**: Gives you the capability of merging the metadata and formats of two or more book records together. You can choose to either delete or keep the records that were not clicked first.
 
 For more details see :ref:`metadata`.
 
@@ -167,13 +164,18 @@ Library
 .. |lii| image:: images/library.png
     :class: float-right-img
 
-|lii| The :guilabel: `Library` action allows you to create, switch between, rename or delete a Library.  |app| allows you to create as many libraries as you wish. You could for instance create a fiction library, a non fiction library, a foreign language library a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
+|lii| The :guilabel:`Library` action allows you to create, switch between, rename or remove a Library.  |app| allows you to create as many libraries as you wish. You could for instance create a fiction library, a non fiction library, a foreign language library, a project library, basically any structure that suits your needs. Libraries are the highest organizational structure within |app|, each library has its own set of books, tags, categories and base storage location.
 
-    1. **Switch\Create library..**: This action allows you to; a) connect to a pre-existing |app| library at another location from your currently open library, b) Create and empty library at a nw location or, c) Move the current Library to a newly specified location.
-    2. **Quick Switch>**: This action allows you to switch between libraries that have been registered or created within |app|.
-    3. **Rename Library>**: This action allows you to rename a Library.
-    4. **Delete Library>**: This action allows you to **permanenetly delete** a Library.
-    5. **<calibre library>**: Actions 5, 6 etc .. give you immediate switch access between multiple Libraries that you have created or attached to.
+    1. **Switch/Create library**: This action allows you to; a) connect to a pre-existing |app| library at another location from your currently open library, b) Create and empty library at a new location or, c) Move the current Library to a newly specified location.
+    2. **Quick Switch**: This action allows you to switch between libraries that have been registered or created within |app|.
+    3. **Rename Library**: This action allows you to rename a Library.
+    4. **Remove Library**: This action allows you to unregister a library from |app|.
+    5. **<library name>**: Actions 5, 6 etc .. give you immediate switch access between multiple Libraries that you have created or attached to. This list contains only the 5 most frequently used libraries. For the complete list, use the Quick Switch menu.
+    6. **Library Maintenance**: This action allows you to check the current library for data consistency issues and restore the current libraries' database from backups.
+
+.. note:: Metadata about your ebooks like title/author/tags/etc. is stored in a single file in your |app| library folder called metadata.db. If this file gets corrupted (a very rare event), you can lose the metadata. Fortunately, |app| automatically backs up the metadata for every individual book in the book's folder as an .opf file. By using the Restore Library action under Library Maintenance described above, you can have |app| rebuild the metadata.db file from the individual .opf files for you. 
+
+You can copy or move books between different libraries (once you have more than one library setup) by right clicking on the book and selecting the action :guilabel:`Copy to library`.
 
 .. _device:
 
@@ -268,6 +270,7 @@ Preferences
 .. |cbi| image:: images/preferences.png
 
 The Preferences Action allows you to change the way various aspects of |app| work. To access it, click the |cbi|.
+You can also re-run the Welcome Wizard by clicking the arrow next to the preferences button.
 
 .. _catalogs:
 
@@ -329,8 +332,9 @@ Two other kinds of searches are available: equality search and search using regu
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
 ``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are
 indicated by prefixing the search string with a tilde (~). Any python-compatible regular expression can
-be used. Regular expression searches are contains searches unless the expression contains anchors.
-Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash.
+be used. Note that backslashes use to escape special characters in reqular expressions must be doubled, because single backslashes will be removed during query parsing. For example, to match a literal parenthesis, you must enter ``\\(``. Regular expression searches are contains searches unless the expression contains anchors. 
+
+Should you need to search for a string with a leading equals or tilde, prefix the string with a backslash. 
 
 Enclose search strings with quotes (") if the string contains parenthesis or spaces. For example, to search
 for the tag ``Science Fiction``, you would need to search for ``tag:"=science fiction"``. If you search for

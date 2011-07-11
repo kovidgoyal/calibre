@@ -37,7 +37,6 @@ series_index_auto_increment = 'next'
 # Can be either True or False
 authors_completer_append_separator = False
 
-
 #: Author sort name algorithm
 # The algorithm used to copy author to author_sort
 # Possible values are:
@@ -71,6 +70,15 @@ author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
 #   categories_use_field_for_author_name = 'author_sort'
 categories_use_field_for_author_name = 'author'
 
+#: Completion sort order: choose when to change from lexicographic to ASCII-like
+# Calibre normally uses locale-dependent lexicographic ordering when showing
+# completion values. This means that the sort order is correct for the user's
+# language. However, this can be slow. Performance is improved by switching to
+# ascii ordering. This tweak controls when that switch happens. Set it to zero
+# to always use ascii ordering. Set it to something larger than zero to switch
+# to ascii ordering for performance reasons.
+completion_change_to_ascii_sorting = 2500
+
 #: Control partitioning of Tag Browser
 # When partitioning the tags browser, the format of the subcategory label is
 # controlled by a template: categories_collapsed_name_template if sorting by
@@ -92,7 +100,6 @@ categories_use_field_for_author_name = 'author'
 categories_collapsed_name_template = r'{first.sort:shorten(4,,0)} - {last.sort:shorten(4,,0)}'
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
-
 
 #: Specify columns to sort the booklist by on startup
 # Provide a set of columns to be sorted on when calibre starts
@@ -244,16 +251,13 @@ sony_collection_name_template='{value}{category:| (|)}'
 # Default: empty (no rules), so no collection attributes are named.
 sony_collection_sorting_rules = []
 
-
 #: Control how tags are applied when copying books to another library
 # Set this to True to ensure that tags in 'Tags to add when adding
 # a book' are added when copying books to another library
 add_new_book_tags_when_importing_books = False
 
-
 #: Set the maximum number of tags to show per book in the content server
 max_content_server_tags_shown=5
-
 
 #: Set custom metadata fields that the content server will or will not display.
 # content_server_will_display is a list of custom fields to be displayed.
@@ -288,14 +292,17 @@ maximum_resort_levels = 5
 generate_cover_title_font = None
 generate_cover_foot_font = None
 
-#: Control behavior of double clicks on the book list
-# Behavior of doubleclick on the books list. Choices: open_viewer, do_nothing,
+#: Control behavior of the book list
+# You can control the behavior of doubleclicks on the books list.
+# Choices: open_viewer, do_nothing,
 # edit_cell, edit_metadata. Selecting edit_metadata has the side effect of
 # disabling editing a field using a single click.
 # Default: open_viewer.
 # Example: doubleclick_on_library_view = 'do_nothing'
+# You can also control whether the book list scrolls horizontal per column or
+# per pixel. Default is per column.
 doubleclick_on_library_view = 'open_viewer'
-
+horizontal_scrolling_per_column = True
 
 #: Language to use when sorting.
 # Setting this tweak will force sorting to use the

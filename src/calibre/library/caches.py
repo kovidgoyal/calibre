@@ -145,7 +145,7 @@ def _match(query, value, matchkind):
                             return True
                 elif query == t:
                     return True
-            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I)) or ### search unanchored
+            elif ((matchkind == REGEXP_MATCH and re.search(query, t, re.I|re.UNICODE)) or ### search unanchored
                   (matchkind == CONTAINS_MATCH and query in t)):
                     return True
         except re.error:
@@ -509,7 +509,8 @@ class ResultCache(SearchQueryParser): # {{{
             valq_mkind, valq = self._matchkind(query)
 
         loc = self.field_metadata[location]['rec_index']
-        split_char = self.field_metadata[location]['is_multiple']
+        split_char = self.field_metadata[location]['is_multiple'].get(
+                'cache_to_list', ',')
         for id_ in candidates:
             item = self._data[id_]
             if item is None:
@@ -665,7 +666,8 @@ class ResultCache(SearchQueryParser): # {{{
                 if fm['is_multiple'] and \
                         len(query) > 1 and query.startswith('#') and \
                         query[1:1] in '=<>!':
-                    vf = lambda item, loc=fm['rec_index'], ms=fm['is_multiple']:\
+                    vf = lambda item, loc=fm['rec_index'], \
+                                ms=fm['is_multiple']['cache_to_list']:\
                             len(item[loc].split(ms)) if item[loc] is not None else 0
                     return self.get_numeric_matches(location, query[1:],
                                                     candidates, val_func=vf)
@@ -703,7 +705,8 @@ class ResultCache(SearchQueryParser): # {{{
                             ['composite', 'text', 'comments', 'series', 'enumeration']:
                         exclude_fields.append(db_col[x])
                     col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
-                    is_multiple_cols[db_col[x]] = self.field_metadata[x]['is_multiple']
+                    is_multiple_cols[db_col[x]] = \
+                        self.field_metadata[x]['is_multiple'].get('cache_to_list', None)
 
             try:
                 rating_query = int(query) * 2
@@ -1021,7 +1024,15 @@ class SortKeyGenerator(object):
                     dt = 'datetime'
                 elif sb == 'number':
                     try:
-                        val = float(val)
+                        val = val.replace(',', '').strip()
+                        p = 1
+                        for i, candidate in enumerate(
+                                    (' B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
+                            if val.endswith(candidate):
+                                p = 1024**(i)
+                                val = val[:-len(candidate)].strip()
+                                break
+                        val = float(val) * p
                     except:
                         val = 0.0
                     dt = 'float'
@@ -1045,13 +1056,14 @@ class SortKeyGenerator(object):
 
             elif dt in ('text', 'comments', 'composite', 'enumeration'):
                 if val:
-                    sep = fm['is_multiple']
-                    if sep:
-                        if fm['display'].get('is_names', False):
-                            val = sep.join(
-                                [author_to_author_sort(v) for v in val.split(sep)])
+                    if fm['is_multiple']:
+                        jv = fm['is_multiple']['list_to_ui']
+                        sv = fm['is_multiple']['cache_to_list']
+                        if '&' in jv:
+                            val = jv.join(
+                                [author_to_author_sort(v) for v in val.split(sv)])
                         else:
-                            val = sep.join(sorted(val.split(sep),
+                            val = jv.join(sorted(val.split(sv),
                                               key=self.string_sort_key))
                 val = self.string_sort_key(val)
 

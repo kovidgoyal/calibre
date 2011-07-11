@@ -21,9 +21,9 @@ USAGE='%%prog ebook_file [' + _('options') + ']\n' + \
 _('''
 Read/Write metadata from/to ebook files.
 
-Supported formats for reading metadata: %s
+Supported formats for reading metadata: %(read)s
 
-Supported formats for writing metadata: %s
+Supported formats for writing metadata: %(write)s
 
 Different file types support different kinds of metadata. If you try to set
 some metadata on a file type that does not support it, the metadata will be
@@ -99,7 +99,7 @@ def option_parser():
     for w in metadata_writers():
         writers = writers.union(set(w.file_types))
     ft, w = ', '.join(sorted(filetypes())), ', '.join(sorted(writers))
-    return config().option_parser(USAGE%(ft, w))
+    return config().option_parser(USAGE%dict(read=ft, write=w))
 
 def do_set_metadata(opts, mi, stream, stream_type):
     mi = MetaInformation(mi)

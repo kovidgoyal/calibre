@@ -1,0 +1,13 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1301972345(BasicNewsRecipe):
+    title          = u'Catholic News Agency'
+    language = 'en'
+    __author__ = 'Jetkey'
+    oldest_article = 5
+    max_articles_per_feed = 20
+
+    feeds          = [(u'U.S. News', u'http://feeds.feedburner.com/catholicnewsagency/dailynews-us'),
+		(u'Vatican', u'http://feeds.feedburner.com/catholicnewsagency/dailynews-vatican'),
+		(u'Bishops Corner', u'http://feeds.feedburner.com/catholicnewsagency/columns/bishopscorner'),
+		(u'Saint of the Day', u'http://feeds.feedburner.com/catholicnewsagency/saintoftheday')]

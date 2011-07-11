@@ -59,6 +59,8 @@ class CompositeProgressReporter(object):
                 (self.global_max - self.global_min)
         self.global_reporter(global_frac, msg)
 
+ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
+
 class Plumber(object):
     '''
     The `Plumber` manages the conversion pipeline. An UI should call the methods
@@ -261,6 +263,14 @@ OptionRecommendation(name='toc_filter',
             'match the specified regular expression. Matching entries and all '
             'their children are removed.'
                 )
+        ),
+
+OptionRecommendation(name='duplicate_links_in_toc',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('When creating a TOC from links in the input document, '
+                'allow duplicate entries, i.e. allow more than one entry '
+                'with the same text, provided that they point to a '
+                'different location.')
         ),
 
 
@@ -594,7 +604,7 @@ OptionRecommendation(name='sr3_replace',
             raise ValueError('Input file must have an extension')
         input_fmt = input_fmt[1:].lower()
         self.archive_input_tdir = None
-        if input_fmt in ('zip', 'rar', 'oebzip'):
+        if input_fmt in ARCHIVE_FMTS:
             self.log('Processing archive...')
             tdir = PersistentTemporaryDirectory('_plumber_archive')
             self.input, input_fmt = self.unarchive(self.input, tdir)
