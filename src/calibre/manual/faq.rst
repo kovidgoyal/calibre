@@ -408,8 +408,9 @@ How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. If the computer you are transferring to already has a calibre installation, then the Welcome wizard wont run. In that case, click the calibre icon in the tooolbar and point it to the newly copied directory. You will now have two calibre libraries on your computer and you can switch between them by clicking the calibre icon on the toolbar.
 
-Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also go to :guilabel:`Preferences->Advanced->Miscellaneous` and click the "Check database integrity button". It will warn you about missing files, if any, which you should then transfer by hand.
+Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also click the arrow next to the calibre icon on the tool bar, select Library Maintenance and run the Check Library action. It will warn you about any problems in your library, which you should fix by hand.
 
+.. note:: A |app| library is just a folder which contains all the book files and their metadata. All the emtadata is stored in a single file called metadata.db, in the top level folder. If this file gets corrupted, you may see an empty list of books in |app|. In this case you can ask |app| to restore your books by clicking the arrow next to the |app| icon on the toolbar and selecting Library Maintenance->Restore Library.
 
 Content From The Web
 ---------------------
