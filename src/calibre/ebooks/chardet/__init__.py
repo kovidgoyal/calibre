@@ -38,8 +38,12 @@ ENCODING_PATS = [
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
 def strip_encoding_declarations(raw):
+    limit = 50*1024
     for pat in ENCODING_PATS:
-        raw = pat.sub('', raw)
+        prefix = raw[:limit]
+        suffix = raw[limit:]
+        prefix = pat.sub('', prefix)
+        raw = prefix + suffix
     return raw
 
 def substitute_entites(raw):
