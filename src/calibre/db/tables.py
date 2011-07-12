@@ -17,6 +17,8 @@ from calibre.ebooks.metadata import author_to_author_sort
 
 _c_speedup = plugins['speedup'][0]
 
+ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
+
 def _c_convert_timestamp(val):
     if not val:
         return None
@@ -57,6 +59,8 @@ class OneToOneTable(Table):
     timestamp, size, etc.
     '''
 
+    table_type = ONE_ONE
+
     def read(self, db):
         self.book_col_map = {}
         idcol = 'id' if self.metadata['table'] == 'books' else 'book'
@@ -82,9 +86,10 @@ class ManyToOneTable(Table):
     Each book however has only one value for data of this type.
     '''
 
+    table_type = MANY_ONE
+
     def read(self, db):
         self.id_map = {}
-        self.extra_map = {}
         self.col_book_map = {}
         self.book_col_map = {}
         self.read_id_maps(db)
@@ -105,6 +110,9 @@ class ManyToOneTable(Table):
             self.col_book_map[row[1]].append(row[0])
             self.book_col_map[row[0]] = row[1]
 
+        for key, val in self.col_book_map:
+            self.col_book_map[key] = tuple(val)
+
 class ManyToManyTable(ManyToOneTable):
 
     '''
@@ -112,6 +120,8 @@ class ManyToManyTable(ManyToOneTable):
     can have more than one value and each value can be mapped to more than one
     book. For example: tags or authors.
     '''
+
+    table_type = MANY_MANY
 
     def read_maps(self, db):
         for row in db.conn.execute(
@@ -123,6 +133,12 @@ class ManyToManyTable(ManyToOneTable):
             if row[0] not in self.book_col_map:
                 self.book_col_map[row[0]] = []
             self.book_col_map[row[0]].append(row[1])
+
+        for key, val in self.col_book_map:
+            self.col_book_map[key] = tuple(val)
+
+        for key, val in self.book_col_map:
+            self.book_col_map[key] = tuple(val)
 
 class AuthorsTable(ManyToManyTable):
 
@@ -150,6 +166,12 @@ class FormatsTable(ManyToManyTable):
                     self.book_col_map[row[0]] = []
                 self.book_col_map[row[0]].append((row[1], row[2]))
 
+        for key, val in self.col_book_map:
+            self.col_book_map[key] = tuple(val)
+
+        for key, val in self.book_col_map:
+            self.book_col_map[key] = tuple(val)
+
 class IdentifiersTable(ManyToManyTable):
 
     def read_id_maps(self, db):
@@ -164,4 +186,10 @@ class IdentifiersTable(ManyToManyTable):
                 if row[0] not in self.book_col_map:
                     self.book_col_map[row[0]] = []
                 self.book_col_map[row[0]].append((row[1], row[2]))
+
+        for key, val in self.col_book_map:
+            self.col_book_map[key] = tuple(val)
+
+        for key, val in self.book_col_map:
+            self.book_col_map[key] = tuple(val)
 

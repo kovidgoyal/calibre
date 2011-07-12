@@ -478,7 +478,6 @@ class DB(object):
                 remove.append(data)
                 continue
 
-            self.custom_column_label_map[data['label']] = data['num']
             self.custom_column_num_map[data['num']] = \
                 self.custom_column_label_map[data['label']] = data
 
@@ -613,10 +612,31 @@ class DB(object):
 
         tables['size'] = SizeTable('size', self.field_metadata['size'].copy())
 
-        for label, data in self.custom_column_label_map.iteritems():
-            label = '#' + label
+        self.FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'timestamp':3,
+             'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
+             'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
+             'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
+             'au_map':18, 'last_modified':19, 'identifiers':20}
+
+        for k,v in self.FIELD_MAP.iteritems():
+            self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
+
+        base = max(self.FIELD_MAP.itervalues())
+
+        for label_, data in self.custom_column_label_map.iteritems():
+            label = '#' + label_
             metadata = self.field_metadata[label].copy()
             link_table = self.custom_table_names(data['num'])[1]
+            self.FIELD_MAP[data['num']] = base = base+1
+            self.field_metadata.set_field_record_index(label_, base,
+                    prefer_custom=True)
+            if data['datatype'] == 'series':
+                # account for the series index column. Field_metadata knows that
+                # the series index is one larger than the series. If you change
+                # it here, be sure to change it there as well.
+                self.FIELD_MAP[str(data['num'])+'_index'] = base = base+1
+                self.field_metadata.set_field_record_index(label_+'_index', base,
+                            prefer_custom=True)
 
             if data['normalized']:
                 if metadata['is_multiple']:
@@ -634,6 +654,12 @@ class DB(object):
                         tables[label] = OneToOneTable(label, metadata)
             else:
                 tables[label] = OneToOneTable(label, metadata)
+
+        self.FIELD_MAP['ondevice'] = base = base+1
+        self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
+        self.FIELD_MAP['marked'] = base = base+1
+        self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
+
     # }}}
 
     @property
