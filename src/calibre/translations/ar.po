@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-10 19:31+0000\n"
-"PO-Revision-Date: 2011-06-17 17:00+0000\n"
-"Last-Translator: Hsn <hh.alshawaf@gmail.com>\n"
+"PO-Revision-Date: 2011-07-11 08:21+0000\n"
+"Last-Translator: Nader stouhy <Unknown>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2011-07-11 04:32+0000\n"
+"X-Launchpad-Export-Date: 2011-07-12 04:33+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:121
@@ -272,7 +272,7 @@ msgstr "كاتب دليل المعلومات"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr ""
+msgstr "كتالوج المولدات"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
@@ -313,6 +313,8 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"أنشئ أرشيف TXTZ عند إستيراد ملف TXT يحتوي على إشارات Markdown أو Textile "
+"لصور. الصور المشار إليها ستُضم إلى الأرشيف كما هو الحال مع ملف الـ TXT."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
@@ -370,113 +372,117 @@ msgstr "ضبط دليل المعلومات من ملفات %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:725
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "إضافة إلى الكتب العيار أو الجهاز متصلا"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:730
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "حفر شروحه من كيندل متصلة (التجريبية)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "إنشاء فهرس الكتب في مكتبة العيار الخاص"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "تحويل الكتب إلى مختلف الأشكال يبوك"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "حذف الكتب من مكتبة العيار أو جهاز اتصال"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "تحرير البيانات الوصفية من الكتب في المكتبة العيار الخاص"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "قراءة الكتب في المكتبة العيار الخاص"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "تحميل الأخبار من شبكة الانترنت في شكل يبوك"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "عرض قائمة من الكتب ذات الصلة بسرعة"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "تصدير الكتب من مكتبة العيار الخاص بك إلى القرص الثابت"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "إظهار التفاصيل في كتاب منفصل منبثقة"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Restart calibre"
-msgstr ""
+msgstr "إعادة تشغيل calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "افتح المجلد الذي يحتوي على ملفات الكتاب في مكتبة العيار الخاص"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "إرسال الكتب إلى الجهاز متصلا"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"إرسال الكتب عبر البريد الإلكتروني أو شبكة الإنترنت أيضا ربط لايتون أو "
+"المجلدات الموجودة على جهاز الكمبيوتر الخاص بك كما لو أنها هي الأجهزة"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "تصفح دليل المستخدم العيار"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Customize calibre"
-msgstr ""
+msgstr "تخصيص العيار"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "العثور بسهولة على كتب مماثلة لتلك المحددة حاليا"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "التبديل بين المكتبات عيارات مختلفة وإجراء الصيانة عليها"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "كتب نسخة من الجهاز إلى مكتبة العيار الخاص"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "تحرير المجموعات في الكتب التي يتم وضعها على جهازك"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "نسخ الكتاب من مكتبة عيار واحد إلى آخر"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "جعل القرص صغيرة لEPUB الملفات في مكتبة العيار الخاص"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"العثور على المباراة القادمة أو السابقة عند البحث في مكتبة الخاص في وضع "
+"العيار الضوء"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "بحث عن الكتب من باعة الكتب المختلفة"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "الحصول على الإضافات عيار جديدة أو تحديث القائم منها الخاص"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Look and Feel"
@@ -520,6 +526,7 @@ msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
+"تخصيص أشرطة الأدوات والقوائم السياق، وتغيير الإجراءات التي تتوفر في كل"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:931
 msgid "Searching"
@@ -541,7 +548,7 @@ msgstr "تحويل"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:948
 msgid "Set conversion options specific to each input format"
-msgstr ""
+msgstr "خيارات التحويل مجموعة محددة لكل تنسيق مدخلات"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:953
 msgid "Common Options"
@@ -549,15 +556,15 @@ msgstr "خيارات متداولة"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:959
 msgid "Set conversion options common to all formats"
-msgstr ""
+msgstr "تعيين خيارات التحويل مشتركة لجميع الأشكال"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:964
 msgid "Output Options"
-msgstr ""
+msgstr "خيارات الإخراج"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:970
 msgid "Set conversion options specific to each output format"
-msgstr ""
+msgstr "خيارات التحويل مجموعة محددة لكل تنسيق الإخراج"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:975
 msgid "Adding books"
@@ -573,6 +580,7 @@ msgstr "إستيراد/تصدير"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:981
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
+"التحكم في كيفية قراءة البيانات الوصفية من العيار عند إضافة ملفات الكتب"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:987
 msgid "Saving books to disk"
@@ -583,6 +591,8 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
+"التحكم في كيفية تصدير الملفات من العيار قاعدة البيانات الخاصة به على القرص "
+"عند استخدام حفظ إلى القرص"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:999
 msgid "Sending books to devices"
@@ -591,18 +601,19 @@ msgstr "ارسال الكتب الى الاجهزة"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1005
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr ""
+"التحكم في كيفية نقل الملفات من العيار للقارئ الكتاب الاليكتروني الخاص"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1011
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "لوحات التعريف قابس"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1017
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "تغيير حقول البيانات الوصفية قبل حفظ / إرسال"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1022
 msgid "Template Functions"
-msgstr ""
+msgstr "وظائف"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1024
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1071
@@ -613,7 +624,7 @@ msgstr "متقدّم"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1028
 msgid "Create your own template functions"
-msgstr ""
+msgstr "خلق وظائف القالب الخاص بك"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1033
 msgid "Sharing books by email"
@@ -630,6 +641,8 @@ msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
+"تقاسم الإعداد من الكتب عبر البريد الإلكتروني. يمكن استخدامها لارسال التلقائي "
+"للانباء تحميلها إلى الأجهزة الخاصة بك"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1045
 msgid "Sharing over the net"
@@ -640,6 +653,8 @@ msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"إعداد خادم المحتوى العيار التي سوف اعطيكم الوصول الى المكتبة من العيار الخاص "
+"بك من أي مكان ، وعلى أي جهاز، من خلال الإنترنت"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1058
 msgid "Metadata download"
@@ -656,15 +671,15 @@ msgstr "الملحقات"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1075
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr ""
+msgstr "إضافة / إزالة / بت تخصيص وظائف مختلفة من العيار"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1081
 msgid "Tweaks"
-msgstr ""
+msgstr "تطويعات"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1087
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "صقل كيف يتصرف العيار في سياقات مختلفة"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1092
 msgid "Miscellaneous"
@@ -672,7 +687,7 @@ msgstr "متفرقات"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1098
 msgid "Miscellaneous advanced configuration"
-msgstr ""
+msgstr "المتقدمة التكوين المتنوعة"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -783,7 +798,7 @@ msgstr "ملف التعريف هذا يستخدم مع IRex Digital Reader 1000 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:198
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:687
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "يهدف هذا الملف للقارئ الرقمية آيركس 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:210
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:701
@@ -806,21 +821,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr ""
+msgstr "المقصود لأجهزة مماثلة وباد مع قرار من  768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
 msgid "Intended for generic tablet devices, does no resizing of images"
-msgstr ""
+msgstr "المقصود لأجهزة الكمبيوتر اللوحي عامة ، لا يوجد تغيير حجم الصور"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:446
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"المقصود لغالاكسي سامسونج وأجهزة الكمبيوتر اللوحي مماثلة مع قرار من 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:472
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "نسخ النص ويهدف هذا الملف للقارئ كوبو."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:485
 msgid "This profile is intended for the SONY PRS-300."
@@ -828,11 +844,11 @@ msgstr "ملف التعريف هذا يستخدم مع سوني PRS-300 ."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "مناسبة للاستخدام مع أي جهاز إلكتروني للحبر"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:510
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "مناسبة للاستخدام مع أي جهاز للحبر مع شاشه كبيره"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "This profile is intended for the 5-inch JetBook."
@@ -852,11 +868,11 @@ msgstr "ملف التعريف هذا يستخدم مع Amazon Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:713
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "ويهدف هذا الملف للون الزواية B & N."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:724
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "ويهدف هذا الملف لBambook ساندا."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -934,7 +950,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
-msgstr ""
+msgstr "تصحيح السجل"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -945,6 +961,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
+"مفصولة بفواصل قائمة الدلائل إلى إرسال البريد إلى الكتب على الجهاز. وسيتم "
+"استخدام أول واحد موجود"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:162
 msgid "Communicate with S60 phones."
@@ -961,26 +979,34 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>إذا كنت لا تريد أن تعترف العيار الخاص أبل iDevice عندما يتم توصيله إلى "
+"جهاز الكمبيوتر الخاص بك ، انقر فوق تعطيل برنامج تشغيل أبل <B></ B>. <P></ P> "
+"لنقل الكتب إلى iDevice الخاص بك ، انقر فوق <ب> برنامج تشغيل أبل تعطيل </ ب> "
+"، ثم استخدم \"الاتصال لايتون\" الأسلوب الموصى به في <aالعيار "
+"href=\"http://www.mobileread.com/forums/showthread.php؟t=118559\"> + "
+"iDevices التعليمات </ a> ، وباستخدام <em>الاتصال / مشاركة </ EM> |. "
+"<em>الاتصال لايتون </ EM> عنصر القائمة <P></ P> تمكين السائق ابل للاتصال "
+"مباشر هو iDevices an معتمد وضع المستخدم المتقدمة. </ P> </ P>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:64
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "تعطيل برنامج تشغيل أبل"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:68
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "تمكن سائق أبل"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "استخدام السلسلة والفئة في اي تيونز / iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "استخدام السلسلة والفئة في اي تيونز / iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "مخبأ يغطي من اي تيونز / iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:123
 msgid "Enable to cache and display covers from iTunes/iBooks"
@@ -18089,7 +18115,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:332
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "زالة خطوط صفراء زاهية عند حواف قائمة الكتب"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:333
 msgid ""
@@ -18097,10 +18123,13 @@ msgid ""
 "when a section of the user interface is hidden. Changes will take effect\n"
 "after a restart of calibre."
 msgstr ""
+"مراقبة ما إذا كان يتم رسم خطوط صفراء زاهية عند حواف قائمة الكتب\n"
+"عندما يتم إخفاء جزء من واجهة المستخدم. سوف التغييرات نافذة المفعول\n"
+"بعد إعادة تشغيل العيار."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:338
 msgid "The maximum width and height for covers saved in the calibre library"
-msgstr ""
+msgstr "العرض والارتفاع الأقصى ليغطي المحفوظة في مكتبة العيار"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:339
 msgid ""
@@ -18108,10 +18137,13 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
+"وسيتم تغيير حجم يغطي جميع في مكتبة العيار، والحفاظ على نسبة الجانب ،\n"
+"لتتناسب مع هذا الحجم. وهذا لمنع التباطؤ التي تسببها للغاية\n"
+"كبير يغطي"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:344
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "مكان لإرسال الأخبار التحميل"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:345
 msgid ""
@@ -18122,10 +18154,16 @@ msgid ""
 "that if there isn't enough free space available on the location you choose,\n"
 "the files will be sent to the location with the most free space."
 msgstr ""
+"عند إرسال الأخبار تلقائيا تحميلها على جهاز متصل، والعيار\n"
+"يتم افتراضيا إرسالها إلى الذاكرة الرئيسية. هذا عن طريق تغيير قرص، يمكنك\n"
+"التحكم حيث يتم إرسالها. القيم الصالحة هي \"الرئيسية\" ، \"كاردا\" ، "
+"\"cardb\". لاحظ\n"
+"أنه إذا لم تكن هناك مساحة حرة كافية متوفرة على الموقع الذي تختاره ،\n"
+"سيتم إرسال الملفات إلى الموقع مع معظم مساحة حرة."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:352
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "فماذا اجهات خادم المحتوى الاستماع على"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:353
 msgid ""
@@ -18137,10 +18175,16 @@ msgid ""
 "to '::' to listen to all incoming IPv6 and IPv4 connections (this may not\n"
 "work on all operating systems)"
 msgstr ""
+"افتراضيا ، خادم المحتوى العيار يستمع '0.0.0.0' وهو ما يعني أنه\n"
+"عناوين IPv4 يقبل الاتصالات على جميع الواجهات. يمكنك تغيير هذا، على سبيل\n"
+"سبيل المثال ، '127.0.0.1' للاستماع فقط لاتصالات من الجهاز المحلي، أو\n"
+"إلى ':' للاستماع إلى جميع عناوين IPv4 الإصدار IPv6 واردة والاتصالات (وهذا لا "
+"يجوز\n"
+"عمل على كافة أنظمة التشغيل)"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:360
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "شريط أدوات موحدة على OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:361
 msgid ""
@@ -18153,6 +18197,12 @@ msgid ""
 "it\n"
 "on at your own risk!"
 msgstr ""
+"إذا قمت بتمكين هذا الخيار وإعادة العيار ، وسوف يكون شريط الأدوات 'موحد'\n"
+"مع titlebar كما هو المعتاد لتطبيقات OS X. ومع ذلك ، لم تفعل هذا\n"
+"البق مختلفة ، على سبيل المثال عرض الحد الأدنى من شريط الأدوات يصبح مرتين\n"
+"ما ينبغي أن تكون ، وأنه يسبب الخلل عشوائية على بعض الأنظمة الأخرى، بحيث "
+"تتحول\n"
+"على مسؤوليتك!"
 
 #~ msgid "A summary of this book."
 #~ msgstr "تلخيص عن هذا الكتاب."

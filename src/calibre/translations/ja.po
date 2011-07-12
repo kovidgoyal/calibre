@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-10 19:31+0000\n"
-"PO-Revision-Date: 2011-07-10 19:40+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-07-11 17:02+0000\n"
+"Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-11 04:39+0000\n"
+"X-Launchpad-Export-Date: 2011-07-12 04:34+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -986,7 +986,7 @@ msgstr "デバイスの書誌情報リストを更新..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3155
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d / %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1130
@@ -1483,6 +1483,8 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+". ２つの特別なコレクションがあります: %(abt)s:%(abtv)s と "
+"%(aba)s:%(abav)sです。これらの値をリストに入れると有効になります。コレクションには「:」の後に与えられる文字によって名前が与えられます。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -1941,6 +1943,8 @@ msgid ""
 "default. Use %(en)s to enable.  Individual actions can be disabled with the "
 "%(dis)s options."
 msgstr ""
+"共通のパターンを使ってドキュメントのテキストと構造を変更します。ディフォールトでは無効になっています。 "
+"%(en)sを使って有効にします。個々のアクションは%(dis)s オプションを使って向こうにすることができます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:154
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:18
@@ -2491,7 +2495,7 @@ msgstr "作成"
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
 msgid "Failed to parse: %(name)s with error: %(err)s"
-msgstr ""
+msgstr "パースに失敗: %(name)s with error: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:27
 msgid "ePub Fixer"
@@ -2796,7 +2800,7 @@ msgstr "%s は空のファイルです"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:565
 #, python-format
 msgid "Failed to parse link %(tag)s %(children)s"
-msgstr ""
+msgstr "リンクのパースに失敗： %(tag)s %(children)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:610
 #, python-format
@@ -2806,7 +2810,7 @@ msgstr "%sを表紙にリンクできません"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:960
 #, python-format
 msgid "Unable to process image %(path)s. Error: %(err)s"
-msgstr ""
+msgstr "画像の処理ができません： %(path)s. エラー: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1006
 #, python-format
@@ -3128,8 +3132,7 @@ msgstr "タグ"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:124
 msgid "Series"
 msgid_plural "Series"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "シリーズ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:746
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
@@ -3170,6 +3173,15 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"書誌情報をEBookファイルから読み書きする。\n"
+"\n"
+"書誌情報を読めるフォーマット: %(read)s\n"
+"\n"
+"書誌情報を書けるフォーマット: %(write)s\n"
+"\n"
+"違うファイルタイプは違う種類の書誌情報をサポートします。もし、そのファイルタイプがサポートしない書誌情報を設定しようとすると、書誌情報は単純に無視されます"
+"。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
@@ -3490,7 +3502,7 @@ msgstr "%s　フォーマットは対応してません"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:881
 #, python-format
 msgid "Book %(sidx)s of %(series)s"
-msgstr ""
+msgstr "%(series)s の %(sidx)s 書籍"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
@@ -3509,7 +3521,7 @@ msgstr "評価"
 msgid ""
 "Could not find reasonable point at which to split: %(path)s Sub-tree size: "
 "%(size)d KB"
-msgstr ""
+msgstr "分割するのにちょうど良い場所が見つかりませんでした: %(path)s サブ・ツリーサイズ: %(size)d KB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
@@ -4397,27 +4409,27 @@ msgstr "ユーザーの注釈をデーターベースへマージする"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:123
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />読了最終ページ: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:129
 #, python-format
 msgid "%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />読了最終ページ: 場所 %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:148
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
-msgstr ""
+msgstr "<b>場所: %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 #, python-format
 msgid "<b>Page %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>ページ：%(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:162
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>場所：%(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:34
@@ -4444,7 +4456,7 @@ msgstr "カタログ出力ディレクトリ"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:85
 #, python-format
 msgid "Select destination for %(title)s.%(fmt)s"
-msgstr ""
+msgstr "保存先を選択： %(title)s.%(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:57
@@ -4723,7 +4735,7 @@ msgstr "書籍をコピーできません： "
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:164
 #, python-format
 msgid "Copied %(num)d books to %(loc)s"
-msgstr ""
+msgstr "%(num)d 書籍を %(loc)s へコピーしました"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:179
 msgid ""
@@ -5776,7 +5788,7 @@ msgstr "Ids"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:162
 #, python-format
 msgid "Book %(sidx)s of <span class=\"series_name\">%(series)s</span>"
-msgstr ""
+msgstr "<span class=\"series_name\">%(series)s</span>の %(sidx)s 巻"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1020
@@ -5807,7 +5819,7 @@ msgstr "パス名"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #, python-format
 msgid "Cover size: %(width)d x %(height)d"
-msgstr ""
+msgstr "表紙サイズ: %(width)d x %(height)d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -7747,7 +7759,7 @@ msgstr "送るものを選択してください"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:915
 #, python-format
 msgid "%(num)i of %(total)i Books"
-msgstr ""
+msgstr "%(num)i / %(total)i 書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:919
 #, python-format
@@ -9327,7 +9339,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:705
 #, python-format
 msgid "Locating zip file for %(name)s: %(link)s"
-msgstr ""
+msgstr "%(name)s のzipファイルをダウンロード: %(link)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:709
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:746
@@ -9679,7 +9691,7 @@ msgstr "(なし)"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:384
 #, python-format
 msgid "%(days)d days, %(hours)d hours and %(mins)d minutes ago"
-msgstr ""
+msgstr "%(days)d 日, %(hours)d 時間 %(mins)d 分前"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:400
 msgid "Last downloaded:"
@@ -10137,7 +10149,7 @@ msgstr "使用できるタグのリストにタグを追加し、現在の書籍
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:21
 #, python-format
 msgid "%(curr)s (was %(initial)s)"
-msgstr ""
+msgstr "%(curr)s (前は %(initial)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:882
@@ -10325,7 +10337,7 @@ msgstr "レシピが選択されていません"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:146
 #, python-format
 msgid "The attached file: %(fname)s is a recipe to download %(title)s."
-msgstr ""
+msgstr "添付ファイル: %(fname)s は %(title)s をダウンロードするレシピです。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:149
 msgid "Recipe for "
@@ -10527,12 +10539,12 @@ msgstr "%sをダウンロード"
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 #, python-format
 msgid "Downloading <b>%(fname)s</b> from %(url)s"
-msgstr ""
+msgstr "<b>%(fname)s</b> を %(url)s からダウンロード中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:85
 #, python-format
 msgid "Failed to download from %(url)r with error: %(err)s"
-msgstr ""
+msgstr "%(url)r からダウンロードに失敗。エラー: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:41
 msgid "No file specified to download."
@@ -10558,7 +10570,7 @@ msgstr "ebookのダウンロードに失敗"
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:123
 #, python-format
 msgid "Email %(name)s to %(to)s"
-msgstr ""
+msgstr "e-メール %(name)s を %(to)s へ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:142
 msgid "News:"
@@ -11399,7 +11411,7 @@ msgstr "この書籍には表紙がありません。"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:925
 #, python-format
 msgid "Cover size: %(width)d x %(height)d pixels"
-msgstr ""
+msgstr "表紙サイズ: %(width)d x %(height)d ピクセル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:981
 msgid "stars"
@@ -11524,7 +11536,7 @@ msgstr "(失敗した表紙)"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:199
 #, python-format
 msgid "Downloaded %(num)d of %(tot)d"
-msgstr ""
+msgstr "ダウンロード %(num)d / %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:121
@@ -11734,7 +11746,7 @@ msgstr "<b>%s</b>の表紙が見つかりませんでした。"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:729
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-msgstr ""
+msgstr "<b>%(num)d</b> 個の %(title)s の表紙を発見。一番良い物を選んでください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:817
 msgid "Downloading metadata..."
@@ -12122,6 +12134,10 @@ msgid ""
 "            <pre>%(rule)s</pre>\n"
 "            "
 msgstr ""
+"\n"
+"            <p>列の高度なルール <b>%(col)s</b>:\n"
+"            <pre>%(rule)s</pre>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:452
 #, python-format
@@ -12132,6 +12148,9 @@ msgid ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 msgstr ""
+"            <p>以下の状況の時に<b>%(col)s</b> 列の色を <b>%(color)s</b> に設定：</p>\n"
+"            <ul>%(rule)s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:467
 #, python-format
