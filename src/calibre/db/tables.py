@@ -110,8 +110,8 @@ class ManyToOneTable(Table):
             self.col_book_map[row[1]].append(row[0])
             self.book_col_map[row[0]] = row[1]
 
-        for key, val in self.col_book_map:
-            self.col_book_map[key] = tuple(val)
+        for key in tuple(self.col_book_map.iterkeys()):
+            self.col_book_map[key] = tuple(self.col_book_map[key])
 
 class ManyToManyTable(ManyToOneTable):
 
@@ -134,20 +134,21 @@ class ManyToManyTable(ManyToOneTable):
                 self.book_col_map[row[0]] = []
             self.book_col_map[row[0]].append(row[1])
 
-        for key, val in self.col_book_map:
-            self.col_book_map[key] = tuple(val)
+        for key in tuple(self.col_book_map.iterkeys()):
+            self.col_book_map[key] = tuple(self.col_book_map[key])
 
-        for key, val in self.book_col_map:
-            self.book_col_map[key] = tuple(val)
+        for key in tuple(self.book_col_map.iterkeys()):
+            self.book_col_map[key] = tuple(self.book_col_map[key])
 
 class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
         self.alink_map = {}
+        self.sort_map  = {}
         for row in db.conn.execute(
                 'SELECT id, name, sort, link FROM authors'):
             self.id_map[row[0]] = row[1]
-            self.extra_map[row[0]] = (row[2] if row[2] else
+            self.sort_map[row[0]] = (row[2] if row[2] else
                     author_to_author_sort(row[1]))
             self.alink_map[row[0]] = row[3]
 
@@ -166,11 +167,11 @@ class FormatsTable(ManyToManyTable):
                     self.book_col_map[row[0]] = []
                 self.book_col_map[row[0]].append((row[1], row[2]))
 
-        for key, val in self.col_book_map:
-            self.col_book_map[key] = tuple(val)
+        for key in tuple(self.col_book_map.iterkeys()):
+            self.col_book_map[key] = tuple(self.col_book_map[key])
 
-        for key, val in self.book_col_map:
-            self.book_col_map[key] = tuple(val)
+        for key in tuple(self.book_col_map.iterkeys()):
+            self.book_col_map[key] = tuple(self.book_col_map[key])
 
 class IdentifiersTable(ManyToManyTable):
 
@@ -187,9 +188,9 @@ class IdentifiersTable(ManyToManyTable):
                     self.book_col_map[row[0]] = []
                 self.book_col_map[row[0]].append((row[1], row[2]))
 
-        for key, val in self.col_book_map:
-            self.col_book_map[key] = tuple(val)
+        for key in tuple(self.col_book_map.iterkeys()):
+            self.col_book_map[key] = tuple(self.col_book_map[key])
 
-        for key, val in self.book_col_map:
-            self.book_col_map[key] = tuple(val)
+        for key in tuple(self.book_col_map.iterkeys()):
+            self.book_col_map[key] = tuple(self.book_col_map[key])
 

@@ -63,6 +63,9 @@ class OneToOneField(Field):
     def __iter__(self):
         return self.table.book_col_map.iterkeys()
 
+    def iter_book_ids(self):
+        return self.table.book_col_map.iterkeys()
+
 class ManyToOneField(Field):
 
     def for_book(self, book_id, default_value=None):
