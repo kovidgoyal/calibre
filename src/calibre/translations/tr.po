@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-10 19:31+0000\n"
-"PO-Revision-Date: 2011-07-04 19:58+0000\n"
+"PO-Revision-Date: 2011-07-12 09:33+0000\n"
 "Last-Translator: Serdar Peker <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-11 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-07-13 04:35+0000\n"
 "X-Generator: Launchpad (build 13168)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -398,7 +398,7 @@ msgstr "Şu an seçilmiş olana benzer kitapları kolayca bulur"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "Farklı calibre kütüphaneleri arasında geç ve onları bakımdan geçir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Copy books from the devce to your calibre library"
@@ -406,7 +406,7 @@ msgstr "Cihazdan calibre kütüphanenize kitapları kopyala"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Cihazında bulunan kitapları içeren koleksiyonları düzenle"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Copy a book from one calibre library to another"
@@ -428,7 +428,7 @@ msgstr "Farklı kitap satıcılarından kitapları araştır."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Yeni calibre plugin edin ya da mevcut olanı yenile"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Look and Feel"
@@ -1007,7 +1007,7 @@ msgstr "Cihaz metadata listelemesi güncelleniyor."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3155
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(tot)d  'ın    %(num)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1130
@@ -1214,7 +1214,7 @@ msgstr "PocketBook 602/603/902/903 okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "PocketBook 360+ okuyucusu ile bağlantı kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
 msgid "Communicate with the PocketBook 701"
@@ -1274,7 +1274,7 @@ msgstr "The Book okuyucu ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:58
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Libre Air okuyucusu ile bağlantı kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:71
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1447,7 +1447,7 @@ msgstr "EEE Reader ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Adam tableti ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
@@ -1455,11 +1455,11 @@ msgstr "Nextbook Reader ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "Moovybook Reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Nokia 770 internet tableti ile bağlantı kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
@@ -1479,7 +1479,7 @@ msgstr "Nook eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color and TSR eBook readers."
-msgstr ""
+msgstr "Nook Color ve TSR eBook okuyucuları ile bağlantı kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1656,6 +1656,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"%s disk sürücüsü tespit edilemedi. Ya cihaz çıkarıldı ya da çekirdeğiniz "
+"SYSFS'nin onaylanmamış versiyonunu dışa aktarıyor."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:645
 #, python-format
@@ -1915,6 +1917,9 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"İmaj büyüklüğünü en x boy piksel biçiminde belirleyin. Bu seçenek normalde "
+"otomatik şekilde çıktı profilinden hesaplanan  imaj büyüklüğünü yerine bu "
+"değeri girecek."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:325
 msgid ""
@@ -2013,7 +2018,7 @@ msgstr "Dahili reçete listesi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:285
 msgid "Output saved to"
-msgstr ""
+msgstr "Çıktıyı şuraya kaydet"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:105
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
@@ -2456,6 +2461,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:543
 msgid "Unwrap lines using punctuation and other formatting clues."
 msgstr ""
+"Noktalama işaretleri ve diğer biçim işaretlerini kullanırken satırları bölme"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:547
 msgid ""
@@ -2542,11 +2548,11 @@ msgstr "Oluşturuluyor"
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
 msgid "Failed to parse: %(name)s with error: %(err)s"
-msgstr ""
+msgstr "Çözümelemede başarısız : %(name)s ile hata: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:27
 msgid "ePub Fixer"
-msgstr ""
+msgstr "ePub Düzeltici"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
@@ -2573,11 +2579,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
-msgstr ""
+msgstr "Bir epub dosyasıl belirtmelisiniz"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:17
 msgid "Fix unmanifested files"
-msgstr ""
+msgstr "Bildirilmemiş dosyaları düzelt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/unmanifested.py:21
 msgid ""
@@ -2648,7 +2654,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:184
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:206
 msgid "Start"
-msgstr ""
+msgstr "Başla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
@@ -2675,7 +2681,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "Tanımları ile birlikte tam liste için"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
