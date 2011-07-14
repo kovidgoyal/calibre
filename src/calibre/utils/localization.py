@@ -147,6 +147,13 @@ _extra_lang_codes = {
         'und'   : _('Unknown')
         }
 
+if False:
+    # Extra strings needed for Qt
+    _('AM')
+    _('PM')
+    _('am')
+    _('pm')
+
 _lcase_map = {}
 for k in _extra_lang_codes:
     _lcase_map[k.lower()] = k
@@ -175,18 +182,6 @@ def get_language(lang):
             ans = _iso639['by_3t'].get(lang, ans)
     return translate(ans)
 
-
-def set_qt_translator(translator):
-    lang = get_lang()
-    if lang is not None:
-        if lang == 'nds':
-            lang = 'de'
-        mpath = get_lc_messages_path(lang)
-        if mpath is not None:
-            p = os.path.join(mpath, 'qt.qm')
-            if os.path.exists(p):
-                return translator.load(p)
-    return False
 
 _udc = None
 

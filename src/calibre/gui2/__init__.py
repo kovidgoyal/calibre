@@ -15,7 +15,6 @@ APP_UID  = 'libprs500'
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
         config_dir)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
-from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 
@@ -631,6 +630,18 @@ class ResizableDialog(QDialog):
         nw = min(self.width(), nw)
         self.resize(nw, nh)
 
+class Translator(QTranslator):
+
+    def translate(self, *args, **kwargs):
+        try:
+            src = unicode(args[1])
+        except:
+            return u''
+        t = _
+        print 111111, src, t(src)
+        return t(src)
+
+
 gui_thread = None
 
 qt_app = None
@@ -677,9 +688,8 @@ class Application(QApplication):
     def load_translations(self):
         if self._translator is not None:
             self.removeTranslator(self._translator)
-        self._translator = QTranslator(self)
-        if set_qt_translator(self._translator):
-            self.installTranslator(self._translator)
+        self._translator = Translator(self)
+        self.installTranslator(self._translator)
 
     def event(self, e):
         if callable(self.file_event_hook) and e.type() == QEvent.FileOpen:

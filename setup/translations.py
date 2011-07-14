@@ -11,7 +11,6 @@ from distutils import sysconfig
 from functools import partial
 
 from setup import Command, __appname__, __version__
-from setup.build_environment import pyqt
 
 def qt_sources():
     qtdir = glob.glob('/usr/src/qt-*')[-1]
@@ -20,7 +19,7 @@ def qt_sources():
             'src/gui/widgets/qdialogbuttonbox.cpp',
     ]))
 
-class POT(Command):
+class POT(Command): # {{{
 
     description = 'Update the .pot translation template'
     PATH = os.path.join(Command.SRC, __appname__, 'translations')
@@ -121,7 +120,7 @@ class POT(Command):
 
 
         return pot
-
+# }}}
 
 class Translations(POT):
     description='''Compile the translations'''
@@ -135,7 +134,6 @@ class Translations(POT):
         locale = os.path.splitext(os.path.basename(po_file))[0]
         return locale, os.path.join(self.DEST, locale, 'messages.mo')
 
-
     def run(self, opts):
         for f in self.po_files():
             locale, dest = self.mo_file(f)
@@ -144,7 +142,7 @@ class Translations(POT):
                 os.makedirs(base)
             self.info('\tCompiling translations for', locale)
             subprocess.check_call(['msgfmt', '-o', dest, f])
-            if locale in ('en_GB', 'nds', 'te', 'yi'):
+            if locale in ('en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc', 'ltg', 'nds', 'te', 'yi'):
                 continue
             pycountry = self.j(sysconfig.get_python_lib(), 'pycountry',
                     'locales', locale, 'LC_MESSAGES')
@@ -157,17 +155,6 @@ class Translations(POT):
             else:
                 self.warn('No ISO 639 translations for locale:', locale,
                 '\nDo you have pycountry installed?')
-
-        base = os.path.join(pyqt.qt_data_dir, 'translations')
-        qt_translations = glob.glob(os.path.join(base, 'qt_*.qm'))
-        if not qt_translations:
-            raise Exception('Could not find qt translations')
-        for f in qt_translations:
-            locale = self.s(self.b(f))[0][3:]
-            dest = self.j(self.DEST, locale, 'LC_MESSAGES', 'qt.qm')
-            if self.e(self.d(dest)) and self.newer(dest, f):
-                self.info('\tCopying Qt translation for locale:', locale)
-                shutil.copy2(f, dest)
 
         self.write_stats()
         self.freeze_locales()
