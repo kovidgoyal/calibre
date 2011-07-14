@@ -638,7 +638,6 @@ class Translator(QTranslator):
         except:
             return u''
         t = _
-        print 111111, src, t(src)
         return t(src)
 
 
