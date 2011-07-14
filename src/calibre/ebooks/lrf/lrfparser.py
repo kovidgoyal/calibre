@@ -4,8 +4,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, array, os, re, codecs, logging
 
-from calibre import setup_cli_handlers, sanitize_file_name
+from calibre import setup_cli_handlers
 from calibre.utils.config import OptionParser
+from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
                                          Font, Text, TOCObject, BookAttr, ruby_tags
@@ -89,7 +90,7 @@ class LRFDocument(LRFMetaFile):
         bookinfo += u'<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.metadata.free_text,)
         th = self.doc_info.thumbnail
         if th:
-            prefix = sanitize_file_name(self.metadata.title, as_unicode=True)
+            prefix = ascii_filename(self.metadata.title)
             bookinfo += u'<CThumbnail file="%s" />\n'%(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension,)
             if write_files:
                 open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb').write(th)

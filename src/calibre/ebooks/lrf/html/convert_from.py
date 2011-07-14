@@ -561,7 +561,9 @@ class HTMLConverter(object):
                 para = children[i]
                 break
         if para is None:
-            raise ConversionError(_('Failed to parse link %s %s')%(tag, children))
+            raise ConversionError(
+                _('Failed to parse link %(tag)s %(children)s')%dict(
+                    tag=tag, children=children))
         text = self.get_text(tag, 1000)
         if not text:
             text = 'Link'
@@ -954,7 +956,9 @@ class HTMLConverter(object):
                 self.scaled_images[path] = pt
                 return pt.name
             except (IOError, SystemError) as err: # PIL chokes on interlaced PNG images as well a some GIF images
-                self.log.warning(_('Unable to process image %s. Error: %s')%(path, err))
+                self.log.warning(
+                    _('Unable to process image %(path)s. Error: %(err)s')%dict(
+                        path=path, err=err))
 
         if width == None or height == None:
             width, height = im.size
@@ -1014,7 +1018,7 @@ class HTMLConverter(object):
             try:
                 self.images[path] = ImageStream(path, encoding=encoding)
             except LrsError as err:
-                self.log.warning(_('Could not process image: %s\n%s')%(
+                self.log.warning(('Could not process image: %s\n%s')%(
                     original_path, err))
                 return
 

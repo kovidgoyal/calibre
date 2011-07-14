@@ -218,7 +218,7 @@ class TagBrowserMixin(object): # {{{
         d = TagListEditor(self, tag_to_match=tag, data=result, key=key)
         d.exec_()
         if d.result() == d.Accepted:
-            to_rename = d.to_rename # dict of new text to old id
+            to_rename = d.to_rename # dict of old id to new name
             to_delete = d.to_delete # list of ids
             orig_name = d.original_names # dict of id: name
 

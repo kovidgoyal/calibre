@@ -6,25 +6,25 @@ Glossary
 .. glossary::
 
     RSS
-       **RSS** *(Really Simple Syndication)* is a web feed format that is used to publish frequently updated content, like news articles, blog posts, etc. It is a format that is particularly suited to being read by computers, and is therefore the preferred way of getting content from the web into an e-book. There are many other feed formats in use on the internet, and |app| understands most of them. In particular, it has good support for the *ATOM* format, which is commonly used for blogs. 
+       **RSS** *(Really Simple Syndication)* is a web feed format that is used to publish frequently updated content, like news articles, blog posts, etc. It is a format that is particularly suited to being read by computers, and is therefore the preferred way of getting content from the web into an ebook. There are many other feed formats in use on the Internet, and |app| understands most of them. In particular, it has good support for the *ATOM* format, which is commonly used for blogs. 
 
     recipe
-        A recipe is a set of instructions that teach |app| how to convert an online news source, like a magazine or a blog into an e-book. A recipe, is essentially `python <http://www.python.org>`_ code. As such, it is capable of converting arbitrarily complex news sources into e-books. At the simplest level, it is just a set of variables such as URLs that give |app| enough information to go out onto the internet and download the news. 
+        A recipe is a set of instructions that teach |app| how to convert an online news source, such as a magazine or a blog, into an ebook. A recipe is essentially `Python <http://www.python.org>`_ code. As such, it is capable of converting arbitrarily complex news sources into ebooks. At the simplest level, it is just a set of variables, such as URLs, that give |app| enough information to go out onto the Internet and download the news. 
 
     HTML
-        **HTML** *(Hyper Text Mark-Up Language)*, a subset of Standard Generalized Mark-Up Language (SGML) for electronic publishing, the specific standard used for the World Wide Web.
+        **HTML** *(Hyper Text Mark-Up Language)*, a subset of Standard Generalized Mark-Up Language (SGML) for electronic publishing, is the specific standard used for the World Wide Web.
 
     CSS
-        **CSS** *(Cascading Style Sheets)* a language used to describe how an :term:`HTML` document should be rendered (visual styling).
+        **CSS** *(Cascading Style Sheets)* is a language used to describe how an :term:`HTML` document should be rendered (visual styling).
 
     API
         **API** *(Application Programming Interface)* is a source code interface that a library provides to support requests for services to be made of it by computer programs.
 
     LRF
-        **LRF** The e-book format that is read by the SONY e-book readers.
+        **LRF** The ebook format that is read by the SONY ebook readers.
 
     URL
        **URL** *(Uniform Resource Locator)* for example: ``http://example.com``
 
     regexp
-         **Regular expressions** provide a concise and flexible means for identifying strings of text of interest, such as particular characters, words, or patterns of characters. See `regexp syntax <http://docs.python.org/lib/re-syntax.html>`_ for the syntax of regular expressions used in python.
+         **Regular expressions** provide a concise and flexible means for identifying strings of text of interest, such as particular characters, words, or patterns of characters. See `regexp syntax <http://docs.python.org/lib/re-syntax.html>`_ for the syntax of regular expressions used in Python.

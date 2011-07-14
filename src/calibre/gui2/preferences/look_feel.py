@@ -105,13 +105,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('cover_flow_queue_length', config, restart_required=True)
 
+        def get_esc_lang(l):
+            if l == 'en':
+                return 'English'
+            return get_language(l)
+
         lang = get_lang()
         if lang is None or lang not in available_translations():
             lang = 'en'
-        items = [(l, get_language(l)) for l in available_translations() \
+        items = [(l, get_esc_lang(l)) for l in available_translations() \
                  if l != lang]
         if lang != 'en':
-            items.append(('en', get_language('en')))
+            items.append(('en', get_esc_lang('en')))
         items.sort(cmp=lambda x, y: cmp(x[1].lower(), y[1].lower()))
         choices = [(y, x) for x, y in items]
         # Default language is the autodetected one

@@ -132,6 +132,14 @@ def as_local_time(date_time, assume_utc=True):
                 _local_tz)
     return date_time.astimezone(_local_tz)
 
+def as_utc(date_time, assume_utc=True):
+    if not hasattr(date_time, 'tzinfo'):
+        return date_time
+    if date_time.tzinfo is None:
+        date_time = date_time.replace(tzinfo=_utc_tz if assume_utc else
+                _local_tz)
+    return date_time.astimezone(_utc_tz)
+
 def now():
     return datetime.now().replace(tzinfo=_local_tz)
 

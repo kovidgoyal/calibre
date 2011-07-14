@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre import guess_type, walk
+from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.opf2 import OPF
@@ -20,29 +20,63 @@ class HTMLZInput(InputFormatPlugin):
     author      = 'John Schember'
     description = 'Convert HTML files to HTML'
     file_types  = set(['htmlz'])
-    
+
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         self.log = log
         html = u''
+        top_levels = []
 
         # Extract content from zip archive.
         zf = ZipFile(stream)
         zf.extractall()
 
-        for x in walk('.'):
+        # Find the HTML file in the archive. It needs to be
+        # top level.
+        index = u''
+        multiple_html = False
+        # Get a list of all top level files in the archive.
+        for x in os.listdir('.'):
+            if os.path.isfile(x):
+                top_levels.append(x)
+        # Try to find an index. file.
+        for x in top_levels:
+            if x.lower() in ('index.html', 'index.xhtml', 'index.htm'):
+                index = x
+                break
+        # Look for multiple HTML files in the archive. We look at the
+        # top level files only as only they matter in HTMLZ.
+        for x in top_levels:
             if os.path.splitext(x)[1].lower() in ('.html', '.xhtml', '.htm'):
-                with open(x, 'rb') as tf:
-                    html = tf.read()
-                    break
-        
+                # Set index to the first HTML file found if it's not
+                # called index.
+                if not index:
+                    index = x
+                else:
+                    multiple_html = True
+        # Warn the user if there multiple HTML file in the archive. HTMLZ
+        # supports a single HTML file. A conversion with a multiple HTML file
+        # HTMLZ archive probably won't turn out as the user expects. With
+        # Multiple HTML files ZIP input should be used in place of HTMLZ.
+        if multiple_html:
+            log.warn(_('Multiple HTML files found in the archive. Only %s will be used.') % index)
+
+        if index:
+            with open(index, 'rb') as tf:
+                html = tf.read()
+        else:
+            raise Exception(_('No top level HTML file found.'))
+
+        if not html:
+            raise Exception(_('Top level HTML file %s is empty') % index)
+
         # Encoding
         if options.input_encoding:
             ienc = options.input_encoding
         else:
             ienc = xml_to_unicode(html[:4096])[-1]
         html = html.decode(ienc, 'replace')
-        
+
         # Run the HTML through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format
         html_input = plugin_for_input_format('html')
@@ -71,11 +105,11 @@ class HTMLZInput(InputFormatPlugin):
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
-        
+
         # Get the cover path from the OPF.
         cover_path = None
         opf = None
-        for x in walk('.'):
+        for x in top_levels:
             if os.path.splitext(x)[1].lower() in ('.opf'):
                 opf = x
                 break

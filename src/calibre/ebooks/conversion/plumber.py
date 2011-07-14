@@ -265,6 +265,14 @@ OptionRecommendation(name='toc_filter',
                 )
         ),
 
+OptionRecommendation(name='duplicate_links_in_toc',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('When creating a TOC from links in the input document, '
+                'allow duplicate entries, i.e. allow more than one entry '
+                'with the same text, provided that they point to a '
+                'different location.')
+        ),
+
 
 OptionRecommendation(name='chapter',
         recommended_value="//*[((name()='h1' or name()='h2') and "
