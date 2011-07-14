@@ -29,9 +29,6 @@
      <property name="alternatingRowColors">
       <bool>true</bool>
      </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
-     </property>
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
@@ -46,7 +43,7 @@
    <item>
     <widget class="QPushButton" name="kill_button">
      <property name="text">
-      <string>&amp;Stop selected job</string>
+      <string>&amp;Stop selected jobs</string>
      </property>
     </widget>
    </item>
