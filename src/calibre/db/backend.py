@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json
+import os, shutil, uuid, json, glob
 from functools import partial
 
 import apsw
@@ -25,7 +25,7 @@ from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
 from calibre.utils.filenames import is_case_sensitive
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
-        SizeTable, FormatsTable, AuthorsTable, IdentifiersTable)
+        SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, CompositeTable)
 # }}}
 
 '''
@@ -624,7 +624,7 @@ class DB(object):
         base = max(self.FIELD_MAP.itervalues())
 
         for label_, data in self.custom_column_label_map.iteritems():
-            label = '#' + label_
+            label = self.field_metadata.custom_field_prefix + label_
             metadata = self.field_metadata[label].copy()
             link_table = self.custom_table_names(data['num'])[1]
             self.FIELD_MAP[data['num']] = base = base+1
@@ -653,7 +653,10 @@ class DB(object):
                         metadata['table'] = link_table
                         tables[label] = OneToOneTable(label, metadata)
             else:
-                tables[label] = OneToOneTable(label, metadata)
+                if data['datatype'] == 'composite':
+                    tables[label] = CompositeTable(label, metadata)
+                else:
+                    tables[label] = OneToOneTable(label, metadata)
 
         self.FIELD_MAP['ondevice'] = base = base+1
         self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
@@ -757,6 +760,29 @@ class DB(object):
                     import pprint
                     pprint.pprint(table.metadata)
                     raise
+
+    def format_abspath(self, book_id, fmt, fname, path):
+        path = os.path.join(self.library_path, path)
+        fmt = ('.' + fmt.lower()) if fmt else ''
+        fmt_path = os.path.join(path, fname+fmt)
+        if os.path.exists(fmt_path):
+            return fmt_path
+        try:
+            candidates = glob.glob(os.path.join(path, '*'+fmt))
+        except: # If path contains strange characters this throws an exc
+            candidates = []
+        if fmt and candidates and os.path.exists(candidates[0]):
+            shutil.copyfile(candidates[0], fmt_path)
+            return fmt_path
+
+    def format_metadata(self, book_id, fmt, fname, path):
+        path = self.format_abspath(book_id, fmt, fname, path)
+        ans = {}
+        if path is not None:
+            stat = os.stat(path)
+            ans['size'] = stat.st_size
+            ans['mtime'] = utcfromtimestamp(stat.st_mtime)
+        return ans
 
    # }}}
 

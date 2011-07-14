@@ -77,6 +77,17 @@ class SizeTable(OneToOneTable):
                 'WHERE data.book=books.id) FROM books'):
             self.book_col_map[row[0]] = self.unserialize(row[1])
 
+class CompositeTable(OneToOneTable):
+
+    def read(self, db):
+        self.book_col_map = {}
+        d = self.metadata['display']
+        self.composite_template = ['composite_template']
+        self.contains_html = d['contains_html']
+        self.make_category = d['make_category']
+        self.composite_sort = d['composite_sort']
+        self.use_decorations = d['use_decorations']
+
 class ManyToOneTable(Table):
 
     '''
@@ -144,11 +155,11 @@ class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
         self.alink_map = {}
-        self.sort_map  = {}
+        self.asort_map  = {}
         for row in db.conn.execute(
                 'SELECT id, name, sort, link FROM authors'):
             self.id_map[row[0]] = row[1]
-            self.sort_map[row[0]] = (row[2] if row[2] else
+            self.asort_map[row[0]] = (row[2] if row[2] else
                     author_to_author_sort(row[1]))
             self.alink_map[row[0]] = row[3]
 
@@ -158,14 +169,19 @@ class FormatsTable(ManyToManyTable):
         pass
 
     def read_maps(self, db):
+        self.fname_map = {}
         for row in db.conn.execute('SELECT book, format, name FROM data'):
             if row[1] is not None:
-                if row[1] not in self.col_book_map:
-                    self.col_book_map[row[1]] = []
-                self.col_book_map[row[1]].append(row[0])
+                fmt = row[1].upper()
+                if fmt not in self.col_book_map:
+                    self.col_book_map[fmt] = []
+                self.col_book_map[fmt].append(row[0])
                 if row[0] not in self.book_col_map:
                     self.book_col_map[row[0]] = []
-                self.book_col_map[row[0]].append((row[1], row[2]))
+                self.book_col_map[row[0]].append(fmt)
+                if row[0] not in self.fname_map:
+                    self.fname_map[row[0]] = {}
+                self.fname_map[row[0]][fmt] = row[2]
 
         for key in tuple(self.col_book_map.iterkeys()):
             self.col_book_map[key] = tuple(self.col_book_map[key])
@@ -185,12 +201,9 @@ class IdentifiersTable(ManyToManyTable):
                     self.col_book_map[row[1]] = []
                 self.col_book_map[row[1]].append(row[0])
                 if row[0] not in self.book_col_map:
-                    self.book_col_map[row[0]] = []
-                self.book_col_map[row[0]].append((row[1], row[2]))
+                    self.book_col_map[row[0]] = {}
+                self.book_col_map[row[0]][row[1]] = row[2]
 
         for key in tuple(self.col_book_map.iterkeys()):
             self.col_book_map[key] = tuple(self.col_book_map[key])
-
-        for key in tuple(self.book_col_map.iterkeys()):
-            self.book_col_map[key] = tuple(self.book_col_map[key])
 
