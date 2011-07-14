@@ -60,8 +60,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 author = ''.join(data.xpath('.//div[@class="item_entries"]/span[1]/a/text()'))
                 author = re.sub(',','',author)
                 author = re.sub(';',',',author)
-                price = ''.join(data.xpath('.//div[@class="item_entries"]/span[3]/text()'))
-                price = re.sub(r'[^0-9,]*','',price) + ' zł'
+                price = ''.join(data.xpath('.//span[@class="ebook_price"]/text()'))
 
                 counter -= 1
                 

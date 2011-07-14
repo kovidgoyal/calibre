@@ -1,0 +1,24 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Tijolaco(BasicNewsRecipe):
+    title                  = u'Tijolaco.com'
+    __author__             = u'Diniz Bortolotto'
+    description            = u'Posts do Blog Tijola\xe7o.com'
+    oldest_article         = 7
+    max_articles_per_feed  = 50
+    encoding               = 'utf8'
+    publisher              = u'Brizola Neto'
+    category               = 'politics, Brazil'
+    language               = 'pt_BR'
+    publication_type       = 'politics portal'
+    use_embedded_content   = False
+    no_stylesheets         = True
+    remove_javascript      = True
+
+    feeds                  = [(u'Blog Tijola\xe7o.com', u'http://feeds.feedburner.com/Tijolacoblog')]
+
+    reverse_article_order  = True
+
+    keep_only_tags         = [dict(name='div', attrs={'class':'post'})]
+
+    remove_tags            = [dict(name='span', attrs={'class':'com'})]

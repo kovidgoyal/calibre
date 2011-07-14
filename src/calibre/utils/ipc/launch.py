@@ -18,7 +18,9 @@ if iswindows:
     try:
         _windows_null_file = open(os.devnull, 'wb')
     except:
-        raise RuntimeError('NUL %r file missing in windows'%os.devnull)
+        raise RuntimeError('NUL file missing in windows. This indicates a'
+                ' corrupted windows. You should contact Microsoft'
+                ' for assistance.')
 
 def renice(niceness):
     try:

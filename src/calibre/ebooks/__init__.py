@@ -159,7 +159,7 @@ def normalize(x):
     return x
 
 def calibre_cover(title, author_string, series_string=None,
-        output_format='jpg', title_size=46, author_size=36):
+        output_format='jpg', title_size=46, author_size=36, logo_path=None):
     title = normalize(title)
     author_string = normalize(author_string)
     series_string = normalize(series_string)
@@ -167,7 +167,9 @@ def calibre_cover(title, author_string, series_string=None,
     lines = [TextLine(title, title_size), TextLine(author_string, author_size)]
     if series_string:
         lines.append(TextLine(series_string, author_size))
-    return create_cover_page(lines, I('library.png'), output_format='jpg')
+    if logo_path is None:
+        logo_path = I('library.png')
+    return create_cover_page(lines, logo_path, output_format='jpg')
 
 UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc)$')
 

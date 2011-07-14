@@ -1,0 +1,30 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class VioMundo(BasicNewsRecipe):
+    title                  = 'Blog VioMundo'
+    __author__             = 'Diniz Bortolotto'
+    description            = 'Posts do Blog VioMundo'
+    publisher              = 'Luiz Carlos Azenha'
+    oldest_article         = 5
+    max_articles_per_feed  = 20
+    category               = 'news, politics, Brazil'
+    language               = 'pt_BR'
+    publication_type       = 'news and politics portal'
+    use_embedded_content   = False
+    no_stylesheets         = True
+    remove_javascript      = True
+
+    feeds                  = [(u'Blog VioMundo', u'http://www.viomundo.com.br/feed')]
+
+    reverse_article_order  = True
+
+    def print_version(self, url):
+        return url + '/print/'
+
+    remove_tags_after      = dict(id='BlogContent')
+
+    preprocess_regexps     = [
+                              (re.compile(r'\|\ <u>.*</p>'),
+                              lambda match: '</p>')
+                             ]
