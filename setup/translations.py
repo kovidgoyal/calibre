@@ -8,9 +8,17 @@ __docformat__ = 'restructuredtext en'
 
 import os, tempfile, shutil, subprocess, glob, re, time, textwrap
 from distutils import sysconfig
+from functools import partial
 
 from setup import Command, __appname__, __version__
 from setup.build_environment import pyqt
+
+def qt_sources():
+    qtdir = glob.glob('/usr/src/qt-*')[-1]
+    j = partial(os.path.join, qtdir)
+    return list(map(j, [
+            'src/gui/widgets/qdialogbuttonbox.cpp',
+    ]))
 
 class POT(Command):
 
@@ -82,6 +90,8 @@ class POT(Command):
                 time=time.strftime('%Y-%m-%d %H:%M+%Z'))
 
         files = self.source_files()
+        qt_inputs = qt_sources()
+
         with tempfile.NamedTemporaryFile() as fl:
             fl.write('\n'.join(files))
             fl.flush()
@@ -93,6 +103,12 @@ class POT(Command):
                 '--from-code=UTF-8', '--sort-by-file', '--omit-header',
                 '--no-wrap', '-k__',
                 ])
+            subprocess.check_call(['xgettext', '-j',
+                '--default-domain=calibre', '-o', out.name,
+                '--from-code=UTF-8', '--sort-by-file', '--omit-header',
+                '--no-wrap', '-kQT_TRANSLATE_NOOP:2',
+                ] + qt_inputs)
+
             with open(out.name, 'rb') as f:
                 src = f.read()
             os.remove(out.name)
@@ -102,7 +118,9 @@ class POT(Command):
             with open(pot, 'wb') as f:
                 f.write(src)
             self.info('Translations template:', os.path.abspath(pot))
-            return pot
+
+
+        return pot
 
 
 class Translations(POT):
