@@ -631,6 +631,11 @@ class ResizableDialog(QDialog):
         self.resize(nw, nh)
 
 class Translator(QTranslator):
+    '''
+    Translator to load translations for strings in Qt from the calibre
+    translations. Does not support advanced features of Qt like disambiguation
+    and plural forms.
+    '''
 
     def translate(self, *args, **kwargs):
         try:
