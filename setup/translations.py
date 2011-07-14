@@ -100,7 +100,7 @@ class POT(Command): # {{{
             subprocess.check_call(['xgettext', '-f', fl.name,
                 '--default-domain=calibre', '-o', out.name, '-L', 'Python',
                 '--from-code=UTF-8', '--sort-by-file', '--omit-header',
-                '--no-wrap', '-k__',
+                '--no-wrap', '-k__', '--add-comments=NOTE:',
                 ])
             subprocess.check_call(['xgettext', '-j',
                 '--default-domain=calibre', '-o', out.name,
@@ -122,7 +122,7 @@ class POT(Command): # {{{
         return pot
 # }}}
 
-class Translations(POT):
+class Translations(POT): # {{{
     description='''Compile the translations'''
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
             'locales')
@@ -206,7 +206,7 @@ class Translations(POT):
             for x in (i, j, d):
                 if os.path.exists(x):
                     os.remove(x)
-
+# }}}
 
 class GetTranslations(Translations):
 

@@ -149,9 +149,14 @@ _extra_lang_codes = {
 
 if False:
     # Extra strings needed for Qt
+
+    # NOTE: Ante Meridian (i.e. like 10:00 AM)
     _('AM')
+    # NOTE: Post Meridian (i.e. like 10:00 PM)
     _('PM')
+    # NOTE: Ante Meridian (i.e. like 10:00 am)
     _('am')
+    # NOTE: Post Meridian (i.e. like 10:00 pm)
     _('pm')
 
 _lcase_map = {}
