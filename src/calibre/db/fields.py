@@ -8,6 +8,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from threading import Lock
+
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY
 from calibre.utils.icu import sort_key
 
@@ -92,26 +94,31 @@ class CompositeField(OneToOneField):
         OneToOneField.__init__(self, *args, **kwargs)
 
         self._render_cache = {}
+        self._lock = Lock()
 
     def render_composite(self, book_id, mi):
-        ans = self._render_cache.get(book_id, None)
+        with self._lock:
+            ans = self._render_cache.get(book_id, None)
         if ans is None:
             ans = mi.get(self.metadata['label'])
-            self._render_cache[book_id] = ans
+            with self._lock:
+                self._render_cache[book_id] = ans
         return ans
 
     def clear_cache(self):
-        self._render_cache = {}
+        with self._lock:
+            self._render_cache = {}
 
     def pop_cache(self, book_id):
-        self._render_cache.pop(book_id, None)
+        with self._lock:
+            self._render_cache.pop(book_id, None)
 
     def get_value_with_cache(self, book_id, get_metadata):
-        ans = self._render_cache.get(book_id, None)
+        with self._lock:
+            ans = self._render_cache.get(book_id, None)
         if ans is None:
             mi = get_metadata(book_id)
             ans = mi.get(self.metadata['label'])
-            self._render_cache[book_id] = ans
         return ans
 
     def sort_books(self, get_metadata, all_book_ids, ascending=True):
