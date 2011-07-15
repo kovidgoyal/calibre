@@ -81,6 +81,87 @@ class Cache(object):
         if name and path:
             return self.backend.format_abspath(book_id, fmt, name, path)
 
+    def _get_metadata(self, book_id, get_user_categories=True):
+        mi = Metadata(None)
+        author_ids = self._field_ids_for('authors', book_id)
+        aut_list = [self._author_data(i) for i in author_ids]
+        aum = []
+        aus = {}
+        aul = {}
+        for rec in aut_list:
+            aut = rec['name']
+            aum.append(aut)
+            aus[aut] = rec['sort']
+            aul[aut] = rec['link']
+        mi.title       = self._field_for('title', book_id,
+                default_value=_('Unknown'))
+        mi.authors     = aum
+        mi.author_sort = self._field_for('author_sort', book_id,
+                default_value=_('Unknown'))
+        mi.author_sort_map = aus
+        mi.author_link_map = aul
+        mi.comments    = self._field_for('comments', book_id)
+        mi.publisher   = self._field_for('publisher', book_id)
+        n = now()
+        mi.timestamp   = self._field_for('timestamp', book_id, default_value=n)
+        mi.pubdate     = self._field_for('pubdate', book_id, default_value=n)
+        mi.uuid        = self._field_for('uuid', book_id,
+                default_value='dummy')
+        mi.title_sort  = self._field_for('sort', book_id,
+                default_value=_('Unknown'))
+        mi.book_size   = self._field_for('size', book_id, default_value=0)
+        mi.ondevice_col = self._field_for('ondevice', book_id, default_value='')
+        mi.last_modified = self._field_for('last_modified', book_id,
+                default_value=n)
+        formats = self._field_for('formats', book_id)
+        mi.format_metadata = {}
+        if not formats:
+            formats = None
+        else:
+            for f in formats:
+                mi.format_metadata[f] = self._format_metadata(book_id, f)
+            formats = ','.join(formats)
+        mi.formats = formats
+        mi.has_cover = _('Yes') if self._field_for('cover', book_id,
+                default_value=False) else ''
+        mi.tags = list(self._field_for('tags', book_id, default_value=()))
+        mi.series = self._field_for('series', book_id)
+        if mi.series:
+            mi.series_index = self._field_for('series_index', book_id,
+                    default_value=1.0)
+        mi.rating = self._field_for('rating', book_id)
+        mi.set_identifiers(self._field_for('identifiers', book_id,
+            default_value={}))
+        mi.application_id = book_id
+        mi.id = book_id
+        composites = {}
+        for key, meta in self.field_metadata.custom_iteritems():
+            mi.set_user_metadata(key, meta)
+            if meta['datatype'] == 'composite':
+                composites.append(key)
+            else:
+                mi.set(key, val=self._field_for(meta['label'], book_id),
+                        extra=self._field_for(meta['label']+'_index', book_id))
+        for c in composites:
+            mi.set(key, val=self._composite_for(key, book_id, mi))
+
+        user_cat_vals = {}
+        if get_user_categories:
+            user_cats = self.prefs['user_categories']
+            for ucat in user_cats:
+                res = []
+                for name,cat,ign in user_cats[ucat]:
+                    v = mi.get(cat, None)
+                    if isinstance(v, list):
+                        if name in v:
+                            res.append([name,cat])
+                    elif name == v:
+                        res.append([name,cat])
+                user_cat_vals[ucat] = res
+        mi.user_categories = user_cat_vals
+
+        return mi
+
     # Cache Layer API {{{
 
     @api
@@ -193,100 +274,29 @@ class Cache(object):
             self.format_metadata_cache[book_id][fmt] = ans
         return ans
 
-    @read_api
-    def get_metadata(self, book_id, get_cover=False,
-                     get_user_categories=True, cover_as_data=False):
+    @api
+    def get_metadata(self, book_id,
+            get_cover=False, get_user_categories=True, cover_as_data=False):
         '''
-        Convenience method to return metadata as a :class:`Metadata` object.
-        Note that the list of formats is not verified.
+        Return metadata for the book identified by book_id as a :class:`Metadata` object.
+        Note that the list of formats is not verified. If get_cover is True,
+        the cover is returned, either a path to temp file as mi.cover or if
+        cover_as_data is True then as mi.cover_data.
         '''
-        mi = Metadata(None)
 
-        author_ids = self._field_ids_for('authors', book_id)
-        aut_list = [self._author_data(i) for i in author_ids]
-        aum = []
-        aus = {}
-        aul = {}
-        for rec in aut_list:
-            aut = rec['name']
-            aum.append(aut)
-            aus[aut] = rec['sort']
-            aul[aut] = rec['link']
-        mi.title       = self._field_for('title', book_id,
-                default_value=_('Unknown'))
-        mi.authors     = aum
-        mi.author_sort = self._field_for('author_sort', book_id,
-                default_value=_('Unknown'))
-        mi.author_sort_map = aus
-        mi.author_link_map = aul
-        mi.comments    = self._field_for('comments', book_id)
-        mi.publisher   = self._field_for('publisher', book_id)
-        n = now()
-        mi.timestamp   = self._field_for('timestamp', book_id, default_value=n)
-        mi.pubdate     = self._field_for('pubdate', book_id, default_value=n)
-        mi.uuid        = self._field_for('uuid', book_id,
-                default_value='dummy')
-        mi.title_sort  = self._field_for('sort', book_id,
-                default_value=_('Unknown'))
-        mi.book_size   = self._field_for('size', book_id, default_value=0)
-        mi.ondevice_col = self._field_for('ondevice', book_id, default_value='')
-        mi.last_modified = self._field_for('last_modified', book_id,
-                default_value=n)
-        formats = self._field_for('formats', book_id)
-        mi.format_metadata = {}
-        if not formats:
-            formats = None
-        else:
-            for f in formats:
-                mi.format_metadata[f] = self._format_metadata(book_id, f)
-            formats = ','.join(formats)
-        mi.formats = formats
-        mi.has_cover = _('Yes') if self._field_for('cover', book_id,
-                default_value=False) else ''
-        mi.tags = list(self._field_for('tags', book_id, default_value=()))
-        mi.series = self._field_for('series', book_id)
-        if mi.series:
-            mi.series_index = self._field_for('series_index', book_id,
-                    default_value=1.0)
-        mi.rating = self._field_for('rating', book_id)
-        mi.set_identifiers(self._field_for('identifiers', book_id,
-            default_value={}))
-        mi.application_id = book_id
-        mi.id = book_id
-        composites = {}
-        for key, meta in self.field_metadata.custom_iteritems():
-            mi.set_user_metadata(key, meta)
-            if meta['datatype'] == 'composite':
-                composites.append(key)
-            else:
-                mi.set(key, val=self._field_for(meta['label'], book_id),
-                        extra=self._field_for(meta['label']+'_index', book_id))
-        for c in composites:
-            mi.set(key, val=self._composite_for(key, book_id, mi))
-
-        user_cat_vals = {}
-        if get_user_categories:
-            user_cats = self.prefs['user_categories']
-            for ucat in user_cats:
-                res = []
-                for name,cat,ign in user_cats[ucat]:
-                    v = mi.get(cat, None)
-                    if isinstance(v, list):
-                        if name in v:
-                            res.append([name,cat])
-                    elif name == v:
-                        res.append([name,cat])
-                user_cat_vals[ucat] = res
-        mi.user_categories = user_cat_vals
+        with self.read_lock:
+            mi = self._get_metadata(book_id, get_user_categories=get_user_categories)
 
         if get_cover:
             if cover_as_data:
-                cdata = self.cover(id, index_is_id=True)
+                cdata = self.cover(book_id)
                 if cdata:
                     mi.cover_data = ('jpeg', cdata)
             else:
-                mi.cover = self.cover(id, index_is_id=True, as_path=True)
+                mi.cover = self.cover(book_id, as_path=True)
+
         return mi
+
 
     # }}}
 

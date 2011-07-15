@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob
+import os, shutil, uuid, json, glob, time, tempfile
 from functools import partial
 
 import apsw
@@ -36,6 +36,8 @@ Differences in semantics from pysqlite:
     3. There is no executescript
 
 '''
+
+SPOOL_SIZE = 30*1024*1024
 
 class DynamicFilter(object): # {{{
 
@@ -783,6 +785,35 @@ class DB(object):
             ans['size'] = stat.st_size
             ans['mtime'] = utcfromtimestamp(stat.st_mtime)
         return ans
+
+    def cover(self, path, as_file=False, as_image=False,
+            as_path=False):
+        path = os.path.join(self.library_path, path, 'cover.jpg')
+        ret = None
+        if os.access(path, os.R_OK):
+            try:
+                f = lopen(path, 'rb')
+            except (IOError, OSError):
+                time.sleep(0.2)
+                f = lopen(path, 'rb')
+            with f:
+                if as_path:
+                    pt = PersistentTemporaryFile('_dbcover.jpg')
+                    with pt:
+                        shutil.copyfileobj(f, pt)
+                    return pt.name
+                if as_file:
+                    ret = tempfile.SpooledTemporaryFile(SPOOL_SIZE)
+                    shutil.copyfileobj(f, ret)
+                    ret.seek(0)
+                else:
+                    ret = f.read()
+                    if as_image:
+                        from PyQt4.Qt import QImage
+                        i = QImage()
+                        i.loadFromData(ret)
+                        ret = i
+        return ret
 
    # }}}
 
