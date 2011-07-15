@@ -16,7 +16,7 @@ from PyQt4.Qt import (QColor, Qt, QModelIndex, QSize, QApplication,
 
 from calibre.gui2 import UNDEFINED_QDATE, error_dialog
 from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2.complete import MultiCompleteLineEdit
+from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.date import now, format_date
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
@@ -166,13 +166,26 @@ class TextDelegate(QStyledItemDelegate): # {{{
 
     def createEditor(self, parent, option, index):
         if self.auto_complete_function:
-            editor = MultiCompleteLineEdit(parent)
+            editor = MultiCompleteComboBox(parent)
             editor.set_separator(None)
             complete_items = [i[1] for i in self.auto_complete_function()]
             editor.update_items_cache(complete_items)
+            for item in sorted(complete_items, key=sort_key):
+                editor.addItem(item)
+            ct = index.data(Qt.DisplayRole).toString()
+            editor.setEditText(ct)
+            editor.lineEdit().selectAll()
         else:
             editor = EnLineEdit(parent)
         return editor
+
+    def setModelData(self, editor, model, index):
+        if isinstance(editor, MultiCompleteComboBox):
+            val = editor.lineEdit().text()
+            model.setData(index, QVariant(val), Qt.EditRole)
+        else:
+            QStyledItemDelegate.setModelData(self, editor, model, index)
+
 #}}}
 
 class CompleteDelegate(QStyledItemDelegate): # {{{
@@ -188,7 +201,7 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
     def createEditor(self, parent, option, index):
         if self.db and hasattr(self.db, self.items_func_name):
             col = index.model().column_map[index.column()]
-            editor = MultiCompleteLineEdit(parent)
+            editor = MultiCompleteComboBox(parent)
             editor.set_separator(self.sep)
             editor.set_space_before_sep(self.space_before_sep)
             if self.sep == '&':
@@ -199,9 +212,21 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
                 all_items = list(self.db.all_custom(
                     label=self.db.field_metadata.key_to_label(col)))
             editor.update_items_cache(all_items)
+            for item in sorted(all_items, key=sort_key):
+                editor.addItem(item)
+            ct = index.data(Qt.DisplayRole).toString()
+            editor.setEditText(ct)
+            editor.lineEdit().selectAll()
         else:
             editor = EnLineEdit(parent)
         return editor
+
+    def setModelData(self, editor, model, index):
+        if isinstance(editor, MultiCompleteComboBox):
+            val = editor.lineEdit().text()
+            model.setData(index, QVariant(val), Qt.EditRole)
+        else:
+            QStyledItemDelegate.setModelData(self, editor, model, index)
 # }}}
 
 class CcDateDelegate(QStyledItemDelegate): # {{{
