@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from collections import defaultdict
-from functools import wraps
+from functools import wraps, partial
 
 from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
@@ -43,6 +43,7 @@ class Cache(object):
     def __init__(self, backend):
         self.backend = backend
         self.fields = {}
+        self.composites = set()
         self.read_lock, self.write_lock = create_locks()
         self.record_lock = RecordLock(self.read_lock)
         self.format_metadata_cache = defaultdict(dict)
@@ -82,7 +83,7 @@ class Cache(object):
         if name and path:
             return self.backend.format_abspath(book_id, fmt, name, path)
 
-    def _get_metadata(self, book_id, get_user_categories=True):
+    def _get_metadata(self, book_id, get_user_categories=True): # {{{
         mi = Metadata(None)
         author_ids = self._field_ids_for('authors', book_id)
         aut_list = [self._author_data(i) for i in author_ids]
@@ -162,6 +163,7 @@ class Cache(object):
         mi.user_categories = user_cat_vals
 
         return mi
+    # }}}
 
     # Cache Layer API {{{
 
@@ -175,6 +177,8 @@ class Cache(object):
 
             for field, table in self.backend.tables.iteritems():
                 self.fields[field] = create_field(field, table)
+                if table.metadata['datatype'] == 'composite':
+                    self.composites.add(field)
 
             self.fields['ondevice'] = create_field('ondevice', None)
 
@@ -187,19 +191,26 @@ class Cache(object):
 
         The returned value for is_multiple fields are always tuples.
         '''
+        if self.composites and name in self.composites:
+            return self.composite_for(name, book_id,
+                    default_value=default_value)
         try:
             return self.fields[name].for_book(book_id, default_value=default_value)
         except (KeyError, IndexError):
             return default_value
 
     @read_api
-    def composite_for(self, name, book_id, mi, default_value=''):
+    def composite_for(self, name, book_id, mi=None, default_value=''):
         try:
             f = self.fields[name]
         except KeyError:
             return default_value
 
-        f.render_composite(book_id, mi)
+        if mi is None:
+            return f.get_value_with_cache(book_id, partial(self._get_metadata,
+                get_user_categories=False))
+        else:
+            return f.render_composite(book_id, mi)
 
     @read_api
     def field_ids_for(self, name, book_id):
