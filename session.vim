@@ -1,5 +1,5 @@
 " Project wide builtins
-let g:pyflakes_builtins += ["dynamic_property", "__", "P", "I", "lopen", "icu_lower", "icu_upper", "icu_title", "ngettext"]
+let g:pyflakes_builtins = ["_", "dynamic_property", "__", "P", "I", "lopen", "icu_lower", "icu_upper", "icu_title", "ngettext"]
 
 python << EOFPY
 import os

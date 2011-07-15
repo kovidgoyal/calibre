@@ -25,18 +25,11 @@ class Message:
         return '%s:%s: %s'%(self.filename, self.lineno, self.msg)
 
 def check_for_python_errors(code_string, filename):
-    # Since compiler.parse does not reliably report syntax errors, use the
-    # built in compiler first to detect those.
+    import _ast
+    # First, compile into an AST and handle syntax errors.
     try:
-        try:
-            compile(code_string, filename, "exec")
-        except MemoryError:
-            # Python 2.4 will raise MemoryError if the source can't be
-            # decoded.
-            if sys.version_info[:2] == (2, 4):
-                raise SyntaxError(None)
-            raise
-    except (SyntaxError, IndentationError), value:
+        tree = compile(code_string, filename, "exec", _ast.PyCF_ONLY_AST)
+    except (SyntaxError, IndentationError) as value:
         msg = value.args[0]
 
         (lineno, offset, text) = value.lineno, value.offset, value.text
@@ -47,15 +40,16 @@ def check_for_python_errors(code_string, filename):
             # bogus message that claims the encoding the file declared was
             # unknown.
             msg = "%s: problem decoding source" % filename
+
         return [Message(filename, lineno, msg)]
     else:
-        # Okay, it's syntactically valid.  Now parse it into an ast and check
-        # it.
-        import compiler
         checker = __import__('pyflakes.checker').checker
-        tree = compiler.parse(code_string)
+        # Okay, it's syntactically valid.  Now check it.
         w = checker.Checker(tree, filename)
         w.messages.sort(lambda a, b: cmp(a.lineno, b.lineno))
+        for warning in w.messages:
+            print warning
+            print (dir(warning))
         return [Message(x.filename, x.lineno, x.message%x.message_args) for x in
                 w.messages]
 
