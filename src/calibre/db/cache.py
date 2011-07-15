@@ -302,7 +302,8 @@ class Cache(object):
     def cover(self, book_id, as_file=False, as_image=False,
             as_path=False):
         '''
-        Return the cover image as a bytestring (in JPEG format) or None.
+        Return the cover image or None. By default, returns the cover as a
+        bytestring.
 
         WARNING: Using as_path will copy the cover to a temp file and return
         the path to the temp file. You should delete the temp file when you are
@@ -310,6 +311,8 @@ class Cache(object):
 
         :param as_file: If True return the image as an open file object (a SpooledTemporaryFile)
         :param as_image: If True return the image as a QImage object
+        :param as_path: If True return the image as a path pointing to a
+                        temporary file
         '''
         with self.read_lock:
             try:
