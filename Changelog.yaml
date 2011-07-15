@@ -23,12 +23,12 @@
   date: 2011-07-15
 
   new features:
-    - title: "Add a right click menu to the cover browser. It allows you to view a book, edit metadata etc. from withing the cover browser. The menu can be customized in Preferences->Toolbars"
+    - title: "Add a right click menu to the cover browser. It allows you to view a book, edit metadata etc. from within the cover browser. The menu can be customized in Preferences->Toolbars"
 
     - title: "Allow selecting and stopping multiple jobs at once in the jobs window"
       tickets: [810349]
 
-    - title: "When editing metadata directly in the books list, have a little pop up menu so that all existing values can be accessed by mouse only. For example, when you edit authors, you can use the mouse to select an existing author."
+    - title: "When editing metadata directly in the book list, have a little pop up menu so that all existing values can be accessed by mouse only. For example, when you edit authors, you can use the mouse to select an existing author."
 
     - title: "Get Books: Add ebook.nl and fix price parsing for the legimi store"
 
