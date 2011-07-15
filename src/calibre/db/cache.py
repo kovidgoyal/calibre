@@ -11,7 +11,7 @@ import os
 from collections import defaultdict
 from functools import wraps
 
-from calibre.db.locking import create_locks
+from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
 from calibre.ebooks.book.base import Metadata
 from calibre.utils.date import now
@@ -44,6 +44,7 @@ class Cache(object):
         self.backend = backend
         self.fields = {}
         self.read_lock, self.write_lock = create_locks()
+        self.record_lock = RecordLock(self.read_lock)
         self.format_metadata_cache = defaultdict(dict)
 
         # Implement locking for all simple read/write API methods
@@ -297,6 +298,28 @@ class Cache(object):
 
         return mi
 
+    @api
+    def cover(self, book_id, as_file=False, as_image=False,
+            as_path=False):
+        '''
+        Return the cover image as a bytestring (in JPEG format) or None.
+
+        WARNING: Using as_path will copy the cover to a temp file and return
+        the path to the temp file. You should delete the temp file when you are
+        done with it.
+
+        :param as_file: If True return the image as an open file object (a SpooledTemporaryFile)
+        :param as_image: If True return the image as a QImage object
+        '''
+        with self.read_lock:
+            try:
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except:
+                return None
+
+        with self.record_lock.lock(book_id):
+            return self.backend.cover(path, as_file=as_file, as_image=as_image,
+                    as_path=as_path)
 
     # }}}
 
