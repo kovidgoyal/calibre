@@ -13,6 +13,7 @@ class View(object):
 
     def __init__(self, cache):
         self.cache = cache
+        self.marked_ids = {}
         self._field_getters = {}
         for col, idx in cache.backend.FIELD_MAP.iteritems():
             if isinstance(col, int):
@@ -26,7 +27,7 @@ class View(object):
                         'id'      : self._get_id,
                         'au_map'  : self.get_author_data,
                         'ondevice': self.get_ondevice,
-                        'marked'  : self.get_is_marked,
+                        'marked'  : self.get_marked,
                     }[col]
                 except KeyError:
                     self._field_getters[idx] = partial(self.get, col)
@@ -47,17 +48,19 @@ class View(object):
         return getter(row, index_is_id=index_is_id)
 
     def index_to_id(self, idx):
-        pass
+        return self._map_filtered[idx]
 
     def get(self, field, idx, index_is_id=True, default_value=None):
         id_ = idx if index_is_id else self.index_to_id(idx)
         return self.cache.field_for(field, id_)
 
-    def get_ondevice(self, idx, index_is_id=True, default_value=False):
-        pass
+    def get_ondevice(self, idx, index_is_id=True, default_value=''):
+        id_ = idx if index_is_id else self.index_to_id(idx)
+        self.cache.field_for('ondevice', id_, default_value=default_value)
 
-    def get_is_marked(self, idx, index_is_id=True, default_value=False):
-        pass
+    def get_marked(self, idx, index_is_id=True, default_value=None):
+        id_ = idx if index_is_id else self.index_to_id(idx)
+        return self.marked_ids.get(id_, default_value)
 
     def get_author_data(self, idx, index_is_id=True, default_value=()):
         '''

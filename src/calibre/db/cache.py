@@ -299,8 +299,8 @@ class Cache(object):
         return mi
 
     @api
-    def cover(self, book_id, as_file=False, as_image=False,
-            as_path=False):
+    def cover(self, book_id,
+            as_file=False, as_image=False, as_path=False):
         '''
         Return the cover image or None. By default, returns the cover as a
         bytestring.
