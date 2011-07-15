@@ -81,7 +81,14 @@ class Worker(object):
 
     @property
     def env(self):
-        env = dict(os.environ)
+        # We use this inefficient method of copying the environment variables
+        # because of non ascii env vars on windows. See https://bugs.launchpad.net/bugs/811191
+        env = {}
+        for key in os.environ:
+            try:
+                env[key] = os.environ[key]
+            except:
+                pass
         env['CALIBRE_WORKER'] = '1'
         td = binascii.hexlify(cPickle.dumps(base_dir()))
         env['CALIBRE_WORKER_TEMP_DIR'] = td
