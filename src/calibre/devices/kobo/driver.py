@@ -693,10 +693,10 @@ class KOBO(USBMS):
                         if category in readstatuslist.keys():
                             # Manage ReadStatus
                             self.set_readstatus(connection, ContentID, readstatuslist.get(category))
-                        if category == 'Shortlist' and self.dbversion >= 14:
+                        elif category == 'Shortlist' and self.dbversion >= 14:
                             # Manage FavouritesIndex/Shortlist
                             self.set_favouritesindex(connection, ContentID)
-                        if category in accessibilitylist.keys():
+                        elif category in accessibilitylist.keys():
                             # Do not manage the Accessibility List
                             pass
         else: # No collections
