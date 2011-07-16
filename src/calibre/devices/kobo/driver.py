@@ -22,7 +22,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge'
-    version = (1, 0, 9)
+    version = (1, 0, 10)
 
     dbversion = 0
     fwversion = 0
@@ -48,11 +48,15 @@ class KOBO(USBMS):
 
     VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo'])
 
-    EXTRA_CUSTOMIZATION_MESSAGE = _('The Kobo supports only one collection '
-            'currently: the \"Im_Reading\" list.  Create a tag called \"Im_Reading\" ')+\
-                    'for automatic management'
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+            _('The Kobo supports several collections including ')+\
+                    'Read, Closed, Im_Reading ' +\
+            _('Create tags for automatic management'),
+    ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['tags'])
+
+    OPT_COLLECTIONS = 0
 
     def initialize(self):
         USBMS.initialize(self)
@@ -693,10 +697,10 @@ class KOBO(USBMS):
                         if category in readstatuslist.keys():
                             # Manage ReadStatus
                             self.set_readstatus(connection, ContentID, readstatuslist.get(category))
-                        if category == 'Shortlist' and self.dbversion >= 14:
+                        elif category == 'Shortlist' and self.dbversion >= 14:
                             # Manage FavouritesIndex/Shortlist
                             self.set_favouritesindex(connection, ContentID)
-                        if category in accessibilitylist.keys():
+                        elif category in accessibilitylist.keys():
                             # Do not manage the Accessibility List
                             pass
         else: # No collections
@@ -723,7 +727,7 @@ class KOBO(USBMS):
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.lower().strip() for x in
-                    opts.extra_customization.split(',')]
+                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
         else:
             collections = []
 
