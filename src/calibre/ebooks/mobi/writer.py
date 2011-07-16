@@ -1325,6 +1325,8 @@ class MobiWriter(object):
             except:
                 self._oeb.logger.warn('Bad image file %r' % item.href)
                 continue
+            finally:
+                item.unload_data_from_memory()
             self._records.append(data)
             if self._first_image_record is None:
                 self._first_image_record = len(self._records)-1

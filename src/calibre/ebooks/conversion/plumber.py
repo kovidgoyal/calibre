@@ -1055,6 +1055,7 @@ OptionRecommendation(name='sr3_replace',
         with self.output_plugin:
             self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
+        self.oeb.clean_temp_files()
         self.ui_reporter(1.)
         run_plugins_on_postprocess(self.output, self.output_fmt)
 
