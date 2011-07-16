@@ -9,6 +9,12 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
+def sanitize_sort_field_name(field_metadata, field):
+    field = field_metadata.search_term_to_field_key(field.lower().strip())
+    # translate some fields to their hidden equivalent
+    field = {'title': 'sort', 'authors':'author_sort'}.get(field, field)
+    return field
+
 class View(object):
 
     def __init__(self, cache):
@@ -34,6 +40,10 @@ class View(object):
 
         self._map = list(self.cache.all_book_ids())
         self._map_filtered = list(self._map)
+
+    @property
+    def field_metadata(self):
+        return self.cache.field_metadata
 
     def _get_id(self, idx, index_is_id=True):
         ans = idx if index_is_id else self.index_to_id(idx)
@@ -82,5 +92,18 @@ class View(object):
             for id_ in ids:
                 ans.append(self.cache._author_data(id_))
         return tuple(ans)
+
+    def multisort(self, fields=[], subsort=False):
+        fields = [(sanitize_sort_field_name(self.field_metadata, x), bool(y)) for x, y in fields]
+        keys = self.field_metadata.sortable_field_keys()
+        fields = [x for x in fields if x[0] in keys]
+        if subsort and 'sort' not in [x[0] for x in fields]:
+            fields += [('sort', True)]
+        if not fields:
+            fields = [('timestamp', False)]
+
+        sorted_book_ids = self.cache.multisort(fields)
+        sorted_book_ids
+        # TODO: change maps
 
 

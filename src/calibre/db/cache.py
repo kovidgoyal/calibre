@@ -339,27 +339,8 @@ class Cache(object):
             return self.backend.cover(path, as_file=as_file, as_image=as_image,
                     as_path=as_path)
 
-    @api
-    def sanitize_sort_field_name(self, field):
-        field = self.field_metadata.search_term_to_field_key(field.lower().strip())
-        # translate some fields to their hidden equivalent
-        field = {'title': 'sort', 'authors':'author_sort'}.get(field, field)
-        return field
-
     @read_api
-    def sort(self, field, ascending, subsort=False):
-        self._multisort([(field, ascending)])
-
-    @read_api
-    def multisort(self, fields=[], subsort=False):
-        fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
-        keys = self.field_metadata.sortable_field_keys()
-        fields = [x for x in fields if x[0] in keys]
-        if subsort and 'sort' not in [x[0] for x in fields]:
-            fields += [('sort', True)]
-        if not fields:
-            fields = [('timestamp', False)]
-
+    def multisort(self, fields):
         all_book_ids = frozenset(self._all_book_ids())
         get_metadata = partial(self._get_metadata, get_user_categories=False)
 
