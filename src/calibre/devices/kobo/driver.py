@@ -22,7 +22,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge'
-    version = (1, 0, 9)
+    version = (1, 0, 10)
 
     dbversion = 0
     fwversion = 0
