@@ -281,6 +281,15 @@ I get the error message "Failed to start content server: Port 8080 not free on '
 
 The most likely cause of this is your antivirus program. Try temporarily disabling it and see if it does the trick.
 
+I cannot send emails using |app|?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Because of the large amount of spam in email, sending email can be tricky as different servers use different strategies to block email spam. 
+The most common problem is if you are sending email directly (without a mail relay) in |app|. Many servers (for example, Amazon) block email
+that does not come from a well known relay. The easiest way around this is to setup a free GMail account and then goto Preferences->Email in |app| and
+click the "Use Gmail" button. |app| will then use Gmail to send the mail. Remember to update the email preferences in on your Amazon Kindle page to
+allow email sent from your Gmail email address.
+
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
