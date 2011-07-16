@@ -47,9 +47,6 @@ def check_for_python_errors(code_string, filename):
         # Okay, it's syntactically valid.  Now check it.
         w = checker.Checker(tree, filename)
         w.messages.sort(lambda a, b: cmp(a.lineno, b.lineno))
-        for warning in w.messages:
-            print warning
-            print (dir(warning))
         return [Message(x.filename, x.lineno, x.message%x.message_args) for x in
                 w.messages]
 

@@ -62,6 +62,10 @@ class Cache(object):
                 lock = self.read_lock if ira else self.write_lock
                 setattr(self, name, wrap_simple(lock, func))
 
+    @property
+    def field_metadata(self):
+        return self.backend.field_metadata
+
     def _format_abspath(self, book_id, fmt):
         '''
         Return absolute path to the ebook file of format `format`
@@ -334,6 +338,43 @@ class Cache(object):
         with self.record_lock.lock(book_id):
             return self.backend.cover(path, as_file=as_file, as_image=as_image,
                     as_path=as_path)
+
+    @api
+    def sanitize_sort_field_name(self, field):
+        field = self.field_metadata.search_term_to_field_key(field.lower().strip())
+        # translate some fields to their hidden equivalent
+        field = {'title': 'sort', 'authors':'author_sort'}.get(field, field)
+        return field
+
+    @read_api
+    def sort(self, field, ascending, subsort=False):
+        self._multisort([(field, ascending)])
+
+    @read_api
+    def multisort(self, fields=[], subsort=False):
+        fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
+        keys = self.field_metadata.sortable_field_keys()
+        fields = [x for x in fields if x[0] in keys]
+        if subsort and 'sort' not in [x[0] for x in fields]:
+            fields += [('sort', True)]
+        if not fields:
+            fields = [('timestamp', False)]
+
+        all_book_ids = frozenset(self._all_book_ids())
+        get_metadata = partial(self._get_metadata, get_user_categories=False)
+
+        book_lists = tuple(self.field[field].sort_books(get_metadata, all_book_ids,
+            ascending=ascending) for field, ascending in fields)
+        if len(book_lists) == 1:
+            return book_lists[0]
+        else:
+            book_maps = tuple({id_:idx for idx, id_ in enumerate(x)} for x in
+                            book_lists)
+
+            def sort_key(book_id):
+                return tuple(d.get(book_id, -1) for d in book_maps)
+
+            return sorted(all_book_ids, key=sort_key)
 
     # }}}
 
