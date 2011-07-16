@@ -48,11 +48,15 @@ class KOBO(USBMS):
 
     VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo'])
 
-    EXTRA_CUSTOMIZATION_MESSAGE = _('The Kobo supports only one collection '
-            'currently: the \"Im_Reading\" list.  Create a tag called \"Im_Reading\" ')+\
-                    'for automatic management'
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+            _('The Kobo supports several collections including ')+\
+                    'Read, Closed, Im_Reading ' +\
+            _('Create tags for automatic management'),
+    ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['tags'])
+
+    OPT_COLLECTIONS = 0
 
     def initialize(self):
         USBMS.initialize(self)
@@ -723,7 +727,7 @@ class KOBO(USBMS):
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.lower().strip() for x in
-                    opts.extra_customization.split(',')]
+                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
         else:
             collections = []
 
