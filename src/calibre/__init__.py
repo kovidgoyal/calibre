@@ -474,7 +474,7 @@ def strftime(fmt, t=None):
 def my_unichr(num):
     try:
         return unichr(num)
-    except ValueError:
+    except (ValueError, OverflowError):
         return u'?'
 
 def entity_to_unicode(match, exceptions=[], encoding='cp1252',

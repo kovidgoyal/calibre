@@ -172,6 +172,9 @@ class Serializer(object):
         hrefs = self.oeb.manifest.hrefs
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
+            # The Kindle decides where to open a book based on the presence of
+            # an item in the guide that looks like
+            # <reference type="text" title="Start" href="chapter-one.xhtml"/>
             path = urldefrag(ref.href)[0]
             if path not in hrefs or hrefs[path].media_type not in OEB_DOCS:
                 continue
