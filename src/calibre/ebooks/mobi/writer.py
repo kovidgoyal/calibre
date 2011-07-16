@@ -218,12 +218,6 @@ class Serializer(object):
         self.anchor_offset = buffer.tell()
         buffer.write('<body>')
         self.anchor_offset_kindle = buffer.tell()
-        # CybookG3 'Start Reading' link
-        if 'text' in self.oeb.guide:
-            href = self.oeb.guide['text'].href
-            buffer.write('<a ')
-            self.serialize_href(href)
-            buffer.write(' />')
         spine = [item for item in self.oeb.spine if item.linear]
         spine.extend([item for item in self.oeb.spine if not item.linear])
         for item in spine:
