@@ -363,20 +363,30 @@ class Cache(object):
         all_book_ids = frozenset(self._all_book_ids())
         get_metadata = partial(self._get_metadata, get_user_categories=False)
 
-        book_lists = tuple(self.field[field].sort_books(get_metadata, all_book_ids,
-            ascending=ascending) for field, ascending in fields)
-        if len(book_lists) == 1:
-            return book_lists[0]
+        sort_keys = tuple(self.fields[field[0]].sort_keys_for_books(get_metadata,
+            all_book_ids) for field in fields)
+
+        if len(sort_keys) == 1:
+            sk = sort_keys[0]
+            return sorted(all_book_ids, key=lambda i:sk[i], reverse=not
+                    fields[1])
         else:
-            book_maps = tuple({id_:idx for idx, id_ in enumerate(x)} for x in
-                            book_lists)
-
-            def sort_key(book_id):
-                return tuple(d.get(book_id, -1) for d in book_maps)
-
-            return sorted(all_book_ids, key=sort_key)
+            return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
 
     # }}}
+
+class SortKey(object):
+
+    def __init__(self, fields, sort_keys, book_id):
+        self.orders = tuple(1 if f[1] else -1 for f in fields)
+        self.sort_key = tuple(sk[book_id] for sk in sort_keys)
+
+    def __cmp__(self, other):
+        for i, order in enumerate(self.orders):
+            ans = cmp(self.sort_key[i], other.sort_key[i])
+            if ans != 0:
+                return ans * order
+
 
 # Testing {{{
 

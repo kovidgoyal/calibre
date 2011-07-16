@@ -55,17 +55,14 @@ class Field(object):
         '''
         raise NotImplementedError()
 
-    def sort_books(self, get_metadata, all_book_ids, ascending=True):
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
         '''
-        Sort books by this field. Returns a sorted list of book_ids
-
-        :param _get_metadata: A callable which when called with the book_id
-        returns the Metadata object for that book. Needed for sorting composite
-        columns.
-
-        :param all_book_ids: The set of ids for all books.
+        Return a mapping of book_id -> sort_key. The sort key is suitable for
+        use in sorting the list of all books by this field, via the python cmp
+        method.
         '''
         raise NotImplementedError()
+
 
 class OneToOneField(Field):
 
@@ -84,9 +81,9 @@ class OneToOneField(Field):
     def iter_book_ids(self):
         return self.table.book_col_map.iterkeys()
 
-    def sort_books(self, get_metadata, all_book_ids, ascending=True):
-        return sorted(self.iter_book_ids(), reverse=not ascending,
-            key=lambda i: self._sort_key(self.book_col_map[i]))
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        return {id_ : self._sort_key(self.book_col_map.get(id_, '')) for id_ in
+                all_book_ids}
 
 class CompositeField(OneToOneField):
 
@@ -121,10 +118,10 @@ class CompositeField(OneToOneField):
             ans = mi.get(self.metadata['label'])
         return ans
 
-    def sort_books(self, get_metadata, all_book_ids, ascending=True):
-        return sorted(all_book_ids, reverse=not ascending,
-                key=lambda i: sort_key(self.get_value_with_cache(i,
-                    get_metadata)))
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        return {id_ : sort_key(self.get_value_with_cache(id_, get_metadata)) for id_ in
+                all_book_ids}
+
 
 class OnDeviceField(OneToOneField):
 
@@ -160,9 +157,9 @@ class OnDeviceField(OneToOneField):
     def iter_book_ids(self):
         return iter(())
 
-    def sort_books(self, get_metadata, all_book_ids, ascending=True):
-        return sorted(all_book_ids, reverse=not ascending,
-                key=self.for_book)
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        return {id_ : self.for_book(id_) for id_ in
+                all_book_ids}
 
 class ManyToOneField(Field):
 
@@ -186,14 +183,11 @@ class ManyToOneField(Field):
     def __iter__(self):
         return self.table.id_map.iterkeys()
 
-    def sort_books(self, get_metadata, all_book_ids, ascending=True):
-        ids = sorted(self.id_map,
-                key=lambda i:self._sort_key(self.id_map[i]))
-        sm = {id_ : idx for idx, id_ in enumerate(ids)}
-        return sorted(all_book_ids, reverse=not ascending,
-                key=lambda book_id : sm.get(
-                    self.book_col_map.get(book_id, None),
-                    -1))
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        keys = {id_ : self._sort_key(self.id_map.get(id_, '')) for id_ in
+                all_book_ids}
+        return {id_ : keys.get(
+            self.book_col_map.get(id_, None), '') for id_ in all_book_ids}
 
 class ManyToManyField(Field):
 
@@ -218,19 +212,18 @@ class ManyToManyField(Field):
     def __iter__(self):
         return self.table.id_map.iterkeys()
 
-    def sort_books(self, get_metadata, all_book_ids, ascending=True):
-        ids = sorted(self.id_map,
-                key=lambda i:self._sort_key(self.id_map[i]))
-        sm = {id_ : idx for idx, id_ in enumerate(ids)}
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        keys = {id_ : self._sort_key(self.id_map.get(id_, '')) for id_ in
+                all_book_ids}
 
         def sort_key_for_book(book_id):
             item_ids = self.table.book_col_map.get(book_id, ())
             if self.alphabetical_sort:
-                item_ids = sorted(item_ids, key=sm.get)
-            return tuple(map(sm.get, item_ids))
+                item_ids = sorted(item_ids, key=keys.get)
+            return tuple(map(keys.get, item_ids))
 
-        return sorted(all_book_ids, reverse=not ascending,
-                key=sort_key_for_book)
+        return {id_ : sort_key_for_book(id_) for id_ in all_book_ids}
+
 
 class AuthorsField(ManyToManyField):
 
