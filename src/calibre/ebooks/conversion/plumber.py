@@ -366,9 +366,9 @@ OptionRecommendation(name='remove_paragraph_spacing',
 
 OptionRecommendation(name='remove_paragraph_spacing_indent_size',
         recommended_value=1.5, level=OptionRecommendation.LOW,
-        help=_('When calibre removes inter paragraph spacing, it automatically '
+        help=_('When calibre removes blank lines between paragraphs, it automatically '
             'sets a paragraph indent, to ensure that paragraphs can be easily '
-            'distinguished. This option controls the width of that indent.')
+            'distinguished. This option controls the width of that indent (in em).')
         ),
 
 OptionRecommendation(name='prefer_metadata_cover',
@@ -382,6 +382,13 @@ OptionRecommendation(name='insert_blank_line',
         help=_('Insert a blank line between paragraphs. Will not work '
             'if the source file does not use paragraphs (<p> or <div> tags).'
             )
+        ),
+
+OptionRecommendation(name='insert_blank_line_size',
+        recommended_value=0.5, level=OptionRecommendation.LOW,
+        help=_('Set the height of the inserted blank lines (in em).'
+            ' The height of the lines between paragraphs will be twice the value'
+            ' set here.')
         ),
 
 OptionRecommendation(name='remove_first_image',
