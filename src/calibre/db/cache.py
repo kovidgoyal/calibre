@@ -386,6 +386,7 @@ class SortKey(object):
             ans = cmp(self.sort_key[i], other.sort_key[i])
             if ans != 0:
                 return ans * order
+        return 0
 
 
 # Testing {{{
