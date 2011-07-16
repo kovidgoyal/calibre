@@ -45,9 +45,10 @@ body > .calibre_toc_block {
     }
 
 class HTMLTOCAdder(object):
-    def __init__(self, title=None, style='nested'):
+    def __init__(self, title=None, style='nested', position='end'):
         self.title = title
         self.style = style
+        self.position = position
 
     @classmethod
     def config(cls, cfg):
@@ -98,7 +99,10 @@ class HTMLTOCAdder(object):
         self.add_toc_level(body, oeb.toc)
         id, href = oeb.manifest.generate('contents', 'contents.xhtml')
         item = oeb.manifest.add(id, href, XHTML_MIME, data=contents)
-        oeb.spine.add(item, linear=False)
+        if self.position == 'end':
+            oeb.spine.add(item, linear=False)
+        else:
+            oeb.spine.insert(0, item, linear=True)
         oeb.guide.add('toc', 'Table of Contents', href)
 
     def add_toc_level(self, elem, toc):

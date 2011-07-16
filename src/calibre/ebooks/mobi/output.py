@@ -27,7 +27,7 @@ class MOBIOutput(OutputFormatPlugin):
         ),
         OptionRecommendation(name='no_inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Don\'t add Table of Contents to end of book. Useful if '
+            help=_('Don\'t add Table of Contents to the book. Useful if '
                 'the book has its own table of contents.')),
         OptionRecommendation(name='toc_title', recommended_value=None,
             help=_('Title for any generated in-line table of contents.')
@@ -45,6 +45,12 @@ class MOBIOutput(OutputFormatPlugin):
                 'the MOBI output plugin will try to convert margins specified'
                 ' in the input document, otherwise it will ignore them.')
         ),
+        OptionRecommendation(name='mobi_toc_at_start',
+            recommended_value=False,
+            help=_('When adding the Table of Contents to the book, add it at the start of the '
+                'book instead of the end. Not recommended.')
+        ),
+
     ])
 
     def check_for_periodical(self):
@@ -167,7 +173,8 @@ class MOBIOutput(OutputFormatPlugin):
         from calibre.customize.ui import plugin_for_input_format
         imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
         if not opts.no_inline_toc:
-            tocadder = HTMLTOCAdder(title=opts.toc_title)
+            tocadder = HTMLTOCAdder(title=opts.toc_title, position='start' if
+                    opts.mobi_toc_at_start else 'end')
             tocadder(oeb, opts)
         mangler = CaseMangler()
         mangler(oeb, opts)
