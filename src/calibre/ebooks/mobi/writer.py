@@ -141,7 +141,7 @@ def rescale_image(data, maxsizeb, dimen=None):
         scale -= 0.05
     return data
 
-class Serializer(object):
+class Serializer(object): # {{{
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
 
     def __init__(self, oeb, images, write_page_breaks_after_item=True):
@@ -311,6 +311,8 @@ class Serializer(object):
                 for hoff in hoffs:
                     buffer.seek(hoff)
                     buffer.write('%010d' % ioff)
+
+    # }}}
 
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
