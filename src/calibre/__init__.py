@@ -341,7 +341,7 @@ def random_user_agent():
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     '''
     Create a mechanize browser for web scraping. The browser handles cookies,
-    refresh requests and ignores robots.txt. Also uses proxy if avaialable.
+    refresh requests and ignores robots.txt. Also uses proxy if available.
 
     :param honor_time: If True honors pause time in refresh requests
     :param max_time: Maximum time in seconds to wait during a refresh request
