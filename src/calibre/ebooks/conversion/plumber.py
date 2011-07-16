@@ -602,7 +602,7 @@ OptionRecommendation(name='sr3_replace',
         input_fmt = os.path.splitext(self.input)[1]
         if not input_fmt:
             raise ValueError('Input file must have an extension')
-        input_fmt = input_fmt[1:].lower()
+        input_fmt = input_fmt[1:].lower().replace('original_', '')
         self.archive_input_tdir = None
         if input_fmt in ARCHIVE_FMTS:
             self.log('Processing archive...')

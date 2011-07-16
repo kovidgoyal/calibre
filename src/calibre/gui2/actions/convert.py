@@ -12,7 +12,7 @@ from PyQt4.Qt import QModelIndex, QMenu
 
 from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.gui2.actions import InterfaceAction
 from calibre.customize.ui import plugin_for_input_format
 
@@ -118,6 +118,8 @@ class ConvertAction(InterfaceAction):
     def queue_convert_jobs(self, jobs, changed, bad, rows, previous,
             converted_func, extra_job_args=[]):
         for func, args, desc, fmt, id, temp_files in jobs:
+            func, _, same_fmt = func.partition(':')
+            same_fmt = same_fmt == 'same_fmt'
             input_file = args[0]
             input_fmt = os.path.splitext(input_file)[1]
             core_usage = 1
@@ -131,6 +133,7 @@ class ConvertAction(InterfaceAction):
                 job = self.gui.job_manager.run_job(Dispatcher(converted_func),
                                             func, args=args, description=desc,
                                             core_usage=core_usage)
+                job.conversion_of_same_fmt = same_fmt
                 args = [temp_files, fmt, id]+extra_job_args
                 self.conversion_jobs[job] = tuple(args)
 
@@ -166,14 +169,18 @@ class ConvertAction(InterfaceAction):
             if job.failed:
                 self.gui.job_exception(job)
                 return
+            same_fmt = getattr(job, 'conversion_of_same_fmt', False)
             fmtf = temp_files[-1].name
             if os.stat(fmtf).st_size < 1:
                 raise Exception(_('Empty output file, '
                     'probably the conversion process crashed'))
 
+            db = self.gui.current_db
+            if same_fmt and tweaks['save_original_format']:
+                db.save_original_format(book_id, fmt, notify=False)
+
             with open(temp_files[-1].name, 'rb') as data:
-                self.gui.library_view.model().db.add_format(book_id, \
-                    fmt, data, index_is_id=True)
+                db.add_format(book_id, fmt, data, index_is_id=True)
             self.gui.status_bar.show_message(job.description + \
                     (' completed'), 2000)
         finally:
