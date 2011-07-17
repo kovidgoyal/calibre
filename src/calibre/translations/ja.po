@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-15 17:42+0000\n"
-"PO-Revision-Date: 2011-07-11 17:02+0000\n"
+"PO-Revision-Date: 2011-07-16 12:10+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-16 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-07-17 04:31+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -889,7 +889,7 @@ msgstr "Yes"
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:110
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1086
 msgid "Main"
-msgstr ""
+msgstr "主メモリー"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
@@ -2767,16 +2767,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:62
 #, python-format
 msgid "Multiple HTML files found in the archive. Only %s will be used."
-msgstr ""
+msgstr "複数のHTMLファイルがアーカイブ内に見つかりました。%sのみを使用します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:68
 msgid "No top level HTML file found."
-msgstr ""
+msgstr "トップレベルのHTMLファイルが見つかりませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:71
 #, python-format
 msgid "Top level HTML file %s is empty"
-msgstr ""
+msgstr "トップレベルのHTMLファイル%sが空です"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:30
 msgid ""
@@ -8548,7 +8548,7 @@ msgstr "実行中のジョブ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:49
 msgid "&Stop selected jobs"
-msgstr ""
+msgstr "選択したジョブを停止(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:50
 msgid "Show job &details"
@@ -10864,8 +10864,7 @@ msgstr " - ジョブ"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:470
 msgid "Do you really want to stop the selected job?"
 msgid_plural "Do you really want to stop all the selected jobs?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "本当に選択したジョブを停止しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:478
 msgid "Do you really want to stop all non-device jobs?"
@@ -12174,7 +12173,7 @@ msgstr ""
 #, python-format
 msgid ""
 "<li>If the <b>%(col)s</b> column <b>%(action)s</b> value: <b>%(val)s</b>"
-msgstr ""
+msgstr "<li>もし <b>%(col)s</b> 列が <b>%(action)s</b> の時の値: <b>%(val)s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:483
 msgid ""
@@ -13023,7 +13022,7 @@ msgstr "出版日"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:265
 #, python-format
 msgid "<b>Configure %(name)s</b><br>%(desc)s"
-msgstr ""
+msgstr "<b>%(name)sを設定</b><br>%(desc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:322
 msgid "No source selected"
@@ -13987,7 +13986,7 @@ msgstr "デバイス中の書籍のコンテクスト・メニュー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:228
 msgid "The context menu for the cover browser"
-msgstr ""
+msgstr "表紙ブラウザーのコンテキスト・メニュー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:262
 msgid "Cannot add"
@@ -14603,7 +14602,7 @@ msgstr "書籍を処理中"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:71
 #, python-format
 msgid "%(num)s of %(tot)s books processed."
-msgstr ""
+msgstr "%(num)s / %(tot)s 書籍を処理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/mobileread_plugin.py:62
 msgid "Updating MobileRead book cache..."
@@ -16566,7 +16565,7 @@ msgstr ""
 msgid ""
 "Assume that each directory has only a single logical book and that all files "
 "in it are different e-book formats of that book"
-msgstr ""
+msgstr "各ディレクトリには1つの書籍しかなく、すべてのファイルは、その書籍の違ったフォーマットである、と仮定します。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:283
 msgid "Process directories recursively"
@@ -16826,16 +16825,23 @@ msgid ""
 "    command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog set_custom [options] column id value\n"
+"\n"
+"    IDで指定される書籍のカスタム列の値を設定。\n"
+"    IDはlistコマンドで取得できます。\n"
+"    custom_columnsコマンドを使ってカスタム列の名前のリストを取得できます。\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:738
 msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
-msgstr ""
+msgstr "もし列に複数の値を設定できる場合、値を指定した値に入れ替えるのではなく、すでにある値に付け加えます。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:749
 msgid "Error: You must specify a field name, id and value"
-msgstr ""
+msgstr "エラー：フィールド名、ID、値を指定しなくてはなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:769
 msgid ""
@@ -16845,15 +16851,20 @@ msgid ""
 "    List available custom columns. Shows column labels and ids.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog custom_columns [options]\n"
+"\n"
+"    存在するカスタム列を表示。列名とIDを表示します。\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:775
 msgid "Show details for each column."
-msgstr ""
+msgstr "各列の詳細を表示"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:787
 #, python-format
 msgid "You will lose all data in the column: %r. Are you sure (y/n)? "
-msgstr ""
+msgstr "この列のすべてのデータが無くなります: %r. よろしいですか (y/n)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:789
 msgid "y"
@@ -16868,14 +16879,19 @@ msgid ""
 "    columns with the custom_columns command.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog remove_custom_column [options] label\n"
+"\n"
+"    labelで指定されるカスタム列を削除。custom_columns コマンドで存在するカスタム列を見ることができます。\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:803
 msgid "Do not ask for confirmation"
-msgstr ""
+msgstr "確認を表示しない"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:813
 msgid "Error: You must specify a column label"
-msgstr ""
+msgstr "エラー：列ラベルを指定しなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:824
 msgid ""
@@ -16889,10 +16905,18 @@ msgid ""
 "    replaced.\n"
 "    "
 msgstr ""
+"\n"
+"    %prog saved_searches [options] list\n"
+"    %prog saved_searches add name search\n"
+"    %prog saved_searches remove name\n"
+"\n"
+"    データーベースに入れられた、保存された検索、を管理します。\n"
+"    もしすでにある名前と同じ名前を追加しようとした場合、すでにある物は置き換えられます。\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:841
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr ""
+msgstr "エラー：動作を指定しなければなりません。(add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:849
 msgid "Name:"
@@ -16904,7 +16928,7 @@ msgstr "検索文字列:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:856
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "エラー：名前と検索文字列を指定しなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:859
 msgid "added"
@@ -16912,7 +16936,7 @@ msgstr "追加された"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:864
 msgid "Error: You must specify a name"
-msgstr ""
+msgstr "エラー：名前を指定しなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:867
 msgid "removed"
@@ -16921,7 +16945,7 @@ msgstr "削除された"
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:871
 #, python-format
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
-msgstr ""
+msgstr "Error: %sと言う動作がわかりません。次の中の物でなければなりません: (add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:879
 msgid ""
@@ -16930,29 +16954,38 @@ msgid ""
 "Perform some checks on the filesystem representing a library. Reports are "
 "{0}\n"
 msgstr ""
+"%prog check_library [options]\n"
+"\n"
+"ライブラリのあるファイルシステムをチェックします。レポート：{0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:886
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1036
 msgid "Output in CSV"
-msgstr ""
+msgstr "CSVで出力"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:889
 msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
 msgstr ""
+"カンマ区切りのレポートのリスト\n"
+"ディフォールト: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:893
 msgid ""
 "Comma-separated list of extensions to ignore.\n"
 "Default: all"
 msgstr ""
+"無視する拡張子のカンマ区切りのリスト\n"
+"ディフォールト: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:897
 msgid ""
 "Comma-separated list of names to ignore.\n"
 "Default: all"
 msgstr ""
+"無視する名前のカンマ区切りのリスト\n"
+"ディフォールト: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:927
 msgid "Unknown report check"

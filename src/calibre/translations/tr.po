@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-15 17:42+0000\n"
-"PO-Revision-Date: 2011-07-15 17:42+0000\n"
-"Last-Translator: zeugma <Unknown>\n"
+"PO-Revision-Date: 2011-07-16 15:56+0000\n"
+"Last-Translator: Gs-Kobzeci <ricizki@yahoo.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-16 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-07-17 04:32+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2073,6 +2073,10 @@ msgid ""
 "default. Use %(en)s to enable.  Individual actions can be disabled with the "
 "%(dis)s options."
 msgstr ""
+"Genel tanımlı motifleri kullanarak dökümanın yazılarını ve yapısını "
+"değiştirin. Default olarak pasif durumdadır. Aktifleştirmek için %(en)s "
+"kullanın.  Komutları tek tek pasifleştirmek için  %(dis)s ayarını "
+"kullanabilirsiniz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:154
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:18
@@ -2091,6 +2095,8 @@ msgid ""
 "source file has a Table of Contents, it will be used in preference to the "
 "automatically generated one."
 msgstr ""
+"İçindekiler(TOC)'un otomatik oluşturulma ayarını düzenleyin. Eğer kaynak "
+"içindekiler(TOC)'e sahipse varsayılan olarak o kullanılacaktır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:183
 msgid "Options to set metadata in the output"
@@ -2154,7 +2160,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:165
 msgid "Disable all rescaling of font sizes."
-msgstr ""
+msgstr "Tüm yazı tiplerinin yeniden boyutlandırılmasını etkisizleştir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:172
 msgid ""
@@ -2289,6 +2295,10 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
+"Tesbit edilen bölümlerin nasıl işaretleneceğini belirleyin. \"pagebreak\" "
+"değeri bölümlerden önce sayfa sonu ekler. \"rule\" değeri bölümlerden önce "
+"bir çizgi ekler. \"none\" değeri bölüm işaretlemeyi pasifleştirir ve "
+"\"both\" değeri ise bölümlerden önce hem çizgi hem sayfa sonu ekler."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:305
 msgid ""
@@ -2454,7 +2464,7 @@ msgstr "Yazar'a göre sıralamada kullanılacak metin "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:465
 msgid "Set the cover to the specified file or URL"
-msgstr ""
+msgstr "Kapağı belirli bir dosya veya URL'ye ayarla"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:469
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:54
@@ -2766,6 +2776,9 @@ msgid ""
 "\n"
 " See: "
 msgstr ""
+"Kitabın türü. Seçim: %s\n"
+"\n"
+" Bakınız: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
@@ -2795,19 +2808,22 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:32
 msgid "CSS file used for the output instead of the default file"
-msgstr ""
+msgstr "Çıktı için öntanımlı dosya yerine CSS dosyası kullanıldı"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:35
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
+"Html indeks dosyası oluşturmak için öntanımlı dosya yerine şablon kullanıldı"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:38
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
+"Kitabın içindekiler bölümünün html'sinin oluşturulması için öntanımlı dosya "
+"yerine şablon kullanıldı"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:41
 msgid ""
@@ -2846,16 +2862,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:62
 #, python-format
 msgid "Multiple HTML files found in the archive. Only %s will be used."
-msgstr ""
+msgstr "Arşivde birden çok HTML dosyası bulundu. Sadece %s kullanılacak."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:68
 msgid "No top level HTML file found."
-msgstr ""
+msgstr "Üst seviye HTML dosyası bulunamadı."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:71
 #, python-format
 msgid "Top level HTML file %s is empty"
-msgstr ""
+msgstr "Üst seviye HTML dosyası %s boş."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:30
 msgid ""
@@ -3227,8 +3243,7 @@ msgstr "Etiketler"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:124
 msgid "Series"
 msgid_plural "Series"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Seriler"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:746
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
@@ -3367,7 +3382,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:396
 msgid "US"
-msgstr ""
+msgstr "US"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:397
 msgid "France"
@@ -17550,15 +17565,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
-msgstr ""
+msgstr "URL sftp şemasına sahip olmalıdır"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:57
 msgid "host must be of the form user@hostname"
-msgstr ""
+msgstr "host user@hostname biçiminde olmalıdır"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:68
 msgid "Failed to negotiate SSH session: "
-msgstr ""
+msgstr "SSH oturumu ayarlamada başarısız olundu "
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
 #, python-format
@@ -17571,11 +17586,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:120
 msgid "Unknown section"
-msgstr ""
+msgstr "Bilinmeyen bölüm"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:142
 msgid "Unknown feed"
-msgstr ""
+msgstr "Bilinmeyen besleme(yayın)"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:160
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:187
@@ -17595,10 +17610,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:40
 msgid "Username for sites that require a login to access content."
 msgstr ""
+"İçeriğe erişmek için giriş yapılması gereken siteler için kullanıcı adı."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:43
 msgid "Password for sites that require a login to access content."
-msgstr ""
+msgstr "İçeriğe erişmek için giriş yapılması gereken siteler için şifre."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:47
 msgid ""
@@ -17607,7 +17623,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:47
 msgid "Unknown News Source"
-msgstr ""
+msgstr "Bilinmeyen Haber Kaynağı"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:630
 #, python-format
@@ -17616,15 +17632,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:736
 msgid "Download finished"
-msgstr ""
+msgstr "İndirme tamamlandı"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
 msgid "Failed to download the following articles:"
-msgstr ""
+msgstr "Aşağıdaki makaleleri indirme başarısız oldu:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:744
 msgid "Failed to download parts of the following articles:"
-msgstr ""
+msgstr "Aşağıdaki makalelerin bölümlerini indirme başarısız oldu:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:746
 msgid " from "
@@ -17636,7 +17652,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:843
 msgid "Could not fetch article."
-msgstr ""
+msgstr "Makale getirilemedi"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:845
 msgid "The debug traceback is available earlier in this log"
@@ -17644,28 +17660,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:847
 msgid "Run with -vv to see the reason"
-msgstr ""
+msgstr "Sebebi görmek için -w kodunu çalıştırın"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:870
 msgid "Fetching feeds..."
-msgstr ""
+msgstr "Beslemeler getiriliyor..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:875
 msgid "Got feeds from index page"
-msgstr ""
+msgstr "İndeks sayfasından beslemeleri al"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:884
 msgid "Trying to download cover..."
-msgstr ""
+msgstr "Kapak indirilmeye çalışılıyor..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:886
 msgid "Generating masthead..."
-msgstr ""
+msgstr "Künye oluşturuluyor..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:966
 #, python-format
 msgid "Starting download [%d thread(s)]..."
-msgstr ""
+msgstr "[%d thread(s)] İndirilmeye başlanıyor"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:982
 #, python-format
@@ -17675,16 +17691,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:991
 #, python-format
 msgid "Could not download cover: %s"
-msgstr ""
+msgstr "Kapak İndirilemedi: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1000
 #, python-format
 msgid "Downloading cover from %s"
-msgstr ""
+msgstr "Kapak %s 'den indiriliyor"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1046
 msgid "Masthead image downloaded"
-msgstr ""
+msgstr "Künye resmi indirildi"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1214
 msgid "Untitled Article"
@@ -17693,12 +17709,12 @@ msgstr "Başlıksız Yazı"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1285
 #, python-format
 msgid "Article downloaded: %s"
-msgstr ""
+msgstr "Makale indirildi: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1296
 #, python-format
 msgid "Article download failed: %s"
-msgstr ""
+msgstr "Makalenin indirilmesi başarısız oldu: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1313
 msgid "Fetching feed"
@@ -17735,32 +17751,32 @@ msgstr "Özel tanımlı"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:118
 msgid "Next section"
-msgstr ""
+msgstr "Sonraki bölüm"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:121
 msgid "Main menu"
-msgstr ""
+msgstr "Ana menü"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:125
 msgid "Previous section"
-msgstr ""
+msgstr "Önceki bölüm"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:214
 msgid "Section Menu"
-msgstr ""
+msgstr "Bölüm menüsü"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"
-msgstr ""
+msgstr "Ana Menü"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:303
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:393
 msgid "Sections"
-msgstr ""
+msgstr "Bölümler"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:390
 msgid "Articles"
-msgstr ""
+msgstr "Makaleler"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:476
 msgid ""
@@ -17772,7 +17788,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 #, python-format
 msgid "Base directory into which URL is saved. Default is %default"
-msgstr ""
+msgstr "URL'nin kaydedileceği temel dizin. Öntanımlısı %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 #, python-format
@@ -17796,6 +17812,8 @@ msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
 msgstr ""
+"İndirilecek maksimum dosya sayısı. Bu sadece <a href> etiketlerindeki "
+"dosyalara uygulanır. Öntanımlısı %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:490
 #, python-format
@@ -17835,23 +17853,23 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:652
 msgid "Save"
-msgstr ""
+msgstr "Kaydet"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
-msgstr ""
+msgstr "Aç"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "Cancel"
-msgstr ""
+msgstr "İptal"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"
-msgstr ""
+msgstr "&Kapat"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Apply"
-msgstr ""
+msgstr "Uygula"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:674
 msgid "Don't Save"
@@ -17859,11 +17877,11 @@ msgstr "Kaydetme"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:676
 msgid "Close without Saving"
-msgstr ""
+msgstr "Kaydetmeden Kapat"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:678
 msgid "Discard"
-msgstr ""
+msgstr "Gözardı Et"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:681
 msgid "&Yes"
@@ -17887,11 +17905,11 @@ msgstr "Tümünü Kaydet"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:696
 msgid "Abort"
-msgstr ""
+msgstr "Bitirmeden durdur"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:699
 msgid "Retry"
-msgstr ""
+msgstr "Tekrar dene"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Ignore"
@@ -17903,7 +17921,7 @@ msgstr "Öntanımlıları Yeniden Yükle"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
-msgstr ""
+msgstr "Seri indeksini otomatik artır"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:13
 msgid ""
@@ -18143,7 +18161,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:172
 msgid "Specify a folder calibre should connect to at startup"
-msgstr ""
+msgstr "Calibre'nin başlangıçta bağlanması gereken dizini belirtin"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:173
 msgid ""
@@ -18160,7 +18178,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:182
 msgid "Specify renaming rules for SONY collections"
-msgstr ""
+msgstr "SONY koleksiyonları için yeniden isimlendirilme kurallarını belirtin"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:183
 msgid ""
@@ -18235,7 +18253,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:235
 msgid "Specify how SONY collections are sorted"
-msgstr ""
+msgstr "SONY koleksiyonlarının nasıl sıralanacağını belirtin"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:236
 msgid ""
@@ -18267,6 +18285,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:253
 msgid "Control how tags are applied when copying books to another library"
 msgstr ""
+"Kitapları başka bir kitaplığa kopyalarken etiketlerin nasıl uygulanacağını "
+"ayarlayın."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:254
 msgid ""
@@ -18277,11 +18297,14 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:258
 msgid "Set the maximum number of tags to show per book in the content server"
 msgstr ""
+"İçerik sunucusunda kitap başına gösterilecek etiket sayısını belirleyin"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:261
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
 msgstr ""
+"İçerik sunucusunun göstereceği veya göstermeyeceği metaveri alanlarını "
+"belirleyin"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:262
 msgid ""
@@ -18321,6 +18344,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:287
 msgid "Specify which font to use when generating a default cover"
 msgstr ""
+"Öntanımlı bir kapak oluşturulurken kullanılacak yazıtipini belirleyin"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:288
 msgid ""
@@ -18332,7 +18356,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:294
 msgid "Control behavior of the book list"
-msgstr ""
+msgstr "Kitap listesinin davranışlarını ayarlayın"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:295
 msgid ""
@@ -18348,7 +18372,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:306
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Sıralama yaparken kullanılacak dil"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:307
 msgid ""
@@ -18366,7 +18390,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:318
 msgid "Number of columns for custom metadata in the edit metadata dialog"
-msgstr ""
+msgstr "Metaveri düzenleme penceresinde özel metaveri için sütun sayısı"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:319
 msgid ""
@@ -18378,7 +18402,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:324
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "E-posta göndermeden önce bekleme süresi(saniye)"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:325
 msgid ""
@@ -18391,7 +18415,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:332
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "Kitap listesi sınrılarındaki açık sarı çizgileri kaldır"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:333
 msgid ""
@@ -18403,6 +18427,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:338
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr ""
+"Calibre kitaplığında saklanan kitap kapakları için maksimum genişlik ve "
+"yükseklik"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:339
 msgid ""
@@ -18410,6 +18436,9 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
+"Calibre kitaplığındaki bütün kapaklar, en boy oranını koruyarak\n"
+" boyuta sığmak için yeniden boyutlandırılacaktır, Bu çok büyük\n"
+"kapakların neden olduğu yavaşlamayı önelemek içindir."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:344
 msgid "Where to send downloaded news"
