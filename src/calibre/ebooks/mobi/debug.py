@@ -7,10 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, datetime
+import struct, datetime, sys, os
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 
+# PalmDB {{{
 class PalmDOCAttributes(object):
 
     class Attr(object):
@@ -94,6 +95,7 @@ class PalmDB(object):
         ans.append('Number of records: %s'%self.number_of_records)
 
         return '\n'.join(ans)
+# }}}
 
 class Record(object):
 
@@ -106,6 +108,7 @@ class Record(object):
         return 'Offset: %d Flags: %d UID: %d'%(self.offset, self.flags,
                 self.uid)
 
+# EXTH {{{
 class EXTHRecord(object):
 
     def __init__(self, type_, data):
@@ -189,9 +192,9 @@ class EXTHHeader(object):
         for r in self.records:
             ans.append(str(r))
         return '\n'.join(ans)
+# }}}
 
-
-class MOBIHeader(object):
+class MOBIHeader(object): # {{{
 
     def __init__(self, record0):
         self.raw = record0.raw
@@ -311,7 +314,8 @@ class MOBIHeader(object):
         ans.append('Secondary index record: %d (null val: %d)'%(
             self.secondary_index_record, 0xffffffff))
         ans.append('Reserved2: %r'%self.reserved2)
-        ans.append('First non-book record: %d'% self.first_non_book_record)
+        ans.append('First non-book record (null value: %d): %d'%(0xffffffff,
+            self.first_non_book_record))
         ans.append('Full name offset: %d'%self.fullname_offset)
         ans.append('Full name length: %d bytes'%self.fullname_length)
         ans.append('Langcode: %r'%self.locale_raw)
@@ -342,7 +346,8 @@ class MOBIHeader(object):
             ans.append('FLIS count: %d'% self.flis_count)
             ans.append('Unknown6: %r'% self.unknown6)
             ans.append('Extra data flags: %r'%self.extra_data_flags)
-            ans.append('Primary index record: %d'%self.primary_index_record)
+            ans.append('Primary index record (null value: %d): %d'%(0xffffffff,
+                self.primary_index_record))
 
         ans = '\n'.join(ans)
 
@@ -355,6 +360,91 @@ class MOBIHeader(object):
 
         ans += '\nRecord 0 length: %d'%len(self.raw)
         return ans
+# }}}
+
+class TagX(object):
+
+    def __init__(self, raw, control_byte_count):
+        pass
+
+class PrimaryIndexRecord(object):
+
+    def __init__(self, record):
+        self.record = record
+        raw = self.record.raw
+        if raw[:4] != b'INDX':
+            raise ValueError('Invalid Primary Index Record')
+
+        self.header_length, = struct.unpack('>I', raw[4:8])
+        self.unknown1 = raw[8:16]
+        self.index_type, = struct.unpack('>I', raw[16:20])
+        self.index_type_desc = {0: 'normal', 2:
+                'inflection'}.get(self.index_type, 'unknown')
+        self.idxt_start, = struct.unpack('>I', raw[20:24])
+        self.index_count, = struct.unpack('>I', raw[24:28])
+        self.index_encoding_num, = struct.unpack('>I', raw[28:32])
+        self.index_encoding = {65001: 'utf-8', 1252:
+                'cp1252'}.get(self.index_encoding_num, 'unknown')
+        self.locale_raw, = struct.unpack(b'>I', raw[32:36])
+        langcode = self.locale_raw
+        langid    = langcode & 0xFF
+        sublangid = (langcode >> 10) & 0xFF
+        self.language = main_language.get(langid, 'ENGLISH')
+        self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
+        self.num_index_entries, = struct.unpack('>I', raw[36:40])
+        self.ordt_start, = struct.unpack('>I', raw[40:44])
+        self.ligt_start, = struct.unpack('>I', raw[44:48])
+        self.num_of_ligt_entries, = struct.unpack('>I', raw[48:52])
+        self.num_of_ctoc_blocks, = struct.unpack('>I', raw[52:56])
+        self.unknown2 = raw[56:180]
+        self.tagx_offset, = struct.unpack(b'>I', raw[180:184])
+        if self.tagx_offset != self.header_length:
+            raise ValueError('TAGX offset and header length disagree')
+        self.unknown3 = raw[184:self.header_length]
+
+        tagx = raw[self.header_length:]
+        if not tagx.startswith(b'TAGX'):
+            raise ValueError('Invalid TAGX section')
+        self.tagx_header_length, = struct.unpack('>I', tagx[4:8])
+        self.tagx_control_byte_count, = struct.unpack('>I', tagx[8:12])
+        tag_table = tagx[12:self.tagx_header_length]
+        if len(tag_table) % 4 != 0:
+            raise ValueError('Invalid Tag table')
+        num_tagx_entries = len(tag_table) // 4
+        self.tag_entries = []
+        for i in range(num_tagx_entries):
+            self.tag_entries.append(TagX(tag_table[i*4:(i+1)*4],
+                self.tagx_control_byte_count))
+
+
+    def __str__(self):
+        ans = ['*'*20 + ' Index Header '+ '*'*20]
+        a = ans.append
+        a('Header length: %d'%self.header_length)
+        a('Unknown1: %r (%d bytes) (All zeros: %r)'%(self.unknown1,
+            len(self.unknown1), not bool(self.unknown1.replace(b'\0', '')) ))
+        a('Index Type: %s (%d)'%(self.index_type_desc, self.index_type))
+        a('Offset to IDXT start: %d'%self.idxt_start)
+        a('Number of index records: %d'%self.index_count)
+        a('Index encoding: %s (%d)'%(self.index_encoding,
+                self.index_encoding_num))
+        a('Index language: %s - %s (%s)'%(self.language, self.sublanguage,
+            hex(self.locale_raw)))
+        a('Number of index entries: %d'% self.num_index_entries)
+        a('ORDT start: %d'%self.ordt_start)
+        a('LIGT start: %d'%self.ligt_start)
+        a('Number of LIGT entries: %d'%self.num_of_ligt_entries)
+        a('Number of CTOC blocks: %d'%self.num_of_ctoc_blocks)
+        a('Unknown2: %r (%d bytes) (All zeros: %r)'%(self.unknown2,
+            len(self.unknown2), not bool(self.unknown2.replace(b'\0', '')) ))
+        a('TAGX offset: %d'%self.tagx_offset)
+        a('Unknown3: %r (%d bytes) (All zeros: %r)'%(self.unknown3,
+            len(self.unknown3), not bool(self.unknown3.replace(b'\0', '')) ))
+        a('\n\n')
+        a('*'*20 + ' TAGX Header '+ '*'*20)
+        a('Header length: %d'%self.tagx_header_length)
+        a('Control byte count: %d'%self.tagx_control_byte_count)
+        return '\n'.join(ans)
 
 class MOBIFile(object):
 
@@ -384,25 +474,39 @@ class MOBIFile(object):
 
         self.mobi_header = MOBIHeader(self.records[0])
 
+        self.primary_index_record = None
+        pir = self.mobi_header.primary_index_record
+        if pir != 0xffffffff:
+            self.primary_index_record = PrimaryIndexRecord(self.records[pir])
 
-    def print_header(self):
-        print (str(self.palmdb).encode('utf-8'))
-        print ()
-        print ('Record headers:')
+
+    def print_header(self, f=sys.stdout):
+        print (str(self.palmdb).encode('utf-8'), file=f)
+        print (file=f)
+        print ('Record headers:', file=f)
         for i, r in enumerate(self.records):
-            print ('%6d. %s'%(i, r.header))
+            print ('%6d. %s'%(i, r.header), file=f)
 
-        print ()
-        print (str(self.mobi_header).encode('utf-8'))
+        print (file=f)
+        print (str(self.mobi_header).encode('utf-8'), file=f)
 
 def inspect_mobi(path_or_stream):
     stream = (path_or_stream if hasattr(path_or_stream, 'read') else
             open(path_or_stream, 'rb'))
     f = MOBIFile(stream)
-    f.print_header()
+    ddir = 'debug_' + os.path.splitext(os.path.basename(stream.name))[0]
+    if not os.path.exists(ddir):
+        os.mkdir(ddir)
+    with open(os.path.join(ddir, 'header.txt'), 'wb') as out:
+        f.print_header(f=out)
+    if f.primary_index_record is not None:
+        with open(os.path.join(ddir, 'primary_index_record.txt'), 'wb') as out:
+            print(str(f.primary_index_record), file=out)
+    print ('Debug data saved to:', ddir)
+
+def main():
+    inspect_mobi(sys.argv[1])
 
 if __name__ == '__main__':
-    import sys
-    f = MOBIFile(open(sys.argv[1], 'rb'))
-    f.print_header()
+    main()
 
