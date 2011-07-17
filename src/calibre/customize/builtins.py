@@ -1446,6 +1446,16 @@ class StoreZixoStore(StoreBase):
     headquarters = 'PL'
     formats = ['PDF, ZIXO']
 
+class StoreChitankaStore(StoreBase):
+    name = u'Моята библиотека'
+    author = 'Alex Stanev'
+    description = u'Независим сайт за DRM свободна литература на български език'
+    actual_plugin = 'calibre.gui2.store.stores.chitanka_plugin:ChitankaStore'
+
+    drm_free_only = True
+    headquarters = 'BG'
+    formats = ['FB2', 'EPUB', 'TXT', 'SFB']
+
 plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
@@ -1483,7 +1493,8 @@ plugins += [
     StoreWHSmithUKStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore,
-    StoreZixoStore
+    StoreZixoStore,
+    StoreChitankaStore
 ]
 
 # }}}
