@@ -156,7 +156,7 @@ class MOBIOutput(OutputFormatPlugin):
             # Fix up the periodical href to point to first section href
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
-            # GR diagnostics
+            # diagnostics
             if self.opts.verbose > 3:
                 self.dump_toc(toc)
                 self.dump_manifest()
@@ -164,14 +164,11 @@ class MOBIOutput(OutputFormatPlugin):
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
-        from calibre.ebooks.mobi.writer import PALM_MAX_IMAGE_SIZE, \
-                MobiWriter, PALMDOC, UNCOMPRESSED
         from calibre.ebooks.mobi.mobiml import MobiMLizer
         from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
         from calibre.customize.ui import plugin_for_input_format
-        imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
         if not opts.no_inline_toc:
             tocadder = HTMLTOCAdder(title=opts.toc_title, position='start' if
                     opts.mobi_toc_at_start else 'end')
@@ -186,10 +183,9 @@ class MOBIOutput(OutputFormatPlugin):
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
         self.check_for_periodical()
-        write_page_breaks_after_item = not input_plugin is plugin_for_input_format('cbz')
-        writer = MobiWriter(opts, imagemax=imagemax,
-                compression=UNCOMPRESSED if opts.dont_compress else PALMDOC,
-                            prefer_author_sort=opts.prefer_author_sort,
-                            write_page_breaks_after_item=write_page_breaks_after_item)
+        write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
+        from calibre.ebooks.mobi.writer import MobiWriter
+        writer = MobiWriter(opts,
+                        write_page_breaks_after_item=write_page_breaks_after_item)
         writer(oeb, output_path)
 

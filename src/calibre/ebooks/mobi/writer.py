@@ -318,13 +318,15 @@ class Serializer(object): # {{{
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
-    def __init__(self, opts, compression=PALMDOC, imagemax=None,
-            prefer_author_sort=False, write_page_breaks_after_item=True):
+    def __init__(self, opts,
+            write_page_breaks_after_item=True):
         self.opts = opts
         self.write_page_breaks_after_item = write_page_breaks_after_item
-        self._compression = compression or UNCOMPRESSED
-        self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
-        self._prefer_author_sort = prefer_author_sort
+        self._compression = UNCOMPRESSED if getattr(opts, 'dont_compress',
+                False) else PALMDOC
+        self._imagemax = (PALM_MAX_IMAGE_SIZE if getattr(opts,
+            'rescale_images', False) else OTHER_MAX_IMAGE_SIZE)
+        self._prefer_author_sort = getattr(opts, 'prefer_author_sort', False)
         self._primary_index_record = None
         self._conforming_periodical_toc = False
         self._indexable = False
