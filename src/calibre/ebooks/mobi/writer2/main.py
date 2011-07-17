@@ -230,7 +230,7 @@ class MobiWriter(object):
 
             # Write information about the mutibyte character overlap, if any
             record.write(overlap)
-            record.write(pack('>B', len(overlap)))
+            record.write(pack(b'>B', len(overlap)))
 
             # Write information about uncrossable breaks (non linear items in
             # the spine)
@@ -320,7 +320,7 @@ class MobiWriter(object):
 
         record0 = StringIO()
         # The PalmDOC Header
-        record0.write(pack('>HHIHHHH', self.compression, 0,
+        record0.write(pack(b'>HHIHHHH', self.compression, 0,
             self.text_length,
             self.text_nrecords-1, RECORD_SIZE, 0, 0)) # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
@@ -341,7 +341,7 @@ class MobiWriter(object):
         # 0x10 - 0x13 : UID
         # 0x14 - 0x17 : Generator version
 
-        record0.write(pack('>IIIII',
+        record0.write(pack(b'>IIIII',
             0xe8, 0x002, 65001, uid, 6))
 
         # 0x18 - 0x1f : Unknown
@@ -349,17 +349,17 @@ class MobiWriter(object):
 
 
         # 0x20 - 0x23 : Secondary index record
-        record0.write(pack('>I', 0xffffffff))
+        record0.write(pack(b'>I', 0xffffffff))
 
         # 0x24 - 0x3f : Unknown
         record0.write(b'\xff' * 28)
 
         # 0x40 - 0x43 : Offset of first non-text record
-        record0.write(pack('>I',
+        record0.write(pack(b'>I',
             self.text_nrecords + 1))
 
         # 0x44 - 0x4b : title offset, title length
-        record0.write(pack('>II',
+        record0.write(pack(b'>II',
             0xe8 + 16 + len(exth), len(title)))
 
         # 0x4c - 0x4f : Language specifier
@@ -371,7 +371,7 @@ class MobiWriter(object):
 
         # 0x58 - 0x5b : Format version
         # 0x5c - 0x5f : First image record number
-        record0.write(pack('>II',
+        record0.write(pack(b'>II',
             6, self.first_image_record if self.first_image_record else 0))
 
         # 0x60 - 0x63 : First HUFF/CDIC record number
@@ -381,7 +381,7 @@ class MobiWriter(object):
         record0.write(b'\0' * 16)
 
         # 0x70 - 0x73 : EXTH flags
-        record0.write(pack('>I', 0x50))
+        record0.write(pack(b'>I', 0x50))
 
         # 0x74 - 0x93 : Unknown
         record0.write(b'\0' * 32)
@@ -390,7 +390,7 @@ class MobiWriter(object):
         # 0x98 - 0x9b : DRM count
         # 0x9c - 0x9f : DRM size
         # 0xa0 - 0xa3 : DRM flags
-        record0.write(pack('>IIII',
+        record0.write(pack(b'>IIII',
             0xffffffff, 0xffffffff, 0, 0))
 
 
@@ -400,28 +400,28 @@ class MobiWriter(object):
         # 0xb0 - 0xb1 : First content record number
         # 0xb2 - 0xb3 : last content record number
         # (Includes Image, DATP, HUFF, DRM)
-        record0.write(pack('>HH', 1, last_content_record))
+        record0.write(pack(b'>HH', 1, last_content_record))
 
         # 0xb4 - 0xb7 : Unknown
         record0.write(b'\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
-        record0.write(pack('>I', 0xffffffff))
+        record0.write(pack(b'>I', 0xffffffff))
 
         # 0xbc - 0xbf : Unknown (FCIS record count?)
-        record0.write(pack('>I', 0xffffffff))
+        record0.write(pack(b'>I', 0xffffffff))
 
         # 0xc0 - 0xc3 : FLIS record number
-        record0.write(pack('>I', 0xffffffff))
+        record0.write(pack(b'>I', 0xffffffff))
 
         # 0xc4 - 0xc7 : Unknown (FLIS record count?)
-        record0.write(pack('>I', 1))
+        record0.write(pack(b'>I', 1))
 
         # 0xc8 - 0xcf : Unknown
         record0.write(b'\0'*8)
 
         # 0xd0 - 0xdf : Unknown
-        record0.write(pack('>IIII', 0xffffffff, 0, 0xffffffff, 0xffffffff))
+        record0.write(pack(b'>IIII', 0xffffffff, 0, 0xffffffff, 0xffffffff))
 
         # 0xe0 - 0xe3 : Extra record data
         # Extra record data flags:
@@ -434,10 +434,10 @@ class MobiWriter(object):
         trailingDataFlags = 1
         if WRITE_UNCROSSABLE_BREAKS:
             trailingDataFlags |= 4
-        record0.write(pack('>I', trailingDataFlags))
+        record0.write(pack(b'>I', trailingDataFlags))
 
         # 0xe4 - 0xe7 : Primary index record
-        record0.write(pack('>I', 0xffffffff))
+        record0.write(pack(b'>I', 0xffffffff))
 
         record0.write(exth)
         record0.write(title)
@@ -472,7 +472,7 @@ class MobiWriter(object):
                     else:
                         continue
                 data = data.encode('utf-8')
-                exth.write(pack('>II', code, len(data) + 8))
+                exth.write(pack(b'>II', code, len(data) + 8))
                 exth.write(data)
                 nrecs += 1
             if term == 'rights' :
@@ -480,7 +480,7 @@ class MobiWriter(object):
                     rights = normalize(unicode(oeb.metadata.rights[0])).encode('utf-8')
                 except:
                     rights = b'Unknown'
-                exth.write(pack('>II', EXTH_CODES['rights'], len(rights) + 8))
+                exth.write(pack(b'>II', EXTH_CODES['rights'], len(rights) + 8))
                 exth.write(rights)
                 nrecs += 1
 
@@ -498,14 +498,14 @@ class MobiWriter(object):
 
         if isinstance(uuid, unicode):
             uuid = uuid.encode('utf-8')
-        exth.write(pack('>II', 113, len(uuid) + 8))
+        exth.write(pack(b'>II', 113, len(uuid) + 8))
         exth.write(uuid)
         nrecs += 1
 
         # Write cdetype
         if not self.opts.mobi_periodical:
             data = b'EBOK'
-            exth.write(pack('>II', 501, len(data)+8))
+            exth.write(pack(b'>II', 501, len(data)+8))
             exth.write(data)
             nrecs += 1
 
@@ -516,7 +516,7 @@ class MobiWriter(object):
             datestr = str(oeb.metadata['timestamp'][0])
 
         if datestr is not None:
-            exth.write(pack('>II', EXTH_CODES['pubdate'], len(datestr) + 8))
+            exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
             exth.write(datestr)
             nrecs += 1
         else:
@@ -529,18 +529,18 @@ class MobiWriter(object):
             href = item.href
             if href in self.images:
                 index = self.images[href] - 1
-                exth.write(pack('>III', 0xc9, 0x0c, index))
-                exth.write(pack('>III', 0xcb, 0x0c, 0))
+                exth.write(pack(b'>III', 0xc9, 0x0c, index))
+                exth.write(pack(b'>III', 0xcb, 0x0c, 0))
                 nrecs += 2
                 index = self.add_thumbnail(item)
                 if index is not None:
-                    exth.write(pack('>III', 0xca, 0x0c, index - 1))
+                    exth.write(pack(b'>III', 0xca, 0x0c, index - 1))
                     nrecs += 1
 
         exth = exth.getvalue()
         trail = len(exth) % 4
         pad = b'\0' * (4 - trail) # Always pad w/ at least 1 byte
-        exth = [b'EXTH', pack('>II', len(exth) + 12, nrecs), exth, pad]
+        exth = [b'EXTH', pack(b'>II', len(exth) + 12, nrecs), exth, pad]
         return b''.join(exth)
     # }}}
 
@@ -564,11 +564,11 @@ class MobiWriter(object):
         title = title + (b'\0' * (32 - len(title)))
         now = int(time.time())
         nrecords = len(self.records)
-        self.write(title, pack('>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
-            b'BOOK', b'MOBI', pack('>IIH', nrecords, 0, nrecords))
+        self.write(title, pack(b'>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
+            b'BOOK', b'MOBI', pack(b'>IIH', nrecords, 0, nrecords))
         offset = self.tell() + (8 * nrecords) + 2
         for i, record in enumerate(self.records):
-            self.write(pack('>I', offset), b'\0', pack('>I', 2*i)[1:])
+            self.write(pack(b'>I', offset), b'\0', pack(b'>I', 2*i)[1:])
             offset += len(record)
         self.write(b'\0\0')
 
