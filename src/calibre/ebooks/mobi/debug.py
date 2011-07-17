@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import struct, datetime, sys, os
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
+from calibre.ebooks.mobi.writer2.utils import decode_hex_number
 
 # PalmDB {{{
 class PalmDOCAttributes(object):
@@ -382,7 +383,7 @@ class TagX(object): # {{{
                 self.num_values, self.bitmask, self.bmask, self.eof)
     # }}}
 
-class PrimaryIndexRecord(object): # {{{
+class IndexHeader(object): # {{{
 
     def __init__(self, record):
         self.record = record
@@ -437,9 +438,8 @@ class PrimaryIndexRecord(object): # {{{
             raise ValueError('TAGX last entry is not EOF')
 
         idxt0_pos = self.header_length+self.tagx_header_length
-        last_name_len, = struct.unpack(b'>B', raw[idxt0_pos])
-        count_pos = idxt0_pos+1+last_name_len
-        last_num = int(raw[idxt0_pos+1:count_pos], 16)
+        last_num, consumed = decode_hex_number(raw[idxt0_pos:])
+        count_pos = idxt0_pos + consumed
         self.ncx_count, = struct.unpack(b'>H', raw[count_pos:count_pos+2])
 
         if last_num != self.ncx_count - 1:
@@ -457,9 +457,12 @@ class PrimaryIndexRecord(object): # {{{
     def __str__(self):
         ans = ['*'*20 + ' Index Header '+ '*'*20]
         a = ans.append
+        def u(w):
+            a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
+                len(w), not bool(w.replace(b'\0', b'')) ))
+
         a('Header length: %d'%self.header_length)
-        a('Unknown1: %r (%d bytes) (All zeros: %r)'%(self.unknown1,
-            len(self.unknown1), not bool(self.unknown1.replace(b'\0', '')) ))
+        u(self.unknown1)
         a('Index Type: %s (%d)'%(self.index_type_desc, self.index_type))
         a('Offset to IDXT start: %d'%self.idxt_start)
         a('Number of index records: %d'%self.index_count)
@@ -472,11 +475,9 @@ class PrimaryIndexRecord(object): # {{{
         a('LIGT start: %d'%self.ligt_start)
         a('Number of LIGT entries: %d'%self.num_of_ligt_entries)
         a('Number of CTOC blocks: %d'%self.num_of_ctoc_blocks)
-        a('Unknown2: %r (%d bytes) (All zeros: %r)'%(self.unknown2,
-            len(self.unknown2), not bool(self.unknown2.replace(b'\0', '')) ))
+        u(self.unknown2)
         a('TAGX offset: %d'%self.tagx_offset)
-        a('Unknown3: %r (%d bytes) (All zeros: %r)'%(self.unknown3,
-            len(self.unknown3), not bool(self.unknown3.replace(b'\0', '')) ))
+        u(self.unknown3)
         a('\n\n')
         a('*'*20 + ' TAGX Header (%d bytes)'%self.tagx_header_length+ '*'*20)
         a('Header length: %d'%self.tagx_header_length)
@@ -487,6 +488,71 @@ class PrimaryIndexRecord(object): # {{{
 
         return '\n'.join(ans)
     # }}}
+
+class IndexEntry(object):
+
+    def __init__(self, ident, entry_type, raw):
+        self.id = ident
+        self.entry_type = entry_type
+
+class IndexRecord(object): # {{{
+
+    def __init__(self, record):
+        self.record = record
+        raw = self.record.raw
+        if raw[:4] != b'INDX':
+            raise ValueError('Invalid Primary Index Record')
+
+        u = struct.unpack
+
+        self.header_length, = u('>I', raw[4:8])
+        self.unknown1 = raw[8:12]
+        self.header_type, = u('>I', raw[12:16])
+        self.unknown2 = raw[16:20]
+        self.idxt_offset, self.idxt_count = u(b'>II', raw[20:28])
+        if self.idxt_offset < 192:
+            raise ValueError('Unknown Index record structure')
+        self.unknown3 = raw[28:36]
+        self.unknown4 = raw[36:192] # Should be 156 bytes
+
+        self.index_offsets = []
+        indices = raw[self.idxt_offset:]
+        if indices[:4] != b'IDXT':
+            raise ValueError("Invalid IDXT index table")
+        indices = indices[4:]
+        for i in range(self.idxt_count):
+            off, = u(b'>H', indices[i*2:(i+1)*2])
+            self.index_offsets.append(off-192)
+
+        indxt = raw[192:self.idxt_offset]
+        self.indices = []
+        for off in self.index_offsets:
+            index = indxt[off:]
+            ident, consumed = decode_hex_number(index)
+            index = index[consumed:]
+            entry_type = u(b'>B', index[0])
+            self.indices.append(IndexEntry(ident, entry_type, index[1:]))
+
+
+    def __str__(self):
+        ans = ['*'*20 + ' Index Record (%d bytes)'%len(self.record.raw)+ '*'*20]
+        a = ans.append
+        def u(w):
+            a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
+                len(w), not bool(w.replace(b'\0', b'')) ))
+        a('Header length: %d'%self.header_length)
+        u(self.unknown1)
+        a('Header Type: %d'%self.header_type)
+        u(self.unknown2)
+        a('IDXT Offset: %d'%self.idxt_offset)
+        a('IDXT Count: %d'%self.idxt_count)
+        u(self.unknown3)
+        u(self.unknown4)
+        a('Index offsets: %r'%self.index_offsets)
+
+        return '\n'.join(ans)
+
+# }}}
 
 class MOBIFile(object): # {{{
 
@@ -516,10 +582,11 @@ class MOBIFile(object): # {{{
 
         self.mobi_header = MOBIHeader(self.records[0])
 
-        self.primary_index_record = None
+        self.index_header = None
         pir = self.mobi_header.primary_index_record
         if pir != 0xffffffff:
-            self.primary_index_record = PrimaryIndexRecord(self.records[pir])
+            self.index_header = IndexHeader(self.records[pir])
+            self.index_record = IndexRecord(self.records[pir+1])
 
 
     def print_header(self, f=sys.stdout):
@@ -542,9 +609,12 @@ def inspect_mobi(path_or_stream):
         os.mkdir(ddir)
     with open(os.path.join(ddir, 'header.txt'), 'wb') as out:
         f.print_header(f=out)
-    if f.primary_index_record is not None:
-        with open(os.path.join(ddir, 'primary_index_record.txt'), 'wb') as out:
-            print(str(f.primary_index_record), file=out)
+    if f.index_header is not None:
+        with open(os.path.join(ddir, 'index.txt'), 'wb') as out:
+            print(str(f.index_header), file=out)
+            print('\n\n', file=out)
+            print(str(f.index_record), file=out)
+
     print ('Debug data saved to:', ddir)
 
 def main():
