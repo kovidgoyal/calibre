@@ -367,14 +367,18 @@ class TagX(object):
     def __init__(self, raw, control_byte_count):
         self.tag = ord(raw[0])
         self.num_values = ord(raw[1])
-        self.bitmask = bin(ord(raw[2]))
+        self.bmask = ord(raw[2])
+        self.bitmask = bin(self.bmask)
         # End of file = 1 iff last entry
         # When it is 1 all others are 0
         self.eof = ord(raw[3])
 
+        self.is_eof = (self.eof == 1 and self.tag == 0 and self.num_values == 0
+                and self.bmask == 0)
+
     def __repr__(self):
-        return 'TAGX(tag=%02d, num_values=%d, bitmask=%r, eof=%d)' % (self.tag,
-                self.num_values, self.bitmask, self.eof)
+        return 'TAGX(tag=%02d, num_values=%d, bitmask=%r (%d), eof=%d)' % (self.tag,
+                self.num_values, self.bitmask, self.bmask, self.eof)
 
 class PrimaryIndexRecord(object):
 
@@ -424,6 +428,8 @@ class PrimaryIndexRecord(object):
         for i in range(num_tagx_entries):
             self.tagx_entries.append(TagX(tag_table[i*4:(i+1)*4],
                 self.tagx_control_byte_count))
+        if self.tagx_entries and not self.tagx_entries[-1].is_eof:
+            raise ValueError('TAGX last entry is not EOF')
 
 
     def __str__(self):
