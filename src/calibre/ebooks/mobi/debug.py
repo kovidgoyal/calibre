@@ -105,8 +105,8 @@ class Record(object):
 
     @property
     def header(self):
-        return 'Offset: %d Flags: %d UID: %d'%(self.offset, self.flags,
-                self.uid)
+        return 'Offset: %d Flags: %d UID: %d First 4 bytes: %r Size: %d'%(self.offset, self.flags,
+                self.uid, self.raw[:4], len(self.raw))
 
 # EXTH {{{
 class EXTHRecord(object):
@@ -362,7 +362,7 @@ class MOBIHeader(object): # {{{
         return ans
 # }}}
 
-class TagX(object):
+class TagX(object): # {{{
 
     def __init__(self, raw, control_byte_count):
         self.tag = ord(raw[0])
@@ -379,6 +379,7 @@ class TagX(object):
     def __repr__(self):
         return 'TAGX(tag=%02d, num_values=%d, bitmask=%r (%d), eof=%d)' % (self.tag,
                 self.num_values, self.bitmask, self.bmask, self.eof)
+    # }}}
 
 class PrimaryIndexRecord(object):
 
@@ -398,6 +399,9 @@ class PrimaryIndexRecord(object):
         self.index_encoding_num, = struct.unpack('>I', raw[28:32])
         self.index_encoding = {65001: 'utf-8', 1252:
                 'cp1252'}.get(self.index_encoding_num, 'unknown')
+        if self.index_encoding == 'unknown':
+            raise ValueError(
+                'Unknown index encoding: %d'%self.index_encoding_num)
         self.locale_raw, = struct.unpack(b'>I', raw[32:36])
         langcode = self.locale_raw
         langid    = langcode & 0xFF
@@ -431,6 +435,23 @@ class PrimaryIndexRecord(object):
         if self.tagx_entries and not self.tagx_entries[-1].is_eof:
             raise ValueError('TAGX last entry is not EOF')
 
+        idxt0_pos = self.header_length+self.tagx_header_length
+        last_name_len, = struct.unpack(b'>B', raw[idxt0_pos])
+        count_pos = idxt0_pos+1+last_name_len
+        last_num = int(raw[idxt0_pos+1:count_pos], 16)
+        self.ncx_count, = struct.unpack(b'>H', raw[count_pos:count_pos+2])
+
+        if last_num != self.ncx_count - 1:
+            raise ValueError('Last id number in the NCX != NCX count - 1')
+        # There may be some alignment zero bytes between the end of the idxt0
+        # and self.idxt_start
+
+        idxt = raw[self.idxt_start:]
+        if idxt[:4] != b'IDXT':
+            raise ValueError('Invalid IDXT header')
+        length_check, = struct.unpack(b'>H', idxt[4:6])
+        if length_check != self.header_length + self.tagx_header_length:
+            raise ValueError('Length check failed')
 
     def __str__(self):
         ans = ['*'*20 + ' Index Header '+ '*'*20]
@@ -456,14 +477,16 @@ class PrimaryIndexRecord(object):
         a('Unknown3: %r (%d bytes) (All zeros: %r)'%(self.unknown3,
             len(self.unknown3), not bool(self.unknown3.replace(b'\0', '')) ))
         a('\n\n')
-        a('*'*20 + ' TAGX Header '+ '*'*20)
+        a('*'*20 + ' TAGX Header (%d bytes)'%self.tagx_header_length+ '*'*20)
         a('Header length: %d'%self.tagx_header_length)
         a('Control byte count: %d'%self.tagx_control_byte_count)
         for i in self.tagx_entries:
             a('\t' + repr(i))
+        a('Number of entries in the NCX: %d'% self.ncx_count)
+
         return '\n'.join(ans)
 
-class MOBIFile(object):
+class MOBIFile(object): # {{{
 
     def __init__(self, stream):
         self.raw = stream.read()
@@ -506,6 +529,7 @@ class MOBIFile(object):
 
         print (file=f)
         print (str(self.mobi_header).encode('utf-8'), file=f)
+# }}}
 
 def inspect_mobi(path_or_stream):
     stream = (path_or_stream if hasattr(path_or_stream, 'read') else
