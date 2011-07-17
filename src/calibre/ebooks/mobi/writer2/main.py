@@ -429,12 +429,12 @@ class MobiWriter(object):
         #   - 0x2: <TBS indexing description of this HTML record><size> GR
         #   - 0x4: <uncrossable breaks><size>
         # GR: Use 7 for indexed files, 5 for unindexed
-        # Setting bit 2 (0x4) disables <guide><reference type="start"> functionality
+        # Setting bit 2 (0x2) disables <guide><reference type="start"> functionality
 
-        trailingDataFlags = 1
+        extra_data_flags = 0b1 # Has multibyte overlap bytes
         if WRITE_UNCROSSABLE_BREAKS:
-            trailingDataFlags |= 4
-        record0.write(pack(b'>I', trailingDataFlags))
+            extra_data_flags |= 0b100
+        record0.write(pack(b'>I', extra_data_flags))
 
         # 0xe4 - 0xe7 : Primary index record
         record0.write(pack(b'>I', 0xffffffff))
