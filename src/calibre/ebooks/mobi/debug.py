@@ -97,7 +97,7 @@ class PalmDB(object):
         return '\n'.join(ans)
 # }}}
 
-class Record(object):
+class Record(object): # {{{
 
     def __init__(self, raw, header):
         self.offset, self.flags, self.uid = header
@@ -107,6 +107,7 @@ class Record(object):
     def header(self):
         return 'Offset: %d Flags: %d UID: %d First 4 bytes: %r Size: %d'%(self.offset, self.flags,
                 self.uid, self.raw[:4], len(self.raw))
+# }}}
 
 # EXTH {{{
 class EXTHRecord(object):
@@ -381,7 +382,7 @@ class TagX(object): # {{{
                 self.num_values, self.bitmask, self.bmask, self.eof)
     # }}}
 
-class PrimaryIndexRecord(object):
+class PrimaryIndexRecord(object): # {{{
 
     def __init__(self, record):
         self.record = record
@@ -485,6 +486,7 @@ class PrimaryIndexRecord(object):
         a('Number of entries in the NCX: %d'% self.ncx_count)
 
         return '\n'.join(ans)
+    # }}}
 
 class MOBIFile(object): # {{{
 
