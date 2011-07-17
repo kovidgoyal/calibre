@@ -365,7 +365,16 @@ class MOBIHeader(object): # {{{
 class TagX(object):
 
     def __init__(self, raw, control_byte_count):
-        pass
+        self.tag = ord(raw[0])
+        self.num_values = ord(raw[1])
+        self.bitmask = bin(ord(raw[2]))
+        # End of file = 1 iff last entry
+        # When it is 1 all others are 0
+        self.eof = ord(raw[3])
+
+    def __repr__(self):
+        return 'TAGX(tag=%d, num_values=%d, bitmask=%r, eof=%d)' % (self.tag,
+                self.num_values, self.bitmask, self.eof)
 
 class PrimaryIndexRecord(object):
 
@@ -411,9 +420,9 @@ class PrimaryIndexRecord(object):
         if len(tag_table) % 4 != 0:
             raise ValueError('Invalid Tag table')
         num_tagx_entries = len(tag_table) // 4
-        self.tag_entries = []
+        self.tagx_entries = []
         for i in range(num_tagx_entries):
-            self.tag_entries.append(TagX(tag_table[i*4:(i+1)*4],
+            self.tagx_entries.append(TagX(tag_table[i*4:(i+1)*4],
                 self.tagx_control_byte_count))
 
 
@@ -444,6 +453,8 @@ class PrimaryIndexRecord(object):
         a('*'*20 + ' TAGX Header '+ '*'*20)
         a('Header length: %d'%self.tagx_header_length)
         a('Control byte count: %d'%self.tagx_control_byte_count)
+        for i in self.tagx_entries:
+            a('\t' + repr(i))
         return '\n'.join(ans)
 
 class MOBIFile(object):
