@@ -18,8 +18,7 @@ from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import PALMDOC, UNCOMPRESSED
-from calibre.ebooks.mobi.writer2.utils import (rescale_image, decint,
-        DECINT_FORWARD, DECINT_BACKWARD)
+from calibre.ebooks.mobi.writer2.utils import (rescale_image, encint)
 
 EXTH_CODES = {
     'creator': 100,
@@ -167,13 +166,13 @@ class MobiWriter(object):
                 # the next record.
                 while breaks and (breaks[0] - offset) < RECORD_SIZE:
                     pbreak = (breaks.pop(0) - running) >> 3
-                    encoded = decint(pbreak, DECINT_FORWARD)
+                    encoded = encint(pbreak)
                     record.write(encoded)
                     running += pbreak << 3
                     nextra += len(encoded)
                 lsize = 1
                 while True:
-                    size = decint(nextra + lsize, DECINT_BACKWARD)
+                    size = encint(nextra + lsize, forward=False)
                     if len(size) == lsize:
                         break
                     lsize += 1

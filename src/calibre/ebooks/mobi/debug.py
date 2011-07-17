@@ -276,6 +276,7 @@ class MOBIHeader(object): # {{{
             self.drm_flags = bin(struct.unpack(b'>I', self.raw[176:180])[0])
         self.has_extra_data_flags = self.length >= 232 and len(self.raw) >= 232+16
         self.has_fcis_flis = False
+        self.has_multibytes = self.has_indexing_bytes = self.has_uncrossable_breaks = False
         if self.has_extra_data_flags:
             self.unknown4 = self.raw[180:192]
             self.first_content_record, self.last_content_record = \
@@ -285,8 +286,11 @@ class MOBIHeader(object): # {{{
                     self.flis_count) = struct.unpack(b'>IIII',
                             self.raw[200:216])
             self.unknown6 = self.raw[216:240]
-            self.extra_data_flags = bin(struct.unpack(b'>I',
-                self.raw[240:244])[0])
+            self.extra_data_flags = struct.unpack(b'>I',
+                self.raw[240:244])[0]
+            self.has_multibytes = bool(self.extra_data_flags & 0b1)
+            self.has_indexing_bytes = bool(self.extra_data_flags & 0b10)
+            self.has_uncrossable_breaks = bool(self.extra_data_flags & 0b100)
             self.primary_index_record, = struct.unpack(b'>I',
                     self.raw[244:248])
 
@@ -347,7 +351,10 @@ class MOBIHeader(object): # {{{
             ans.append('FLIS number: %d'% self.flis_number)
             ans.append('FLIS count: %d'% self.flis_count)
             ans.append('Unknown6: %r'% self.unknown6)
-            ans.append('Extra data flags: %r'%self.extra_data_flags)
+            ans.append(('Extra data flags: %s (has multibyte: %s) '
+                '(has indexing: %s) (has uncrossable breaks: %s)')%(
+                    bin(self.extra_data_flags), self.has_multibytes,
+                    self.has_indexing_bytes, self.has_uncrossable_breaks ))
             ans.append('Primary index record (null value: %d): %d'%(0xffffffff,
                 self.primary_index_record))
 
@@ -489,11 +496,12 @@ class IndexHeader(object): # {{{
         return '\n'.join(ans)
     # }}}
 
-class IndexEntry(object):
+class IndexEntry(object): # {{{
 
     def __init__(self, ident, entry_type, raw):
         self.id = ident
         self.entry_type = entry_type
+# }}}
 
 class IndexRecord(object): # {{{
 
