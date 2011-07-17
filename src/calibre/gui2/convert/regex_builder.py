@@ -141,7 +141,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         except OSError:
             if iswindows:
                 error_dialog(self, _('Could not open file'),
-                    _('Could not open file, do you have it open in'
+                    _('Could not open the file, do you have it open in'
                         ' another program?'), show=True)
                 return False
             raise
