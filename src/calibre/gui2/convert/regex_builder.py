@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 import re, os
 
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignal
-from PyQt4.QtGui import QDialog, QWidget, QDialogButtonBox, \
-                        QBrush, QTextCursor, QTextEdit
+from PyQt4.QtGui import (QDialog, QWidget, QDialogButtonBox,
+        QBrush, QTextCursor, QTextEdit)
 
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
@@ -16,6 +16,7 @@ from calibre.gui2 import error_dialog, choose_files
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+from calibre.constants import iswindows
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
 
@@ -134,8 +135,16 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                          _('Cannot build regex using the GUI builder without a book.'),
                          show=True)
             return False
-        fpath = db.format(book_id, format, index_is_id=True,
-            as_path=True)
+        try:
+            fpath = db.format(book_id, format, index_is_id=True,
+                as_path=True)
+        except OSError:
+            if iswindows:
+                error_dialog(self, _('Could not open file'),
+                    _('Could not open file, do you have it open in'
+                        ' another program?'), show=True)
+                return False
+            raise
         try:
             self.open_book(fpath)
         finally:
