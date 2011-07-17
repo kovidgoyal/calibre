@@ -373,7 +373,7 @@ class TagX(object):
         self.eof = ord(raw[3])
 
     def __repr__(self):
-        return 'TAGX(tag=%d, num_values=%d, bitmask=%r, eof=%d)' % (self.tag,
+        return 'TAGX(tag=%02d, num_values=%d, bitmask=%r, eof=%d)' % (self.tag,
                 self.num_values, self.bitmask, self.eof)
 
 class PrimaryIndexRecord(object):
