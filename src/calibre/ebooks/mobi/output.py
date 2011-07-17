@@ -184,7 +184,12 @@ class MOBIOutput(OutputFormatPlugin):
         mobimlizer(oeb, opts)
         self.check_for_periodical()
         write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
-        from calibre.ebooks.mobi.writer import MobiWriter
+        from calibre.utils.config import tweaks
+        if tweaks.get('new_mobi_writer', False):
+            from calibre.ebooks.mobi.writer2.main import MobiWriter
+            MobiWriter
+        else:
+            from calibre.ebooks.mobi.writer import MobiWriter
         writer = MobiWriter(opts,
                         write_page_breaks_after_item=write_page_breaks_after_item)
         writer(oeb, output_path)
