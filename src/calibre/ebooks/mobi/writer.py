@@ -111,7 +111,8 @@ def align_block(raw, multiple=4, pad='\0'):
 
 def rescale_image(data, maxsizeb, dimen=None):
     if dimen is not None:
-        data = thumbnail(data, width=dimen, height=dimen)[-1]
+        data = thumbnail(data, width=dimen[0], height=dimen[1],
+                compression_quality=90)[-1]
     else:
         # Replace transparent pixels with white pixels and convert to JPEG
         data = save_cover_data_to(data, 'img.jpg', return_data=True)

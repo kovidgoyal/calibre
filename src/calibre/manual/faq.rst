@@ -407,7 +407,7 @@ If you are worried that someday |app| will cease to be developed, leaving all yo
 
 Since I keep getting asked why there are numbers at the end of the title folder name, the reason is for *robustness*. That number is the id number of the book record in the |app| database. The presence of the number allows you to have multiple records with the same title and author names. More importantly, it is part of what allows |app| to magically regenerate the database with all metadata if the database file gets corrupted. Given that |app|'s mission is to get you to stop storing metadata in filenames and stop using the filesystem to find things, the increased robustness afforded by the id numbers is well worth the uglier folder names.
 
-Finally, if you are irrevocably wedded to the filesystem, feel free to patch your local copy of |app| to use whatever storage scheme you like. But, do not bother me with requests to change the directory structure, **they will be ignored**.
+Finally, if you are irrevocably wedded to using the filesystem to store your metadata, feel free to patch your local copy of |app| to use whatever storage scheme you like. But, do not bother me with requests to change the directory structure, **they will be ignored**.
 
 Why doesn't |app| have a column for foo?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
