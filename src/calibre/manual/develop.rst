@@ -211,9 +211,9 @@ calibre-dev.bat::
 Debugging tips
 ----------------
 
-Running |app| code in a python debugger is not easy unless you install from source on Linux. However, Python is a
+Python is a
 dynamically typed language with excellent facilities for introspection. Kovid wrote the core |app| code without once
-using a debugger. There are two main strategies to debug |app| code:
+using a debugger. There are many strategies to debug |app| code:
 
 Using an interactive python interpreter
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -239,6 +239,12 @@ terminal. For example, you can start the GUI from the terminal as::
 Similarly, you can start the ebook-viewer as::
 
     calibre-debug -w /path/to/file/to/be/viewed
+
+Using the debugger in PyDev
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is possible to get the debugger in PyDev working with the |app| development environment,
+see the `forum thread <http://www.mobileread.com/forums/showthread.php?t=143208>`_.
 
 Executing arbitrary scripts in the |app| python environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
