@@ -140,9 +140,11 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 as_path=True)
         except OSError:
             if iswindows:
+                import traceback
                 error_dialog(self, _('Could not open file'),
                     _('Could not open the file, do you have it open in'
-                        ' another program?'), show=True)
+                        ' another program?'), show=True,
+                    det_msg=traceback.format_exc())
                 return False
             raise
         try:
