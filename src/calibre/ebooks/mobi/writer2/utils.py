@@ -11,8 +11,6 @@ import struct
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
 
-DECINT_FORWARD = 0
-DECINT_BACKWARD = 1
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
 
 def decode_hex_number(raw):
