@@ -1260,11 +1260,11 @@ class MobiWriter(object):
                 data = compress_doc(data)
             record = StringIO()
             record.write(data)
+            # Write trailing muti-byte sequence if any
+            record.write(overlap)
+            record.write(pack('>B', len(overlap)))
 
-            # Marshall's utf-8 break code.
             if WRITE_PBREAKS :
-                record.write(overlap)
-                record.write(pack('>B', len(overlap)))
                 nextra = 0
                 pbreak = 0
                 running = offset
