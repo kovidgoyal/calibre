@@ -111,7 +111,8 @@ def align_block(raw, multiple=4, pad='\0'):
 
 def rescale_image(data, maxsizeb, dimen=None):
     if dimen is not None:
-        data = thumbnail(data, width=dimen, height=dimen)[-1]
+        data = thumbnail(data, width=dimen[0], height=dimen[1],
+                compression_quality=90)[-1]
     else:
         # Replace transparent pixels with white pixels and convert to JPEG
         data = save_cover_data_to(data, 'img.jpg', return_data=True)
@@ -141,7 +142,7 @@ def rescale_image(data, maxsizeb, dimen=None):
         scale -= 0.05
     return data
 
-class Serializer(object):
+class Serializer(object): # {{{
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
 
     def __init__(self, oeb, images, write_page_breaks_after_item=True):
@@ -172,6 +173,9 @@ class Serializer(object):
         hrefs = self.oeb.manifest.hrefs
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
+            # The Kindle decides where to open a book based on the presence of
+            # an item in the guide that looks like
+            # <reference type="text" title="Start" href="chapter-one.xhtml"/>
             path = urldefrag(ref.href)[0]
             if path not in hrefs or hrefs[path].media_type not in OEB_DOCS:
                 continue
@@ -215,12 +219,6 @@ class Serializer(object):
         self.anchor_offset = buffer.tell()
         buffer.write('<body>')
         self.anchor_offset_kindle = buffer.tell()
-        # CybookG3 'Start Reading' link
-        if 'text' in self.oeb.guide:
-            href = self.oeb.guide['text'].href
-            buffer.write('<a ')
-            self.serialize_href(href)
-            buffer.write(' />')
         spine = [item for item in self.oeb.spine if item.linear]
         spine.extend([item for item in self.oeb.spine if not item.linear])
         for item in spine:
@@ -315,16 +313,20 @@ class Serializer(object):
                     buffer.seek(hoff)
                     buffer.write('%010d' % ioff)
 
+    # }}}
+
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
-    def __init__(self, opts, compression=PALMDOC, imagemax=None,
-            prefer_author_sort=False, write_page_breaks_after_item=True):
+    def __init__(self, opts,
+            write_page_breaks_after_item=True):
         self.opts = opts
         self.write_page_breaks_after_item = write_page_breaks_after_item
-        self._compression = compression or UNCOMPRESSED
-        self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
-        self._prefer_author_sort = prefer_author_sort
+        self._compression = UNCOMPRESSED if getattr(opts, 'dont_compress',
+                False) else PALMDOC
+        self._imagemax = (PALM_MAX_IMAGE_SIZE if getattr(opts,
+            'rescale_images', False) else OTHER_MAX_IMAGE_SIZE)
+        self._prefer_author_sort = getattr(opts, 'prefer_author_sort', False)
         self._primary_index_record = None
         self._conforming_periodical_toc = False
         self._indexable = False
@@ -1258,11 +1260,11 @@ class MobiWriter(object):
                 data = compress_doc(data)
             record = StringIO()
             record.write(data)
+            # Write trailing muti-byte sequence if any
+            record.write(overlap)
+            record.write(pack('>B', len(overlap)))
 
-            # Marshall's utf-8 break code.
             if WRITE_PBREAKS :
-                record.write(overlap)
-                record.write(pack('>B', len(overlap)))
                 nextra = 0
                 pbreak = 0
                 running = offset
@@ -1325,6 +1327,8 @@ class MobiWriter(object):
             except:
                 self._oeb.logger.warn('Bad image file %r' % item.href)
                 continue
+            finally:
+                item.unload_data_from_memory()
             self._records.append(data)
             if self._first_image_record is None:
                 self._first_image_record = len(self._records)-1

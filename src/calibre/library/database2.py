@@ -1312,6 +1312,23 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
         return True
 
+    def save_original_format(self, book_id, fmt, notify=True):
+        fmt = fmt.upper()
+        if 'ORIGINAL' in fmt:
+            raise ValueError('Cannot save original of an original fmt')
+        opath = self.format_abspath(book_id, fmt, index_is_id=True)
+        if opath is None:
+            return False
+        nfmt = 'ORIGINAL_'+fmt
+        with lopen(opath, 'rb') as f:
+            return self.add_format(book_id, nfmt, f, index_is_id=True, notify=notify)
+
+    def original_fmt(self, book_id, fmt):
+        fmt = fmt
+        nfmt = ('ORIGINAL_%s'%fmt).upper()
+        opath = self.format_abspath(book_id, nfmt, index_is_id=True)
+        return fmt if opath is None else nfmt
+
     def delete_book(self, id, notify=True, commit=True, permanent=False):
         '''
         Removes book from the result cache and the underlying database.

@@ -1,28 +1,29 @@
-
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2011, Starson17 <Starson17 at gmail.com>'
 '''
 www.wired.co.uk
 '''
 
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class Wired_UK(BasicNewsRecipe):
     title                 = 'Wired Magazine - UK edition'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Starson17'
+    __version__           = 'v1.30'
+    __date__              = '15 July 2011'
     description           = 'Gaming news'
     publisher             = 'Conde Nast Digital'
     category              = 'news, games, IT, gadgets'
-    oldest_article        = 32
+    oldest_article        = 40
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'utf-8'
     use_embedded_content  = False
-    masthead_url          = 'http://www.wired.co.uk/_/media/wired-logo_UK.gif'
+    #masthead_url          = 'http://www.wired.co.uk/_/media/wired-logo_UK.gif'
     language              = 'en_GB'
-    extra_css             = ' body{font-family: Palatino,"Palatino Linotype","Times New Roman",Times,serif} img{margin-bottom: 0.8em } .img-descr{font-family: Tahoma,Arial,Helvetica,sans-serif; font-size: 0.6875em; display: block} '
-    index                 = 'http://www.wired.co.uk/wired-magazine.aspx'
+    index                 = 'http://www.wired.co.uk'
 
     conversion_options = {
                           'comment'   : description
@@ -31,44 +32,118 @@ class Wired_UK(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags = [dict(name='div', attrs={'class':'article-box'})]
-    remove_tags = [
-                     dict(name=['object','embed','iframe','link'])
-                    ,dict(attrs={'class':['opts','comment','stories']})
-                  ]
-    remove_tags_after = dict(name='div',attrs={'class':'stories'})
+    keep_only_tags = [dict(name='div', attrs={'class':['layoutColumn1']})]
+    remove_tags = [dict(name='div',attrs={'class':['articleSidebar1','commentAddBox linkit','commentCountBox commentCountBoxBig']})]
+    remove_tags_after = dict(name='div',attrs={'class':['mainCopy entry-content','mainCopy']})
+    '''
     remove_attributes = ['height','width']
-
-
+                   ,dict(name=['object','embed','iframe','link'])
+                   ,dict(attrs={'class':['opts','comment','stories']})
+                   ]
+    '''
     def parse_index(self):
         totalfeeds = []
         soup   = self.index_to_soup(self.index)
-        maincontent = soup.find('div',attrs={'class':'main-content'})
+        recentcontent = soup.find('ul',attrs={'class':'linkList3'})
         mfeed = []
-        if maincontent:
-           st = maincontent.find(attrs={'class':'most-wired-box'})
-           if st:
-              for itt in st.findAll('a',href=True):
-               url   = 'http://www.wired.co.uk' + itt['href']
-               title = self.tag_to_string(itt)
-               description = ''
-               date  = strftime(self.timefmt)
-               mfeed.append({
-                                  'title'      :title
-                                 ,'date'       :date
-                                 ,'url'        :url
-                                 ,'description':description
-                                })
-        totalfeeds.append(('Articles', mfeed))
+        if recentcontent:
+          for li in recentcontent.findAll('li'):
+            a = li.h2.a
+            url  = self.index + a['href'] + '?page=all'
+            title = self.tag_to_string(a)
+            description = ''
+            date  = strftime(self.timefmt)
+            mfeed.append({
+                  'title'      :title
+                 ,'date'       :date
+                 ,'url'        :url
+                 ,'description':description
+                })
+        totalfeeds.append(('Wired UK Magazine Latest News', mfeed))
+        popmagcontent = soup.findAll('div',attrs={'class':'sidebarLinkList'})
+        magcontent = popmagcontent[1]
+        mfeed2 = []
+        if magcontent:
+          a = magcontent.h3.a
+          if a:
+            url   = self.index + a['href'] + '?page=all'
+            title = self.tag_to_string(a)
+            description = ''
+            date  = strftime(self.timefmt)
+            mfeed2.append({
+                  'title'      :title
+                 ,'date'       :date
+                 ,'url'        :url
+                 ,'description':description
+                })
+          for li in magcontent.findAll('li'):
+            a = li.a
+            url   = self.index + a['href'] + '?page=all'
+            title = self.tag_to_string(a)
+            description = ''
+            date  = strftime(self.timefmt)
+            mfeed2.append({
+                  'title'      :title
+                 ,'date'       :date
+                 ,'url'        :url
+                 ,'description':description
+                })
+          totalfeeds.append(('Wired UK Magazine Features', mfeed2))
+
+        magsoup = self.index_to_soup(self.index + '/magazine')
+        startcontent = magsoup.find('h3',attrs={'class':'magSubSectionTitle titleStart'}).parent
+        mfeed3 = []
+        if startcontent:
+          for li in startcontent.findAll('li'):
+            a = li.a
+            url   = self.index + a['href'] + '?page=all'
+            title = self.tag_to_string(a)
+            description = ''
+            date  = strftime(self.timefmt)
+            mfeed3.append({
+                  'title'      :title
+                 ,'date'       :date
+                 ,'url'        :url
+                 ,'description':description
+                })
+          totalfeeds.append(('Wired UK Magazine More', mfeed3))
+
+        playcontent = magsoup.find('h3',attrs={'class':'magSubSectionTitle titlePlay'}).parent
+        mfeed4 = []
+        if playcontent:
+          for li in playcontent.findAll('li'):
+            a = li.a
+            url   = self.index + a['href'] + '?page=all'
+            title = self.tag_to_string(a)
+            description = ''
+            date  = strftime(self.timefmt)
+            mfeed4.append({
+                  'title'      :title
+                 ,'date'       :date
+                 ,'url'        :url
+                 ,'description':description
+                })
+          totalfeeds.append(('Wired UK Magazine Play', mfeed4))
         return totalfeeds
 
     def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup(self.index)
-        cover_item = soup.find('span', attrs={'class':'cover'})
+        cover_url = ''
+        soup = self.index_to_soup(self.index + '/magazine/archive')
+        cover_item = soup.find('div', attrs={'class':'image linkme'})
         if cover_item:
            cover_url = cover_item.img['src']
         return cover_url
 
-    def print_version(self, url):
-        return url + '?page=all'
+    def preprocess_html(self, soup):
+        for tag in soup.findAll(name='p'):
+            if tag.find(name='span', text=re.compile(r'This article was taken from.*', re.DOTALL|re.IGNORECASE)):
+                tag.extract()
+        return soup
+
+    extra_css = '''
+                    h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
+                    body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
+		'''
+

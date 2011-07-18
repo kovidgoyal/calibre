@@ -19,6 +19,58 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.10
+  date: 2011-07-15
+
+  new features:
+    - title: "Add a right click menu to the cover browser. It allows you to view a book, edit metadata etc. from within the cover browser. The menu can be customized in Preferences->Toolbars"
+
+    - title: "Allow selecting and stopping multiple jobs at once in the jobs window"
+      tickets: [810349]
+
+    - title: "When editing metadata directly in the book list, have a little pop up menu so that all existing values can be accessed by mouse only. For example, when you edit authors, you can use the mouse to select an existing author."
+
+    - title: "Get Books: Add ebook.nl and fix price parsing for the legimi store"
+
+    - title: "Drivers for Samsung Infuse and Motorola XPERT"
+
+    - title: "Tag Browser: Make hierarchical items work in group searched terms."
+
+  bug fixes:
+    - title: "Allow setting numbers larger than 99 in custom series columns"
+
+    - title: "Fix a bug that caused the same news download sent via a USB connection to the device on two different days resulting in a duplicate on the device"
+
+    - title: "Ensure English in the list of interface languages in Preferences is always listed in English, so that it does not become hard to find"
+
+    - title: "SNB Output: Fix bug in handling unicode file names"
+
+    - title: "Fix sorting problem in manage categories. Fix poor performance problem when dropping multiple books onto a user category."
+
+    - title: "Remove 'empty field' error dialogs in bulk search/replace, instead setting the fields to their default value."
+
+    - title: "Fix regression that broke communicating with Kobo devices using outdated firmware"
+      tickets: [807832]
+
+    - title: "LRF Input: Fix conversion of LRF files with non ascii titles on some windows systems"
+      tickets: [807641]
+
+  improved recipes:
+    - Time
+    - Freakonomics Blog
+    - io9
+    - "Computer Act!ve"
+
+  new recipes:
+    - title: Techcrunch and Pecat
+      author: Darko Miletic
+
+    - title: Vio Mundo, IDG Now and Tojolaco
+      author: Diniz Bortoletto
+
+    - title: Geek and Poke, Automatiseringgids IT 
+      author: DrMerry
+
 - version: 0.8.9
   date: 2011-07-08
 
@@ -32,7 +84,7 @@
     - title: "Conversion pipeline: Add option to control if duplicate entries are allowed when generating the Table of Contents from links."
       tickets: [806095]
 
-    - title: "Metadata download: When merging results, if the query to the xisbn service hangs, wait no more than 10 seconds. Also try harder to preserve the month when downlaoding published date. Do not throw away isbnless results if there are some sources that return isbns and some that do not."
+    - title: "Metadata download: When merging results, if the query to the xisbn service hangs, wait no more than 10 seconds. Also try harder to preserve the month when downloading published date. Do not throw away isbnless results if there are some sources that return isbns and some that do not."
       tickets: [798309]
 
     - title: "Get Books: Remove OpenLibrary since it has the same files as archive.org. Allow direct downloading from Project Gutenberg."
