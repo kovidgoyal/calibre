@@ -41,14 +41,15 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
 
-        url = 'http://chitanka.info/search?q=' +  urllib.quote(query) #urllib.quote(query.encode('utf-8'))
-
-        br = browser()
-
+        base_url = 'http://chitanka.info'
+        url = base_url + '/search?q=' +  urllib.quote(query)
         counter = max_results
+
+        # search for book title
+        br = browser()
         with closing(br.open(url, timeout=timeout)) as f:
-            ff = unicode(f.read(), 'utf-8')
-            doc = html.fromstring(ff)
+            f = unicode(f.read(), 'utf-8')
+            doc = html.fromstring(f)
 
             for data in doc.xpath('//ul[@class="superlist booklist"]/li'):
                 if counter <= 0:
@@ -64,7 +65,8 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
                 fb2 = ''.join(data.xpath('.//a[@class="dl dl-fb2"]/@href'))
                 epub = ''.join(data.xpath('.//a[@class="dl dl-epub"]/@href'))
                 txt = ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href'))
-                #remove .zip extensions
+
+                # remove .zip extensions
                 if fb2.find('.zip') <> -1:
                     fb2 = fb2[:fb2.find('.zip')]
                 if epub.find('.zip') <> -1:
@@ -80,8 +82,59 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_UNLOCKED
-                s.downloads['FB2'] = 'http://chitanka.info' + fb2.strip()
-                s.downloads['EPUB'] = 'http://chitanka.info' + epub.strip()
-                s.downloads['TXT'] = 'http://chitanka.info' + txt.strip()
+                s.downloads['FB2'] = base_url + fb2.strip()
+                s.downloads['EPUB'] = base_url + epub.strip()
+                s.downloads['TXT'] = base_url + txt.strip()
                 s.formats = 'FB2, EPUB, TXT, SFB'
                 yield s
+
+        # search for author names
+        for data in doc.xpath('//ul[@class="superlist"][1]/li'):
+            author_url = ''.join(data.xpath('.//a[contains(@href,"/person/")]/@href'))
+            if counter <= 0:
+                break
+
+            br2 = browser()
+            with closing(br2.open(base_url + author_url, timeout=timeout)) as f:
+                if counter <= 0:
+                    break
+                f = unicode(f.read(), 'utf-8')
+                doc2 = html.fromstring(f)
+                
+                # search for book title
+                for data in doc2.xpath('//ul[@class="superlist booklist"]/li'):
+                    if counter <= 0:
+                        break
+
+                    id = ''.join(data.xpath('.//a[@class="booklink"]/@href'))
+                    if not id:
+                        continue
+
+                    cover_url = ''.join(data.xpath('.//a[@class="booklink"]/img/@src'))
+                    title = ''.join(data.xpath('.//a[@class="booklink"]/i/text()'))
+                    author = ''.join(data.xpath('.//span[@class="bookauthor"]/a/text()'))
+                    fb2 = ''.join(data.xpath('.//a[@class="dl dl-fb2"]/@href'))
+                    epub = ''.join(data.xpath('.//a[@class="dl dl-epub"]/@href'))
+                    txt = ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href'))
+
+                    # remove .zip extensions
+                    if fb2.find('.zip') <> -1:
+                        fb2 = fb2[:fb2.find('.zip')]
+                    if epub.find('.zip') <> -1:
+                        epub = epub[:epub.find('.zip')]
+                    if txt.find('.zip') <> -1:
+                        txt = txt[:txt.find('.zip')]
+
+                    counter -= 1
+
+                    s = SearchResult()
+                    s.cover_url = cover_url
+                    s.title = title.strip()
+                    s.author = author.strip()
+                    s.detail_item = id.strip()
+                    s.drm = SearchResult.DRM_UNLOCKED
+                    s.downloads['FB2'] = base_url + fb2.strip()
+                    s.downloads['EPUB'] = base_url + epub.strip()
+                    s.downloads['TXT'] = base_url + txt.strip()
+                    s.formats = 'FB2, EPUB, TXT, SFB'
+                    yield s
