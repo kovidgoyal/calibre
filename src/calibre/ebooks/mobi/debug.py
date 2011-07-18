@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 import struct, datetime, sys, os
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
-from calibre.ebooks.mobi.writer2.utils import decode_hex_number
+from calibre.ebooks.mobi.writer2.utils import decode_hex_number, decint
 
 # PalmDB {{{
 class PalmDOCAttributes(object):
@@ -498,9 +498,45 @@ class IndexHeader(object): # {{{
 
 class IndexEntry(object): # {{{
 
+    TYPES = {
+            # Present in book type files
+            0x0f : 'chapter',
+            0x6f : 'chapter_with_subchapters',
+            0x1f : 'subchapter',
+            # Present in periodicals
+            0xdf : 'periodical',
+            0xff : 'section',
+            0x3f : 'article',
+    }
+
     def __init__(self, ident, entry_type, raw):
         self.id = ident
-        self.entry_type = entry_type
+        self.fields = []
+        self.sub_type = None
+
+        try:
+            self.entry_type = self.TYPES[entry_type]
+        except KeyError:
+            raise ValueError('Unknown IndexEntry type: %s'%hex(entry_type))
+
+        if self.entry_type in (0xdf, 0xff):
+            self.subtype = ord(raw[0])
+            raw = raw[1:]
+        while True:
+            val, consumed = decint(raw)
+            raw = raw[consumed:]
+            if val == 0:
+                break
+            else:
+                self.fields.append(val)
+
+
+    def __str__(self):
+        ans = ['Index Entry(id=%s, entry_type=%s, sub_type=%s)'%(
+            self.id, self.entry_type, self.sub_type)]
+        ans.append('\tFields: %r'%self.fields)
+        return '\n'.join(ans)
+
 # }}}
 
 class IndexRecord(object): # {{{
@@ -538,7 +574,7 @@ class IndexRecord(object): # {{{
             index = indxt[off:]
             ident, consumed = decode_hex_number(index)
             index = index[consumed:]
-            entry_type = u(b'>B', index[0])
+            entry_type, = u(b'>B', index[0])
             self.indices.append(IndexEntry(ident, entry_type, index[1:]))
 
 
@@ -557,6 +593,9 @@ class IndexRecord(object): # {{{
         u(self.unknown3)
         u(self.unknown4)
         a('Index offsets: %r'%self.index_offsets)
+        a('\nIndex Entries:')
+        for entry in self.indices:
+            a(str(entry)+'\n')
 
         return '\n'.join(ans)
 
