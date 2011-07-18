@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-15 17:42+0000\n"
-"PO-Revision-Date: 2011-07-16 15:56+0000\n"
-"Last-Translator: Gs-Kobzeci <ricizki@yahoo.com>\n"
+"PO-Revision-Date: 2011-07-17 13:11+0000\n"
+"Last-Translator: Serdar Peker <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-17 04:32+0000\n"
+"X-Launchpad-Export-Date: 2011-07-18 04:41+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2966,17 +2966,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1800
 msgid "Table has cell that is too large"
-msgstr ""
+msgstr "Tablo çok büyük hücreye sahip"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1866
 #, python-format
 msgid "Could not read cover image: %s"
-msgstr ""
+msgstr "Kapak resmi: %s okunamıyor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1869
 #, python-format
 msgid "Cannot read from: %s"
-msgstr ""
+msgstr "%s 'den okunamıyor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1998
 msgid "Failed to process opf file"
@@ -3010,7 +3010,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:267
 msgid "Could not read from thumbnail file:"
-msgstr ""
+msgstr "Küçük resim dosyasından okunamıyor:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:287
 msgid ""
@@ -3032,7 +3032,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
-msgstr ""
+msgstr "Geçersiz LRF dosyası. Metadata ayarlanamıyor."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:582
 msgid ""
@@ -3074,7 +3074,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Extract thumbnail from LRF file"
-msgstr ""
+msgstr "LRF dosyasından küçük resimleri çıkart"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
@@ -3105,15 +3105,18 @@ msgstr "Kitap ID sini  kaydet"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:90
 msgid "Enable autorotation of images that are wider than the screen width."
 msgstr ""
+"Ekranın genişliğinden daha büyük resimlerin otomatik döndürülmesini aktive "
+"et."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:94
 #, python-format
 msgid "Set the space between words in pts. Default is %default"
 msgstr ""
+"Kelimeler arasındaki boşluğu pts şeklinde ayarla. Varsayılan %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:97
 msgid "Add a header to all the pages with title and author."
-msgstr ""
+msgstr "isim ve yazarlı tüm sayfalara başlık ekle."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:100
 msgid ""
@@ -3125,6 +3128,7 @@ msgstr ""
 #, python-format
 msgid "Add extra spacing below the header. Default is %default pt."
 msgstr ""
+"Başlığın altına fazladan boşluk ekle. Varsayılan pt olarak %default ."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:107
 #, python-format
@@ -3148,15 +3152,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:121
 msgid "The serif family of fonts to embed"
-msgstr ""
+msgstr "İçe alınacak serif ailesinden fontlar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:124
 msgid "The sans-serif family of fonts to embed"
-msgstr ""
+msgstr "İçe alınacak sans-sefif ailesiden fontlar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:127
 msgid "The monospace family of fonts to embed"
-msgstr ""
+msgstr "İçe alınacak monospace ailesinden fontlar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:152
 msgid "Comic"
@@ -3170,7 +3174,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:57
 msgid "Value: unknown field "
-msgstr ""
+msgstr "Değer: bilinmeyen alan "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:155
 msgid "TEMPLATE ERROR"
@@ -3290,6 +3294,8 @@ msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
 msgstr ""
+"Yazarları ayarla. Birden fazla yazar birbirinden & karakteri ile ayrılmalı. "
+"Yazar isimleri önce isim sonra soyad düzeninde olmalı"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
@@ -3317,7 +3323,7 @@ msgstr "Yayın tarihini ayarla."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
-msgstr ""
+msgstr "Ekitapdan kapağı al ve belirlenen dosya şeklinde kaydet."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:80
 msgid ""
@@ -3342,11 +3348,11 @@ msgstr "Dosya belirtilmedi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:168
 msgid "Original metadata"
-msgstr ""
+msgstr "Orjinal metadata"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:185
 msgid "Changed metadata"
-msgstr ""
+msgstr "Değiştirilmiş metadata"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:197
 msgid "OPF created in"
@@ -3354,7 +3360,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:203
 msgid "Cover saved to"
-msgstr ""
+msgstr "Kapak şuraya kaydedildi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:205
 msgid "No cover found"
@@ -3378,7 +3384,7 @@ msgstr "Kapak"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:386
 msgid "Downloads metadata and covers from Amazon"
-msgstr ""
+msgstr "Metadata ve kapakları Amazon'dan indir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:396
 msgid "US"
@@ -3407,7 +3413,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:405
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
-msgstr ""
+msgstr "Bu ülkenin Amazon websitesi kullanılarak Metadata indirilecek."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:532
 msgid "Amazon timed out. Try again later."
@@ -3415,31 +3421,35 @@ msgstr "Amazon zaman aşımı.Sonra tekrar deneyin."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:160
 msgid "Metadata source"
-msgstr ""
+msgstr "Metadata kaynağı"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:156
 msgid ""
 "Downloads metadata and covers from Douban.com. Useful only for chinese "
 "language books."
 msgstr ""
+"Metadata ve kapakları Duban.com'dan indirir. Sadece Çinçe kitaplar için "
+"kullanışlıdır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata and covers from Google Books"
-msgstr ""
+msgstr "Metadata ve kapakları Google Kitaplar'dan indirir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:27
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "Metadayı isbndb.com'dan indirir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
-msgstr ""
+msgstr "IsbnDB anahtarı:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:38
 msgid ""
 "To use isbndb.com you have to sign up for a free accountat isbndb.com and "
 "get an access key."
 msgstr ""
+"isbndb.com'u kullanmak için isbndb.com'dan bedava hesap kaydettirmeli ve "
+"ulaşım anahtarı almalısınız."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3450,15 +3460,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "The Open Library'den kapakları indirir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata and covers from Overdrive's Content Reserve"
-msgstr ""
+msgstr "Overdrive's Content Reserve'den Metadata ve kapakları indirir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Tüm metadata indir (yavaşdır)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
@@ -3475,7 +3485,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
-msgstr ""
+msgstr "Palm aygıtının boyut sınırlamalarını karşılamak için imajı değiştir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
@@ -3486,6 +3496,8 @@ msgid ""
 "Don't add Table of Contents to end of book. Useful if the book has its own "
 "table of contents."
 msgstr ""
+"İçindekiler kısmını kitabın sonuna ekleme. Eğer kitap kendi içindekiler "
+"kısmına sahipse kullanışlıdır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:56
@@ -3494,7 +3506,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:37
 msgid "Disable compression of the file contents."
-msgstr ""
+msgstr "Dosya içeriklerinin sıkıştırılmasını engelle."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
@@ -3528,23 +3540,23 @@ msgstr "İçindekiler"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1502
 msgid "Index"
-msgstr ""
+msgstr "Dizin"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1503
 msgid "Glossary"
-msgstr ""
+msgstr "Açıklayıcı sözlük"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1504
 msgid "Acknowledgements"
-msgstr ""
+msgstr "Takdim ve Teşekkürler"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1505
 msgid "Bibliography"
-msgstr ""
+msgstr "Kaynakça"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1506
 msgid "Colophon"
-msgstr ""
+msgstr "Kolofon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1507
 msgid "Copyright"
@@ -3556,15 +3568,15 @@ msgstr "İthaf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1509
 msgid "Epigraph"
-msgstr ""
+msgstr "Kitabe"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1510
 msgid "Foreword"
-msgstr ""
+msgstr "Önsöz"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1511
 msgid "List of Illustrations"
-msgstr ""
+msgstr "İlüstrasyon Listesi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1512
 msgid "List of Tables"
@@ -3592,11 +3604,11 @@ msgstr "%s biçimli litaplar desteklenmiyor"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:881
 #, python-format
 msgid "Book %(sidx)s of %(series)s"
-msgstr ""
+msgstr "%(series)s inin %(sidx)s inci kitabı"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
-msgstr ""
+msgstr "HTML TOC yaratma seçenekleri"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:62
@@ -3604,7 +3616,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:160
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:760
 msgid "Rating"
-msgstr ""
+msgstr "Derecelendirme"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/split.py:34
 #, python-format
@@ -3725,7 +3737,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 msgid "Crop Options:"
-msgstr ""
+msgstr "Kırpma Seçenekleri:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:73
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:60
@@ -3735,7 +3747,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/rotate.py:53
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:61
 msgid "Options to control the transformation of pdf"
-msgstr ""
+msgstr "Pdf dönüştürmesinin kontrol seçenekleri"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/decrypt.py:23
 msgid ""

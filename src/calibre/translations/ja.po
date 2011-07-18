@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-15 17:42+0000\n"
-"PO-Revision-Date: 2011-07-16 12:10+0000\n"
+"PO-Revision-Date: 2011-07-17 06:49+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-17 04:31+0000\n"
+"X-Launchpad-Export-Date: 2011-07-18 04:41+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -14868,7 +14868,7 @@ msgstr "検索 %s を削除"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:387
 #, python-format
 msgid "Remove %(item)s from category %(cat)s"
-msgstr ""
+msgstr "%(item)s を カテゴリー  %(cat)s から削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:394
 #, python-format
@@ -14943,7 +14943,7 @@ msgstr "いくつかの書籍を変換できませんでした"
 msgid ""
 "Could not convert %(num)d of %(tot)d books, because no suitable source "
 "format was found."
-msgstr ""
+msgstr "%(tot)d 冊中 %(num)d 冊の書籍が、対応するフォーマットが無かったために変換できませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:128
 msgid "Queueing books for bulk conversion"
@@ -14956,7 +14956,7 @@ msgstr "待ち行列 "
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:190
 #, python-format
 msgid "Convert book %(num)d of %(tot)d (%(title)s)"
-msgstr ""
+msgstr "%(tot)d 冊中 %(num)d 冊目の書籍を変換 (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:261
 msgid "Fetch news from "
@@ -15040,6 +15040,8 @@ msgid ""
 "%(app)s has been updated to version <b>%(ver)s</b>. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"%(app)s はヴァージョン <b>%(ver)s</b>にアップデートされました。詳細は<a href=\"http://calibre-"
+"ebook.com/whats-new\">新しい機能</a>を見てください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:79
 msgid "Update available!"
@@ -15462,6 +15464,8 @@ msgid ""
 "Make font size %(which)s\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"フォントサイズを %(which)s にする\n"
+"現在の拡大率: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:497
 msgid "larger"
@@ -15644,6 +15648,7 @@ msgid ""
 "<p>An invalid library already exists at %(loc)s, delete it before trying to "
 "move the existing library.<br>Error: %(err)s"
 msgstr ""
+"<p>無効なライブラリが %(loc)s にすでに存在します。ライブラリを移動する前に、それを削除してください。<br>エラー: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:582
 msgid "Could not move library"
@@ -15755,7 +15760,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 #, python-format
 msgid "Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption"
-msgstr ""
+msgstr "使用サーバー: %(un)s:%(pw)s@%(host)s:%(port)s , %(enc)s 暗号化"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
@@ -16043,6 +16048,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"データーベース内の書籍をカタログ化するときに出力するフィールド。コンマ区切りのフィールドのリストです。\n"
+"存在するフィールド: %(fields)s,\n"
+"それに加えてユーザーが作成したカスタム・フィールド。\n"
+"例: %(opt)s=title,authors,tags\n"
+"ディフォールと: '%%default'\n"
+"適用フォーマット: CSV, XML 出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:68
 #, python-format
@@ -16068,6 +16079,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"データーベース内の書籍をカタログ化するときに出力するフィールド。コンマ区切りのフィールドのリストです。\n"
+"存在するフィールド: %(fields)s.\n"
+"それに加えてユーザーが作成したカスタム・フィールド。\n"
+"例: %(opt)s=title,authors,tags\n"
+"ディフォールと: '%%default'\n"
+"適用フォーマット: BIBTEX 出力フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:264
 #, python-format
@@ -16989,7 +17006,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:927
 msgid "Unknown report check"
-msgstr ""
+msgstr "不明なレポート・チェック"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:961
 msgid ""
@@ -17005,17 +17022,25 @@ msgid ""
 "what is found in the OPF files.\n"
 "    "
 msgstr ""
+"%prog restore_database [options]\n"
+"\n"
+"Calibreライブラリの各フォルダーにあるOPFファイルから書誌情報を読み取り、データーベースを再構築する。\n"
+"これはmetadata.dbファイルが壊れてしまった時に有用です。\n"
+"\n"
+"注意：このコマンドは完全にデーターベースを再生成します。全ての保存された検索、ユーザーカテゴリ、書誌情報変換ルール、書誌ごとの変換設定、そしてカスタム・レ"
+"シピは失われます。再生された書誌情報はOPFファイルの内容と同様になります。\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:975
 msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
-msgstr ""
+msgstr "実際にリカバリーを行います。このコマンドはこのオプションを指定しなければ実行されません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:988
 #, python-format
 msgid "You must provide the %s option to do a recovery"
-msgstr ""
+msgstr "実際にリカバリーを行うには%sオプションを指定しなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1025
 msgid ""
@@ -17024,6 +17049,9 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
+"%prog list_categories [options]\n"
+"\n"
+"データーベース中のカテゴリ情報のリポートを作ります。情報はタグブラウザに表示されるものと同等です。\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1033
 msgid ""
@@ -17035,21 +17063,23 @@ msgstr ""
 msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
-msgstr ""
+msgstr "CSVモードでカテゴリーの値の周りを囲む文字。デフォールトはダブルクオート(\")。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
+"コンマ区切りのカテゴリの検索名リスト。\n"
+"ディフォールト: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
 msgid "The string used to separate fields in CSV mode. Default is a comma."
-msgstr ""
+msgstr "CSVモードでのフィールド区切りに使われる文字列。ディフォールとはコンマ(,)。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1085
 msgid "CATEGORY ITEMS"
-msgstr ""
+msgstr "カテゴリー・アイテム"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1158
 #, python-format
@@ -17063,31 +17093,39 @@ msgid ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
+"%%prog command [options] [arguments]\n"
+"\n"
+"%%prog はCalibre書籍データーベースへのコマンドライン・インターフェイス。\n"
+"\n"
+"コマンドは以下のいずれか:\n"
+"  %s\n"
+"\n"
+"各コマンドの詳細は: %%prog command --help\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:610
 msgid "No label was provided"
-msgstr ""
+msgstr "ラベルが指定されていません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:612
 msgid ""
 "The label must contain only lower case letters, digits and underscores, and "
 "start with a letter"
-msgstr ""
+msgstr "ラベルは、小文字のアルファベット、数字、アンダースコアでアルファベットから始まらなくてはなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:65
 #, python-format
 msgid "%(tt)sAverage rating is %(rating)3.1f"
-msgstr ""
+msgstr "%(tt)s 平均レートは %(rating)3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3308
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
-msgstr ""
+msgstr "<p>古いデーターベースを %s の書籍ライブラリへ移行<br><center>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3337
 #, python-format
 msgid "Copying <b>%s</b>"
-msgstr ""
+msgstr "コピー中<b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3354
 msgid "Compacting database"
@@ -17099,23 +17137,23 @@ msgstr "格付け"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:197
 msgid "Identifiers"
-msgstr ""
+msgstr "識別子"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:207
 msgid "Author Sort"
-msgstr ""
+msgstr "著者ソート"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:319
 msgid "Title Sort"
-msgstr ""
+msgstr "タイトル・ソート"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:128
 msgid "Processed"
-msgstr ""
+msgstr "処理済"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:200
 msgid "creating custom column "
-msgstr ""
+msgstr "カスタム列を作成 "
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:32
 msgid "The title"
@@ -17129,7 +17167,7 @@ msgstr "著者"
 msgid ""
 "The author sort string. To use only the first letter of the name use "
 "{author_sort[0]}"
-msgstr ""
+msgstr "ソート用の著者名文字列。最初の一文字だけを使うには{author_sort[0]}としてください。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:36
 msgid "The tags"
@@ -17144,10 +17182,12 @@ msgid ""
 "The series number. To get leading zeros use {series_index:0>3s} or "
 "{series_index:>3s} for leading spaces"
 msgstr ""
+"シリーズ番号。頭に桁ぞろえの0を付けるには {series_index:0>3s} として、桁ぞろえのスペースを付けるには\r\n"
+"{series_index:>3s} として下さい。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:41
 msgid "The rating"
-msgstr ""
+msgstr "レート"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:42
 msgid "The ISBN"
@@ -17167,7 +17207,7 @@ msgstr "出版年月日"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
-msgstr ""
+msgstr "この書籍の書誌情報が最後に変更された日付"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
@@ -17175,31 +17215,31 @@ msgstr "calibre内部ID"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:76
 msgid "Options to control saving to disk"
-msgstr ""
+msgstr "ディスクに保存する時のオプション"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:82
 msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
-msgstr ""
+msgstr "通常、Calibreはライブラリ内のファイルの書誌情報をアップデートしますが、これはディスクへの保存を遅くします。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:85
 msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
-msgstr ""
+msgstr "通常、Calibreは実際のeBookファイルに付随する別のOPFファイルに書誌情報を書き込みます。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:88
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
-msgstr ""
+msgstr "通常、Calibreは実際のeBookに付随する別のファイルに表紙を保存します。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:91
 msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available formats are saved."
-msgstr ""
+msgstr "各書籍を保存する時のコンマ区切りのフォーマットのリスト。ディフォールとでは全ての存在するフォーマットが保存されます。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:94
 #, python-format
@@ -17209,6 +17249,8 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%(controls)s}"
 msgstr ""
+"保存されるファイルの、ファイル名とディレクトリ構造を指定するテンプレート。ディフォールトは\"%(templ)s\"で、これは書籍を著者別のディレクトリに"
+"入れ、タイトルと著者名のファイル名をつけます。使用可能な操作は：{%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:100
 #, python-format
@@ -17218,6 +17260,8 @@ msgid ""
 "author directory with filenames containing title and author. Available "
 "controls are: {%(controls)s}"
 msgstr ""
+"デバイスに送る時のファイル名とディレクトリ構造を制御するためのテンプレート。ディフォールトは \"%(templ)s\" "
+"で、これは書籍を著者別のディレクトリに入れ、タイトルと著者からなるファイル名をつけます。使用できる指定は：{%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:107
 msgid ""
@@ -17226,12 +17270,14 @@ msgid ""
 "experience errors when saving, depending on how well the filesystem you are "
 "saving to supports unicode."
 msgstr ""
+"通常、Calibreはファイル名に、全ての非アルファベット文字を英語の対応するものへ変換します。注意：もし、これをOffにした場合、ファイルシステムがどの"
+"程度ユニコードをサポートしているかにより、保存時にエラーが起こる場合があります。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:113
 msgid ""
 "The format in which to display dates. %d - day, %b - month, %Y - year. "
 "Default is: %b, %Y"
-msgstr ""
+msgstr "日付を表示する時のフォーマット。 %d - 日, %b - 月, %Y - 年. ディフォールトは: %b, %Y"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:116
 #, python-format
@@ -17239,10 +17285,12 @@ msgid ""
 "The format in which to display dates. %(day)s - day, %(month)s - month, "
 "%(year)s - year. Default is: %(default)s"
 msgstr ""
+"日付を表示する時のフォーマット。 %(day)s - 日, %(month)s - 月, %(year)s - 年. ディフォールトは: "
+"%(default)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:120
 msgid "Convert paths to lowercase."
-msgstr ""
+msgstr "パスを小文字に変換"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:122
 msgid "Replace whitespace with underscores."
@@ -17255,7 +17303,7 @@ msgstr "要求されたフォーマットが存在しない"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:21
 msgid "Settings to control the calibre content server"
-msgstr ""
+msgstr "Calibreのコンテント・サーバーを制御する設定"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:25
 #, python-format
@@ -17265,7 +17313,7 @@ msgstr "受信ポート(デフォルトは%default）"
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:27
 #, python-format
 msgid "The server timeout in seconds. Default is %default"
-msgstr ""
+msgstr "サーバーのタイムアウト秒。ディフォールトは %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:29
 #, python-format
@@ -17274,23 +17322,23 @@ msgstr "ワーカースレッドの最大数（デフォルトは%default）"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:31
 msgid "Set a password to restrict access. By default access is unrestricted."
-msgstr ""
+msgstr "アクセスを制限するパスワード。ディフォールトでは無制限。"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:33
 #, python-format
 msgid "Username for access. By default, it is: %default"
-msgstr ""
+msgstr "アクセスのユーザー名。ディフォールト: %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:37
 #, python-format
 msgid "The maximum size for displayed covers. Default is %default."
-msgstr ""
+msgstr "表示される表紙の最大サイズ。ディフォールトは%default ."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:39
 msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
-msgstr ""
+msgstr "各OPDSクエリーに返す最大結果数。これはStanzaやWordPlayer等との連携に影響します。"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:43
 #, python-format
