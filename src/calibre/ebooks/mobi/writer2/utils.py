@@ -49,27 +49,64 @@ def encint(value, forward=True):
     These integers are represented big-endian with 7 bits per byte in bits 1-7.
     They may be either forward-encoded, in which case only the first byte has bit 8 set,
     or backward-encoded, in which case only the last byte has bit 8 set.
-    For example, the number 0x11111 would be represented forward-encoded as:
+    For example, the number 0x11111 = 0b10001000100010001 would be represented
+    forward-encoded as:
 
-        0x04 0x22 0x91
+        0x04 0x22 0x91 = 0b100 0b100010 0b10010001
 
     And backward-encoded as:
 
-        0x84 0x22 0x11
+        0x84 0x22 0x11 = 0b10000100 0b100010 0b10001
 
     This function encodes the integer ``value`` as a variable width integer and
     returns the bytestring corresponding to it.
+
+    If forward is True the bytes returned are suitable for prepending to the
+    output buffer, otherwise they must be append to the output buffer.
     '''
     # Encode vwi
     byts = bytearray()
     while True:
-        b = value & 0b1111111
-        value >>= 7
+        b = value & 0b01111111
+        value >>= 7 # shift value to the right by 7 bits
         byts.append(b)
         if value == 0:
             break
     byts[0 if forward else -1] |= 0b10000000
+    byts.reverse()
     return bytes(byts)
+
+def decint(raw, forward=True):
+    '''
+    Read a variable width integer from the bytestring raw and return the
+    integer and the number of bytes read. If forward is True bytes are read
+    from the start of raw, otherwise from the end of raw.
+
+    This function is the inverse of encint above, see its docs for more
+    details.
+    '''
+    val = 0
+    byts = bytearray()
+    for byte in raw if forward else reversed(raw):
+        bnum = ord(byte)
+        byts.append(bnum & 0b01111111)
+        if bnum & 0b10000000:
+            break
+    if not forward:
+        byts.reverse()
+    for byte in byts:
+        val <<= 7 # Shift value to the left by 7 bits
+        val |= byte
+
+    return val, len(byts)
+
+def test_decint(num):
+    for d in (True, False):
+        raw = encint(num, forward=d)
+        sz = len(raw)
+        if (num, sz) != decint(raw, forward=d):
+            raise ValueError('Failed for num %d, forward=%r: %r != %r' % (
+                num, d, (num, sz), decint(raw, forward=d)))
 
 def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
     '''
