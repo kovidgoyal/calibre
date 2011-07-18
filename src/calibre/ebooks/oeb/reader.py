@@ -163,6 +163,8 @@ class OEBReader(object):
             if item.media_type in check:
                 try:
                     item.data
+                except KeyboardInterrupt:
+                    raise
                 except:
                     self.logger.exception('Failed to parse content in %s'%
                             item.href)
