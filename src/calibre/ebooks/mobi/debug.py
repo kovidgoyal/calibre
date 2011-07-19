@@ -421,7 +421,7 @@ class IndexHeader(object): # {{{
         self.ordt_start, = struct.unpack('>I', raw[40:44])
         self.ligt_start, = struct.unpack('>I', raw[44:48])
         self.num_of_ligt_entries, = struct.unpack('>I', raw[48:52])
-        self.num_of_ctoc_blocks, = struct.unpack('>I', raw[52:56])
+        self.num_of_cncx_blocks, = struct.unpack('>I', raw[52:56])
         self.unknown2 = raw[56:180]
         self.tagx_offset, = struct.unpack(b'>I', raw[180:184])
         if self.tagx_offset != self.header_length:
@@ -482,7 +482,7 @@ class IndexHeader(object): # {{{
         a('ORDT start: %d'%self.ordt_start)
         a('LIGT start: %d'%self.ligt_start)
         a('Number of LIGT entries: %d'%self.num_of_ligt_entries)
-        a('Number of CTOC blocks: %d'%self.num_of_ctoc_blocks)
+        a('Number of cncx blocks: %d'%self.num_of_cncx_blocks)
         u(self.unknown2)
         a('TAGX offset: %d'%self.tagx_offset)
         u(self.unknown3)
@@ -520,10 +520,10 @@ class Tag(object): # {{{
             },
 
             'article'   : {
-                    5  : ('Class offset in CTOC', 'class_offset'),
+                    5  : ('Class offset in cncx', 'class_offset'),
                     21 : ('Parent section index', 'parent_index'),
-                    22 : ('Description offset in CTOC', 'desc_offset'),
-                    23 : ('Author offset in CTOC', 'author_offset'),
+                    22 : ('Description offset in cncx', 'desc_offset'),
+                    23 : ('Author offset in cncx', 'author_offset'),
             },
 
             'chapter_with_subchapters' : {
@@ -532,13 +532,13 @@ class Tag(object): # {{{
             },
 
             'periodical' : {
-                    5  : ('Class offset in CTOC', 'class_offset'),
+                    5  : ('Class offset in cncx', 'class_offset'),
                     22 : ('First section index', 'first_section_index'),
                     23 : ('Last section index', 'last_section_index'),
             },
 
             'section' : {
-                    5  : ('Class offset in CTOC', 'class_offset'),
+                    5  : ('Class offset in cncx', 'class_offset'),
                     21 : ('Periodical index', 'periodical_index'),
                     22 : ('First article index', 'first_article_index'),
                     23 : ('Last article index', 'last_article_index'),
@@ -546,10 +546,10 @@ class Tag(object): # {{{
     }
 
 
-    def __init__(self, tagx, vals, entry_type, ctoc):
+    def __init__(self, tagx, vals, entry_type, cncx):
         self.value = vals if len(vals) > 1 else vals[0]
         self.entry_type = entry_type
-        self.ctoc_value = None
+        self.cncx_value = None
         if tagx.tag in self.TAG_MAP:
             self.attr, self.desc = self.TAG_MAP[tagx.tag]
         else:
@@ -563,11 +563,11 @@ class Tag(object): # {{{
                 raise ValueError('Unknown tag: %d for entry type: %s'%(
                     tagx.tag, entry_type))
         if '_offset' in self.attr:
-            self.ctoc_value = ctoc[self.value]
+            self.cncx_value = cncx[self.value]
 
     def __str__(self):
-        if self.ctoc_value is not None:
-            return '%s : %r [%r]'%(self.desc, self.value, self.ctoc_value)
+        if self.cncx_value is not None:
+            return '%s : %r [%r]'%(self.desc, self.value, self.cncx_value)
         return '%s : %r'%(self.desc, self.value)
 
 # }}}
@@ -585,7 +585,7 @@ class IndexEntry(object): # {{{
             0x3f : 'article',
     }
 
-    def __init__(self, ident, entry_type, raw, ctoc, tagx_entries):
+    def __init__(self, ident, entry_type, raw, cncx, tagx_entries):
         self.index = ident
         self.raw = raw
         self.tags = []
@@ -606,7 +606,7 @@ class IndexEntry(object): # {{{
                 val, consumed = decint(raw)
                 raw = raw[consumed:]
                 vals.append(val)
-            self.tags.append(Tag(tag, vals, self.entry_type, ctoc))
+            self.tags.append(Tag(tag, vals, self.entry_type, cncx))
 
     def __str__(self):
         ans = ['Index Entry(index=%s, entry_type=%s, length=%d)'%(
@@ -619,7 +619,7 @@ class IndexEntry(object): # {{{
 
 class IndexRecord(object): # {{{
 
-    def __init__(self, record, index_header, ctoc):
+    def __init__(self, record, index_header, cncx):
         self.record = record
         raw = self.record.raw
         if raw[:4] != b'INDX':
@@ -656,7 +656,7 @@ class IndexRecord(object): # {{{
             index, consumed = decode_hex_number(indxt[off:])
             entry_type = ord(indxt[off+consumed])
             self.indices.append(IndexEntry(index, entry_type,
-                indxt[off+consumed+1:next_off], ctoc, index_header.tagx_entries))
+                indxt[off+consumed+1:next_off], cncx, index_header.tagx_entries))
 
 
     def __str__(self):
@@ -682,7 +682,7 @@ class IndexRecord(object): # {{{
 
 # }}}
 
-class CTOC(object) : # {{{
+class CNCX(object) : # {{{
 
     def __init__(self, records, codec):
         self.records = OrderedDict()
@@ -700,7 +700,7 @@ class CTOC(object) : # {{{
         return self.records.get(offset)
 
     def __str__(self):
-        ans = ['*'*20 + ' CTOC (%d strings) '%len(self.records)+ '*'*20]
+        ans = ['*'*20 + ' cncx (%d strings) '%len(self.records)+ '*'*20]
         for k, v in self.records.iteritems():
             ans.append('%10d : %s'%(k, v))
         return '\n'.join(ans)
@@ -740,11 +740,11 @@ class MOBIFile(object): # {{{
         pir = self.mobi_header.primary_index_record
         if pir != 0xffffffff:
             self.index_header = IndexHeader(self.records[pir])
-            self.ctoc = CTOC(self.records[
-                pir+2:pir+2+self.index_header.num_of_ctoc_blocks],
+            self.cncx = CNCX(self.records[
+                pir+2:pir+2+self.index_header.num_of_cncx_blocks],
                 self.index_header.index_encoding)
             self.index_record = IndexRecord(self.records[pir+1],
-                    self.index_header, self.ctoc)
+                    self.index_header, self.cncx)
 
 
     def print_header(self, f=sys.stdout):
@@ -771,7 +771,7 @@ def inspect_mobi(path_or_stream):
         with open(os.path.join(ddir, 'index.txt'), 'wb') as out:
             print(str(f.index_header), file=out)
             print('\n\n', file=out)
-            print(str(f.ctoc).encode('utf-8'), file=out)
+            print(str(f.cncx).encode('utf-8'), file=out)
             print('\n\n', file=out)
             print(str(f.index_record), file=out)
 
