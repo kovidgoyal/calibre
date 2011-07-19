@@ -405,9 +405,9 @@ To those of you that claim that you need access to the filesystem to so that you
 
 If you are worried that someday |app| will cease to be developed, leaving all your books marooned in its folder structure, explore the powerful "Save to Disk" feature in |app| that lets you export all your files into a folder structure of arbitrary complexity based on their metadata.
 
-Since I keep getting asked why there are numbers at the end of the title folder name, the reason is for *robustness*. That number is the id number of the book record in the |app| database. The presence of the number allows you to have multiple records with the same title and author names. More importantly, it is part of what allows |app| to magically regenerate the database with all metadata if the database file gets corrupted. Given that |app|'s mission is to get you to stop storing metadata in filenames and stop using the filesystem to find things, the increased robustness afforded by the id numbers is well worth the uglier folder names.
+Finally, the reason there are numbers at the end of every title folder, is for *robustness*. That number is the id number of the book record in the |app| database. The presence of the number allows you to have multiple records with the same title and author names. It is also part of what allows |app| to magically regenerate the database with all metadata if the database file gets corrupted. Given that |app|'s mission is to get you to stop storing metadata in filenames and stop using the filesystem to find things, the increased robustness afforded by the id numbers is well worth the uglier folder names.
 
-Finally, if you are irrevocably wedded to using the filesystem to store your metadata, feel free to patch your local copy of |app| to use whatever storage scheme you like. But, do not bother me with requests to change the directory structure, **they will be ignored**.
+If you are still not convinced, then I'm afraid |app| is not for you. Look elsewhere for your book cataloguing needs. Just so we're clear, **this is not going to change**. Kindly do not contact us in an attempt to get us to change this.
 
 Why doesn't |app| have a column for foo?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
