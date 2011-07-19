@@ -377,18 +377,17 @@ class TagX(object): # {{{
     def __init__(self, raw, control_byte_count):
         self.tag = ord(raw[0])
         self.num_values = ord(raw[1])
-        self.bmask = ord(raw[2])
-        self.bitmask = bin(self.bmask)
+        self.bitmask = ord(raw[2])
         # End of file = 1 iff last entry
         # When it is 1 all others are 0
         self.eof = ord(raw[3])
 
         self.is_eof = (self.eof == 1 and self.tag == 0 and self.num_values == 0
-                and self.bmask == 0)
+                and self.bitmask == 0)
 
     def __repr__(self):
-        return 'TAGX(tag=%02d, num_values=%d, bitmask=%r (%d), eof=%d)' % (self.tag,
-                self.num_values, self.bitmask, self.bmask, self.eof)
+        return 'TAGX(tag=%02d, num_values=%d, bitmask=%r, eof=%d)' % (self.tag,
+                self.num_values, bin(self.bitmask), self.eof)
     # }}}
 
 class IndexHeader(object): # {{{
@@ -444,6 +443,7 @@ class IndexHeader(object): # {{{
                 self.tagx_control_byte_count))
         if self.tagx_entries and not self.tagx_entries[-1].is_eof:
             raise ValueError('TAGX last entry is not EOF')
+        self.tagx_entries = self.tagx_entries[:-1]
 
         idxt0_pos = self.header_length+self.tagx_header_length
         last_num, consumed = decode_hex_number(raw[idxt0_pos:])
@@ -497,6 +497,81 @@ class IndexHeader(object): # {{{
         return '\n'.join(ans)
     # }}}
 
+class Tag(object): # {{{
+
+    '''
+    Index entries are a collection of tags. Each tag is represented by this
+    class.
+    '''
+
+    TAG_MAP = {
+            1: ('offset', 'Offset in HTML'),
+            2: ('size', 'Size in HTML'),
+            3: ('label_offset', 'Offset to label in CNCX'),
+            4: ('depth', 'Depth of this entry in TOC'),
+
+            # The remaining tag types have to be interpreted subject to the type
+            # of index entry they are present in
+    }
+
+    INTERPRET_MAP = {
+            'subchapter': {
+                    5  : ('Parent chapter index', 'parent_index')
+            },
+
+            'article'   : {
+                    5  : ('Class offset in CTOC', 'class_offset'),
+                    21 : ('Parent section index', 'parent_index'),
+                    22 : ('Description offset in CTOC', 'desc_offset'),
+                    23 : ('Author offset in CTOC', 'author_offset'),
+            },
+
+            'chapter_with_subchapters' : {
+                    22 : ('First subchapter index', 'first_subchapter_index'),
+                    23 : ('Last subchapter index', 'last_subchapter_index'),
+            },
+
+            'periodical' : {
+                    5  : ('Class offset in CTOC', 'class_offset'),
+                    22 : ('First section index', 'first_section_index'),
+                    23 : ('Last section index', 'last_section_index'),
+            },
+
+            'section' : {
+                    5  : ('Class offset in CTOC', 'class_offset'),
+                    21 : ('Periodical index', 'periodical_index'),
+                    22 : ('First article index', 'first_article_index'),
+                    23 : ('Last article index', 'last_article_index'),
+            },
+    }
+
+
+    def __init__(self, tagx, vals, entry_type, ctoc):
+        self.value = vals if len(vals) > 1 else vals[0]
+        self.entry_type = entry_type
+        self.ctoc_value = None
+        if tagx.tag in self.TAG_MAP:
+            self.attr, self.desc = self.TAG_MAP[tagx.tag]
+        else:
+            try:
+                td = self.INTERPRET_MAP[entry_type]
+            except:
+                raise ValueError('Unknown entry type: %s'%entry_type)
+            try:
+                self.desc, self.attr = td[tagx.tag]
+            except:
+                raise ValueError('Unknown tag: %d for entry type: %s'%(
+                    tagx.tag, entry_type))
+        if '_offset' in self.attr:
+            self.ctoc_value = ctoc[self.value]
+
+    def __str__(self):
+        if self.ctoc_value is not None:
+            return '%s : %r [%r]'%(self.desc, self.value, self.ctoc_value)
+        return '%s : %r'%(self.desc, self.value)
+
+# }}}
+
 class IndexEntry(object): # {{{
 
     TYPES = {
@@ -510,97 +585,41 @@ class IndexEntry(object): # {{{
             0x3f : 'article',
     }
 
-    def __init__(self, ident, entry_type, raw, is_last):
+    def __init__(self, ident, entry_type, raw, ctoc, tagx_entries):
         self.index = ident
-        self.fields = []
-        self.sub_type = None
         self.raw = raw
+        self.tags = []
 
         try:
             self.entry_type = self.TYPES[entry_type]
         except KeyError:
             raise ValueError('Unknown Index Entry type: %s'%hex(entry_type))
 
-        if self.entry_type in (0xdf, 0xff):
-            self.subtype = ord(raw[0])
-            raw = raw[1:]
-        while raw:
-            val, consumed = decint(raw)
-            raw = raw[consumed:]
-            self.fields.append(val)
-        if is_last and self.fields[-1] == 0:
-            self.fields = self.fields[:-1]
+        expected_tags = [tag for tag in tagx_entries if tag.bitmask &
+                entry_type]
 
-        self.interpret()
-
-    def interpret(self):
-        self.offset = self.fields[0]
-        self.object_size = self.fields[1]
-        self.label_offset = self.fields[2]
-        self.depth = self.fields[3]
-        self.extra = OrderedDict()
-        self.extra_fields = []
-        if self.entry_type == 'subchapter':
-            self.parent_index = self.fields[4]
-            self.extra['Parent chapter index'] = 'parent_index'
-            self.extra_fields = self.fields[5:]
-        elif self.entry_type == 'article':
-            self.class_offset = self.fields[4]
-            self.extra['Class offset in CTOC'] = 'class_offset'
-            self.parent_index = self.fields[5]
-            self.extra['Parent section index'] = 'parent_index'
-            if len(self.fields) > 6:
-                self.desc_offset = self.fields[6]
-                self.extra['Decription offset in CTOC'] = 'desc_offset'
-            if len(self.fields) > 7:
-                self.author_offset = self.fields[7]
-                self.extra['Author offset in CTOC'] = 'author_offset'
-            self.extra_fields = self.fields[8:]
-        elif self.entry_type == 'chapter_with_subchapters':
-            self.first_subchapter_index = self.fields[4]
-            self.last_subchapter_index = self.fields[5]
-            self.extra['First subchapter index'] = 'first_subchapter_index'
-            self.extra['Last subchapter index'] = 'last_subchapter_index'
-            self.extra_fields = self.fields[6:]
-        elif self.entry_type == 'periodical':
-            self.class_offset = self.fields[4]
-            self.extra['Class offset in CTOC'] = 'class_offset'
-            self.first_section_index = self.fields[5]
-            self.last_section_index = self.fields[6]
-            self.extra['First section index'] = 'first_section_index'
-            self.extra['Last section index'] = 'last_section_index'
-            self.extra_fields = self.fields[7:]
-        elif self.entry_type == 'section':
-            self.class_offset = self.fields[4]
-            self.extra['Class offset in CTOC'] = 'class_offset'
-            self.periodical_index = self.fields[5]
-            self.extra['Periodical index'] = 'periodical_index'
-            self.first_article_index = self.fields[6]
-            self.last_article_index = self.fields[7]
-            self.extra['First article index'] = 'first_article_index'
-            self.extra['Last article index'] = 'last_article_index'
-            self.extra_fields = self.fields[8:]
+        for tag in expected_tags:
+            vals = []
+            for i in range(tag.num_values):
+                if not raw:
+                    raise ValueError('Index entry does not match TAGX header')
+                val, consumed = decint(raw)
+                raw = raw[consumed:]
+                vals.append(val)
+            self.tags.append(Tag(tag, vals, self.entry_type, ctoc))
 
     def __str__(self):
-        ans = ['Index Entry(index=%s, entry_type=%s, sub_type=%s, length=%d)'%(
-            self.index, self.entry_type, self.sub_type, len(self.raw))]
-        ans.append('\tOffset in HTML: %d'%self.offset)
-        ans.append('\tObject size in HTML: %d'%self.object_size)
-        ans.append('\tLabel offset in CTOC: %d'%self.label_offset)
-        ans.append('\tDepth: %d'%self.depth)
-        for text, attr in self.extra.iteritems():
-            ans.append('\t%s: %d'%(text, getattr(self, attr)))
-        if self.extra_fields:
-            ans.append('\tExtra Fields (%d): %r'%(len(self.extra_fields),
-                self.extra_fields))
-
+        ans = ['Index Entry(index=%s, entry_type=%s, length=%d)'%(
+            self.index, self.entry_type, len(self.tags))]
+        for tag in self.tags:
+            ans.append('\t'+str(tag))
         return '\n'.join(ans)
 
 # }}}
 
 class IndexRecord(object): # {{{
 
-    def __init__(self, record):
+    def __init__(self, record, index_header, ctoc):
         self.record = record
         raw = self.record.raw
         if raw[:4] != b'INDX':
@@ -632,14 +651,12 @@ class IndexRecord(object): # {{{
         for i, off in enumerate(self.index_offsets):
             try:
                 next_off = self.index_offsets[i+1]
-                is_last = False
             except:
                 next_off = len(indxt)
-                is_last = True
             index, consumed = decode_hex_number(indxt[off:])
-            entry_type, = u(b'>B', indxt[off+consumed])
+            entry_type = ord(indxt[off+consumed])
             self.indices.append(IndexEntry(index, entry_type,
-                indxt[off+consumed+1:next_off], is_last))
+                indxt[off+consumed+1:next_off], ctoc, index_header.tagx_entries))
 
 
     def __str__(self):
@@ -678,6 +695,9 @@ class CTOC(object) : # {{{
                     self.records[pos] = raw[pos+consumed:pos+consumed+length].decode(
                         codec)
                 pos += consumed+length
+
+    def __getitem__(self, offset):
+        return self.records.get(offset)
 
     def __str__(self):
         ans = ['*'*20 + ' CTOC (%d strings) '%len(self.records)+ '*'*20]
@@ -723,7 +743,8 @@ class MOBIFile(object): # {{{
             self.ctoc = CTOC(self.records[
                 pir+2:pir+2+self.index_header.num_of_ctoc_blocks],
                 self.index_header.index_encoding)
-            self.index_record = IndexRecord(self.records[pir+1])
+            self.index_record = IndexRecord(self.records[pir+1],
+                    self.index_header, self.ctoc)
 
 
     def print_header(self, f=sys.stdout):
