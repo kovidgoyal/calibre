@@ -1208,16 +1208,16 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
-class StoreEPubBuyDEStore(StoreBase):
-    name = 'EPUBBuy DE'
-    author = 'Charles Haley'
-    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
-    actual_plugin = 'calibre.gui2.store.stores.epubbuy_de_plugin:EPubBuyDEStore'
-
-    drm_free_only = True
-    headquarters = 'DE'
-    formats = ['EPUB']
-    affiliate = True
+#class StoreEPubBuyDEStore(StoreBase):
+#    name = 'EPUBBuy DE'
+#    author = 'Charles Haley'
+#    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
+#    actual_plugin = 'calibre.gui2.store.stores.epubbuy_de_plugin:EPubBuyDEStore'
+#
+#    drm_free_only = True
+#    headquarters = 'DE'
+#    formats = ['EPUB']
+#    affiliate = True
 
 class StoreEBookShoppeUKStore(StoreBase):
     name = 'ebookShoppe UK'
@@ -1459,7 +1459,7 @@ plugins += [
     StoreEbookNLStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
-    StoreEPubBuyDEStore,
+#    StoreEPubBuyDEStore,
     StoreEHarlequinStore,
     StoreEpubBudStore,
     StoreFeedbooksStore,
