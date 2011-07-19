@@ -1,4 +1,4 @@
-import urllib2
+import urllib2, re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class JBPress(BasicNewsRecipe):
@@ -40,3 +40,12 @@ class JBPress(BasicNewsRecipe):
     def print_version(self, url):
         url = urllib2.urlopen(url).geturl() # resolve redirect.
         return url.replace('/-/', '/print/')
+
+    def preprocess_html(self, soup):
+            # remove breadcrumb
+            h3s = soup.findAll('h3')
+            for h3 in h3s:
+                if re.compile('^JBpress&gt;').match(h3.string):
+                    h3.extract()
+            return soup
+
