@@ -574,6 +574,13 @@ class Tag(object): # {{{
 
 class IndexEntry(object): # {{{
 
+    '''
+    The index is made up of entries, each of which is represented by an
+    instance of this class. Index entries typically point to offsets int eh
+    HTML, specify HTML sizes and point to text strings in the CNCX that are
+    used in the navigation UI.
+    '''
+
     TYPES = {
             # Present in book type files
             0x0f : 'chapter',
@@ -618,6 +625,11 @@ class IndexEntry(object): # {{{
 # }}}
 
 class IndexRecord(object): # {{{
+
+    '''
+    Represents all indexing information in the MOBI, apart from indexing info
+    in the trailing data of the text records.
+    '''
 
     def __init__(self, record, index_header, cncx):
         self.record = record
@@ -683,6 +695,12 @@ class IndexRecord(object): # {{{
 # }}}
 
 class CNCX(object) : # {{{
+
+    '''
+    Parses the records that contain the compiled NCX (all strings from the
+    NCX). Presents a simple offset : string mapping interface to access the
+    data.
+    '''
 
     def __init__(self, records, codec):
         self.records = OrderedDict()
