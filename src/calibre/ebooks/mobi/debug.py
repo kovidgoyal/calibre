@@ -7,11 +7,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, datetime, sys, os
+import struct, datetime, sys, os, shutil
 from collections import OrderedDict
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
-from calibre.ebooks.mobi.writer2.utils import decode_hex_number, decint
+from calibre.ebooks.mobi.writer2.utils import (decode_hex_number, decint,
+        get_trailing_data)
+from calibre.utils.magick.draw import identify_data
 
 # PalmDB {{{
 class PalmDOCAttributes(object):
@@ -278,6 +280,7 @@ class MOBIHeader(object): # {{{
         self.has_extra_data_flags = self.length >= 232 and len(self.raw) >= 232+16
         self.has_fcis_flis = False
         self.has_multibytes = self.has_indexing_bytes = self.has_uncrossable_breaks = False
+        self.extra_data_flags = 0
         if self.has_extra_data_flags:
             self.unknown4 = self.raw[180:192]
             self.first_content_record, self.last_content_record = \
@@ -726,6 +729,63 @@ class CNCX(object) : # {{{
 
 # }}}
 
+class TextRecord(object): # {{{
+
+    def __init__(self, idx, record, extra_data_flags, decompress):
+        self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
+        self.raw = decompress(self.raw)
+        if 0 in self.trailing_data:
+            self.trailing_data['multibyte_overlap'] = self.trailing_data.pop(0)
+        if 1 in self.trailing_data:
+            self.trailing_data['indexing'] = self.trailing_data.pop(1)
+        if 2 in self.trailing_data:
+            self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
+
+        self.idx = idx
+
+    def dump(self, folder):
+        name = '%06d'%self.idx
+        with open(os.path.join(folder, name+'.txt'), 'wb') as f:
+            f.write(self.raw)
+        with open(os.path.join(folder, name+'.trailing_data'), 'wb') as f:
+            for k, v in self.trailing_data.iteritems():
+                raw = '%s : %r\n\n'%(k, v)
+                f.write(raw.encode('utf-8'))
+
+# }}}
+
+class ImageRecord(object): # {{{
+
+    def __init__(self, idx, record, fmt):
+        self.raw = record.raw
+        self.fmt = fmt
+        self.idx = idx
+
+    def dump(self, folder):
+        name = '%06d'%self.idx
+        with open(os.path.join(folder, name+'.'+self.fmt), 'wb') as f:
+            f.write(self.raw)
+
+# }}}
+
+class BinaryRecord(object): # {{{
+
+    def __init__(self, idx, record):
+        self.raw = record.raw
+        sig = self.raw[:4]
+        name = '%06d'%idx
+        if sig in (b'FCIS', b'FLIS', b'SRCS'):
+            name += '-' + sig.decode('ascii')
+        elif sig == b'\xe9\x8e\r\n':
+            name += '-' + 'EOF'
+        self.name = name
+
+    def dump(self, folder):
+        with open(os.path.join(folder, self.name+'.bin'), 'wb') as f:
+            f.write(self.raw)
+
+# }}}
+
 class MOBIFile(object): # {{{
 
     def __init__(self, stream):
@@ -754,7 +814,22 @@ class MOBIFile(object): # {{{
 
         self.mobi_header = MOBIHeader(self.records[0])
 
+        if 'huff' in self.mobi_header.compression.lower():
+            huffrecs = [r.raw for r in
+                    xrange(self.mobi_header.huffman_record_offset,
+                        self.mobi_header.huffman_record_offset +
+                        self.mobi_header.huffman_record_count)]
+            from calibre.ebooks.mobi.huffcdic import HuffReader
+            huffs = HuffReader(huffrecs)
+            decompress = huffs.decompress
+        elif 'palmdoc' in self.mobi_header.compression.lower():
+            from calibre.ebooks.compression.palmdoc import decompress_doc
+            decompress = decompress_doc
+        else:
+            decompress = lambda x: x
+
         self.index_header = None
+        self.indexing_record_nums = set()
         pir = self.mobi_header.primary_index_record
         if pir != 0xffffffff:
             self.index_header = IndexHeader(self.records[pir])
@@ -763,6 +838,34 @@ class MOBIFile(object): # {{{
                 self.index_header.index_encoding)
             self.index_record = IndexRecord(self.records[pir+1],
                     self.index_header, self.cncx)
+            self.indexing_record_nums = set(xrange(pir,
+                pir+2+self.index_header.num_of_cncx_blocks))
+
+
+        ntr = self.mobi_header.number_of_text_records
+        fntbr = self.mobi_header.first_non_book_record
+        fii = self.mobi_header.first_image_index
+        if fntbr == 0xffffffff:
+            fntbr = len(self.records)
+        self.text_records = [TextRecord(r, self.records[r],
+            self.mobi_header.extra_data_flags, decompress) for r in xrange(1,
+            min(len(self.records), ntr+1))]
+        self.image_records, self.binary_records = [], []
+        for i in xrange(fntbr, len(self.records)):
+            if i in self.indexing_record_nums:
+                continue
+            r = self.records[i]
+            fmt = None
+            if i >= fii and r.raw[:4] not in (b'FLIS', b'FCIS', b'SRCS',
+                    b'\xe9\x8e\r\n'):
+                try:
+                    width, height, fmt = identify_data(r.raw)
+                except:
+                    pass
+            if fmt is not None:
+                self.image_records.append(ImageRecord(i, r, fmt))
+            else:
+                self.binary_records.append(BinaryRecord(i, r))
 
 
     def print_header(self, f=sys.stdout):
@@ -776,13 +879,16 @@ class MOBIFile(object): # {{{
         print (str(self.mobi_header).encode('utf-8'), file=f)
 # }}}
 
-def inspect_mobi(path_or_stream):
+def inspect_mobi(path_or_stream, prefix='decompiled'):
     stream = (path_or_stream if hasattr(path_or_stream, 'read') else
             open(path_or_stream, 'rb'))
     f = MOBIFile(stream)
-    ddir = 'debug_' + os.path.splitext(os.path.basename(stream.name))[0]
-    if not os.path.exists(ddir):
-        os.mkdir(ddir)
+    ddir = prefix + '_' + os.path.splitext(os.path.basename(stream.name))[0]
+    try:
+        shutil.rmtree(ddir)
+    except:
+        pass
+    os.mkdir(ddir)
     with open(os.path.join(ddir, 'header.txt'), 'wb') as out:
         f.print_header(f=out)
     if f.index_header is not None:
@@ -792,6 +898,13 @@ def inspect_mobi(path_or_stream):
             print(str(f.cncx).encode('utf-8'), file=out)
             print('\n\n', file=out)
             print(str(f.index_record), file=out)
+
+    for tdir, attr in [('text', 'text_records'), ('images', 'image_records'),
+            ('binary', 'binary_records')]:
+        tdir = os.path.join(ddir, tdir)
+        os.mkdir(tdir)
+        for rec in getattr(f, attr):
+            rec.dump(tdir)
 
     print ('Debug data saved to:', ddir)
 

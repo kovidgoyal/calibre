@@ -8,6 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import struct
+from collections import OrderedDict
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
 
@@ -150,4 +151,26 @@ def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
         scale -= 0.05
     return data
 
+def get_trailing_data(record, extra_data_flags):
+    '''
+    Given a text record as a bytestring and the extra data flags from the MOBI
+    header, return the trailing data as a dictionary, mapping bit number to
+    data as bytestring. Also returns the record - all trailing data.
+
+    :return: Trailing data, record - trailing data
+    '''
+    data = OrderedDict()
+    for i in xrange(16, -1, -1):
+        flag = 2**i
+        if flag & extra_data_flags:
+            if i == 0:
+                # Only the first two bits are used for the size since there can
+                # never be more than 3 trailing multibyte chars
+                sz = ord(record[-1]) & 0b11
+                consumed = 1
+            else:
+                sz, consumed = decint(record, forward=False)
+            data[i] = record[-(sz+consumed):-consumed]
+            record = record[:-(sz+consumed)]
+    return data, record
 
