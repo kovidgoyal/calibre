@@ -12,7 +12,7 @@ import traceback, cPickle, copy
 from itertools import repeat
 
 from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
-        QMimeData, QModelIndex, pyqtSignal)
+        QMimeData, QModelIndex, pyqtSignal, QObject)
 
 from calibre.gui2 import NONE, gprefs, config, error_dialog
 from calibre.library.database2 import Tag
@@ -227,6 +227,10 @@ class TagsModel(QAbstractItemModel): # {{{
         self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
 
+    @property
+    def gui_parent(self):
+        return QObject.parent(self)
+
     def reread_collapse_model(self, state_map, rebuild=True):
         if gprefs['tags_browser_collapse_at'] == 0:
             self.collapse_model = 'disable'
@@ -315,9 +319,11 @@ class TagsModel(QAbstractItemModel): # {{{
                 for i,p in enumerate(path_parts):
                     path += p
                     if path not in category_node_map:
+                        icon = self.category_icon_map['gst'] if is_gst else \
+                                                    self.category_icon_map[key]
                         node = self.create_node(parent=last_category_node,
                                            data=p[1:] if i == 0 else p,
-                                           category_icon=self.category_icon_map[key],
+                                           category_icon=icon,
                                            tooltip=tt if path == key else path,
                                            category_key=path,
                                            icon_map=self.icon_state_map)
@@ -375,6 +381,7 @@ class TagsModel(QAbstractItemModel): # {{{
             collapse_letter = None
             category_node = category
             key = category_node.category_key
+            is_gst = category_node.is_gst
             if key not in data:
                 return
             cat_len = len(data[key])
@@ -387,7 +394,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                 not fm['is_custom'] and \
                                 not fm['kind'] == 'user' \
                             else False
-            in_uc = fm['kind'] == 'user'
+            in_uc = fm['kind'] == 'user' and not is_gst
             tt = key if in_uc else None
 
             if collapse_model == 'first letter':
@@ -455,6 +462,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                      tooltip = None, temporary=True,
                                      category_key=category_node.category_key,
                                      icon_map=self.icon_state_map)
+                    sub_cat.is_gst = is_gst
                     node_parent = sub_cat
                 else:
                     node_parent = category
@@ -677,44 +685,37 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def handle_user_category_drop(self, on_node, ids, column):
         categories = self.db.prefs.get('user_categories', {})
-        category = categories.get(on_node.category_key[1:], None)
-        if category is None:
+        cat_contents = categories.get(on_node.category_key[1:], None)
+        if cat_contents is None:
             return
+        cat_contents = set([(v, c) for v,c,ign in cat_contents])
+
         fm_src = self.db.metadata_for_field(column)
+        label = fm_src['label']
+
         for id in ids:
-            label = fm_src['label']
             if not fm_src['is_custom']:
                 if label == 'authors':
-                    items = self.db.get_authors_with_ids()
-                    items = [(i[0], i[1].replace('|', ',')) for i in items]
                     value = self.db.authors(id, index_is_id=True)
                     value = [v.replace('|', ',') for v in value.split(',')]
                 elif label == 'publisher':
-                    items = self.db.get_publishers_with_ids()
                     value = self.db.publisher(id, index_is_id=True)
                 elif label == 'series':
-                    items = self.db.get_series_with_ids()
                     value = self.db.series(id, index_is_id=True)
             else:
-                items = self.db.get_custom_items_with_ids(label=label)
                 if fm_src['datatype'] != 'composite':
                     value = self.db.get_custom(id, label=label, index_is_id=True)
                 else:
                     value = self.db.get_property(id, loc=fm_src['rec_index'],
                                                  index_is_id=True)
-            if value is None:
-                return
-            if not isinstance(value, list):
-                value = [value]
-            for val in value:
-                for (v, c, id) in category:
-                    if v == val and c == column:
-                        break
-                else:
-                    category.append([val, column, 0])
-            categories[on_node.category_key[1:]] = category
-            self.db.prefs.set('user_categories', categories)
-            self.refresh_required.emit()
+            if value:
+                if not isinstance(value, list):
+                    value = [value]
+                cat_contents |= set([(v, column) for v in value])
+
+        categories[on_node.category_key[1:]] = [[v, c, 0] for v,c in cat_contents]
+        self.db.prefs.set('user_categories', categories)
+        self.refresh_required.emit()
 
     def handle_drop(self, on_node, ids):
         #print 'Dropped ids:', ids, on_node.tag
@@ -722,12 +723,12 @@ class TagsModel(QAbstractItemModel): # {{{
         if (key == 'authors' and len(ids) >= 5):
             if not confirm('<p>'+_('Changing the authors for several books can '
                            'take a while. Are you sure?')
-                        +'</p>', 'tag_browser_drop_authors', self.parent()):
+                        +'</p>', 'tag_browser_drop_authors', self.gui_parent):
                 return
         elif len(ids) > 15:
             if not confirm('<p>'+_('Changing the metadata for that many books '
                            'can take a while. Are you sure?')
-                        +'</p>', 'tag_browser_many_changes', self.parent()):
+                        +'</p>', 'tag_browser_many_changes', self.gui_parent):
                 return
 
         fm = self.db.metadata_for_field(key)
@@ -871,13 +872,13 @@ class TagsModel(QAbstractItemModel): # {{{
         # we position at the parent label
         val = unicode(value.toString()).strip()
         if not val:
-            error_dialog(self.parent(), _('Item is blank'),
+            error_dialog(self.gui_parent, _('Item is blank'),
                         _('An item cannot be set to nothing. Delete it instead.')).exec_()
             return False
         item = self.get_node(index)
         if item.type == TagTreeItem.CATEGORY and item.category_key.startswith('@'):
             if val.find('.') >= 0:
-                error_dialog(self.parent(), _('Rename user category'),
+                error_dialog(self.gui_parent, _('Rename user category'),
                     _('You cannot use periods in the name when '
                       'renaming user categories'), show=True)
                 return False
@@ -897,7 +898,7 @@ class TagsModel(QAbstractItemModel): # {{{
                     if len(c) == len(ckey):
                         if strcmp(ckey, nkey) != 0 and \
                                 nkey_lower in user_cat_keys_lower:
-                            error_dialog(self.parent(), _('Rename user category'),
+                            error_dialog(self.gui_parent, _('Rename user category'),
                                 _('The name %s is already used')%nkey, show=True)
                             return False
                         user_cats[nkey] = user_cats[ckey]
@@ -906,7 +907,7 @@ class TagsModel(QAbstractItemModel): # {{{
                         rest = c[len(ckey):]
                         if strcmp(ckey, nkey) != 0 and \
                                     icu_lower(nkey + rest) in user_cat_keys_lower:
-                            error_dialog(self.parent(), _('Rename user category'),
+                            error_dialog(self.gui_parent, _('Rename user category'),
                                 _('The name %s is already used')%(nkey+rest), show=True)
                             return False
                         user_cats[nkey + rest] = user_cats[ckey + rest]
@@ -921,12 +922,12 @@ class TagsModel(QAbstractItemModel): # {{{
             return False
         if key == 'authors':
             if val.find('&') >= 0:
-                error_dialog(self.parent(), _('Invalid author name'),
+                error_dialog(self.gui_parent, _('Invalid author name'),
                         _('Author names cannot contain & characters.')).exec_()
                 return False
         if key == 'search':
             if val in saved_searches().names():
-                error_dialog(self.parent(), _('Duplicate search name'),
+                error_dialog(self.gui_parent, _('Duplicate search name'),
                     _('The saved search name %s is already used.')%val).exec_()
                 return False
             saved_searches().rename(unicode(item.data(role).toString()), val)
@@ -1161,7 +1162,10 @@ class TagsModel(QAbstractItemModel): # {{{
                         prefix = ' not '
                     else:
                         prefix = ''
-                    category = tag.category if key != 'news' else 'tag'
+                    if node.is_gst:
+                        category = key
+                    else:
+                        category = tag.category if key != 'news' else 'tag'
                     add_colon = False
                     if self.db.field_metadata[tag.category]['is_csp']:
                         add_colon = True

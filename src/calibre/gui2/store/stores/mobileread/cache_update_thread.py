@@ -18,11 +18,11 @@ from calibre import browser
 from calibre.gui2.store.search_result import SearchResult
 
 class CacheUpdateThread(Thread, QObject):
-    
+
     total_changed = pyqtSignal(int)
     update_progress = pyqtSignal(int)
     update_details = pyqtSignal(unicode)
-    
+
     def __init__(self, config, seralize_books_function, timeout):
         Thread.__init__(self)
         QObject.__init__(self)
@@ -32,19 +32,19 @@ class CacheUpdateThread(Thread, QObject):
         self.seralize_books = seralize_books_function
         self.timeout = timeout
         self._run = True
-        
+
     def abort(self):
         self._run = False
-        
+
     def run(self):
         url = 'http://www.mobileread.com/forums/ebooks.php?do=getlist&type=html'
-        
+
         self.update_details.emit(_('Checking last download date.'))
         last_download = self.config.get('last_download', None)
         # Don't update the book list if our cache is less than one week old.
         if last_download and (time.time() - last_download) < 604800:
             return
-        
+
         self.update_details.emit(_('Downloading book list from MobileRead.'))
         # Download the book list HTML file from MobileRead.
         br = browser()
@@ -54,10 +54,10 @@ class CacheUpdateThread(Thread, QObject):
                 raw_data = f.read()
         except:
             return
-        
+
         if not raw_data or not self._run:
             return
-        
+
         self.update_details.emit(_('Processing books.'))
         # Turn books listed in the HTML file into SearchResults's.
         books = []
@@ -65,21 +65,23 @@ class CacheUpdateThread(Thread, QObject):
             data = html.fromstring(raw_data)
             raw_books = data.xpath('//ul/li')
             self.total_changed.emit(len(raw_books))
-            
+
             for i, book_data in enumerate(raw_books):
-                self.update_details.emit(_('%s of %s books processed.') % (i, len(raw_books)))
+                self.update_details.emit(
+                        _('%(num)s of %(tot)s books processed.') % dict(
+                            num=i, tot=len(raw_books)))
                 book = SearchResult()
                 book.detail_item = ''.join(book_data.xpath('.//a/@href'))
                 book.formats = ''.join(book_data.xpath('.//i/text()'))
                 book.formats = book.formats.strip()
-    
+
                 text = ''.join(book_data.xpath('.//a/text()'))
                 if ':' in text:
                     book.author, q, text = text.partition(':')
                 book.author = book.author.strip()
                 book.title = text.strip()
                 books.append(book)
-                
+
                 if not self._run:
                     books = []
                     break

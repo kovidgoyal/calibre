@@ -1,0 +1,35 @@
+#!/usr/bin/python
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class AdvancedUserRecipe1307556816(BasicNewsRecipe):
+    title          = u'Geek and Poke'
+    __author__     = u'DrMerry'
+    description    = u'Geek and Poke Cartoons'
+    oldest_article = 31
+    max_articles_per_feed = 100
+    language       = u'en'
+    simultaneous_downloads = 5
+    #delay          = 1
+    timefmt        = ' [%A, %d %B, %Y]'
+    summary_length = -1
+    no_stylesheets = True
+    cover_url = 'http://geekandpoke.typepad.com/aboutcoders.jpeg'
+    remove_javascript = True
+    remove_empty_feeds = True
+    publication_type = 'blog'
+
+    preprocess_regexps = [ (re.compile(r'(<p>&nbsp;</p>|<iframe.*</iframe>|<a[^>]*>Tweet</a>|<a[^>]*>|</a>)', re.DOTALL|re.IGNORECASE),lambda match: ''),
+                                          (re.compile(r'(&nbsp;|  )', re.DOTALL|re.IGNORECASE),lambda match: ' '),
+                                          (re.compile(r'<br( /)?>(<br( /)?>)+', re.DOTALL|re.IGNORECASE),lambda match: '<br>')
+                                         ]
+
+    extra_css = 'body, h3, p, h2, h1, div, span{margin:0px} h2.date-header {font-size: 0.7em; color:#eee;} h3.entry-header{font-size: 1.0em} div.entry-body{font-size: 0.9em}'
+
+
+    remove_tags_before = dict(name='h2', attrs={'class':'date-header'})
+    remove_tags_after = dict(name='div', attrs={'class':'entry-body'})
+
+
+    feeds          = [(u'Geek and Poke', u'http://feeds.feedburner.com/GeekAndPoke?format=xml')]

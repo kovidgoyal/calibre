@@ -19,6 +19,66 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.9
+  date: 2011-07-08
+
+  new features:
+    - title: "Kobo Touch: Display Preview Tag for book previews on the device"
+
+    - title: "Improved display of grouped search terms in Tag Browser"
+
+    - title: "When adding HTML files to calibre, add an option to process links in breadth first rather than depth first order. Access it via Preferences->Plugins and customize the HTML to ZIP plugin"
+
+    - title: "Conversion pipeline: Add option to control if duplicate entries are allowed when generating the Table of Contents from links."
+      tickets: [806095]
+
+    - title: "Metadata download: When merging results, if the query to the xisbn service hangs, wait no more than 10 seconds. Also try harder to preserve the month when downlaoding published date. Do not throw away isbnless results if there are some sources that return isbns and some that do not."
+      tickets: [798309]
+
+    - title: "Get Books: Remove OpenLibrary since it has the same files as archive.org. Allow direct downloading from Project Gutenberg."
+
+    - title: "Add functions to the template language that allow getting the last modified time and size of the individual format files for a book. Also add a has_cover() function."
+  
+  bug fixes:
+    - title: "Fix true/false searches dont work on device views"
+      tickets: [807262]
+
+    - title: "Fix renaming of collections in device views"
+      tickets: [807256]
+
+    - title: "Fix regression that broke the use of the device_db plugboard"
+      tickets: [806483]
+
+    - title: "Kobo driver: Hide Expired Book Status for deleted books. Also fix regression that broke connecting to Kobo devices running very old firmware."
+      tickets: [802083]
+
+    - title: "Fix bug in 0.8.8 that could cause the metadata.db to be left in an unusable state if calibre is interrupted at just the wrong moment or if the db is stored in dropbox"
+
+    - title: "Fix sorting of composite custom columns that display numbers."
+
+  improved recipes:
+    - "Computer Act!ve"
+    - Metro News NL
+    - Spiegel Online International
+    - cracked.com
+    - Endgadget
+    - Independent
+    - Telegraph UK
+
+  new recipes:
+    - title: "Blog da Cidadania and Noticias UnB"
+      author: Diniz Bortolotto
+
+    - title: "Galicia Confidential"
+      author: Susana Sotelo Docio
+
+    - title: "South China Morning Post"
+      author: llam
+
+    - title: "Szinti Derigisi"
+      author: thomass
+
+
 - version: 0.8.8
   date: 2011-07-01
 

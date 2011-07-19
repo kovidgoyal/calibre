@@ -24,12 +24,12 @@ class ANDROID(USBMS):
                        0xff9 : [0x0100, 0x0227, 0x0226],
                        0xc87 : [0x0100, 0x0227, 0x0226],
                        0xc91 : [0x0100, 0x0227, 0x0226],
-                       0xc92  : [0x100],
-                       0xc97  : [0x226],
-                       0xc99  : [0x0100],
-                       0xca2  : [0x226],
-                       0xca3  : [0x100],
-                       0xca4  : [0x226],
+                       0xc92  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc97  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc99  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xca2  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xca3  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xca4  : [0x100, 0x0227, 0x0226, 0x222],
             },
 
             # Eken
@@ -72,7 +72,8 @@ class ANDROID(USBMS):
             0x413c : { 0xb007 : [0x0100, 0x0224, 0x0226]},
 
             # LG
-            0x1004 : { 0x61cc : [0x100], 0x61ce : [0x100], 0x618e : [0x226] },
+            0x1004 : { 0x61cc : [0x100], 0x61ce : [0x100], 0x618e : [0x226,
+                0x9999] },
 
             # Archos
             0x0e79 : {
@@ -123,11 +124,11 @@ class ANDROID(USBMS):
             'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD',
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
-            'MB525', 'ANDROID2.3']
+            'MB525', 'ANDROID2.3', 'SGH-I997']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
-            '__UMS_COMPOSITE']
+            '__UMS_COMPOSITE', 'SGH-I997_CARD']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

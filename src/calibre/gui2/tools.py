@@ -94,8 +94,8 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
 
         msg = '%s' % '\n'.join(res)
         warning_dialog(parent, _('Could not convert some books'),
-            _('Could not convert %d of %d books, because no suitable source'
-               ' format was found.') % (len(res), total),
+            _('Could not convert %(num)d of %(tot)d books, because no suitable source'
+               ' format was found.') % dict(num=len(res), tot=total),
             msg).exec_()
 
     return jobs, changed, bad
@@ -187,7 +187,8 @@ class QueueBulk(QProgressDialog):
             except:
                 dtitle = repr(mi.title)
             self.setLabelText(_('Queueing ')+dtitle)
-            desc = _('Convert book %d of %d (%s)') % (self.i, len(self.book_ids), dtitle)
+            desc = _('Convert book %(num)d of %(tot)d (%(title)s)') % dict(
+                    num=self.i, tot=len(self.book_ids), title=dtitle)
 
             args = [in_file.name, out_file.name, lrecs]
             temp_files.append(out_file)
@@ -209,8 +210,8 @@ class QueueBulk(QProgressDialog):
 
             msg = '%s' % '\n'.join(res)
             warning_dialog(self.parent, _('Could not convert some books'),
-                _('Could not convert %d of %d books, because no suitable '
-                'source format was found.') % (len(res), len(self.book_ids)),
+                _('Could not convert %(num)d of %(tot)d books, because no suitable '
+                'source format was found.') % dict(num=len(res), tot=len(self.book_ids)),
                 msg).exec_()
         self.parent = None
         self.jobs.reverse()

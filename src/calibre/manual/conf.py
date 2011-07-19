@@ -96,8 +96,8 @@ html_sidebars = {
 html_favicon = 'favicon.ico'
 
 # Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+# relative to this directory. They are copied after the built-in static files,
+# so a file named "default.css" will overwrite the built-in "default.css".
 html_static_path = ['resources', '../../../icons/favicon.ico']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,

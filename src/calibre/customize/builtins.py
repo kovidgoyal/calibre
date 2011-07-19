@@ -3,57 +3,16 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap, os, glob, functools, re
+import os, glob, functools, re
 from calibre import guess_type
 from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.ebooks.html.to_zip import HTML2ZIP
 
 # To archive plugins {{{
-class HTML2ZIP(FileTypePlugin):
-    name = 'HTML to ZIP'
-    author = 'Kovid Goyal'
-    description = textwrap.dedent(_('''\
-Follow all local links in an HTML file and create a ZIP \
-file containing all linked files. This plugin is run \
-every time you add an HTML file to the library.\
-'''))
-    version = numeric_version
-    file_types = set(['html', 'htm', 'xhtml', 'xhtm', 'shtm', 'shtml'])
-    supported_platforms = ['windows', 'osx', 'linux']
-    on_import = True
-
-    def run(self, htmlfile):
-        from calibre.ptempfile import TemporaryDirectory
-        from calibre.gui2.convert.gui_conversion import gui_convert
-        from calibre.customize.conversion import OptionRecommendation
-        from calibre.ebooks.epub import initialize_container
-
-        with TemporaryDirectory('_plugin_html2zip') as tdir:
-            recs =[('debug_pipeline', tdir, OptionRecommendation.HIGH)]
-            recs.append(['keep_ligatures', True, OptionRecommendation.HIGH])
-            if self.site_customization and self.site_customization.strip():
-                recs.append(['input_encoding', self.site_customization.strip(),
-                    OptionRecommendation.HIGH])
-            gui_convert(htmlfile, tdir, recs, abort_after_input_dump=True)
-            of = self.temporary_file('_plugin_html2zip.zip')
-            tdir = os.path.join(tdir, 'input')
-            opf = glob.glob(os.path.join(tdir, '*.opf'))[0]
-            ncx = glob.glob(os.path.join(tdir, '*.ncx'))
-            if ncx:
-                os.remove(ncx[0])
-            epub = initialize_container(of.name, os.path.basename(opf))
-            epub.add_dir(tdir)
-            epub.close()
-
-        return of.name
-
-    def customization_help(self, gui=False):
-        return _('Character encoding for the input HTML files. Common choices '
-        'include: cp1252, latin1, iso-8859-1 and utf-8.')
-
 
 class PML2PMLZ(FileTypePlugin):
     name = 'PML to PMLZ'
@@ -1231,6 +1190,15 @@ class StoreDieselEbooksStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreEbookNLStore(StoreBase):
+    name = 'eBook.nl'
+    description = u'De eBookwinkel van Nederland'
+    actual_plugin = 'calibre.gui2.store.stores.ebook_nl_plugin:EBookNLStore'
+
+    headquarters = 'NL'
+    formats = ['EPUB', 'PDF']
+    affiliate = True
+
 class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
     description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'
@@ -1488,6 +1456,7 @@ plugins += [
     StoreBeamEBooksDEStore,
     StoreBeWriteStore,
     StoreDieselEbooksStore,
+    StoreEbookNLStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
     StoreEPubBuyDEStore,

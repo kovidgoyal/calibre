@@ -17,12 +17,13 @@ from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
 from calibre.ebooks.metadata.sources.base import msprefs
 from calibre.customize.ui import (all_metadata_plugins, is_disabled,
         enable_plugin, disable_plugin, default_disabled_plugins)
-from calibre.gui2 import NONE, error_dialog
+from calibre.gui2 import NONE, error_dialog, question_dialog
 
 class SourcesModel(QAbstractTableModel): # {{{
 
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
+        self.gui_parent = parent
 
         self.plugins = []
         self.enabled_overrides = {}
@@ -87,6 +88,15 @@ class SourcesModel(QAbstractTableModel): # {{{
         if col == 0 and role == Qt.CheckStateRole:
             val, ok = val.toInt()
             if ok:
+                if val == Qt.Checked and 'Douban' in plugin.name:
+                    if not question_dialog(self.gui_parent,
+                        _('Are you sure?'), '<p>'+
+                        _('This plugin is useful only for <b>Chinese</b>'
+                            ' language books. It can return incorrect'
+                            ' results for books in English. Are you'
+                            ' sure you want to enable it?'),
+                        show_copy_button=False):
+                        return ret
                 self.enabled_overrides[plugin] = val
                 ret = True
         if col == 1 and role == Qt.EditRole:
@@ -252,8 +262,8 @@ class PluginConfig(QWidget): # {{{
 
         self.l = l = QVBoxLayout()
         self.setLayout(l)
-        self.c = c = QLabel(_('<b>Configure %s</b><br>%s') % (plugin.name,
-            plugin.description))
+        self.c = c = QLabel(_('<b>Configure %(name)s</b><br>%(desc)s') % dict(
+            name=plugin.name, desc=plugin.description))
         c.setAlignment(Qt.AlignHCenter)
         l.addWidget(c)
 

@@ -74,6 +74,13 @@ gprefs.defaults['action-layout-context-menu-device'] = (
         'Add To Library', 'Edit Collections',
         )
 
+gprefs.defaults['action-layout-context-menu-cover-browser'] = (
+        'Edit Metadata', 'Send To Device', 'Save To Disk',
+        'Connect Share', 'Copy To Library', None,
+        'Convert Books', 'View', 'Open Folder', 'Show Book Details',
+        'Similar Books', 'Tweak ePub', None, 'Remove Books',
+        )
+
 gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['automerge'] = 'ignore'

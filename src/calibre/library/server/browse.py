@@ -124,7 +124,8 @@ def render_rating(rating, url_prefix, container='span', prefix=None): # {{{
     added = 0
     if prefix is None:
         prefix = _('Average rating')
-    rstring = xml(_('%s: %.1f stars')% (prefix, rating if rating else 0.0),
+    rstring = xml(_('%(prefix)s: %(rating).1f stars')%dict(
+        prefix=prefix, rating=rating if rating else 0.0),
             True)
     ans = ['<%s class="rating">' % (container)]
     for i in range(5):
