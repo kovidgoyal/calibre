@@ -1181,6 +1181,16 @@ class StoreBeWriteStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
 
+class StoreChitankaStore(StoreBase):
+    name = u'Моята библиотека'
+    author = 'Alex Stanev'
+    description = u'Независим сайт за DRM свободна литература на български език'
+    actual_plugin = 'calibre.gui2.store.stores.chitanka_plugin:ChitankaStore'
+
+    drm_free_only = True
+    headquarters = 'BG'
+    formats = ['FB2', 'EPUB', 'TXT', 'SFB']
+
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
     description = u'Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.'
@@ -1455,6 +1465,7 @@ plugins += [
     StoreBNStore,
     StoreBeamEBooksDEStore,
     StoreBeWriteStore,
+    StoreChitankaStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
     StoreEbookscomStore,
