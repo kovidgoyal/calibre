@@ -93,14 +93,14 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
             author_url = ''.join(data.xpath('.//a[contains(@href,"/person/")]/@href'))
             if counter <= 0:
                 break
-            print (author_url,)
+
             br2 = browser()
             with closing(br2.open(base_url + author_url, timeout=timeout)) as f:
                 if counter <= 0:
                     break
                 f = unicode(f.read(), 'utf-8')
                 doc2 = html.fromstring(f)
-                
+
                 # search for book title
                 for data in doc2.xpath('//ul[@class="superlist booklist"]/li'):
                     if counter <= 0:
