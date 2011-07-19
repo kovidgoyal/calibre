@@ -511,7 +511,7 @@ class IndexEntry(object): # {{{
     }
 
     def __init__(self, ident, entry_type, raw, is_last):
-        self.id = ident
+        self.index = ident
         self.fields = []
         self.sub_type = None
         self.raw = raw
@@ -531,10 +531,69 @@ class IndexEntry(object): # {{{
         if is_last and self.fields[-1] == 0:
             self.fields = self.fields[:-1]
 
+        self.interpret()
+
+    def interpret(self):
+        self.offset = self.fields[0]
+        self.object_size = self.fields[1]
+        self.label_offset = self.fields[2]
+        self.depth = self.fields[3]
+        self.extra = OrderedDict()
+        self.extra_fields = []
+        if self.entry_type == 'subchapter':
+            self.parent_index = self.fields[4]
+            self.extra['Parent chapter index'] = 'parent_index'
+            self.extra_fields = self.fields[5:]
+        elif self.entry_type == 'article':
+            self.class_offset = self.fields[4]
+            self.extra['Class offset in CTOC'] = 'class_offset'
+            self.parent_index = self.fields[5]
+            self.extra['Parent section index'] = 'parent_index'
+            if len(self.fields) > 6:
+                self.desc_offset = self.fields[6]
+                self.extra['Decription offset in CTOC'] = 'desc_offset'
+            if len(self.fields) > 7:
+                self.author_offset = self.fields[7]
+                self.extra['Author offset in CTOC'] = 'author_offset'
+            self.extra_fields = self.fields[8:]
+        elif self.entry_type == 'chapter_with_subchapters':
+            self.first_subchapter_index = self.fields[4]
+            self.last_subchapter_index = self.fields[5]
+            self.extra['First subchapter index'] = 'first_subchapter_index'
+            self.extra['Last subchapter index'] = 'last_subchapter_index'
+            self.extra_fields = self.fields[6:]
+        elif self.entry_type == 'periodical':
+            self.class_offset = self.fields[4]
+            self.extra['Class offset in CTOC'] = 'class_offset'
+            self.first_section_index = self.fields[5]
+            self.last_section_index = self.fields[6]
+            self.extra['First section index'] = 'first_section_index'
+            self.extra['Last section index'] = 'last_section_index'
+            self.extra_fields = self.fields[7:]
+        elif self.entry_type == 'section':
+            self.class_offset = self.fields[4]
+            self.extra['Class offset in CTOC'] = 'class_offset'
+            self.periodical_index = self.fields[5]
+            self.extra['Periodical index'] = 'periodical_index'
+            self.first_article_index = self.fields[6]
+            self.last_article_index = self.fields[7]
+            self.extra['First article index'] = 'first_article_index'
+            self.extra['Last article index'] = 'last_article_index'
+            self.extra_fields = self.fields[8:]
+
     def __str__(self):
-        ans = ['Index Entry(id=%s, entry_type=%s, sub_type=%s, length=%d)'%(
-            self.id, self.entry_type, self.sub_type, len(self.raw))]
-        ans.append('\tFields (%d): %r'%(len(self.fields), self.fields))
+        ans = ['Index Entry(index=%s, entry_type=%s, sub_type=%s, length=%d)'%(
+            self.index, self.entry_type, self.sub_type, len(self.raw))]
+        ans.append('\tOffset in HTML: %d'%self.offset)
+        ans.append('\tObject size in HTML: %d'%self.object_size)
+        ans.append('\tLabel offset in CTOC: %d'%self.label_offset)
+        ans.append('\tDepth: %d'%self.depth)
+        for text, attr in self.extra.iteritems():
+            ans.append('\t%s: %d'%(text, getattr(self, attr)))
+        if self.extra_fields:
+            ans.append('\tExtra Fields (%d): %r'%(len(self.extra_fields),
+                self.extra_fields))
+
         return '\n'.join(ans)
 
 # }}}
@@ -577,9 +636,9 @@ class IndexRecord(object): # {{{
             except:
                 next_off = len(indxt)
                 is_last = True
-            ident, consumed = decode_hex_number(indxt[off:])
+            index, consumed = decode_hex_number(indxt[off:])
             entry_type, = u(b'>B', indxt[off+consumed])
-            self.indices.append(IndexEntry(ident, entry_type,
+            self.indices.append(IndexEntry(index, entry_type,
                 indxt[off+consumed+1:next_off], is_last))
 
 
