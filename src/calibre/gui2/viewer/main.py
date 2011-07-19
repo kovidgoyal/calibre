@@ -661,12 +661,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def save_current_position(self):
         if not self.get_remember_current_page_opt():
             return
-        try:
-            pos = self.view.bookmark()
-            bookmark = '%d#%s'%(self.current_index, pos)
-            self.iterator.add_bookmark(('calibre_current_page_bookmark', bookmark))
-        except:
-            traceback.print_exc()
+        if hasattr(self, 'current_index'):
+            try:
+                pos = self.view.bookmark()
+                bookmark = '%d#%s'%(self.current_index, pos)
+                self.iterator.add_bookmark(('calibre_current_page_bookmark', bookmark))
+            except:
+                traceback.print_exc()
 
     def load_ebook(self, pathtoebook):
         if self.iterator is not None:

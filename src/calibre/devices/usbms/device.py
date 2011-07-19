@@ -1077,8 +1077,13 @@ class Device(DeviceConfig, DevicePlugin):
         settings = self.settings()
         template = self.save_template()
         if mdata.tags and _('News') in mdata.tags:
-            today = time.localtime()
-            template = "{title}_%d-%d-%d" % (today[0], today[1], today[2])
+            try:
+                p = mdata.pubdate
+                date  = (p.year, p.month, p.day)
+            except:
+                today = time.localtime()
+                date = (today[0], today[1], today[2])
+            template = "{title}_%d-%d-%d" % date
         use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
 
         fname = sanitize(fname)

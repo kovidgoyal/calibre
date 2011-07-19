@@ -723,6 +723,7 @@ class BulkSeries(BulkBase):
         layout.addWidget(self.force_number)
         self.series_start_number = QSpinBox(parent)
         self.series_start_number.setMinimum(1)
+        self.series_start_number.setMaximum(9999999)
         self.series_start_number.setProperty("value", 1)
         layout.addWidget(self.series_start_number)
         layout.addItem(QSpacerItem(20, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))

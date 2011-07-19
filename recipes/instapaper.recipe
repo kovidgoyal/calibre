@@ -1,22 +1,31 @@
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1299694372(BasicNewsRecipe):
-    title          = u'Instapaper'
-    __author__            = 'Darko Miletic'
-    publisher             = 'Instapaper.com'
-    category              = 'info, custom, Instapaper'
-    oldest_article = 365
+    title                             = u'Instapaper'
+    __author__                  = 'Darko Miletic'
+    publisher                     = 'Instapaper.com'
+    category                      = 'info, custom, Instapaper'
+    oldest_article               = 365
     max_articles_per_feed = 100
     no_stylesheets        = True
+    remove_javascript     = True
+    remove_tags              = [
+	dict(name='div', attrs={'id':'text_controls_toggle'})
+	,dict(name='script')
+	,dict(name='div', attrs={'id':'text_controls'})
+	,dict(name='div', attrs={'id':'editing_controls'})
+	,dict(name='div', attrs={'class':'bar bottom'})
+	 ]
     use_embedded_content  = False
     needs_subscription    = True
     INDEX                 = u'http://www.instapaper.com'
     LOGIN                 = INDEX + u'/user/login'
 
 
-
-    feeds          = [(u'Instapaper Unread', u'http://www.instapaper.com/u'), (u'Instapaper Starred', u'http://www.instapaper.com/starred')]
+    feeds          = [
+            (u'Instapaper Unread', u'http://www.instapaper.com/u'),
+            (u'Instapaper Starred', u'http://www.instapaper.com/starred')
+            ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -37,18 +46,20 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
             self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
             articles = []
             soup = self.index_to_soup(feedurl)
-            for item in soup.findAll('div', attrs={'class':'titleRow'}):
-                description = self.tag_to_string(item.div)
+            for item in soup.findAll('div', attrs={'class':'cornerControls'}):
+                #description = self.tag_to_string(item.div)
                 atag = item.a
                 if atag and atag.has_key('href'):
                     url         = atag['href']
-                    title       = self.tag_to_string(atag)
-                    date        = strftime(self.timefmt)
                     articles.append({
-                                      'title'      :title
-                                     ,'date'       :date
-                                     ,'url'        :url
-                                     ,'description':description
+                                     'url'        :url
                                     })
             totalfeeds.append((feedtitle, articles))
         return totalfeeds
+
+    def print_version(self, url):
+        return 'http://www.instapaper.com' + url
+
+    def populate_article_metadata(self, article, soup, first):
+        article.title  = soup.find('title').contents[0].strip()
+

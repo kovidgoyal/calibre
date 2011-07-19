@@ -114,7 +114,17 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     '''
     if dir is None:
         dir = base_dir()
-    tdir = tempfile.mkdtemp(suffix, __appname__+"_"+ __version__+"_" +prefix, dir)
+    try:
+        tdir = tempfile.mkdtemp(suffix, __appname__+"_"+ __version__+"_" +prefix, dir)
+    except ValueError:
+        global _base_dir
+        from calibre.constants import filesystem_encoding
+        base_dir()
+        if not isinstance(_base_dir, unicode):
+            _base_dir = _base_dir.decode(filesystem_encoding)
+        dir = dir.decode(filesystem_encoding)
+        tdir = tempfile.mkdtemp(suffix, __appname__+"_"+ __version__+"_" +prefix, dir)
+
     atexit.register(remove_dir, tdir)
     return tdir
 
