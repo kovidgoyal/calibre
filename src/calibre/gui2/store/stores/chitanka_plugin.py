@@ -67,11 +67,11 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
                 txt = ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href'))
 
                 # remove .zip extensions
-                if fb2.find('.zip') <> -1:
+                if fb2.find('.zip') != -1:
                     fb2 = fb2[:fb2.find('.zip')]
-                if epub.find('.zip') <> -1:
+                if epub.find('.zip') != -1:
                     epub = epub[:epub.find('.zip')]
-                if txt.find('.zip') <> -1:
+                if txt.find('.zip') != -1:
                     txt = txt[:txt.find('.zip')]
 
                 counter -= 1
@@ -93,7 +93,7 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
             author_url = ''.join(data.xpath('.//a[contains(@href,"/person/")]/@href'))
             if counter <= 0:
                 break
-
+            print (author_url,)
             br2 = browser()
             with closing(br2.open(base_url + author_url, timeout=timeout)) as f:
                 if counter <= 0:
@@ -118,11 +118,11 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
                     txt = ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href'))
 
                     # remove .zip extensions
-                    if fb2.find('.zip') <> -1:
+                    if fb2.find('.zip') != -1:
                         fb2 = fb2[:fb2.find('.zip')]
-                    if epub.find('.zip') <> -1:
+                    if epub.find('.zip') != -1:
                         epub = epub[:epub.find('.zip')]
-                    if txt.find('.zip') <> -1:
+                    if txt.find('.zip') != -1:
                         txt = txt[:txt.find('.zip')]
 
                     counter -= 1
