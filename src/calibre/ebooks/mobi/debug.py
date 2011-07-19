@@ -8,6 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import struct, datetime, sys, os
+from collections import OrderedDict
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.mobi.writer2.utils import decode_hex_number, decint
@@ -509,32 +510,31 @@ class IndexEntry(object): # {{{
             0x3f : 'article',
     }
 
-    def __init__(self, ident, entry_type, raw):
+    def __init__(self, ident, entry_type, raw, is_last):
         self.id = ident
         self.fields = []
         self.sub_type = None
+        self.raw = raw
 
         try:
             self.entry_type = self.TYPES[entry_type]
         except KeyError:
-            raise ValueError('Unknown IndexEntry type: %s'%hex(entry_type))
+            raise ValueError('Unknown Index Entry type: %s'%hex(entry_type))
 
         if self.entry_type in (0xdf, 0xff):
             self.subtype = ord(raw[0])
             raw = raw[1:]
-        while True:
+        while raw:
             val, consumed = decint(raw)
             raw = raw[consumed:]
-            if val == 0:
-                break
-            else:
-                self.fields.append(val)
-
+            self.fields.append(val)
+        if is_last and self.fields[-1] == 0:
+            self.fields = self.fields[:-1]
 
     def __str__(self):
-        ans = ['Index Entry(id=%s, entry_type=%s, sub_type=%s)'%(
-            self.id, self.entry_type, self.sub_type)]
-        ans.append('\tFields: %r'%self.fields)
+        ans = ['Index Entry(id=%s, entry_type=%s, sub_type=%s, length=%d)'%(
+            self.id, self.entry_type, self.sub_type, len(self.raw))]
+        ans.append('\tFields (%d): %r'%(len(self.fields), self.fields))
         return '\n'.join(ans)
 
 # }}}
@@ -570,16 +570,21 @@ class IndexRecord(object): # {{{
 
         indxt = raw[192:self.idxt_offset]
         self.indices = []
-        for off in self.index_offsets:
-            index = indxt[off:]
-            ident, consumed = decode_hex_number(index)
-            index = index[consumed:]
-            entry_type, = u(b'>B', index[0])
-            self.indices.append(IndexEntry(ident, entry_type, index[1:]))
+        for i, off in enumerate(self.index_offsets):
+            try:
+                next_off = self.index_offsets[i+1]
+                is_last = False
+            except:
+                next_off = len(indxt)
+                is_last = True
+            ident, consumed = decode_hex_number(indxt[off:])
+            entry_type, = u(b'>B', indxt[off+consumed])
+            self.indices.append(IndexEntry(ident, entry_type,
+                indxt[off+consumed+1:next_off], is_last))
 
 
     def __str__(self):
-        ans = ['*'*20 + ' Index Record (%d bytes)'%len(self.record.raw)+ '*'*20]
+        ans = ['*'*20 + ' Index Record (%d bytes) '%len(self.record.raw)+ '*'*20]
         a = ans.append
         def u(w):
             a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
@@ -598,6 +603,29 @@ class IndexRecord(object): # {{{
             a(str(entry)+'\n')
 
         return '\n'.join(ans)
+
+# }}}
+
+class CTOC(object) : # {{{
+
+    def __init__(self, records, codec):
+        self.records = OrderedDict()
+        pos = 0
+        for record in records:
+            raw = record.raw
+            while pos < len(raw):
+                length, consumed = decint(raw[pos:])
+                if length > 0:
+                    self.records[pos] = raw[pos+consumed:pos+consumed+length].decode(
+                        codec)
+                pos += consumed+length
+
+    def __str__(self):
+        ans = ['*'*20 + ' CTOC (%d strings) '%len(self.records)+ '*'*20]
+        for k, v in self.records.iteritems():
+            ans.append('%10d : %s'%(k, v))
+        return '\n'.join(ans)
+
 
 # }}}
 
@@ -633,6 +661,9 @@ class MOBIFile(object): # {{{
         pir = self.mobi_header.primary_index_record
         if pir != 0xffffffff:
             self.index_header = IndexHeader(self.records[pir])
+            self.ctoc = CTOC(self.records[
+                pir+2:pir+2+self.index_header.num_of_ctoc_blocks],
+                self.index_header.index_encoding)
             self.index_record = IndexRecord(self.records[pir+1])
 
 
@@ -659,6 +690,8 @@ def inspect_mobi(path_or_stream):
     if f.index_header is not None:
         with open(os.path.join(ddir, 'index.txt'), 'wb') as out:
             print(str(f.index_header), file=out)
+            print('\n\n', file=out)
+            print(str(f.ctoc).encode('utf-8'), file=out)
             print('\n\n', file=out)
             print(str(f.index_record), file=out)
 
