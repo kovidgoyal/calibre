@@ -170,7 +170,8 @@ def get_trailing_data(record, extra_data_flags):
                 consumed = 1
             else:
                 sz, consumed = decint(record, forward=False)
-            data[i] = record[-(sz+consumed):-consumed]
-            record = record[:-(sz+consumed)]
+            if sz > consumed:
+                data[i] = record[-sz:-consumed]
+            record = record[:-sz]
     return data, record
 

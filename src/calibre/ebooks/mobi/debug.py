@@ -618,6 +618,13 @@ class IndexEntry(object): # {{{
                 vals.append(val)
             self.tags.append(Tag(tag, vals, self.entry_type, cncx))
 
+    @property
+    def label(self):
+        for tag in self.tags:
+            if tag.attr == 'label_offset':
+                return tag.cncx_value
+        return ''
+
     def __str__(self):
         ans = ['Index Entry(index=%s, entry_type=%s, length=%d)'%(
             self.index, self.entry_type, len(self.tags))]
@@ -731,7 +738,8 @@ class CNCX(object) : # {{{
 
 class TextRecord(object): # {{{
 
-    def __init__(self, idx, record, extra_data_flags, decompress):
+    def __init__(self, idx, record, extra_data_flags, decompress, index_record,
+            doc_type):
         self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
         self.raw = decompress(self.raw)
         if 0 in self.trailing_data:
@@ -742,6 +750,60 @@ class TextRecord(object): # {{{
             self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
 
         self.idx = idx
+
+        if 'indexing' in self.trailing_data and index_record is not None:
+            self.interpret_indexing(doc_type, index_record.indices)
+
+    def interpret_indexing(self, doc_type, indices):
+        raw = self.trailing_data['indexing']
+        ident, consumed = decint(raw)
+        raw = raw[consumed:]
+        entry_type = ident & 0b111
+        index_entry_idx = ident >> 3
+        index_entry = None
+        for i in indices:
+            if i.index == index_entry_idx:
+                index_entry = i.label
+                break
+        self.trailing_data['interpreted_indexing'] = (
+                'Type: %s, Index Entry: %s'%(entry_type, index_entry))
+        if doc_type == 2: # Book
+            self.interpret_book_indexing(raw, entry_type)
+
+    def interpret_book_indexing(self, raw, entry_type):
+        arg1, consumed = decint(raw)
+        raw = raw[consumed:]
+        if arg1 != 0:
+            raise ValueError('TBS index entry has unknown arg1: %d'%
+                    arg1)
+        if entry_type == 2:
+            desc = ('This record has only a single starting or a single'
+                    ' ending point')
+            if raw:
+                raise ValueError('TBS index entry has unknown extra bytes:'
+                        ' %r'%raw)
+        elif entry_type == 3:
+            desc = ('This record is spanned by a single node (i.e. it'
+                    ' has no start or end points)')
+            arg2, consumed = decint(raw)
+            if arg2 != 0:
+                raise ValueError('TBS index entry has unknown arg2: %d'%
+                        arg2)
+        elif entry_type == 6:
+            if len(raw) != 1:
+                raise ValueError('TBS index entry has unknown extra bytes:'
+                        ' %r'%raw)
+            num = ord(raw[0])
+            # An unmatched starting or ending point each contributes 1 to
+            # this count. A matched pair of starting and ending points
+            # together contribute 1 to this count. Note that you can only
+            # ever have either 1 unmatched start point or 1 unmatched end
+            # point, never both (logically impossible).
+            desc = ('This record has %d starting/ending points and/or complete'
+                    ' nodes.')%num
+        else:
+            raise ValueError('Unknown TBS index entry type: %d for book'%entry_type)
+        self.trailing_data['interpreted_indexing'] += ' :: ' + desc
 
     def dump(self, folder):
         name = '%06d'%self.idx
@@ -828,7 +890,7 @@ class MOBIFile(object): # {{{
         else:
             decompress = lambda x: x
 
-        self.index_header = None
+        self.index_header = self.index_record = None
         self.indexing_record_nums = set()
         pir = self.mobi_header.primary_index_record
         if pir != 0xffffffff:
@@ -848,7 +910,8 @@ class MOBIFile(object): # {{{
         if fntbr == 0xffffffff:
             fntbr = len(self.records)
         self.text_records = [TextRecord(r, self.records[r],
-            self.mobi_header.extra_data_flags, decompress) for r in xrange(1,
+            self.mobi_header.extra_data_flags, decompress, self.index_record,
+            self.mobi_header.type_raw) for r in xrange(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
         for i in xrange(fntbr, len(self.records)):
