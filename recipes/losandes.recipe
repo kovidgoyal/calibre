@@ -1,0 +1,78 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.losandes.com.ar
+'''
+
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class LosAndes(BasicNewsRecipe):
+    title                 = 'Los Andes'
+    __author__            = 'Darko Miletic'
+    description           = 'Noticias de Mendoza, Argentina y el resto del mundo'
+    publisher             = 'Los Andes'
+    category              = 'news, politics, Argentina'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'cp1252'
+    use_embedded_content  = False
+    language              = 'es_AR'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.losandes.com.ar/graficos/losandes.png'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               h1,h2{font-family: "Times New Roman",Times,serif}
+                               .fechaNota{font-weight: bold; color: gray}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [
+                     dict(name=['meta','link'])
+                    ,dict(attrs={'class':['cabecera', 'url']})
+                  ]
+    remove_tags_before=dict(attrs={'class':'cabecera'})
+    remove_tags_after=dict(attrs={'class':'url'})
+
+
+    feeds = [
+              (u'Ultimas Noticias'       , u'http://www.losandes.com.ar/servicios/rss.asp?r=78' )
+             ,(u'Politica'               , u'http://www.losandes.com.ar/servicios/rss.asp?r=68' )
+             ,(u'Economia nacional'      , u'http://www.losandes.com.ar/servicios/rss.asp?r=65' )
+             ,(u'Economia internacional' , u'http://www.losandes.com.ar/servicios/rss.asp?r=505')
+             ,(u'Internacionales'        , u'http://www.losandes.com.ar/servicios/rss.asp?r=66' )
+             ,(u'Turismo'                , u'http://www.losandes.com.ar/servicios/rss.asp?r=502')
+             ,(u'Fincas'                 , u'http://www.losandes.com.ar/servicios/rss.asp?r=504')
+             ,(u'Isha nos habla'         , u'http://www.losandes.com.ar/servicios/rss.asp?r=562')
+             ,(u'Estilo'                 , u'http://www.losandes.com.ar/servicios/rss.asp?r=81' )
+             ,(u'Cultura'                , u'http://www.losandes.com.ar/servicios/rss.asp?r=503')
+             ,(u'Policiales'             , u'http://www.losandes.com.ar/servicios/rss.asp?r=70' )
+             ,(u'Deportes'               , u'http://www.losandes.com.ar/servicios/rss.asp?r=69' )
+             ,(u'Sociedad'               , u'http://www.losandes.com.ar/servicios/rss.asp?r=67' )
+             ,(u'Opinion'                , u'http://www.losandes.com.ar/servicios/rss.asp?r=80' )
+             ,(u'Editorial'              , u'http://www.losandes.com.ar/servicios/rss.asp?r=76' )
+             ,(u'Mirador'                , u'http://www.losandes.com.ar/servicios/rss.asp?r=79' )
+            ]
+
+    def print_version(self, url):
+        artid = url.rpartition('.')[0].rpartition('-')[2]
+        return "http://www.losandes.com.ar/includes/modulos/imprimir.asp?tipo=noticia&id=" + artid
+
+    def get_cover_url(self):
+        month = strftime("%m").lstrip('0')
+        day   = strftime("%d").lstrip('0')
+        year  = strftime("%Y")
+        return "http://www.losandes.com.ar/fotografias/fotosnoticias/" + year + "/" + month + "/" + day + "/th_tapa.jpg"
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
