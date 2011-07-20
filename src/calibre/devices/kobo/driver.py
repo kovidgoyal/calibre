@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 import sqlite3 as sqlite
+from contextlib import closing
 
 from calibre.devices.usbms.books import BookList
 from calibre.devices.kobo.books import Book
@@ -22,7 +23,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge'
-    version = (1, 0, 9)
+    version = (1, 0, 10)
 
     dbversion = 0
     fwversion = 0
@@ -48,11 +49,15 @@ class KOBO(USBMS):
 
     VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo'])
 
-    EXTRA_CUSTOMIZATION_MESSAGE = _('The Kobo supports only one collection '
-            'currently: the \"Im_Reading\" list.  Create a tag called \"Im_Reading\" ')+\
-                    'for automatic management'
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+            _('The Kobo supports several collections including ')+\
+                    'Read, Closed, Im_Reading ' +\
+            _('Create tags for automatic management'),
+    ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['tags'])
+
+    OPT_COLLECTIONS = 0
 
     def initialize(self):
         USBMS.initialize(self)
@@ -188,77 +193,78 @@ class KOBO(USBMS):
                 traceback.print_exc()
             return changed
 
-        connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
+        with closing(sqlite.connect(
+            self.normalize_path(self._main_prefix +
+                '.kobo/KoboReader.sqlite'))) as connection:
 
-        # return bytestrings if the content cannot the decoded as unicode
-        connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+            # return bytestrings if the content cannot the decoded as unicode
+            connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
-        cursor = connection.cursor()
+            cursor = connection.cursor()
 
-        #query = 'select count(distinct volumeId) from volume_shortcovers'
-        #cursor.execute(query)
-        #for row in (cursor):
-        #    numrows = row[0]
-        #cursor.close()
+            #query = 'select count(distinct volumeId) from volume_shortcovers'
+            #cursor.execute(query)
+            #for row in (cursor):
+            #    numrows = row[0]
+            #cursor.close()
 
-        # Determine the database version
-        # 4 - Bluetooth Kobo Rev 2 (1.4)
-        # 8 - WIFI KOBO Rev 1
-        cursor.execute('select version from dbversion')
-        result = cursor.fetchone()
-        self.dbversion = result[0]
+            # Determine the database version
+            # 4 - Bluetooth Kobo Rev 2 (1.4)
+            # 8 - WIFI KOBO Rev 1
+            cursor.execute('select version from dbversion')
+            result = cursor.fetchone()
+            self.dbversion = result[0]
 
-        debug_print("Database Version: ", self.dbversion)
-        if self.dbversion >= 16:
-            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility from content where ' \
-                'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
-        elif self.dbversion < 16 and self.dbversion >= 14:
-            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility  from content where ' \
-                'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
-        elif self.dbversion < 14 and self.dbversion >= 8:
-            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
-                'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
-        else:
-            query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility from content where BookID is Null'
+            debug_print("Database Version: ", self.dbversion)
+            if self.dbversion >= 16:
+                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility from content where ' \
+                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+            elif self.dbversion < 16 and self.dbversion >= 14:
+                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility  from content where ' \
+                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+            elif self.dbversion < 14 and self.dbversion >= 8:
+                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
+                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+            else:
+                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility from content where BookID is Null'
 
-        try:
-            cursor.execute (query)
-        except Exception as e:
-            err = str(e)
-            if not ('___ExpirationStatus' in err or 'FavouritesIndex' in err or
-                    'Accessibility' in err):
-                raise
-            query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
-                'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as '
-                'FavouritesIndex, "-1" as Accessibility from content where '
-                'BookID is Null')
-            cursor.execute(query)
+            try:
+                cursor.execute (query)
+            except Exception as e:
+                err = str(e)
+                if not ('___ExpirationStatus' in err or 'FavouritesIndex' in err or
+                        'Accessibility' in err):
+                    raise
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
+                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as '
+                    'FavouritesIndex, "-1" as Accessibility from content where '
+                    'BookID is Null')
+                cursor.execute(query)
 
-        changed = False
-        for i, row in enumerate(cursor):
-        #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
-            if row[3].startswith("file:///usr/local/Kobo/help/"):
-                # These are internal to the Kobo device and do not exist
-                continue
-            path = self.path_from_contentid(row[3], row[5], row[4], oncard)
-            mime = mime_type_ext(path_to_ext(path)) if path.find('kepub') == -1 else 'application/epub+zip'
-            # debug_print("mime:", mime)
+            changed = False
+            for i, row in enumerate(cursor):
+            #  self.report_progress((i+1) / float(numrows), _('Getting list of books on device...'))
+                if row[3].startswith("file:///usr/local/Kobo/help/"):
+                    # These are internal to the Kobo device and do not exist
+                    continue
+                path = self.path_from_contentid(row[3], row[5], row[4], oncard)
+                mime = mime_type_ext(path_to_ext(path)) if path.find('kepub') == -1 else 'application/epub+zip'
+                # debug_print("mime:", mime)
 
-            if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9], row[10])
-                # print "shortbook: " + path
-            elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
-                changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9], row[10])
+                if oncard != 'carda' and oncard != 'cardb' and not row[3].startswith("file:///mnt/sd/"):
+                    changed = update_booklist(self._main_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9], row[10])
+                    # print "shortbook: " + path
+                elif oncard == 'carda' and row[3].startswith("file:///mnt/sd/"):
+                    changed = update_booklist(self._card_a_prefix, path, row[0], row[1], mime, row[2], row[5], row[6], row[7], row[4], row[8], row[9], row[10])
 
-            if changed:
-                need_sync = True
+                if changed:
+                    need_sync = True
 
-        cursor.close()
-        connection.close()
+            cursor.close()
 
         # Remove books that are no longer in the filesystem. Cache contains
         # indices into the booklist if book not in filesystem, None otherwise
@@ -288,56 +294,56 @@ class KOBO(USBMS):
         #    2) content
 
         debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType)
-        connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
+        with closing(sqlite.connect(self.normalize_path(self._main_prefix +
+            '.kobo/KoboReader.sqlite'))) as connection:
 
-        # return bytestrings if the content cannot the decoded as unicode
-        connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+            # return bytestrings if the content cannot the decoded as unicode
+            connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
-        cursor = connection.cursor()
-        t = (ContentID,)
-        cursor.execute('select ImageID from content where ContentID = ?', t)
+            cursor = connection.cursor()
+            t = (ContentID,)
+            cursor.execute('select ImageID from content where ContentID = ?', t)
 
-        ImageID = None
-        for row in cursor:
-            # First get the ImageID to delete the images
-            ImageID = row[0]
-        cursor.close()
+            ImageID = None
+            for row in cursor:
+                # First get the ImageID to delete the images
+                ImageID = row[0]
+            cursor.close()
 
-        cursor = connection.cursor()
-        if ContentType == 6 and self.dbversion < 8:
-            # Delete the shortcover_pages first
-            cursor.execute('delete from shortcover_page where shortcoverid in (select ContentID from content where BookID = ?)', t)
+            cursor = connection.cursor()
+            if ContentType == 6 and self.dbversion < 8:
+                # Delete the shortcover_pages first
+                cursor.execute('delete from shortcover_page where shortcoverid in (select ContentID from content where BookID = ?)', t)
 
-        #Delete the volume_shortcovers second
-        cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
+            #Delete the volume_shortcovers second
+            cursor.execute('delete from volume_shortcovers where volumeid = ?', t)
 
-        # Delete the rows from content_keys
-        if self.dbversion >= 8:
-            cursor.execute('delete from content_keys where volumeid = ?', t)
+            # Delete the rows from content_keys
+            if self.dbversion >= 8:
+                cursor.execute('delete from content_keys where volumeid = ?', t)
 
-        # Delete the chapters associated with the book next
-        t = (ContentID,)
-        # Kobo does not delete the Book row (ie the row where the BookID is Null)
-        # The next server sync should remove the row
-        cursor.execute('delete from content where BookID = ?', t)
-        try:
-            cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
-                'where BookID is Null and ContentID =?',t)
-        except Exception as e:
-            if 'no such column' not in str(e):
-                raise
-            cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
-                'where BookID is Null and ContentID =?',t)
+            # Delete the chapters associated with the book next
+            t = (ContentID,)
+            # Kobo does not delete the Book row (ie the row where the BookID is Null)
+            # The next server sync should remove the row
+            cursor.execute('delete from content where BookID = ?', t)
+            try:
+                cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
+                    'where BookID is Null and ContentID =?',t)
+            except Exception as e:
+                if 'no such column' not in str(e):
+                    raise
+                cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                    'where BookID is Null and ContentID =?',t)
 
 
-        connection.commit()
+            connection.commit()
 
-        cursor.close()
-        if ImageID == None:
-            print "Error condition ImageID was not found"
-            print "You likely tried to delete a book that the kobo has not yet added to the database"
+            cursor.close()
+            if ImageID == None:
+                print "Error condition ImageID was not found"
+                print "You likely tried to delete a book that the kobo has not yet added to the database"
 
-        connection.close()
         # If all this succeeds we need to delete the images files via the ImageID
         return ImageID
 
@@ -664,50 +670,49 @@ class KOBO(USBMS):
         # Needs to be outside books collection as in the case of removing
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
-        connection = sqlite.connect(self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite'))
+        with closing(sqlite.connect(self.normalize_path(self._main_prefix +
+            '.kobo/KoboReader.sqlite'))) as connection:
 
-        # return bytestrings if the content cannot the decoded as unicode
-        connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+            # return bytestrings if the content cannot the decoded as unicode
+            connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
-        if collections:
+            if collections:
 
-            # Need to reset the collections outside the particular loops
-            # otherwise the last item will not be removed
-            self.reset_readstatus(connection, oncard)
-            if self.dbversion >= 14:
-                self.reset_favouritesindex(connection, oncard)
+                # Need to reset the collections outside the particular loops
+                # otherwise the last item will not be removed
+                self.reset_readstatus(connection, oncard)
+                if self.dbversion >= 14:
+                    self.reset_favouritesindex(connection, oncard)
 
-            # Process any collections that exist
-            for category, books in collections.items():
-                    debug_print("Category: ", category, " id = ", readstatuslist.get(category))
-                    for book in books:
-                        debug_print('    Title:', book.title, 'category: ', category)
-                        if category not in book.device_collections:
-                            book.device_collections.append(category)
+                # Process any collections that exist
+                for category, books in collections.items():
+                        debug_print("Category: ", category, " id = ", readstatuslist.get(category))
+                        for book in books:
+                            debug_print('    Title:', book.title, 'category: ', category)
+                            if category not in book.device_collections:
+                                book.device_collections.append(category)
 
-                        extension =  os.path.splitext(book.path)[1]
-                        ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
+                            extension =  os.path.splitext(book.path)[1]
+                            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
 
-                        ContentID = self.contentid_from_path(book.path, ContentType)
+                            ContentID = self.contentid_from_path(book.path, ContentType)
 
-                        if category in readstatuslist.keys():
-                            # Manage ReadStatus
-                            self.set_readstatus(connection, ContentID, readstatuslist.get(category))
-                        if category == 'Shortlist' and self.dbversion >= 14:
-                            # Manage FavouritesIndex/Shortlist
-                            self.set_favouritesindex(connection, ContentID)
-                        if category in accessibilitylist.keys():
-                            # Do not manage the Accessibility List
-                            pass
-        else: # No collections
-            # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
-            debug_print("No Collections - reseting ReadStatus")
-            self.reset_readstatus(connection, oncard)
-            if self.dbversion >= 14:
-                debug_print("No Collections - reseting FavouritesIndex")
-                self.reset_favouritesindex(connection, oncard)
-
-        connection.close()
+                            if category in readstatuslist.keys():
+                                # Manage ReadStatus
+                                self.set_readstatus(connection, ContentID, readstatuslist.get(category))
+                            elif category == 'Shortlist' and self.dbversion >= 14:
+                                # Manage FavouritesIndex/Shortlist
+                                self.set_favouritesindex(connection, ContentID)
+                            elif category in accessibilitylist.keys():
+                                # Do not manage the Accessibility List
+                                pass
+            else: # No collections
+                # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
+                debug_print("No Collections - reseting ReadStatus")
+                self.reset_readstatus(connection, oncard)
+                if self.dbversion >= 14:
+                    debug_print("No Collections - reseting FavouritesIndex")
+                    self.reset_favouritesindex(connection, oncard)
 
 #        debug_print('Finished update_device_database_collections', collections_attributes)
 
@@ -723,7 +728,7 @@ class KOBO(USBMS):
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.lower().strip() for x in
-                    opts.extra_customization.split(',')]
+                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
         else:
             collections = []
 

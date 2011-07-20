@@ -303,6 +303,9 @@ class CSSPreProcessor(object):
 class HTMLPreProcessor(object):
 
     PREPROCESS = [
+                  # Remove huge block of contiguous spaces as they slow down
+                  # the following regexes pretty badly
+                  (re.compile(r'\s{10000,}'), lambda m: ''),
                   # Some idiotic HTML generators (Frontpage I'm looking at you)
                   # Put all sorts of crap into <head>. This messes up lxml
                   (re.compile(r'<head[^>]*>\n*(.*?)\n*</head>', re.IGNORECASE|re.DOTALL),

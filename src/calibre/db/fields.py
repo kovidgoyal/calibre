@@ -2,12 +2,16 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from future_builtins import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from threading import Lock
+
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY
+from calibre.utils.icu import sort_key
 
 class Field(object):
 
@@ -16,6 +20,8 @@ class Field(object):
         self.has_text_data = self.metadata['datatype'] in ('text', 'comments',
                 'series', 'enumeration')
         self.table_type = self.table.table_type
+        dt = self.metadata['datatype']
+        self._sort_key = (sort_key if dt == 'text' else lambda x: x)
 
     @property
     def metadata(self):
@@ -49,6 +55,15 @@ class Field(object):
         '''
         raise NotImplementedError()
 
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        '''
+        Return a mapping of book_id -> sort_key. The sort key is suitable for
+        use in sorting the list of all books by this field, via the python cmp
+        method.
+        '''
+        raise NotImplementedError()
+
+
 class OneToOneField(Field):
 
     def for_book(self, book_id, default_value=None):
@@ -66,25 +81,47 @@ class OneToOneField(Field):
     def iter_book_ids(self):
         return self.table.book_col_map.iterkeys()
 
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        return {id_ : self._sort_key(self.book_col_map.get(id_, '')) for id_ in
+                all_book_ids}
+
 class CompositeField(OneToOneField):
 
     def __init__(self, *args, **kwargs):
         OneToOneField.__init__(self, *args, **kwargs)
 
         self._render_cache = {}
+        self._lock = Lock()
 
     def render_composite(self, book_id, mi):
-        ans = self._render_cache.get(book_id, None)
+        with self._lock:
+            ans = self._render_cache.get(book_id, None)
         if ans is None:
             ans = mi.get(self.metadata['label'])
-            self._render_cache[book_id] = ans
+            with self._lock:
+                self._render_cache[book_id] = ans
         return ans
 
     def clear_cache(self):
-        self._render_cache = {}
+        with self._lock:
+            self._render_cache = {}
 
     def pop_cache(self, book_id):
-        self._render_cache.pop(book_id, None)
+        with self._lock:
+            self._render_cache.pop(book_id, None)
+
+    def get_value_with_cache(self, book_id, get_metadata):
+        with self._lock:
+            ans = self._render_cache.get(book_id, None)
+        if ans is None:
+            mi = get_metadata(book_id)
+            ans = mi.get(self.metadata['label'])
+        return ans
+
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        return {id_ : sort_key(self.get_value_with_cache(id_, get_metadata)) for id_ in
+                all_book_ids}
+
 
 class OnDeviceField(OneToOneField):
 
@@ -120,6 +157,10 @@ class OnDeviceField(OneToOneField):
     def iter_book_ids(self):
         return iter(())
 
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        return {id_ : self.for_book(id_) for id_ in
+                all_book_ids}
+
 class ManyToOneField(Field):
 
     def for_book(self, book_id, default_value=None):
@@ -131,10 +172,10 @@ class ManyToOneField(Field):
         return ans
 
     def ids_for_book(self, book_id):
-        ids = self.table.book_col_map.get(book_id, None)
-        if ids is None:
+        id_ = self.table.book_col_map.get(book_id, None)
+        if id_ is None:
             return ()
-        return ids
+        return (id_,)
 
     def books_for(self, item_id):
         return self.table.col_book_map.get(item_id, ())
@@ -142,7 +183,17 @@ class ManyToOneField(Field):
     def __iter__(self):
         return self.table.id_map.iterkeys()
 
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        keys = {id_ : self._sort_key(self.id_map.get(id_, '')) for id_ in
+                all_book_ids}
+        return {id_ : keys.get(
+            self.book_col_map.get(id_, None), '') for id_ in all_book_ids}
+
 class ManyToManyField(Field):
+
+    def __init__(self, *args, **kwargs):
+        Field.__init__(self, *args, **kwargs)
+        self.alphabetical_sort = self.name != 'authors'
 
     def for_book(self, book_id, default_value=None):
         ids = self.table.book_col_map.get(book_id, ())
@@ -160,6 +211,19 @@ class ManyToManyField(Field):
 
     def __iter__(self):
         return self.table.id_map.iterkeys()
+
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        keys = {id_ : self._sort_key(self.id_map.get(id_, '')) for id_ in
+                all_book_ids}
+
+        def sort_key_for_book(book_id):
+            item_ids = self.table.book_col_map.get(book_id, ())
+            if self.alphabetical_sort:
+                item_ids = sorted(item_ids, key=keys.get)
+            return tuple(map(keys.get, item_ids))
+
+        return {id_ : sort_key_for_book(id_) for id_ in all_book_ids}
+
 
 class AuthorsField(ManyToManyField):
 

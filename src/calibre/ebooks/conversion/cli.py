@@ -137,7 +137,9 @@ def add_pipeline_options(parser, plumber):
                       'extra_css', 'smarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
-                      'insert_blank_line', 'remove_paragraph_spacing','remove_paragraph_spacing_indent_size',
+                      'insert_blank_line', 'insert_blank_line_size',
+                      'remove_paragraph_spacing',
+                      'remove_paragraph_spacing_indent_size',
                       'asciiize',
                   ]
                   ),

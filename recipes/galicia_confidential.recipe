@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.web.feeds import Feed
 
@@ -36,14 +35,13 @@ class GC_gl(BasicNewsRecipe):
 
 
     def feed_to_index_append(self, feedObject, masterFeed):
-        for feed in feedObject:
-            newArticles = []
-            for article in feed.articles:
-                newArt = {
-                                'title' : article.title,
-                                    'url'   : article.url,
-                                    'date'  : article.date
-                    }
-                newArticles.append(newArt)
-            masterFeed.append((feed.title,newArticles))
-
+	for feed in feedObject:
+		newArticles = []
+		for article in feed.articles:
+			newArt = {
+	                          'title' : article.title,
+      	                          'url'   : article.url,
+            	                  'date'  : article.date
+				}
+			newArticles.append(newArt)
+		masterFeed.append((feed.title,newArticles))

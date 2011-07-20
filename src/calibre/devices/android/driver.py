@@ -60,6 +60,7 @@ class ANDROID(USBMS):
                        0x685e : [0x0400],
                        0x6860 : [0x0400],
                        0x6877 : [0x0400],
+                       0x689e : [0x0400],
                      },
 
             # Viewsonic
@@ -124,7 +125,8 @@ class ANDROID(USBMS):
             'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD',
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
-            'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612']
+            'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
+            'GT-S5830_CARD']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',

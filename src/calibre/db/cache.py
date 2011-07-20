@@ -9,9 +9,9 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from collections import defaultdict
-from functools import wraps
+from functools import wraps, partial
 
-from calibre.db.locking import create_locks
+from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
 from calibre.ebooks.book.base import Metadata
 from calibre.utils.date import now
@@ -43,7 +43,9 @@ class Cache(object):
     def __init__(self, backend):
         self.backend = backend
         self.fields = {}
+        self.composites = set()
         self.read_lock, self.write_lock = create_locks()
+        self.record_lock = RecordLock(self.read_lock)
         self.format_metadata_cache = defaultdict(dict)
 
         # Implement locking for all simple read/write API methods
@@ -59,6 +61,10 @@ class Cache(object):
                 # Wrap it in a lock
                 lock = self.read_lock if ira else self.write_lock
                 setattr(self, name, wrap_simple(lock, func))
+
+    @property
+    def field_metadata(self):
+        return self.backend.field_metadata
 
     def _format_abspath(self, book_id, fmt):
         '''
@@ -81,127 +87,8 @@ class Cache(object):
         if name and path:
             return self.backend.format_abspath(book_id, fmt, name, path)
 
-    # Cache Layer API {{{
-
-    @api
-    def init(self):
-        '''
-        Initialize this cache with data from the backend.
-        '''
-        with self.write_lock:
-            self.backend.read_tables()
-
-            for field, table in self.backend.tables.iteritems():
-                self.fields[field] = create_field(field, table)
-
-            self.fields['ondevice'] = create_field('ondevice', None)
-
-    @read_api
-    def field_for(self, name, book_id, default_value=None):
-        '''
-        Return the value of the field ``name`` for the book identified by
-        ``book_id``. If no such book exists or it has no defined value for the
-        field ``name`` or no such field exists, then ``default_value`` is returned.
-
-        The returned value for is_multiple fields are always tuples.
-        '''
-        try:
-            return self.fields[name].for_book(book_id, default_value=default_value)
-        except (KeyError, IndexError):
-            return default_value
-
-    @read_api
-    def composite_for(self, name, book_id, mi, default_value=''):
-        try:
-            f = self.fields[name]
-        except KeyError:
-            return default_value
-
-        f.render_composite(book_id, mi)
-
-    @read_api
-    def field_ids_for(self, name, book_id):
-        '''
-        Return the ids (as a tuple) for the values that the field ``name`` has on the book
-        identified by ``book_id``. If there are no values, or no such book, or
-        no such field, an empty tuple is returned.
-        '''
-        try:
-            return self.fields[name].ids_for_book(book_id)
-        except (KeyError, IndexError):
-            return ()
-
-    @read_api
-    def books_for_field(self, name, item_id):
-        '''
-        Return all the books associated with the item identified by
-        ``item_id``, where the item belongs to the field ``name``.
-
-        Returned value is a tuple of book ids, or the empty tuple if the item
-        or the field does not exist.
-        '''
-        try:
-            return self.fields[name].books_for(item_id)
-        except (KeyError, IndexError):
-            return ()
-
-    @read_api
-    def all_book_ids(self):
-        '''
-        Frozen set of all known book ids.
-        '''
-        return frozenset(self.fields['uuid'].iter_book_ids())
-
-    @read_api
-    def all_field_ids(self, name):
-        '''
-        Frozen set of ids for all values in the field ``name``.
-        '''
-        return frozenset(iter(self.fields[name]))
-
-    @read_api
-    def author_data(self, author_id):
-        '''
-        Return author data as a dictionary with keys: name, sort, link
-
-        If no author with the specified id is found an empty dictionary is
-        returned.
-        '''
-        try:
-            return self.fields['authors'].author_data(author_id)
-        except (KeyError, IndexError):
-            return {}
-
-    @read_api
-    def format_metadata(self, book_id, fmt, allow_cache=True):
-        if not fmt:
-            return {}
-        fmt = fmt.upper()
-        if allow_cache:
-            x = self.format_metadata_cache[book_id].get(fmt, None)
-            if x is not None:
-                return x
-        try:
-            name = self.fields['formats'].format_fname(book_id, fmt)
-            path = self._field_for('path', book_id).replace('/', os.sep)
-        except:
-            return {}
-
-        ans = {}
-        if path and name:
-            ans = self.backend.format_metadata(book_id, fmt, name, path)
-            self.format_metadata_cache[book_id][fmt] = ans
-        return ans
-
-    @read_api
-    def get_metadata(self, book_id, get_cover=False,
-                     get_user_categories=True, cover_as_data=False):
-        '''
-        Convenience method to return metadata as a :class:`Metadata` object.
-        Note that the list of formats is not verified.
-        '''
+    def _get_metadata(self, book_id, get_user_categories=True): # {{{
         mi = Metadata(None)
-
         author_ids = self._field_ids_for('authors', book_id)
         aut_list = [self._author_data(i) for i in author_ids]
         aum = []
@@ -279,16 +166,209 @@ class Cache(object):
                 user_cat_vals[ucat] = res
         mi.user_categories = user_cat_vals
 
+        return mi
+    # }}}
+
+    # Cache Layer API {{{
+
+    @api
+    def init(self):
+        '''
+        Initialize this cache with data from the backend.
+        '''
+        with self.write_lock:
+            self.backend.read_tables()
+
+            for field, table in self.backend.tables.iteritems():
+                self.fields[field] = create_field(field, table)
+                if table.metadata['datatype'] == 'composite':
+                    self.composites.add(field)
+
+            self.fields['ondevice'] = create_field('ondevice', None)
+
+    @read_api
+    def field_for(self, name, book_id, default_value=None):
+        '''
+        Return the value of the field ``name`` for the book identified by
+        ``book_id``. If no such book exists or it has no defined value for the
+        field ``name`` or no such field exists, then ``default_value`` is returned.
+
+        The returned value for is_multiple fields are always tuples.
+        '''
+        if self.composites and name in self.composites:
+            return self.composite_for(name, book_id,
+                    default_value=default_value)
+        try:
+            return self.fields[name].for_book(book_id, default_value=default_value)
+        except (KeyError, IndexError):
+            return default_value
+
+    @read_api
+    def composite_for(self, name, book_id, mi=None, default_value=''):
+        try:
+            f = self.fields[name]
+        except KeyError:
+            return default_value
+
+        if mi is None:
+            return f.get_value_with_cache(book_id, partial(self._get_metadata,
+                get_user_categories=False))
+        else:
+            return f.render_composite(book_id, mi)
+
+    @read_api
+    def field_ids_for(self, name, book_id):
+        '''
+        Return the ids (as a tuple) for the values that the field ``name`` has on the book
+        identified by ``book_id``. If there are no values, or no such book, or
+        no such field, an empty tuple is returned.
+        '''
+        try:
+            return self.fields[name].ids_for_book(book_id)
+        except (KeyError, IndexError):
+            return ()
+
+    @read_api
+    def books_for_field(self, name, item_id):
+        '''
+        Return all the books associated with the item identified by
+        ``item_id``, where the item belongs to the field ``name``.
+
+        Returned value is a tuple of book ids, or the empty tuple if the item
+        or the field does not exist.
+        '''
+        try:
+            return self.fields[name].books_for(item_id)
+        except (KeyError, IndexError):
+            return ()
+
+    @read_api
+    def all_book_ids(self):
+        '''
+        Frozen set of all known book ids.
+        '''
+        return frozenset(self.fields['uuid'].iter_book_ids())
+
+    @read_api
+    def all_field_ids(self, name):
+        '''
+        Frozen set of ids for all values in the field ``name``.
+        '''
+        return frozenset(iter(self.fields[name]))
+
+    @read_api
+    def author_data(self, author_id):
+        '''
+        Return author data as a dictionary with keys: name, sort, link
+
+        If no author with the specified id is found an empty dictionary is
+        returned.
+        '''
+        try:
+            return self.fields['authors'].author_data(author_id)
+        except (KeyError, IndexError):
+            return {}
+
+    @read_api
+    def format_metadata(self, book_id, fmt, allow_cache=True):
+        if not fmt:
+            return {}
+        fmt = fmt.upper()
+        if allow_cache:
+            x = self.format_metadata_cache[book_id].get(fmt, None)
+            if x is not None:
+                return x
+        try:
+            name = self.fields['formats'].format_fname(book_id, fmt)
+            path = self._field_for('path', book_id).replace('/', os.sep)
+        except:
+            return {}
+
+        ans = {}
+        if path and name:
+            ans = self.backend.format_metadata(book_id, fmt, name, path)
+            self.format_metadata_cache[book_id][fmt] = ans
+        return ans
+
+    @api
+    def get_metadata(self, book_id,
+            get_cover=False, get_user_categories=True, cover_as_data=False):
+        '''
+        Return metadata for the book identified by book_id as a :class:`Metadata` object.
+        Note that the list of formats is not verified. If get_cover is True,
+        the cover is returned, either a path to temp file as mi.cover or if
+        cover_as_data is True then as mi.cover_data.
+        '''
+
+        with self.read_lock:
+            mi = self._get_metadata(book_id, get_user_categories=get_user_categories)
+
         if get_cover:
             if cover_as_data:
-                cdata = self.cover(id, index_is_id=True)
+                cdata = self.cover(book_id)
                 if cdata:
                     mi.cover_data = ('jpeg', cdata)
             else:
-                mi.cover = self.cover(id, index_is_id=True, as_path=True)
+                mi.cover = self.cover(book_id, as_path=True)
+
         return mi
 
+    @api
+    def cover(self, book_id,
+            as_file=False, as_image=False, as_path=False):
+        '''
+        Return the cover image or None. By default, returns the cover as a
+        bytestring.
+
+        WARNING: Using as_path will copy the cover to a temp file and return
+        the path to the temp file. You should delete the temp file when you are
+        done with it.
+
+        :param as_file: If True return the image as an open file object (a SpooledTemporaryFile)
+        :param as_image: If True return the image as a QImage object
+        :param as_path: If True return the image as a path pointing to a
+                        temporary file
+        '''
+        with self.read_lock:
+            try:
+                path = self._field_for('path', book_id).replace('/', os.sep)
+            except:
+                return None
+
+        with self.record_lock.lock(book_id):
+            return self.backend.cover(path, as_file=as_file, as_image=as_image,
+                    as_path=as_path)
+
+    @read_api
+    def multisort(self, fields):
+        all_book_ids = frozenset(self._all_book_ids())
+        get_metadata = partial(self._get_metadata, get_user_categories=False)
+
+        sort_keys = tuple(self.fields[field[0]].sort_keys_for_books(get_metadata,
+            all_book_ids) for field in fields)
+
+        if len(sort_keys) == 1:
+            sk = sort_keys[0]
+            return sorted(all_book_ids, key=lambda i:sk[i], reverse=not
+                    fields[1])
+        else:
+            return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
+
     # }}}
+
+class SortKey(object):
+
+    def __init__(self, fields, sort_keys, book_id):
+        self.orders = tuple(1 if f[1] else -1 for f in fields)
+        self.sort_key = tuple(sk[book_id] for sk in sort_keys)
+
+    def __cmp__(self, other):
+        for i, order in enumerate(self.orders):
+            ans = cmp(self.sort_key[i], other.sort_key[i])
+            if ans != 0:
+                return ans * order
+        return 0
+
 
 # Testing {{{
 

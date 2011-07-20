@@ -9,10 +9,17 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
+def sanitize_sort_field_name(field_metadata, field):
+    field = field_metadata.search_term_to_field_key(field.lower().strip())
+    # translate some fields to their hidden equivalent
+    field = {'title': 'sort', 'authors':'author_sort'}.get(field, field)
+    return field
+
 class View(object):
 
     def __init__(self, cache):
         self.cache = cache
+        self.marked_ids = {}
         self._field_getters = {}
         for col, idx in cache.backend.FIELD_MAP.iteritems():
             if isinstance(col, int):
@@ -26,13 +33,17 @@ class View(object):
                         'id'      : self._get_id,
                         'au_map'  : self.get_author_data,
                         'ondevice': self.get_ondevice,
-                        'marked'  : self.get_is_marked,
+                        'marked'  : self.get_marked,
                     }[col]
                 except KeyError:
                     self._field_getters[idx] = partial(self.get, col)
 
         self._map = list(self.cache.all_book_ids())
         self._map_filtered = list(self._map)
+
+    @property
+    def field_metadata(self):
+        return self.cache.field_metadata
 
     def _get_id(self, idx, index_is_id=True):
         ans = idx if index_is_id else self.index_to_id(idx)
@@ -47,17 +58,19 @@ class View(object):
         return getter(row, index_is_id=index_is_id)
 
     def index_to_id(self, idx):
-        pass
+        return self._map_filtered[idx]
 
     def get(self, field, idx, index_is_id=True, default_value=None):
         id_ = idx if index_is_id else self.index_to_id(idx)
         return self.cache.field_for(field, id_)
 
-    def get_ondevice(self, idx, index_is_id=True, default_value=False):
-        pass
+    def get_ondevice(self, idx, index_is_id=True, default_value=''):
+        id_ = idx if index_is_id else self.index_to_id(idx)
+        self.cache.field_for('ondevice', id_, default_value=default_value)
 
-    def get_is_marked(self, idx, index_is_id=True, default_value=False):
-        pass
+    def get_marked(self, idx, index_is_id=True, default_value=None):
+        id_ = idx if index_is_id else self.index_to_id(idx)
+        return self.marked_ids.get(id_, default_value)
 
     def get_author_data(self, idx, index_is_id=True, default_value=()):
         '''
@@ -79,5 +92,18 @@ class View(object):
             for id_ in ids:
                 ans.append(self.cache._author_data(id_))
         return tuple(ans)
+
+    def multisort(self, fields=[], subsort=False):
+        fields = [(sanitize_sort_field_name(self.field_metadata, x), bool(y)) for x, y in fields]
+        keys = self.field_metadata.sortable_field_keys()
+        fields = [x for x in fields if x[0] in keys]
+        if subsort and 'sort' not in [x[0] for x in fields]:
+            fields += [('sort', True)]
+        if not fields:
+            fields = [('timestamp', False)]
+
+        sorted_book_ids = self.cache.multisort(fields)
+        sorted_book_ids
+        # TODO: change maps
 
 

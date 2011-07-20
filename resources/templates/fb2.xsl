@@ -379,7 +379,8 @@
     <!-- image -->
     <xsl:template match="fb:image">
         <div align="center">
-            <img border="1">
+            <xsl:element name="img">
+                <xsl:attribute name="border">1</xsl:attribute>
                 <xsl:choose>
                     <xsl:when test="starts-with(@xlink:href,'#')">
                         <xsl:attribute name="src"><xsl:value-of select="substring-after(@xlink:href,'#')"/></xsl:attribute>
@@ -388,7 +389,10 @@
                         <xsl:attribute name="src"><xsl:value-of select="@xlink:href"/></xsl:attribute>
                     </xsl:otherwise>
                 </xsl:choose>
-            </img>
+                <xsl:if test="@title">
+                    <xsl:attribute name="title"><xsl:value-of select="@title"/></xsl:attribute>
+                </xsl:if>
+            </xsl:element>
         </div>
     </xsl:template>
 </xsl:stylesheet>
