@@ -166,7 +166,7 @@ def get_trailing_data(record, extra_data_flags):
             if i == 0:
                 # Only the first two bits are used for the size since there can
                 # never be more than 3 trailing multibyte chars
-                sz = ord(record[-1]) & 0b11
+                sz = (ord(record[-1]) & 0b11) + 1
                 consumed = 1
             else:
                 sz, consumed = decint(record, forward=False)
