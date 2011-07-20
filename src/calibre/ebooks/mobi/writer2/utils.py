@@ -161,7 +161,7 @@ def get_trailing_data(record, extra_data_flags):
     '''
     data = OrderedDict()
     for i in xrange(16, -1, -1):
-        flag = 2**i
+        flag = 1 << i # 2**i
         if flag & extra_data_flags:
             if i == 0:
                 # Only the first two bits are used for the size since there can
