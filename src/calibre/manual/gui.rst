@@ -104,7 +104,8 @@ The :guilabel:`Convert books` action has three variations, accessed by the arrow
        This allows you to use the search features to limit the books to be catalogued. In addition, if you select multiple books using the mouse,
        only those books will be added to the catalog. If you generate the catalog in an ebook format such as EPUB or MOBI,
        the next time you connect your ebook reader the catalog will be automatically sent to the device.
-       For more information on how catalogs work, read the `catalog creation tutorial <http://www.mobileread.com/forums/showthread.php?p=755468#post755468>`_at MobileRead.
+       For more information on how catalogs work, read the `catalog creation tutorial <http://www.mobileread.com/forums/showthread.php?p=755468#post755468>`_
+       at MobileRead.
 
 .. _view:
 

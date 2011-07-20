@@ -8,11 +8,18 @@ __docformat__ = 'restructuredtext en'
 
 import os, tempfile, shutil, subprocess, glob, re, time, textwrap
 from distutils import sysconfig
+from functools import partial
 
 from setup import Command, __appname__, __version__
-from setup.build_environment import pyqt
 
-class POT(Command):
+def qt_sources():
+    qtdir = glob.glob('/usr/src/qt-*')[-1]
+    j = partial(os.path.join, qtdir)
+    return list(map(j, [
+            'src/gui/widgets/qdialogbuttonbox.cpp',
+    ]))
+
+class POT(Command): # {{{
 
     description = 'Update the .pot translation template'
     PATH = os.path.join(Command.SRC, __appname__, 'translations')
@@ -82,6 +89,8 @@ class POT(Command):
                 time=time.strftime('%Y-%m-%d %H:%M+%Z'))
 
         files = self.source_files()
+        qt_inputs = qt_sources()
+
         with tempfile.NamedTemporaryFile() as fl:
             fl.write('\n'.join(files))
             fl.flush()
@@ -91,8 +100,14 @@ class POT(Command):
             subprocess.check_call(['xgettext', '-f', fl.name,
                 '--default-domain=calibre', '-o', out.name, '-L', 'Python',
                 '--from-code=UTF-8', '--sort-by-file', '--omit-header',
-                '--no-wrap', '-k__',
+                '--no-wrap', '-k__', '--add-comments=NOTE:',
                 ])
+            subprocess.check_call(['xgettext', '-j',
+                '--default-domain=calibre', '-o', out.name,
+                '--from-code=UTF-8', '--sort-by-file', '--omit-header',
+                '--no-wrap', '-kQT_TRANSLATE_NOOP:2',
+                ] + qt_inputs)
+
             with open(out.name, 'rb') as f:
                 src = f.read()
             os.remove(out.name)
@@ -102,10 +117,12 @@ class POT(Command):
             with open(pot, 'wb') as f:
                 f.write(src)
             self.info('Translations template:', os.path.abspath(pot))
-            return pot
 
 
-class Translations(POT):
+        return pot
+# }}}
+
+class Translations(POT): # {{{
     description='''Compile the translations'''
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
             'locales')
@@ -117,7 +134,6 @@ class Translations(POT):
         locale = os.path.splitext(os.path.basename(po_file))[0]
         return locale, os.path.join(self.DEST, locale, 'messages.mo')
 
-
     def run(self, opts):
         for f in self.po_files():
             locale, dest = self.mo_file(f)
@@ -126,7 +142,7 @@ class Translations(POT):
                 os.makedirs(base)
             self.info('\tCompiling translations for', locale)
             subprocess.check_call(['msgfmt', '-o', dest, f])
-            if locale in ('en_GB', 'nds', 'te', 'yi'):
+            if locale in ('en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc', 'ltg', 'nds', 'te', 'yi'):
                 continue
             pycountry = self.j(sysconfig.get_python_lib(), 'pycountry',
                     'locales', locale, 'LC_MESSAGES')
@@ -139,17 +155,6 @@ class Translations(POT):
             else:
                 self.warn('No ISO 639 translations for locale:', locale,
                 '\nDo you have pycountry installed?')
-
-        base = os.path.join(pyqt.qt_data_dir, 'translations')
-        qt_translations = glob.glob(os.path.join(base, 'qt_*.qm'))
-        if not qt_translations:
-            raise Exception('Could not find qt translations')
-        for f in qt_translations:
-            locale = self.s(self.b(f))[0][3:]
-            dest = self.j(self.DEST, locale, 'LC_MESSAGES', 'qt.qm')
-            if self.e(self.d(dest)) and self.newer(dest, f):
-                self.info('\tCopying Qt translation for locale:', locale)
-                shutil.copy2(f, dest)
 
         self.write_stats()
         self.freeze_locales()
@@ -201,7 +206,7 @@ class Translations(POT):
             for x in (i, j, d):
                 if os.path.exists(x):
                     os.remove(x)
-
+# }}}
 
 class GetTranslations(Translations):
 

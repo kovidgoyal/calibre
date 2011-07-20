@@ -1180,8 +1180,9 @@ class Manifest(object):
                 if memory is None:
                     from calibre.ptempfile import PersistentTemporaryFile
                     pt = PersistentTemporaryFile(suffix='_oeb_base_mem_unloader.img')
-                    pt.write(self._data)
-                    pt.close()
+                    with pt:
+                        pt.write(self._data)
+                    self.oeb._temp_files.append(pt.name)
                     def loader(*args):
                         with open(pt.name, 'rb') as f:
                             ans = f.read()
@@ -1195,8 +1196,6 @@ class Manifest(object):
                         return ans
                     self._loader = loader2
                 self._data = None
-
-
 
         def __str__(self):
             data = self.data
@@ -1913,6 +1912,14 @@ class OEBBook(object):
         self.toc = TOC()
         self.pages = PageList()
         self.auto_generated_toc = True
+        self._temp_files = []
+
+    def clean_temp_files(self):
+        for path in self._temp_files:
+            try:
+                os.remove(path)
+            except:
+                pass
 
     @classmethod
     def generate(cls, opts):

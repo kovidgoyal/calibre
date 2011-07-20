@@ -1,5 +1,5 @@
 " Project wide builtins
-let g:pyflakes_builtins += ["dynamic_property", "__", "P", "I", "lopen", "icu_lower", "icu_upper", "icu_title", "ngettext"]
+let g:pyflakes_builtins = ["_", "dynamic_property", "__", "P", "I", "lopen", "icu_lower", "icu_upper", "icu_title", "ngettext"]
 
 python << EOFPY
 import os
@@ -15,7 +15,7 @@ vipy.session.initialize(project_name='calibre', src_dir=src_dir,
             project_dir=project_dir, base_dir=base_dir)
 
 def recipe_title_callback(raw):
-    return eval(raw.decode('utf-8'))
+    return eval(raw.decode('utf-8')).replace(' ', '_')
 
 vipy.session.add_content_browser('.r', ',r', 'Recipe',
     vipy.session.glob_based_iterator(os.path.join(project_dir, 'recipes', '*.recipe')),
