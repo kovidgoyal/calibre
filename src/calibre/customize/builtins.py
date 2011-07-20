@@ -1181,6 +1181,16 @@ class StoreBeWriteStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
 
+class StoreBookotekaStore(StoreBase):
+    name = 'Bookoteka'
+    author = u'Tomasz Długosz'
+    description = u'E-booki w Bookotece dostępne są w formacie EPUB oraz PDF. Publikacje sprzedawane w Bookotece są objęte prawami autorskimi. Zobowiązaliśmy się chronić te prawa, ale bez ograniczania dostępu do książki użytkownikowi, który nabył ją w legalny sposób. Dlatego też Bookoteka stosuje tak zwany „watermarking transakcyjny” czyli swego rodzaju znaki wodne.'
+    actual_plugin = 'calibre.gui2.store.stores.bookoteka_plugin:BookotekaStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'PDF']
+
 class StoreChitankaStore(StoreBase):
     name = u'Моята библиотека'
     author = 'Alex Stanev'
@@ -1218,16 +1228,16 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
-class StoreEPubBuyDEStore(StoreBase):
-    name = 'EPUBBuy DE'
-    author = 'Charles Haley'
-    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
-    actual_plugin = 'calibre.gui2.store.stores.epubbuy_de_plugin:EPubBuyDEStore'
-
-    drm_free_only = True
-    headquarters = 'DE'
-    formats = ['EPUB']
-    affiliate = True
+#class StoreEPubBuyDEStore(StoreBase):
+#    name = 'EPUBBuy DE'
+#    author = 'Charles Haley'
+#    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
+#    actual_plugin = 'calibre.gui2.store.stores.epubbuy_de_plugin:EPubBuyDEStore'
+#
+#    drm_free_only = True
+#    headquarters = 'DE'
+#    formats = ['EPUB']
+#    affiliate = True
 
 class StoreEBookShoppeUKStore(StoreBase):
     name = 'ebookShoppe UK'
@@ -1465,12 +1475,13 @@ plugins += [
     StoreBNStore,
     StoreBeamEBooksDEStore,
     StoreBeWriteStore,
+    StoreBookotekaStore,
     StoreChitankaStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
-    StoreEPubBuyDEStore,
+#    StoreEPubBuyDEStore,
     StoreEHarlequinStore,
     StoreEpubBudStore,
     StoreFeedbooksStore,

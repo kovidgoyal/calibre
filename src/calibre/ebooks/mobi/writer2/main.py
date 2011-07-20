@@ -15,10 +15,10 @@ from calibre.ebooks import normalize
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ebooks.mobi.writer2.serializer import Serializer
 from calibre.ebooks.compression.palmdoc import compress_doc
-from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import PALMDOC, UNCOMPRESSED
+from calibre.ebooks.mobi.writer2.utils import (rescale_image, encint)
 
 EXTH_CODES = {
     'creator': 100,
@@ -41,86 +41,9 @@ WRITE_UNCROSSABLE_BREAKS = False
 
 RECORD_SIZE = 0x1000 # 4096
 
-IMAGE_MAX_SIZE = 10 * 1024 * 1024
+
 MAX_THUMB_SIZE = 16 * 1024
 MAX_THUMB_DIMEN = (180, 240)
-
-# Almost like the one for MS LIT, but not quite.
-DECINT_FORWARD = 0
-DECINT_BACKWARD = 1
-
-def decint(value, direction):
-    '''
-    Some parts of the Mobipocket format encode data as variable-width integers.
-    These integers are represented big-endian with 7 bits per byte in bits 1-7.
-    They may be either forward-encoded, in which case only the LSB has bit 8 set,
-    or backward-encoded, in which case only the MSB has bit 8 set.
-    For example, the number 0x11111 would be represented forward-encoded as:
-
-        0x04 0x22 0x91
-
-    And backward-encoded as:
-
-        0x84 0x22 0x11
-
-    This function encodes the integer ``value`` as a variable width integer and
-    returns the bytestring corresponding to it.
-    '''
-    # Encode vwi
-    byts = bytearray()
-    while True:
-        b = value & 0x7f
-        value >>= 7
-        byts.append(b)
-        if value == 0:
-            break
-    if direction == DECINT_FORWARD:
-        byts[0] |= 0x80
-    elif direction == DECINT_BACKWARD:
-        byts[-1] |= 0x80
-    return bytes(byts)
-
-def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
-    '''
-    Convert image setting all transparent pixels to white and changing format
-    to JPEG. Ensure the resultant image has a byte size less than
-    maxsizeb.
-
-    If dimen is not None, generate a thumbnail of width=dimen, height=dimen
-
-    Returns the image as a bytestring
-    '''
-    if dimen is not None:
-        data = thumbnail(data, width=dimen, height=dimen,
-                compression_quality=90)[-1]
-    else:
-        # Replace transparent pixels with white pixels and convert to JPEG
-        data = save_cover_data_to(data, 'img.jpg', return_data=True)
-    if len(data) <= maxsizeb:
-        return data
-    orig_data = data
-    img = Image()
-    quality = 95
-
-    img.load(data)
-    while len(data) >= maxsizeb and quality >= 10:
-        quality -= 5
-        img.set_compression_quality(quality)
-        data = img.export('jpg')
-    if len(data) <= maxsizeb:
-        return data
-    orig_data = data
-
-    scale = 0.9
-    while len(data) >= maxsizeb and scale >= 0.05:
-        img = Image()
-        img.load(orig_data)
-        w, h = img.size
-        img.size = (int(scale*w), int(scale*h))
-        img.set_compression_quality(quality)
-        data = img.export('jpg')
-        scale -= 0.05
-    return data
 
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
@@ -243,13 +166,13 @@ class MobiWriter(object):
                 # the next record.
                 while breaks and (breaks[0] - offset) < RECORD_SIZE:
                     pbreak = (breaks.pop(0) - running) >> 3
-                    encoded = decint(pbreak, DECINT_FORWARD)
+                    encoded = encint(pbreak)
                     record.write(encoded)
                     running += pbreak << 3
                     nextra += len(encoded)
                 lsize = 1
                 while True:
-                    size = decint(nextra + lsize, DECINT_BACKWARD)
+                    size = encint(nextra + lsize, forward=False)
                     if len(size) == lsize:
                         break
                     lsize += 1
