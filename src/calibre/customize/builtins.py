@@ -1258,6 +1258,16 @@ class StoreEHarlequinStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreEKnigiStore(StoreBase):
+    name = u'еКниги'
+    author = 'Alex Stanev'
+    description = u'Онлайн книжарница за електронни книги и аудио риалити романи'
+    actual_plugin = 'calibre.gui2.store.stores.eknigi_plugin:eKnigiStore'
+
+    headquarters = 'BG'
+    formats = ['EPUB', 'PDF', 'HTML']
+    affiliate = True
+
 class StoreEpubBudStore(StoreBase):
     name = 'ePub Bud'
     description = 'Well, it\'s pretty much just "YouTube for Children\'s eBooks. A not-for-profit organization devoted to brining self published childrens books to the world.'
@@ -1483,6 +1493,7 @@ plugins += [
     StoreEBookShoppeUKStore,
 #    StoreEPubBuyDEStore,
     StoreEHarlequinStore,
+    StoreEKnigiStore,
     StoreEpubBudStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
