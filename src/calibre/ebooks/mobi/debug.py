@@ -11,7 +11,7 @@ import struct, datetime, sys, os, shutil
 from collections import OrderedDict
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
-from calibre.ebooks.mobi.writer2.utils import (decode_hex_number, decint,
+from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
         get_trailing_data)
 from calibre.utils.magick.draw import identify_data
 
@@ -618,6 +618,13 @@ class IndexEntry(object): # {{{
                 vals.append(val)
             self.tags.append(Tag(tag, vals, self.entry_type, cncx))
 
+    @property
+    def label(self):
+        for tag in self.tags:
+            if tag.attr == 'label_offset':
+                return tag.cncx_value
+        return ''
+
     def __str__(self):
         ans = ['Index Entry(index=%s, entry_type=%s, length=%d)'%(
             self.index, self.entry_type, len(self.tags))]
@@ -828,7 +835,7 @@ class MOBIFile(object): # {{{
         else:
             decompress = lambda x: x
 
-        self.index_header = None
+        self.index_header = self.index_record = None
         self.indexing_record_nums = set()
         pir = self.mobi_header.primary_index_record
         if pir != 0xffffffff:
