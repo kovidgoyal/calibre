@@ -530,21 +530,21 @@ class Tag(object): # {{{
             },
 
             'chapter_with_subchapters' : {
-                    22 : ('First subchapter index', 'first_subchapter_index'),
-                    23 : ('Last subchapter index', 'last_subchapter_index'),
+                    22 : ('First subchapter index', 'first_child_index'),
+                    23 : ('Last subchapter index', 'last_child_index'),
             },
 
             'periodical' : {
                     5  : ('Class offset in cncx', 'class_offset'),
-                    22 : ('First section index', 'first_section_index'),
-                    23 : ('Last section index', 'last_section_index'),
+                    22 : ('First section index', 'first_child_index'),
+                    23 : ('Last section index', 'last_child_index'),
             },
 
             'section' : {
                     5  : ('Class offset in cncx', 'class_offset'),
-                    21 : ('Periodical index', 'periodical_index'),
-                    22 : ('First article index', 'first_article_index'),
-                    23 : ('Last article index', 'last_article_index'),
+                    21 : ('Periodical index', 'parent_index'),
+                    22 : ('First article index', 'first_child_index'),
+                    23 : ('Last article index', 'last_child_index'),
             },
     }
 
@@ -646,6 +646,13 @@ class IndexEntry(object): # {{{
                 return tag.value
         return 0
 
+    @property
+    def parent_index(self):
+        for tag in self.tags:
+            if tag.attr == 'parent_index':
+                return tag.value
+        return -1
+
     def __str__(self):
         ans = ['Index Entry(index=%s, entry_type=%s, length=%d)'%(
             self.index, self.entry_type, len(self.tags))]
@@ -700,6 +707,15 @@ class IndexRecord(object): # {{{
             entry_type = ord(indxt[off+consumed])
             self.indices.append(IndexEntry(index, entry_type,
                 indxt[off+consumed+1:next_off], cncx, index_header.tagx_entries))
+            index = self.indices[-1]
+
+    def get_parent(self, index):
+        if index.depth < 1:
+            return None
+        parent_depth = index.depth - 1
+        for p in self.indices:
+            if p.depth != parent_depth:
+                continue
 
 
     def __str__(self):
@@ -871,8 +887,9 @@ class TBSIndexing(object): # {{{
             if entries:
                 ans.append('\t%s:'%typ)
                 for x in entries:
-                    ans.append('\t\tIndex Entry: %d (Depth: %d Offset: %d, Size: %d) [%s]'%(
-                        x.index, x.depth, x.offset, x.size, x.label))
+                    ans.append(('\t\tIndex Entry: %d (Parent index: %d, '
+                            'Depth: %d, Offset: %d, Size: %d) [%s]')%(
+                        x.index, x.parent_index, x.depth, x.offset, x.size, x.label))
         def bin3(num):
             ans = bin(num)[2:]
             return '0'*(3-len(ans)) + ans
