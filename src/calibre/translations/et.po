@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-15 17:42+0000\n"
-"PO-Revision-Date: 2011-07-19 07:48+0000\n"
-"Last-Translator: keski <Unknown>\n"
+"PO-Revision-Date: 2011-07-20 12:40+0000\n"
+"Last-Translator: Maidur <mdr.ksk@gmail.com>\n"
 "Language-Team: Estonian <et@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-20 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-07-21 04:33+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -363,11 +363,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Näita raamatu üksikasju eraldi hüpikaknas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Restart calibre"
-msgstr ""
+msgstr "Taaskäivita calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Open the folder that contains the book files in your calibre library"
@@ -375,7 +375,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Saada raamatud ühendatud seadmesse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid ""
@@ -386,11 +386,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "Loe calibre kasutusjuhendit"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Customize calibre"
-msgstr ""
+msgstr "Kohanda calibret"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Easily find books similar to the currently selected one"
@@ -425,11 +425,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Otsi raamatuid erinevatelt raamatumüüjatelt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Hangi uusi calibre pluginaid või uuenda olemasolevaid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Look and Feel"
@@ -506,7 +506,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:964
 msgid "Output Options"
-msgstr ""
+msgstr "Väljundi sätted"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:970
 msgid "Set conversion options specific to each output format"
@@ -562,7 +562,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1083
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1094
 msgid "Advanced"
-msgstr ""
+msgstr "Täpsemad"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1028
 msgid "Create your own template functions"
@@ -570,7 +570,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1033
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Raamatute jagamine e-posti teel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1035
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1047
@@ -605,7 +605,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1069
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:275
 msgid "Plugins"
-msgstr ""
+msgstr "Pluginad"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1075
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -652,7 +652,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Teisenda e-raamatud %s-vormingusse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -677,12 +677,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:82
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "See profiil on mõeldud SONY PRS-900 jaoks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:90
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:539
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "See profiil on mõeldud Microsoft Readeri jaoks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:101
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:550
@@ -692,7 +692,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "See profiil on mõeldud Hanlin V3 ja selle kloonide jaoks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:126
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:575
