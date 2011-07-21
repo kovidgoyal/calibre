@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import struct, datetime, sys, os, shutil
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
@@ -625,6 +625,27 @@ class IndexEntry(object): # {{{
                 return tag.cncx_value
         return ''
 
+    @property
+    def offset(self):
+        for tag in self.tags:
+            if tag.attr == 'offset':
+                return tag.value
+        return 0
+
+    @property
+    def size(self):
+        for tag in self.tags:
+            if tag.attr == 'size':
+                return tag.value
+        return 0
+
+    @property
+    def depth(self):
+        for tag in self.tags:
+            if tag.attr == 'depth':
+                return tag.value
+        return 0
+
     def __str__(self):
         ans = ['Index Entry(index=%s, entry_type=%s, length=%d)'%(
             self.index, self.entry_type, len(self.tags))]
@@ -793,6 +814,88 @@ class BinaryRecord(object): # {{{
 
 # }}}
 
+class TBSIndexing(object): # {{{
+
+    def __init__(self, text_records, indices):
+        self.record_indices = OrderedDict()
+        pos = 0
+        for r in text_records:
+            start = pos
+            pos += len(r.raw)
+            end = pos - 1
+            self.record_indices[r] = x = {'starts':[], 'ends':[],
+                    'complete':[], 'geom': (start, end)}
+            for entry in indices:
+                istart, sz = entry.offset, entry.size
+                iend = istart + sz - 1
+                has_start = istart >= start and istart <= end
+                has_end = iend >= start and iend <= end
+                rec = None
+                if has_start and has_end:
+                    rec = 'complete'
+                elif has_start and not has_end:
+                    rec = 'starts'
+                elif not has_start and has_end:
+                    rec = 'ends'
+                if rec:
+                    x[rec].append(entry)
+
+    def __str__(self):
+        ans = ['*'*20 + ' TBS Indexing (%d records) '%len(self.record_indices)+ '*'*20]
+        for r, dat in self.record_indices.iteritems():
+            ans += self.dump_record(r, dat)[-1]
+        return '\n'.join(ans)
+
+    def dump(self, bdir):
+        types = defaultdict(list)
+        for r, dat in self.record_indices.iteritems():
+            tbs_type, strings = self.dump_record(r, dat)
+            if tbs_type == 0: continue
+            types[tbs_type] += strings
+        for typ, strings in types.iteritems():
+            with open(os.path.join(bdir, 'tbs_type_%d.txt'%typ), 'wb') as f:
+                f.write('\n'.join(strings))
+
+    def dump_record(self, r, dat):
+        ans = []
+        ans.append('\nRecord #%d: Starts at: %d Ends at: %d'%(r.idx,
+            dat['geom'][0], dat['geom'][1]))
+        s, e, c = dat['starts'], dat['ends'], dat['complete']
+        ans.append(('\tContains: %d index entries '
+            '(%d ends, %d complete, %d starts)')%tuple(map(len, (s+e+c, e,
+                c, s))))
+        byts = bytearray(r.trailing_data.get('indexing', b''))
+        sbyts = tuple(hex(b)[2:] for b in byts)
+        ans.append('TBS bytes: %s'%(' '.join(sbyts)))
+        for typ, entries in (('Ends', e), ('Complete', c), ('Starts', s)):
+            if entries:
+                ans.append('\t%s:'%typ)
+                for x in entries:
+                    ans.append('\t\tIndex Entry: %d (Depth: %d Offset: %d, Size: %d) [%s]'%(
+                        x.index, x.depth, x.offset, x.size, x.label))
+        def bin3(num):
+            ans = bin(num)[2:]
+            return '0'*(3-len(ans)) + ans
+
+        tbs_type = 0
+        if len(byts):
+            outer, consumed = decint(bytes(byts))
+            byts = byts[consumed:]
+            tbs_type = outer & 0b111
+            ans.append('TBS Type: %s (%d)'%(bin3(tbs_type), tbs_type))
+            ans.append('Outer Index entry: %d'%(outer >> 3))
+            arg1, consumed = decint(bytes(byts))
+            byts = byts[consumed:]
+            ans.append('Unknown: %d'%arg1)
+            if byts:
+                sbyts = tuple(hex(b)[2:] for b in byts)
+                ans.append('Remaining bytes: %s'%' '.join(sbyts))
+
+        ans.append('')
+        return tbs_type, ans
+
+# }}}
+
 class MOBIFile(object): # {{{
 
     def __init__(self, stream):
@@ -874,6 +977,9 @@ class MOBIFile(object): # {{{
             else:
                 self.binary_records.append(BinaryRecord(i, r))
 
+        if self.index_record is not None:
+            self.tbs_indexing = TBSIndexing(self.text_records,
+                    self.index_record.indices)
 
     def print_header(self, f=sys.stdout):
         print (str(self.palmdb).encode('utf-8'), file=f)
@@ -905,6 +1011,9 @@ def inspect_mobi(path_or_stream, prefix='decompiled'):
             print(str(f.cncx).encode('utf-8'), file=out)
             print('\n\n', file=out)
             print(str(f.index_record), file=out)
+        with open(os.path.join(ddir, 'tbs_indexing.txt'), 'wb') as out:
+            print(str(f.tbs_indexing), file=out)
+        f.tbs_indexing.dump(ddir)
 
     for tdir, attr in [('text', 'text_records'), ('images', 'image_records'),
             ('binary', 'binary_records')]:
