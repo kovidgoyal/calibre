@@ -72,7 +72,7 @@ def set_translators():
     if lang:
         buf = iso639 = None
         mpath = get_lc_messages_path(lang)
-        if os.access(mpath+'.po', os.R_OK):
+        if mpath and os.access(mpath+'.po', os.R_OK):
             from calibre.translations.msgfmt import make
             buf = cStringIO.StringIO()
             make(mpath+'.po', buf)
