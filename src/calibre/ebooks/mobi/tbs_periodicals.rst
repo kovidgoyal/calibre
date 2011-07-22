@@ -209,14 +209,45 @@ In such a record there is a transition from one section to the next. As such the
         Extra bits (flag: always 0?): 0
         First article of ending section, relative to its parent's index (fvwi): 19 [21 absolute]
         Number of article nodes in the record (byte): 4
-        Offset from start of record to beginning of starting section (vwi)): 3445
+        ->Offset from start of record to beginning of last starting section in this record (vwi)): 3445
         Last article of ending section w.r.t. starting section offset (fvwi): 21 [24 absolute]
         Flags (always 8?): 8
         Article index at start of record or first article index, relative to parent section (fvwi): 22 [25 absolute]
 
     The difference to the previous case is the extra two bytes that encode the offset of the opening section from the start of the record.
 
-    4. TODO: A record with multiple transitions
+    4. A record with multiple section transitions::
+
+        Record #9: Starts at: 32768 Ends at: 36863
+            Contains: 9 index entries (2 ends, 5 complete, 2 starts)
+        TBS bytes: 83 80 80 90 1 d0 1 c8 1 d1 c b1 1 c8 1 d4 4
+            Ends:
+                Index Entry: 1 (Parent index: 0, Depth: 1, Offset: 7758, Size: 26279) [Ars Technica]
+                Index Entry: 14 (Parent index: 1, Depth: 2, Offset: 31929, Size: 2108) [Trademarked keyword sales may soon be restricted in Europe]
+            Complete:
+                Index Entry: 2 (Parent index: 0, Depth: 1, Offset: 34037, Size: 316) [Neowin.net]
+                Index Entry: 15 (Parent index: 2, Depth: 2, Offset: 34045, Size: 308) [Max and the Magic Marker for iPad: Review]
+                Index Entry: 16 (Parent index: 3, Depth: 2, Offset: 34361, Size: 760) [OSnews Asks on Interrupts: The Results]
+                Index Entry: 17 (Parent index: 3, Depth: 2, Offset: 35121, Size: 693) [Apple Ditches SAMBA in Favour of Homegrown Replacement]
+                Index Entry: 18 (Parent index: 3, Depth: 2, Offset: 35814, Size: 747) [ITC: Apple's Mobile Products Do Not Violate Nokia Patents]
+            Starts:
+                Index Entry: 3 (Parent index: 0, Depth: 1, Offset: 34353, Size: 6829) [OSNews]
+                Index Entry: 19 (Parent index: 3, Depth: 2, Offset: 36561, Size: 666) [Transparent Monitor Embedded in Window Glass]
+        TBS Type: 011 (3)
+        Outer Index entry: 0
+        Unknown (vwi: always 0?): 0
+        Unknown (vwi: always 0?): 0
+        First section index (fvwi): 1
+        Extra bits (flag: always 0?): 0
+        First article of ending section, relative to its parent's index (fvwi): 13 [14 absolute]
+        Last article of ending section w.r.t. starting section offset (fvwi): 12 [14 absolute]
+        Flags (always 8?): 8
+        Article index at start of record or first article index, relative to parent section (fvwi): 13 [15 absolute]
+        ->Offset from start of record to beginning ofnext starting section in this record: 1585
+        Last article of ending section w.r.t. starting section offset (fvwi): 12 [15 absolute]
+        Flags (always 8?): 8
+        Article index at start of record or first article index, relative to parent section (fvwi): 13 [16 absolute]
+        Number of article nodes in the record (byte): 4
 
 
 Ending record

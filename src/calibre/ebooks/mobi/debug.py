@@ -958,8 +958,11 @@ class TBSIndexing(object): # {{{
                         ai+psi.index))
                 if flags == 1:
                     arg, consumed = decint(byts)
-                    byts = byts[consumed:]
-                    ans.append('EOF (vwi: should be 0): %d'%arg)
+                    if arg == 0:
+                        # EOF of record, otherwise ignore and hope someone else
+                        # will deal with these bytes
+                        byts = byts[consumed:]
+                        ans.append('EOF (vwi: should be 0): %d'%arg)
                 elif flags in (4, 5):
                     num = byts[0]
                     byts = byts[1:]
@@ -992,9 +995,9 @@ class TBSIndexing(object): # {{{
             byts = tbs_type_6(byts, psi=psi,
                     msg=('First article of ending section, relative to its'
                     ' parent\'s index'),
-                    fmsg=('Offset from start of record to beginning of'
-                        ' starting section'))
-            if byts:
+                    fmsg=('->Offset from start of record to beginning of'
+                        ' last starting section'))
+            while True:
                 # We have a transition not just an opening first section
                 psi = self.get_index(psi.index+1)
                 arg, consumed = decint(byts)
@@ -1006,6 +1009,16 @@ class TBSIndexing(object): # {{{
                             psi.index+off))
                 ans.append('Flags (always 8?): %d'%flags)
                 byts = tbs_type_6(byts, psi=psi)
+                if byts:
+                    # Ended with flag 1,and not EOF, which means there's
+                    # another section transition in this record
+                    arg, consumed = decint(byts)
+                    byts = byts[consumed:]
+                    ans.append('->Offset from start of record to beginning of '
+                            'last starting section: %d'%(arg))
+                else:
+                    break
+
             # }}}
 
         elif tbs_type == 7: # {{{
