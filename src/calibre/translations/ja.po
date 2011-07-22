@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-15 17:42+0000\n"
-"PO-Revision-Date: 2011-07-21 03:27+0000\n"
+"PO-Revision-Date: 2011-07-21 10:31+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-21 04:33+0000\n"
+"X-Launchpad-Export-Date: 2011-07-22 04:40+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -17666,19 +17666,19 @@ msgstr "プログラムのスキャンに失敗。無効な入力{0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:32
 msgid " near "
-msgstr ""
+msgstr " : "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:38
 msgid "end of program"
-msgstr ""
+msgstr "プログラムの最後"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:75
 msgid "syntax error - program ends before EOF"
-msgstr ""
+msgstr "シンタックス・エラー：プログラムがEOFの前で終わりました。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:103
 msgid "Unknown identifier "
-msgstr ""
+msgstr "不明な識別子 "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:110
 msgid "unknown function {0}"
@@ -17686,19 +17686,19 @@ msgstr "不明な関数 {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:129
 msgid "missing closing parenthesis"
-msgstr ""
+msgstr "閉じ括弧がありません"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:148
 msgid "expression is not function or constant"
-msgstr ""
+msgstr "表現が関数や定数でありません。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
 msgid "format: type {0} requires an integer value, got {1}"
-msgstr ""
+msgstr "フォーマット: タイプ{0} は整数値を必要としますが、 {1}が見つかりました。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:188
 msgid "format: type {0} requires a decimal (float) value, got {1}"
-msgstr ""
+msgstr "フォーマット: タイプ{0} は数（浮動小数点）を必要としますが、 {1}が見つかりました。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:299
 #, python-format
@@ -17707,53 +17707,57 @@ msgstr "%s: 不明な関数"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:348
 msgid "No such variable "
-msgstr ""
+msgstr "そのような変数はありません。 "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:59
 msgid "No documentation provided"
-msgstr ""
+msgstr "ドキュメントがありません。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:93
 msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"strcmp(x, y, lt, eq, gt) -- x,yを文字列として、大小文字を配慮した比較を行います。x < yの時ltを、x == "
+"yの時eqを、それ以外の時にはgtを返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:109
 msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"cmp(x, y, lt, eq, gt) -- x,y両方を数値に変換した後、比較します。x < yの時ltを、x == "
+"yの時eqを、それ以外の時にはgtを返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:125
 msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
-msgstr ""
+msgstr "strcat(a, b, ...) -- 全ての引数をつなぎ合わせた文字列を返します。いくつ引数を与えても構いません。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:139
 msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
-msgstr ""
+msgstr "add(x, y) -- x + yを返します。x か y が数値で無い場合には例外が発生します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:150
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
-msgstr ""
+msgstr "subtract(x, y) -- x - y を返します。x か y が数値で無い場合には例外が発生します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:161
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
-msgstr ""
+msgstr "multiply(x, y) -- x * y を返します。x か y が数値で無い場合には例外が発生します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:172
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
-msgstr ""
+msgstr "divide(x, y) -- x -/ y を返します。x か y が数値で無い場合には例外が発生します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:184
 msgid ""
@@ -17764,6 +17768,11 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) -- x "
+"をテンプレートとして評価します。評価はそれ自身のコンテキストで行われます。つまり、変数は呼んだ側とテンプレート評価とで共有されません。{ と } "
+"文字は特別な意味があるので、{ の替りに [[ を、} の替りに ]] "
+"文字を使ってください。これらは自動的には変換されません。例：template('[[title_sort]]') はテンプレート "
+"{title_sort} を評価し、その値を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:200
 msgid ""
@@ -17771,12 +17780,15 @@ msgid ""
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
+"eval(template) -- "
+"テンプレートを評価します。書籍の書誌情報ではなく（設定された）ローカル変数が渡されます。これによりテンプレートが、ローカル変数を使って複雑な結果を作り上げ"
+"ることを可能にします。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:214
 msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
-msgstr ""
+msgstr "assign(id, val) -- valをidに設定しvalを返します。idは識別子で表現ではありません。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:225
 msgid ""
@@ -17784,16 +17796,18 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) -- 引数を標準出力へ出力します。Calibreをコマンドラインから立ち上げた時（calibre-debug -"
+"g）以外の場合には、出力はブラックホールへ送られます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:237
 msgid "field(name) -- returns the metadata field named by name"
-msgstr ""
+msgstr "field(name) -- 書誌情報フィールドの名前を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:246
 msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
-msgstr ""
+msgstr "raw_field(name) -- 書誌情報フィールドの名前を何のフォーマットも施すこと無く返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:256
 msgid ""
@@ -17804,6 +17818,10 @@ msgid ""
 "substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
 "'234'."
 msgstr ""
+"substr(str, start, end) -- "
+"str文字列中の、start番目からend番目までの文字列を返します。文字列の最初の文字は0番目の文字です。もしendが不の場合、文字列の右から数える事に"
+"なります。もしendがゼロの場合、最後の文字を指します。例えば、substr('12345', 1, 0) は "
+"'2345'を返し、substr('12345', 1, -1) は '234' を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:270
 msgid ""
@@ -17814,16 +17832,21 @@ msgid ""
 "the value of some other composite field. This is extremely useful when "
 "constructing variable save paths"
 msgstr ""
+"lookup(val, pattern, field, pattern, field, ..., else_field) -- "
+"switchと同様ですが、引数がフィールド(書誌情報)で、テキストではありません。対応するフィールドの値が取り出され使われます。注：合成された列もフィール"
+"ドなので、この関数を合成されたフィールドに使い、他の合成されたフィールドの値を使うことも可能です。これはパスを保存する変数を作成する時に非常に便利です。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:285
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "lookupには2つか、あるいは奇数の数の引数が必要です。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:298
 msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(val, text if not empty, text if empty) -- もしフィールドが空でない場合`text if not "
+"empty` を返します。それ以外の時には`text if empty`を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:311
 msgid ""
@@ -17831,6 +17854,9 @@ msgid ""
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
+"contains(val, pattern, text if match, text if not match) -- "
+"フィールドに正規表現'pattern'が含まれているかをチェックします。\r\n"
+"マッチした場合`text if match`を、それ以外の場合には `text if no match`を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:327
 msgid ""
@@ -18493,7 +18519,7 @@ msgstr ""
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
-msgstr ""
+msgstr "この号をダウンロードする権限がありません。購読期間が過ぎているか、一日あたりのダウンロード数を超えています。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 msgid "You"
@@ -18528,16 +18554,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"
-msgstr ""
+msgstr "メインメニュー"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:303
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:393
 msgid "Sections"
-msgstr ""
+msgstr "セクション"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:390
 msgid "Articles"
-msgstr ""
+msgstr "記事"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:476
 msgid ""

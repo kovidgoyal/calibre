@@ -44,14 +44,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-15 17:42+0000\n"
-"PO-Revision-Date: 2011-07-15 09:12+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
+"PO-Revision-Date: 2011-07-21 20:11+0000\n"
+"Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-16 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-07-22 04:40+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -3539,6 +3539,18 @@ msgid ""
 "some metadata on a file type that does not support it, the metadata will be\n"
 "silently ignored.\n"
 msgstr ""
+"\n"
+"Lees/schrijf metadata van/naar E-boek bestanden.\n"
+"\n"
+"Ondersteunde formaten voor lezen van  metadata: %(read)s\n"
+"\n"
+"Ondersteunde formaten voor schrijven van metadata: %(write)s\n"
+"\n"
+"Verschillende bestandsformaten ondersteunen Different verschillende soorten "
+"van metadata. Als u probeert\n"
+"metadata in te stellen op een bestandstype dat dit type metadata niet "
+"ondersteunt, zal de metadata\n"
+"stilzwijgend worden geneeerd.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:40
 msgid ""
@@ -11542,7 +11554,7 @@ msgstr "Looptijd"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:77
 #, python-format
 msgid "There are %d running jobs:"
-msgstr "Er zijn %d draaiende taken:"
+msgstr "Er zijn %d actieve taken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:88
@@ -11559,12 +11571,12 @@ msgstr "Er zijn %d wachtende taken:"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:246
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:249
 msgid "Cannot kill job"
-msgstr "Taak kan niet worden afgebroken"
+msgstr "Taak kan niet afgebroken worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:244
 msgid "Cannot kill jobs that communicate with the device"
 msgstr ""
-"Taken die met het apparaat communiceren kunnen niet worden afgebroken"
+"Taken die met het apparaat communiceren kunnen niet afgebroken worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:247
 msgid "Job has already run"
@@ -11572,7 +11584,7 @@ msgstr "Taak is al uitgevoerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:250
 msgid "This job cannot be stopped"
-msgstr "Deze taak kan niet worden gestopt"
+msgstr "Deze taak kan niet gestopt worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:287
 msgid "Unavailable"
@@ -11597,8 +11609,8 @@ msgstr " - Taken"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:470
 msgid "Do you really want to stop the selected job?"
 msgid_plural "Do you really want to stop all the selected jobs?"
-msgstr[0] "Wilt u de geslecteerde taak werkelijk stoppen?"
-msgstr[1] "Wilt u all geslecteerde taken werkelijk stoppen?"
+msgstr[0] "Weet u zeker dat u de geselecteerde taak wilt stoppen?"
+msgstr[1] "Weet u zeker dat u de geselecteerde taken wilt stoppen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:478
 msgid "Do you really want to stop all non-device jobs?"
@@ -11606,11 +11618,11 @@ msgstr "Wil je echt alle niet-apparaatgebonden taken stoppen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
-msgstr "Ontkoppel dit apparaat"
+msgstr "Dit apparaat ontkoppelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:69
 msgid "Show books in calibre library"
-msgstr "Geef de boeken in de calibre-bibliotheek weer"
+msgstr "Boeken in de calibre-bibliotheek weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:71
 msgid "Show books in the main memory of the device"
@@ -11618,11 +11630,11 @@ msgstr "Boeken in hoofdgeheugen van het apparaat weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:73
 msgid "Show books in storage card A"
-msgstr "Geef de boeken weer die op geheugenkaart A staan"
+msgstr "Boeken op geheugenkaart A weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:75
 msgid "Show books in storage card B"
-msgstr "Geef de boeken weer die op geheugenkaart B staan"
+msgstr "Boeken op geheugenkaart B weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:89
 msgid "Delete library"
@@ -11646,16 +11658,16 @@ msgid ""
 "etc.<br><br>Words separated by spaces are ANDed"
 msgstr ""
 "<p>Doorzoek de boekenlijst gesorteerd op titel, auteur, uitgever, labels, "
-"commentaar, enz.<br><br>Woorden gescheiden door spaties moeten ALLEN "
-"voorkomen"
+"commentaar, enz.<br><br>Woorden gescheiden door spaties moeten allemaal "
+"voorkomen (AND)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:195
 msgid "&Go!"
-msgstr "&Ga!"
+msgstr "&Gaan!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:201
 msgid "Do Quick Search (you can also press the Enter key)"
-msgstr "Snel zoeken (u kunt ook Enter drukken)"
+msgstr "Snel zoeken (u kunt ook op Enter drukken)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:207
 msgid "Reset Quick Search"
@@ -11687,12 +11699,12 @@ msgstr "Gewijzigd"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1318
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:312
 msgid "The lookup/search name is \"{0}\""
-msgstr "De zoekopdracht is \"{0}\""
+msgstr "De zoekopdracht is ‘{0}’"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:765
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1320
 msgid "This book's UUID is \"{0}\""
-msgstr "De UUID van dit boek is \"{0}\""
+msgstr "De UUID van dit boek is ‘{0}’"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1015
 msgid "In Library"
@@ -11705,7 +11717,7 @@ msgstr "Grootte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1300
 msgid "Marked for deletion"
-msgstr "Gemarkeerd voor wissen"
+msgstr "Geselecteerd om te verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1303
 msgid "Double click to <b>edit</b> me<br><br>"
@@ -11714,12 +11726,12 @@ msgstr "Dubbelklik om me te <b>wijzigen</b><br><br>"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:167
 #, python-format
 msgid "Hide column %s"
-msgstr "Verberg kolom %s"
+msgstr "Kolom %s verbergen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:172
 #, python-format
 msgid "Sort on %s"
-msgstr "Sorteer op %s"
+msgstr "Op %s sorteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:173
 msgid "Ascending"
@@ -11748,7 +11760,7 @@ msgstr "Midden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:210
 msgid "Show column"
-msgstr "Geef kolom weer"
+msgstr "Kolom weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:222
 msgid "Shrink column if it is too wide to fit"
@@ -11756,7 +11768,7 @@ msgstr "Kolom verkleinen indien deze te breed is voor weergave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:225
 msgid "Restore default layout"
-msgstr "Herstel standaardlayout"
+msgstr "Standaardlayout herstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:884
 msgid ""
@@ -11764,7 +11776,7 @@ msgid ""
 "library."
 msgstr ""
 "Direct naar een apparaat slepen wordt niet ondersteund. Voeg het boek eerst "
-"toe aan de calibre-bibliotheek."
+"aan de calibre-bibliotheek toe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:52
 msgid "Configure Viewer"
@@ -11772,7 +11784,7 @@ msgstr "Viewer instellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:53
 msgid "Use white background"
-msgstr "Gebruik witte achtergrond"
+msgstr "Witte achtergrond gebruiken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:54
 msgid "Hyphenate"
@@ -11780,8 +11792,7 @@ msgstr "Afbreken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:55
 msgid "<b>Changes will only take effect after a restart.</b>"
-msgstr ""
-"<b>Veranderingen zullen alleen van kracht worden na een herstart.</b>"
+msgstr "<b>Veranderingen zullen pas na een herstart van kracht worden.</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:70
 msgid " - LRF Viewer"
@@ -11798,7 +11809,7 @@ msgstr "LRF-Viewer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:129
 msgid "Parsing LRF file"
-msgstr "LRF-bestand doorlopen"
+msgstr "LRF-bestand verwerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:130
 msgid "LRF Viewer toolbar"
@@ -11823,7 +11834,7 @@ msgstr "Terug"
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:194
 msgid "Forward"
-msgstr "Verder"
+msgstr "Volgende"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:135
 msgid "Next match"
@@ -11836,7 +11847,7 @@ msgstr "E-boek openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:137
 msgid "Configure"
-msgstr "Configureer"
+msgstr "Configureren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:33
 msgid "Use the library located at the specified path."
@@ -11844,30 +11855,30 @@ msgstr "Gebruik de bibliotheek in de opgegeven locatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:35
 msgid "Start minimized to system tray."
-msgstr "Start geminimaliseerd in het systeemvak"
+msgstr "Geminimaliseerd naar het systeemvak starten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:37
 msgid "Log debugging information to console"
-msgstr "Schrijf debuginformatie naar console"
+msgstr "Debuginformatie naar console schrijven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:39
 msgid "Do not check for updates"
-msgstr "Controleer niet of er nieuwe versies zijn"
+msgstr "Niet op nieuwe versies controleren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:41
 msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
 msgstr ""
-"Negeer aangepaste plug-ins. Nuttig als je een plug-in installeerde die "
-"calibre belet om op te starten"
+"Aangepaste plug-ins negeren. Nuttig als u een plug-in geïnstalleerd hebt "
+"waardoor calibre niet kan starten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:45
 msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
 msgstr ""
-"Sluit, indien aanwezig, een draaiende calibre-instantie af. Bedenk dat "
+"Sluit, indien aanwezig, een actieve calibre-instantie af. Bedenk dat "
 "eventuele draaiende taken zonder melding worden afgebroken. Gebruik deze "
 "optie voorzichtig."
 
@@ -11878,7 +11889,7 @@ msgstr "Calibrebibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:96
 msgid "Choose a location for your calibre e-book library"
-msgstr "Kies een locatie voor uw calibre e-boek bibliotheek"
+msgstr "Kies een locatie voor uw calibre e-book bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:105
 msgid "Failed to create library"
@@ -11887,7 +11898,7 @@ msgstr "Aanmaken van de bibliotheek is mislukt"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:106
 #, python-format
 msgid "Failed to create calibre library at: %r."
-msgstr "Creëren van de bibliotheek is mislukt op: %r."
+msgstr "Aanmaken van de bibliotheek op %r is mislukt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:195
@@ -11896,7 +11907,7 @@ msgstr "Kies een locatie voor uw nieuwe calibre e-boek bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:164
 msgid "Initializing user interface..."
-msgstr "Gebruikersinterface starten..."
+msgstr "Gebruikersinterface starten…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:189
 msgid "Repairing failed"
@@ -11905,8 +11916,8 @@ msgstr "Herstellen mislukt"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:190
 msgid "The database repair failed. Starting with a new empty library."
 msgstr ""
-"Het herstellen van de database is mislukt. Start met een nieuwe, lege "
-"bibliotheek."
+"Het herstellen van de database is mislukt. Zal met een nieuwe, lege "
+"bibliotheek starten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:236
@@ -11916,7 +11927,7 @@ msgstr "Ongeldige database-locatie"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:205
 #, python-format
 msgid "Bad database location %r. calibre will now quit."
-msgstr "Verkeerde database-locatie %r. Calibre wordt nu afgesloten."
+msgstr "Ongeldige database-locatie %r. Calibre wordt nu afgesloten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:217
 msgid "Corrupted database"
@@ -11928,9 +11939,9 @@ msgid ""
 "and repair it automatically? If you say No, a new empty calibre library will "
 "be created."
 msgstr ""
-"Uw calibre-database lijkt te zijn beschadigd. Wil je dat calibre tracht deze "
-"automatisch te herstellen? Indien je nee antwoord, zal er een nieuwe lege "
-"calibre-bibliotheek gemaakt worden."
+"Uw calibre-database lijkt te zijn beschadigd. Wilt u dat calibre tracht deze "
+"automatisch te herstellen? Indien u nee antwoord, zal er een nieuwe, lege, "
+"calibre-bibliotheek aangemaakt worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:224
 msgid ""
@@ -11944,17 +11955,17 @@ msgstr ""
 msgid ""
 "Bad database location %r. Will start with  a new, empty calibre library"
 msgstr ""
-"Slechte database-locatie %r. Zal starten met een nieuwe, lege calibre-"
+"Ongeldige database-locatie %r. Zal starten met een nieuwe, lege, calibre-"
 "bibliotheek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:247
 #, python-format
 msgid "Starting %s: Loading books..."
-msgstr "Bezig met opstarten %s: Laden van boeken..."
+msgstr "Bezig met opstarten %s: Laden van boeken…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:327
 msgid "If you are sure it is not running"
-msgstr "Weet je zeker dat het niet draait?"
+msgstr "Weet u zeker dat het niet draait?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:330
 msgid "may be running in the system tray, in the"
@@ -11962,15 +11973,15 @@ msgstr "kan in het systeemvak draaien, in het"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:332
 msgid "upper right region of the screen."
-msgstr "gebied rechtsboven het scherm."
+msgstr "gebied rechtsboven in het scherm."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:334
 msgid "lower right region of the screen."
-msgstr "gebied rechtsonder het scherm."
+msgstr "gebied rechtsonder in het scherm."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:337
 msgid "try rebooting your computer."
-msgstr "probeer de computer opnieuw op te starten"
+msgstr "probeer de computer opnieuw op te starten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:353
@@ -11991,34 +12002,33 @@ msgid ""
 "Redirect console output to a dialog window (both stdout and stderr). Useful "
 "on windows where GUI apps do not have a output streams."
 msgstr ""
-"Verwijs console-uitvoer naar een dialoogvenster (zowel stdout als stderr). "
-"nuttig onder Windows waar GUI-applicaties geen outputstream hebben."
+"Stuur console-uitvoer naar een dialoogvenster (zowel stdout als stderr). "
+"Nuttig onder Windows waar GUI-applicaties geen outputstream hebben."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:113
 msgid "&Preferences"
-msgstr "Instellingen"
+msgstr "&Voorkeuren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:114
 msgid "&Quit"
-msgstr "Afsluiten"
+msgstr "&Afsluiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:138
 msgid "Unhandled exception"
-msgstr "uitzondering niet opgevangen"
+msgstr "Niet afgehandelde fout"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:266
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:405
 msgid "Permission denied"
-msgstr "Geen toegang"
+msgstr "Toegang geweigerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:267
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:406
 #, python-format
 msgid "Could not open %s. Is it being used by another program?"
-msgstr ""
-"%s kan niet worden geopend. Is het in gebruik door een ander programma?"
+msgstr "Kan %s niet openen. Is het in gebruik door een ander programma?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:136
 msgid ""
@@ -12026,7 +12036,7 @@ msgid ""
 "Exorcist might be sorted as Exorcist, The."
 msgstr ""
 "Geef aan wat de titel is die moet gebruikt worden bij sorteren. Zo kan "
-"bijvoorbeeld 'De Avonden' gesorteerd worden als 'Avonden, de'."
+"bijvoorbeeld ‘De Avonden’ gesorteerd worden als ‘Avonden, de’."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:138
 msgid "Title &sort:"
@@ -12046,7 +12056,7 @@ msgid ""
 "title. No action is required if this is what you want."
 msgstr ""
 " De rode kleur geeft aan dat de huidige sorteertitel niet overeenkomt met de "
-"huidige titel. Als dit is wat je wil kan je het zo laten."
+"huidige titel. Als dit goed is hoeft u niets te doen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:212
 msgid "Authors changed"
@@ -12057,8 +12067,8 @@ msgid ""
 "You have changed the authors for this book. You must save these changes "
 "before you can use Manage authors. Do you want to save these changes?"
 msgstr ""
-"Je hebt de auteur van dit boek veranderd. Je moet de wijzigingen opslaan "
-"voor je auteursbeheer kan gebruiken. Wil je de wijzigingen nu opslaan?"
+"U heeft de auteur van dit boek veranderd. U moet de wijzigingen opslaan "
+"voordat u auteursbeheer kunt gebruiken. Wit u de wijzigingen nu opslaan?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:301
 msgid ""
@@ -12069,7 +12079,7 @@ msgid ""
 msgstr ""
 "Geef aan hoe de auteurs van dit boek gesorteerd moeten worden. Bijvoorbeeld "
 "Charles Dickens moet gesorteerd worden als Dickens, Charles.\n"
-"Als het veld groen gekleurd is, dan komt de tekst overeen met de individuele "
+"Als het veld groen gekleurd is komt de tekst overeen met de individuele "
 "auteurssortering. Als het rood is, dan komen de auteur en deze tekst niet "
 "overeen."
 
@@ -12091,7 +12101,7 @@ msgid ""
 "current author. No action is required if this is what you want."
 msgstr ""
 " De rode kleur geeft aan dat de huidige auteurssortering niet overeenkomt "
-"met de huidige auteur. Als dit is wat je wil kan je het zo laten."
+"met de huidige auteur. Als dit goed is hoeft u niets te doen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:492
 msgid "&Number:"
@@ -12106,23 +12116,23 @@ msgid ""
 msgstr ""
 "Laatst gewijzigd: %s\n"
 "\n"
-"Dubbelklik om te kijken"
+"Dubbelklik om weer te geven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:604
 msgid "Set the cover for the book from the selected format"
-msgstr "Stel de omslag van het boek in vanuit het geselecteerde formaat"
+msgstr "De omslag van het boek vanuit het geselecteerde formaat instellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:612
 msgid "Set metadata for the book from the selected format"
-msgstr "Stel metadata voor het boek in vanuit het geselecteerde formaat"
+msgstr "Metadata voor het boek vanuit het geselecteerde formaat instellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:619
 msgid "Add a format to this book"
-msgstr "Voeg een formaat toe aan dit boek"
+msgstr "Een formaat aan dit boek toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:626
 msgid "Remove the selected format from this book"
-msgstr "Verwijder geselecteerd formaat van dit boek"
+msgstr "Geselecteerd formaat van dit boek verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:692
 msgid "Choose formats for "
@@ -12134,7 +12144,7 @@ msgstr "Geen toestemming"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:725
 msgid "You do not have permission to read the following files:"
-msgstr "Je hebt geen toestemming om de volgende bestanden te lezen:"
+msgstr "U heeft geen toestemming om de volgende bestanden te lezen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:755
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:756
@@ -12143,12 +12153,12 @@ msgstr "Geen formaat geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:768
 msgid "Could not read metadata"
-msgstr "Metadata kunnen niet worden gelezen"
+msgstr "Metadata kan niet gelezen worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:769
 #, python-format
 msgid "Could not read metadata from %s format"
-msgstr "Kon metadata van %s-formaat niet lezen"
+msgstr "Kan metadata van %s-formaat niet lezen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:790
 msgid "&Browse"
@@ -12160,15 +12170,15 @@ msgstr "T&rimmen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:794
 msgid "&Remove"
-msgstr "Ver&wijder"
+msgstr "&Verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:800
 msgid "Download co&ver"
-msgstr "Omslag online &vinden"
+msgstr "Omslag d&ownloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:801
 msgid "&Generate cover"
-msgstr "&Genereer omslag"
+msgstr "Omslag &genereren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:851
 msgid "Not a valid picture"
@@ -12176,11 +12186,11 @@ msgstr "Geen geldige afbeelding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:875
 msgid "Specify title and author"
-msgstr "Geef titel en auteur"
+msgstr "Titel en auteur opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:876
 msgid "You must specify a title and author before generating a cover"
-msgstr "Je moet een titel en auteur opgeven voor je een omslag genereert"
+msgstr "U moet een titel en auteur opgeven voordat u een omslag genereert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:895
 msgid "Invalid cover"
@@ -12212,7 +12222,7 @@ msgid ""
 "You have changed the tags. In order to use the tags editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
-"Je hebt de labels veranderd. Om de labelbeheer te gebruiken moet je deze "
+"U heeft labels veranderd. Om de labelbeheer te gebruiken moet u deze "
 "wijzigingen toepassen of verwerpen. Wijzigingen toepassen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1077
@@ -12233,12 +12243,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1140
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1202
 msgid "This ISBN number is valid"
-msgstr "Dit ISBN-nummer is geldig"
+msgstr "Dit ISBN is geldig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1143
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1205
 msgid "This ISBN number is invalid"
-msgstr "Dit ISBN-nummer is ongeldig"
+msgstr "Dit ISBN is ongeldig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1168
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1190
@@ -12255,11 +12265,11 @@ msgstr "Het ingevoerde ISBN is niet geldig. Probeer opnieuw."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1215
 msgid "&Publisher:"
-msgstr "Uitgever:"
+msgstr "&Uitgever:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1285
 msgid "Clear date"
-msgstr "Wis datum"
+msgstr "Datum wissen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1318
 msgid "Publishe&d:"
@@ -12283,8 +12293,8 @@ msgid ""
 "You can monitor the progress of the download by clicking the rotating "
 "spinner in the bottom right corner."
 msgstr ""
-"Je kan de voortgang van het downloaden bekijken door op het ronddraaiende "
-"wiel te klikken in de rechterbenedenhoek."
+"U kunt de voortgang van het downloaden bekijken door op het ronddraaiende "
+"wiel in de rechterbenedenhoek te klikken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:51
 msgid ""
@@ -12296,11 +12306,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:62
 msgid "Download only &metadata"
-msgstr "Download alleen &metadata"
+msgstr "Alleen &metadata downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:66
 msgid "Download only &covers"
-msgstr "Download alleen omslagen (voor &calibre)"
+msgstr "Alleen &omslagen downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:70
 msgid "&Configure download"
@@ -12308,24 +12318,24 @@ msgstr "Download &configureren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:74
 msgid "Download &both"
-msgstr "Download &beide"
+msgstr "&Beide downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:100
 #, python-format
 msgid "Download metadata for %d books"
-msgstr "Download metadata voor %d boeken"
+msgstr "Metadata voor %d boeken downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:103
 msgid "Metadata download started"
-msgstr "Download van metadata gestart"
+msgstr "Downloaden van metadata gestart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:112
 msgid "(Failed metadata)"
-msgstr "(Metadata mislukt)"
+msgstr "(Mislukte metadata)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:114
 msgid "(Failed cover)"
-msgstr "(Omslag mislukt)"
+msgstr "(Mislukte metadata)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:199
 #, python-format
@@ -12335,7 +12345,7 @@ msgstr "%(num)d van %(tot)d gedownload"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:121
 msgid "Downloaded metadata fields"
-msgstr "Metadatavelden die worden gedownload"
+msgstr "Gedownloade metadata-velden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:828
@@ -12355,7 +12365,7 @@ msgstr "Vorige"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:265
 msgid "Edit Metadata"
-msgstr "Bewerk metadata"
+msgstr "Metadata bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:101
 msgid ""
@@ -12363,8 +12373,9 @@ msgid ""
 "Using this button to create title sort will change title sort from red to "
 "green."
 msgstr ""
-"Leid de sorteertitel automatisch af uit de titel. Gebruik van deze knop\n"
-"om de sorteertitel te maken zal de sorteertitel veranderen van rood in groen."
+"De sorteertitel automatisch van de titel afleiden. Gebruik van deze knop\n"
+"om de sorteertitel aan te maken zal de sorteertitel van rood naar groen "
+"veranderen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:112
 msgid ""
@@ -12373,18 +12384,18 @@ msgid ""
 "red to green.  There is a menu of functions available under this button. "
 "Click and hold on the button to see it."
 msgstr ""
-"Leid de auteurssortering automatisch af uit de schrijver. Gebruik van deze "
-"knop om de auteurssortering te maken zal de auteurssortering veranderen van "
-"rood in groen. Er is een functiemenu beschikbaar onder deze knop. Klik erop "
-"en houd vast om dit menu te zien."
+"De auteurssortering automatisch van de schrijver afleiden. Gebruik van deze "
+"knop om de auteurssortering te maken zal de auteurssortering van rood in "
+"groen veranderen. Er is een functiemenu beschikbaar onder deze knop. Klik "
+"erop en houd vast om dit menu te zien."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:118
 msgid "Set author sort from author"
-msgstr "Leid auteurssortering af van auteur"
+msgstr "Auteurssortering van auteur afleiden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:119
 msgid "Set author from author sort"
-msgstr "Leid auteur af van auteurssortering"
+msgstr "Auteur af van auteurssortering afleiden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:130
 msgid "Swap the author and title"
@@ -12395,8 +12406,8 @@ msgid ""
 "Manage authors. Use to rename authors and correct individual author's sort "
 "values"
 msgstr ""
-"Beheer auteurs. Gebruik dit om auteurs te hernoemen en individuele "
-"auteurssortering waardes te corrigeren"
+"Auteurs beheren. Gebruik dit om auteurs te hernoemen en individuele "
+"auteurssorteringen te corrigeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:143
 msgid "Remove unused series (Series that have no books)"
@@ -12412,11 +12423,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:191
 msgid "&Download metadata"
-msgstr "&Download metadata"
+msgstr "Metadata &downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:202
 msgid "Configure download metadata"
-msgstr "Instellingen metadata download"
+msgstr "Metadata downloaden configureren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:206
 msgid "Change how calibre downloads metadata"
@@ -12425,7 +12436,7 @@ msgstr "Wijze waarop calibre metadata downloadt aanpassen"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:306
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:313
 msgid "Could not read cover"
-msgstr "Kon omslag niet lezen"
+msgstr "Kan omslag niet lezen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:307
 #, python-format
@@ -12446,7 +12457,7 @@ msgstr "Sla veranderingen op en pas de metadata aan van %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:560
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:762
 msgid "Change cover"
-msgstr "Verander omslag"
+msgstr "Omslag wijzigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:617
 msgid "Co&mments"
@@ -12459,7 +12470,7 @@ msgstr "&Metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:662
 msgid "&Cover and formats"
-msgstr "Omslag en formaten &calibre"
+msgstr "&Omslag en formaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:731
 msgid "C&ustom metadata"
@@ -12488,7 +12499,7 @@ msgid ""
 "having a cover will find a cover in the download\n"
 "cover stage, and vice versa."
 msgstr ""
-"De 'heeft omslag'-aanduiding is niet helemaal\n"
+"De ‘heeft omslag’-aanduiding is niet helemaal\n"
 "betrouwbaar. Soms wordt er een omslag gevonden\n"
 "bij het downloaden terwijl er geen is aangeduid\n"
 "of vice versa."
@@ -12499,20 +12510,20 @@ msgstr "Kijk bij"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:403
 msgid "calibre is downloading metadata from: "
-msgstr "Calibre haalt metadata bij: "
+msgstr "calibre haalt metadata op bij: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:425
 msgid "Please wait"
-msgstr "Wachten a.u.b."
+msgstr "Een moment geduld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:454
 msgid "Query: "
-msgstr "Navraag: "
+msgstr "Zoekopdracht: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:473
 msgid "Failed to download metadata. Click Show Details to see details"
 msgstr ""
-"Downloaden metadata mislukt. Klik op \"Toon details\" voor meer informatie"
+"Metadata downloaden mislukt. Klik op ‘Details tonen’ voor meer informatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:482
 msgid ""
@@ -12524,7 +12535,7 @@ msgstr ""
 "Geen boeken gevonden voor de zoekopdracht. Probeer de zoekopdracht <b>minder "
 "specifiek</b> te maken. Gebruik bijvoorbeeld alleen de achternaam van de "
 "auteur of één enkel sleutelwoord uit de titel. Om alle meldingen te zien "
-"klikt u op \"Toon details\"."
+"klikt u op  ‘Details tonen’."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:542
 msgid "Current cover"
@@ -12532,62 +12543,61 @@ msgstr "Huidige omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:545
 msgid "Searching..."
-msgstr "Zoeken..."
+msgstr "Bezig met zoeken…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:691
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
-msgstr "Omslagen voor <b>%s</b> aan het downloaden, even geduld..."
+msgstr "Omslagen voor <b>%s</b> aan het downloaden, even geduld…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:721
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr ""
-"Geen omslagen gedownload. Klik desgewenst op \"Toon details\" voor meer "
-"informatie."
+"Geen omslagen gedownload. Klik op ‘Details tonen’ voor meer informatie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:727
 #, python-format
 msgid "Could not find any covers for <b>%s</b>"
-msgstr "Geen omslagen gevonden voor <b>%s</b>"
+msgstr "Geen omslagen voor <b>%s</b> gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:729
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
 msgstr ""
-"<b>%(num)d</b> Omslagen gevonden voor %(title)s. Kies de gene die u het "
+"<b>%(num)d</b> omslagen voor %(title)s gevonden. Kies de gene die u het "
 "meeste aanstaat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:817
 msgid "Downloading metadata..."
-msgstr "Downloaden metadata..."
+msgstr "Metadata aan het downloaden…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:910
 msgid "Downloading cover..."
-msgstr "Omslag downloaden..."
+msgstr "Omslag aan het downloaden…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:37
 msgid ""
 "Restore settings to default values. You have to click Apply to actually save "
 "the default settings."
 msgstr ""
-"Zet standaardinstellingen terug. Klik 'Toepassen' om deze "
-"standaardinstellingen te bewaren."
+"Standaardinstellingen terugzetten. U moet op ‘Toepassen’ klikken om de "
+"standaardinstellingen daadwerkelijk terug te zetten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:328
 msgid "Configure "
-msgstr "Configureer "
+msgstr "Configureren "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
-msgstr "Negeer dubbels van inkomende formaten"
+msgstr "Negeer dubbele binnenkomende formaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:29
 msgid "Overwrite existing duplicate formats"
-msgstr "Overschrijf al bestaande formaten"
+msgstr "Bestaande dubbele formaten overschrijven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:30
 msgid "Create new record for each duplicate format"
-msgstr "Maak een nieuw record aan voor elk dubbel formaat"
+msgstr "Voor elk dubbel formaat een nieuw record aanmaken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:65
 msgid ""
@@ -12595,26 +12605,27 @@ msgid ""
 "to it. calibre can either read metadata from the contents of the file, or "
 "from the filename."
 msgstr ""
-"Hier kan je instellen hoe calibre metadata zal lezen uit toe te voegen "
-"bestanden. Calibre kan metadata uit het bestand lezen, of samenstellen uit "
-"de bestandsnaam."
+"Hier kunt u instellen hoe calibre metadata uit toegevoegde bestanden zal "
+"lezen. Calibre kan metadata uit het bestand lezen, of uit de bestandsnaam "
+"samenstellen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:66
 msgid "Read &metadata from &file contents rather than file name"
 msgstr ""
-"Lees bij voorkeur &metadata uit bestandsinhoud in plaats van bestandsnaam"
+"Bij voorkeur &metadata uit bestandsinhoud inlezen, in plaats vanuit de "
+"bestandsnaam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:67
 msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
 msgstr ""
-"Verwissel de voornaam en achternaam van de auteur. Dit heeft alleen "
-"betrekking op metadata gelezen uit bestandsnamen."
+"De voor- en achternaam van de auteur omwisselen. Dit heeft alleen betrekking "
+"op metadata die van bestandsnamen afgeleid is."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:68
 msgid "&Swap author firstname and lastname"
-msgstr "Verwi&ssel voor- en achternaam auteur"
+msgstr "Voor- en achternaam auteur omwisselen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:69
 msgid ""
@@ -12632,7 +12643,7 @@ msgstr ""
 "schrijver worden gevonden worden toegevoegde formaten\n"
 "automatisch bij de bestaande boekrecords toegevoegd. Het vak rechts geeft "
 "aan wat gebeurt als de bestaande record\n"
-"het formaat al heeft. Merk op dat dit ook de 'kopieer naar bibliotheek'-"
+"het formaat al heeft. Merk op dat dit ook de ‘Naar bibliotheek kopiëren’-"
 "actie beïnvloedt.\n"
 "\n"
 "Titel vergelijking is niet hoofdletter-gevoelig, negeert (Engelstalige) "
@@ -12640,7 +12651,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:74
 msgid "&Automerge added books if they already exist in the calibre library:"
-msgstr "&Automatisch samenvoegen van reeds in calibre aanwezige boeken:"
+msgstr "Boeken die reeds in calibre aanwezig zijn &automatisch samenvoegen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:75
 msgid ""
@@ -12674,7 +12685,7 @@ msgstr ""
 "nieuwe boekrecord aangemaakt voor elk duplicaat\n"
 "\n"
 "Titelvergelijking negeert (Engelse) lidwoorden, leestekens, grote/kleine "
-"letters enzovoorts. Vergelijking van auteurs is exact."
+"letters enz. Vergelijking van auteurs is exact."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:85
 msgid "&Tags to apply when adding a book:"
@@ -12685,12 +12696,12 @@ msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr ""
-"Een kommagescheiden lijst van labels die toegepast worden op boeken die aan "
-"de bibliotheek worden toegevoegd."
+"Een komma-gescheiden lijst van labels die aan nieuwe boeken toegevoegd "
+"worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:87
 msgid "&Configure metadata from file name"
-msgstr "&Configureer metadata uit bestandsnaam"
+msgstr "Metadata aan de hand van bestandsnaam &configureren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -12713,19 +12724,19 @@ msgstr "Compacte metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:65
 msgid "All on 1 tab"
-msgstr "Alles in 1 venster"
+msgstr "Alles in één tabblad"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:165
 msgid "Done"
-msgstr "Afgerond"
+msgstr "Klaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:166
 msgid "Confirmation dialogs have all been reset"
-msgstr "Bevestigingsmeldingen zijn allemaal hersteld"
+msgstr "Alle bevestigingsmeldingen zijn teruggezet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:147
 msgid "Show notification when &new version is available"
-msgstr "Geef melding als een &nieuwe versie beschikbaar is"
+msgstr "Een melding weergeven als een &nieuwe versie beschikbaar is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:148
 msgid ""
@@ -12733,21 +12744,21 @@ msgid ""
 "If not checked, the values can be Yes or No."
 msgstr ""
 "Indien aangevinkt, kunnen Ja/Nee-kolommen de waarden Ja, Nee en\n"
-"Onbekend aannemen, anders alleen Ja en Nee."
+"Onbekend zijn, anders alleen Ja en Nee."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:150
 msgid "Yes/No columns have three values (Requires restart)"
-msgstr "Ja/nee-kolommen hebben drie waarden (herstart vereist)"
+msgstr "Ja/Nee-kolommen hebben drie waarden (herstart vereist)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:151
 msgid "Automatically send downloaded &news to ebook reader"
-msgstr "Stuur gedownload &nieuws automatisch naar E-reader"
+msgstr "Gedownload &nieuws automatisch naar de e-reader versturen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:152
 msgid "&Delete news from library when it is automatically sent to reader"
 msgstr ""
-"Verwij&der nieuws van bibliotheek zodra het automatisch naar de E-reader is "
-"verstuurd"
+"Het nieuws uit de bibliotheek verwijderen als het automatisch naar de e-"
+"reader verstuurd wordt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:153
 msgid "Preferred &output format:"
@@ -12762,8 +12773,8 @@ msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
 msgstr ""
-"Geef de standaard time-out voor het verkrijgen van informatie van een "
-"informatie van het Internet moeten halen)"
+"Geef de standaard time-out voor het ophalen van informatie van het internet "
+"(dwz elke keer dat informatie van het net gehaald moet worden)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:156
 msgid " seconds"
@@ -12785,20 +12796,20 @@ msgid ""
 msgstr ""
 "Pas deze beperking toe bij opstarten van calibre als de huidige bibliotheek "
 "in gebruik is. Wordt ook gebruikt als naar deze bibliotheek wordt "
-"overgeschakeld. NB deze instelling is per bibliotheek. "
+"overgeschakeld. Let op dat dit per bibliotheek ingesteld moet worden. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:163
 msgid "Edit metadata (single) layout:"
-msgstr "Weergave bewerken metadata (per boek):"
+msgstr "Weergave metadata (per boek) bewerken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:164
 msgid ""
 "Choose a different layout for the Edit Metadata dialog. The compact metadata "
 "layout favors editing custom metadata over changing covers and formats."
 msgstr ""
-"Kies een andere weergave voor het venster 'Bewerk metadata'. De 'compacte "
-"metadata'-weergave is beter voor het aanpassen van eigen metadata maar "
-"minder goed voor het bewerken van omslagen en formaten."
+"Kies een andere weergave voor het venster ‘Metadata bewerken’. De ‘compacte "
+"metadata’-weergave is beter voor het aanpassen van eigen metadata maar "
+"minder geschikt voor het bewerken van omslagen en formaten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:165
 msgid "Preferred &input format order:"
@@ -12806,11 +12817,11 @@ msgstr "Voorkeursvolgorde voor &invoerformaten:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:168
 msgid "Use internal &viewer for:"
-msgstr "Gebruik interne weerga&ve voor:"
+msgstr "Gebruik interne &weergave voor:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:169
 msgid "Reset all disabled &confirmation dialogs"
-msgstr "Herstel alle uitges&chakelde meldingen"
+msgstr "Alle uitges&chakelde meldingen terugzetten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
@@ -12852,11 +12863,11 @@ msgstr "heeft"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:46
 msgid "does not have"
-msgstr "geen heeft"
+msgstr "heeft geen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:47
 msgid "has pattern"
-msgstr "patroon heeft"
+msgstr "heeft patroon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "does not have pattern"
@@ -12897,12 +12908,12 @@ msgid ""
 "Enter either an identifier type or an identifier type and value of the form "
 "identifier:value"
 msgstr ""
-"Voer een identificatie type in of een identificatie type en waarde in de "
+"Voer een identificatie-type in of een identificatie-type en waarde in de "
 "vorm identificator:waarde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:213
 msgid "Enter a number"
-msgstr "Geef een getal"
+msgstr "Vul een getal in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:218
 msgid "Enter a date in the format YYYY-MM-DD"
@@ -12910,17 +12921,16 @@ msgstr "Geef een datum in het formaat JJJJ-MM-DD"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:220
 msgid "Enter a string."
-msgstr "Geef een tekst."
+msgstr "Vul een tekenreeks in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:222
 msgid "Enter a regular expression"
-msgstr "Geef een reguliere expressie"
+msgstr "Vul een regexp in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:224
 #, python-format
 msgid "You can match multiple values by separating them with %s"
-msgstr ""
-"Je kan meerdere waardes laten overeenkomen door ze met %s te scheiden"
+msgstr "U kunt met meerdere waardes zoeken door deze met %s te scheiden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:239
 msgid "Create/edit a column coloring rule"
@@ -12932,15 +12942,15 @@ msgstr "Maak een kleuring-regel door onderstaande velden in te vullen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:258
 msgid "to"
-msgstr "in op"
+msgstr "tot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:266
 msgid "Only if the following conditions are all satisfied:"
-msgstr "Enkel als volgende voorwaarden voldaan is:"
+msgstr "Alleen als aan de volgende voorwaarden is voldaan:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:276
 msgid "Add another condition"
-msgstr "Voeg een voorwaarde toe"
+msgstr "Voeg nog een voorwaarde toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:280
 msgid "You can disable a condition by blanking all of its boxes"
@@ -12962,7 +12972,7 @@ msgstr "Geen voorwaarden"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:359
 msgid "You must specify at least one non-empty condition for this rule"
 msgstr ""
-"Je moet minimaal één niet-lege voorwaarde voor deze regel specificeren"
+"U moet minstens één niet-lege voorwaarde voor deze regel specificeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:447
 #, python-format
@@ -12972,6 +12982,10 @@ msgid ""
 "            <pre>%(rule)s</pre>\n"
 "            "
 msgstr ""
+"\n"
+"            <p>Geavanceerde regel voor kolom <b>%(col)s</b>:\n"
+"            <pre>%(rule)s</pre>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:452
 #, python-format
@@ -12982,6 +12996,11 @@ msgid ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 msgstr ""
+"            <p>Stel de kleur van <b>%(col)s</b> in op <b>%(color)s</b> als "
+"aan de volgende\n"
+"            voorwaarden is voldaan:</p>\n"
+"            <ul>%(rule)s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:467
 #, python-format
@@ -12996,9 +13015,9 @@ msgid ""
 "that tell calibre what color to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
-"U kan de kolom-kleuring beheren in de boekenlijst door \"regels\" te maken "
-"die calibre vertellen welke kleur gebruikt moet worden. Klik de knop Regel "
-"toevoegen hieronder om te starten.<p>U kan <b>een bestaande regel "
+"U kunt de kolom-kleuring beheren in de boekenlijst door ‘regels’ te maken "
+"die calibre vertellen welke kleur gebruikt moet worden. Klik de knop ‘Regel "
+"toevoegen’ hieronder om te starten.<p>U kunt <b>een bestaande regel "
 "wijzigen</b> door er dubbel op te klikken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:491
@@ -13011,15 +13030,15 @@ msgstr "Regel verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:511
 msgid "Move the selected rule up"
-msgstr "Verplaats geselecteerde regel omhoog"
+msgstr "Geselecteerde regel omhoog verplaatsen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:516
 msgid "Move the selected rule down"
-msgstr "Verplaats geselecteerde regel omlaag"
+msgstr "Geselecteerde regel omlaag verplaatsen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:524
 msgid "Add Advanced Rule"
-msgstr "Voeg geavanceerde regel toe"
+msgstr "Geavanceerde regel toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:572
 msgid "No rule selected"
@@ -13028,7 +13047,7 @@ msgstr "Geen regel geselecteerd"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:573
 #, python-format
 msgid "No rule selected for %s."
-msgstr "Geen regel geselecteerd voor %s."
+msgstr "Geen regel voor %s geselecteerd."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:578
 msgid "removal"
@@ -13040,12 +13059,12 @@ msgstr "U moet een kolom selecteren om deze te verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:101
 msgid "The selected column is not a custom column"
-msgstr "De geselecteerde kolom is geen persoonlijk gedefinieerde kolom"
+msgstr "De geselecteerde kolom is geen zelf-gedefinieerde kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns.py:103
 #, python-format
 msgid "Do you really want to delete column %s and all its data?"
-msgstr "Wilt u kolom %s en al zijn gegevens echt verwijderen?"
+msgstr "Wilt u kolom %s en alle gegevens daarin echt verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:82
@@ -13054,44 +13073,44 @@ msgid ""
 "book list. You can hide columns by unchecking them. You can also create your "
 "own, custom columns."
 msgstr ""
-"Hier kan u de opmaak van de kolommen in de boekenlijst van calibre wijzigen. "
-"U kunt kolommen verbergen door het vinkje uit te zetten. U kunt ook zelf "
+"Hier kunt u de opmaak van de kolommen in de boekenlijst van calibre "
+"wijzigen. U kunt kolommen verbergen door ze uit te vinken. U kunt ook zelf "
 "kolommen maken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:88
 msgid "Move column up"
-msgstr "Plaats kolom hoger"
+msgstr "Kolom omhoog verplaatsen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
 msgid "Remove a user-defined column"
-msgstr "Verwijder een persoonlijk gedefinieerde kolom"
+msgstr "Een zelf-gedefinieerde kolom verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:86
 msgid "Add a user-defined column"
-msgstr "Voeg een persoonlijk gedefinieerde kolom toe"
+msgstr "Voeg een zelf-gedefinieerde kolom toe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:88
 msgid "Edit settings of a user-defined column"
-msgstr "Bewerk een persoonlijk gedefinieerde kolom"
+msgstr "De instellingen van een zelf-gedefinieerde kolom wijzigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:96
 msgid "Move column down"
-msgstr "Plaats kolom lager"
+msgstr "Kolom omlaag verplaatsen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91
 msgid "Add &custom column"
-msgstr "Persoonlijke &calibre-kolom maken"
+msgstr "&Zelf-gedefinieerde kolom aanmaken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion.py:41
 msgid ""
 "Restore settings to default values. Only settings for the currently selected "
 "section are restored."
 msgstr ""
-"Zet standaardinstellingen terug. Alleen de instellingen voor de huidige "
+"Standaardinstellingen terugzetten. Alleen de instellingen voor de huidige "
 "selectie worden teruggezet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:21
@@ -13109,15 +13128,15 @@ msgstr "Lange tekst, zoals commentaar, niet weergegeven in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:30
 msgid "Text column for keeping series-like information"
-msgstr "Tekstkolom voor het bewaren van informatie als reeksen"
+msgstr "Tekstkolom voor het bewaren van informatie over reeksen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 msgid "Text, but with a fixed set of permitted values"
-msgstr "Tekst, maar met een lijst van toegestane waarden"
+msgstr "Tekst, maar met een vast aantal toegestane waarden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:37
 msgid "Floating point numbers"
-msgstr "Decimale getallen"
+msgstr "Kommagetallen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:39
 msgid "Integers"
@@ -13149,7 +13168,7 @@ msgstr "Maak een persoonlijke kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:67
 msgid "Quick create:"
-msgstr "Maak snel:"
+msgstr "Snel aanmaken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:175
@@ -13190,7 +13209,7 @@ msgstr "Er is geen kolom geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:101
 msgid "Selected column is not a user-defined column"
-msgstr "Geselecteerde kolom is geen gebruiker gedefinieerde kolom"
+msgstr "Geselecteerde kolom is geen zelf-gedefinieerde kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:148
 msgid ""
@@ -13205,6 +13224,16 @@ msgid ""
 "book&lt;/a&gt;</pre> will generate a link to the book on the Beam ebooks "
 "site."
 msgstr ""
+"Als dit is ingesteld zal deze kolom als HTML in boekdetails en de content "
+"server weergegeven worden. Dit kan gebruikt worden om links met de template "
+"language op te zetten. De template "
+"<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;{series:| "
+"[|}{series_index:| [|]]}</pre> creëert bijvoorbeeld een veld waarin dit "
+"titel vetgedrukt wordt weergegeven, met daarbij de reeks, bijvoorbeeld "
+"<br>\"<big><b>An Oblique Approach</b></big> [Belisarius [1]]\". De template "
+"<pre>&lt;a href=\"http://www.beam-"
+"ebooks.de/ebook/{identifiers:select(beam)}\"&gt;Beam book&lt;/a&gt;</pre> "
+"zal een link naar het boek op de Beam-ebooksite aanmaken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:177
 msgid "My Tags"
@@ -13230,7 +13259,7 @@ msgid ""
 msgstr ""
 "Voorbeelden: Het formaat <code>{0:0>4d}</code> geeft een 4-cijferig nummer "
 "met voorloopnullen. Het formaat <code>{0:d}&nbsp;dagen</code> geeft het "
-"nummer weer gevolgd door het woord \"dagen\""
+"nummer weer gevolgd door het woord ‘dagen’"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:212
 msgid ""
@@ -13240,15 +13269,15 @@ msgid ""
 "displays the number with 2 digits after the decimal point and thousands "
 "separated by commas."
 msgstr ""
-"Voorbeelden: Het formaat <code>{0:.1f}</code> geeft een  nummer met "
-"\"drijvende punt\" met 1 getal achterf de komma. Het formaat "
-"<code>Priijs:&nbsp;$&nbsp;{0:,.2f}</code> drukt \"Prijs&nbsp;$&nbsp;\" af "
+"Voorbeelden: Het formaat <code>{0:.1f}</code> geeft een  kommagetal met één "
+"cijfer achter de komma. Het formaat "
+"<code>Priijs:&nbsp;$&nbsp;{0:,.2f}</code> drukt ‘Prijs&nbsp;$&nbsp;’ af "
 "gevolgd door het nummer met 2 getallen achter de punt en duizendtallen "
 "gescheiden door komma's."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:221
 msgid "No lookup name was provided"
-msgstr "Er was geen opzoeknaam gegeven"
+msgstr "Er is geen opzoeknaam opgegeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:225
 msgid ""
@@ -13256,52 +13285,52 @@ msgid ""
 "underscores, and start with a letter"
 msgstr ""
 "De zoekterm mag slechts kleine letters, cijfers en lage streepjes bevatten "
-"en moet beginnen met een letter"
+"en moet met een letter beginnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:228
 msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
 msgstr ""
-"Opzoeknamen kunnen niet eindigen met _index, omdat deze namen gereserveerd "
+"Opzoeknamen kunnen niet op  _index eindigen, omdat deze namen gereserveerd "
 "zijn voor de index van een reekskolom."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:238
 msgid "No column heading was provided"
-msgstr "Er was geen koptekst voor de kolom gegeven"
+msgstr "Er is geen koptekst voor de kolom opgegeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:248
 #, python-format
 msgid "The lookup name %s is already used"
-msgstr "De opzoeknaam %s is al in gebruik"
+msgstr "De opzoeknaam %s bestaat al"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:260
 #, python-format
 msgid "The heading %s is already used"
-msgstr "De koptekst %s is al in gebruik"
+msgstr "De koptekst %s bestaat al"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:271
 msgid "You must enter a template for composite columns"
-msgstr "U moet een sjabloon opgeven voor samengestelde kolommen"
+msgstr "U moet een sjabloon voor samengestelde kolommen opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:281
 msgid "You must enter at least one value for enumeration columns"
-msgstr "U moet minstens één waarde opgeven voor opsommende kolommen"
+msgstr "U moet minstens één waarde voor opsommende kolommen opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:285
 msgid "You cannot provide the empty value, as it is included by default"
-msgstr "De lege waarde kan je niet opgeven, want die mag altijd"
+msgstr "U mag geen lege waarde opgeven, omdat deze standaard al bestaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:289
 msgid "The value \"{0}\" is in the list more than once"
-msgstr "Waarde \"{0}\" staat meer dan een keer in de lijst"
+msgstr "Waarde ‘{0}’ staat meer dan één keer in de lijst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:297
 msgid ""
 "The colors box must be empty or contain the same number of items as the "
 "value box"
 msgstr ""
-"Het veld 'kleuren' moet leeg zijn of evenveel items bevatten als het "
+"Het veld ‘kleuren’ moet leeg zijn of evenveel items bevatten als het "
 "waardeveld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:302
@@ -13310,11 +13339,11 @@ msgstr "De kleur {0} is onbekend"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:220
 msgid "&Lookup name"
-msgstr "Te raadp&legen naam"
+msgstr "Op&zoeknaam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:221
 msgid "Column &heading"
-msgstr "Koptekst (&hoofd) kolom"
+msgstr "&Koptekst van kolom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:222
 msgid ""
@@ -13328,11 +13357,11 @@ msgstr ""
 msgid ""
 "Column heading in the library view and category name in the tag browser"
 msgstr ""
-"Kolomkop in de bibliotheek weergave en categorienaam in de labelbrowser"
+"Kolomkop in de bibliotheekweergave en categorienaam in de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:224
 msgid "&Column type"
-msgstr "Soort bes&chikbare informatie in kolom"
+msgstr "&Kolomtype"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:225
 msgid "What kind of information will be kept in the column."
