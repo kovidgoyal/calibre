@@ -1,7 +1,7 @@
 Reverse engineering the trailing byte sequences for hierarchical periodicals
 ===============================================================================
 
-In the following, *vwi* means variable width integer and *fvwi* means a vwi whose lowest four bits are used as a flag.
+In the following, *vwi* means variable width integer and *fvwi* means a vwi whose lowest four bits are used as a flag. All the following information/inferences are from examining the output of kindlegen on a sample periodical. Given the general level of Amazon's incompetence, there are no guarantees that this information is the *best/most complete* way to do TBS indexing.
 
 Opening record
 ----------------
@@ -140,8 +140,6 @@ Records with a section transition
 
 In such a record there is a transition from one section to the next. As such the record must have at least one article ending and one article starting, except in the case of the first section.
 
-TODO: Note you have to test the cases of first section, a single transition and multiple transitions.
-
     1. The first section::
 
         Record #2: Starts at: 4096 Ends at: 8191
@@ -161,6 +159,64 @@ TODO: Note you have to test the cases of first section, a single transition and 
         Flags: 0
 
     If there was more than one article at the start then the last byte would be replaced by: c4 n where n is the number of articles
+
+    2. A record with a section transition and only one article from the ending section::
+
+        Record #9: Starts at: 32768 Ends at: 36863
+            Contains: 6 index entries (2 ends, 2 complete, 2 starts)
+        TBS bytes: 83 80 80 90 1 d0 1 c8 1 d4 3
+            Ends:
+                Index Entry: 1 (Parent index: 0, Depth: 1, Offset: 7758, Size: 26279) [Ars Technica]
+                Index Entry: 14 (Parent index: 1, Depth: 2, Offset: 31929, Size: 2108) [Trademarked keyword sales may soon be restricted in Europe]
+            Complete:
+                Index Entry: 15 (Parent index: 2, Depth: 2, Offset: 34045, Size: 1014) [Max and the Magic Marker for iPad: Review]
+                Index Entry: 16 (Parent index: 2, Depth: 2, Offset: 35059, Size: 1077) [iPad 2 steers itself into home console gaming territory with Real Racing 2 HD]
+            Starts:
+                Index Entry: 2 (Parent index: 0, Depth: 1, Offset: 34037, Size: 10368) [Neowin.net]
+                Index Entry: 17 (Parent index: 2, Depth: 2, Offset: 36136, Size: 1082) [Microsoft's Joe Belfiore still working on upcoming Zune hardware]
+        TBS Type: 011 (3)
+        Outer Index entry: 0
+        Unknown (vwi: always 0?): 0
+        Unknown (vwi: always 0?): 0
+        First section index (fvwi): 1
+        Extra bits (flag: always 0?): 0
+        First article of ending section, relative to its parent's index (fvwi): 13 [14 absolute]
+        Last article of ending section w.r.t. starting section offset (fvwi): 12 [14 absolute]
+        Flags (always 8?): 8
+        Article index at start of record or first article index, relative to parent section (fvwi): 13 [15 absolute]
+        Number of article nodes in the record (byte): 3
+
+    3. A record with a section transition and more than one article from the ending section::
+
+        Record #11: Starts at: 40960 Ends at: 45055
+            Contains: 7 index entries (2 ends, 3 complete, 2 starts)
+        TBS bytes: 83 80 80 a0 2 b5 4 1a f5 2 d8 2 e0
+            Ends:
+                Index Entry: 2 (Parent index: 0, Depth: 1, Offset: 34037, Size: 10368) [Neowin.net]
+                Index Entry: 21 (Parent index: 2, Depth: 2, Offset: 40251, Size: 1057) [Windows Phone 7: Why it's failing]
+            Complete:
+                Index Entry: 22 (Parent index: 2, Depth: 2, Offset: 41308, Size: 1050) [RIM announces Android app support for Blackberry Playbook]
+                Index Entry: 23 (Parent index: 2, Depth: 2, Offset: 42358, Size: 1087) [Microsoft buys $7.5m worth of IPv4 addresses]
+                Index Entry: 24 (Parent index: 2, Depth: 2, Offset: 43445, Size: 960) [TechSpot: Apple iPad 2 Review]
+            Starts:
+                Index Entry: 3 (Parent index: 0, Depth: 1, Offset: 44405, Size: 6829) [OSNews]
+                Index Entry: 25 (Parent index: 3, Depth: 2, Offset: 44413, Size: 760) [OSnews Asks on Interrupts: The Results]
+        TBS Type: 011 (3)
+        Outer Index entry: 0
+        Unknown (vwi: always 0?): 0
+        Unknown (vwi: always 0?): 0
+        First section index (fvwi): 2
+        Extra bits (flag: always 0?): 0
+        First article of ending section, relative to its parent's index (fvwi): 19 [21 absolute]
+        Number of article nodes in the record (byte): 4
+        Offset from start of record to beginning of starting section (vwi)): 3445
+        Last article of ending section w.r.t. starting section offset (fvwi): 21 [24 absolute]
+        Flags (always 8?): 8
+        Article index at start of record or first article index, relative to parent section (fvwi): 22 [25 absolute]
+
+    The difference to the previous case is the extra two bytes that encode the offset of the opening section from the start of the record.
+
+    4. TODO: A record with multiple transitions
 
 
 Ending record

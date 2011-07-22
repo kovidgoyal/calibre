@@ -941,7 +941,7 @@ class TBSIndexing(object): # {{{
     def interpret_periodical(self, tbs_type, byts):
         ans = []
 
-        def tbs_type_6(byts, psi=None, msg=None): # {{{
+        def tbs_type_6(byts, psi=None, msg=None, fmsg='Unknown'): # {{{
             if psi is None:
                 # Assume parent section is 1
                 psi = self.get_index(1)
@@ -967,7 +967,7 @@ class TBSIndexing(object): # {{{
                     if flags == 5:
                         arg, consumed = decint(byts)
                         byts = byts[consumed:]
-                        ans.append('Unknown ??? (vwi)): %d'%(arg))
+                        ans.append('%s (vwi)): %d'%(fmsg, arg))
                 elif flags == 0:
                     pass
                 else:
@@ -991,7 +991,9 @@ class TBSIndexing(object): # {{{
 
             byts = tbs_type_6(byts, psi=psi,
                     msg=('First article of ending section, relative to its'
-                    ' parent\'s index'))
+                    ' parent\'s index'),
+                    fmsg=('Offset from start of record to beginning of'
+                        ' starting section'))
             if byts:
                 # We have a transition not just an opening first section
                 psi = self.get_index(psi.index+1)
