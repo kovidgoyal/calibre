@@ -1266,7 +1266,7 @@ class StoreEKnigiStore(StoreBase):
 
     headquarters = 'BG'
     formats = ['EPUB', 'PDF', 'HTML']
-    affiliate = True
+    #affiliate = True
 
 class StoreEpubBudStore(StoreBase):
     name = 'ePub Bud'

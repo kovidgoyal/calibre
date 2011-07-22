@@ -23,8 +23,10 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class eKnigiStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://e-knigi.net/?amigosid=22'
-        aff_suffix = '&amigosid=22'
+        #url = 'http://e-knigi.net/?amigosid=22'
+        #aff_suffix = '&amigosid=22'
+        url = 'http://e-knigi.net'
+        aff_suffix = ''
 
         if external or self.config.get('open_external', False):
             if detail_item:
