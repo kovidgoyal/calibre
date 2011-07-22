@@ -138,9 +138,9 @@ Such records have no section transitions (i.e. a section end/section start pair)
 Records with a section transition
 -----------------------------------
 
-In such a record there is a transition from one section to the next. As such the record must have at least one article ending and one article starting.
+In such a record there is a transition from one section to the next. As such the record must have at least one article ending and one article starting, except in the case of the first section.
 
-TODO: Note you have to test the case of a single transition and multiple transitions
+TODO: Note you have to test the cases of first section, a single transition and multiple transitions.
 
 Ending record
 ----------------
