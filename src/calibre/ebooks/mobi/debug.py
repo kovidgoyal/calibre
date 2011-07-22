@@ -653,11 +653,28 @@ class IndexEntry(object): # {{{
                 return tag.value
         return -1
 
+    @property
+    def first_child_index(self):
+        for tag in self.tags:
+            if tag.attr == 'first_child_index':
+                return tag.value
+        return -1
+
+    @property
+    def last_child_index(self):
+        for tag in self.tags:
+            if tag.attr == 'last_child_index':
+                return tag.value
+        return -1
+
     def __str__(self):
         ans = ['Index Entry(index=%s, entry_type=%s, length=%d)'%(
             self.index, self.entry_type, len(self.tags))]
         for tag in self.tags:
             ans.append('\t'+str(tag))
+        if self.first_child_index != -1:
+            ans.append('\tNumber of children: %d'%(self.last_child_index -
+                self.first_child_index + 1))
         return '\n'.join(ans)
 
 # }}}
@@ -832,8 +849,10 @@ class BinaryRecord(object): # {{{
 
 class TBSIndexing(object): # {{{
 
-    def __init__(self, text_records, indices):
+    def __init__(self, text_records, indices, doc_type):
         self.record_indices = OrderedDict()
+        self.doc_type = doc_type
+        self.indices = indices
         pos = 0
         for r in text_records:
             start = pos
@@ -855,6 +874,11 @@ class TBSIndexing(object): # {{{
                     rec = 'ends'
                 if rec:
                     x[rec].append(entry)
+
+    def get_index(self, idx):
+        for i in self.indices:
+            if i.index == idx: return i
+        raise IndexError('Index %d not found'%idx)
 
     def __str__(self):
         ans = ['*'*20 + ' TBS Indexing (%d records) '%len(self.record_indices)+ '*'*20]
@@ -896,20 +920,178 @@ class TBSIndexing(object): # {{{
 
         tbs_type = 0
         if len(byts):
-            outer, consumed = decint(bytes(byts))
+            outer, consumed = decint(byts)
             byts = byts[consumed:]
             tbs_type = outer & 0b111
             ans.append('TBS Type: %s (%d)'%(bin3(tbs_type), tbs_type))
             ans.append('Outer Index entry: %d'%(outer >> 3))
-            arg1, consumed = decint(bytes(byts))
+            arg1, consumed = decint(byts)
             byts = byts[consumed:]
             ans.append('Unknown: %d'%arg1)
+            if self.doc_type in (257, 259): # Hierarchical periodical
+                byts, a = self.interpret_periodical(tbs_type, byts)
+                ans += a
             if byts:
                 sbyts = tuple(hex(b)[2:] for b in byts)
                 ans.append('Remaining bytes: %s'%' '.join(sbyts))
 
         ans.append('')
         return tbs_type, ans
+
+    def interpret_periodical(self, tbs_type, byts):
+        ans = []
+        if tbs_type == 3: # {{{
+            if byts:
+                arg2, consumed = decint(byts)
+                byts = byts[consumed:]
+                ans.append('Unknown: %d'%arg2)
+            if byts:
+                arg3, consumed = decint(byts)
+                byts = byts[consumed:]
+                fsi = arg3 >> 4
+                extra = arg3 & 0b1111
+                ans.append('First section index: %d'%fsi)
+                psi = self.get_index(fsi)
+                ans.append('Extra bits: %d'%extra)
+            if byts:
+                if byts[0] == fsi:
+                    ssi = psi.index+1
+                    ans.append('First section ends')
+                    byts = byts[1:]
+                    arg, consumed = decint(byts)
+                    raw = byts[:consumed]
+                    byts = byts[consumed:]
+                    flags = arg & 0b1111
+                    ans.append('Unknown (art index at start of record?):'
+                            ' %d %r'%((arg>>4), raw))
+                    ans.append('Flags: %d'%flags)
+                    num = 1
+                    if flags >= 4:
+                        num = byts[0]
+                        byts = byts[1:]
+                    ans.append('Number of articles in closing section: %d'%num)
+                    if flags == 5:
+                        arg, consumed = decint(byts)
+                        ans.append('Unknown: %r'%bytes(byts[:consumed]))
+                        byts = byts[consumed:]
+                    arg, consumed = decint(byts)
+                    byts = byts[consumed:]
+                    off = arg >> 4
+                    ans.append('Last article of ending section w.r.t. starting'
+                            ' section offset: %d [%d absolute]'%(off,
+                                ssi+off))
+                    ans.append('Extra bits: %d'%(arg & 0b1111))
+                    arg, consumed = decint(byts)
+                    byts = byts[consumed:]
+                    off = arg >> 4
+                    flag = arg & 0b1111
+                    ans.append('Offset to first article of starting section: %d'
+                            ' [%d absolute]'%(off, ssi+off))
+                    ans.append('Flags: %d'%flag)
+                    num = 1
+                    if flag == 4:
+                        num = byts[0]
+                        byts = byts[1:]
+                    ans.append('Number of articles in starting section: %d'%num)
+                else:
+                    ans.append('First section starts')
+                    off, consumed = decint(byts)
+                    flags = off & 0b1111
+                    off = off >> 4
+                    byts = byts[consumed:]
+                    ans.append('Article at start of block as offset from '
+                            'parent index: %d [%d absolute]'%(off, psi.index+off))
+                    ans.append('Flags: %d'%flags)
+                    if flags == 4:
+                        ans.append('Number of articles: %d'%byts[0])
+                        byts = byts[1:]
+            # }}}
+
+        elif tbs_type == 7: # {{{
+            # This occurs for records that have no section nodes and
+            # whose parent section's index == 1
+            ans.append('Unknown: %r'%bytes(byts[:2]))
+            byts = byts[2:]
+            arg, consumed = decint(byts)
+            byts = byts[consumed:]
+            ai = arg >> 4
+            flags = arg & 0b1111
+            num = 1
+            if flags == 4:
+                if not byts:
+                    raise ValueError('Type 7 TBS entry missing article count')
+                num = byts[0]
+                byts = byts[1:]
+            ans.append('Article at start of record: %d'%ai)
+            ans.append('Number of articles in record: %d'%num)
+        # }}}
+
+        elif tbs_type == 2: # {{{
+            # This occurs for records with no section nodes and whose parent
+            # section's index != 1 (undefined (records before the first
+            # section) or > 1)
+            # This is also used for records that are spanned by an article
+            # whose parent section index > 1. In this case the flags of the
+            # vwi referring to the article at the start
+            # of the record are set to 1 instead of 4.
+            if byts:
+                arg, consumed = decint(byts)
+                byts = byts[consumed:]
+                flags = (arg & 0b1111)
+                psi = (arg >> 4)
+                ans.append('Parent section index: %d'%psi)
+                psi = self.get_index(psi)
+                ans.append('Flags: %d'%flags)
+                if flags == 1:
+                    arg, consumed = decint(byts)
+                    byts = byts[consumed:]
+                    ans.append('Unknown: %d'%arg)
+                elif flags == 0:
+                    arg, consumed = decint(byts)
+                    byts = byts[consumed:]
+                    flags = arg & 0b1111
+                    off = arg >> 4
+                    ans.append('Article at start of block as offset from '
+                            'parent index: %d [%d absolute]'%(off, psi.index+off))
+                    if flags == 4:
+                        num = byts[0]
+                        byts = byts[1:]
+                        ans.append('Number of nodes: %d'%num)
+                    elif flags == 1:
+                        num = byts[0]
+                        byts = byts[1:]
+                        ans.append('EOF: %s'%hex(num))
+                else:
+                    raise ValueError('Unknown flag value: %d'%flags)
+        # }}}
+
+        elif tbs_type == 6: # {{{
+            # This is used for records spanned by an article whose parent
+            # section's index == 1 or for the opening record if it contains the
+            # periodical start, section 1 start and atleast one article. The
+            # two cases are distinguidshed by the flags on the article index
+            # vwi.
+            unk = byts[0]
+            byts = byts[1:]
+            ans.append('Unknown (always 2?): %d'%unk)
+            arg, consumed = decint(byts)
+            byts = byts[consumed:]
+            flags = (arg & 0b1111)
+            ai = (arg >> 4)
+            ans.append(('Article index at start of record or first article'
+                ' index, relative to section 1: %d [%d absolute]'%(ai, ai+1)))
+            if flags == 1:
+                arg, consumed = decint(byts)
+                byts = byts[consumed:]
+                ans.append('EOF (should be 0): %d'%arg)
+            elif flags == 4:
+                num = byts[0]
+                byts = byts[1:]
+                ans.append('Number of article nodes in the record: %d'%num)
+
+        # }}}
+
+        return byts, ans
 
 # }}}
 
@@ -996,7 +1178,7 @@ class MOBIFile(object): # {{{
 
         if self.index_record is not None:
             self.tbs_indexing = TBSIndexing(self.text_records,
-                    self.index_record.indices)
+                    self.index_record.indices, self.mobi_header.type_raw)
 
     def print_header(self, f=sys.stdout):
         print (str(self.palmdb).encode('utf-8'), file=f)
