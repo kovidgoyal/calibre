@@ -142,6 +142,27 @@ In such a record there is a transition from one section to the next. As such the
 
 TODO: Note you have to test the cases of first section, a single transition and multiple transitions.
 
+    1. The first section::
+
+        Record #2: Starts at: 4096 Ends at: 8191
+            Contains: 2 index entries (0 ends, 0 complete, 2 starts)
+        TBS bytes: 83 80 80 90 c0
+            Starts:
+                Index Entry: 1 (Parent index: 0, Depth: 1, Offset: 7758, Size: 26279) [Ars Technica]
+                Index Entry: 5 (Parent index: 1, Depth: 2, Offset: 7766, Size: 1866) [Week in gaming: 3DS review, Crysis 2, George Hotz]
+        TBS Type: 011 (3)
+        Outer Index entry: 0
+        Unknown (vwi: always 0?): 0
+        Unknown (vwi: always 0?): 0
+        First section index (fvwi) : 1
+        Extra bits: 0
+        First section starts
+        Article at start of block as offset from parent index (fvwi): 4 [5 absolute]
+        Flags: 0
+
+    If there was more than one article at the start then the last byte would be replaced by: c4 n where n is the number of articles
+
+
 Ending record
 ----------------
 

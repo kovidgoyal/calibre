@@ -941,27 +941,33 @@ class TBSIndexing(object): # {{{
     def interpret_periodical(self, tbs_type, byts):
         ans = []
 
-        def tbs_type_6(byts, psi=None): # {{{
+        def tbs_type_6(byts, psi=None, msg=None): # {{{
             if psi is None:
                 # Assume parent section is 1
                 psi = self.get_index(1)
+            if msg is None:
+                msg = ('Article index at start of record or first article'
+                    ' index, relative to parent section')
             if byts:
                 # byts could be empty
                 arg, consumed = decint(byts)
                 byts = byts[consumed:]
                 flags = (arg & 0b1111)
                 ai = (arg >> 4)
-                ans.append(('Article index at start of record or first article'
-                    ' index, relative to parent section (fvwi): %d [%d absolute]'%(ai,
-                        ai+psi.index)))
+                ans.append('%s (fvwi): %d [%d absolute]'%(msg, ai,
+                        ai+psi.index))
                 if flags == 1:
                     arg, consumed = decint(byts)
                     byts = byts[consumed:]
                     ans.append('EOF (vwi: should be 0): %d'%arg)
-                elif flags == 4:
+                elif flags in (4, 5):
                     num = byts[0]
                     byts = byts[1:]
                     ans.append('Number of article nodes in the record (byte): %d'%num)
+                    if flags == 5:
+                        arg, consumed = decint(byts)
+                        byts = byts[consumed:]
+                        ans.append('Unknown ??? (vwi)): %d'%(arg))
                 elif flags == 0:
                     pass
                 else:
@@ -971,70 +977,33 @@ class TBSIndexing(object): # {{{
         # }}}
 
         if tbs_type == 3: # {{{
+            arg2, consumed = decint(byts)
+            byts = byts[consumed:]
+            ans.append('Unknown (vwi: always 0?): %d'%arg2)
+
+            arg3, consumed = decint(byts)
+            byts = byts[consumed:]
+            fsi = arg3 >> 4
+            extra = arg3 & 0b1111
+            ans.append('First section index (fvwi): %d'%fsi)
+            psi = self.get_index(fsi)
+            ans.append('Extra bits (flag: always 0?): %d'%extra)
+
+            byts = tbs_type_6(byts, psi=psi,
+                    msg=('First article of ending section, relative to its'
+                    ' parent\'s index'))
             if byts:
-                arg2, consumed = decint(byts)
+                # We have a transition not just an opening first section
+                psi = self.get_index(psi.index+1)
+                arg, consumed = decint(byts)
+                off = arg >> 4
                 byts = byts[consumed:]
-                ans.append('Unknown: %d'%arg2)
-            if byts:
-                arg3, consumed = decint(byts)
-                byts = byts[consumed:]
-                fsi = arg3 >> 4
-                extra = arg3 & 0b1111
-                ans.append('First section index: %d'%fsi)
-                psi = self.get_index(fsi)
-                ans.append('Extra bits: %d'%extra)
-            if byts:
-                if byts[0] == fsi:
-                    ssi = psi.index+1
-                    ans.append('First section ends')
-                    byts = byts[1:]
-                    arg, consumed = decint(byts)
-                    raw = byts[:consumed]
-                    byts = byts[consumed:]
-                    flags = arg & 0b1111
-                    ans.append('Unknown (art index at start of record?):'
-                            ' %d %r'%((arg>>4), raw))
-                    ans.append('Flags: %d'%flags)
-                    num = 1
-                    if flags >= 4:
-                        num = byts[0]
-                        byts = byts[1:]
-                    ans.append('Number of articles in closing section: %d'%num)
-                    if flags == 5:
-                        arg, consumed = decint(byts)
-                        ans.append('Unknown: %r'%bytes(byts[:consumed]))
-                        byts = byts[consumed:]
-                    arg, consumed = decint(byts)
-                    byts = byts[consumed:]
-                    off = arg >> 4
-                    ans.append('Last article of ending section w.r.t. starting'
-                            ' section offset: %d [%d absolute]'%(off,
-                                ssi+off))
-                    ans.append('Extra bits: %d'%(arg & 0b1111))
-                    arg, consumed = decint(byts)
-                    byts = byts[consumed:]
-                    off = arg >> 4
-                    flag = arg & 0b1111
-                    ans.append('Offset to first article of starting section: %d'
-                            ' [%d absolute]'%(off, ssi+off))
-                    ans.append('Flags: %d'%flag)
-                    num = 1
-                    if flag == 4:
-                        num = byts[0]
-                        byts = byts[1:]
-                    ans.append('Number of articles in starting section: %d'%num)
-                else:
-                    ans.append('First section starts')
-                    off, consumed = decint(byts)
-                    flags = off & 0b1111
-                    off = off >> 4
-                    byts = byts[consumed:]
-                    ans.append('Article at start of block as offset from '
-                            'parent index: %d [%d absolute]'%(off, psi.index+off))
-                    ans.append('Flags: %d'%flags)
-                    if flags == 4:
-                        ans.append('Number of articles: %d'%byts[0])
-                        byts = byts[1:]
+                flags = arg & 0b1111
+                ans.append('Last article of ending section w.r.t. starting'
+                        ' section offset (fvwi): %d [%d absolute]'%(off,
+                            psi.index+off))
+                ans.append('Flags (always 8?): %d'%flags)
+                byts = tbs_type_6(byts, psi=psi)
             # }}}
 
         elif tbs_type == 7: # {{{
