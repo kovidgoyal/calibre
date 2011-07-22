@@ -6,6 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, Alex Stanev <alex@stanev.org>'
 __docformat__ = 'restructuredtext en'
 
+import random
 import urllib2
 from contextlib import closing
 
@@ -23,10 +24,12 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class eKnigiStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        #url = 'http://e-knigi.net/?amigosid=22'
-        #aff_suffix = '&amigosid=22'
-        url = 'http://e-knigi.net'
-        aff_suffix = ''
+        # Use Kovid's affiliate id 30% of the time
+        if random.randint(1, 10) in (1, 2, 3):
+            aff_suffix = '&amigosid=23'
+        else:
+            aff_suffix = '&amigosid=22'
+        url = 'http://e-knigi.net/?' + aff_suffix[1:]
 
         if external or self.config.get('open_external', False):
             if detail_item:
