@@ -18,7 +18,7 @@ from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import PALMDOC, UNCOMPRESSED
-from calibre.ebooks.mobi.writer2.utils import (rescale_image, encint)
+from calibre.ebooks.mobi.utils import (rescale_image, encint)
 
 EXTH_CODES = {
     'creator': 100,

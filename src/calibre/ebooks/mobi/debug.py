@@ -8,10 +8,10 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import struct, datetime, sys, os, shutil
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
-from calibre.ebooks.mobi.writer2.utils import (decode_hex_number, decint,
+from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
         get_trailing_data)
 from calibre.utils.magick.draw import identify_data
 
@@ -530,21 +530,21 @@ class Tag(object): # {{{
             },
 
             'chapter_with_subchapters' : {
-                    22 : ('First subchapter index', 'first_subchapter_index'),
-                    23 : ('Last subchapter index', 'last_subchapter_index'),
+                    22 : ('First subchapter index', 'first_child_index'),
+                    23 : ('Last subchapter index', 'last_child_index'),
             },
 
             'periodical' : {
                     5  : ('Class offset in cncx', 'class_offset'),
-                    22 : ('First section index', 'first_section_index'),
-                    23 : ('Last section index', 'last_section_index'),
+                    22 : ('First section index', 'first_child_index'),
+                    23 : ('Last section index', 'last_child_index'),
             },
 
             'section' : {
                     5  : ('Class offset in cncx', 'class_offset'),
-                    21 : ('Periodical index', 'periodical_index'),
-                    22 : ('First article index', 'first_article_index'),
-                    23 : ('Last article index', 'last_article_index'),
+                    21 : ('Periodical index', 'parent_index'),
+                    22 : ('First article index', 'first_child_index'),
+                    23 : ('Last article index', 'last_child_index'),
             },
     }
 
@@ -625,11 +625,56 @@ class IndexEntry(object): # {{{
                 return tag.cncx_value
         return ''
 
+    @property
+    def offset(self):
+        for tag in self.tags:
+            if tag.attr == 'offset':
+                return tag.value
+        return 0
+
+    @property
+    def size(self):
+        for tag in self.tags:
+            if tag.attr == 'size':
+                return tag.value
+        return 0
+
+    @property
+    def depth(self):
+        for tag in self.tags:
+            if tag.attr == 'depth':
+                return tag.value
+        return 0
+
+    @property
+    def parent_index(self):
+        for tag in self.tags:
+            if tag.attr == 'parent_index':
+                return tag.value
+        return -1
+
+    @property
+    def first_child_index(self):
+        for tag in self.tags:
+            if tag.attr == 'first_child_index':
+                return tag.value
+        return -1
+
+    @property
+    def last_child_index(self):
+        for tag in self.tags:
+            if tag.attr == 'last_child_index':
+                return tag.value
+        return -1
+
     def __str__(self):
         ans = ['Index Entry(index=%s, entry_type=%s, length=%d)'%(
             self.index, self.entry_type, len(self.tags))]
         for tag in self.tags:
             ans.append('\t'+str(tag))
+        if self.first_child_index != -1:
+            ans.append('\tNumber of children: %d'%(self.last_child_index -
+                self.first_child_index + 1))
         return '\n'.join(ans)
 
 # }}}
@@ -679,6 +724,15 @@ class IndexRecord(object): # {{{
             entry_type = ord(indxt[off+consumed])
             self.indices.append(IndexEntry(index, entry_type,
                 indxt[off+consumed+1:next_off], cncx, index_header.tagx_entries))
+            index = self.indices[-1]
+
+    def get_parent(self, index):
+        if index.depth < 1:
+            return None
+        parent_depth = index.depth - 1
+        for p in self.indices:
+            if p.depth != parent_depth:
+                continue
 
 
     def __str__(self):
@@ -738,8 +792,7 @@ class CNCX(object) : # {{{
 
 class TextRecord(object): # {{{
 
-    def __init__(self, idx, record, extra_data_flags, decompress, index_record,
-            doc_type):
+    def __init__(self, idx, record, extra_data_flags, decompress):
         self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
         self.raw = decompress(self.raw)
         if 0 in self.trailing_data:
@@ -750,60 +803,6 @@ class TextRecord(object): # {{{
             self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
 
         self.idx = idx
-
-        if 'indexing' in self.trailing_data and index_record is not None:
-            self.interpret_indexing(doc_type, index_record.indices)
-
-    def interpret_indexing(self, doc_type, indices):
-        raw = self.trailing_data['indexing']
-        ident, consumed = decint(raw)
-        raw = raw[consumed:]
-        entry_type = ident & 0b111
-        index_entry_idx = ident >> 3
-        index_entry = None
-        for i in indices:
-            if i.index == index_entry_idx:
-                index_entry = i.label
-                break
-        self.trailing_data['interpreted_indexing'] = (
-                'Type: %s, Index Entry: %s'%(entry_type, index_entry))
-        if doc_type == 2: # Book
-            self.interpret_book_indexing(raw, entry_type)
-
-    def interpret_book_indexing(self, raw, entry_type):
-        arg1, consumed = decint(raw)
-        raw = raw[consumed:]
-        if arg1 != 0:
-            raise ValueError('TBS index entry has unknown arg1: %d'%
-                    arg1)
-        if entry_type == 2:
-            desc = ('This record has only a single starting or a single'
-                    ' ending point')
-            if raw:
-                raise ValueError('TBS index entry has unknown extra bytes:'
-                        ' %r'%raw)
-        elif entry_type == 3:
-            desc = ('This record is spanned by a single node (i.e. it'
-                    ' has no start or end points)')
-            arg2, consumed = decint(raw)
-            if arg2 != 0:
-                raise ValueError('TBS index entry has unknown arg2: %d'%
-                        arg2)
-        elif entry_type == 6:
-            if len(raw) != 1:
-                raise ValueError('TBS index entry has unknown extra bytes:'
-                        ' %r'%raw)
-            num = ord(raw[0])
-            # An unmatched starting or ending point each contributes 1 to
-            # this count. A matched pair of starting and ending points
-            # together contribute 1 to this count. Note that you can only
-            # ever have either 1 unmatched start point or 1 unmatched end
-            # point, never both (logically impossible).
-            desc = ('This record has %d starting/ending points and/or complete'
-                    ' nodes.')%num
-        else:
-            raise ValueError('Unknown TBS index entry type: %d for book'%entry_type)
-        self.trailing_data['interpreted_indexing'] += ' :: ' + desc
 
     def dump(self, folder):
         name = '%06d'%self.idx
@@ -845,6 +844,231 @@ class BinaryRecord(object): # {{{
     def dump(self, folder):
         with open(os.path.join(folder, self.name+'.bin'), 'wb') as f:
             f.write(self.raw)
+
+# }}}
+
+class TBSIndexing(object): # {{{
+
+    def __init__(self, text_records, indices, doc_type):
+        self.record_indices = OrderedDict()
+        self.doc_type = doc_type
+        self.indices = indices
+        pos = 0
+        for r in text_records:
+            start = pos
+            pos += len(r.raw)
+            end = pos - 1
+            self.record_indices[r] = x = {'starts':[], 'ends':[],
+                    'complete':[], 'geom': (start, end)}
+            for entry in indices:
+                istart, sz = entry.offset, entry.size
+                iend = istart + sz - 1
+                has_start = istart >= start and istart <= end
+                has_end = iend >= start and iend <= end
+                rec = None
+                if has_start and has_end:
+                    rec = 'complete'
+                elif has_start and not has_end:
+                    rec = 'starts'
+                elif not has_start and has_end:
+                    rec = 'ends'
+                if rec:
+                    x[rec].append(entry)
+
+    def get_index(self, idx):
+        for i in self.indices:
+            if i.index == idx: return i
+        raise IndexError('Index %d not found'%idx)
+
+    def __str__(self):
+        ans = ['*'*20 + ' TBS Indexing (%d records) '%len(self.record_indices)+ '*'*20]
+        for r, dat in self.record_indices.iteritems():
+            ans += self.dump_record(r, dat)[-1]
+        return '\n'.join(ans)
+
+    def dump(self, bdir):
+        types = defaultdict(list)
+        for r, dat in self.record_indices.iteritems():
+            tbs_type, strings = self.dump_record(r, dat)
+            if tbs_type == 0: continue
+            types[tbs_type] += strings
+        for typ, strings in types.iteritems():
+            with open(os.path.join(bdir, 'tbs_type_%d.txt'%typ), 'wb') as f:
+                f.write('\n'.join(strings))
+
+    def dump_record(self, r, dat):
+        ans = []
+        ans.append('\nRecord #%d: Starts at: %d Ends at: %d'%(r.idx,
+            dat['geom'][0], dat['geom'][1]))
+        s, e, c = dat['starts'], dat['ends'], dat['complete']
+        ans.append(('\tContains: %d index entries '
+            '(%d ends, %d complete, %d starts)')%tuple(map(len, (s+e+c, e,
+                c, s))))
+        byts = bytearray(r.trailing_data.get('indexing', b''))
+        sbyts = tuple(hex(b)[2:] for b in byts)
+        ans.append('TBS bytes: %s'%(' '.join(sbyts)))
+        for typ, entries in (('Ends', e), ('Complete', c), ('Starts', s)):
+            if entries:
+                ans.append('\t%s:'%typ)
+                for x in entries:
+                    ans.append(('\t\tIndex Entry: %d (Parent index: %d, '
+                            'Depth: %d, Offset: %d, Size: %d) [%s]')%(
+                        x.index, x.parent_index, x.depth, x.offset, x.size, x.label))
+        def bin3(num):
+            ans = bin(num)[2:]
+            return '0'*(3-len(ans)) + ans
+
+        tbs_type = 0
+        if len(byts):
+            outer, consumed = decint(byts)
+            byts = byts[consumed:]
+            tbs_type = outer & 0b111
+            ans.append('TBS Type: %s (%d)'%(bin3(tbs_type), tbs_type))
+            ans.append('Outer Index entry: %d'%(outer >> 3))
+            arg1, consumed = decint(byts)
+            byts = byts[consumed:]
+            ans.append('Unknown (vwi: always 0?): %d'%arg1)
+            if self.doc_type in (257, 259): # Hierarchical periodical
+                byts, a = self.interpret_periodical(tbs_type, byts)
+                ans += a
+            if byts:
+                sbyts = tuple(hex(b)[2:] for b in byts)
+                ans.append('Remaining bytes: %s'%' '.join(sbyts))
+
+        ans.append('')
+        return tbs_type, ans
+
+    def interpret_periodical(self, tbs_type, byts):
+        ans = []
+
+        def tbs_type_6(byts, psi=None, msg=None): # {{{
+            if psi is None:
+                # Assume parent section is 1
+                psi = self.get_index(1)
+            if msg is None:
+                msg = ('Article index at start of record or first article'
+                    ' index, relative to parent section')
+            if byts:
+                # byts could be empty
+                arg, consumed = decint(byts)
+                byts = byts[consumed:]
+                flags = (arg & 0b1111)
+                ai = (arg >> 4)
+                ans.append('%s (fvwi): %d [%d absolute]'%(msg, ai,
+                        ai+psi.index))
+                if flags == 1:
+                    arg, consumed = decint(byts)
+                    byts = byts[consumed:]
+                    ans.append('EOF (vwi: should be 0): %d'%arg)
+                elif flags in (4, 5):
+                    num = byts[0]
+                    byts = byts[1:]
+                    ans.append('Number of article nodes in the record (byte): %d'%num)
+                    if flags == 5:
+                        arg, consumed = decint(byts)
+                        byts = byts[consumed:]
+                        ans.append('Unknown ??? (vwi)): %d'%(arg))
+                elif flags == 0:
+                    pass
+                else:
+                    raise ValueError('Unknown flags: %d'%flags)
+            return byts
+
+        # }}}
+
+        if tbs_type == 3: # {{{
+            arg2, consumed = decint(byts)
+            byts = byts[consumed:]
+            ans.append('Unknown (vwi: always 0?): %d'%arg2)
+
+            arg3, consumed = decint(byts)
+            byts = byts[consumed:]
+            fsi = arg3 >> 4
+            extra = arg3 & 0b1111
+            ans.append('First section index (fvwi): %d'%fsi)
+            psi = self.get_index(fsi)
+            ans.append('Extra bits (flag: always 0?): %d'%extra)
+
+            byts = tbs_type_6(byts, psi=psi,
+                    msg=('First article of ending section, relative to its'
+                    ' parent\'s index'))
+            if byts:
+                # We have a transition not just an opening first section
+                psi = self.get_index(psi.index+1)
+                arg, consumed = decint(byts)
+                off = arg >> 4
+                byts = byts[consumed:]
+                flags = arg & 0b1111
+                ans.append('Last article of ending section w.r.t. starting'
+                        ' section offset (fvwi): %d [%d absolute]'%(off,
+                            psi.index+off))
+                ans.append('Flags (always 8?): %d'%flags)
+                byts = tbs_type_6(byts, psi=psi)
+            # }}}
+
+        elif tbs_type == 7: # {{{
+            # This occurs for records that have no section nodes and
+            # whose parent section's index == 1
+            ans.append('Unknown (maybe vwi?): %r'%bytes(byts[:2]))
+            byts = byts[2:]
+            arg, consumed = decint(byts)
+            byts = byts[consumed:]
+            ai = arg >> 4
+            flags = arg & 0b1111
+            ans.append('Article at start of record (fvwi): %d'%ai)
+            if flags == 4:
+                num = byts[0]
+                byts = byts[1:]
+                ans.append('Number of articles in record (byte): %d'%num)
+            elif flags == 0:
+                pass
+            elif flags == 1:
+                arg, consumed = decint(byts)
+                byts = byts[consumed:]
+                ans.append('EOF (vwi: should be 0): %d'%arg)
+            else:
+                raise ValueError('Unknown flags value: %d'%flags)
+        # }}}
+
+        elif tbs_type == 6: # {{{
+            # This is used for records spanned by an article whose parent
+            # section's index == 1 or for the opening record if it contains the
+            # periodical start, section 1 start and at least one article. The
+            # two cases are distinguished by the flags on the article index
+            # vwi.
+            unk = byts[0]
+            byts = byts[1:]
+            ans.append('Unknown (byte: always 2?): %d'%unk)
+            byts = tbs_type_6(byts)
+        # }}}
+
+        elif tbs_type == 2: # {{{
+            # This occurs for records with no section nodes and whose parent
+            # section's index != 1 (undefined (records before the first
+            # section) or > 1)
+            # This is also used for records that are spanned by an article
+            # whose parent section index > 1. In this case the flags of the
+            # vwi referring to the article at the start
+            # of the record are set to 1 instead of 4.
+            arg, consumed = decint(byts)
+            byts = byts[consumed:]
+            flags = (arg & 0b1111)
+            psi = (arg >> 4)
+            ans.append('Parent section index (fvwi): %d'%psi)
+            psi = self.get_index(psi)
+            ans.append('Flags: %d'%flags)
+            if flags == 1:
+                arg, consumed = decint(byts)
+                byts = byts[consumed:]
+                ans.append('Unknown (vwi?: always 0?): %d'%arg)
+                byts = tbs_type_6(byts, psi=psi)
+            elif flags == 0:
+                byts = tbs_type_6(byts, psi=psi)
+            else:
+                raise ValueError('Unkown flags: %d'%flags)
+        # }}}
+
+        return byts, ans
 
 # }}}
 
@@ -910,8 +1134,7 @@ class MOBIFile(object): # {{{
         if fntbr == 0xffffffff:
             fntbr = len(self.records)
         self.text_records = [TextRecord(r, self.records[r],
-            self.mobi_header.extra_data_flags, decompress, self.index_record,
-            self.mobi_header.type_raw) for r in xrange(1,
+            self.mobi_header.extra_data_flags, decompress) for r in xrange(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
         for i in xrange(fntbr, len(self.records)):
@@ -930,6 +1153,9 @@ class MOBIFile(object): # {{{
             else:
                 self.binary_records.append(BinaryRecord(i, r))
 
+        if self.index_record is not None:
+            self.tbs_indexing = TBSIndexing(self.text_records,
+                    self.index_record.indices, self.mobi_header.type_raw)
 
     def print_header(self, f=sys.stdout):
         print (str(self.palmdb).encode('utf-8'), file=f)
@@ -961,6 +1187,9 @@ def inspect_mobi(path_or_stream, prefix='decompiled'):
             print(str(f.cncx).encode('utf-8'), file=out)
             print('\n\n', file=out)
             print(str(f.index_record), file=out)
+        with open(os.path.join(ddir, 'tbs_indexing.txt'), 'wb') as out:
+            print(str(f.tbs_indexing), file=out)
+        f.tbs_indexing.dump(ddir)
 
     for tdir, attr in [('text', 'text_records'), ('images', 'image_records'),
             ('binary', 'binary_records')]:

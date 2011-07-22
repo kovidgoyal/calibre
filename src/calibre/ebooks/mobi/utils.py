@@ -79,7 +79,7 @@ def encint(value, forward=True):
 
 def decint(raw, forward=True):
     '''
-    Read a variable width integer from the bytestring raw and return the
+    Read a variable width integer from the bytestring or bytearray raw and return the
     integer and the number of bytes read. If forward is True bytes are read
     from the start of raw, otherwise from the end of raw.
 
@@ -88,8 +88,10 @@ def decint(raw, forward=True):
     '''
     val = 0
     byts = bytearray()
-    for byte in raw if forward else reversed(raw):
-        bnum = ord(byte)
+    src = bytearray(raw)
+    if not forward:
+        src.reverse()
+    for bnum in src:
         byts.append(bnum & 0b01111111)
         if bnum & 0b10000000:
             break
@@ -161,7 +163,7 @@ def get_trailing_data(record, extra_data_flags):
     '''
     data = OrderedDict()
     for i in xrange(16, -1, -1):
-        flag = 2**i
+        flag = 1 << i # 2**i
         if flag & extra_data_flags:
             if i == 0:
                 # Only the first two bits are used for the size since there can

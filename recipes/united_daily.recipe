@@ -64,7 +64,7 @@ class UnitedDaily(BasicNewsRecipe):
 
     __author__ = 'Eddie Lau'
     __version__ = '1.1'
-    language = 'zh-TW'
+    language = 'zh_TW'
     publisher = 'United Daily News Group'
     description = 'United Daily (Taiwan)'
     category = 'News, Chinese, Taiwan'
