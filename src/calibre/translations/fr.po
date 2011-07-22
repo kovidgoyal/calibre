@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-14 23:03+0000\n"
-"PO-Revision-Date: 2011-07-14 14:41+0000\n"
+"POT-Creation-Date: 2011-07-15 17:42+0000\n"
+"PO-Revision-Date: 2011-07-17 07:59+0000\n"
 "Last-Translator: Vincent Coiffier <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-07-15 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-07-18 04:40+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -25,9 +25,9 @@ msgid "Does absolutely nothing"
 msgstr "Ne fait strictement rien"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:216
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:219
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:230
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:98
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:101
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:112
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -926,8 +926,8 @@ msgstr "Activer le plugin nommé"
 msgid "Disable the named plugin"
 msgstr "Désactive le plugin nommé"
 
-#: /home/kovid/work/calibre/src/calibre/db/backend.py:268
-#: /home/kovid/work/calibre/src/calibre/db/backend.py:277
+#: /home/kovid/work/calibre/src/calibre/db/backend.py:270
+#: /home/kovid/work/calibre/src/calibre/db/backend.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:236
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:667
@@ -938,7 +938,7 @@ msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
 "Chemin de la librairie trop long. Doit être inférieur à %d caractères."
 
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:244
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:126
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:636
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:564
@@ -3091,6 +3091,7 @@ msgstr ""
 #, python-format
 msgid "Multiple HTML files found in the archive. Only %s will be used."
 msgstr ""
+"Plusieurs fichiers HTML trouvés dans l'archive. Seul %s sera utilisé."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:68
 msgid "No top level HTML file found."
@@ -5002,7 +5003,7 @@ msgstr "Renommer la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:110
 msgid "Remove library"
-msgstr "Supprimer la librairie"
+msgstr "Supprimer la bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:113
 msgid "Pick a random book"
@@ -5751,7 +5752,7 @@ msgid "Move to next highlighted match"
 msgstr "Aller à la correspondance suivante surlignée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:415
 msgid "N"
 msgstr "N"
 
@@ -5799,7 +5800,7 @@ msgstr "Démarrer l'assistant de bienvenue"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 msgid "Get plugins to enhance calibre"
-msgstr "Obtenir des plugins pour améliorer calibre"
+msgstr "Obtenir des plugins pour améliorer Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Restart in debug mode"
@@ -8203,9 +8204,9 @@ msgstr "Le navigateur de coverture ne peut ête chargé"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:148
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:230
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:279
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:283
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:255
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:304
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:308
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1282
 msgid "Undefined"
 msgstr "Indéfini(e)"
@@ -8492,14 +8493,14 @@ msgstr ""
 "pourraient ne pas fonctionner. Êtes-vous sûr(e) ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:148
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:439
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:464
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:61
 msgid "Invalid template"
 msgstr "Modèle incorrect"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:149
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:440
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:465
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:276
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:62
 #, python-format
@@ -9239,7 +9240,7 @@ msgstr "Exécutions en cours"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:49
 msgid "&Stop selected jobs"
-msgstr ""
+msgstr "Arrêter les travaux sélectionnés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:50
 msgid "Show job &details"
@@ -11097,7 +11098,7 @@ msgid "Open Template Editor"
 msgstr "Ouvrir Editeur De Modèle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:451
 msgid "Edit template"
 msgstr "Editer le modèle"
 
@@ -11677,8 +11678,8 @@ msgstr " - Travaux"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:470
 msgid "Do you really want to stop the selected job?"
 msgid_plural "Do you really want to stop all the selected jobs?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Voulez-vous vraiment arrêter le travail sélectionné ?"
+msgstr[1] "Voulez-vous vraiment arrêter les travaux sélectionnés ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:478
 msgid "Do you really want to stop all non-device jobs?"
@@ -11748,7 +11749,7 @@ msgid "Copy current search text (instead of search name)"
 msgstr ""
 "Copier le texte de recherche courant (au lieu du nom de la recherche)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:415
 msgid "Y"
 msgstr "Y"
 
@@ -13950,6 +13951,9 @@ msgid ""
 "This plugin is useful only for <b>Chinese</b> language books. It can return "
 "incorrect results for books in English. Are you sure you want to enable it?"
 msgstr ""
+"Ce plugin est utile seulement pour les livres en langue <b>Chinoise</b>. Il "
+"peut renvoyer des résultats incorrects pour des livres en Anglais. Êtes-vous "
+"sûr de vouloir l'activer ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:158
 msgid "Published date"
@@ -15985,6 +15989,8 @@ msgid ""
 "Could not convert %(num)d of %(tot)d books, because no suitable source "
 "format was found."
 msgstr ""
+"Impossible de convertir %(num)d sur %(tot)d livres, car aucun format "
+"convenable pour la source n'a été trouvé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:128
 msgid "Queueing books for bulk conversion"
@@ -15997,7 +16003,7 @@ msgstr "Mise en file d'attente "
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:190
 #, python-format
 msgid "Convert book %(num)d of %(tot)d (%(title)s)"
-msgstr ""
+msgstr "Converti le livre %(num)d sur %(tot)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:261
 msgid "Fetch news from "
@@ -16088,6 +16094,8 @@ msgid ""
 "%(app)s has been updated to version <b>%(ver)s</b>. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"%(app)s a été mis à jour en version <b>%(ver)s</b>. Voir les  <a "
+"href=\"http://calibre-ebook.com/whats-new\">nouvelles fonctionnalités</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:79
 msgid "Update available!"
@@ -16526,6 +16534,8 @@ msgid ""
 "Make font size %(which)s\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"Modifie la taille de fonte %(which)s\n"
+"Agrandissement courant: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:497
 msgid "larger"
@@ -17147,6 +17157,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Les champs à insérer lors du catalogage des livres dans la base. Doit être "
+"une liste de champs séparées par des virgules.\n"
+"Champs disponibles: %(fields)s,\n"
+"en plus des champs personnalisés créés par l'utilisateur.\n"
+"Exemple: %(opt)s=title,authors,tags\n"
+"Par défaut: '%%default'\n"
+"Applicable : aux formats de sortie CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:68
 #, python-format
@@ -18482,6 +18499,8 @@ msgid ""
 "The format in which to display dates. %(day)s - day, %(month)s - month, "
 "%(year)s - year. Default is: %(default)s"
 msgstr ""
+"Le format à utiliser pour l'affichage des date. %(day)s - jour, %(month)s - "
+"mois, %(year)s - année. Par défaut: %(default)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:120
 msgid "Convert paths to lowercase."
@@ -19435,6 +19454,10 @@ msgid ""
 "negative. If either date1 or date2 are not dates, the function returns the "
 "empty string."
 msgstr ""
+"days_between(date1, date2) -- renvoie le nombre de jours entre date1 et "
+"date2. Le nombre est positif si date1 est plus grand que date2, sinon "
+"négatif. Si date1 ou date2 ne sont pas des dates, la fonction renvoie une "
+"chaîne vide."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -19611,22 +19634,22 @@ msgstr "Flamand (BE)"
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:154
 msgid "AM"
-msgstr ""
+msgstr "Matin"
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:156
 msgid "PM"
-msgstr ""
+msgstr "Après-midi"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
 msgid "am"
-msgstr ""
+msgstr "matin"
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
 msgid "pm"
-msgstr ""
+msgstr "après midi"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
@@ -19988,19 +20011,19 @@ msgstr "Ne pas télécharger les feuilles de style CSS."
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:649
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:652
 msgid "Save"
-msgstr ""
+msgstr "Sauvegarder"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
-msgstr ""
+msgstr "Ouvrir"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "Cancel"
-msgstr ""
+msgstr "Annuler"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"
@@ -20008,55 +20031,55 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Apply"
-msgstr ""
+msgstr "Appliquer"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:674
 msgid "Don't Save"
-msgstr ""
+msgstr "Ne pas sauvegarder"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:676
 msgid "Close without Saving"
-msgstr ""
+msgstr "Fermer sans sauvegarder"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:678
 msgid "Discard"
-msgstr ""
+msgstr "Abandonner"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:681
 msgid "&Yes"
-msgstr ""
+msgstr "&Oui"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:684
 msgid "Yes to &All"
-msgstr ""
+msgstr "Oui pour tous"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:687
 msgid "&No"
-msgstr ""
+msgstr "&Non"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:690
 msgid "N&o to All"
-msgstr ""
+msgstr "N&on pour tous"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:693
 msgid "Save All"
-msgstr ""
+msgstr "Sauvegarder Tout"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:696
 msgid "Abort"
-msgstr ""
+msgstr "Interrompre"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:699
 msgid "Retry"
-msgstr ""
+msgstr "Réessayer"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Ignore"
-msgstr ""
+msgstr "Ignorer"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Restore Defaults"
-msgstr ""
+msgstr "Rétablir les valeurs par défaut"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
