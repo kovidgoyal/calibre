@@ -987,17 +987,26 @@ class TBSIndexing(object): # {{{
             arg3, consumed = decint(byts)
             byts = byts[consumed:]
             fsi = arg3 >> 4
-            extra = arg3 & 0b1111
+            flags = arg3 & 0b1111
             ans.append('First section index (fvwi): %d'%fsi)
             psi = self.get_index(fsi)
-            ans.append('Extra bits (flag: always 0?): %d'%extra)
+            ans.append('Flags (flag: always 0?): %d'%flags)
+            if flags == 4:
+                ans.append('Number of articles in this section: %d'%byts[0])
+                byts = byts[1:]
+            elif flags == 0:
+                pass
+            else:
+                raise ValueError('Unknown flags value: %d'%flags)
 
-            byts = tbs_type_6(byts, psi=psi,
+
+            if byts:
+                byts = tbs_type_6(byts, psi=psi,
                     msg=('First article of ending section, relative to its'
                     ' parent\'s index'),
                     fmsg=('->Offset from start of record to beginning of'
                         ' last starting section'))
-            while True:
+            while byts:
                 # We have a transition not just an opening first section
                 psi = self.get_index(psi.index+1)
                 arg, consumed = decint(byts)
