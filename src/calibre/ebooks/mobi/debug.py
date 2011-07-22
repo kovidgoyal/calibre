@@ -927,7 +927,7 @@ class TBSIndexing(object): # {{{
             ans.append('Outer Index entry: %d'%(outer >> 3))
             arg1, consumed = decint(byts)
             byts = byts[consumed:]
-            ans.append('Unknown: %d'%arg1)
+            ans.append('Unknown (vwi: always 0?): %d'%arg1)
             if self.doc_type in (257, 259): # Hierarchical periodical
                 byts, a = self.interpret_periodical(tbs_type, byts)
                 ans += a
@@ -940,6 +940,36 @@ class TBSIndexing(object): # {{{
 
     def interpret_periodical(self, tbs_type, byts):
         ans = []
+
+        def tbs_type_6(byts, psi=None): # {{{
+            if psi is None:
+                # Assume parent section is 1
+                psi = self.get_index(1)
+            if byts:
+                # byts could be empty
+                arg, consumed = decint(byts)
+                byts = byts[consumed:]
+                flags = (arg & 0b1111)
+                ai = (arg >> 4)
+                ans.append(('Article index at start of record or first article'
+                    ' index, relative to parent section (fvwi): %d [%d absolute]'%(ai,
+                        ai+psi.index)))
+                if flags == 1:
+                    arg, consumed = decint(byts)
+                    byts = byts[consumed:]
+                    ans.append('EOF (vwi: should be 0): %d'%arg)
+                elif flags == 4:
+                    num = byts[0]
+                    byts = byts[1:]
+                    ans.append('Number of article nodes in the record (byte): %d'%num)
+                elif flags == 0:
+                    pass
+                else:
+                    raise ValueError('Unknown flags: %d'%flags)
+            return byts
+
+        # }}}
+
         if tbs_type == 3: # {{{
             if byts:
                 arg2, consumed = decint(byts)
@@ -1010,20 +1040,37 @@ class TBSIndexing(object): # {{{
         elif tbs_type == 7: # {{{
             # This occurs for records that have no section nodes and
             # whose parent section's index == 1
-            ans.append('Unknown: %r'%bytes(byts[:2]))
+            ans.append('Unknown (maybe vwi?): %r'%bytes(byts[:2]))
             byts = byts[2:]
             arg, consumed = decint(byts)
             byts = byts[consumed:]
             ai = arg >> 4
             flags = arg & 0b1111
-            num = 1
+            ans.append('Article at start of record (fvwi): %d'%ai)
             if flags == 4:
-                if not byts:
-                    raise ValueError('Type 7 TBS entry missing article count')
                 num = byts[0]
                 byts = byts[1:]
-            ans.append('Article at start of record: %d'%ai)
-            ans.append('Number of articles in record: %d'%num)
+                ans.append('Number of articles in record (byte): %d'%num)
+            elif flags == 0:
+                pass
+            elif flags == 1:
+                arg, consumed = decint(byts)
+                byts = byts[consumed:]
+                ans.append('EOF (vwi: should be 0): %d'%arg)
+            else:
+                raise ValueError('Unknown flags value: %d'%flags)
+        # }}}
+
+        elif tbs_type == 6: # {{{
+            # This is used for records spanned by an article whose parent
+            # section's index == 1 or for the opening record if it contains the
+            # periodical start, section 1 start and at least one article. The
+            # two cases are distinguished by the flags on the article index
+            # vwi.
+            unk = byts[0]
+            byts = byts[1:]
+            ans.append('Unknown (byte: always 2?): %d'%unk)
+            byts = tbs_type_6(byts)
         # }}}
 
         elif tbs_type == 2: # {{{
@@ -1034,61 +1081,22 @@ class TBSIndexing(object): # {{{
             # whose parent section index > 1. In this case the flags of the
             # vwi referring to the article at the start
             # of the record are set to 1 instead of 4.
-            if byts:
-                arg, consumed = decint(byts)
-                byts = byts[consumed:]
-                flags = (arg & 0b1111)
-                psi = (arg >> 4)
-                ans.append('Parent section index: %d'%psi)
-                psi = self.get_index(psi)
-                ans.append('Flags: %d'%flags)
-                if flags == 1:
-                    arg, consumed = decint(byts)
-                    byts = byts[consumed:]
-                    ans.append('Unknown: %d'%arg)
-                elif flags == 0:
-                    arg, consumed = decint(byts)
-                    byts = byts[consumed:]
-                    flags = arg & 0b1111
-                    off = arg >> 4
-                    ans.append('Article at start of block as offset from '
-                            'parent index: %d [%d absolute]'%(off, psi.index+off))
-                    if flags == 4:
-                        num = byts[0]
-                        byts = byts[1:]
-                        ans.append('Number of nodes: %d'%num)
-                    elif flags == 1:
-                        num = byts[0]
-                        byts = byts[1:]
-                        ans.append('EOF: %s'%hex(num))
-                else:
-                    raise ValueError('Unknown flag value: %d'%flags)
-        # }}}
-
-        elif tbs_type == 6: # {{{
-            # This is used for records spanned by an article whose parent
-            # section's index == 1 or for the opening record if it contains the
-            # periodical start, section 1 start and atleast one article. The
-            # two cases are distinguidshed by the flags on the article index
-            # vwi.
-            unk = byts[0]
-            byts = byts[1:]
-            ans.append('Unknown (always 2?): %d'%unk)
             arg, consumed = decint(byts)
             byts = byts[consumed:]
             flags = (arg & 0b1111)
-            ai = (arg >> 4)
-            ans.append(('Article index at start of record or first article'
-                ' index, relative to section 1: %d [%d absolute]'%(ai, ai+1)))
+            psi = (arg >> 4)
+            ans.append('Parent section index (fvwi): %d'%psi)
+            psi = self.get_index(psi)
+            ans.append('Flags: %d'%flags)
             if flags == 1:
                 arg, consumed = decint(byts)
                 byts = byts[consumed:]
-                ans.append('EOF (should be 0): %d'%arg)
-            elif flags == 4:
-                num = byts[0]
-                byts = byts[1:]
-                ans.append('Number of article nodes in the record: %d'%num)
-
+                ans.append('Unknown (vwi?: always 0?): %d'%arg)
+                byts = tbs_type_6(byts, psi=psi)
+            elif flags == 0:
+                byts = tbs_type_6(byts, psi=psi)
+            else:
+                raise ValueError('Unkown flags: %d'%flags)
         # }}}
 
         return byts, ans
