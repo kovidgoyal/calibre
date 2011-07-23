@@ -79,7 +79,7 @@ def encint(value, forward=True):
 
 def decint(raw, forward=True):
     '''
-    Read a variable width integer from the bytestring raw and return the
+    Read a variable width integer from the bytestring or bytearray raw and return the
     integer and the number of bytes read. If forward is True bytes are read
     from the start of raw, otherwise from the end of raw.
 
@@ -88,8 +88,10 @@ def decint(raw, forward=True):
     '''
     val = 0
     byts = bytearray()
-    for byte in raw if forward else reversed(raw):
-        bnum = ord(byte)
+    src = bytearray(raw)
+    if not forward:
+        src.reverse()
+    for bnum in src:
         byts.append(bnum & 0b01111111)
         if bnum & 0b10000000:
             break
@@ -174,4 +176,24 @@ def get_trailing_data(record, extra_data_flags):
                 data[i] = record[-sz:-consumed]
             record = record[:-sz]
     return data, record
+
+def encode_trailing_data(raw):
+    '''
+    Given some data in the bytestring raw, return a bytestring of the form
+
+        <data><size>
+
+    where size is a backwards encoded vwi whose value is the length of the
+    entire return bytestring.
+
+    This is the encoding used for trailing data entries at the end of text
+    records. See get_trailing_data() for details.
+    '''
+    lsize = 1
+    while True:
+        encoded = encint(len(raw) + lsize, forward=False)
+        if len(encoded) == lsize:
+            break
+        lsize += 1
+    return raw + encoded
 

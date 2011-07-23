@@ -1,0 +1,71 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2011, Darko Spasovski <darko.spasovski at gmail.com>'
+'''
+utrinski.com.mk
+'''
+
+import re
+import datetime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class UtrinskiVesnik(BasicNewsRecipe):
+
+    __author__            = 'Darko Spasovski'
+    INDEX                 = 'http://www.utrinski.com.mk/'
+    title                 = 'Utrinski Vesnik'
+    description           = 'Daily Macedonian newspaper'
+    masthead_url          = 'http://www.utrinski.com.mk/images/LogoTop.jpg'
+    language              = 'mk'
+    remove_javascript     = True
+    publication_type      = 'newspaper'
+    category              = 'news, Macedonia'
+    oldest_article        = 2
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    preprocess_regexps    = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+    [
+        ## Remove anything before the start of the article.
+        (r'<body.*?Article start-->', lambda match: '<body>'),
+
+        ## Remove anything after the end of the article.
+        (r'<!--Article end.*?</body>', lambda match : '</body>'),
+        ]
+    ]
+    extra_css             = """
+                                body{font-family: Arial,Helvetica,sans-serif}
+                                .WB_UTRINSKIVESNIK_Naslov{FONT-WEIGHT: bold; FONT-SIZE: 18px; FONT-FAMILY: Arial, Verdana, Tahoma; TEXT-DECORATION: none}
+                            """
+
+    conversion_options = {
+                          'comment'  : description,
+                          'tags'     : category,
+                          'language' : language,
+                          'linearize_tables' : True
+                        }
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.INDEX)
+        feeds = []
+        for section in soup.findAll('a', attrs={'class':'WB_UTRINSKIVESNIK_TOCTitleBig'}):
+            sectionTitle = section.contents[0].string
+            tocItemTable = section.findAllPrevious('table')[1]
+            if tocItemTable is None: continue
+            articles = []
+            while True:
+                tocItemTable = tocItemTable.nextSibling
+                if tocItemTable is None: break
+                article = tocItemTable.findAll('a', attrs={'class': 'WB_UTRINSKIVESNIK_TocItem'})
+                if len(article)==0: break
+                title = self.tag_to_string(article[0], use_alt=True).strip()
+                articles.append({'title': title, 'url':'http://www.utrinski.com.mk/' + article[0]['href'], 'description':'', 'date':''})
+            if articles:
+                feeds.append((sectionTitle, articles))
+        return feeds
+
+
+    def get_cover_url(self):
+        datum = datetime.datetime.today().strftime('%d_%m_%Y')
+        return 'http://www.utrinski.com.mk/WBStorage/Files/' + datum + '.jpg'

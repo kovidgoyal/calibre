@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, Alex Stanev <alex@stanev.org>'
 __docformat__ = 'restructuredtext en'
 
-import re
 import urllib
 from contextlib import closing
 

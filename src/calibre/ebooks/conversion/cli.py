@@ -210,12 +210,13 @@ def add_pipeline_options(parser, plumber):
             if rec.level < rec.HIGH:
                 option_recommendation_to_cli_option(add_option, rec)
 
-    parser.add_option('--list-recipes', default=False, action='store_true',
-            help=_('List builtin recipes'))
-
 def option_parser():
-    return OptionParser(usage=USAGE)
-
+    parser = OptionParser(usage=USAGE)
+    parser.add_option('--list-recipes', default=False, action='store_true',
+            help=_('List builtin recipe names. You can create an ebook from '
+                'a builtin recipe like this: ebook-convert "Recipe Name.recipe" '
+                'output.epub'))
+    return parser
 
 class ProgressBar(object):
 

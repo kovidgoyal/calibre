@@ -82,26 +82,6 @@ class MOBIOutput(OutputFormatPlugin):
         else:
             self.oeb.log.debug('Using mastheadImage supplied in manifest...')
 
-
-    def dump_toc(self, toc) :
-        self.log( "\n         >>> TOC contents <<<")
-        self.log( "     toc.title: %s" % toc.title)
-        self.log( "      toc.href: %s" % toc.href)
-        for periodical in toc.nodes :
-            self.log( "\tperiodical title: %s" % periodical.title)
-            self.log( "\t            href: %s" % periodical.href)
-            for section in periodical :
-                self.log( "\t\tsection title: %s" % section.title)
-                self.log( "\t\tfirst article: %s" % section.href)
-                for article in section :
-                    self.log( "\t\t\tarticle title: %s" % repr(article.title))
-                    self.log( "\t\t\t         href: %s" % article.href)
-
-    def dump_manifest(self) :
-        self.log( "\n         >>> Manifest entries <<<")
-        for href in self.oeb.manifest.hrefs :
-            self.log ("\t%s" % href)
-
     def periodicalize_toc(self):
         from calibre.ebooks.oeb.base import TOC
         toc = self.oeb.toc
@@ -155,12 +135,6 @@ class MOBIOutput(OutputFormatPlugin):
 
             # Fix up the periodical href to point to first section href
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
-
-            # diagnostics
-            if self.opts.verbose > 3:
-                self.dump_toc(toc)
-                self.dump_manifest()
-
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
