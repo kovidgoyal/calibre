@@ -173,9 +173,51 @@ class Indexer(object):
 
         if self.is_periodical:
             indices = self.create_periodical_index()
-            indices
         else:
             raise NotImplementedError()
+
+        self.records.append(self.create_index_record(indices))
+
+    def create_index_record(self, indices):
+        header_length = 192
+        buf = StringIO()
+
+        # Write index entries
+        offsets = []
+        for i in indices:
+            offsets.append(buf.tell())
+            buf.write(i.bytestring)
+        index_block = align_block(buf.getvalue())
+
+        # Write offsets to index entries as an IDXT block
+        idxt_block = b'IDXT'
+        buf.truncate(0)
+        for offset in offsets:
+            buf.write(pack(b'>H', header_length+offset))
+        idxt_block = align_block(idxt_block + buf.getvalue())
+        body = index_block + idxt_block
+
+        header = b'INDX'
+        buf.truncate(0)
+        buf.write(pack(b'>I', header_length))
+        buf.write(b'\0'*4) # Unknown
+        buf.write(pack(b'>I', 1)) # Header type? Or index record number?
+        buf.write(b'\0'*4) # Unknown
+        # IDXT block offset
+        buf.write(pack(b'>I', header_length + len(index_block)))
+        # Number of index entries
+        buf.write(pack(b'>I', len(offsets)))
+        # Unknown
+        buf.write(b'\xff'*8)
+        # Unknown
+        buf.write(b'\0'*156)
+
+        header += buf.getvalue()
+
+        ans = header + body
+        if len(ans) > 0x10000:
+            raise ValueError('Too many entries (%d) in the TOC'%len(offsets))
+        return ans
 
     def create_periodical_index(self): # {{{
         periodical_node = iter(self.oeb.toc).next()

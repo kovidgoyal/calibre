@@ -638,7 +638,7 @@ class IndexEntry(object): # {{{
                     self.tags.append(Tag(aut_tag[0], [val], self.entry_type,
                         cncx))
 
-        if raw.replace(b'\x00', b''):
+        if raw.replace(b'\x00', b''): # There can be padding null bytes
             raise ValueError('Extra bytes in INDX table entry %d: %r'%(self.index, raw))
 
     @property
@@ -736,6 +736,9 @@ class IndexRecord(object): # {{{
         for i in range(self.idxt_count):
             off, = u(b'>H', indices[i*2:(i+1)*2])
             self.index_offsets.append(off-192)
+        rest = indices[(i+1)*2:]
+        if rest.replace(b'\0', ''): # There can be padding null bytes
+            raise ValueError('Extra bytes after IDXT table: %r'%rest)
 
         indxt = raw[192:self.idxt_offset]
         self.indices = []
@@ -772,7 +775,7 @@ class IndexRecord(object): # {{{
                 len(w), not bool(w.replace(b'\0', b'')) ))
         a('Header length: %d'%self.header_length)
         u(self.unknown1)
-        a('Header Type: %d'%self.header_type)
+        a('Unknown (header type? index record number? always 1?): %d'%self.header_type)
         u(self.unknown2)
         a('IDXT Offset: %d'%self.idxt_offset)
         a('IDXT Count: %d'%self.idxt_count)

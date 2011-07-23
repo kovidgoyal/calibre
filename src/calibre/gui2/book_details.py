@@ -133,6 +133,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             authors = []
             formatter = EvalFormatter()
             for aut in mi.authors:
+                link = ''
                 if mi.author_link_map[aut]:
                     link = mi.author_link_map[aut]
                 elif gprefs.get('default_author_link'):
@@ -143,8 +144,6 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                         vals['author_sort'] = aut.replace(' ', '+')
                     link = formatter.safe_format(
                             gprefs.get('default_author_link'), vals, '', vals)
-                else:
-                    link = ''
                 if link:
                     link = prepare_string_for_xml(link)
                     authors.append(u'<a href="%s">%s</a>'%(link, aut))
