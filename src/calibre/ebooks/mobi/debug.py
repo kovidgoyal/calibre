@@ -214,10 +214,11 @@ class MOBIHeader(object): # {{{
         self.number_of_text_records, self.text_record_size = \
                 struct.unpack(b'>HH', self.raw[8:12])
         self.encryption_type_raw, = struct.unpack(b'>H', self.raw[12:14])
-        self.encryption_type = {0: 'No encryption',
+        self.encryption_type = {
+                0: 'No encryption',
                 1: 'Old mobipocket encryption',
-                2:'Mobipocket encryption'}.get(self.encryption_type_raw,
-                repr(self.encryption_type_raw))
+                2: 'Mobipocket encryption'
+            }.get(self.encryption_type_raw, repr(self.encryption_type_raw))
         self.unknown = self.raw[14:16]
 
         self.identifier = self.raw[16:20]
@@ -768,15 +769,17 @@ class CNCX(object) : # {{{
 
     def __init__(self, records, codec):
         self.records = OrderedDict()
-        pos = 0
+        record_offset = 0
         for record in records:
             raw = record.raw
+            pos = 0
             while pos < len(raw):
                 length, consumed = decint(raw[pos:])
                 if length > 0:
-                    self.records[pos] = raw[pos+consumed:pos+consumed+length].decode(
-                        codec)
+                    self.records[pos+record_offset] = raw[
+                            pos+consumed:pos+consumed+length].decode(codec)
                 pos += consumed+length
+            record_offset += 0x10000
 
     def __getitem__(self, offset):
         return self.records.get(offset)
