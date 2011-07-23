@@ -17,8 +17,10 @@ from calibre.ebooks.mobi.writer2.serializer import Serializer
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
-from calibre.ebooks.mobi.writer2 import PALMDOC, UNCOMPRESSED
-from calibre.ebooks.mobi.writer2.utils import (rescale_image, encint)
+from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
+from calibre.ebooks.mobi.utils import (rescale_image, encint,
+        encode_trailing_data)
+from calibre.ebooks.mobi.writer2.indexer import Indexer
 
 EXTH_CODES = {
     'creator': 100,
@@ -39,9 +41,6 @@ EXTH_CODES = {
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
 
-RECORD_SIZE = 0x1000 # 4096
-
-
 MAX_THUMB_SIZE = 16 * 1024
 MAX_THUMB_DIMEN = (180, 240)
 
@@ -53,6 +52,7 @@ class MobiWriter(object):
         self.write_page_breaks_after_item = write_page_breaks_after_item
         self.compression = UNCOMPRESSED if opts.dont_compress else PALMDOC
         self.prefer_author_sort = opts.prefer_author_sort
+        self.last_text_record_idx = 1
 
     def __call__(self, oeb, path_or_stream):
         if hasattr(path_or_stream, 'write'):
@@ -79,9 +79,49 @@ class MobiWriter(object):
     def generate_content(self):
         self.map_image_names()
         self.generate_text()
-        # Image records come after text records
+        # Index records come after text records
+        self.generate_index()
+        self.write_uncrossable_breaks()
+        # Image records come after index records
         self.generate_images()
 
+    # Indexing {{{
+    def generate_index(self):
+        self.primary_index_record_idx = None
+        try:
+            self.indexer = Indexer(self.serializer, self.last_text_record_idx,
+                    self.opts, self.oeb)
+        except:
+            self.log.exception('Failed to generate MOBI index:')
+    # }}}
+
+    def write_uncrossable_breaks(self): # {{{
+        '''
+        Write information about uncrossable breaks (non linear items in
+        the spine.
+        '''
+        if not WRITE_UNCROSSABLE_BREAKS:
+            return
+
+        breaks = self.serializer.breaks
+
+        for i in xrange(1, self.last_text_record_idx+1):
+            offset = i * RECORD_SIZE
+            pbreak = 0
+            running = offset
+
+            buf = StringIO()
+
+            while breaks and (breaks[0] - offset) < RECORD_SIZE:
+                pbreak = (breaks.pop(0) - running) >> 3
+                encoded = encint(pbreak)
+                buf.write(encoded)
+                running += pbreak << 3
+            encoded = encode_trailing_data(buf.getvalue())
+            self.records[i] += encoded
+    # }}}
+
+    # Images {{{
     def map_image_names(self):
         '''
         Map image names to record indices, ensuring that the masthead image if
@@ -120,23 +160,38 @@ class MobiWriter(object):
             if self.first_image_record is None:
                 self.first_image_record = len(self.records) - 1
 
+    def add_thumbnail(self, item):
+        try:
+            data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
+                    maxsizeb=MAX_THUMB_SIZE)
+        except IOError:
+            self.oeb.logger.warn('Bad image file %r' % item.href)
+            return None
+        manifest = self.oeb.manifest
+        id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
+        manifest.add(id, href, 'image/jpeg', data=data)
+        index = len(self.images) + 1
+        self.images[href] = index
+        self.records.append(data)
+        return index
+
+    # }}}
+
+    # Text {{{
+
     def generate_text(self):
         self.oeb.logger.info('Serializing markup content...')
-        serializer = Serializer(self.oeb, self.images,
+        self.serializer = Serializer(self.oeb, self.images,
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
-        text = serializer()
-        breaks = serializer.breaks
-        self.anchor_offset_kindle = serializer.anchor_offset_kindle
-        self.id_offsets = serializer.id_offsets
+        text = self.serializer()
         self.content_length = len(text)
         self.text_length = len(text)
         text = StringIO(text)
-        buf = []
         nrecords = 0
-        offset = 0
 
         if self.compression != UNCOMPRESSED:
             self.oeb.logger.info('  Compressing markup content...')
+
         data, overlap = self.read_text_record(text)
 
         while len(data) > 0:
@@ -146,39 +201,14 @@ class MobiWriter(object):
             record.write(data)
 
             self.records.append(record.getvalue())
-            buf.append(self.records[-1])
             nrecords += 1
-            offset += RECORD_SIZE
             data, overlap = self.read_text_record(text)
 
             # Write information about the mutibyte character overlap, if any
             record.write(overlap)
             record.write(pack(b'>B', len(overlap)))
 
-            # Write information about uncrossable breaks (non linear items in
-            # the spine)
-            if WRITE_UNCROSSABLE_BREAKS:
-                nextra = 0
-                pbreak = 0
-                running = offset
-
-                # Write information about every uncrossable break that occurs in
-                # the next record.
-                while breaks and (breaks[0] - offset) < RECORD_SIZE:
-                    pbreak = (breaks.pop(0) - running) >> 3
-                    encoded = encint(pbreak)
-                    record.write(encoded)
-                    running += pbreak << 3
-                    nextra += len(encoded)
-                lsize = 1
-                while True:
-                    size = encint(nextra + lsize, forward=False)
-                    if len(size) == lsize:
-                        break
-                    lsize += 1
-                record.write(size)
-
-        self.text_nrecords = nrecords + 1
+        self.last_text_record_idx = nrecords
 
     def read_text_record(self, text):
         '''
@@ -230,25 +260,29 @@ class MobiWriter(object):
 
         return data, overlap
 
-    def generate_end_records(self):
-        self.flis_number = len(self.records)
-        self.records.append('\xE9\x8E\x0D\x0A')
+    # }}}
 
-    def generate_record0(self): # {{{
+    def generate_record0(self): #  MOBI header {{{
         metadata = self.oeb.metadata
         exth = self.build_exth()
         last_content_record = len(self.records) - 1
 
-        self.generate_end_records()
+        # EOF record
+        self.records.append('\xE9\x8E\x0D\x0A')
 
         record0 = StringIO()
-        # The PalmDOC Header
-        record0.write(pack(b'>HHIHHHH', self.compression, 0,
-            self.text_length,
-            self.text_nrecords-1, RECORD_SIZE, 0, 0)) # 0 - 15 (0x0 - 0xf)
+        # The MOBI Header
+        record0.write(pack(b'>HHIHHHH',
+            self.compression, # compression type # compression type
+            0, # Unused
+            self.text_length, # Text length
+            self.last_text_record_idx, # Number of text records or last tr idx
+            RECORD_SIZE, # Text record size
+            0, # Unused
+            0  # Unused
+        )) # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
         title = normalize(unicode(metadata.title[0])).encode('utf-8')
-        # The MOBI Header
 
         # 0x0 - 0x3
         record0.write(b'MOBI')
@@ -270,7 +304,6 @@ class MobiWriter(object):
         # 0x18 - 0x1f : Unknown
         record0.write(b'\xff' * 8)
 
-
         # 0x20 - 0x23 : Secondary index record
         record0.write(pack(b'>I', 0xffffffff))
 
@@ -279,7 +312,7 @@ class MobiWriter(object):
 
         # 0x40 - 0x43 : Offset of first non-text record
         record0.write(pack(b'>I',
-            self.text_nrecords + 1))
+            self.last_text_record_idx + 1))
 
         # 0x44 - 0x4b : title offset, title length
         record0.write(pack(b'>II',
@@ -289,7 +322,7 @@ class MobiWriter(object):
         record0.write(iana2mobi(
             str(metadata.language[0])))
 
-        # 0x50 - 0x57 : Unknown
+        # 0x50 - 0x57 : Input language and Output language
         record0.write(b'\0' * 8)
 
         # 0x58 - 0x5b : Format version
@@ -348,19 +381,20 @@ class MobiWriter(object):
 
         # 0xe0 - 0xe3 : Extra record data
         # Extra record data flags:
-        #   - 0x1: <extra multibyte bytes><size> (?)
-        #   - 0x2: <TBS indexing description of this HTML record><size> GR
-        #   - 0x4: <uncrossable breaks><size>
-        # GR: Use 7 for indexed files, 5 for unindexed
+        #   - 0b1  : <extra multibyte bytes><size>
+        #   - 0b10 : <TBS indexing description of this HTML record><size>
+        #   - 0b100: <uncrossable breaks><size>
         # Setting bit 2 (0x2) disables <guide><reference type="start"> functionality
-
         extra_data_flags = 0b1 # Has multibyte overlap bytes
+        if self.primary_index_record_idx is not None:
+            extra_data_flags |= 0b10
         if WRITE_UNCROSSABLE_BREAKS:
             extra_data_flags |= 0b100
         record0.write(pack(b'>I', extra_data_flags))
 
         # 0xe4 - 0xe7 : Primary index record
-        record0.write(pack(b'>I', 0xffffffff))
+        record0.write(pack(b'>I', 0xffffffff if self.primary_index_record_idx
+            is None else self.primary_index_record_idx))
 
         record0.write(exth)
         record0.write(title)
@@ -371,7 +405,7 @@ class MobiWriter(object):
         self.records[0] = record0
     # }}}
 
-    def build_exth(self): # {{{
+    def build_exth(self): # EXTH Header {{{
         oeb = self.oeb
         exth = StringIO()
         nrecs = 0
@@ -467,22 +501,10 @@ class MobiWriter(object):
         return b''.join(exth)
     # }}}
 
-    def add_thumbnail(self, item):
-        try:
-            data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
-                    maxsizeb=MAX_THUMB_SIZE)
-        except IOError:
-            self.oeb.logger.warn('Bad image file %r' % item.href)
-            return None
-        manifest = self.oeb.manifest
-        id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
-        manifest.add(id, href, 'image/jpeg', data=data)
-        index = len(self.images) + 1
-        self.images[href] = index
-        self.records.append(data)
-        return index
-
-    def write_header(self):
+    def write_header(self): # PalmDB header {{{
+        '''
+        Write the PalmDB header
+        '''
         title = ascii_filename(unicode(self.oeb.metadata.title[0]))
         title = title + (b'\0' * (32 - len(title)))
         now = int(time.time())
@@ -494,6 +516,7 @@ class MobiWriter(object):
             self.write(pack(b'>I', offset), b'\0', pack(b'>I', 2*i)[1:])
             offset += len(record)
         self.write(b'\0\0')
+    # }}}
 
     def write_content(self):
         for record in self.records:

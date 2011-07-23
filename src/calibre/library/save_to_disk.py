@@ -110,8 +110,9 @@ def config(defaults=None):
                 'saving, depending on how well the filesystem you are saving '
                 'to supports unicode.'))
     x('timefmt', default='%b, %Y',
-            help=_('The format in which to display dates. %d - day, %b - month, '
-                '%Y - year. Default is: %b, %Y'))
+            help=_('The format in which to display dates. %(day)s - day,'
+                ' %(month)s - month, %(year)s - year. Default is: %(default)s'
+                )%dict(day='%d', month='%b', year='%Y', default='%b, %Y'))
     x('send_timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
                 ' %(month)s - month, %(year)s - year. Default is: %(default)s'
