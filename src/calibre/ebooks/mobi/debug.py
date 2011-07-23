@@ -709,6 +709,7 @@ class IndexRecord(object): # {{{
     def __init__(self, record, index_header, cncx):
         self.record = record
         raw = self.record.raw
+
         if raw[:4] != b'INDX':
             raise ValueError('Invalid Primary Index Record')
 
@@ -742,7 +743,7 @@ class IndexRecord(object): # {{{
                 next_off = len(indxt)
             index, consumed = decode_hex_number(indxt[off:])
             entry_type = ord(indxt[off+consumed])
-            d = 1
+            d, flags = 1, 0
             if index_header.index_type == 6:
                 flags = ord(indxt[off+consumed+d])
                 d += 1
