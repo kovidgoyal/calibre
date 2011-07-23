@@ -143,6 +143,7 @@ class Serializer(object):
         spine.extend([item for item in self.oeb.spine if not item.linear])
         for item in spine:
             self.serialize_item(item)
+        self.body_end_offset = buf.tell()
         buf.write(b'</body>')
 
     def serialize_item(self, item):

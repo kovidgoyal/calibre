@@ -12,6 +12,7 @@ from cStringIO import StringIO
 from collections import OrderedDict
 
 from calibre.ebooks import normalize
+from calibre.ebook.mobi.writer2 import RECORD_SIZE
 from calibre.ebooks.mobi.utils import encint
 
 def utf8_text(text):
@@ -37,7 +38,6 @@ def align_block(raw, multiple=4, pad=b'\0'):
     if extra == 0: return raw
     return raw + pad*(multiple - extra)
 
-
 class CNCX(object): # {{{
 
     '''
@@ -53,17 +53,15 @@ class CNCX(object): # {{{
 
         for item in toc:
             if item is self.toc: continue
-            label = item.title
-            klass = item.klass
+            self.strings[item.title] = 0
             if opts.mobi_periodical:
+                self.strings[item.klass] = 0
                 if item.description:
                     self.strings[item.description] = 0
                 if item.author:
                     self.string[item.author] = 0
-            self.strings[label] = self.strings[klass] = 0
 
         self.records = []
-
         offset = 0
         buf = StringIO()
         for key in tuple(self.strings.iterkeys()):
@@ -92,16 +90,40 @@ class CNCX(object): # {{{
 
 class Indexer(object):
 
-    def __init__(self, serializer, number_of_text_records, opts, oeb):
+    def __init__(self, serializer, number_of_text_records,
+            size_of_last_text_record, opts, oeb):
         self.serializer = serializer
         self.number_of_text_records = number_of_text_records
+        self.text_size = (RECORD_SIZE * (self.number_of_text_records-1) +
+                            size_of_last_text_record)
         self.oeb = oeb
         self.log = oeb.log
         self.opts = opts
 
-        self.cncx = CNCX(oeb.toc, opts)
+        self.is_periodical = opts.mobi_periodical
+        self.is_flat_periodical = False
+        if opts.mobi_periodical:
+            periodical_node = iter(oeb.toc).next()
+            sections = tuple(periodical_node)
+            self.is_flat_periodical = len(sections) == 1
 
         self.records = []
+
+        self.cncx = CNCX(oeb.toc, opts)
+
+        if self.is_periodical:
+            self.create_periodical_index()
+        else:
+            raise NotImplementedError()
+
+    def create_periodical_index(self):
+        periodical_node = iter(self.oeb.toc).next()
+        sections = tuple(periodical_node)
+        periodical_node_offset = self.serializer.body_start_offset
+        periodical_node_size = (self.serializer.body_end_offset -
+                periodical_node_offset)
+        periodical_node_size
+        sections
 
     def create_header(self):
         buf = StringIO()
