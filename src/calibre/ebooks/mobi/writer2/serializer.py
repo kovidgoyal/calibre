@@ -138,7 +138,7 @@ class Serializer(object):
         buf = self.buf
         self.anchor_offset = buf.tell()
         buf.write(b'<body>')
-        self.anchor_offset_kindle = buf.tell()
+        self.body_start_offset = buf.tell()
         spine = [item for item in self.oeb.spine if item.linear]
         spine.extend([item for item in self.oeb.spine if not item.linear])
         for item in spine:

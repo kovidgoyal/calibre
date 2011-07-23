@@ -177,3 +177,23 @@ def get_trailing_data(record, extra_data_flags):
             record = record[:-sz]
     return data, record
 
+def encode_trailing_data(raw):
+    '''
+    Given some data in the bytestring raw, return a bytestring of the form
+
+        <data><size>
+
+    where size is a backwards encoded vwi whose value is the length of the
+    entire return bytestring.
+
+    This is the encoding used for trailing data entries at the end of text
+    records. See get_trailing_data() for details.
+    '''
+    lsize = 1
+    while True:
+        encoded = encint(len(raw) + lsize, forward=False)
+        if len(encoded) == lsize:
+            break
+        lsize += 1
+    return raw + encoded
+
