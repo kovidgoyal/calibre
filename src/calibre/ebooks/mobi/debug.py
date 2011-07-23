@@ -406,7 +406,7 @@ class IndexHeader(object): # {{{
         self.unknown1 = raw[8:16]
         self.index_type, = struct.unpack('>I', raw[16:20])
         self.index_type_desc = {0: 'normal', 2:
-                'inflection'}.get(self.index_type, 'unknown')
+                'inflection', 6: 'calibre'}.get(self.index_type, 'unknown')
         self.idxt_start, = struct.unpack('>I', raw[20:24])
         self.index_count, = struct.unpack('>I', raw[24:28])
         self.index_encoding_num, = struct.unpack('>I', raw[28:32])
@@ -596,10 +596,11 @@ class IndexEntry(object): # {{{
             0x3f : 'article',
     }
 
-    def __init__(self, ident, entry_type, raw, cncx, tagx_entries):
+    def __init__(self, ident, entry_type, raw, cncx, tagx_entries, flags=0):
         self.index = ident
         self.raw = raw
         self.tags = []
+        self.entry_type_raw = entry_type
 
         try:
             self.entry_type = self.TYPES[entry_type]
@@ -618,6 +619,24 @@ class IndexEntry(object): # {{{
                 raw = raw[consumed:]
                 vals.append(val)
             self.tags.append(Tag(tag, vals, self.entry_type, cncx))
+
+        if flags & 0b10:
+            # Look for optional description and author
+            desc_tag = [t for t in tagx_entries if t.tag == 22]
+            if desc_tag and raw:
+                val, consumed = decint(raw)
+                raw = raw[consumed:]
+                if val:
+                    self.tags.append(Tag(desc_tag[0], [val], self.entry_type,
+                        cncx))
+        if flags & 0b100:
+            aut_tag = [t for t in tagx_entries if t.tag == 23]
+            if aut_tag and raw:
+                val, consumed = decint(raw)
+                raw = raw[consumed:]
+                if val:
+                    self.tags.append(Tag(aut_tag[0], [val], self.entry_type,
+                        cncx))
 
     @property
     def label(self):
@@ -669,8 +688,8 @@ class IndexEntry(object): # {{{
         return -1
 
     def __str__(self):
-        ans = ['Index Entry(index=%s, entry_type=%s, length=%d)'%(
-            self.index, self.entry_type, len(self.tags))]
+        ans = ['Index Entry(index=%s, entry_type=%s (%s), length=%d)'%(
+            self.index, self.entry_type, bin(self.entry_type_raw)[2:], len(self.tags))]
         for tag in self.tags:
             ans.append('\t'+str(tag))
         if self.first_child_index != -1:
@@ -723,8 +742,13 @@ class IndexRecord(object): # {{{
                 next_off = len(indxt)
             index, consumed = decode_hex_number(indxt[off:])
             entry_type = ord(indxt[off+consumed])
+            d = 1
+            if index_header.index_type == 6:
+                flags = ord(indxt[off+consumed+d])
+                d += 1
             self.indices.append(IndexEntry(index, entry_type,
-                indxt[off+consumed+1:next_off], cncx, index_header.tagx_entries))
+                indxt[off+consumed+d:next_off], cncx,
+                index_header.tagx_entries, flags=flags))
             index = self.indices[-1]
 
     def get_parent(self, index):

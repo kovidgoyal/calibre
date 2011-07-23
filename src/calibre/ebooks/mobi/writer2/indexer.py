@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from future_builtins import filter
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,7 +14,7 @@ from collections import OrderedDict
 
 from calibre.ebooks import normalize
 from calibre.ebook.mobi.writer2 import RECORD_SIZE
-from calibre.ebooks.mobi.utils import encint
+from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex)
 
 def utf8_text(text):
     '''
@@ -56,10 +57,6 @@ class CNCX(object): # {{{
             self.strings[item.title] = 0
             if opts.mobi_periodical:
                 self.strings[item.klass] = 0
-                if item.description:
-                    self.strings[item.description] = 0
-                if item.author:
-                    self.string[item.author] = 0
 
         self.records = []
         offset = 0
@@ -88,6 +85,69 @@ class CNCX(object): # {{{
         return self.strings[string]
 # }}}
 
+class IndexEntry(object):
+
+    TAG_VALUES = {
+            'offset': 1,
+            'size': 2,
+            'label_offset': 3,
+            'depth': 4,
+            'class_offset': 5,
+            'parent_index': 21,
+            'first_child_index': 22,
+            'last_child_index': 23,
+    }
+    RTAG_MAP = dict(TAG_VALUES.itervalues(), TAG_VALUES.iterkeys())
+
+    BITMASKS = [1, 2, 3, 4, 5, 21, 22, 23,]
+
+    def __init__(self, offset, label_offset, depth=0, class_offset=None):
+        self.offset, self.label_offset = offset, label_offset
+        self.depth, self.class_offset = depth, class_offset
+
+        self.length = 0
+        self.index = 0
+
+        self.parent_index = None
+        self.first_child_index = None
+        self.last_child_index = None
+
+    @property
+    def next_offset(self):
+        return self.offset + self.length
+
+    @property
+    def tag_nums(self):
+        for i in range(1, 5):
+            yield i
+        for attr in ('class_offset', 'parent_index', 'first_child_index',
+                'last_child_index'):
+            if getattr(self, attr) is not None:
+                yield self.TAG_VALUES[attr]
+
+    @property
+    def entry_type(self):
+        ans = 0
+        for tag in self.tag_nums:
+            ans |= (1 << self.BITMASKS[tag]) # 1 << x == 2**x
+        return ans
+
+    @property
+    def bytestring(self):
+        buf = StringIO()
+        buf.write(encode_number_as_hex(self.index))
+        et = self.entry_type
+        buf.write(bytes(bytearray([et])))
+
+        for tag in self.tag_nums:
+            attr = self.RTAG_MAP[tag]
+            val = getattr(self, attr)
+            buf.write(encint(val))
+
+        ans = buf.get_value()
+        return ans
+
+
 class Indexer(object):
 
     def __init__(self, serializer, number_of_text_records,
@@ -112,18 +172,152 @@ class Indexer(object):
         self.cncx = CNCX(oeb.toc, opts)
 
         if self.is_periodical:
-            self.create_periodical_index()
+            indices = self.create_periodical_index()
+            indices
         else:
             raise NotImplementedError()
 
-    def create_periodical_index(self):
+    def create_periodical_index(self): # {{{
         periodical_node = iter(self.oeb.toc).next()
-        sections = tuple(periodical_node)
         periodical_node_offset = self.serializer.body_start_offset
         periodical_node_size = (self.serializer.body_end_offset -
                 periodical_node_offset)
-        periodical_node_size
-        sections
+
+        normalized_sections = []
+
+        id_offsets = self.serializer.id_offsets
+
+        periodical = IndexEntry(periodical_node_offset,
+                self.cncx[periodical_node.title],
+                class_offset=self.cncx[periodical_node.klass])
+        periodical.length = periodical_node_size
+        periodical.first_child_index = 1
+
+        seen_sec_offsets = set()
+        seen_art_offsets = set()
+
+        for sec in periodical_node:
+            normalized_articles = []
+            try:
+                offset = id_offsets[sec.href]
+                label = self.cncx[sec.title]
+                klass = self.cncx[sec.klass]
+            except:
+                continue
+            if offset in seen_sec_offsets:
+                continue
+            seen_sec_offsets.add(offset)
+            section = IndexEntry(offset, label, class_offset=klass, depth=1)
+            section.parent_index = 0
+            for art in sec:
+                try:
+                    offset = id_offsets[art.href]
+                    label = self.cncx[art.title]
+                    klass = self.cncx[art.klass]
+                except:
+                    continue
+                if offset in seen_art_offsets:
+                    continue
+                seen_art_offsets.add(offset)
+                article = IndexEntry(offset, label, class_offset=klass,
+                        depth=2)
+                normalized_articles.append(article)
+            if normalized_articles:
+                normalized_articles.sort(key=lambda x:x.offset)
+                normalized_sections.append((section, normalized_articles))
+
+        normalized_sections.sort(key=lambda x:x[0].offset)
+
+        # Set lengths
+        for s, x in enumerate(normalized_sections):
+            sec, normalized_articles = x
+            try:
+                sec.length = normalized_sections[s+1].offset - sec.offset
+            except:
+                sec.length = self.serializer.body_end_offset - sec.offset
+            for i, art in enumerate(normalized_articles):
+                try:
+                    art.length = normalized_articles[i+1].offset - art.offset
+                except:
+                    art.length = sec.offset + sec.length - art.offset
+
+        # Filter
+        for i, x in list(enumerate(normalized_sections)):
+            sec, normalized_articles = x
+            normalized_articles = list(filter(lambda x: x.length > 0,
+                normalized_articles))
+            normalized_sections[i] = (sec, normalized_articles)
+
+        normalized_sections = list(filter(lambda x: x[0].size > 0 and x[1],
+            normalized_sections))
+
+        # Set indices
+        i = 0
+        for sec, normalized_articles in normalized_sections:
+            i += 1
+            sec.index = i
+
+        for sec, normalized_articles in normalized_sections:
+            for art in normalized_articles:
+                i += 1
+                art.index = i
+                art.parent_index = sec.index
+
+        for sec, normalized_articles in normalized_sections:
+            sec.first_child_index = normalized_articles[0].index
+            sec.last_child_index = normalized_articles[-1].index
+
+        # Set lengths again to close up any gaps left by filtering
+        for s, x in enumerate(normalized_sections):
+            sec, articles = x
+            try:
+                next_offset = normalized_sections[s+1].offset
+            except:
+                next_offset = self.serializer.body_end_offset
+            sec.length = next_offset - sec.offset
+
+            for a, art in enumerate(articles):
+                try:
+                    next_offset = articles[a+1].offset
+                except:
+                    next_offset = sec.next_offset
+                art.length = next_offset - art.offset
+
+        # Sanity check
+        for s, x in enumerate(normalized_sections):
+            sec, articles = x
+            try:
+                next_sec = normalized_sections[s+1]
+            except:
+                if (sec.length == 0 or sec.next_offset !=
+                        self.serializer.body_end_offset):
+                    raise ValueError('Invalid section layout')
+            else:
+                if next_sec.offset != sec.next_offset or sec.length == 0:
+                    raise ValueError('Invalid section layout')
+            for a, art in enumerate(articles):
+                try:
+                    next_art = articles[a+1]
+                except:
+                    if (art.length == 0 or art.next_offset !=
+                            sec.next_offset):
+                        raise ValueError('Invalid article layout')
+                else:
+                    if art.length == 0 or art.next_offset != next_art.offset:
+                        raise ValueError('Invalid article layout')
+
+        # Flatten
+        indices = [periodical]
+        for sec, articles in normalized_sections:
+            indices.append(sec)
+            periodical.last_child_index = sec.index
+
+        for sec, articles in normalized_sections:
+            for a in articles:
+                indices.append(a)
+
+        return indices
+    # }}}
 
     def create_header(self):
         buf = StringIO()
