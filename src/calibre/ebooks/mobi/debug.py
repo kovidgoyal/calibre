@@ -638,6 +638,9 @@ class IndexEntry(object): # {{{
                     self.tags.append(Tag(aut_tag[0], [val], self.entry_type,
                         cncx))
 
+        if raw.replace(b'\x00', b''):
+            raise ValueError('Extra bytes in INDX table entry %d: %r'%(self.index, raw))
+
     @property
     def label(self):
         for tag in self.tags:
