@@ -93,6 +93,9 @@ class MobiWriter(object):
                     self.opts, self.oeb)
         except:
             self.log.exception('Failed to generate MOBI index:')
+        else:
+            self.primary_index_record_idx = len(self.records)
+            self.records.extend(self.indexer.records)
     # }}}
 
     def write_uncrossable_breaks(self): # {{{

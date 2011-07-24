@@ -399,6 +399,7 @@ class IndexHeader(object): # {{{
     def __init__(self, record):
         self.record = record
         raw = self.record.raw
+        #open('/t/index_header.bin', 'wb').write(raw)
         if raw[:4] != b'INDX':
             raise ValueError('Invalid Primary Index Record')
 

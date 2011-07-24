@@ -15,6 +15,7 @@ from collections import OrderedDict
 from calibre.ebooks import normalize
 from calibre.ebook.mobi.writer2 import RECORD_SIZE
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex)
+from calibre.ebooks.mobi.langcodes import iana2mobi
 
 def utf8_text(text):
     '''
@@ -85,7 +86,7 @@ class CNCX(object): # {{{
         return self.strings[string]
 # }}}
 
-class IndexEntry(object):
+class IndexEntry(object): # {{{
 
     TAG_VALUES = {
             'offset': 1,
@@ -111,6 +112,35 @@ class IndexEntry(object):
         self.parent_index = None
         self.first_child_index = None
         self.last_child_index = None
+
+    @classmethod
+    def tagx_block(cls, for_periodical=True):
+        buf = bytearray()
+
+        def add_tag(tag, num_values=1):
+            buf.append(tag)
+            buf.append(num_values)
+            # bitmask
+            buf.append(1 << (cls.BITMASKS.index(tag)))
+            # eof
+            buf.append(0)
+
+        for tag in xrange(1, 5):
+            add_tag(tag)
+
+        if for_periodical:
+            for tag in (5, 21, 22, 23):
+                add_tag(tag)
+
+        # End of TAGX record
+        for i in xrange(3): buf.append(0)
+        buf.append(1)
+
+        header = b'TAGX'
+        header += pack(b'>I', len(buf)) # table length
+        header += pack(b'>I', 1) # control byte count
+
+        return header + bytes(buf)
 
     @property
     def next_offset(self):
@@ -147,6 +177,7 @@ class IndexEntry(object):
         ans = buf.get_value()
         return ans
 
+# }}}
 
 class Indexer(object):
 
@@ -172,15 +203,18 @@ class Indexer(object):
         self.cncx = CNCX(oeb.toc, opts)
 
         if self.is_periodical:
-            indices = self.create_periodical_index()
+            self.indices = self.create_periodical_index()
         else:
             raise NotImplementedError()
 
-        self.records.append(self.create_index_record(indices))
+        self.records.append(self.create_index_record())
+        self.records.insert(0, self.create_header())
+        self.records.extend(self.cncx.records)
 
-    def create_index_record(self, indices):
+    def create_index_record(self): # {{{
         header_length = 192
         buf = StringIO()
+        indices = self.indices
 
         # Write index entries
         offsets = []
@@ -218,6 +252,7 @@ class Indexer(object):
         if len(ans) > 0x10000:
             raise ValueError('Too many entries (%d) in the TOC'%len(offsets))
         return ans
+    # }}}
 
     def create_periodical_index(self): # {{{
         periodical_node = iter(self.oeb.toc).next()
@@ -361,14 +396,85 @@ class Indexer(object):
         return indices
     # }}}
 
-    def create_header(self):
+    def create_header(self): # {{{
         buf = StringIO()
+        tagx_block = IndexEntry.tagx_block(self.is_periodical)
+        header_length = 192
 
-        # Ident
+        # Ident 0 - 4
         buf.write(b'INDX')
 
-        # Header length
-        buf.write(pack(b'>I', 192))
+        # Header length 4 - 8
+        buf.write(pack(b'>I', header_length))
 
-        # Index type: 0 - normal, 2 - inflection
+        # Unknown 8-16
+        buf.write(b'\0'*8)
+
+        # Index type: 0 - normal, 2 - inflection 16 - 20
         buf.write(pack(b'>I', 2))
+
+        # IDXT offset 20-24
+        buf.write(pack(b'>I', 0)) # Filled in later
+
+        # Number of index records 24-28
+        buf.write(pack('b>I', len(self.records)))
+
+        # Index Encoding 28-32
+        buf.write(pack(b'>I', 65001)) # utf-8
+
+        # Index language 32-36
+        buf.write(iana2mobi(
+            str(self.oeb.metadata.language[0])))
+
+        # Number of index entries 36-40
+        buf.write(pack(b'>I', len(self.indices)))
+
+        # ORDT offset 40-44
+        buf.write(pack(b'>I', 0))
+
+        # LIGT offset 44-48
+        buf.write(pack(b'>I', 0))
+
+        # Number of LIGT entries 48-52
+        buf.write(pack(b'>I', 0))
+
+        # Number of CNCX records 52-56
+        buf.write(pack(b'>I', len(self.cncx.records)))
+
+        # Unknown 56-180
+        buf.write(b'\0'*124)
+
+        # TAGX offset 180-184
+        buf.write(pack(b'>I', header_length))
+
+        # Unknown 184-192
+        buf.write(b'\0'*8)
+
+        # TAGX block
+        buf.write(tagx_block)
+
+        num = len(self.indices)
+
+        # The index of the last entry in the NCX
+        buf.write(encode_number_as_hex(num-1))
+
+        # The number of entries in the NCX
+        buf.write(pack(b'>H', num))
+
+        # Padding
+        pad = (4 - (buf.tell()%4))%4
+        if pad:
+            buf.write(b'\0'*pad)
+
+        idxt_offset = buf.tell()
+
+        buf.write(b'IDXT')
+        buf.write(header_length + len(tagx_block))
+        buf.write(b'\0')
+        buf.seek(20)
+        buf.write(pack(b'>I', idxt_offset))
+
+        return align_block(buf.getvalue())
+    # }}}
+
+
