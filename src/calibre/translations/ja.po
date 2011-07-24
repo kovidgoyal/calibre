@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-22 07:57+0000\n"
+"PO-Revision-Date: 2011-07-23 06:44+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-23 04:43+0000\n"
+"X-Launchpad-Export-Date: 2011-07-24 04:33+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1387,11 +1387,11 @@ msgstr "Kobo Reader と通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:53
 msgid "The Kobo supports several collections including "
-msgstr ""
+msgstr "Koboはいくつものコレクションをサポートしています： "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:55
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "自動管理用のタグを作成"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:537
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:388
@@ -1731,6 +1731,9 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"デバイスのメインメモリーにアクセスすることに失敗しました。デバイスの製造元のサポートへコンタクトしてください。別のUSBケーブル・USBポートにつないで見"
+"ることも、よく問題解決につながることもあります。もしデバイスに「ファクトリー・ディフォールトにリセット」する設定がある場合には、それを使ってみてください。"
+"発生したエラー：%s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:113
 #, python-format
@@ -1741,6 +1744,9 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"デバイスのSDカードにアクセスすることに失敗しました。これはいろいろな理由で起こります。SDカードが壊れていることもあれば、このデバイスには大きすぎること"
+"も、書き込みプロテクトになっている場合もあります。別のSDカードを使うか、SDカードをFAT32ファイルシステムで再フォーマットしてみてください。それと、"
+"SDカードのルートに非常に多くのファイルが無い事を確認してください。発生したエラー：%s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
@@ -2281,6 +2287,8 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent (in em)."
 msgstr ""
+"Calibreがパラグラフ間の空行を取り除く時に、後からパラグラフが簡単に識別できるように、自動的にパラグラフのインデントを設定します。このオプションはイ"
+"ンデントの幅を調整します。(単位em）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:376
 msgid ""
@@ -2298,7 +2306,7 @@ msgstr "パラグラフ間に空白行を挿入します。入力ファイルが
 msgid ""
 "Set the height of the inserted blank lines (in em). The height of the lines "
 "between paragraphs will be twice the value set here."
-msgstr ""
+msgstr "挿入される空行の高さを設定（単位em）。パラグラフ間の行の高さはこの設定値の倍の高さになります。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:396
 msgid ""
@@ -3454,7 +3462,7 @@ msgstr "著者データが存在する場合、著者をソート順に使いま
 msgid ""
 "Don't add Table of Contents to the book. Useful if the book has its own "
 "table of contents."
-msgstr ""
+msgstr "書籍に目次を追加しない。書籍に独自の目次がある場合に便利です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:57
@@ -3482,7 +3490,7 @@ msgstr ""
 msgid ""
 "When adding the Table of Contents to the book, add it at the start of the "
 "book instead of the end. Not recommended."
-msgstr ""
+msgstr "書籍に目次を追加する場合、最後ではなく書籍の最初に付加する。（推奨しません）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:119
 msgid "All articles"
@@ -6786,7 +6794,7 @@ msgstr "段落間の間隔を削除(&s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:158
 msgid "Insert &blank line between paragraphs"
-msgstr ""
+msgstr "パラグラフ間に空行を入れる。(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
@@ -6795,7 +6803,7 @@ msgstr " em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:160
 msgid "Text &justification:"
-msgstr ""
+msgstr "テキスト・ジャスティフィケーション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:161
 msgid "&Linearize tables"
@@ -6828,11 +6836,11 @@ msgstr "記号文字を変換(&p)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:168
 msgid "&Indent size:"
-msgstr ""
+msgstr "インデント・サイズ(&I)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:169
 msgid "&Line size:"
-msgstr ""
+msgstr "行サイズ(&L)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -7048,7 +7056,7 @@ msgstr "私的なドキュメントのタグ："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:86
 msgid "Put generated Table of Contents at &start of book instead of end"
-msgstr ""
+msgstr "生成された目次を書籍の後ろではなくはじめに入れる(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:87
 msgid "Ignore &margins"
@@ -7171,11 +7179,11 @@ msgstr "書籍が無いとGUIビルダーを使ってregexを作成できませ�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:144
 msgid "Could not open file"
-msgstr ""
+msgstr "ファイルを開けませんでした."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:145
 msgid "Could not open the file, do you have it open in another program?"
-msgstr ""
+msgstr "ファイルが開けませんでした。別のプログラムを使って開きますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:175
 msgid "Open book"
@@ -11386,7 +11394,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:600
 #, python-format
 msgid "Restore %s from the original"
-msgstr ""
+msgstr "%sをオリジナルへ戻す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:646
 msgid "Set the cover for the book from the selected format"
@@ -14057,7 +14065,7 @@ msgstr "アクション %s をこの場所から削除できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:101
 msgid "Choose the toolbar to customize"
-msgstr ""
+msgstr "カスタマイズするツールバーを選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:102
 msgid "A&vailable actions"
@@ -17570,13 +17578,13 @@ msgstr "ソースコードの変更時にサーバーを自動的にリロード
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:158
 msgid "Switch to the full interface (non-mobile interface)"
-msgstr ""
+msgstr "フル・インターフェイスに切り替え（モバイルではないインターフェイス）"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:161
 msgid ""
 "The full interface gives you many more features, but it may not work well on "
 "a small screen"
-msgstr ""
+msgstr "フル･インターフェイスはたくさんの機能を提供しますが、小さなスクリーンには入りきらないでしょう。"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:125
 #, python-format
@@ -18033,6 +18041,9 @@ msgid ""
 "If the item is not in the list, then the empty value is returned. The "
 "separator has the same meaning as in the count function."
 msgstr ""
+"list_item(val, index, separator) -- "
+"valをseparatorで区切られたアイテムのリストとして解釈し、index番目の物を返す。最初のアイテムは０番目です。最後のアイテムは "
+"`list_item(-1,separator)` とすれば返ります。separatorはcount関数と同じ意味です。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:509
 msgid ""
@@ -18040,6 +18051,8 @@ msgid ""
 "with the items being \"id:value\". Find the pair with theid equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(val, key) -- "
+"valをコンマ区切りの\"id:value\"と言う形式のアイテムのリストと解釈し、keyと同じidのvalueを返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:527
 msgid ""
@@ -18050,6 +18063,10 @@ msgid ""
 "get the mod time for a specific format. Note that format names are always "
 "uppercase, as in EPUB."
 msgstr ""
+"formats_modtimes(date_format) -- "
+"コロン区切りの書籍内のフォーマットの修正日の、カンマ区切りのリストを返します。date_formatパラメータは日付がどのようにフォーマットされるかを指定"
+"します。詳細はdate_format関数の説明を参照してください。特定のフォーマットの修正時刻を取り出すにはselect関数を使ってください。注：フォーマ"
+"ット名は(EPUBの様に）必ず大文字です。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:546
 msgid ""
@@ -18058,12 +18075,15 @@ msgid ""
 "function to get the size for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
+"formats_sizes() -- "
+"コロン区切りの書籍内のフォーマットのサイズ（バイト）の、カンマ区切りのリストを返します。特定のフォーマットのサイズを取得するにはselect関数を使ってく"
+"ださい。注：フォーマット名は(EPUBの様に）必ず大文字です。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:562
 msgid ""
 "human_readable(v) -- return a string representing the number v in KB, MB, "
 "GB, etc."
-msgstr ""
+msgstr "human_readable(v) -- 数字vを、KB、MB、GB等を付けた文字列に変換して返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:576
 msgid ""
@@ -18073,6 +18093,10 @@ msgid ""
 "examples). See the template language and python documentation for more "
 "examples. Returns the empty string if formatting fails."
 msgstr ""
+"format_number(v, template) -- 数値vを \"{0:5.2f}\" or \"{0:,d}\" or "
+"\"${0:5,.2f}\" のようなpythonのフォーマッティング・テンプレートでフォーマットする。テンプレートのfield_name は 0 "
+"(ゼロ) 出なければなりません。(上の例の \"{0:\" "
+"を参照)。他の例はpythonのドキュメントを参照してください。フォーマッティングが失敗した場合には空文字列が返されます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:601
 msgid ""
@@ -18086,6 +18110,12 @@ msgid ""
 "{tags:sublist(-1,0,\\,)} returns \"C\". {tags:sublist(0,-1,\\,)} returns "
 "\"A, B\"."
 msgstr ""
+"sublist(val, start_index, end_index, separator) -- "
+"valをseparatorで区切られたアイテムのリストとして解釈し、`start_index` から `end_index` "
+"のアイテムのリストを返す。最初のアイテムは0です。もしインデックスが負の場合には、リストの最後から数えます。特別なケースとしてend_indexが0の時に"
+"はリストの長さをあらわします。例えば、ベーシック・テンプレート・モードでタグ列（それはコンマ区切りのリスト)を扱う場合、 \"A, B, C\": "
+"{tags:sublist(0,1,\\,)} は \"A\" を返します。 {tags:sublist(-1,0,\\,)} は "
+"\"C\"を返します。 {tags:sublist(0,-1,\\,)} は \"A, B\"を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:632
 msgid ""
