@@ -17,7 +17,7 @@ from datetime import datetime
 from functools import partial
 
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.date import parse_date, isoformat, local_tz
+from calibre.utils.date import parse_date, isoformat, local_tz, UNDEFINED_DATE
 from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG, plugins
 from calibre.utils.icu import strcmp
@@ -39,8 +39,11 @@ def _c_convert_timestamp(val):
     if ret is None:
         return parse_date(val, as_utc=False)
     year, month, day, hour, minutes, seconds, tzsecs = ret
-    return datetime(year, month, day, hour, minutes, seconds,
+    try:
+        return datetime(year, month, day, hour, minutes, seconds,
                 tzinfo=tzoffset(None, tzsecs)).astimezone(local_tz)
+    except OverflowError:
+        return UNDEFINED_DATE.astimezone(local_tz)
 
 def _py_convert_timestamp(val):
     if val:
