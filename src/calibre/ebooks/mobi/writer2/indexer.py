@@ -205,7 +205,7 @@ class Indexer(object):
         if self.is_periodical:
             self.indices = self.create_periodical_index()
         else:
-            raise NotImplementedError()
+            self.indices = self.create_book_index()
 
         self.records.append(self.create_index_record())
         self.records.insert(0, self.create_header())
@@ -252,6 +252,134 @@ class Indexer(object):
         if len(ans) > 0x10000:
             raise ValueError('Too many entries (%d) in the TOC'%len(offsets))
         return ans
+    # }}}
+
+    def create_header(self): # {{{
+        buf = StringIO()
+        tagx_block = IndexEntry.tagx_block(self.is_periodical)
+        header_length = 192
+
+        # Ident 0 - 4
+        buf.write(b'INDX')
+
+        # Header length 4 - 8
+        buf.write(pack(b'>I', header_length))
+
+        # Unknown 8-16
+        buf.write(b'\0'*8)
+
+        # Index type: 0 - normal, 2 - inflection 16 - 20
+        buf.write(pack(b'>I', 2))
+
+        # IDXT offset 20-24
+        buf.write(pack(b'>I', 0)) # Filled in later
+
+        # Number of index records 24-28
+        buf.write(pack('b>I', len(self.records)))
+
+        # Index Encoding 28-32
+        buf.write(pack(b'>I', 65001)) # utf-8
+
+        # Index language 32-36
+        buf.write(iana2mobi(
+            str(self.oeb.metadata.language[0])))
+
+        # Number of index entries 36-40
+        buf.write(pack(b'>I', len(self.indices)))
+
+        # ORDT offset 40-44
+        buf.write(pack(b'>I', 0))
+
+        # LIGT offset 44-48
+        buf.write(pack(b'>I', 0))
+
+        # Number of LIGT entries 48-52
+        buf.write(pack(b'>I', 0))
+
+        # Number of CNCX records 52-56
+        buf.write(pack(b'>I', len(self.cncx.records)))
+
+        # Unknown 56-180
+        buf.write(b'\0'*124)
+
+        # TAGX offset 180-184
+        buf.write(pack(b'>I', header_length))
+
+        # Unknown 184-192
+        buf.write(b'\0'*8)
+
+        # TAGX block
+        buf.write(tagx_block)
+
+        num = len(self.indices)
+
+        # The index of the last entry in the NCX
+        buf.write(encode_number_as_hex(num-1))
+
+        # The number of entries in the NCX
+        buf.write(pack(b'>H', num))
+
+        # Padding
+        pad = (4 - (buf.tell()%4))%4
+        if pad:
+            buf.write(b'\0'*pad)
+
+        idxt_offset = buf.tell()
+
+        buf.write(b'IDXT')
+        buf.write(header_length + len(tagx_block))
+        buf.write(b'\0')
+        buf.seek(20)
+        buf.write(pack(b'>I', idxt_offset))
+
+        return align_block(buf.getvalue())
+    # }}}
+
+    def create_book_index(self): # {{{
+        indices = []
+        seen = set()
+        id_offsets = self.serializer.id_offsets
+
+        for node in self.oeb.toc.iterdescendants():
+            try:
+                offset = id_offsets[node.href]
+                label = self.cncx[node.title]
+            except:
+                self.log.warn('TOC item %s not found in document'%node.href)
+                continue
+            if offset in seen:
+                continue
+            seen.add(offset)
+            index = IndexEntry(offset, label)
+            self.indices.append(index)
+
+        indices.sort(key=lambda x:x.offset)
+
+        # Set lengths
+        for i, index in indices:
+            try:
+                next_offset = indices[i+1].offset
+            except:
+                next_offset = self.serializer.body_end_offset
+            index.length = next_offset - index.offset
+
+        # Remove empty nodes
+        indices = [i for i in indices if i.length > 0]
+
+        # Set index values
+        for i, index in indices:
+            index.index = i
+
+        # Set lengths again to close up any gaps left by filtering
+        for i, index in indices:
+            try:
+                next_offset = indices[i+1].offset
+            except:
+                next_offset = self.serializer.body_end_offset
+            index.length = next_offset - index.offset
+
+        return indices
+
     # }}}
 
     def create_periodical_index(self): # {{{
@@ -395,86 +523,4 @@ class Indexer(object):
 
         return indices
     # }}}
-
-    def create_header(self): # {{{
-        buf = StringIO()
-        tagx_block = IndexEntry.tagx_block(self.is_periodical)
-        header_length = 192
-
-        # Ident 0 - 4
-        buf.write(b'INDX')
-
-        # Header length 4 - 8
-        buf.write(pack(b'>I', header_length))
-
-        # Unknown 8-16
-        buf.write(b'\0'*8)
-
-        # Index type: 0 - normal, 2 - inflection 16 - 20
-        buf.write(pack(b'>I', 2))
-
-        # IDXT offset 20-24
-        buf.write(pack(b'>I', 0)) # Filled in later
-
-        # Number of index records 24-28
-        buf.write(pack('b>I', len(self.records)))
-
-        # Index Encoding 28-32
-        buf.write(pack(b'>I', 65001)) # utf-8
-
-        # Index language 32-36
-        buf.write(iana2mobi(
-            str(self.oeb.metadata.language[0])))
-
-        # Number of index entries 36-40
-        buf.write(pack(b'>I', len(self.indices)))
-
-        # ORDT offset 40-44
-        buf.write(pack(b'>I', 0))
-
-        # LIGT offset 44-48
-        buf.write(pack(b'>I', 0))
-
-        # Number of LIGT entries 48-52
-        buf.write(pack(b'>I', 0))
-
-        # Number of CNCX records 52-56
-        buf.write(pack(b'>I', len(self.cncx.records)))
-
-        # Unknown 56-180
-        buf.write(b'\0'*124)
-
-        # TAGX offset 180-184
-        buf.write(pack(b'>I', header_length))
-
-        # Unknown 184-192
-        buf.write(b'\0'*8)
-
-        # TAGX block
-        buf.write(tagx_block)
-
-        num = len(self.indices)
-
-        # The index of the last entry in the NCX
-        buf.write(encode_number_as_hex(num-1))
-
-        # The number of entries in the NCX
-        buf.write(pack(b'>H', num))
-
-        # Padding
-        pad = (4 - (buf.tell()%4))%4
-        if pad:
-            buf.write(b'\0'*pad)
-
-        idxt_offset = buf.tell()
-
-        buf.write(b'IDXT')
-        buf.write(header_length + len(tagx_block))
-        buf.write(b'\0')
-        buf.seek(20)
-        buf.write(pack(b'>I', idxt_offset))
-
-        return align_block(buf.getvalue())
-    # }}}
-
 
