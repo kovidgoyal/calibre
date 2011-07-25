@@ -23,7 +23,8 @@ from calibre.utils.search_query_parser import SearchQueryParser
 
 def comparable_price(text):
     text = re.sub(r'[^0-9.,]', '', text)
-    if len(text) < 3 or text[-3] not in ('.', ','):
+    delimeter = (',', '.')
+    if len(text) < 3 or text[-3] not in delimeter:
         text += '00'
     text = re.sub(r'\D', '', text)
     text = text.rjust(6, '0')
@@ -334,6 +335,11 @@ class SearchFilter(SearchQueryParser):
         }
         for x in ('author', 'download', 'format'):
             q[x+'s'] = q[x]
+        
+        # make the price in query the same format as result
+        if location == 'price':
+            query = comparable_price(query)
+        
         for sr in self.srs:
             for locvalue in locations:
                 accessor = q[locvalue]

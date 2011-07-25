@@ -1374,6 +1374,17 @@ class StoreOReillyStore(StoreBase):
     headquarters = 'US'
     formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
 
+class StoreOzonRUStore(StoreBase):
+    name = 'OZON.ru'
+    description = u'ebooks from OZON.ru'
+    actual_plugin = 'calibre.gui2.store.stores.ozon_ru_plugin:OzonRUStore'
+    author = 'Roman Mukhin'
+
+    drm_free_only = True
+    headquarters = 'RU'
+    formats = ['TXT', 'PDF', 'DJVU', 'RTF', 'DOC', 'JAR', 'FB2']
+    affiliate = True
+
 class StorePragmaticBookshelfStore(StoreBase):
     name = 'Pragmatic Bookshelf'
     description = u'The Pragmatic Bookshelf\'s collection of programming and tech books avaliable as ebooks.'
@@ -1486,6 +1497,7 @@ plugins += [
     StoreNextoStore,
     StoreOpenBooksStore,
     StoreOReillyStore,
+    StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
     StoreVirtualoStore,
