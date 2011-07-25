@@ -44,14 +44,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-23 14:24+0000\n"
+"PO-Revision-Date: 2011-07-24 18:06+0000\n"
 "Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-24 04:32+0000\n"
+"X-Launchpad-Export-Date: 2011-07-25 04:32+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -15288,7 +15288,7 @@ msgstr "Gemodifi&ceerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
 msgid "&Shortcut:"
-msgstr "&Snelkoppeling"
+msgstr "&Sneltoets:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:82
@@ -15297,7 +15297,7 @@ msgstr "Klik om te wijzigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:81
 msgid "&Alternate shortcut:"
-msgstr "&Alternatieve snelkoppeling:"
+msgstr "&Alternatieve sneltoets:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:38
 msgid "Added Tags:"
@@ -15305,7 +15305,7 @@ msgstr "Toegevoegde labels:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:39
 msgid "Open store in external web browswer"
-msgstr "Open winkel in externe webbrowswer"
+msgstr "Winkel in externe webbrowser openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:219
 msgid "&Name:"
@@ -15313,7 +15313,7 @@ msgstr "&Naam:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:221
 msgid "&Description:"
-msgstr "Ver&duidelijking:"
+msgstr "&Omschrijving:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:222
 msgid "&Headquarters:"
@@ -15321,7 +15321,7 @@ msgstr "&Hoofdvestiging:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:226
 msgid "Enabled:"
-msgstr "Actief:"
+msgstr "Ingeschakeld:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:227
 msgid "DRM:"
@@ -15350,7 +15350,7 @@ msgstr "Franchise:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:235
 msgid "Nam&e/Description ..."
-msgstr "Naam/V&erduidelijking ..."
+msgstr "Naam/&omschrijving…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:132
@@ -15360,7 +15360,7 @@ msgstr "Zoekopdracht:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
 msgid "Enable"
-msgstr "Activeren"
+msgstr "Inschakelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:137
@@ -15397,8 +15397,8 @@ msgstr ""
 msgid ""
 "This store is currently enabled and can be used in other parts of calibre."
 msgstr ""
-"Deze winkel is op het moment ingeschakeld en kan worden gebruikt in andere "
-"delen van calibre."
+"Deze winkel is op het moment ingeschakeld en kan in andere delen van calibre "
+"gebruikt worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
 msgid "This store only distributes ebooks without DRM."
@@ -15410,7 +15410,7 @@ msgid ""
 "but you will need to check on a per title basis."
 msgstr ""
 "Deze winkel verspreidt boeken met DRM. Er zijn mogelijk enkele titels zonder "
-"DRM, maar je moet dit per titel controleren."
+"DRM, maar dit moet u per titel controleren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:140
 #, python-format
@@ -15427,16 +15427,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:211
 #, python-format
 msgid "Buying from this store supports the calibre developer: %s."
-msgstr "Door in deze winkel te kopen ondersteun je calibre ontwikkelaar: %s."
+msgstr ""
+"Door in deze winkel te kopen ondersteunt u de ontwikkelaar van calibre: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:145
 #, python-format
 msgid "This store distributes ebooks in the following formats: %s"
-msgstr "Deze winkel verspreidt E-boeken in de volgende formaten: %s"
+msgstr "Deze winkel verspreidt e-books in de volgende formaten: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
 msgid "Configure..."
-msgstr "Configureren..."
+msgstr "Configureren…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:99
@@ -15467,7 +15468,7 @@ msgstr "Maximum aantal resultaten per winkel"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:104
 msgid "Open search result in system browser"
-msgstr "Zoekresultaten openen in standaardbrowser"
+msgstr "Zoekresultaten in de standaardbrowser openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:105
 msgid "Threads"
@@ -15475,23 +15476,23 @@ msgstr "Threads"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:106
 msgid "Number of search threads to use"
-msgstr "Aantal zoek-threads om te gebruiken"
+msgstr "Aantal te gebruiken zoek-threads"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:107
 msgid "Number of cache update threads to use"
-msgstr "Aantal threads om te gebruiken voor bijwerken van lokale opslag"
+msgstr "Aantal te gebruiken threads voor het bijwerken van lokale opslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:108
 msgid "Number of conver download threads to use"
-msgstr "Aantal te gebruiken threads voor omslag-download"
+msgstr "Aantal te gebruiken threads voor downloaden van omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:109
 msgid "Number of details threads to use"
-msgstr "Aantal detail-threads om te gebruiken"
+msgstr "Aantal te gebruiken detail-threads"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:105
 msgid "Performance"
-msgstr "Prestatie"
+msgstr "Prestaties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:106
 msgid "Number of simultaneous searches"
@@ -15511,7 +15512,7 @@ msgstr "Aantal gelijktijdige detail-downloads"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
-msgstr "Zoek:"
+msgstr "Zoeken:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:142
@@ -15539,7 +15540,7 @@ msgstr "Downloaden:"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:187
 msgid "Titl&e/Author/Price ..."
-msgstr "Tit&el/Auteur/Prijs ..."
+msgstr "Tit&el/auteur/prijs …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
 msgid "DRM"
@@ -15560,8 +15561,8 @@ msgid ""
 "verify this price is correct. This price often does not include promotions "
 "the store may be running."
 msgstr ""
-"Prijs detecteren als: %s. Controleer in de winkel voor je koopt of deze "
-"prijs klopt. De prijs is vaak exclusief acties die de winkel mogelijk heeft."
+"De gevonden prijs is %s. Controleer dit in de winkel voordat u het boek "
+"koopt. Deze prijs is vaak exclusief acties die de winkel mogelijk heeft."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:199
 msgid ""
@@ -15570,10 +15571,10 @@ msgid ""
 "what you can do with this book. Check with the store before making any "
 "purchases to ensure you can actually read this book."
 msgstr ""
-"Er is een DRM-beperking gedetecteerd bij dit boek. Dit boek werkt mogelijk "
-"niet op uw E-reader en er is een beperking aanwezig op het aantal "
-"handelingen die je met dit boek mag uitvoeren. Controleer in de winkel voor "
-"u tot aanschaf overgaat of u dit boek kan lezen."
+"Er is een DRM-beperking bij dit boek gedetecteerd. Dit boek werkt mogelijk "
+"niet op uw e-reader en er is een beperking aanwezig op het aantal "
+"handelingen die u met dit boek mag uitvoeren. Controleer in de winkel voor u "
+"tot aanschaf overgaat of u dit boek kunt lezen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:201
 msgid ""
@@ -15582,24 +15583,25 @@ msgid ""
 "conversion. However, before making a purchase double check the DRM status "
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
-"Er is geconstateerd dat dit boek DRM-vrij is. Je zou dit boek op ieder "
-"apparaat moeten kunnen gebruiken, aangenomen dat het beschikbaar is in een "
-"formaat dat calibre kan converteren. Controleer echter, voor je overgaat tot "
-"aanschaf, nogmaals de DRM-status in de winkel. Mogelijk wordt de DRM-status "
-"door de winkel niet weergegeven op een manier die calibre kan herkennen."
+"Er zijn geen DRM-beperkingen bij dit boek gedetecteerd. U zou dit boek op "
+"ieder apparaat moeten kunnen gebruiken, aangenomen dat het beschikbaar is in "
+"een formaat dat calibre kan converteren. Controleer echter, voordat u tot "
+"aanschaf overgaat, nogmaals de DRM-status in de winkel. Mogelijk wordt de "
+"DRM-status door de winkel niet weergegeven op een manier die calibre kan "
+"herkennen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:203
 msgid ""
 "The DRM status of this book could not be determined. There is a very high "
 "likelihood that this book is actually DRM restricted."
 msgstr ""
-"De DRM-status van dit boek kon niet worden herkend. Er is een zeer grote "
-"kans dat dit boek een DRM-beperking heeft."
+"De DRM-status van dit boek kan niet gedetecteerd worden. Er is een zeer "
+"grote kans dat dit boek een DRM-beperking heeft."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:208
 #, python-format
 msgid "The following formats can be downloaded directly: %s."
-msgstr "De volgende formaten kunnen direct worden gedownload: %s."
+msgstr "De volgende formaten kunnen direct gedownload worden: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:41
 msgid "Download..."
@@ -15607,13 +15609,14 @@ msgstr "Downloaden…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:45
 msgid "Goto in store..."
-msgstr "Ga in winkel naar..."
+msgstr "Ga in winkel naar…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:114
 #, python-format
 msgid "Buying from this store supports the calibre developer: %s</p>"
 msgstr ""
-"Door in deze winkel te kopen ondersteun je calibre ontwikkelaar: %s</p>"
+"Door in deze winkel te kopen ondersteunt u de ontwikkelaar van calibre: "
+"%s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:276
 msgid "Customize get books search"
@@ -15625,11 +15628,11 @@ msgstr "Zoeken configureren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:336
 msgid "Couldn't find any books matching your query."
-msgstr "Geen boeken overeenkomstig uw zoekterm gevonden"
+msgstr "Er zijn geen boeken gevonden die met uw zoekterm overeenkomen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:350
 msgid "Choose format to download to your library."
-msgstr "Kies het formaat om te downloaden in uw bibliotheek"
+msgstr "Kies het formaat dat u naar uw bibliotheek wilt downloaden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
@@ -15638,11 +15641,11 @@ msgstr "Boeken verkrijgen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:140
 msgid "Open a selected book in the system's web browser"
-msgstr "Een geselecteerd boek openen in de standaard webbrowser"
+msgstr "Een geselecteerd boek in de standaard webbrowser openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:141
 msgid "Open in &external browser"
-msgstr "Openen in &externe browser"
+msgstr "In &externe browser openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/ebooks_com_plugin.py:96
 msgid "Not Available"
@@ -15654,9 +15657,7 @@ msgid ""
 "interface\">User Manual</a> for more help"
 msgstr ""
 "Zie de <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
-"interface\">handleiding</a> voor meer hulpZie de <a href=\"http://calibre-"
-"ebook.com/user_manual/gui.html#the-search-interface\">handleiding</a> voor "
-"meer informatie"
+"interface\">handleiding</a> (Engelstalig) voor meer hulp"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_progress_dialog_ui.py:51
 msgid "Updating book cache"
@@ -15664,7 +15665,7 @@ msgstr "Lokale boekopslag bijwerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:42
 msgid "Checking last download date."
-msgstr "Controleer laatste downloaddatum"
+msgstr "De laatste downloaddatum controleren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:48
 msgid "Downloading book list from MobileRead."
@@ -15681,11 +15682,11 @@ msgstr "%(num)s van %(tot)s boeken verwerkt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/mobileread_plugin.py:62
 msgid "Updating MobileRead book cache..."
-msgstr "MobileRead lokale boekopslag bijwerken..."
+msgstr "MobileRead lokale boekopslag bijwerken…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:74
 msgid "&Query:"
-msgstr "Aanvraag:"
+msgstr "&Zoekopdracht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:73
 msgid ""
@@ -15696,16 +15697,17 @@ msgid ""
 "will be a .epub file. You can add this book to calibre using \"Add Books\" "
 "and selecting the file from the ADE library folder."
 msgstr ""
-"Dit E-boek is een EPUB-DRM-bestand. Jou zal worden gevraagd dit bestand op "
-"te slaan op uw computer. Open het na het opslaan met <a "
+"Dit E-boek is een EPUB-DRM-bestand. U zult gevraagd worden dit bestand op uw "
+"computer op te slaan. Open het na het opslaan met <a "
 "href=\"http://www.adobe.com/products/digitaleditions/\">Adobe Digital "
-"Editions</a> (ADE).<p>ADE zal het echte E-boek downloaden, het .epub-"
-"bestand. U kan dit boek toevoegen aan calibre met \"Boeken toevoegen\" en "
-"het boek dan selecteren in de ADE-bibliotheekmap."
+"Editions</a> (ADE).<p>ADE zal het daadwerkelijke e-book downloaden, het "
+".epub-bestand. U kunt dit boek vervolgens aan calibre toevoegen door ‘Boeken "
+"toevoegen’  te kiezen en het boek vervolgens in de ADE-bibliotheekmap te "
+"selecteren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
 msgid "File is not a supported ebook type. Save to disk?"
-msgstr "Bestand is geen ondersteund e-boekformaat. Opslaan op schijf?"
+msgstr "Bestand is geen ondersteund e-bookformaat. Opslaan op schijf?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
@@ -15727,7 +15729,8 @@ msgstr "De kolomgroep heet \"{0}\""
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr ""
-"Het veranderen van auteurs voor deze boeken kan even duren. Weet u het zeker?"
+"Het veranderen van auteurs voor meerdere boeken kan even duren. Weet u het "
+"zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:729
 msgid ""
@@ -15745,17 +15748,17 @@ msgstr "Zoekopdrachten"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:901
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:910
 msgid "Rename user category"
-msgstr "Hernoem gebruikerscategorie"
+msgstr "Gebruikerscategorie hernoemen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:882
 msgid "You cannot use periods in the name when renaming user categories"
-msgstr "Je mag geen punten gebruiken in de naam van een gebruikerscategorie"
+msgstr "Punten zijn niet toegestaan in de naam van een gebruikerscategorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:902
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:911
 #, python-format
 msgid "The name %s is already used"
-msgstr "Naam %s is al in gebruik"
+msgstr "De naam %s is al in gebruik"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:930
 msgid "Duplicate search name"
@@ -15764,42 +15767,42 @@ msgstr "Al gebruikte naam voor zoekopdracht"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:931
 #, python-format
 msgid "The saved search name %s is already used."
-msgstr "De opgeslagen zoekopdracht %s is reeds in gebruik"
+msgstr "De opgeslagen zoekopdracht %s bestaat al."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:48
 msgid "Manage Authors"
-msgstr "Beheer auteurs"
+msgstr "Auteurs beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:50
 msgid "Manage Series"
-msgstr "Beheer reeksen"
+msgstr "Reeksen beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:52
 msgid "Manage Publishers"
-msgstr "Beheer uitgevers"
+msgstr "Uitgevers beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:54
 msgid "Manage Tags"
-msgstr "Beheer labels"
+msgstr "Labels Beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:465
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:469
 msgid "Manage User Categories"
-msgstr "Beheer gebruikerscategorieën"
+msgstr "Gebruikerscategorieën beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:457
 msgid "Manage Saved Searches"
-msgstr "Beheer opgeslagen zoekopdrachten"
+msgstr "Opgeslagen zoekopdrachten beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:66
 msgid "Invalid search restriction"
-msgstr "Foutieve zoekrestrictie"
+msgstr "Ongeldige zoekrestrictie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:67
 msgid "The current search restriction is invalid"
-msgstr "Huidige restrictie is niet geldig"
+msgstr "De huidige zoekrestrictie is niet geldig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:83
 msgid "New Category"
@@ -15808,7 +15811,7 @@ msgstr "Nieuwe categorie"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:137
 msgid "Delete user category"
-msgstr "Verwijder gebruikerscategorie"
+msgstr "Gebruikerscategorie verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:135
 #, python-format
@@ -15818,11 +15821,11 @@ msgstr "%s is geen gebruikerscategorie"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:138
 #, python-format
 msgid "%s contains items. Do you really want to delete it?"
-msgstr "%s bevat items. Wil je hem echt verwijderen?"
+msgstr "%s bevat items. Wilt u deze echt verwijderen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:159
 msgid "Remove category"
-msgstr "Verwijder categorie"
+msgstr "Categorie verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:160
 #, python-format
@@ -15831,7 +15834,7 @@ msgstr "Gebruikerscategorie %s bestaat niet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:179
 msgid "Add to user category"
-msgstr "Voeg toe aan gebruikerscategorie"
+msgstr "Aan gebruikerscategorie toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:180
 #, python-format
@@ -15851,13 +15854,13 @@ msgid ""
 "*foo will filter all categories at once, showing only those items\n"
 "containing the text \"foo\""
 msgstr ""
-"Zoek naar items. Dit is een \"bevat\"-zoeken; items waarvan de naam de\n"
-"zoektekst bevat worden gevonden. Je kan zoeken beperken tot bepaalde\n"
-"kolommen met een syntax zoals die van gewoon zoeken. 'tags:foo' "
+"Zoek naar items. Dit is een ‘bevat’-zoeken; items waarvan de naam de\n"
+"zoektekst bevat worden gevonden. U kunt het zoeken beperken tot bepaalde\n"
+"kolommen met een syntax zoals die van gewoon zoeken. ‘tags:foo’ "
 "bijvoorbeeld\n"
-"vindt 'foo' in alle labels, maar niet in auteurs e.d. \"*foo\" invoeren \n"
+"vindt ‘foo’ in alle labels, maar niet in auteurs e.d. ‘*foo’ invoeren \n"
 "filtert alle categorieën tegelijk en toont alleen items die de tekst\n"
-"foo bevatten"
+"‘foo’ bevatten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:317
 msgid "ALT+f"
@@ -15865,28 +15868,28 @@ msgstr "Alt+f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:322
 msgid "Find the first/next matching item"
-msgstr "Vind eerste/volgende item"
+msgstr "Vind het eerste/volgende overeenkomstige item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:327
 msgid "Collapse all categories"
-msgstr "Steek alle categorieën samen"
+msgstr "Alle categorieën inklappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:351
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
-"Geen overeenkomsten meer.</b><p> Klik op 'Vind' om naar de eerste te gaan"
+"Geen resultaten meer.</b><p> Klik op ‘Zoeken’ om naar de eerste te gaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:364
 msgid "Sort by name"
-msgstr "Sorteer op naam"
+msgstr "Op naam sorteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:364
 msgid "Sort by popularity"
-msgstr "Sorteer op populariteit"
+msgstr "Op populariteit sorteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:365
 msgid "Sort by average rating"
-msgstr "Sorteer op gemiddelde waardering"
+msgstr "Op gemiddelde waardering sorteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:368
 msgid "Set the sort order for entries in the Tag Browser"
@@ -15905,11 +15908,11 @@ msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
 msgstr ""
 "Als er meerdere criteria in de labelbrowser worden gekozen, selecteer dan "
-"items die voldoen aan één criterium of alle criteria"
+"items die aan één of alle criteria voldoen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:387
 msgid "Manage authors, tags, etc"
-msgstr "Beheer auteurs, labels, enz."
+msgstr "Auteurs, labels, enz. beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:388
 msgid ""
@@ -15924,22 +15927,22 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:407
 #, python-format
 msgid "Rename %s"
-msgstr "Hernoem %s"
+msgstr "%s hernoemen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:349
 #, python-format
 msgid "Edit sort for %s"
-msgstr "Bewerk sortering van %s"
+msgstr "Sortering van %s bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:352
 #, python-format
 msgid "Edit link for %s"
-msgstr "Voer koppeling in voor %s"
+msgstr "Link voor %s bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:359
 #, python-format
 msgid "Add %s to user category"
-msgstr "Voeg %s toe aan gebruikerscategorie"
+msgstr "%s aan gebruikerscategorie toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:372
 #, python-format
@@ -15949,17 +15952,17 @@ msgstr "Kinderen van %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:382
 #, python-format
 msgid "Delete search %s"
-msgstr "Verwijder zoekopdracht %s"
+msgstr "Zoekopdracht %s verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:387
 #, python-format
 msgid "Remove %(item)s from category %(cat)s"
-msgstr "Verwijderd %(item)s van categorie%(cat)s"
+msgstr "%(item)s uit categorie%(cat)s verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:394
 #, python-format
 msgid "Search for %s"
-msgstr "Zoek naar %s"
+msgstr "Naar %s zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:399
 #, python-format
@@ -15969,37 +15972,37 @@ msgstr "Zoek naar alles, behalve %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:411
 #, python-format
 msgid "Add sub-category to %s"
-msgstr "Voeg deelcategorie toe aan %s"
+msgstr "Deelcategorie aan %s toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:415
 #, python-format
 msgid "Delete user category %s"
-msgstr "Verwijder categorie %s"
+msgstr "Gebruikerscategorie %s verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:420
 #, python-format
 msgid "Hide category %s"
-msgstr "Verberg categorie %s"
+msgstr "Categorie %s verbergen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:424
 msgid "Show category"
-msgstr "Toon categorie"
+msgstr "Categorie weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:434
 #, python-format
 msgid "Search for books in category %s"
-msgstr "Zoek naar boeken in categorie %s"
+msgstr "In categorie %s naar boeken zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:440
 #, python-format
 msgid "Search for books not in category %s"
-msgstr "Zoek naar boeken in niet categorie %s"
+msgstr "Buiten categorie %s naar boeken zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:449
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:454
 #, python-format
 msgid "Manage %s"
-msgstr "Beheer %s"
+msgstr "%s beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:476
 msgid "Show all categories"
@@ -16007,7 +16010,7 @@ msgstr "Alle categorieën weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:479
 msgid "Change sub-categorization scheme"
-msgstr "Verander schema deelcategorieën"
+msgstr "Schema deelcategorieën veranderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:499
 msgid "First letter is usable only when sorting by name"
@@ -16016,12 +16019,12 @@ msgstr "Eerste letter is enkel te gebruiken bij sorteren op naam"
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr "Converteer boek %(num)d van %(total)d (%(title)s)"
+msgstr "Boek %(num)d van %(total)d (%(title)s) converteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:222
 msgid "Could not convert some books"
-msgstr "Sommige boeken konden niet worden geconverteerd"
+msgstr "Sommige boeken kunnen niet geconverteerd worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:223
@@ -16044,7 +16047,7 @@ msgstr "In wachtrij "
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:197
 #, python-format
 msgid "Convert book %(num)d of %(tot)d (%(title)s)"
-msgstr "Converteer boeken %(num)d van %(tot)d (%(title)s)"
+msgstr "Boek %(num)d van %(tot)d (%(title)s) converteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:271
 msgid "Fetch news from "

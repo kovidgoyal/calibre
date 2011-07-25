@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-23 06:44+0000\n"
+"PO-Revision-Date: 2011-07-25 02:13+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-24 04:33+0000\n"
+"X-Launchpad-Export-Date: 2011-07-25 04:33+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -17114,7 +17114,7 @@ msgstr ""
 msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
-msgstr ""
+msgstr "カテゴリ内のアイテムのカウント番号ではなく、カテゴリ内のアイテム番号のみを出力します。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1038
 msgid ""
@@ -18133,6 +18133,16 @@ msgid ""
 "\"B.C\". Assuming a #genre value of \"A.B.C, D.E.F\", {#genre:subitems(0,1)} "
 "returns \"A, D\". {#genre:subitems(0,2)} returns \"A.B, D.E\""
 msgstr ""
+"subitems(val, start_index, end_index) -- "
+"この関数は、ジャンルのようなアイテムのリストを切り離すときに使われます。これはvalをコンマ区切りのアイテムのリストとして、そして各アイテムはピリオド区切"
+"りのリストとして解釈します。最初に見つかったすべてのピリオド区切りのアイテムと、そのアイテムの中から `start_index` から "
+"`end_index` "
+"までの部分を抜き出し、そしてそれまた組み合わせたものを返します。ピリオド区切りのリストの最初の部分のインデックスは0です。インデックスが負の場合、リストの"
+"最後から数えます。特別なケースとしてend_indexが0の場合、それはリストの長さを表します。例: "
+"ベーシック・テンプレート・モードで、#genreの値が \"A.B.C\" の時、{#genre:subitems(0,1)} は \"A\" "
+"を返します。{#genre:subitems(0,2)} は \"A.B\" を返します。{#genre:subitems(1,0)} は "
+"\"B.C\" を返します。#genre の値が \"A.B.C, D.E.F\" だとすると、{#genre:subitems(0,1)} は "
+"\"A, D\" を返します。{#genre:subitems(0,2)} は \"A.B, D.E\" を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:670
 msgid ""
@@ -18148,38 +18158,46 @@ msgid ""
 "year as two digit number (00 to 99). yyyy : the year as four digit number. "
 "iso  : the date with time and timezone. Must be the only format present"
 msgstr ""
+"format_date(val, format_string) -- "
+"format_stringを使って、valを日付の値としてフォーマットし、その文字列を返します。フォーマットのコードは： d    : "
+"前に0を付けない日付の数字 (1 to 31) dd   : 前に0を付ける日付の数字 (01 to 31) ddd  : "
+"ローカライズされた曜日の短縮形。(例 \"Mon\", \"Sun\"). dddd : ローカライズされた曜日名(例 \"Monday\", "
+"\"Sunday\"). M    : 頭に0を付けない月の数字 (1 to 12). MM   : 頭に0を付けた月の数字 (01 to 12) "
+"MMM  : ローカライズされた月の名前の短縮形 (例 \"Jan\", \"Dec\"). MMMM : ローカライズされた長い月の名前 (例 "
+"\"January\", \"December\"). yy   : 2桁での年 (00 から 99). yyyy : 4桁での年。 iso  : "
+"日付と時刻とタイムゾーン。（これ以外のフォーマットは指定できない）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:699
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) -- フィールドの値を大文字で返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:708
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) -- フィールドの値を小文字で返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:717
 msgid "titlecase(val) -- return value of the field in title case"
-msgstr ""
+msgstr "titlecase(val) -- フィールドの値をタイトルケースで返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:726
 msgid "capitalize(val) -- return value of the field capitalized"
-msgstr ""
+msgstr "capitalize(val) -- フィールドの値をキャピタライズして返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:735
 msgid "booksize() -- return value of the size field"
-msgstr ""
+msgstr "booksize() -- サイズ・フィールドの値を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:749
 msgid ""
 "ondevice() -- return Yes if ondevice is set, otherwise return the empty "
 "string"
-msgstr ""
+msgstr "ondevice() -- もしondeviceがセットされていたらYesを返します。それ以外では空文字列を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:761
 msgid ""
 "has_cover() -- return Yes if the book has a cover, otherwise return the "
 "empty string"
-msgstr ""
+msgstr "has_cover() -- もし書籍が表紙を持っていればYesを返し、それ以外では空文字列を返す。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:773
 msgid ""
@@ -18187,6 +18205,8 @@ msgid ""
 "empty. If all values are empty, then the empty value is returned.You can "
 "have as many values as you want."
 msgstr ""
+"first_non_empty(value, value, ...) -- "
+"空でない最初のvalueを返す。もし全てのvalueが空の場合、空の値が返されます。いくつでもvalueを追加できます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:790
 msgid ""
@@ -18194,6 +18214,8 @@ msgid ""
 "empty, otherwise returns the empty string. This function works well with "
 "test or first_non_empty. You can have as many values as you want."
 msgstr ""
+"and(value, value, ...) -- 全てのvalueが空でない場合、文字列 \"1\" "
+"を返し、それ以外では空文字列を返す。この関数はtestやfirst_non_emptyと一緒に使うことができます。いくつでもvalueを追加できます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:807
 msgid ""
@@ -18201,6 +18223,8 @@ msgid ""
 "otherwise returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
+"or(value, value, ...) -- もし一つでもvalueが殻でない場合、文字列\"1\" "
+"を返し、それ以外では空文字列を返します。この関数はtestやfirst_non_emptyと一緒に使うことができます。いくつでもvalueを追加できます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:824
 msgid ""
@@ -18208,6 +18232,8 @@ msgid ""
 "returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
+"not(value) -- もしvalueが空の場合文字列\"1\" "
+"を返し、それ以外では空文字列を返します。この関数はtestやfirst_non_emptyと一緒に使うことができます。いくつでもvalueを追加できます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:836
 msgid ""
@@ -18217,6 +18243,9 @@ msgid ""
 "list1 and list2 are separated by separator, as are the items in the returned "
 "list."
 msgstr ""
+"merge_lists(list1, list2, separator) -- "
+"list1とlist2のアイテムをつなげて、大小文字を無視の比較で同じアイテムを取り除いたリストを返します。もし大小文字が違う場合、list1の物が使われ"
+"ます。list1とlist2、そして返されるリストのアイテムはseparatorで区切られます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:860
 msgid ""
@@ -18224,6 +18253,8 @@ msgid ""
 "format_date or days_between, but can be manipulated like any other string. "
 "The date is in ISO format."
 msgstr ""
+"today() -- 今日の日付の文字列を返します。この値は format_date や days_between "
+"で使えるようにデザインされていますが、通常の文字列としても使用できます。日付はISOフォーマットです。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:871
 msgid ""
@@ -18232,6 +18263,9 @@ msgid ""
 "negative. If either date1 or date2 are not dates, the function returns the "
 "empty string."
 msgstr ""
+"days_between(date1, date2) -- "
+"date1とdate2の間の日数を返します。もしdate1がdate2より大きい場合、数は正になりますが、それ以外の時は負です。もしdate1やdate2"
+"が日付でない場合、関数は空文字列を返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -18427,45 +18461,45 @@ msgstr "pm"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
-msgstr ""
+msgstr "テーマを選択（要リスタート）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:109
 msgid "ERROR: Unhandled exception"
-msgstr ""
+msgstr "エラー：　ハンドルされなかった例外"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:188
 msgid "No interpreter"
-msgstr ""
+msgstr "インタープリターが無い"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:189
 msgid "No active interpreter found. Try restarting the console"
-msgstr ""
+msgstr "アクティブなインタプリターが見つかりませんでした。コンソールをリスタートしてみてください。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:203
 msgid "Interpreter died"
-msgstr ""
+msgstr "インタープリターが終了"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:204
 msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
-msgstr ""
+msgstr "インタープリターがコマンドを実行中に終了しました。コマンドを見るには「詳細を表示」をクリックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
-msgstr ""
+msgstr "ようこそ"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
-msgstr ""
+msgstr " コンソール "
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:51
 msgid "Code is running"
-msgstr ""
+msgstr "コード実行中"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:58
 msgid "Restart console"
-msgstr ""
+msgstr "コンソールをリスタート"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
@@ -18494,7 +18528,7 @@ msgstr "不明なセクション"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:142
 msgid "Unknown feed"
-msgstr ""
+msgstr "不明なフィード"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:160
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:187
@@ -18509,7 +18543,7 @@ msgstr "インターネットから定期発行のコンテンツをダウンロ
 msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
-msgstr ""
+msgstr "レシピ作成に便利です。強制的に max_articles_per_feedを2にして最新の2フィードのみをダウンロードします。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:40
 msgid "Username for sites that require a login to access content."
@@ -18522,7 +18556,7 @@ msgstr "コンテンツアクセスにログインが必要なサイトのパス
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:47
 msgid ""
 "Do not download latest version of builtin recipes from the calibre server"
-msgstr ""
+msgstr "Calibreサーバーから最新の内蔵レシピをダウンロードしない。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:47
 msgid "Unknown News Source"
@@ -18531,7 +18565,7 @@ msgstr "未知のニュースソース"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:632
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
-msgstr ""
+msgstr "\"%s\" レシピはユーザー名とパスワードが必要です。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
 msgid "Download finished"
@@ -18539,7 +18573,7 @@ msgstr "ダウンロード完了"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:740
 msgid "Failed to download the following articles:"
-msgstr ""
+msgstr "以下の記事をダウンロードに失敗しました："
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:746
 msgid "Failed to download parts of the following articles:"
@@ -18551,19 +18585,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:750
 msgid "\tFailed links:"
-msgstr ""
+msgstr "\t失敗したリンク:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:845
 msgid "Could not fetch article."
-msgstr ""
+msgstr "記事を取得できませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:847
 msgid "The debug traceback is available earlier in this log"
-msgstr ""
+msgstr "デバッグ用トレースバックはこのログの前のほうにあります。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:849
 msgid "Run with -vv to see the reason"
-msgstr ""
+msgstr "-wを付けて実行すると理由が見れます"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:872
 msgid "Fetching feeds..."
@@ -18571,11 +18605,11 @@ msgstr "フィードの取得中"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:877
 msgid "Got feeds from index page"
-msgstr ""
+msgstr "インデックス・ページからフィードを取得"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:886
 msgid "Trying to download cover..."
-msgstr ""
+msgstr "表紙をダウンロード..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:888
 msgid "Generating masthead..."
