@@ -1228,17 +1228,6 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
-#class StoreEPubBuyDEStore(StoreBase):
-#    name = 'EPUBBuy DE'
-#    author = 'Charles Haley'
-#    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
-#    actual_plugin = 'calibre.gui2.store.stores.epubbuy_de_plugin:EPubBuyDEStore'
-#
-#    drm_free_only = True
-#    headquarters = 'DE'
-#    formats = ['EPUB']
-#    affiliate = True
-
 class StoreEBookShoppeUKStore(StoreBase):
     name = 'ebookShoppe UK'
     author = u'Charles Haley'
@@ -1266,16 +1255,7 @@ class StoreEKnigiStore(StoreBase):
 
     headquarters = 'BG'
     formats = ['EPUB', 'PDF', 'HTML']
-    #affiliate = True
-
-class StoreEpubBudStore(StoreBase):
-    name = 'ePub Bud'
-    description = 'Well, it\'s pretty much just "YouTube for Children\'s eBooks. A not-for-profit organization devoted to brining self published childrens books to the world.'
-    actual_plugin = 'calibre.gui2.store.stores.epubbud_plugin:EpubBudStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-    formats = ['EPUB']
+    affiliate = True
 
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
@@ -1491,10 +1471,8 @@ plugins += [
     StoreEbookNLStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
-#    StoreEPubBuyDEStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
-    StoreEpubBudStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
     StoreGandalfStore,
