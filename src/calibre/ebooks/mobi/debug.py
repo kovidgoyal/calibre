@@ -12,7 +12,7 @@ from collections import OrderedDict, defaultdict
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
-        get_trailing_data)
+        get_trailing_data, decode_fvwi)
 from calibre.utils.magick.draw import identify_data
 
 # PalmDB {{{
@@ -964,7 +964,8 @@ class TBSIndexing(object): # {{{
             byts = byts[consumed:]
             ans.append('Unknown (vwi: always 0?): %d'%arg1)
             if self.doc_type in (257, 259): # Hierarchical periodical
-                byts, a = self.interpret_periodical(tbs_type, byts)
+                byts, a = self.interpret_periodical(tbs_type, byts,
+                        dat['geom'][0])
                 ans += a
             if byts:
                 sbyts = tuple(hex(b)[2:] for b in byts)
@@ -973,7 +974,7 @@ class TBSIndexing(object): # {{{
         ans.append('')
         return tbs_type, ans
 
-    def interpret_periodical(self, tbs_type, byts):
+    def interpret_periodical(self, tbs_type, byts, record_offset):
         ans = []
 
         def tbs_type_6(byts, psi=None, msg=None, fmsg='Unknown'): # {{{
@@ -1014,6 +1015,50 @@ class TBSIndexing(object): # {{{
 
         # }}}
 
+        def read_section_transitions(byts, psi=None): # {{{
+            if psi is None:
+                # Assume parent section is 1
+                psi = self.get_index(1)
+
+            while byts:
+                ai, flags, consumed = decode_fvwi(byts)
+                byts = byts[consumed:]
+                if flags & 0b1000:
+                    nsi = self.get_index(psi.index+1)
+                    ans.append('Last article in this record of section %d'
+                            ' (relative to next section index [%d]): '
+                            '%d [%d absolute index]'%(psi.index, nsi.index, ai,
+                                ai+nsi.index))
+                    psi = nsi
+                    continue
+
+                ans.append('First article in this record of section %d'
+                        ' (relative to its parent section): '
+                        '%d [%d absolute index]'%(psi.index, ai, ai+psi.index))
+
+                if flags == 0:
+                    ans.append('The section %d has only one article'
+                            ' in this record'%psi.index)
+                    continue
+
+                if flags & 0b0100:
+                    num = byts[0]
+                    byts = byts[1:]
+                    ans.append('Number of articles in this record of '
+                        'section %d: %d'%(psi.index, num))
+
+                if flags & 0b0010:
+                    raise ValueError(
+                            'Dont know how to interpret the 0b0010 flag')
+
+                if flags & 0b0001:
+                    arg, consumed = decint(byts)
+                    byts = byts[consumed:]
+                    ans.append('->Offset to start of next section (%d) from start'
+                            ' of record: %d [%d absolute offset]'%(psi.index+1,
+                                arg, arg+record_offset))
+        # }}}
+
         if tbs_type == 3: # {{{
             arg2, consumed = decint(byts)
             byts = byts[consumed:]
@@ -1025,7 +1070,7 @@ class TBSIndexing(object): # {{{
             flags = arg3 & 0b1111
             ans.append('First section index (fvwi): %d'%fsi)
             psi = self.get_index(fsi)
-            ans.append('Flags (flag: always 0?): %d'%flags)
+            ans.append('Flags: %d'%flags)
             if flags == 4:
                 ans.append('Number of articles in this section: %d'%byts[0])
                 byts = byts[1:]
@@ -1033,35 +1078,7 @@ class TBSIndexing(object): # {{{
                 pass
             else:
                 raise ValueError('Unknown flags value: %d'%flags)
-
-
-            if byts:
-                byts = tbs_type_6(byts, psi=psi,
-                    msg=('First article of ending section, relative to its'
-                    ' parent\'s index'),
-                    fmsg=('->Offset from start of record to beginning of'
-                        ' last starting section'))
-            while byts:
-                # We have a transition not just an opening first section
-                psi = self.get_index(psi.index+1)
-                arg, consumed = decint(byts)
-                off = arg >> 4
-                byts = byts[consumed:]
-                flags = arg & 0b1111
-                ans.append('Last article of ending section w.r.t. starting'
-                        ' section offset (fvwi): %d [%d absolute]'%(off,
-                            psi.index+off))
-                ans.append('Flags (always 8?): %d'%flags)
-                byts = tbs_type_6(byts, psi=psi)
-                if byts:
-                    # Ended with flag 1,and not EOF, which means there's
-                    # another section transition in this record
-                    arg, consumed = decint(byts)
-                    byts = byts[consumed:]
-                    ans.append('->Offset from start of record to beginning of '
-                            'last starting section: %d'%(arg))
-                else:
-                    break
+            byts = read_section_transitions(byts, psi)
 
             # }}}
 
@@ -1124,7 +1141,7 @@ class TBSIndexing(object): # {{{
             elif flags == 0:
                 byts = tbs_type_6(byts, psi=psi)
             else:
-                raise ValueError('Unkown flags: %d'%flags)
+                raise ValueError('Unknown flags: %d'%flags)
         # }}}
 
         return byts, ans

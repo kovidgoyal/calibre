@@ -95,7 +95,13 @@ class MobiWriter(object):
             self.log.exception('Failed to generate MOBI index:')
         else:
             self.primary_index_record_idx = len(self.records)
+            for i in xrange(len(self.records)):
+                if i == 0: continue
+                tbs = self.indexer.get_trailing_byte_sequence(i)
+                self.records[i] += tbs
             self.records.extend(self.indexer.records)
+
+
     # }}}
 
     def write_uncrossable_breaks(self): # {{{

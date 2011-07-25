@@ -39,7 +39,7 @@ def encode_number_as_hex(num):
     The bytes that follow are simply the hexadecimal representation of the
     number.
     '''
-    num = bytes(hex(num)[2:])
+    num = bytes(hex(num)[2:].upper())
     ans = bytearray(num)
     ans.insert(0, len(num))
     return bytes(ans)
