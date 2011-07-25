@@ -35,9 +35,9 @@ class EB600(USBMS):
     PRODUCT_ID  = [0x1688]
     BCD         = [0x110]
 
-    VENDOR_NAME      = ['NETRONIX', 'WOLDER']
-    WINDOWS_MAIN_MEM = ['EBOOK', 'MIBUK_GAMMA_6.2']
-    WINDOWS_CARD_A_MEM = 'EBOOK'
+    VENDOR_NAME      = ['NETRONIX', 'WOLDER', 'MD86371']
+    WINDOWS_MAIN_MEM = ['EBOOK', 'MIBUK_GAMMA_6.2', 'MD86371']
+    WINDOWS_CARD_A_MEM = ['EBOOK', 'MD86371']
 
     OSX_MAIN_MEM = 'EB600 Internal Storage Media'
     OSX_CARD_A_MEM = 'EB600 Card Storage Media'

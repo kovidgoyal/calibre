@@ -188,8 +188,13 @@ class OEBReader(object):
                         href, _ = urldefrag(href)
                         if not href:
                             continue
-                        href = item.abshref(urlnormalize(href))
-                        scheme = urlparse(href).scheme
+                        try:
+                            href = item.abshref(urlnormalize(href))
+                            scheme = urlparse(href).scheme
+                        except:
+                            self.oeb.log.exception(
+                                'Skipping invalid href: %r'%href)
+                            continue
                         if not scheme and href not in known:
                             new.add(href)
                 elif item.media_type in OEB_STYLES:

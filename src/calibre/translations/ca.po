@@ -10,15 +10,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-14 23:03+0000\n"
-"PO-Revision-Date: 2011-07-08 16:42+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2011-07-15 17:42+0000\n"
+"PO-Revision-Date: 2011-07-19 18:16+0000\n"
+"Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-15 04:34+0000\n"
+"X-Launchpad-Export-Date: 2011-07-20 04:35+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -26,9 +26,9 @@ msgid "Does absolutely nothing"
 msgstr "No fa res"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:216
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:219
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:230
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:98
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:101
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:112
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -914,8 +914,8 @@ msgstr "Habilita el connector anomenat"
 msgid "Disable the named plugin"
 msgstr "Inhabilita el connector anomenat"
 
-#: /home/kovid/work/calibre/src/calibre/db/backend.py:268
-#: /home/kovid/work/calibre/src/calibre/db/backend.py:277
+#: /home/kovid/work/calibre/src/calibre/db/backend.py:270
+#: /home/kovid/work/calibre/src/calibre/db/backend.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:236
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:667
@@ -926,7 +926,7 @@ msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
 "El camí a la biblioteca és massa llarg. Ha de ser de menys de %d caràcters."
 
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:244
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:126
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:636
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:564
@@ -1080,7 +1080,7 @@ msgstr "S'està actualitzant el llistat de metadades del dispositiu..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3155
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d de %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1130
@@ -3039,12 +3039,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:68
 msgid "No top level HTML file found."
-msgstr ""
+msgstr "No s'ha trobat cap fitxer HTML de nivell superior."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:71
 #, python-format
 msgid "Top level HTML file %s is empty"
-msgstr ""
+msgstr "El fitxer HTML de nivell superior %s està buit."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:30
 msgid ""
@@ -3123,7 +3123,7 @@ msgstr "No s'ha pogut afegir l'enllaç %s a l'índex"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:960
 #, python-format
 msgid "Unable to process image %(path)s. Error: %(err)s"
-msgstr ""
+msgstr "No s'ha pogut processar la imatge %(path)s. Error: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1006
 #, python-format
@@ -3450,8 +3450,8 @@ msgstr "Etiquetes"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:124
 msgid "Series"
 msgid_plural "Series"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Sèrie"
+msgstr[1] "Sèries"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:746
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
@@ -3647,6 +3647,8 @@ msgid ""
 "Downloads metadata and covers from Douban.com. Useful only for chinese "
 "language books."
 msgstr ""
+"Descarrega metadades i portades de Douban.com. Només és útil per a llibres "
+"en xinès."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:160
 msgid "Downloads metadata and covers from Google Books"
@@ -3839,7 +3841,7 @@ msgstr "El format de llibre %s no és compatible"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:881
 #, python-format
 msgid "Book %(sidx)s of %(series)s"
-msgstr ""
+msgstr "Llibre %(sidx)s de %(series)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:54
 msgid "HTML TOC generation options."
@@ -3859,6 +3861,8 @@ msgid ""
 "Could not find reasonable point at which to split: %(path)s Sub-tree size: "
 "%(size)d KB"
 msgstr ""
+"No s'ha trobat un punt en el qual sigui lògic dividir: %(path)s mida de "
+"l'arbre: %(size)d kB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
@@ -4829,27 +4833,28 @@ msgstr "S'estan incorporant les anotacions de l'usuari a la base de dades"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:123
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Darrera pàgina que s'ha llegit: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:129
 #, python-format
 msgid "%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)"
 msgstr ""
+"%(time)s<br />Darrera pàgina que s'ha llegit: Posició %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:148
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
-msgstr ""
+msgstr "<b>Posició %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 #, python-format
 msgid "<b>Page %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Pàgina %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:162
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Posició %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:34
@@ -4878,7 +4883,7 @@ msgstr "Carpeta d'exportació del catàleg"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:85
 #, python-format
 msgid "Select destination for %(title)s.%(fmt)s"
-msgstr ""
+msgstr "Seleccioneu la destinació de %(title)s.%(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:82
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:57
@@ -5173,7 +5178,7 @@ msgstr "No s'ha pogut copiar els llibres: "
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:164
 #, python-format
 msgid "Copied %(num)d books to %(loc)s"
-msgstr ""
+msgstr "%(num)d llibres copiats a %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:179
 msgid ""
@@ -5646,7 +5651,7 @@ msgid "Move to next highlighted match"
 msgstr "Passa a la coincidència realçada següent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:415
 msgid "N"
 msgstr "N"
 
@@ -6281,7 +6286,7 @@ msgstr "Identificadors"
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:162
 #, python-format
 msgid "Book %(sidx)s of <span class=\"series_name\">%(series)s</span>"
-msgstr ""
+msgstr "Llibre %(sidx)s de <span class=\"series_name\">%(series)s</span>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1020
@@ -6312,7 +6317,7 @@ msgstr "Camí"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #, python-format
 msgid "Cover size: %(width)d x %(height)d"
-msgstr ""
+msgstr "Mida de la portada: %(width)d×%(height)d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
@@ -7886,7 +7891,7 @@ msgstr "Filtre de l'índe&x:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:76
 msgid "Allow &duplicate links when creating the Table of Contents"
-msgstr ""
+msgstr "Permet enllaços duplicats en crear l'índex"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -8104,9 +8109,9 @@ msgstr "No s'ha pogut carregar el navegador de portades"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:148
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:230
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:279
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:283
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:255
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:304
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:308
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1282
 msgid "Undefined"
 msgstr "Sense definir"
@@ -8305,7 +8310,7 @@ msgstr "seleccionat per enviar"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:915
 #, python-format
 msgid "%(num)i of %(total)i Books"
-msgstr ""
+msgstr "%(num)i de %(total)i llibres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:919
 #, python-format
@@ -8387,14 +8392,14 @@ msgstr ""
 "N'esteu segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:148
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:439
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:464
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:61
 msgid "Invalid template"
 msgstr "Plantilla no vàlida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:149
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:440
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:465
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:276
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:62
 #, python-format
@@ -9140,7 +9145,7 @@ msgstr "Treballs actius"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:49
 msgid "&Stop selected jobs"
-msgstr ""
+msgstr "&Atura les tasques seleccionades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:50
 msgid "Show job &details"
@@ -10009,7 +10014,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:705
 #, python-format
 msgid "Locating zip file for %(name)s: %(link)s"
-msgstr ""
+msgstr "S'està cercant l'arxiu zip de %(name)s: %(link)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:709
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:746
@@ -10395,7 +10400,7 @@ msgstr "mai"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:384
 #, python-format
 msgid "%(days)d days, %(hours)d hours and %(mins)d minutes ago"
-msgstr ""
+msgstr "Fa %(days)d dies, %(hours)d hores i %(mins)d minuts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:400
 msgid "Last downloaded:"
@@ -10885,7 +10890,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:21
 #, python-format
 msgid "%(curr)s (was %(initial)s)"
-msgstr ""
+msgstr "%(curr)s (era %(initial)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:875
@@ -11009,7 +11014,7 @@ msgid "Open Template Editor"
 msgstr "Obre l'editor de plantilles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:451
 msgid "Edit template"
 msgstr "Edita la plantilla"
 
@@ -11081,7 +11086,7 @@ msgstr "No s'ha seleccionat cap recepta"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:146
 #, python-format
 msgid "The attached file: %(fname)s is a recipe to download %(title)s."
-msgstr ""
+msgstr "El fitxer adjunt: %(fname)s és una recepta per baixar %(title)s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:149
 msgid "Recipe for "
@@ -11287,12 +11292,12 @@ msgstr "Baixa %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 #, python-format
 msgid "Downloading <b>%(fname)s</b> from %(url)s"
-msgstr ""
+msgstr "S'està baixant <b>%(fname)s</b> de %(url)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:85
 #, python-format
 msgid "Failed to download from %(url)r with error: %(err)s"
-msgstr ""
+msgstr "No s'ha pogut descarregar de %(url)r amb l'error: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:41
 msgid "No file specified to download."
@@ -11318,7 +11323,7 @@ msgstr "No s'ha pogut baixar el llibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:123
 #, python-format
 msgid "Email %(name)s to %(to)s"
-msgstr ""
+msgstr "Envia %(name)s per correu electrònic a %(to)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:142
 msgid "News:"
@@ -11592,8 +11597,8 @@ msgstr " - Tasques"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:470
 msgid "Do you really want to stop the selected job?"
 msgid_plural "Do you really want to stop all the selected jobs?"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Segur que voleu aturar la tasca seleccionada?"
+msgstr[1] "Segur que voleu aturar les tasques seleccionades?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:478
 msgid "Do you really want to stop all non-device jobs?"
@@ -11660,7 +11665,7 @@ msgstr "Reinicia la cerca ràpida"
 msgid "Copy current search text (instead of search name)"
 msgstr "Copia el text de cerca (en lloc del nom de la cerca)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:415
 msgid "Y"
 msgstr "S"
 
@@ -12193,7 +12198,7 @@ msgstr "El llibre no té portada"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:925
 #, python-format
 msgid "Cover size: %(width)d x %(height)d pixels"
-msgstr ""
+msgstr "Mida de la portada: %(width)d×%(height)d píxels"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:981
 msgid "stars"

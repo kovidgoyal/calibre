@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-07-14 23:03+0000\n"
-"PO-Revision-Date: 2011-06-06 08:20+0000\n"
-"Last-Translator: keski <Unknown>\n"
+"POT-Creation-Date: 2011-07-15 17:42+0000\n"
+"PO-Revision-Date: 2011-07-20 12:40+0000\n"
+"Last-Translator: Maidur <mdr.ksk@gmail.com>\n"
 "Language-Team: Estonian <et@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-15 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-07-21 04:33+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -23,9 +23,9 @@ msgid "Does absolutely nothing"
 msgstr "Ei tee midagi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:216
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:219
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:230
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:98
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:101
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:112
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -227,7 +227,7 @@ msgstr "Kataloogi looja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
-msgstr ""
+msgstr "Kasutajaliidese tegevus"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:557
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
@@ -242,7 +242,7 @@ msgstr "Eelistused"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
 msgid "Store"
-msgstr ""
+msgstr "Salvesta"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
@@ -254,6 +254,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"Loo PMLZ arhiiv, mis sisaldab PML faili ning kõiki pilte kataloogist "
+"pmlname_img või pilte. See pistikprogramm käivitub iga kord kui lisad PML "
+"faili raamatukokku."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:50
 msgid ""
@@ -261,6 +264,8 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Loo TXTZ arhiiv kui lisatakse TXT fail, mis sisaldab Markdown või Textile "
+"viiteid piltidele. Arhiivi lisatakse nii viidatud pildid kui TXT fail."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
@@ -358,11 +363,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Näita raamatu üksikasju eraldi hüpikaknas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Restart calibre"
-msgstr ""
+msgstr "Taaskäivita calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Open the folder that contains the book files in your calibre library"
@@ -370,7 +375,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Saada raamatud ühendatud seadmesse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid ""
@@ -381,11 +386,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "Loe calibre kasutusjuhendit"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Customize calibre"
-msgstr ""
+msgstr "Kohanda calibret"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Easily find books similar to the currently selected one"
@@ -420,11 +425,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Otsi raamatuid erinevatelt raamatumüüjatelt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Hangi uusi calibre pluginaid või uuenda olemasolevaid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Look and Feel"
@@ -501,7 +506,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:964
 msgid "Output Options"
-msgstr ""
+msgstr "Väljundi sätted"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:970
 msgid "Set conversion options specific to each output format"
@@ -557,7 +562,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1083
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1094
 msgid "Advanced"
-msgstr ""
+msgstr "Täpsemad"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1028
 msgid "Create your own template functions"
@@ -565,7 +570,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1033
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Raamatute jagamine e-posti teel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1035
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1047
@@ -600,7 +605,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1069
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:275
 msgid "Plugins"
-msgstr ""
+msgstr "Pluginad"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1075
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -647,7 +652,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Teisenda e-raamatud %s-vormingusse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -672,12 +677,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:82
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "See profiil on mõeldud SONY PRS-900 jaoks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:90
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:539
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "See profiil on mõeldud Microsoft Readeri jaoks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:101
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:550
@@ -687,7 +692,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "See profiil on mõeldud Hanlin V3 ja selle kloonide jaoks."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:126
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:575
@@ -852,8 +857,8 @@ msgstr ""
 msgid "Disable the named plugin"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/db/backend.py:268
-#: /home/kovid/work/calibre/src/calibre/db/backend.py:277
+#: /home/kovid/work/calibre/src/calibre/db/backend.py:270
+#: /home/kovid/work/calibre/src/calibre/db/backend.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:236
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:667
@@ -863,7 +868,7 @@ msgstr ""
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/db/cache.py:244
+#: /home/kovid/work/calibre/src/calibre/db/cache.py:126
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:636
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:564
@@ -4914,7 +4919,7 @@ msgid "Move to next highlighted match"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:13
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:415
 msgid "N"
 msgstr ""
 
@@ -7234,9 +7239,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:312
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:148
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:230
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:279
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:283
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:255
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:304
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:308
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1282
 msgid "Undefined"
 msgstr ""
@@ -7506,14 +7511,14 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:148
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:439
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:464
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:61
 msgid "Invalid template"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:149
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:440
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:465
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:276
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:62
 #, python-format
@@ -9805,7 +9810,7 @@ msgid "Open Template Editor"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:426
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:451
 msgid "Edit template"
 msgstr ""
 
@@ -10420,7 +10425,7 @@ msgstr ""
 msgid "Copy current search text (instead of search name)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:390
+#: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:415
 msgid "Y"
 msgstr ""
 

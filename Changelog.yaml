@@ -19,6 +19,80 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.11
+  date: 2011-07-22
+
+  new features:
+    - title: "When doing a conversion from some format to the same format, save the original file"
+      description: "When calibre does a conversion from the same format to the same format, for
+        example, from EPUB to EPUB, the original file is saved as original_epub, so that in case the
+        conversion is poor, you can change the settings and run it again. The original is automatically used
+        every time you run a conversion with that format as input. If you want to disable this,
+        there is a tweak that prevents calibre from saving the originals in Preferences->Tweaks. You can
+        easily replace the converted version with the original in the Edit metadata dialog by right 
+        clicking on the list of formats in the top right corner."
+      type: major
+
+    - title: "Conversion pipeline: Add an option to control the height of the blank lines inserted by calibre"
+
+    - title: "Drivers for bq DaVinci, Samsung Galaxy ACE GT-S5830 and Medion e-reader"
+
+    - title: "Get Books: Add stores Chitanka and Bookoteka. Remove epubbuy.de at store's request"
+
+    - title: "Content server: Add a link at the bottom of the mobile interface to switch to the full interface."
+      tickets: [812525]
+
+    - title: "Update the kindle icon shown when a Kindle is connected to use a picture of the Kindle 3"
+      tickets: [810852]
+
+    - title: "MOBI Output: When converting epub documents that have a start element in their guide, use it to mark the starting position at which the MOBI file will be opened."
+      tickets: [804755]
+
+    - title: "News download: Add a default Accept header to all requests"
+  
+  bug fixes:
+    - title: "Fix regression that broke loading translations from .po files in the working directory"
+
+    - title: "Fix conversion dialog not allowing series numbers larger than 9999"
+      tickets: [813281]
+
+    - title: "Conversion pipeline: When adding/removing entries to the manifest, ignore unparseable URLs instead of erroring out on them"
+
+    - title: "SD Card in Azbooka not being detected"
+      tickets: [812750]
+
+    - title: "Conversion pipeline: Strip out large blocks of contiguous space (more than 10000 contiguous blanks) as these slow down the conversion process and are almost always indicative of an error in the input document."
+
+    - title: "ebook-convert: Abort if a keyboard interrupt is raised during parsing"
+
+    - title: "Regex builder: Show a nicer error message when the user has the file open in another program on windows."
+      tickets: [811641]
+
+    - title: "When converting in the GUI, set all identifiers present in the book's metadata in the output file, if the output format supports them."
+
+  improved recipes:
+    - NBObline
+    - JBPress
+    - Instapaper
+    - Die Zeit
+    - Wired (UK)
+
+  new recipes:
+    - title: Utrinski Vesnik
+      author: Darko Spasovski
+
+    - title: IDG.se
+      author: zapt0
+
+    - title: Los Andes
+      author: Darko Miletic
+
+    - title: De Luns a Venres
+      author: Susana Sotelo Docío
+
+    - title: "Nikkei News subscription version"
+      author: Ado Nishimura
+
 - version: 0.8.10
   date: 2011-07-15
 
@@ -669,7 +743,7 @@
 
 
 - version: 0.8.0
-  date: 2010-05-06
+  date: 2011-05-06
 
   new features:
     - title: "Go to http://calibre-ebook.com/new-in/eight to see what's new in 0.8.0"

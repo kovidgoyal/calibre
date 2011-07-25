@@ -1181,6 +1181,26 @@ class StoreBeWriteStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
 
+class StoreBookotekaStore(StoreBase):
+    name = 'Bookoteka'
+    author = u'Tomasz Długosz'
+    description = u'E-booki w Bookotece dostępne są w formacie EPUB oraz PDF. Publikacje sprzedawane w Bookotece są objęte prawami autorskimi. Zobowiązaliśmy się chronić te prawa, ale bez ograniczania dostępu do książki użytkownikowi, który nabył ją w legalny sposób. Dlatego też Bookoteka stosuje tak zwany „watermarking transakcyjny” czyli swego rodzaju znaki wodne.'
+    actual_plugin = 'calibre.gui2.store.stores.bookoteka_plugin:BookotekaStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'PDF']
+
+class StoreChitankaStore(StoreBase):
+    name = u'Моята библиотека'
+    author = 'Alex Stanev'
+    description = u'Независим сайт за DRM свободна литература на български език'
+    actual_plugin = 'calibre.gui2.store.stores.chitanka_plugin:ChitankaStore'
+
+    drm_free_only = True
+    headquarters = 'BG'
+    formats = ['FB2', 'EPUB', 'TXT', 'SFB']
+
 class StoreDieselEbooksStore(StoreBase):
     name = 'Diesel eBooks'
     description = u'Instant access to over 2.4 million titles from hundreds of publishers including Harlequin, HarperCollins, John Wiley & Sons, McGraw-Hill, Simon & Schuster and Random House.'
@@ -1237,6 +1257,16 @@ class StoreEHarlequinStore(StoreBase):
     headquarters = 'CA'
     formats = ['EPUB', 'PDF']
     affiliate = True
+
+class StoreEKnigiStore(StoreBase):
+    name = u'еКниги'
+    author = 'Alex Stanev'
+    description = u'Онлайн книжарница за електронни книги и аудио риалити романи'
+    actual_plugin = 'calibre.gui2.store.stores.eknigi_plugin:eKnigiStore'
+
+    headquarters = 'BG'
+    formats = ['EPUB', 'PDF', 'HTML']
+    #affiliate = True
 
 class StoreEpubBudStore(StoreBase):
     name = 'ePub Bud'
@@ -1455,12 +1485,15 @@ plugins += [
     StoreBNStore,
     StoreBeamEBooksDEStore,
     StoreBeWriteStore,
+    StoreBookotekaStore,
+    StoreChitankaStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
 #    StoreEPubBuyDEStore,
     StoreEHarlequinStore,
+    StoreEKnigiStore,
     StoreEpubBudStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
