@@ -1291,6 +1291,7 @@ class StoreGoogleBooksStore(StoreBase):
 
     headquarters = 'US'
     formats = ['EPUB', 'PDF', 'TXT']
+    affiliate = True
 
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
