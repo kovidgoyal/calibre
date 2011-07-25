@@ -15,6 +15,7 @@ from calibre.gui2 import config, dynamic, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 
 URL = 'http://status.calibre-ebook.com/latest'
+#URL = 'http://localhost:8000/latest'
 NO_CALIBRE_UPDATE = '-0.0.0'
 VSEP = '|'
 

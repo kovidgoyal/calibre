@@ -401,7 +401,7 @@ with undefined values in the column. Searching for ``true`` will find all books 
 values in the column. Searching for ``yes`` or ``checked`` will find all books with ``Yes`` in the column.
 Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column.
 
-Hierarchical items (e.g. A.B.C) use an extended syntax to match initial parts of the hierarchy. This is done by adding a period between the exact match indicator (=) and the text. For example, the query ``tags:=.A`` will find the tags `A` and `A.B`, but will not find the tags `AA` or `AA.B`. The query ``tags:=.A.B`` will find the tags `A.B` and `A.C`, but not the tag `A`.
+Hierarchical items (e.g. A.B.C) use an extended syntax to match initial parts of the hierarchy. This is done by adding a period between the exact match indicator (=) and the text. For example, the query ``tags:=.A`` will find the tags `A` and `A.B`, but will not find the tags `AA` or `AA.B`. The query ``tags:=.A.B`` will find the tags `A.B` and `A.B.C`, but not the tag `A`.
 
 Identifiers (e.g., isbn, doi, lccn etc) also use an extended syntax. First, note that an identifier has the form ``type:value``, as in ``isbn:123456789``. The extended syntax permits you to specify independently which type and value to search for. Both the type and the value parts of the query can use `equality`, `contains`, or `regular expression` matches. Examples:
 

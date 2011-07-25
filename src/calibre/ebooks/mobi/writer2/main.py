@@ -20,6 +20,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
 from calibre.ebooks.mobi.utils import (rescale_image, encint,
         encode_trailing_data)
+from calibre.ebooks.mobi.writer2.indexer import Indexer
 
 EXTH_CODES = {
     'creator': 100,
@@ -87,6 +88,14 @@ class MobiWriter(object):
     # Indexing {{{
     def generate_index(self):
         self.primary_index_record_idx = None
+        try:
+            self.indexer = Indexer(self.serializer, self.last_text_record_idx,
+                    self.opts, self.oeb)
+        except:
+            self.log.exception('Failed to generate MOBI index:')
+        else:
+            self.primary_index_record_idx = len(self.records)
+            self.records.extend(self.indexer.records)
     # }}}
 
     def write_uncrossable_breaks(self): # {{{
@@ -202,7 +211,6 @@ class MobiWriter(object):
             record.write(overlap)
             record.write(pack(b'>B', len(overlap)))
 
-
         self.last_text_record_idx = nrecords
 
     def read_text_record(self, text):
@@ -264,8 +272,6 @@ class MobiWriter(object):
 
         # EOF record
         self.records.append('\xE9\x8E\x0D\x0A')
-
-        self.generate_end_records()
 
         record0 = StringIO()
         # The MOBI Header
