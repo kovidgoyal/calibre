@@ -179,7 +179,27 @@ class IndexEntry(object): # {{{
 
 # }}}
 
-class Indexer(object):
+class TBS(object): # {{{
+
+    '''
+    Take the list of index nodes starting/ending on a record and calculate the
+    trailing byte sequence for the record.
+    '''
+
+    def __init__(self, data, is_periodical):
+        if is_periodical:
+            self.periodical_tbs(data)
+        else:
+            self.book_tbs(data)
+
+    def periodical_tbs(self, data):
+        self.bytestring = b''
+
+    def book_tbs(self, data):
+        self.bytestring = b''
+# }}}
+
+class Indexer(object): # {{{
 
     def __init__(self, serializer, number_of_text_records,
             size_of_last_text_record, opts, oeb):
@@ -210,6 +230,8 @@ class Indexer(object):
         self.records.append(self.create_index_record())
         self.records.insert(0, self.create_header())
         self.records.extend(self.cncx.records)
+
+        self.calculate_trailing_byte_sequences()
 
     def create_index_record(self): # {{{
         header_length = 192
@@ -523,4 +545,39 @@ class Indexer(object):
 
         return indices
     # }}}
+
+    def calculate_trailing_byte_sequences(self):
+        self.tbs_map = {}
+        for i in xrange(self.number_of_text_records):
+            offset = i * RECORD_SIZE
+            next_offset = offset + RECORD_SIZE
+            data = OrderedDict([('ends',[]), ('completes',[]), ('starts',[]),
+                ('spans', None)])
+            for index in self.indices:
+                if index.offset >= next_offset:
+                    # Node starts after current record
+                    break
+                if index.next_offset <= offset:
+                    # Node ends before current record
+                    continue
+                if index.offset >= offset:
+                    # Node starts in current record
+                    if index.next_offset <= next_offset:
+                        # Node ends in current record
+                        data['completes'].append(index)
+                    else:
+                        data['starts'].append(index)
+                else:
+                    # Node starts before current records
+                    if index.next_offset <= next_offset:
+                        # Node ends in current record
+                        data['ends'].append(index)
+                    else:
+                        data['spans'] = index
+            self.tbs_map[i+1] = TBS(data, self.is_periodical)
+
+    def get_trailing_byte_sequence(self, num):
+        return self.tbs_map[num].bytestring
+
+# }}}
 
