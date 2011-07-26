@@ -73,7 +73,7 @@ class PalmDB(object):
         self.ident = self.type + self.creator
         if self.ident not in (b'BOOKMOBI', b'TEXTREAD'):
             raise ValueError('Unknown book ident: %r'%self.ident)
-        self.uid_seed = self.raw[68:72]
+        self.uid_seed, = struct.unpack(b'>I', self.raw[68:72])
         self.next_rec_list_id = self.raw[72:76]
 
         self.number_of_records, = struct.unpack(b'>H', self.raw[76:78])
@@ -290,7 +290,12 @@ class MOBIHeader(object): # {{{
             (self.fcis_number, self.fcis_count, self.flis_number,
                     self.flis_count) = struct.unpack(b'>IIII',
                             self.raw[200:216])
-            self.unknown6 = self.raw[216:240]
+            self.unknown6 = self.raw[216:224]
+            self.srcs_record_index = struct.unpack(b'>I',
+                self.raw[224:228])[0]
+            self.num_srcs_records = struct.unpack(b'>I',
+                self.raw[228:232])[0]
+            self.unknown7 = self.raw[232:240]
             self.extra_data_flags = struct.unpack(b'>I',
                 self.raw[240:244])[0]
             self.has_multibytes = bool(self.extra_data_flags & 0b1)
@@ -356,6 +361,9 @@ class MOBIHeader(object): # {{{
             ans.append('FLIS number: %d'% self.flis_number)
             ans.append('FLIS count: %d'% self.flis_count)
             ans.append('Unknown6: %r'% self.unknown6)
+            ans.append('SRCS record index: %d'%self.srcs_record_index)
+            ans.append('Number of SRCS records?: %d'%self.num_srcs_records)
+            ans.append('Unknown7: %r'%self.unknown7)
             ans.append(('Extra data flags: %s (has multibyte: %s) '
                 '(has indexing: %s) (has uncrossable breaks: %s)')%(
                     bin(self.extra_data_flags), self.has_multibytes,
