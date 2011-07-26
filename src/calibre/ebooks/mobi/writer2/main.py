@@ -279,7 +279,7 @@ class MobiWriter(object):
         last_content_record = len(self.records) - 1
 
         # EOF record
-        self.records.append('\xE9\x8E\x0D\x0A')
+        self.records.append(b'\xE9\x8E\x0D\x0A')
 
         record0 = StringIO()
         # The MOBI Header
@@ -309,8 +309,15 @@ class MobiWriter(object):
         # 0x10 - 0x13 : UID
         # 0x14 - 0x17 : Generator version
 
+        bt = 0x002
+        if self.primary_index_record_idx is not None:
+            if self.indexer.is_flat_periodical:
+                bt = 0x102
+            elif self.indexer.is_periodical:
+                bt = 0x103
+
         record0.write(pack(b'>IIIII',
-            0xe8, 0x002, 65001, uid, 6))
+            0xe8, bt, 65001, uid, 6))
 
         # 0x18 - 0x1f : Unknown
         record0.write(b'\xff' * 8)
@@ -339,7 +346,8 @@ class MobiWriter(object):
         # 0x58 - 0x5b : Format version
         # 0x5c - 0x5f : First image record number
         record0.write(pack(b'>II',
-            6, self.first_image_record if self.first_image_record else 0))
+            6, self.first_image_record if self.first_image_record else
+            len(self.records)-1))
 
         # 0x60 - 0x63 : First HUFF/CDIC record number
         # 0x64 - 0x67 : Number of HUFF/CDIC records

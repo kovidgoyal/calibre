@@ -52,11 +52,10 @@ class CNCX(object): # {{{
                 self.records.append(buf.getvalue())
                 buf.truncate(0)
                 offset = len(self.records) * 0x10000
-
+            buf.write(raw)
             self.strings[key] = offset
             offset += len(raw)
 
-        buf.write(b'\0') # CNCX must end with zero byte
         self.records.append(align_block(buf.getvalue()))
 
     def __getitem__(self, string):
