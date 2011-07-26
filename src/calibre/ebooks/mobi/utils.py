@@ -11,6 +11,7 @@ import struct
 from collections import OrderedDict
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
+from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
 
@@ -196,4 +197,97 @@ def encode_trailing_data(raw):
             break
         lsize += 1
     return raw + encoded
+
+def encode_fvwi(val, flags):
+    '''
+    Encode the value val and the 4 bit flags flags as a fvwi. This encoding is
+    used in the trailing byte sequences for indexing. Returns encoded
+    bytestring.
+    '''
+    ans = (val << 4) | (flags & 0b1111)
+    return encint(ans)
+
+
+def decode_fvwi(byts):
+    '''
+    Decode encoded fvwi. Returns number, flags, consumed
+    '''
+    arg, consumed = decint(bytes(byts))
+    return (arg >> 4), (arg & 0b1111), consumed
+
+def decode_tbs(byts):
+    '''
+    Trailing byte sequences for indexing consists of series of fvwi numbers.
+    This function reads the fvwi number and its associated flags. It them uses
+    the flags to read any more numbers that belong to the series. The flags are
+    the lowest 4 bits of the vwi (see the encode_fvwi function above).
+
+    Returns the fvwi number, a dictionary mapping flags bits to the associated
+    data and the number of bytes consumed.
+    '''
+    byts = bytes(byts)
+    val, flags, consumed = decode_fvwi(byts)
+    extra = {}
+    byts = byts[consumed:]
+    if flags & 0b1000:
+        extra[0b1000] = True
+    if flags & 0b0010:
+        x, consumed2 = decint(byts)
+        byts = byts[consumed2:]
+        extra[0b0010] = x
+        consumed += consumed2
+    if flags & 0b0100:
+        extra[0b0100] = ord(byts[0])
+        byts = byts[1:]
+        consumed += 1
+    if flags & 0b0001:
+        x, consumed2 = decint(byts)
+        byts = byts[consumed2:]
+        extra[0b0001] = x
+        consumed += consumed2
+    return val, extra, consumed
+
+def encode_tbs(val, extra):
+    '''
+    Encode the number val and the extra data in the extra dict as an fvwi. See
+    decode_tbs above.
+    '''
+    flags = 0
+    for flag in extra:
+        flags |= flag
+    ans = encode_fvwi(val, flags)
+
+    if 0b0010 in extra:
+        ans += encint(extra[0b0010])
+    if 0b0100 in extra:
+        ans += bytes(bytearray([extra[0b0100]]))
+    if 0b0001 in extra:
+        ans += encint(extra[0b0001])
+    return ans
+
+def utf8_text(text):
+    '''
+    Convert a possibly null string to utf-8 bytes, guaranteeing to return a non
+    empty, normalized bytestring.
+    '''
+    if text and text.strip():
+        text = text.strip()
+        if not isinstance(text, unicode):
+            text = text.decode('utf-8', 'replace')
+        text = normalize(text).encode('utf-8')
+    else:
+        text = _('Unknown').encode('utf-8')
+    return text
+
+def align_block(raw, multiple=4, pad=b'\0'):
+    '''
+    Return raw with enough pad bytes append to ensure its length is a multiple
+    of 4.
+    '''
+    extra = len(raw) % multiple
+    if extra == 0: return raw
+    return raw + pad*(multiple - extra)
+
+
+
 

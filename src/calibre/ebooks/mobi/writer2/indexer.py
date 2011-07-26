@@ -10,35 +10,13 @@ __docformat__ = 'restructuredtext en'
 
 from struct import pack
 from cStringIO import StringIO
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
-from calibre.ebooks import normalize
-from calibre.ebook.mobi.writer2 import RECORD_SIZE
-from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex)
+from calibre.ebooks.mobi.writer2 import RECORD_SIZE
+from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
+        encode_trailing_data, encode_tbs, align_block, utf8_text)
 from calibre.ebooks.mobi.langcodes import iana2mobi
 
-def utf8_text(text):
-    '''
-    Convert a possibly null string to utf-8 bytes, guaranteeing to return a non
-    empty, normalized bytestring.
-    '''
-    if text and text.strip():
-        text = text.strip()
-        if not isinstance(text, unicode):
-            text = text.decode('utf-8', 'replace')
-        text = normalize(text).encode('utf-8')
-    else:
-        text = _('Unknown').encode('utf-8')
-    return text
-
-def align_block(raw, multiple=4, pad=b'\0'):
-    '''
-    Return raw with enough pad bytes append to ensure its length is a multiple
-    of 4.
-    '''
-    extra = len(raw) % multiple
-    if extra == 0: return raw
-    return raw + pad*(multiple - extra)
 
 class CNCX(object): # {{{
 
@@ -98,7 +76,7 @@ class IndexEntry(object): # {{{
             'first_child_index': 22,
             'last_child_index': 23,
     }
-    RTAG_MAP = dict(TAG_VALUES.itervalues(), TAG_VALUES.iterkeys())
+    RTAG_MAP = {v:k for k, v in TAG_VALUES.iteritems()}
 
     BITMASKS = [1, 2, 3, 4, 5, 21, 22, 23,]
 
@@ -186,17 +164,123 @@ class TBS(object): # {{{
     trailing byte sequence for the record.
     '''
 
-    def __init__(self, data, is_periodical):
-        if is_periodical:
-            self.periodical_tbs(data)
+    def __init__(self, data, is_periodical, first=False, all_sections=[]):
+        if not data:
+            self.bytestring = encode_trailing_data(b'')
         else:
-            self.book_tbs(data)
+            self.section_map = OrderedDict((i.index, i) for i in
+                    sorted(all_sections, key=lambda x:x.offset))
 
-    def periodical_tbs(self, data):
-        self.bytestring = b''
+            if is_periodical:
+                # The starting bytes.
+                # The value is zero which I think indicates the periodical
+                # index entry. The values for the various flags seem to be
+                # unused. If the 0b0100 is present, it means that the record
+                # deals with section 1 (or is the final record with section
+                # transitions).
+                self.type_010 = encode_tbs(0, {0b0010: 0})
+                self.type_011 = encode_tbs(0, {0b0010: 0, 0b0001: 0})
+                self.type_110 = encode_tbs(0, {0b0100: 2, 0b0010: 0})
+                self.type_111 = encode_tbs(0, {0b0100: 2, 0b0010: 0, 0b0001: 0})
 
-    def book_tbs(self, data):
-        self.bytestring = b''
+                depth_map = defaultdict(list)
+                for x in ('starts', 'ends', 'completes'):
+                    for idx in data[x]:
+                        depth_map[idx.depth].append(idx)
+                for l in depth_map.itervalues():
+                    l.sort(key=lambda x:x.offset)
+                self.periodical_tbs(data, first, depth_map)
+            else:
+                self.book_tbs(data, first)
+
+    def periodical_tbs(self, data, first, depth_map):
+        buf = StringIO()
+
+        has_section_start = (depth_map[1] and depth_map[1][0] in
+                    data['starts'])
+        spanner = data['spans']
+        first_node = None
+        for nodes in depth_map.values():
+            for node in nodes:
+                if (first_node is None or (node.offset, node.depth) <
+                        (first_node.offset, first_node.depth)):
+                    first_node = node
+
+        parent_section_index = -1
+        if depth_map[0]:
+            # We have a terminal record
+            typ = (self.type_110 if has_section_start else self.type_010)
+            if first_node.depth > 0:
+                parent_section_index = (first_node.index if first_node.depth
+                        == 1 else first_node.parent_index)
+        else:
+            if spanner is not None:
+                # record is spanned by a single article
+                parent_section_index = spanner.parent_index
+                typ = (self.type_110 if parent_section_index == 1 else
+                        self.type_010)
+            elif not depth_map[1]:
+                # has only article nodes, i.e. spanned by a section
+                parent_section_index = self.depth_map[2][0].parent_index
+                typ = (self.type_111 if parent_section_index == 1 else
+                        self.type_010)
+            else:
+                # has section transitions
+                parent_section_index = self.depth_map[2][0].parent_index
+
+        buf.write(typ)
+
+        if parent_section_index > 1:
+            # Write starting section information
+            if spanner is None:
+                num_articles = len(depth_map[1])
+                extra = {}
+                if num_articles > 1:
+                    extra = {0b0100: num_articles}
+            else:
+                extra = {0b0001: 0}
+            buf.write(encode_tbs(parent_section_index, extra))
+
+        if spanner is None:
+            articles = depth_map[2]
+            sections = [self.section_map[a.parent_index] for a in articles]
+            sections.sort(key=lambda x:x.offset)
+            section_map = {s:[a for a in articles is a.parent_index ==
+                s.index] for s in sections}
+            for i, section in enumerate(sections):
+                # All the articles in this record that belong to section
+                articles = section_map[section]
+                first_article = articles[0]
+                last_article = articles[-1]
+                num = len(articles)
+
+                try:
+                    next_sec = sections[i+1]
+                except:
+                    next_sec == None
+
+                extra = {}
+                if num > 1:
+                    extra[0b0100] = num
+                if i == 0 and next_sec is not None:
+                    # Write offset to next section from start of record
+                    # For some reason kindlegen only writes this offset
+                    # for the first section transition. Imitate it.
+                    extra[0b0001] = next_sec.offset - data['offset']
+
+                buf.write(encode_tbs(first_article.index-section.index, extra))
+
+                if next_sec is not None:
+                    buf.write(encode_tbs(last_article.index-next_sec.index,
+                        {0b1000: 0}))
+        else:
+            buf.write(encode_tbs(spanner.index - parent_section_index,
+                {0b0001: 0}))
+
+        self.bytestring = encode_trailing_data(buf.getvalue())
+
+    def book_tbs(self, data, first):
+        self.bytestring = encode_trailing_data(b'')
 # }}}
 
 class Indexer(object): # {{{
@@ -548,11 +632,13 @@ class Indexer(object): # {{{
 
     def calculate_trailing_byte_sequences(self):
         self.tbs_map = {}
+        found_node = False
+        sections = [i for i in self.indices if i.depth == 1]
         for i in xrange(self.number_of_text_records):
             offset = i * RECORD_SIZE
             next_offset = offset + RECORD_SIZE
             data = OrderedDict([('ends',[]), ('completes',[]), ('starts',[]),
-                ('spans', None)])
+                ('spans', None), ('offset', offset)])
             for index in self.indices:
                 if index.offset >= next_offset:
                     # Node starts after current record
@@ -574,7 +660,13 @@ class Indexer(object): # {{{
                         data['ends'].append(index)
                     else:
                         data['spans'] = index
-            self.tbs_map[i+1] = TBS(data, self.is_periodical)
+            if (data['ends'] or data['completes'] or data['starts'] or
+                    data['spans'] is not None):
+                self.tbs_map[i+1] = TBS(data, self.is_periodical, first=not
+                        found_node, all_sections=sections)
+                found_node = True
+            else:
+                self.tbs_map[i+1] = TBS({}, self.is_periodical, first=False)
 
     def get_trailing_byte_sequence(self, num):
         return self.tbs_map[num].bytestring
