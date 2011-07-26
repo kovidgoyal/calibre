@@ -500,12 +500,12 @@ class Indexer(object): # {{{
                 continue
             seen.add(offset)
             index = IndexEntry(offset, label)
-            self.indices.append(index)
+            indices.append(index)
 
         indices.sort(key=lambda x:x.offset)
 
         # Set lengths
-        for i, index in indices:
+        for i, index in enumerate(indices):
             try:
                 next_offset = indices[i+1].offset
             except:
@@ -516,11 +516,11 @@ class Indexer(object): # {{{
         indices = [i for i in indices if i.length > 0]
 
         # Set index values
-        for i, index in indices:
+        for i, index in enumerate(indices):
             index.index = i
 
         # Set lengths again to close up any gaps left by filtering
-        for i, index in indices:
+        for i, index in enumerate(indices):
             try:
                 next_offset = indices[i+1].offset
             except:
