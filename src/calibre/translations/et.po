@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-20 12:40+0000\n"
-"Last-Translator: Maidur <mdr.ksk@gmail.com>\n"
+"PO-Revision-Date: 2011-07-25 08:15+0000\n"
+"Last-Translator: keski <Unknown>\n"
 "Language-Team: Estonian <et@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-23 04:39+0000\n"
+"X-Launchpad-Export-Date: 2011-07-26 04:37+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -323,7 +323,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:725
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Lisa raamatuid calibresse või ühendatud seadmesse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:730
 msgid "Fetch annotations from a connected Kindle (experimental)"
@@ -331,7 +331,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Loo calibre raamatukogust kataloog"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Convert books to various ebook formats"
@@ -339,7 +339,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Kustuta raamatud calibre kogust või ühendatud seadmest"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Edit the metadata of books in your calibre library"
@@ -351,7 +351,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Lae alla uudised e-raamatu formaadis"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Show a list of related books quickly"
@@ -399,7 +399,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "Vaheta erinevate calibre raamatukogude vahel ja tee neis hooldust"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Copy books from the devce to your calibre library"

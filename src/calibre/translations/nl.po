@@ -44,14 +44,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-24 18:06+0000\n"
+"PO-Revision-Date: 2011-07-25 15:07+0000\n"
 "Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-25 04:32+0000\n"
+"X-Launchpad-Export-Date: 2011-07-26 04:37+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -16063,7 +16063,7 @@ msgid ""
 "The following books have already been converted to %s format. Do you wish to "
 "reconvert them?"
 msgstr ""
-"De volgende boeken zijn al geconverteerd naar %s-formaat. Wil je dit opnieuw "
+"De volgende boeken zijn al naar %s-formaat geconverteerd. Wilt u dit opnieuw "
 "doen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:196
@@ -16089,7 +16089,7 @@ msgid ""
 "log will be available in the file: %s<p>The log will be displayed "
 "automatically."
 msgstr ""
-"U hebt calibre gestart in debugmodus. Na het sluiten van calibre, zal de "
+"U hebt calibre in debugmodus gestart. Na het sluiten van calibre, zal de "
 "debuglog beschikbaar zijn in dit bestand: %s<p>De log zal automatisch worden "
 "weergegeven."
 
@@ -16115,9 +16115,8 @@ msgid ""
 "                      Quitting may cause corruption on the device.<br>\n"
 "                      Are you sure you want to quit?"
 msgstr ""
-" is aan het communiceren met het apparaat!<br>\n"
-"                      Aflsluiten kan schade veroorzaken aan het "
-"apparaat.<br>\n"
+" communiceert met het apparaat!<br>\n"
+"                      Afsluiten kan het apparaat beschadigen. <br>\n"
 "                      Weet u zeker dat u wilt afsluiten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:630
@@ -16129,8 +16128,8 @@ msgid ""
 "will keep running in the system tray. To close it, choose <b>Quit</b> in the "
 "context menu of the system tray."
 msgstr ""
-"zal blijven draaien in het systeemvak. Om af te sluiten, kies "
-"<b>Afsluiten</b> in het contextmenu in het systeemvak."
+"zal in het systeemvak actief blijven. Om af te sluiten kiest u "
+"<b>Afsluiten</b> in het contextmenu van het systeemvak."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:73
 #, python-format
@@ -16139,11 +16138,12 @@ msgid ""
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
 "%(app)s is bijgewerkt naar versie <b>%(ver)s</b>. Bekijk de <a "
-"href=\"http://calibre-ebook.com/whats-new\">nieuwe functies</a>."
+"href=\"http://calibre-ebook.com/whats-new\">nieuwe functies</a> "
+"(Engelstalig)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:79
 msgid "Update available!"
-msgstr "Nieuwe versie beschikbaar!"
+msgstr "Update beschikbaar!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:84
 msgid "Show this notification for future updates"
@@ -16151,38 +16151,38 @@ msgstr "Laat deze melding voor toekomstige nieuwe versies zien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:89
 msgid "&Get update"
-msgstr "Nieuwe versie verkrij&gen"
+msgstr "Update verkrij&gen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:93
 msgid "Update &plugins"
-msgstr "&Plugins bijwerken"
+msgstr "&Plug-ins bijwerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:152
 #, python-format
 msgid " (%d plugin updates)"
-msgstr " (%d bijgewerkte plugins)"
+msgstr " (%d bijgewerkte plug-ins)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:155
 msgid "Update found"
-msgstr "Bijgewerkte versie gevonden"
+msgstr "Update gevonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:158
 msgid "updated plugins"
-msgstr "bijgewerkte plugins"
+msgstr "bijgewerkte plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:189
 msgid "Plugin Updates"
-msgstr "Nieuwe plugin versies"
+msgstr "Plug-in updates"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:187
 #, python-format
 msgid "There are %d plugin updates available"
-msgstr "Er zijn %d nieuwe plugin-versies beschikbaar"
+msgstr "Er zijn %d updates voor plug-ins beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:191
 msgid "Install and configure user plugins"
-msgstr "Installeer en configureer gebruikers plugins"
+msgstr "Gebruikers-plug-ins installeren en configureren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -16206,7 +16206,7 @@ msgstr "Bladwijzers importeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:62
 msgid "Pickled Bookmarks (*.pickle)"
-msgstr "Ingelegde bladwijzers (*.pickle)"
+msgstr "Pickled bladwijzers (*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:61
 msgid "Bookmark Manager"
@@ -16214,11 +16214,11 @@ msgstr "Bladwijzerbeheerder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:62
 msgid "Actions"
-msgstr "Handelingen"
+msgstr "Acties"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:63
 msgid "Edit"
-msgstr "Bewerk"
+msgstr "Bewerken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:65
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:667
@@ -16227,15 +16227,15 @@ msgstr "Herstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:66
 msgid "Export"
-msgstr "Exporteer"
+msgstr "Exporteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:67
 msgid "Import"
-msgstr "Importeer"
+msgstr "Importeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:178
 msgid "Configure Ebook viewer"
-msgstr "E-boek lezer instellen"
+msgstr "E-booklezer instellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:179
 msgid "&Font options"
@@ -16285,11 +16285,11 @@ msgstr "Niet-proportioneel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:191
 msgid "Remember last used &window size"
-msgstr "Onthoud de laatst gebruikte &weergavegrootte van venster"
+msgstr "De laatstgebruikte &weergavegrootte van venster onthouden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:192
 msgid "Remember the &current page when quitting"
-msgstr "A&ctuele pagina onthouden bij afsluiten"
+msgstr "&Huidige pagina bij afsluiten onthouden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:193
 msgid "H&yphenate (break line in the middle of large words)"
@@ -16300,8 +16300,8 @@ msgid ""
 "The default language to use for hyphenation rules. If the book does not "
 "specify a language, this will be used."
 msgstr ""
-"De standaardtaal voor de afbreekregels. Als het boek geen taal specificeert, "
-"dan zal deze worden gebruikt."
+"De standaardtaal voor de afbreekregels. Deze zal gebruikt worden als het "
+"boek geen taal specificeert."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:195
 msgid "Default &language for hyphenation:"
@@ -16310,7 +16310,7 @@ msgstr "Standaardtaa&l voor woordafbreken:"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:196
 msgid "&Resize images larger than the viewer window (needs restart)"
 msgstr ""
-"He&rschaal afbeeldingen groter dan het weergave venster (herstart vereist)"
+"He&rschaal afbeeldingen groter dan het weergave venster (vereist herstart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "Page flip &duration:"
@@ -16322,7 +16322,7 @@ msgstr "uitgeschakeld"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Mouse &wheel flips pages"
-msgstr "Pagina omdraaien met muis&wiel"
+msgstr "Pagina met muis&wiel omdraaien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
 msgid "Maximum &view width:"
@@ -16348,7 +16348,8 @@ msgid ""
 msgstr ""
 "<p>Een CSS-stylesheet die gebruikt kan worden om de opmaak van boeken te "
 "bepalen. Voorbeelden vindt u <a "
-"href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">hier</a>."
+"href=\"http://www.mobileread.com/forums/showthread.php?t=51500\">hier</a> "
+"(Engelstalig)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:207
 msgid "User &Stylesheet"
@@ -16356,7 +16357,7 @@ msgstr "&Stylesheet gebuiker"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
-msgstr "Geen overeenkomsten gevonden voor:"
+msgstr "Geen resultaten gevonden voor:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:41
 msgid "Options to customize the ebook viewer"
@@ -16365,7 +16366,7 @@ msgstr "Opties om de e-boek lezer te personaliseren"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:795
 msgid "Remember last used window size"
-msgstr "Onthoud de laatst gebruikte venstergrootte"
+msgstr "De laatstgebruikte venstergrootte onthouden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:97
@@ -16373,8 +16374,8 @@ msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
 msgstr ""
-"Definieer je eigen CSS-stylesheet. Dit kan worden gebruikt om het uiterlijk "
-"van alle boeken te verpersoonlijken"
+"Definieer uw eigen CSS-stylesheet. Dit kan gebruikt worden om het uiterlijk "
+"van alle boeken aan te passen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:52
 msgid "Maximum width of the viewer window, in pixels."
@@ -16446,7 +16447,7 @@ msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
 msgstr ""
-"Je bent halverwege de definitie van een sneltoetscombinatie. Vervolledig die "
+"U bent halverwege de definitie van een sneltoetscombinatie. Voltooi deze "
 "eerst door buiten het definitievakje te klikken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
@@ -16456,7 +16457,7 @@ msgstr "Woordenboek raadp&legen"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:540
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
 msgid "Go to..."
-msgstr "Ga naar..."
+msgstr "Ga naar…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:552
 msgid "Next Section"
@@ -16516,19 +16517,19 @@ msgstr "Scroll naar het begin van het document"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:36
 msgid "Scroll down"
-msgstr "Omlaag schuiven"
+msgstr "Naar beneden scrollen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:39
 msgid "Scroll up"
-msgstr "Omhoog schuiven"
+msgstr "Omhoog scrollen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:42
 msgid "Scroll left"
-msgstr "Naar links schuiven"
+msgstr "Naar links scrollen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:45
 msgid "Scroll right"
-msgstr "Naar rechts schuiven"
+msgstr "Naar rechts scrollen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:118
 msgid "Book format"
@@ -16558,15 +16559,15 @@ msgstr "Lijst met recent geopende boeken wissen"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:366
 #, python-format
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr "Verbinden met dict.org om op te zoeken: <b>%s</b>&hellip;"
+msgstr "Met dict.org verbinden om <b>%s</b>&hellip; op te zoeken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:472
 msgid "Choose ebook"
-msgstr "Kies e-boek"
+msgstr "E-book kiezen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:473
 msgid "Ebooks"
-msgstr "E-boeken"
+msgstr "E-books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:495
 #, python-format
@@ -16588,7 +16589,7 @@ msgstr "kleiner"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:515
 #, python-format
 msgid "No matches found for: %s"
-msgstr "Geen overeenkomst gevonden voor: %s"
+msgstr "Geen resultaten gevonden voor: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:552
 msgid "Loading flow..."
@@ -16614,15 +16615,15 @@ msgstr "Geef titel voor bladwijzer:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:636
 msgid "Manage Bookmarks"
-msgstr "Beheer bladwijzers"
+msgstr "Bladwijzers beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:677
 msgid "Loading ebook..."
-msgstr "Laden e-boek..."
+msgstr "E-book laden…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:689
 msgid "Could not open ebook"
-msgstr "Kon e-boek niet openen"
+msgstr "Kan e-book niet openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:782
 msgid "Options to control the ebook viewer"
@@ -16632,8 +16633,8 @@ msgstr "Opties voor de e-boek lezer"
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
-"Indien gespecificeerd, dan zal het boekleesvenster proberen naar voren te "
-"komen na het opstarten."
+"Indien gespecificeerd, zal het boekleesvenster proberen naar voren te komen "
+"na het opstarten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:792
 msgid ""
@@ -16654,7 +16655,7 @@ msgid ""
 msgstr ""
 "%prog [opties] bestand\n"
 "\n"
-"Bekijk een e-boek.\n"
+"Een e-book weergeven.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
@@ -16662,7 +16663,7 @@ msgstr "E-boek lezer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Close dictionary"
-msgstr "Sluit woordenboek"
+msgstr "Woordenboek sluiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:192
 msgid "toolBar"
@@ -16686,11 +16687,11 @@ msgstr "Lettergrootte kleiner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:202
 msgid "Find next"
-msgstr "Zoek volgende"
+msgstr "Volgende zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:203
 msgid "Find next occurrence"
-msgstr "Zoek het volgende item"
+msgstr "Het volgende item zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:207
 msgid "Reference Mode"
@@ -16710,15 +16711,15 @@ msgstr "Afdrukken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:211
 msgid "Find previous"
-msgstr "Zoek vorige"
+msgstr "Vorige zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
 msgid "Find previous occurrence"
-msgstr "Zoek vorig item"
+msgstr "Het vorige item zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
-msgstr "Print e-boek"
+msgstr "E-book afdrukken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:984
 msgid "Drag to resize"
@@ -16726,11 +16727,11 @@ msgstr "Sleep om de grootte aan te passen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1019
 msgid "Show"
-msgstr "Toon"
+msgstr "Weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1026
 msgid "Hide"
-msgstr "Verberg"
+msgstr "Verbergen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1063
 msgid "Toggle"
@@ -16742,12 +16743,12 @@ msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
 msgstr ""
-"Kies uw E-reader. Als uw apparaat niet in de lijst staat, kies een \"%s\" "
-"apparaat."
+"Kies uw e-reader. Kies een ‘%s’ -apparaat als uw apparaat niet in de lijst "
+"staat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
 msgid "Moving library..."
-msgstr "Bibliotheek verplaatsen..."
+msgstr "Bibliotheek verplaatsen…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:515
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:516
@@ -16764,12 +16765,12 @@ msgid ""
 "<p>An invalid library already exists at %(loc)s, delete it before trying to "
 "move the existing library.<br>Error: %(err)s"
 msgstr ""
-"<p>Een ongeldige bibliotheek bestaat al op %(loc)s, verwijder het voor u "
+"<p>Er bestaat een ongeldige bibliotheek op %(loc)s, verwijder deze voor u "
 "probeert de bestaande bibliotheek te verplaatsen.<br />Fout: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:582
 msgid "Could not move library"
-msgstr "Bibliotheek kon niet worden verplaatst"
+msgstr "Bibliotheek kan niet verplaatst worden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:662
 msgid "Select location for books"
@@ -16784,7 +16785,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:757
 msgid "welcome wizard"
-msgstr "Verwelkomingswizard"
+msgstr "verwelkomingswizard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:55
@@ -16805,11 +16806,11 @@ msgstr "De complete oplossing voor al uw e-boek wensen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:57
 msgid "&Manufacturers"
-msgstr "Sa&menstellers"
+msgstr "&Producenten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:58
 msgid "&Devices"
-msgstr "Apparaten"
+msgstr "&Apparaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:49
 #, python-format
@@ -16826,15 +16827,16 @@ msgid ""
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
 "<h2>Demovideos</h2>Videos die de diverse functies van calibre demonstreren "
-"zijn <a href=\"http://calibre-ebook.com/demo\">online</a> beschikbaar."
+"zijn <a href=\"http://calibre-ebook.com/demo\">online</a> beschikbaar "
+"(Engelstalig)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:51
 msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a "
 "href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
-"<h2>Handleiding</h2>Een handleiding is ook beschikbaar <a "
-"href=\"http://manual.calibre-ebook.com\">online</a>."
+"<h2>Handleiding</h2>Een handleiding is ook <a href=\"http://manual.calibre-"
+"ebook.com\">online</a> beschikbaar (Engelstalig)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -16847,9 +16849,9 @@ msgstr ""
 "<p>Calibre kan automatisch boeken via e-mail naar uw Kindle versturen. Om "
 "dat te doen, moet u de e-mailinstellingen hieronder opgeven. De makkelijkste "
 "manier om dit te doen is een gratis <a "
-"href=\"http://gmail.com\">gmailaccount</a> aan te vragen, en op de 'gebruik "
-"gmail' knop te klikken. U zult uw gmailacccount ook moeten registreren bij "
-"uw Amazonaccount."
+"href=\"http://gmail.com\">gmailaccount</a> aan te vragen, en op de ‘gmail "
+"gebruiken’-knop te klikken. U zult uw gmail-acccount ook moeten registreren "
+"bij uw Amazonaccount."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:50
 msgid "&Kindle email:"
@@ -16864,13 +16866,13 @@ msgid ""
 "<p>Choose a location for your books. When you add books to calibre, they "
 "will be copied here. Use an <b>empty folder</b> for a new calibre library:"
 msgstr ""
-"<p>Kies een locatie voor uw boeken. Als u boeken toevoegt aan calibre zullen "
-"ze hierheen gekopieerd worden. Gebruik een <b>lege map</b> voor een nieuwe "
-"calibrebibliotheek."
+"<p>Kies een locatie voor uw boeken. Als u boeken aan calibre toevoegt zullen "
+"ze hier naartoe gekopieerd worden. Gebruik een <b>lege map</b> voor een "
+"nieuwe calibrebibliotheek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
-msgstr "Wijzigen"
+msgstr "&Wijzigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:60
 msgid ""
@@ -16878,9 +16880,9 @@ msgid ""
 "location. If a calibre library already exists at the new location, calibre "
 "will switch to using it."
 msgstr ""
-"Als u een bestaande calibrebibliotheek hebt, dan zal deze naar de nieuwe "
-"locatie worden gekopieerd. Als er al een calibre bibliotheek is op de nieuwe "
-"locatie, dan zal calibre daar naar overschakelen."
+"Als u een bestaande calibrebibliotheek hebt zal deze naar de nieuwe locatie "
+"gekopieerd worden. Als er al een calibre bibliotheek op de nieuwe locatie "
+"aanwezig is zal calibre hierop overschakelen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 #, python-format
@@ -16890,7 +16892,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
-msgstr "Bezig met versturen..."
+msgstr "Verzenden…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:44
 msgid "Mail successfully sent"
@@ -16898,14 +16900,14 @@ msgstr "E-mail verzonden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:59
 msgid "Setup sending email using"
-msgstr "E-mailverzendopties instellen met gebruik van"
+msgstr "E-mail  instellen met gebruik van"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:61
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
-"Als je geen account hebt kan je je aanmelden voor een gratis {name} e-"
+"Als u geen account heeft kunt u zich aanmelden voor een gratis {name} e-"
 "mailaccount op <a href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:68
@@ -16916,12 +16918,12 @@ msgstr "Uw %s &e-mailadres:"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:69
 #, python-format
 msgid "Your %s &username:"
-msgstr "Uw %s gebr&uikersnaam"
+msgstr "Uw %s gebr&uikersnaam:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:70
 #, python-format
 msgid "Your %s &password:"
-msgstr "Uw %s wachtwoord/&pin"
+msgstr "Uw %s &wachtwoord:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:89
 #, python-format
@@ -16936,7 +16938,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "Setup"
-msgstr "Instellen"
+msgstr "Configuratie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:102
 msgid "Incorrect username"
@@ -16945,7 +16947,7 @@ msgstr "Onjuiste gebruikersnaam"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:103
 #, python-format
 msgid "%s needs the full email address as your username"
-msgstr "%s heeft het volledige e-mailadres nodig als gebruikersnaam"
+msgstr "%s vereist het volledige e-mailadres als gebruikersnaam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
 msgid "OK to proceed?"
@@ -16964,9 +16966,9 @@ msgid ""
 "this case, I strongly suggest you setup a free gmail account instead."
 msgstr ""
 "Als u een nieuw Hotmailaccount aanmaakt, vereist Microsoft dat u uw account "
-"regelmatig verifieert voor dat het calibre mail laat versturen.  In dit "
-"geval adviseer ik u sterk om in plaats daar van een gratis Gmailaccount aan "
-"te maken."
+"regelmatig verifieert voordat het calibre mail laat versturen.  In dit geval "
+"adviseer ik u sterk om in plaats daar van een gratis Gmail-account aan te "
+"maken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:232
@@ -16976,19 +16978,19 @@ msgstr "Ongeldige configuratie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:222
 msgid "You must set the From email address"
-msgstr "Je moet het mailadres van de afzender opgeven"
+msgstr "U moet het e-mailadres van de afzender opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:233
 msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
 msgstr ""
-"Je moet ofwel gebruikersnaam <b>en</b> wachtwoord opgeven voor de mail "
-"server ofwel geen van beide."
+"U moet of <b>zowel</b> een wachtwoord en gebruikersnaam opgeven, of geen van "
+"beide."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:238
 msgid "Please enter a username and password or set encryption to None "
-msgstr "Geef gebruikersnaam en wachtwoord op of zet versleuteling op geen "
+msgstr "Geef gebruikersnaam en wachtwoord op of zet versleuteling op Geen "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:243
 msgid ""
@@ -17007,8 +17009,8 @@ msgid ""
 "<p>This is what will be present in the From: field of emails sent by "
 "calibre.<br> Set it to your email address"
 msgstr ""
-"<p>Dit is wat wordt gebruikt in het afzender: veld van e-mails die worden "
-"verstuurd door calibre.<br> Voer hier uw e-mailadres in"
+"<p>Dit is wat wordt gebruikt in het Afzender:-veld van e-mails die door "
+"calibre verstuurd worden.<br> Voer hier uw e-mailadres in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:126
 msgid ""
@@ -17033,7 +17035,7 @@ msgstr "&Hostnaam:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:130
 msgid "The hostname of your mail server. For e.g. smtp.gmail.com"
-msgstr "De hostnaam van uw mailserver. Bijvoorbeeld: smtp.gmail.com"
+msgstr "De hostnaam van uw mailserver. Bijvoorbeeld smtp.gmail.com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:131
 msgid "&Port:"
@@ -17055,7 +17057,7 @@ msgstr "Uw wachtwoord op de mailserver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:137
 msgid "&Show"
-msgstr "Weergeven"
+msgstr "Weerge&ven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:138
 msgid "&Encryption:"
@@ -17087,19 +17089,19 @@ msgstr "WAARSCHUWING: Geen versleuteling gebruiken is erg onveilig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr "Gee&n"
+msgstr "&Geen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"
-msgstr "Gebruik Gmail"
+msgstr "Gmail gebruiken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:146
 msgid "Use Hotmail"
-msgstr "Gebruik Hotmail"
+msgstr "Hotmail gebruiken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:147
 msgid "&Test email"
-msgstr "&Test e-mail"
+msgstr "E-mail &testen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:49
 msgid ""
@@ -17109,9 +17111,9 @@ msgid ""
 "server."
 msgstr ""
 "<p>Als u de <a href=\"http://www.lexcycle.com/download\">Stanza</a> e-"
-"boekapplicatie op uw iPhone/iTouch gebruikt, dan kan u uw calibre-"
-"boekcollectie direct benaderen vanaf het apparaat. Om dit te kunnen doen "
-"zult u de calibre-inhoudsserver moeten activeren."
+"bookapplicatie op uw iPhone/iTouch gebruikt kunt u uw calibre-boekcollectie "
+"direct benaderen vanaf het apparaat. Om dit te kunnen doen zult u de calibre-"
+"inhoudsserver moeten activeren."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:50
 msgid "Turn on the &content server"
