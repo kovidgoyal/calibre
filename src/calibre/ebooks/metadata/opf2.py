@@ -22,6 +22,7 @@ from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.config import tweaks
 
 class Resource(object): # {{{
     '''
@@ -527,7 +528,12 @@ class OPF(object): # {{{
     category        = MetadataField('type')
     rights          = MetadataField('rights')
     series          = MetadataField('series', is_dc=False)
-    series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
+    if tweaks['use_series_auto_increment_tweak_when_importing']:
+        series_index    = MetadataField('series_index', is_dc=False,
+                                        formatter=float, none_is=None)
+    else:
+        series_index    = MetadataField('series_index', is_dc=False,
+                                        formatter=float, none_is=1)
     title_sort      = TitleSortField('title_sort', is_dc=False)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
     pubdate         = MetadataField('date', formatter=parse_date,

@@ -11,7 +11,7 @@ defaults.
 '''
 
 #: Auto increment series index
-# The algorithm used to assign a new book in an existing series a series number.
+# The algorithm used to assign a book added to an existing series a series number.
 # New series numbers assigned using this tweak are always integer values, except
 # if a constant non-integer is specified.
 # Possible values are:
@@ -27,7 +27,19 @@ defaults.
 # series_index_auto_increment = 'next'
 # series_index_auto_increment = 'next_free'
 # series_index_auto_increment = 16.5
+#
+# Set the use_series_auto_increment_tweak_when_importing tweak to True to
+# use the above values when importing/adding books. If this tweak is set to
+# False (the default) then the series number will be set to 1 if it is not
+# explicitly set to during the import. If set to True, then the
+# series index will be set according to the series_index_auto_increment setting.
+# Note that the use_series_auto_increment_tweak_when_importing tweak is used
+# only when a value is not provided during import. If the importing regular
+# expression produces a value for series_index, or if you are reading metadata
+# from books and the import plugin produces a value, than that value will
+# be used irrespective of the setting of the tweak.
 series_index_auto_increment = 'next'
+use_series_auto_increment_tweak_when_importing = False
 
 #: Add separator after completing an author name
 # Should the completion separator be append
