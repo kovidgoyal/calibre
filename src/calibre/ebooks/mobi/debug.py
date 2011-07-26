@@ -957,15 +957,17 @@ class TBSIndexing(object): # {{{
             return str({bin4(k):v for k, v in extra.iteritems()})
 
         tbs_type = 0
+        is_periodical = self.doc_type in (257, 258, 259)
         if len(byts):
-            outermost_index, extra, consumed = decode_tbs(byts)
+            outermost_index, extra, consumed = decode_tbs(byts, flag_size=4 if
+                    is_periodical else 3)
             byts = byts[consumed:]
             for k in extra:
                 tbs_type |= k
             ans.append('\nTBS: %d (%s)'%(tbs_type, bin4(tbs_type)))
             ans.append('Outermost index: %d'%outermost_index)
             ans.append('Unknown extra start bytes: %s'%repr_extra(extra))
-            if self.doc_type in (257, 259): # Hierarchical periodical
+            if is_periodical: # Hierarchical periodical
                 byts, a = self.interpret_periodical(tbs_type, byts,
                         dat['geom'][0])
                 ans += a

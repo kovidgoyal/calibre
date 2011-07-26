@@ -66,11 +66,14 @@ def encint(value, forward=True):
     If forward is True the bytes returned are suitable for prepending to the
     output buffer, otherwise they must be append to the output buffer.
     '''
+    if value < 0:
+        raise ValueError('Cannot encode negative numbers as vwi')
     # Encode vwi
     byts = bytearray()
     while True:
         b = value & 0b01111111
         value >>= 7 # shift value to the right by 7 bits
+
         byts.append(b)
         if value == 0:
             break
@@ -198,24 +201,31 @@ def encode_trailing_data(raw):
         lsize += 1
     return raw + encoded
 
-def encode_fvwi(val, flags):
+def encode_fvwi(val, flags, flag_size=4):
     '''
-    Encode the value val and the 4 bit flags flags as a fvwi. This encoding is
+    Encode the value val and the flag_size bits from flags as a fvwi. This encoding is
     used in the trailing byte sequences for indexing. Returns encoded
     bytestring.
     '''
-    ans = (val << 4) | (flags & 0b1111)
+    ans = val << flag_size
+    for i in xrange(flag_size):
+        ans |= (flags & (1 << i))
     return encint(ans)
 
 
-def decode_fvwi(byts):
+def decode_fvwi(byts, flag_size=4):
     '''
     Decode encoded fvwi. Returns number, flags, consumed
     '''
     arg, consumed = decint(bytes(byts))
-    return (arg >> 4), (arg & 0b1111), consumed
+    val = arg >> flag_size
+    flags = 0
+    for i in xrange(flag_size):
+        flags |= (arg & (1 << i))
+    return val, flags, consumed
 
-def decode_tbs(byts):
+
+def decode_tbs(byts, flag_size=4):
     '''
     Trailing byte sequences for indexing consists of series of fvwi numbers.
     This function reads the fvwi number and its associated flags. It them uses
@@ -226,10 +236,10 @@ def decode_tbs(byts):
     data and the number of bytes consumed.
     '''
     byts = bytes(byts)
-    val, flags, consumed = decode_fvwi(byts)
+    val, flags, consumed = decode_fvwi(byts, flag_size=flag_size)
     extra = {}
     byts = byts[consumed:]
-    if flags & 0b1000:
+    if flags & 0b1000 and flag_size > 3:
         extra[0b1000] = True
     if flags & 0b0010:
         x, consumed2 = decint(byts)
@@ -247,7 +257,7 @@ def decode_tbs(byts):
         consumed += consumed2
     return val, extra, consumed
 
-def encode_tbs(val, extra):
+def encode_tbs(val, extra, flag_size=4):
     '''
     Encode the number val and the extra data in the extra dict as an fvwi. See
     decode_tbs above.
@@ -255,7 +265,7 @@ def encode_tbs(val, extra):
     flags = 0
     for flag in extra:
         flags |= flag
-    ans = encode_fvwi(val, flags)
+    ans = encode_fvwi(val, flags, flag_size=flag_size)
 
     if 0b0010 in extra:
         ans += encint(extra[0b0010])

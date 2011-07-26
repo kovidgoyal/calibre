@@ -28,13 +28,12 @@ class CNCX(object): # {{{
 
     MAX_STRING_LENGTH = 500
 
-    def __init__(self, toc, opts):
+    def __init__(self, toc, is_periodical):
         self.strings = OrderedDict()
 
-        for item in toc:
-            if item is self.toc: continue
+        for item in toc.iterdescendants():
             self.strings[item.title] = 0
-            if opts.mobi_periodical:
+            if is_periodical:
                 self.strings[item.klass] = 0
 
         self.records = []
@@ -91,6 +90,17 @@ class IndexEntry(object): # {{{
         self.first_child_index = None
         self.last_child_index = None
 
+    def __repr__(self):
+        return ('IndexEntry(offset=%r, depth=%r, length=%r, index=%r,'
+                ' parent_index=%r)')%(self.offset, self.depth, self.length,
+                        self.index, self.parent_index)
+
+    @dynamic_property
+    def size(self):
+        def fget(self): return self.length
+        def fset(self, val): self.length = val
+        return property(fget=fget, fset=fset, doc='Alias for length')
+
     @classmethod
     def tagx_block(cls, for_periodical=True):
         buf = bytearray()
@@ -137,7 +147,7 @@ class IndexEntry(object): # {{{
     def entry_type(self):
         ans = 0
         for tag in self.tag_nums:
-            ans |= (1 << self.BITMASKS[tag]) # 1 << x == 2**x
+            ans |= (1 << self.BITMASKS.index(tag)) # 1 << x == 2**x
         return ans
 
     @property
@@ -152,7 +162,7 @@ class IndexEntry(object): # {{{
             val = getattr(self, attr)
             buf.write(encint(val))
 
-        ans = buf.get_value()
+        ans = buf.getvalue()
         return ans
 
 # }}}
@@ -175,13 +185,16 @@ class TBS(object): # {{{
                 # The starting bytes.
                 # The value is zero which I think indicates the periodical
                 # index entry. The values for the various flags seem to be
-                # unused. If the 0b0100 is present, it means that the record
+                # unused. If the 0b100 is present, it means that the record
                 # deals with section 1 (or is the final record with section
                 # transitions).
-                self.type_010 = encode_tbs(0, {0b0010: 0})
-                self.type_011 = encode_tbs(0, {0b0010: 0, 0b0001: 0})
-                self.type_110 = encode_tbs(0, {0b0100: 2, 0b0010: 0})
-                self.type_111 = encode_tbs(0, {0b0100: 2, 0b0010: 0, 0b0001: 0})
+                self.type_010 = encode_tbs(0, {0b010: 0}, flag_size=3)
+                self.type_011 = encode_tbs(0, {0b010: 0, 0b001: 0},
+                        flag_size=3)
+                self.type_110 = encode_tbs(0, {0b100: 2, 0b010: 0},
+                        flag_size=3)
+                self.type_111 = encode_tbs(0, {0b100: 2, 0b010: 0, 0b001:
+                    0}, flag_size=3)
 
                 depth_map = defaultdict(list)
                 for x in ('starts', 'ends', 'completes'):
@@ -221,12 +234,18 @@ class TBS(object): # {{{
                         self.type_010)
             elif not depth_map[1]:
                 # has only article nodes, i.e. spanned by a section
-                parent_section_index = self.depth_map[2][0].parent_index
+                parent_section_index = depth_map[2][0].parent_index
                 typ = (self.type_111 if parent_section_index == 1 else
                         self.type_010)
             else:
                 # has section transitions
-                parent_section_index = self.depth_map[2][0].parent_index
+                if depth_map[2]:
+                    parent_section_index = depth_map[2][0].parent_index
+                    typ = self.type_011
+                else:
+                    parent_section_index = depth_map[1][0].index
+                    typ = (self.type_110 if parent_section_index == 1 else
+                            self.type_011)
 
         buf.write(typ)
 
@@ -243,9 +262,10 @@ class TBS(object): # {{{
 
         if spanner is None:
             articles = depth_map[2]
-            sections = [self.section_map[a.parent_index] for a in articles]
-            sections.sort(key=lambda x:x.offset)
-            section_map = {s:[a for a in articles is a.parent_index ==
+            sections = set([self.section_map[a.parent_index] for a in
+                articles])
+            sections = sorted(sections, key=lambda x:x.offset)
+            section_map = {s:[a for a in articles if a.parent_index ==
                 s.index] for s in sections}
             for i, section in enumerate(sections):
                 # All the articles in this record that belong to section
@@ -257,7 +277,7 @@ class TBS(object): # {{{
                 try:
                     next_sec = sections[i+1]
                 except:
-                    next_sec == None
+                    next_sec = None
 
                 extra = {}
                 if num > 1:
@@ -299,14 +319,14 @@ class Indexer(object): # {{{
         self.log('Generating MOBI index for a %s'%('periodical' if
             self.is_periodical else 'book'))
         self.is_flat_periodical = False
-        if opts.mobi_periodical:
+        if self.is_periodical:
             periodical_node = iter(oeb.toc).next()
             sections = tuple(periodical_node)
             self.is_flat_periodical = len(sections) == 1
 
         self.records = []
 
-        self.cncx = CNCX(oeb.toc, opts)
+        self.cncx = CNCX(oeb.toc, self.is_periodical)
 
         if self.is_periodical:
             self.indices = self.create_periodical_index()
@@ -405,7 +425,7 @@ class Indexer(object): # {{{
         buf.write(pack(b'>I', 0)) # Filled in later
 
         # Number of index records 24-28
-        buf.write(pack('b>I', len(self.records)))
+        buf.write(pack(b'>I', len(self.records)))
 
         # Index Encoding 28-32
         buf.write(pack(b'>I', 65001)) # utf-8
@@ -457,7 +477,7 @@ class Indexer(object): # {{{
         idxt_offset = buf.tell()
 
         buf.write(b'IDXT')
-        buf.write(header_length + len(tagx_block))
+        buf.write(pack(b'>H', header_length + len(tagx_block)))
         buf.write(b'\0')
         buf.seek(20)
         buf.write(pack(b'>I', idxt_offset))
@@ -567,7 +587,7 @@ class Indexer(object): # {{{
         for s, x in enumerate(normalized_sections):
             sec, normalized_articles = x
             try:
-                sec.length = normalized_sections[s+1].offset - sec.offset
+                sec.length = normalized_sections[s+1][0].offset - sec.offset
             except:
                 sec.length = self.serializer.body_end_offset - sec.offset
             for i, art in enumerate(normalized_articles):
@@ -583,17 +603,18 @@ class Indexer(object): # {{{
                 normalized_articles))
             normalized_sections[i] = (sec, normalized_articles)
 
-        normalized_sections = list(filter(lambda x: x[0].size > 0 and x[1],
+        normalized_sections = list(filter(lambda x: x[0].length > 0 and x[1],
             normalized_sections))
 
         # Set indices
         i = 0
-        for sec, normalized_articles in normalized_sections:
+        for sec, articles in normalized_sections:
             i += 1
             sec.index = i
+            sec.parent_index = 0
 
-        for sec, normalized_articles in normalized_sections:
-            for art in normalized_articles:
+        for sec, articles in normalized_sections:
+            for art in articles:
                 i += 1
                 art.index = i
                 art.parent_index = sec.index
@@ -606,7 +627,7 @@ class Indexer(object): # {{{
         for s, x in enumerate(normalized_sections):
             sec, articles = x
             try:
-                next_offset = normalized_sections[s+1].offset
+                next_offset = normalized_sections[s+1][0].offset
             except:
                 next_offset = self.serializer.body_end_offset
             sec.length = next_offset - sec.offset
@@ -622,7 +643,7 @@ class Indexer(object): # {{{
         for s, x in enumerate(normalized_sections):
             sec, articles = x
             try:
-                next_sec = normalized_sections[s+1]
+                next_sec = normalized_sections[s+1][0]
             except:
                 if (sec.length == 0 or sec.next_offset !=
                         self.serializer.body_end_offset):
@@ -659,6 +680,7 @@ class Indexer(object): # {{{
         self.tbs_map = {}
         found_node = False
         sections = [i for i in self.indices if i.depth == 1]
+        deepest = max(i.depth for i in self.indices)
         for i in xrange(self.number_of_text_records):
             offset = i * RECORD_SIZE
             next_offset = offset + RECORD_SIZE
@@ -683,7 +705,7 @@ class Indexer(object): # {{{
                     if index.next_offset <= next_offset:
                         # Node ends in current record
                         data['ends'].append(index)
-                    else:
+                    elif index.depth == deepest:
                         data['spans'] = index
             if (data['ends'] or data['completes'] or data['starts'] or
                     data['spans'] is not None):

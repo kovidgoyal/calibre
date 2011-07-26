@@ -55,6 +55,7 @@ class MobiWriter(object):
         self.last_text_record_idx = 1
 
     def __call__(self, oeb, path_or_stream):
+        self.log = oeb.log
         if hasattr(path_or_stream, 'write'):
             return self.dump_stream(oeb, path_or_stream)
         with open(path_or_stream, 'w+b') as stream:
@@ -90,6 +91,7 @@ class MobiWriter(object):
         self.primary_index_record_idx = None
         try:
             self.indexer = Indexer(self.serializer, self.last_text_record_idx,
+                    len(self.records[self.last_text_record_idx]),
                     self.opts, self.oeb)
         except:
             self.log.exception('Failed to generate MOBI index:')
