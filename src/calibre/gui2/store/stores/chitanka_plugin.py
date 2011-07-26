@@ -54,36 +54,21 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//a[@class="booklink"]/@href'))
+                id = ''.join(data.xpath('.//a[@class="booklink"]/@href')).strip()
                 if not id:
                     continue
-
-                cover_url = ''.join(data.xpath('.//a[@class="booklink"]/img/@src'))
-                title = ''.join(data.xpath('.//a[@class="booklink"]/i/text()'))
-                author = ''.join(data.xpath('.//span[@class="bookauthor"]/a/text()'))
-                fb2 = ''.join(data.xpath('.//a[@class="dl dl-fb2"]/@href'))
-                epub = ''.join(data.xpath('.//a[@class="dl dl-epub"]/@href'))
-                txt = ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href'))
-
-                # remove .zip extensions
-                if fb2.find('.zip') != -1:
-                    fb2 = fb2[:fb2.find('.zip')]
-                if epub.find('.zip') != -1:
-                    epub = epub[:epub.find('.zip')]
-                if txt.find('.zip') != -1:
-                    txt = txt[:txt.find('.zip')]
 
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = cover_url
-                s.title = title.strip()
-                s.author = author.strip()
-                s.detail_item = id.strip()
+                s.cover_url = ''.join(data.xpath('.//a[@class="booklink"]/img/@src')).strip()
+                s.title = ''.join(data.xpath('.//a[@class="booklink"]/i/text()')).strip()
+                s.author = ''.join(data.xpath('.//span[@class="bookauthor"]/a/text()')).strip()
+                s.detail_item = id
                 s.drm = SearchResult.DRM_UNLOCKED
-                s.downloads['FB2'] = base_url + fb2.strip()
-                s.downloads['EPUB'] = base_url + epub.strip()
-                s.downloads['TXT'] = base_url + txt.strip()
+                s.downloads['FB2'] = base_url + ''.join(data.xpath('.//a[@class="dl dl-fb2"]/@href')).strip().replace('.zip', '')
+                s.downloads['EPUB'] = base_url + ''.join(data.xpath('.//a[@class="dl dl-epub"]/@href')).strip().replace('.zip', '')
+                s.downloads['TXT'] = base_url + ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href')).strip().replace('.zip', '')
                 s.formats = 'FB2, EPUB, TXT, SFB'
                 yield s
 
@@ -105,35 +90,20 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
                     if counter <= 0:
                         break
 
-                    id = ''.join(data.xpath('.//a[@class="booklink"]/@href'))
+                    id = ''.join(data.xpath('.//a[@class="booklink"]/@href')).strip()
                     if not id:
                         continue
-
-                    cover_url = ''.join(data.xpath('.//a[@class="booklink"]/img/@src'))
-                    title = ''.join(data.xpath('.//a[@class="booklink"]/i/text()'))
-                    author = ''.join(data.xpath('.//span[@class="bookauthor"]/a/text()'))
-                    fb2 = ''.join(data.xpath('.//a[@class="dl dl-fb2"]/@href'))
-                    epub = ''.join(data.xpath('.//a[@class="dl dl-epub"]/@href'))
-                    txt = ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href'))
-
-                    # remove .zip extensions
-                    if fb2.find('.zip') != -1:
-                        fb2 = fb2[:fb2.find('.zip')]
-                    if epub.find('.zip') != -1:
-                        epub = epub[:epub.find('.zip')]
-                    if txt.find('.zip') != -1:
-                        txt = txt[:txt.find('.zip')]
 
                     counter -= 1
 
                     s = SearchResult()
-                    s.cover_url = cover_url
-                    s.title = title.strip()
-                    s.author = author.strip()
-                    s.detail_item = id.strip()
+                    s.cover_url = ''.join(data.xpath('.//a[@class="booklink"]/img/@src')).strip()
+                    s.title = ''.join(data.xpath('.//a[@class="booklink"]/i/text()')).strip()
+                    s.author = ''.join(data.xpath('.//span[@class="bookauthor"]/a/text()')).strip()
+                    s.detail_item = id
                     s.drm = SearchResult.DRM_UNLOCKED
-                    s.downloads['FB2'] = base_url + fb2.strip()
-                    s.downloads['EPUB'] = base_url + epub.strip()
-                    s.downloads['TXT'] = base_url + txt.strip()
+                    s.downloads['FB2'] = base_url + ''.join(data.xpath('.//a[@class="dl dl-fb2"]/@href')).strip().replace('.zip', '')
+                    s.downloads['EPUB'] = base_url + ''.join(data.xpath('.//a[@class="dl dl-epub"]/@href')).strip().replace('.zip', '')
+                    s.downloads['TXT'] = base_url + ''.join(data.xpath('.//a[@class="dl dl-txt"]/@href')).strip().replace('.zip', '')
                     s.formats = 'FB2, EPUB, TXT, SFB'
                     yield s

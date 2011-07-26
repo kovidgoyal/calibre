@@ -12,7 +12,7 @@ from datetime import datetime
 from dateutil.tz import tzoffset
 
 from calibre.constants import plugins
-from calibre.utils.date import parse_date, local_tz
+from calibre.utils.date import parse_date, local_tz, UNDEFINED_DATE
 from calibre.ebooks.metadata import author_to_author_sort
 
 _c_speedup = plugins['speedup'][0]
@@ -29,8 +29,11 @@ def _c_convert_timestamp(val):
     if ret is None:
         return parse_date(val, as_utc=False)
     year, month, day, hour, minutes, seconds, tzsecs = ret
-    return datetime(year, month, day, hour, minutes, seconds,
+    try:
+        return datetime(year, month, day, hour, minutes, seconds,
                 tzinfo=tzoffset(None, tzsecs)).astimezone(local_tz)
+    except OverflowError:
+        return UNDEFINED_DATE.astimezone(local_tz)
 
 class Table(object):
 
