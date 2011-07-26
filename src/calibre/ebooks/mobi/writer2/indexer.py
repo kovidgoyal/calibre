@@ -125,7 +125,7 @@ class IndexEntry(object): # {{{
         buf.append(1)
 
         header = b'TAGX'
-        header += pack(b'>I', len(buf)) # table length
+        header += pack(b'>I', 12+len(buf)) # table length
         header += pack(b'>I', 1) # control byte count
 
         return header + bytes(buf)
