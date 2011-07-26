@@ -295,7 +295,9 @@ class Indexer(object): # {{{
         self.log = oeb.log
         self.opts = opts
 
-        self.is_periodical = opts.mobi_periodical
+        self.is_periodical = self.detect_periodical()
+        self.log('Generating MOBI index for a %s'%('periodical' if
+            self.is_periodical else 'book'))
         self.is_flat_periodical = False
         if opts.mobi_periodical:
             periodical_node = iter(oeb.toc).next()
@@ -316,6 +318,28 @@ class Indexer(object): # {{{
         self.records.extend(self.cncx.records)
 
         self.calculate_trailing_byte_sequences()
+
+    def detect_periodical(self): # {{{
+        for node in self.oeb.toc.iterdescendants():
+            if node.depth() == 1 and node.klass != 'article':
+                self.log.debug(
+                    'Not a periodical: Deepest node does not have '
+                    'class="article"')
+                return False
+            if node.depth() == 2 and node.klass != 'section':
+                self.log.debug(
+                    'Not a periodical: Second deepest node does not have'
+                    ' class="section"')
+                return False
+            if node.depth() == 3 and node.klass != 'periodical':
+                self.log.debug('Not a periodical: Third deepest node'
+                        ' does not have class="periodical"')
+                return False
+            if node.depth() > 3:
+                self.log.debug('Not a periodical: Has nodes of depth > 3')
+                return False
+        return True
+    # }}}
 
     def create_index_record(self): # {{{
         header_length = 192
@@ -630,6 +654,7 @@ class Indexer(object): # {{{
         return indices
     # }}}
 
+    # TBS {{{
     def calculate_trailing_byte_sequences(self):
         self.tbs_map = {}
         found_node = False
@@ -670,6 +695,7 @@ class Indexer(object): # {{{
 
     def get_trailing_byte_sequence(self, num):
         return self.tbs_map[num].bytestring
+    # }}}
 
 # }}}
 
