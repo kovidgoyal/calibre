@@ -172,11 +172,12 @@ class TBS(object): # {{{
     trailing byte sequence for the record.
     '''
 
-    def __init__(self, data, is_periodical, first=False, all_sections=[],
+    def __init__(self, data, is_periodical, first=False, section_map={},
             after_first=False):
-        self.section_map = OrderedDict((i.index, i) for i in
-                sorted(all_sections, key=lambda x:x.offset))
-
+        self.section_map = section_map
+        import pprint
+        pprint.pprint(data)
+        print()
         if is_periodical:
             # The starting bytes.
             # The value is zero which I think indicates the periodical
@@ -216,21 +217,22 @@ class TBS(object): # {{{
     def periodical_tbs(self, data, first, depth_map):
         buf = StringIO()
 
-        has_section_start = (depth_map[1] and depth_map[1][0] in
-                    data['starts'])
+        has_section_start = (depth_map[1] and
+                set(depth_map[1]).intersection(set(data['starts'])))
         spanner = data['spans']
-        first_node = None
-        for nodes in depth_map.values():
-            for node in nodes:
-                if (first_node is None or (node.offset, node.depth) <
-                        (first_node.offset, first_node.depth)):
-                    first_node = node
-
         parent_section_index = -1
+
         if depth_map[0]:
             # We have a terminal record
+            first_node = None
+            for nodes in (depth_map[1], depth_map[2]):
+                for node in nodes:
+                    if (first_node is None or (node.offset, node.depth) <
+                            (first_node.offset, first_node.depth)):
+                        first_node = node
+
             typ = (self.type_110 if has_section_start else self.type_010)
-            if first_node.depth > 0:
+            if first_node is not None and first_node.depth > 0:
                 parent_section_index = (first_node.index if first_node.depth
                         == 1 else first_node.parent_index)
         else:
@@ -257,7 +259,8 @@ class TBS(object): # {{{
         if typ not in (self.type_110, self.type_111) and parent_section_index > 0:
             # Write starting section information
             if spanner is None:
-                num_articles = len(depth_map[1])
+                num_articles = len([a for a in depth_map[1] if a.parent_index
+                    == parent_section_index])
                 extra = {}
                 if num_articles > 1:
                     extra = {0b0100: num_articles}
@@ -662,6 +665,9 @@ class Indexer(object): # {{{
         self.tbs_map = {}
         found_node = False
         sections = [i for i in self.indices if i.depth == 1]
+        section_map = OrderedDict((i.index, i) for i in
+                sorted(sections, key=lambda x:x.offset))
+
         deepest = max(i.depth for i in self.indices)
 
         for i in xrange(self.number_of_text_records):
@@ -698,11 +704,11 @@ class Indexer(object): # {{{
             if (data['ends'] or data['completes'] or data['starts'] or
                     data['spans'] is not None):
                 self.tbs_map[i+1] = TBS(data, self.is_periodical, first=not
-                        found_node, all_sections=sections)
+                        found_node, section_map=section_map)
                 found_node = True
             else:
                 self.tbs_map[i+1] = TBS({}, self.is_periodical, first=False,
-                        after_first=found_node)
+                        after_first=found_node, section_map=section_map)
 
     def get_trailing_byte_sequence(self, num):
         return self.tbs_map[num].bytestring
