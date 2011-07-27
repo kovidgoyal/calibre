@@ -99,6 +99,8 @@ typedef unsigned short QRgb565;
 #define PFREAL_ONE (1 << PFREAL_SHIFT)
 #define PFREAL_HALF (PFREAL_ONE >> 1)
 
+#define TEXT_FLAGS (Qt::TextWordWrap|Qt::TextWrapAnywhere|Qt::TextHideMnemonic|Qt::AlignCenter)
+
 inline PFreal fmul(PFreal a, PFreal b)
 {
   return ((long long)(a))*((long long)(b)) >> PFREAL_SHIFT;
@@ -401,6 +403,7 @@ private:
   QImage* surface(int slideIndex);
   void triggerRender();
   void resetSlides();
+  void render_text(QPainter*, int);
 };
 
 PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
@@ -663,6 +666,30 @@ void PictureFlowPrivate::triggerRender()
   triggerTimer.start();
 }
 
+void PictureFlowPrivate::render_text(QPainter *painter, int index) {
+    QRect brect, brect2;
+    int buffer_width, buffer_height;
+    QString caption, subtitle;
+
+    caption = slideImages->caption(index);
+    subtitle = slideImages->subtitle(index);
+    buffer_width = buffer.width(); buffer_height = buffer.height();
+
+    brect = painter->boundingRect(QRect(0, 0, buffer_width, fontSize), TEXT_FLAGS, caption);
+    brect2 = painter->boundingRect(QRect(0, 0, buffer_width, fontSize), TEXT_FLAGS, subtitle);
+
+    // So that if there is no subtitle, the caption is not flush with the bottom
+    if (brect2.height() < fontSize) brect2.setHeight(fontSize);
+
+    brect.moveTop(buffer_height - (brect.height() + brect2.height()));
+    //printf("top: %d, height: %d\n", brect.top(), brect.height());
+    //
+    painter->drawText(brect, TEXT_FLAGS, caption);
+    
+    brect2.moveTop(buffer_height - brect2.height());
+    painter->drawText(brect2, TEXT_FLAGS, slideImages->subtitle(index));
+}
+
 // Render the slides. Updates only the offscreen buffer.
 void PictureFlowPrivate::render()
 {
@@ -708,10 +735,7 @@ void PictureFlowPrivate::render()
     //painter.setPen(QColor(255,255,255,127));
 
     if (centerIndex < slideCount() && centerIndex > -1) { 
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-fontSize*4),
-                      Qt::AlignCenter, slideImages->caption(centerIndex));
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2-fontSize*2),
-                      Qt::AlignCenter, slideImages->subtitle(centerIndex));
+        render_text(&painter, centerIndex);
     }
 
     painter.end();
@@ -764,20 +788,12 @@ void PictureFlowPrivate::render()
 
     painter.setPen(QColor(255,255,255, (255-fade) ));
     if (leftTextIndex < sc && leftTextIndex > -1) {
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*4),
-                      Qt::AlignCenter, slideImages->caption(leftTextIndex));
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*2),
-                      Qt::AlignCenter, slideImages->subtitle(leftTextIndex));
-
+        render_text(&painter, leftTextIndex);
     }
 
     painter.setPen(QColor(255,255,255, fade));
     if (leftTextIndex+1 < sc && leftTextIndex > -2) {
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*4),
-                      Qt::AlignCenter, slideImages->caption(leftTextIndex+1));
-    	painter.drawText( QRect(0,0, buffer.width(), buffer.height()*2 - fontSize*2),
-                      Qt::AlignCenter, slideImages->subtitle(leftTextIndex+1));
-
+        render_text(&painter, leftTextIndex+1);
     }
 
     painter.end();
