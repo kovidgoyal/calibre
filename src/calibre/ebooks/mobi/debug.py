@@ -424,12 +424,7 @@ class IndexHeader(object): # {{{
         if self.index_encoding == 'unknown':
             raise ValueError(
                 'Unknown index encoding: %d'%self.index_encoding_num)
-        self.locale_raw, = struct.unpack(b'>I', raw[32:36])
-        langcode = self.locale_raw
-        langid    = langcode & 0xFF
-        sublangid = (langcode >> 10) & 0xFF
-        self.language = main_language.get(langid, 'ENGLISH')
-        self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
+        self.possibly_language = raw[32:36]
         self.num_index_entries, = struct.unpack('>I', raw[36:40])
         self.ordt_start, = struct.unpack('>I', raw[40:44])
         self.ligt_start, = struct.unpack('>I', raw[44:48])
@@ -489,8 +484,7 @@ class IndexHeader(object): # {{{
         a('Number of index records: %d'%self.index_count)
         a('Index encoding: %s (%d)'%(self.index_encoding,
                 self.index_encoding_num))
-        a('Index language: %s - %s (%s)'%(self.language, self.sublanguage,
-            hex(self.locale_raw)))
+        a('Unknown (possibly language?): %r'%(self.possibly_language))
         a('Number of index entries: %d'% self.num_index_entries)
         a('ORDT start: %d'%self.ordt_start)
         a('LIGT start: %d'%self.ligt_start)
@@ -1038,6 +1032,7 @@ class TBSIndexing(object): # {{{
         # }}}
 
         def read_starting_section(byts): # {{{
+            orig = byts
             si, extra, consumed = decode_tbs(byts)
             byts = byts[consumed:]
             if len(extra) > 1 or 0b0010 in extra or 0b1000 in extra:
@@ -1054,7 +1049,7 @@ class TBSIndexing(object): # {{{
                 eof = extra[0b0001]
                 if eof != 0:
                     raise ValueError('Unknown eof value %s when reading'
-                            ' starting section'%eof)
+                            ' starting section. All bytes: %r'%(eof, orig))
                 ans.append('This record is spanned by an article from'
                         ' the section: %d'%si.index)
             return si, byts
