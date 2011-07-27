@@ -31,7 +31,7 @@ class CNCX(object): # {{{
     def __init__(self, toc, is_periodical):
         self.strings = OrderedDict()
 
-        for item in toc.iterdescendants():
+        for item in toc.iterdescendants(breadth_first=True):
             self.strings[item.title] = 0
             if is_periodical:
                 self.strings[item.klass] = 0
