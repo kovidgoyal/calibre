@@ -97,7 +97,7 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
                 yield s
 
     def get_details(self, search_result, timeout):
-        url = 'http://www.smashwords.com/'
+        url = 'http://www.smashwords.com'
         
         br = browser()
         with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
