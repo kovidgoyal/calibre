@@ -567,7 +567,8 @@ class BooksView(QTableView): # {{{
         if md.hasFormat('text/uri-list') and not \
                 md.hasFormat('application/calibre+from_library'):
             urls = [unicode(u.toLocalFile()) for u in md.urls()]
-            return [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
+            return [u for u in urls if os.path.splitext(u)[1] and
+                    os.path.exists(u)]
 
     def drag_icon(self, cover, multiple):
         cover = cover.scaledToHeight(120, Qt.SmoothTransformation)
