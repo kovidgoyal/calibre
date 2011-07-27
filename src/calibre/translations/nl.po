@@ -44,14 +44,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-25 15:07+0000\n"
+"PO-Revision-Date: 2011-07-26 12:00+0000\n"
 "Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-26 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-07-27 04:32+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -17169,7 +17169,7 @@ msgstr "dagengeleden"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:569
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:586
 msgid "blank"
-msgstr "leeg"
+msgstr "blanco"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:569
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:586
@@ -17191,6 +17191,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"De velden waarin geschreven moet worden wanneer boeken in de database "
+"geplaatst worden. Moet een lijst van komma-gescheiden waarden zijn.\n"
+"Beschikbare velden: %(fields)s,\n"
+"plus door de gebruiker aangemaakte velden,\n"
+"Voorbeeld: %(opt)s=title,authors,tags\n"
+"Standaard: ‘%%default’\n"
+"Van toepassing op uitvoer naar CSV en XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:68
 #, python-format
@@ -17202,8 +17209,8 @@ msgid ""
 msgstr ""
 "Uitvoerveld om op te sorteren.\n"
 "Beschikbare velden: author_sort, id, rating, size, timestamp, title_sort\n"
-"Standaard: '%default'\n"
-"Van toepassing op: CSV-, XML-uitvoerformaten"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar CSV en XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:251
 #, python-format
@@ -17216,6 +17223,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"De velden waarin geschreven moet worden wanneer boeken in de database "
+"geplaatst worden. Moet een lijst van komma-gescheiden waarden zijn.\n"
+"Beschikbare velden: %(fields)s,\n"
+"plus door de gebruiker aangemaakte velden,\n"
+"Voorbeeld: %(opt)s=title,authors,tags\n"
+"Standaard: ‘%%default’\n"
+"Van toepassing op uitvoer naar BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:264
 #, python-format
@@ -17227,8 +17241,8 @@ msgid ""
 msgstr ""
 "Weergaveveld om op te sorteren.\n"
 "Beschikbare velden: author_sort, id, rating, size, timestamp, title.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: uitvoer naar BIBTEX"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:273
 #, python-format
@@ -17238,10 +17252,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Maak een citaatlabel voor BIBTEX-ingaves.\n"
+"Maak een referentie voor BIBTEX-gegevens.\n"
 "Boolean waarde: True, False\n"
-"Standaard: '%default'\n"
-"Van toepassing op: uitvoer naar BIBTEX"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:282
 #, python-format
@@ -17251,9 +17265,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Maak een veld voor bestanden als 'formats' geselecteerd is als veld\n"
+"Maak een veld voor bestanden als ‘formats’ voor BibTeX geselecteerd is.\n"
 "Boolean waarde: True, False\n"
-"Standaard: '%default'\n"
+"Standaard: ‘%default’\n"
 "Van toepassing op: uitvoer naar BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:291
@@ -17265,11 +17279,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"De sjabloon voor het maken van citaten uit databasevelden.\n"
+"De sjabloon voor het maken van referenties uit databasevelden.\n"
 "Moet een sjabloon zijn met velden omsloten door {}.\n"
 "Beschikbare velden: %s.\n"
-"Standaard: '%%default'\n"
-"Van toepassing op: uitvoer naar BIBTEX"
+"Standaard: ‘%%default’\n"
+"Van toepassing op uitvoer naar BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:301
 #, python-format
@@ -17281,8 +17295,8 @@ msgid ""
 msgstr ""
 "Codering voor uitvoer naar BibTeX-bestand.\n"
 "Beschikbare types: utf8, cp1252, ascii.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: uitvoer naar BIBTEX"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:310
 #, python-format
@@ -17292,10 +17306,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Vlag BibTeX-bestandscodering.\n"
+"Vlag voor BibTeX-bestandscodering.\n"
 "Beschikbare types: strict, replace, ignore, backslashreplace.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: uitvoer naar BIBTEX"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:319
 #, python-format
@@ -17305,10 +17319,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
-"Soort item voor Bibtexcatalogus.\n"
+"Soort item voor BibTeX-catalogus.\n"
 "Beschikbare soorten: book, misc, mixed\n"
-"Standaard: '%default'\n"
-"Van toepassing op: uitvoer naar BIBTEX"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:625
 #, python-format
@@ -17319,8 +17333,8 @@ msgid ""
 msgstr ""
 "De titel van de aangemaakte catalogus wordt ook gebruikt als titel in de "
 "metadata.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:632
 #, python-format
@@ -17332,10 +17346,10 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Sla de uitvoer van verschillende stappen in het conversieproces op in de "
-"aangegeven map. Nuttig als je niet zeker weet op welk punt problemen "
+"aangegeven map. Nuttig als u niet zeker weet op welk punt problemen "
 "optreden.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:642
 #, python-format
@@ -17347,8 +17361,8 @@ msgid ""
 msgstr ""
 "veld:patroon specificeert aangepast veld/inhoud die aangeeft dat het boek "
 "moet uitgesloten worden.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:649
 #, python-format
@@ -17358,8 +17372,8 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Regexp die de labels beschijft die worden uitgesloten als genres.\n"
-"Standaard: '%default'  uitgezonderd labels tussen haken, b.v. '[<label>]'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Standaard: ‘%default’  uitgezonderd labels tussen haken, b.v. '[<label>]'\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:655
 #, python-format
@@ -17369,11 +17383,10 @@ msgid ""
 "this'.Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Kommagescheiden lijst van labelwoorden die aangeven dat een boek niet moet "
-"worden opgenomen in de uitvoer. Bijvoorbeeld: 'ben' zal overeenkomen met "
-"'ben ik niet aan toegekomen' en 'Ben zal dit leuk vinden'. Standaard: "
-"'%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Kommagescheiden lijst van labelwoorden die aangeven dat een boek niet in de "
+"uitvoer moet worden opgenomen. Bijvoorbeeld: ‘ben’ zal overeenkomen met ‘ben "
+"ik niet aan toegekomen’ en ‘Ben zal dit leuk vinden’. Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:663
 #, python-format
@@ -17382,9 +17395,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"'Auteurs'-sectie opnemen in catalogus.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten"
+"‘Auteurs’-sectie in catalogus opnemen.\n"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:670
 #, python-format
@@ -17393,9 +17406,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"'Omschrijvingen'-sectie opnemen in catalogus.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"'Omschrijvingen'-sectie in catalogus opnemen.\n"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:677
 #, python-format
@@ -17404,9 +17417,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"'Genres'-sectie opnemen in catalogus.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"'Genres'-sectie in catalogus opnemen.\n"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:684
 #, python-format
@@ -17415,9 +17428,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"'Titels'-sectie opnemen in catalogus.\n"
-"Standaardwaarde: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"'Titels'-sectie in catalogus opnemen.\n"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:691
 #, python-format
@@ -17426,9 +17439,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"'Reeksen'-sectie opnemen in catalogus.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"'Reeksen'-sectie in catalogus opnemen.\n"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:698
 #, python-format
@@ -17437,9 +17450,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"'Recent toegevoegd'-sectie opnemen in catalogus.\n"
-"Standaardwaarde: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"'Recent toegevoegd'-sectie in catalogus opnemen.\n"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:705
 #, python-format
@@ -17448,9 +17461,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
-"Aangepast veld met notities om toe te voegen aan de kop met omschrijvingen.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Aangepast veld met notities om toe te voegen aan de Description header.\n"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:712
 #, python-format
@@ -17464,12 +17477,12 @@ msgid ""
 msgstr ""
 "<persoonlijk veld>:[before|after]:[True|False] uitleg:\n"
 " <persoonlijk veld> Persoonlijk veld met notities om samen te voegen met "
-"commentaar\n"
-" [before|after] Plaats van de notities ten opzichte van het commentaar\n"
+"Commentaar\n"
+" [before|after] Plaats van de notities ten opzichte van het Commentaar\n"
 " [True|False] - Een horizontale lijn wordt ingevoegd tussen notities en "
-"commentaar\n"
-"Standaard: '%default'\n"
-"Van toepassing op: uitvoer naar ePub, MOBI"
+"Commentaar\n"
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:722
 #, python-format
@@ -17485,8 +17498,8 @@ msgstr ""
 "noodzakelijk om de catalogus te optimalizeren voor het apparaat. "
 "Bijvoorbeeld, 'kindle' of 'kindle_dx' maakt een gestructureerde "
 "inhoudsopgave aan met paragrafen en artikelen.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:729
 #, python-format
@@ -17496,8 +17509,8 @@ msgid ""
 "Applies to ePub, MOBI output formats"
 msgstr ""
 "veld:patroon dat aanduidt dat het boek al gelezen is.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:735
 #, python-format
@@ -17509,8 +17522,8 @@ msgid ""
 msgstr ""
 "Hint voor omvang (in inches (2.54 cm)) voor boekomslagen in catalogus.\n"
 "bereik: 1.0 - 2.0\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:743
 #, python-format
@@ -17520,8 +17533,8 @@ msgid ""
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 "Label waarmee een boek wordt aangeduid als wenslijstitem.\n"
-"Standaard: '%default'\n"
-"Van toepassing op: ePub-, MOBI-weergaveformaten."
+"Standaard: ‘%default’\n"
+"Van toepassing op uitvoer naar ePub en MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1427
 msgid "No enabled genres found to catalog.\n"
@@ -17547,7 +17560,7 @@ msgstr ""
 "MOBI-catalogus kan niet worden gemaakt.\n"
 "\n"
 "Selecteer alle boeken op '{0}', verbeter de waarde voor het veld "
-"auteurssortering in het venster \"Metadata wijzigen\" en bouw daarna de "
+"auteurssortering in het venster ‘Metadata wijzigen’ en bouw daarna de "
 "catalogus opnieuw op.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1524
@@ -17566,11 +17579,11 @@ msgid ""
 "Check 'Excluded books' criteria in E-book options.\n"
 msgstr ""
 "Geen boeken gevonden om te catalogiseren.\n"
-"Controleer 'Uitgesloten boeken' criteria in e-boek instellingen.\n"
+"Controleer ‘Uitgesloten boeken’ criteria in e-book instellingen.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1721
 msgid "No books available to include in catalog"
-msgstr "Geen boeken beschikbaar om toe te voegen aan de catalogus"
+msgstr "Geen boeken beschikbaar om aan de catalogus toe te voegen"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:5063
 msgid ""
@@ -17578,7 +17591,7 @@ msgid ""
 "*** Adding 'By Authors' Section required for MOBI output ***"
 msgstr ""
 "\n"
-"*** Opnemen van 'auteurs'-sectie verplicht voor MOBI-uitvoer ***"
+"*** Opnemen van ‘auteurs’-sectie verplicht voor MOBI-uitvoer ***"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -17636,7 +17649,7 @@ msgid ""
 msgstr ""
 "%prog list [opties]\n"
 "\n"
-"Geef de beschikbare boeken in de calibredatabase weer\n"
+"Geef de beschikbare boeken in de calibre-database weer.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:132
 #, python-format
@@ -17648,9 +17661,9 @@ msgid ""
 "fields. Only has effect in the text output format."
 msgstr ""
 "De velden die zichtbaar zijn bij het opzoeken van boeken in de database. Dit "
-"is een lijst met waarden die met komma's van elkaar zijn gescheiden.\n"
+"is een lijst met komma-gescheiden waarden.\n"
 "Beschikbare velden: %s\n"
-"Standaard: %%default. Het speciale veld 'all' kan worden gebruikt om alle "
+"Standaard: %%default. Het speciale veld ‘all’ kan worden gebruikt om alle "
 "velden te selecteren. Heeft alleen een resultaat in txt-uitvoerformaat."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:139
@@ -17674,9 +17687,9 @@ msgid ""
 "please see the search related documentation in the User Manual. Default is "
 "to do no filtering."
 msgstr ""
-"Filter de resultaten op de zoekoperatie. Voor het formaat van de "
-"zoekoperatie, kijk naar de zoek-gerelateerde documentatie in de "
-"gebruikershandleiding. Standaard word er niet gefilterd."
+"Filter de resultaten op de zoekoperatie. Voor het indeling van de "
+"zoekopdracht kunt u de zoek-gerelateerde documentatie in de "
+"gebruikershandleiding raadplegen. Standaard word er niet gefilterd."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:145
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1044
@@ -17690,7 +17703,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:146
 msgid "The string used to separate fields. Default is a space."
 msgstr ""
-"De tekenreeks gebruikt om velden van elkaar te scheiden. Standaard is spatie."
+"De tekenreeks gebruikt om velden van elkaar te scheiden. Standaard is dit "
+"een spatie."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:147
 msgid ""
@@ -17702,7 +17716,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:169
 msgid "Invalid fields. Available fields:"
-msgstr "Ongeldig veld. Beschikbare velden:"
+msgstr "Ongeldige velden. Beschikbare velden:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:176
 msgid "Invalid sort field. Available fields:"
@@ -17713,8 +17727,8 @@ msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
 msgstr ""
-"De volgende boeken zijn niet toegevoegd omdat ze al bestaan in de database. "
-"(Zie de --duplicates-optie):"
+"De volgende boeken zijn niet toegevoegd omdat ze al in de database aanwezig "
+"zijn. (Zie de --duplicates-option):"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:273
 msgid ""
@@ -17726,8 +17740,8 @@ msgid ""
 msgstr ""
 "%prog add [opties] bestand1 bestand2 bestand3 ...\n"
 "\n"
-"Voeg de opgegeven bestanden toe als boeken in de database. Mappen kunnen ook "
-"worden\n"
+"Voeg de opgegeven bestanden als boeken aan de database toe. Mappen kunnen "
+"ook worden\n"
 "opgegeven, zie de opties over mappen hieronder.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:281
@@ -17736,11 +17750,11 @@ msgid ""
 "in it are different e-book formats of that book"
 msgstr ""
 "Neem aan dat iedere map slechts een enkel logisch boek bevat, en dat alle "
-"bestanden in de map verschillende bestandsformaten zijn voor dat enkele boek."
+"bestanden in de map verschillende bestandsformaten voor dat ene boek zijn"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:283
 msgid "Process directories recursively"
-msgstr "Verwerk mappen recursief"
+msgstr "Mappen recursief verwerken"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:285
 msgid ""
@@ -17769,7 +17783,7 @@ msgstr "Geef het ISBN van het toegevoegde lege boek op"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:319
 msgid "You must specify at least one file to add"
-msgstr "Tenminste één boek moet worden opgegeven om toe te voegen"
+msgstr "U moet tenminste één boek opgegeven om toe te voegen"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:337
 msgid ""
@@ -17782,12 +17796,12 @@ msgstr ""
 "%prog remove ids\n"
 "\n"
 "Verwijder de boeken die zijn opgegeven met hun id's in de database. ID's "
-"moeten in een komma gescheiden lijst staan. (ID's kan men krijgen door het "
-"commando list te gebruiken). Bv. 23,34,57-85\n"
+"moeten in een komma gescheiden lijst staan. (ID's kan men met het list-"
+"commando vinden). Bv. 23,34,57-85\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:351
 msgid "You must specify at least one book to remove"
-msgstr "Ten minste een boek moet worden opgegeven om te verwijderen"
+msgstr "U moet minstens één boek opgeven om te verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:371
 msgid ""
@@ -17799,17 +17813,17 @@ msgid ""
 msgstr ""
 "%prog aa_format [opties] ID E-boek_bestand\n"
 "\n"
-"Voeg het E-boek in E-boek_bestand toe aan de beschikbare formaten voor het "
-"logische boek geïdentificeerd door ID. Je kan ID's krijgen met het commando "
-"list. Als het formaat al bestaat, wordt het vervangen.\n"
+"Voeg het e-book in e-book_bestand toe aan de beschikbare formaten voor het "
+"logische boek geïdentificeerd door ID. U kunt het list-commando gebruiken om "
+" ID's te vinden. Als het formaat al bestaat, wordt het vervangen.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:385
 msgid "You must specify an id and an ebook file"
-msgstr "Je moet een ID en een E-boekbestand opgeven"
+msgstr "U moet een ID en een e-bookbestand opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:390
 msgid "ebook file must have an extension"
-msgstr "E-boekbestand moet een extensie hebben"
+msgstr "E-bookbestand moet een extensie hebben"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:399
 msgid ""
@@ -17823,14 +17837,14 @@ msgstr ""
 "\n"
 "%prog remove_format [opties] id fmt\n"
 "\n"
-"Verwijder het formaat fmt van het logische boek geïdentificeerd door id. Je "
-"kunt de id verkrijgen door het commando list te gebruiken. fmt is een "
-"bestands extensie zoals LRF, TXT of EPUB. Als het logische boek niet in dit "
-"formaat bestaat, dan zal er niets gebeuren.\n"
+"Verwijder het formaat fmt van het logische boek geïdentificeerd door id. U "
+"kunt het id met het list-commando vinden. fmt is een bestandsextensie zoals "
+"LRF, TXT of EPUB. Als het logische boek niet in dit formaat bestaat zal er "
+"niets gebeuren.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:415
 msgid "You must specify an id and a format"
-msgstr "Een id en een formaat moeten worden opgegeven"
+msgstr "U moet een id en een formaat opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:434
 msgid ""
@@ -17844,17 +17858,17 @@ msgstr ""
 "\n"
 "%prog show_metadata [opties] id\n"
 "\n"
-"Geef de metadata weer die zijn opgeslagen in de calibre-database voor het "
-"boek dat word geïdentificeerd door id.\n"
-"id is een nummer verkregen met het commando list.\n"
+"Geef de metadata weer die in de calibre-database zijn opgeslagen voor het "
+"boek dat bij de id hoort.\n"
+"id is een nummer verkregen met het list-commando.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:441
 msgid "Print metadata in OPF form (XML)"
-msgstr "Print metadata in OPF-formaat (XML)"
+msgstr "Metadata in OPF-formaat (XML) afdrukken"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:450
 msgid "You must specify an id"
-msgstr "Je moet een id opgeven"
+msgstr "U moet een id opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:466
 msgid ""
@@ -17869,18 +17883,16 @@ msgid ""
 "show_metadata command.\n"
 msgstr ""
 "\n"
-"%prog set_metadata [opties] if /pad/naar/metadata.opf\n"
+"%prog set_metadata [opties] id /pad/naar/metadata.opf\n"
 "\n"
-"Geef de metadata weer die zijn opgeslagen in de calibredatabase voor het "
-"boek dat word geïdentificeerd door id\n"
-" uit het OPF-bestand metadata.opf. id is een nummer uit het commando list.\n"
-"Je kunt een kort overzicht voor het OPF-formaat krijgen door de --as-opf "
-"optie te\n"
-"gebruiken met het commando show_metadata.\n"
+"Stel de metadata in voor het boek dat bij het id uit het OPF-bestand\n"
+"metadata.opf hoort. id is de uitvoer van het list-commando.\n"
+"U kunt een kort overzicht voor het OPF-formaat krijgen door de --as-opf \n"
+"optie met het commando show_metadata te gebruiken.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:481
 msgid "You must specify an id and a metadata file"
-msgstr "Je moet een id en bestand met metadata opgeven"
+msgstr "U moet een id en bestand met metadata opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:501
 msgid ""
@@ -17898,7 +17910,7 @@ msgstr ""
 "komma's) naar het bestandssysteem.\n"
 "De exportoperatie bewaard alle formaten van het boek, de omslag en metadata "
 "(in een opf-bestand). \n"
-"Je kunt id-nummers verkrijgen door middel van het commando list.\n"
+"U kunt id-nummers met het list-commando vinden.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:509
 msgid "Export all books in database, ignoring the list of ids."
@@ -17906,7 +17918,7 @@ msgstr "Exporteer alle boeken in de database, negeer de lijst met id's."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:511
 msgid "Export books to the specified directory. Default is"
-msgstr "Exporteer boeken naar de opgegeven map. Standaard is"
+msgstr "Exporteer boeken naar de opgegeven map. Standaard is dit"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:513
 msgid "Export all books into a single directory"
@@ -17914,12 +17926,12 @@ msgstr "Exporteer alle boeken naar een enkele map"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:520
 msgid "Specifying this switch will turn this behavior off."
-msgstr "Selecteren zal dit gedrag uitschakelen,"
+msgstr "Als u dit opgeeft zal het gedrag uitgeschakeld worden."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:543
 #, python-format
 msgid "You must specify some ids or the %s option"
-msgstr "Je moet id's opgeven of de %s-optie gebruiken"
+msgstr "U moet id's opgeven of de %s-optie gebruiken"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:556
 msgid ""
@@ -17935,7 +17947,7 @@ msgstr ""
 "\n"
 "Creëer een zelf gedefinieerde kolom. label is de naam van de kolom die door "
 "de computer wordt gebruikt. Dit label mag geen spaties of dubbelepunten "
-"bevatten: name is de aan de menselijke taal aangepaste naam van de kolom.\n"
+"bevatten. name is de aan de menselijke taal aangepaste naam van de kolom.\n"
 "datatype één van: {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:565
@@ -17953,12 +17965,12 @@ msgid ""
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
 "Een woordenboek met opties om data in deze kolom te interpreteren. Dit is "
-"een JSON string. Voor kolommen met lijst van toegestane waarden gebruik je --"
+"een JSON string. Voor genummerde kolommen gebruikt u --"
 "display='{\"enum_values\":[\"waarde1\", \"waarde2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:583
 msgid "You must specify label, name and datatype"
-msgstr "Je moet een label, naam en datatype opgeven"
+msgstr "U moet een label, naam en datatype opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:645
 msgid ""
@@ -17974,8 +17986,8 @@ msgstr ""
 "    %prog catalog /pad/naar/bestemming.(CSV|EPUB|MOBI|XML ...) [opties]\n"
 "\n"
 "    Exporteer een catalogus in een formaat aangegeven door de extensie na\n"
-"/pad/naar/bestemming. Opties bepalen hoe de records eruitzien in de\n"
-"catalogus.\n"
+"/pad/naar/bestemming. Opties bepalen hoe de records er in de\n"
+"catalogus uit zien.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:658
@@ -17985,8 +17997,8 @@ msgid ""
 "Default: all"
 msgstr ""
 "Kommagescheiden lijst met database-ID's om te catalogiseren.\n"
-"Indien gebruikt, zal --search worden genegeerd.\n"
-"Standaard: alle"
+"Indien gebruikt, zal --search genegeerd worden.\n"
+"Standaard: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:662
 msgid ""
@@ -18002,12 +18014,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:499
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
-"Laat gedetailleerde outputinformatie zien. Nuttig bij het opsporen van "
+"Laat gedetailleerde uitvoerinformatie zien. Nuttig bij het opsporen van "
 "problemen."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:681
 msgid "Error: You must specify a catalog output file"
-msgstr "Fout: Je moet een uitvoerbestand voor de catalogus opgeven"
+msgstr "Fout: U moet een uitvoerbestand voor de catalogus opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:728
 msgid ""
@@ -18025,9 +18037,9 @@ msgstr ""
 "\n"
 "    Stel de waarde in van een gepersonaliseerde kolom voor het boek "
 "geïdentificeerd door het ID.\n"
-"    U kan een lijst van ID's krijgen via de opdracht list.\n"
-"    U kan een lijst van gepersonaliseerdekolomnamen krijgen door gebruik\n"
-"    te maken van de custom_columns opdracht.\n"
+"    U kunt een lijst van ID's krijgen via het list-commando.\n"
+"    U kunt een lijst van gepersonaliseerde kolomnamen krijgen door gebruik\n"
+"    te maken van het custom_columns-commando.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:738
@@ -18035,12 +18047,12 @@ msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr ""
-"Als de kolom meerde waardes bevat, voeg dan de opgegeven waarden toe aan de "
-"bestaande, in plaats van ze te vervangen."
+"Als de kolom meerde waardes bevat, voeg dan de opgegeven waarden aan de "
+"bestaande toe, in plaats van ze te vervangen."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:749
 msgid "Error: You must specify a field name, id and value"
-msgstr "Fout: Je moet een veldnaam, id en waarde opgeven"
+msgstr "Fout: U moet een veldnaam, id en waarde opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:769
 msgid ""
@@ -18058,7 +18070,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:775
 msgid "Show details for each column."
-msgstr "Toon details voor iedere kolom."
+msgstr "Details voor iedere kolom weergeven."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:787
 #, python-format
@@ -18080,23 +18092,20 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"    %prog remove_custom_column [options] label\n"
+"    %prog remove_custom_column [opties] label\n"
 "\n"
-"    Verwijder de gepersonaliseerde kolom aangeduid met label. U kan\n"
-"    beschikbare kolommen zien met de custom_columns opdracht.\n"
+"    Verwijder de gepersonaliseerde kolom aangeduid met label. U kunt\n"
+"    beschikbare kolommen met het custom_columns-commando weergeven.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:803
 msgid "Do not ask for confirmation"
-msgstr "Vraag niet om een bevestiging"
+msgstr "Niet om bevestiging vragen"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:813
 msgid "Error: You must specify a column label"
 msgstr "Fout: U moet een kolomlabel opgeven"
 
-# is this correct?
-# don't know if lines with prog saved_searches
-# have to be translated.
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:824
 msgid ""
 "\n"
@@ -18115,13 +18124,13 @@ msgstr ""
 "    %prog saved_searches remove naam\n"
 "\n"
 "    Beheer de opgeslagen zoekacties opgeslagen in deze database.\n"
-"    Als een query wordt toegevoegd met een bestaande naam,\n"
-"    dan wordt die vervangen.\n"
+"    Als een zoekopdracht met een bestaande naam wordt opgegeven\n"
+"    dan wordt de oude opdracht vervangen.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:841
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr "Fout: je moet een taak opgeven  (add|remove|list)"
+msgstr "Fout: U moet een taak opgeven  (add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:849
 msgid "Name:"
@@ -18133,7 +18142,7 @@ msgstr "Zoektekst:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:856
 msgid "Error: You must specify a name and a search string"
-msgstr "Fout: je moet een naam en een zoektekst opgeven"
+msgstr "Fout: U moet een naam en een zoektekst opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:859
 msgid "added"
@@ -18141,7 +18150,7 @@ msgstr "toegevoegd"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:864
 msgid "Error: You must specify a name"
-msgstr "Fout: je moet een naam opgeven"
+msgstr "Fout: U moet een naam opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:867
 msgid "removed"
@@ -18161,7 +18170,7 @@ msgid ""
 "Perform some checks on the filesystem representing a library. Reports are "
 "{0}\n"
 msgstr ""
-"%prog check_library [options]\n"
+"%prog check_library [opties]\n"
 "\n"
 "Voer controles uit op het bestandssysteem van de bibliotheek. Rapporten zijn "
 "{0}\n"
@@ -18169,7 +18178,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:886
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1036
 msgid "Output in CSV"
-msgstr "Output in CSV"
+msgstr "Uitvoer naar CSV"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:889
 msgid ""
@@ -18177,7 +18186,7 @@ msgid ""
 "Default: all"
 msgstr ""
 "Kommagescheiden lijst van rapporten.\n"
-"Standaard: alle"
+"Standaard: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:893
 msgid ""
@@ -18185,7 +18194,7 @@ msgid ""
 "Default: all"
 msgstr ""
 "Kommagescheiden lijst van te negeren extensies.\n"
-"Standaard: alle"
+"Standaard: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:897
 msgid ""
@@ -18193,7 +18202,7 @@ msgid ""
 "Default: all"
 msgstr ""
 "Kommagescheiden lijst van te negeren namen.\n"
-"Standaard: alle"
+"Standaard: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:927
 msgid "Unknown report check"
@@ -18233,13 +18242,13 @@ msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
-"Het herstel echt uitvoeren. Dit zal niet starten tenzij deze optie is "
-"ingesteld."
+"Het herstel echt uitvoeren. Het commando zal niet uitgevoerd worden tenzij "
+"deze optie ingesteld is."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:988
 #, python-format
 msgid "You must provide the %s option to do a recovery"
-msgstr "Je moet de %s-optie aangeven om herstel uit te voeren."
+msgstr "U moet de %s-optie meegeven om herstel uit te voeren."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1025
 msgid ""
@@ -18248,7 +18257,7 @@ msgid ""
 "Produce a report of the category information in the database. The\n"
 "information is the equivalent of what is shown in the tags pane.\n"
 msgstr ""
-"%prog list_categories [options]\n"
+"%prog list_categories [opties]\n"
 "\n"
 "Maak een rapport van de categorie-informatie in de database. De\n"
 "informatie is gelijk aan wat er in het labelpaneel staat.\n"
@@ -18266,8 +18275,6 @@ msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
-"Het teken om rond de categoriewaarde te plaatsen in CSV-modus. Standaard is "
-"dubbel aanhalingsteken (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
@@ -18275,7 +18282,7 @@ msgid ""
 "Default: all"
 msgstr ""
 "Kommagescheiden lijst van categorie-opzoeknamen.\n"
-"Standaard: alle"
+"Standaard: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
 msgid "The string used to separate fields in CSV mode. Default is a comma."
@@ -18318,7 +18325,7 @@ msgid ""
 "start with a letter"
 msgstr ""
 "Het label mag alleen bestaan uit kleine letters, cijfers en lage streepjes "
-"en moet beginnen met een letter."
+"en moet met een letter beginnen"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:65
 #, python-format
@@ -18328,7 +18335,7 @@ msgstr "%(tt)sGemiddelde waardering is %(rating)3.1f"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3325
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
-msgstr "<p>Migreer oude database naar E-boek bibliotheek op %s<br><center>"
+msgstr "<p>Migreer oude database naar e-book-bibliotheek op %s<br><center>"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3354
 #, python-format
@@ -18345,11 +18352,11 @@ msgstr "Waarderingen"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:197
 msgid "Identifiers"
-msgstr "Identificatoren"
+msgstr "Identificators"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:207
 msgid "Author Sort"
-msgstr "Auteurs sortering"
+msgstr "Auteurssortering"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:319
 msgid "Title Sort"
@@ -18361,7 +18368,7 @@ msgstr "Verwerkt"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:200
 msgid "creating custom column "
-msgstr "Maak een persoonlijke kolom "
+msgstr "persoonlijke kolom aanmaken "
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:32
 msgid "The title"
@@ -18417,7 +18424,7 @@ msgstr "De publicatiedatum"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
-msgstr "De datum dat de metadata voor dit boek het laatst werden aangepast"
+msgstr "De datum waarop de metadata voor dit boek het laatst werd aangepast"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
@@ -18441,16 +18448,16 @@ msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
 msgstr ""
-"Normaal gesproken, zal calibre de metadata opslaan in een apart OPF-bestand "
-"samen met de daadwerkelijke e-boekbestanden."
+"Normaal gesproken, zal calibre de metadata in een apart OPF-bestand opslaan, "
+"samen met de daadwerkelijke e-bookbestanden."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:88
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
-"Normaal zal calibre de omslag opslaan in een apart bestand, naast "
-"daadwerkelijke E-boek bestand(en)."
+"Normaal zal calibre de omslag opslaan in een apart bestand, naast de "
+"daadwerkelijke e-book bestand(en)."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:91
 msgid ""
@@ -18468,6 +18475,10 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%(controls)s}"
 msgstr ""
+"De sjabloon waarmee de bestandsnaam en mapstructuur van de opgeslagen "
+"bestanden wordt ingesteld. Standaard is dit ‘%(templ)s’, dat boeken per "
+"auteur in een map plaatst, met als bestandsnaam de naam van de auteur en de "
+"titel. Beschikbare opties zijn: {%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:100
 #, python-format
@@ -18477,6 +18488,10 @@ msgid ""
 "author directory with filenames containing title and author. Available "
 "controls are: {%(controls)s}"
 msgstr ""
+"De sjabloon waarmee de bestandsnaam en mapstructuur van de bestanden die "
+"naar het apparaat worden verzonden wordt ingesteld. Standaard is dit "
+"‘%(templ)s’, dat boeken per auteur in een map plaatst, met als bestandsnaam "
+"de naam van de auteur en de titel. Beschikbare opties zijn: {%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:107
 msgid ""
@@ -18485,10 +18500,10 @@ msgid ""
 "experience errors when saving, depending on how well the filesystem you are "
 "saving to supports unicode."
 msgstr ""
-"Normaal gesproken zal calibre alle niet-Engelse tekens automatisch omzetten "
-"naar Engelse equivalenten voor bestandsnamen. WAARSCHUWING: als je dit "
-"uitschakelt dan kan je fouten krijgen tijdens het opslaan, afhankelijk van "
-"hoe goed je bestandssysteem unicode ondersteunt."
+"Normaal gesproken zal calibre voor bestandsnamen alle niet-Engelse tekens "
+"automatisch omzetten naar Engelse equivalenten. WAARSCHUWING: als u dit "
+"uitschakelt kunt u tijdens het opslaan fouten tegenkomen, afhankelijk van "
+"hoe goed uw bestandssysteem unicode ondersteunt."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:113
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:117
@@ -18502,7 +18517,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:121
 msgid "Convert paths to lowercase."
-msgstr "Converteer paden naar kleine letters."
+msgstr "Paden naar kleine letters omzetten."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:123
 msgid "Replace whitespace with underscores."
@@ -18520,33 +18535,34 @@ msgstr "Instellingen voor de calibre-inhoudsserver"
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:25
 #, python-format
 msgid "The port on which to listen. Default is %default"
-msgstr "De poort waarop geluisterd word. Standaard is %default"
+msgstr "De poort waarop geluisterd word. Standaard is dit %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:27
 #, python-format
 msgid "The server timeout in seconds. Default is %default"
-msgstr "De server time-out in seconden. Standaard is %default"
+msgstr "De server time-out in seconden. Standaard is dit %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:29
 #, python-format
 msgid "The max number of worker threads to use. Default is %default"
-msgstr "Het maximaal aantal threads te gebruiken. Standaard is %default"
+msgstr "Het maximaal aantal te gebruiken threads. Standaard is dit %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:31
 msgid "Set a password to restrict access. By default access is unrestricted."
 msgstr ""
-"Stel een wachtwoord in om toegang te beperken. Standaard is onbeperkte "
+"Stel een wachtwoord in om toegang te beperken. Standaard is er onbeperkte "
 "toegang voor iedereen."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:33
 #, python-format
 msgid "Username for access. By default, it is: %default"
-msgstr "Gebruikersnaam voor toegang. Standaard is dit: %default"
+msgstr "Gebruikersnaam voor toegang. Standaard is dit ‘%default’"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:37
 #, python-format
 msgid "The maximum size for displayed covers. Default is %default."
-msgstr "Maximale omvang voor weergegeven omslagen. Standaard is %default."
+msgstr ""
+"Maximale omvang voor weergegeven omslagen. Standaard is dit %default."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:39
 msgid ""
@@ -18578,7 +18594,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:64
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:499
 msgid "Loading, please wait"
-msgstr "Laden, wachten aub"
+msgstr "Laden, een moment geduld"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:90
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:111
@@ -18643,15 +18659,15 @@ msgstr "Alle boeken"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:387
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:452
 msgid "Browse books by"
-msgstr "Verken boeken per"
+msgstr "Bekijk boeken per"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:392
 msgid "Choose a category to browse by:"
-msgstr "Kies een categorie om mee te verkennen"
+msgstr "Kies een categorie om te bekijken:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:522
 msgid "Browsing by"
-msgstr "Verkennen per"
+msgstr "Bekijken per"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:523
 msgid "Up"
@@ -18672,11 +18688,11 @@ msgstr "Andere formaten"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:748
 #, python-format
 msgid "Read %(title)s in the %(fmt)s format"
-msgstr "Lees %(title)s in het %(fmt)s-formaat"
+msgstr "%(title)s in het %(fmt)s-formaat lezen"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:753
 msgid "Get"
-msgstr "Verkrijg"
+msgstr "Ophalen"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:766
 msgid "Details"
@@ -18700,7 +18716,7 @@ msgstr "zoekende"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:871
 msgid "Matching books"
-msgstr "Boeken vergelijken"
+msgstr "Overeenkomstige boeken"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:40
 msgid ""
@@ -18717,7 +18733,7 @@ msgstr ""
 "[opties]\n"
 "\n"
 "Start de calibre-inhoudsserver. De calibre-inhoudsserver\n"
-"toont uw bibliotheek op het Internet. De standaardweergave\n"
+"toont uw bibliotheek op het internet. De standaardweergave\n"
 "laat u uw bibliotheek verkennen per categorie. U kunt ook\n"
 "een weergave bereiken die optimaal is ingesteld voor mobiele \n"
 "browsers op /mobiel en een op OPDS gebaseerde interface\n"
@@ -18731,7 +18747,7 @@ msgstr "Pad naar de bibliotheekmap voor de inhoudsserver"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:54
 msgid "Write process PID to the specified file"
-msgstr "Schrijf het PID van het proces naar het opgegeven bestand."
+msgstr "Schrijf het PID van het proces naar het opgegeven bestand"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:58
 msgid ""
@@ -18739,8 +18755,8 @@ msgid ""
 "overrides any per-library settings specified in the GUI"
 msgstr ""
 "Specificeert een beperking die gebruikt wordt bij deze aanroep. Deze optie "
-"overschrijft elke instelling die per bibliotheek is gespecificeerd in de "
-"grafische gebruikersomgeving"
+"overschrijft elke instelling die in de grafische gebruikersomgeving per "
+"bibliotheek is ingesteld"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:62
 msgid ""
@@ -18785,7 +18801,7 @@ msgstr "LABELS: %s<br />"
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:174
 #, python-format
 msgid "SERIES: %(series)s [%(sidx)s]<br />"
-msgstr "Reeks: %(series)s [%(sidx)s]<br />"
+msgstr "REEKS: %(series)s [%(sidx)s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:271
 msgid "Books in your library"
@@ -18812,8 +18828,8 @@ msgid ""
 "Whenever you pass arguments to %prog that have spaces in them, enclose the "
 "arguments in quotation marks."
 msgstr ""
-"Als je aan %prog parameters met spaties meegeeft, denk er dan aan om er "
-"aanhalingstekens omheen te zetten."
+"Als u aan %prog parameters met spaties mee wilt geven moet u deze met "
+"aanhalingstekens omsluiten."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:374
 msgid "Path to the database in which books are stored"
@@ -18841,7 +18857,7 @@ msgstr "De taal waarin de gebruikersinterface wordt weergegeven"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:386
 msgid "The default output format for ebook conversions."
-msgstr "Het standaard uitvoerformaat voor E-boek conversies."
+msgstr "Het standaard uitvoerformaat voor e-book conversies."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:390
 msgid "Ordered list of formats to prefer for input."
@@ -18849,7 +18865,7 @@ msgstr "Gesorteerde lijst met voorkeursformaten voor invoer."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:392
 msgid "Read metadata from files"
-msgstr "Lees metadata uit bestanden"
+msgstr "Metadata uit bestanden lezen"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:394
 msgid ""
@@ -18857,23 +18873,23 @@ msgid ""
 "and consume more resources. Most tasks like conversion/news download/adding "
 "books/etc. are affected by this setting."
 msgstr ""
-"Prioriteit van draaiende taken. Hogere prioriteit betekent dat ze sneller "
-"draaien en meer bronnen verbruiken. De meeste taken, zoals "
+"Prioriteit van actieve taken. Hogere prioriteit betekent dat ze sneller "
+"draaien en meer hulpbronnen verbruiken. De meeste taken, zoals "
 "conversie/downloaden van nieuws/toevoegen van boeken/enz. worden door deze "
 "instelling beïnvloed."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:399
 msgid "Swap author first and last names when reading metadata"
 msgstr ""
-"Verwissel voor- en achternaam van de auteur bij het inlezen van de metadata"
+"Voor- en achternaam van de auteur verwisselen bij het inlezen van de metadata"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:401
 msgid "Add new formats to existing book records"
-msgstr "Voeg nieuwe formaten toe aan bestaande boeken"
+msgstr "Nieuwe formaten aan bestaande boeken toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:403
 msgid "Tags to apply to books added to the library"
-msgstr "Labels om toe te passen bij nieuwe boeken voor de bibliotheek"
+msgstr "Labels om aan  nieuwe boeken voor de bibliotheek toe te voegen"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:407
 msgid "List of named saved searches"
@@ -18881,11 +18897,11 @@ msgstr "Lijst van opgeslagen zoekopdrachten"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:408
 msgid "User-created tag browser categories"
-msgstr "Gebruiker gedefinieerde labelbrowser categorieën"
+msgstr "Gebruiker gedefinieerde categorieën voor de labelbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:410
 msgid "How and when calibre updates metadata on the device."
-msgstr "Hoe en wanneer calibre metadata bijwerkt op het apparaat."
+msgstr "Hoe en wanneer calibre metadata op het apparaat bijwerkt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:412
 msgid ""
@@ -18893,7 +18909,7 @@ msgid ""
 "instead of title:Red, limit the columns searched to those named below."
 msgstr ""
 "Bij zoeken zonder prefix, bijvoorbeeld Rood in plaats van title:Rood, wordt "
-"de zoekopdracht beperkt tot onderstaande types."
+"het zoeken tot onderstaande kolommen beperkt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:417
 msgid ""
@@ -18933,7 +18949,7 @@ msgstr "onbekende functie {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:129
 msgid "missing closing parenthesis"
-msgstr "sluitend aanhalingsteken ontbreekt"
+msgstr "sluitend haakje ontbreekt"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:148
 msgid "expression is not function or constant"
@@ -18941,11 +18957,11 @@ msgstr "uitdrukking is geen functie of constante"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:182
 msgid "format: type {0} requires an integer value, got {1}"
-msgstr "formaat: type {0} moet een geheel getal zijn, ontving {1}"
+msgstr "format: type {0} moet een geheel getal zijn, ontving {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:188
 msgid "format: type {0} requires a decimal (float) value, got {1}"
-msgstr "formaat: type {0} moet een decimaal getal zijn (float), ontving {1}"
+msgstr "format: type {0} moet een decimaal getal zijn (float), ontving {1}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:299
 #, python-format
@@ -18965,17 +18981,17 @@ msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
-"strcmp(x, y, kd, ge, gd) -- doet een hoofdletter-ongevoelige vergelijking "
-"van x en y als string. Geeft kd als x < y/ Geeft ge als x ==y. Anders wordt "
-"gd teruggegeven."
+"strcmp(x, y, lt, eq, gt) -- doet een hoofdletter-ongevoelige vergelijking "
+"van x en y als string. Geeft lt als x < y/ Geeft eq als x ==y. Anders wordt "
+"gt teruggegeven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:109
 msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
-"cmp(x, y, kd, ga, gd) -- vergelijkt x met y nadat beide zijn omgezet in "
-"getallen. Geeft kd als x < y. Geeft ga als x == y. Anders wordt gd "
+"cmp(x, y, lt, eq, gt) -- vergelijkt x met y nadat beide zijn omgezet in "
+"getallen. Geeft lt als x < y. Geeft eq als x == y. Anders wordt gt "
 "teruggegeven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:125
@@ -19000,15 +19016,15 @@ msgid ""
 "not numbers."
 msgstr ""
 "subtract(x, y) -- geeft x - y terug. Geeft een waarschuwing als x of y geen "
-"nummer zijn."
+"getal is."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:161
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
-"multiply(x, y) -- geeft x * y terug. Er wordt een foutmelding gegeven als x "
-"of y geen nummer is."
+"multiply(x, y) -- geeft x * y terug. Geeft een waarschuwing als x of y geen "
+"getal is."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:172
 msgid ""
@@ -19016,7 +19032,7 @@ msgid ""
 "numbers."
 msgstr ""
 "divide(x, y) -- geeft x / y terug. Geeft een waarschuwing als x of y geen "
-"nummer zijn."
+"getal is."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:184
 msgid ""
@@ -19027,12 +19043,12 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
-"template(x) -- test x als een sjabloon. De test wordt uitgevoerd in zijn "
-"eigen context, waarmee wordt bedoeld dat variabelen niet worden gedeeld "
-"tussen de aanroep en de sjabloontest. Omdat { en } speciale tekens zijn, "
-"moet je [[ voor het { teken en ]] voor het } teken gebruiken; deze worden "
-"automatisch omgezet. Bijvoorbeeld, template('[[title_sort]]') zal een test "
-"uitvoeren op het sjabloon {title_sort} en de waarde terug geven."
+"template(x) -- evalueert x als een sjabloon. De test wordt uitgevoerd in "
+"zijn eigen context, waarmee wordt bedoeld dat variabelen niet worden gedeeld "
+"tussen de aanroep en de sjabloontest. Omdat { and } speciale tekens zijn, "
+"moet u ‘[[’ voor het ‘{’-teken en ‘]]’ voor het ‘}’-teken gebruiken; deze "
+"worden automatisch omgezet. Bijvoorbeeld, template('[[title_sort]]') zal een "
+"test uitvoeren op het sjabloon {title_sort} en de waarde teruggeven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:200
 msgid ""
@@ -19040,7 +19056,7 @@ msgid ""
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
-"eval(sjabloon) -- controleert de sjabloon, geeft lokale variabelen door "
+"eval(sjabloon) -- evalueert de sjabloon, geeft lokale variabelen door "
 "(huidige toewijzing) in plaats van de metadata van het boek. Dit maakt het "
 "mogelijk om de sjabloon te gebruiken voor het maken van complexe resultaten "
 "vanuit lokale variabelen."
@@ -19050,8 +19066,8 @@ msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
-"assign(id, waarde) -- geeft id de waarde waarde en geeft waarde terug. id "
-"moet een identificator, geen uitdrukking"
+"assign(id, waarde) -- stelt id in op waarde en geeft waarde terug. id moet "
+"een identificator zijn, geen uitdrukking"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:225
 msgid ""
@@ -19060,21 +19076,20 @@ msgid ""
 "to a black hole."
 msgstr ""
 "print(a, b, ...) -- geeft meegegeven informatie weer in standaarduitvoer. "
-"Tenzij je calibre start van de commandoregel (calibre-debug -g), zal deze "
-"uitvoer verdwijnen in een 'zwart gat'."
+"Als u calibre niet vanuit de commandoregel start (calibre-debug -g) zal deze "
+"uitvoer verdwijnen."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:237
 msgid "field(name) -- returns the metadata field named by name"
-msgstr ""
-"field(naam) -- geeft de metadata terug van het veld aangegeven met naam"
+msgstr "field(naam) -- geeft de metadata van het veld naam"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:246
 msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
-"raw_field(naam) -- geeft de metadata terug uit het veld naam zonder enige "
-"opmaak toe te passen."
+"raw_field(naam) -- geeft de metadata van het veld naam, zonder enige opmaak "
+"toe te passen."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:256
 msgid ""
@@ -19085,6 +19100,11 @@ msgid ""
 "substr('12345', 1, 0) returns '2345', and substr('12345', 1, -1) returns "
 "'234'."
 msgstr ""
+"substr(str, begin, eind) -- geeft de tekens uit str die tussen begin en eind "
+"voorkomen. Het eerste teken in str is het 0-de teken. Als einde negatief is "
+"betekend dit ‘tot zoveel teken vanaf rechts’. Als einde nul is betekend dit "
+"het laatste teken. Bijvoorbeeld: substr('12345', 1, 0) geeft '2345', en "
+"substr('12345', 1, -1) geeft '234'."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:270
 msgid ""
@@ -19098,14 +19118,14 @@ msgstr ""
 "lookup(waarde, patroon, veld, patroon, veld, ..., anders_veld) -- zoals "
 "switch, met het verschil dat de parameters namen zijn van (metadata)velden, "
 "geen tekst. De waarde van de geschikte velden zal worden binnengehaald en "
-"gebruikt. Nb. doordat samengestelde kolommen velden zijn, kan je deze "
-"functie gebruiken in een samengesteld veld om de waarde van een ander "
-"samengesteld veld te gebruiken. Dit is uitermate geschikt als je variabele "
-"opslaglocaties wilt samenstellen"
+"gebruikt. Nb. doordat samengestelde kolommen velden zijn, kunt u deze "
+"functie in een samengesteld veld gebruiken om de waarde van een ander "
+"samengesteld veld te gebruiken. Dit is uitermate geschikt als u variabele "
+"opslaglocaties wilt opstellen"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:285
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr "opzoeken met minstens 2 of een oneven aantal parameters"
+msgstr "lookup heeft minstens 2 of een oneven aantal parameters nodig"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:298
 msgid ""
@@ -19471,7 +19491,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
-msgstr "Wachten..."
+msgstr "Wachten…"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:52
 msgid "Stopped"
@@ -19479,11 +19499,11 @@ msgstr "Gestopt"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Finished"
-msgstr "Gereed"
+msgstr "Voltooid"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:76
 msgid "Working..."
-msgstr "Bezig..."
+msgstr "Bezig…"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "Brazilian Portuguese"
@@ -19667,7 +19687,7 @@ msgstr "Kies thema (herstart vereist)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:109
 msgid "ERROR: Unhandled exception"
-msgstr "FOUT: onverwachte uitzondering"
+msgstr "FOUT: Niet-verwerkte fout"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:188
 msgid "No interpreter"
@@ -19679,14 +19699,14 @@ msgstr "Geen actieve interpreter gevonden. Probeer console te herstarten"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:203
 msgid "Interpreter died"
-msgstr "Interpreter gestopt"
+msgstr "Interpreter is vastgelopen"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:204
 msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
-"Interpreter vastgelopen tijdens het uitvoeren. Klik \"Toon details\" om het "
+"Interpreter vastgelopen tijdens het uitvoeren. Klik ‘Details tonen’ om het "
 "commando te zien"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
@@ -19703,11 +19723,11 @@ msgstr "Code wordt uitgevoerd"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:58
 msgid "Restart console"
-msgstr "Herstart console"
+msgstr "Console herstarten"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
-msgstr "URL heeft een sftp-schema nodig"
+msgstr "URL heeft het sftp-schema nodig"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:57
 msgid "host must be of the form user@hostname"
@@ -19724,7 +19744,7 @@ msgstr "Authenticatie met server mislukt: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/smtp.py:253
 msgid "Control email delivery"
-msgstr "Wijzig zenden van mail"
+msgstr "Zenden van e-mail instellen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:120
 msgid "Unknown section"
@@ -19741,7 +19761,7 @@ msgstr "Artikel zonder naam"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:22
 msgid "Download periodical content from the internet"
-msgstr "Download periodieke inhoud van het Internet"
+msgstr "Periodieke inhoud van het internet downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:37
 msgid ""
@@ -19773,19 +19793,19 @@ msgstr "Onbekende nieuwsbron"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:632
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
-msgstr "Het \"%s\"-recept heeft een gebruikersnaam en wachtwoord nodig"
+msgstr "Het ‘%s’-recept heeft een gebruikersnaam en wachtwoord nodig."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
 msgid "Download finished"
-msgstr "Downloaden gereed"
+msgstr "Download is voltooid"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:740
 msgid "Failed to download the following articles:"
-msgstr "De volgende artikelen konden niet worden gedownload:"
+msgstr "De volgende artikelen konden niet gedownload worden:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:746
 msgid "Failed to download parts of the following articles:"
-msgstr "Delen van de volgende artikelen konden niet worden gedownload:"
+msgstr "Delen van de volgende artikelen konden niet gedownload worden:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:748
 msgid " from "
@@ -19797,7 +19817,7 @@ msgstr "\tMislukte links:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:845
 msgid "Could not fetch article."
-msgstr "Kon artikel niet ophalen"
+msgstr "Kan artikel niet ophalen."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:847
 msgid "The debug traceback is available earlier in this log"
@@ -19809,39 +19829,39 @@ msgstr "Start met -vv om de reden te zien"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:872
 msgid "Fetching feeds..."
-msgstr "Feeds downloaden..."
+msgstr "Feeds downloaden…"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:877
 msgid "Got feeds from index page"
-msgstr "Feeds van indexpagina"
+msgstr "Feeds van indexpagina opgehaald"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:886
 msgid "Trying to download cover..."
-msgstr "Probeer omslag te downloaden"
+msgstr "Probeer omslag te downloaden…"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:888
 msgid "Generating masthead..."
-msgstr "Colofon genereren..."
+msgstr "Colofon genereren…"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:968
 #, python-format
 msgid "Starting download [%d thread(s)]..."
-msgstr "Begin download [%d thread(s)]..."
+msgstr "Begin download [%d thread(s)]…"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:984
 #, python-format
 msgid "Feeds downloaded to %s"
-msgstr "Feeds gedownload tot %s"
+msgstr "Feeds naar %s gedownload"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:993
 #, python-format
 msgid "Could not download cover: %s"
-msgstr "Kon omslag niet downloaden: %s"
+msgstr "Kan omslag niet downloaden: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1002
 #, python-format
 msgid "Downloading cover from %s"
-msgstr "Download omslag van %s"
+msgstr "Omslag van %s aan het downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1048
 msgid "Masthead image downloaded"
@@ -19863,7 +19883,7 @@ msgstr "Downloaden artikel mislukt: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1315
 msgid "Fetching feed"
-msgstr "Downloading feed"
+msgstr "Feed ophalen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1462
 msgid ""
@@ -19871,7 +19891,7 @@ msgid ""
 "Periodicals service."
 msgstr ""
 "Inloggen niet gelukt. Controleer uw gebruikersnaam en wachtwoord voor de "
-"calibre periodiekendienst."
+"calibre-periodiekendienst."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1477
 msgid ""
@@ -19883,7 +19903,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 msgid "You"
-msgstr "Je"
+msgstr "U"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:75
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:84
@@ -19923,7 +19943,7 @@ msgstr "Paragrafen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:390
 msgid "Articles"
-msgstr "Artikels"
+msgstr "Artikelen"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:476
 msgid ""
@@ -19939,7 +19959,7 @@ msgstr ""
 #, python-format
 msgid "Base directory into which URL is saved. Default is %default"
 msgstr ""
-"Basismap waar de URL naar toe wordt geschreven. Standaard is %default"
+"Basismap waar de URL naar toe wordt geschreven. Standaard is dit %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 #, python-format
@@ -19965,8 +19985,8 @@ msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
 msgstr ""
-"Het maximaal aantal bestanden te downloaden. Dit is alleen van toepassing op "
-"bestanden in <a href>-tags. Standaard is %default"
+"Het maximaal aantal te downloaden bestanden. Dit is alleen van toepassing op "
+"bestanden in <a href>-tags. Standaard is dit %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:490
 #, python-format
@@ -19975,14 +19995,14 @@ msgid ""
 "s"
 msgstr ""
 "Minimuminterval in seconden tussen aaneensluitende downloads. Standaard is "
-"%default s"
+"dit %default s"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:492
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
 msgstr ""
-"De tekencodering voor de websites die je probeert te downloaden. Standaard "
+"De tekencodering voor de websites die u probeert te downloaden. Standaard "
 "zal er worden geprobeerd om de codering te raden."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:494
@@ -19991,10 +20011,10 @@ msgid ""
 "can be specified multiple times, in which case as long as a link matches any "
 "one regexp, it will be followed. By default all links are followed."
 msgstr ""
-"Alleen links die overeenkomen met deze regexp zullen worden gevolgd. Deze "
+"Alleen links die overeenkomen met deze regexp zullen gevolgd worden. Deze "
 "optie kan meerdere keren worden opgegeven, in welk geval de link zal worden "
-"gevolgd als deze overeenkomt met ten minste een reguliere uitdrukking. "
-"Standaard zullen alle links worden gevolgd."
+"gevolgd als deze overeenkomt met ten minste één regexp. Standaard zullen "
+"alle links gevolgd worden."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:496
 msgid ""
@@ -20003,19 +20023,19 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
-"Links die overeenkomen met deze regexp zullen niet worden gevolgd. Deze "
+"Links die overeenkomen met deze regexp zullen niet gevolgd worden. Deze "
 "optie kan meerdere keren worden opgegeven, in welk geval de link niet zal "
-"worden gevolgd als deze overeenkomt met ten minste een reguliere "
+"worden gevolgd als deze overeenkomt met ten minste één reguliere "
 "uitdrukking. Als zowel de filter- als de overeenkomstoptie gebruikt worden "
-"dan wordt de filte eerst toegepast."
+"dan wordt de filter eerst toegepast."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
-msgstr "Download geen CSS-stylesheets"
+msgstr "Geen CSS-stylesheets downloaden"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:649
 msgid "OK"
-msgstr "Akkoord"
+msgstr "OK"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:652
 msgid "Save"
@@ -20031,7 +20051,7 @@ msgstr "Annuleren"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"
-msgstr "Sluiten"
+msgstr "&Sluiten"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Apply"
@@ -20051,7 +20071,7 @@ msgstr "Verwerpen"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:681
 msgid "&Yes"
-msgstr "Ja"
+msgstr "&Ja"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:684
 msgid "Yes to &All"
@@ -20075,7 +20095,7 @@ msgstr "Afbreken"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:699
 msgid "Retry"
-msgstr "Probeer nogmaals"
+msgstr "Opnieuw proberen"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Ignore"
@@ -20083,7 +20103,7 @@ msgstr "Negeren"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Restore Defaults"
-msgstr "Beginwaarden herstellen"
+msgstr "Standaardinstellingen herstellen"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
@@ -20138,7 +20158,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:31
 msgid "Add separator after completing an author name"
-msgstr "Voeg splitter toe na het completeren van een auteursnaam"
+msgstr "Voeg scheidingsteken toe na het voltooien van een auteursnaam"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:32
 msgid ""
@@ -20178,19 +20198,19 @@ msgstr ""
 "Het algoritme gebruikt om schrijver te kopiëren naar\n"
 "auteurssortering\n"
 "Mogelijke waarden zijn:\n"
-"invert: gebruik \"vn an\" -> \"an, vn\"\n"
+"invert: gebruik ‘vn an’ -> ‘an, vn’\n"
 "copy  : kopieer auteur naar auteurssortering zonder aanpassing\n"
-"comma : gebruik 'copy' als er een ',' in de naam zit, anders wordt 'invert' "
+"comma : gebruik ‘copy’ als er een ‘,’ in de naam zit, anders wordt ‘invert’ "
 "gebruikt\n"
-"nocomma : \"vn an\" -> \"an vn\" (zonder de komma)\n"
+"nocomma : ‘vn an’ -> ‘vn an’ (zonder de komma)\n"
 "Als deze tweak is veranderd, zullen de sorteerauteurwaarden opgeslagen per\n"
 "auteur opnieuw berekend moeten worden door rechts te klikken op een auteur\n"
-"in het paneel aan de linkerkant, en 'beheer auteurs' te selecteren, gevolgd "
+"in het paneel aan de linkerkant, en ‘Auteurs beheren’ te selecteren, gevolgd "
 "door\n"
-"'Alle autreurssortering-waarden opnieuw berekenen'.\n"
+"‘Alle autreurssortering-waarden opnieuw berekenen’.\n"
 "Achtervoegsels van auteursnamen zijn woorden die genegeerd moeten worden\n"
 "als ze aan het einde van de naam voorkomen.\n"
-"Achtervoegsels zijn hoofdletterongevoelig en punten op het einde worden \n"
+"Achtervoegsels zijn niet hoofdlettergevoelig en punten op het einde worden \n"
 "automatisch afgehandeld."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:57
@@ -20254,9 +20274,9 @@ msgstr ""
 "Calibre gebruikt standaard een lexicografische ordening bij automatisch\n"
 "aanvullen, zodat de mogelijke aanvullingen correct worden gesorteerd voor\n"
 "de taal van de gebruiker. Dit kan traag zijn. ASCII-ordenen versnelt dit.\n"
-"Je kan hier instellen wanneer er wordt overgeschakeld. Stel 0 in om altijd\n"
+"U kunt hier instellen wanneer er wordt overgeschakeld. Stel 0 in om altijd\n"
 "ASCII te gebruiken, en iets groter dan nul om ASCII te gebruiken omwille\n"
-"van performantie."
+"van prestaties."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:81
 msgid "Control partitioning of Tag Browser"
@@ -20297,10 +20317,10 @@ msgstr ""
 "categories_collapsed_popularity_template\n"
 "indien gesorteerd op populariteit. Er zijn twee variabelen beschikbaar voor "
 "de\n"
-"sjabloon: first en last. De variabele 'first'is het eerste item in de\n"
-"deelcategorie, en de variabele 'last' is het laatste item in de "
+"sjabloon: first en last. De variabele ‘first’ is het eerste item in de\n"
+"deelcategorie, en de variabele ‘last’ is het laatste item in de "
 "deelcategorie.\n"
-"Beide variabelen zijn 'objecten', ze hebben elk meerdere waarden die worden\n"
+"Beide variabelen zijn ‘objecten’, ze hebben elk meerdere waarden die worden\n"
 "verkregen met behulp van een achtervoegsel. Bijvoorbeeld zal first.name voor "
 "een\n"
 "auteurscategorie de naam van de schrijver zijn. De beschikbare deelwaarden "
@@ -20319,7 +20339,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:103
 msgid "Specify columns to sort the booklist by on startup"
-msgstr "Specificeer kolommen om boekenlijst te sorteren bij het opstarten"
+msgstr "Specificeer kolommen om boekenlijst bij het opstarten te sorteren"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:104
 msgid ""
@@ -20406,14 +20426,15 @@ msgid ""
 "without changing anything is sufficient to change the sort."
 msgstr ""
 "Beheer titel- en reekssortering in de bibliotheekweergave. Indien\n"
-"ingesteld op 'library_order' zal het sorteertitelveld gebruikt worden\n"
-"in plaats van de titel. Tenzij je handmatig het sorteertitelveld hebt\n"
-"gewijzigd, zullen voorzetsels als The en A worden genegeerd. Als het\n"
-"is ingesteld op 'strictly_alphabetic', zullen titels worden gesorteerd\n"
+"ingesteld op ‘library_order’ zal het sorteertitelveld gebruikt worden\n"
+"in plaats van de titel. Tenzij u handmatig het sorteertitelveld hebt\n"
+"gewijzigd, zullen voorzetsels als The en A genegeerd worden. Als het\n"
+"is ingesteld op ‘strictly_alphabetic’, zullen titels gesorteerd worden\n"
 "zoals ze zijn (sortering op titel in plaats van sorteertitel).\n"
-"Bijvoorbeeld wordt 'The Client' gesorteerd onder 'C' met 'library_order',\n"
-"terwijl het met 'strictly_alphabetic' zal worden gesorteerd onder 'T'.\n"
-"Deze waarde heeft betrekking op calibres bibliotheekweergave. Het heeft\n"
+"Bijvoorbeeld wordt ‘The Client’ met ‘library_order’ onder ‘C’ gesorteerd,\n"
+"terwijl het met ‘strictly_alphabetic’ onder de ‘T’ gesorteerd zal worden.\n"
+"Deze waarde heeft betrekking op de bibliotheekweergave van calibre. Het "
+"heeft\n"
 "geen effect op apparaten. Ook zullen titels en boeken die in de\n"
 "bibliotheek zijn toegevoegd voor deze wijziging hun sortering houden tot\n"
 "de titel is aangepast. Dubbelklikken op een titel gevolgd door enter\n"
@@ -20440,18 +20461,18 @@ msgid ""
 "strictly_alphabetic, it would remain \"The Lord of the Rings\"."
 msgstr ""
 "Stel in hoe titels en reeksnamen worden opgemaakt tijdens opslaan op "
-"disk/verzenden\n"
-"naar apparaat. Het gedrag hangt af van het verwerkte veld. Als de titel "
-"wordt verwerkt,\n"
-"dan zal in het geval van 'library_order', de titel worden vervangen door "
+"schijf/naar apparaat \n"
+"verzenden. Het gedrag hangt af van het verwerkte veld. Als de titel wordt "
+"verwerkt,\n"
+"dan zal in het geval van ‘library_order’, de titel worden vervangen door "
 "title_sort. Als\n"
-"het is ingesteld op 'strictly_alphabetic', dan zal de titel niet "
+"het is ingesteld op  ‘strictly_alphabetic’, dan zal de titel niet "
 "veranderen.\n"
-"Bij het verwerken van reeksen, zullen bij 'library_order', voorzetsels als "
-"'The' en 'An'\n"
-"worden verplaatst naar het einde. Indien 'strictly_alphabetic' is ingesteld, "
-"zal de reeks\n"
-"worden verzonden zonder aanpassing.\n"
+"Bij het verwerken van reeksen,zullen bij ‘library_order’, voorzetsels als "
+"‘The’ en ‘An’\n"
+"naar het einde verplaatst worden. Indien  ‘strictly_alphabetic’ is "
+"ingesteld, zal de reeks\n"
+"zonder aanpassing verzonden worden.\n"
 "Als bijvoorbeeld de tweak is ingesteld op library_order dan zal \"The Lord "
 "of the Rings\"\n"
 "worden vervangen door \"Lord of the Rings, The\". Als de tweak is ingesteld "
@@ -20461,7 +20482,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:162
 msgid "Set the list of words considered to be \"articles\" for sort strings"
 msgstr ""
-"Stel de lijst van woorden in die als \"lidwoorden\" dienen tijdens sorteren "
+"Stel de lijst van woorden in die als ‘lidwoorden’ tellen tijdens sorteren "
 "van tekststrings"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:163
@@ -20484,15 +20505,15 @@ msgstr ""
 "ongevoelig,\n"
 "wat niet kan worden veranderd. Veranderingen aan deze tweak hebben geen "
 "effect\n"
-"tot het boek op een of andere manier is gewijzigd. Als je een foutief "
-"patroon invoert,\n"
+"tot het boek op een of andere manier is gewijzigd. Als u een foutief patroon "
+"invoert,\n"
 "wordt dit zonder melding genegeerd.\n"
-"Voor een lege lijst gebruik je de regexp '^$'\n"
+"Voor een lege lijst gebruikt u de regexp '^$'\n"
 "Standaard: '^(A|The|An)\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:172
 msgid "Specify a folder calibre should connect to at startup"
-msgstr "Specificeer een map die calibre moet inlezen tijdens het opstarten"
+msgstr "Specificeer een map die calibre tijdens het opstarten moet inlezen"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:173
 msgid ""
@@ -20506,13 +20527,12 @@ msgid ""
 "auto_connect_to_folder = 'C:\\\\Users\\\\someone\\\\Desktop\\\\testlib'\n"
 "auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'"
 msgstr ""
-"Specificeer een map waar calibre verbinding mee moet maken gedurende het "
-"opstarten\n"
-"gebruik makend van connect_to_folder. Dit moet het volledige pad zijn naar "
-"deze map. Als de\n"
+"Geef een map op waar calibre verbinding mee moet maken bij het opstarten "
+"met\n"
+"connect_to_folder. Dit moet het volledige pad zijn naar deze map. Als de\n"
 "map niet bestaat wanneer calibre start, wordt het genegeerd. Als er '\\' in "
 "het pad zit, \n"
-"(zoals bij Windows), moet je deze dupliceren.\n"
+"(zoals bij Windows), moet u deze dupliceren.\n"
 "Voorbeelden:\n"
 "auto_connect_to_folder = 'C:\\\\Users\\\\iemand\\\\Desktop\\\\testbib'\n"
 "auto_connect_to_folder = '/home/dropbox/My Dropbox/iemand/bibliotheek'"
@@ -20594,7 +20614,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:235
 msgid "Specify how SONY collections are sorted"
-msgstr "Specificeer hoe SONY-collecties worden gesorteerd"
+msgstr "Specificeer hoe SONY-collecties gesorteerd worden"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:236
 msgid ""
@@ -20650,31 +20670,31 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:253
 msgid "Control how tags are applied when copying books to another library"
 msgstr ""
-"Stel in hoe labels worden toegepast tijdens kopiëren van boeken naar een "
-"andere bibliotheek"
+"Stel in hoe labels tijdens kopiëren van boeken naar een andere bibliotheek "
+"toegepast worden"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:254
 msgid ""
 "Set this to True to ensure that tags in 'Tags to add when adding\n"
 "a book' are added when copying books to another library"
 msgstr ""
-"Stel dit in op True om er zeker van te zijn dat labels in 'Labels om toe te "
+"Stel dit in op True om er voor te zorgen dat labels in ‘Labels om toe te "
 "voegen bij\n"
-"nieuwe boeken' worden toegevoegd als een boek naar een andere bibliotheek "
-"wordt gekopieerd"
+"nieuwe boeken’ toegevoegd worden als een boek naar een andere bibliotheek "
+"gekopieerd wordt"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:258
 msgid "Set the maximum number of tags to show per book in the content server"
 msgstr ""
-"Stel het maximaal aantal labels per boek in om weer te geven in de "
-"inhoudsserver"
+"Stel het maximaal aantal labels in dat per boek door de inhoudsserver "
+"weergegeven moet worden"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:261
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
 msgstr ""
-"Stel persoonlijke metadatavelden in om al dan niet weer te geven in de "
-"inhoudsserver."
+"Stel persoonlijke metadatavelden in die de inhoudsserver al dan niet weer "
+"moet geven."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:262
 msgid ""
@@ -20801,10 +20821,10 @@ msgid ""
 "Example: locale_for_sorting = 'nb' -- sort using Norwegian rules."
 msgstr ""
 "Bij het gebruiken van deze tweak wordt de sorteervolgorde gedwongen om\n"
-"gebruik te maken van de gespecificeerde taal. Dit kan handig zijn als je\n"
-"Calibre gebruikt in het Engels, maar wilt sorteren in je lokale taal.\n"
+"gebruik te maken van de gespecificeerde taal. Dit kan handig zijn als u\n"
+"Calibre gebruikt in het Engels, maar in uw lokale taal wilt sorteren.\n"
 "Stel deze tweak in op de gewenste ISO 639-1-taalcode, in kleine letters.\n"
-"Je kan een lijst van ondersteunde talen vinden op\n"
+"U kunt een lijst van ondersteunde talen vinden op\n"
 "http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/nls/rbagsicusorts"
 "equencetables.htm\n"
 "Standaard: locale_for_sorting = '' -- gebruik de weergavetaal van calibre.\n"
@@ -20815,7 +20835,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:318
 msgid "Number of columns for custom metadata in the edit metadata dialog"
 msgstr ""
-"Aantal kolommen voor persoonlijke metadata in het 'bewerk metadata'-venster"
+"Aantal kolommen voor persoonlijke metadata in het ‘Metadata bewerken’-venster"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:319
 msgid ""
