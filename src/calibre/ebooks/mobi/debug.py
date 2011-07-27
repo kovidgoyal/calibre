@@ -604,6 +604,9 @@ class IndexEntry(object): # {{{
         self.raw = raw
         self.tags = []
         self.entry_type_raw = entry_type
+        self.byte_size = len(raw)
+
+        orig_raw = raw
 
         try:
             self.entry_type = self.TYPES[entry_type]
@@ -641,8 +644,8 @@ class IndexEntry(object): # {{{
                     self.tags.append(Tag(aut_tag[0], [val], self.entry_type,
                         cncx))
 
-        if raw.replace(b'\x00', b''): # There can be padding null bytes
-            raise ValueError('Extra bytes in INDX table entry %d: %r'%(self.index, raw))
+        self.consumed = len(orig_raw) - len(raw)
+        self.trailing_bytes = raw
 
     @property
     def label(self):
@@ -694,13 +697,16 @@ class IndexEntry(object): # {{{
         return -1
 
     def __str__(self):
-        ans = ['Index Entry(index=%s, entry_type=%s (%s), length=%d)'%(
-            self.index, self.entry_type, bin(self.entry_type_raw)[2:], len(self.tags))]
+        ans = ['Index Entry(index=%s, entry_type=%s (%s), length=%d, byte_size=%d)'%(
+            self.index, self.entry_type, bin(self.entry_type_raw)[2:],
+            len(self.tags), self.byte_size)]
         for tag in self.tags:
             ans.append('\t'+str(tag))
         if self.first_child_index != -1:
             ans.append('\tNumber of children: %d'%(self.last_child_index -
                 self.first_child_index + 1))
+        if self.trailing_bytes:
+            ans.append('\tTrailing bytes: %r'%self.trailing_bytes)
         return '\n'.join(ans)
 
 # }}}
@@ -744,6 +750,7 @@ class IndexRecord(object): # {{{
             raise ValueError('Extra bytes after IDXT table: %r'%rest)
 
         indxt = raw[192:self.idxt_offset]
+        self.size_of_indxt_block = len(indxt)
         self.indices = []
         for i, off in enumerate(self.index_offsets):
             try:
@@ -756,10 +763,14 @@ class IndexRecord(object): # {{{
             if index_header.index_type == 6:
                 flags = ord(indxt[off+consumed+d])
                 d += 1
+            pos = off+consumed+d
             self.indices.append(IndexEntry(index, entry_type,
-                indxt[off+consumed+d:next_off], cncx,
+                indxt[pos:next_off], cncx,
                 index_header.tagx_entries, flags=flags))
-            index = self.indices[-1]
+
+        rest = indxt[pos+self.indices[-1].consumed:]
+        if rest.replace(b'\0', ''): # There can be padding null bytes
+            raise ValueError('Extra bytes after IDXT table: %r'%rest)
 
     def get_parent(self, index):
         if index.depth < 1:
@@ -780,12 +791,13 @@ class IndexRecord(object): # {{{
         u(self.unknown1)
         a('Unknown (header type? index record number? always 1?): %d'%self.header_type)
         u(self.unknown2)
-        a('IDXT Offset: %d'%self.idxt_offset)
+        a('IDXT Offset (%d block size): %d'%(self.size_of_indxt_block,
+            self.idxt_offset))
         a('IDXT Count: %d'%self.idxt_count)
         u(self.unknown3)
         u(self.unknown4)
         a('Index offsets: %r'%self.index_offsets)
-        a('\nIndex Entries:')
+        a('\nIndex Entries (%d entries):'%len(self.indices))
         for entry in self.indices:
             a(str(entry)+'\n')
 

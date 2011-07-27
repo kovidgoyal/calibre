@@ -41,6 +41,9 @@ def encode_number_as_hex(num):
     number.
     '''
     num = bytes(hex(num)[2:].upper())
+    nlen = len(num)
+    if nlen % 2 != 0:
+        num = b'0'+num
     ans = bytearray(num)
     ans.insert(0, len(num))
     return bytes(ans)
