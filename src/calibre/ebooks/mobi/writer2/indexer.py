@@ -175,9 +175,9 @@ class TBS(object): # {{{
     def __init__(self, data, is_periodical, first=False, section_map={},
             after_first=False):
         self.section_map = section_map
-        import pprint
-        pprint.pprint(data)
-        print()
+        #import pprint
+        #pprint.pprint(data)
+        #print()
         if is_periodical:
             # The starting bytes.
             # The value is zero which I think indicates the periodical
