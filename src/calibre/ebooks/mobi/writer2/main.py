@@ -198,7 +198,6 @@ class MobiWriter(object):
         self.serializer = Serializer(self.oeb, self.images,
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
-        self.content_length = len(text)
         self.text_length = len(text)
         text = StringIO(text)
         nrecords = 0
@@ -206,21 +205,16 @@ class MobiWriter(object):
         if self.compression != UNCOMPRESSED:
             self.oeb.logger.info('  Compressing markup content...')
 
-        data, overlap = self.read_text_record(text)
-
-        while len(data) > 0:
+        while text.tell() < self.text_length:
+            data, overlap = self.read_text_record(text)
             if self.compression == PALMDOC:
                 data = compress_doc(data)
-            record = StringIO()
 
+            data += overlap
+            data += pack(b'>B', len(overlap))
+
+            self.records.append(data)
             nrecords += 1
-            data, overlap = self.read_text_record(text)
-            record.write(data)
-
-            # Write information about the multibyte character overlap, if any
-            record.write(overlap)
-            record.write(pack(b'>B', len(overlap)))
-            self.records.append(record.getvalue())
 
         self.last_text_record_idx = nrecords
 
