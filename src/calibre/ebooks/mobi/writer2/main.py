@@ -511,11 +511,19 @@ class MobiWriter(object):
             datestr = str(oeb.metadata['timestamp'][0])
 
         if datestr is not None:
+            datestr = bytes(datestr)
+            datestr = datestr.replace(b'+00:00', b'Z')
             exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
             exth.write(datestr)
             nrecs += 1
         else:
             raise NotImplementedError("missing date or timestamp needed for mobi_periodical")
+
+        # Write the same creator info as kindlegen 1.2
+        for code, val in [(204, 202), (205, 1), (206, 2), (207, 33307)]:
+            exth.write(pack(b'>II', code, 12))
+            exth.write(pack(b'>I', val))
+            nrecs += 1
 
         if (oeb.metadata.cover and
                 unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
