@@ -3,6 +3,20 @@ Reverse engineering the trailing byte sequences for hierarchical periodicals
 
 In the following, *vwi* means variable width integer and *fvwi* means a vwi whose lowest four bits are used as a flag. All the following information/inferences are from examining the output of kindlegen on a sample periodical. Given the general level of Amazon's incompetence, there are no guarantees that this information is the *best/most complete* way to do TBS indexing.
 
+Sequence encoding:
+
+0b1000 : Continuation bit
+
+First sequences:
+0b0010 : 80
+0b0011 : 80 80
+0b0110 : 80 2
+0b0111 : 80 2 80
+
+Other sequences:
+0b0101 : 4 1a
+0b0001 : c b1
+
 Opening record
 ----------------
 
@@ -52,9 +66,59 @@ The text record that contains the opening node for the periodical (depth=0 node 
 
         If there was only a single article, instead of 2, then the last two bytes would be: c0, i.e. there would be no byte giving the number of articles in the record.
 
+        Starting record with two section transitions::
+
+            Record #1: Starts at: 0 Ends at: 4095
+                Contains: 7 index entries (0 ends, 4 complete, 3 starts)
+            TBS bytes: 86 80 2 c0 b8 c4 3
+                Complete:
+                    Index Entry: 1 (Parent index: 0, Depth: 1, Offset: 564, Size: 375) [Ars Technica]
+                    Index Entry: 5 (Parent index: 1, Depth: 2, Offset: 572, Size: 367) [Week in gaming: 3DS review, Crysis 2, George Hotz]
+                    Index Entry: 6 (Parent index: 2, Depth: 2, Offset: 947, Size: 1014) [Max and the Magic Marker for iPad: Review]
+                    Index Entry: 7 (Parent index: 2, Depth: 2, Offset: 1961, Size: 1077) [iPad 2 steers itself into home console gaming territory with Real Racing 2 HD]
+                Starts:
+                    Index Entry: 0 (Parent index: -1, Depth: 0, Offset: 215, Size: 35372) [j_x's Google reader]
+                    Index Entry: 2 (Parent index: 0, Depth: 1, Offset: 939, Size: 10368) [Neowin.net]
+                    Index Entry: 8 (Parent index: 2, Depth: 2, Offset: 3038, Size: 1082) [Microsoft's Joe Belfiore still working on upcoming Zune hardware]
+            TBS Type: 110 (6)
+            Outer Index entry: 0
+            Unknown (vwi: always 0?): 0
+            Unknown (byte: always 2?): 2
+            Article index at start of record or first article index, relative to parent section (fvwi): 4 [5 absolute]
+            Remaining bytes: b8 c4 3
+
+        Starting record with three section transitions::
+
+            Record #1: Starts at: 0 Ends at: 4095
+                Contains: 10 index entries (0 ends, 7 complete, 3 starts)
+            TBS bytes: 86 80 2 c0 b8 c0 b8 c4 4
+                Complete:
+                    Index Entry: 1 (Parent index: 0, Depth: 1, Offset: 564, Size: 375) [Ars Technica]
+                    Index Entry: 2 (Parent index: 0, Depth: 1, Offset: 939, Size: 316) [Neowin.net]
+                    Index Entry: 5 (Parent index: 1, Depth: 2, Offset: 572, Size: 367) [Week in gaming: 3DS review, Crysis 2, George Hotz]
+                    Index Entry: 6 (Parent index: 2, Depth: 2, Offset: 947, Size: 308) [Max and the Magic Marker for iPad: Review]
+                    Index Entry: 7 (Parent index: 3, Depth: 2, Offset: 1263, Size: 760) [OSnews Asks on Interrupts: The Results]
+                    Index Entry: 8 (Parent index: 3, Depth: 2, Offset: 2023, Size: 693) [Apple Ditches SAMBA in Favour of Homegrown Replacement]
+                    Index Entry: 9 (Parent index: 3, Depth: 2, Offset: 2716, Size: 747) [ITC: Apple's Mobile Products Do Not Violate Nokia Patents]
+                Starts:
+                    Index Entry: 0 (Parent index: -1, Depth: 0, Offset: 215, Size: 25320) [j_x's Google reader]
+                    Index Entry: 3 (Parent index: 0, Depth: 1, Offset: 1255, Size: 6829) [OSNews]
+                    Index Entry: 10 (Parent index: 3, Depth: 2, Offset: 3463, Size: 666) [Transparent Monitor Embedded in Window Glass]
+            TBS Type: 110 (6)
+            Outer Index entry: 0
+            Unknown (vwi: always 0?): 0
+            Unknown (byte: always 2?): 2
+            Article index at start of record or first article index, relative to parent section (fvwi): 4 [5 absolute]
+            Remaining bytes: b8 c0 b8 c4 4
+
+
+
+
 
 Records with no nodes
 ------------------------
+
+subtype = 010
 
 These records are spanned by a single article. They are of two types:
 
@@ -247,7 +311,7 @@ In such a record there is a transition from one section to the next. As such the
         Last article of ending section w.r.t. starting section offset (fvwi): 12 [15 absolute]
         Flags (always 8?): 8
         Article index at start of record or first article index, relative to parent section (fvwi): 13 [16 absolute]
-        Number of article nodes in the record (byte): 4
+        Number of article nodes in the record belonging ot the last section (byte): 4
 
 
 Ending record
@@ -273,4 +337,27 @@ Logically, ending records must have at least one article ending, one section end
     Number of nodes (byte): 2
 
 If the record had only a single article end, the last two bytes would be replaced with: f0
+
+If the last record has multiple section transitions, it is of type 6 and looks like::
+
+    Record #9: Starts at: 32768 Ends at: 34953
+        Contains: 9 index entries (3 ends, 6 complete, 0 starts)
+    TBS bytes: 86 80 2 1 d0 1 c8 1 d0 1 c8 1 d0 1 c8 1 d0
+        Ends:
+            Index Entry: 0 (Parent index: -1, Depth: 0, Offset: 215, Size: 34739) [j_x's Google reader]
+            Index Entry: 1 (Parent index: 0, Depth: 1, Offset: 7758, Size: 26279) [Ars Technica]
+            Index Entry: 14 (Parent index: 1, Depth: 2, Offset: 31929, Size: 2108) [Trademarked keyword sales may soon be restricted in Europe]
+        Complete:
+            Index Entry: 2 (Parent index: 0, Depth: 1, Offset: 34037, Size: 316) [Neowin.net]
+            Index Entry: 3 (Parent index: 0, Depth: 1, Offset: 34353, Size: 282) [OSNews]
+            Index Entry: 4 (Parent index: 0, Depth: 1, Offset: 34635, Size: 319) [Slashdot]
+            Index Entry: 15 (Parent index: 2, Depth: 2, Offset: 34045, Size: 308) [Max and the Magic Marker for iPad: Review]
+            Index Entry: 16 (Parent index: 3, Depth: 2, Offset: 34361, Size: 274) [OSnews Asks on Interrupts: The Results]
+            Index Entry: 17 (Parent index: 4, Depth: 2, Offset: 34643, Size: 311) [Leonard Nimoy Turns 80]
+    TBS Type: 110 (6)
+    Outer Index entry: 0
+    Unknown (vwi: always 0?): 0
+    Unknown (byte: always 2?): 2
+    Article index at start of record or first article index, relative to parent section (fvwi): 13 [14 absolute]
+    Remaining bytes: 1 c8 1 d0 1 c8 1 d0 1 c8 1 d0
 
