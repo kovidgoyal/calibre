@@ -191,7 +191,7 @@ def encode_trailing_data(raw):
         <data><size>
 
     where size is a backwards encoded vwi whose value is the length of the
-    entire return bytestring.
+    entire returned bytestring. data is the bytestring passed in as raw.
 
     This is the encoding used for trailing data entries at the end of text
     records. See get_trailing_data() for details.

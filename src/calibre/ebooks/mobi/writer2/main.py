@@ -99,7 +99,7 @@ class MobiWriter(object):
             for i in xrange(len(self.records)):
                 if i == 0: continue
                 tbs = self.indexer.get_trailing_byte_sequence(i)
-                self.records[i] += tbs
+                self.records[i] += encode_trailing_data(tbs)
             self.records.extend(self.indexer.records)
 
     @property
@@ -212,15 +212,15 @@ class MobiWriter(object):
             if self.compression == PALMDOC:
                 data = compress_doc(data)
             record = StringIO()
-            record.write(data)
 
-            self.records.append(record.getvalue())
             nrecords += 1
             data, overlap = self.read_text_record(text)
+            record.write(data)
 
-            # Write information about the mutibyte character overlap, if any
+            # Write information about the multibyte character overlap, if any
             record.write(overlap)
             record.write(pack(b'>B', len(overlap)))
+            self.records.append(record.getvalue())
 
         self.last_text_record_idx = nrecords
 

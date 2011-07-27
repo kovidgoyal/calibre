@@ -844,6 +844,7 @@ class TextRecord(object): # {{{
 
     def __init__(self, idx, record, extra_data_flags, decompress):
         self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
+        raw_trailing_bytes = record.raw[len(self.raw):]
         self.raw = decompress(self.raw)
         if 0 in self.trailing_data:
             self.trailing_data['multibyte_overlap'] = self.trailing_data.pop(0)
@@ -851,6 +852,7 @@ class TextRecord(object): # {{{
             self.trailing_data['indexing'] = self.trailing_data.pop(1)
         if 2 in self.trailing_data:
             self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
+        self.trailing_data['raw_bytes'] = raw_trailing_bytes
 
         self.idx = idx
 

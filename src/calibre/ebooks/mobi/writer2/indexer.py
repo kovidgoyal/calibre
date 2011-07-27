@@ -14,7 +14,7 @@ from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.writer2 import RECORD_SIZE
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
-        encode_trailing_data, encode_tbs, align_block, utf8_text)
+        encode_tbs, align_block, utf8_text)
 
 
 class CNCX(object): # {{{
@@ -198,7 +198,7 @@ class TBS(object): # {{{
                     # This can happen if a record contains only text between
                     # the periodical start and the first section
                     byts = self.type_011
-                self.bytestring = encode_trailing_data(byts)
+                self.bytestring = byts
             else:
                 depth_map = defaultdict(list)
                 for x in ('starts', 'ends', 'completes'):
@@ -209,7 +209,7 @@ class TBS(object): # {{{
                 self.periodical_tbs(data, first, depth_map)
         else:
             if not data:
-                self.bytestring = encode_trailing_data(b'')
+                self.bytestring = b''
             else:
                 self.book_tbs(data, first)
 
@@ -302,10 +302,10 @@ class TBS(object): # {{{
             buf.write(encode_tbs(spanner.index - parent_section_index,
                 {0b0001: 0}))
 
-        self.bytestring = encode_trailing_data(buf.getvalue())
+        self.bytestring = buf.getvalue()
 
     def book_tbs(self, data, first):
-        self.bytestring = encode_trailing_data(b'')
+        self.bytestring = b''
 # }}}
 
 class Indexer(object): # {{{
