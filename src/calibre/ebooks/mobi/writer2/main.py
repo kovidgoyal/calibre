@@ -29,7 +29,6 @@ EXTH_CODES = {
     'identifier': 104,
     'subject': 105,
     'pubdate': 106,
-    'date': 106,
     'review': 107,
     'contributor': 108,
     'rights': 109,
@@ -479,16 +478,17 @@ class MobiWriter(object):
         nrecs += 1
 
         # Write cdetype
-        if not self.opts.mobi_periodical:
+        if (self.primary_index_record_idx is None or not
+                self.indexer.is_periodical):
             data = b'EBOK'
             exth.write(pack(b'>II', 501, len(data)+8))
             exth.write(data)
             nrecs += 1
 
         # Add a publication date entry
-        if oeb.metadata['date'] != [] :
+        if oeb.metadata['date']:
             datestr = str(oeb.metadata['date'][0])
-        elif oeb.metadata['timestamp'] != [] :
+        elif oeb.metadata['timestamp']:
             datestr = str(oeb.metadata['timestamp'][0])
 
         if datestr is not None:

@@ -182,6 +182,7 @@ class EXTHHeader(object):
         self.records = []
         for i in xrange(self.count):
             pos = self.read_record(pos)
+        self.records.sort(key=lambda x:x.type)
 
     def read_record(self, pos):
         type_, length = struct.unpack(b'>II', self.raw[pos:pos+8])
