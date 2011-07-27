@@ -11,6 +11,7 @@ import struct
 from collections import OrderedDict
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
+from calibre.ebooks import normalize
 
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
 
@@ -39,7 +40,10 @@ def encode_number_as_hex(num):
     The bytes that follow are simply the hexadecimal representation of the
     number.
     '''
-    num = bytes(hex(num)[2:])
+    num = bytes(hex(num)[2:].upper())
+    nlen = len(num)
+    if nlen % 2 != 0:
+        num = b'0'+num
     ans = bytearray(num)
     ans.insert(0, len(num))
     return bytes(ans)
@@ -65,11 +69,14 @@ def encint(value, forward=True):
     If forward is True the bytes returned are suitable for prepending to the
     output buffer, otherwise they must be append to the output buffer.
     '''
+    if value < 0:
+        raise ValueError('Cannot encode negative numbers as vwi')
     # Encode vwi
     byts = bytearray()
     while True:
         b = value & 0b01111111
         value >>= 7 # shift value to the right by 7 bits
+
         byts.append(b)
         if value == 0:
             break
@@ -184,7 +191,7 @@ def encode_trailing_data(raw):
         <data><size>
 
     where size is a backwards encoded vwi whose value is the length of the
-    entire return bytestring.
+    entire returned bytestring. data is the bytestring passed in as raw.
 
     This is the encoding used for trailing data entries at the end of text
     records. See get_trailing_data() for details.
@@ -196,4 +203,132 @@ def encode_trailing_data(raw):
             break
         lsize += 1
     return raw + encoded
+
+def encode_fvwi(val, flags, flag_size=4):
+    '''
+    Encode the value val and the flag_size bits from flags as a fvwi. This encoding is
+    used in the trailing byte sequences for indexing. Returns encoded
+    bytestring.
+    '''
+    ans = val << flag_size
+    for i in xrange(flag_size):
+        ans |= (flags & (1 << i))
+    return encint(ans)
+
+
+def decode_fvwi(byts, flag_size=4):
+    '''
+    Decode encoded fvwi. Returns number, flags, consumed
+    '''
+    arg, consumed = decint(bytes(byts))
+    val = arg >> flag_size
+    flags = 0
+    for i in xrange(flag_size):
+        flags |= (arg & (1 << i))
+    return val, flags, consumed
+
+
+def decode_tbs(byts, flag_size=4):
+    '''
+    Trailing byte sequences for indexing consists of series of fvwi numbers.
+    This function reads the fvwi number and its associated flags. It them uses
+    the flags to read any more numbers that belong to the series. The flags are
+    the lowest 4 bits of the vwi (see the encode_fvwi function above).
+
+    Returns the fvwi number, a dictionary mapping flags bits to the associated
+    data and the number of bytes consumed.
+    '''
+    byts = bytes(byts)
+    val, flags, consumed = decode_fvwi(byts, flag_size=flag_size)
+    extra = {}
+    byts = byts[consumed:]
+    if flags & 0b1000 and flag_size > 3:
+        extra[0b1000] = True
+    if flags & 0b0010:
+        x, consumed2 = decint(byts)
+        byts = byts[consumed2:]
+        extra[0b0010] = x
+        consumed += consumed2
+    if flags & 0b0100:
+        extra[0b0100] = ord(byts[0])
+        byts = byts[1:]
+        consumed += 1
+    if flags & 0b0001:
+        x, consumed2 = decint(byts)
+        byts = byts[consumed2:]
+        extra[0b0001] = x
+        consumed += consumed2
+    return val, extra, consumed
+
+def encode_tbs(val, extra, flag_size=4):
+    '''
+    Encode the number val and the extra data in the extra dict as an fvwi. See
+    decode_tbs above.
+    '''
+    flags = 0
+    for flag in extra:
+        flags |= flag
+    ans = encode_fvwi(val, flags, flag_size=flag_size)
+
+    if 0b0010 in extra:
+        ans += encint(extra[0b0010])
+    if 0b0100 in extra:
+        ans += bytes(bytearray([extra[0b0100]]))
+    if 0b0001 in extra:
+        ans += encint(extra[0b0001])
+    return ans
+
+def utf8_text(text):
+    '''
+    Convert a possibly null string to utf-8 bytes, guaranteeing to return a non
+    empty, normalized bytestring.
+    '''
+    if text and text.strip():
+        text = text.strip()
+        if not isinstance(text, unicode):
+            text = text.decode('utf-8', 'replace')
+        text = normalize(text).encode('utf-8')
+    else:
+        text = _('Unknown').encode('utf-8')
+    return text
+
+def align_block(raw, multiple=4, pad=b'\0'):
+    '''
+    Return raw with enough pad bytes append to ensure its length is a multiple
+    of 4.
+    '''
+    extra = len(raw) % multiple
+    if extra == 0: return raw
+    return raw + pad*(multiple - extra)
+
+
+def detect_periodical(toc, log=None):
+    '''
+    Detect if the TOC object toc contains a periodical that conforms to the
+    structure required by kindlegen to generate a periodical.
+    '''
+    for node in toc.iterdescendants():
+        if node.depth() == 1 and node.klass != 'article':
+            if log is not None:
+                log.debug(
+                'Not a periodical: Deepest node does not have '
+                'class="article"')
+            return False
+        if node.depth() == 2 and node.klass != 'section':
+            if log is not None:
+                log.debug(
+                'Not a periodical: Second deepest node does not have'
+                ' class="section"')
+            return False
+        if node.depth() == 3 and node.klass != 'periodical':
+            if log is not None:
+                log.debug('Not a periodical: Third deepest node'
+                    ' does not have class="periodical"')
+            return False
+        if node.depth() > 3:
+            if log is not None:
+                log.debug('Not a periodical: Has nodes of depth > 3')
+            return False
+    return True
+
 

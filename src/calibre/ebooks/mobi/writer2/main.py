@@ -20,6 +20,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
 from calibre.ebooks.mobi.utils import (rescale_image, encint,
         encode_trailing_data)
+from calibre.ebooks.mobi.writer2.indexer import Indexer
 
 EXTH_CODES = {
     'creator': 100,
@@ -28,7 +29,6 @@ EXTH_CODES = {
     'identifier': 104,
     'subject': 105,
     'pubdate': 106,
-    'date': 106,
     'review': 107,
     'contributor': 108,
     'rights': 109,
@@ -54,6 +54,7 @@ class MobiWriter(object):
         self.last_text_record_idx = 1
 
     def __call__(self, oeb, path_or_stream):
+        self.log = oeb.log
         if hasattr(path_or_stream, 'write'):
             return self.dump_stream(oeb, path_or_stream)
         with open(path_or_stream, 'w+b') as stream:
@@ -87,6 +88,25 @@ class MobiWriter(object):
     # Indexing {{{
     def generate_index(self):
         self.primary_index_record_idx = None
+        try:
+            self.indexer = Indexer(self.serializer, self.last_text_record_idx,
+                    len(self.records[self.last_text_record_idx]),
+                    self.opts, self.oeb)
+        except:
+            self.log.exception('Failed to generate MOBI index:')
+        else:
+            self.primary_index_record_idx = len(self.records)
+            for i in xrange(len(self.records)):
+                if i == 0: continue
+                tbs = self.indexer.get_trailing_byte_sequence(i)
+                self.records[i] += encode_trailing_data(tbs)
+            self.records.extend(self.indexer.records)
+
+    @property
+    def is_periodical(self):
+        return (self.primary_index_record_idx is None or not
+                self.indexer.is_periodical)
+
     # }}}
 
     def write_uncrossable_breaks(self): # {{{
@@ -178,7 +198,6 @@ class MobiWriter(object):
         self.serializer = Serializer(self.oeb, self.images,
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
-        self.content_length = len(text)
         self.text_length = len(text)
         text = StringIO(text)
         nrecords = 0
@@ -186,22 +205,16 @@ class MobiWriter(object):
         if self.compression != UNCOMPRESSED:
             self.oeb.logger.info('  Compressing markup content...')
 
-        data, overlap = self.read_text_record(text)
-
-        while len(data) > 0:
+        while text.tell() < self.text_length:
+            data, overlap = self.read_text_record(text)
             if self.compression == PALMDOC:
                 data = compress_doc(data)
-            record = StringIO()
-            record.write(data)
 
-            self.records.append(record.getvalue())
+            data += overlap
+            data += pack(b'>B', len(overlap))
+
+            self.records.append(data)
             nrecords += 1
-            data, overlap = self.read_text_record(text)
-
-            # Write information about the mutibyte character overlap, if any
-            record.write(overlap)
-            record.write(pack(b'>B', len(overlap)))
-
 
         self.last_text_record_idx = nrecords
 
@@ -262,10 +275,19 @@ class MobiWriter(object):
         exth = self.build_exth()
         last_content_record = len(self.records) - 1
 
-        # EOF record
-        self.records.append('\xE9\x8E\x0D\x0A')
+        # FCIS/FLIS (Seem to server no purpose)
+        flis_number = len(self.records)
+        self.records.append(
+            b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+
+            b'\xff'*4)
+        fcis = b'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x01\x00\x00\x00\x00'
+        fcis += pack(b'>I', self.text_length)
+        fcis += b'\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
+        fcis_number = len(self.records)
+        self.records.append(fcis)
 
-        self.generate_end_records()
+        # EOF record
+        self.records.append(b'\xE9\x8E\x0D\x0A')
 
         record0 = StringIO()
         # The MOBI Header
@@ -295,8 +317,15 @@ class MobiWriter(object):
         # 0x10 - 0x13 : UID
         # 0x14 - 0x17 : Generator version
 
+        bt = 0x002
+        if self.primary_index_record_idx is not None:
+            if self.indexer.is_flat_periodical:
+                bt = 0x102
+            elif self.indexer.is_periodical:
+                bt = 0x103
+
         record0.write(pack(b'>IIIII',
-            0xe8, 0x002, 65001, uid, 6))
+            0xe8, bt, 65001, uid, 6))
 
         # 0x18 - 0x1f : Unknown
         record0.write(b'\xff' * 8)
@@ -325,7 +354,8 @@ class MobiWriter(object):
         # 0x58 - 0x5b : Format version
         # 0x5c - 0x5f : First image record number
         record0.write(pack(b'>II',
-            6, self.first_image_record if self.first_image_record else 0))
+            6, self.first_image_record if self.first_image_record else
+            len(self.records)-1))
 
         # 0x60 - 0x63 : First HUFF/CDIC record number
         # 0x64 - 0x67 : Number of HUFF/CDIC records
@@ -334,7 +364,12 @@ class MobiWriter(object):
         record0.write(b'\0' * 16)
 
         # 0x70 - 0x73 : EXTH flags
-        record0.write(pack(b'>I', 0x50))
+        # Bit 6 (0b1000000) being set indicates the presence of an EXTH header
+        # The purpose of the other bits is unknown
+        exth_flags = 0b1011000
+        if self.is_periodical:
+            exth_flags |= 0b1000
+        record0.write(pack(b'>I', exth_flags))
 
         # 0x74 - 0x93 : Unknown
         record0.write(b'\0' * 32)
@@ -359,13 +394,13 @@ class MobiWriter(object):
         record0.write(b'\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
-        record0.write(pack(b'>I', 0xffffffff))
+        record0.write(pack(b'>I', fcis_number))
 
         # 0xbc - 0xbf : Unknown (FCIS record count?)
-        record0.write(pack(b'>I', 0xffffffff))
+        record0.write(pack(b'>I', 1))
 
         # 0xc0 - 0xc3 : FLIS record number
-        record0.write(pack(b'>I', 0xffffffff))
+        record0.write(pack(b'>I', flis_number))
 
         # 0xc4 - 0xc7 : Unknown (FLIS record count?)
         record0.write(pack(b'>I', 1))
@@ -457,24 +492,32 @@ class MobiWriter(object):
         nrecs += 1
 
         # Write cdetype
-        if not self.opts.mobi_periodical:
+        if self.is_periodical:
             data = b'EBOK'
             exth.write(pack(b'>II', 501, len(data)+8))
             exth.write(data)
             nrecs += 1
 
         # Add a publication date entry
-        if oeb.metadata['date'] != [] :
+        if oeb.metadata['date']:
             datestr = str(oeb.metadata['date'][0])
-        elif oeb.metadata['timestamp'] != [] :
+        elif oeb.metadata['timestamp']:
             datestr = str(oeb.metadata['timestamp'][0])
 
         if datestr is not None:
+            datestr = bytes(datestr)
+            datestr = datestr.replace(b'+00:00', b'Z')
             exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
             exth.write(datestr)
             nrecs += 1
         else:
             raise NotImplementedError("missing date or timestamp needed for mobi_periodical")
+
+        # Write the same creator info as kindlegen 1.2
+        for code, val in [(204, 202), (205, 1), (206, 2), (207, 33307)]:
+            exth.write(pack(b'>II', code, 12))
+            exth.write(pack(b'>I', val))
+            nrecs += 1
 
         if (oeb.metadata.cover and
                 unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
