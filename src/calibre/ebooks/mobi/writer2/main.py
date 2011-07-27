@@ -102,6 +102,10 @@ class MobiWriter(object):
                 self.records[i] += tbs
             self.records.extend(self.indexer.records)
 
+    @property
+    def is_periodical(self):
+        return (self.primary_index_record_idx is None or not
+                self.indexer.is_periodical)
 
     # }}}
 
@@ -277,6 +281,17 @@ class MobiWriter(object):
         exth = self.build_exth()
         last_content_record = len(self.records) - 1
 
+        # FCIS/FLIS (Seem to server no purpose)
+        flis_number = len(self.records)
+        self.records.append(
+            b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+
+            b'\xff'*4)
+        fcis = b'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x01\x00\x00\x00\x00'
+        fcis += pack(b'>I', self.text_length)
+        fcis += b'\x00\x00\x00\x00\x00\x00\x00\x20\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
+        fcis_number = len(self.records)
+        self.records.append(fcis)
+
         # EOF record
         self.records.append(b'\xE9\x8E\x0D\x0A')
 
@@ -355,7 +370,12 @@ class MobiWriter(object):
         record0.write(b'\0' * 16)
 
         # 0x70 - 0x73 : EXTH flags
-        record0.write(pack(b'>I', 0x50))
+        # Bit 6 (0b1000000) being set indicates the presence of an EXTH header
+        # The purpose of the other bits is unknown
+        exth_flags = 0b1011000
+        if self.is_periodical:
+            exth_flags |= 0b1000
+        record0.write(pack(b'>I', exth_flags))
 
         # 0x74 - 0x93 : Unknown
         record0.write(b'\0' * 32)
@@ -380,13 +400,13 @@ class MobiWriter(object):
         record0.write(b'\0\0\0\x01')
 
         # 0xb8 - 0xbb : FCIS record number
-        record0.write(pack(b'>I', 0xffffffff))
+        record0.write(pack(b'>I', fcis_number))
 
         # 0xbc - 0xbf : Unknown (FCIS record count?)
-        record0.write(pack(b'>I', 0xffffffff))
+        record0.write(pack(b'>I', 1))
 
         # 0xc0 - 0xc3 : FLIS record number
-        record0.write(pack(b'>I', 0xffffffff))
+        record0.write(pack(b'>I', flis_number))
 
         # 0xc4 - 0xc7 : Unknown (FLIS record count?)
         record0.write(pack(b'>I', 1))
@@ -478,8 +498,7 @@ class MobiWriter(object):
         nrecs += 1
 
         # Write cdetype
-        if (self.primary_index_record_idx is None or not
-                self.indexer.is_periodical):
+        if self.is_periodical:
             data = b'EBOK'
             exth.write(pack(b'>II', 501, len(data)+8))
             exth.write(data)

@@ -345,7 +345,7 @@ class MOBIHeader(object): # {{{
         ans.append('Huffman record offset: %d'%self.huffman_record_offset)
         ans.append('Huffman record count: %d'%self.huffman_record_count)
         ans.append('Unknown2: %r'%self.unknown2)
-        ans.append('EXTH flags: %r (%s)'%(self.exth_flags, self.has_exth))
+        ans.append('EXTH flags: %s (%s)'%(bin(self.exth_flags)[2:], self.has_exth))
         if self.has_drm_data:
             ans.append('Unknown3: %r'%self.unknown3)
             ans.append('DRM Offset: %s'%self.drm_offset)
