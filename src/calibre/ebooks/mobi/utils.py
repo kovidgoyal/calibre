@@ -302,28 +302,32 @@ def align_block(raw, multiple=4, pad=b'\0'):
     return raw + pad*(multiple - extra)
 
 
-def detect_periodical(toc, log):
+def detect_periodical(toc, log=None):
     '''
     Detect if the TOC object toc contains a periodical that conforms to the
     structure required by kindlegen to generate a periodical.
     '''
     for node in toc.iterdescendants():
         if node.depth() == 1 and node.klass != 'article':
-            log.debug(
+            if log is not None:
+                log.debug(
                 'Not a periodical: Deepest node does not have '
                 'class="article"')
             return False
         if node.depth() == 2 and node.klass != 'section':
-            log.debug(
+            if log is not None:
+                log.debug(
                 'Not a periodical: Second deepest node does not have'
                 ' class="section"')
             return False
         if node.depth() == 3 and node.klass != 'periodical':
-            log.debug('Not a periodical: Third deepest node'
+            if log is not None:
+                log.debug('Not a periodical: Third deepest node'
                     ' does not have class="periodical"')
             return False
         if node.depth() > 3:
-            log.debug('Not a periodical: Has nodes of depth > 3')
+            if log is not None:
+                log.debug('Not a periodical: Has nodes of depth > 3')
             return False
     return True
 
