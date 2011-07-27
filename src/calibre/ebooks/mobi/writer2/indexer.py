@@ -224,6 +224,8 @@ class TBS(object): # {{{
 
         if depth_map[0]:
             # We have a terminal record
+
+            # Find the first non periodical node
             first_node = None
             for nodes in (depth_map[1], depth_map[2]):
                 for node in nodes:
@@ -232,10 +234,17 @@ class TBS(object): # {{{
                         first_node = node
 
             typ = (self.type_110 if has_section_start else self.type_010)
+
+            # parent_section_index is needed for the last record
             if first_node is not None and first_node.depth > 0:
                 parent_section_index = (first_node.index if first_node.depth
                         == 1 else first_node.parent_index)
+            else:
+                parent_section_index = max(self.section_map.iterkeys())
+
         else:
+            # Non terminal record
+
             if spanner is not None:
                 # record is spanned by a single article
                 parent_section_index = spanner.parent_index
