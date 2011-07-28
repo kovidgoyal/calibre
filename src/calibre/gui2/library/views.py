@@ -477,6 +477,8 @@ class BooksView(QTableView): # {{{
         # arbitrary: scroll bar + header + some
         max_width = self.width() - (self.verticalScrollBar().width() +
                                     self.verticalHeader().width() + 10)
+        if max_width < 200:
+            max_width = 200
         if new_size > max_width:
             self.column_header.blockSignals(True)
             self.setColumnWidth(col, max_width)
