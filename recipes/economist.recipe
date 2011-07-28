@@ -22,7 +22,8 @@ class Economist(BasicNewsRecipe):
             ' perspective. Best downloaded on Friday mornings (GMT)')
     extra_css      = '.headline {font-size: x-large;} \n h2 { font-size: small;  } \n h1 { font-size: medium;  }'
     oldest_article = 7.0
-    cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
+    cover_url = 'http://media.economist.com/sites/default/files/imagecache/print-cover-thumbnail/print-covers/currentcoverus_large.jpg'
+    #cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk', 'ec-article-info', 'share_inline_header']}),
