@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-21 08:31+0000\n"
+"PO-Revision-Date: 2011-07-27 06:39+0000\n"
 "Last-Translator: Nader stouhy <Unknown>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2011-07-23 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-07-28 04:32+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:182
@@ -8690,7 +8690,7 @@ msgstr "و التقييم"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:532
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1034
 msgid "Rating of this book. 0-5 stars"
-msgstr ""
+msgstr "تصنيف هذا الكتاب. 0-5 نجوم"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:533
 msgid "No change"
@@ -11278,7 +11278,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1041
 msgid "stars"
-msgstr ""
+msgstr "نجمة"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1110
 msgid "Tags changed"
@@ -12117,7 +12117,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:41
 msgid "Ratings, shown with stars"
-msgstr ""
+msgstr "تقييمات، كما هو موضح مع النجوم"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:44
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:69
@@ -16734,7 +16734,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:164
 #, python-format
 msgid "%d stars"
-msgstr ""
+msgstr "%d النجوم"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:257
 msgid "Popularity"
@@ -16811,7 +16811,7 @@ msgstr "رابط دائم"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:769
 msgid "A permanent link to this book"
-msgstr ""
+msgstr "وصلة دائمة لهذا الكتاب"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:781
 msgid "This book has been deleted"
@@ -16819,7 +16819,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:869
 msgid "in search"
-msgstr ""
+msgstr "في البحث"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:871
 msgid "Matching books"
