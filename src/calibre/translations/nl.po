@@ -14016,7 +14016,7 @@ msgstr "Alles ops&chonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:125
 msgid "&Select default"
-msgstr "Standaard %selecteren"
+msgstr "Standaard &selecteren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:126
 msgid ""
