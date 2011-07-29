@@ -373,7 +373,7 @@ class Win32Freeze(Command, WixMixIn):
         src = self.j(self.src_root, 'setup', 'installer', 'windows',
                 'portable.c')
         obj = self.j(self.obj_dir, self.b(src)+'.obj')
-        cflags  = '/c /EHsc /MT /W3 /Ox /nologo /D_UNICODE'.split()
+        cflags  = '/c /EHsc /MT /W3 /Ox /nologo /D_UNICODE /DUNICODE'.split()
 
         if self.newer(obj, [src]):
             self.info('Compiling', obj)

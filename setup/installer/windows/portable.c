@@ -2,8 +2,14 @@
 #define UNICODE
 #endif 
 
+#ifndef _UNICODE
+#define _UNICODE
+#endif 
+
+
 #include <windows.h>
 #include <tchar.h>
+#include <wchar.h>
 #include <stdio.h>
 
 #define BUFSIZE 4096
@@ -32,7 +38,7 @@ void show_last_error_crt(LPCTSTR preamble) {
     int err = 0;
 
     _get_errno(&err);
-    _wcserror_s(buf, BUFSIZE, err);
+    _tcserror_s(buf, BUFSIZE, err);
     show_detailed_error(preamble, buf, err);
 }
 
