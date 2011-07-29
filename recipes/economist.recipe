@@ -70,7 +70,8 @@ class Economist(BasicNewsRecipe):
     def economist_parse_index(self):
         soup = self.index_to_soup(self.INDEX)
         feeds = OrderedDict()
-        for section in soup.findAll(attrs={'class':'section'}):
+        for section in soup.findAll(attrs={'class':lambda x: x and 'section' in
+            x}):
             h4 = section.find('h4')
             if h4 is None:
                 continue
@@ -93,6 +94,19 @@ class Economist(BasicNewsRecipe):
                 article_title += ': %s'%self.tag_to_string(a).strip()
                 articles.append({'title':article_title, 'url':url,
                     'description':'', 'date':''})
+            if not articles:
+                # We have last or first section
+                for art in section.findAll(attrs={'class':'article'}):
+                    a = art.find('a', href=True)
+                    if a is not None:
+                        url = a['href']
+                        if url.startswith('/'): url = 'http://www.economist.com'+url
+                        url += '/print'
+                        title = self.tag_to_string(a)
+                        if title:
+                            articles.append({'title':title, 'url':url,
+                            'description':'', 'date':''})
+
             if articles:
                 feeds[section_title] = articles
 
