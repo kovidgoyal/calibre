@@ -50,12 +50,14 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('When adding the Table of Contents to the book, add it at the start of the '
                 'book instead of the end. Not recommended.')
         ),
+        '''
         OptionRecommendation(name='kindlegen',
             recommended_value=False,
-            help=_('Use kindlegen (must be in your PATH) to generate the'
+            help=('Use kindlegen (must be in your PATH) to generate the'
                 ' binary wrapper for the MOBI format. Useful to debug '
                 ' the calibre MOBI output.')
         ),
+        '''
 
     ])
 

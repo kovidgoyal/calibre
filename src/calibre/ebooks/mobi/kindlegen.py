@@ -19,7 +19,7 @@ from calibre import CurrentDir
 
 exe = 'kindlegen.exe' if iswindows else 'kindlegen'
 
-def refactor_opf(opf, is_periodical):
+def refactor_opf(opf, is_periodical, toc):
     with open(opf, 'rb') as f:
         root = etree.fromstring(f.read())
     if is_periodical:
@@ -27,11 +27,11 @@ def refactor_opf(opf, is_periodical):
         xm = etree.SubElement(metadata, 'x-metadata')
         xm.tail = '\n'
         xm.text = '\n\t'
-        mobip = etree.SubElement(xm, attrib={'encoding':"utf-8",
+        mobip = etree.SubElement(xm, 'output', attrib={'encoding':"utf-8",
             'content-type':"application/x-mobipocket-subscription-magazine"})
         mobip.tail = '\n'
     with open(opf, 'wb') as f:
-        f.write(etree.tostring(root, method='xml', encodin='utf-8',
+        f.write(etree.tostring(root, method='xml', encoding='utf-8',
             xml_declaration=True))
 
 
@@ -43,7 +43,7 @@ def refactor_guide(oeb):
 def run_kindlegen(opf, log):
     log.info('Running kindlegen on MOBIML created by calibre')
     oname = os.path.splitext(opf)[0] + '.mobi'
-    with tempfile.NamedTemporaryFile('_kindlegen_output.txt') as tfile:
+    with tempfile.NamedTemporaryFile(suffix='_kindlegen_output.txt') as tfile:
         p = subprocess.Popen([exe, opf, '-c1', '-verbose', '-o', oname],
             stderr=subprocess.STDOUT, stdout=tfile)
         returncode = p.wait()
@@ -63,11 +63,7 @@ def kindlegen(oeb, opts, input_plugin, output_path):
         oeb_output = plugin_for_output_format('oeb')
         oeb_output.convert(oeb, tdir, input_plugin, opts, oeb.log)
         opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
-        refactor_opf(opf, is_periodical)
-        with CurrentDir(tdir):
-            oname = run_kindlegen(opf, oeb.log)
-            shutil.copyfile(oname, output_path)
-
+        refactor_opf(os.path.join(tdir, opf), is_periodical, oeb.toc)
         try:
             if os.path.exists('/tmp/kindlegen'):
                 shutil.rmtree('/tmp/kindlegen')
@@ -75,4 +71,9 @@ def kindlegen(oeb, opts, input_plugin, output_path):
             oeb.log('kindlegen intermediate output stored in: /tmp/kindlegen')
         except:
             pass
+
+        with CurrentDir(tdir):
+            oname = run_kindlegen(opf, oeb.log)
+            shutil.copyfile(oname, output_path)
+
 
