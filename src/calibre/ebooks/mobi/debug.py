@@ -1065,7 +1065,7 @@ class TBSIndexing(object): # {{{
                 if eof != 0:
                     raise ValueError('Unknown eof value %s when reading'
                             ' starting section. All bytes: %r'%(eof, orig))
-                ans.append('This record is spanned by an article from'
+                ans.append('??This record has more than one article from '
                         ' the section: %d'%si.index)
             return si, byts
         # }}}

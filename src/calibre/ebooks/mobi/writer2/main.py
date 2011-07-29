@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
 from calibre.ebooks.mobi.utils import (rescale_image, encint,
-        encode_trailing_data)
+        encode_trailing_data, align_block)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
 
 EXTH_CODES = {
@@ -434,7 +434,7 @@ class MobiWriter(object):
         # Add some buffer so that Amazon can add encryption information if this
         # MOBI is submitted for publication
         record0 += (b'\0' * (1024*8))
-        self.records[0] = record0
+        self.records[0] = align_block(record0)
     # }}}
 
     def build_exth(self): # EXTH Header {{{
