@@ -386,6 +386,7 @@ class Win32Freeze(Command, WixMixIn):
             cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:X86',
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
                     '/RELEASE',
+                    '/ENTRY:wWinMainCRTStartup',
                     '/OUT:'+exe, self.embed_resources(exe),
                     obj, 'User32.lib']
             self.run_builder(cmd)
