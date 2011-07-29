@@ -73,7 +73,7 @@ class PalmDB(object):
         self.ident = self.type + self.creator
         if self.ident not in (b'BOOKMOBI', b'TEXTREAD'):
             raise ValueError('Unknown book ident: %r'%self.ident)
-        self.uid_seed = self.raw[68:72]
+        self.uid_seed, = struct.unpack(b'>I', self.raw[68:72])
         self.next_rec_list_id = self.raw[72:76]
 
         self.number_of_records, = struct.unpack(b'>H', self.raw[76:78])
@@ -182,6 +182,7 @@ class EXTHHeader(object):
         self.records = []
         for i in xrange(self.count):
             pos = self.read_record(pos)
+        self.records.sort(key=lambda x:x.type)
 
     def read_record(self, pos):
         type_, length = struct.unpack(b'>II', self.raw[pos:pos+8])
@@ -290,7 +291,12 @@ class MOBIHeader(object): # {{{
             (self.fcis_number, self.fcis_count, self.flis_number,
                     self.flis_count) = struct.unpack(b'>IIII',
                             self.raw[200:216])
-            self.unknown6 = self.raw[216:240]
+            self.unknown6 = self.raw[216:224]
+            self.srcs_record_index = struct.unpack(b'>I',
+                self.raw[224:228])[0]
+            self.num_srcs_records = struct.unpack(b'>I',
+                self.raw[228:232])[0]
+            self.unknown7 = self.raw[232:240]
             self.extra_data_flags = struct.unpack(b'>I',
                 self.raw[240:244])[0]
             self.has_multibytes = bool(self.extra_data_flags & 0b1)
@@ -339,7 +345,7 @@ class MOBIHeader(object): # {{{
         ans.append('Huffman record offset: %d'%self.huffman_record_offset)
         ans.append('Huffman record count: %d'%self.huffman_record_count)
         ans.append('Unknown2: %r'%self.unknown2)
-        ans.append('EXTH flags: %r (%s)'%(self.exth_flags, self.has_exth))
+        ans.append('EXTH flags: %s (%s)'%(bin(self.exth_flags)[2:], self.has_exth))
         if self.has_drm_data:
             ans.append('Unknown3: %r'%self.unknown3)
             ans.append('DRM Offset: %s'%self.drm_offset)
@@ -356,6 +362,9 @@ class MOBIHeader(object): # {{{
             ans.append('FLIS number: %d'% self.flis_number)
             ans.append('FLIS count: %d'% self.flis_count)
             ans.append('Unknown6: %r'% self.unknown6)
+            ans.append('SRCS record index: %d'%self.srcs_record_index)
+            ans.append('Number of SRCS records?: %d'%self.num_srcs_records)
+            ans.append('Unknown7: %r'%self.unknown7)
             ans.append(('Extra data flags: %s (has multibyte: %s) '
                 '(has indexing: %s) (has uncrossable breaks: %s)')%(
                     bin(self.extra_data_flags), self.has_multibytes,
@@ -416,12 +425,7 @@ class IndexHeader(object): # {{{
         if self.index_encoding == 'unknown':
             raise ValueError(
                 'Unknown index encoding: %d'%self.index_encoding_num)
-        self.locale_raw, = struct.unpack(b'>I', raw[32:36])
-        langcode = self.locale_raw
-        langid    = langcode & 0xFF
-        sublangid = (langcode >> 10) & 0xFF
-        self.language = main_language.get(langid, 'ENGLISH')
-        self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
+        self.possibly_language = raw[32:36]
         self.num_index_entries, = struct.unpack('>I', raw[36:40])
         self.ordt_start, = struct.unpack('>I', raw[40:44])
         self.ligt_start, = struct.unpack('>I', raw[44:48])
@@ -481,8 +485,7 @@ class IndexHeader(object): # {{{
         a('Number of index records: %d'%self.index_count)
         a('Index encoding: %s (%d)'%(self.index_encoding,
                 self.index_encoding_num))
-        a('Index language: %s - %s (%s)'%(self.language, self.sublanguage,
-            hex(self.locale_raw)))
+        a('Unknown (possibly language?): %r'%(self.possibly_language))
         a('Number of index entries: %d'% self.num_index_entries)
         a('ORDT start: %d'%self.ordt_start)
         a('LIGT start: %d'%self.ligt_start)
@@ -602,6 +605,9 @@ class IndexEntry(object): # {{{
         self.raw = raw
         self.tags = []
         self.entry_type_raw = entry_type
+        self.byte_size = len(raw)
+
+        orig_raw = raw
 
         try:
             self.entry_type = self.TYPES[entry_type]
@@ -639,8 +645,8 @@ class IndexEntry(object): # {{{
                     self.tags.append(Tag(aut_tag[0], [val], self.entry_type,
                         cncx))
 
-        if raw.replace(b'\x00', b''): # There can be padding null bytes
-            raise ValueError('Extra bytes in INDX table entry %d: %r'%(self.index, raw))
+        self.consumed = len(orig_raw) - len(raw)
+        self.trailing_bytes = raw
 
     @property
     def label(self):
@@ -692,13 +698,16 @@ class IndexEntry(object): # {{{
         return -1
 
     def __str__(self):
-        ans = ['Index Entry(index=%s, entry_type=%s (%s), length=%d)'%(
-            self.index, self.entry_type, bin(self.entry_type_raw)[2:], len(self.tags))]
+        ans = ['Index Entry(index=%s, entry_type=%s (%s), length=%d, byte_size=%d)'%(
+            self.index, self.entry_type, bin(self.entry_type_raw)[2:],
+            len(self.tags), self.byte_size)]
         for tag in self.tags:
             ans.append('\t'+str(tag))
         if self.first_child_index != -1:
             ans.append('\tNumber of children: %d'%(self.last_child_index -
                 self.first_child_index + 1))
+        if self.trailing_bytes:
+            ans.append('\tTrailing bytes: %r'%self.trailing_bytes)
         return '\n'.join(ans)
 
 # }}}
@@ -742,6 +751,7 @@ class IndexRecord(object): # {{{
             raise ValueError('Extra bytes after IDXT table: %r'%rest)
 
         indxt = raw[192:self.idxt_offset]
+        self.size_of_indxt_block = len(indxt)
         self.indices = []
         for i, off in enumerate(self.index_offsets):
             try:
@@ -754,10 +764,14 @@ class IndexRecord(object): # {{{
             if index_header.index_type == 6:
                 flags = ord(indxt[off+consumed+d])
                 d += 1
+            pos = off+consumed+d
             self.indices.append(IndexEntry(index, entry_type,
-                indxt[off+consumed+d:next_off], cncx,
+                indxt[pos:next_off], cncx,
                 index_header.tagx_entries, flags=flags))
-            index = self.indices[-1]
+
+        rest = indxt[pos+self.indices[-1].consumed:]
+        if rest.replace(b'\0', ''): # There can be padding null bytes
+            raise ValueError('Extra bytes after IDXT table: %r'%rest)
 
     def get_parent(self, index):
         if index.depth < 1:
@@ -778,12 +792,13 @@ class IndexRecord(object): # {{{
         u(self.unknown1)
         a('Unknown (header type? index record number? always 1?): %d'%self.header_type)
         u(self.unknown2)
-        a('IDXT Offset: %d'%self.idxt_offset)
+        a('IDXT Offset (%d block size): %d'%(self.size_of_indxt_block,
+            self.idxt_offset))
         a('IDXT Count: %d'%self.idxt_count)
         u(self.unknown3)
         u(self.unknown4)
         a('Index offsets: %r'%self.index_offsets)
-        a('\nIndex Entries:')
+        a('\nIndex Entries (%d entries):'%len(self.indices))
         for entry in self.indices:
             a(str(entry)+'\n')
 
@@ -829,6 +844,7 @@ class TextRecord(object): # {{{
 
     def __init__(self, idx, record, extra_data_flags, decompress):
         self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
+        raw_trailing_bytes = record.raw[len(self.raw):]
         self.raw = decompress(self.raw)
         if 0 in self.trailing_data:
             self.trailing_data['multibyte_overlap'] = self.trailing_data.pop(0)
@@ -836,6 +852,7 @@ class TextRecord(object): # {{{
             self.trailing_data['indexing'] = self.trailing_data.pop(1)
         if 2 in self.trailing_data:
             self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
+        self.trailing_data['raw_bytes'] = raw_trailing_bytes
 
         self.idx = idx
 
@@ -957,15 +974,17 @@ class TBSIndexing(object): # {{{
             return str({bin4(k):v for k, v in extra.iteritems()})
 
         tbs_type = 0
+        is_periodical = self.doc_type in (257, 258, 259)
         if len(byts):
-            outermost_index, extra, consumed = decode_tbs(byts)
+            outermost_index, extra, consumed = decode_tbs(byts, flag_size=4 if
+                    is_periodical else 3)
             byts = byts[consumed:]
             for k in extra:
                 tbs_type |= k
             ans.append('\nTBS: %d (%s)'%(tbs_type, bin4(tbs_type)))
             ans.append('Outermost index: %d'%outermost_index)
             ans.append('Unknown extra start bytes: %s'%repr_extra(extra))
-            if self.doc_type in (257, 259): # Hierarchical periodical
+            if is_periodical: # Hierarchical periodical
                 byts, a = self.interpret_periodical(tbs_type, byts,
                         dat['geom'][0])
                 ans += a
@@ -1028,6 +1047,7 @@ class TBSIndexing(object): # {{{
         # }}}
 
         def read_starting_section(byts): # {{{
+            orig = byts
             si, extra, consumed = decode_tbs(byts)
             byts = byts[consumed:]
             if len(extra) > 1 or 0b0010 in extra or 0b1000 in extra:
@@ -1044,8 +1064,8 @@ class TBSIndexing(object): # {{{
                 eof = extra[0b0001]
                 if eof != 0:
                     raise ValueError('Unknown eof value %s when reading'
-                            ' starting section'%eof)
-                ans.append('This record is spanned by an article from'
+                            ' starting section. All bytes: %r'%(eof, orig))
+                ans.append('??This record has more than one article from '
                         ' the section: %d'%si.index)
             return si, byts
         # }}}

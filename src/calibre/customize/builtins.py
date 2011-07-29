@@ -570,7 +570,7 @@ from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
-        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK)
+        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY)
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
@@ -705,7 +705,7 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ADAM,
-    MOOVYBOOK,
+    MOOVYBOOK, COBY,
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
@@ -1228,17 +1228,6 @@ class StoreEbookscomStore(StoreBase):
     formats = ['EPUB', 'LIT', 'MOBI', 'PDF']
     affiliate = True
 
-#class StoreEPubBuyDEStore(StoreBase):
-#    name = 'EPUBBuy DE'
-#    author = 'Charles Haley'
-#    description = u'Bei EPUBBuy.com finden Sie ausschliesslich eBooks im weitverbreiteten EPUB-Format und ohne DRM. So haben Sie die freie Wahl, wo Sie Ihr eBook lesen: Tablet, eBook-Reader, Smartphone oder einfach auf Ihrem PC. So macht eBook-Lesen Spaß!'
-#    actual_plugin = 'calibre.gui2.store.stores.epubbuy_de_plugin:EPubBuyDEStore'
-#
-#    drm_free_only = True
-#    headquarters = 'DE'
-#    formats = ['EPUB']
-#    affiliate = True
-
 class StoreEBookShoppeUKStore(StoreBase):
     name = 'ebookShoppe UK'
     author = u'Charles Haley'
@@ -1266,16 +1255,7 @@ class StoreEKnigiStore(StoreBase):
 
     headquarters = 'BG'
     formats = ['EPUB', 'PDF', 'HTML']
-    #affiliate = True
-
-class StoreEpubBudStore(StoreBase):
-    name = 'ePub Bud'
-    description = 'Well, it\'s pretty much just "YouTube for Children\'s eBooks. A not-for-profit organization devoted to brining self published childrens books to the world.'
-    actual_plugin = 'calibre.gui2.store.stores.epubbud_plugin:EpubBudStore'
-
-    drm_free_only = True
-    headquarters = 'US'
-    formats = ['EPUB']
+    affiliate = True
 
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
@@ -1311,6 +1291,7 @@ class StoreGoogleBooksStore(StoreBase):
 
     headquarters = 'US'
     formats = ['EPUB', 'PDF', 'TXT']
+    affiliate = True
 
 class StoreGutenbergStore(StoreBase):
     name = 'Project Gutenberg'
@@ -1393,6 +1374,17 @@ class StoreOReillyStore(StoreBase):
     drm_free_only = True
     headquarters = 'US'
     formats = ['APK', 'DAISY', 'EPUB', 'MOBI', 'PDF']
+
+class StoreOzonRUStore(StoreBase):
+    name = 'OZON.ru'
+    description = u'ebooks from OZON.ru'
+    actual_plugin = 'calibre.gui2.store.stores.ozon_ru_plugin:OzonRUStore'
+    author = 'Roman Mukhin'
+
+    drm_free_only = True
+    headquarters = 'RU'
+    formats = ['TXT', 'PDF', 'DJVU', 'RTF', 'DOC', 'JAR', 'FB2']
+    affiliate = True
 
 class StorePragmaticBookshelfStore(StoreBase):
     name = 'Pragmatic Bookshelf'
@@ -1491,10 +1483,8 @@ plugins += [
     StoreEbookNLStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
-#    StoreEPubBuyDEStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
-    StoreEpubBudStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
     StoreGandalfStore,
@@ -1508,6 +1498,7 @@ plugins += [
     StoreNextoStore,
     StoreOpenBooksStore,
     StoreOReillyStore,
+    StoreOzonRUStore,
     StorePragmaticBookshelfStore,
     StoreSmashwordsStore,
     StoreVirtualoStore,

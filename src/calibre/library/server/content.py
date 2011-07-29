@@ -10,13 +10,14 @@ import re, os, posixpath
 import cherrypy
 
 from calibre import fit_image, guess_type
-from calibre.utils.date import fromtimestamp, utcnow
+from calibre.utils.date import fromtimestamp
 from calibre.library.caches import SortKeyGenerator
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.magick.draw import (save_cover_data_to, Image,
         thumbnail as generate_thumbnail)
 from calibre.utils.filenames import ascii_filename
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub']
@@ -32,7 +33,7 @@ class CSSortKeyGenerator(SortKeyGenerator):
 class ContentServer(object):
 
     '''
-    Handles actually serving content files/covers. Also has
+    Handles actually serving content files/covers/metadata. Also has
     a few utility methods.
     '''
 
@@ -68,9 +69,8 @@ class ContentServer(object):
 
     # }}}
 
-
     def get(self, what, id):
-        'Serves files, covers, thumbnails from the calibre database'
+        'Serves files, covers, thumbnails, metadata from the calibre database'
         try:
             id = int(id)
         except ValueError:
@@ -90,6 +90,8 @@ class ContentServer(object):
                     thumb_height=height)
         if what == 'cover':
             return self.get_cover(id)
+        if what == 'opf':
+            return self.get_metadata_as_opf(id)
         return self.get_format(id, what)
 
     def static(self, name):
@@ -180,6 +182,17 @@ class ContentServer(object):
             cherrypy.log.error(traceback.print_exc())
             raise cherrypy.HTTPError(404, 'Failed to generate cover: %r'%err)
 
+    def get_metadata_as_opf(self, id_):
+        cherrypy.response.headers['Content-Type'] = \
+                'application/oebps-package+xml; charset=UTF-8'
+        mi = self.db.get_metadata(id_, index_is_id=True)
+        data = metadata_to_opf(mi)
+        cherrypy.response.timeout = 3600
+        cherrypy.response.headers['Last-Modified'] = \
+                self.last_modified(mi.last_modified)
+
+        return data
+
     def get_format(self, id, format):
         format = format.upper()
         fmt = self.db.format(id, format, index_is_id=True, as_file=True,
@@ -217,7 +230,8 @@ class ContentServer(object):
         cherrypy.response.headers['Content-Disposition'] = \
                 b'attachment; filename="%s"'%fname
         cherrypy.response.timeout = 3600
-        cherrypy.response.headers['Last-Modified'] = self.last_modified(utcnow())
+        cherrypy.response.headers['Last-Modified'] = \
+            self.last_modified(self.db.format_last_modified(id, format))
         return fmt
     # }}}
 

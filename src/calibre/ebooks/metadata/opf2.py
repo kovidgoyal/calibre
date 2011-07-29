@@ -1030,8 +1030,10 @@ class OPF(object): # {{{
             attrib = attrib or {}
             attrib['name'] = 'calibre:' + name
             name = '{%s}%s' % (self.NAMESPACES['opf'], 'meta')
+        nsmap = dict(self.NAMESPACES)
+        del nsmap['opf']
         elem = etree.SubElement(self.metadata, name, attrib=attrib,
-                                nsmap=self.NAMESPACES)
+                                nsmap=nsmap)
         elem.tail = '\n'
         return elem
 

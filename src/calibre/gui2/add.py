@@ -8,7 +8,8 @@ from functools import partial
 from PyQt4.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
+from calibre.gui2 import (question_dialog, error_dialog, info_dialog, gprefs,
+        warning_dialog)
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding, filesystem_encoding, DEBUG
@@ -275,6 +276,24 @@ class Adder(QObject): # {{{
                     _('No books found'), show=True)
             return self.canceled()
         books = [[b] if isinstance(b, basestring) else b for b in books]
+        restricted = set()
+        for i in xrange(len(books)):
+            files = books[i]
+            restrictedi = set(f for f in files if not os.access(f, os.R_OK))
+            if restrictedi:
+                files = [f for f in files if os.access(f, os.R_OK)]
+                books[i] = files
+            restricted |= restrictedi
+        if restrictedi:
+            det_msg = u'\n'.join(restrictedi)
+            warning_dialog(self.pd, _('No permission'),
+                    _('Cannot add some files as you do not have '
+                        ' permission to access them. Click Show'
+                        ' Details to see the list of such files.'),
+                    det_msg=det_msg, show=True)
+        books = list(filter(None, books))
+        if not books:
+            return self.canceled()
         self.rfind = None
         from calibre.ebooks.metadata.worker import read_metadata
         self.rq = Queue()

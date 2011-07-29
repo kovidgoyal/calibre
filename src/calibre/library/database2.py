@@ -1892,7 +1892,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             yield r[iindex]
 
     def get_next_series_num_for(self, series):
-        series_id = self.conn.get('SELECT id from series WHERE name=?',
+        series_id = None
+        if series:
+            series_id = self.conn.get('SELECT id from series WHERE name=?',
                 (series,), all=False)
         if series_id is None:
             if isinstance(tweaks['series_index_auto_increment'], (int, float)):
