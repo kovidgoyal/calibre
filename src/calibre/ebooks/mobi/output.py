@@ -27,7 +27,7 @@ class MOBIOutput(OutputFormatPlugin):
         ),
         OptionRecommendation(name='no_inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Don\'t add Table of Contents to end of book. Useful if '
+            help=_('Don\'t add Table of Contents to the book. Useful if '
                 'the book has its own table of contents.')),
         OptionRecommendation(name='toc_title', recommended_value=None,
             help=_('Title for any generated in-line table of contents.')
@@ -45,6 +45,12 @@ class MOBIOutput(OutputFormatPlugin):
                 'the MOBI output plugin will try to convert margins specified'
                 ' in the input document, otherwise it will ignore them.')
         ),
+        OptionRecommendation(name='mobi_toc_at_start',
+            recommended_value=False,
+            help=_('When adding the Table of Contents to the book, add it at the start of the '
+                'book instead of the end. Not recommended.')
+        ),
+
     ])
 
     def check_for_periodical(self):
@@ -75,26 +81,6 @@ class MOBIOutput(OutputFormatPlugin):
             self.oeb.guide.add('masthead', 'Masthead Image', href)
         else:
             self.oeb.log.debug('Using mastheadImage supplied in manifest...')
-
-
-    def dump_toc(self, toc) :
-        self.log( "\n         >>> TOC contents <<<")
-        self.log( "     toc.title: %s" % toc.title)
-        self.log( "      toc.href: %s" % toc.href)
-        for periodical in toc.nodes :
-            self.log( "\tperiodical title: %s" % periodical.title)
-            self.log( "\t            href: %s" % periodical.href)
-            for section in periodical :
-                self.log( "\t\tsection title: %s" % section.title)
-                self.log( "\t\tfirst article: %s" % section.href)
-                for article in section :
-                    self.log( "\t\t\tarticle title: %s" % repr(article.title))
-                    self.log( "\t\t\t         href: %s" % article.href)
-
-    def dump_manifest(self) :
-        self.log( "\n         >>> Manifest entries <<<")
-        for href in self.oeb.manifest.hrefs :
-            self.log ("\t%s" % href)
 
     def periodicalize_toc(self):
         from calibre.ebooks.oeb.base import TOC
@@ -150,24 +136,16 @@ class MOBIOutput(OutputFormatPlugin):
             # Fix up the periodical href to point to first section href
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
-            # GR diagnostics
-            if self.opts.verbose > 3:
-                self.dump_toc(toc)
-                self.dump_manifest()
-
-
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
-        from calibre.ebooks.mobi.writer import PALM_MAX_IMAGE_SIZE, \
-                MobiWriter, PALMDOC, UNCOMPRESSED
         from calibre.ebooks.mobi.mobiml import MobiMLizer
         from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
         from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
         from calibre.customize.ui import plugin_for_input_format
-        imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
         if not opts.no_inline_toc:
-            tocadder = HTMLTOCAdder(title=opts.toc_title)
+            tocadder = HTMLTOCAdder(title=opts.toc_title, position='start' if
+                    opts.mobi_toc_at_start else 'end')
             tocadder(oeb, opts)
         mangler = CaseMangler()
         mangler(oeb, opts)
@@ -179,10 +157,14 @@ class MOBIOutput(OutputFormatPlugin):
         mobimlizer = MobiMLizer(ignore_tables=opts.linearize_tables)
         mobimlizer(oeb, opts)
         self.check_for_periodical()
-        write_page_breaks_after_item = not input_plugin is plugin_for_input_format('cbz')
-        writer = MobiWriter(opts, imagemax=imagemax,
-                compression=UNCOMPRESSED if opts.dont_compress else PALMDOC,
-                            prefer_author_sort=opts.prefer_author_sort,
-                            write_page_breaks_after_item=write_page_breaks_after_item)
+        write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
+        from calibre.utils.config import tweaks
+        if tweaks.get('new_mobi_writer', False):
+            from calibre.ebooks.mobi.writer2.main import MobiWriter
+            MobiWriter
+        else:
+            from calibre.ebooks.mobi.writer import MobiWriter
+        writer = MobiWriter(opts,
+                        write_page_breaks_after_item=write_page_breaks_after_item)
         writer(oeb, output_path)
 

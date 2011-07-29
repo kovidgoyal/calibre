@@ -398,7 +398,9 @@ class BasicNewsRecipe(Recipe):
                 return br
 
         '''
-        return browser(*args, **kwargs)
+        br = browser(*args, **kwargs)
+        br.addheaders += [('Accept', '*/*')]
+        return br
 
     def clone_browser(self, br):
         '''

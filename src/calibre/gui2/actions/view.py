@@ -128,7 +128,8 @@ class ViewAction(InterfaceAction):
             self.gui.unsetCursor()
 
     def _view_file(self, name):
-        ext = os.path.splitext(name)[1].upper().replace('.', '')
+        ext = os.path.splitext(name)[1].upper().replace('.',
+                '').replace('ORIGINAL_', '')
         viewer = 'lrfviewer' if ext == 'LRF' else 'ebook-viewer'
         internal = ext in config['internally_viewed_formats']
         self._launch_viewer(name, viewer, internal)

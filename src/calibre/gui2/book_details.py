@@ -133,6 +133,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             authors = []
             formatter = EvalFormatter()
             for aut in mi.authors:
+                link = ''
                 if mi.author_link_map[aut]:
                     link = mi.author_link_map[aut]
                 elif gprefs.get('default_author_link'):

@@ -2,18 +2,21 @@
 # -*- coding: utf-8 mode: python -*-
 
 __license__   = 'GPL v3'
-__copyright__ = '2010-2011, Steffen Siebert <calibre at steffensiebert.de>'
+__copyright__ = '2010, Steffen Siebert <calibre at steffensiebert.de>'
 __docformat__ = 'restructuredtext de'
-__version__   = '1.2'
+__version__   = '1.5'
 
 """
 Die Zeit EPUB
 """
 
-import os, urllib2, zipfile, re
+import os, zipfile, re, cStringIO
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import walk
+from urlparse import urlparse
+from contextlib import closing
+from calibre.utils.magick.draw import save_cover_data_to
 
 class ZeitEPUBAbo(BasicNewsRecipe):
 
@@ -22,49 +25,112 @@ class ZeitEPUBAbo(BasicNewsRecipe):
     language = 'de'
     lang = 'de-DE'
 
-    __author__ = 'Steffen Siebert and Tobias Isenberg'
+    __author__ = 'Steffen Siebert, revised by Tobias Isenberg (with some code by Kovid Goyal)'
     needs_subscription = True
 
     conversion_options = {
         'no_default_epub_cover' : True,
         # fixing the wrong left margin
         'mobi_ignore_margins' : True,
+        'keep_ligatures' : True,
     }
 
     preprocess_regexps    = [
-        # filtering for correct dashes
-        (re.compile(r' - '), lambda match: ' – '), # regular "Gedankenstrich"
-        (re.compile(r' -,'), lambda match: ' –,'), # "Gedankenstrich" before a comma
-        (re.compile(r'(?<=\d)-(?=\d)'), lambda match: '–'), # number-number
+        # filtering for correct dashes ("Gedankenstrich" and "bis")
+        (re.compile(u' (-|\u2212)(?=[ ,])'), lambda match: u' \u2013'),
+        (re.compile(r'(?<=\d)-(?=\d)'), lambda match: u'\u2013'), # number-number
+        (re.compile(u'(?<=\d,)-(?= ?\u20AC)'), lambda match: u'\u2013'), # ,- Euro
+        # fix the number dash number dash for the title image that was broken by the previous line
+        (re.compile(u'(?<=\d\d\d\d)\u2013(?=\d?\d\.png)'), lambda match: '-'),
+        # filtering for certain dash cases
+        (re.compile(r'Bild - Zeitung'), lambda match: 'Bild-Zeitung'), # the obvious
+        (re.compile(r'EMail'), lambda match: 'E-Mail'), # the obvious
+        (re.compile(r'SBahn'), lambda match: 'S-Bahn'), # the obvious
+        (re.compile(r'UBoot'), lambda match: 'U-Boot'), # the obvious
+        (re.compile(r'T Shirt'), lambda match: 'T-Shirt'), # the obvious
+        (re.compile(r'TShirt'), lambda match: 'T-Shirt'), # the obvious
+        # the next two lines not only fix errors but also create new ones. this is due to additional errors in
+        # the typesetting such as missing commas or wrongly placed dashes. but more is fixed than broken.
+        (re.compile(r'(?<!und|der|\w\w,) -(?=\w)'), lambda match: '-'), # space too much before a connecting dash
+        (re.compile(r'(?<=\w)- (?!und\b|oder\b|wie\b|aber\b|auch\b|sondern\b|bis\b|&amp;|&\s|bzw\.|auf\b|eher\b)'), lambda match: '-'), # space too much after a connecting dash
+        # filtering for missing spaces before the month in long dates
+        (re.compile(u'(?<=\d)\.(?=(Januar|Februar|M\u00E4rz|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember))'), lambda match: '. '),
+        # filtering for other missing spaces
+        (re.compile(r'Stuttgart21'), lambda match: 'Stuttgart 21'), # the obvious
+        (re.compile(u'(?<=\d)(?=\u20AC)'), lambda match: u'\u2013'), # Zahl[no space]Euro
+        (re.compile(r':(?=[^\d\s</])'), lambda match: ': '), # missing space after colon
+        (re.compile(u'\u00AB(?=[^\-\.:;,\?!<\)\s])'), lambda match: u'\u00AB '), # missing space after closing quotation
+        (re.compile(u'(?<=[^\s\(>])\u00BB'), lambda match: u' \u00BB'), # missing space before opening quotation
+        (re.compile(r'(?<=[a-z])(?=(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV|XVI|XVII|XVIII|XIX|XX)\.)'), lambda match: ' '), # missing space before Roman numeral
+        (re.compile(r'(?<=(I|V|X)\.)(?=[\w])'), lambda match: ' '), # missing space after Roman numeral
+        (re.compile(r'(?<=(II|IV|VI|IX|XI|XV|XX)\.)(?=[\w])'), lambda match: ' '), # missing space after Roman numeral
+        (re.compile(r'(?<=(III|VII|XII|XIV|XVI|XIX)\.)(?=[\w])'), lambda match: ' '), # missing space after Roman numeral
+        (re.compile(r'(?<=(VIII|XIII|XVII)\.)(?=[\w])'), lambda match: ' '), # missing space after Roman numeral
+        (re.compile(r'(?<=(XVIII)\.)(?=[\w])'), lambda match: ' '), # missing space after Roman numeral
+        (re.compile(r'(?<=[A-Za-zÄÖÜäöü]),(?=[A-Za-zÄÖÜäöü])'), lambda match: ', '), # missing space after comma
+        (re.compile(r'(?<=[a-zäöü])\.(?=[A-ZÄÖÜ][A-Za-zÄÖÜäöü])'), lambda match: '. '), # missing space after full-stop
+        (re.compile(r'(?<=[uU]\.) (?=a\.)'), lambda match: u'\u2008'), # fix abbreviation that was potentially broken previously
+        (re.compile(r'(?<=[iI]\.) (?=A\.)'), lambda match: u'\u2008'), # fix abbreviation that was potentially broken previously
+        (re.compile(r'(?<=[zZ]\.) (?=B\.)'), lambda match: u'\u2008'), # fix abbreviation that was potentially broken previously
+        (re.compile(r'(?<=\w\.) (?=[A-Z][a-z]*@)'), lambda match: ''), # fix e-mail address that was potentially broken previously
+        (re.compile(r'(?<=\d)[Pp]rozent'), lambda match: ' Prozent'),
+        (re.compile(r'\.\.\.\.+'), lambda match: '...'), # too many dots (....)
+        (re.compile(r'(?<=[^\s])\.\.\.'), lambda match: ' ...'), # spaces before ...
+        (re.compile(r'\.\.\.(?=[^\s])'), lambda match: '... '), # spaces after ...
+        (re.compile(r'(?<=[\[\(]) \.\.\. (?=[\]\)])'), lambda match: '...'), # fix special cases of ... in brackets
+        (re.compile(u'(?<=[\u00BB\u203A]) \.\.\.'), lambda match: '...'), # fix special cases of ... after a quotation mark
+        (re.compile(u'\.\.\. (?=[\u00AB\u2039,])'), lambda match: '...'), # fix special cases of ... before a quotation mark or comma
+        # fix missing spaces between numbers and any sort of units, possibly with dot
+        (re.compile(r'(?<=\d)(?=(Femto|Piko|Nano|Mikro|Milli|Zenti|Dezi|Hekto|Kilo|Mega|Giga|Tera|Peta|Tausend|Trilli|Kubik|Quadrat|Meter|Uhr|Jahr|Schuljahr|Seite))'), lambda match: ' '),
+        (re.compile(r'(?<=\d\.)(?=(Femto|Piko|Nano|Mikro|Milli|Zenti|Dezi|Hekto|Kilo|Mega|Giga|Tera|Peta|Tausend|Trilli|Kubik|Quadrat|Meter|Uhr|Jahr|Schuljahr|Seite))'), lambda match: ' '),
+        # fix wrong spaces
+        (re.compile(r'(?<=<p class="absatz">[A-ZÄÖÜ]) (?=[a-zäöü\-])'), lambda match: ''), # at beginning of paragraphs
+        (re.compile(u' \u00AB'), lambda match: u'\u00AB '), # before closing quotation
+        (re.compile(u'\u00BB '), lambda match: u' \u00BB'), # after opening quotation
+        # filtering for spaces in large numbers for better readability
+        (re.compile(r'(?<=\d\d)(?=\d\d\d[ ,\.;\)<\?!-])'), lambda match: u'\u2008'), # end of the number with some character following
+        (re.compile(r'(?<=\d\d)(?=\d\d\d. )'), lambda match: u'\u2008'), # end of the number with full-stop following, then space is necessary (avoid file names)
+        (re.compile(u'(?<=\d)(?=\d\d\d\u2008)'), lambda match: u'\u2008'), # next level
+        (re.compile(u'(?<=\d)(?=\d\d\d\u2008)'), lambda match: u'\u2008'), # next level
+        (re.compile(u'(?<=\d)(?=\d\d\d\u2008)'), lambda match: u'\u2008'), # next level
+        (re.compile(u'(?<=\d)(?=\d\d\d\u2008)'), lambda match: u'\u2008'), # next level
         # filtering for unicode characters that are missing on the Kindle,
         # try to replace them with meaningful work-arounds
-        (re.compile(u'\u2080'), lambda match: '<span style="font-size: 50%;">0</span>'), # subscript-0
-        (re.compile(u'\u2081'), lambda match: '<span style="font-size: 50%;">1</span>'), # subscript-1
-        (re.compile(u'\u2082'), lambda match: '<span style="font-size: 50%;">2</span>'), # subscript-2
-        (re.compile(u'\u2083'), lambda match: '<span style="font-size: 50%;">3</span>'), # subscript-3
-        (re.compile(u'\u2084'), lambda match: '<span style="font-size: 50%;">4</span>'), # subscript-4
-        (re.compile(u'\u2085'), lambda match: '<span style="font-size: 50%;">5</span>'), # subscript-5
-        (re.compile(u'\u2086'), lambda match: '<span style="font-size: 50%;">6</span>'), # subscript-6
-        (re.compile(u'\u2087'), lambda match: '<span style="font-size: 50%;">7</span>'), # subscript-7
-        (re.compile(u'\u2088'), lambda match: '<span style="font-size: 50%;">8</span>'), # subscript-8
-        (re.compile(u'\u2089'), lambda match: '<span style="font-size: 50%;">9</span>'), # subscript-9
+        (re.compile(u'\u2080'), lambda match: '<span style="font-size: 40%;">0</span>'), # subscript-0
+        (re.compile(u'\u2081'), lambda match: '<span style="font-size: 40%;">1</span>'), # subscript-1
+        (re.compile(u'\u2082'), lambda match: '<span style="font-size: 40%;">2</span>'), # subscript-2
+        (re.compile(u'\u2083'), lambda match: '<span style="font-size: 40%;">3</span>'), # subscript-3
+        (re.compile(u'\u2084'), lambda match: '<span style="font-size: 40%;">4</span>'), # subscript-4
+        (re.compile(u'\u2085'), lambda match: '<span style="font-size: 40%;">5</span>'), # subscript-5
+        (re.compile(u'\u2086'), lambda match: '<span style="font-size: 40%;">6</span>'), # subscript-6
+        (re.compile(u'\u2087'), lambda match: '<span style="font-size: 40%;">7</span>'), # subscript-7
+        (re.compile(u'\u2088'), lambda match: '<span style="font-size: 40%;">8</span>'), # subscript-8
+        (re.compile(u'\u2089'), lambda match: '<span style="font-size: 40%;">9</span>'), # subscript-9
+        # always chance CO2
+        (re.compile(r'CO2'), lambda match: 'CO<span style="font-size: 40%;">2</span>'), # CO2
+        # remove *** paragraphs
+        (re.compile(r'<p class="absatz">\*\*\*</p>'), lambda match: ''),
+        # better layout for the top line of each article
+        (re.compile(u'(?<=DIE ZEIT N\u00B0 \d /) (?=\d\d)'), lambda match: ' 20'), # proper year in edition number
+        (re.compile(u'(?<=DIE ZEIT N\u00B0 \d\d /) (?=\d\d)'), lambda match: ' 20'), # proper year in edition number
+        (re.compile(u'(?<=>)(?=DIE ZEIT N\u00B0 \d\d / 20\d\d)'), lambda match: u' \u2014 '), # m-dash between category and DIE ZEIT
     ]
 
     def build_index(self):
-        domain = "http://premium.zeit.de"
-        url = domain + "/abovorteile/cgi-bin/_er_member/p4z.fpl?ER_Do=getUserData&ER_NextTemplate=login_ok"
-
+        domain = "https://premium.zeit.de"
+        url = domain + "/abo/zeit_digital"
         browser = self.get_browser()
-        browser.add_password("http://premium.zeit.de", self.username, self.password)
 
-        try:
-            browser.open(url)
-        except urllib2.HTTPError:
-            self.report_progress(0,_("Can't login to download issue"))
-            raise ValueError('Failed to login, check your username and password')
-
-        response = browser.follow_link(text="DIE ZEIT als E-Paper")
-        response = browser.follow_link(url_regex=re.compile('^http://contentserver.hgv-online.de/nodrm/fulfillment\\?distributor=zeit-online&orderid=zeit_online.*'))
+        # new login process
+        response = browser.open(url)
+        browser.select_form(nr=2)
+        browser.form['name']=self.username
+        browser.form['pass']=self.password
+        browser.submit()
+        # now find the correct file, we will still use the ePub file
+        epublink = browser.find_link(text_regex=re.compile('.*Ausgabe als Datei im ePub-Format.*'))
+        response = browser.follow_link(epublink)
+        self.report_progress(1,_('next step'))
 
         tmp = PersistentTemporaryFile(suffix='.epub')
         self.report_progress(0,_('downloading epub'))
@@ -104,9 +170,45 @@ class ZeitEPUBAbo(BasicNewsRecipe):
 
     # getting url of the cover
     def get_cover_url(self):
+        self.log.warning('Downloading cover')
         try:
-            inhalt = self.index_to_soup('http://www.zeit.de/inhalt')
-            cover_url = inhalt.find('div', attrs={'class':'singlearchive clearfix'}).img['src'].replace('icon_','')
+            self.log.warning('Trying PDF-based cover')
+            domain = "https://premium.zeit.de"
+            url = domain + "/abo/zeit_digital"
+            browser = self.get_browser()
+
+            # new login process
+            browser.open(url)
+            browser.select_form(nr=2)
+            browser.form['name']=self.username
+            browser.form['pass']=self.password
+            browser.submit()
+            # actual cover search
+            pdflink = browser.find_link(url_regex=re.compile('system/files/epaper/DZ/pdf/DZ_ePaper*'))
+            cover_url = urlparse(pdflink.base_url)[0]+'://'+urlparse(pdflink.base_url)[1]+''+(urlparse(pdflink.url)[2]).replace('ePaper_','').replace('.pdf','_001.pdf')
+            self.log.warning('PDF link found:')
+            self.log.warning(cover_url)
+            # download the cover (has to be here due to new login process)
+            with closing(browser.open(cover_url)) as r:
+                cdata = r.read()
+            from calibre.ebooks.metadata.pdf import get_metadata
+            stream = cStringIO.StringIO(cdata)
+            cdata = None
+            mi = get_metadata(stream)
+            if mi.cover_data and mi.cover_data[1]:
+                cdata = mi.cover_data[1]
+
+            cpath = os.path.join(self.output_dir, 'cover.jpg')
+            save_cover_data_to(cdata, cpath)
+            cover_url = cpath
+
         except:
-            cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/1946/001_001.jpg'
+            self.log.warning('Trying low-res cover')
+            try:
+                inhalt = self.index_to_soup('http://www.zeit.de/inhalt')
+                cover_url = inhalt.find('div', attrs={'class':'singlearchive clearfix'}).img['src'].replace('icon_','')
+            except:
+                self.log.warning('Using static old low-res cover')
+                cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/1946/001_001.jpg'
         return cover_url
+

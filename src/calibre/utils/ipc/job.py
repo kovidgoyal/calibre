@@ -141,7 +141,8 @@ class BaseJob(object):
     def log_file(self):
         if self.log_path:
             return open(self.log_path, 'rb')
-        return cStringIO.StringIO(_('No details available.'))
+        return cStringIO.StringIO(_('No details available.').encode('utf-8',
+            'replace'))
 
     @property
     def details(self):

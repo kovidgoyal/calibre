@@ -151,7 +151,7 @@ class ISBNDB(Source):
 
         bl = feed.find('BookList')
         if bl is None:
-            err = tostring(etree.find('errormessage'))
+            err = tostring(feed.find('errormessage'))
             raise ValueError('ISBNDb query failed:' + err)
         total_results = int(bl.get('total_results'))
         shown_results = int(bl.get('shown_results'))
