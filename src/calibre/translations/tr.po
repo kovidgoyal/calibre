@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-25 15:15+0000\n"
+"PO-Revision-Date: 2011-07-28 12:49+0000\n"
 "Last-Translator: Gs-Kobzeci <ricizki@yahoo.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-26 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-07-29 04:47+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -14663,58 +14663,58 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:89
 msgid "&Get update"
-msgstr ""
+msgstr "&Güncellemeleri al"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:93
 msgid "Update &plugins"
-msgstr ""
+msgstr "&Eklentileri güncelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:152
 #, python-format
 msgid " (%d plugin updates)"
-msgstr ""
+msgstr " (%d eklenti güncellemeleri)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:155
 msgid "Update found"
-msgstr ""
+msgstr "Güncelleme bulundu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:158
 msgid "updated plugins"
-msgstr ""
+msgstr "eklentileri güncelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:189
 msgid "Plugin Updates"
-msgstr ""
+msgstr "Eklenti güncellemeleri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:187
 #, python-format
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "Şu anda %d tane eklenti güncellemesi bulunmakta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:191
 msgid "Install and configure user plugins"
-msgstr ""
+msgstr "Kullanıcı eklentilerini kur ve yapılandır"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
-msgstr ""
+msgstr "Yer imini düzenle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "New title for bookmark:"
-msgstr ""
+msgstr "Yeni yer imi başlığı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:52
 msgid "Export Bookmarks"
-msgstr ""
+msgstr "Yer İmlerini Dışa Aktar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:54
 msgid "Saved Bookmarks (*.pickle)"
-msgstr ""
+msgstr "Kayıtlı Yer İmleri (*.pickle)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:62
 msgid "Import Bookmarks"
-msgstr ""
+msgstr "Yer İmlerini İçe Aktar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:62
 msgid "Pickled Bookmarks (*.pickle)"
@@ -14747,19 +14747,19 @@ msgstr "İçe aktar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:178
 msgid "Configure Ebook viewer"
-msgstr ""
+msgstr "Ekitap görüntüleyiciyi yapılandır"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:179
 msgid "&Font options"
-msgstr ""
+msgstr "&Yazıtipi seçenekleri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:180
 msgid "Se&rif family:"
-msgstr ""
+msgstr "Se&rif ailesi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:181
 msgid "&Sans family:"
-msgstr ""
+msgstr "&Sans ailesi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:182
 msgid "&Monospace family:"
@@ -14767,13 +14767,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:183
 msgid "&Default font size:"
-msgstr ""
+msgstr "&Öntanımlı yaztipi boyutu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:201
 msgid " px"
-msgstr ""
+msgstr " px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:185
 msgid "Monospace &font size:"
@@ -14781,7 +14781,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:187
 msgid "S&tandard font:"
-msgstr ""
+msgstr "S&tandart yazı tipi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:188
 msgid "Serif"
@@ -14797,11 +14797,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:191
 msgid "Remember last used &window size"
-msgstr ""
+msgstr "Son kullanılan &pencere boyutunu hatırla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:192
 msgid "Remember the &current page when quitting"
-msgstr ""
+msgstr "Çıkışta &mevcut sayfayı hatırla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:193
 msgid "H&yphenate (break line in the middle of large words)"
@@ -14820,6 +14820,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:196
 msgid "&Resize images larger than the viewer window (needs restart)"
 msgstr ""
+"Resimleri görüntüleme penceresinden daha büyük halde yeniden "
+"boyuıtlandır(yeniden başlatma gereklidir)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "Page flip &duration:"
@@ -14827,7 +14829,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "disabled"
-msgstr ""
+msgstr "devre dışı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Mouse &wheel flips pages"
@@ -14835,7 +14837,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
 msgid "Maximum &view width:"
-msgstr ""
+msgstr "En fazla görüntülenme genişliği:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:203
 msgid "&General"
@@ -14843,11 +14845,11 @@ msgstr "&Genel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:204
 msgid "Double click to change a keyboard shortcut"
-msgstr ""
+msgstr "Bir klavye kısayolunu değiştirmek için çift tıklayın"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:205
 msgid "&Keyboard shortcuts"
-msgstr ""
+msgstr "&klavye kısayolları"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:206
 msgid ""
@@ -14858,20 +14860,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:207
 msgid "User &Stylesheet"
-msgstr ""
+msgstr "Kullanıcı Stil sayfası"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/dictionary.py:53
 msgid "No results found for:"
-msgstr ""
+msgstr "Şunun için bulunan yeni sonuçlar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:41
 msgid "Options to customize the ebook viewer"
-msgstr ""
+msgstr "Ekitap görüntüleyiciyi kişiselleştirmek için seçenekler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:795
 msgid "Remember last used window size"
-msgstr ""
+msgstr "En son kullanılan pencere boyutunu hatırla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:97
@@ -14882,11 +14884,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:52
 msgid "Maximum width of the viewer window, in pixels."
-msgstr ""
+msgstr "Görüntüleyici penceresinin maksimum genişliği, piksel olarak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:54
 msgid "Resize images larger than the viewer window to fit inside it"
 msgstr ""
+"Görüntüleme penceresinden daha büyük resimleri sığdırmak için yeniden "
+"boyutlandır"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
 msgid "Hyphenate text"
@@ -14898,7 +14902,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 msgid "Save the current position in the document, when quitting"
-msgstr ""
+msgstr "Çıkışta belgenin mevcut posizyonunu kaydet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
 msgid "Have the mouse wheel turn pages"
@@ -14908,6 +14912,8 @@ msgstr ""
 msgid ""
 "The time, in seconds, for the page flip animation. Default is half a second."
 msgstr ""
+"Sayfa çevirme animasyonu için zaman, saniye olarak. Öntanımlısı yarım "
+"saniyedir."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:66
 msgid "Font options"
@@ -14915,7 +14921,7 @@ msgstr "Yazı tipi seçenekleri"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:68
 msgid "The serif font family"
-msgstr ""
+msgstr "Serif yazıtipi ailesi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:70
 msgid "The sans-serif font family"

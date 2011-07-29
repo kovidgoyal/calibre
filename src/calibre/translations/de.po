@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-22 21:50+0000\n"
-"Last-Translator: Rudolf Metz <Unknown>\n"
+"PO-Revision-Date: 2011-07-28 10:22+0000\n"
+"Last-Translator: Christine Emrich <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-23 04:40+0000\n"
+"X-Launchpad-Export-Date: 2011-07-29 04:46+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -390,7 +390,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr "Calibre Bedienungsanleitung ansehen"
+msgstr "Calibre-Bedienungsanleitung ansehen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Customize calibre"
@@ -9696,7 +9696,7 @@ msgstr "Du musst Calibre Neustarten um Plugins zu benutzen zu können"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:164
 #, python-format
 msgid "Version History for %s"
-msgstr "Versions Geschichte für %s"
+msgstr "Versionshistorie für %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
@@ -9817,11 +9817,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:481
 msgid "User plugins"
-msgstr "User Plugins"
+msgstr "Benutzer-Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:486
 msgid "User Plugins"
-msgstr "User Plugins"
+msgstr "Benutzer-Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:494
 msgid "Filter list of plugins"
@@ -15820,7 +15820,7 @@ msgstr "Es sind %d Plugin-Aktualisierungen verfügbar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:191
 msgid "Install and configure user plugins"
-msgstr ""
+msgstr "Benutzer-Plugins installieren und konfigurieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"

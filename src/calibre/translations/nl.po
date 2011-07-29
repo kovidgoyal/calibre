@@ -44,14 +44,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-22 17:11+0000\n"
-"PO-Revision-Date: 2011-07-28 01:36+0000\n"
-"Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
+"PO-Revision-Date: 2011-07-28 14:35+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-28 04:33+0000\n"
+"X-Launchpad-Export-Date: 2011-07-29 04:46+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -7525,7 +7525,7 @@ msgstr "&Uitgever: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:170
 msgid "Ta&gs: "
-msgstr "&Labels: "
+msgstr "Labels: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:171
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:537
@@ -13520,7 +13520,7 @@ msgstr "&Sorteer/doorzoek kolom op"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:251
 msgid "How this column should handled in the GUI when sorting and searching"
-msgstr ""
+msgstr "Hoe deze kolom moet reageren in de GUI tijdens sorteren en zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:252
 msgid "If checked, this column will appear in the tags browser as a category"
@@ -14104,7 +14104,7 @@ msgstr "Commandoregeltools zijn geïnstalleerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:68
 msgid "Command line tools installed in"
-msgstr ""
+msgstr "Opdracht prompt applicaties geïnstalleerd in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:69
 msgid ""
@@ -18277,6 +18277,8 @@ msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"Het teken om rondom de categorie waarde te plaatsen in CSV modus. Standaard "
+"is dubbele aanhalingstekens (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
