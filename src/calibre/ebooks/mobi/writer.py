@@ -1231,6 +1231,9 @@ class MobiWriter(object):
             self._oeb.logger.info('  Compressing markup content...')
         data, overlap = self._read_text_record(text)
 
+        if not self.opts.mobi_periodical:
+            self._flatten_toc()
+
         # Evaluate toc for conformance
         if self.opts.mobi_periodical :
             self._oeb.logger.info('  MOBI periodical specified, evaluating TOC for periodical conformance ...')
@@ -1696,6 +1699,32 @@ class MobiWriter(object):
         return documentType
 
     # Index {{{
+
+    def _flatten_toc(self):
+        '''
+        Flatten and re-order entries in TOC so that chapter to chapter jumping
+        never fails on the Kindle.
+        '''
+        from calibre.ebooks.oeb.base import TOC
+        items = list(self._oeb.toc.iterdescendants())
+        if self.opts.mobi_navpoints_only_deepest:
+            items = [i for i in items if i.depth == 1]
+        offsets = {i:self._id_offsets.get(i.href, -1) for i in items if i.href}
+        items = [i for i in items if offsets[i] > -1]
+        items.sort(key=lambda i:offsets[i])
+        filt = []
+        seen = set()
+        for i in items:
+            off = offsets[i]
+            if off in seen: continue
+            seen.add(off)
+            filt.append(i)
+        items = filt
+        newtoc = TOC()
+        for c, i in enumerate(items):
+            newtoc.add(i.title, i.href, play_order=c+1, id=str(c),
+                    klass='chapter')
+        self._oeb.toc = newtoc
 
     def _generate_index(self):
         self._oeb.log('Generating INDX ...')
