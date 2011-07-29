@@ -53,6 +53,35 @@ class Serializer(object):
         # become uncrossable breaks in the MOBI
         self.breaks = []
 
+        self.find_blocks()
+
+    def find_blocks(self):
+        '''
+        Mark every item in the spine if it is the start/end of a
+        section/article, so that it can be wrapped in divs appropariately.
+        '''
+        for item in self.oeb.spine:
+            item.is_section_start = item.is_section_end = False
+            item.is_article_start = item.is_article_end = False
+
+        def spine_item(tocitem):
+            href = urldefrag(tocitem.href)[0]
+            for item in self.oeb.spine:
+                if item.href == href:
+                    return item
+
+        for item in self.oeb.toc.iterdescendants():
+            if item.klass == 'section':
+                articles = list(item)
+                if not articles: continue
+                spine_item(item).is_section_start = True
+                for i, article in enumerate(articles):
+                    si = spine_item(article)
+                    si.is_article_start = True
+                    si.is_article_end = True
+                    if i == len(articles) - 1:
+                        si.is_section_end = True
+
     def __call__(self):
         '''
         Return the document serialized as a single UTF-8 encoded bytestring.
@@ -155,6 +184,8 @@ class Serializer(object):
         if not item.linear:
             self.breaks.append(buf.tell() - 1)
         self.id_offsets[urlnormalize(item.href)] = buf.tell()
+        if item.is_section_start:
+            buf.write(b'<div>')
         # Kindle periodical articles are contained in a <div> tag
         buf.write(b'<div>')
         for elem in item.data.find(XHTML('body')):
@@ -164,6 +195,8 @@ class Serializer(object):
         if self.write_page_breaks_after_item:
             buf.write(b'<mbp:pagebreak/>')
         buf.write(b'</div>')
+        if item.is_section_end:
+            buf.write(b'</div>')
         self.anchor_offset = None
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
