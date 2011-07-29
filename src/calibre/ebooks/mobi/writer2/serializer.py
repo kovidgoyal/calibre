@@ -58,7 +58,7 @@ class Serializer(object):
     def find_blocks(self):
         '''
         Mark every item in the spine if it is the start/end of a
-        section/article, so that it can be wrapped in divs appropariately.
+        section/article, so that it can be wrapped in divs appropriately.
         '''
         for item in self.oeb.spine:
             item.is_section_start = item.is_section_end = False
@@ -78,9 +78,24 @@ class Serializer(object):
                 for i, article in enumerate(articles):
                     si = spine_item(article)
                     si.is_article_start = True
-                    si.is_article_end = True
-                    if i == len(articles) - 1:
-                        si.is_section_end = True
+
+        items = list(self.oeb.spine)
+        in_sec = in_art = False
+        for i, item in enumerate(items):
+            try:
+                prev_item = items[i-1]
+            except:
+                prev_item = None
+            if in_art and item.is_article_start == True:
+                prev_item.is_article_end = True
+                in_art = False
+            if in_sec and item.is_section_start == True:
+                prev_item.is_section_end = True
+                in_sec = False
+            if item.is_section_start: in_sec = True
+            if item.is_article_start: in_art = True
+
+        item.is_section_end = item.is_article_end = True
 
     def __call__(self):
         '''
@@ -186,15 +201,17 @@ class Serializer(object):
         self.id_offsets[urlnormalize(item.href)] = buf.tell()
         if item.is_section_start:
             buf.write(b'<div>')
-        # Kindle periodical articles are contained in a <div> tag
-        buf.write(b'<div>')
+        if item.is_article_start:
+            buf.write(b'<div>')
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
-        # Kindle periodical article end marker
-        buf.write(b'<div></div>')
+        if item.is_article_end:
+            # Kindle periodical article end marker
+            buf.write(b'<div></div>')
         if self.write_page_breaks_after_item:
             buf.write(b'<mbp:pagebreak/>')
-        buf.write(b'</div>')
+        if item.is_article_end:
+            buf.write(b'</div>')
         if item.is_section_end:
             buf.write(b'</div>')
         self.anchor_offset = None
