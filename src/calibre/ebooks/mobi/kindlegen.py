@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, tempfile, shutil
+import os, subprocess, shutil
 
 from lxml import etree
 
@@ -22,6 +22,12 @@ exe = 'kindlegen.exe' if iswindows else 'kindlegen'
 def refactor_opf(opf, is_periodical, toc):
     with open(opf, 'rb') as f:
         root = etree.fromstring(f.read())
+    '''
+    for spine in root.xpath('//*[local-name() = "spine" and @toc]'):
+        # Do not use the NCX toc as kindlegen requires the section structure
+        # in the TOC to be duplicated in the HTML, asinine!
+        del spine.attrib['toc']
+    '''
     if is_periodical:
         metadata = root.xpath('//*[local-name() = "metadata"]')[0]
         xm = etree.SubElement(metadata, 'x-metadata')
@@ -29,7 +35,7 @@ def refactor_opf(opf, is_periodical, toc):
         xm.text = '\n\t'
         mobip = etree.SubElement(xm, 'output', attrib={'encoding':"utf-8",
             'content-type':"application/x-mobipocket-subscription-magazine"})
-        mobip.tail = '\n'
+        mobip.tail = '\n\t'
     with open(opf, 'wb') as f:
         f.write(etree.tostring(root, method='xml', encoding='utf-8',
             xml_declaration=True))
@@ -43,14 +49,13 @@ def refactor_guide(oeb):
 def run_kindlegen(opf, log):
     log.info('Running kindlegen on MOBIML created by calibre')
     oname = os.path.splitext(opf)[0] + '.mobi'
-    with tempfile.NamedTemporaryFile(suffix='_kindlegen_output.txt') as tfile:
-        p = subprocess.Popen([exe, opf, '-c1', '-verbose', '-o', oname],
-            stderr=subprocess.STDOUT, stdout=tfile)
-        returncode = p.wait()
-        tfile.seek(0)
-        log.debug('kindlegen verbose output:')
-        log.debug(tfile.read())
-        log.info('kindlegen returned returncode: %d'%returncode)
+    p = subprocess.Popen([exe, opf, '-c1', '-verbose', '-o', oname],
+        stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    ko = p.stdout.read()
+    returncode = p.wait()
+    log.debug('kindlegen verbose output:')
+    log.debug(ko.decode('utf-8', 'replace'))
+    log.info('kindlegen returned returncode: %d'%returncode)
     if not os.path.exists(oname) or os.stat(oname).st_size < 100:
         raise RuntimeError('kindlegen did not produce any output. '
                 'kindlegen return code: %d'%returncode)
@@ -59,7 +64,7 @@ def run_kindlegen(opf, log):
 def kindlegen(oeb, opts, input_plugin, output_path):
     is_periodical = detect_periodical(oeb.toc, oeb.log)
     refactor_guide(oeb)
-    with TemporaryDirectory('_epub_output') as tdir:
+    with TemporaryDirectory('_kindlegen_output') as tdir:
         oeb_output = plugin_for_output_format('oeb')
         oeb_output.convert(oeb, tdir, input_plugin, opts, oeb.log)
         opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
