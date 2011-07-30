@@ -18,6 +18,11 @@ from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
         get_trailing_data, decode_tbs)
 from calibre.utils.magick.draw import identify_data
 
+def format_bytes(byts):
+    byts = bytearray(byts)
+    byts = [hex(b)[2:] for b in byts]
+    return ' '.join(byts)
+
 # PalmDB {{{
 class PalmDOCAttributes(object):
 
@@ -76,7 +81,7 @@ class PalmDB(object):
         self.ident = self.type + self.creator
         if self.ident not in (b'BOOKMOBI', b'TEXTREAD'):
             raise ValueError('Unknown book ident: %r'%self.ident)
-        self.uid_seed, = struct.unpack(b'>I', self.raw[68:72])
+        self.last_record_uid, = struct.unpack(b'>I', self.raw[68:72])
         self.next_rec_list_id = self.raw[72:76]
 
         self.number_of_records, = struct.unpack(b'>H', self.raw[76:78])
@@ -97,7 +102,7 @@ class PalmDB(object):
         ans.append('Sort Info ID: %r'%self.sort_info_id)
         ans.append('Type: %r'%self.type)
         ans.append('Creator: %r'%self.creator)
-        ans.append('UID seed: %r'%self.uid_seed)
+        ans.append('Last record UID +1: %r'%self.last_record_uid)
         ans.append('Next record list id: %r'%self.next_rec_list_id)
         ans.append('Number of records: %s'%self.number_of_records)
 
@@ -535,6 +540,15 @@ class Tag(object): # {{{
                     21 : ('Parent section index', 'parent_index'),
                     22 : ('Description offset in cncx', 'desc_offset'),
                     23 : ('Author offset in cncx', 'author_offset'),
+                    69 : ('Offset from first image record num to the'
+                        ' image record associated with this article',
+                        'image_index'),
+                    70 : ('Description offset in cncx', 'desc_offset'),
+                    71 : ('Image attribution offset in cncx',
+                        'image_attr_offset'),
+                    72 : ('Image caption offset in cncx',
+                        'image_caption_offset'),
+                    73 : ('Author offset in cncx', 'author_offset'),
             },
 
             'chapter_with_subchapters' : {
@@ -546,6 +560,8 @@ class Tag(object): # {{{
                     5  : ('Class offset in cncx', 'class_offset'),
                     22 : ('First section index', 'first_child_index'),
                     23 : ('Last section index', 'last_child_index'),
+                    69 : ('Offset from first image record num to masthead'
+                        ' record', 'image_index'),
             },
 
             'section' : {
@@ -558,21 +574,23 @@ class Tag(object): # {{{
 
 
     def __init__(self, tagx, vals, entry_type, cncx):
-        self.value = vals if len(vals) > 1 else vals[0]
+        self.value = vals if len(vals) > 1 else vals[0] if vals else None
         self.entry_type = entry_type
+        tag_type = tagx.tag
+
         self.cncx_value = None
-        if tagx.tag in self.TAG_MAP:
-            self.attr, self.desc = self.TAG_MAP[tagx.tag]
+        if tag_type in self.TAG_MAP:
+            self.attr, self.desc = self.TAG_MAP[tag_type]
         else:
             try:
                 td = self.INTERPRET_MAP[entry_type]
             except:
                 raise ValueError('Unknown entry type: %s'%entry_type)
             try:
-                self.desc, self.attr = td[tagx.tag]
+                self.desc, self.attr = td[tag_type]
             except:
-                raise ValueError('Unknown tag: %d for entry type: %s'%(
-                    tagx.tag, entry_type))
+                self.desc = '??Unknown (tag value: %d)'%tag_type
+                self.attr = 'unknown'
         if '_offset' in self.attr:
             self.cncx_value = cncx[self.value]
 
@@ -603,7 +621,7 @@ class IndexEntry(object): # {{{
             0x3f : 'article',
     }
 
-    def __init__(self, ident, entry_type, raw, cncx, tagx_entries, flags=0):
+    def __init__(self, ident, entry_type, raw, cncx, tagx_entries):
         self.index = ident
         self.raw = raw
         self.tags = []
@@ -617,11 +635,25 @@ class IndexEntry(object): # {{{
         except KeyError:
             raise ValueError('Unknown Index Entry type: %s'%hex(entry_type))
 
+        self.flags = 0
+
+        if self.entry_type in ('periodical', 'article'):
+            large_tags = [t for t in tagx_entries if t.tag > 64]
+            if large_tags:
+                self.flags = ord(raw[0])
+                raw = raw[1:]
+
+
         expected_tags = [tag for tag in tagx_entries if tag.bitmask &
                 entry_type]
 
+        flags = self.flags
         for tag in expected_tags:
             vals = []
+            if tag.tag > 64:
+                has_tag = flags & 0b1
+                flags = flags >> 1
+                if not has_tag: continue
             for i in range(tag.num_values):
                 if not raw:
                     raise ValueError('Index entry does not match TAGX header')
@@ -630,26 +662,11 @@ class IndexEntry(object): # {{{
                 vals.append(val)
             self.tags.append(Tag(tag, vals, self.entry_type, cncx))
 
-        if flags & 0b10:
-            # Look for optional description and author
-            desc_tag = [t for t in tagx_entries if t.tag == 22]
-            if desc_tag and raw:
-                val, consumed = decint(raw)
-                raw = raw[consumed:]
-                if val:
-                    self.tags.append(Tag(desc_tag[0], [val], self.entry_type,
-                        cncx))
-        if flags & 0b100:
-            aut_tag = [t for t in tagx_entries if t.tag == 23]
-            if aut_tag and raw:
-                val, consumed = decint(raw)
-                raw = raw[consumed:]
-                if val:
-                    self.tags.append(Tag(aut_tag[0], [val], self.entry_type,
-                        cncx))
-
         self.consumed = len(orig_raw) - len(raw)
         self.trailing_bytes = raw
+        if self.trailing_bytes.replace(b'\0', b''):
+            raise ValueError('IndexEntry has leftover bytes: %s'%format_bytes(
+                self.trailing_bytes))
 
     @property
     def label(self):
@@ -701,11 +718,13 @@ class IndexEntry(object): # {{{
         return -1
 
     def __str__(self):
-        ans = ['Index Entry(index=%s, entry_type=%s (%s), length=%d, byte_size=%d)'%(
-            self.index, self.entry_type, bin(self.entry_type_raw)[2:],
+        ans = ['Index Entry(index=%s, entry_type=%s, flags=%s, '
+                'length=%d, byte_size=%d)'%(
+            self.index, self.entry_type, bin(self.flags)[2:],
             len(self.tags), self.byte_size)]
         for tag in self.tags:
-            ans.append('\t'+str(tag))
+            if tag.value is not None:
+                ans.append('\t'+str(tag))
         if self.first_child_index != -1:
             ans.append('\tNumber of children: %d'%(self.last_child_index -
                 self.first_child_index + 1))
@@ -724,6 +743,7 @@ class IndexRecord(object): # {{{
 
     def __init__(self, record, index_header, cncx):
         self.record = record
+        self.alltext = None
         raw = self.record.raw
 
         if raw[:4] != b'INDX':
@@ -763,17 +783,14 @@ class IndexRecord(object): # {{{
                 next_off = len(indxt)
             index, consumed = decode_hex_number(indxt[off:])
             entry_type = ord(indxt[off+consumed])
-            d, flags = 1, 0
-            if index_header.index_type == 6:
-                flags = ord(indxt[off+consumed+d])
-                d += 1
-            pos = off+consumed+d
-            self.indices.append(IndexEntry(index, entry_type,
-                indxt[pos:next_off], cncx,
-                index_header.tagx_entries, flags=flags))
+            pos = off+consumed+1
+            idxe = IndexEntry(index, entry_type,
+                    indxt[pos:next_off], cncx,
+                    index_header.tagx_entries)
+            self.indices.append(idxe)
 
         rest = indxt[pos+self.indices[-1].consumed:]
-        if rest.replace(b'\0', ''): # There can be padding null bytes
+        if rest.replace(b'\0', b''): # There can be padding null bytes
             raise ValueError('Extra bytes after IDXT table: %r'%rest)
 
     def get_parent(self, index):
@@ -803,7 +820,11 @@ class IndexRecord(object): # {{{
         a('Index offsets: %r'%self.index_offsets)
         a('\nIndex Entries (%d entries):'%len(self.indices))
         for entry in self.indices:
-            a(str(entry)+'\n')
+            offset = entry.offset
+            a(str(entry))
+            if offset is not None and self.alltext is not None:
+                a('\tHTML at offset: %r'%self.alltext[offset:offset+100])
+            a('')
 
         return '\n'.join(ans)
 
@@ -826,8 +847,15 @@ class CNCX(object) : # {{{
             while pos < len(raw):
                 length, consumed = decint(raw[pos:])
                 if length > 0:
-                    self.records[pos+record_offset] = raw[
+                    try:
+                        self.records[pos+record_offset] = raw[
                             pos+consumed:pos+consumed+length].decode(codec)
+                    except:
+                        byts = raw[pos+consumed:pos+consumed+length]
+                        r = format_bytes(byts)
+                        print ('CNCX entry at offset %d has unknown format %s'%(
+                            pos+record_offset, r))
+                        self.records[pos+record_offset] = r
                 pos += consumed+length
             record_offset += 0x10000
 
@@ -849,6 +877,7 @@ class TextRecord(object): # {{{
         self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)
         raw_trailing_bytes = record.raw[len(self.raw):]
         self.raw = decompress(self.raw)
+
         if 0 in self.trailing_data:
             self.trailing_data['multibyte_overlap'] = self.trailing_data.pop(0)
         if 1 in self.trailing_data:
@@ -1114,13 +1143,13 @@ class MOBIFile(object): # {{{
         self.mobi_header = MOBIHeader(self.records[0])
 
         if 'huff' in self.mobi_header.compression.lower():
-            huffrecs = [r.raw for r in
+            huffrecs = [self.records[r].raw for r in
                     xrange(self.mobi_header.huffman_record_offset,
                         self.mobi_header.huffman_record_offset +
                         self.mobi_header.huffman_record_count)]
             from calibre.ebooks.mobi.huffcdic import HuffReader
             huffs = HuffReader(huffrecs)
-            decompress = huffs.decompress
+            decompress = lambda x: huffs.decompress([x])
         elif 'palmdoc' in self.mobi_header.compression.lower():
             from calibre.ebooks.compression.palmdoc import decompress_doc
             decompress = decompress_doc
@@ -1181,7 +1210,7 @@ class MOBIFile(object): # {{{
         print (str(self.mobi_header).encode('utf-8'), file=f)
 # }}}
 
-def inspect_mobi(path_or_stream, prefix='decompiled'):
+def inspect_mobi(path_or_stream, prefix='decompiled'): # {{{
     stream = (path_or_stream if hasattr(path_or_stream, 'read') else
             open(path_or_stream, 'rb'))
     f = MOBIFile(stream)
@@ -1193,7 +1222,22 @@ def inspect_mobi(path_or_stream, prefix='decompiled'):
     os.mkdir(ddir)
     with open(os.path.join(ddir, 'header.txt'), 'wb') as out:
         f.print_header(f=out)
+
+    alltext = os.path.join(ddir, 'text.html')
+    with open(alltext, 'wb') as of:
+        alltext = b''
+        for rec in f.text_records:
+            of.write(rec.raw)
+            alltext += rec.raw
+        of.seek(0)
+    root = html.fromstring(alltext.decode('utf-8'))
+    with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
+        of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
+            include_meta_content_type=True))
+
+
     if f.index_header is not None:
+        f.index_record.alltext = alltext
         with open(os.path.join(ddir, 'index.txt'), 'wb') as out:
             print(str(f.index_header), file=out)
             print('\n\n', file=out)
@@ -1211,20 +1255,10 @@ def inspect_mobi(path_or_stream, prefix='decompiled'):
         for rec in getattr(f, attr):
             rec.dump(tdir)
 
-    alltext = os.path.join(ddir, 'text.html')
-    with open(alltext, 'wb') as of:
-        alltext = b''
-        for rec in f.text_records:
-            of.write(rec.raw)
-            alltext += rec.raw
-        of.seek(0)
-    root = html.fromstring(alltext.decode('utf-8'))
-    with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
-        of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
-            include_meta_content_type=True))
-
 
     print ('Debug data saved to:', ddir)
+
+# }}}
 
 def main():
     inspect_mobi(sys.argv[1])
