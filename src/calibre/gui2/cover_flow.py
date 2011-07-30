@@ -29,12 +29,14 @@ if pictureflow is not None:
             pictureflow.FlowImages.__init__(self)
             self.images = []
             self.captions = []
+            self.subtitles = []
             for f in os.listdir(dirpath):
                 f = os.path.join(dirpath, f)
                 img = QImage(f)
                 if not img.isNull():
                     self.images.append(img)
                     self.captions.append(os.path.basename(f))
+                    self.subtitles.append('%d bytes'%os.stat(f).st_size)
 
         def count(self):
             return len(self.images)
@@ -44,6 +46,9 @@ if pictureflow is not None:
 
         def caption(self, index):
             return self.captions[index]
+
+        def subtitle(self, index):
+            return self.subtitles[index]
 
         def currentChanged(self, index):
             print 'current changed:', index

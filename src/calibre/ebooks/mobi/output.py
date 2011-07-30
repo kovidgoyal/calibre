@@ -50,6 +50,19 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('When adding the Table of Contents to the book, add it at the start of the '
                 'book instead of the end. Not recommended.')
         ),
+        OptionRecommendation(name='mobi_navpoints_only_deepest',
+            recommended_value=False,
+            help=_('When adding navpoints for the chapter-to-chapter'
+                ' navigation on the kindle, use only the lowest level '
+                'of items in the TOC, instead of items at every level.')
+        ),
+
+        OptionRecommendation(name='kindlegen',
+            recommended_value=False,
+            help=('Use kindlegen (must be in your PATH) to generate the'
+                ' binary wrapper for the MOBI format. Useful to debug '
+                ' the calibre MOBI output.')
+        ),
 
     ])
 
@@ -81,26 +94,6 @@ class MOBIOutput(OutputFormatPlugin):
             self.oeb.guide.add('masthead', 'Masthead Image', href)
         else:
             self.oeb.log.debug('Using mastheadImage supplied in manifest...')
-
-
-    def dump_toc(self, toc) :
-        self.log( "\n         >>> TOC contents <<<")
-        self.log( "     toc.title: %s" % toc.title)
-        self.log( "      toc.href: %s" % toc.href)
-        for periodical in toc.nodes :
-            self.log( "\tperiodical title: %s" % periodical.title)
-            self.log( "\t            href: %s" % periodical.href)
-            for section in periodical :
-                self.log( "\t\tsection title: %s" % section.title)
-                self.log( "\t\tfirst article: %s" % section.href)
-                for article in section :
-                    self.log( "\t\t\tarticle title: %s" % repr(article.title))
-                    self.log( "\t\t\t         href: %s" % article.href)
-
-    def dump_manifest(self) :
-        self.log( "\n         >>> Manifest entries <<<")
-        for href in self.oeb.manifest.hrefs :
-            self.log ("\t%s" % href)
 
     def periodicalize_toc(self):
         from calibre.ebooks.oeb.base import TOC
@@ -156,12 +149,6 @@ class MOBIOutput(OutputFormatPlugin):
             # Fix up the periodical href to point to first section href
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
-            # diagnostics
-            if self.opts.verbose > 3:
-                self.dump_toc(toc)
-                self.dump_manifest()
-
-
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
         from calibre.ebooks.mobi.mobiml import MobiMLizer
@@ -190,7 +177,11 @@ class MOBIOutput(OutputFormatPlugin):
             MobiWriter
         else:
             from calibre.ebooks.mobi.writer import MobiWriter
-        writer = MobiWriter(opts,
-                        write_page_breaks_after_item=write_page_breaks_after_item)
-        writer(oeb, output_path)
+        if opts.kindlegen:
+            from calibre.ebooks.mobi.kindlegen import kindlegen
+            kindlegen(oeb, opts, input_plugin, output_path)
+        else:
+            writer = MobiWriter(opts,
+                            write_page_breaks_after_item=write_page_breaks_after_item)
+            writer(oeb, output_path)
 

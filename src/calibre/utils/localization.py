@@ -71,13 +71,13 @@ def set_translators():
     lang = get_lang()
     if lang:
         buf = iso639 = None
-        if os.access(lang+'.po', os.R_OK):
+        mpath = get_lc_messages_path(lang)
+        if mpath and os.access(mpath+'.po', os.R_OK):
             from calibre.translations.msgfmt import make
             buf = cStringIO.StringIO()
-            make(lang+'.po', buf)
+            make(mpath+'.po', buf)
             buf = cStringIO.StringIO(buf.getvalue())
 
-        mpath = get_lc_messages_path(lang)
         if mpath is not None:
             with ZipFile(P('localization/locales.zip',
                 allow_user_override=False), 'r') as zf:
@@ -140,6 +140,7 @@ _extra_lang_codes = {
         'es_VE' : _('Spanish (Venezuela)'),
         'es_BO' : _('Spanish (Bolivia)'),
         'es_NI' : _('Spanish (Nicaragua)'),
+        'es_CO' : _('Spanish (Colombia)'),
         'de_AT' : _('German (AT)'),
         'fr_BE' : _('French (BE)'),
         'nl'    : _('Dutch (NL)'),

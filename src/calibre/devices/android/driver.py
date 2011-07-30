@@ -47,10 +47,12 @@ class ANDROID(USBMS):
 
             # Google
             0x18d1 : {
+                0x0001 : [0x0223],
                 0x4e11 : [0x0100, 0x226, 0x227],
-                0x4e12: [0x0100, 0x226, 0x227],
-                0x4e21: [0x0100, 0x226, 0x227],
-                0xb058: [0x0222, 0x226, 0x227]},
+                0x4e12 : [0x0100, 0x226, 0x227],
+                0x4e21 : [0x0100, 0x226, 0x227],
+                0xb058 : [0x0222, 0x226, 0x227]
+            },
 
             # Samsung
             0x04e8 : { 0x681d : [0x0222, 0x0223, 0x0224, 0x0400],
@@ -126,7 +128,7 @@ class ANDROID(USBMS):
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
             'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
-            'GT-S5830_CARD']
+            'GT-S5830_CARD', 'GT-S5570_CARD']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',

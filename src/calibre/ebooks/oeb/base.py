@@ -1680,11 +1680,18 @@ class TOC(object):
                 return True
         return False
 
-    def iterdescendants(self):
+    def iterdescendants(self, breadth_first=False):
         """Iterate over all descendant nodes in depth-first order."""
-        for child in self.nodes:
-            for node in child.iter():
-                yield node
+        if breadth_first:
+            for child in self.nodes:
+                yield child
+            for child in self.nodes:
+                for node in child.iterdescendants(breadth_first=True):
+                    yield node
+        else:
+            for child in self.nodes:
+                for node in child.iter():
+                    yield node
 
     def __iter__(self):
         """Iterate over all immediate child nodes."""

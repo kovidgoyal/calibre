@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__  = 'GPL v3'
 __copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David O'Callaghan, 2011 Modified by Phil Burns"
 '''
 irishtimes.com
@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class IrishTimes(BasicNewsRecipe):
     title          = u'The Irish Times'
     encoding  = 'ISO-8859-15'
-    __author__     = "Derry FitzGerald, Ray Kinsella, David O'Callaghan and Phil Burns"
+    __author__    = "Derry FitzGerald, Ray Kinsella, David O'Callaghan and Phil Burns"
     language = 'en_IE'
     timefmt = ' (%A, %B %d, %Y)'
 
@@ -18,6 +18,7 @@ class IrishTimes(BasicNewsRecipe):
     oldest_article = 1.0
     max_articles_per_feed  = 100
     no_stylesheets = True
+    simultaneous_downloads= 5
 
     r = re.compile('.*(?P<url>http:\/\/(www.irishtimes.com)|(rss.feedsportal.com\/c)\/.*\.html?).*')
     remove_tags    = [dict(name='div', attrs={'class':'footer'})]
@@ -25,17 +26,17 @@ class IrishTimes(BasicNewsRecipe):
 
     feeds          = [
                       ('Frontpage', 'http://www.irishtimes.com/feeds/rss/newspaper/index.rss'),
-                      ('Ireland', 'http://rss.feedsportal.com/c/851/f/10845/index.rss'),
-                      ('World', 'http://rss.feedsportal.com/c/851/f/10846/index.rss'),
-                      ('Finance', 'http://rss.feedsportal.com/c/851/f/10847/index.rss'),
-                      ('Features', 'http://rss.feedsportal.com/c/851/f/10848/index.rss'),
-                      ('Sport', 'http://rss.feedsportal.com/c/851/f/10849/index.rss'),
-                      ('Opinion', 'http://rss.feedsportal.com/c/851/f/10850/index.rss'),
-                      ('Letters', 'http://rss.feedsportal.com/c/851/f/10851/index.rss'),
+                      ('Ireland', 'http://www.irishtimes.com/feeds/rss/newspaper/ireland.rss'),
+                      ('World', 'http://www.irishtimes.com/feeds/rss/newspaper/world.rss'),
+                      ('Finance', 'http://www.irishtimes.com/feeds/rss/newspaper/finance.rss'),
+                      ('Features', 'http://www.irishtimes.com/feeds/rss/newspaper/features.rss'),
+                      ('Sport', 'http://www.irishtimes.com/feeds/rss/newspaper/sport.rss'),
+                      ('Opinion', 'http://www.irishtimes.com/feeds/rss/newspaper/opinion.rss'),
+                      ('Letters', 'http://www.irishtimes.com/feeds/rss/newspaper/letters.rss'),
                       ('Magazine', 'http://www.irishtimes.com/feeds/rss/newspaper/magazine.rss'),
-                      ('Health', 'http://rss.feedsportal.com/c/851/f/10852/index.rss'),
-                      ('Education & Parenting', 'http://rss.feedsportal.com/c/851/f/10853/index.rss'),
-                      ('Motors', 'http://rss.feedsportal.com/c/851/f/10854/index.rss'),
+                      ('Health', 'http://www.irishtimes.com/feeds/rss/newspaper/health.rss'),
+                      ('Education & Parenting', 'http://www.irishtimes.com/feeds/rss/newspaper/education.rss'),
+                      ('Motors', 'http://www.irishtimes.com/feeds/rss/newspaper/motors.rss'),
                       ('An Teanga Bheo', 'http://www.irishtimes.com/feeds/rss/newspaper/anteangabheo.rss'),
                       ('Commercial Property', 'http://www.irishtimes.com/feeds/rss/newspaper/commercialproperty.rss'),
                       ('Science Today', 'http://www.irishtimes.com/feeds/rss/newspaper/sciencetoday.rss'),
@@ -49,10 +50,16 @@ class IrishTimes(BasicNewsRecipe):
 
     def print_version(self, url):
         if url.count('rss.feedsportal.com'):
-            u = url.replace('0Bhtml/story01.htm','_pf0Bhtml/story01.htm')
+            #u = url.replace('0Bhtml/story01.htm','_pf0Bhtml/story01.htm')
+            u = url.find('irishtimes')
+            u = 'http://www.irishtimes.com' + url[u + 12:]
+            u = u.replace('0C', '/')
+            u = u.replace('A', '')
+            u = u.replace('0Bhtml/story01.htm', '_pf.html')
         else:
             u = url.replace('.html','_pf.html')
         return u
 
     def get_article_url(self, article):
         return article.link
+
