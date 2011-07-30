@@ -201,6 +201,7 @@ class MobiWriter(object):
         self.text_length = len(text)
         text = StringIO(text)
         nrecords = 0
+        records_size = 0
 
         if self.compression != UNCOMPRESSED:
             self.oeb.logger.info('  Compressing markup content...')
@@ -214,9 +215,15 @@ class MobiWriter(object):
             data += pack(b'>B', len(overlap))
 
             self.records.append(data)
+            records_size += len(data)
             nrecords += 1
 
         self.last_text_record_idx = nrecords
+        self.first_non_text_record_idx = nrecords + 1
+        # Pad so that the next records starts at a 4 byte boundary
+        if records_size % 4 != 0:
+            self.records.append(b'\x00'*(records_size % 4))
+            self.first_non_text_record_idx += 1
 
     def read_text_record(self, text):
         '''
@@ -338,7 +345,7 @@ class MobiWriter(object):
 
         # 0x40 - 0x43 : Offset of first non-text record
         record0.write(pack(b'>I',
-            self.last_text_record_idx + 1))
+            self.first_non_text_record_idx))
 
         # 0x44 - 0x4b : title offset, title length
         record0.write(pack(b'>II',
