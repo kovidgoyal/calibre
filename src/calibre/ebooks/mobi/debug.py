@@ -589,6 +589,7 @@ class Tag(object): # {{{
             try:
                 self.desc, self.attr = td[tag_type]
             except:
+                print ('Unknown tag value: %d'%tag_type)
                 self.desc = '??Unknown (tag value: %d)'%tag_type
                 self.attr = 'unknown'
         if '_offset' in self.attr:
