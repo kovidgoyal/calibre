@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-22 17:11+0000\n"
+"POT-Creation-Date: 2011-07-29 18:01+0000\n"
 "PO-Revision-Date: 2011-07-19 18:16+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-07-23 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-07-30 04:39+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -62,15 +62,15 @@ msgstr "No fa res"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/ereader.py:61
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/extz.py:23
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:40
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:100
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:39
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:99
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:36
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:64
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:66
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:124
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/meta.py:126
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1072
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1182
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1080
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1190
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdb.py:41
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:29
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/plucker.py:25
@@ -86,10 +86,10 @@ msgstr "No fa res"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/covers.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:80
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:81
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/identify.py:256
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/identify.py:361
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/identify.py:363
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/identify.py:464
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/identify.py:257
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/identify.py:362
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/identify.py:364
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/identify.py:465
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/txt.py:18
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:43
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:69
@@ -100,6 +100,7 @@ msgstr "No fa res"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:964
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:966
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:968
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:292
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:99
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1001
@@ -139,9 +140,9 @@ msgstr "No fa res"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:376
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:379
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:160
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:167
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:549
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:550
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:151
@@ -169,21 +170,21 @@ msgstr "No fa res"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:364
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:165
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:166
-#: /home/kovid/work/calibre/src/calibre/gui2/store/stores/google_books_plugin.py:90
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:170
+#: /home/kovid/work/calibre/src/calibre/gui2/store/stores/google_books_plugin.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:200
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:217
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:535
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:543
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:554
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2003
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2150
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3164
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3166
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3299
-#: /home/kovid/work/calibre/src/calibre/library/server/content.py:212
-#: /home/kovid/work/calibre/src/calibre/library/server/content.py:213
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2005
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2152
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3169
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3171
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3304
+#: /home/kovid/work/calibre/src/calibre/library/server/content.py:225
+#: /home/kovid/work/calibre/src/calibre/library/server/content.py:226
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:243
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:156
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:159
@@ -243,7 +244,7 @@ msgid "Preferences"
 msgstr "Preferències"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
 msgstr "Botiga"
 
@@ -1120,7 +1121,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1134
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:330
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:343
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3028
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3030
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:171
 msgid "News"
 msgstr "Notícies"
@@ -1128,8 +1129,8 @@ msgstr "Notícies"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2685
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:652
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2988
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3006
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2990
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3008
 msgid "Catalog"
 msgstr "Catàleg"
 
@@ -1534,6 +1535,10 @@ msgstr "Comunica't amb un Nextbook Reader"
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
 msgstr "Comunica't amb un lector Moovybook"
+
+#: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
+msgid "Communicate with the COBY"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2147,11 +2152,13 @@ msgstr "Opcions per assignar metadades a la sortida"
 msgid "Options to help with debugging the conversion"
 msgstr "Opcions per ajudar a la depuració de la conversió"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:214
-msgid "List builtin recipes"
-msgstr "Mostra les receptes integrades"
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:216
+msgid ""
+"List builtin recipe names. You can create an ebook from a builtin recipe "
+"like this: ebook-convert \"Recipe Name.recipe\" output.epub"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:287
+#: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:288
 msgid "Output saved to"
 msgstr "S'ha desat la sortida a"
 
@@ -3419,7 +3426,7 @@ msgstr "No"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1016
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:162
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/models.py:23
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:349
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:578
@@ -3615,10 +3622,10 @@ msgstr ""
 "Obté una imatge de portada o bé metadades socials per al llibre identificat "
 "amb ISBN des de LibraryThing.com\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1366
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1374
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1498
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:900
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Cover"
 msgstr "Portada"
 
@@ -3783,7 +3790,7 @@ msgid ""
 "book instead of the end. Not recommended."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:119
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:105
 msgid "All articles"
 msgstr "Tots els articles"
 
@@ -5121,7 +5128,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:419
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:100
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:883
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:886
 msgid "Not allowed"
 msgstr "No està permès"
 
@@ -6059,44 +6066,55 @@ msgstr "Aquest llibre ja no existeix a la biblioteca"
 msgid "%s has no available formats."
 msgstr "No hi ha formats disponibles a %s."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:69
 msgid "Searching in"
 msgstr "S'està  cercant a"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:245
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:246
 msgid "Adding..."
 msgstr "S'està afegint..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:258
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:259
 msgid "Searching in all sub-directories..."
 msgstr "S'està cercant a totes les subcarpetes..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:269
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:270
 msgid "Path error"
 msgstr "Error al camí"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:270
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:271
 msgid "The specified directory could not be processed."
 msgstr "La carpeta que s'ha indicat no es pot processar."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:274
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:895
 msgid "No books"
 msgstr "Cap llibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:275
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:276
 msgid "No books found"
 msgstr "No s'ha trobat cap llibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:339
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:289
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:777
+msgid "No permission"
+msgstr "No està permès"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:290
+msgid ""
+"Cannot add some files as you do not have  permission to access them. Click "
+"Show Details to see the list of such files."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:358
 msgid "Added"
 msgstr "S'ha afegit"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:352
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:371
 msgid "Adding failed"
 msgstr "Ha fallat en afegir"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:372
 msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
@@ -6105,11 +6123,11 @@ msgstr ""
 "calibre i afegiu els llibres en grups més petits, fins que trobeu el llibre "
 "que causa el problema."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:368
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Duplicates found!"
 msgstr "N'he trobat de repetits!"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:369
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:388
 msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
@@ -6117,19 +6135,19 @@ msgstr ""
 "Ja hi ha llibres amb el mateix títol a la base de dades. S'afegeixen "
 "igualment?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:372
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:391
 msgid "Adding duplicates..."
 msgstr "S'estan afegint els duplicats..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:441
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:460
 msgid "Saving..."
 msgstr "S’està desant…"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:448
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:467
 msgid "Collecting data, please wait..."
 msgstr "S'està recollint les dades, espereu..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/add.py:520
+#: /home/kovid/work/calibre/src/calibre/gui2/add.py:539
 msgid "Saved"
 msgstr "S'ha desat"
 
@@ -6306,37 +6324,37 @@ msgstr "Feu clic per obrir"
 msgid "Ids"
 msgstr "Identificadors"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:162
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:163
 #, python-format
 msgid "Book %(sidx)s of <span class=\"series_name\">%(series)s</span>"
 msgstr "Llibre %(sidx)s de <span class=\"series_name\">%(series)s</span>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:174
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1020
 msgid "Collections"
 msgstr "Col·leccions"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:275
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:276
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:247
 msgid "Paste Cover"
 msgstr "Enganxa la portada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:276
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:277
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:248
 msgid "Copy Cover"
 msgstr "Copia la portada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:542
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:543
 msgid "Double-click to open Book Details window"
 msgstr "Feu doble clic per obrir la finestra de detalls del llibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:543
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:544
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:279
 msgid "Path"
 msgstr "Camí"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:544
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:545
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #, python-format
 msgid "Cover size: %(width)d x %(height)d"
@@ -8127,11 +8145,11 @@ msgstr ""
 "etiqueta.</p><p>Per aprendre més usos avançats d'XPath vegeu l'<a "
 "href=\"http://manual.calibre-ebook.com/xpath.html\">Assistent d'XPath</a>."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:145
 msgid "Browse by covers"
 msgstr "Navegació per portades"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:176
 msgid "Cover browser could not be loaded"
 msgstr "No s'ha pogut carregar el navegador de portades"
 
@@ -10155,22 +10173,22 @@ msgstr "S'està cancel·lant..."
 msgid "Authors"
 msgstr "Autors"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:188
 msgid "**No items found**"
 msgstr "**No s'ha trobat cap element**"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:189
 msgid ""
 "Click in a column  in the library view to see the information for that book"
 msgstr ""
 "Feu clic a una columna a la vista de biblioteca per veure informació del "
 "llibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:205
 msgid "Books with selected item \"{0}\": {1}"
 msgstr "Llibres amb l'element «{0}» seleccionat: {1}"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:211
 msgid ""
 "Double-click on a book to change the selection in the library view. Shift- "
 "or control-double-click to edit the metadata of a book"
@@ -11798,7 +11816,7 @@ msgstr "Encongeix la columna si és massa ampla"
 msgid "Restore default layout"
 msgstr "Restaura la disposició per defecte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:884
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:887
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
@@ -12173,10 +12191,6 @@ msgstr "Suprimeix el format seleccionat d'aquest llibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:735
 msgid "Choose formats for "
 msgstr "Trieu els formats per a "
-
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:777
-msgid "No permission"
-msgstr "No està permès"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:778
 msgid "You do not have permission to read the following files:"
@@ -15361,7 +15375,7 @@ msgid "Invert"
 msgstr "Inverteix"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Affiliate"
 msgstr "Afiliat"
 
@@ -15416,7 +15430,7 @@ msgstr ""
 "mercat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:143
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:215
 #, python-format
 msgid "Buying from this store supports the calibre developer: %s."
 msgstr ""
@@ -15534,19 +15548,19 @@ msgstr "Baixada:"
 msgid "Titl&e/Author/Price ..."
 msgstr "Tít&ol/autor/preu..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "DRM"
 msgstr "DRM"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Download"
 msgstr "Baixada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:37
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Price"
 msgstr "Preu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:200
 #, python-format
 msgid ""
 "Detected price as: %s. Check with the store before making a purchase to "
@@ -15557,7 +15571,7 @@ msgstr ""
 "botiga que aquest preu és el correcte. Aquest preu sovint no inclou les "
 "promocions que tingui actives la botiga."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:203
 msgid ""
 "This book as been detected as having DRM restrictions. This book may not "
 "work with your reader and you will have limitations placed upon you as to "
@@ -15569,7 +15583,7 @@ msgstr ""
 "amb el llibre. Comproveu amb la botiga per assegurar-vos que podeu llegir el "
 "llibre abans de fer cap compra."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:205
 msgid ""
 "This book has been detected as being DRM Free. You should be able to use "
 "this book on any device provided it is in a format calibre supports for "
@@ -15582,7 +15596,7 @@ msgstr ""
 "abans de fer una compra. És possible que la botiga no faci públic la "
 "utilització de DRM."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:207
 msgid ""
 "The DRM status of this book could not be determined. There is a very high "
 "likelihood that this book is actually DRM restricted."
@@ -15590,7 +15604,7 @@ msgstr ""
 "No s'ha pogut determinar si el llibre té restriccions DRM. És molt probable "
 "que en realitat aquest llibre en tingui."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:212
 #, python-format
 msgid "The following formats can be downloaded directly: %s."
 msgstr "Es pot descarregar directament els formats següents: %s."
@@ -16125,53 +16139,53 @@ msgstr ""
 "continuarà en execució a la safata del sistema. Per tancar-lo trieu "
 "<b>Surt</b> al menú de context de la safata del sistema."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:73
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:74
 #, python-format
 msgid ""
 "%(app)s has been updated to version <b>%(ver)s</b>. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:80
 msgid "Update available!"
 msgstr "Hi ha una actualització!"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:85
 msgid "Show this notification for future updates"
 msgstr "Mostra aquesta notificació per a les properes actualitzacions"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:89
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:90
 msgid "&Get update"
 msgstr "Aconsegueix l'&actualització"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:93
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:94
 msgid "Update &plugins"
 msgstr "Actualitza els &connectors"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:152
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:153
 #, python-format
 msgid " (%d plugin updates)"
 msgstr " (%d actualitzacions de connectors"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:156
 msgid "Update found"
 msgstr "S'ha trobat una actualització"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:159
 msgid "updated plugins"
 msgstr "s'ha actualitzat els connectors"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:184
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:190
 msgid "Plugin Updates"
 msgstr "Actualitzacions de connectors"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:188
 #, python-format
 msgid "There are %d plugin updates available"
 msgstr "Hi ha %d actualitzacions de connectors disponibles"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/update.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/update.py:192
 msgid "Install and configure user plugins"
 msgstr "Instal·la i configura els complements de l'usuari"
 
@@ -18322,18 +18336,18 @@ msgstr ""
 msgid "%(tt)sAverage rating is %(rating)3.1f"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3325
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3330
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 "<p>S'està migrant la base de dades antiga a la biblioteca de %s<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3354
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3359
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr "S'està copiant <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3371
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3376
 msgid "Compacting database"
 msgstr "S'està compactant la base de dades"
 
@@ -20110,7 +20124,7 @@ msgstr "Increment automàtic de l'índex de la sèrie"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:13
 msgid ""
-"The algorithm used to assign a new book in an existing series a series "
+"The algorithm used to assign a book added to an existing series a series "
 "number.\n"
 "New series numbers assigned using this tweak are always integer values, "
 "except\n"
@@ -20130,35 +20144,27 @@ msgid ""
 "Examples:\n"
 "series_index_auto_increment = 'next'\n"
 "series_index_auto_increment = 'next_free'\n"
-"series_index_auto_increment = 16.5"
+"series_index_auto_increment = 16.5\n"
+"\n"
+"Set the use_series_auto_increment_tweak_when_importing tweak to True to\n"
+"use the above values when importing/adding books. If this tweak is set to\n"
+"False (the default) then the series number will be set to 1 if it is not\n"
+"explicitly set to during the import. If set to True, then the\n"
+"series index will be set according to the series_index_auto_increment "
+"setting.\n"
+"Note that the use_series_auto_increment_tweak_when_importing tweak is used\n"
+"only when a value is not provided during import. If the importing regular\n"
+"expression produces a value for series_index, or if you are reading "
+"metadata\n"
+"from books and the import plugin produces a value, than that value will\n"
+"be used irrespective of the setting of the tweak."
 msgstr ""
-"L'algorisme utilitzat per assignar un nombre en una sèrie existent a un "
-"llibre nou.\n"
-"Els números nous assignats amb aquest ajustament són enters, excepte si\n"
-"especifiqueu un nombre constant que no sigui enter.\n"
-"Els valors possibles són:\n"
-"next: El primer enter disponible més gran que el major dels nombres "
-"utilitzats\n"
-"first_free: El primer enter disponible més gran que 0\n"
-"next_free: El primer enter disponible més gran que el menor dels nombres "
-"utilitzats\n"
-"last_free: El primer enter disponible més petit que el major dels nombres "
-"utilitzats.\n"
-"S'obté el més gran utilitzat + 1 si no n'hi ha cap altre nombre lliure\n"
-"const: Assigna sempre el nombre 1\n"
-"a number: Assigna sempre aquest nombre. El nombre no està entre cometes. "
-"Aquí\n"
-"es pot utilitzar 0.0\n"
-"Exemples:\n"
-"series_index_auto_increment = 'next'\n"
-"series_index_auto_increment = 'next_free'\n"
-"series_index_auto_increment = 16.5"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:31
+#: /home/kovid/work/calibre/resources/default_tweaks.py:43
 msgid "Add separator after completing an author name"
 msgstr "Afegeix un separador després de completar un nom d'autor"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:32
+#: /home/kovid/work/calibre/resources/default_tweaks.py:44
 msgid ""
 "Should the completion separator be append\n"
 "to the end of the completed text to\n"
@@ -20171,11 +20177,11 @@ msgstr ""
 "una nova operació d'introducció d'autors.\n"
 "Pot ser «True» o «False»"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:39
+#: /home/kovid/work/calibre/resources/default_tweaks.py:51
 msgid "Author sort name algorithm"
 msgstr "Algorisme d'ordre per nom d'autor"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:40
+#: /home/kovid/work/calibre/resources/default_tweaks.py:52
 msgid ""
 "The algorithm used to copy author to author_sort\n"
 "Possible values are:\n"
@@ -20209,11 +20215,11 @@ msgstr ""
 "en\n"
 "majúscula o minúscula i els punts finals es gestionen automàticament."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:57
+#: /home/kovid/work/calibre/resources/default_tweaks.py:69
 msgid "Use author sort in Tag Browser"
 msgstr "Utilitza l'ordre per autor a l'explorador d'etiquetes"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:58
+#: /home/kovid/work/calibre/resources/default_tweaks.py:70
 msgid ""
 "Set which author field to display in the tags pane (the list of authors,\n"
 "series, publishers etc on the left hand side). The choices are author and\n"
@@ -20249,13 +20255,13 @@ msgstr ""
 "categories_use_field_for_author_name = 'author'\n"
 "categories_use_field_for_author_name = 'author_sort'"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:72
+#: /home/kovid/work/calibre/resources/default_tweaks.py:84
 msgid ""
 "Completion sort order: choose when to change from lexicographic to ASCII-like"
 msgstr ""
 "Ordre de compleció: trieu quan s'ha de canviar de lexicografia a tipus ASCII"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:73
+#: /home/kovid/work/calibre/resources/default_tweaks.py:85
 msgid ""
 "Calibre normally uses locale-dependent lexicographic ordering when showing\n"
 "completion values. This means that the sort order is correct for the user's\n"
@@ -20278,11 +20284,11 @@ msgstr ""
 "valor més gran que zero per canviar a l'ordenació ASCII per motius de "
 "rendiment."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:81
+#: /home/kovid/work/calibre/resources/default_tweaks.py:93
 msgid "Control partitioning of Tag Browser"
 msgstr "Control de la divisió de l'explorador d'etiquetes"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:82
+#: /home/kovid/work/calibre/resources/default_tweaks.py:94
 msgid ""
 "When partitioning the tags browser, the format of the subcategory label is\n"
 "controlled by a template: categories_collapsed_name_template if sorting by\n"
@@ -20334,12 +20340,12 @@ msgstr ""
 "no\n"
 "hi hagi cap barra inversa."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:103
+#: /home/kovid/work/calibre/resources/default_tweaks.py:115
 msgid "Specify columns to sort the booklist by on startup"
 msgstr ""
 "Especifica per quines columnes s'ordena la llista de llibres a l'inici"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:104
+#: /home/kovid/work/calibre/resources/default_tweaks.py:116
 msgid ""
 "Provide a set of columns to be sorted on when calibre starts\n"
 "The argument is None if saved sort history is to be used\n"
@@ -20358,11 +20364,11 @@ msgstr ""
 "Per exemple, establiu-ho a [('authors',0),('title',0)] per ordenar\n"
 "per títols per a cada autor."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:113
+#: /home/kovid/work/calibre/resources/default_tweaks.py:125
 msgid "Control how dates are displayed"
 msgstr "Controla com es visualitzen les dates"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:114
+#: /home/kovid/work/calibre/resources/default_tweaks.py:126
 msgid ""
 "Format to be used for publication date and the timestamp (date).\n"
 "A string controlling how the publication date is displayed in the GUI\n"
@@ -20406,11 +20412,11 @@ msgstr ""
 "Format de la data de publicació per defecte: MMM yyyy\n"
 "Format de la marca horària per defecte: dd MMM yyyy"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:135
+#: /home/kovid/work/calibre/resources/default_tweaks.py:147
 msgid "Control sorting of titles and series in the library display"
 msgstr "Controla l'ordre de títols i sèries en mostrar la biblioteca"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:136
+#: /home/kovid/work/calibre/resources/default_tweaks.py:148
 msgid ""
 "Control title and series sorting in the library view. If set to\n"
 "'library_order', the title sort field will be used instead of the title.\n"
@@ -20449,12 +20455,12 @@ msgstr ""
 "si es fa doble clic un un títol i es prem la tecla de retorn sense canviar "
 "res."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:149
+#: /home/kovid/work/calibre/resources/default_tweaks.py:161
 msgid "Control formatting of title and series when used in templates"
 msgstr ""
 "Controla el format de títols i sèries quan s'utilitzen a les plantilles"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:150
+#: /home/kovid/work/calibre/resources/default_tweaks.py:162
 msgid ""
 "Control how title and series names are formatted when saving to "
 "disk/sending\n"
@@ -20488,13 +20494,13 @@ msgstr ""
 "«strictly_alphabetic»\n"
 "seguirà com a «El Senyor dels Anells»."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:162
+#: /home/kovid/work/calibre/resources/default_tweaks.py:174
 msgid "Set the list of words considered to be \"articles\" for sort strings"
 msgstr ""
 "Estableix la llista de paraules que es consideraran «articles» per ordenar "
 "cadenes de text"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:163
+#: /home/kovid/work/calibre/resources/default_tweaks.py:175
 msgid ""
 "Set the list of words that are to be considered 'articles' when computing "
 "the\n"
@@ -20521,11 +20527,11 @@ msgstr ""
 "'^$'\n"
 "Per defecte: '^(A|The|An)\\s+'"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:172
+#: /home/kovid/work/calibre/resources/default_tweaks.py:184
 msgid "Specify a folder calibre should connect to at startup"
 msgstr "Especifica una carpeta que el calibre es connectarà a l'inici"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:173
+#: /home/kovid/work/calibre/resources/default_tweaks.py:185
 msgid ""
 "Specify a folder that calibre should connect to at startup using\n"
 "connect_to_folder. This must be a full path to the folder. If the folder "
@@ -20547,11 +20553,11 @@ msgstr ""
 "biblioprova'\n"
 "auto_connect_to_folder = '/home/dropbox/My Dropbox/un_nom/biblioteca'"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:182
+#: /home/kovid/work/calibre/resources/default_tweaks.py:194
 msgid "Specify renaming rules for SONY collections"
 msgstr "Especifica les normes de canvi de nom per a les col·leccions SONY"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:183
+#: /home/kovid/work/calibre/resources/default_tweaks.py:195
 msgid ""
 "Specify renaming rules for sony collections. This tweak is only applicable "
 "if\n"
@@ -20701,11 +20707,11 @@ msgstr ""
 "sony_collection_renaming_rules={'series':'Sèrie', 'tags':'Etiqueta'}\n"
 "sony_collection_name_template='{category:||: }{value}'"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:235
+#: /home/kovid/work/calibre/resources/default_tweaks.py:247
 msgid "Specify how SONY collections are sorted"
 msgstr "Especifica com s'ordenen les col·leccions SONY"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:236
+#: /home/kovid/work/calibre/resources/default_tweaks.py:248
 msgid ""
 "Specify how sony collections are sorted. This tweak is only applicable if\n"
 "metadata management is set to automatic. You can indicate which metadata is "
@@ -20760,13 +20766,13 @@ msgstr ""
 ") ]\n"
 "Per defecte: buit (sense regles), no es dóna nom a cap atribut de col·lecció."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:253
+#: /home/kovid/work/calibre/resources/default_tweaks.py:265
 msgid "Control how tags are applied when copying books to another library"
 msgstr ""
 "Controla com s'apliquen les etiquetes en copiar llibres a una altra "
 "biblioteca"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:254
+#: /home/kovid/work/calibre/resources/default_tweaks.py:266
 msgid ""
 "Set this to True to ensure that tags in 'Tags to add when adding\n"
 "a book' are added when copying books to another library"
@@ -20775,20 +20781,20 @@ msgstr ""
 "que s'afegiran en afegir un llibre» s'afegeixen en copiar llibres a\n"
 "una altra biblioteca"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:258
+#: /home/kovid/work/calibre/resources/default_tweaks.py:270
 msgid "Set the maximum number of tags to show per book in the content server"
 msgstr ""
 "Estableix el número màxim d'etiquetes per llibre que es mostrarà al servidor "
 "de continguts"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:261
+#: /home/kovid/work/calibre/resources/default_tweaks.py:273
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
 msgstr ""
 "Estableix els camps de metadades personalitzats que el servidor de "
 "continguts mostrarà o no."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:262
+#: /home/kovid/work/calibre/resources/default_tweaks.py:274
 msgid ""
 "content_server_will_display is a list of custom fields to be displayed.\n"
 "content_server_wont_display is a list of custom fields not to be displayed.\n"
@@ -20825,11 +20831,11 @@ msgstr ""
 "content_server_will_display = ['*']\n"
 "content_server_wont_display['#elsmeuscomentaris']"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:279
+#: /home/kovid/work/calibre/resources/default_tweaks.py:291
 msgid "Set the maximum number of sort 'levels'"
 msgstr "Estableix el número màxim de «nivells» d'ordre"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:280
+#: /home/kovid/work/calibre/resources/default_tweaks.py:292
 msgid ""
 "Set the maximum number of sort 'levels' that calibre will use to resort the\n"
 "library after certain operations such as searches or device insertion. Each\n"
@@ -20847,13 +20853,13 @@ msgstr ""
 "no us interessen els ordres en múltiples nivells i detecteu una reducció de\n"
 "rendiment, disminuïu el valor d'aquest ajustament."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:287
+#: /home/kovid/work/calibre/resources/default_tweaks.py:299
 msgid "Specify which font to use when generating a default cover"
 msgstr ""
 "Especifiqueu el tipus de lletra que s'utilitzarà en generar una portada per "
 "defecte"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:288
+#: /home/kovid/work/calibre/resources/default_tweaks.py:300
 msgid ""
 "Absolute path to .ttf font files to use as the fonts for the title, author\n"
 "and footer when generating a default cover. Useful if the default font "
@@ -20867,11 +20873,11 @@ msgstr ""
 "(Liberation Serif) no conté tots els caràcters de l'idioma dels llibres de "
 "la biblioteca."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:294
+#: /home/kovid/work/calibre/resources/default_tweaks.py:306
 msgid "Control behavior of the book list"
 msgstr "Controla el comportament de la llista de llibres"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:295
+#: /home/kovid/work/calibre/resources/default_tweaks.py:307
 msgid ""
 "You can control the behavior of doubleclicks on the books list.\n"
 "Choices: open_viewer, do_nothing,\n"
@@ -20883,11 +20889,11 @@ msgid ""
 "per pixel. Default is per column."
 msgstr ""
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:306
+#: /home/kovid/work/calibre/resources/default_tweaks.py:318
 msgid "Language to use when sorting."
 msgstr "Idioma que s'utilitza en ordenar"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:307
+#: /home/kovid/work/calibre/resources/default_tweaks.py:319
 msgid ""
 "Setting this tweak will force sorting to use the\n"
 "collating order for the specified language. This might be useful if you run\n"
@@ -20914,13 +20920,13 @@ msgstr ""
 "Example: locale_for_sorting = 'es' -- ordena utilitzant les regles de "
 "l'espanyol."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:318
+#: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid "Number of columns for custom metadata in the edit metadata dialog"
 msgstr ""
 "Nombre de columnes per a les metadades personalitzades al diàleg d'edició de "
 "metadades"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:319
+#: /home/kovid/work/calibre/resources/default_tweaks.py:331
 msgid ""
 "Set whether to use one or two columns for custom metadata when editing\n"
 "metadata  one book at a time. If True, then the fields are laid out using "
@@ -20933,11 +20939,11 @@ msgstr ""
 "distribueixin\n"
 "utilitzant dues columnes. «False» per a una sola columna."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:324
+#: /home/kovid/work/calibre/resources/default_tweaks.py:336
 msgid "The number of seconds to wait before sending emails"
 msgstr "El nombre de segons que s'espera abans d'enviar correus electrònics"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:325
+#: /home/kovid/work/calibre/resources/default_tweaks.py:337
 msgid ""
 "The number of seconds to wait before sending emails when using a\n"
 "public email server like gmail or hotmail. Default is: 5 minutes\n"
@@ -20952,13 +20958,13 @@ msgstr ""
 "canvis\n"
 "no tenen efecte fins que no es reiniciï el calibre."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:332
+#: /home/kovid/work/calibre/resources/default_tweaks.py:344
 msgid "Remove the bright yellow lines at the edges of the book list"
 msgstr ""
 "Suprimeix les línies de color groc brillant a les vores de la llista de "
 "llibres"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:333
+#: /home/kovid/work/calibre/resources/default_tweaks.py:345
 msgid ""
 "Control whether the bright yellow lines at the edges of book list are drawn\n"
 "when a section of the user interface is hidden. Changes will take effect\n"
@@ -20969,13 +20975,13 @@ msgstr ""
 "Els\n"
 "canvis no tenen efecte fins que no es reiniciï el calibre."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:338
+#: /home/kovid/work/calibre/resources/default_tweaks.py:350
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr ""
 "Amplada i alçada màximes per a les portades desades a la biblioteca del "
 "calibre"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:339
+#: /home/kovid/work/calibre/resources/default_tweaks.py:351
 msgid ""
 "All covers in the calibre library will be resized, preserving aspect ratio,\n"
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
@@ -20986,11 +20992,11 @@ msgstr ""
 "les proporcions, per adaptar-se a aquestes mides. Això permet evitar\n"
 "reduccions de rendiment per portades extremadament grans."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:344
+#: /home/kovid/work/calibre/resources/default_tweaks.py:356
 msgid "Where to send downloaded news"
 msgstr "On s'envien les notícies baixades"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:345
+#: /home/kovid/work/calibre/resources/default_tweaks.py:357
 msgid ""
 "When automatically sending downloaded news to a connected device, calibre\n"
 "will by default send it to the main memory. By changing this tweak, you can\n"
@@ -21009,11 +21015,11 @@ msgstr ""
 "que\n"
 "s'ha triat s'enviarà els fitxers a la ubicació que tingui més espai lliure."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:352
+#: /home/kovid/work/calibre/resources/default_tweaks.py:364
 msgid "What interfaces should the content server listen on"
 msgstr "Interfícies que el servidor de continguts ha d'escoltar"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:353
+#: /home/kovid/work/calibre/resources/default_tweaks.py:365
 msgid ""
 "By default, the calibre content server listens on '0.0.0.0' which means that "
 "it\n"
@@ -21032,11 +21038,11 @@ msgstr ""
 "(pot\n"
 "no funcionar a tots els sistemes operatius)."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:360
+#: /home/kovid/work/calibre/resources/default_tweaks.py:372
 msgid "Unified toolbar on OS X"
 msgstr "Fusió de la barra d'eines a l'OS X"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:361
+#: /home/kovid/work/calibre/resources/default_tweaks.py:373
 msgid ""
 "If you enable this option and restart calibre, the toolbar will be "
 "'unified'\n"
@@ -21057,11 +21063,11 @@ msgstr ""
 "sota la vostra\n"
 "responsabilitat."
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:368
+#: /home/kovid/work/calibre/resources/default_tweaks.py:380
 msgid "Save original file when converting from same format to same format"
 msgstr ""
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:369
+#: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid ""
 "When calibre does a conversion from the same format to the same format, for\n"
 "example, from EPUB to EPUB, the original file is saved, so that in case the\n"
@@ -23210,6 +23216,9 @@ msgstr ""
 #~ "No s'ha pogut detectar la unitat de disc %s. Probablement el nucli exporta "
 #~ "una versió obsoleta del SYSFS."
 
+#~ msgid "List builtin recipes"
+#~ msgstr "Mostra les receptes integrades"
+
 #~ msgid ""
 #~ "The line height in pts. Controls spacing between consecutive lines of text. "
 #~ "By default no line height manipulation is performed."
@@ -24766,6 +24775,51 @@ msgstr ""
 #~ "títol de color verd si té un format, blau si en de dos i vermell si en té "
 #~ "més s'utilitza «<pre>program:cmp(count(field('formats'),','), 2, 'green', "
 #~ "'blue', 'red')</pre>»"
+
+#~ msgid ""
+#~ "The algorithm used to assign a new book in an existing series a series "
+#~ "number.\n"
+#~ "New series numbers assigned using this tweak are always integer values, "
+#~ "except\n"
+#~ "if a constant non-integer is specified.\n"
+#~ "Possible values are:\n"
+#~ "next - First available integer larger than the largest existing number\n"
+#~ "first_free - First available integer larger than 0\n"
+#~ "next_free - First available integer larger than the smallest existing "
+#~ "number\n"
+#~ "last_free - First available integer smaller than the largest existing "
+#~ "number\n"
+#~ "Return largest existing + 1 if no free number is found\n"
+#~ "const - Assign the number 1 always\n"
+#~ "a number - Assign that number always. The number is not in quotes. Note "
+#~ "that\n"
+#~ "0.0 can be used here.\n"
+#~ "Examples:\n"
+#~ "series_index_auto_increment = 'next'\n"
+#~ "series_index_auto_increment = 'next_free'\n"
+#~ "series_index_auto_increment = 16.5"
+#~ msgstr ""
+#~ "L'algorisme utilitzat per assignar un nombre en una sèrie existent a un "
+#~ "llibre nou.\n"
+#~ "Els números nous assignats amb aquest ajustament són enters, excepte si\n"
+#~ "especifiqueu un nombre constant que no sigui enter.\n"
+#~ "Els valors possibles són:\n"
+#~ "next: El primer enter disponible més gran que el major dels nombres "
+#~ "utilitzats\n"
+#~ "first_free: El primer enter disponible més gran que 0\n"
+#~ "next_free: El primer enter disponible més gran que el menor dels nombres "
+#~ "utilitzats\n"
+#~ "last_free: El primer enter disponible més petit que el major dels nombres "
+#~ "utilitzats.\n"
+#~ "S'obté el més gran utilitzat + 1 si no n'hi ha cap altre nombre lliure\n"
+#~ "const: Assigna sempre el nombre 1\n"
+#~ "a number: Assigna sempre aquest nombre. El nombre no està entre cometes. "
+#~ "Aquí\n"
+#~ "es pot utilitzar 0.0\n"
+#~ "Exemples:\n"
+#~ "series_index_auto_increment = 'next'\n"
+#~ "series_index_auto_increment = 'next_free'\n"
+#~ "series_index_auto_increment = 16.5"
 
 #~ msgid ""
 #~ "You can enter more than one tag per box, separated by commas. The comparison "
