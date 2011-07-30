@@ -1634,7 +1634,7 @@ class MobiWriter(object):
         now = int(time.time())
         nrecords = len(self._records)
         self._write(title, pack('>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
-            'BOOK', 'MOBI', pack('>IIH', nrecords, 0, nrecords))
+            'BOOK', 'MOBI', pack('>IIH', (2*nrecords)-1, 0, nrecords))
         offset = self._tell() + (8 * nrecords) + 2
         for i, record in enumerate(self._records):
             self._write(pack('>I', offset), '\0', pack('>I', 2*i)[1:])

@@ -550,7 +550,7 @@ class MobiWriter(object):
         now = int(time.time())
         nrecords = len(self.records)
         self.write(title, pack(b'>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
-            b'BOOK', b'MOBI', pack(b'>IIH', nrecords, 0, nrecords))
+            b'BOOK', b'MOBI', pack(b'>IIH', (2*nrecords)-1, 0, nrecords))
         offset = self.tell() + (8 * nrecords) + 2
         for i, record in enumerate(self.records):
             self.write(pack(b'>I', offset), b'\0', pack(b'>I', 2*i)[1:])
