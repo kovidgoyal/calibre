@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
 from calibre.ebooks.mobi.utils import (rescale_image, encint,
-        encode_trailing_data)
+        encode_trailing_data, align_block)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
 
 EXTH_CODES = {
@@ -366,7 +366,7 @@ class MobiWriter(object):
         # 0x70 - 0x73 : EXTH flags
         # Bit 6 (0b1000000) being set indicates the presence of an EXTH header
         # The purpose of the other bits is unknown
-        exth_flags = 0b1011000
+        exth_flags = 0b1010000
         if self.is_periodical:
             exth_flags |= 0b1000
         record0.write(pack(b'>I', exth_flags))
@@ -434,7 +434,7 @@ class MobiWriter(object):
         # Add some buffer so that Amazon can add encryption information if this
         # MOBI is submitted for publication
         record0 += (b'\0' * (1024*8))
-        self.records[0] = record0
+        self.records[0] = align_block(record0)
     # }}}
 
     def build_exth(self): # EXTH Header {{{
@@ -506,7 +506,6 @@ class MobiWriter(object):
 
         if datestr is not None:
             datestr = bytes(datestr)
-            datestr = datestr.replace(b'+00:00', b'Z')
             exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
             exth.write(datestr)
             nrecs += 1
@@ -514,7 +513,7 @@ class MobiWriter(object):
             raise NotImplementedError("missing date or timestamp needed for mobi_periodical")
 
         # Write the same creator info as kindlegen 1.2
-        for code, val in [(204, 202), (205, 1), (206, 2), (207, 33307)]:
+        for code, val in [(204, 201), (205, 1), (206, 2), (207, 33307)]:
             exth.write(pack(b'>II', code, 12))
             exth.write(pack(b'>I', val))
             nrecs += 1
@@ -545,7 +544,8 @@ class MobiWriter(object):
         '''
         Write the PalmDB header
         '''
-        title = ascii_filename(unicode(self.oeb.metadata.title[0]))
+        title = ascii_filename(unicode(self.oeb.metadata.title[0])).replace(
+                ' ', '_')
         title = title + (b'\0' * (32 - len(title)))
         now = int(time.time())
         nrecords = len(self.records)

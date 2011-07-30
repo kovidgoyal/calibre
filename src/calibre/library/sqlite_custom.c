@@ -45,7 +45,7 @@ static void sort_concat_step(sqlite3_context *context, int argc, sqlite3_value *
     }
 
     if (list->count == list->length) {
-        list->vals = (SortConcatItem**)realloc(list->vals, list->length + 100);
+        list->vals = (SortConcatItem**)realloc(list->vals, sizeof(SortConcatItem*)*(list->length + 100));
         if (list->vals == NULL) return;
         list->length = list->length + 100;
     }
@@ -122,7 +122,6 @@ static void sort_concat_finalize(sqlite3_context *context) {
         free(ans);
         sort_concat_free(list);
     }
-
 }
 
 static void sort_concat_finalize2(sqlite3_context *context) {
@@ -190,7 +189,7 @@ static void identifiers_concat_step(sqlite3_context *context, int argc, sqlite3_
     }
 
     if (list->count == list->length) {
-        list->vals = (IdentifiersConcatItem**)realloc(list->vals, list->length + 100);
+        list->vals = (IdentifiersConcatItem**)realloc(list->vals, sizeof(IdentifiersConcatItem*)*(list->length + 100));
         if (list->vals == NULL) return;
         list->length = list->length + 100;
     }

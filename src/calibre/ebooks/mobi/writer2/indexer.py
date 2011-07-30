@@ -266,15 +266,15 @@ class TBS(object): # {{{
         buf.write(typ)
 
         if typ not in (self.type_110, self.type_111) and parent_section_index > 0:
+            extra = {}
             # Write starting section information
             if spanner is None:
                 num_articles = len([a for a in depth_map[1] if a.parent_index
                     == parent_section_index])
-                extra = {}
+                if not depth_map[1]:
+                    extra = {0b0001: 0}
                 if num_articles > 1:
                     extra = {0b0100: num_articles}
-            else:
-                extra = {0b0001: 0}
             buf.write(encode_tbs(parent_section_index, extra))
 
         if spanner is None:
@@ -299,10 +299,10 @@ class TBS(object): # {{{
                 extra = {}
                 if num > 1:
                     extra[0b0100] = num
-                if i == 0 and next_sec is not None:
+                if False and i == 0 and next_sec is not None:
                     # Write offset to next section from start of record
-                    # For some reason kindlegen only writes this offset
-                    # for the first section transition. Imitate it.
+                    # I can't figure out exactly when Kindlegen decides to
+                    # write this so I have disabled it for now.
                     extra[0b0001] = next_sec.offset - data['offset']
 
                 buf.write(encode_tbs(first_article.index-section.index, extra))
