@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, shutil
+import os, subprocess, shutil, tempfile
 
 from lxml import etree
 
@@ -70,10 +70,12 @@ def kindlegen(oeb, opts, input_plugin, output_path):
         opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
         refactor_opf(os.path.join(tdir, opf), is_periodical, oeb.toc)
         try:
-            if os.path.exists('/tmp/kindlegen'):
-                shutil.rmtree('/tmp/kindlegen')
-            shutil.copytree(tdir, '/tmp/kindlegen')
-            oeb.log('kindlegen intermediate output stored in: /tmp/kindlegen')
+            td = tempfile.gettempdir()
+            kd = os.path.join(td, 'kindlegen')
+            if os.path.exists(kd):
+                shutil.rmtree(kd)
+            shutil.copytree(tdir, kd)
+            oeb.log('kindlegen intermediate output stored in: %s'%kd)
         except:
             pass
 
