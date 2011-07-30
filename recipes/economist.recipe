@@ -26,7 +26,8 @@ class Economist(BasicNewsRecipe):
     #cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
-            dict(attrs={'class':['dblClkTrk', 'ec-article-info', 'share_inline_header']}),
+            dict(attrs={'class':['dblClkTrk', 'ec-article-info',
+                'share_inline_header', 'related-items']}),
             {'class': lambda x: x and 'share-links-header' in x},
     ]
     keep_only_tags = [dict(id='ec-article-body')]
