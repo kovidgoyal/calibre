@@ -277,7 +277,8 @@ class MOBIHeader(object): # {{{
         self.first_image_index, = struct.unpack(b'>I', self.raw[108:112])
         self.huffman_record_offset, = struct.unpack(b'>I', self.raw[112:116])
         self.huffman_record_count, = struct.unpack(b'>I', self.raw[116:120])
-        self.unknown2 = self.raw[120:128]
+        self.datp_record_offset, = struct.unpack(b'>I', self.raw[120:124])
+        self.datp_record_count, = struct.unpack(b'>I', self.raw[124:128])
         self.exth_flags, = struct.unpack(b'>I', self.raw[128:132])
         self.has_exth = bool(self.exth_flags & 0x40)
         self.has_drm_data = self.length >= 174 and len(self.raw) >= 180
@@ -352,7 +353,8 @@ class MOBIHeader(object): # {{{
         ans.append('First Image index: %d'%self.first_image_index)
         ans.append('Huffman record offset: %d'%self.huffman_record_offset)
         ans.append('Huffman record count: %d'%self.huffman_record_count)
-        ans.append('Unknown2: %r'%self.unknown2)
+        ans.append('DATP record offset: %r'%self.datp_record_offset)
+        ans.append('DATP record count: %r'%self.datp_record_count)
         ans.append('EXTH flags: %s (%s)'%(bin(self.exth_flags)[2:], self.has_exth))
         if self.has_drm_data:
             ans.append('Unknown3: %r'%self.unknown3)
@@ -920,7 +922,7 @@ class BinaryRecord(object): # {{{
         self.raw = record.raw
         sig = self.raw[:4]
         name = '%06d'%idx
-        if sig in (b'FCIS', b'FLIS', b'SRCS'):
+        if sig in (b'FCIS', b'FLIS', b'SRCS', b'DATP'):
             name += '-' + sig.decode('ascii')
         elif sig == b'\xe9\x8e\r\n':
             name += '-' + 'EOF'
@@ -1142,12 +1144,13 @@ class MOBIFile(object): # {{{
             self.records.append(Record(section(i), self.record_headers[i]))
 
         self.mobi_header = MOBIHeader(self.records[0])
+        self.huffman_record_nums = []
 
         if 'huff' in self.mobi_header.compression.lower():
-            huffrecs = [self.records[r].raw for r in
-                    xrange(self.mobi_header.huffman_record_offset,
+            self.huffman_record_nums = list(xrange(self.mobi_header.huffman_record_offset,
                         self.mobi_header.huffman_record_offset +
-                        self.mobi_header.huffman_record_count)]
+                        self.mobi_header.huffman_record_count))
+            huffrecs = [self.records[r].raw for r in self.huffman_record_nums]
             from calibre.ebooks.mobi.huffcdic import HuffReader
             huffs = HuffReader(huffrecs)
             decompress = lambda x: huffs.decompress([x])
@@ -1181,7 +1184,7 @@ class MOBIFile(object): # {{{
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
         for i in xrange(fntbr, len(self.records)):
-            if i in self.indexing_record_nums:
+            if i in self.indexing_record_nums or i in self.huffman_record_nums:
                 continue
             r = self.records[i]
             fmt = None
