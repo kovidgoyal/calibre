@@ -133,7 +133,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>TagListEditor</receiver>
+   <receiver>DeviceCategoryEditor</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -149,7 +149,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>TagListEditor</receiver>
+   <receiver>DeviceCategoryEditor</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

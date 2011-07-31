@@ -106,11 +106,11 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
         deletes = self.available_tags.selectedItems()
         if not deletes:
             error_dialog(self, _('No items selected'),
-                         _('You must select at least one items from the list.')).exec_()
+                         _('You must select at least one item from the list.')).exec_()
             return
         ct = ', '.join([unicode(item.text()) for item in deletes])
-        if not question_dialog(self, _('Are your sure?'),
-            '<p>'+_('Are you certain you want to delete the following items?')+'<br>'+ct):
+        if not question_dialog(self, _('Are you sure?'),
+            '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct):
             return
         row = self.available_tags.row(deletes[0])
         for item in deletes:
