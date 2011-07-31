@@ -197,25 +197,19 @@ class TagBrowserMixin(object): # {{{
         dialog will position the editor on that item.
         '''
         db=self.library_view.model().db
-        if category == 'tags':
-            result = db.get_tags_with_ids()
-            key = sort_key
-        elif category == 'series':
-            result = db.get_series_with_ids()
+        cats = db.get_categories(sort='name', icon_map=None)
+        if category in cats:
+            result = [(t.id, t.name, t.count) for t in cats[category]]
+        else:
+            return
+
+        if category == 'series':
             key = lambda x:sort_key(title_sort(x))
-        elif category == 'publisher':
-            result = db.get_publishers_with_ids()
-            key = sort_key
-        else: # should be a custom field
-            cc_label = None
-            if category in db.field_metadata:
-                cc_label = db.field_metadata[category]['label']
-                result = db.get_custom_items_with_ids(label=cc_label)
-            else:
-                result = []
+        else:
             key = sort_key
 
-        d = TagListEditor(self, tag_to_match=tag, data=result, key=key)
+        d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
+                          tag_to_match=tag, data=result, sorter=key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of old id to new name
@@ -232,7 +226,8 @@ class TagBrowserMixin(object): # {{{
             elif category == 'publisher':
                 rename_func = db.rename_publisher
                 delete_func = db.delete_publisher_using_id
-            else:
+            else: # must be custom
+                cc_label = db.field_metadata[category]['label']
                 rename_func = partial(db.rename_custom_item, label=cc_label)
                 delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
             m = self.tags_view.model()
