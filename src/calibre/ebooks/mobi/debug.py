@@ -633,6 +633,9 @@ class Tag(object): # {{{
             3: ('label_offset', 'Offset to label in CNCX'),
             4: ('depth', 'Depth of this entry in TOC'),
 
+            11: ('secondary', '[unknown, unknown, '
+                'tag type from TAGX in primary index header]'),
+
             # The remaining tag types have to be interpreted subject to the type
             # of index entry they are present in
     }
@@ -719,6 +722,9 @@ class IndexEntry(object): # {{{
     '''
 
     TYPES = {
+            # Present in secondary index record
+            0x01 : 'null',
+            0x02 : 'publication_meta',
             # Present in book type files
             0x0f : 'chapter',
             0x6f : 'chapter_with_subchapters',
@@ -840,6 +846,90 @@ class IndexEntry(object): # {{{
                 self.first_child_index + 1))
         if self.trailing_bytes:
             ans.append('\tTrailing bytes: %r'%self.trailing_bytes)
+        return '\n'.join(ans)
+
+# }}}
+
+class SecondaryIndexRecord(object): # {{{
+
+    def __init__(self, record, index_header, cncx):
+        self.record = record
+        raw = self.record.raw
+
+        if raw[:4] != b'INDX':
+            raise ValueError('Invalid Primary Index Record')
+
+        u = struct.unpack
+
+        self.header_length, = u('>I', raw[4:8])
+        self.unknown1 = raw[8:12]
+        self.header_type, = u('>I', raw[12:16])
+        self.unknown2 = raw[16:20]
+        self.idxt_offset, self.idxt_count = u(b'>II', raw[20:28])
+        if self.idxt_offset < 192:
+            raise ValueError('Unknown Index record structure')
+        self.unknown3 = raw[28:36]
+        self.unknown4 = raw[36:192] # Should be 156 bytes
+
+        self.index_offsets = []
+        indices = raw[self.idxt_offset:]
+        if indices[:4] != b'IDXT':
+            raise ValueError("Invalid IDXT index table")
+        indices = indices[4:]
+        for i in range(self.idxt_count):
+            off, = u(b'>H', indices[i*2:(i+1)*2])
+            self.index_offsets.append(off-192)
+        rest = indices[(i+1)*2:]
+        if rest.replace(b'\0', ''): # There can be padding null bytes
+            raise ValueError('Extra bytes after IDXT table: %r'%rest)
+
+        indxt = raw[192:self.idxt_offset]
+        self.size_of_indxt_block = len(indxt)
+
+        self.indices = []
+        for i, off in enumerate(self.index_offsets):
+            try:
+                next_off = self.index_offsets[i+1]
+            except:
+                next_off = len(indxt)
+            num = ord(indxt[off])
+            index = indxt[off+1:off+1+num]
+            consumed = 1 + num
+            entry_type = ord(indxt[off+consumed])
+            pos = off+consumed+1
+            idxe = IndexEntry(index, entry_type,
+                    indxt[pos:next_off], cncx,
+                    index_header.tagx_entries,
+                    index_header.tagx_control_byte_count)
+            self.indices.append(idxe)
+
+        rest = indxt[pos+self.indices[-1].consumed:]
+        if rest.replace(b'\0', b''): # There can be padding null bytes
+            raise ValueError('Extra bytes after IDXT table: %r'%rest)
+
+
+    def __str__(self):
+        ans = ['*'*20 + ' Secondary Index Record (%d bytes) '%len(self.record.raw)+ '*'*20]
+        a = ans.append
+        def u(w):
+            a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
+                len(w), not bool(w.replace(b'\0', b'')) ))
+        a('Header length: %d'%self.header_length)
+        u(self.unknown1)
+        a('Unknown (header type? index record number? always 1?): %d'%self.header_type)
+        u(self.unknown2)
+        a('IDXT Offset (%d block size): %d'%(self.size_of_indxt_block,
+            self.idxt_offset))
+        a('IDXT Count: %d'%self.idxt_count)
+        u(self.unknown3)
+        u(self.unknown4)
+        a('Index offsets: %r'%self.index_offsets)
+        a('\nIndex Entries (%d entries):'%len(self.indices))
+        for entry in self.indices:
+            a(str(entry))
+            a('')
+
+
         return '\n'.join(ans)
 
 # }}}
@@ -1284,6 +1374,10 @@ class MOBIFile(object): # {{{
         sir = self.mobi_header.secondary_index_record
         if sir != 0xffffffff:
             self.secondary_index_header = SecondaryIndexHeader(self.records[sir])
+            self.indexing_record_nums.add(sir)
+            self.secondary_index_record = SecondaryIndexRecord(
+                    self.records[sir+1], self.secondary_index_header, self.cncx)
+            self.indexing_record_nums.add(sir+1)
 
 
         ntr = self.mobi_header.number_of_text_records
@@ -1357,11 +1451,14 @@ def inspect_mobi(path_or_stream, prefix='decompiled'): # {{{
         with open(os.path.join(ddir, 'index.txt'), 'wb') as out:
             print(str(f.index_header), file=out)
             print('\n\n', file=out)
-            print(str(f.cncx).encode('utf-8'), file=out)
-            print('\n\n', file=out)
             if f.secondary_index_header is not None:
                 print(str(f.secondary_index_header).encode('utf-8'), file=out)
                 print('\n\n', file=out)
+            if f.secondary_index_record is not None:
+                print(str(f.secondary_index_record).encode('utf-8'), file=out)
+                print('\n\n', file=out)
+            print(str(f.cncx).encode('utf-8'), file=out)
+            print('\n\n', file=out)
             print(str(f.index_record), file=out)
         with open(os.path.join(ddir, 'tbs_indexing.txt'), 'wb') as out:
             print(str(f.tbs_indexing), file=out)
