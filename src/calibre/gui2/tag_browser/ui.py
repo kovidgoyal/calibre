@@ -196,11 +196,10 @@ class TagBrowserMixin(object): # {{{
         Open the 'manage_X' dialog where X == category. If tag is not None, the
         dialog will position the editor on that item.
         '''
-        db=self.library_view.model().db
-        cats = db.get_categories(sort='name', icon_map=None)
-        if category in cats:
-            result = [(t.id, t.name, t.count) for t in cats[category]]
-        else:
+
+        tags_model = self.tags_view.model()
+        result = tags_model.get_category_editor_data(category)
+        if result is None:
             return
 
         if category == 'series':
@@ -208,6 +207,7 @@ class TagBrowserMixin(object): # {{{
         else:
             key = sort_key
 
+        db=self.library_view.model().db
         d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
                           tag_to_match=tag, data=result, sorter=key)
         d.exec_()
