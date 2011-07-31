@@ -85,9 +85,11 @@ class MobiWriter(object):
         self.is_periodical = detect_periodical(self.oeb.toc, self.oeb.log)
         self.generate_images()
         self.generate_text()
+        # The uncrossable breaks trailing entries come before the indexing
+        # trailing entries
+        self.write_uncrossable_breaks()
         # Index records come after text records
         self.generate_index()
-        self.write_uncrossable_breaks()
 
     # Indexing {{{
     def generate_index(self):
