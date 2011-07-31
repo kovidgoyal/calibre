@@ -1377,7 +1377,7 @@ class MOBIFile(object): # {{{
                     self.index_header, self.cncx)
             self.indexing_record_nums = set(xrange(pir,
                 pir+2+self.index_header.num_of_cncx_blocks))
-        self.secondary_index_record = self.secondary_index_record = None
+        self.secondary_index_record = self.secondary_index_header = None
         sir = self.mobi_header.secondary_index_record
         if sir != 0xffffffff:
             self.secondary_index_header = SecondaryIndexHeader(self.records[sir])
