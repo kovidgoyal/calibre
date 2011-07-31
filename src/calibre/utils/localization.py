@@ -140,6 +140,7 @@ _extra_lang_codes = {
         'es_VE' : _('Spanish (Venezuela)'),
         'es_BO' : _('Spanish (Bolivia)'),
         'es_NI' : _('Spanish (Nicaragua)'),
+        'es_CO' : _('Spanish (Colombia)'),
         'de_AT' : _('German (AT)'),
         'fr_BE' : _('French (BE)'),
         'nl'    : _('Dutch (NL)'),

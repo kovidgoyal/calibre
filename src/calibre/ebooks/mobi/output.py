@@ -50,6 +50,13 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('When adding the Table of Contents to the book, add it at the start of the '
                 'book instead of the end. Not recommended.')
         ),
+        OptionRecommendation(name='mobi_navpoints_only_deepest',
+            recommended_value=False,
+            help=_('When adding navpoints for the chapter-to-chapter'
+                ' navigation on the kindle, use only the lowest level '
+                'of items in the TOC, instead of items at every level.')
+        ),
+
         OptionRecommendation(name='kindlegen',
             recommended_value=False,
             help=('Use kindlegen (must be in your PATH) to generate the'

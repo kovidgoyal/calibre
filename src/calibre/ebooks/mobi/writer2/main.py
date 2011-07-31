@@ -34,6 +34,8 @@ EXTH_CODES = {
     'rights': 109,
     'type': 111,
     'source': 112,
+    'versionnumber': 114,
+    'lastupdatetime': 502,
     'title': 503,
     }
 
@@ -201,6 +203,7 @@ class MobiWriter(object):
         self.text_length = len(text)
         text = StringIO(text)
         nrecords = 0
+        records_size = 0
 
         if self.compression != UNCOMPRESSED:
             self.oeb.logger.info('  Compressing markup content...')
@@ -214,9 +217,15 @@ class MobiWriter(object):
             data += pack(b'>B', len(overlap))
 
             self.records.append(data)
+            records_size += len(data)
             nrecords += 1
 
         self.last_text_record_idx = nrecords
+        self.first_non_text_record_idx = nrecords + 1
+        # Pad so that the next records starts at a 4 byte boundary
+        if records_size % 4 != 0:
+            self.records.append(b'\x00'*(records_size % 4))
+            self.first_non_text_record_idx += 1
 
     def read_text_record(self, text):
         '''
@@ -322,7 +331,7 @@ class MobiWriter(object):
             if self.indexer.is_flat_periodical:
                 bt = 0x102
             elif self.indexer.is_periodical:
-                bt = 0x103
+                bt = 0x101
 
         record0.write(pack(b'>IIIII',
             0xe8, bt, 65001, uid, 6))
@@ -338,7 +347,7 @@ class MobiWriter(object):
 
         # 0x40 - 0x43 : Offset of first non-text record
         record0.write(pack(b'>I',
-            self.last_text_record_idx + 1))
+            self.first_non_text_record_idx))
 
         # 0x44 - 0x4b : title offset, title length
         record0.write(pack(b'>II',
@@ -493,10 +502,12 @@ class MobiWriter(object):
 
         # Write cdetype
         if self.is_periodical:
+            data = b'NWPR'
+        else:
             data = b'EBOK'
-            exth.write(pack(b'>II', 501, len(data)+8))
-            exth.write(data)
-            nrecs += 1
+        exth.write(pack(b'>II', 501, len(data)+8))
+        exth.write(data)
+        nrecs += 1
 
         # Add a publication date entry
         if oeb.metadata['date']:
@@ -504,18 +515,28 @@ class MobiWriter(object):
         elif oeb.metadata['timestamp']:
             datestr = str(oeb.metadata['timestamp'][0])
 
-        if datestr is not None:
-            datestr = bytes(datestr)
-            exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
+        if datestr is None:
+            raise ValueError("missing date or timestamp")
+
+        datestr = bytes(datestr)
+        exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
+        exth.write(datestr)
+        nrecs += 1
+        if self.is_periodical:
+            exth.write(pack(b'>II', EXTH_CODES['lastupdatetime'], len(datestr) + 8))
             exth.write(datestr)
             nrecs += 1
-        else:
-            raise NotImplementedError("missing date or timestamp needed for mobi_periodical")
+            exth.write(pack(b'>III', EXTH_CODES['versionnumber'], 12, 7))
+            nrecs += 1
 
-        # Write the same creator info as kindlegen 1.2
-        for code, val in [(204, 201), (205, 1), (206, 2), (207, 33307)]:
-            exth.write(pack(b'>II', code, 12))
-            exth.write(pack(b'>I', val))
+        if self.is_periodical:
+            # Pretend to be amazon's super secret periodical generator
+            vals = {204:201, 205:2, 206:0, 207:101}
+        else:
+            # Pretend to be kindlegen 1.2
+            vals = {204:201, 205:1, 206:2, 207:33307}
+        for code, val in vals:
+            exth.write(pack(b'>III', code, 12, val))
             nrecs += 1
 
         if (oeb.metadata.cover and
@@ -550,7 +571,7 @@ class MobiWriter(object):
         now = int(time.time())
         nrecords = len(self.records)
         self.write(title, pack(b'>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
-            b'BOOK', b'MOBI', pack(b'>IIH', nrecords, 0, nrecords))
+            b'BOOK', b'MOBI', pack(b'>IIH', (2*nrecords)-1, 0, nrecords))
         offset = self.tell() + (8 * nrecords) + 2
         for i, record in enumerate(self.records):
             self.write(pack(b'>I', offset), b'\0', pack(b'>I', 2*i)[1:])

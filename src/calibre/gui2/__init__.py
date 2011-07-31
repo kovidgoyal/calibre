@@ -40,7 +40,7 @@ if isosx:
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Fetch News', 'Store', 'Save To Disk', 'Connect Share', None,
         'Remove Books',
         )
 else:
@@ -55,7 +55,7 @@ else:
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Fetch News', 'Save To Disk', 'Store', 'Connect Share', None,
         'Remove Books', None, 'Help', 'Preferences',
         )
 
