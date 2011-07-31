@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-07-25 02:13+0000\n"
+"PO-Revision-Date: 2011-07-30 07:16+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-30 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-07-31 04:36+0000\n"
 "X-Generator: Launchpad (build 13405)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1462,7 +1462,7 @@ msgstr "Moovybookリーダーとの通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "COBYと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2038,6 +2038,8 @@ msgid ""
 "List builtin recipe names. You can create an ebook from a builtin recipe "
 "like this: ebook-convert \"Recipe Name.recipe\" output.epub"
 msgstr ""
+"ビルトインのレシピ名をリストアップする。以下のようにしてビルトイン・レシピからEBookを作成できます。ebook-convert \"Recipe "
+"Name.recipe\" output.epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:288
 msgid "Output saved to"
@@ -5670,7 +5672,7 @@ msgstr "許可がありません"
 msgid ""
 "Cannot add some files as you do not have  permission to access them. Click "
 "Show Details to see the list of such files."
-msgstr ""
+msgstr "ファイルにアクセスする権限が無いので、ファイルを追加できませんでした。「詳細を表示」をクリックすると問題のファイルのリストが見れます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:358
 msgid "Added"
@@ -18591,11 +18593,11 @@ msgstr "以下の記事をダウンロードに失敗しました："
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:746
 msgid "Failed to download parts of the following articles:"
-msgstr ""
+msgstr "以下の記事の一部をダウンロードすることに失敗しました。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:748
 msgid " from "
-msgstr ""
+msgstr " / "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:750
 msgid "\tFailed links:"
@@ -18627,17 +18629,17 @@ msgstr "表紙をダウンロード..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:888
 msgid "Generating masthead..."
-msgstr ""
+msgstr "発行人欄を生成中..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:968
 #, python-format
 msgid "Starting download [%d thread(s)]..."
-msgstr ""
+msgstr "ダウンロードを開始 [%d スレッド]..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:984
 #, python-format
 msgid "Feeds downloaded to %s"
-msgstr ""
+msgstr "%s にフィードがダウンロードされました。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:993
 #, python-format
@@ -18647,11 +18649,11 @@ msgstr "表紙のダウンロードできません：%s"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1002
 #, python-format
 msgid "Downloading cover from %s"
-msgstr ""
+msgstr "%s から表紙がダウンロード中"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1048
 msgid "Masthead image downloaded"
-msgstr ""
+msgstr "ロゴイメージをダウンロードしました"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1216
 msgid "Untitled Article"
@@ -18660,22 +18662,22 @@ msgstr "タイトルのない文書"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1287
 #, python-format
 msgid "Article downloaded: %s"
-msgstr ""
+msgstr "記事をダウンロードしました：%s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1298
 #, python-format
 msgid "Article download failed: %s"
-msgstr ""
+msgstr "記事のダウンロードに失敗しました：%s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1315
 msgid "Fetching feed"
-msgstr ""
+msgstr "フィードを取得中"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1462
 msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
-msgstr ""
+msgstr "ログインに失敗。Calibreの定期刊行物サービスにあるユーザー名とパスワードの設定を確かめてください。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1477
 msgid ""
@@ -18700,19 +18702,19 @@ msgstr "カスタム"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:118
 msgid "Next section"
-msgstr ""
+msgstr "次のセクション"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:121
 msgid "Main menu"
-msgstr ""
+msgstr "メインメニュー"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:125
 msgid "Previous section"
-msgstr ""
+msgstr "前のセクション"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:214
 msgid "Section Menu"
-msgstr ""
+msgstr "セクション・メニュー"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"
@@ -18733,45 +18735,48 @@ msgid ""
 "\n"
 "Where URL is for example http://google.com"
 msgstr ""
+"%prog URL\n"
+"\n"
+"URLは例えば以下のような物：http://google.com"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:479
 #, python-format
 msgid "Base directory into which URL is saved. Default is %default"
-msgstr ""
+msgstr "URLが保存されるベース・ディレクトリ。ディフォールトは %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:482
 #, python-format
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
-msgstr ""
+msgstr "サーバーからの応答を待つタイムアウトの秒数。ディフォールト: %default s"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:485
 #, python-format
 msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
-msgstr ""
+msgstr "再帰的にたどる最大のレベル。（リンクをたどる深さ）ディフォールト： %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:488
 #, python-format
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
-msgstr ""
+msgstr "ダウンロードする最大のファイル数。これは <a href> タグのみに適用されます。ディフォールトは %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:490
 #, python-format
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
-msgstr ""
+msgstr "連続して取得する間隔の最小の間隔秒。ディフォールトは %default s"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:492
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
-msgstr ""
+msgstr "ダウンロードしようとするウエブサイトの文字エンコーディング。ディフォールトではエンコーディングは自動判別しようとされます。"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:494
 msgid ""
@@ -18779,6 +18784,8 @@ msgid ""
 "can be specified multiple times, in which case as long as a link matches any "
 "one regexp, it will be followed. By default all links are followed."
 msgstr ""
+"この正規表現にマッチするリンクのみをたどる。このオプションは何度でも指定できるので、指定したどれかの正規表現にマッチすれば、そのリンクはたどられます。ディ"
+"フォールトでは全てのリンクをたどります。"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:496
 msgid ""
@@ -18787,6 +18794,8 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"この正規表現にマッチするリンクを無視します。このオプションは何度でも指定できるので、どれか一つの正規表現にマッチすれば、そのリンクは無視されます。ディフォ"
+"ールトでは無視されるリンクはありません。もし無視する正規表現と、たどる正規表現の両方にマッチした場合、無視する正規表現が使われます。"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:498
 msgid "Do not download CSS stylesheets."
@@ -18794,7 +18803,7 @@ msgstr "CSS(スタイルシート)をダウンロードしない"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:649
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:652
 msgid "Save"
