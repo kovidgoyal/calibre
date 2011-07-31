@@ -72,6 +72,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
 
+        # Put the category name into the title bar
         t = self.windowTitle()
         self.setWindowTitle(t + ' (' + cat_name + ')')
         # Remove help icon on title bar
@@ -79,6 +80,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
+        # Get saved geometry info
         try:
             self.table_column_widths = \
                         gprefs.get('tag_list_editor_table_widths', None)
@@ -87,6 +89,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         except:
             pass
 
+        # initialization
         self.to_rename = {}
         self.to_delete = set([])
         self.original_names = {}
@@ -125,14 +128,16 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for row,tag in enumerate(sorted(self.all_tags.keys(), key=sorter)):
             item = NameTableWidgetItem(tag)
             item.setData(Qt.UserRole, self.all_tags[tag])
-            item.setFlags (item.flags() | Qt.ItemIsEditable)
+            item.setFlags (item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
             self.table.setItem(row, 0, item)
             if tag == tag_to_match:
                 select_item = item
             item = CountTableWidgetItem(self.counts[tag])
+            # only the name column can be selected
             item.setFlags (item.flags() & ~Qt.ItemIsSelectable)
             self.table.setItem(row, 1, item)
 
+        # Scroll to the selected item if there is one
         if select_item is not None:
             self.table.setCurrentItem(select_item)
 
@@ -140,16 +145,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.rename_button.clicked.connect(self.rename_tag)
         self.table.itemDoubleClicked.connect(self._rename_tag)
         self.table.itemChanged.connect(self.finish_editing)
+        self.buttonBox.accepted.connect(self.accepted)
 
     def table_column_resized(self, col, old, new):
-        self.save_state()
-
-    def save_state(self):
         self.table_column_widths = []
         for c in range(0, self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
-        gprefs['tag_list_editor_table_widths'] = self.table_column_widths
-        gprefs['tag_list_editor_dialog_geometry'] = bytearray(self.saveGeometry())
 
     def resizeEvent(self, *args):
         QDialog.resizeEvent(self, *args)
@@ -164,7 +165,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             w /= self.table.columnCount()
             for c in range(0, self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
-        self.save_state()
+
+    def save_geometry(self):
+        gprefs['tag_list_editor_table_widths'] = self.table_column_widths
+        gprefs['tag_list_editor_dialog_geometry'] = bytearray(self.saveGeometry())
 
     def finish_editing(self, item):
         if not item.text():
@@ -191,11 +195,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         deletes = self.table.selectedItems()
         if not deletes:
             error_dialog(self, _('No items selected'),
-                         _('You must select at least one items from the list.')).exec_()
+                         _('You must select at least one item from the list.')).exec_()
             return
         ct = ', '.join([unicode(item.text()) for item in deletes])
-        if not question_dialog(self, _('Are your sure?'),
-            '<p>'+_('Are you certain you want to delete the following items?')+'<br>'+ct):
+        if not question_dialog(self, _('Are you sure?'),
+            '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct):
             return
         row = self.table.row(deletes[0])
         for item in deletes:
@@ -229,5 +233,4 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.name_col.setIcon(self.blank_icon)
 
     def accepted(self):
-        self.save_state()
-        self.accept()
+        self.save_geometry()
