@@ -509,7 +509,7 @@ class SecondaryIndexHeader(object): # {{{
         a('Control byte count: %d'%self.tagx_control_byte_count)
         for i in self.tagx_entries:
             a('\t' + repr(i))
-        a('Text of last entry in NCX: %s'% self.last_entry)
+        a('Index of last IndexEntry in secondary index record: %s'% self.last_entry)
         a('Number of entries in the NCX: %d'% self.ncx_count)
 
         return '\n'.join(ans)
@@ -570,6 +570,7 @@ class IndexHeader(object): # {{{
         last_num, consumed = decode_hex_number(raw[idxt0_pos:])
         count_pos = idxt0_pos + consumed
         self.ncx_count, = struct.unpack(b'>H', raw[count_pos:count_pos+2])
+        self.last_entry = last_num
 
         if last_num != self.ncx_count - 1:
             raise ValueError('Last id number in the NCX != NCX count - 1')
@@ -615,6 +616,7 @@ class IndexHeader(object): # {{{
         a('Control byte count: %d'%self.tagx_control_byte_count)
         for i in self.tagx_entries:
             a('\t' + repr(i))
+        a('Index of last IndexEntry in primary index record: %s'% self.last_entry)
         a('Number of entries in the NCX: %d'% self.ncx_count)
 
         return '\n'.join(ans)
