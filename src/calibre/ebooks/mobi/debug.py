@@ -1089,6 +1089,11 @@ class TextRecord(object): # {{{
             self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
         self.trailing_data['raw_bytes'] = raw_trailing_bytes
 
+        for typ, val in self.trailing_data.iteritems():
+            if isinstance(typ, int):
+                print ('Record %d has unknown trailing data of type: %d : %r'%
+                        (idx, typ, val))
+
         self.idx = idx
 
     def dump(self, folder):
