@@ -1192,8 +1192,7 @@ class TBSIndexing(object): # {{{
             '(%d ends, %d complete, %d starts)')%tuple(map(len, (s+e+c, e,
                 c, s))))
         byts = bytearray(r.trailing_data.get('indexing', b''))
-        sbyts = tuple(hex(b)[2:] for b in byts)
-        ans.append('TBS bytes: %s'%(' '.join(sbyts)))
+        ans.append('TBS bytes: %s'%format_bytes(byts))
         for typ, entries in (('Ends', e), ('Complete', c), ('Starts', s)):
             if entries:
                 ans.append('\t%s:'%typ)
@@ -1220,8 +1219,14 @@ class TBSIndexing(object): # {{{
             ans.append('Outermost index: %d'%outermost_index)
             ans.append('Unknown extra start bytes: %s'%repr_extra(extra))
             if is_periodical: # Hierarchical periodical
-                byts, a = self.interpret_periodical(tbs_type, byts,
+                try:
+                    byts, a = self.interpret_periodical(tbs_type, byts,
                         dat['geom'][0])
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    a = []
+                    print ('Failed to decode TBS bytes for record: %d'%r.idx)
                 ans += a
             if byts:
                 sbyts = tuple(hex(b)[2:] for b in byts)
