@@ -507,7 +507,7 @@ class BuiltinSelect(BuiltinFormatterFunction):
     arg_count = 2
     category = 'List Lookup'
     __doc__ = doc = _('select(val, key) -- interpret the value as a comma-separated list '
-            'of items, with the items being "id:value". Find the pair with the'
+            'of items, with the items being "id:value". Find the pair with the '
             'id equal to key, and return the corresponding value.'
             )
 
@@ -851,7 +851,58 @@ class BuiltinMergeLists(BuiltinFormatterFunction):
         for i in l2:
             if icu_lower(i) not in lcl1:
                 res.append(i)
-        return ', '.join(sorted(res, key=sort_key))
+        return ', '.join(res)
+
+class BuiltinListDifference(BuiltinFormatterFunction):
+    name = 'list_difference'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_difference(list1, list2, separator) -- '
+            'return a list made by removing from list1 any item found in list2, '
+            'using a case-insensitive compare. The items in list1 and list2 '
+            'are separated by separator, as are the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [icu_lower(l.strip()) for l in list2.split(separator) if l.strip()]
+
+        res = []
+        for i in l1:
+            if icu_lower(i) not in l2:
+                res.append(i)
+        return ', '.join(res)
+
+class BuiltinListIntersection(BuiltinFormatterFunction):
+    name = 'list_intersection'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_intersection(list1, list2, separator) -- '
+            'return a list made by removing from list1 any item not found in list2, '
+            'using a case-insensitive compare. The items in list1 and list2 '
+            'are separated by separator, as are the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [icu_lower(l.strip()) for l in list2.split(separator) if l.strip()]
+
+        res = []
+        for i in l1:
+            if icu_lower(i) in l2:
+                res.append(i)
+        return ', '.join(res)
+
+class BuiltinListSort(BuiltinFormatterFunction):
+    name = 'list_sort'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_sort(list, direction, separator) -- '
+            'return list sorted using a case-insensitive sort. If direction is '
+            'zero, the list is sorted ascending, otherwise descending. The list items '
+            'are separated by separator, as are the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, direction, separator):
+        res = [l.strip() for l in list1.split(separator) if l.strip()]
+        return ', '.join(sorted(res, key=sort_key, reverse=direction != 0))
 
 class BuiltinToday(BuiltinFormatterFunction):
     name = 'today'
@@ -893,12 +944,13 @@ formatter_builtins = [
     BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
-    BuiltinIfempty(), BuiltinInList(), BuiltinListitem(), BuiltinLookup(),
+    BuiltinIfempty(), BuiltinInList(), BuiltinListDifference(),
+    BuiltinListIntersection(), BuiltinListitem(), BuiltinListSort(), BuiltinLookup(),
     BuiltinLowercase(), BuiltinMergeLists(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
     BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),
-    BuiltinStrcmp(), BuiltinStrInList(), BuiltinSubitems(), BuiltinSublist(),
-    BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
+    BuiltinStrcmp(), BuiltinStrInList(), BuiltinSubitems(),
+    BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
     BuiltinToday(), BuiltinUppercase(),
 ]
