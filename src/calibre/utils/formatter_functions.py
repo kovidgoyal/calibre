@@ -829,11 +829,11 @@ class BuiltinNot(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return '' if val else '1'
 
-class BuiltinMergeLists(BuiltinFormatterFunction):
-    name = 'merge_lists'
+class BuiltinListUnion(BuiltinFormatterFunction):
+    name = 'list_union'
     arg_count = 3
     category = 'List Manipulation'
-    __doc__ = doc = _('merge_lists(list1, list2, separator) -- '
+    __doc__ = doc = _('list_union(list1, list2, separator) -- '
             'return a list made by merging the items in list1 and list2, '
             'removing duplicate items using a case-insensitive compare. If '
             'items differ in case, the one in list1 is used. '
@@ -852,6 +852,9 @@ class BuiltinMergeLists(BuiltinFormatterFunction):
             if icu_lower(i) not in lcl1:
                 res.append(i)
         return ', '.join(res)
+
+class BuiltinMergeLists(BuiltinListUnion):
+    name = 'merge_lists'
 
 class BuiltinListDifference(BuiltinFormatterFunction):
     name = 'list_difference'
@@ -945,7 +948,8 @@ formatter_builtins = [
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinInList(), BuiltinListDifference(),
-    BuiltinListIntersection(), BuiltinListitem(), BuiltinListSort(), BuiltinLookup(),
+    BuiltinListIntersection(), BuiltinListitem(), BuiltinListSort(),
+    BuiltinListUnion(), BuiltinLookup(),
     BuiltinLowercase(), BuiltinMergeLists(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
     BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),
