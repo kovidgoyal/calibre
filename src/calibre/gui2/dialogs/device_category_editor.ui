@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TagListEditor</class>
- <widget class="QDialog" name="TagListEditor">
+ <class>DeviceCategoryEditor</class>
+ <widget class="QDialog" name="DeviceCategoryEditor">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -20,6 +20,33 @@
   <layout class="QGridLayout">
    <item row="0" column="0">
     <layout class="QVBoxLayout">
+     <item>
+      <layout class="QHBoxLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Items in use</string>
+         </property>
+         <property name="buddy">
+          <cstring>available_tags</cstring>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
      <item>
       <layout class="QHBoxLayout">
        <item>
@@ -70,7 +97,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QTableWidget" name="table">
+        <widget class="QListWidget" name="available_tags">
          <property name="alternatingRowColors">
           <bool>true</bool>
          </property>
@@ -106,7 +133,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>TagListEditor</receiver>
+   <receiver>DeviceCategoryEditor</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -122,7 +149,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>TagListEditor</receiver>
+   <receiver>DeviceCategoryEditor</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
