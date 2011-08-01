@@ -1430,16 +1430,17 @@ class MOBIFile(object): # {{{
         print (str(self.mobi_header).encode('utf-8'), file=f)
 # }}}
 
-def inspect_mobi(path_or_stream, prefix='decompiled'): # {{{
+def inspect_mobi(path_or_stream, ddir=None): # {{{
     stream = (path_or_stream if hasattr(path_or_stream, 'read') else
             open(path_or_stream, 'rb'))
     f = MOBIFile(stream)
-    ddir = prefix + '_' + os.path.splitext(os.path.basename(stream.name))[0]
+    if ddir is None:
+        ddir = 'decompiled_' + os.path.splitext(os.path.basename(stream.name))[0]
     try:
         shutil.rmtree(ddir)
     except:
         pass
-    os.mkdir(ddir)
+    os.makedirs(ddir)
     with open(os.path.join(ddir, 'header.txt'), 'wb') as out:
         f.print_header(f=out)
 
