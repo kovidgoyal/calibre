@@ -67,10 +67,14 @@ def generate_template_language_help():
 
     for func in all_builtin_functions:
         class_name = func.__class__.__name__
+        if class_name == 'BuiltinMergeLists':
+            class_name = 'BuiltinListUnion'
         func_sig = getattr(func, 'doc')
         x = func_sig.find(' -- ')
         if x < 0:
             print 'No sig for ', class_name
+            continue
+        if func_sig.startswith('merge_lists('):
             continue
         func_sig = func_sig[:x]
         func_cat = getattr(func, 'category')
