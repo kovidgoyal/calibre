@@ -167,7 +167,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             elif metadata['datatype'] == 'datetime':
                 aval = getattr(mi, field)
                 if is_date_undefined(aval):
-                    val = ''
+                    continue
 
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name, val)))
 
