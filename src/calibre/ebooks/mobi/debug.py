@@ -650,8 +650,6 @@ class Tag(object): # {{{
             'article'   : {
                     5  : ('Class offset in cncx', 'class_offset'),
                     21 : ('Parent section index', 'parent_index'),
-                    22 : ('Description offset in cncx', 'desc_offset'),
-                    23 : ('Author offset in cncx', 'author_offset'),
                     69 : ('Offset from first image record num to the'
                         ' image record associated with this article',
                         'image_index'),
@@ -1033,7 +1031,7 @@ class IndexRecord(object): # {{{
 
 # }}}
 
-class CNCX(object) : # {{{
+class CNCX(object): # {{{
 
     '''
     Parses the records that contain the compiled NCX (all strings from the

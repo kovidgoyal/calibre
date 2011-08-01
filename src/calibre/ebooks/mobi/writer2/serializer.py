@@ -39,6 +39,10 @@ class Serializer(object):
         self.logger = oeb.logger
         self.write_page_breaks_after_item = write_page_breaks_after_item
 
+        # If not None, this is a number pointing to the location at which to
+        # open the MOBI file on the Kindle
+        self.start_offset = None
+
         # Mapping of hrefs (urlnormalized) to the offset in the buffer where
         # the resource pointed to by the href lives. Used at the end to fill in
         # the correct values into all filepos="..." links.
@@ -144,6 +148,8 @@ class Serializer(object):
                 buf.write(b'title="')
                 self.serialize_text(ref.title, quot=True)
                 buf.write(b'" ')
+                if ref.title == 'start':
+                    self._start_href = ref.href
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not
             buf.write(b' />')
@@ -283,6 +289,7 @@ class Serializer(object):
         buf = self.buf
         id_offsets = self.id_offsets
         for href, hoffs in self.href_offsets.items():
+            is_start = (href and href == getattr(self, '_start_href', None))
             # Iterate over all filepos items
             if href not in id_offsets:
                 self.logger.warn('Hyperlink target %r not found' % href)
@@ -290,6 +297,8 @@ class Serializer(object):
                 href, _ = urldefrag(href)
             if href in self.id_offsets:
                 ioff = self.id_offsets[href]
+                if is_start:
+                    self.start_offset = ioff
                 for hoff in hoffs:
                     buf.seek(hoff)
                     buf.write(b'%010d' % ioff)

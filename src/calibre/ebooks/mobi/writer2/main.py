@@ -35,6 +35,7 @@ EXTH_CODES = {
     'type': 111,
     'source': 112,
     'versionnumber': 114,
+    'startreading': 116,
     'coveroffset': 201,
     'thumboffset': 202,
     'hasfakecover': 203,
@@ -83,6 +84,8 @@ class MobiWriter(object):
 
     def generate_content(self):
         self.is_periodical = detect_periodical(self.oeb.toc, self.oeb.log)
+        # Image records are stored in their own list, they are merged into the
+        # main record list at the end
         self.generate_images()
         self.generate_text()
         # The uncrossable breaks trailing entries come before the indexing
@@ -543,6 +546,11 @@ class MobiWriter(object):
         if self.thumbnail_offset is not None:
             exth.write(pack(b'>III', EXTH_CODES['thumboffset'], 12,
                 self.thumbnail_offset))
+            nrecs += 1
+
+        if self.serializer.start_offset is not None:
+            exth.write(pack(b'>III', EXTH_CODES['startreading'], 12,
+                self.serializer.start_offset))
             nrecs += 1
 
         exth = exth.getvalue()

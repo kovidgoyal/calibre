@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from future_builtins import filter
+from future_builtins import filter, map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,7 +15,6 @@ from collections import OrderedDict, defaultdict
 from calibre.ebooks.mobi.writer2 import RECORD_SIZE
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
         encode_tbs, align_block, utf8_text)
-
 
 class CNCX(object): # {{{
 
@@ -61,7 +60,63 @@ class CNCX(object): # {{{
         return self.strings[string]
 # }}}
 
-class IndexEntry(object): # {{{
+class TAGX(object): # {{{
+
+    BITMASKS = {11:0b1}
+    BITMASKS.update({x:i+1 for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
+    BITMASKS.update({x:i+1 for i, x in enumerate([69, 70, 71, 72, 73])})
+
+    NUM_VALUES = defaultdict(lambda x:1)
+    NUM_VALUES[11] = 3
+    NUM_VALUES[0] = 0
+
+    def __init__(self):
+        self.byts = bytearray()
+
+    def add_tag(self, tag):
+        buf = self.byts
+        buf.append(tag)
+        buf.append(self.NUM_VALUES[tag])
+        # bitmask
+        buf.append((1 << (self.BITMASKS[tag])) if tag else 0)
+        # eof
+        buf.append(0 if tag else 1)
+
+    def header(self, control_byte_count):
+        header = b'TAGX'
+        # table length, control byte count
+        header += pack(b'>II', 12+len(self.byts), control_byte_count)
+        return header
+
+    @property
+    def periodical(self):
+        '''
+        TAGX block for the Primary index header of a periodical
+        '''
+        map(self.add_tag, (1, 2, 3, 4, 5, 21, 22, 23, 0, 69, 70, 71, 72, 73, 0))
+        return self.header(2) + bytes(self.byts)
+
+    @property
+    def secondary(self):
+        '''
+        TAGX block for the secondary index header of a periodical
+        '''
+        map(self.add_tag, (11, 0))
+        return self.header(1) + bytes(self.byts)
+
+    @property
+    def flat_book(self):
+        '''
+        TAGX block for the primary index header of a flat book
+        '''
+        map(self.add_tag, (1, 2, 3, 4, 0))
+        return self.header(1) + bytes(self.byts)
+
+# }}}
+
+# Index Entries {{{
+
+class IndexEntry(object):
 
     TAG_VALUES = {
             'offset': 1,
@@ -69,17 +124,22 @@ class IndexEntry(object): # {{{
             'label_offset': 3,
             'depth': 4,
             'class_offset': 5,
+            'secondary': 11,
             'parent_index': 21,
             'first_child_index': 22,
             'last_child_index': 23,
+            'image_index': 69,
+            'desc_offset': 70,
+            'author_offset': 73,
     }
     RTAG_MAP = {v:k for k, v in TAG_VALUES.iteritems()}
 
-    BITMASKS = [1, 2, 3, 4, 5, 21, 22, 23,]
 
-    def __init__(self, offset, label_offset, depth=0, class_offset=None):
+    def __init__(self, offset, label_offset, depth=0, class_offset=None,
+            control_byte_count=1):
         self.offset, self.label_offset = offset, label_offset
         self.depth, self.class_offset = depth, class_offset
+        self.control_byte_count = control_byte_count
 
         self.length = 0
         self.index = 0
@@ -87,6 +147,10 @@ class IndexEntry(object): # {{{
         self.parent_index = None
         self.first_child_index = None
         self.last_child_index = None
+
+        self.image_index = None
+        self.author_offset = None
+        self.desc_offset = None
 
     def __repr__(self):
         return ('IndexEntry(offset=%r, depth=%r, length=%r, index=%r,'
@@ -98,35 +162,6 @@ class IndexEntry(object): # {{{
         def fget(self): return self.length
         def fset(self, val): self.length = val
         return property(fget=fget, fset=fset, doc='Alias for length')
-
-    @classmethod
-    def tagx_block(cls, for_periodical=True):
-        buf = bytearray()
-
-        def add_tag(tag, num_values=1):
-            buf.append(tag)
-            buf.append(num_values)
-            # bitmask
-            buf.append(1 << (cls.BITMASKS.index(tag)))
-            # eof
-            buf.append(0)
-
-        for tag in xrange(1, 5):
-            add_tag(tag)
-
-        if for_periodical:
-            for tag in (5, 21, 22, 23):
-                add_tag(tag)
-
-        # End of TAGX record
-        for i in xrange(3): buf.append(0)
-        buf.append(1)
-
-        header = b'TAGX'
-        header += pack(b'>I', 12+len(buf)) # table length
-        header += pack(b'>I', 1) # control byte count
-
-        return header + bytes(buf)
 
     @property
     def next_offset(self):
@@ -145,23 +180,57 @@ class IndexEntry(object): # {{{
     def entry_type(self):
         ans = 0
         for tag in self.tag_nums:
-            ans |= (1 << self.BITMASKS.index(tag)) # 1 << x == 2**x
+            ans |= (1 << (TAGX.BITMASKS[tag])) # 1 << x == 2**x
         return ans
 
     @property
     def bytestring(self):
         buf = StringIO()
-        buf.write(encode_number_as_hex(self.index))
+        if isinstance(self.index, int):
+            buf.write(encode_number_as_hex(self.index))
+        else:
+            raw = bytearray(self.index.encode('ascii'))
+            raw.insert(0, len(raw))
+            buf.write(bytes(raw))
         et = self.entry_type
         buf.write(bytes(bytearray([et])))
 
         for tag in self.tag_nums:
             attr = self.RTAG_MAP[tag]
             val = getattr(self, attr)
-            buf.write(encint(val))
+            if isinstance(val, int):
+                val = [val]
+            for x in val:
+                buf.write(encint(x))
 
         ans = buf.getvalue()
         return ans
+
+class SecondaryIndexEntry(IndexEntry):
+
+    INDEX_MAP = {'author':73, 'caption':72, 'credit':71, 'description':70,
+                'mastheadImage':69}
+
+    def __init__(self, index):
+        IndexEntry.__init__(self, index, 0, 0)
+
+        tag = self.INDEX_MAP[index]
+        self.secondary = [len(self.INDEX_MAP) if tag == min(
+            self.INDEX_MAP.itervalues()) else 0, 0, tag]
+
+    @property
+    def tag_nums(self):
+        yield 11
+
+    @property
+    def entry_type(self):
+        return 1
+
+    @classmethod
+    def entries(cls):
+        rmap = {v:k for k,v in cls.INDEX_MAP.iteritems()}
+        for tag in sorted(rmap, reverse=True):
+            yield cls(rmap[tag])
 
 # }}}
 
@@ -407,7 +476,8 @@ class Indexer(object): # {{{
 
     def create_header(self): # {{{
         buf = StringIO()
-        tagx_block = IndexEntry.tagx_block(self.is_periodical)
+        tagx_block = (TAGX().periodical if self.is_periodical else
+                            TAGX().flat_book)
         header_length = 192
 
         # Ident 0 - 4
