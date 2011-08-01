@@ -1,7 +1,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt4.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QString)
+from PyQt4.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray,
+        QString, QSize)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2 import question_dialog, error_dialog, gprefs
@@ -84,8 +85,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         try:
             self.table_column_widths = \
                         gprefs.get('tag_list_editor_table_widths', None)
-            geom = gprefs.get('tag_list_editor_dialog_geometry', bytearray(''))
-            self.restoreGeometry(QByteArray(geom))
         except:
             pass
 
@@ -146,6 +145,15 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.itemDoubleClicked.connect(self._rename_tag)
         self.table.itemChanged.connect(self.finish_editing)
         self.buttonBox.accepted.connect(self.accepted)
+
+        try:
+            geom = gprefs.get('tag_list_editor_dialog_geometry', None)
+            if geom is not None:
+                self.restoreGeometry(QByteArray(geom))
+            else:
+                self.resize(self.sizeHint()+QSize(150, 100))
+        except:
+            pass
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []

@@ -14,7 +14,7 @@ from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.writer2 import RECORD_SIZE
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
-        encode_tbs, align_block, utf8_text, detect_periodical)
+        encode_tbs, align_block, utf8_text)
 
 
 class CNCX(object): # {{{
@@ -323,16 +323,22 @@ class TBS(object): # {{{
 class Indexer(object): # {{{
 
     def __init__(self, serializer, number_of_text_records,
-            size_of_last_text_record, opts, oeb):
+            size_of_last_text_record, masthead_offset, is_periodical,
+            opts, oeb):
         self.serializer = serializer
         self.number_of_text_records = number_of_text_records
         self.text_size = (RECORD_SIZE * (self.number_of_text_records-1) +
                             size_of_last_text_record)
+        self.masthead_offset = masthead_offset
+
         self.oeb = oeb
         self.log = oeb.log
         self.opts = opts
 
-        self.is_periodical = detect_periodical(self.oeb.toc, self.log)
+        self.is_periodical = is_periodical
+        if self.is_periodical and self.masthead_offset is None:
+            raise ValueError('Periodicals must have a masthead')
+
         self.log('Generating MOBI index for a %s'%('periodical' if
             self.is_periodical else 'book'))
         self.is_flat_periodical = False

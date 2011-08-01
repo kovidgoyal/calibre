@@ -430,6 +430,7 @@ class MobiWriter(object):
         text.seek(npos)
         return data, overlap
 
+    # TBS {{{
     def _generate_flat_indexed_navpoints(self):
         # Assemble a HTMLRecordData instance for each HTML record
         # Return True if valid, False if invalid
@@ -1173,6 +1174,8 @@ class MobiWriter(object):
                     tbSequence += decint(len(tbSequence) + 1, DECINT_FORWARD)               # len
 
         self._tbSequence = tbSequence
+
+    # }}}
 
     def _evaluate_periodical_toc(self):
         '''

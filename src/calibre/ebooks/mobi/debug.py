@@ -1089,6 +1089,11 @@ class TextRecord(object): # {{{
             self.trailing_data['uncrossable_breaks'] = self.trailing_data.pop(2)
         self.trailing_data['raw_bytes'] = raw_trailing_bytes
 
+        for typ, val in self.trailing_data.iteritems():
+            if isinstance(typ, int):
+                print ('Record %d has unknown trailing data of type: %d : %r'%
+                        (idx, typ, val))
+
         self.idx = idx
 
     def dump(self, folder):
@@ -1192,8 +1197,7 @@ class TBSIndexing(object): # {{{
             '(%d ends, %d complete, %d starts)')%tuple(map(len, (s+e+c, e,
                 c, s))))
         byts = bytearray(r.trailing_data.get('indexing', b''))
-        sbyts = tuple(hex(b)[2:] for b in byts)
-        ans.append('TBS bytes: %s'%(' '.join(sbyts)))
+        ans.append('TBS bytes: %s'%format_bytes(byts))
         for typ, entries in (('Ends', e), ('Complete', c), ('Starts', s)):
             if entries:
                 ans.append('\t%s:'%typ)
@@ -1220,8 +1224,14 @@ class TBSIndexing(object): # {{{
             ans.append('Outermost index: %d'%outermost_index)
             ans.append('Unknown extra start bytes: %s'%repr_extra(extra))
             if is_periodical: # Hierarchical periodical
-                byts, a = self.interpret_periodical(tbs_type, byts,
+                try:
+                    byts, a = self.interpret_periodical(tbs_type, byts,
                         dat['geom'][0])
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    a = []
+                    print ('Failed to decode TBS bytes for record: %d'%r.idx)
                 ans += a
             if byts:
                 sbyts = tuple(hex(b)[2:] for b in byts)
@@ -1372,7 +1382,7 @@ class MOBIFile(object): # {{{
                     self.index_header, self.cncx)
             self.indexing_record_nums = set(xrange(pir,
                 pir+2+self.index_header.num_of_cncx_blocks))
-        self.secondary_index_record = self.secondary_index_record = None
+        self.secondary_index_record = self.secondary_index_header = None
         sir = self.mobi_header.secondary_index_record
         if sir != 0xffffffff:
             self.secondary_index_header = SecondaryIndexHeader(self.records[sir])

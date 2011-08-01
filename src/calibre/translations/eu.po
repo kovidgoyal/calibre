@@ -951,7 +951,7 @@ msgstr "Araztu saioa"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr "Adroid telefonoekin komunikatu."
+msgstr "Android telefonoekin komunikatu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:113
 msgid ""
