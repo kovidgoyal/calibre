@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-07-29 15:13+0000\n"
+"PO-Revision-Date: 2011-08-01 13:58+0000\n"
 "Last-Translator: Gs-Kobzeci <ricizki@yahoo.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-30 04:53+0000\n"
-"X-Generator: Launchpad (build 13405)\n"
+"X-Launchpad-Export-Date: 2011-08-02 04:34+0000\n"
+"X-Generator: Launchpad (build 13552)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -7247,7 +7247,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_progress_dialog_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:73
 msgid "Dialog"
-msgstr ""
+msgstr "Pencere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single_ui.py:118
 msgid "&Input format:"
@@ -7259,11 +7259,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output.py:14
 msgid "SNB Output"
-msgstr ""
+msgstr "SNB Çıktısı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:43
 msgid "Hide chapter name"
-msgstr ""
+msgstr "Bölüm adını gizle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:44
 msgid "Don't indent the first line for each paragraph"
@@ -7271,11 +7271,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:45
 msgid "Insert empty line between paragraphs"
-msgstr ""
+msgstr "Paragraflar arasına boş bir satır ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:46
 msgid "Optimize for full-sceen view "
-msgstr ""
+msgstr "Tam ekran görünüm için optimize edin "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection.py:15
 msgid ""
@@ -7309,11 +7309,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:60
 msgid "Chapter &mark:"
-msgstr ""
+msgstr "Bölüm &işareti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:61
 msgid "Remove first &image"
-msgstr ""
+msgstr "İlk resmi &kaldır"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:62
 msgid "Insert &metadata as page at start of book"
@@ -7329,7 +7329,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
-msgstr ""
+msgstr "Sahte &boşlukları kaldır"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -7379,27 +7379,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
-msgstr ""
+msgstr "TXT Girdi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:92
 msgid "Structure"
-msgstr ""
+msgstr "Yapı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:93
 msgid "Paragraph style:"
-msgstr ""
+msgstr "Paragraf biçimi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:94
 msgid "Formatting style:"
-msgstr ""
+msgstr "Biçimlendirme tarzı:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:95
 msgid "Common"
-msgstr ""
+msgstr "Genel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:96
 msgid "Preserve &spaces"
-msgstr ""
+msgstr "Boşlukları &Koru"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:97
 msgid "Remove indents at the beginning of lines"
@@ -7422,7 +7422,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:13
 msgid "TXT Output"
-msgstr ""
+msgstr "TXT Çıktı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:88
 msgid "General"
@@ -7430,27 +7430,27 @@ msgstr "Genel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:89
 msgid "Output &Encoding:"
-msgstr ""
+msgstr "Çıktı &Kodlaması"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:90
 msgid "&Line ending style:"
-msgstr ""
+msgstr "&Satır bitiş biçimi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:91
 msgid "&Formatting:"
-msgstr ""
+msgstr "&Biçimlendirme:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:92
 msgid "Plain"
-msgstr ""
+msgstr "Düz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:93
 msgid "&Maximum line length:"
-msgstr ""
+msgstr "%Maksimum satır uzunluğu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:94
 msgid "Force maximum line length"
-msgstr ""
+msgstr "Maksimum satır uzunluğu kullanımını zorla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:96
 msgid "Markdown, Textile"
@@ -7462,15 +7462,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:98
 msgid "Do not remove image references before processing"
-msgstr ""
+msgstr "İşlemeden önce resim referanslarını kaldırma"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:99
 msgid "Keep text color, when possible"
-msgstr ""
+msgstr "Mümkün oldukça metin rengini koru"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txtz_output.py:12
 msgid "TXTZ Output"
-msgstr ""
+msgstr "TXTZ Çıktı"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:70
@@ -7532,7 +7532,7 @@ msgstr "h6"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:84
 msgid "hr"
-msgstr ""
+msgstr "hr"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:85
 msgid "span"
@@ -7587,17 +7587,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:308
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1342
 msgid "Undefined"
-msgstr ""
+msgstr "Tanımsız"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:640
 msgid "star(s)"
-msgstr ""
+msgstr "yıldız"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:641
 msgid "Unrated"
-msgstr ""
+msgstr "Derecelendirilmemiş"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:670
@@ -7613,7 +7613,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:299
 msgid " index:"
-msgstr ""
+msgstr " İndeks"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:368
 msgid ""
@@ -7631,7 +7631,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:719
 msgid "Automatically number books"
-msgstr ""
+msgstr "Kitapları otomatik numaralandır"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:722
 msgid "Force numbers to start with "
@@ -7645,32 +7645,32 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:838
 msgid "Remove all tags"
-msgstr ""
+msgstr "Bütün etiketleri kaldır"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:858
 msgid "tags to add"
-msgstr ""
+msgstr "eklenecek etiketler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:865
 msgid "tags to remove"
-msgstr ""
+msgstr "kaldırılacak etiketler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:48
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:144
 msgid "No details available."
-msgstr ""
+msgstr "Detay verilemiyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:188
 msgid "Device no longer connected."
-msgstr ""
+msgstr "Cihaz bağlı değil."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:325
 msgid "Get device information"
-msgstr ""
+msgstr "Cihaz bilgisi al"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:340
 msgid "Get list of books on device"
-msgstr ""
+msgstr "Cihazdaki kitapların listesini al"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:350
 msgid "Get annotations from device"
@@ -7678,36 +7678,36 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:362
 msgid "Send metadata to device"
-msgstr ""
+msgstr "Metaveriyi cihaza gönder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:367
 msgid "Send collections to device"
-msgstr ""
+msgstr "Koleksiyonları cihaza gönder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:413
 #, python-format
 msgid "Upload %d books to device"
-msgstr ""
+msgstr "%d Kitapları cihaza yükle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:429
 msgid "Delete books from device"
-msgstr ""
+msgstr "Cihazdan kitapları sil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:447
 msgid "Download books from device"
-msgstr ""
+msgstr "Cihazdan kitap indir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:458
 msgid "View book on device"
-msgstr ""
+msgstr "Kitabı cihazda görüntüle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:499
 msgid "Set default send to device action"
-msgstr ""
+msgstr "Öntanımlı cihaza gönder eylemini belirle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:505
 msgid "Send to main memory"
-msgstr ""
+msgstr "Ana belleğe gönder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:507
 msgid "Send to storage card A"
@@ -7720,7 +7720,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:514
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:523
 msgid "Main Memory"
-msgstr ""
+msgstr "Ana Bellek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:535
 msgid "Send specific format to"
@@ -7728,11 +7728,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:536
 msgid "Send and delete from library"
-msgstr ""
+msgstr "Gönder ve kütüphaneden sil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:579
 msgid "Eject device"
-msgstr ""
+msgstr "Cihazı çıkar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:660
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:63
@@ -7743,13 +7743,13 @@ msgstr "Hata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:661
 msgid "Error communicating with device"
-msgstr ""
+msgstr "Cihazla iletişimde hata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:680
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1219
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:254
 msgid "No suitable formats"
-msgstr ""
+msgstr "Uygun biçim yok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:696
 msgid "Select folder to open as device"
@@ -7757,7 +7757,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:747
 msgid "Error talking to device"
-msgstr ""
+msgstr "Cihazla iletişimde hata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:748
 msgid ""
@@ -7771,11 +7771,11 @@ msgstr "Aygıt: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:793
 msgid " detected."
-msgstr ""
+msgstr " bulundu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:896
 msgid "selected to send"
-msgstr ""
+msgstr "gönderilmek için seçildi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:915
 #, python-format
@@ -7789,15 +7789,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:920
 msgid "Choose format to send to device"
-msgstr ""
+msgstr "Cihaza gönderilecek biçimi seçin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:928
 msgid "No device"
-msgstr ""
+msgstr "Cihaz yok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:929
 msgid "Cannot send: No device is connected"
-msgstr ""
+msgstr "Gönderilemiyor: Bağlı bir cihaz yok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:932
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:936
@@ -7807,7 +7807,7 @@ msgstr "Kart yok"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:933
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:937
 msgid "Cannot send: Device has no storage card"
-msgstr ""
+msgstr "Gönderilemiyor: Cihaz depolama kartına sahip değil"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:998
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1081
@@ -7817,15 +7817,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1027
 msgid "Sending catalogs to device."
-msgstr ""
+msgstr "Kataloglar cihaza gönderiliyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1126
 msgid "Sending news to device."
-msgstr ""
+msgstr "Haberler cihaza gönderiliyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1180
 msgid "Sending books to device."
-msgstr ""
+msgstr "Kitaplar cihaza gönderiliyor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1220
 msgid ""
@@ -7835,7 +7835,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1293
 msgid "No space on device"
-msgstr ""
+msgstr "Cihazda yer yok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1294
 msgid ""
@@ -7844,7 +7844,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:135
 msgid "Unknown formats"
-msgstr ""
+msgstr "Bilinmeyen biçimler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:136
 msgid ""
@@ -7858,7 +7858,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:61
 msgid "Invalid template"
-msgstr ""
+msgstr "Geçersiz şablon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:465
@@ -7880,7 +7880,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:83
 msgid "Use sub directories"
-msgstr ""
+msgstr "Alt dizin kullan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:84
 msgid "Use author sort for author"
@@ -7888,31 +7888,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
-msgstr ""
+msgstr "Şablonu kaydet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:20
 msgid "How many empty books?"
-msgstr ""
+msgstr "kaç adet boş kitap?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:25
 msgid "How many empty books should be added?"
-msgstr ""
+msgstr "Kaç adet boş kitap eklenecek?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:33
 msgid "Set the author of the new books to:"
-msgstr ""
+msgstr "Yeni kitapların yazarını şu olarak ayarla:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:45
 msgid "Reset author to Unknown"
-msgstr ""
+msgstr "Yazarı bilinmeyen olarak ayarla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:63
 msgid "Add books by ISBN"
-msgstr ""
+msgstr "Kitapları ISBN'ye göre ekle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:64
 msgid "&Paste from clipboard"
-msgstr ""
+msgstr "&Panodan yapıştır"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:65
 #, python-format
@@ -7941,7 +7941,7 @@ msgstr "Kitaplarım"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:92
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:331
 msgid "Generate catalog"
-msgstr ""
+msgstr "Katalog oluştur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:93
 msgid "Generate catalog for {0} books"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-07-30 07:16+0000\n"
+"PO-Revision-Date: 2011-08-01 11:13+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-31 04:36+0000\n"
-"X-Generator: Launchpad (build 13405)\n"
+"X-Launchpad-Export-Date: 2011-08-02 04:34+0000\n"
+"X-Generator: Launchpad (build 13552)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -18811,19 +18811,19 @@ msgstr "保存"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
-msgstr ""
+msgstr "開く"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "Cancel"
-msgstr ""
+msgstr "キャンセル"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"
-msgstr ""
+msgstr "閉じる(&C)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Apply"
-msgstr ""
+msgstr "適用"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:674
 msgid "Don't Save"
@@ -18831,27 +18831,27 @@ msgstr "保存しない"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:676
 msgid "Close without Saving"
-msgstr ""
+msgstr "保存せずに閉じる"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:678
 msgid "Discard"
-msgstr ""
+msgstr "破棄"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:681
 msgid "&Yes"
-msgstr ""
+msgstr "はい(&Y)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:684
 msgid "Yes to &All"
-msgstr ""
+msgstr "全てにはい(&A)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:687
 msgid "&No"
-msgstr ""
+msgstr "いいえ(&N)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:690
 msgid "N&o to All"
-msgstr ""
+msgstr "全てにいいえ(&O)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:693
 msgid "Save All"
@@ -18859,23 +18859,23 @@ msgstr "すべて保存"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:696
 msgid "Abort"
-msgstr ""
+msgstr "中止"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:699
 msgid "Retry"
-msgstr ""
+msgstr "再試行"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Ignore"
-msgstr ""
+msgstr "無視する"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Restore Defaults"
-msgstr ""
+msgstr "標準設定に戻す"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
-msgstr ""
+msgstr "シリーズ番号を自動更新"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:13
 msgid ""
@@ -18914,10 +18914,34 @@ msgid ""
 "from books and the import plugin produces a value, than that value will\n"
 "be used irrespective of the setting of the tweak."
 msgstr ""
+"すでにあるシリーズへ書籍が追加されたときに使われるシリーズ番号を決めるアルゴリズム。\n"
+"このTweakを使って決められる新しいシリーズ番号は、非整数の定数が与えられた場合を除き、必ず整数値になります。\n"
+"使用できる値は：\n"
+"next - 現在ある最大の番号より１つ大きな整数値\n"
+"first_free - 0より大きく、まだ使われていない数\n"
+"next_free - 現在ある最低の番号より大きく、しかもまだ使われていない整数値\n"
+"last_free - 現在ある最高の番号より小さく、しかもまだ使われていない整数値。もし番号が見つからなかった場合、すでにある最大値＋１が使われる。\n"
+"const - すべての場合に数１となる。\n"
+"数値 - 必ずこの数値を使う。数値はクオート（'）で囲まない。注：0.0もここに使用できる。\n"
+"\n"
+"例：\n"
+"series_index_auto_increment = 'next'\n"
+"series_index_auto_increment = 'next_free'\n"
+"series_index_auto_increment = 16.5\n"
+"\n"
+"\n"
+"書籍のインポート/追加時に上の値を使いたい場合には、tweak　の "
+"use_series_auto_increment_tweak_when_importing に True を設定してください。\n"
+"もしこのtweakにFalse（これがディフォールト）を設定されると、インポート時に明示的に設定されない限り、1が設定されます。\n"
+"もしTrueが設定された場合には、シリーズ番号はseries_index_auto_incrementの設定にしたがって決められます。\n"
+"注意して欲しいのは、use_series_auto_increment_tweak_when_importing "
+"が使われるのは、インポート時に値が指定されなかった場合に限られます。 \n"
+"もしインポート時の正規表現がseries_indexの値を作った時や、もし書籍から読み込まれた書誌情報に番号がある時や、\n"
+"インポート・プラグインが値を生成した場合には、このtweakを無視してそちらが使われます。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:43
 msgid "Add separator after completing an author name"
-msgstr ""
+msgstr "著者名を補足した後にセパレータを追加する。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:44
 msgid ""
@@ -18926,7 +18950,7 @@ msgid ""
 "automatically begin a new completion operation\n"
 "for authors.\n"
 "Can be either True or False"
-msgstr ""
+msgstr "補足後にセパレータを補足したテキストの最後に自動的に追加して、新しい著者の補足動作をはじめます。TrueかFalseのどちらか。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:51
 msgid "Author sort name algorithm"
