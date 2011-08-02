@@ -61,20 +61,16 @@ The python implementation of the template functions is passed in a Metadata obje
 
 
 def generate_template_language_help():
-    from calibre.utils.formatter_functions import all_builtin_functions
+    from calibre.utils.formatter_functions import formatter_functions
 
     funcs = defaultdict(dict)
 
-    for func in all_builtin_functions:
+    for func in formatter_functions.get_builtins().values():
         class_name = func.__class__.__name__
-        if class_name == 'BuiltinMergeLists':
-            class_name = 'BuiltinListUnion'
         func_sig = getattr(func, 'doc')
         x = func_sig.find(' -- ')
         if x < 0:
             print 'No sig for ', class_name
-            continue
-        if func_sig.startswith('merge_lists('):
             continue
         func_sig = func_sig[:x]
         func_cat = getattr(func, 'category')

@@ -19,39 +19,44 @@ from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
 class FormatterFunctions(object):
 
     def __init__(self):
-        self.builtins = {}
-        self.functions = {}
+        self._builtins = {}
+        self._functions = {}
 
     def register_builtin(self, func_class):
         if not isinstance(func_class, FormatterFunction):
             raise ValueError('Class %s is not an instance of FormatterFunction'%(
                                     func_class.__class__.__name__))
         name = func_class.name
-        if name in self.functions:
+        if name in self._functions:
             raise ValueError('Name %s already used'%name)
-        self.builtins[name] = func_class
-        self.functions[name] = func_class
+        self._builtins[name] = func_class
+        self._functions[name] = func_class
+        for a in func_class.aliases:
+            self._functions[a] = func_class
 
     def register_function(self, func_class):
         if not isinstance(func_class, FormatterFunction):
             raise ValueError('Class %s is not an instance of FormatterFunction'%(
                                     func_class.__class__.__name__))
         name = func_class.name
-        if name in self.functions:
+        if name in self._functions:
             raise ValueError('Name %s already used'%name)
-        self.functions[name] = func_class
+        self._functions[name] = func_class
 
     def get_builtins(self):
-        return self.builtins
+        return self._builtins
 
     def get_functions(self):
-        return self.functions
+        return self._functions
 
     def reset_to_builtins(self):
-        self.functions = dict([t for t in self.builtins.items()])
+        self._functions = {}
+        for n,c in self._builtins.items():
+            self._functions[n] = c
+            for a in c.aliases:
+                self._functions[a] = c
 
 formatter_functions = FormatterFunctions()
-
 
 
 class FormatterFunction(object):
@@ -60,6 +65,7 @@ class FormatterFunction(object):
     name = 'no name provided'
     category = 'Unknown'
     arg_count = 0
+    aliases = []
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         raise NotImplementedError()
@@ -73,7 +79,6 @@ class FormatterFunction(object):
         if isinstance(ret, list):
             return ','.join(list)
 
-all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):
     def __init__(self):
         formatter_functions.register_builtin(self)
@@ -84,7 +89,6 @@ class BuiltinFormatterFunction(FormatterFunction):
         except:
             lines = []
         self.program_text = ''.join(lines)
-        all_builtin_functions.append(self)
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
     name = 'strcmp'
@@ -839,6 +843,7 @@ class BuiltinListUnion(BuiltinFormatterFunction):
             'items differ in case, the one in list1 is used. '
             'The items in list1 and list2 are separated by separator, as are '
             'the items in the returned list.')
+    aliases = ['merge_lists']
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
@@ -852,9 +857,6 @@ class BuiltinListUnion(BuiltinFormatterFunction):
             if icu_lower(i) not in lcl1:
                 res.append(i)
         return ', '.join(res)
-
-class BuiltinMergeLists(BuiltinListUnion):
-    name = 'merge_lists'
 
 class BuiltinListDifference(BuiltinFormatterFunction):
     name = 'list_difference'
@@ -910,7 +912,7 @@ class BuiltinListSort(BuiltinFormatterFunction):
 class BuiltinToday(BuiltinFormatterFunction):
     name = 'today'
     arg_count = 0
-    category = 'Date functions'
+    category = 'Date _functions'
     __doc__ = doc = _('today() -- '
             'return a date string for today. This value is designed for use in '
             'format_date or days_between, but can be manipulated like any '
@@ -921,7 +923,7 @@ class BuiltinToday(BuiltinFormatterFunction):
 class BuiltinDaysBetween(BuiltinFormatterFunction):
     name = 'days_between'
     arg_count = 2
-    category = 'Date functions'
+    category = 'Date _functions'
     __doc__ = doc = _('days_between(date1, date2) -- '
             'return the number of days between date1 and date2. The number is '
             'positive if date1 is greater than date2, otherwise negative. If '
@@ -940,7 +942,7 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         i = d1 - d2
         return str('%d.%d'%(i.days, i.seconds/8640))
 
-formatter_builtins = [
+_formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
@@ -950,7 +952,7 @@ formatter_builtins = [
     BuiltinIfempty(), BuiltinInList(), BuiltinListDifference(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListSort(),
     BuiltinListUnion(), BuiltinLookup(),
-    BuiltinLowercase(), BuiltinMergeLists(), BuiltinMultiply(), BuiltinNot(),
+    BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
     BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinSubitems(),
