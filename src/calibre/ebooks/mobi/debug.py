@@ -1361,7 +1361,7 @@ class MOBIFile(object): # {{{
             huffrecs = [self.records[r].raw for r in self.huffman_record_nums]
             from calibre.ebooks.mobi.huffcdic import HuffReader
             huffs = HuffReader(huffrecs)
-            decompress = lambda x: huffs.decompress([x])
+            decompress = huffs.unpack
         elif 'palmdoc' in self.mobi_header.compression.lower():
             from calibre.ebooks.compression.palmdoc import decompress_doc
             decompress = decompress_doc

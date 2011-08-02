@@ -152,10 +152,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.choose_menu.addMenu(self.maintenance_menu)
 
     def pick_random(self, *args):
-        import random
-        pick = random.randint(0, self.gui.library_view.model().rowCount(None))
-        self.gui.library_view.set_current_row(pick)
-        self.gui.library_view.scroll_to_row(pick)
+        self.gui.iactions['Pick Random Book'].pick_random()
 
     def library_name(self):
         db = self.gui.library_view.model().db
