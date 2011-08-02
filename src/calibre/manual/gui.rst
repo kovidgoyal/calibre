@@ -527,6 +527,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Remove selected Books
     * - :kbd:`E`
       - Edit metadata of selected books
+    * - :kbd:`G`
+      - Get Books
     * - :kbd:`I`
       - Show book details
     * - :kbd:`M`

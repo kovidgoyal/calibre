@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QMenu, QToolButton
+from PyQt4.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 
@@ -17,9 +17,10 @@ class SimilarBooksAction(InterfaceAction):
     action_spec = (_('Similar books...'), None, None, None)
     popup_type = QToolButton.InstantPopup
     action_type = 'current'
+    action_add_menu = True
 
     def genesis(self):
-        m = QMenu(self.gui)
+        m = self.qaction.menu()
         for text, icon, target, shortcut in [
         (_('Books by same author'), 'user_profile.png', 'authors', _('Alt+A')),
         (_('Books in this series'), 'books_in_series.png', 'series',
@@ -31,7 +32,6 @@ class SimilarBooksAction(InterfaceAction):
             m.addAction(ac)
             ac.triggered.connect(partial(self.show_similar_books, target))
         self.qaction.setMenu(m)
-        self.similar_menu = m
 
     def show_similar_books(self, type, *args):
         search, join = [], ' '

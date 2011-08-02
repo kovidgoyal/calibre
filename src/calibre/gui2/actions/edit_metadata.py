@@ -24,12 +24,13 @@ class EditMetadataAction(InterfaceAction):
     name = 'Edit Metadata'
     action_spec = (_('Edit metadata'), 'edit_input.png', None, _('E'))
     action_type = 'current'
+    action_add_menu = True
 
     def genesis(self):
         self.create_action(spec=(_('Merge book records'), 'merge_books.png',
             None, _('M')), attr='action_merge')
-        md = QMenu()
-        md.addAction(_('Edit metadata individually'),
+        md = self.qaction.menu()
+        md.addAction(self.qaction.icon(), _('Edit metadata individually'),
                 partial(self.edit_metadata, False, bulk=False))
         md.addSeparator()
         md.addAction(_('Edit metadata in bulk'),
@@ -56,7 +57,6 @@ class EditMetadataAction(InterfaceAction):
         md.addAction(self.action_merge)
 
         self.qaction.triggered.connect(self.edit_metadata)
-        self.qaction.setMenu(md)
         self.action_merge.triggered.connect(self.merge_books)
 
     def location_selected(self, loc):

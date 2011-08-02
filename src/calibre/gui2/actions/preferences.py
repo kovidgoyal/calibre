@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QIcon, QMenu, Qt
+from PyQt4.Qt import QIcon, Qt
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
@@ -16,12 +16,13 @@ class PreferencesAction(InterfaceAction):
 
     name = 'Preferences'
     action_spec = (_('Preferences'), 'config.png', None, _('Ctrl+P'))
+    action_add_menu = True
+    action_menu_clone_qaction = _('Change calibre behavior')
 
     def genesis(self):
-        pm = QMenu()
-        pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
+        pm = self.qaction.menu()
         if isosx:
-            pm.addAction(QIcon(I('config.png')), _('Change calibre behavior'), self.do_config)
+            pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
         pm.addAction(QIcon(I('wizard.png')), _('Run welcome wizard'),
                 self.gui.run_wizard)
         pm.addAction(QIcon(I('plugins/plugin_updater.png')),
@@ -33,7 +34,6 @@ class PreferencesAction(InterfaceAction):
             ac.setShortcut('Ctrl+Shift+R')
             self.gui.addAction(ac)
 
-        self.qaction.setMenu(pm)
         self.preferences_menu = pm
         for x in (self.gui.preferences_action, self.qaction):
             x.triggered.connect(self.do_config)

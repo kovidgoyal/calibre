@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QPixmap, QMenu, QTimer
+from PyQt4.Qt import QPixmap, QTimer
 
 
 from calibre.gui2 import error_dialog, choose_files, \
@@ -48,12 +48,12 @@ class AddAction(InterfaceAction):
             _('Add books to the calibre library/device from files on your computer')
             , _('A'))
     action_type = 'current'
+    action_add_menu = True
+    action_menu_clone_qaction = _('Add books from a single directory')
 
     def genesis(self):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)
-        self.add_menu = QMenu()
-        self.add_menu.addAction(_('Add books from a single directory'),
-                self.add_books)
+        self.add_menu = self.qaction.menu()
         self.add_menu.addAction(_('Add books from directories, including '
             'sub-directories (One book per directory, assumes every ebook '
             'file is the same book in a different format)'),
@@ -69,7 +69,6 @@ class AddAction(InterfaceAction):
         self.add_menu.addAction(_('Add files to selected book records'),
                 self.add_formats, _('Shift+A'))
 
-        self.qaction.setMenu(self.add_menu)
         self.qaction.triggered.connect(self.add_books)
 
     def location_selected(self, loc):
