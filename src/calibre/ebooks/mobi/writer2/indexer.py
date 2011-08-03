@@ -33,8 +33,10 @@ class CNCX(object): # {{{
             self.strings[item.title] = 0
             if is_periodical:
                 self.strings[item.klass] = 0
-                aut, desc = item.author, item.description
-                self.strings[item.author] = self.strings[item.description] = 0
+                if item.author:
+                    self.strings[item.author] = 0
+                if item.description:
+                    self.strings[item.description] = 0
 
         self.records = []
         offset = 0
@@ -65,8 +67,8 @@ class CNCX(object): # {{{
 class TAGX(object): # {{{
 
     BITMASKS = {11:0b1}
-    BITMASKS.update({x:i+1 for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
-    BITMASKS.update({x:i+1 for i, x in enumerate([69, 70, 71, 72, 73])})
+    BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
+    BITMASKS.update({x:(1 << i) for i, x in enumerate([69, 70, 71, 72, 73])})
 
     NUM_VALUES = defaultdict(lambda x:1)
     NUM_VALUES[11] = 3
@@ -181,7 +183,7 @@ class IndexEntry(object):
     def entry_type(self):
         ans = 0
         for tag in self.tag_nums:
-            ans |= (1 << (TAGX.BITMASKS[tag])) # 1 << x == 2**x
+            ans |= TAGX.BITMASKS[tag]
         return ans
 
     @property
@@ -201,7 +203,7 @@ class IndexEntry(object):
             for attr in ('image_index', 'desc_offset', 'author_offset'):
                 val = getattr(self, attr)
                 if val is not None:
-                    tag = self.RTAG_MAP[attr]
+                    tag = self.TAG_VALUES[attr]
                     bm = TAGX.BITMASKS[tag]
                     flags |= bm
             buf.write(bytes(bytearray([flags])))
@@ -226,7 +228,7 @@ class IndexEntry(object):
 class PeriodicalIndexEntry(IndexEntry):
 
     def __init__(self, offset, label_offset, class_offset, depth):
-        IndexEntry.__init__(offset, label_offset)
+        IndexEntry.__init__(self, offset, label_offset)
         self.depth = depth
         self.class_offset = class_offset
         self.control_byte_count = 2
@@ -478,7 +480,7 @@ class Indexer(object): # {{{
     def create_index_record(self, secondary=False): # {{{
         header_length = 192
         buf = StringIO()
-        indices = list(SecondaryIndexEntry.entries) if secondary else self.indices
+        indices = list(SecondaryIndexEntry.entries()) if secondary else self.indices
 
         # Write index entries
         offsets = []
@@ -552,7 +554,7 @@ class Indexer(object): # {{{
         buf.write(b'\xff'*4)
 
         # Number of index entries 36-40
-        indices = list(SecondaryIndexEntry.entries) if secondary else self.indices
+        indices = list(SecondaryIndexEntry.entries()) if secondary else self.indices
         buf.write(pack(b'>I', len(indices)))
 
         # ORDT offset 40-44
