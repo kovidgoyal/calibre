@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-05-20 05:37+0000\n"
+"PO-Revision-Date: 2011-08-02 07:35+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-07-30 04:56+0000\n"
-"X-Generator: Launchpad (build 13405)\n"
+"X-Launchpad-Export-Date: 2011-08-03 04:36+0000\n"
+"X-Generator: Launchpad (build 13573)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -244,11 +244,11 @@ msgstr "偏好設定"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "商店"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "電子書商店。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -323,65 +323,65 @@ msgstr "從%s檔案中設定詮釋資料"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:725
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "將書籍加入 calibre 或連接的裝置"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:730
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "從連接的 Kindle 中取回註解 (實驗性)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "產生您 calibre 書庫中書籍的分類"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "將書籍轉換為各種電子書格式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "從您的 calibre 書庫或連接的裝置刪除書籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "編輯 calibre 書庫中書籍的元數據"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "閱讀您的 calibre 書庫的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "從網際網路將新聞下載為電子書格式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "快速顯示相關書籍的清單"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "從您的 calibre 書庫匯出電子書到硬碟"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "在分離的彈出式視窗中顯示書籍詳細資料"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Restart calibre"
-msgstr ""
+msgstr "重新啟動 calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "開啟包含在您的 calibre 書庫裡書籍的資料夾"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "傳送書籍到連接的裝置"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
-msgstr ""
+msgstr "透過電子郵件或網頁傳送書籍同時連線到 iTunes 或您電腦上的資料夾 (如果它們是裝置)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -390,46 +390,46 @@ msgstr "瀏覽 calibre 使用者手冊"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Customize calibre"
-msgstr ""
+msgstr "自訂 calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "輕鬆的找到與目前選取類似的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "在不同的 calibre 書庫中切換並對它們進行維護"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "從裝置複製書籍到您的 calibre 書庫"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "編輯放在您裝置中書籍的收藏"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "從一個 calibre 書庫複製書籍到另一個書庫"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "對您的 calibre 書庫中的 epub 檔案中進行小部分調整"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
-msgstr ""
+msgstr "當搜尋您的 calibre 書庫時以突顯模式尋找下一個或上一個符合項"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "從不同的書籍零售商搜尋書籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "取得您現有 calibre 外掛程式的新版本"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Look and Feel"
@@ -600,7 +600,7 @@ msgstr "元數據下載"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1064
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "控制 calibre 如何從網路下載電子書元數據"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1069
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:275
@@ -652,7 +652,7 @@ msgstr "如果開啟本選項，輸出的外掛程式將儘可能使用人類可
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "將電子書轉換為 %s 格式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -870,7 +870,7 @@ msgstr "關閉已經命名的外掛程式"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:139
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
-msgstr ""
+msgstr "書庫的路徑太長。必須少於 %d 字元。"
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:131
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:636
@@ -931,11 +931,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:64
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "停用 Apple 驅動程式"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:68
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "啟用 Apple 驅動程式"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Use Series as Category in iTunes/iBooks"
@@ -943,7 +943,7 @@ msgstr "以系列做為 iTunes/iBooks 中的分類"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "啟用以使用和 iTunes 類別、iBooks 分類的叢書名稱"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
@@ -951,7 +951,7 @@ msgstr "快取 iTunes/iBooks 封面"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:123
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "啟用以從 iTunes/iBooks 快取並顯示封面"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
 #, python-format
@@ -999,7 +999,7 @@ msgstr "正在更新裝置元數據清單..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3155
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d / %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1130
@@ -1170,11 +1170,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "與 BOEYE BEX 系列電子書閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "與 BOEYE BDX 系列電子書閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1202,7 +1202,7 @@ msgstr "與 PocketBook 602/603/902/903 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "與 PocketBook 360+ 系列閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
 msgid "Communicate with the PocketBook 701"
@@ -1262,7 +1262,7 @@ msgstr "與 The Book 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:58
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "與 Libre Air 系列電子書閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:71
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1372,7 +1372,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:55
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "建立自動管理的標籤"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:537
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:388
@@ -1428,7 +1428,7 @@ msgstr "與 EEE Reader 連接"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "與 Adam 平板電腦連接"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
@@ -1436,11 +1436,11 @@ msgstr "與 Nextbook Reader 連接"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "與 Moovybook 閱讀器連接"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "與 COBY 連接"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1464,7 +1464,7 @@ msgstr "與 the Nook eBook 閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color and TSR eBook readers."
-msgstr ""
+msgstr "與 Nook Color 和 TSR 電子書閱讀器連接。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1540,7 +1540,7 @@ msgstr "如果您想要封面縮圖保持與封面相同的長寬比（寬度與
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:93
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "搜尋所有資料夾中的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:95
 msgid ""
@@ -1548,6 +1548,7 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"設定這個選項會告訴 calibre 搜尋裝置和記憶卡中所有資料夾的書籍。這會允許 calibre 尋找其他軟體或無線下載放在裝置中的書籍。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1719,7 +1720,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "USB 廠商 ID (hex 格式)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1732,12 +1733,12 @@ msgstr "要取得這個 ID 請使用 偏好設定 -> 雜項 -> 取得設定使�
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "USB 產品 ID (hex 格式)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "USB 修訂版 ID (hex 格式)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
@@ -3243,31 +3244,31 @@ msgstr "封面"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:386
 msgid "Downloads metadata and covers from Amazon"
-msgstr ""
+msgstr "從 Amazon 下載元數據和封面"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:396
 msgid "US"
-msgstr ""
+msgstr "TW"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:397
 msgid "France"
-msgstr ""
+msgstr "法國"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:398
 msgid "Germany"
-msgstr ""
+msgstr "德國"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:399
 msgid "UK"
-msgstr ""
+msgstr "英國（UK）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:400
 msgid "Italy"
-msgstr ""
+msgstr "義大利"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:404
 msgid "Amazon website to use:"
-msgstr ""
+msgstr "要使用的 Amazon 網站："
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:405
 msgid ""
@@ -4744,7 +4745,7 @@ msgstr "從選取書籍移除所有的格式，除了..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:98
 msgid "Remove all formats from selected books"
-msgstr ""
+msgstr "從選取書籍移除所有的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:101
 msgid "Remove covers from selected books"
@@ -5157,7 +5158,7 @@ msgstr "執行歡迎精靈"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 msgid "Get plugins to enhance calibre"
-msgstr ""
+msgstr "取得外掛程式以強化 calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Restart in debug mode"
@@ -5312,23 +5313,23 @@ msgstr "同樣標籤的書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
-msgstr ""
+msgstr "取得書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "Search for ebooks"
-msgstr ""
+msgstr "搜尋電子書"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:30
 msgid "Search for this author"
-msgstr ""
+msgstr "搜尋這個作者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:31
 msgid "Search for this title"
-msgstr ""
+msgstr "搜尋這個書名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 msgid "Search for this book"
-msgstr ""
+msgstr "搜尋這本書"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -5340,7 +5341,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_dialog.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:285
 msgid "Choose stores"
-msgstr ""
+msgstr "選擇商店"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:102
@@ -5377,7 +5378,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:149
 msgid "About Get Books"
-msgstr ""
+msgstr "關於取得書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
@@ -14136,7 +14137,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:276
 msgid "Customize get books search"
-msgstr ""
+msgstr "自訂取得書籍搜尋"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:286
 msgid "Configure search"
@@ -14153,7 +14154,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr ""
+msgstr "取得書籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:140
 msgid "Open a selected book in the system's web browser"

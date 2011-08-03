@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-07-27 06:39+0000\n"
+"PO-Revision-Date: 2011-08-02 10:54+0000\n"
 "Last-Translator: Nader stouhy <Unknown>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2011-07-30 04:37+0000\n"
-"X-Generator: Launchpad (build 13405)\n"
+"X-Launchpad-Export-Date: 2011-08-03 04:34+0000\n"
+"X-Generator: Launchpad (build 13573)\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:182
 msgid "&Monospace family:"
@@ -961,7 +961,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1090
 msgid "Card B"
-msgstr ""
+msgstr "بلكبيبي"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"

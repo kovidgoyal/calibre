@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-07-20 14:03+0000\n"
-"Last-Translator: Bartosz Bubak <Unknown>\n"
+"PO-Revision-Date: 2011-08-02 09:24+0000\n"
+"Last-Translator: koliberek <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-07-30 04:48+0000\n"
-"X-Generator: Launchpad (build 13405)\n"
+"X-Launchpad-Export-Date: 2011-08-03 04:36+0000\n"
+"X-Generator: Launchpad (build 13573)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -3438,7 +3438,9 @@ msgstr "Etykiety"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:124
 msgid "Series"
 msgid_plural "Series"
-msgstr[0] "Serie"
+msgstr[0] "Seria"
+msgstr[1] "Serie"
+msgstr[2] "Serii"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:746
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
@@ -12730,19 +12732,19 @@ msgstr "jest większe niż"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
 msgid "has"
-msgstr "ma"
+msgstr "zawiera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:46
 msgid "does not have"
-msgstr "nie ma"
+msgstr "nie zawiera"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:47
 msgid "has pattern"
-msgstr "ma wzorzec"
+msgstr "zawiera wzorzec"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "does not have pattern"
-msgstr "nie ma wzorca"
+msgstr "nie zawiera wzorca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
@@ -12790,7 +12792,7 @@ msgstr "Wpisz datę w formacie RRRR-MM-DD"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:220
 msgid "Enter a string."
-msgstr "wpisz łańcuch"
+msgstr "Wpisz ciąg znaków."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:222
 msgid "Enter a regular expression"
@@ -12860,12 +12862,17 @@ msgid ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 msgstr ""
+"            <p>Ustaw kolor kolumny <b>%(col)s</b> na <b>%(color)s</b> jeśli "
+"są spełnione\n"
+"            następujące warunki:</p>\n"
+"            <ul>%(rule)s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:467
 #, python-format
 msgid ""
 "<li>If the <b>%(col)s</b> column <b>%(action)s</b> value: <b>%(val)s</b>"
-msgstr ""
+msgstr "<li>Jeśli kolumna <b>%(col)s</b> <b>%(action)s</b>: <b>%(val)s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:483
 msgid ""
@@ -18017,14 +18024,15 @@ msgid ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
-"%%prog command [options] [arguments]\n"
+"%%prog polecenie [opcje] [parametry]\n"
 "\n"
-"%%prog to komenda linii interfejsu dla bazy danych książek calibre.\n"
+"%%prog to program obsługi bazy danych calibre.\n"
 "\n"
-"komendami mogą być:\n"
+"dostępne polecenia:\n"
 "  %s\n"
 "\n"
-"Dla pomocy odnośnie każdej komendy wpisz: %%prog command --help\n"
+"Aby uzyskać informacje o poszczególnych poleceniach wpisz: %%prog polecenie -"
+"-help\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:610
 msgid "No label was provided"
@@ -18525,9 +18533,7 @@ msgstr "Stworzony przez "
 msgid ""
 "Whenever you pass arguments to %prog that have spaces in them, enclose the "
 "arguments in quotation marks."
-msgstr ""
-"Za każdym razem, gdy przekazujesz argumenty do %prog które mają spacje, "
-"dołącz argumenty w cudzysłowach."
+msgstr "Parametry, zawierające spacje ujmij w cudzysłów."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:374
 msgid "Path to the database in which books are stored"
@@ -20661,7 +20667,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:380
 msgid "Save original file when converting from same format to same format"
-msgstr ""
+msgstr "Zachowaj oryginalny plik przy konwersji bez zmiany formatu"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid ""
@@ -20670,6 +20676,13 @@ msgid ""
 "conversion is poor, you can tweak the settings and run it again. By setting\n"
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
+"Przy konwersji bez zmiany formatu na przykład z EPUB do EPUB oryginalny "
+"plik\n"
+"nie jest usuwany, dzięki czemu możesz poprawić parametry i uruchomić "
+"konwersję ponownie\n"
+"jeśli okaże się, że wynik nie jest zadowalający.\n"
+"Ustawienie tego parametru na False spowoduje, że oryginalny plik nie "
+"zostanie zachowany."
 
 #~ msgid "Control page layout"
 #~ msgstr "Wygląd strony kontrolnej"

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.49\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-06-24 20:45+0000\n"
+"PO-Revision-Date: 2011-08-02 10:23+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2011-07-30 04:51+0000\n"
-"X-Generator: Launchpad (build 13405)\n"
+"X-Launchpad-Export-Date: 2011-08-03 04:36+0000\n"
+"X-Generator: Launchpad (build 13573)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
@@ -361,7 +361,7 @@ msgstr "Prenesite novice z interneta v zapisu e-knjige"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Hitro pokaži seznam sorodnih knjig"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Export books from your calibre library to the hard disk"
@@ -405,7 +405,7 @@ msgstr "Enostavno poiščite knjige, podobne trenutno izbrani"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "Preklopi med različnimi knjižnicami calibre in opravi vzdrževanje"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Copy books from the devce to your calibre library"
@@ -421,7 +421,7 @@ msgstr "Kopirajte knjigo iz ene knjižnice calibre v drugo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "Opravi manjše prilagoditve datotek epub v knjižnici calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid ""
@@ -435,7 +435,7 @@ msgstr "Poiščite knjige v različnih prodajalnah knjig"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Poišči nove vtičnike calibre ali posodobi obstoječe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Look and Feel"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-08-01 05:15+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-02 08:49+0000\n"
+"Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: eu@li.org\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-02 04:33+0000\n"
-"X-Generator: Launchpad (build 13552)\n"
+"X-Launchpad-Export-Date: 2011-08-03 04:35+0000\n"
+"X-Generator: Launchpad (build 13573)\n"
 "Language: eu\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -209,7 +209,7 @@ msgstr "Pertsonalizatu"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:56
 msgid "Cannot configure"
-msgstr "Cannot configure"
+msgstr "Ezin da konfiguratu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
@@ -266,6 +266,11 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Sortu TXTZ fitxategi bat TXT fitxategi bat inportatu egiten den bakoitzean. "
+"TXTZ fitxategiak irudiei buruzko Markdown edo Textile (testu-"
+"fitxategietarako lengoaietan idatzitako) erreferentziak izango ditu. "
+"Erreferentzia duten irudiak eta TXT fitxategiak TXTZ fitxategira gehitu "
+"egingo dira."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
@@ -405,7 +410,7 @@ msgstr ""
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
-"Txandakatu hainbat calibre liburutegien artean eta presta ezazu haien "
+"Txandakatu hainbat calibre liburutegiren artean eta presta ezazu haien "
 "mantenua"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
@@ -7888,7 +7893,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:98
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:99
 msgid ""
@@ -7903,8 +7908,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:100
 msgid "Do not insert Table of Contents into output text when using markdown"
 msgstr ""
-"Ez sartu aurkibiderik helburu testuan markdown lengoaia erabiltzen ari "
-"zarenean"
+"Ez sartu Aurkibidea helburu testua markdown (testu-fitxategietarako "
+"lengoaia) erabiltzen ari zarenean"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output.py:13
 msgid "TXT Output"
@@ -7940,7 +7945,7 @@ msgstr "Lerroaren luzeerarik handienera behartu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:96
 msgid "Markdown, Textile"
-msgstr ""
+msgstr "Markdown, Textile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:97
 msgid "Do not remove links (<a> tags) before processing"

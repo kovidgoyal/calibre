@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-05-22 19:29+0000\n"
-"Last-Translator: Marek Sušický <Unknown>\n"
+"PO-Revision-Date: 2011-08-02 18:02+0000\n"
+"Last-Translator: Jan Kubík <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-07-30 04:39+0000\n"
-"X-Generator: Launchpad (build 13405)\n"
+"X-Launchpad-Export-Date: 2011-08-03 04:35+0000\n"
+"X-Generator: Launchpad (build 13573)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -247,7 +247,7 @@ msgstr "Uložit"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "Obchod s e-knihami."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -322,11 +322,11 @@ msgstr "Nastavuje metadata ze souborů %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:725
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Přidejte knihy do Calibre nebo připojeného zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:730
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Přenést poznámky z připojeného Kindle (experimentální)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Generate a catalog of the books in your calibre library"
@@ -334,19 +334,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Převést knihy do různých formátů e-knih"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Smazat knihy z vaší knihovny Calibre nebo připojeného zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Upravit metadata knih ve vaší knihovně Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Číst knihy ve vaší knihovně Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Download news from the internet in ebook form"
@@ -354,11 +354,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Rychle ukázat seznam souvisejících knih"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Exportovat knihy z knihovny Calibre na pevný disk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Show book details in a separate popup"
@@ -366,15 +366,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Restart calibre"
-msgstr ""
+msgstr "Restartuj Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "Otevři složku, která obsahuje soubory knih v knihovně Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Pošli knihy do připojeného zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid ""
@@ -393,7 +393,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Snadno najde knihy podobné právě vybrané knize"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid ""
@@ -402,15 +402,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Zkopírovat knihy ze zařízení do knihovny Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Editovat kolekce, do kterých jsou ve vaší čtečce žazeny knihy"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Kopíruje knihu z jedné knihovny Calibre do jiné"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Make small tweaks to epub files in your calibre library"
@@ -428,7 +428,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:866
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Získej nové pluginy pro Calibre nebo aktualizuj stávající"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:885
 msgid "Look and Feel"
@@ -665,7 +665,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Převeď e-knihy do formátu %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -897,7 +897,7 @@ msgstr "Zakázat uvedený modul"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:139
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
-msgstr ""
+msgstr "Cesta ke složce knihovny je moc dlouhá. Musí mít méně než %d znaků."
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:131
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:636
@@ -1030,7 +1030,7 @@ msgstr "Záznamy metadat v zařízení se aktualizují..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3155
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d z %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1130
@@ -1206,11 +1206,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Spojeno s BOEYE BEX Serial eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Spojeno s BOEYE BDX serial eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1238,7 +1238,7 @@ msgstr "Komunikace se čtečkou PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Spojeno s PocketBook 360+ reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
 msgid "Communicate with the PocketBook 701"
@@ -1300,7 +1300,7 @@ msgstr "Komunikace se čtečkou The Book."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:58
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Spojeno s Libre Air reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:71
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1465,7 +1465,7 @@ msgstr "Komunikace s EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Spojeno s tabletem Adam"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
