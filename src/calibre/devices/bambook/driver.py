@@ -59,7 +59,7 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
-        self.open()
+        self.open(None)
 
     def open(self, library_uuid):
         # Make sure the Bambook library is ready
