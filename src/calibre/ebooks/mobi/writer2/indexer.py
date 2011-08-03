@@ -33,6 +33,8 @@ class CNCX(object): # {{{
             self.strings[item.title] = 0
             if is_periodical:
                 self.strings[item.klass] = 0
+                aut, desc = item.author, item.description
+                self.strings[item.author] = self.strings[item.description] = 0
 
         self.records = []
         offset = 0
@@ -135,11 +137,10 @@ class IndexEntry(object):
     RTAG_MAP = {v:k for k, v in TAG_VALUES.iteritems()}
 
 
-    def __init__(self, offset, label_offset, depth=0, class_offset=None,
-            control_byte_count=1):
+    def __init__(self, offset, label_offset):
         self.offset, self.label_offset = offset, label_offset
-        self.depth, self.class_offset = depth, class_offset
-        self.control_byte_count = control_byte_count
+        self.depth, self.class_offset = 0, None
+        self.control_byte_count = 1
 
         self.length = 0
         self.index = 0
@@ -195,6 +196,16 @@ class IndexEntry(object):
         et = self.entry_type
         buf.write(bytes(bytearray([et])))
 
+        if self.control_byte_count == 2:
+            flags = 0
+            for attr in ('image_index', 'desc_offset', 'author_offset'):
+                val = getattr(self, attr)
+                if val is not None:
+                    tag = self.RTAG_MAP[attr]
+                    bm = TAGX.BITMASKS[tag]
+                    flags |= bm
+            buf.write(bytes(bytearray([flags])))
+
         for tag in self.tag_nums:
             attr = self.RTAG_MAP[tag]
             val = getattr(self, attr)
@@ -203,8 +214,22 @@ class IndexEntry(object):
             for x in val:
                 buf.write(encint(x))
 
+        if self.control_byte_count == 2:
+            for attr in ('image_index', 'desc_offset', 'author_offset'):
+                val = getattr(self, attr)
+                if val is not None:
+                    buf.write(encint(val))
+
         ans = buf.getvalue()
         return ans
+
+class PeriodicalIndexEntry(IndexEntry):
+
+    def __init__(self, offset, label_offset, class_offset, depth):
+        IndexEntry.__init__(offset, label_offset)
+        self.depth = depth
+        self.class_offset = class_offset
+        self.control_byte_count = 2
 
 class SecondaryIndexEntry(IndexEntry):
 
@@ -212,9 +237,11 @@ class SecondaryIndexEntry(IndexEntry):
                 'mastheadImage':69}
 
     def __init__(self, index):
-        IndexEntry.__init__(self, index, 0, 0)
+        IndexEntry.__init__(self, index, 0)
 
         tag = self.INDEX_MAP[index]
+
+        # The values for this index entry
         self.secondary = [len(self.INDEX_MAP) if tag == min(
             self.INDEX_MAP.itervalues()) else 0, 0, tag]
 
@@ -399,6 +426,7 @@ class Indexer(object): # {{{
         self.text_size = (RECORD_SIZE * (self.number_of_text_records-1) +
                             size_of_last_text_record)
         self.masthead_offset = masthead_offset
+        self.secondary_record_offset = None
 
         self.oeb = oeb
         self.log = oeb.log
@@ -418,6 +446,17 @@ class Indexer(object): # {{{
 
         self.records = []
 
+        if self.is_periodical:
+            # Ensure all articles have an author and description before
+            # creating the CNCX
+            for node in oeb.toc.iterdescendants():
+                if node.klass == 'article':
+                    aut, desc = node.author, node.description
+                    if not aut: aut = _('Unknown')
+                    if not desc: desc = _('No details available')
+                    node.author, node.description = aut, desc
+
+
         self.cncx = CNCX(oeb.toc, self.is_periodical)
 
         if self.is_periodical:
@@ -429,12 +468,17 @@ class Indexer(object): # {{{
         self.records.insert(0, self.create_header())
         self.records.extend(self.cncx.records)
 
+        if is_periodical:
+            self.secondary_record_offset = len(self.records)
+            self.records.append(self.create_header(secondary=True))
+            self.records.append(self.create_index_record(secondary=True))
+
         self.calculate_trailing_byte_sequences()
 
-    def create_index_record(self): # {{{
+    def create_index_record(self, secondary=False): # {{{
         header_length = 192
         buf = StringIO()
-        indices = self.indices
+        indices = list(SecondaryIndexEntry.entries) if secondary else self.indices
 
         # Write index entries
         offsets = []
@@ -474,9 +518,12 @@ class Indexer(object): # {{{
         return ans
     # }}}
 
-    def create_header(self): # {{{
+    def create_header(self, secondary=False): # {{{
         buf = StringIO()
-        tagx_block = (TAGX().periodical if self.is_periodical else
+        if secondary:
+            tagx_block = TAGX().secondary
+        else:
+            tagx_block = (TAGX().periodical if self.is_periodical else
                             TAGX().flat_book)
         header_length = 192
 
@@ -496,7 +543,7 @@ class Indexer(object): # {{{
         buf.write(pack(b'>I', 0)) # Filled in later
 
         # Number of index records 24-28
-        buf.write(pack(b'>I', len(self.records)))
+        buf.write(pack(b'>I', 1 if secondary else len(self.records)))
 
         # Index Encoding 28-32
         buf.write(pack(b'>I', 65001)) # utf-8
@@ -505,7 +552,8 @@ class Indexer(object): # {{{
         buf.write(b'\xff'*4)
 
         # Number of index entries 36-40
-        buf.write(pack(b'>I', len(self.indices)))
+        indices = list(SecondaryIndexEntry.entries) if secondary else self.indices
+        buf.write(pack(b'>I', len(indices)))
 
         # ORDT offset 40-44
         buf.write(pack(b'>I', 0))
@@ -517,7 +565,7 @@ class Indexer(object): # {{{
         buf.write(pack(b'>I', 0))
 
         # Number of CNCX records 52-56
-        buf.write(pack(b'>I', len(self.cncx.records)))
+        buf.write(pack(b'>I', 0 if secondary else len(self.cncx.records)))
 
         # Unknown 56-180
         buf.write(b'\0'*124)
@@ -531,10 +579,12 @@ class Indexer(object): # {{{
         # TAGX block
         buf.write(tagx_block)
 
-        num = len(self.indices)
+        num = len(indices)
 
         # The index of the last entry in the NCX
-        buf.write(encode_number_as_hex(num-1))
+        idx = indices[-1].index
+        buf.write(encode_number_as_hex(idx) if isinstance(idx, int) else
+                idx.encode('ascii'))
 
         # The number of entries in the NCX
         buf.write(pack(b'>H', num))
@@ -612,11 +662,12 @@ class Indexer(object): # {{{
 
         id_offsets = self.serializer.id_offsets
 
-        periodical = IndexEntry(periodical_node_offset,
+        periodical = PeriodicalIndexEntry(periodical_node_offset,
                 self.cncx[periodical_node.title],
-                class_offset=self.cncx[periodical_node.klass])
+                self.cncx[periodical_node.klass], 0)
         periodical.length = periodical_node_size
         periodical.first_child_index = 1
+        periodical.image_index = self.masthead_offset
 
         seen_sec_offsets = set()
         seen_art_offsets = set()
@@ -632,7 +683,7 @@ class Indexer(object): # {{{
             if offset in seen_sec_offsets:
                 continue
             seen_sec_offsets.add(offset)
-            section = IndexEntry(offset, label, class_offset=klass, depth=1)
+            section = PeriodicalIndexEntry(offset, label, klass, 1)
             section.parent_index = 0
             for art in sec:
                 try:
@@ -644,9 +695,11 @@ class Indexer(object): # {{{
                 if offset in seen_art_offsets:
                     continue
                 seen_art_offsets.add(offset)
-                article = IndexEntry(offset, label, class_offset=klass,
-                        depth=2)
+                article = PeriodicalIndexEntry(offset, label, klass, 2)
                 normalized_articles.append(article)
+                article.author_offset = self.cncx[art.author]
+                article.desc_offset = self.cncx[art.description]
+
             if normalized_articles:
                 normalized_articles.sort(key=lambda x:x.offset)
                 normalized_sections.append((section, normalized_articles))

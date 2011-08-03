@@ -340,7 +340,12 @@ class MobiWriter(object):
         record0.write(b'\xff' * 8)
 
         # 0x20 - 0x23 : Secondary index record
-        record0.write(pack(b'>I', 0xffffffff))
+        sir = 0xffffffff
+        if (self.primary_index_record_idx is not None and
+                self.indexer.secondary_record_offset is not None):
+            sir = (self.primary_index_record_idx +
+                    self.indexer.secondary_record_offset)
+        record0.write(pack(b'>I', sir))
 
         # 0x24 - 0x3f : Unknown
         record0.write(b'\xff' * 28)
