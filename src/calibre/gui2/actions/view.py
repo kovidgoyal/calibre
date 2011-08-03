@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, time
 
-from PyQt4.Qt import Qt, QMenu, QAction, pyqtSignal
+from PyQt4.Qt import Qt, QAction, pyqtSignal
 
 from calibre.constants import isosx
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog, config, \
@@ -35,20 +35,19 @@ class ViewAction(InterfaceAction):
     name = 'View'
     action_spec = (_('View'), 'view.png', None, _('V'))
     action_type = 'current'
+    action_add_menu = True
+    action_menu_clone_qaction = True
 
     def genesis(self):
         self.persistent_files = []
         self.qaction.triggered.connect(self.view_book)
-        self.view_menu = QMenu()
+        self.view_action = self.menuless_qaction
+        self.view_menu = self.qaction.menu()
         ac = self.view_specific_action = QAction(_('View specific format'),
                 self.gui)
-        self.qaction.setMenu(self.view_menu)
         ac.setShortcut(Qt.AltModifier+Qt.Key_V)
         ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
-        ac = self.view_action = QAction(self.qaction.icon(),
-                self.qaction.text(), self.gui)
-        ac.triggered.connect(self.view_book)
-        ac = self.create_action(spec=(_('Read a random book'), 'catalog.png',
+        ac = self.create_action(spec=(_('Read a random book'), 'random.png',
             None, None), attr='action_pick_random')
         ac.triggered.connect(self.view_random)
         ac = self.clear_history_action = QAction(
@@ -128,7 +127,8 @@ class ViewAction(InterfaceAction):
             self.gui.unsetCursor()
 
     def _view_file(self, name):
-        ext = os.path.splitext(name)[1].upper().replace('.', '')
+        ext = os.path.splitext(name)[1].upper().replace('.',
+                '').replace('ORIGINAL_', '')
         viewer = 'lrfviewer' if ext == 'LRF' else 'ebook-viewer'
         internal = ext in config['internally_viewed_formats']
         self._launch_viewer(name, viewer, internal)
@@ -206,7 +206,7 @@ class ViewAction(InterfaceAction):
         self._view_books([index])
 
     def view_random(self, *args):
-        self.gui.iactions['Choose Library'].pick_random()
+        self.gui.iactions['Pick Random Book'].pick_random()
         self._view_books([self.gui.library_view.currentIndex()])
 
     def _view_calibre_books(self, ids):

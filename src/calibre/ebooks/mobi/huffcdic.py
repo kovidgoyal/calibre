@@ -1,8 +1,12 @@
-#!/usr/bin/env  python
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
 '''
 Decompress MOBI files compressed with the Huff/cdic algorithm. Code thanks to darkninja
 and igorsk.
@@ -12,82 +16,92 @@ import struct
 
 from calibre.ebooks.mobi import MobiError
 
-class BitReader(object):
-    
-    def __init__(self, data):
-        self.data, self.pos, self.nbits = data + "\x00\x00\x00\x00", 0, len(data) * 8
-        
-    def peek(self, n):
-        r, g = 0, 0
-        while g < n:
-            r, g = (r << 8) | ord(self.data[(self.pos+g)>>3]), g + 8 - ((self.pos+g) & 7)
-        return (r >> (g - n)) & ((1 << n) - 1)
-    
-    def eat(self, n):
-        self.pos += n
-        return self.pos <= self.nbits
-    
-    def left(self):
-        return self.nbits - self.pos
+class Reader(object):
 
-class HuffReader(object):
-    
-    def __init__(self, huffs):
-        self.huffs = huffs
-        
-        if huffs[0][0:4] != 'HUFF' or huffs[0][4:8] != '\x00\x00\x00\x18':
+    def __init__(self):
+        self.q = struct.Struct(b'>Q').unpack_from
+
+    def load_huff(self, huff):
+        if huff[0:8] != b'HUFF\x00\x00\x00\x18':
             raise MobiError('Invalid HUFF header')
-        
-        if huffs[1][0:4] != 'CDIC' or huffs[1][4:8] != '\x00\x00\x00\x10':
-            raise ValueError('Invalid CDIC header')
-        
-        self.entry_bits, = struct.unpack('>L', huffs[1][12:16])
-        off1,off2 = struct.unpack('>LL', huffs[0][16:24])
-        self.dict1 = struct.unpack('<256L', huffs[0][off1:off1+256*4])
-        self.dict2 = struct.unpack('<64L', huffs[0][off2:off2+64*4])
-        self.dicts = huffs[1:]
-        self.r = ''
-        
-    def _unpack(self, bits, depth = 0):
-        if depth > 32:
-            raise MobiError('Corrupt file')
-        
-        while bits.left():
-            dw = bits.peek(32)
-            v = self.dict1[dw >> 24]
-            codelen = v & 0x1F
+        off1, off2 = struct.unpack_from(b'>LL', huff, 8)
+
+        def dict1_unpack(v):
+            codelen, term, maxcode = v&0x1f, v&0x80, v>>8
             assert codelen != 0
-            code = dw >> (32 - codelen)
-            r = (v >> 8)
-            if not (v & 0x80):
-                while code < self.dict2[(codelen-1)*2]:
-                    codelen += 1
-                    code = dw >> (32 - codelen)
-                r = self.dict2[(codelen-1)*2+1]
-            r -= code
-            assert codelen != 0
-            if not bits.eat(codelen):
-                return
-            dicno = r >> self.entry_bits
-            off1 = 16 + (r - (dicno << self.entry_bits)) * 2
-            dic = self.dicts[dicno]
-            off2 = 16 + ord(dic[off1]) * 256 + ord(dic[off1+1])
-            blen = ord(dic[off2]) * 256 + ord(dic[off2+1])
-            slice = dic[off2+2:off2+2+(blen&0x7fff)]
-            if blen & 0x8000:
-                self.r += slice
-            else:
-                self._unpack(BitReader(slice), depth + 1)
+            if codelen <= 8:
+                assert term
+            maxcode = ((maxcode + 1) << (32 - codelen)) - 1
+            return (codelen, term, maxcode)
+        self.dict1 = map(dict1_unpack, struct.unpack_from(b'>256L', huff, off1))
+
+        dict2 = struct.unpack_from(b'>64L', huff, off2)
+        self.mincode, self.maxcode = (), ()
+        for codelen, mincode in enumerate((0,) + dict2[0::2]):
+            self.mincode += (mincode << (32 - codelen), )
+        for codelen, maxcode in enumerate((0,) + dict2[1::2]):
+            self.maxcode += (((maxcode + 1) << (32 - codelen)) - 1, )
+
+        self.dictionary = []
+
+    def load_cdic(self, cdic):
+        if cdic[0:8] != b'CDIC\x00\x00\x00\x10':
+            raise MobiError('Invalid CDIC header')
+        phrases, bits = struct.unpack_from(b'>LL', cdic, 8)
+        n = min(1<<bits, phrases-len(self.dictionary))
+        h = struct.Struct(b'>H').unpack_from
+        def getslice(off):
+            blen, = h(cdic, 16+off)
+            slice = cdic[18+off:18+off+(blen&0x7fff)]
+            return (slice, blen&0x8000)
+        self.dictionary += map(getslice, struct.unpack_from(b'>%dH' % n, cdic, 16))
 
     def unpack(self, data):
-        self.r = ''
-        self._unpack(BitReader(data))
-        return self.r
-    
-    def decompress(self, sections):
-        r = ''
-        for data in sections:
-            r += self.unpack(data)
-        if r.endswith('#'):
-            r = r[:-1]
-        return r
+        q = self.q
+
+        bitsleft = len(data) * 8
+        data += b'\x00\x00\x00\x00\x00\x00\x00\x00'
+        pos = 0
+        x, = q(data, pos)
+        n = 32
+
+        s = []
+        while True:
+            if n <= 0:
+                pos += 4
+                x, = q(data, pos)
+                n += 32
+            code = (x >> n) & ((1 << 32) - 1)
+
+            codelen, term, maxcode = self.dict1[code >> 24]
+            if not term:
+                while code < self.mincode[codelen]:
+                    codelen += 1
+                maxcode = self.maxcode[codelen]
+
+            n -= codelen
+            bitsleft -= codelen
+            if bitsleft < 0:
+                break
+
+            r = (maxcode - code) >> (32 - codelen)
+            slice_, flag = self.dictionary[r]
+            if not flag:
+                self.dictionary[r] = None
+                slice_ = self.unpack(slice_)
+                self.dictionary[r] = (slice_, 1)
+            s.append(slice_)
+        return b''.join(s)
+
+class HuffReader(object):
+
+    def __init__(self, huffs):
+        self.reader = Reader()
+        self.reader.load_huff(huffs[0])
+        for cdic in huffs[1:]:
+            self.reader.load_cdic(cdic)
+
+    def unpack(self, section):
+        return self.reader.unpack(section)
+
+

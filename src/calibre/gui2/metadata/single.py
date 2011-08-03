@@ -145,7 +145,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.series_index = SeriesIndexEdit(self, self.series)
         self.basic_metadata_widgets.extend([self.series, self.series_index])
 
-        self.formats_manager = FormatsManager(self)
+        self.formats_manager = FormatsManager(self, self.copy_fmt)
         self.basic_metadata_widgets.append(self.formats_manager)
         self.formats_manager.metadata_from_format_button.clicked.connect(
                 self.metadata_from_format)
@@ -240,6 +240,8 @@ class MetadataSingleDialogBase(ResizableDialog):
         else:
             self.view_format.emit(self.book_id, fmt)
 
+    def copy_fmt(self, fmt, f):
+        self.db.copy_format_to(self.book_id, fmt, f, index_is_id=True)
 
     def do_layout(self):
         raise NotImplementedError()

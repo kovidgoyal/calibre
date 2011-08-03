@@ -111,7 +111,8 @@ def align_block(raw, multiple=4, pad='\0'):
 
 def rescale_image(data, maxsizeb, dimen=None):
     if dimen is not None:
-        data = thumbnail(data, width=dimen, height=dimen)[-1]
+        data = thumbnail(data, width=dimen[0], height=dimen[1],
+                compression_quality=90)[-1]
     else:
         # Replace transparent pixels with white pixels and convert to JPEG
         data = save_cover_data_to(data, 'img.jpg', return_data=True)
@@ -141,7 +142,7 @@ def rescale_image(data, maxsizeb, dimen=None):
         scale -= 0.05
     return data
 
-class Serializer(object):
+class Serializer(object): # {{{
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
 
     def __init__(self, oeb, images, write_page_breaks_after_item=True):
@@ -172,6 +173,9 @@ class Serializer(object):
         hrefs = self.oeb.manifest.hrefs
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
+            # The Kindle decides where to open a book based on the presence of
+            # an item in the guide that looks like
+            # <reference type="text" title="Start" href="chapter-one.xhtml"/>
             path = urldefrag(ref.href)[0]
             if path not in hrefs or hrefs[path].media_type not in OEB_DOCS:
                 continue
@@ -215,12 +219,6 @@ class Serializer(object):
         self.anchor_offset = buffer.tell()
         buffer.write('<body>')
         self.anchor_offset_kindle = buffer.tell()
-        # CybookG3 'Start Reading' link
-        if 'text' in self.oeb.guide:
-            href = self.oeb.guide['text'].href
-            buffer.write('<a ')
-            self.serialize_href(href)
-            buffer.write(' />')
         spine = [item for item in self.oeb.spine if item.linear]
         spine.extend([item for item in self.oeb.spine if not item.linear])
         for item in spine:
@@ -315,16 +313,20 @@ class Serializer(object):
                     buffer.seek(hoff)
                     buffer.write('%010d' % ioff)
 
+    # }}}
+
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
-    def __init__(self, opts, compression=PALMDOC, imagemax=None,
-            prefer_author_sort=False, write_page_breaks_after_item=True):
+    def __init__(self, opts,
+            write_page_breaks_after_item=True):
         self.opts = opts
         self.write_page_breaks_after_item = write_page_breaks_after_item
-        self._compression = compression or UNCOMPRESSED
-        self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
-        self._prefer_author_sort = prefer_author_sort
+        self._compression = UNCOMPRESSED if getattr(opts, 'dont_compress',
+                False) else PALMDOC
+        self._imagemax = (PALM_MAX_IMAGE_SIZE if getattr(opts,
+            'rescale_images', False) else OTHER_MAX_IMAGE_SIZE)
+        self._prefer_author_sort = getattr(opts, 'prefer_author_sort', False)
         self._primary_index_record = None
         self._conforming_periodical_toc = False
         self._indexable = False
@@ -428,6 +430,7 @@ class MobiWriter(object):
         text.seek(npos)
         return data, overlap
 
+    # TBS {{{
     def _generate_flat_indexed_navpoints(self):
         # Assemble a HTMLRecordData instance for each HTML record
         # Return True if valid, False if invalid
@@ -1172,6 +1175,8 @@ class MobiWriter(object):
 
         self._tbSequence = tbSequence
 
+    # }}}
+
     def _evaluate_periodical_toc(self):
         '''
         Periodical:
@@ -1229,6 +1234,9 @@ class MobiWriter(object):
             self._oeb.logger.info('  Compressing markup content...')
         data, overlap = self._read_text_record(text)
 
+        if not self.opts.mobi_periodical:
+            self._flatten_toc()
+
         # Evaluate toc for conformance
         if self.opts.mobi_periodical :
             self._oeb.logger.info('  MOBI periodical specified, evaluating TOC for periodical conformance ...')
@@ -1258,11 +1266,11 @@ class MobiWriter(object):
                 data = compress_doc(data)
             record = StringIO()
             record.write(data)
+            # Write trailing muti-byte sequence if any
+            record.write(overlap)
+            record.write(pack('>B', len(overlap)))
 
-            # Marshall's utf-8 break code.
             if WRITE_PBREAKS :
-                record.write(overlap)
-                record.write(pack('>B', len(overlap)))
                 nextra = 0
                 pbreak = 0
                 running = offset
@@ -1325,6 +1333,8 @@ class MobiWriter(object):
             except:
                 self._oeb.logger.warn('Bad image file %r' % item.href)
                 continue
+            finally:
+                item.unload_data_from_memory()
             self._records.append(data)
             if self._first_image_record is None:
                 self._first_image_record = len(self._records)-1
@@ -1627,7 +1637,7 @@ class MobiWriter(object):
         now = int(time.time())
         nrecords = len(self._records)
         self._write(title, pack('>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
-            'BOOK', 'MOBI', pack('>IIH', nrecords, 0, nrecords))
+            'BOOK', 'MOBI', pack('>IIH', (2*nrecords)-1, 0, nrecords))
         offset = self._tell() + (8 * nrecords) + 2
         for i, record in enumerate(self._records):
             self._write(pack('>I', offset), '\0', pack('>I', 2*i)[1:])
@@ -1637,6 +1647,87 @@ class MobiWriter(object):
     def _write_content(self):
         for record in self._records:
             self._write(record)
+
+    def _clean_text_value(self, text):
+        if text is not None and text.strip() :
+            text = text.strip()
+            if not isinstance(text, unicode):
+                text = text.decode('utf-8', 'replace')
+            text = normalize(text).encode('utf-8')
+        else :
+            text = "(none)".encode('utf-8')
+        return text
+
+    def _compute_offset_length(self, i, node, entries) :
+        h = node.href
+        if h not in self._id_offsets:
+            self._oeb.log.warning('Could not find TOC entry:', node.title)
+            return -1, -1
+
+        offset = self._id_offsets[h]
+        length = None
+        # Calculate length based on next entry's offset
+        for sibling in entries[i+1:]:
+            h2 = sibling.href
+            if h2 in self._id_offsets:
+                offset2 = self._id_offsets[h2]
+                if offset2 > offset:
+                    length = offset2 - offset
+                    break
+        if length is None:
+            length = self._content_length - offset
+        return offset, length
+
+    def _establish_document_structure(self) :
+        documentType = None
+        try :
+            klass = self._ctoc_map[0]['klass']
+        except :
+            klass = None
+
+        if klass == 'chapter' or klass == None :
+            documentType = 'book'
+            if self.opts.verbose > 2 :
+                self._oeb.logger.info("Adding a MobiBook to self._MobiDoc")
+            self._MobiDoc.documentStructure = MobiBook()
+
+        elif klass == 'periodical' :
+            documentType = klass
+            if self.opts.verbose > 2 :
+                self._oeb.logger.info("Adding a MobiPeriodical to self._MobiDoc")
+            self._MobiDoc.documentStructure = MobiPeriodical(self._MobiDoc.getNextNode())
+            self._MobiDoc.documentStructure.startAddress = self._anchor_offset_kindle
+        else :
+            raise NotImplementedError('_establish_document_structure: unrecognized klass: %s' % klass)
+        return documentType
+
+    # Index {{{
+
+    def _flatten_toc(self):
+        '''
+        Flatten and re-order entries in TOC so that chapter to chapter jumping
+        never fails on the Kindle.
+        '''
+        from calibre.ebooks.oeb.base import TOC
+        items = list(self._oeb.toc.iterdescendants())
+        if self.opts.mobi_navpoints_only_deepest:
+            items = [i for i in items if i.depth == 1]
+        offsets = {i:self._id_offsets.get(i.href, -1) for i in items if i.href}
+        items = [i for i in items if offsets[i] > -1]
+        items.sort(key=lambda i:offsets[i])
+        filt = []
+        seen = set()
+        for i in items:
+            off = offsets[i]
+            if off in seen: continue
+            seen.add(off)
+            filt.append(i)
+        items = filt
+        newtoc = TOC()
+        for c, i in enumerate(items):
+            newtoc.add(i.title, i.href, play_order=c+1, id=str(c),
+                    klass='chapter')
+        self._oeb.toc = newtoc
 
     def _generate_index(self):
         self._oeb.log('Generating INDX ...')
@@ -1811,276 +1902,7 @@ class MobiWriter(object):
                     open(os.path.join(t, n+'.bin'), 'wb').write(self._records[-(i+1)])
                 self._oeb.log.debug('Index records dumped to', t)
 
-    def _clean_text_value(self, text):
-        if text is not None and text.strip() :
-            text = text.strip()
-            if not isinstance(text, unicode):
-                text = text.decode('utf-8', 'replace')
-            text = normalize(text).encode('utf-8')
-        else :
-            text = "(none)".encode('utf-8')
-        return text
-
-    def _add_to_ctoc(self, ctoc_str, record_offset):
-        # Write vwilen + string to ctoc
-        # Return offset
-        # Is there enough room for this string in the current ctoc record?
-        if 0xfbf8 - self._ctoc.tell() < 2 + len(ctoc_str):
-            # flush this ctoc, start a new one
-            # print "closing ctoc_record at 0x%X" % self._ctoc.tell()
-            # print "starting new ctoc with '%-50.50s ...'" % ctoc_str
-            # pad with 00
-            pad = 0xfbf8 - self._ctoc.tell()
-            # print "padding %d bytes of 00" % pad
-            self._ctoc.write('\0' * (pad))
-            self._ctoc_records.append(self._ctoc.getvalue())
-            self._ctoc.truncate(0)
-            self._ctoc_offset += 0x10000
-            record_offset = self._ctoc_offset
-
-        offset = self._ctoc.tell() + record_offset
-        self._ctoc.write(decint(len(ctoc_str), DECINT_FORWARD) + ctoc_str)
-        return offset
-
-    def _add_flat_ctoc_node(self, node, ctoc, title=None):
-        # Process 'chapter' or 'article' nodes only, force either to 'chapter'
-        t = node.title if title is None else title
-        t = self._clean_text_value(t)
-        self._last_toc_entry = t
-
-        # Create an empty dictionary for this node
-        ctoc_name_map = {}
-
-        # article = chapter
-        if node.klass == 'article' :
-            ctoc_name_map['klass'] = 'chapter'
-        else :
-            ctoc_name_map['klass'] = node.klass
-
-        # Add title offset to name map
-        ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
-        self._chapterCount += 1
-
-        # append this node's name_map to map
-        self._ctoc_map.append(ctoc_name_map)
-
-        return
-
-    def _add_structured_ctoc_node(self, node, ctoc, title=None):
-        # Process 'periodical', 'section' and 'article'
-
-        # Fetch the offset referencing the current ctoc_record
-        if node.klass is None :
-            return
-        t = node.title if title is None else title
-        t = self._clean_text_value(t)
-        self._last_toc_entry = t
-
-        # Create an empty dictionary for this node
-        ctoc_name_map = {}
-
-        # Add the klass of this node
-        ctoc_name_map['klass'] = node.klass
-
-        if node.klass == 'chapter':
-            # Add title offset to name map
-            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
-            self._chapterCount += 1
-
-        elif node.klass == 'periodical' :
-            # Add title offset
-            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
-
-            # Look for existing class entry 'periodical' in _ctoc_map
-            for entry in self._ctoc_map:
-                if entry['klass'] == 'periodical':
-                    # Use the pre-existing instance
-                    ctoc_name_map['classOffset'] = entry['classOffset']
-                    break
-                else :
-                    continue
-            else:
-                # class names should always be in CNCX 0 - no offset
-                ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
-
-            self._periodicalCount += 1
-
-        elif node.klass == 'section' :
-            # Add title offset
-            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
-
-            # Look for existing class entry 'section' in _ctoc_map
-            for entry in self._ctoc_map:
-                if entry['klass'] == 'section':
-                    # Use the pre-existing instance
-                    ctoc_name_map['classOffset'] = entry['classOffset']
-                    break
-                else :
-                    continue
-            else:
-                # class names should always be in CNCX 0 - no offset
-                ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
-
-            self._sectionCount += 1
-
-        elif node.klass == 'article' :
-            # Add title offset/title
-            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
-
-            # Look for existing class entry 'article' in _ctoc_map
-            for entry in self._ctoc_map:
-                if entry['klass'] == 'article':
-                    ctoc_name_map['classOffset'] = entry['classOffset']
-                    break
-                else :
-                    continue
-            else:
-                # class names should always be in CNCX 0 - no offset
-                ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
-
-            # Add description offset/description
-            if node.description :
-                d = self._clean_text_value(node.description)
-                ctoc_name_map['descriptionOffset'] = self._add_to_ctoc(d, self._ctoc_offset)
-            else :
-                ctoc_name_map['descriptionOffset'] = None
-
-            # Add author offset/attribution
-            if node.author :
-                a = self._clean_text_value(node.author)
-                ctoc_name_map['authorOffset'] = self._add_to_ctoc(a, self._ctoc_offset)
-            else :
-                ctoc_name_map['authorOffset'] = None
-
-            self._articleCount += 1
-
-        else :
-            raise NotImplementedError( \
-            'writer._generate_ctoc.add_node: title: %s has unrecognized klass: %s, playOrder: %d' % \
-            (node.title, node.klass, node.play_order))
-
-        # append this node's name_map to map
-        self._ctoc_map.append(ctoc_name_map)
-
-    def _generate_ctoc(self):
-        # Generate the compiled TOC strings
-        # Each node has 1-4 CTOC entries:
-        #	Periodical (0xDF)
-        #		title, class
-        #	Section (0xFF)
-        #		title, class
-        #	Article (0x3F)
-        #		title, class, description, author
-        #	Chapter (0x0F)
-        #		title, class
-        #   nb: Chapters don't actually have @class, so we synthesize it
-        #   in reader._toc_from_navpoint
-
-        toc = self._oeb.toc
-        reduced_toc = []
-        self._ctoc_map = []				# per node dictionary of {class/title/desc/author} offsets
-        self._last_toc_entry = None
-        #ctoc = StringIO()
-        self._ctoc = StringIO()
-
-        # Track the individual node types
-        self._periodicalCount = 0
-        self._sectionCount = 0
-        self._articleCount = 0
-        self._chapterCount = 0
-
-        #first = True
-
-        if self._conforming_periodical_toc :
-            self._oeb.logger.info('Generating structured CTOC ...')
-            for (child) in toc.iter():
-                if self.opts.verbose > 2 :
-                    self._oeb.logger.info("  %s" % child)
-                self._add_structured_ctoc_node(child, self._ctoc)
-                #first = False
-
-        else :
-            self._oeb.logger.info('Generating flat CTOC ...')
-            previousOffset = -1
-            currentOffset = 0
-            for (i, child) in enumerate(toc.iterdescendants()):
-                # Only add chapters or articles at depth==1
-                # no class defaults to 'chapter'
-                if child.klass is None : child.klass = 'chapter'
-                if (child.klass == 'article' or child.klass == 'chapter') and child.depth() == 1 :
-                    if self.opts.verbose > 2 :
-                        self._oeb.logger.info("adding (klass:%s depth:%d) %s to flat ctoc" % \
-                                              (child.klass, child.depth(), child) )
-
-                    # Test to see if this child's offset is the same as the previous child's
-                    # offset, skip it
-                    h = child.href
-
-                    if h is None:
-                        self._oeb.logger.warn('  Ignoring TOC entry with no href:',
-                                child.title)
-                        continue
-                    if h not in self._id_offsets:
-                        self._oeb.logger.warn('  Ignoring missing TOC entry:',
-                                unicode(child))
-                        continue
-
-                    currentOffset = self._id_offsets[h]
-                    # print "_generate_ctoc: child offset: 0x%X" % currentOffset
-
-                    if currentOffset != previousOffset :
-                        self._add_flat_ctoc_node(child, self._ctoc)
-                        reduced_toc.append(child)
-                        previousOffset = currentOffset
-                    else :
-                        self._oeb.logger.warn("  Ignoring redundant href: %s in '%s'" % (h, child.title))
-
-                else :
-                    if self.opts.verbose > 2 :
-                        self._oeb.logger.info("skipping class: %s depth %d at position %d" % \
-                                              (child.klass, child.depth(),i))
-
-            # Update the TOC with our edited version
-            self._oeb.toc.nodes = reduced_toc
-
-        # Instantiate a MobiDocument(mobitype)
-        if (not self._periodicalCount and not self._sectionCount and not self._articleCount) or \
-            not self.opts.mobi_periodical :
-            mobiType = 0x002
-        elif self._periodicalCount:
-            pt = None
-            if self._oeb.metadata.publication_type:
-                x = unicode(self._oeb.metadata.publication_type[0]).split(':')
-                if len(x) > 1:
-                    pt = x[1]
-            mobiType = {'newspaper':0x101}.get(pt, 0x103)
-        else :
-            raise NotImplementedError('_generate_ctoc: Unrecognized document structured')
-
-        self._MobiDoc = MobiDocument(mobiType)
-
-        if self.opts.verbose > 2 :
-            structType = 'book'
-            if mobiType > 0x100 :
-                structType = 'flat periodical' if mobiType == 0x102 else 'structured periodical'
-            self._oeb.logger.info("Instantiating a %s MobiDocument of type 0x%X" % (structType, mobiType ) )
-            if mobiType > 0x100 :
-                self._oeb.logger.info("periodicalCount: %d  sectionCount: %d  articleCount: %d"% \
-                                    (self._periodicalCount, self._sectionCount, self._articleCount) )
-            else :
-                self._oeb.logger.info("chapterCount: %d" % self._chapterCount)
-
-        # Apparently the CTOC must end with a null byte
-        self._ctoc.write('\0')
-
-        ctoc = self._ctoc.getvalue()
-        rec_count = len(self._ctoc_records)
-        self._oeb.logger.info("  CNCX utilization: %d %s %.0f%% full" % \
-            (rec_count + 1, 'records, last record' if rec_count else 'record,',
-                len(ctoc)/655) )
-
-        return align_block(ctoc)
-
+    # Index nodes {{{
     def _write_periodical_node(self, indxt, indices, index, offset, length, count, firstSection, lastSection) :
         pos = 0xc0 + indxt.tell()
         indices.write(pack('>H', pos))								# Save the offset for IDXTIndices
@@ -2172,48 +1994,8 @@ class MobiWriter(object):
         indxt.write(decint(self._ctoc_map[index]['titleOffset'], DECINT_FORWARD))	# vwi title offset in CNCX
         indxt.write(decint(0, DECINT_FORWARD))						# unknown byte
 
-    def _compute_offset_length(self, i, node, entries) :
-        h = node.href
-        if h not in self._id_offsets:
-            self._oeb.log.warning('Could not find TOC entry:', node.title)
-            return -1, -1
+    # }}}
 
-        offset = self._id_offsets[h]
-        length = None
-        # Calculate length based on next entry's offset
-        for sibling in entries[i+1:]:
-            h2 = sibling.href
-            if h2 in self._id_offsets:
-                offset2 = self._id_offsets[h2]
-                if offset2 > offset:
-                    length = offset2 - offset
-                    break
-        if length is None:
-            length = self._content_length - offset
-        return offset, length
-
-    def _establish_document_structure(self) :
-        documentType = None
-        try :
-            klass = self._ctoc_map[0]['klass']
-        except :
-            klass = None
-
-        if klass == 'chapter' or klass == None :
-            documentType = 'book'
-            if self.opts.verbose > 2 :
-                self._oeb.logger.info("Adding a MobiBook to self._MobiDoc")
-            self._MobiDoc.documentStructure = MobiBook()
-
-        elif klass == 'periodical' :
-            documentType = klass
-            if self.opts.verbose > 2 :
-                self._oeb.logger.info("Adding a MobiPeriodical to self._MobiDoc")
-            self._MobiDoc.documentStructure = MobiPeriodical(self._MobiDoc.getNextNode())
-            self._MobiDoc.documentStructure.startAddress = self._anchor_offset_kindle
-        else :
-            raise NotImplementedError('_establish_document_structure: unrecognized klass: %s' % klass)
-        return documentType
 
     def _generate_section_indices(self, child, currentSection, myPeriodical, myDoc ) :
         sectionTitles = list(child.iter())[1:]
@@ -2491,6 +2273,270 @@ class MobiWriter(object):
             last_name, c = self._add_periodical_structured_articles(myDoc, indxt, indices)
 
         return align_block(indxt.getvalue()), c, align_block(indices.getvalue()), last_name
+    # }}}
+
+    # CTOC {{{
+    def _add_to_ctoc(self, ctoc_str, record_offset):
+        # Write vwilen + string to ctoc
+        # Return offset
+        # Is there enough room for this string in the current ctoc record?
+        if 0xfbf8 - self._ctoc.tell() < 2 + len(ctoc_str):
+            # flush this ctoc, start a new one
+            # print "closing ctoc_record at 0x%X" % self._ctoc.tell()
+            # print "starting new ctoc with '%-50.50s ...'" % ctoc_str
+            # pad with 00
+            pad = 0xfbf8 - self._ctoc.tell()
+            # print "padding %d bytes of 00" % pad
+            self._ctoc.write('\0' * (pad))
+            self._ctoc_records.append(self._ctoc.getvalue())
+            self._ctoc.truncate(0)
+            self._ctoc_offset += 0x10000
+            record_offset = self._ctoc_offset
+
+        offset = self._ctoc.tell() + record_offset
+        self._ctoc.write(decint(len(ctoc_str), DECINT_FORWARD) + ctoc_str)
+        return offset
+
+    def _add_flat_ctoc_node(self, node, ctoc, title=None):
+        # Process 'chapter' or 'article' nodes only, force either to 'chapter'
+        t = node.title if title is None else title
+        t = self._clean_text_value(t)
+        self._last_toc_entry = t
+
+        # Create an empty dictionary for this node
+        ctoc_name_map = {}
+
+        # article = chapter
+        if node.klass == 'article' :
+            ctoc_name_map['klass'] = 'chapter'
+        else :
+            ctoc_name_map['klass'] = node.klass
+
+        # Add title offset to name map
+        ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
+        self._chapterCount += 1
+
+        # append this node's name_map to map
+        self._ctoc_map.append(ctoc_name_map)
+
+        return
+
+    def _add_structured_ctoc_node(self, node, ctoc, title=None):
+        # Process 'periodical', 'section' and 'article'
+
+        # Fetch the offset referencing the current ctoc_record
+        if node.klass is None :
+            return
+        t = node.title if title is None else title
+        t = self._clean_text_value(t)
+        self._last_toc_entry = t
+
+        # Create an empty dictionary for this node
+        ctoc_name_map = {}
+
+        # Add the klass of this node
+        ctoc_name_map['klass'] = node.klass
+
+        if node.klass == 'chapter':
+            # Add title offset to name map
+            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
+            self._chapterCount += 1
+
+        elif node.klass == 'periodical' :
+            # Add title offset
+            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
+
+            # Look for existing class entry 'periodical' in _ctoc_map
+            for entry in self._ctoc_map:
+                if entry['klass'] == 'periodical':
+                    # Use the pre-existing instance
+                    ctoc_name_map['classOffset'] = entry['classOffset']
+                    break
+                else :
+                    continue
+            else:
+                # class names should always be in CNCX 0 - no offset
+                ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
+
+            self._periodicalCount += 1
+
+        elif node.klass == 'section' :
+            # Add title offset
+            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
+
+            # Look for existing class entry 'section' in _ctoc_map
+            for entry in self._ctoc_map:
+                if entry['klass'] == 'section':
+                    # Use the pre-existing instance
+                    ctoc_name_map['classOffset'] = entry['classOffset']
+                    break
+                else :
+                    continue
+            else:
+                # class names should always be in CNCX 0 - no offset
+                ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
+
+            self._sectionCount += 1
+
+        elif node.klass == 'article' :
+            # Add title offset/title
+            ctoc_name_map['titleOffset'] = self._add_to_ctoc(t, self._ctoc_offset)
+
+            # Look for existing class entry 'article' in _ctoc_map
+            for entry in self._ctoc_map:
+                if entry['klass'] == 'article':
+                    ctoc_name_map['classOffset'] = entry['classOffset']
+                    break
+                else :
+                    continue
+            else:
+                # class names should always be in CNCX 0 - no offset
+                ctoc_name_map['classOffset'] = self._add_to_ctoc(node.klass, 0)
+
+            # Add description offset/description
+            if node.description :
+                d = self._clean_text_value(node.description)
+                ctoc_name_map['descriptionOffset'] = self._add_to_ctoc(d, self._ctoc_offset)
+            else :
+                ctoc_name_map['descriptionOffset'] = None
+
+            # Add author offset/attribution
+            if node.author :
+                a = self._clean_text_value(node.author)
+                ctoc_name_map['authorOffset'] = self._add_to_ctoc(a, self._ctoc_offset)
+            else :
+                ctoc_name_map['authorOffset'] = None
+
+            self._articleCount += 1
+
+        else :
+            raise NotImplementedError( \
+            'writer._generate_ctoc.add_node: title: %s has unrecognized klass: %s, playOrder: %d' % \
+            (node.title, node.klass, node.play_order))
+
+        # append this node's name_map to map
+        self._ctoc_map.append(ctoc_name_map)
+
+    def _generate_ctoc(self):
+        # Generate the compiled TOC strings
+        # Each node has 1-4 CTOC entries:
+        #	Periodical (0xDF)
+        #		title, class
+        #	Section (0xFF)
+        #		title, class
+        #	Article (0x3F)
+        #		title, class, description, author
+        #	Chapter (0x0F)
+        #		title, class
+        #   nb: Chapters don't actually have @class, so we synthesize it
+        #   in reader._toc_from_navpoint
+
+        toc = self._oeb.toc
+        reduced_toc = []
+        self._ctoc_map = []				# per node dictionary of {class/title/desc/author} offsets
+        self._last_toc_entry = None
+        #ctoc = StringIO()
+        self._ctoc = StringIO()
+
+        # Track the individual node types
+        self._periodicalCount = 0
+        self._sectionCount = 0
+        self._articleCount = 0
+        self._chapterCount = 0
+
+        #first = True
+
+        if self._conforming_periodical_toc :
+            self._oeb.logger.info('Generating structured CTOC ...')
+            for (child) in toc.iter():
+                if self.opts.verbose > 2 :
+                    self._oeb.logger.info("  %s" % child)
+                self._add_structured_ctoc_node(child, self._ctoc)
+                #first = False
+
+        else :
+            self._oeb.logger.info('Generating flat CTOC ...')
+            previousOffset = -1
+            currentOffset = 0
+            for (i, child) in enumerate(toc.iterdescendants()):
+                # Only add chapters or articles at depth==1
+                # no class defaults to 'chapter'
+                if child.klass is None : child.klass = 'chapter'
+                if (child.klass == 'article' or child.klass == 'chapter') and child.depth() == 1 :
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info("adding (klass:%s depth:%d) %s to flat ctoc" % \
+                                              (child.klass, child.depth(), child) )
+
+                    # Test to see if this child's offset is the same as the previous child's
+                    # offset, skip it
+                    h = child.href
+
+                    if h is None:
+                        self._oeb.logger.warn('  Ignoring TOC entry with no href:',
+                                child.title)
+                        continue
+                    if h not in self._id_offsets:
+                        self._oeb.logger.warn('  Ignoring missing TOC entry:',
+                                unicode(child))
+                        continue
+
+                    currentOffset = self._id_offsets[h]
+                    # print "_generate_ctoc: child offset: 0x%X" % currentOffset
+
+                    if currentOffset != previousOffset :
+                        self._add_flat_ctoc_node(child, self._ctoc)
+                        reduced_toc.append(child)
+                        previousOffset = currentOffset
+                    else :
+                        self._oeb.logger.warn("  Ignoring redundant href: %s in '%s'" % (h, child.title))
+
+                else :
+                    if self.opts.verbose > 2 :
+                        self._oeb.logger.info("skipping class: %s depth %d at position %d" % \
+                                              (child.klass, child.depth(),i))
+
+            # Update the TOC with our edited version
+            self._oeb.toc.nodes = reduced_toc
+
+        # Instantiate a MobiDocument(mobitype)
+        if (not self._periodicalCount and not self._sectionCount and not self._articleCount) or \
+            not self.opts.mobi_periodical :
+            mobiType = 0x002
+        elif self._periodicalCount:
+            pt = None
+            if self._oeb.metadata.publication_type:
+                x = unicode(self._oeb.metadata.publication_type[0]).split(':')
+                if len(x) > 1:
+                    pt = x[1]
+            mobiType = {'newspaper':0x101}.get(pt, 0x103)
+        else :
+            raise NotImplementedError('_generate_ctoc: Unrecognized document structured')
+
+        self._MobiDoc = MobiDocument(mobiType)
+
+        if self.opts.verbose > 2 :
+            structType = 'book'
+            if mobiType > 0x100 :
+                structType = 'flat periodical' if mobiType == 0x102 else 'structured periodical'
+            self._oeb.logger.info("Instantiating a %s MobiDocument of type 0x%X" % (structType, mobiType ) )
+            if mobiType > 0x100 :
+                self._oeb.logger.info("periodicalCount: %d  sectionCount: %d  articleCount: %d"% \
+                                    (self._periodicalCount, self._sectionCount, self._articleCount) )
+            else :
+                self._oeb.logger.info("chapterCount: %d" % self._chapterCount)
+
+        # Apparently the CTOC must end with a null byte
+        self._ctoc.write('\0')
+
+        ctoc = self._ctoc.getvalue()
+        rec_count = len(self._ctoc_records)
+        self._oeb.logger.info("  CNCX utilization: %d %s %.0f%% full" % \
+            (rec_count + 1, 'records, last record' if rec_count else 'record,',
+                len(ctoc)/655) )
+
+        return align_block(ctoc)
+
+    # }}}
 
 class HTMLRecordData(object):
     """ A data structure containing indexing/navigation data for an HTML record """

@@ -260,6 +260,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.applied_items = [cat[2] for cat in self.categories.get(self.current_cat_name, [])]
         else:
             self.applied_items = []
+        self.applied_items.sort(key=lambda x:sort_key(self.all_items[x].name))
         self.display_filtered_categories(None)
 
     def accept(self):

@@ -53,7 +53,9 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
                 mi = db.get_metadata(book_id, True)
                 in_file = PersistentTemporaryFile('.'+d.input_format)
                 with in_file:
-                    db.copy_format_to(book_id, d.input_format, in_file,
+                    input_fmt = db.original_fmt(book_id, d.input_format).lower()
+                    same_fmt = input_fmt == d.output_format.lower()
+                    db.copy_format_to(book_id, input_fmt, in_file,
                             index_is_id=True)
 
                 out_file = PersistentTemporaryFile('.' + d.output_format)
@@ -79,7 +81,10 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False, # {{{
                     temp_files.append(d.cover_file)
                 args = [in_file.name, out_file.name, recs]
                 temp_files.append(out_file)
-                jobs.append(('gui_convert_override', args, desc, d.output_format.upper(), book_id, temp_files))
+                func = 'gui_convert_override'
+                if same_fmt:
+                    func += ':same_fmt'
+                jobs.append((func, args, desc, d.output_format.upper(), book_id, temp_files))
 
                 changed = True
                 d.break_cycles()
@@ -144,10 +149,12 @@ class QueueBulk(QProgressDialog):
 
         try:
             input_format = get_input_format_for_book(self.db, book_id, None)[0]
+            input_fmt = self.db.original_fmt(book_id, input_format).lower()
+            same_fmt = input_fmt == self.output_format.lower()
             mi, opf_file = create_opf_file(self.db, book_id)
             in_file = PersistentTemporaryFile('.'+input_format)
             with in_file:
-                self.db.copy_format_to(book_id, input_format, in_file,
+                self.db.copy_format_to(book_id, input_fmt, in_file,
                         index_is_id=True)
 
             out_file = PersistentTemporaryFile('.' + self.output_format)
@@ -192,7 +199,10 @@ class QueueBulk(QProgressDialog):
 
             args = [in_file.name, out_file.name, lrecs]
             temp_files.append(out_file)
-            self.jobs.append(('gui_convert_override', args, desc, self.output_format.upper(), book_id, temp_files))
+            func = 'gui_convert_override'
+            if same_fmt:
+                func += ':same_fmt'
+            self.jobs.append((func, args, desc, self.output_format.upper(), book_id, temp_files))
 
             self.changed = True
             self.setValue(self.i)

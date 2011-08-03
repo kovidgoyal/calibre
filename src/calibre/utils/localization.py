@@ -71,13 +71,13 @@ def set_translators():
     lang = get_lang()
     if lang:
         buf = iso639 = None
-        if os.access(lang+'.po', os.R_OK):
+        mpath = get_lc_messages_path(lang)
+        if mpath and os.access(mpath+'.po', os.R_OK):
             from calibre.translations.msgfmt import make
             buf = cStringIO.StringIO()
-            make(lang+'.po', buf)
+            make(mpath+'.po', buf)
             buf = cStringIO.StringIO(buf.getvalue())
 
-        mpath = get_lc_messages_path(lang)
         if mpath is not None:
             with ZipFile(P('localization/locales.zip',
                 allow_user_override=False), 'r') as zf:
@@ -140,12 +140,25 @@ _extra_lang_codes = {
         'es_VE' : _('Spanish (Venezuela)'),
         'es_BO' : _('Spanish (Bolivia)'),
         'es_NI' : _('Spanish (Nicaragua)'),
+        'es_CO' : _('Spanish (Colombia)'),
         'de_AT' : _('German (AT)'),
         'fr_BE' : _('French (BE)'),
         'nl'    : _('Dutch (NL)'),
         'nl_BE' : _('Dutch (BE)'),
         'und'   : _('Unknown')
         }
+
+if False:
+    # Extra strings needed for Qt
+
+    # NOTE: Ante Meridian (i.e. like 10:00 AM)
+    _('AM')
+    # NOTE: Post Meridian (i.e. like 10:00 PM)
+    _('PM')
+    # NOTE: Ante Meridian (i.e. like 10:00 am)
+    _('am')
+    # NOTE: Post Meridian (i.e. like 10:00 pm)
+    _('pm')
 
 _lcase_map = {}
 for k in _extra_lang_codes:
@@ -175,18 +188,6 @@ def get_language(lang):
             ans = _iso639['by_3t'].get(lang, ans)
     return translate(ans)
 
-
-def set_qt_translator(translator):
-    lang = get_lang()
-    if lang is not None:
-        if lang == 'nds':
-            lang = 'de'
-        mpath = get_lc_messages_path(lang)
-        if mpath is not None:
-            p = os.path.join(mpath, 'qt.qm')
-            if os.path.exists(p):
-                return translator.load(p)
-    return False
 
 _udc = None
 

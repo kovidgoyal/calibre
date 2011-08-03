@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from zipfile import ZipFile
 
-from PyQt4.Qt import QToolButton, QAction, QIcon, QObject
+from PyQt4.Qt import QToolButton, QAction, QIcon, QObject, QMenu
 
 from calibre.gui2 import Dispatcher
 
@@ -66,6 +66,14 @@ class InterfaceAction(QObject):
     #: shortcut must be a translated string if not None
     action_spec = ('text', 'icon', None, None)
 
+    #: If True, a menu is automatically created and added to self.qaction
+    action_add_menu = False
+
+    #: If True, a clone of self.qaction is added to the menu of self.qaction
+    #: If you want the text of this action to be different from that of
+    #: self.qaction, set this variable to the new text
+    action_menu_clone_qaction = False
+
     #: Set of locations to which this action must not be added.
     #: See :attr:`all_locations` for a list of possible locations
     dont_add_to = frozenset([])
@@ -94,6 +102,7 @@ class InterfaceAction(QObject):
         self.Dispatcher = partial(Dispatcher, parent=self)
         self.create_action()
         self.gui.addAction(self.qaction)
+        self.gui.addAction(self.menuless_qaction)
         self.genesis()
 
     def create_action(self, spec=None, attr='qaction'):
@@ -104,18 +113,29 @@ class InterfaceAction(QObject):
             action = QAction(QIcon(I(icon)), text, self.gui)
         else:
             action = QAction(text, self.gui)
-        action.setAutoRepeat(self.auto_repeat)
-        text = tooltip if tooltip else text
-        action.setToolTip(text)
-        action.setStatusTip(text)
-        action.setWhatsThis(text)
-        action.setAutoRepeat(False)
+        if attr == 'qaction':
+            mt = (action.text() if self.action_menu_clone_qaction is True else
+                    unicode(self.action_menu_clone_qaction))
+            self.menuless_qaction = ma = QAction(action.icon(), mt, self.gui)
+            ma.triggered.connect(action.trigger)
+        for a in ((action, ma) if attr == 'qaction' else (action,)):
+            a.setAutoRepeat(self.auto_repeat)
+            text = tooltip if tooltip else text
+            a.setToolTip(text)
+            a.setStatusTip(text)
+            a.setWhatsThis(text)
         if shortcut:
+            a = ma if attr == 'qaction' else action
             if isinstance(shortcut, list):
-                action.setShortcuts(shortcut)
+                a.setShortcuts(shortcut)
             else:
-                action.setShortcut(shortcut)
+                a.setShortcut(shortcut)
         setattr(self, attr, action)
+        if attr == 'qaction' and self.action_add_menu:
+            menu = QMenu()
+            action.setMenu(menu)
+            if self.action_menu_clone_qaction:
+                menu.addAction(self.menuless_qaction)
         return action
 
     def load_resources(self, names):

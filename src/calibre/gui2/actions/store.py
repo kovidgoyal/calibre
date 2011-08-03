@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QMenu, QIcon, QSize
+from PyQt4.Qt import QIcon, QSize
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
@@ -17,16 +17,18 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 class StoreAction(InterfaceAction):
 
     name = 'Store'
-    action_spec = (_('Get books'), 'store.png', None, None)
+    action_spec = (_('Get books'), 'store.png', None, _('G'))
+    action_add_menu = True
+    action_menu_clone_qaction = _('Search for ebooks')
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_search)
-        self.store_menu = QMenu()
+        self.store_menu = self.qaction.menu()
         self.load_menu()
 
     def load_menu(self):
         self.store_menu.clear()
-        self.store_menu.addAction(_('Search for ebooks'), self.search)
+        self.store_menu.addAction(self.menuless_qaction)
         self.store_menu.addAction(_('Search for this author'), self.search_author)
         self.store_menu.addAction(_('Search for this title'), self.search_title)
         self.store_menu.addAction(_('Search for this book'), self.search_author_title)
@@ -41,7 +43,6 @@ class StoreAction(InterfaceAction):
                 self.store_list_menu.addAction(n, partial(self.open_store, p))
         self.store_menu.addSeparator()
         self.store_menu.addAction(_('Choose stores'), self.choose)
-        self.qaction.setMenu(self.store_menu)
 
     def do_search(self):
         return self.search()

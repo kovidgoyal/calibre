@@ -1312,6 +1312,23 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
         return True
 
+    def save_original_format(self, book_id, fmt, notify=True):
+        fmt = fmt.upper()
+        if 'ORIGINAL' in fmt:
+            raise ValueError('Cannot save original of an original fmt')
+        opath = self.format_abspath(book_id, fmt, index_is_id=True)
+        if opath is None:
+            return False
+        nfmt = 'ORIGINAL_'+fmt
+        with lopen(opath, 'rb') as f:
+            return self.add_format(book_id, nfmt, f, index_is_id=True, notify=notify)
+
+    def original_fmt(self, book_id, fmt):
+        fmt = fmt
+        nfmt = ('ORIGINAL_%s'%fmt).upper()
+        opath = self.format_abspath(book_id, nfmt, index_is_id=True)
+        return fmt if opath is None else nfmt
+
     def delete_book(self, id, notify=True, commit=True, permanent=False):
         '''
         Removes book from the result cache and the underlying database.
@@ -1793,6 +1810,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     for t in categories[sc]:
                         user_categories[c].append([t.name, sc, 0])
 
+        gst_icon = icon_map['gst'] if icon_map else None
         for user_cat in sorted(user_categories.keys(), key=sort_key):
             items = []
             names_seen = {}
@@ -1808,7 +1826,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
                         else:
                             t = copy.copy(taglist[label][n])
-                            t.icon = icon_map['gst']
+                            t.icon = gst_icon
                             names_seen[t.name] = t
                             items.append(t)
                     else:
@@ -1875,7 +1893,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             yield r[iindex]
 
     def get_next_series_num_for(self, series):
-        series_id = self.conn.get('SELECT id from series WHERE name=?',
+        series_id = None
+        if series:
+            series_id = self.conn.get('SELECT id from series WHERE name=?',
                 (series,), all=False)
         if series_id is None:
             if isinstance(tweaks['series_index_auto_increment'], (int, float)):
@@ -3006,8 +3026,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False)
         stream.seek(0)
-        if not mi.series_index:
-            mi.series_index = 1.0
+        if mi.series_index is None:
+            mi.series_index = self.get_next_series_num_for(mi.series)
         mi.tags = [_('News')]
         if arg['add_title_tag']:
             mi.tags += [arg['title']]
@@ -3059,7 +3079,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self._add_newbook_tag(mi)
         if not add_duplicates and self.has_book(mi):
             return None
-        series_index = 1.0 if mi.series_index is None else mi.series_index
+        series_index = self.get_next_series_num_for(mi.series) \
+                    if mi.series_index is None else mi.series_index
         aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
         title = mi.title
         if isbytestring(aus):
@@ -3106,7 +3127,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if not add_duplicates and self.has_book(mi):
                 duplicates.append((path, format, mi))
                 continue
-            series_index = 1.0 if mi.series_index is None else mi.series_index
+            series_index = self.get_next_series_num_for(mi.series) \
+                            if mi.series_index is None else mi.series_index
             aus = mi.author_sort if mi.author_sort else self.author_sort_from_authors(mi.authors)
             title = mi.title
             if isinstance(aus, str):
@@ -3140,7 +3162,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def import_book(self, mi, formats, notify=True, import_hooks=True,
             apply_import_tags=True, preserve_uuid=False):
-        series_index = 1.0 if mi.series_index is None else mi.series_index
+        series_index = self.get_next_series_num_for(mi.series) \
+                        if mi.series_index is None else mi.series_index
         if apply_import_tags:
             self._add_newbook_tag(mi)
         if not mi.title:

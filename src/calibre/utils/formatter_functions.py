@@ -19,39 +19,44 @@ from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
 class FormatterFunctions(object):
 
     def __init__(self):
-        self.builtins = {}
-        self.functions = {}
+        self._builtins = {}
+        self._functions = {}
 
     def register_builtin(self, func_class):
         if not isinstance(func_class, FormatterFunction):
             raise ValueError('Class %s is not an instance of FormatterFunction'%(
                                     func_class.__class__.__name__))
         name = func_class.name
-        if name in self.functions:
+        if name in self._functions:
             raise ValueError('Name %s already used'%name)
-        self.builtins[name] = func_class
-        self.functions[name] = func_class
+        self._builtins[name] = func_class
+        self._functions[name] = func_class
+        for a in func_class.aliases:
+            self._functions[a] = func_class
 
     def register_function(self, func_class):
         if not isinstance(func_class, FormatterFunction):
             raise ValueError('Class %s is not an instance of FormatterFunction'%(
                                     func_class.__class__.__name__))
         name = func_class.name
-        if name in self.functions:
+        if name in self._functions:
             raise ValueError('Name %s already used'%name)
-        self.functions[name] = func_class
+        self._functions[name] = func_class
 
     def get_builtins(self):
-        return self.builtins
+        return self._builtins
 
     def get_functions(self):
-        return self.functions
+        return self._functions
 
     def reset_to_builtins(self):
-        self.functions = dict([t for t in self.builtins.items()])
+        self._functions = {}
+        for n,c in self._builtins.items():
+            self._functions[n] = c
+            for a in c.aliases:
+                self._functions[a] = c
 
 formatter_functions = FormatterFunctions()
-
 
 
 class FormatterFunction(object):
@@ -60,6 +65,7 @@ class FormatterFunction(object):
     name = 'no name provided'
     category = 'Unknown'
     arg_count = 0
+    aliases = []
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         raise NotImplementedError()
@@ -73,7 +79,6 @@ class FormatterFunction(object):
         if isinstance(ret, list):
             return ','.join(list)
 
-all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):
     def __init__(self):
         formatter_functions.register_builtin(self)
@@ -84,7 +89,6 @@ class BuiltinFormatterFunction(FormatterFunction):
         except:
             lines = []
         self.program_text = ''.join(lines)
-        all_builtin_functions.append(self)
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
     name = 'strcmp'
@@ -507,7 +511,7 @@ class BuiltinSelect(BuiltinFormatterFunction):
     arg_count = 2
     category = 'List Lookup'
     __doc__ = doc = _('select(val, key) -- interpret the value as a comma-separated list '
-            'of items, with the items being "id:value". Find the pair with the'
+            'of items, with the items being "id:value". Find the pair with the '
             'id equal to key, and return the corresponding value.'
             )
 
@@ -829,16 +833,17 @@ class BuiltinNot(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return '' if val else '1'
 
-class BuiltinMergeLists(BuiltinFormatterFunction):
-    name = 'merge_lists'
+class BuiltinListUnion(BuiltinFormatterFunction):
+    name = 'list_union'
     arg_count = 3
     category = 'List Manipulation'
-    __doc__ = doc = _('merge_lists(list1, list2, separator) -- '
+    __doc__ = doc = _('list_union(list1, list2, separator) -- '
             'return a list made by merging the items in list1 and list2, '
             'removing duplicate items using a case-insensitive compare. If '
             'items differ in case, the one in list1 is used. '
             'The items in list1 and list2 are separated by separator, as are '
             'the items in the returned list.')
+    aliases = ['merge_lists']
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
@@ -851,12 +856,63 @@ class BuiltinMergeLists(BuiltinFormatterFunction):
         for i in l2:
             if icu_lower(i) not in lcl1:
                 res.append(i)
-        return ', '.join(sorted(res, key=sort_key))
+        return ', '.join(res)
+
+class BuiltinListDifference(BuiltinFormatterFunction):
+    name = 'list_difference'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_difference(list1, list2, separator) -- '
+            'return a list made by removing from list1 any item found in list2, '
+            'using a case-insensitive compare. The items in list1 and list2 '
+            'are separated by separator, as are the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [icu_lower(l.strip()) for l in list2.split(separator) if l.strip()]
+
+        res = []
+        for i in l1:
+            if icu_lower(i) not in l2:
+                res.append(i)
+        return ', '.join(res)
+
+class BuiltinListIntersection(BuiltinFormatterFunction):
+    name = 'list_intersection'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_intersection(list1, list2, separator) -- '
+            'return a list made by removing from list1 any item not found in list2, '
+            'using a case-insensitive compare. The items in list1 and list2 '
+            'are separated by separator, as are the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [icu_lower(l.strip()) for l in list2.split(separator) if l.strip()]
+
+        res = []
+        for i in l1:
+            if icu_lower(i) in l2:
+                res.append(i)
+        return ', '.join(res)
+
+class BuiltinListSort(BuiltinFormatterFunction):
+    name = 'list_sort'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_sort(list, direction, separator) -- '
+            'return list sorted using a case-insensitive sort. If direction is '
+            'zero, the list is sorted ascending, otherwise descending. The list items '
+            'are separated by separator, as are the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, direction, separator):
+        res = [l.strip() for l in list1.split(separator) if l.strip()]
+        return ', '.join(sorted(res, key=sort_key, reverse=direction != 0))
 
 class BuiltinToday(BuiltinFormatterFunction):
     name = 'today'
     arg_count = 0
-    category = 'Date functions'
+    category = 'Date _functions'
     __doc__ = doc = _('today() -- '
             'return a date string for today. This value is designed for use in '
             'format_date or days_between, but can be manipulated like any '
@@ -867,7 +923,7 @@ class BuiltinToday(BuiltinFormatterFunction):
 class BuiltinDaysBetween(BuiltinFormatterFunction):
     name = 'days_between'
     arg_count = 2
-    category = 'Date functions'
+    category = 'Date _functions'
     __doc__ = doc = _('days_between(date1, date2) -- '
             'return the number of days between date1 and date2. The number is '
             'positive if date1 is greater than date2, otherwise negative. If '
@@ -886,19 +942,21 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         i = d1 - d2
         return str('%d.%d'%(i.days, i.seconds/8640))
 
-formatter_builtins = [
+_formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
     BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
-    BuiltinIfempty(), BuiltinInList(), BuiltinListitem(), BuiltinLookup(),
-    BuiltinLowercase(), BuiltinMergeLists(), BuiltinMultiply(), BuiltinNot(),
+    BuiltinIfempty(), BuiltinInList(), BuiltinListDifference(),
+    BuiltinListIntersection(), BuiltinListitem(), BuiltinListSort(),
+    BuiltinListUnion(), BuiltinLookup(),
+    BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
     BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),
-    BuiltinStrcmp(), BuiltinStrInList(), BuiltinSubitems(), BuiltinSublist(),
-    BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
+    BuiltinStrcmp(), BuiltinStrInList(), BuiltinSubitems(),
+    BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
     BuiltinToday(), BuiltinUppercase(),
 ]

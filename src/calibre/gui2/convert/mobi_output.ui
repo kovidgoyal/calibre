@@ -27,21 +27,21 @@
    <item row="1" column="1">
     <widget class="QLineEdit" name="opt_toc_title"/>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_rescale_images">
      <property name="text">
       <string>Rescale images for &amp;Palm devices</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="5" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_prefer_author_sort">
      <property name="text">
       <string>Use author &amp;sort for author</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
+   <item row="6" column="0">
     <widget class="QCheckBox" name="opt_dont_compress">
      <property name="text">
       <string>Disable compression of the file contents</string>
@@ -55,7 +55,7 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2">
+   <item row="9" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Kindle options</string>
@@ -101,7 +101,7 @@
      </layout>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="10" column="0">
     <spacer name="verticalSpacer_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -114,10 +114,24 @@
      </property>
     </spacer>
    </item>
-   <item row="5" column="0">
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_mobi_toc_at_start">
+     <property name="text">
+      <string>Put generated Table of Contents at &amp;start of book instead of end</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
     <widget class="QCheckBox" name="opt_mobi_ignore_margins">
      <property name="text">
       <string>Ignore &amp;margins</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_mobi_navpoints_only_deepest">
+     <property name="text">
+      <string>Use only &amp;lowest level of items in the TOC for chapter-to-chapter navigation</string>
      </property>
     </widget>
    </item>

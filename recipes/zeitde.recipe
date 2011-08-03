@@ -15,15 +15,16 @@ class ZeitDe(BasicNewsRecipe):
     encoding = 'UTF-8'
 
     __author__ = 'Martin Pitt, Sujata Raman, Ingo Paschke and Marc Toensing'
+    no_stylesheets = True
 
     max_articles_per_feed = 40
 
     remove_tags = [
-	                    dict(name='iframe'),
-	                    dict(name='div', attrs={'class':["response","pagination block","pagenav","inline link", "copyright"] }),
-	                    dict(name='p', attrs={'class':["ressortbacklink", "copyright"] }),
-	                    dict(name='div', attrs={'id':["place_5","place_4","comments"]})
-	                  ]
+                        dict(name='iframe'),
+                        dict(name='div', attrs={'class':["response","pagination block","pagenav","inline link", "copyright"] }),
+                        dict(name='p', attrs={'class':["ressortbacklink", "copyright"] }),
+                        dict(name='div', attrs={'id':["place_5","place_4","comments"]})
+                      ]
 
     keep_only_tags = [dict(id=['main'])]
 

@@ -13,7 +13,7 @@ from PyQt4.Qt import Qt, QMenu, QModelIndex, QTimer
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.dialogs.tag_list_editor import TagListEditor
+from calibre.gui2.dialogs.device_category_editor import DeviceCategoryEditor
 from calibre.gui2.actions import InterfaceAction
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.icu import sort_key
@@ -24,12 +24,13 @@ class EditMetadataAction(InterfaceAction):
     name = 'Edit Metadata'
     action_spec = (_('Edit metadata'), 'edit_input.png', None, _('E'))
     action_type = 'current'
+    action_add_menu = True
 
     def genesis(self):
         self.create_action(spec=(_('Merge book records'), 'merge_books.png',
             None, _('M')), attr='action_merge')
-        md = QMenu()
-        md.addAction(_('Edit metadata individually'),
+        md = self.qaction.menu()
+        md.addAction(self.qaction.icon(), _('Edit metadata individually'),
                 partial(self.edit_metadata, False, bulk=False))
         md.addSeparator()
         md.addAction(_('Edit metadata in bulk'),
@@ -56,7 +57,6 @@ class EditMetadataAction(InterfaceAction):
         md.addAction(self.action_merge)
 
         self.qaction.triggered.connect(self.edit_metadata)
-        self.qaction.setMenu(md)
         self.action_merge.triggered.connect(self.merge_books)
 
     def location_selected(self, loc):
@@ -441,7 +441,7 @@ class EditMetadataAction(InterfaceAction):
     def edit_device_collections(self, view, oncard=None):
         model = view.model()
         result = model.get_collections_with_ids()
-        d = TagListEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
+        d = DeviceCategoryEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename # dict of new text to old ids

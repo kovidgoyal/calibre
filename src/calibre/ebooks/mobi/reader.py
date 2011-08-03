@@ -859,16 +859,19 @@ class MobiReader(object):
             processed_records += list(range(self.book_header.huff_offset,
                 self.book_header.huff_offset + self.book_header.huff_number))
             huff = HuffReader(huffs)
-            self.mobi_html = huff.decompress(text_sections)
+            unpack = huff.unpack
 
         elif self.book_header.compression_type == '\x00\x02':
-            for section in text_sections:
-                self.mobi_html += decompress_doc(section)
+            unpack = decompress_doc
 
         elif self.book_header.compression_type == '\x00\x01':
-            self.mobi_html = ''.join(text_sections)
+            unpack = lambda x: x
         else:
             raise MobiError('Unknown compression algorithm: %s' % repr(self.book_header.compression_type))
+        self.mobi_html = b''.join(map(unpack, text_sections))
+        if self.mobi_html.endswith(b'#'):
+            self.mobi_html = self.mobi_html[:-1]
+
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
         self.mobi_html = self.mobi_html.replace('\0', '')
@@ -933,6 +936,9 @@ class MobiReader(object):
                 continue
             processed_records.append(i)
             data  = self.sections[i][0]
+            if data[:4] in (b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n'):
+                # A FLIS, FCIS, SRCS or EOF record, ignore
+                continue
             buf = cStringIO.StringIO(data)
             image_index += 1
             try:
