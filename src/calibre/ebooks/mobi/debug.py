@@ -1024,8 +1024,14 @@ class IndexRecord(object): # {{{
         for entry in self.indices:
             offset = entry.offset
             a(str(entry))
+            t = self.alltext
             if offset is not None and self.alltext is not None:
-                a('\tHTML at offset: %r'%self.alltext[offset:offset+100])
+                a('\tHTML before offset: %r'%t[offset-50:offset])
+                a('\tHTML after offset: %r'%t[offset:offset+50])
+                p = offset+entry.size
+                a('\tHTML before end: %r'%t[p-50:p])
+                a('\tHTML after end: %r'%t[p:p+50])
+
             a('')
 
         return '\n'.join(ans)
@@ -1053,11 +1059,12 @@ class CNCX(object): # {{{
                         self.records[pos+record_offset] = raw[
                             pos+consumed:pos+consumed+length].decode(codec)
                     except:
-                        byts = raw[pos+consumed:pos+consumed+length]
+                        byts = raw[pos:]
                         r = format_bytes(byts)
                         print ('CNCX entry at offset %d has unknown format %s'%(
                             pos+record_offset, r))
                         self.records[pos+record_offset] = r
+                        pos = len(raw)
                 pos += consumed+length
             record_offset += 0x10000
 
