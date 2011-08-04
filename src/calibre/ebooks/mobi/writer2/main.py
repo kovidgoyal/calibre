@@ -334,7 +334,9 @@ class MobiWriter(object):
             if self.indexer.is_flat_periodical:
                 bt = 0x102
             elif self.indexer.is_periodical:
-                bt = 0x101
+                # If you change this, remember to change the cdetype in the EXTH
+                # header as well
+                bt = 0x103
 
         record0.write(pack(b'>IIIII',
             0xe8, bt, 65001, uid, 6))
@@ -509,7 +511,9 @@ class MobiWriter(object):
 
         # Write cdetype
         if self.is_periodical:
-            data = b'NWPR'
+            # If you set the book type header field to 0x101 use NWPR here if
+            # you use 0x103 use MAGZ
+            data = b'MAGZ'
         else:
             data = b'EBOK'
         exth.write(pack(b'>II', 501, len(data)+8))
@@ -532,8 +536,6 @@ class MobiWriter(object):
         if self.is_periodical:
             exth.write(pack(b'>II', EXTH_CODES['lastupdatetime'], len(datestr) + 8))
             exth.write(datestr)
-            nrecs += 1
-            exth.write(pack(b'>III', EXTH_CODES['versionnumber'], 12, 7))
             nrecs += 1
 
         if self.is_periodical:

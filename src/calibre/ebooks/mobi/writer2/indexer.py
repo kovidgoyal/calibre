@@ -246,7 +246,8 @@ class SecondaryIndexEntry(IndexEntry):
         tag = self.INDEX_MAP[index]
 
         # The values for this index entry
-        self.secondary = [len(self.INDEX_MAP) if tag == min(
+        # I dont know what the 5 means, it is not the number of entries
+        self.secondary = [5 if tag == min(
             self.INDEX_MAP.itervalues()) else 0, 0, tag]
 
     @property

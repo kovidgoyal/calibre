@@ -320,7 +320,7 @@ class MOBIHeader(object): # {{{
             self.exth = EXTHHeader(self.raw[self.exth_offset:])
 
             self.end_of_exth = self.exth_offset + self.exth.length
-            self.bytes_after_exth = self.fullname_offset - self.end_of_exth
+            self.bytes_after_exth = self.raw[self.end_of_exth:self.fullname_offset]
 
     def __str__(self):
         ans = ['*'*20 + ' MOBI Header '+ '*'*20]
@@ -386,7 +386,9 @@ class MOBIHeader(object): # {{{
 
         if self.has_exth:
             ans += '\n\n' + str(self.exth)
-            ans += '\n\nBytes after EXTH: %d'%self.bytes_after_exth
+            ans += '\n\nBytes after EXTH (%d bytes): %s'%(
+                    len(self.bytes_after_exth),
+                    format_bytes(self.bytes_after_exth))
 
         ans += '\nNumber of bytes after full name: %d' % (len(self.raw) - (self.fullname_offset +
                 self.fullname_length))
@@ -588,7 +590,7 @@ class IndexHeader(object): # {{{
 
 
     def __str__(self):
-        ans = ['*'*20 + ' Index Header '+ '*'*20]
+        ans = ['*'*20 + ' Index Header (%d bytes)'%len(self.record.raw)+ '*'*20]
         a = ans.append
         def u(w):
             a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
