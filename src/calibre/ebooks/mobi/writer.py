@@ -1710,8 +1710,7 @@ class MobiWriter(object):
         '''
         from calibre.ebooks.oeb.base import TOC
         items = list(self._oeb.toc.iterdescendants())
-        if self.opts.mobi_navpoints_only_deepest:
-            items = [i for i in items if i.depth == 1]
+        items = [i for i in items if i.depth == 1]
         offsets = {i:self._id_offsets.get(i.href, -1) for i in items if i.href}
         items = [i for i in items if offsets[i] > -1]
         items.sort(key=lambda i:offsets[i])
