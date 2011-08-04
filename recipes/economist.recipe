@@ -70,6 +70,11 @@ class Economist(BasicNewsRecipe):
 
     def economist_parse_index(self):
         soup = self.index_to_soup(self.INDEX)
+        div = soup.find('div', attrs={'class':'issue-image'})
+        if div is not None:
+            img = div.find('img', src=True)
+            if img is not None:
+                self.cover_url = img['src']
         feeds = OrderedDict()
         for section in soup.findAll(attrs={'class':lambda x: x and 'section' in
             x}):
