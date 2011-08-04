@@ -83,7 +83,8 @@ class InterfaceAction(QObject):
     dont_remove_from = frozenset([])
 
     all_locations = frozenset(['toolbar', 'toolbar-device', 'context-menu',
-        'context-menu-device', 'toolbar-child', 'menubar', 'menubar-device'])
+        'context-menu-device', 'toolbar-child', 'menubar', 'menubar-device',
+        'context-menu-cover-browser'])
 
     #: Type of action
     #: 'current' means acts on the current view
