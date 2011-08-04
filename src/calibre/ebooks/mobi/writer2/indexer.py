@@ -70,7 +70,7 @@ class TAGX(object): # {{{
     BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
     BITMASKS.update({x:(1 << i) for i, x in enumerate([69, 70, 71, 72, 73])})
 
-    NUM_VALUES = defaultdict(lambda x:1)
+    NUM_VALUES = defaultdict(lambda :1)
     NUM_VALUES[11] = 3
     NUM_VALUES[0] = 0
 
@@ -82,7 +82,7 @@ class TAGX(object): # {{{
         buf.append(tag)
         buf.append(self.NUM_VALUES[tag])
         # bitmask
-        buf.append((1 << (self.BITMASKS[tag])) if tag else 0)
+        buf.append(self.BITMASKS[tag] if tag else 0)
         # eof
         buf.append(0 if tag else 1)
 
@@ -240,7 +240,8 @@ class SecondaryIndexEntry(IndexEntry):
                 'mastheadImage':69}
 
     def __init__(self, index):
-        IndexEntry.__init__(self, index, 0)
+        IndexEntry.__init__(self, 0, 0)
+        self.index = index
 
         tag = self.INDEX_MAP[index]
 
@@ -586,8 +587,12 @@ class Indexer(object): # {{{
 
         # The index of the last entry in the NCX
         idx = indices[-1].index
-        buf.write(encode_number_as_hex(idx) if isinstance(idx, int) else
-                idx.encode('ascii'))
+        if isinstance(idx, int):
+            idx = encode_number_as_hex(idx)
+        else:
+            idx = idx.encode('ascii')
+            idx = (bytes(bytearray([len(idx)]))) + idx
+        buf.write(idx)
 
         # The number of entries in the NCX
         buf.write(pack(b'>H', num))
