@@ -766,6 +766,7 @@ class IndexEntry(object): # {{{
         flags = self.flags
         for tag in expected_tags:
             vals = []
+
             if tag.tag > 64:
                 has_tag = flags & 0b1
                 flags = flags >> 1
@@ -781,8 +782,8 @@ class IndexEntry(object): # {{{
         self.consumed = len(orig_raw) - len(raw)
         self.trailing_bytes = raw
         if self.trailing_bytes.replace(b'\0', b''):
-            raise ValueError('IndexEntry has leftover bytes: %s'%format_bytes(
-                self.trailing_bytes))
+            raise ValueError('%s has leftover bytes: %s'%(self, format_bytes(
+                self.trailing_bytes)))
 
     @property
     def label(self):
