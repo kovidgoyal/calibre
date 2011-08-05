@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-04 04:33+0000\n"
-"X-Generator: Launchpad (build 13573)\n"
+"X-Launchpad-Export-Date: 2011-08-05 04:38+0000\n"
+"X-Generator: Launchpad (build 13604)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
@@ -20676,9 +20676,6 @@ msgid ""
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
 
-#~ msgid "The reader has no storage card connected."
-#~ msgstr "Läsaren har inga minneskort inkopplade."
-
 #~ msgid "Communicate with the Cybook Gen 3 eBook reader."
 #~ msgstr "Kommunicera med Cybook Gen 3 e-boksläsare."
 
@@ -20688,50 +20685,8 @@ msgstr ""
 #~ msgid "List builtin recipes"
 #~ msgstr "Lista inbyggda recept"
 
-#~ msgid ""
-#~ "Do not force text to be justified in output. Whether text is actually "
-#~ "displayed justified or not depends on whether the ebook format and reading "
-#~ "device support justification."
-#~ msgstr ""
-#~ "Tvingar inte texten att justeras i utdata. Om texten är faktiskt visas "
-#~ "justerad eller ej beror på om e-boksformatet och läsenhetet stöder justering."
-
-#~ msgid "Use a regular expression to try and remove the header."
-#~ msgstr "Använd ett reguljärt uttryck för att försöka ta bort sidhuvudet."
-
-#~ msgid "Use a regular expression to try and remove the footer."
-#~ msgstr "Använd ett reguljärt uttryck för att försöka ta bort sidfoten."
-
-#, python-format
-#~ msgid "Unable to process image %s. Error: %s"
-#~ msgstr "Kan inte bearbeta bild %s. Fel: %s"
-
 #~ msgid "ratings"
 #~ msgstr "betyg"
-
-#~ msgid "LibraryThing.com timed out. Try again later."
-#~ msgstr "LibraryThing.com svarade inte. Försök igen senare."
-
-#~ msgid " not found."
-#~ msgstr " hittas inte."
-
-#~ msgid "Output file. Default is derived from input filename."
-#~ msgstr "Utfil. Normal erhållet från infilnamnet."
-
-#~ msgid "Produce more human-readable XML output."
-#~ msgstr "Skapar mer läsbart XML-utdata."
-
-#~ msgid "Useful for debugging."
-#~ msgstr "Användbart för felsökning."
-
-#~ msgid "Options to control e-book conversion."
-#~ msgstr "Alternativ för att styra e-bokskonvertering."
-
-#~ msgid "Character encoding for input. Default is to auto detect."
-#~ msgstr "Teckenkodning för indata. Standard är automatisk detektering."
-
-#~ msgid "Usage: ebook-convert INFILE OUTFILE [OPTIONS..]"
-#~ msgstr "Användning: e-boksonvertera INFIL UTFIL [ALTERNATIV ..]"
 
 #~ msgid ""
 #~ "Run the text input through the markdown pre-processor. To learn more about "
@@ -20739,13 +20694,6 @@ msgstr ""
 #~ msgstr ""
 #~ "Kör textinmatning genom \"markdown\" pre-processor. Om du vill veta mer om "
 #~ "\"markdown\" se"
-
-#~ msgid ""
-#~ "This RTF file has a feature calibre does not support. Convert it to HTML "
-#~ "first and then try it."
-#~ msgstr ""
-#~ "Denna RTF-fil har en funktion som calibre inte stöder. Konvertera det till "
-#~ "HTML och sedan prova den."
 
 #~ msgid "Do not add a blank line between paragraphs."
 #~ msgstr "Lägg inte till en tom rad mellan stycken."
@@ -20762,259 +20710,20 @@ msgstr ""
 #~ msgid "Add a tab at the beginning of each paragraph"
 #~ msgstr "Lägg till ett tabulatorsteg i början av varje stycke"
 
-#~ msgid "Use a wizard to help construct the XPath expression"
-#~ msgstr "Använd en guide för att bygga XPath-uttrycket"
-
 #~ msgid "Force maximum line lenght"
 #~ msgstr "Tvinga maximal radlängd"
-
-#~ msgid "and delete from library"
-#~ msgstr "och ta bort från biblioteket"
-
-#~ msgid "Attached is the"
-#~ msgstr "Bifogat är"
-
-#~ msgid "Sent by email:"
-#~ msgstr "Skickat via e-post:"
-
-#~ msgid "Invalid size"
-#~ msgstr "Ogiltig storlek"
-
-#~ msgid "Invalid database location.<br>Cannot write to "
-#~ msgstr "Ogiltig plats för databas. <br>Kan inte skriva till "
-
-#~ msgid "Invalid database location"
-#~ msgstr "Ogiltig plats för databas"
-
-#~ msgid "Invalid database location "
-#~ msgstr "Ogiltig plats för databas "
-
-#~ msgid "<br>Must be a directory."
-#~ msgstr "<br>Måste vara en katalog."
 
 #~ msgid "TabWidget"
 #~ msgstr "TabWidget"
 
-#~ msgid "calibre can send your books to you (or your reader) by email"
-#~ msgstr "calibre kan skicka böcker till dig (eller dina läsare) via e-post"
-
-#~ msgid "Finding metadata..."
-#~ msgstr "Söker metadata..."
-
-#~ msgid "Could not fetch metadata from:"
-#~ msgstr "Kunde inte hämta metadata från:"
-
-#~ msgid "Warning"
-#~ msgstr "Varning"
-
-#~ msgid "Could not find metadata"
-#~ msgstr "Kunde inte hitta metadata"
-
-#~ msgid "&Access Key:"
-#~ msgstr "Behörighetskod"
-
-#~ msgid "Fetch"
-#~ msgstr "Hämta"
-
-#~ msgid "Matches"
-#~ msgstr "Träffar"
-
-#~ msgid "Meta information"
-#~ msgstr "Metainformation"
-
-#~ msgid "The download timed out."
-#~ msgstr "Hämtningen avbröts"
-
 #~ msgid "Abort the editing of all remaining books"
 #~ msgstr "Avbryt redigering av alla kvarvarande böcker"
-
-#~ msgid "<b>Could not fetch cover.</b><br/>"
-#~ msgstr "<b>Kunde inte hämta omslag.</b><br/>"
-
-#~ msgid "Cannot fetch cover"
-#~ msgstr "Kan inte hämta omslag"
-
-#~ msgid "Cannot fetch metadata"
-#~ msgstr "Kunde inte hämta metadata"
-
-#~ msgid "Could not find cover for this book. Try specifying the ISBN first."
-#~ msgstr "Kunde inte hitta omslag för denna bok. Försök ange ISBN först."
-
-#~ msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
-#~ msgstr "Du måste ange minst en av ISBN, titel, författare eller förlag"
-
-#~ msgid "Edit Meta Information"
-#~ msgstr "Redigera metainformation"
-
-#~ msgid "Bad cover"
-#~ msgstr "Dåligt omslag"
-
-#~ msgid "The cover is not a valid picture"
-#~ msgstr "Omslaget är inte en giltig bild"
-
-#~ msgid "Reset cover to default"
-#~ msgstr "Återställ omslaget"
-
-#~ msgid "Available Formats"
-#~ msgstr "Tillgängliga format:"
-
-#~ msgid "Add a new format for this book to the database"
-#~ msgstr "Lägg till ett nytt format för den här boken till databasen"
 
 #~ msgid "Update metadata from the metadata in the selected format"
 #~ msgstr "Uppdatera metadata från metadata i det valda formatet"
 
-#~ msgid "Download all scheduled recipes at once"
-#~ msgstr "Hämta alla schemalagda recept på en gång"
-
-#~ msgid "Last downloaded"
-#~ msgstr "Senast hämtad"
-
-#~ msgid "day"
-#~ msgstr "dag"
-
-#~ msgid "Friday"
-#~ msgstr "fredag"
-
-#~ msgid "Monday"
-#~ msgstr "måndag"
-
-#~ msgid "Tuesday"
-#~ msgstr "tisdag"
-
-#~ msgid "Wednesday"
-#~ msgstr "onsdag"
-
-#~ msgid "Thursday"
-#~ msgstr "torsdag"
-
-#~ msgid "Saturday"
-#~ msgstr "lördag"
-
-#~ msgid ""
-#~ "Interval at which to download this recipe. A value of zero means that the "
-#~ "recipe will be downloaded every hour."
-#~ msgstr ""
-#~ "Hämtningsintervall för detta recept. Ett värde på noll innebär att receptet "
-#~ "hämtas varje timme."
-
-#~ msgid "Sunday"
-#~ msgstr "söndag"
-
-#~ msgid ""
-#~ "Delete downloaded news older than the specified number of days. Set to zero "
-#~ "to disable."
-#~ msgstr ""
-#~ "Radera hämtade nyheter äldre än angivet antal dagar. Ange noll för att "
-#~ "inaktivera."
-
-#~ msgid "Delete downloaded news older than "
-#~ msgstr "Radera hämtade nyheter äldre än "
-
-#~ msgid "Pick recipe"
-#~ msgstr "Välj recept"
-
-#~ msgid "Book <font face=\"serif\">%s</font> of %s."
-#~ msgstr "Bok <font face=\"serif\">%s</font> av %s."
-
-#, python-format
-#~ msgid ""
-#~ "Could not process image: %s\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Kan inte bearbeta bild: %s\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog [options] ISBN\n"
-#~ "\n"
-#~ "Fetch a cover image for the book identified by ISBN from LibraryThing.com\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog [alternativ] ISBN\n"
-#~ "\n"
-#~ "Hämta ett omslag för boken som identifieras med ISBN från LibraryThing.com\n"
-
-#~ msgid "Alt+S"
-#~ msgstr "Alt+S"
-
-#~ msgid "&Search:"
-#~ msgstr "&Sök:"
-
-#~ msgid "Edit meta information"
-#~ msgstr "Redigera metainformation"
-
-#~ msgid "Book has neither title nor ISBN"
-#~ msgstr "Boken har varken titel eller ISBN"
-
-#~ msgid "No matches found for this book"
-#~ msgstr "Inga träffar hittades för den här boken"
-
-#~ msgid "Click to turn off Cover Browsing"
-#~ msgstr "Klicka för att stänga omslagsbläddring"
-
-#~ msgid "Click to see list of active jobs."
-#~ msgstr "Klicka för att se listan över aktiva jobb."
-
-#, python-format
-#~ msgid ""
-#~ "Could not convert %d of %d books, because no suitable source format was "
-#~ "found."
-#~ msgstr ""
-#~ "Kunde inte konvertera %d av %d böcker, eftersom inget lämpligt källformat "
-#~ "hittades."
-
-#~ msgid "Download only metadata"
-#~ msgstr "Hämta bara metadata"
-
-#~ msgid "Download only covers"
-#~ msgstr "Hämta bara omslag"
-
-#~ msgid "Device database corrupted"
-#~ msgstr "Enhetsdatabas skadad"
-
-#~ msgid "Choose a location for your ebook library."
-#~ msgstr "Välj en plats för ditt e-bokbibliotek"
-
-#~ msgid "metadata"
-#~ msgstr "metadata"
-
-#~ msgid "Downloading %s for %d book(s)"
-#~ msgstr "Hämtar %s för %d böcker"
-
-#~ msgid "covers"
-#~ msgstr "omslag"
-
-#~ msgid "Invalid library location"
-#~ msgstr "Ogiltig biblioteksplats"
-
-#~ msgid "Could not access %s. Using %s as the library."
-#~ msgstr "Kunde inte komma åt %s. Använder %s som biblioteket."
-
-#~ msgid "WARNING: Active jobs"
-#~ msgstr "VARNING: Aktiva jobb"
-
 #~ msgid "Double click to change a keyborad shortcut"
 #~ msgstr "Dubbelklicka för att ändra ett kortkommando"
-
-#~ msgid "Ebook Viewer"
-#~ msgstr "E-bokläsare"
-
-#~ msgid "Click to see the books available on your computer"
-#~ msgstr "Klicka för att se böcker som finns på din dator"
-
-#~ msgid ""
-#~ "Library\n"
-#~ "%d\n"
-#~ "books"
-#~ msgstr ""
-#~ "Bibliotek\n"
-#~ "%d\n"
-#~ "böcker"
-
-#~ msgid "You must set the username and password for the mail server."
-#~ msgstr "Du måste ange användarnamn och lösenord för e-postservern."
 
 #~ msgid "The author sort string"
 #~ msgstr "Författaresorterasträngen"
@@ -21022,13 +20731,6 @@ msgstr ""
 #~ msgid "The series number. To get leading zeros use {series_index:03n}"
 #~ msgstr ""
 #~ "Serienummerenö. För att få inledande nollor använd {series_index: 03N}"
-
-#, python-format
-#~ msgid "%sUsage%s: %s\n"
-#~ msgstr "%sAnvändning%s: %s\n"
-
-#~ msgid "The priority of worker processes"
-#~ msgstr "Prioritet för arbetsprocesser"
 
 #~ msgid "&Saving books"
 #~ msgstr "&Spara böcker"
@@ -21039,50 +20741,14 @@ msgstr ""
 #~ msgid "&Transliterate unicode characters to ASCII."
 #~ msgstr "&Translitterera Unicode-tecken till ASCII."
 
-#~ msgid "No text &justification"
-#~ msgstr "Ingen textjustering"
-
-#~ msgid "Remove F&ooter"
-#~ msgstr "Ta bort sidfot"
-
 #~ msgid "&Adding books"
 #~ msgstr "Lägg till böcker"
-
-#~ msgid "&Button size in toolbar"
-#~ msgstr "&Bildknappstorlek i verktygsfältet"
-
-#~ msgid "Show &text in toolbar buttons"
-#~ msgstr "Visa &text på bildknappar"
 
 #~ msgid "&Check database integrity"
 #~ msgstr "&Kontrollera databasintegritet"
 
-#~ msgid "&Add"
-#~ msgstr "Lägg till"
-
 #~ msgid "Stop &all jobs"
 #~ msgstr "Avsluta &alla jobb"
-
-#~ msgid "&Stop selected job"
-#~ msgstr "Av&sluta valt jobb"
-
-#~ msgid "&Fetch metadata from server"
-#~ msgstr "Hämta metadata från servern"
-
-#~ msgid "IS&BN:"
-#~ msgstr "IS&BN:"
-
-#~ msgid "Author S&ort: "
-#~ msgstr "Författars&ortering: "
-
-#~ msgid "Download &cover"
-#~ msgstr "Hämta omslag"
-
-#~ msgid "&User stylesheet"
-#~ msgstr "Användarens stilmall"
-
-#~ msgid "Del"
-#~ msgstr "Del"
 
 #~ msgid ""
 #~ "Comma separated list of metadata fields to turn into collections on the "
@@ -21124,13 +20790,6 @@ msgstr ""
 #~ msgid "Copy Image"
 #~ msgstr "Kopiera bild"
 
-#~ msgid ""
-#~ "<span style=\"color:red; font-weight:bold\">Latest version: <a "
-#~ "href=\"%s\">%s</a></span>"
-#~ msgstr ""
-#~ "<span style=\"color:red; font-weight:bold\">Senaste version: <a "
-#~ "href=\"%s\">%s</a></span>"
-
 #~ msgid "E-book Options"
 #~ msgstr "E-book alternativ"
 
@@ -21140,15 +20799,6 @@ msgstr ""
 #, python-format
 #~ msgid "Select destination for %s.%s"
 #~ msgstr "Välj destination för %s.%s"
-
-#~ msgid "tags"
-#~ msgstr "etiketter"
-
-#~ msgid "Search as you type"
-#~ msgstr "Sök &medan du skriver"
-
-#~ msgid "Show &notifications in system tray"
-#~ msgstr "&Visa meddelanden i systemfältet"
 
 #~ msgid "Sort numbers as text"
 #~ msgstr "Sortera tal som text"
@@ -21323,12 +20973,6 @@ msgstr ""
 #~ "Teckenkodning för indata i HTML. Vanliga alternativ är: cp1252, latin1, iso-"
 #~ "8859-1 och utf-8."
 
-#~ msgid "No valid plugin found in "
-#~ msgstr "Inget giltigt tillägg hittades i "
-
-#~ msgid "Communicate with the Kindle 2 eBook reader."
-#~ msgstr "Kommunicera med läsplattan Kindle 2."
-
 #~ msgid "Communicate with the Nokia 810 internet tablet."
 #~ msgstr "Kommunicera med surfplattan Nokia 810."
 
@@ -21355,13 +20999,6 @@ msgstr ""
 #~ msgstr "Ange teckensnittsdelta"
 
 #~ msgid ""
-#~ "The line height in pts. Controls spacing between consecutive lines of text. "
-#~ "By default no line height manipulation is performed."
-#~ msgstr ""
-#~ "Radavståndet i punkter. Kontrollerar avståndet mellan två påföljande "
-#~ "textrader. Som standard ändras inte radavståndet."
-
-#~ msgid ""
 #~ "When calibre removes inter paragraph spacing, it automatically sets a "
 #~ "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 #~ "This option controls the width of that indent."
@@ -21369,19 +21006,6 @@ msgstr ""
 #~ "När Calibre tar bort mellanrum mellan stycken intenteras automatiskt nästa "
 #~ "stycke, så att det lätt kan skiljas från det föregående. Det här "
 #~ "alternativet styr bredden på denna indentering."
-
-#~ msgid ""
-#~ "Attempt to detect and correct hard line breaks and other problems in the "
-#~ "source file. This may make things worse, so use with care."
-#~ msgstr ""
-#~ "Försök att upptäcka och rätta till hårda radbrytningar och andra problem i "
-#~ "källfilen. Detta kan göra saken värre, så använd detta med försiktighet."
-
-#~ msgid "The regular expression to use to remove the header."
-#~ msgstr "Det reguljära uttrycket för att ta bort sidhuvudet."
-
-#~ msgid "The regular expression to use to remove the footer."
-#~ msgstr "Det reguljära uttrycket för att ta bort sidfoten."
 
 #~ msgid ""
 #~ "Transliterate unicode characters to an ASCII representation. Use with care "
@@ -21406,36 +21030,8 @@ msgstr ""
 #~ "partiell omvandling av en PDF-fil. Standard är %default som inaktiverar "
 #~ "detta."
 
-#, python-format
-#~ msgid "Failed to parse link %s %s"
-#~ msgstr "Kunde inte tolka länken %s %s"
-
 #~ msgid "EDITORIAL REVIEW"
 #~ msgstr "Redaktörsgranskning"
-
-#, python-format
-#~ msgid ""
-#~ "\n"
-#~ "Read/Write metadata from/to ebook files.\n"
-#~ "\n"
-#~ "Supported formats for reading metadata: %s\n"
-#~ "\n"
-#~ "Supported formats for writing metadata: %s\n"
-#~ "\n"
-#~ "Different file types support different kinds of metadata. If you try to set\n"
-#~ "some metadata on a file type that does not support it, the metadata will be\n"
-#~ "silently ignored.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "Läs/Skriv metadata från/till e-bokfiler.\n"
-#~ "\n"
-#~ "Format som stöds för läsa metadata: %s\n"
-#~ "\n"
-#~ "Format som stöds för att skriva metadata: %s\n"
-#~ "\n"
-#~ "Olika filtyper stöder olika typer av metadata. Om du försöker ställa\n"
-#~ "in vissa metadata om en filtyp som inte stöds dessa, kommer de att\n"
-#~ "tyst ignoreras.\n"
 
 #~ msgid "description/reviews"
 #~ msgstr "beskrivning/recensioner"
@@ -21457,69 +21053,6 @@ msgstr ""
 #~ msgstr "Hämta sociala metadata från amazon.com"
 
 #~ msgid ""
-#~ "\n"
-#~ "%prog [options] key\n"
-#~ "\n"
-#~ "Fetch metadata for books from isndb.com. You can specify either the\n"
-#~ "books ISBN ID or its title and author. If you specify the title and author,\n"
-#~ "then more than one book may be returned.\n"
-#~ "\n"
-#~ "key is the account key you generate after signing up for a free account from "
-#~ "isbndb.com.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog [alternativ] tangenten\n"
-#~ "\n"
-#~ "Hämta metadata för böcker från isndb.com. Du kan ange antingen\n"
-#~ "böckernas ISBN-nummer eller deras titel och författare. Om du anger titel "
-#~ "och författare,\n"
-#~ "kan mer än en bok komma i fråga.\n"
-#~ "\n"
-#~ "Nyckeln är den konto-nyckel som du skapar efter att du registrerat dig för "
-#~ "ett gratis konto på isbnd\n"
-#~ "\n"
-
-#~ msgid "The ISBN ID of the book you want metadata for."
-#~ msgstr "ISBN-numbret för den boken du vill hämta metadata till."
-
-#~ msgid "The author whose book to search for."
-#~ msgstr "Författaren till den bok som eftersöks."
-
-#~ msgid "The title of the book to search for."
-#~ msgstr "Titeln på boken som eftersöks."
-
-#~ msgid "The publisher of the book to search for."
-#~ msgstr "Utgivaren av boken som eftersöks."
-
-#~ msgid ""
-#~ "Could not fetch cover as server is experiencing high load. Please try again "
-#~ "later."
-#~ msgstr ""
-#~ "Kunde inte hämta omslaget eftersom servern är hårt belastad. Försök igen "
-#~ "senare."
-
-#~ msgid "LibraryThing.com server error. Try again later."
-#~ msgstr "Serverfel för LibraryThing.com. Försök igen senare."
-
-#~ msgid ""
-#~ "Don't add Table of Contents to end of book. Useful if the book has its own "
-#~ "table of contents."
-#~ msgstr ""
-#~ "Lägg inte till någon innehållsförteckning i slutet av boken. Används om "
-#~ "boken har en egen innehållsförteckning."
-
-#~ msgid "Book Jacket"
-#~ msgstr "Skyddsomslag"
-
-#, python-format
-#~ msgid ""
-#~ "Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
-#~ msgstr ""
-#~ "Kunde inte hitta någon lämplig plats att dela texten på: %s  "
-#~ "Underträdsstorlek: %d KiB"
-
-#~ msgid ""
 #~ "Normally calibre treats blank lines as paragraph markers. With this option "
 #~ "it will assume that every line represents a paragraph instead."
 #~ msgstr ""
@@ -21538,15 +21071,6 @@ msgstr ""
 #~ "Stycken slutar när nästa rad som börjar med ett indrag nås."
 
 #~ msgid ""
-#~ "Scale used to determine the length at which a line should be unwrapped. "
-#~ "Valid values are a decimal between 0 and 1. The default is 0.5, this is the "
-#~ "median line length."
-#~ msgstr ""
-#~ "Skala som används för att bestämma var raden skall brytas. Giltiga värden är "
-#~ "ett decimaltal mellan 0 och 1. Standardvärdet är 0,5, som är radens "
-#~ "medianlängd."
-
-#~ msgid ""
 #~ "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 #~ "ull first page of the generated pdf."
 #~ msgstr ""
@@ -21561,22 +21085,6 @@ msgstr ""
 #~ "Ange komprimeringsnivå. Skalan är från 1 till 10, där 1 är den lägsta "
 #~ "komprimeringen men snabbaste komprimeringen, och 10 är den högsta och "
 #~ "långsammaste komprimeringen."
-
-#~ msgid ""
-#~ "Specify the character encoding of the output document. The default is utf-8. "
-#~ "Note: This option is not honored by all formats."
-#~ msgstr ""
-#~ "Ange teckenkodning den skapade texten. Grundinställning är utf-8. Obs: Detta "
-#~ "alternativ är accepteras inte av alla format."
-
-#~ msgid "Toolbar icon size"
-#~ msgstr "Ikonstorlek för verktygsfältet"
-
-#~ msgid "Show button labels in the toolbar"
-#~ msgstr "Visa textetiketter vid knapparna i verktygsfältet."
-
-#~ msgid "Sort tags list by popularity"
-#~ msgstr "Sortera etikettlista efter popularitet"
 
 #~ msgid "Copy to Clipboard"
 #~ msgstr "Kopiera till urklipp"
@@ -21642,9 +21150,6 @@ msgstr ""
 #~ msgid "Indent size:"
 #~ msgstr "Indragslängd:"
 
-#~ msgid "Insert &blank line"
-#~ msgstr "Infoga blankrad"
-
 #~ msgid "PDB Input"
 #~ msgstr "PDB-indata"
 
@@ -21653,13 +21158,6 @@ msgstr ""
 
 #~ msgid "Footer regular expression:"
 #~ msgstr "Reguljärt uttryck för sidfot:"
-
-#~ msgid "&Preprocess input file to possibly improve structure detection"
-#~ msgstr ""
-#~ "Förbehandla indatafil för att lättare identifiera dokumentets struktur"
-
-#~ msgid "Remove H&eader"
-#~ msgstr "Ta bort sidhuvud"
 
 #~ msgid "Process using markdown"
 #~ msgstr "Behandla med hjälp av markdown"
@@ -21679,28 +21177,6 @@ msgstr ""
 #~ "taggar.</p><p>Om du vill veta mer avancerad användning av XPath se <a "
 #~ "href=\"http://calibre-ebook.com/user_manual/xpath.html\">XPath Tutorial< /a>."
 
-#~ msgid "Send specific format to main memory"
-#~ msgstr "Skicka angivet format till inbyggt minne"
-
-#~ msgid "Send specific format to storage card A"
-#~ msgstr "Skicka angivet format till minneskort A"
-
-#~ msgid "Send specific format to storage card B"
-#~ msgstr "Skicka angivet format till minneskort B"
-
-#~ msgid "Failed to email books"
-#~ msgstr "Kunde inte skicka böcker"
-
-#~ msgid "Failed to email the following books:"
-#~ msgstr "Kunde inte skicka följande böcker:"
-
-#~ msgid ""
-#~ "Content\n"
-#~ "Server"
-#~ msgstr ""
-#~ "Medie-\n"
-#~ "server"
-
 #~ msgid "System port selected"
 #~ msgstr "Systemport vald"
 
@@ -21712,12 +21188,6 @@ msgstr ""
 #~ "Värdet <b>%d</b> som är valt till serverport är en systemport. Det kan hända "
 #~ "att operativsystemet inte tillåter servern att lyssna på denna port. För att "
 #~ "vara på den säkra sidan bör ett portnummer större än 1024 väljas."
-
-#~ msgid "Choose plugin"
-#~ msgstr "Välj tillägg"
-
-#~ msgid "The size %s is invalid. must be of the form widthxheight"
-#~ msgstr "Storleken %s är ogiltig. Den måste anges som breddxhöjd"
 
 #~ msgid "Failed to check database integrity"
 #~ msgstr "Kunde inte kontrollera databasintegritet"
@@ -21773,36 +21243,14 @@ msgstr ""
 #~ "individuella enheter genom att anpassa enhetens gränssnittstillägg i "
 #~ "Inställningar-> Tillägg"
 
-#~ msgid ""
-#~ "&Location of ebooks (The ebooks are stored in folders sorted by author and "
-#~ "metadata is stored in the file metadata.db)"
-#~ msgstr ""
-#~ "E-böckernas plats (E-böckerna lagras i mappar sorterade efter författare, "
-#~ "och metadata lagras i filen metadata.db)"
-
-#~ msgid "Browse for the new database location"
-#~ msgstr "Bläddra till den nya databasens plats"
-
 #~ msgid "Download &social metadata (tags/ratings/etc.) by default"
 #~ msgstr "Ladda ner &sociala metadata (etiketter/omdömen/etc.) som standard"
 
 #~ msgid "&Overwrite author and title by default when fetching metadata"
 #~ msgstr "&Skriv över författare och titel när metadata hämtas"
 
-#~ msgid "Use &Roman numerals for series number"
-#~ msgstr "Använd &romerska siffror för bokens nummer i serien"
-
-#~ msgid "Select visible &columns in library view"
-#~ msgstr "Välj synliga &kolumnerna i biblioteketsvyn"
-
 #~ msgid "&Maximum number of waiting worker processes (needs restart):"
 #~ msgstr "&Maximalt antal väntande processer (kräver omstart):"
-
-#~ msgid "Add new plugin"
-#~ msgstr "Installera tillägg"
-
-#~ msgid "Plugin &file:"
-#~ msgstr "Tilläggs&fil:"
 
 #~ msgid "Create Tag-based Column"
 #~ msgstr "Skapa Etikett-baserad kolumn"
@@ -21818,35 +21266,6 @@ msgstr ""
 
 #~ msgid "Downloading social metadata, please wait..."
 #~ msgstr "Hämtar sociala metadata..."
-
-#~ msgid "The metadata download seems to have stalled. Try again later."
-#~ msgstr "Metadatahämtningen har verkar ha stannat. Försök igen senare."
-
-#~ msgid "No metadata found"
-#~ msgstr "Ingen metadata hittades"
-
-#~ msgid ""
-#~ "No metadata found, try adjusting the title and author or the ISBN key."
-#~ msgstr ""
-#~ "Ingen metadata hittades. Försök ändra titel och författare eller ISBN-numret."
-
-#~ msgid "Fetch metadata"
-#~ msgstr "Hämta metadata"
-
-#~ msgid ""
-#~ "<p>calibre can find metadata for your books from two locations: <b>Google "
-#~ "Books</b> and <b>isbndb.com</b>. <p>To use isbndb.com you must sign up for a "
-#~ "<a href=\"http://www.isbndb.com\">free account</a> and enter your access key "
-#~ "below."
-#~ msgstr ""
-#~ "<p>Calibre kan söka efter metadata om dina böcker från två platser: "
-#~ "<b>Google Books</b> och <b>isbndb.com</b>. <p> För att använda isbndb.com "
-#~ "måste du registrera dig för ett <a href=\"http://www.isbndb.com\"> gratis "
-#~ "konto</a> och ange din behörighetskod nedan."
-
-#~ msgid ""
-#~ "Select the book that most closely matches your copy from the list below"
-#~ msgstr "Välj den bok som bäst passar ditt exemplar från listan nedan"
 
 #~ msgid "Download &social metadata (tags/rating/etc.) for the selected book"
 #~ msgstr ""
@@ -21880,23 +21299,6 @@ msgstr ""
 #~ msgid "There were errors downloading social metadata"
 #~ msgstr "Fel inträffade vid hämtning av sociala metadata"
 
-#~ msgid ""
-#~ "Automatically create the author sort entry based on the current author entry"
-#~ msgstr "Gissa hur författaren skall sorteras utifrån dess namn"
-
-#~ msgid "Remove the selected formats for this book from the database."
-#~ msgstr "Ta bort valt format av den här boken från databasen."
-
-#, python-format
-#~ msgid "%d days, %d hours and %d minutes ago"
-#~ msgstr "För %d dagar, %d timmar och %d minuter sedan"
-
-#~ msgid "Every "
-#~ msgstr "Varje "
-
-#~ msgid "at"
-#~ msgstr "klockan"
-
 #~ msgid "What kind of match to use:"
 #~ msgstr "Vilket slags matchning skall användas:"
 
@@ -21909,21 +21311,6 @@ msgstr ""
 #~ msgid ""
 #~ "Regular expression: the expression must match anywhere in the metadata"
 #~ msgstr "Reguljärt uttryck: uttrycket måste passa in någonstans i metadata"
-
-#, python-format
-#~ msgid "The attached file: %s is a recipe to download %s."
-#~ msgstr "Den bifogade filen: %s är ett recept för att hämta %s."
-
-#~ msgid "Pick the recipe to customize"
-#~ msgstr "Välj ett recept att anpassa"
-
-#~ msgid ""
-#~ "For help with writing advanced news recipes, please visit <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
-#~ msgstr ""
-#~ "För hjälp med att skriva avancerade nyhetsrecept besök <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/news.html\">Användarrecept</"
-#~ "a>"
 
 #~ msgid ""
 #~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
@@ -21971,47 +21358,14 @@ msgstr ""
 #~ msgid "Failed to create calibre library at: %r. Aborting."
 #~ msgstr "Kunde inte skapa Calibre-bibliotek i: %r. Avslutar."
 
-#~ msgid "calibre"
-#~ msgstr "Calibre"
-
 #~ msgid "set in ui.py"
 #~ msgstr "Ställ in i ui.py"
 
 #~ msgid "Save current search under the name shown in the box"
 #~ msgstr "Spara aktuell sökning under namnet som visas i rutan"
 
-#~ msgid "Sort by &popularity"
-#~ msgstr "Sortera efter &popularitet"
-
-#~ msgid "Convert E-books"
-#~ msgstr "Konvertera e-böcker"
-
-#~ msgid "Configure calibre"
-#~ msgstr "Anpassa Calibre"
-
-#~ msgid "Click to browse books by their covers"
-#~ msgstr "Klicka för att bläddra bland bokomslag"
-
-#~ msgid ""
-#~ "<p>Browsing books by their covers is disabled.<br>Import of pictureflow "
-#~ "module failed:<br>"
-#~ msgstr ""
-#~ "<p>Omslagsbläddring är inaktiverat <br>Pictureflow-modulen kunde inte "
-#~ "importeras:<br>"
-
-#~ msgid "Click to browse books by tags"
-#~ msgstr "Klicka för att bläddra bland böcker utifrån deras etikett"
-
-#, python-format
-#~ msgid "Convert book %d of %d (%s)"
-#~ msgstr "Konvertera bok %d av %d (%s)"
-
 #~ msgid "<p>For help see the: <a href=\"%s\">User Manual</a><br>"
 #~ msgstr "<p>För hjälp se: <a href=\"%s\">Användarhandbok</a><br>"
-
-#~ msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
-#~ msgstr ""
-#~ "<b>%s</b>: %s av <b> Kovid Goyal %%(version)s </b><br>%%(device)s</p>"
 
 #~ msgid "Download only social metadata"
 #~ msgstr "Hämta bara sociala metadata"
@@ -22024,33 +21378,6 @@ msgstr ""
 
 #~ msgid "(%d found)"
 #~ msgstr "(%d hittades)"
-
-#~ msgid ""
-#~ "\n"
-#~ "                <p>The database of books on the reader is corrupted. Try the "
-#~ "following:\n"
-#~ "                <ol>\n"
-#~ "                <li>Unplug the reader. Wait for it to finish regenerating "
-#~ "the database (i.e. wait till it is ready to be used). Plug it back in. Now "
-#~ "it should work with %(app)s. If not try the next step.</li>\n"
-#~ "                <li>Quit %(app)s. Find the file media.xml in the reader's "
-#~ "main memory. Delete it. Unplug the reader. Wait for it to regenerate the "
-#~ "file. Re-connect it and start %(app)s.</li>\n"
-#~ "                </ol>\n"
-#~ "                "
-#~ msgstr ""
-#~ "\n"
-#~ "                <p>Bokdatabasen på läsplattan är skadad. Prova följande:\n"
-#~ "                <ol>\n"
-#~ "                <li>Koppla ur läsplattan. Vänta på att den slutför "
-#~ "regenerering av databasen (d.v.s. vänta tills den är klar att användas). "
-#~ "Koppla nu in den igen. Nu är det bör fungera med %(app)s. Om inte prova med "
-#~ "nästa steg. </li>\n"
-#~ "                <li>Avsluta %(app)s. Leta rätt på filen media.xml i "
-#~ "läsplattans inbyggda minne. Ta bort media.xml. Koppla ur läsplattan. Vänta "
-#~ "tills den återskapat filen. Återanslut läsplattan och starta %(app)s. </li>\n"
-#~ "                </ol>\n"
-#~ "                "
 
 #, python-format
 #~ msgid "%s<br />Last Page Read: %d (%d%%)"
@@ -22071,24 +21398,8 @@ msgstr ""
 #~ msgid "Choose formats <b>not</b> to be deleted"
 #~ msgstr "Välj format att <b>inte</b> ta bort"
 
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> and the files removed "
-#~ "from your computer. Are you sure?"
-#~ msgstr ""
-#~ "De valda böckerna kommer att <b>tas bort permanent</b> och filerna kommer "
-#~ "att raderas från datorn. Är du säker?"
-
 #~ msgid "social metadata"
 #~ msgstr "sociala metadata"
-
-#~ msgid "Failed to download some metadata"
-#~ msgstr "Alla metadata kunde inte hämtas"
-
-#~ msgid "Failed to download metadata for the following:"
-#~ msgstr "Kunde inte hämta metadata för följande:"
-
-#~ msgid "Failed to download metadata:"
-#~ msgstr "Kunde inte hämta metadata:"
 
 #~ msgid ""
 #~ "All book formats and metadata from the selected books will be added to the "
@@ -22134,13 +21445,6 @@ msgstr ""
 #~ "bok. Du måste först ta bort DRM-skyddet med hjälp av tredjepartsverktyg."
 
 #~ msgid ""
-#~ "is the result of the efforts of many volunteers from all over the world. If "
-#~ "you find it useful, please consider donating to support its development."
-#~ msgstr ""
-#~ "är resultatet av insatserna från många frivilliga över hela världen. Om du "
-#~ "gillar det, överväg att skänka en slant för att stödja dess utveckling."
-
-#~ msgid ""
 #~ "%s has been updated to version %s. See the <a href=\"http://calibre-"
 #~ "ebook.com/whats-new\">new features</a>. Visit the download page?"
 #~ msgstr ""
@@ -22148,81 +21452,12 @@ msgstr ""
 #~ "ebook.com/whats-new\">för nya funktioner</a>. Vill du besöka "
 #~ "nedladdningssidan?"
 
-#~ msgid "DRM Error"
-#~ msgstr "DRM-fel"
-
-#~ msgid "<p>This book is protected by <a href=\"%s\">DRM</a>"
-#~ msgstr "<p>Den här boken skyddas av <a href=\"%s\">DRM</a>"
-
-#~ msgid "Click to see the books in the main memory of your reader"
-#~ msgstr "Klicka för att se böckerna i läsplattans inbyggda minne"
-
-#~ msgid "Click to see the books on storage card A in your reader"
-#~ msgstr "Klicka för att se böckerna på minneskort A i läsplattan"
-
-#~ msgid "Click to see the books on storage card B in your reader"
-#~ msgstr "Klicka för att se böckerna på minneskort B i läsplattan"
-
-#~ msgid ""
-#~ "If you use the WordPlayer e-book app on your Android phone, you can access "
-#~ "your calibre book collection directly on the device. To do this you have to "
-#~ "turn on the content server."
-#~ msgstr ""
-#~ "Om du använder e-bokprogrammet WordPlayer på din Android-telefon, kan du "
-#~ "öppna ditt Calibre-bibliotek direkt på enheten. För att göra detta måste du "
-#~ "slå på medieservern."
-
-#~ msgid ""
-#~ "Remember to leave calibre running as the server only runs as long as calibre "
-#~ "is running."
-#~ msgstr ""
-#~ "Kom ihåg att låta Calibre vara igång eftersom servern bara körs så länge "
-#~ "Calibre är igång."
-
-#~ msgid ""
-#~ "You have to add the URL http://myhostname:8080 as your calibre library in "
-#~ "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
-#~ "address of the computer calibre is running on."
-#~ msgstr ""
-#~ "Du måste lägga till webbadressen http://myhostname:8080 som ditt Calibre-"
-#~ "bibliotek i WordPlayer. Mittvärddatornamn bör vara det fullständiga "
-#~ "värdnamnet eller IP-adressen till datorn Calibre körs på."
-
-#, python-format
-#~ msgid ""
-#~ "<p>An invalid library already exists at %s, delete it before trying to move "
-#~ "the existing library.<br>Error: %s"
-#~ msgstr ""
-#~ "<p>Ett ogiltigt bibliotek finns redan på %s. Ta bort det innan du försöker "
-#~ "flytta det befintliga biblioteket.<br>Fel: %s"
-
-#~ msgid ""
-#~ "Choose your book reader. This will set the conversion options to produce "
-#~ "books optimized for your device."
-#~ msgstr ""
-#~ "Välj din läsplatta. Konverteringsalternativen ställs automatiskt in så att "
-#~ "böckerna anpassas för just din läsplatta."
-
 #~ msgid ""
 #~ "<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
 #~ "ebook.com/user_manual\">online</a>."
 #~ msgstr ""
 #~ "<h2>Bruksanvisning</h2>En användarmanual finns även på <a "
 #~ "href=\"http://calibre-ebook.com/user_manual\">Internet</a>."
-
-#~ msgid ""
-#~ "Choose a location for your books. When you add books to calibre, they will "
-#~ "be copied here:"
-#~ msgstr ""
-#~ "Välj en plats för dina böcker. När du lägger till böcker till Calibre, "
-#~ "kommer de att kopieras hit:"
-
-#, python-format
-#~ msgid "Using: %s:%s@%s:%s and %s encryption"
-#~ msgstr "Använd: %s:%s @%s:%s- och %s-kryptering."
-
-#~ msgid "Finish gmail setup"
-#~ msgstr "Slutför Gmail-installation"
 
 #~ msgid ""
 #~ "Dont forget to enter your gmail username and password. You can sign up for a "
@@ -22315,11 +21550,6 @@ msgstr ""
 #~ "Gäller ePub- och MOBI-utformat"
 
 #~ msgid ""
-#~ "The format in which to output the data. Available choices: %s. Defaults is "
-#~ "text."
-#~ msgstr "Formatet för utdata. Alternativ: %s. Standard är text."
-
-#~ msgid ""
 #~ "A dictionary of options to customize how the data in this column will be "
 #~ "interpreted."
 #~ msgstr ""
@@ -22391,33 +21621,8 @@ msgstr ""
 #~ "Formatet för att visa datum. %d - day, %b - månad, %Y - year. "
 #~ "Grundinställning är: %b, %Y"
 
-#~ msgid "Password to access your calibre library. Username is "
-#~ msgstr "Lösenord för att komma åt ditt Calibre-bibliotek. Användarnamnet är "
-
-#~ msgid ""
-#~ "[options]\n"
-#~ "\n"
-#~ "Start the calibre content server."
-#~ msgstr ""
-#~ "[alternativ]\n"
-#~ "\n"
-#~ "Starta Calibres medieserver."
-
 #~ msgid "Could not fetch article. Run with -vv to see the reason"
 #~ msgstr "Kunde inte hämta artikel. Kör med -vv för att se orsaken"
-
-#~ msgid ""
-#~ "Any link that matches this regular expression will be ignored. This option "
-#~ "can be specified multiple times, in which case as long as any regexp matches "
-#~ "a link, it will be ignored.By default, no links are ignored. If both --"
-#~ "filter-regexp and --match-regexp are specified, then --filter-regexp is "
-#~ "applied first."
-#~ msgstr ""
-#~ "Varje länk som matchar det reguljära uttrycket kommer att ignoreras. Detta "
-#~ "alternativ kan anges flera gånger. Då kommer alla länkar som matchar det "
-#~ "reguljära uttrycket att ignoreras. Som standard ignoreras inga länkar. Om "
-#~ "både --filter-regexp och --match-regexp anges så används --filter-regexp "
-#~ "först."
 
 #~ msgid "Item already used"
 #~ msgstr "Posten används redan."
@@ -22446,40 +21651,6 @@ msgstr ""
 
 #~ msgid "Manage &user categories"
 #~ msgstr "Hantera &användarkategorier"
-
-#~ msgid ""
-#~ "Email\n"
-#~ "Delivery"
-#~ msgstr ""
-#~ "E-post-\n"
-#~ "leverans"
-
-#~ msgid ""
-#~ "Card A\n"
-#~ "%s\n"
-#~ "available"
-#~ msgstr ""
-#~ "Minneskort A\n"
-#~ "%s\n"
-#~ "tillgängligt"
-
-#~ msgid ""
-#~ "Card B\n"
-#~ "%s\n"
-#~ "available"
-#~ msgstr ""
-#~ "Minneskort B\n"
-#~ "%s\n"
-#~ "tillgängligt"
-
-#~ msgid ""
-#~ "Reader\n"
-#~ "%s\n"
-#~ "available"
-#~ msgstr ""
-#~ "Läsplatta\n"
-#~ "%s\n"
-#~ "tillgängligt"
 
 #~ msgid "Add/Save"
 #~ msgstr "Lägg till/spara"

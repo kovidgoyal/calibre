@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-08-04 03:21+0000\n"
+"PO-Revision-Date: 2011-08-04 23:36+0000\n"
 "Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-04 04:34+0000\n"
-"X-Generator: Launchpad (build 13573)\n"
+"X-Launchpad-Export-Date: 2011-08-05 04:38+0000\n"
+"X-Generator: Launchpad (build 13604)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -388,7 +388,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr "浏览caliber用户手册"
+msgstr "浏览 caliber 用户手册"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Customize calibre"
@@ -455,7 +455,7 @@ msgstr "操作方式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:903
 msgid "Change the way calibre behaves"
-msgstr "改变 Calibre 的操作方式"
+msgstr "改变 calibre 的操作方式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:908
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:232
@@ -464,7 +464,7 @@ msgstr "增加栏目"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:914
 msgid "Add/remove your own columns to the calibre book list"
-msgstr "向 Calibre 书籍列表中增加或删除你自定义的栏目"
+msgstr "向 calibre 书籍列表中增加或删除你自定义的栏目"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:919
 msgid "Toolbar"
@@ -478,7 +478,7 @@ msgstr "自定义工具栏和上下文菜单，设置它们所可以提供的功
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:931
 msgid "Searching"
-msgstr "搜索中"
+msgstr "搜索"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:937
 msgid "Customize the way searching for books works in calibre"
@@ -516,7 +516,7 @@ msgstr "设置针对特定输出格式的转换选项"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:975
 msgid "Adding books"
-msgstr "添加图书"
+msgstr "添加书籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:977
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:989
@@ -531,7 +531,7 @@ msgstr "控制向 calibre 添加书籍时读取元数据的方式"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:987
 msgid "Saving books to disk"
-msgstr "保存图书到磁盘"
+msgstr "保存书籍到磁盘"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:993
 msgid ""
@@ -541,7 +541,7 @@ msgstr "控制使用“保存到磁盘”功能时 calibre 从数据库导出文
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:999
 msgid "Sending books to devices"
-msgstr "发送图书到设备"
+msgstr "发送书籍到设备"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1005
 msgid "Control how calibre transfers files to your ebook reader"
@@ -572,7 +572,7 @@ msgstr "建立你自己的模板函数。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1033
 msgid "Sharing books by email"
-msgstr "通过Email分享图书"
+msgstr "通过Email分享书籍"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1035
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1047
@@ -584,7 +584,7 @@ msgstr "分享"
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
-msgstr "设置通过电子邮件分享图书。可用于在向阅读器下载新内容时自动发送通知。"
+msgstr "设置通过电子邮件分享书籍。可用于在向阅读器下载新内容时自动发送通知。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1045
 msgid "Sharing over the net"
@@ -602,7 +602,7 @@ msgstr "元数据下载"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1064
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr "控制calibre从网络上下载元信息（metadata）的方式。"
+msgstr "控制 calibre 从网络上下载元数据的方式。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1069
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:275
@@ -834,7 +834,7 @@ msgid ""
 msgstr ""
 "    %prog options\n"
 "\n"
-"    通过加载外部插件定制 Calibre。\n"
+"    通过加载外部插件定制 calibre。\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:546
@@ -950,7 +950,7 @@ msgstr "在 iTune/iBooks 中将“系列”作为“分类”"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "允许使用系列名称作为 iTunes 风格或 iBooks 分类"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
@@ -965,7 +965,7 @@ msgstr "允许从iTunes和iBooks缓存和显示封面。"
 msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
-msgstr ""
+msgstr "\"添加到资料库时将文件复制到iTunes Media文件夹%s\" 可以在 iTunes 的“偏好设置|高级”中启用"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid ""
@@ -1006,7 +1006,7 @@ msgstr "更新设备元数据列表..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3155
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "第 %(num)d 个，共 %(tot)d 个"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1130
@@ -1021,9 +1021,9 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
-"部分图书在 iTunes 数据库中不存在。\n"
+"部分书籍在 iTunes 数据库中不存在。\n"
 "请用 iBooks 软件删除它们。\n"
-"点击“详细信息”查看列表。"
+"点击“查看详情”查看列表。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1044
 msgid ""
@@ -1031,7 +1031,7 @@ msgid ""
 "Click 'Show Details' for a list."
 msgstr ""
 "无法转换部分封面图像。\n"
-"点击“详细信息”查看列表。"
+"点击“查看详情”查看列表。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2684
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:102
@@ -1688,7 +1688,7 @@ msgstr "从设备上的文件中读取元数据"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:63
 msgid "Use author sort instead of author"
-msgstr "使用作者排序代替作者"
+msgstr "使用“排序作者”代替“作者”"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:65
 msgid "Template to control how books are saved"
@@ -2163,7 +2163,7 @@ msgstr ""
 "用以检测章节标题的 XPath 表达式. 默认值为检测 <h1> 或 <h2> "
 "标签中含有关键字\"chapter\",\"book\",\"section\" 和 "
 "\"part\"的项或者任何含有class=\"chapter\"的标签作为章节标题。该表达式必须为一组元素列表。关闭本功能，使用表达式\"/\"。更多关"
-"于 XPath 表达式的信息请查阅 Calibre 用户手册中的 XPath 章节部分."
+"于 XPath 表达式的信息请查阅 calibre 用户手册中的 XPath 章节部分."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:295
 msgid ""
@@ -2242,7 +2242,7 @@ msgid ""
 "When calibre removes blank lines between paragraphs, it automatically sets a "
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent (in em)."
-msgstr ""
+msgstr "calibre 在删除段落间的空行时，会自动加入段落缩进以保证可以区分不同的段落。本选项控制缩进的距离（单位是em）。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:376
 msgid ""
@@ -2379,7 +2379,7 @@ msgstr "设置书籍语言。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:512
 msgid "Set the publication date."
-msgstr "设定发布日期。"
+msgstr "设定出版日期。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:516
 msgid "Set the book timestamp (used by the date column in calibre)."
@@ -3119,8 +3119,7 @@ msgstr "标签"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:124
 msgid "Series"
 msgid_plural "Series"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "系列"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:746
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
@@ -3137,7 +3136,7 @@ msgstr "时间戳"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:289
 msgid "Published"
-msgstr "发布于"
+msgstr "出版日期"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:752
 msgid "Rights"
@@ -3190,7 +3189,7 @@ msgstr "设置书籍分类."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr "设定发布日期。"
+msgstr "设定出版日期。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
@@ -3360,7 +3359,7 @@ msgstr "修改图片以适应 Palm 设备的屏幕尺寸。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
-msgstr "按作者排序时使用作者排序，如果该字段为非空。"
+msgstr "如果“排序作者”字段值非空，在按作者排序时使用该字段的值排序。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:30
 msgid ""
@@ -4061,7 +4060,7 @@ msgstr "书籍传输到设备后从书库中自动删除"
 msgid ""
 "Show the cover flow in a separate window instead of in the main calibre "
 "window"
-msgstr "将封面显示在单独的窗口而不是在 Calibre 主窗口"
+msgstr "将封面显示在单独的窗口而不是在 calibre 主窗口"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:146
 msgid "Disable notifications from the system tray icon"
@@ -4205,7 +4204,7 @@ msgstr "从目录添加书籍，包含子目录(单个目录下有多本书籍�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:65
 msgid "Add Empty book. (Book entry with no formats)"
-msgstr "添加空书。(无任何格式)"
+msgstr "添加空白书籍项 (不含任何书籍文件)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:66
 msgid "Shift+Ctrl+E"
@@ -4213,7 +4212,7 @@ msgstr "Shift+Ctrl+E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:67
 msgid "Add from ISBN"
-msgstr "从ISBN添加"
+msgstr "按 ISBN 添加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:69
 msgid "Add files to selected book records"
@@ -4236,7 +4235,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:97
 msgid "Select book files"
-msgstr ""
+msgstr "选择书籍文件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:168
 msgid "Adding"
@@ -4253,7 +4252,7 @@ msgstr "正在上传书籍到设备。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:288
 msgid "Supported books"
-msgstr "支持的书j"
+msgstr "支持的书"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:291
 msgid "Select books"
@@ -4383,7 +4382,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:34
 msgid "Create a catalog of the books in your calibre library"
-msgstr "在你的 calibre 图书馆中创建书籍分类"
+msgstr "为你的 calibre 书库创建分类目录"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:34
 msgid "No books selected for catalog generation"
@@ -4435,11 +4434,11 @@ msgstr "重命名书库"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:110
 msgid "Remove library"
-msgstr ""
+msgstr "删除书库"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:113
 msgid "Pick a random book"
-msgstr "随机选择一本书"
+msgstr "随机选定一本书"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:133
 msgid "Library Maintenance"
@@ -4451,7 +4450,7 @@ msgstr "书库元数据的备份状态"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:138
 msgid "Start backing up metadata of all books"
-msgstr "开始备份所有图书的元数据"
+msgstr "开始备份所有书籍的元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:142
 msgid "Check library"
@@ -4573,7 +4572,7 @@ msgstr "失败"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:332
 msgid "Database integrity check failed, click Show details for details."
-msgstr "数据库完整性检查失败，单击来查看细节。"
+msgstr "数据库完整性检查失败，单击“查看详情”查看错误细节。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:337
 msgid "No problems found"
@@ -4622,7 +4621,7 @@ msgstr "转换书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:28
 msgid "Convert individually"
-msgstr "分别转换"
+msgstr "逐个转换"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:30
 msgid "Bulk convert"
@@ -4724,7 +4723,7 @@ msgstr "删除失败"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:78
 msgid ""
 "Failed to delete some books, click the Show Details button for details."
-msgstr "删除书籍失败，点击显示细节按钮查看细节。"
+msgstr "删除书籍失败，点击“查看详情”查看细节。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:84
 msgid "Remove books"
@@ -4736,19 +4735,19 @@ msgstr "移除选定书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:92
 msgid "Remove files of a specific format from selected books.."
-msgstr "移除选定书籍中指定格式的书..."
+msgstr "移除选定书籍中指定格式的书籍文件..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:95
 msgid "Remove all formats from selected books, except..."
-msgstr "移除所有格式选定书籍，除..."
+msgstr "移除选定书籍中指定格式以外的书籍文件..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:98
 msgid "Remove all formats from selected books"
-msgstr ""
+msgstr "移除选定书籍中所有格式的书籍文件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:101
 msgid "Remove covers from selected books"
-msgstr "移除选定书籍封面"
+msgstr "移除选定书籍的封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:104
 msgid "Remove matching books from device"
@@ -4865,7 +4864,7 @@ msgstr "（从书库中删除）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:105
 msgid "Setup email based sharing of books"
-msgstr "设置基于email的书籍共享"
+msgstr "设置基于电子邮件的书籍共享"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:123
 msgid "D"
@@ -4935,7 +4934,7 @@ msgstr "合并到第一本选定书籍 - 保留其它"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:50
 msgid "Merge only formats into first selected book - delete others"
-msgstr ""
+msgstr "仅合并各种格式的书籍文件到第一本选定书籍 - 删除其它"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:72
 msgid "Cannot download metadata"
@@ -4955,18 +4954,18 @@ msgstr "下载失败"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:89
 #, python-format
 msgid "Failed to download metadata or covers for any of the %d book(s)."
-msgstr ""
+msgstr "无法为 %d 本书籍下载元数据或封面。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:92
 msgid "Metadata download completed"
-msgstr ""
+msgstr "元数据下载完成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:94
 #, python-format
 msgid ""
 "Finished downloading metadata for <b>%d book(s)</b>. Proceed with updating "
 "the metadata in your library?"
-msgstr ""
+msgstr "<b>%d 本书籍</b> 的元数据下载完成。要更新书库中的元数据吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:101
 #, python-format
@@ -4986,7 +4985,7 @@ msgstr "下载日志"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:137
 msgid "Some books changed"
-msgstr ""
+msgstr "部分书籍发生变化"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:138
 msgid ""
@@ -4995,6 +4994,7 @@ msgid ""
 "Click \"Show details\" to see the list of changed books. Do you want to "
 "proceed?"
 msgstr ""
+"您开始下载元数据后，书库中部分书籍的元数据发生了变化。如果继续，部分元数据的改动可能会丢失。点击“查看详情”查看受影响的书籍列表。要继续吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:220
@@ -5062,7 +5062,7 @@ msgstr "一些失败"
 msgid ""
 "Failed to apply updated metadata for some books in your library. Click "
 "\"Show Details\" to see details."
-msgstr ""
+msgstr "无法更新书库中部分书籍的元数据。点击“查看详情”查看详细信息。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "F"
@@ -5152,7 +5152,7 @@ msgstr "运行欢迎向导"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 msgid "Get plugins to enhance calibre"
-msgstr ""
+msgstr "获取用于增强 calibre 功能的插件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Restart in debug mode"
@@ -5164,7 +5164,7 @@ msgstr "有正在运行任务时无法进行配置。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:57
 msgid "Cannot configure before calibre is restarted."
-msgstr "calibre重启之前无法进行配置。"
+msgstr "calibre 重启之前无法进行配置。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "&Restart"
@@ -5196,13 +5196,13 @@ msgstr "保存到磁盘单个目录"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:68
 #, python-format
 msgid "Save only %s format to disk"
-msgstr "仅保存 %s 到磁盘"
+msgstr "仅保存 %s 格式文件到磁盘"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:53
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:71
 #, python-format
 msgid "Save only %s format to disk in a single directory"
-msgstr "仅以 %s 格式保存到磁盘中的单个目录"
+msgstr "仅保存 %s 格式文件到磁盘中的单个目录"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:90
 msgid "Cannot save to disk"
@@ -5217,7 +5217,8 @@ msgid ""
 "You are trying to save files into the calibre library. This can cause "
 "corruption of your library. Save to disk is meant to export files from your "
 "calibre library elsewhere."
-msgstr "你正将要保存文件到calibre数据库。这可能会破坏你的数据库。保存到磁盘的意思是导出文件到你的calibre数据库之外的任何地方。"
+msgstr ""
+"你将要把文件保存到 calibre 书库。这可能会破坏你的书库。“保存到磁盘”的意思是导出文件到你的 calibre 书库之外的任何地方。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:135
 msgid "Error while saving"
@@ -5230,11 +5231,11 @@ msgstr "保存时出错。"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:144
 msgid "Could not save some books"
-msgstr "无法保存一些书籍"
+msgstr "无法保存部分书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:145
 msgid "Click the show details button to see which ones."
-msgstr "点击显示详情按钮查看具体哪些。"
+msgstr "点击“查看详情”按钮查看具体列表。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:767
@@ -5315,15 +5316,15 @@ msgstr "搜索电子书"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:30
 msgid "Search for this author"
-msgstr "搜索当前作者"
+msgstr "按当前选中书籍作者搜索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:31
 msgid "Search for this title"
-msgstr "搜索这个标题"
+msgstr "按当前选中书籍标题搜索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 msgid "Search for this book"
-msgstr "搜索这本书"
+msgstr "搜索当前选中书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -5335,7 +5336,7 @@ msgstr "商店"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_dialog.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:285
 msgid "Choose stores"
-msgstr ""
+msgstr "选择商店"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:102
@@ -5521,7 +5522,7 @@ msgstr "添加失败"
 msgid ""
 "The add books process seems to have hung. Try restarting calibre and adding "
 "the books in smaller increments, until you find the problem book."
-msgstr "添加书籍进程似乎已死。请尝试重启 Calibre 并分步添加书籍，直到定位出问题的书籍。"
+msgstr "添加书籍进程似乎已死。请尝试重启 calibre 并分步添加书籍，直到定位出问题的书籍。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Duplicates found!"
@@ -5564,19 +5565,19 @@ msgstr "依据文件哈希值查找重复文件"
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:70
 msgid "Choose root folder"
-msgstr "更改根目录"
+msgstr "选择起始目录"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:135
 msgid "Invalid root folder"
-msgstr "无效的根目录"
+msgstr "无效的起始目录"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:136
 msgid "is not a valid root folder"
-msgstr "不是有效的根目录"
+msgstr "不是有效的起始目录"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:146
 msgid "Add books to calibre"
-msgstr "添加图书到calibre"
+msgstr "添加书籍到 calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:26
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:62
@@ -5589,7 +5590,7 @@ msgstr "向导页"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:27
 msgid "Scanning root folder for books"
-msgstr "扫描根目录寻找图书"
+msgstr "扫描根目录寻找书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:28
 msgid "This may take a few minutes"
@@ -6490,11 +6491,11 @@ msgstr "0.0 pt"
 msgid ""
 "Heuristic\n"
 "Processing"
-msgstr ""
+msgstr "智能处理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics.py:16
 msgid "Modify the document text and structure using common patterns."
-msgstr ""
+msgstr "使用常见的模式智能更新文档的文本和结构。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:113
 msgid ""
@@ -6507,66 +6508,72 @@ msgid ""
 "the <a href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
 "processing\">User Manual</a>."
 msgstr ""
+"在<b>智能处理</b>模式下，calibre "
+"会自动在您的书籍中寻找常见的模式并尝试自动处理它们。就像“智能处理”这个名称所示的，这个处理过程中包含了一些不确定的猜测的过程，也就是说，如果 "
+"calibre "
+"猜错了的话，它有可能会使转换的结果变得更差。所以本功能默认是被禁用的。在大部分情况下，如果格式转换过程与您期望的不一致的话，打开“智能处理”可能会改善转换"
+"效果。请参考<a href=\\\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
+"processing\\\">用户手册</a>了解更多“智能处理”模式下各种选项的功能。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:114
 msgid "Enable &heuristic processing"
-msgstr ""
+msgstr "启用智能处理(&H)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:115
 msgid "Heuristic Processing"
-msgstr ""
+msgstr "智能处理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:116
 msgid "Unwrap lines"
-msgstr ""
+msgstr "消除段落内的换行"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:117
 msgid "Line &un-wrap factor :"
-msgstr ""
+msgstr "换行消除因子(&U)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:118
 msgid "Detect and markup unformatted chapter headings and sub headings"
-msgstr ""
+msgstr "检测并标记未格式化的章节标题和子标题"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:119
 msgid "Renumber sequences of <h1> or <h2> tags to prevent splitting"
-msgstr ""
+msgstr "对<h1>或<h2>标签进行重新编号以避免编号混乱"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:120
 msgid "Delete blank lines between paragraphs"
-msgstr ""
+msgstr "删除段落间的空行"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:121
 msgid "Ensure scene breaks are consistently formatted"
-msgstr ""
+msgstr "确保小节分隔使用一致的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:122
 msgid "Replace soft scene &breaks:"
-msgstr ""
+msgstr "替换小节分隔符(&B)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:123
 msgid "Remove unnecessary hyphens"
-msgstr ""
+msgstr "移除不必要的连字符"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:124
 msgid "Italicize common words and patterns"
-msgstr ""
+msgstr "把专有名词和特定模式的字符变为斜体"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:125
 msgid "Replace entity indents with CSS indents"
-msgstr ""
+msgstr "用 CSS 缩进代替空格等缩进字符"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output.py:14
 msgid "HTMLZ Output"
-msgstr ""
+msgstr "HTMLZ 输出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:45
 msgid "How to handle CSS"
-msgstr ""
+msgstr "CSS 处理模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:46
 msgid "How to handle class based CSS"
-msgstr ""
+msgstr "基于 class 的 CSS 处理模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -6578,7 +6585,7 @@ msgstr "控制输出文件外观"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:34
 msgid "Original"
-msgstr "原始"
+msgstr "默认"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:35
 msgid "Left align"
@@ -6622,7 +6629,7 @@ msgstr "删除段间空行(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:158
 msgid "Insert &blank line between paragraphs"
-msgstr ""
+msgstr "在段落间插入空白行(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:159
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
@@ -6631,7 +6638,7 @@ msgstr " em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:160
 msgid "Text &justification:"
-msgstr ""
+msgstr "文本对齐方式(&J)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:161
 msgid "&Linearize tables"
@@ -6662,11 +6669,11 @@ msgstr "压缩标点(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:168
 msgid "&Indent size:"
-msgstr ""
+msgstr "缩进尺寸(&I)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:169
 msgid "&Line size:"
-msgstr ""
+msgstr "行间距(&L)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -6795,7 +6802,7 @@ msgstr "作者(&A): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:167
 msgid "Author So&rt:"
-msgstr "按作者排序(&r):"
+msgstr "排序作者(&r):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:168
 msgid ""
@@ -6858,7 +6865,7 @@ msgstr "为 Palm 设备缩放图片(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:80
 msgid "Use author &sort for author"
-msgstr "使用作者项作为按作者排序索引(&S)"
+msgstr "使用“排序作者”字段值作为“作者”字段值(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:81
 msgid "Disable compression of the file contents"
@@ -7030,18 +7037,18 @@ msgstr "测试"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:93
 msgid "Occurrences:"
-msgstr ""
+msgstr "匹配次数："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:78
 msgid "0"
-msgstr ""
+msgstr "0"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:95
 msgid "Goto:"
-msgstr ""
+msgstr "跳转到："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:96
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:72
@@ -7064,13 +7071,13 @@ msgid ""
 "Search\n"
 "&\n"
 "Replace"
-msgstr ""
+msgstr "查找与替换"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:33
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:36
 msgid "&Search Regular Expression"
-msgstr ""
+msgstr "查找正则表达式(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:102
@@ -7085,21 +7092,21 @@ msgstr "无效正则表达式：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:148
 msgid "First expression"
-msgstr ""
+msgstr "第一个表达式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:153
 msgid "&Replacement Text"
-msgstr ""
+msgstr "替换文本(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:150
 msgid "Second Expression"
-msgstr ""
+msgstr "第二个表达式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:152
 msgid "Third expression"
-msgstr ""
+msgstr "第三个表达式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace_ui.py:154
 msgid ""
@@ -7109,6 +7116,9 @@ msgid ""
 "wizard buttons below will allow you to test your regular expression against "
 "the current input document."
 msgstr ""
+"<p>查找与替换使用 <i>正则表达式</i> 。请参阅 <a href=\"http://manual.calibre-"
+"ebook.com/regexp.html\">正则表达式教程</a> "
+"学习正则表达式的使用方法。可以点击下面的向导按钮用于测试你所编写的正则表达式作用在当前输入文本上的效果。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
 msgid "Convert"
@@ -7208,10 +7218,12 @@ msgid ""
 "to use these options. Leave the replace field blank and enter your "
 "header/footer removal regexps into the search field."
 msgstr ""
+"移除页眉页脚的功能已经被“查找与替换”功能所取代。请点击左侧的“查找与替换”选项来使用该功能。您只需在那里的查找框中输入页眉页脚的正则表达式并把替换值置空"
+"就可以实现移除页眉页脚的功能。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
-msgstr ""
+msgstr "移除不规范的页边距(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:16
 msgid ""
@@ -7227,15 +7239,15 @@ msgstr "控制内容目录的创建/转换"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:30
 msgid "Level &1 TOC (XPath expression):"
-msgstr "&一级目录(XPath 表达式)："
+msgstr "一级目录(XPath 表达式)(&1)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:31
 msgid "Level &2 TOC (XPath expression):"
-msgstr "&二级目录(XPath 表达式)："
+msgstr "二级目录(XPath 表达式)(&2)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc.py:32
 msgid "Level &3 TOC (XPath expression):"
-msgstr "&三级目录(XPath 表达式)："
+msgstr "三级目录(XPath 表达式)(&3)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:71
 msgid "Do not add &detected chapters to the Table of Contents"
@@ -7259,7 +7271,7 @@ msgstr "目录过滤(&F)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:76
 msgid "Allow &duplicate links when creating the Table of Contents"
-msgstr ""
+msgstr "创建内容目录时允许重复的链接(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -7267,19 +7279,19 @@ msgstr "TXT 输入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:92
 msgid "Structure"
-msgstr ""
+msgstr "结构"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:93
 msgid "Paragraph style:"
-msgstr ""
+msgstr "段落类型："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:94
 msgid "Formatting style:"
-msgstr ""
+msgstr "格式类型："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:95
 msgid "Common"
-msgstr ""
+msgstr "常规选项"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:96
 msgid "Preserve &spaces"
@@ -7287,11 +7299,11 @@ msgstr "保留空格(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:97
 msgid "Remove indents at the beginning of lines"
-msgstr ""
+msgstr "移除行首的缩进"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:98
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:99
 msgid ""
@@ -7299,8 +7311,8 @@ msgid ""
 "advanced formatting. To learn more visit <a "
 "href=\"http://daringfireball.net/projects/markdown\">markdown</a>."
 msgstr ""
-"<p>Markdown 是一种简单的文本标记语言，允许进行高级格式化。了解更多在 <a "
-"href=\"http://daringfireball.net/projects/markdown\">markdown</a>。"
+"<p>Markdown 是一种简单的文本标记语言，允许标记一些高级的格式。参考 <a "
+"href=\"http://daringfireball.net/projects/markdown\">markdown</a> 了解更多相关信息。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:100
 msgid "Do not insert Table of Contents into output text when using markdown"
@@ -7316,23 +7328,23 @@ msgstr "常规"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:89
 msgid "Output &Encoding:"
-msgstr ""
+msgstr "输出编码(&E)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:90
 msgid "&Line ending style:"
-msgstr "行尾风格(&L)："
+msgstr "换行符类型(&L)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:91
 msgid "&Formatting:"
-msgstr ""
+msgstr "格式类型(&F)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:92
 msgid "Plain"
-msgstr ""
+msgstr "纯文本"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:93
 msgid "&Maximum line length:"
-msgstr "最大行宽(&M)"
+msgstr "最大行宽(&M)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:94
 msgid "Force maximum line length"
@@ -7340,7 +7352,7 @@ msgstr "约束最大行长"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:96
 msgid "Markdown, Textile"
-msgstr ""
+msgstr "Markdown, Textile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:97
 msgid "Do not remove links (<a> tags) before processing"
@@ -7352,11 +7364,11 @@ msgstr "处理前请勿移除图像引用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:99
 msgid "Keep text color, when possible"
-msgstr ""
+msgstr "尽可能保留文本的颜色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txtz_output.py:12
 msgid "TXTZ Output"
-msgstr ""
+msgstr "TXTZ 输出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:70
@@ -7370,7 +7382,7 @@ msgstr "文本标签"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:56
 msgid "Use a wizard to help construct the Regular expression"
-msgstr ""
+msgstr "使用向导帮助创建正则表达式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:73
 msgid "Match HTML &tags with tag name:"
@@ -7770,7 +7782,7 @@ msgstr "使用子目录"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:84
 msgid "Use author sort for author"
-msgstr "用作者排序字段作为作者"
+msgstr "用“排序作者”字段值作为“作者”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
@@ -7778,19 +7790,19 @@ msgstr "保存模板(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:20
 msgid "How many empty books?"
-msgstr "多少空白书籍？"
+msgstr "添加多少空白书籍项？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:25
 msgid "How many empty books should be added?"
-msgstr "应添加多少空白书籍？"
+msgstr "需要添加多少空白书籍项？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:33
 msgid "Set the author of the new books to:"
-msgstr ""
+msgstr "将新添加的书籍的作者设定为："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:45
 msgid "Reset author to Unknown"
-msgstr ""
+msgstr "把作者重置为“未知”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:63
 msgid "Add books by ISBN"
@@ -8026,7 +8038,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:44
 msgid "Choose location for calibre library"
-msgstr "选择作为calibre书库的位置"
+msgstr "选择作为 calibre 书库的位置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 msgid "Same as current"
@@ -8221,7 +8233,7 @@ msgstr "从设备删除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:54
 msgid "This book is DRMed"
-msgstr ""
+msgstr "本书具有DRM保护"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/drm_error_ui.py:55
 msgid ""
@@ -8235,7 +8247,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:52
 msgid "Author sort"
-msgstr "按作者排序"
+msgstr "排序作者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:55
 msgid "Link"
@@ -8284,11 +8296,11 @@ msgstr "大写"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:181
 msgid "Copy to author sort"
-msgstr ""
+msgstr "复制到“排序作者”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:184
 msgid "Copy to author"
-msgstr ""
+msgstr "复制到“作者”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:313
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:925
@@ -8317,11 +8329,11 @@ msgstr "搜索(&I)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:91
 msgid "Sort by author"
-msgstr "以作者排序"
+msgstr "按作者排序"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:92
 msgid "Sort by author sort"
-msgstr "按作者排序字段排序"
+msgstr "按排序作者字段排序"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:93
 msgid ""
@@ -8332,7 +8344,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:96
 msgid "Recalculate all author sort values"
-msgstr "重新生成作者排序字段值"
+msgstr "重新生成排序作者字段值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:97
 msgid ""
@@ -8354,7 +8366,7 @@ msgstr "活动任务"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:49
 msgid "&Stop selected jobs"
-msgstr ""
+msgstr "中止选定的任务(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:50
 msgid "Show job &details"
@@ -8366,19 +8378,19 @@ msgstr "停止所有非设备任务"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
-msgstr ""
+msgstr "复制到剪贴板(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:53
 msgid "Show &details"
-msgstr ""
+msgstr "查看详情(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:54
 msgid "Hide &details"
-msgstr ""
+msgstr "隐藏详情(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:58
 msgid "Show detailed information about this error"
-msgstr ""
+msgstr "显示有关当前错误的详细信息"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:525
@@ -8396,11 +8408,11 @@ msgstr "复制到剪贴板"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:835
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:926
 msgid "View log"
-msgstr ""
+msgstr "查看日志"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:58
 msgid "Title/Author"
-msgstr "题目/作者"
+msgstr "标题/作者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:59
 msgid "Standard metadata"
@@ -8443,7 +8455,7 @@ msgstr "追加到字段"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:283
 #, python-format
 msgid "Editing meta information for <b>%d books</b>"
-msgstr "正在为<b>%d本书</b>编辑元信息"
+msgstr "正在为<b>%d本书</b>编辑元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:325
 msgid ""
@@ -8549,11 +8561,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:524
 msgid "Edit Meta information"
-msgstr "编辑元信息"
+msgstr "编辑元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:526
 msgid "A&utomatically set author sort"
-msgstr "自动设置作者排序(&u)"
+msgstr "自动设置排序作者字段值(&u)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:527
 msgid "&Swap title and author"
@@ -8561,7 +8573,7 @@ msgstr "对调作者和书名(&W)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:528
 msgid "Author s&ort: "
-msgstr "作者排序(&O)： "
+msgstr "排序作者(&O)： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:529
 msgid ""
@@ -9481,7 +9493,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:428
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "Schedule news download"
-msgstr "计划新闻下载"
+msgstr "定期新闻下载"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:431
 msgid "Add a custom news source"
@@ -9489,7 +9501,7 @@ msgstr "添加自定义新闻源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:436
 msgid "Download all scheduled new sources"
-msgstr "下载所有计划中的新来源"
+msgstr "立即下载全部已设置的定期下载新闻源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:541
 msgid "No internet connection"
@@ -9529,7 +9541,7 @@ msgstr "账户(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:217
 msgid "For the scheduling to work, you must leave calibre running."
-msgstr "若需执行计划任务，请保持 Calibre 一直运行。"
+msgstr "若需执行计划任务，请保持 calibre 一直运行。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 msgid "&Schedule"
@@ -10574,7 +10586,7 @@ msgstr "任务已执行"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:250
 msgid "This job cannot be stopped"
-msgstr ""
+msgstr "本任务无法被停止"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:287
 msgid "Unavailable"
@@ -10761,7 +10773,7 @@ msgstr "恢复默认布局"
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
-msgstr "不支持直接托拽到设备中。请首先将书籍添加到 Calibre 书库中。"
+msgstr "不支持直接托拽到设备中。请首先将书籍添加到 calibre 书库中。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/config_ui.py:52
 msgid "Configure Viewer"
@@ -11004,26 +11016,27 @@ msgid ""
 "Specify how this book should be sorted when by title. For example, The "
 "Exorcist might be sorted as Exorcist, The."
 msgstr ""
+"指定当本书需要按标题排序时所使用的排序值。比如，名为“The Exorcist”的书籍可能会期望按照“Exorcist, The”的值去排序。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:139
 msgid "Title &sort:"
-msgstr ""
+msgstr "排序标题(&S)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:147
 msgid ""
 " The green color indicates that the current title sort matches the current "
 "title"
-msgstr " 绿色表示当前标题排序匹配当前标题"
+msgstr " 绿色表示当前“排序标题”值匹配当前标题"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:150
 msgid ""
 " The red color warns that the current title sort does not match the current "
 "title. No action is required if this is what you want."
-msgstr " 红色表示当前标题排序不匹配当前标题。若是期望结果，则无需其它操作。"
+msgstr " 红色表示当前“排序标题”值不匹配当前标题。若是期望结果，则无需其它操作。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:213
 msgid "Authors changed"
-msgstr ""
+msgstr "作者已改变"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:214
 msgid ""
@@ -11038,26 +11051,28 @@ msgid ""
 "If the box is colored green, then text matches the individual author's sort "
 "strings. If it is colored red, then the authors and this text do not match."
 msgstr ""
+"指定当本书需要按作者排序时所使用的排序值。比如，名为“Charles Dickens”的作者可能会期望按照“Dickens, "
+"Charles”的值去排序。\\n如果本文本框的背景色是绿色，表示当前的“排序作者”值与对应的作者匹配。如果是红色，表示当前的值与对应的作者不匹配。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:307
 msgid "Author s&ort:"
-msgstr ""
+msgstr "排序作者(&S)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:317
 msgid ""
 " The green color indicates that the current author sort matches the current "
 "author"
-msgstr " 绿色表示当前作者排序匹配当前的作者"
+msgstr " 绿色表示当前“排序作者”值匹配当前的作者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:320
 msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author. No action is required if this is what you want."
-msgstr " 红色表示当前作者排序不匹配当前作者。若是期望结果，则无需其它操作。"
+msgstr " 红色表示当前“排序作者”值不匹配当前作者。若是期望结果，则无需其它操作。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:493
 msgid "&Number:"
-msgstr ""
+msgstr "系列编号(&N)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:590
 #, python-format
@@ -11066,27 +11081,30 @@ msgid ""
 "\n"
 "Double click to view"
 msgstr ""
+"最后更新： %s\n"
+"\n"
+"双击查看"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:600
 #, python-format
 msgid "Restore %s from the original"
-msgstr ""
+msgstr "恢复 %s 的原始值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:646
 msgid "Set the cover for the book from the selected format"
-msgstr "为此书的选定格式设定封面"
+msgstr "从选定格式的书籍文件中获取封面设为本书封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:654
 msgid "Set metadata for the book from the selected format"
-msgstr ""
+msgstr "从选定格式的书籍文件中获取元数据设为本书元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:661
 msgid "Add a format to this book"
-msgstr ""
+msgstr "添加新的文件格式到本书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:668
 msgid "Remove the selected format from this book"
-msgstr ""
+msgstr "从本书籍中删除选定的文件格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:735
 msgid "Choose formats for "
@@ -11144,24 +11162,24 @@ msgstr "生成封面前，你必须先指定标题和作者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:955
 msgid "Invalid cover"
-msgstr ""
+msgstr "无效封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:956
 msgid "Could not change cover as the image is invalid."
-msgstr ""
+msgstr "图像无效，无法设置书籍封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:983
 msgid "This book has no cover"
-msgstr ""
+msgstr "本书没有设置封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:985
 #, python-format
 msgid "Cover size: %(width)d x %(height)d pixels"
-msgstr ""
+msgstr "封面大小： %(width)d x %(height)d 点"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1041
 msgid "stars"
-msgstr ""
+msgstr "星"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1110
 msgid "Tags changed"
@@ -11171,11 +11189,11 @@ msgstr "改变的标签"
 msgid ""
 "You have changed the tags. In order to use the tags editor, you must either "
 "discard or apply these changes. Apply changes?"
-msgstr ""
+msgstr "您已经修改了部分标签。在使用标签编辑器以前，您必须保存或放弃这些改动。要保存改动吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1137
 msgid "I&ds:"
-msgstr ""
+msgstr "标识号(&D)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1138
 #, python-format
@@ -11184,6 +11202,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"编辑书籍的标识号。如：\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1200
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1262
@@ -11198,23 +11219,23 @@ msgstr "ISBN 编号无效"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1228
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1250
 msgid "Invalid ISBN"
-msgstr ""
+msgstr "无效 ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1229
 msgid "Enter an ISBN"
-msgstr ""
+msgstr "输入 ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1251
 msgid "The ISBN you entered is not valid. Try again."
-msgstr ""
+msgstr "您输出的 ISBN 无效。请重试。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1275
 msgid "&Publisher:"
-msgstr ""
+msgstr "出版商(&P)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1345
 msgid "Clear date"
-msgstr ""
+msgstr "清除日期"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1378
 msgid "Publishe&d:"
@@ -11222,69 +11243,69 @@ msgstr "出版于(&D)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:35
 msgid "Schedule download?"
-msgstr ""
+msgstr "准备批量下载？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:46
 #, python-format
 msgid ""
 "The download of metadata for the <b>%d selected book(s)</b> will run in the "
 "background. Proceed?"
-msgstr ""
+msgstr "下载 <b>选定的 %d 本书籍</b> 的元数据的操作将在后台执行。要继续吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:48
 msgid ""
 "You can monitor the progress of the download by clicking the rotating "
 "spinner in the bottom right corner."
-msgstr ""
+msgstr "元数据下载过程中，您可以通过点击主界面右下角的旋转图标查看下载进度。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:51
 msgid ""
 "When the download completes you will be asked for confirmation before "
 "calibre applies the downloaded metadata."
-msgstr ""
+msgstr "当下载完成后，calibre 会请您确认是否要将下载到的元数据写入书库。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:62
 msgid "Download only &metadata"
-msgstr ""
+msgstr "仅下载元数据(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:66
 msgid "Download only &covers"
-msgstr ""
+msgstr "仅下载封面(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:70
 msgid "&Configure download"
-msgstr ""
+msgstr "配置下载参数(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:74
 msgid "Download &both"
-msgstr ""
+msgstr "下载元数据与封面(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:100
 #, python-format
 msgid "Download metadata for %d books"
-msgstr ""
+msgstr "下载 %d 本书籍的元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:103
 msgid "Metadata download started"
-msgstr ""
+msgstr "开始下载元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:112
 msgid "(Failed metadata)"
-msgstr ""
+msgstr "（元数据下载失败）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:114
 msgid "(Failed cover)"
-msgstr ""
+msgstr "（封面下载失败）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:199
 #, python-format
 msgid "Downloaded %(num)d of %(tot)d"
-msgstr ""
+msgstr "正在下载第 %(num)d 项，共 %(tot)d 项"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:121
 msgid "Downloaded metadata fields"
-msgstr ""
+msgstr "选择要下载元数据字段"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:828
@@ -11304,14 +11325,14 @@ msgstr "前一项"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:267
 msgid "Edit Metadata"
-msgstr ""
+msgstr "编辑元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:101
 msgid ""
 "Automatically create the title sort entry based on the current title entry.\n"
 "Using this button to create title sort will change title sort from red to "
 "green."
-msgstr ""
+msgstr "自动基于当前标题创建排序标题字段。\\n使用这个按钮创建排序标题字段的值可以使该字段状况由红色变为绿色。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:112
 msgid ""
@@ -11320,24 +11341,25 @@ msgid ""
 "red to green.  There is a menu of functions available under this button. "
 "Click and hold on the button to see it."
 msgstr ""
+"自动基于当前作者创建排序作者字段。\\n使用这个按钮创建排序作者字段的值可以使该字段状况由红色变为绿色。点住本按钮不放可以弹出相关的功能菜单。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:118
 msgid "Set author sort from author"
-msgstr ""
+msgstr "依据“排序作者”设置“作者”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:119
 msgid "Set author from author sort"
-msgstr ""
+msgstr "依据“作者”设置“排序作者”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:130
 msgid "Swap the author and title"
-msgstr "对调作者和标题信息"
+msgstr "对调“作者”和“标题”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:136
 msgid ""
 "Manage authors. Use to rename authors and correct individual author's sort "
 "values"
-msgstr ""
+msgstr "管理作者数据。用于重命名作者或更正某个作者对应的排序用值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:143
 msgid "Remove unused series (Series that have no books)"
@@ -11347,19 +11369,19 @@ msgstr "删除空系列(系列中没有书籍)"
 msgid ""
 "Paste the contents of the clipboard into the identifiers box prefixed with "
 "isbn:"
-msgstr ""
+msgstr "把剪贴板中的内容粘贴到标识号文本框并冠以isbn:前缀"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:191
 msgid "&Download metadata"
-msgstr ""
+msgstr "下载元数据(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:202
 msgid "Configure download metadata"
-msgstr ""
+msgstr "配置元数据下载功能"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:206
 msgid "Change how calibre downloads metadata"
-msgstr ""
+msgstr "改变 calibre 下载元数据的行为"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:308
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:315
@@ -11380,45 +11402,45 @@ msgstr "%s 格式中封面无效"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:465
 #, python-format
 msgid "Save changes and edit the metadata of %s"
-msgstr "保存梗概，编辑 %s 元数据"
+msgstr "保存更改，编辑 %s 元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:562
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:764
 msgid "Change cover"
-msgstr ""
+msgstr "更换封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:619
 msgid "Co&mments"
-msgstr ""
+msgstr "注释(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:659
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:805
 msgid "&Metadata"
-msgstr ""
+msgstr "元数据(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:664
 msgid "&Cover and formats"
-msgstr ""
+msgstr "封面与格式(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:733
 msgid "C&ustom metadata"
-msgstr ""
+msgstr "自定义元数据(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:745
 msgid "&Comments"
-msgstr "&注释"
+msgstr "注释(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:811
 msgid "Basic metadata"
-msgstr ""
+msgstr "基本元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 msgid "Has cover"
-msgstr ""
+msgstr "包含封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 msgid "Has summary"
-msgstr ""
+msgstr "包含简介"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:190
 msgid ""
@@ -11427,26 +11449,30 @@ msgid ""
 "having a cover will find a cover in the download\n"
 "cover stage, and vice versa."
 msgstr ""
+"“包含封面”的标记不是完全\n"
+"可靠的。有时候标记为无封\n"
+"面的项在下载封面阶段时可\n"
+"能会发现封面，反之亦然。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:268
 msgid "See at"
-msgstr ""
+msgstr "参阅"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:403
 msgid "calibre is downloading metadata from: "
-msgstr ""
+msgstr "calibre 正在从下列位置下载元数据： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:425
 msgid "Please wait"
-msgstr ""
+msgstr "请稍候"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:454
 msgid "Query: "
-msgstr ""
+msgstr "查询： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:473
 msgid "Failed to download metadata. Click Show Details to see details"
-msgstr ""
+msgstr "无法下载元数据。请点击“显示详情”获取更多信息。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:482
 msgid ""
@@ -11455,37 +11481,39 @@ msgid ""
 "single distinctive word from the title.<p>To see the full log, click Show "
 "Details."
 msgstr ""
+"无法为您找到书籍元数据。请尝试<b>扩大搜索范围</b>。比如：只使用作者的名字或只包含标题中具有特征性的词组。<p>要查看完整的日志，请点击“查看详情”"
+"。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:542
 msgid "Current cover"
-msgstr ""
+msgstr "当前封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:545
 msgid "Searching..."
-msgstr ""
+msgstr "正在查找……"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:691
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
-msgstr ""
+msgstr "正在从 <b>%s</b> 下载封面，请稍候……"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:721
 msgid "Failed to download any covers, click \"Show details\" for details."
-msgstr ""
+msgstr "无法下载封面，请点击“查看详情”查看详细的出错信息。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:727
 #, python-format
 msgid "Could not find any covers for <b>%s</b>"
-msgstr ""
+msgstr "无法为 <b>%s</b> 找到封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:729
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-msgstr ""
+msgstr "为书籍 %(title)s 找到了 <b>%(num)d</b> 个封面图像，请选择您最喜欢的一个。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:817
 msgid "Downloading metadata..."
-msgstr ""
+msgstr "正在下载元数据……"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:910
 msgid "Downloading cover..."
@@ -11499,30 +11527,30 @@ msgstr "恢复到默认值。你需要点“应用”按钮才可以把这些默
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:328
 msgid "Configure "
-msgstr ""
+msgstr "配置 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:28
 msgid "Ignore duplicate incoming formats"
-msgstr ""
+msgstr "忽略与已有文件格式重复的文件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:29
 msgid "Overwrite existing duplicate formats"
-msgstr ""
+msgstr "与已有文件格式重复时覆盖已有的文件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:30
 msgid "Create new record for each duplicate format"
-msgstr ""
+msgstr "文件格式重复时创建一本新的书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:65
 msgid ""
 "Here you can control how calibre will read metadata from the files you add "
 "to it. calibre can either read metadata from the contents of the file, or "
 "from the filename."
-msgstr "在此处您可以控制 Calibre 如何从您添加的文件读取元数据。Calibre 可从文件内容读取元数据，也可以从文件名读取。"
+msgstr "在此处您可以控制 calibre 如何从您添加的文件读取元数据。calibre 可从文件内容读取元数据，也可以从文件名读取。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:66
 msgid "Read &metadata from &file contents rather than file name"
-msgstr ""
+msgstr "从文件内容读取元数据，而不是依据文件名确定元数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:67
 msgid ""
@@ -11598,15 +11626,15 @@ msgstr "低"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "非常低"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:64
 msgid "Compact Metadata"
-msgstr ""
+msgstr "精减布局"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:65
 msgid "All on 1 tab"
-msgstr ""
+msgstr "一页布局"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:165
 msgid "Done"
@@ -13003,7 +13031,7 @@ msgstr " 无法移除. 该插件是内置插件. 您可以尝试禁用它而非�
 msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
-msgstr "从可以通过配置插件的启用与否来调整Calibre的功能特性."
+msgstr "从可以通过配置插件的启用与否来调整 calibre 的功能特性."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Get &new plugins"
@@ -13058,7 +13086,7 @@ msgstr "可用变量："
 msgid ""
 "Here you can control how calibre will save your books when you click the "
 "Save to Disk button:"
-msgstr "此处您可控制 Calibre 在您点击“保存到磁盘”时的保存行为："
+msgstr "此处您可控制 calibre 在您点击“保存到磁盘”时的保存行为："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:69
 msgid "Save &cover separately"
@@ -13262,8 +13290,8 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
-"<li><b>手动管理</b>: Calibre 仅在发送图书时更新元数据，添加合集。此情况下，calibre 不会移除一个合集。</li>\n"
-"<li><b>仅仅发送</b>: Calibre 在发送图书时更新元数据，添加/移除合集。 </li>\n"
+"<li><b>手动管理</b>: Calibre 仅在发送书籍时更新元数据，添加合集。此情况下，calibre 不会移除一个合集。</li>\n"
+"<li><b>仅仅发送</b>: Calibre 在发送书籍时更新元数据，添加/移除合集。 </li>\n"
 "<li><b>自动管理</b>: Calibre 每次连接设备都自动保持设备上元数据和书库一致</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:77
@@ -13298,7 +13326,7 @@ msgstr "服务器端口(&p):"
 msgid ""
 "If you leave the password blank, anyone will be able to access your book "
 "collection using the web interface."
-msgstr "如果您使用空密码，其他人将可从 web 界面访问您的图书合集。"
+msgstr "如果您使用空密码，其他人将可从 web 界面访问您的书籍合集。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:128
 msgid ""
@@ -13346,7 +13374,7 @@ msgid ""
 "calibre contains a network server that allows you to access your book "
 "collection using a browser from anywhere in the world. Any changes to the "
 "settings will only take effect after a server restart."
-msgstr "Calibre 带有一个网络服务程序，您可以由此使用浏览器访问你的书库。对服务器程序配置的修改需要重启服务器程序生效。"
+msgstr "calibre 带有一个网络服务程序，您可以由此使用浏览器访问你的书库。对服务器程序配置的修改需要重启服务器程序生效。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:139
 msgid "Run server &automatically on startup"
@@ -13366,9 +13394,9 @@ msgid ""
 "on your iPhone. Here myhostname should be the fully qualified hostname or "
 "the IP address of the computer calibre is running on."
 msgstr ""
-"<p>请记住 Calibre 只有在运行时，才可能提供服务。\n"
-"<p>Stanza 可以自动发现您的 Calibre 书库。若没有，请在您 iPhone 上 Stanza 阅读器中添加 URL "
-"http://myhostname:8080 作为新分类。此时 myhostname 应该为有效主机名，或者您 Calibre 程序所运行计算机的 IP "
+"<p>请记住 calibre 只有在运行时，才可能提供服务。\n"
+"<p>Stanza 可以自动发现您的 calibre 书库。若没有，请在您 iPhone 上 Stanza 阅读器中添加 URL "
+"http://myhostname:8080 作为新分类。此时 myhostname 应该为有效主机名，或者您 calibre 程序所运行计算机的 IP "
 "地址。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
@@ -14106,7 +14134,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr ""
+msgstr "获取书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:140
 msgid "Open a selected book in the system's web browser"
@@ -14229,30 +14257,30 @@ msgstr "已存搜索名 %s 被占用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:48
 msgid "Manage Authors"
-msgstr ""
+msgstr "管理作者数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:50
 msgid "Manage Series"
-msgstr ""
+msgstr "管理系列数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:52
 msgid "Manage Publishers"
-msgstr ""
+msgstr "管理出版商数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:54
 msgid "Manage Tags"
-msgstr ""
+msgstr "管理标签数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:465
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:469
 msgid "Manage User Categories"
-msgstr "管理用户分类"
+msgstr "管理用户分类数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:457
 msgid "Manage Saved Searches"
-msgstr "管理已存搜索"
+msgstr "管理已存搜索数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:66
 msgid "Invalid search restriction"
@@ -14327,7 +14355,7 @@ msgstr "收缩所有分类"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:351
 msgid "No More Matches.</b><p> Click Find again to go to first match"
-msgstr ""
+msgstr "没有更多的的匹配项。</b><p> 点击“搜索”重新进行查找。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:364
 msgid "Sort by name"
@@ -14356,11 +14384,11 @@ msgstr "匹配任一"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:380
 msgid ""
 "When selecting multiple entries in the Tag Browser match any or all of them"
-msgstr ""
+msgstr "在标签浏览器中同时选中多个项目时匹配任一或所有的项目"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:387
 msgid "Manage authors, tags, etc"
-msgstr ""
+msgstr "管理作者、标签等数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:388
 msgid ""
@@ -14510,7 +14538,7 @@ msgstr "下列书籍已经被转换为 %s 格式。您希望转换它们么？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:196
 msgid "&Donate to support calibre"
-msgstr "捐助 Calibre 项目(&D)"
+msgstr "捐助 calibre 项目(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:232
 msgid "&Restore"
@@ -15203,7 +15231,7 @@ msgstr "欢迎向导"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:47
 msgid "Welcome to calibre"
-msgstr "欢迎使用 Calibre"
+msgstr "欢迎使用 calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:48
@@ -15226,7 +15254,7 @@ msgstr "设备(&D)"
 msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
-msgstr "<h2>祝贺您！</h2>您已成功设置 Calibre。点击 %s 按钮应用您的设定。"
+msgstr "<h2>祝贺您！</h2>您已成功设置 calibre。点击 %s 按钮应用您的设定。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
@@ -15249,7 +15277,7 @@ msgid ""
 "button below. You will also have to register your gmail address in your "
 "Amazon account."
 msgstr ""
-"<p>Calibre 可以自动将书籍以电子邮件形式发送到您的。首先您需要在下面设置邮件发送。最简单的方法是设置免费的 <a "
+"<p>calibre 可以自动将书籍以电子邮件形式发送到您的。首先您需要在下面设置邮件发送。最简单的方法是设置免费的 <a "
 "href=\"http://gmail.com\">gmail 账户</a>，点击下方使用 gmail 按钮。 您需要将您的 gmail "
 "账户信息注册到您的 Amazon 账户。"
 
@@ -15276,7 +15304,7 @@ msgid ""
 "If you have an existing calibre library, it will be copied to the new "
 "location. If a calibre library already exists at the new location, calibre "
 "will switch to using it."
-msgstr "如果您已有 Calibre 书库，它将被复制到新位置。若 Calibre 书库在新位置已经存在，Calibre 将直接使用它。"
+msgstr "如果您已有 calibre 书库，它将被复制到新位置。若 calibre 书库在新位置已经存在，calibre 将直接使用它。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 #, python-format
@@ -15388,7 +15416,7 @@ msgstr "发信人地址(&f)："
 msgid ""
 "<p>This is what will be present in the From: field of emails sent by "
 "calibre.<br> Set it to your email address"
-msgstr "<p>邮件发件人栏中将填写：Calibre 发送的邮件。<br> 将其设为您的邮件地址"
+msgstr "<p>邮件发件人栏中将填写：calibre 发送的邮件。<br> 将其设为您的邮件地址"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:126
 msgid ""
@@ -15402,7 +15430,7 @@ msgstr "邮件服务器(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:128
 msgid "calibre can <b>optionally</b> use a server to send mail"
-msgstr "Calibre 可<b>选择是否使用</b>邮件服务器以发送邮件"
+msgstr "calibre 可<b>选择是否使用</b>邮件服务器以发送邮件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:129
 msgid "&Hostname:"
@@ -15484,7 +15512,7 @@ msgid ""
 msgstr ""
 "<p>如果您在 iPhone/iTouch 使用 <a "
 "href=\"http://www.lexcycle.com/download\">Stanza</a> 电子书程序，可以直接从设备访问您的 "
-"Calibre 书库。需要打开 Calibre 内容服务程序。"
+"calibre 书库。需要打开 calibre 内容服务程序。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:50
 msgid "Turn on the &content server"
@@ -15885,7 +15913,7 @@ msgstr "文件夹引起异常情况"
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr "Calibre 书库路径。默认为使用设定中存储的路径。"
+msgstr "calibre 书库路径。默认为使用设定中存储的路径。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:125
 msgid ""
@@ -15895,7 +15923,7 @@ msgid ""
 msgstr ""
 "%prog list [options]\n"
 "\n"
-"列出 Calibre 数据库中可用书籍。\n"
+"列出 calibre 数据库中可用书籍。\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:132
 #, python-format
@@ -16082,7 +16110,7 @@ msgstr ""
 "\n"
 "%prog show_metadata [options] id\n"
 "\n"
-"显示 Calibre 中通过 id 识别书籍数据库中存储的元数据。\n"
+"显示 calibre 中通过 id 识别书籍数据库中存储的元数据。\n"
 "id 是来自 list 命令的 id 编号。\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:441
@@ -16108,7 +16136,7 @@ msgstr ""
 "\n"
 "%prog set_metadata [options] id /path/to/metadata.opf\n"
 "\n"
-"从 OPF 文件 metadata.opf 读取根据 id 识别书籍的 Calibre 数据库，设定元数据\n"
+"从 OPF 文件 metadata.opf 读取根据 id 识别书籍的 calibre 数据库，设定元数据\n"
 "存储。id 为 list 命令返回 id 数字。您可以将 --as-opf 参数用于 show_metadata\n"
 "命令，感受一下 OPF 格式。\n"
 
@@ -16435,7 +16463,7 @@ msgid ""
 msgstr ""
 "%%prog command [options] [arguments]\n"
 "\n"
-"%%prog 是 Calibre 的书籍数据库命令行接口。\n"
+"%%prog 是 calibre 的书籍数据库命令行接口。\n"
 "\n"
 "命令为如下之一：\n"
 "  %s\n"
@@ -16477,15 +16505,15 @@ msgstr "星级"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:197
 msgid "Identifiers"
-msgstr ""
+msgstr "标识号"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:207
 msgid "Author Sort"
-msgstr "作者排序"
+msgstr "排序作者"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:319
 msgid "Title Sort"
-msgstr "标题排序"
+msgstr "排序标题"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:128
 msgid "Processed"
@@ -16507,7 +16535,7 @@ msgstr "作者"
 msgid ""
 "The author sort string. To use only the first letter of the name use "
 "{author_sort[0]}"
-msgstr "作者排序字符串。仅使用首字母请用"
+msgstr "排序作者字符串。如仅须使用首字母请用{author_sort[0]}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:36
 msgid "The tags"
@@ -16549,7 +16577,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
-msgstr "Calibre 内部 id"
+msgstr "calibre 内部标识号"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:76
 msgid "Options to control saving to disk"
@@ -16559,19 +16587,19 @@ msgstr "控制磁盘存储的选项"
 msgid ""
 "Normally, calibre will update the metadata in the saved files from what is "
 "in the calibre library. Makes saving to disk slower."
-msgstr "一般来说，Calibre 将基于 Calibre 书库升级存储所存文件的元数据。这使保存到磁盘变慢一些。"
+msgstr "一般来说，calibre 将基于 calibre 书库升级存储所存文件的元数据。这使保存到磁盘变慢一些。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:85
 msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
-msgstr "一般来说，Calibre 将会把元数据写入单独的 OPF 文件，和原始电子书文件分开保存。"
+msgstr "一般来说，calibre 将会把元数据写入单独的 OPF 文件，和原始电子书文件分开保存。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:88
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
-msgstr "一般来说，Calibre 将把封面保存为单独文件，和原始电子书文件分开保存。"
+msgstr "一般来说，calibre 将把封面保存为单独文件，和原始电子书文件分开保存。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:91
 msgid ""
@@ -16604,7 +16632,7 @@ msgid ""
 "experience errors when saving, depending on how well the filesystem you are "
 "saving to supports unicode."
 msgstr ""
-"一般来说，Calibre 为文件名将所有非英文字符转换为英文对应字符。警告：若关闭此项，您可能保存文件出错，取决于您的文件系统是否支持 unicode。"
+"一般来说，calibre 为文件名将所有非英文字符转换为英文对应字符。警告：若关闭此项，您可能保存文件出错，取决于您的文件系统是否支持 unicode。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:113
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:117
@@ -16629,7 +16657,7 @@ msgstr "请求格式不可用"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:21
 msgid "Settings to control the calibre content server"
-msgstr "Calibre 内容服务程序控制设定"
+msgstr "calibre 内容服务程序控制设定"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:25
 #, python-format
@@ -16903,7 +16931,7 @@ msgstr "向 %prog 传递包含空格的参数时，确保使用引号。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:374
 msgid "Path to the database in which books are stored"
-msgstr "图书数据库路径"
+msgstr "书籍数据库路径"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:376
 msgid "Pattern to guess metadata from filenames"
@@ -17000,7 +17028,7 @@ msgstr "语法错误 - 程序在 EOF 之前结束"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:103
 msgid "Unknown identifier "
-msgstr ""
+msgstr "未知标识号 "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:110
 msgid "unknown function {0}"
@@ -17931,79 +17959,79 @@ msgstr "不下载 CSS 样式表。"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:649
 msgid "OK"
-msgstr ""
+msgstr "确定"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:652
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
-msgstr ""
+msgstr "打开"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"
-msgstr ""
+msgstr "关闭(&C)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Apply"
-msgstr ""
+msgstr "应用"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:674
 msgid "Don't Save"
-msgstr ""
+msgstr "不保存"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:676
 msgid "Close without Saving"
-msgstr ""
+msgstr "关闭并不保存"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:678
 msgid "Discard"
-msgstr ""
+msgstr "放弃"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:681
 msgid "&Yes"
-msgstr ""
+msgstr "是(&Y)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:684
 msgid "Yes to &All"
-msgstr ""
+msgstr "全部是(&Y)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:687
 msgid "&No"
-msgstr ""
+msgstr "否(&N)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:690
 msgid "N&o to All"
-msgstr ""
+msgstr "全部否(&O)"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:693
 msgid "Save All"
-msgstr ""
+msgstr "全部保存"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:696
 msgid "Abort"
-msgstr ""
+msgstr "中止"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:699
 msgid "Retry"
-msgstr ""
+msgstr "重试"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Ignore"
-msgstr ""
+msgstr "忽略"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Restore Defaults"
-msgstr ""
+msgstr "恢复默认值"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
-msgstr ""
+msgstr "自动递增系列编号"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:13
 msgid ""
@@ -18587,1686 +18615,8 @@ msgid ""
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
 
-#~ msgid "Options to control the conversion to EPUB"
-#~ msgstr "EPUB文件转换控制选项"
-
-#~ msgid "Path to the cover to be used for this book"
-#~ msgstr "设置所使用的封面文件路径"
-
-#~ msgid "Control page layout"
-#~ msgstr "页面布局控制"
-
-#~ msgid "Output written to "
-#~ msgstr "输出文件写入到 "
-
-#~ msgid "Print generated OPF file to stdout"
-#~ msgstr "打印生成的OPF文件到标准输出"
-
-#~ msgid "Print generated NCX file to stdout"
-#~ msgstr "打印生成的NCX文件到标准输出"
-
-#~ msgid "Keep intermediate files during processing by html2epub"
-#~ msgstr "在进行html2epub转换时保留中间过程文件"
-
-#~ msgid "You must specify an input HTML file"
-#~ msgstr "您必须设定输入HTML文件"
-
-#~ msgid "Written processed HTML to "
-#~ msgstr "将处理后的HTML文件写入 "
-
-#~ msgid "The output directory. Default is the current directory."
-#~ msgstr "输出文件夹.默认为当前文件夹."
-
-#~ msgid "Character encoding for HTML files. Default is to auto detect."
-#~ msgstr "HTML文件的编码.默认为自动检测."
-
-#~ msgid ""
-#~ "Create the output in a zip file. If this option is specified, the --output "
-#~ "should be the name of a file not a directory."
-#~ msgstr "输出到一个zip压缩文件.如果打开该选项, --output应该指明文件名而非目录."
-
-#~ msgid "Control the following of links in HTML files."
-#~ msgstr "处理HTML文件链接的选项."
-
-#~ msgid "Options to control the traversal of HTML"
-#~ msgstr "控制HTML遍历方式的选项"
-
-#~ msgid ""
-#~ "\t\tToo much markup. Re-splitting without structure preservation. This may "
-#~ "cause incorrect rendering."
-#~ msgstr "\t\t过多的描述标签.重新进行切分并不保留结构.这可能会造成排版变形."
-
-#, python-format
-#~ msgid ""
-#~ "Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
-#~ msgstr "无法找到合理的切分点: %s 子树大小: %d KB"
-
-#~ msgid ""
-#~ "Traverse links in HTML files breadth first. Normally, they are traversed "
-#~ "depth first"
-#~ msgstr "HTML链接遍历使用广度优先模式. 程序默认使用深度优先遍历模式"
-
-#~ msgid ""
-#~ "Maximum levels of recursion when following links in HTML files. Must be non-"
-#~ "negative. 0 implies that no links in the root HTML file are followed."
-#~ msgstr "HTML链接遍历深度. 必须为非负整数. 0表示不遍历根HTML文件中的人和链接."
-
-#~ msgid "Set metadata of the generated ebook"
-#~ msgstr "设置生成电子书籍的metadata"
-
-#~ msgid "Options useful for debugging"
-#~ msgstr "用于调试的选项"
-
-#~ msgid "The subject(s) of this book, as a comma separated list."
-#~ msgstr "电子书籍的主题, 用分号隔开多个主题项."
-
-#~ msgid "Set the publisher of this book."
-#~ msgstr "设置电子书籍的出版商名称."
-
-#~ msgid "A summary of this book."
-#~ msgstr "电子书籍的摘要."
-
-#~ msgid "Load metadata from the specified OPF file"
-#~ msgstr "从设定的OPF文件中获取metadata"
-
-#~ msgid "%prog [options] LITFILE"
-#~ msgstr "%prog [options] LITFILE"
-
-#~ msgid "%prog [options] OPFFILE"
-#~ msgstr "%prog [options] OPFFILE"
-
-#~ msgid "Legibly format extracted markup. May modify meaningful whitespace."
-#~ msgstr "简化检测到的修饰元素. 可能会删除有用的空格符号."
-
-#~ msgid "OEB ebook created in"
-#~ msgstr "创建OEB电子书籍到"
-
-#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
-#~ msgstr "输出较好格式化的HTML文件以供手工处理"
-
-#~ msgid ""
-#~ "Be more verbose while processing. Can be specified multiple times to "
-#~ "increase verbosity."
-#~ msgstr "在进行处理时打印更多的信息. 可以设置打印信息的级数."
-
-#~ msgid "Output directory. Defaults to current directory."
-#~ msgstr "输出文件夹. 默认为当前文件夹."
-
-#~ msgid "Output file. Default is derived from input filename."
-#~ msgstr "输出文件. 默认使用与输入文件相同的文件名."
-
-#~ msgid ""
-#~ "Set the author(s). Multiple authors should be set as a comma separated list. "
-#~ "Default: %default"
-#~ msgstr "设定作者. 用分号分隔多个作者. 默认值: %default"
-
-#~ msgid "Set the comment."
-#~ msgstr "设定注释."
-
-#~ msgid "Set the category"
-#~ msgstr "设定分类"
-
-#~ msgid "Sort key for the author"
-#~ msgstr "作者排序"
-
-#~ msgid "Path to file containing image to be used as cover"
-#~ msgstr "包含书籍封面的文件路径"
-
-#~ msgid ""
-#~ "If there is a cover graphic detected in the source file, use that instead of "
-#~ "the specified cover."
-#~ msgstr "如果在源文件中找到封面图片, 则使用找到的封面图片而不是指明的."
-
-#~ msgid "The reader has no storage card connected."
-#~ msgstr "该阅读器未连接存储卡."
-
-#~ msgid ""
-#~ "Profile of the target device this EPUB is meant for. Set to None to create a "
-#~ "device independent EPUB. The profile is used for device specific "
-#~ "restrictions on the EPUB. Choices are: "
-#~ msgstr ""
-#~ "设置EPUB文件的目标设备文件的属性Profile. 对于无设备依赖的EPUB文件设置为None. 该Profile使EPUB文件适应设备限制. "
-#~ "选项有: "
-
-#~ msgid ""
-#~ "The output EPUB file. If not specified, it is derived from the input file "
-#~ "name."
-#~ msgstr "EPUB输出文件名. 如不指明, 使用与输入文件相同的主文件名."
-
-#~ msgid ""
-#~ "Control the automatic generation of a Table of Contents. If an OPF file is "
-#~ "detected\n"
-#~ "and it specifies a Table of Contents, then that will be used rather than "
-#~ "trying\n"
-#~ "to auto-generate a Table of Contents.\n"
-#~ msgstr ""
-#~ "自动生成文件目录的选项. 如果OPF文件被找到且其中\n"
-#~ "包含文件目录信息, 则使用OPF文件内容作为文件目录\n"
-#~ "而不使用自动生成的文件目录.\n"
-
-#~ msgid ""
-#~ "Maximum number of links to insert into the TOC. Set to 0 to disable. Default "
-#~ "is: %default. Links are only added to the TOC if less than the --toc-"
-#~ "threshold number of chapters were detected."
-#~ msgstr "文件目录中链接的最大值. 0表示无最大值限制. 默认值为 %default . 如果检测到的章节少于该默认值, 则是用实际检测到的值."
-
-#~ msgid ""
-#~ "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
-#~ "existing CSS declarations in the source files."
-#~ msgstr "设定CSS样式或者raw CSS的路径. 该CSS样式将覆盖源文件中所声明的CSS样式."
-
-#~ msgid ""
-#~ "An XPath expression to detect chapter titles. The default is to consider "
-#~ "<h1> or\n"
-#~ "<h2> tags that contain the words \"chapter\",\"book\",\"section\" or "
-#~ "\"part\" as chapter titles as \n"
-#~ "well as any tags that have class=\"chapter\". \n"
-#~ "The expression used must evaluate to a list of elements. To disable chapter "
-#~ "detection,\n"
-#~ "use the expression \"/\". See the XPath Tutorial in the calibre User Manual "
-#~ "for further\n"
-#~ "help on using this feature.\n"
-#~ msgstr ""
-#~ "用于获取章节标题的XPath的标签列表。默认值为包含关键字\n"
-#~ "\"chapter\",\"book\",\"section\"和\"part\"的<h1> 或 <h2>标签, \n"
-#~ "以及所有含有属性class=\"chapter\"的标签. \n"
-#~ "该标签列表必须为一组列表。使用\"/\"来关闭章节标题提取.\n"
-#~ "从calibre用户指南中关于XPath标签列表部分获得更多的该\n"
-#~ "功能信息.\n"
-
-#~ msgid ""
-#~ "Path to a .ncx file that contains the table of contents to use for this "
-#~ "ebook. The NCX file should contain links relative to the directory it is "
-#~ "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
-#~ "an overview of the NCX format."
-#~ msgstr ""
-#~ "设置包含目录信息的.ncx文件路径. NCX文件应该使用相对路径链接来表示目录信息. "
-#~ "从http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX获取关于NCX文件格式信息."
-
-#~ msgid ""
-#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
-#~ "rescaling of fonts."
-#~ msgstr "设置基本字体大小, 单位pts. 默认值为 %defaultpt . 设置为0来禁用重设字体."
-
-#~ msgid ""
-#~ "Preserve the HTML tag structure while splitting large HTML files. This is "
-#~ "only neccessary if the HTML files contain CSS that uses sibling selectors. "
-#~ "Enabling this greatly slows down processing of large HTML files."
-#~ msgstr ""
-#~ "在分割较大的HTML文件时保留HTML标签. 该功能仅在切割含有相邻选择器(Sibling Selector)的HTML文件时有用. "
-#~ "开启该选项将大幅增加处理较大的HTML文件时所需时间."
-
-#~ msgid ""
-#~ "Extract the contents of the produced EPUB file to the specified directory."
-#~ msgstr "从生成的EPUB文件中提取出的内容到文件夹."
-
-#~ msgid "Output file name. Default is derived from input filename"
-#~ msgstr "输出文件名. 默认使用输入文件名."
-
-#~ msgid ""
-#~ "Specify the base font size in pts. All fonts are rescaled accordingly. This "
-#~ "option obsoletes the --font-delta option and takes precedence over it. To "
-#~ "use --font-delta, set this to 0. Default: %defaultpt"
-#~ msgstr ""
-#~ "设置基准字体大小, 单位 pts. 所有文字将按比例重新缩放. 本选项将覆盖 --font-delta 选项所提供的参数. 如果您想使用 --font-"
-#~ "delta 选项, 将本选项设为 0. 默认值: %defaultpt"
-
-#~ msgid "Separate paragraphs by blank lines."
-#~ msgstr "用空行分割段落."
-
-#~ msgid ""
-#~ "Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
-#~ "it is a string it is interpreted as CSS."
-#~ msgstr "强制覆盖使用CSS样式表. 可以为CSS样式表文件或者CSS样式表字符串. CSS样式表字符串必须符合CSS语法."
-
-#~ msgid ""
-#~ "Render HTML tables as blocks of text instead of actual tables. This is "
-#~ "neccessary if the HTML contains very large or complex tables."
-#~ msgstr "将HTML表哥转换为文字块而不保留表格. 该项对于处理含有较大或杂表格的HTML文件为必须."
-
-#~ msgid ""
-#~ "Profile of the target device for which this LRF is being generated. The "
-#~ "profile determines things like the resolution and screen size of the target "
-#~ "device. Default: %s Supported profiles: "
-#~ msgstr ""
-#~ "LRF输出文件所对应的目标设备Profile. 该Profile描述目标设备的屏幕大小和分辨率. 默认值: %s 支持的Profiles: "
-
-#~ msgid ""
-#~ "Increase the font size by 2 * FONT_DELTA pts and the line spacing by "
-#~ "FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
-#~ "font size is decreased."
-#~ msgstr ""
-#~ "放大文字字体到 2 * FONT_DELTA pts 并增大行间距到 FONT_DELTA pts. FONT_DELTA "
-#~ "可以为分数和小数.如果FONT_DELTA为负值, 则文字字体和行间距相应缩小."
-
-#~ msgid ""
-#~ "Render all content as black on white instead of the colors specified by the "
-#~ "HTML or CSS."
-#~ msgstr "输出为黑字白底(黑色前景色和白色背景色)而不使用源HTML或CSS样式表制定的颜色."
-
-#~ msgid ""
-#~ "Use the <spine> element from the OPF file to determine the order in which "
-#~ "the HTML files are appended to the LRF. The .opf file must be in the same "
-#~ "directory as the base HTML file."
-#~ msgstr "使用OPF文件中的<spine>元素来排序将要添加到LRF文件的HTML源文件. 该.opf文件必须和源HTML文件在同一目录下."
-
-#~ msgid "Don't add links to the table of contents."
-#~ msgstr "不要添加链接到文件目录."
-
-#~ msgid ""
-#~ "A regular expression. <a> tags whose href matches will be ignored. Defaults "
-#~ "to %default"
-#~ msgstr "正则表达式. <a>标签所对应的链接将被忽略. 默认值为 %default"
-
-#~ msgid ""
-#~ "Force a page break before tags whose names match this regular expression."
-#~ msgstr "在两个符合正则表达式的标签之间插入页分隔符."
-
-#~ msgid ""
-#~ "The maximum number of levels to recursively process links. A value of 0 "
-#~ "means thats links are not followed. A negative value means that <a> tags are "
-#~ "ignored."
-#~ msgstr "最大链接遍历深度. 0表示不遍历和处理链接. 负值表示忽略<a>标签."
-
-#~ msgid ""
-#~ "Detect a chapter beginning at an element having the specified attribute. The "
-#~ "format for this option is tagname regexp,attribute name,attribute value "
-#~ "regexp. For example to match all heading tags that have the attribute "
-#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". You can set the "
-#~ "attribute to \"none\" to match only on tag names. So for example, to match "
-#~ "all h2 tags, you would use \"h2,none,\". Default is %default"
-#~ msgstr ""
-#~ "检测含有相应属性的章节起始. 本选项的格式为 tagname regexp,attribute name,attribute value regexp. "
-#~ "例如匹配所有含有属性class=\"chapter\"的标题标签您应该使用\"h\\d,class,chapter\". "
-#~ "您可以设置属性为\"none\"来仅匹配标签名. 例如匹配所有h2标签, 您应该使用\"h2,none,\". 默认值为 %default"
-
-#~ msgid ""
-#~ "If html2lrf does not find any page breaks in the html file and cannot detect "
-#~ "chapter headings, it will automatically insert page-breaks before the tags "
-#~ "whose names match this regular expression. Defaults to %default. You can "
-#~ "disable it by setting the regexp to \"$\". The purpose of this option is to "
-#~ "try to ensure that there are no really long pages as this degrades the page "
-#~ "turn performance of the LRF. Thus this option is ignored if the current page "
-#~ "has only a few elements."
-#~ msgstr ""
-#~ "如果html2lrf在源HTML文件中没有找到页分隔符和章节标头, 程序将自动在匹配本正则表达式的标签前插入页分隔符. 默认值为 %default. "
-#~ "您可以通过设置正则表达式为\"$\"来禁用本功能. 本功能用来确保不输出含有过长页面的LRF文件, 过长页面会影响翻页速度. "
-#~ "如果页面仅含少量元素本功能将不起作用."
-
-#~ msgid "Prevent the automatic detection chapters."
-#~ msgstr "关闭自动章节检测."
-
-#~ msgid ""
-#~ "Force a page break before an element having the specified attribute. The "
-#~ "format for this option is tagname regexp,attribute name,attribute value "
-#~ "regexp. For example to match all heading tags that have the attribute "
-#~ "class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
-#~ msgstr ""
-#~ "在含有相应属性的元素前插入页分隔符. 本选项的格式为 tagname regexp,attribute name,attribute value "
-#~ "regexp. 例如匹配所有含有属性class=\"chapter\"的标题标签您应该使用\"h\\d,class,chapter\". 默认值为 "
-#~ "%default"
-
-#~ msgid ""
-#~ "The regular expression used to detect chapter titles. It is searched for in "
-#~ "heading tags (h1-h6). Defaults to %default"
-#~ msgstr "用以检测章节标题的正则表达式. 程序将搜寻h1-h6的标题标签. 默认值为 %default"
-
-#~ msgid "Add detected chapters to the table of contents."
-#~ msgstr "将检测到的章节添加到文件目录."
-
-#~ msgid "Be verbose while processing"
-#~ msgstr "在处理时打印信息"
-
-#~ msgid "Convert to LRS"
-#~ msgstr "转换为LRS"
-
-#~ msgid ""
-#~ "Specify trutype font families for serif, sans-serif and monospace fonts. "
-#~ "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
-#~ "slower page turns. For example: --serif-family \"Times New Roman\"\n"
-#~ "    "
-#~ msgstr ""
-#~ "指明对于serif, sans-serif 和 monospace字体所用的trutype字体集. 该字体集将被内嵌到LRF文件中. "
-#~ "注意使用个性化字体将降低翻页速度. 例如: --serif-family \"Times New Roman\"\n"
-#~ "    "
-
-#~ msgid "Use this option on html0 files from Book Designer."
-#~ msgstr "在处理Book Designer的html0文件时打开此选项."
-
-#~ msgid ""
-#~ "You must add this option if processing files generated by pdftohtml, "
-#~ "otherwise conversion will fail."
-#~ msgstr "您在处理pdftohtml生成的HTML文件时必须开启此选项, 否则转换将失败."
-
-#~ msgid "Preprocess Baen HTML files to improve generated LRF."
-#~ msgstr "预处理HTML文件来优化生成的LRF文件."
-
-#~ msgid ""
-#~ "Failed to process comic: %s\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "处理动画失败: %s\n"
-#~ "\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "Specify the character encoding of the source file. If the output LRF file "
-#~ "contains strange characters, try changing this option. A common encoding for "
-#~ "files from windows computers is cp-1252. Another common choice is utf-8. The "
-#~ "default is to try and guess the encoding."
-#~ msgstr ""
-#~ "设置源文件的编码格式. 如果输出的LRF文件含有乱码, 您可以尝试修改本选项. 通常windows操作系统使用的编码是cp-1252. "
-#~ "另一种常用的编码个格式是utf-8. 默认值为自动检测编码格式."
-
-#~ msgid ""
-#~ "any2lrf [options] myfile\n"
-#~ "\n"
-#~ "Convert any ebook format into LRF. Supported formats are:\n"
-#~ "LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a "
-#~ "RAR or\n"
-#~ "ZIP archive, looking for an ebook inside the archive.\n"
-#~ "    "
-#~ msgstr ""
-#~ "any2lrf [options] myfile\n"
-#~ "\n"
-#~ "转换电子书籍到LRF格式. 支持的源文件格式有:\n"
-#~ "LIT, RTF, TXT, HTML, EPUB, MOBI, PRC 和 PDF. any2lrf "
-#~ "可以处理RAR或ZIP压缩文件中的电子书籍文件.\n"
-#~ "    "
-
-#~ msgid "No file to convert specified."
-#~ msgstr "未指明待转换的源文件."
-
-#~ msgid ""
-#~ "Minimize memory usage at the cost of longer processing times. Use this "
-#~ "option if you are on a memory constrained machine."
-#~ msgstr "降低内存占用, 这将增加处理时间. 仅在内存较小的计算机上需要打开此选项."
-
-#~ msgid ""
-#~ "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
-#~ msgstr "转换动画文件(CBR, CBZ)到电子书籍的选项"
-
-#~ msgid "Converting from %s to LRF is not supported."
-#~ msgstr "从 %s 转换到LRF格式不被支持."
-
-#~ msgid ""
-#~ "Set the author in the metadata of the generated ebook. Default is %default"
-#~ msgstr "设置生成电子书籍的作者metadata数据. 默认值为 %default"
-
-#~ msgid ""
-#~ "Choose a profile for the device you are generating this file for. The "
-#~ "default is the SONY PRS-500 with a screen size of 584x754 pixels. This is "
-#~ "suitable for any reader with the same screen size. Choices are %s"
-#~ msgstr ""
-#~ "选择生成电子书籍的目标设备属性profile. 默认选项为SONY PRS-500阅读器,屏幕尺寸 584x754 像素. "
-#~ "这个profile适合于带有相同屏幕分辨率的阅读设备. 选择为 %s"
-
-#~ msgid "Rendering comic pages..."
-#~ msgstr "正在处理漫画页面..."
-
-#~ msgid ""
-#~ "%prog [options] mybook.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.fb2 to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mybook.fb2\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog 转换mybook.fb2到mybook.lrf"
-
-#~ msgid "Print generated HTML to stdout and quit."
-#~ msgstr "打印生成的HTML文件到标准输出后退出."
-
-#~ msgid ""
-#~ "Usage: %prog [options] mybook.epub\n"
-#~ "        \n"
-#~ "        \n"
-#~ "%prog converts mybook.epub to mybook.lrf"
-#~ msgstr ""
-#~ "Usage: %prog [options] mybook.epub\n"
-#~ "        \n"
-#~ "        \n"
-#~ "%prog 转换mybook.epub到mybook.lrf"
-
-#~ msgid "Don't show progress bar."
-#~ msgstr "不要显示进度条."
-
-#~ msgid ""
-#~ "%prog [options] comic.cb[z|r]\n"
-#~ "\n"
-#~ "Convert a comic in a CBZ or CBR file to an ebook. \n"
-#~ msgstr ""
-#~ "%prog [options] comic.cb[z|r]\n"
-#~ "\n"
-#~ "转换CBZ或CBR漫画到电子书籍. \n"
-
-#~ msgid "Output written to"
-#~ msgstr "输出到"
-
-#~ msgid ""
-#~ "Be verbose, useful for debugging. Can be specified multiple times for "
-#~ "greater verbosity."
-#~ msgstr "处理时打印信息, 对于调试有用. 可以设置打印信息的级数."
-
-#~ msgid "Keep generated HTML files after completing conversion to LRF."
-#~ msgstr "在完成LRF文件转换后保留生成的HTML文件."
-
-#~ msgid "Options to control the behavior of feeds2disk"
-#~ msgstr "控制feeds2disk行为的选项"
-
-#~ msgid "Options to control the behavior of html2lrf"
-#~ msgstr "控制html2lrf行为的选项"
-
-#, python-format
-#~ msgid "Unable to process image %s. Error: %s"
-#~ msgstr "无法处理图片 %s. 错误: %s"
-
-#, python-format
-#~ msgid ""
-#~ "Could not process image: %s\n"
-#~ "%s"
-#~ msgstr ""
-#~ "无法处理图片: %s\n"
-#~ "%s"
-
-#~ msgid ""
-#~ "You have to save the website %s as an html file first and then run html2lrf "
-#~ "on it."
-#~ msgstr "您必须首先将站点 %s 存储为HTML文件后再运行html2lrf."
-
-#~ msgid ""
-#~ "Usage: %prog [options] mybook.html\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.html to mybook.lrf. \n"
-#~ "%prog follows all links in mybook.html that point \n"
-#~ "to local files recursively. Thus, you can use it to \n"
-#~ "convert a whole tree of HTML files."
-#~ msgstr ""
-#~ "Usage: %prog [options] mybook.html\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog 转换mybook.html到mybook.lrf. \n"
-#~ "%prog 会保留mybook.html中链接引用到的 \n"
-#~ "所有本地文件. 因此您可以由此转换整个 \n"
-#~ "HTML文件集合."
-
-#~ msgid ""
-#~ "Usage: %prog [options] mybook.lit\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.lit to mybook.lrf"
-#~ msgstr ""
-#~ "Usage: %prog [options] mybook.lit\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog 转换mybook.lit到mybook.lrf"
-
-#~ msgid ""
-#~ "Usage: %prog [options] mybook.mobi|prc\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.mobi to mybook.lrf"
-#~ msgstr ""
-#~ "Usage: %prog [options] mybook.mobi|prc\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog 转换mybook.mobi到mybook.lrf"
-
-#~ msgid "Set the authors"
-#~ msgstr "设置作者信息"
-
-#~ msgid ""
-#~ "%prog [options] mybook.txt\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.txt to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mybook.txt\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog 转换mybook.txt到mybook.lrf"
-
-#~ msgid ""
-#~ " is an image based PDF. Only conversion of text based PDFs is supported."
-#~ msgstr " 是一个基于图片的PDF文件. 程序只支持转换基于文字的PDF文件."
-
-#~ msgid ""
-#~ "Path to output directory in which to create the HTML file. Defaults to "
-#~ "current directory."
-#~ msgstr "输出HTML文件的目标文件夹路径. 默认值为当前文件夹."
-
-#~ msgid "Be more verbose."
-#~ msgstr "打印更多调试信息."
-
-#~ msgid ""
-#~ "%prog [options] mybook.pdf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.pdf to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mybook.pdf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog 转换mybook.pdf到mybook.lrf"
-
-#~ msgid ""
-#~ "This RTF file has a feature calibre does not support. Convert it to HTML and "
-#~ "then convert it."
-#~ msgstr "该RTF文件含有calibre不支持的转换的格式. 请先将其转换为HTML文件."
-
-#~ msgid "You must specify a single PDF file."
-#~ msgstr "您只能指定单一的PDF文件."
-
-#~ msgid ""
-#~ "%prog [options] mybook.rtf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog converts mybook.rtf to mybook.lrf"
-#~ msgstr ""
-#~ "%prog [options] mybook.rtf\n"
-#~ "\n"
-#~ "\n"
-#~ "%prog 转换mybook.rtf到mybook.lrf"
-
-#~ msgid "A comma separated list of tags to set"
-#~ msgstr "多个标签使用分号隔开"
-
-#~ msgid "Set the comment"
-#~ msgstr "设置注释信息"
-
-#~ msgid "Category"
-#~ msgstr "类别"
-
-#~ msgid "Usage:"
-#~ msgstr "用法:"
-
-#~ msgid "Extract the cover"
-#~ msgstr "提取封面"
-
-#~ msgid "Usage: imp-meta file.imp"
-#~ msgstr "用法: imp-meta file.imp"
-
-#~ msgid "The book language"
-#~ msgstr "书籍语言"
-
-#~ msgid "The series to which this book belongs"
-#~ msgstr "电子书籍所属的系列"
-
-#~ msgid "The series index"
-#~ msgstr "书籍系列目录"
-
-#~ msgid "No filename specified."
-#~ msgstr "未指定文件名."
-
-#~ msgid "Set the dc:language field"
-#~ msgstr "设置 dc:language 栏目"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog [options] ISBN\n"
-#~ "\n"
-#~ "Fetch a cover image for the book identified by ISBN from LibraryThing.com\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog [options] ISBN\n"
-#~ "\n"
-#~ "通过书籍的ISBN从LibraryThing.com获得书籍的封面图片\n"
-
-#~ msgid "Usage: %s file.lit"
-#~ msgstr "用法: %s file.lit"
-
-#~ msgid "Usage: pdf-meta file.pdf"
-#~ msgstr "用法: pdf-meta file.pdf"
-
-#~ msgid "Sort key for the title"
-#~ msgstr "书名排序键"
-
-#~ msgid "Set the title. Default is to autodetect."
-#~ msgstr "设置书名. 默认为自动检测."
-
-#~ msgid "Title for generated ebook. Default is to use the filename."
-#~ msgstr "生成电子书籍的书名. 默认使用源文件名."
-
-#~ msgid "Set the title. Default: filename."
-#~ msgstr "设定书名. 默认为文件名"
-
-#~ msgid "Add extra spacing below the header. Default is %default px."
-#~ msgstr "在页首后加入额外的空行间隔. 默认为 %default px."
-
-#~ msgid "Number of pixels to crop from the left most y (default is %d) "
-#~ msgstr "页面左部切边宽度像素值 y (默认值为 %d) "
-
-#~ msgid "Number of pixels to crop from the right most x (default is %d) "
-#~ msgstr "页面右部切边宽度像素值 x (默认值为 %d) "
-
-#~ msgid "Number of pixels to crop from the left most x (default is %d) "
-#~ msgstr "页面左部切边宽度像素值 x (默认值为 %d) "
-
-#~ msgid "Raw MOBI HTML saved in"
-#~ msgstr "Raw MOBI HTML 保存"
-
-#~ msgid "Usage: rb-meta file.rb"
-#~ msgstr "用法: rb-meta file.rb"
-
-#~ msgid "The output directory. Defaults to the current directory."
-#~ msgstr "输出文件夹. 默认为输出到当前文件夹."
-
-#~ msgid "%prog [options] myebook.mobi"
-#~ msgstr "%prog [options] myebook.mobi"
-
-#~ msgid ""
-#~ "\t%prog [options] file.pdf\n"
-#~ "\n"
-#~ "\tCrops a pdf. \n"
-#~ "\t"
-#~ msgstr ""
-#~ "\t%prog [options] file.pdf\n"
-#~ "\n"
-#~ "\t对PDF文件切边. \n"
-#~ "\t"
-
-#~ msgid ""
-#~ "A file generated by ghostscript which allows each page to be individually "
-#~ "cropped [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > bounding] "
-#~ msgstr ""
-#~ "由ghostscript生成的可按页单独切边的文件 [gs -dSAFER -dNOPAUSE -dBATCH -sDEVICE=bbox > "
-#~ "bounding] "
-
-#~ msgid "The format to use when saving single files to disk"
-#~ msgstr "存储单个文件时使用的格式"
-
-#~ msgid "Toolbar icon size"
-#~ msgstr "工具栏图标大小"
-
-#~ msgid "Number of pixels to crop from the right most y (default is %d)"
-#~ msgstr "页面右部切边宽度像素值 y (默认值为 %d)"
-
-#~ msgid "Show button labels in the toolbar"
-#~ msgstr "在工具栏上显示文字标签"
-
-#~ msgid "Frequently used directories"
-#~ msgstr "常用的目录列表"
-
-#~ msgid "Sort tags list by popularity"
-#~ msgstr "按欢迎度排序标签"
-
-#~ msgid ""
-#~ "Content\n"
-#~ "Server"
-#~ msgstr ""
-#~ "内容\n"
-#~ "服务器"
-
-#~ msgid " plugins"
-#~ msgstr " 插件"
-
-#~ msgid "Customize %s"
-#~ msgstr "个性化 %s"
-
-#~ msgid "Choose plugin"
-#~ msgstr "选择插件"
-
-#~ msgid "The size %s is invalid. must be of the form widthxheight"
-#~ msgstr "尺寸大小 %s 不合法. 合法的格式为 宽度x高度"
-
-#~ msgid "Invalid size"
-#~ msgstr "无效的尺寸"
-
-#~ msgid "Compacting..."
-#~ msgstr "压缩中..."
-
-#~ msgid "Compacting database. This may take a while."
-#~ msgstr "压缩数据库中. 请稍候."
-
-#~ msgid "Invalid database location.<br>Cannot write to "
-#~ msgstr "不合法的数据库路径.<br>无法写入到 "
-
-#~ msgid "Invalid database location "
-#~ msgstr "不合法的数据库路径 "
-
-#~ msgid "<br>Must be a directory."
-#~ msgstr "<br>必须是文件目录."
-
-#~ msgid "Invalid database location"
-#~ msgstr "不合法的数据库路径"
-
-#~ msgid "Configuration"
-#~ msgstr "设置"
-
-#~ msgid "Browse for the new database location"
-#~ msgstr "选择新的数据库路径"
-
-#~ msgid "Read &metadata from files"
-#~ msgstr "从文件中读取metadata(&m)"
-
-#~ msgid "Format for &single file save:"
-#~ msgstr "单个文件存储格式(&s):"
-
-#~ msgid ""
-#~ "If you disable this setting, metadata is guessed from the filename instead. "
-#~ "This can be configured in the Advanced section."
-#~ msgstr "如果您禁用本设置, metadata将从文件名中模糊获取. 您也可以在高级设置中配置此项."
-
-#~ msgid ""
-#~ "%%prog [options] filename\n"
-#~ "\n"
-#~ "Convert any of a large number of ebook formats to a %s file. Supported "
-#~ "formats are: %s\n"
-#~ msgstr ""
-#~ "%%prog [options] filename\n"
-#~ "\n"
-#~ "转换不同电子书籍格式到 %s 文件. 支持的格式有: %s\n"
-
-#~ msgid ""
-#~ "Compress file text using PalmDOC compression. Results in smaller files, but "
-#~ "takes a long time to run."
-#~ msgstr "使用PalmDOC压缩模式压缩文件文本. 可以减小文件体积, 但会增加处理时间."
-
-#~ msgid "Creating Mobipocket file from EPUB..."
-#~ msgstr "从EPUB文件转换到Mobipocket文件中..."
-
-#~ msgid "Mobipocket-specific options."
-#~ msgstr "Mobipocket相关选项."
-
-#~ msgid "Unknown source profile %r"
-#~ msgstr "未知的源配置文件 %r"
-
-#~ msgid "Use &Roman numerals for series number"
-#~ msgstr "使用罗马数字作为序列数(&R)"
-
-#~ msgid "Remove a directory from the frequently used directories list"
-#~ msgstr "将目录从常用目录列表中移除"
-
-#~ msgid "Add a directory to the frequently used directories list"
-#~ msgstr "将目录添加到常用目录列表中"
-
-#~ msgid "Unknown destination profile %r"
-#~ msgstr "未知的目标配置文件 %r"
-
-#~ msgid "&Button size in toolbar"
-#~ msgstr "工具栏按钮大小(&B)"
-
-#~ msgid "Show &text in toolbar buttons"
-#~ msgstr "在工具栏显示按钮文字(&t)"
-
-#~ msgid "Select visible &columns in library view"
-#~ msgstr "选择在书库界面中显示的新系列(&c)"
-
-#~ msgid "Free unused diskspace from the database"
-#~ msgstr "从数据库中释放不用的磁盘空间"
-
-#~ msgid "&Metadata from file name"
-#~ msgstr "使用文件名作为metadata(&M)"
-
-#~ msgid "&Compact database"
-#~ msgstr "压缩数据库(&C)"
-
-#~ msgid ""
-#~ "If you want to use the content server to access your ebook collection on "
-#~ "your iphone with Stanza, you will need to add the URL "
-#~ "http://myhostname:8080/stanza as a new catalog in the stanza reader on your "
-#~ "iphone. Here myhostname should be the fully qualified hostname or the IP "
-#~ "address of this computer."
-#~ msgstr ""
-#~ "如果您想从iPhone手机上通过Stanza访问服务器, 您需要将地址 http://myhostname:8080/stanza "
-#~ "作为一个新的分类目录添加到iPhone手机上的Stanza阅读程序中. 其中myhostname可以是您的计算机的主机名或IP地址."
-
-#~ msgid "Add new plugin"
-#~ msgstr "添加插件"
-
-#~ msgid "&Add"
-#~ msgstr "添加(&A)"
-
-#~ msgid "Set the ISBN"
-#~ msgstr "设置ISBN"
-
-#~ msgid "Set the subject tags"
-#~ msgstr "设置主题标签"
-
-#~ msgid "Set the language"
-#~ msgstr "设置语言标签"
-
-#~ msgid "Options to control the conversion to MOBI"
-#~ msgstr "控制转换到MOBI格式的选项"
-
-#~ msgid "Source renderer profile. Default is %default."
-#~ msgstr "源渲染配置文件. 默认为 %default."
-
-#~ msgid "Destination renderer profile. Default is %default."
-#~ msgstr "目标渲染配置文件. 默认为 %default."
-
-#~ msgid "[options]"
-#~ msgstr "[选项]"
-
-#~ msgid "Added %s to library"
-#~ msgstr "将 %s 田家到书库"
-
-#~ msgid "Do not force text to be justified in output."
-#~ msgstr "输出文件中不强迫对齐文字"
-
-#~ msgid ""
-#~ "Remove spacing between paragraphs. Also sets a indent on paragraphs of "
-#~ "1.5em. You can override this by adding p {text-indent: 0cm} to --override-"
-#~ "css. Spacing removal will not work if the source file forces inter-paragraph "
-#~ "spacing."
-#~ msgstr ""
-#~ "移除段间空行。同时将缩进设置在1.5em。可以用--override-css参数p{text-"
-#~ "indent:0cm}废除。当源文件中有段间强迫空行时此功能不工作。"
-
-#~ msgid "Read metadata from "
-#~ msgstr "Metadata来源 "
-
-#~ msgid "Adding books to database..."
-#~ msgstr "将书籍加入数据库"
-
-#~ msgid "Searching for books in all sub-directories..."
-#~ msgstr "在所有子目录中搜索书籍"
-
-#~ msgid "Adding books recursively..."
-#~ msgstr "递归加入书籍"
-
-#~ msgid "Reading metadata..."
-#~ msgstr "读取Metadata"
-
-#~ msgid "Convert %s to "
-#~ msgstr "将%s转换为 "
-
-#~ msgid "Bulk convert to "
-#~ msgstr "批量转换为 "
-
-#~ msgid "Show &notifications in system tray"
-#~ msgstr "在系统托盘除显示和提醒"
-
-#~ msgid "Invalid XPath expression"
-#~ msgstr "非法XPath表达式"
-
-#~ msgid "Convert to EPUB"
-#~ msgstr "转换为Epub"
-
-#~ msgid "No available formats"
-#~ msgstr "没有可用格式"
-
-#~ msgid ""
-#~ "<p>Books with the same title as the following already exist in the database. "
-#~ "Add them anyway?<ul>"
-#~ msgstr "<p>数据库中已有同名书籍。是否继续加入？<ul>"
-
-#~ msgid "The author(s) of the ebook, as a & separated list."
-#~ msgstr "作者名，以&分开"
-
-#~ msgid "Change the publisher of this book"
-#~ msgstr "改变出版社名"
-
-#~ msgid "&Rescale images"
-#~ msgstr "改变图像大小(&R)"
-
-#~ msgid "&Ignore tables"
-#~ msgstr "忽略表格(&I)"
-
-#~ msgid "Chapter Detection"
-#~ msgstr "章节检测"
-
-#~ msgid "This book has no available formats"
-#~ msgstr "此书籍格式不被支持"
-
-#~ msgid "Choose the format to convert to "
-#~ msgstr "选择转换的目标格式 "
-
-#~ msgid "Cannot convert %s as this book has no supported formats"
-#~ msgstr "无法转化 % 因为该书籍格式不被支持"
-
-#~ msgid "The expression %s is invalid. Error: %s"
-#~ msgstr "表达式 %s 不合法. 错误: %s"
-
-#~ msgid "Series index."
-#~ msgstr "书籍系列目录."
-
-#~ msgid ""
-#~ "XPath expression to detect page boundaries for building a custom pagination "
-#~ "map, as used by AdobeDE. Default is not to build an explicit pagination map."
-#~ msgstr "检测书籍分页用XPath表达式,用以创建页面缩略图,也适用于AdobeDE.默认值为不建立页面缩略图."
-
-#~ msgid ""
-#~ "XPath expression to find the name of each page in the pagination map "
-#~ "relative to its boundary element. Default is to number all pages staring "
-#~ "with 1."
-#~ msgstr "用在分页表中通过边界元素查找页面名称的XPath表达式. 默认为将所有页面标注为从1开始."
-
-#~ msgid ""
-#~ "Device renderer profiles. Affects conversion of font sizes, image rescaling "
-#~ "and rasterization of tables. Valid profiles are: %s."
-#~ msgstr "设备渲染Profile. 设置字体转换, 图片缩放和表格重整. 可用的Profile有: %s."
-
-#~ msgid "Fine tune the detection of chapter and section headings."
-#~ msgstr "调整章节和片断检测的选项."
-
-#~ msgid ""
-#~ "Adjust the look of the generated ebook by specifying things like font sizes."
-#~ msgstr "设置生成的电子书籍外观选项例如字体大小."
-
-#~ msgid ""
-#~ "Specify metadata such as title and author for the book.\n"
-#~ "\n"
-#~ "Metadata will be updated in the database as well as the generated %s file."
-#~ msgstr ""
-#~ "设置书籍的metatdata, 如书名和作者.\n"
-#~ "\n"
-#~ "Metadata在生成 %s 文件后也会被更新到数据库."
-
-#~ msgid "Specify the page layout settings like margins."
-#~ msgstr "设置页面布局选项例如页边距."
-
-#~ msgid ""
-#~ "Remove table markup, converting it into paragraphs. This is useful if your "
-#~ "source file uses a table to manage layout."
-#~ msgstr "删除表格标记并将其转换为段落. 该功能适用于源文件使用表格控制段落的情况."
-
-#~ msgid ""
-#~ "When present, use the author sorting information for generating the "
-#~ "Mobipocket author metadata."
-#~ msgstr "如果作者信息存在源文件中, 使用该信息作为Mobipocket作者metadata."
-
-#~ msgid "Source en&coding:"
-#~ msgstr "源文件编码(&c):"
-
-#~ msgid "&Use author sort to set author field in output"
-#~ msgstr "在输出时对作者栏使用作者排序"
-
-#~ msgid ""
-#~ "Change the author(s) of this book. Multiple authors should be separated by "
-#~ "an &. If the author name contains an &, use && to represent it."
-#~ msgstr "修改书籍的作者. 多个作者可以用 & 符号分隔. 如果作者姓名中含有 & 符号, 使用 & &转义字符来表示."
-
-#~ msgid "Preserve &tag structure when splitting"
-#~ msgstr "分割文件时保留标签结构(&t)"
-
-#~ msgid "No text &justification"
-#~ msgstr "关闭文字调整(&j)"
-
-#~ msgid "Override &CSS"
-#~ msgstr "覆盖源CSS样式(&C)"
-
-#~ msgid "&Destination profile:"
-#~ msgstr "目标profile(&D):"
-
-#~ msgid "&Source profile:"
-#~ msgstr "源profile(&S):"
-
-#~ msgid "&Page map"
-#~ msgstr "页面缩略图(&P)"
-
-#~ msgid "Remove &first image from source file"
-#~ msgstr "跳过源文件中第一个图片文件(&f)"
-
-#~ msgid "&Top Margin:"
-#~ msgstr "上边距(&T):"
-
-#~ msgid "&Bottom Margin:"
-#~ msgstr "下边距(&B)"
-
-#~ msgid "&Left Margin:"
-#~ msgstr "左边距(&L):"
-
-#~ msgid "&Right Margin:"
-#~ msgstr "右边距(&R):"
-
-#~ msgid "Bottom margin of page. Default is %default px."
-#~ msgstr "页面下边距. 默认值 %default px."
-
-#~ msgid "Right margin of page. Default is %default px."
-#~ msgstr "页面右边距. 默认值 %default px."
-
-#~ msgid "Top margin of page. Default is %default px."
-#~ msgstr "页面上边距. 默认值 %default px."
-
-#~ msgid "Left margin of page. Default is %default px."
-#~ msgstr "页面左边距. 默认值 %default px."
-
-#~ msgid "Set the left margin in pts. Default is %default"
-#~ msgstr "设置页面左边距, 单位pts. 默认值为 %default"
-
-#~ msgid "Set the right margin in pts. Default is %default"
-#~ msgstr "设置页面右边距, 单位pts. 默认值为 %default"
-
-#~ msgid "Set the top margin in pts. Default is %default"
-#~ msgstr "设置页上边距, 单位pts. 默认值为 %default"
-
-#~ msgid "Set the bottom margin in pts. Default is %default"
-#~ msgstr "设置页下边距, 单位pts. 默认值为 %default"
-
-#~ msgid "Automatic &chapter detection"
-#~ msgstr "自动章节检测(&c)"
-
-#~ msgid "&Name XPath:"
-#~ msgstr "名称XPath(&N):"
-
-#~ msgid ""
-#~ "<p>You can control how calibre detects page boundaries using a XPath "
-#~ "expression. To learn how to use XPath expressions see the <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-#~ "tutorial</a>. The page boundaries are useful only if you want a mapping from "
-#~ "pages in a paper book, to locations in the e-book. This controls where Adobe "
-#~ "Digital Editions displays the page numbers in the right margin.</p>"
-#~ msgstr ""
-#~ "<p>您可以设置calibre如何使用XPath表达式来检测分页. 您可以从以下站点了解如何使用XPath表达式 <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-#~ "tutorial</a>. 如果您要生成与真实书籍页码对应电子书籍分页的, 分页边界检测是很有帮助的功能. 分页结果会显示为Adobe Digital "
-#~ "Edition文件的右下角的页数.</p>"
-
-#~ msgid "&Boundary XPath:"
-#~ msgstr "边界XPath(&B):"
-
-#~ msgid "Send specific format to storage card"
-#~ msgstr "传送特殊格式到储存卡"
-
-#~ msgid "Send to storage card"
-#~ msgstr "传送到储存卡"
-
-#~ msgid "Failed to email books"
-#~ msgstr "发送电子书籍失败"
-
-#~ msgid "Failed to email the following books:"
-#~ msgstr "无法通过电子邮件发送以下书籍:"
-
-#~ msgid ""
-#~ "Could not email the following books as no suitable formats were "
-#~ "found:<br><ul>%s</ul>"
-#~ msgstr "无法通过电子邮件发送以下未知格式的电子书籍:<br><ul>%s</ul>"
-
-#~ msgid "Attached is the"
-#~ msgstr "附加"
-
-#~ msgid "Sent by email:"
-#~ msgstr "已通过邮件发送:"
-
-#~ msgid ""
-#~ "Email\n"
-#~ "Delivery"
-#~ msgstr ""
-#~ "电子邮件\n"
-#~ "传输"
-
-#~ msgid "Select database location"
-#~ msgstr "选择数据库位置"
-
-#~ msgid "Dont forget to enter your gmail username and password"
-#~ msgstr "请勿遗忘正确的输入您的gmail用户名和密码"
-
-#~ msgid "&XPath:"
-#~ msgstr "&XPath:"
-
-#~ msgid "Automatic &Table of Contents"
-#~ msgstr "自动生成目录(&T)"
-
-#~ msgid ""
-#~ "<p>You can control how calibre detects chapters using a XPath expression. To "
-#~ "learn how to use XPath expressions see the <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-#~ "tutorial</a></p>"
-#~ msgstr ""
-#~ "<p>您可以通过XPath表达式设定calibre如何检测章节段落. 了解更多XPath表达式的信息请访问 <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-#~ "tutorial</a></p>"
-
-#~ msgid "&Title for generated TOC"
-#~ msgstr "生成目录的标题(&T)"
-
-#~ msgid "Level &1 TOC"
-#~ msgstr "目录的一级项目(&1)"
-
-#~ msgid "Level &2 TOC"
-#~ msgstr "目录的二级项目(&2)"
-
-#~ msgid "Level &3 TOC"
-#~ msgstr "目录的三级项目(&3)"
-
-#~ msgid "Warning"
-#~ msgstr "警告"
-
-#~ msgid ""
-#~ "Select the book that most closely matches your copy from the list below"
-#~ msgstr "从下面的列表中选择最匹配的书籍"
-
-#~ msgid "Matches"
-#~ msgstr "匹配项"
-
-#~ msgid "Choose the format to convert into LRF"
-#~ msgstr "选择源文件格式转换到LRF"
-
-#~ msgid "Convert %s to LRF"
-#~ msgstr "转换 %s 到 LRF"
-
-#~ msgid "Set conversion defaults"
-#~ msgstr "设置转换默认选项"
-
-#~ msgid "No preprocessing"
-#~ msgstr "不进行预处理"
-
-#~ msgid ""
-#~ "Specify the page settings like margins and the screen size of the target "
-#~ "device."
-#~ msgstr "设置页面选项诸如页边距和目标设备的屏幕尺寸."
-
-#~ msgid ""
-#~ "<li><b>pdftohtml</b> - HTML files that are the output of the program "
-#~ "pdftohtml</li>"
-#~ msgstr "<li><b>pdftohtml</b> - HTML文件是pdftohtml程序的输出</li>"
-
-#~ msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
-#~ msgstr "<ol><li><b>baen</b> - BAEN 出版的书籍</li>"
-
-#~ msgid ""
-#~ "Preprocess the file before converting to LRF. This is useful if you know "
-#~ "that the file is from a specific source. Known sources:"
-#~ msgstr "在转换到LRF格式前进行预处理. 如果您知道源文件的格式, 该功能是十分有用的. 已知的源格式:"
-
-#~ msgid ""
-#~ "Adjust the look of the generated LRF file by specifying things like font "
-#~ "sizes and the spacing between words."
-#~ msgstr "设置输出LRF文件的外观诸如字体大小和文字间隔大小."
-
-#~ msgid ""
-#~ "Specify metadata such as title and author for the book.<p>Metadata will be "
-#~ "updated in the database as well as the generated LRF file."
-#~ msgstr "设置书籍的metadata诸如书名和作者.<p>Metadata会被同时更新到LRF输出文件和程序数据库中."
-
-#~ msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
-#~ msgstr "<li><b>book-designer</b> - 来自Book Designer的HTML0</li>"
-
-#~ msgid "Bulk convert ebooks to LRF"
-#~ msgstr "批处理转换到LRF格式"
-
-#~ msgid "<font color=\"gray\">No help available</font>"
-#~ msgstr "<font color=\"gray\">无相关帮助文件</font>"
-
-#~ msgid "Insert &blank lines between paragraphs"
-#~ msgstr "在章节之间插入空行(&b)"
-
-#~ msgid "Enable auto &rotation of images"
-#~ msgstr "开启自动图像旋转"
-
-#~ msgid "&Word spacing:"
-#~ msgstr "正文间隔(&W):"
-
-#~ msgid "Minimum &indent:"
-#~ msgstr "最小缩进(&i):"
-
-#~ msgid "&Monospace:"
-#~ msgstr "&Monospace:"
-
-#~ msgid "S&ans-serif:"
-#~ msgstr "S&ans-serif:"
-
-#~ msgid "Convert to LRF"
-#~ msgstr "转换到LRF"
-
-#~ msgid "Embedded Fonts"
-#~ msgstr "内嵌字体"
-
-#~ msgid "&Serif:"
-#~ msgstr "&Serif:"
-
-#~ msgid " pts"
-#~ msgstr " pts"
-
-#~ msgid "Ignore &tables"
-#~ msgstr "忽略表格(&t)"
-
-#~ msgid "&Preprocess:"
-#~ msgstr "预处理(&P):"
-
-#~ msgid "Ignore &colors"
-#~ msgstr "忽略颜色(&c)"
-
-#~ msgid "&Convert tables to images (good for large/complex tables)"
-#~ msgstr "将复杂表格转换为图片(&C)"
-
-#~ msgid "Header"
-#~ msgstr "页首"
-
-#~ msgid "&Show header"
-#~ msgstr "显示页首(&S)"
-
-#~ msgid "&Header format:"
-#~ msgstr "页首格式(&H)"
-
-#~ msgid "Override<br>CSS"
-#~ msgstr "覆盖<br>CSS"
-
-#~ msgid ""
-#~ "%prog [options] file.html|opf\n"
-#~ "\n"
-#~ "Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
-#~ "file.\n"
-#~ "If you specify an OPF file instead of an HTML file, the list of links is "
-#~ "takes from\n"
-#~ "the <spine> element of the OPF file.\n"
-#~ msgstr ""
-#~ "%prog [options] file.html|opf\n"
-#~ "\n"
-#~ "将HTML文件转换为EPUB格式. 遍历HTML文件中的链接.\n"
-#~ "如果您指明使用OPF文件, 程序会从OPF文件中<spine>\n"
-#~ "元素提取链接.\n"
-
-#~ msgid "&Disable chapter detection"
-#~ msgstr "关闭章节检测(&D)"
-
-#~ msgid "Title based detection"
-#~ msgstr "基于标题检测"
-
-#~ msgid "Tag based detection"
-#~ msgstr "基于标签检测"
-
-#~ msgid "&Regular expression:"
-#~ msgstr "正则表达式:(&R)"
-
-#~ msgid "Add &chapters to table of contents"
-#~ msgstr "将章节加入目录(&c)"
-
-#~ msgid "Don't add &links to the table of contents"
-#~ msgstr "不要将链接加入目录(&l)"
-
-#~ msgid "&Multiplier for text size in rendered tables:"
-#~ msgstr "放大两倍表格中的文字字体:(&M)"
-
-#~ msgid ""
-#~ "Could not upload the following books to the device, as no suitable formats "
-#~ "were found. Try changing the output format in the upper right corner next to "
-#~ "the red heart and re-converting. <br><ul>%s</ul>"
-#~ msgstr "无法将以下书籍传送到设备上, 未找到合适的格式. 请尝试更改界面右上角由红心指出的输出格式后重新转换. <br><ul>%s</ul>"
-
-#~ msgid "&Force page break before tag:"
-#~ msgstr "在标签元素前强制分页符:(&F)"
-
-#~ msgid "Force page break before &attribute:"
-#~ msgstr "在属性元素前插入分页符:(&a)"
-
-#~ msgid "&Page break before tag:"
-#~ msgstr "在标签元素前加入分页符:(&P)"
-
-#~ msgid ""
-#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
-#~ "\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-#~ "type=\"text/css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-"
-#~ "indent:0px;\"></p></body></html>"
-#~ msgstr ""
-#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
-#~ "\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-#~ "type=\"text/css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-"
-#~ "indent:0px;\"></p></body></html>"
-
-#~ msgid "Detect chapter &at tag:"
-#~ msgstr "通过标签元素检测章节:(&a)"
-
-#~ msgid "Add Ta&gs: "
-#~ msgstr "添加标签(&g): "
-
-#~ msgid ""
-#~ "%prog [options] file.html|opf\n"
-#~ "\n"
-#~ "Follow all links in an HTML file and collect them into the specified "
-#~ "directory.\n"
-#~ "Also collects any resources like images, stylesheets, scripts, etc.\n"
-#~ "If an OPF file is specified instead, the list of files in its <spine> "
-#~ "element\n"
-#~ "is used.\n"
-#~ msgstr ""
-#~ "%prog [options] file.html|opf\n"
-#~ "\n"
-#~ "便利所有HTML文件中包含的链接并将链接资源整理到指定目录中.\n"
-#~ "同时整理相关的资源文件如图片, 样式表, 脚本等等.\n"
-#~ "如果指明OPF文件, 则使用OPF文件中<spine>元素指明的文件\n"
-#~ "列表.\n"
-
-#~ msgid ""
-#~ "Automatically create the author sort entry based on the current author entry"
-#~ msgstr "自动根据作者项创建按作者排序的索引项"
-
-#~ msgid "Reset cover to default"
-#~ msgstr "恢复默认封面"
-
-#~ msgid "Available Formats"
-#~ msgstr "可用格式"
-
-#~ msgid "Saturday"
-#~ msgstr "星期六"
-
-#~ msgid "day"
-#~ msgstr "天"
-
-#~ msgid "Monday"
-#~ msgstr "星期一"
-
-#~ msgid "Tuesday"
-#~ msgstr "星期二"
-
-#~ msgid "Wednesday"
-#~ msgstr "星期三"
-
-#~ msgid "Friday"
-#~ msgstr "星期五"
-
-#~ msgid "Sunday"
-#~ msgstr "星期日"
-
-#~ msgid "Must set account information"
-#~ msgstr "必须设置帐户信息"
-
-#~ msgid "Last downloaded"
-#~ msgstr "最后下载"
-
-#~ msgid "Thursday"
-#~ msgstr "星期四"
-
-#~ msgid "at"
-#~ msgstr "在"
-
-#~ msgid "Schedule for download"
-#~ msgstr "下载计划"
-
-#~ msgid "Every "
-#~ msgstr "每个 "
-
-#~ msgid ""
-#~ "    %prog options\n"
-#~ "    \n"
-#~ "    Customize calibre by loading external plugins.\n"
-#~ "    "
-#~ msgstr ""
-#~ "    %prog 选项\n"
-#~ "    \n"
-#~ "    设置calibre载入外部插件.\n"
-#~ "    "
-
-#~ msgid ""
-#~ "Normally, if the source file already has a Table of Contents, it is used in "
-#~ "preference to the autodetected one. With this option, the autodetected one "
-#~ "is always used."
-#~ msgstr "设置一直使用自动检测生成文件目录. 通常情况下, 如源文件含有文件目录信息, 软件会使用源文件目录信息而不使用自动检测生成目录功能."
-
-#~ msgid ""
-#~ "Remove spacing between paragraphs. Will not work if the source file forces "
-#~ "inter-paragraph spacing."
-#~ msgstr "移除段落之间的空格. 如果源文件被设定强制使用段落间隔, 该功能将无效."
-
-#~ msgid ""
-#~ "%prog [options] file.html|opf\n"
-#~ "\n"
-#~ "Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML "
-#~ "file.\n"
-#~ "If you specify an OPF file instead of an HTML file, the list of links is "
-#~ "takes from\n"
-#~ "the <spine> element of the OPF file.  \n"
-#~ msgstr ""
-#~ "%prog [options] file.html|opf\n"
-#~ "\n"
-#~ "转换HTML文件到EPUB文件. 包含所有HTML文件中的链接.\n"
-#~ "如果指明OPF文件, 则使用从OPF文件中获得的<spine>元素\n"
-#~ "而不使用HTML文件中的链接.  \n"
-
-#~ msgid "The author(s) of the ebook, as a comma separated list."
-#~ msgstr "电子书籍的作者, 用分号隔开多个作者名字."
-
-#~ msgid ""
-#~ "%prog [options] file.html|opf\n"
-#~ "\n"
-#~ "Follow all links in an HTML file and collect them into the specified "
-#~ "directory.\n"
-#~ "Also collects any resources like images, stylesheets, scripts, etc. \n"
-#~ "If an OPF file is specified instead, the list of files in its <spine> "
-#~ "element\n"
-#~ "is used.\n"
-#~ msgstr ""
-#~ "%prog [options] file.html|opf\n"
-#~ "\n"
-#~ "保留所有HTML文件的链接并将其引用的资源整理到指明文件夹.\n"
-#~ "保留整理图片, 样式表, 脚本等等资源. \n"
-#~ "如果指明OPF文件, 使用<spine>元素中指明的文件列表.\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog [options] key\n"
-#~ "\n"
-#~ "Fetch metadata for books from isndb.com. You can specify either the \n"
-#~ "books ISBN ID or its title and author. If you specify the title and author,\n"
-#~ "then more than one book may be returned.\n"
-#~ "\n"
-#~ "key is the account key you generate after signing up for a free account from "
-#~ "isbndb.com.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog [options] key\n"
-#~ "\n"
-#~ "从isndb.com获取书籍metadata信息. 您可以输入书籍的 \n"
-#~ "ISBN ID或者书名和作者. 如果您输入书名和作者, 可能\n"
-#~ "会有多个结果被返回.\n"
-#~ "\n"
-#~ "key 是您在isbndb.com免费注册后获得account key.\n"
-#~ "\n"
-
-#~ msgid "&Delete news from library when it is sent to reader"
-#~ msgstr "传输到电子书后将新闻从书库中删除(&D)"
-
-#~ msgid "Set metadata in EPUB files"
-#~ msgstr "设置EPUB文件的metadata"
-
-#~ msgid "Set metadata in LRF files"
-#~ msgstr "设置LRF文件的metadata"
-
-#~ msgid "Set metadata in RTF files"
-#~ msgstr "设置RTF文件的metadata"
-
-#~ msgid ""
-#~ "Could not upload the following books to the device, as no suitable formats "
-#~ "were found. Try changing the output format in the upper right corner next to "
-#~ "the red heart and re-converting."
-#~ msgstr "由于无法找到合适的文件格式无法将下列书籍传送到设备上. 请尝试修改右上角红心旁的输出格式后重新转换."
-
-#~ msgid ""
-#~ "%prog [options] comic.cb[z|r]\n"
-#~ "\n"
-#~ "Convert a comic in a CBZ or CBR file to an ebook.\n"
-#~ msgstr ""
-#~ "%prog [options] comic.cb[z|r]\n"
-#~ "\n"
-#~ "转换CBZ或CBR漫画文件到电子书籍.\n"
-
-#~ msgid "Fetching of recipe failed: "
-#~ msgstr "无法从接受器中的源获取: "
-
-#~ msgid ""
-#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
-#~ "\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-#~ "type=\"text/css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Set a regular expression "
-#~ "pattern to use when trying to guess ebook metadata from filenames. </p>\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
-#~ "href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
-#~ "decoration: underline; color:#0000ff;\">reference</span></a> on the syntax "
-#~ "of regular expressions is available.</p>\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Use the <span style=\" "
-#~ "font-weight:600;\">Test</span> functionality below to test your regular "
-#~ "expression on a few sample filenames. The group names for the various "
-#~ "metadata entries are documented in tooltips.</p></body></html>"
-#~ msgstr ""
-#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
-#~ "\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-#~ "type=\"text/css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-"
-#~ "indent:0px;\">请设置用以从源文件名推测电子书籍的metadata的正则表达式. </p>\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">A <a "
-#~ "href=\"http://docs.python.org/lib/re-syntax.html\"><span style=\" text-"
-#~ "decoration: underline; color:#0000ff;\">说明</span></a> 包含关于正则表达式的描述.</p>\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Use the <span style=\" "
-#~ "font-weight:600;\">测试</span> 您设置的正则表达式在测试用文件名上的结果. "
-#~ "您可以在提示中找到metadata项的组名.</p></body></html>"
-
-#~ msgid "Regular expression (?P<authors>)"
-#~ msgstr "正则表达式 (?P<authors>)"
-
-#~ msgid "Waiting"
-#~ msgstr "等待中"
-
-#~ msgid "Book <font face=\"serif\">%s</font> of %s."
-#~ msgstr "书籍 <font face=\"serif\">%s</font> 中 %s."
-
-#~ msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
-#~ msgstr "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
-
-#~ msgid ""
-#~ "Save the output from the input plugin to the specified directory. Useful if "
-#~ "you are unsure at which stage of the conversion process a bug is occurring. "
-#~ "WARNING: This completely deletes the contents of the specified directory."
-#~ msgstr "将输入插件的输出内容存储到指定目录. 该选项对调试未知软件缺陷较为有用. 注意: 该操作将删除制定目录内的所有内容."
-
-#~ msgid "Communicate with the Cybook eBook reader."
-#~ msgstr "与Cybook eBook reader设备通信."
-
-#~ msgid "Tijmen Ruizendaal"
-#~ msgstr "Tijmen Ruizendaal"
-
-#~ msgid "James Ralston"
-#~ msgstr "James Ralston"
-
-#~ msgid "Kovid Goyal and John Schember"
-#~ msgstr "Kovid Goyal 和 John Schember"
-
-#~ msgid "You must install the pmount package."
-#~ msgstr "您必须安装pmount包."
-
-#~ msgid ""
-#~ "input_file output_file [options]\n"
-#~ "\n"
-#~ "Convert an ebook from one format to another.\n"
-#~ "\n"
-#~ "input_file is the input and output_file is the output. Both must be "
-#~ "specified as the first two arguments to the command.\n"
-#~ "\n"
-#~ "The output ebook format is guessed from the file extension of output_file. "
-#~ "output_file can also be of the special format .EXT where EXT is the output "
-#~ "file extension. In this case, the name of the output file is derived the "
-#~ "name of the input file. Note that the filenames must not start with a "
-#~ "hyphen. Finally, if output_file has no extension, then it is treated as a "
-#~ "directory and an \"open ebook\" (OEB) consisting of HTML files is written to "
-#~ "that directory. These files are the files that would normally have been "
-#~ "passed to the output plugin.\n"
-#~ "\n"
-#~ "After specifying the input and output file you can customize the conversion "
-#~ "by specifying various options. the available options depend on the input and "
-#~ "output file types. To get help on them specify the input and output file and "
-#~ "then use the -h option.\n"
-#~ "\n"
-#~ "For full documentation of the conversion system see\n"
-#~ msgstr ""
-#~ "input_file output_file [options]\n"
-#~ "\n"
-#~ "将电子书从源格式转换为目标格式.\n"
-#~ "\n"
-#~ "input_file参数是输入文件名, output_file参数是输出文件名. 这两个参数必须作为头两个参数被传入.\n"
-#~ "\n"
-#~ "输出文件格式根据输出文件的扩展名而定. output_file参数也可以使用特殊的格式 .EXT, 其中EXT是输出文件的扩展名而不指明文件名. "
-#~ "在这种情况下, 输出文件的文件名与输入文件文件名相同. 注意文件名不能以连接符开始. 最后, 如果输出文件名不含有扩展名, "
-#~ "程序将认为输出目标是目录名而将包含一组HTML文件的open ebook (OEB)格式输出到该指定目录. 这些文件在通常情况下将被传递到输出插件.\n"
-#~ "\n"
-#~ "After specifying the input and output file you can customize the conversion "
-#~ "by specifying various options. the available options depend on the input and "
-#~ "output file types. To get help on them specify the input and output file and "
-#~ "then use the -h option.\n"
-#~ "\n"
-#~ "For full documentation of the conversion system see\n"
-
-#~ msgid ""
-#~ "Do not force text to be justified in output. Whether text is actually "
-#~ "displayed justified or not depends on whether the ebook format and reading "
-#~ "device support justification."
-#~ msgstr "不在输出中进行文字两端对齐. 无论文字是否已经两端对齐和书籍格式及阅读设备是否支持两端对齐."
-
-#~ msgid ""
-#~ "Attempt to detect and correct hard line breaks and other problems in the "
-#~ "source file. This may make things worse, so use with care."
-#~ msgstr "尝试检测并修复源文件中的不当硬回车和其他排版错误. 注意本功能可能会造成版面排版混乱, 请慎用."
-
-#~ msgid "List available recipes."
-#~ msgstr "列出可用接收器."
-
-#~ msgid "Generate a periodical rather than a book."
-#~ msgstr "生成期刊格式而非书籍"
-
-#~ msgid "Usage: ebook-convert INFILE OUTFILE [OPTIONS..]"
-#~ msgstr "用法: ebook-convert INFILE OUTFILE [OPTIONS..]"
-
-#~ msgid "Book Jacket"
-#~ msgstr "书封皮"
-
-#~ msgid "The regular expression to use to remove the footer."
-#~ msgstr "匹配移除页脚用正则表达式"
-
-#~ msgid "Use a regular expression to try and remove the header."
-#~ msgstr "使用正则表达式来匹配和移除页眉."
-
-#~ msgid ""
-#~ "Scale used to determine the length at which a line should be unwrapped. "
-#~ "Valid values are a decimal between 0 and 1. The default is 0.5, this is the "
-#~ "median line length."
-#~ msgstr "用以设置自动换行的比例. 合法的比例值为0到1之间的小数. 默认值为中间值0.5."
-
-#~ msgid ""
-#~ "This RTF file has a feature calibre does not support. Convert it to HTML "
-#~ "first and then try it."
-#~ msgstr "Calibre不能完全支持RTF文件的特性. 请首先将其转换为HTML格式后再进行下一步转换."
-
-#~ msgid ""
-#~ "Specify the character encoding of the output document. The default is utf-8. "
-#~ "Note: This option is not honored by all formats."
-#~ msgstr "设置输出文件使用的编码格式. 默认使用utf-8. 注意: 该选项将应用于所有输出格式."
-
 #~ msgid "&Transliterate unicode characters to ASCII."
 #~ msgstr "将unicode字符转换为ASCII字符."
-
-#~ msgid "Format:"
-#~ msgstr "格式："
-
-#~ msgid "No valid plugin found in "
-#~ msgstr "无有效插件位于 "
-
-#~ msgid "This profile is intended for the SONY PRS line. The 500/505/700 etc."
-#~ msgstr "该配置文件适用 SONY PRS 产品线，如 500/505/700 等型号。"
-
-#~ msgid "Communicate with the BeBook eBook reader."
-#~ msgstr "与 BeBook eBook reader 通信。"
-
-#~ msgid "Communicate with the BeBook Mini eBook reader."
-#~ msgstr "与 BeBook Mini eBook reader 通信。"
 
 #~ msgid "Communicate with the Cybook Gen 3 eBook reader."
 #~ msgstr "与 Cybook Gen 3 eBook reader 通信。"
@@ -20279,44 +18629,16 @@ msgstr ""
 #~ "latin1, iso-8859-1 and utf-8."
 #~ msgstr "输入 HTML 文件的字符编码。如常用编码：cp1252, latin1, iso-8859-1 和 utf-8。"
 
-#~ msgid "Communicate with the Kindle 2 eBook reader."
-#~ msgstr "与 Kindle 2 eBook reader 通信。"
-
-#~ msgid "Communicate with the Sony PRS-505 eBook reader."
-#~ msgstr "与 Sony PRS-505 eBook reader 通信。"
-
-#~ msgid "Communicate with the Sony PRS-700 eBook reader."
-#~ msgstr "与 Sony PRS-700 eBook reader 通信。"
-
 #~ msgid ""
 #~ "Unable to detect the %s disk drive. Your  kernel is probably exporting a "
 #~ "deprecated version of SYSFS."
 #~ msgstr "无法检测到 %s 磁盘驱动器。您的内核可能正在输出已经废弃的 SYSFS 版本。"
-
-#~ msgid "Number of colors for grayscale image conversion. Default: %default"
-#~ msgstr "转化输出图片的灰度阶数。默认值：%default"
-
-#~ msgid ""
-#~ "The line height in pts. Controls spacing between consecutive lines of text. "
-#~ "By default no line height manipulation is performed."
-#~ msgstr "行高(pts)。控制连续行之间的空隙大小，默认情况下程序不调整行高大小。"
-
-#~ msgid ""
-#~ "Normally calibre treats blank lines as paragraph markers. With this option "
-#~ "it will assume that every line represents a paragraph instead."
-#~ msgstr "一般情况下，Calibre 会将空行识别为段落分隔。而此选项将假定每个空行都代表一个段落。"
 
 #~ msgid "Copy to Clipboard"
 #~ msgstr "复制到剪贴板"
 
 #~ msgid "PDB Input"
 #~ msgstr "PDB 输入"
-
-#~ msgid "Remove F&ooter"
-#~ msgstr "移除脚注(&O)"
-
-#~ msgid "Remove H&eader"
-#~ msgstr "移除头注(&E)"
 
 #~ msgid "Add/Save"
 #~ msgstr "添加/保存"
@@ -20326,186 +18648,6 @@ msgstr ""
 
 #~ msgid "&Saving books"
 #~ msgstr "保存书籍(&S)"
-
-#~ msgid "Search as you type"
-#~ msgstr "即时搜索"
-
-#~ msgid "Plugin &file:"
-#~ msgstr "插件文件(&F)："
-
-#~ msgid "Finding metadata..."
-#~ msgstr "正在寻找元数据..."
-
-#~ msgid "Could not find metadata"
-#~ msgstr "无法找到元数据"
-
-#~ msgid "The metadata download seems to have stalled. Try again later."
-#~ msgstr "下载元数据失败。请稍后再试。"
-
-#~ msgid "Could not fetch metadata from:"
-#~ msgstr "无法从如下位置抓取元数据："
-
-#~ msgid "No metadata found"
-#~ msgstr "未找到元数据"
-
-#~ msgid "Fetch metadata"
-#~ msgstr "获取元数据"
-
-#~ msgid ""
-#~ "<p>calibre can find metadata for your books from two locations: <b>Google "
-#~ "Books</b> and <b>isbndb.com</b>. <p>To use isbndb.com you must sign up for a "
-#~ "<a href=\"http://www.isbndb.com\">free account</a> and enter your access key "
-#~ "below."
-#~ msgstr ""
-#~ "<p>Calibre 可以以下两个服务器获取书籍的元数据：<b>Google Books</b> 和 <b>isbndb.com</b>。<p>若使用 "
-#~ "isbndb.com 您必须注册<a href=\"http://www.isbndb.com\">免费账户</a> 并在下方填写您的访问密码。"
-
-#~ msgid "&Access Key:"
-#~ msgstr "访问密码(&A)："
-
-#~ msgid "Fetch"
-#~ msgstr "抓取"
-
-#~ msgid "&Stop selected job"
-#~ msgstr "停止选中任务(&S)"
-
-#~ msgid "Meta information"
-#~ msgstr "元信息"
-
-#~ msgid "Cannot fetch cover"
-#~ msgstr "无法抓取封面"
-
-#~ msgid "<b>Could not fetch cover.</b><br/>"
-#~ msgstr "<b>无法抓取封面。</b><br/>"
-
-#~ msgid "The download timed out."
-#~ msgstr "下载超时。"
-
-#~ msgid "Could not find cover for this book. Try specifying the ISBN first."
-#~ msgstr "无法找到书籍对应的封面。请尝试首先指定 ISBN。"
-
-#~ msgid "Bad cover"
-#~ msgstr "非法封面"
-
-#~ msgid "The cover is not a valid picture"
-#~ msgstr "封面不是有效图片"
-
-#~ msgid "Cannot fetch metadata"
-#~ msgstr "无法抓取元数据"
-
-#~ msgid "Edit Meta Information"
-#~ msgstr "编辑元信息"
-
-#~ msgid "Author S&ort: "
-#~ msgstr "作者排序：(&O) "
-
-#~ msgid "IS&BN:"
-#~ msgstr "ISBN(&B)："
-
-#~ msgid "&Fetch metadata from server"
-#~ msgstr "从服务器抓取元数据(&F)"
-
-#~ msgid "Add a new format for this book to the database"
-#~ msgstr "为此书添加新格式到数据库中"
-
-#~ msgid "Remove the selected formats for this book from the database."
-#~ msgstr "从数据库中移除此书的选定格式。"
-
-#~ msgid "Download &cover"
-#~ msgstr "下载封面(&C)"
-
-#~ msgid "%d recipes"
-#~ msgstr "%d 订阅清单"
-
-#~ msgid "This recipe requires a username and password"
-#~ msgstr "该订阅清单需要用户名和密码"
-
-#, python-format
-#~ msgid "%d days, %d hours and %d minutes ago"
-#~ msgstr "%d 天 %d 小时 %d 分钟前"
-
-#~ msgid "Download all scheduled recipes at once"
-#~ msgstr "立即下载所有计划中的订阅清单"
-
-#~ msgid ""
-#~ "Interval at which to download this recipe. A value of zero means that the "
-#~ "recipe will be downloaded every hour."
-#~ msgstr "订阅清单下载间隔。0 表示每小时下载该订阅清单。"
-
-#~ msgid ""
-#~ "Delete downloaded news older than the specified number of days. Set to zero "
-#~ "to disable."
-#~ msgstr "设置删除已下载的超过一定天数旧新闻。天数为 0 表示从不删除旧新闻。"
-
-#~ msgid "Delete downloaded news older than "
-#~ msgstr "删除已下载的旧新闻，过期天数 "
-
-#~ msgid ""
-#~ "See the <a href=\"http://calibre.kovidgoyal.net/user_manual/gui.html#the-"
-#~ "search-interface\">User Manual</a> for more help"
-#~ msgstr ""
-#~ "请参阅<a href=\"http://calibre.kovidgoyal.net/user_manual/gui.html#the-search-"
-#~ "interface\">用户手册</a>获取更多帮助"
-
-#~ msgid "Pick recipe"
-#~ msgstr "选取订阅清单"
-
-#~ msgid "Pick the recipe to customize"
-#~ msgstr "选取订阅清单进行自定义"
-
-#~ msgid ""
-#~ "For help with writing advanced news recipes, please visit <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
-#~ msgstr ""
-#~ "创建高级新闻订阅清单的帮助信息，在<a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/news.html\">用户订阅清单</a>"
-
-#~ msgid ""
-#~ "<p>For help visit <a "
-#~ "href=\"http://%s.kovidgoyal.net/user_manual\">%s.kovidgoyal.net</a><br>"
-#~ msgstr ""
-#~ "<p>获得帮助可访问 <a "
-#~ "href=\"http://%s.kovidgoyal.net/user_manual\">%s.kovidgoyal.net</a><br>"
-
-#~ msgid "Download only metadata"
-#~ msgstr "仅下载元数据"
-
-#~ msgid "Download only covers"
-#~ msgstr "仅下载封面"
-
-#~ msgid "covers"
-#~ msgstr "封面"
-
-#~ msgid "metadata"
-#~ msgstr "元数据"
-
-#~ msgid "Alt+S"
-#~ msgstr "Alt+S"
-
-#~ msgid "&Search:"
-#~ msgstr "搜索(&S)："
-
-#~ msgid "Sort by &popularity"
-#~ msgstr "按流行度排序(&P)"
-
-#~ msgid "Edit meta information"
-#~ msgstr "编辑元数据"
-
-#~ msgid "Convert E-books"
-#~ msgstr "转换电子书"
-
-#~ msgid "Configure calibre"
-#~ msgstr "配置 Calibre"
-
-#, python-format
-#~ msgid "Using: %s:%s@%s:%s and %s encryption"
-#~ msgstr "使用：%s:%s@%s:%s 和 %s 加密"
-
-#~ msgid "Finish gmail setup"
-#~ msgstr "完成 gmail 设定"
-
-#~ msgid "You must set the username and password for the mail server."
-#~ msgstr "您需要设置邮件服务器用户名和密码。"
 
 #~ msgid "Checking SQL integrity..."
 #~ msgstr "正在检查"
@@ -20522,49 +18664,8 @@ msgstr ""
 #~ msgid "The series number"
 #~ msgstr "系列编号"
 
-#~ msgid "French"
-#~ msgstr "法语"
-
-#~ msgid "Skipping duplicated article: %s"
-#~ msgstr "跳过重复文章：%s"
-
-#~ msgid "Skipping filtered article: %s"
-#~ msgstr "跳过已经过滤文章：%s"
-
-#~ msgid "Kovid Goyal and Sujata Raman"
-#~ msgstr "Kovid Goyal 和 Sujata Raman"
-
-#~ msgid "&Preprocess input file to possibly improve structure detection"
-#~ msgstr "预处理输入文件，尽可能改善文档结构检测(&D)"
-
-#~ msgid "&Footer regular expression:"
-#~ msgstr "页脚正则表达式(&F)"
-
-#~ msgid "Use a wizard to help construct the XPath expression"
-#~ msgstr "使用向导帮助构建 XPath 表达式"
-
 #~ msgid "Run the text input though the markdown processor."
 #~ msgstr "用 markdown 处理器运行文本输入"
-
-#~ msgid "Send specific format to storage card A"
-#~ msgstr "发送指定格式到存储卡 A"
-
-#~ msgid ""
-#~ "<p>For example, to match all h2 tags that have class=\"chapter\", set tag to "
-#~ "<i>h2</i>, attribute to <i>class</i> and value to "
-#~ "<i>chapter</i>.</p><p>Leaving attribute blank will match any attribute and "
-#~ "leaving value blank will match any value. Setting tag to * will match any "
-#~ "tag.</p><p>To learn more advanced usage of XPath see the <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath "
-#~ "Tutorial</a>."
-#~ msgstr ""
-#~ "<p>例如，要匹配所有带有 class=\"chapter\" 的 h2 标签，设定标签为 <i>h2</i>，设置属性为 <i>class</i> "
-#~ "设定值为 <i>chapter</i>。</p><p>属性留空将匹配任意属性，值留空亦然。设定标签为 * 则匹配任意标签。</p><p>了解更多 "
-#~ "XPath 的高级用法，参见 <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual/xpath.html\">XPath 教程</a>。"
-
-#~ msgid "Send specific format to storage card B"
-#~ msgstr "发送指定格式到存储卡 B"
 
 #~ msgid "Failed to check database integrity"
 #~ msgstr "检查数据库完整性失败"
@@ -20632,156 +18733,6 @@ msgstr ""
 #~ "font-weight:600;\">测试</span>下面功能以证实您的正则表达式适用于一些文件名举例。在工具提示中有关于不同元数据项对应组名的说明。<"
 #~ "/p></body></html>"
 
-#~ msgid "Failed to download some metadata"
-#~ msgstr "下载一些元数据失败"
-
-#~ msgid "Failed to download metadata for the following:"
-#~ msgstr "下载下列书籍元数据失败："
-
-#~ msgid "Device database corrupted"
-#~ msgstr "设备数据库损坏"
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> and the files removed "
-#~ "from your computer. Are you sure?"
-#~ msgstr "选定书籍将被<b>永久删除</b>，文件会从您的电脑中移除。是否确定？"
-
-#~ msgid "Failed to download metadata:"
-#~ msgstr "下载元数据失败。"
-
-#~ msgid ""
-#~ "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
-#~ "first remove the DRM using 3rd party tools."
-#~ msgstr "<p>无法转换：%s<p>这是使用 <a href=\"%s\">DRM</a> 保护的书籍。您必须使用第三方工具先去除其 DRM。"
-
-#~ msgid ""
-#~ "<span style=\"color:red; font-weight:bold\">Latest version: <a "
-#~ "href=\"%s\">%s</a></span>"
-#~ msgstr ""
-#~ "<span style=\"color:red; font-weight:bold\">最新版本：<a href=\"%s\">%s</a></span>"
-
-#~ msgid ""
-#~ "%s has been updated to version %s. See the <a "
-#~ "href=\"http://calibre.kovidgoyal.net/wiki/Changelog\">new features</a>. "
-#~ "Visit the download page?"
-#~ msgstr ""
-#~ "%s 已更新到版本 %s。参见<a "
-#~ "href=\"http://calibre.kovidgoyal.net/wiki/Changelog\">新功能</a>。访问下载页么？"
-
-#~ msgid ""
-#~ "is the result of the efforts of many volunteers from all over the world. If "
-#~ "you find it useful, please consider donating to support its development."
-#~ msgstr "是众多全球志愿者的努力结晶。如果您觉得它有用，请考虑捐助支持开发。"
-
-#~ msgid "WARNING: Active jobs"
-#~ msgstr "警告：正在运行任务"
-
-#~ msgid "Book has neither title nor ISBN"
-#~ msgstr "书籍既没有标题也没有 ISBN 编号"
-
-#~ msgid "No matches found for this book"
-#~ msgstr "未找到匹配此书信息"
-
-#~ msgid "Starting conversion of %d books"
-#~ msgstr "开始转换 %d 本书"
-
-#~ msgid "Click to turn off Cover Browsing"
-#~ msgstr "点击关闭封面浏览"
-
-#~ msgid "Click to browse books by their covers"
-#~ msgstr "点击浏览书籍封面"
-
-#~ msgid "Click to browse books by tags"
-#~ msgstr "点击浏览书籍标签"
-
-#~ msgid "Click to see list of active jobs."
-#~ msgstr "点击查看活动任务。"
-
-#~ msgid "You must set a username and password for %s"
-#~ msgstr "您必须为 %s 设置用户名密码"
-
-#~ msgid ""
-#~ "<p>Browsing books by their covers is disabled.<br>Import of pictureflow "
-#~ "module failed:<br>"
-#~ msgstr "<p>已禁用封面浏览。<br>导入图片流模块失败：<br>"
-
-#~ msgid "&User stylesheet"
-#~ msgstr "用户样式表(&U)"
-
-#~ msgid "/Unknown"
-#~ msgstr "/未知"
-
-#~ msgid "<p>This book is protected by <a href=\"%s\">DRM</a>"
-#~ msgstr "<p>此书被 <a href=\"%s\">DRM</a> 保护"
-
-#~ msgid "DRM Error"
-#~ msgstr "DRM 错误"
-
-#~ msgid "Ebook Viewer"
-#~ msgstr "电子书查看器"
-
-#~ msgid ""
-#~ "Reader\n"
-#~ "%s\n"
-#~ "available"
-#~ msgstr ""
-#~ "阅读器\n"
-#~ "%s\n"
-#~ "可用"
-
-#~ msgid ""
-#~ "Card A\n"
-#~ "%s\n"
-#~ "available"
-#~ msgstr ""
-#~ "存储卡 A\n"
-#~ "%s\n"
-#~ "可用"
-
-#~ msgid ""
-#~ "Card B\n"
-#~ "%s\n"
-#~ "available"
-#~ msgstr ""
-#~ "存储卡 B\n"
-#~ "%s\n"
-#~ "可用"
-
-#~ msgid "Click to see the books on storage card B in your reader"
-#~ msgstr "点击查看阅读器存储卡 B 中的书籍"
-
-#~ msgid "Click to see the books on storage card A in your reader"
-#~ msgstr "点击查看阅读器存储卡 A 中的书籍"
-
-#~ msgid "Click to see the books in the main memory of your reader"
-#~ msgstr "点击查看阅读区主存储中的书籍"
-
-#~ msgid "Click to see the books available on your computer"
-#~ msgstr "点击查看电脑上可用书籍"
-
-#~ msgid ""
-#~ "Remember to leave calibre running as the server only runs as long as calibre "
-#~ "is running."
-#~ msgstr "请记住保持 Calibre 运行，如此它才能一直提供服务。"
-
-#~ msgid ""
-#~ "Choose a location for your books. When you add books to calibre, they will "
-#~ "be copied here:"
-#~ msgstr "为您的书籍选择位置。当您在 Calibre 中添加书籍，它们将被复制到这里："
-
-#~ msgid ""
-#~ "Choose your book reader. This will set the conversion options to produce "
-#~ "books optimized for your device."
-#~ msgstr "选择您的图书阅读器。这将决定生成书籍的转换选项，正确选择设备以便优化选项。"
-
-#~ msgid ""
-#~ "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
-#~ "available <a "
-#~ "href=\"http://calibre.kovidgoyal.net/downloads/videos/\">online</a>."
-#~ msgstr ""
-#~ "<h2>演示视频</h2>演示 Calibre 不同功能的视频在<a "
-#~ "href=\"http://calibre.kovidgoyal.net/downloads/videos/\">此网址</a>。"
-
 #~ msgid ""
 #~ "Dont forget to enter your gmail username and password. You can sign up for a "
 #~ "free gmail account at http://gmail.com"
@@ -20789,133 +18740,6 @@ msgstr ""
 
 #~ msgid "List builtin recipes"
 #~ msgstr "列出公告板订阅清单"
-
-#~ msgid "The regular expression to use to remove the header."
-#~ msgstr "匹配移除页眉用正则表达式。"
-
-#~ msgid "Use a regular expression to try and remove the footer."
-#~ msgstr "使用正则表达式来匹配和移除页脚。"
-
-#~ msgid ""
-#~ "Average line length for line breaking if the HTML is from a previous partial "
-#~ "conversion of a PDF file."
-#~ msgstr "如果该HTML由PDF转换而来, 请指定平均行长度."
-
-#, python-format
-#~ msgid "Failed to parse link %s %s"
-#~ msgstr "解析链接失败 %s %s"
-
-#, python-format
-#~ msgid ""
-#~ "\n"
-#~ "Read/Write metadata from/to ebook files.\n"
-#~ "\n"
-#~ "Supported formats for reading metadata: %s\n"
-#~ "\n"
-#~ "Supported formats for writing metadata: %s\n"
-#~ "\n"
-#~ "Different file types support different kinds of metadata. If you try to set\n"
-#~ "some metadata on a file type that does not support it, the metadata will be\n"
-#~ "silently ignored.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "读取/写入元数据从/到电子书籍中。\n"
-#~ "\n"
-#~ "支持的读取元数据格式有：%s\n"
-#~ "\n"
-#~ "支持的写入元数据格式有：%s\n"
-#~ "\n"
-#~ "不同的文件类型支持不同的元数据。如果您设置的\n"
-#~ "元数据不被该文件类型所支持，该项元数据会被\n"
-#~ "忽略。\n"
-
-#~ msgid ""
-#~ "\n"
-#~ "%prog [options] key\n"
-#~ "\n"
-#~ "Fetch metadata for books from isndb.com. You can specify either the\n"
-#~ "books ISBN ID or its title and author. If you specify the title and author,\n"
-#~ "then more than one book may be returned.\n"
-#~ "\n"
-#~ "key is the account key you generate after signing up for a free account from "
-#~ "isbndb.com.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "\n"
-#~ "%prog [options] key\n"
-#~ "\n"
-#~ "从 isndb.com 获取元数据。您可以通过书籍的 ISBN 号或者\n"
-#~ "标题及作者来检索。如果您通过标题及作者来检索，可能会\n"
-#~ "返回多个匹配结果。\n"
-#~ "\n"
-#~ "密钥是您在 isbndb.com 注册免费账户时创建的账户密钥。\n"
-#~ "\n"
-
-#~ msgid "Input character &encoding"
-#~ msgstr "输入字符编码(&E)"
-
-#~ msgid "Insert &blank line"
-#~ msgstr "插入空行(&B)"
-
-#~ msgid "&Header regular expression:"
-#~ msgstr "页眉正则表达式(&H)："
-
-#~ msgid "calibre can send your books to you (or your reader) by email"
-#~ msgstr "Calibre 可以通过电子邮件将电子书籍发送给您或您的设备"
-
-#~ msgid ""
-#~ "No metadata found, try adjusting the title and author or the ISBN key."
-#~ msgstr "未找到元数据，请修改标题作者或 ISBN 搜索条件后重试。"
-
-#~ msgid "You must specify at least one of ISBN, Title, Authors or Publisher"
-#~ msgstr "您必须设定 ISBN，标题，作者或出版商中的至少一个条件"
-
-#~ msgid "Choose a location for your ebook library."
-#~ msgstr "为您的电子书库选择一个位置。"
-
-#~ msgid "Invalid library location"
-#~ msgstr "无效书库位置"
-
-#~ msgid "Could not access %s. Using %s as the library."
-#~ msgstr "无法访问 %s。使用 %s 作为书库。"
-
-#~ msgid "calibre"
-#~ msgstr "Calibre"
-
-#~ msgid ""
-#~ "Library\n"
-#~ "%d\n"
-#~ "books"
-#~ msgstr ""
-#~ "书库\n"
-#~ "%d\n"
-#~ "本书"
-
-#~ msgid ""
-#~ "You have to add the URL http://myhostname:8080 as your calibre library in "
-#~ "WordPlayer. Here myhostname should be the fully qualified hostname or the IP "
-#~ "address of the computer calibre is running on."
-#~ msgstr ""
-#~ "您需要将 URL http://myhostname:8080 添加到您 WordPlayer 中的 Calibre 书库。此处 myhostname "
-#~ "应为有效主机名或者您运行 Calibre 电脑的 IP 地址。"
-
-#, python-format
-#~ msgid ""
-#~ "<p>An invalid library already exists at %s, delete it before trying to move "
-#~ "the existing library.<br>Error: %s"
-#~ msgstr "<p>在 %s 已有无效书库，在试图移动现有书库前删除它。<br>错误：%s"
-
-#~ msgid ""
-#~ "<h2>User Manual</h2>A User Manual is also available <a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual\">online</a>."
-#~ msgstr ""
-#~ "<h2>用户手册</h2>用户手册在<a "
-#~ "href=\"http://calibre.kovidgoyal.net/user_manual\">此网址</a>。"
-
-#~ msgid ""
-#~ "The format in which to output the data. Available choices: %s. Defaults is "
-#~ "text."
-#~ msgstr "输出数据格式。可用选择：%s。默认纯文本。"
 
 #~ msgid ""
 #~ "Comma separated list of formats to save for each book. By default all "
@@ -20935,76 +18759,14 @@ msgstr ""
 #~ "Default is: %b, %Y"
 #~ msgstr "日期显示格式。%d - 日，%b - 月, %Y - 年。默认：%b, %Y"
 
-#~ msgid "Password to access your calibre library. Username is "
-#~ msgstr "密码以访问您的 Calibre 书库。用户名为 "
-
-#~ msgid ""
-#~ "[options]\n"
-#~ "\n"
-#~ "Start the calibre content server."
-#~ msgstr ""
-#~ "[options]\n"
-#~ "\n"
-#~ "启动 Calibre 内容服务器。"
-
-#, python-format
-#~ msgid "%sUsage%s: %s\n"
-#~ msgstr "%s用法%s：%s\n"
-
-#~ msgid "The priority of worker processes"
-#~ msgstr "工作流程优先级"
-
-#~ msgid "Croatian"
-#~ msgstr "克罗地亚语"
-
-#~ msgid "Serbian"
-#~ msgstr "塞尔维亚语"
-
-#~ msgid "Spanish"
-#~ msgstr "西班牙语"
-
 #~ msgid "Vietnamese"
 #~ msgstr "越南语"
 
 #~ msgid "sr-Latn-RS"
 #~ msgstr "拉丁塞尔维亚语"
 
-#~ msgid "German"
-#~ msgstr "德语"
-
-#~ msgid "Italian"
-#~ msgstr "意大利语"
-
-#~ msgid "Dutch"
-#~ msgstr "荷兰语"
-
-#~ msgid "Bosnian"
-#~ msgstr "波斯尼亚语"
-
-#~ msgid "Catalan"
-#~ msgstr "加特兰语"
-
-#~ msgid "Portuguese"
-#~ msgstr "葡萄牙语"
-
-#~ msgid "Hungarian"
-#~ msgstr "匈牙利语"
-
 #~ msgid "Montenegrin"
 #~ msgstr "蒙特内哥罗语"
-
-#~ msgid "Chinese"
-#~ msgstr "中文"
-
-#~ msgid ""
-#~ "Any link that matches this regular expression will be ignored. This option "
-#~ "can be specified multiple times, in which case as long as any regexp matches "
-#~ "a link, it will be ignored.By default, no links are ignored. If both --"
-#~ "filter-regexp and --match-regexp are specified, then --filter-regexp is "
-#~ "applied first."
-#~ msgstr ""
-#~ "任何匹配此正则表达式的链接都会被忽略。此选项可被多次使用，此时只要任一正则表达式有匹配链接，链接都被忽略。默认情况下，没有链接被忽略。如果 --"
-#~ "filter-regexp 和 --match-regexp 均被使用，则优先应用 --filter-regexp。"
 
 #~ msgid ""
 #~ "Run the text input through the markdown pre-processor. To learn more about "
@@ -21024,42 +18786,9 @@ msgstr ""
 #~ msgstr "不在段落中添加新行。"
 
 #~ msgid ""
-#~ "\n"
-#~ "                <p>The database of books on the reader is corrupted. Try the "
-#~ "following:\n"
-#~ "                <ol>\n"
-#~ "                <li>Unplug the reader. Wait for it to finish regenerating "
-#~ "the database (i.e. wait till it is ready to be used). Plug it back in. Now "
-#~ "it should work with %(app)s. If not try the next step.</li>\n"
-#~ "                <li>Quit %(app)s. Find the file media.xml in the reader's "
-#~ "main memory. Delete it. Unplug the reader. Wait for it to regenerate the "
-#~ "file. Re-connect it and start %(app)s.</li>\n"
-#~ "                </ol>\n"
-#~ "                "
-#~ msgstr ""
-#~ "\n"
-#~ "                <p>您的阅读器书籍数据库已经损坏。尝试下列步骤：\n"
-#~ "                <ol>\n"
-#~ "                <li>拔下阅读器。等待重新生成数据库（如，等待它可以正常使用）。再次插入。则它可以和 %(app)s "
-#~ "协作。如果不行，尝试下一个步骤。</li>\n"
-#~ "                <li>退出 %(app)s。 找到阅读器主存储器中 media.xml "
-#~ "文件。删除。拔下阅读器。等待它重新生成该文件。重新连接它之后开启 %(app)s。</li>\n"
-#~ "                </ol>\n"
-#~ "                "
-
-#~ msgid ""
 #~ "<p>Could not convert: %s<p>It is a <a href=\"%s\">DRM</a>ed book. You must "
 #~ "first remove the DRM using third party tools."
 #~ msgstr "<p>无法转换：%s<p> 它是 <a href=\"%s\">DRM</a> 保护书籍。您需要首先使用第三方工具去除 DRM。"
-
-#~ msgid ""
-#~ "&Location of ebooks (The ebooks are stored in folders sorted by author and "
-#~ "metadata is stored in the file metadata.db)"
-#~ msgstr "电子书位置(&L)（电子书籍按作者排序存储在文件目录中，元数据存储在 metadata.db）"
-
-#, python-format
-#~ msgid "The attached file: %s is a recipe to download %s."
-#~ msgstr "附件文件：%s 为订阅清单，用以下载 %s。"
 
 #~ msgid "Communicate with the Sony PRS-300/505 eBook reader."
 #~ msgstr "与 Sony PRS-300/505 阅读器通信。"
@@ -21084,49 +18813,6 @@ msgstr ""
 #~ "conversion of a PDF file. Default is %default which disables this."
 #~ msgstr "PDF 文件部分转换为 HTML，在此设定平均换行行宽。默认为 %default  即已禁用。"
 
-#~ msgid "The ISBN ID of the book you want metadata for."
-#~ msgstr "待查找书籍的 ISBN ID。"
-
-#~ msgid "The author whose book to search for."
-#~ msgstr "待查找书籍的作者。"
-
-#~ msgid "The title of the book to search for."
-#~ msgstr "待查找书籍的标题。"
-
-#~ msgid "The publisher of the book to search for."
-#~ msgstr "待查找书籍的出版商。"
-
-#~ msgid "LibraryThing.com timed out. Try again later."
-#~ msgstr "访问 LibraryThing.com 超时。请稍后再试。"
-
-#~ msgid ""
-#~ "Could not fetch cover as server is experiencing high load. Please try again "
-#~ "later."
-#~ msgstr "由于服务器繁忙无法获得封面。请稍后重试。"
-
-#~ msgid " not found."
-#~ msgstr " 无法找到。"
-
-#~ msgid "LibraryThing.com server error. Try again later."
-#~ msgstr "LibraryThing.com 服务器错误。请稍后重试。"
-
-#~ msgid ""
-#~ "Don't add Table of Contents to end of book. Useful if the book has its own "
-#~ "table of contents."
-#~ msgstr "不要自动生成书籍目录。该选项对自含目录的书籍尤其有用。"
-
-#~ msgid "Options to control e-book conversion."
-#~ msgstr "控制电子书籍转换的选项。"
-
-#~ msgid "Character encoding for input. Default is to auto detect."
-#~ msgstr "输入文件的字符编码。默认为自动检测。"
-
-#~ msgid "Produce more human-readable XML output."
-#~ msgstr "生成更多人类可读的 XML 输出。"
-
-#~ msgid "Useful for debugging."
-#~ msgstr "有利调试。"
-
 #~ msgid "Maximum number of waiting worker processes"
 #~ msgstr "等待中的工作进程最大数量"
 
@@ -21147,12 +18833,6 @@ msgstr ""
 
 #~ msgid "dd MMM yyyy"
 #~ msgstr "dd MMM yyyy"
-
-#~ msgid "and delete from library"
-#~ msgstr "并从书库中删除"
-
-#~ msgid "Send specific format to main memory"
-#~ msgstr "传送特定格式到主内存"
 
 #~ msgid ""
 #~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
@@ -21294,9 +18974,6 @@ msgstr ""
 #~ msgid "ratings"
 #~ msgstr "评分"
 
-#~ msgid "tags"
-#~ msgstr "标签"
-
 #~ msgid "description/reviews"
 #~ msgstr "描述/评论"
 
@@ -21383,9 +19060,6 @@ msgstr ""
 #~ "ebook.com/user_manual\">online</a>."
 #~ msgstr ""
 #~ "<h2>用户手册</h2>用户手册<a href=\"http://calibre-ebook.com/user_manual\">在线</a>可查。"
-
-#~ msgid "Downloading %s for %d book(s)"
-#~ msgstr "正在为 %s 本书下载 %s"
 
 #~ msgid "Communicate with the Teclast K3 reader."
 #~ msgstr "与 Teclast K3 通信。"
@@ -21559,12 +19233,6 @@ msgstr ""
 #~ msgid "Communicate with the Kogan"
 #~ msgstr "与 Kogan 通信"
 
-#~ msgid "Cover download"
-#~ msgstr "下载图书封面"
-
-#~ msgid "Download covers from openlibrary.org"
-#~ msgstr "从openlibray.org下载图书封面"
-
 #~ msgid "ISBN: %s not found"
 #~ msgstr "未找到 ISBN 为 %s 的图书封面"
 
@@ -21617,9 +19285,6 @@ msgstr ""
 #, python-format
 #~ msgid "Copied %d books to %s"
 #~ msgstr "已复制%d本书到%s中"
-
-#~ msgid "Del"
-#~ msgstr "删除"
 
 #~ msgid " and delete from library"
 #~ msgstr " 并从书库中删除"
@@ -22177,13 +19842,6 @@ msgstr ""
 #~ "new\">新功能</a>。是否访问下载页面？"
 
 #~ msgid ""
-#~ "If you use the WordPlayer e-book app on your Android phone, you can access "
-#~ "your calibre book collection directly on the device. To do this you have to "
-#~ "turn on the content server."
-#~ msgstr ""
-#~ "若您使用 Android 手机上的 WordPlayer 电子书程序，您可以用设备直接访问您的 Calibre 书库。这需要您启动内容服务程序。"
-
-#~ msgid ""
 #~ "No books to catalog\n"
 #~ "Check exclusion criteria"
 #~ msgstr ""
@@ -22267,16 +19925,6 @@ msgstr ""
 #~ "创造高级新闻清单，请访问 <a href=\"http://calibre-"
 #~ "ebook.com/user_manual/news.html\">用户清单</a>"
 
-#, python-format
-#~ msgid ""
-#~ "Could not convert %d of %d books, because no suitable source format was "
-#~ "found."
-#~ msgstr "由于未找到适用源格式，无法转换第 %d 本书（共 %d 本）。"
-
-#, python-format
-#~ msgid "Convert book %d of %d (%s)"
-#~ msgstr "转换第 %d 本书 (共%d本) (%s)"
-
 #~ msgid ""
 #~ "You have changed the tags. In order to use the tags editor, you must either "
 #~ "discard or apply these changes"
@@ -22333,3 +19981,14 @@ msgstr ""
 #~ msgstr ""
 #~ "<b>%s</b>的<b style=\"color: red\">所有文件</b>(不仅是电子书) <br><br> 将被 "
 #~ "<b>彻底删除</b>。您确定么？"
+
+#~ msgid ""
+#~ "Normally calibre treats blank lines as paragraph markers. With this option "
+#~ "it will assume that every line represents a paragraph instead."
+#~ msgstr "一般情况下，calibre 会将空行识别为段落分隔。而此选项将假定每个空行都代表一个段落。"
+
+#~ msgid "Cover download"
+#~ msgstr "下载书籍封面"
+
+#~ msgid "Download covers from openlibrary.org"
+#~ msgstr "从openlibray.org下载书籍封面"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-07-29 18:01+0000\n"
-"PO-Revision-Date: 2011-08-01 11:13+0000\n"
+"PO-Revision-Date: 2011-08-04 13:43+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-02 04:34+0000\n"
-"X-Generator: Launchpad (build 13552)\n"
+"X-Launchpad-Export-Date: 2011-08-05 04:37+0000\n"
+"X-Generator: Launchpad (build 13604)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -18954,7 +18954,7 @@ msgstr "補足後にセパレータを補足したテキストの最後に自動
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:51
 msgid "Author sort name algorithm"
-msgstr ""
+msgstr "著者名のソート・アルゴリズム"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:52
 msgid ""
@@ -18973,6 +18973,16 @@ msgid ""
 "end of an author name. The case of the suffix is ignored and trailing\n"
 "periods are automatically handled."
 msgstr ""
+"著者名を著者名ソートへコピーする時に使うアルゴリズム。\n"
+"使用できる値は：\n"
+"invert: \"fn ln\" を \"ln, fn\"にする。\n"
+"copy  : 変更なしに著者から著者ソートへコピー\n"
+"comma : もし名前に','が使われていれば、'copy'、それ以外の場合には 'invert'\n"
+"nocomma : \"fn ln\" から \"ln fn\" にする。(コンマ無し)\n"
+"このtweakが変更された時には、著者と一緒に保存されているauthor_sort "
+"の値は再計算する必要があります。左側のタグの部分で著者の部分を右クリックして、'著者を管理'を選択肢し、そして'全ての著者名（ソート）の値を再計算する'を"
+"押してください。\n"
+"著者名の接尾辞は、著者名の最後にある場合に無視される言葉です。 接尾辞の大小文字は無視され、最後のピリオドは自動的に処理されます。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:69
 msgid "Use author sort in Tag Browser"
@@ -19477,336 +19487,6 @@ msgid ""
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
 
-#~ msgid "Options to control the conversion to EPUB"
-#~ msgstr "EPUBへの変換をコントロールするためのオプション"
-
-#~ msgid "The reader has no storage card connected."
-#~ msgstr "リーダーに、記憶媒体となるカードが接続されていません。"
-
-#~ msgid ""
-#~ "The output EPUB file. If not specified, it is derived from the input file "
-#~ "name."
-#~ msgstr "出力したEPUBファイル。出力ファイル名を特に指定していない場合は、入力ファイルの名前から名付けられます。"
-
-#~ msgid "Path to the cover to be used for this book"
-#~ msgstr "この本のカバーへのパス"
-
-#~ msgid ""
-#~ "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
-#~ "rescaling of fonts."
-#~ msgstr "基本フォントサイズ。デフォルトは%defaultpt pt。0にするとフォントサイズの変更を無効にする。"
-
-#~ msgid "Control page layout"
-#~ msgstr "ページレイアウトの制御"
-
-#~ msgid "Set the left margin in pts. Default is %default"
-#~ msgstr "左余白量(デフォルトは%default)(単位:ポイント)"
-
-#~ msgid "Set the right margin in pts. Default is %default"
-#~ msgstr "右余白量(デフォルトは%default)(単位:ポイント)"
-
-#~ msgid "Set the top margin in pts. Default is %default"
-#~ msgstr "上余白量(デフォルトは%default)(単位:ポイント)"
-
-#~ msgid "Set the bottom margin in pts. Default is %default"
-#~ msgstr "下余白量(デフォルトは%default)(単位:ポイント)"
-
-#~ msgid "Keep intermediate files during processing by html2epub"
-#~ msgstr "html2epubの中間ファイルを保持する。"
-
-#~ msgid ""
-#~ "Remove table markup, converting it into paragraphs. This is useful if your "
-#~ "source file uses a table to manage layout."
-#~ msgstr "テーブル記法を削除しパラグラフに変換する。これはテーブルレイアウトされたファイルに対して有用です。"
-
-#~ msgid "The output directory. Default is the current directory."
-#~ msgstr "出力先ディレクトリ（デフォルトはカレント)"
-
-#~ msgid "Character encoding for HTML files. Default is to auto detect."
-#~ msgstr "HTMLファイルでの文字コード（デフォルトは自動判別）"
-
-#~ msgid "Set metadata of the generated ebook"
-#~ msgstr "生成されたebookのメタデータを設定する"
-
-#~ msgid "Options useful for debugging"
-#~ msgstr "デバッグに役立つオプション"
-
-#~ msgid "Set the title. Default is to autodetect."
-#~ msgstr "タイトル（デフォルトは自動判別）"
-
-#~ msgid "The subject(s) of this book, as a comma separated list."
-#~ msgstr "主題（カンマ\",\"で区切られたリスト)"
-
-#~ msgid "Set the publisher of this book."
-#~ msgstr "発行者"
-
-#~ msgid "A summary of this book."
-#~ msgstr "概要"
-
-#~ msgid "Load metadata from the specified OPF file"
-#~ msgstr "指定したOPFファイルからメタデータを読み込む"
-
-#~ msgid "The author(s) of the ebook, as a & separated list."
-#~ msgstr "作者（& で区切られたリスト)"
-
-#~ msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
-#~ msgstr "出力HTMLを人に読みやすいよう整形する"
-
-#~ msgid "Useful for debugging."
-#~ msgstr "デバッグに有用"
-
-#~ msgid "Output directory. Defaults to current directory."
-#~ msgstr "出力先（デフォルトはカレント）"
-
-#~ msgid "Output file. Default is derived from input filename."
-#~ msgstr "出力ファイル名（デフォルトは入力ファイル名）"
-
-#~ msgid ""
-#~ "Set the author(s). Multiple authors should be set as a comma separated list. "
-#~ "Default: %default"
-#~ msgstr "著者名、複数の場合はカンマで区切る（デフォルトは%default）"
-
-#~ msgid "Set the comment."
-#~ msgstr "コメント"
-
-#~ msgid "Set the category"
-#~ msgstr "カテゴリー"
-
-#~ msgid "Path to file containing image to be used as cover"
-#~ msgstr "カバーとして使用する画像へのパス"
-
-#~ msgid ""
-#~ "If there is a cover graphic detected in the source file, use that instead of "
-#~ "the specified cover."
-#~ msgstr "ソースファイル中にカバー画像が存在したら指定したカバーの代わりに使う"
-
-#~ msgid "Set the title. Default: filename."
-#~ msgstr "タイトル（デフォルトはファイル名)"
-
-#~ msgid "author email"
-#~ msgstr "作者のE-Mail"
-
-#~ msgid "comments"
-#~ msgstr "コメント"
-
-#~ msgid "date created"
-#~ msgstr "作成日"
-
-#~ msgid "subscriber"
-#~ msgstr "購読者"
-
-#~ msgid "subscribers"
-#~ msgstr "購読者"
-
-#~ msgid "tag"
-#~ msgstr "タグ"
-
-#~ msgid "tags"
-#~ msgstr "タグ"
-
-#~ msgid "last modified"
-#~ msgstr "最終変更日時:"
-
-#~ msgid "feed"
-#~ msgstr "配信"
-
-#~ msgid "feeds"
-#~ msgstr "配信"
-
-#~ msgid "content"
-#~ msgstr "内容"
-
-#~ msgid "date modified"
-#~ msgstr "更新日時"
-
-#~ msgid "author"
-#~ msgstr "作者"
-
-#~ msgid "sites"
-#~ msgstr "サイト"
-
-#~ msgid "site"
-#~ msgstr "サイト"
-
-#~ msgid "feed url"
-#~ msgstr "配信URL"
-
-#~ msgid "cache duration"
-#~ msgstr "キャッシュの期限"
-
-#~ msgid "description"
-#~ msgstr "詳細"
-
-#~ msgid "welcome"
-#~ msgstr "ようこそ"
-
-#~ msgid "use internal cache"
-#~ msgstr "内蔵キャッシュを使う"
-
-#~ msgid "template"
-#~ msgstr "テンプレート"
-
-#~ msgid "shortname"
-#~ msgstr "短い名前"
-
-#~ msgid "Job stopped by user"
-#~ msgstr "ユーザーによってジョブが停止された"
-
-#~ msgid "The priority of worker processes"
-#~ msgstr "ワーカープロセスの優先度"
-
-#~ msgid "Dont show the progress bar"
-#~ msgstr "プログレスバーを非表示"
-
-#~ msgid "Croatian"
-#~ msgstr "クロアチア語"
-
-#~ msgid "Serbian"
-#~ msgstr "セルビア語"
-
-#~ msgid "Bosnian"
-#~ msgstr "ボスニア語"
-
-#~ msgid "Portugese"
-#~ msgstr "ポルトガル語"
-
-#~ msgid "German"
-#~ msgstr "ドイツ語"
-
-#~ msgid "French"
-#~ msgstr "フランス語"
-
-#~ msgid "Spanish"
-#~ msgstr "スペイン語"
-
-#~ msgid "Italian"
-#~ msgstr "イタリア語"
-
-#~ msgid "Dutch"
-#~ msgstr "オランダ語"
-
-#~ msgid "title"
-#~ msgstr "タイトル"
-
-#~ msgid "categories"
-#~ msgstr "カテゴリ"
-
-#~ msgid "category"
-#~ msgstr "カテゴリ"
-
-#~ msgid "created"
-#~ msgstr "作成された"
-
-#~ msgid "status"
-#~ msgstr "ステータス"
-
-#~ msgid "Public"
-#~ msgstr "公開"
-
-#~ msgid "Draft"
-#~ msgstr "ドラフト"
-
-#~ msgid "modified"
-#~ msgstr "修正された"
-
-#~ msgid "Example"
-#~ msgstr "例"
-
-#~ msgid "url"
-#~ msgstr "URL"
-
-#~ msgid "links"
-#~ msgstr "リンク"
-
-#~ msgid "link"
-#~ msgstr "リンク"
-
-#~ msgid "name"
-#~ msgstr "名前"
-
-#~ msgid "Date published."
-#~ msgstr "発行日"
-
-#~ msgid "Warning"
-#~ msgstr "警告"
-
-#~ msgid "Matches"
-#~ msgstr "該当箇所"
-
-#~ msgid "Fetch"
-#~ msgstr "取得"
-
-#~ msgid " pts"
-#~ msgstr " ポイント"
-
-#~ msgid "Category"
-#~ msgstr "カテゴリ"
-
-#~ msgid "Header"
-#~ msgstr "ヘッダー"
-
-#~ msgid "Meta information"
-#~ msgstr "メタ情報"
-
-#~ msgid "Sunday"
-#~ msgstr "日曜"
-
-#~ msgid "Friday"
-#~ msgstr "金曜"
-
-#~ msgid "Monday"
-#~ msgstr "月曜"
-
-#~ msgid "Tuesday"
-#~ msgstr "火曜"
-
-#~ msgid "Wednesday"
-#~ msgstr "水曜"
-
-#~ msgid "Thursday"
-#~ msgstr "木曜"
-
-#~ msgid "Saturday"
-#~ msgstr "土曜"
-
-#~ msgid "Waiting"
-#~ msgstr "待機中"
-
-#~ msgid ""
-#~ "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
-#~ "existing CSS declarations in the source files."
-#~ msgstr "CSSスタイルシートのパスおよび生のCSSを入力してください。このCSSはソースファイル中に存在するすべてのCSS修飾を上書きします。"
-
-#~ msgid "Output written to "
-#~ msgstr "出力先： "
-
-#~ msgid "You must specify an input HTML file"
-#~ msgstr "HTMLファイルを入力に指定しなければならない"
-
-#~ msgid "Print generated OPF file to stdout"
-#~ msgstr "生成されたOPFファイルを標準出力に出力する"
-
-#~ msgid "Print generated NCX file to stdout"
-#~ msgstr "生成されたNCXファイルを標準出力に出力する"
-
-#~ msgid "Written processed HTML to "
-#~ msgstr "処理されたHTMLの出力先： "
-
-#~ msgid ""
-#~ "Create the output in a zip file. If this option is specified, the --output "
-#~ "should be the name of a file not a directory."
-#~ msgstr "ZIPファイルにまとめる。このオプションが有効なとき、出力先はディレクトリではなくファイルになる。"
-
-#~ msgid ""
-#~ "Choose a location for your books. When you add books to calibre, they will "
-#~ "be copied here:"
-#~ msgstr "書籍の場所を指定してください。calibreに書籍を追加すると、書籍はここにコピーされます："
-
-#~ msgid ""
-#~ "Choose your book reader. This will set the conversion options to produce "
-#~ "books optimized for your device."
-#~ msgstr "ブックリーダーを選択してください。書籍が作成されるとき、選択したデバイスに最適化された変換オプションとなります。"
-
 #~ msgid ""
 #~ "<h2>User Manual</h2>A User Manual is also available <a href=\"http://calibre-"
 #~ "ebook.com/user_manual\">online</a>."
@@ -19814,101 +19494,16 @@ msgstr ""
 #~ "<h2>ユーザー・マニュアル</h2>ユーザー・マニュアルも<a href=\"http://calibre-"
 #~ "ebook.com/user_manual\">オンライン</a>で利用できます。"
 
-#~ msgid "Edit meta information"
-#~ msgstr "メタ情報を編集"
-
-#~ msgid "Edit Meta Information"
-#~ msgstr "メタ情報を編集"
-
-#~ msgid "Convert E-books"
-#~ msgstr "電子書籍に変換"
-
-#~ msgid "Delete downloaded news older than "
-#~ msgstr "ダウンロード後 "
-
-#~ msgid ""
-#~ "Library\n"
-#~ "%d\n"
-#~ "books"
-#~ msgstr ""
-#~ "ライブラリに\n"
-#~ "%d\n"
-#~ "書籍あります"
-
 #~ msgid "<p>For help see the: <a href=\"%s\">User Manual</a><br>"
 #~ msgstr "<p>ヘルプをご覧になるには <a href=\"%s\">ユーザー・マニュアル</a> を参照してください。<br>"
 
-#~ msgid "Download only metadata"
-#~ msgstr "メタデータのみダウンロード"
-
-#~ msgid "Download only covers"
-#~ msgstr "表紙のみダウンロード"
-
-#~ msgid "Click to turn off Cover Browsing"
-#~ msgstr "クリックで表紙ブラウズを終了"
-
-#~ msgid ""
-#~ "&Location of ebooks (The ebooks are stored in folders sorted by author and "
-#~ "metadata is stored in the file metadata.db)"
-#~ msgstr "電子書籍の場所(&L) (電子書籍は著者別のフォルダに格納され、メタデータは metadata.db に格納されます。)"
-
-#~ msgid "Use &Roman numerals for series number"
-#~ msgstr "シリーズ番号にローマ数字を使用(&R)"
-
-#~ msgid "Show &notifications in system tray"
-#~ msgstr "システムトレイの通知を有効にする(&N)"
-
-#~ msgid "Search as you type"
-#~ msgstr "入力中に検索する"
-
-#~ msgid "and delete from library"
-#~ msgstr "後、ライブラリから削除"
-
-#~ msgid "Add new plugin"
-#~ msgstr "プラグインを追加"
-
-#~ msgid "Send specific format to storage card B"
-#~ msgstr "フォーマットを指定してストレージカードBに送信"
-
-#~ msgid "Send specific format to storage card A"
-#~ msgstr "フォーマットを指定してストレージカードAに送信"
-
 #~ msgid "Sending to &device"
 #~ msgstr "デバイスに送信(&D)"
-
-#~ msgid "Send specific format to main memory"
-#~ msgstr "フォーマットを指定してメインメモリに送信"
-
-#~ msgid "&Stop selected job"
-#~ msgstr "選択したジョブを停止(&S)"
-
-#~ msgid "Click to browse books by their covers"
-#~ msgstr "書籍の表紙をブラウズ"
-
-#~ msgid ""
-#~ "The selected books will be <b>permanently deleted</b> and the files removed "
-#~ "from your computer. Are you sure?"
-#~ msgstr "選択された書籍は<b>永久に削除</b>され、コンピュータからも削除されます。本当に実行しますか？"
-
-#~ msgid "Plugin &file:"
-#~ msgstr "プラグイン・ファイル(&F):"
-
-#~ msgid "IS&BN:"
-#~ msgstr "IS&BN:"
-
-#~ msgid "Download &cover"
-#~ msgstr "表紙をダウンロード(&C)"
 
 #~ msgid ""
 #~ "Character encoding for the input HTML files. Common choices include: cp1252, "
 #~ "latin1, iso-8859-1 and utf-8."
 #~ msgstr "HTML読み込み時の文字エンコーディング(cp1252, latin1, iso-8859-1, utf-8 が一般的です)"
-
-#~ msgid "No valid plugin found in "
-#~ msgstr "有効なプラグインが見つかりませんでした: "
-
-#~ msgid "Communicate with the Kindle 2 eBook reader."
-#~ msgstr "Kindle 2 電子書籍リーダ─と通信します。"
 
 #~ msgid "Communicate with the Nokia 810 internet tablet."
 #~ msgstr "Nokia 810 internet tablet と通信します。"
@@ -19922,11 +19517,6 @@ msgstr ""
 #~ msgid "Communicate with the Teclast K3 reader."
 #~ msgstr "Teclast K3 電子書籍リーダーと通信します。"
 
-#~ msgid ""
-#~ "Email\n"
-#~ "Delivery"
-#~ msgstr "電子メール送信"
-
 #~ msgid "Communicate with the Booq Avant"
 #~ msgstr "Booq Avantと通信"
 
@@ -19939,20 +19529,11 @@ msgstr ""
 #~ msgid "Set font delta"
 #~ msgstr "フォントのデルタを設定"
 
-#~ msgid "Book Jacket"
-#~ msgstr "本のカバー"
-
 #~ msgid "Copy to Clipboard"
 #~ msgstr "クリップボードにコピー"
 
-#~ msgid "Del"
-#~ msgstr "削除"
-
 #~ msgid " and delete from library"
 #~ msgstr " そして、ライブラリから削除する"
-
-#~ msgid "metadata"
-#~ msgstr "メタデータ"
 
 #~ msgid "Click to open Book Details window"
 #~ msgstr "クリックすると本の詳細ウインドウが開きます"
@@ -19975,9 +19556,6 @@ msgstr ""
 #~ msgid "PDB Input"
 #~ msgstr "PDB入力"
 
-#~ msgid "&Add"
-#~ msgstr "追加(&A)"
-
 #~ msgid "Use brackets"
 #~ msgstr "括弧を使う"
 
@@ -19994,20 +19572,6 @@ msgstr ""
 #~ msgid "List builtin recipes"
 #~ msgstr "内蔵レシピのリスト"
 
-#~ msgid "Use a regular expression to try and remove the footer."
-#~ msgstr "正規表現を使用して、フッターを削除しようとします。"
-
-#~ msgid "The regular expression to use to remove the footer."
-#~ msgstr "フッターの削除に正規表現を使用します。"
-
-#, python-format
-#~ msgid ""
-#~ "Could not process image: %s\n"
-#~ "%s"
-#~ msgstr ""
-#~ "画像を処理できませんでした：%s\n"
-#~ "%s"
-
 #~ msgid "EDITORIAL REVIEW"
 #~ msgstr "編集者のレビュー"
 
@@ -20023,17 +19587,6 @@ msgstr ""
 #~ msgid "Download covers from librarything.com"
 #~ msgstr "librarything.comから表紙のダウンロード"
 
-#~ msgid "LibraryThing.com timed out. Try again later."
-#~ msgstr "LibraryThing.comがタイムアウト。再度試してください。"
-
-#~ msgid ""
-#~ "Could not fetch cover as server is experiencing high load. Please try again "
-#~ "later."
-#~ msgstr "サーバが高負荷のため、表紙を取得できない。後で再度試してください。"
-
-#~ msgid "LibraryThing.com server error. Try again later."
-#~ msgstr "LibraryThing.comサーバエラー。後で再度試してください。"
-
 #~ msgid "Downloads metadata from Douban.com"
 #~ msgstr "Douban.comからメタデータのダウンロード"
 
@@ -20042,9 +19595,6 @@ msgstr ""
 
 #~ msgid "Downloads social metadata from amazon.com"
 #~ msgstr "amazon.comからソーシャル書誌情報のダウンロード"
-
-#~ msgid "The ISBN ID of the book you want metadata for."
-#~ msgstr "書誌情報を取得したい本のISBN コード。"
 
 #~ msgid "Download only social metadata"
 #~ msgstr "ソーシャル書誌情報のみダウンロード"
@@ -20073,53 +19623,11 @@ msgstr ""
 #~ msgid "Choose formats <b>not</b> to be deleted"
 #~ msgstr "<b>残したい</b>フォーマットを選択"
 
-#~ msgid "covers"
-#~ msgstr "表紙"
-
-#~ msgid "Failed to download metadata:"
-#~ msgstr "書誌情報のダウンロードに失敗:"
-
 #~ msgid "Indent size:"
 #~ msgstr "字下げの大きさ:"
 
 #~ msgid "Text justification:"
 #~ msgstr "テキストの調整:"
-
-#~ msgid "Remove F&ooter"
-#~ msgstr "フッターを削除(&o)"
-
-#~ msgid "Remove H&eader"
-#~ msgstr "ヘッダーを削除(&e)"
-
-#~ msgid "Author S&ort: "
-#~ msgstr "著者で並び替え(&S) "
-
-#~ msgid "&Fetch metadata from server"
-#~ msgstr "書誌情報をサーバから取得(&F)"
-
-#~ msgid "Available Formats"
-#~ msgstr "利用できるフォーマット"
-
-#, python-format
-#~ msgid "%d days, %d hours and %d minutes ago"
-#~ msgstr "%d 日 %d 時 %d 分間前"
-
-#~ msgid "Last downloaded"
-#~ msgstr "最後のダウンロード"
-
-#~ msgid "Download all scheduled recipes at once"
-#~ msgstr "すべての定期的に読み込むレシピを一括ダウンロードする"
-
-#~ msgid "Every "
-#~ msgstr "毎 "
-
-#~ msgid "day"
-#~ msgstr "日"
-
-#~ msgid ""
-#~ "Delete downloaded news older than the specified number of days. Set to zero "
-#~ "to disable."
-#~ msgstr "指定した日数より古いダウンロードしたニュースを削除する。ゼロにすると無効になる。"
 
 #~ msgid "Customize the toolbar"
 #~ msgstr "ツールバーのカスタマイズ"
@@ -20130,20 +19638,8 @@ msgstr ""
 #~ msgid "book"
 #~ msgstr "書籍"
 
-#~ msgid "Insert &blank line"
-#~ msgstr "空行の挿入(&b)"
-
 #~ msgid "Send specific format"
 #~ msgstr "特定のフォーマットで送信"
-
-#~ msgid "Failed to email books"
-#~ msgstr "書籍の電子メール送信失敗"
-
-#~ msgid "Failed to email the following books:"
-#~ msgstr "以下の書籍の電子メール送信に失敗:"
-
-#~ msgid "Sent by email:"
-#~ msgstr "電子メールで送信:"
 
 #~ msgid "dd MMM yyyy"
 #~ msgstr "dd MMM yyyy"
@@ -20156,9 +19652,6 @@ msgstr ""
 
 #~ msgid "Paste Image"
 #~ msgstr "画像の貼りつけ"
-
-#~ msgid "&Search:"
-#~ msgstr "検索(&S):"
 
 #~ msgid "Manage &user categories"
 #~ msgstr "ユーザカテゴリを管理(&u)"
@@ -20274,22 +19767,9 @@ msgstr ""
 #~ msgid "Downloads metadata from Overdrive's Content Reserve"
 #~ msgstr "Overdrive's Content Reserveから書籍情報をダウンロード"
 
-#~ msgid ""
-#~ "Don't add Table of Contents to end of book. Useful if the book has its own "
-#~ "table of contents."
-#~ msgstr "目次を本の最後に追加しません。本に独自の目次がある場合に便利です。"
-
-#, python-format
-#~ msgid "Failed to parse link %s %s"
-#~ msgstr "リンクの解析ができません： %s %s"
-
 #, python-format
 #~ msgid "Failed to parse: %s with error: %s"
 #~ msgstr "解析に失敗しました: %s エラー: %s"
-
-#, python-format
-#~ msgid "Unable to process image %s. Error: %s"
-#~ msgstr "イメージを処理できません： %s。　エラー： %s"
 
 #~ msgid "EPUBReaders eBook Shop"
 #~ msgstr "EPUBReaders eBookショップ"
@@ -20339,11 +19819,6 @@ msgstr ""
 #, python-format
 #~ msgid "Book %s of %s"
 #~ msgstr "本 %s (%s)"
-
-#, python-format
-#~ msgid ""
-#~ "Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
-#~ msgstr "分割するための適当な場所が見つかりません: %s Sub-tree size: %d KB"
 
 #, python-format
 #~ msgid "<b>Location %d &bull; %s</b><br />%s<br />"
@@ -20447,27 +19922,6 @@ msgstr ""
 #~ "href=\"http://calibre-ebook.com/user_manual/conversion.html#heuristic-"
 #~ "processing\">ユーザーマニュアル</a>を参照してください。"
 
-#, python-format
-#~ msgid ""
-#~ "\n"
-#~ "Read/Write metadata from/to ebook files.\n"
-#~ "\n"
-#~ "Supported formats for reading metadata: %s\n"
-#~ "\n"
-#~ "Supported formats for writing metadata: %s\n"
-#~ "\n"
-#~ "Different file types support different kinds of metadata. If you try to set\n"
-#~ "some metadata on a file type that does not support it, the metadata will be\n"
-#~ "silently ignored.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "書誌情報を書き込めるフォーマット： %s\n"
-#~ "\n"
-#~ "Supported formats for writing metadata: %s\n"
-#~ "\n"
-#~ "ファイルタイプはそれぞれサポートする書誌情報が違います。もし、そのファイルが\n"
-#~ "サポートしない書誌情報を設定しようとした場合には、その情報は無視されます。\n"
-
 #~ msgid "Downloads metadata and covers from Douban.com"
 #~ msgstr "Douban.comから書誌情報と表紙をダウンロード"
 
@@ -20545,10 +19999,6 @@ msgstr ""
 
 #~ msgid "Tag Wizard"
 #~ msgstr "タグ・ウイザード"
-
-#, python-format
-#~ msgid "The attached file: %s is a recipe to download %s."
-#~ msgstr "添付ファイル： %s は %sをダウンロードするレシピです。"
 
 #~ msgid "Check this box if the tag box contains regular expressions"
 #~ msgstr "タグ指定のボックスに正規表現を含む場合には、これをチェックして下さい"
@@ -20705,16 +20155,6 @@ msgstr ""
 
 #, python-format
 #~ msgid ""
-#~ "Could not convert %d of %d books, because no suitable source format was "
-#~ "found."
-#~ msgstr "%d (/ %d)冊の書籍が、適切な元フォーマットが無かったため変換できませんでした。"
-
-#, python-format
-#~ msgid "Convert book %d of %d (%s)"
-#~ msgstr "%d / %d 書籍を変換(%s)"
-
-#, python-format
-#~ msgid ""
 #~ "%s has been updated to version <b>%s</b>. See the <a href=\"http://calibre-"
 #~ "ebook.com/whats-new\">new features</a>."
 #~ msgstr ""
@@ -20734,16 +20174,6 @@ msgstr ""
 #~ msgstr ""
 #~ "フォントサイズを %s にする\n"
 #~ "現在の拡大率: %.1f"
-
-#, python-format
-#~ msgid ""
-#~ "<p>An invalid library already exists at %s, delete it before trying to move "
-#~ "the existing library.<br>Error: %s"
-#~ msgstr "<p>無効なライブラリがすでに %s に存在しています、ライブラリを移動する前に削除してください。<br>Error: %s"
-
-#, python-format
-#~ msgid "Using: %s:%s@%s:%s and %s encryption"
-#~ msgstr "email: %s:%s@%s:%s と %s エンクリプションを使用"
 
 #, python-format
 #~ msgid ""
