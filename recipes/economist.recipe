@@ -114,7 +114,9 @@ class Economist(BasicNewsRecipe):
                             'description':'', 'date':''})
 
             if articles:
-                feeds[section_title] = articles
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
 
         ans = [(key, val) for key, val in feeds.iteritems()]
         if not ans:

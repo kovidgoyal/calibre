@@ -85,4 +85,5 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
                                             description='', content=''))
             result.append([sect_title, sect_result])
         #pp.pprint(result)
+        return result
 
