@@ -1710,7 +1710,6 @@ class MobiWriter(object):
         '''
         from calibre.ebooks.oeb.base import TOC
         items = list(self._oeb.toc.iterdescendants())
-        items = [i for i in items if i.depth == 1]
         offsets = {i:self._id_offsets.get(i.href, -1) for i in items if i.href}
         items = [i for i in items if offsets[i] > -1]
         items.sort(key=lambda i:offsets[i])
