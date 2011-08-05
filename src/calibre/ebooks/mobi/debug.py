@@ -646,7 +646,7 @@ class Tag(object): # {{{
 
     INTERPRET_MAP = {
             'subchapter': {
-                    5  : ('Parent chapter index', 'parent_index')
+                    21  : ('Parent chapter index', 'parent_index')
             },
 
             'article'   : {
@@ -702,7 +702,8 @@ class Tag(object): # {{{
                 self.desc, self.attr = td[tag_type]
             except:
                 print ('Unknown tag value: %d'%tag_type)
-                self.desc = '??Unknown (tag value: %d)'%tag_type
+                self.desc = '??Unknown (tag value: %d type: %s)'%(
+                        tag_type, entry_type)
                 self.attr = 'unknown'
         if '_offset' in self.attr:
             self.cncx_value = cncx[self.value]
@@ -750,7 +751,7 @@ class IndexEntry(object): # {{{
         try:
             self.entry_type = self.TYPES[entry_type]
         except KeyError:
-            raise ValueError('Unknown Index Entry type: %s'%hex(entry_type))
+            raise ValueError('Unknown Index Entry type: %s'%bin(entry_type))
 
         if control_byte_count not in (1, 2):
             raise ValueError('Unknown control byte count: %d'%
@@ -1223,8 +1224,7 @@ class TBSIndexing(object): # {{{
         tbs_type = 0
         is_periodical = self.doc_type in (257, 258, 259)
         if len(byts):
-            outermost_index, extra, consumed = decode_tbs(byts, flag_size=4 if
-                    is_periodical else 3)
+            outermost_index, extra, consumed = decode_tbs(byts, flag_size=3)
             byts = byts[consumed:]
             for k in extra:
                 tbs_type |= k
