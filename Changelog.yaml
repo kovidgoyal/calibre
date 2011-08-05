@@ -19,6 +19,65 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.12
+  date: 2011-07-29
+
+  new features:
+    - title: "Content server: Return the correct last modified date when serving ebook files. Also allow getting of book metadata as /get/opf/<book_id>"
+
+    - title: "Driver for the COBY MP977"
+
+    - title: "Get Books: Remove epub bud store. Add Ozon.ru and e-knigni.net stores. Fix broken amazon UK and DE stores."
+      tickets: [816091]
+
+    - title: "Add a new tweak to Preferences->Tweaks that allows auto generation of series numbers when importing books with a series name, but no number"
+      tickets: [815573]
+  
+  bug fixes:
+    - title: "Fix a regression in 0.8.11 that broke calibre on linux systems that use a file system encoding that cannot support cyrillic characters"
+      tickets: [815224]
+
+    - title: "Fix long titles not wrapping in cover browser"
+      tickets: [816595]
+
+    - title: "When adding books, handle the case of files without read permission more gracefully."
+      tickets: [814771]
+
+    - title: "When changing metadata in EPUB files do not use the opf: namespace prefix on newly created elements. Apparently, FBReaderJ doesn't understand XML namespaces."
+      tickets: [814722]
+
+    - title: "Prevent metadata download from returning published dates earlier than 101 A.D."
+
+    - title: "Fix a bug where dates before 101AD in the database could cause errors"
+      tickets: [814964]
+
+    - title: "Fix an error in the book details panel if the user sets the default author link to blank"
+
+  improved recipes:
+    - The Economist
+    - Instapaper
+    - Corren
+
+  new recipes:
+    - title: Counterpunch
+      author: O. Emmerson
+
+    - title: National Geographic (PL)
+      author: Marcin Urban
+      
+    - title: Caros Amigos
+      author: Pablo Aldama
+      
+    - title: Aksiyon Dergisi
+      author: thomass
+
+    - title: Dnevnik (MK) and +Info
+      author: Darko Spasovski
+
+    - title: Dagens Industri
+      author: Jonas Svensson
+
+
 - version: 0.8.11
   date: 2011-07-22
 

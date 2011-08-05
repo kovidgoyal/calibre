@@ -9,6 +9,9 @@ __docformat__ = 'restructuredtext en'
 
 import struct, datetime, sys, os, shutil
 from collections import OrderedDict, defaultdict
+
+from lxml import html
+
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
@@ -1065,7 +1068,7 @@ class TBSIndexing(object): # {{{
                 if eof != 0:
                     raise ValueError('Unknown eof value %s when reading'
                             ' starting section. All bytes: %r'%(eof, orig))
-                ans.append('This record is spanned by an article from'
+                ans.append('??This record has more than one article from '
                         ' the section: %d'%si.index)
             return si, byts
         # }}}
@@ -1207,6 +1210,19 @@ def inspect_mobi(path_or_stream, prefix='decompiled'):
         os.mkdir(tdir)
         for rec in getattr(f, attr):
             rec.dump(tdir)
+
+    alltext = os.path.join(ddir, 'text.html')
+    with open(alltext, 'wb') as of:
+        alltext = b''
+        for rec in f.text_records:
+            of.write(rec.raw)
+            alltext += rec.raw
+        of.seek(0)
+    root = html.fromstring(alltext.decode('utf-8'))
+    with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
+        of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
+            include_meta_content_type=True))
+
 
     print ('Debug data saved to:', ddir)
 

@@ -150,6 +150,8 @@ class CheckLibrary(object):
         if not ext:
             return False
         ext = ext[1:].lower()
+        if ext.startswith('original_'):
+            ext = ext[len('original_'):]
         if ext in EBOOK_EXTENSIONS:
             return True
         return False

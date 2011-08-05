@@ -50,6 +50,19 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('When adding the Table of Contents to the book, add it at the start of the '
                 'book instead of the end. Not recommended.')
         ),
+        OptionRecommendation(name='mobi_navpoints_only_deepest',
+            recommended_value=False,
+            help=_('When adding navpoints for the chapter-to-chapter'
+                ' navigation on the kindle, use only the lowest level '
+                'of items in the TOC, instead of items at every level.')
+        ),
+
+        OptionRecommendation(name='kindlegen',
+            recommended_value=False,
+            help=('Use kindlegen (must be in your PATH) to generate the'
+                ' binary wrapper for the MOBI format. Useful to debug '
+                ' the calibre MOBI output.')
+        ),
 
     ])
 
@@ -164,7 +177,11 @@ class MOBIOutput(OutputFormatPlugin):
             MobiWriter
         else:
             from calibre.ebooks.mobi.writer import MobiWriter
-        writer = MobiWriter(opts,
-                        write_page_breaks_after_item=write_page_breaks_after_item)
-        writer(oeb, output_path)
+        if opts.kindlegen:
+            from calibre.ebooks.mobi.kindlegen import kindlegen
+            kindlegen(oeb, opts, input_plugin, output_path)
+        else:
+            writer = MobiWriter(opts,
+                            write_page_breaks_after_item=write_page_breaks_after_item)
+            writer(oeb, output_path)
 
