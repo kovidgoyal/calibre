@@ -131,7 +131,7 @@ def preprocess_template(template):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
-class SafeFormat(TemplateFormatter):
+class Formatter(TemplateFormatter):
     '''
     Provides a format function that substitutes '' for any missing value
     '''
@@ -225,8 +225,7 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                     format_args[key] = unicode(format_args[key])
                 else:
                     format_args[key] = ''
-    components = SafeFormat().safe_format(template, format_args,
-                                            'G_C-EXCEPTION!', mi)
+    components = Formatter().unsafe_format(template, format_args, mi)
     components = [x.strip() for x in components.split('/')]
     components = [sanitize_func(x) for x in components if x]
     if not components:
