@@ -432,7 +432,7 @@ class BuiltinSwapAroundComma(BuiltinFormatterFunction):
             'returns val unchanged')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
-        return re.sub(r'^(.*?),(.*$)', r'\2 \1', val, flags=re.I)
+        return re.sub(r'^(.*?),\s*(.*$)', r'\2 \1', val, flags=re.I).strip()
 
 class BuiltinIfempty(BuiltinFormatterFunction):
     name = 'ifempty'
@@ -502,7 +502,7 @@ class BuiltinListitem(BuiltinFormatterFunction):
         index = int(index)
         val = val.split(sep)
         try:
-            return val[index]
+            return val[index].strip()
         except:
             return ''
 
@@ -620,7 +620,8 @@ class BuiltinSublist(BuiltinFormatterFunction):
             return ''
         si = int(start_index)
         ei = int(end_index)
-        val = val.split(sep)
+        # allow empty list items so counts are what the user expects
+        val = [v.strip() for v in val.split(sep)]
         try:
             if ei == 0:
                 return sep.join(val[si:])
