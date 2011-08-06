@@ -19,6 +19,59 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.13
+  date: 2011-08-05
+
+  new features:
+    - title: "Add a new action 'Pick Random Book' that can be added to the toolbar via Preferences->Toolbars."
+      tickets: [818315]
+
+    - title: "Driver for Droid X2"
+      tickets: [821053]
+
+    - title: "PDF metadata: Support reading/writing of tags from the Keywords field in PDF files."
+
+    - title: "MOBI Input: Speedup reading of HUFF/CDIC compressed files"
+
+    - title: "MOBI Output: Add a command line option --extract-to that uses the inspect MOBI tool to extract the created MOBI file to the specified directory"
+
+    - title: "Template language: Add a few new functions to manipulate lists (list_difference, list_intersection, list_sort)"
+
+    - title: "Make the Manage Tags/Publishers/etc. dialog show a column with counts for each item, to easily sort by number of items"
+
+    - title: "MOBI Output: Generate navpoints for items at every level in the TOC, not just the deepest level"
+  
+  bug fixes:
+    - title: "MOBI Output: Remove option to choose masthead font as the font selection control causes crashes on some windows systems"
+
+    - title: "MOBI Output: Fix bug that caused paragraphs that had only a non breaking space as text before the first child element to be removed."
+      tickets: [819058]
+
+    - title: "Display undefined dates properly in the Book details panel."
+      tickets: [819222]
+
+    - title: "Fix regression that broke deleting of books from first generation Kobos with un-upgraded firmware"
+      tickets: [818704] 
+
+    - title: "Get books: Fix Gutenberg store and improvements to chitanka.info and e-knigni.net"
+
+    - title: "News download: Support https proxies"
+
+    - title: "Check library did not know about original_* files"
+
+    - title: "Fix crash caused by having very large numbers of authors > 100 for a book"
+
+  improved recipes:
+    - Nikkei News
+
+  new recipes:
+    - title: Carta Capital
+      author: Pablo Aldama
+
+    - title: El Tiempo, El Colombiano and Portafolio Colombia
+      author: Cavalencia
+
+
 - version: 0.8.12
   date: 2011-07-29
 

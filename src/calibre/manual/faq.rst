@@ -508,7 +508,7 @@ There are three possible things I know of, that can cause this:
 
     * You are using a Wacom branded mouse. There is an incompatibility between Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom mouse.
 
-    * You have invalid files in your fonts folder. If this is the case, start |app| in debug mode as desribed in the previous answer and you will get messages about invalid files in :file:`C:\\Windows\\fonts`. Delete these files and you will be fine.
+    * Sometimes if some software has installed lots of new files in your fonts folder, |app| can crash until it finishes indexing them. Just start |app|, then leave it alone for about 20 minutes, without clicking on anything. After that you should be able to use |app| as normal.
 
 
 |app| is not starting on OS X?

@@ -320,7 +320,7 @@ class MOBIHeader(object): # {{{
             self.exth = EXTHHeader(self.raw[self.exth_offset:])
 
             self.end_of_exth = self.exth_offset + self.exth.length
-            self.bytes_after_exth = self.fullname_offset - self.end_of_exth
+            self.bytes_after_exth = self.raw[self.end_of_exth:self.fullname_offset]
 
     def __str__(self):
         ans = ['*'*20 + ' MOBI Header '+ '*'*20]
@@ -386,7 +386,9 @@ class MOBIHeader(object): # {{{
 
         if self.has_exth:
             ans += '\n\n' + str(self.exth)
-            ans += '\n\nBytes after EXTH: %d'%self.bytes_after_exth
+            ans += '\n\nBytes after EXTH (%d bytes): %s'%(
+                    len(self.bytes_after_exth),
+                    format_bytes(self.bytes_after_exth))
 
         ans += '\nNumber of bytes after full name: %d' % (len(self.raw) - (self.fullname_offset +
                 self.fullname_length))
@@ -588,7 +590,7 @@ class IndexHeader(object): # {{{
 
 
     def __str__(self):
-        ans = ['*'*20 + ' Index Header '+ '*'*20]
+        ans = ['*'*20 + ' Index Header (%d bytes)'%len(self.record.raw)+ '*'*20]
         a = ans.append
         def u(w):
             a('Unknown: %r (%d bytes) (All zeros: %r)'%(w,
@@ -644,7 +646,7 @@ class Tag(object): # {{{
 
     INTERPRET_MAP = {
             'subchapter': {
-                    5  : ('Parent chapter index', 'parent_index')
+                    21  : ('Parent chapter index', 'parent_index')
             },
 
             'article'   : {
@@ -700,7 +702,8 @@ class Tag(object): # {{{
                 self.desc, self.attr = td[tag_type]
             except:
                 print ('Unknown tag value: %d'%tag_type)
-                self.desc = '??Unknown (tag value: %d)'%tag_type
+                self.desc = '??Unknown (tag value: %d type: %s)'%(
+                        tag_type, entry_type)
                 self.attr = 'unknown'
         if '_offset' in self.attr:
             self.cncx_value = cncx[self.value]
@@ -748,7 +751,7 @@ class IndexEntry(object): # {{{
         try:
             self.entry_type = self.TYPES[entry_type]
         except KeyError:
-            raise ValueError('Unknown Index Entry type: %s'%hex(entry_type))
+            raise ValueError('Unknown Index Entry type: %s'%bin(entry_type))
 
         if control_byte_count not in (1, 2):
             raise ValueError('Unknown control byte count: %d'%
@@ -766,6 +769,7 @@ class IndexEntry(object): # {{{
         flags = self.flags
         for tag in expected_tags:
             vals = []
+
             if tag.tag > 64:
                 has_tag = flags & 0b1
                 flags = flags >> 1
@@ -781,8 +785,8 @@ class IndexEntry(object): # {{{
         self.consumed = len(orig_raw) - len(raw)
         self.trailing_bytes = raw
         if self.trailing_bytes.replace(b'\0', b''):
-            raise ValueError('IndexEntry has leftover bytes: %s'%format_bytes(
-                self.trailing_bytes))
+            raise ValueError('%s has leftover bytes: %s'%(self, format_bytes(
+                self.trailing_bytes)))
 
     @property
     def label(self):
@@ -1023,8 +1027,14 @@ class IndexRecord(object): # {{{
         for entry in self.indices:
             offset = entry.offset
             a(str(entry))
+            t = self.alltext
             if offset is not None and self.alltext is not None:
-                a('\tHTML at offset: %r'%self.alltext[offset:offset+100])
+                a('\tHTML before offset: %r'%t[offset-50:offset])
+                a('\tHTML after offset: %r'%t[offset:offset+50])
+                p = offset+entry.size
+                a('\tHTML before end: %r'%t[p-50:p])
+                a('\tHTML after end: %r'%t[p:p+50])
+
             a('')
 
         return '\n'.join(ans)
@@ -1052,11 +1062,12 @@ class CNCX(object): # {{{
                         self.records[pos+record_offset] = raw[
                             pos+consumed:pos+consumed+length].decode(codec)
                     except:
-                        byts = raw[pos+consumed:pos+consumed+length]
+                        byts = raw[pos:]
                         r = format_bytes(byts)
                         print ('CNCX entry at offset %d has unknown format %s'%(
                             pos+record_offset, r))
                         self.records[pos+record_offset] = r
+                        pos = len(raw)
                 pos += consumed+length
             record_offset += 0x10000
 
@@ -1213,8 +1224,7 @@ class TBSIndexing(object): # {{{
         tbs_type = 0
         is_periodical = self.doc_type in (257, 258, 259)
         if len(byts):
-            outermost_index, extra, consumed = decode_tbs(byts, flag_size=4 if
-                    is_periodical else 3)
+            outermost_index, extra, consumed = decode_tbs(byts, flag_size=3)
             byts = byts[consumed:]
             for k in extra:
                 tbs_type |= k

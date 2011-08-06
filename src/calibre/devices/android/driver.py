@@ -40,6 +40,7 @@ class ANDROID(USBMS):
                        0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216],
                        0x4286 : [0x216], 0x42b3 : [0x216], 0x42b4 : [0x216],
                        0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
+                       0x70c6 : [0x226]
                      },
 
             # Sony Ericsson
@@ -128,11 +129,11 @@ class ANDROID(USBMS):
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
             'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
-            'GT-S5830_CARD', 'GT-S5570_CARD']
+            'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
-            '__UMS_COMPOSITE', 'SGH-I997_CARD']
+            '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

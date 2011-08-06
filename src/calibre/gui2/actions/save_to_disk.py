@@ -38,25 +38,25 @@ class SaveToDiskAction(InterfaceAction):
     name = "Save To Disk"
     action_spec = (_('Save to disk'), 'save.png', None, _('S'))
     action_type = 'current'
+    action_add_menu = True
+    action_menu_clone_qaction = True
 
     def genesis(self):
         self.qaction.triggered.connect(self.save_to_disk)
-        self.save_menu = QMenu()
-        self.save_menu.addAction(_('Save to disk'), partial(self.save_to_disk,
-            False))
-        self.save_menu.addAction(_('Save to disk in a single directory'),
-                partial(self.save_to_single_dir, False))
-        self.save_menu.addAction(_('Save only %s format to disk')%
+        self.save_menu = self.qaction.menu()
+        cm = partial(self.create_menu_action, self.save_menu)
+        cm('single dir', _('Save to disk in a single directory'),
+                triggered=partial(self.save_to_single_dir, False))
+        cm('single format', _('Save only %s format to disk')%
                 prefs['output_format'].upper(),
-                partial(self.save_single_format_to_disk, False))
-        self.save_menu.addAction(
+                triggered=partial(self.save_single_format_to_disk, False))
+        cm('fingle dir and format',
                 _('Save only %s format to disk in a single directory')%
                 prefs['output_format'].upper(),
-                partial(self.save_single_fmt_to_single_dir, False))
+                triggered=partial(self.save_single_fmt_to_single_dir, False))
         self.save_sub_menu = SaveMenu(self.gui)
         self.save_sub_menu_action = self.save_menu.addMenu(self.save_sub_menu)
         self.save_sub_menu.save_fmt.connect(self.save_specific_format_disk)
-        self.qaction.setMenu(self.save_menu)
 
     def location_selected(self, loc):
         enabled = loc == 'library'

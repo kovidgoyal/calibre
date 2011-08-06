@@ -110,6 +110,7 @@ class Serializer(object):
         self.serialize_head()
         self.serialize_body()
         buf.write(b'</html>')
+        self.end_offset = buf.tell()
         self.fixup_links()
         return buf.getvalue()
 
@@ -206,20 +207,18 @@ class Serializer(object):
             self.breaks.append(buf.tell() - 1)
         self.id_offsets[urlnormalize(item.href)] = buf.tell()
         if item.is_section_start:
-            buf.write(b'<div>')
+            buf.write(b'<a ></a> ')
         if item.is_article_start:
-            buf.write(b'<div>')
+            buf.write(b'<a ></a> <a ></a>')
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
-        if item.is_article_end:
-            # Kindle periodical article end marker
-            buf.write(b'<div></div>')
         if self.write_page_breaks_after_item:
             buf.write(b'<mbp:pagebreak/>')
         if item.is_article_end:
-            buf.write(b'</div>')
+            # Kindle periodical article end marker
+            buf.write(b'<a ></a> <a ></a>')
         if item.is_section_end:
-            buf.write(b'</div>')
+            buf.write(b' <a ></a>')
         self.anchor_offset = None
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
