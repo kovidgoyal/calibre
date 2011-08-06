@@ -136,6 +136,19 @@ class BuiltinStrcat(BuiltinFormatterFunction):
             res += args[i]
         return res
 
+class BuiltinStrlen(BuiltinFormatterFunction):
+    name = 'strlen'
+    arg_count = 1
+    category = 'String Manipulation'
+    __doc__ = doc = _('strlen(a) -- Returns the length of the string passed as '
+            'the argument')
+
+    def evaluate(self, formatter, kwargs, mi, locals, a):
+        try:
+            return len(a)
+        except:
+            return -1
+
 class BuiltinAdd(BuiltinFormatterFunction):
     name = 'add'
     arg_count = 2
@@ -344,6 +357,40 @@ class BuiltinSwitch(BuiltinFormatterFunction):
             if re.search(args[i], val, flags=re.I):
                 return args[i+1]
             i += 2
+
+class BuiltinStrcatMax(BuiltinFormatterFunction):
+    name = 'strcat_max'
+    arg_count = -1
+    category = 'String Manipulation'
+    __doc__ = doc = _('strcat_max(max, string1, prefix2, string2, ...) -- '
+            'Returns a string formed by concatenating the arguments. The '
+            'returned value is initialized to string1. `Prefix, string` '
+            'pairs are added to the end of the value as long as the '
+            'resulting string length is less than `max`. String1 is returned '
+            'even if string1 is longer than max. You can pass as many '
+            '`prefix, string` pairs as you wish.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        if len(args) < 2:
+            raise ValueError(_('strcat_max requires 2 or more arguments'))
+        if (len(args) % 2) != 0:
+            raise ValueError(_('strcat_max requires an even number of arguments'))
+        try:
+            max = int(args[0])
+        except:
+            raise ValueError(_('first argument to strcat_max must be an integer'))
+
+        i = 2
+        result = args[1]
+        try:
+            while i < len(args):
+                if (len(result) + len(args[i]) + len(args[i+1])) > max:
+                    break
+                result = result + args[i] + args[i+1]
+                i += 2
+        except:
+            pass
+        return result.strip()
 
 class BuiltinInList(BuiltinFormatterFunction):
     name = 'in_list'
@@ -956,7 +1003,8 @@ _formatter_builtins = [
     BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
     BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),
-    BuiltinStrcmp(), BuiltinStrInList(), BuiltinSubitems(),
+    BuiltinStrcatMax(),
+    BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
     BuiltinToday(), BuiltinUppercase(),
