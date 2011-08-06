@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import Qt, QMenu, QModelIndex, QTimer
+from PyQt4.Qt import QMenu, QModelIndex, QTimer
 
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -27,37 +27,38 @@ class EditMetadataAction(InterfaceAction):
     action_add_menu = True
 
     def genesis(self):
-        self.create_action(spec=(_('Merge book records'), 'merge_books.png',
-            None, _('M')), attr='action_merge')
         md = self.qaction.menu()
-        md.addAction(self.qaction.icon(), _('Edit metadata individually'),
-                partial(self.edit_metadata, False, bulk=False))
+        cm = partial(self.create_menu_action, md)
+        cm('individual', _('Edit metadata individually'), icon=self.qaction.icon(),
+                triggered=partial(self.edit_metadata, False, bulk=False))
         md.addSeparator()
-        md.addAction(_('Edit metadata in bulk'),
-                partial(self.edit_metadata, False, bulk=True))
+        cm('bulk', _('Edit metadata in bulk'),
+                triggered=partial(self.edit_metadata, False, bulk=True))
         md.addSeparator()
-        md.addAction(_('Download metadata and covers'), self.download_metadata,
-                Qt.ControlModifier+Qt.Key_D)
+        cm('download', _('Download metadata and covers'),
+                triggered=partial(self.download_metadata, ids=None),
+                shortcut='Ctrl+D')
         self.metadata_menu = md
 
         mb = QMenu()
-        mb.addAction(_('Merge into first selected book - delete others'),
-                self.merge_books)
+        cm2 = partial(self.create_menu_action, mb)
+        cm2('merge delete', _('Merge into first selected book - delete others'),
+                triggered=self.merge_books)
         mb.addSeparator()
-        mb.addAction(_('Merge into first selected book - keep others'),
-                partial(self.merge_books, safe_merge=True),
-                Qt.AltModifier+Qt.Key_M)
+        cm2('merge keep', _('Merge into first selected book - keep others'),
+                triggered=partial(self.merge_books, safe_merge=True),
+                shortcut='Alt+M')
         mb.addSeparator()
-        mb.addAction(_('Merge only formats into first selected book - delete others'),
-                partial(self.merge_books, merge_only_formats=True),
-                Qt.AltModifier+Qt.ShiftModifier+Qt.Key_M)
+        cm2('merge formats', _('Merge only formats into first selected book - delete others'),
+                triggered=partial(self.merge_books, merge_only_formats=True),
+                shortcut='Alt+Shift+M')
         self.merge_menu = mb
-        self.action_merge.setMenu(mb)
         md.addSeparator()
-        md.addAction(self.action_merge)
+        self.action_merge = cm('merge', _('Merge book records'), icon='merge_books.png',
+            shortcut=_('M'), triggered=self.merge_books)
+        self.action_merge.setMenu(mb)
 
         self.qaction.triggered.connect(self.edit_metadata)
-        self.action_merge.triggered.connect(self.merge_books)
 
     def location_selected(self, loc):
         enabled = loc == 'library'

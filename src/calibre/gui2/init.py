@@ -218,7 +218,7 @@ class LayoutMixin(object): # {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'),
                     orientation=Qt.Vertical, parent=self, side_index=1,
-                    shortcut=_('Alt+D'))
+                    shortcut=_('Shift+Alt+D'))
             self.bd_splitter.addWidget(self.stack)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)

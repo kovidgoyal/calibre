@@ -376,9 +376,12 @@ class SearchBoxMixin(object): # {{{
         self.search.clear()
         self.search.setMaximumWidth(self.width()-150)
         self.action_focus_search = QAction(self)
-        shortcuts = QKeySequence.keyBindings(QKeySequence.Find)
-        shortcuts = list(shortcuts) + [QKeySequence('/'), QKeySequence('Alt+S')]
-        self.action_focus_search.setShortcuts(shortcuts)
+        shortcuts = list(
+                map(lambda x:unicode(x.toString()),
+                QKeySequence.keyBindings(QKeySequence.Find)))
+        shortcuts += ['/', 'Alt+S']
+        self.keyboard.register_shortcut('start search', _('Start search'),
+                default_keys=shortcuts, action=self.action_focus_search)
         self.action_focus_search.triggered.connect(self.focus_search_box)
         self.addAction(self.action_focus_search)
         self.search.setStatusTip(re.sub(r'<\w+>', ' ',

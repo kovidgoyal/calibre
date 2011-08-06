@@ -547,6 +547,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Toggle jobs list
     * - :kbd:`Alt+Shift+B`
       - Toggle Cover Browser
+    * - :kbd:`Alt+Shift+B`
+      - Toggle Book Details panel
     * - :kbd:`Alt+Shift+T`
       - Toggle Tag Browser
     * - :kbd:`Alt+A`
