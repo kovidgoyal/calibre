@@ -418,7 +418,7 @@ class EditMetadataAction(InterfaceAction):
                     db.set_custom(dest_id, dest_value, num=colnum)
               if db.field_metadata[key]['datatype'] in \
                 ('bool', 'int', 'float', 'rating', 'datetime') \
-                and not dest_value:
+                and dest_value is None:
                 db.set_custom(dest_id, src_value, num=colnum)
               if db.field_metadata[key]['datatype'] == 'series' \
                 and not dest_value:
