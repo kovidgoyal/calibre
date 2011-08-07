@@ -462,10 +462,8 @@ class HeuristicProcessor(object):
             top_margin = ''
             bottom_margin = ''
             if initblanks is not None:
-                print "initial blanks are:\n"+initblanks
                 top_margin = 'margin-top:'+str(len(self.single_blank.findall(initblanks)))+'em;'
             if endblanks is not None:
-                print "endblanks blanks are:\n"+endblanks
                 bottom_margin = 'margin-bottom:'+str(len(self.single_blank.findall(endblanks)))+'em;'
 
             if initblanks == None and endblanks == None:
