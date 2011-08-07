@@ -90,21 +90,23 @@ class DeleteAction(InterfaceAction):
     def genesis(self):
         self.qaction.triggered.connect(self.delete_books)
         self.delete_menu = self.qaction.menu()
-        self.delete_menu.addAction(
+        m = partial(self.create_menu_action, self.delete_menu)
+        m('delete-specific',
                 _('Remove files of a specific format from selected books..'),
-                self.delete_selected_formats)
-        self.delete_menu.addAction(
+                triggered=self.delete_selected_formats)
+        m('delete-except',
                 _('Remove all formats from selected books, except...'),
-                self.delete_all_but_selected_formats)
-        self.delete_menu.addAction(
+                triggered=self.delete_all_but_selected_formats)
+        m('delete-all',
                 _('Remove all formats from selected books'),
-                self.delete_all_formats)
-        self.delete_menu.addAction(
-                _('Remove covers from selected books'), self.delete_covers)
+                triggered=self.delete_all_formats)
+        m('delete-covers',
+                _('Remove covers from selected books'),
+                triggered=self.delete_covers)
         self.delete_menu.addSeparator()
-        self.delete_menu.addAction(
+        m('delete-matching',
                 _('Remove matching books from device'),
-                self.remove_matching_books_from_device)
+                triggered=self.remove_matching_books_from_device)
         self.qaction.setMenu(self.delete_menu)
         self.delete_memory = {}
 

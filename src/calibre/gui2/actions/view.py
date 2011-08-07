@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, time
+from functools import partial
 
 from PyQt4.Qt import Qt, QAction, pyqtSignal
 
@@ -43,36 +44,33 @@ class ViewAction(InterfaceAction):
         self.qaction.triggered.connect(self.view_book)
         self.view_action = self.menuless_qaction
         self.view_menu = self.qaction.menu()
-        ac = self.view_specific_action = QAction(_('View specific format'),
-                self.gui)
-        ac.setShortcut(Qt.AltModifier+Qt.Key_V)
-        ac.triggered.connect(self.view_specific_format, type=Qt.QueuedConnection)
-        ac = self.create_action(spec=(_('Read a random book'), 'random.png',
-            None, None), attr='action_pick_random')
-        ac.triggered.connect(self.view_random)
-        ac = self.clear_history_action = QAction(
-                _('Clear recently viewed list'), self.gui)
-        ac.triggered.connect(self.clear_history)
+        cm = partial(self.create_menu_action, self.view_menu)
+        self.view_specific_action = cm('specific', _('View specific format'),
+                shortcut='Alt+V', triggered=self.view_specific_format)
+        self.action_pick_random = cm('pick random', _('Read a random book'),
+                icon='random.png', triggered=self.view_random)
+        self.clear_sep1 = self.view_menu.addSeparator()
+        self.clear_sep2 = self.view_menu.addSeparator()
+        self.clear_history_action = cm('clear history',
+                _('Clear recently viewed list'), triggered=self.clear_history)
+        self.history_actions = [self.clear_sep1]
 
     def initialization_complete(self):
         self.build_menus(self.gui.current_db)
 
     def build_menus(self, db):
-        self.view_menu.clear()
-        self.view_menu.addAction(self.view_action)
-        self.view_menu.addAction(self.view_specific_action)
-        self.view_menu.addSeparator()
-        self.view_menu.addAction(self.action_pick_random)
+        for ac in self.history_actions:
+            self.view_menu.removeAction(ac)
         self.history_actions = []
         history = db.prefs.get('gui_view_history', [])
         if history:
-            self.view_menu.addSeparator()
+            self.view_menu.insertAction(self.clear_sep2, self.clear_sep1)
+            self.history_actions.append(self.clear_sep1)
             for id_, title in history:
                 ac = HistoryAction(id_, title, self.view_menu)
-                self.view_menu.addAction(ac)
+                self.view_menu.insertAction(self.clear_sep2, ac)
                 ac.view_historical.connect(self.view_historical)
-            self.view_menu.addSeparator()
-            self.view_menu.addAction(self.clear_history_action)
+                self.history_actions.append(ac)
 
     def clear_history(self):
         db = self.gui.current_db

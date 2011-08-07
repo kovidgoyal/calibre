@@ -106,6 +106,10 @@ class InterfaceAction(QObject):
         self.gui.addAction(self.menuless_qaction)
         self.genesis()
 
+    @property
+    def unique_name(self):
+        return u'%s(%s)'%(self.__class__.__name__, self.name)
+
     def create_action(self, spec=None, attr='qaction'):
         if spec is None:
             spec = self.action_spec
@@ -125,19 +129,50 @@ class InterfaceAction(QObject):
             a.setToolTip(text)
             a.setStatusTip(text)
             a.setWhatsThis(text)
-        if shortcut:
-            a = ma if attr == 'qaction' else action
-            if isinstance(shortcut, list):
-                a.setShortcuts(shortcut)
-            else:
-                a.setShortcut(shortcut)
-        setattr(self, attr, action)
+        keys = ()
+        shortcut_action = action
+        desc = tooltip if tooltip else None
+        if attr == 'qaction':
+            shortcut_action = ma
+        if shortcut is not None:
+            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+                    tuple(shortcut))
+
+        self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
+                unicode(shortcut_action.text()), default_keys=keys,
+                action=shortcut_action, description=desc)
+        if attr is not None:
+            setattr(self, attr, action)
         if attr == 'qaction' and self.action_add_menu:
             menu = QMenu()
             action.setMenu(menu)
             if self.action_menu_clone_qaction:
                 menu.addAction(self.menuless_qaction)
         return action
+
+    def create_menu_action(self, menu, unique_name, text, icon=None, shortcut=None,
+            description=None, triggered=None):
+        ac = menu.addAction(text)
+        if icon is not None:
+            if not isinstance(icon, QIcon):
+                icon = QIcon(I(icon))
+            ac.setIcon(icon)
+        keys = ()
+        if shortcut is not None and shortcut is not False:
+            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+                    tuple(shortcut))
+        unique_name = '%s : menu action : %s'%(self.unique_name, unique_name)
+        if description is not None:
+            ac.setToolTip(description)
+            ac.setStatusTip(description)
+            ac.setWhatsThis(description)
+        if shortcut is not False:
+            self.gui.keyboard.register_shortcut(unique_name,
+                unicode(text), default_keys=keys,
+                action=ac, description=description)
+        if triggered is not None:
+            ac.triggered.connect(triggered)
+        return ac
 
     def load_resources(self, names):
         '''
