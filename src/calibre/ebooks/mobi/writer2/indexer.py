@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from future_builtins import filter
+from future_builtins import filter, map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -14,8 +14,7 @@ from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.writer2 import RECORD_SIZE
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
-        encode_tbs, align_block, utf8_text, detect_periodical)
-
+        encode_tbs, align_block, utf8_text)
 
 class CNCX(object): # {{{
 
@@ -34,6 +33,10 @@ class CNCX(object): # {{{
             self.strings[item.title] = 0
             if is_periodical:
                 self.strings[item.klass] = 0
+                if item.author:
+                    self.strings[item.author] = 0
+                if item.description:
+                    self.strings[item.description] = 0
 
         self.records = []
         offset = 0
@@ -61,7 +64,79 @@ class CNCX(object): # {{{
         return self.strings[string]
 # }}}
 
-class IndexEntry(object): # {{{
+class TAGX(object): # {{{
+
+    BITMASKS = {11:0b1}
+    BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
+    BITMASKS.update({x:(1 << i) for i, x in enumerate([69, 70, 71, 72, 73])})
+
+    NUM_VALUES = defaultdict(lambda :1)
+    NUM_VALUES[11] = 3
+    NUM_VALUES[0] = 0
+
+    def __init__(self):
+        self.byts = bytearray()
+
+    def add_tag(self, tag):
+        buf = self.byts
+        buf.append(tag)
+        buf.append(self.NUM_VALUES[tag])
+        # bitmask
+        buf.append(self.BITMASKS[tag] if tag else 0)
+        # eof
+        buf.append(0 if tag else 1)
+
+    def header(self, control_byte_count):
+        header = b'TAGX'
+        # table length, control byte count
+        header += pack(b'>II', 12+len(self.byts), control_byte_count)
+        return header
+
+    @property
+    def periodical(self):
+        '''
+        TAGX block for the Primary index header of a periodical
+        '''
+        list(map(self.add_tag, (1, 2, 3, 4, 5, 21, 22, 23, 0, 69, 70, 71, 72,
+            73, 0)))
+        return self.header(2) + bytes(self.byts)
+
+    @property
+    def secondary(self):
+        '''
+        TAGX block for the secondary index header of a periodical
+        '''
+        list(map(self.add_tag, (11, 0)))
+        return self.header(1) + bytes(self.byts)
+
+
+
+class TAGX_BOOK(TAGX):
+    BITMASKS = dict(TAGX.BITMASKS)
+    BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 21, 22, 23])})
+
+    @property
+    def hierarchical_book(self):
+        '''
+        TAGX block for the primary index header of a hierarchical book
+        '''
+        list(map(self.add_tag, (1, 2, 3, 4, 21, 22, 23, 0)))
+        return self.header(1) + bytes(self.byts)
+
+    @property
+    def flat_book(self):
+        '''
+        TAGX block for the primary index header of a flat book
+        '''
+        list(map(self.add_tag, (1, 2, 3, 4, 0)))
+        return self.header(1) + bytes(self.byts)
+
+
+# }}}
+
+# Index Entries {{{
+
+class IndexEntry(object):
 
     TAG_VALUES = {
             'offset': 1,
@@ -69,17 +144,21 @@ class IndexEntry(object): # {{{
             'label_offset': 3,
             'depth': 4,
             'class_offset': 5,
+            'secondary': 11,
             'parent_index': 21,
             'first_child_index': 22,
             'last_child_index': 23,
+            'image_index': 69,
+            'desc_offset': 70,
+            'author_offset': 73,
     }
     RTAG_MAP = {v:k for k, v in TAG_VALUES.iteritems()}
 
-    BITMASKS = [1, 2, 3, 4, 5, 21, 22, 23,]
 
-    def __init__(self, offset, label_offset, depth=0, class_offset=None):
+    def __init__(self, offset, label_offset):
         self.offset, self.label_offset = offset, label_offset
-        self.depth, self.class_offset = depth, class_offset
+        self.depth, self.class_offset = 0, None
+        self.control_byte_count = 1
 
         self.length = 0
         self.index = 0
@@ -87,6 +166,10 @@ class IndexEntry(object): # {{{
         self.parent_index = None
         self.first_child_index = None
         self.last_child_index = None
+
+        self.image_index = None
+        self.author_offset = None
+        self.desc_offset = None
 
     def __repr__(self):
         return ('IndexEntry(offset=%r, depth=%r, length=%r, index=%r,'
@@ -98,35 +181,6 @@ class IndexEntry(object): # {{{
         def fget(self): return self.length
         def fset(self, val): self.length = val
         return property(fget=fget, fset=fset, doc='Alias for length')
-
-    @classmethod
-    def tagx_block(cls, for_periodical=True):
-        buf = bytearray()
-
-        def add_tag(tag, num_values=1):
-            buf.append(tag)
-            buf.append(num_values)
-            # bitmask
-            buf.append(1 << (cls.BITMASKS.index(tag)))
-            # eof
-            buf.append(0)
-
-        for tag in xrange(1, 5):
-            add_tag(tag)
-
-        if for_periodical:
-            for tag in (5, 21, 22, 23):
-                add_tag(tag)
-
-        # End of TAGX record
-        for i in xrange(3): buf.append(0)
-        buf.append(1)
-
-        header = b'TAGX'
-        header += pack(b'>I', 12+len(buf)) # table length
-        header += pack(b'>I', 1) # control byte count
-
-        return header + bytes(buf)
 
     @property
     def next_offset(self):
@@ -145,23 +199,99 @@ class IndexEntry(object): # {{{
     def entry_type(self):
         ans = 0
         for tag in self.tag_nums:
-            ans |= (1 << self.BITMASKS.index(tag)) # 1 << x == 2**x
+            ans |= TAGX.BITMASKS[tag]
         return ans
+
+    def attr_for_tag(self, tag):
+        return self.RTAG_MAP[tag]
 
     @property
     def bytestring(self):
         buf = StringIO()
-        buf.write(encode_number_as_hex(self.index))
+        if isinstance(self.index, int):
+            buf.write(encode_number_as_hex(self.index))
+        else:
+            raw = bytearray(self.index.encode('ascii'))
+            raw.insert(0, len(raw))
+            buf.write(bytes(raw))
         et = self.entry_type
         buf.write(bytes(bytearray([et])))
 
+        if self.control_byte_count == 2:
+            flags = 0
+            for attr in ('image_index', 'desc_offset', 'author_offset'):
+                val = getattr(self, attr)
+                if val is not None:
+                    tag = self.TAG_VALUES[attr]
+                    bm = TAGX.BITMASKS[tag]
+                    flags |= bm
+            buf.write(bytes(bytearray([flags])))
+
         for tag in self.tag_nums:
-            attr = self.RTAG_MAP[tag]
+            attr = self.attr_for_tag(tag)
             val = getattr(self, attr)
-            buf.write(encint(val))
+            if isinstance(val, int):
+                val = [val]
+            for x in val:
+                buf.write(encint(x))
+
+        if self.control_byte_count == 2:
+            for attr in ('image_index', 'desc_offset', 'author_offset'):
+                val = getattr(self, attr)
+                if val is not None:
+                    buf.write(encint(val))
 
         ans = buf.getvalue()
         return ans
+
+class BookIndexEntry(IndexEntry):
+
+    @property
+    def entry_type(self):
+        tagx = TAGX_BOOK()
+        ans = 0
+        for tag in self.tag_nums:
+            ans |= tagx.BITMASKS[tag]
+        return ans
+
+
+class PeriodicalIndexEntry(IndexEntry):
+
+    def __init__(self, offset, label_offset, class_offset, depth):
+        IndexEntry.__init__(self, offset, label_offset)
+        self.depth = depth
+        self.class_offset = class_offset
+        self.control_byte_count = 2
+
+class SecondaryIndexEntry(IndexEntry):
+
+    INDEX_MAP = {'author':73, 'caption':72, 'credit':71, 'description':70,
+                'mastheadImage':69}
+
+    def __init__(self, index):
+        IndexEntry.__init__(self, 0, 0)
+        self.index = index
+
+        tag = self.INDEX_MAP[index]
+
+        # The values for this index entry
+        # I dont know what the 5 means, it is not the number of entries
+        self.secondary = [5 if tag == min(
+            self.INDEX_MAP.itervalues()) else 0, 0, tag]
+
+    @property
+    def tag_nums(self):
+        yield 11
+
+    @property
+    def entry_type(self):
+        return 1
+
+    @classmethod
+    def entries(cls):
+        rmap = {v:k for k,v in cls.INDEX_MAP.iteritems()}
+        for tag in sorted(rmap, reverse=True):
+            yield cls(rmap[tag])
 
 # }}}
 
@@ -323,16 +453,23 @@ class TBS(object): # {{{
 class Indexer(object): # {{{
 
     def __init__(self, serializer, number_of_text_records,
-            size_of_last_text_record, opts, oeb):
+            size_of_last_text_record, masthead_offset, is_periodical,
+            opts, oeb):
         self.serializer = serializer
         self.number_of_text_records = number_of_text_records
         self.text_size = (RECORD_SIZE * (self.number_of_text_records-1) +
                             size_of_last_text_record)
+        self.masthead_offset = masthead_offset
+        self.secondary_record_offset = None
+
         self.oeb = oeb
         self.log = oeb.log
         self.opts = opts
 
-        self.is_periodical = detect_periodical(self.oeb.toc, self.log)
+        self.is_periodical = is_periodical
+        if self.is_periodical and self.masthead_offset is None:
+            raise ValueError('Periodicals must have a masthead')
+
         self.log('Generating MOBI index for a %s'%('periodical' if
             self.is_periodical else 'book'))
         self.is_flat_periodical = False
@@ -342,6 +479,16 @@ class Indexer(object): # {{{
             self.is_flat_periodical = len(sections) == 1
 
         self.records = []
+
+        if self.is_periodical:
+            # Ensure all articles have an author and description before
+            # creating the CNCX
+            for node in oeb.toc.iterdescendants():
+                if node.klass == 'article':
+                    aut, desc = node.author, node.description
+                    if not aut: aut = _('Unknown')
+                    if not desc: desc = _('No details available')
+                    node.author, node.description = aut, desc
 
         self.cncx = CNCX(oeb.toc, self.is_periodical)
 
@@ -354,12 +501,17 @@ class Indexer(object): # {{{
         self.records.insert(0, self.create_header())
         self.records.extend(self.cncx.records)
 
+        if is_periodical:
+            self.secondary_record_offset = len(self.records)
+            self.records.append(self.create_header(secondary=True))
+            self.records.append(self.create_index_record(secondary=True))
+
         self.calculate_trailing_byte_sequences()
 
-    def create_index_record(self): # {{{
+    def create_index_record(self, secondary=False): # {{{
         header_length = 192
         buf = StringIO()
-        indices = self.indices
+        indices = list(SecondaryIndexEntry.entries()) if secondary else self.indices
 
         # Write index entries
         offsets = []
@@ -399,9 +551,15 @@ class Indexer(object): # {{{
         return ans
     # }}}
 
-    def create_header(self): # {{{
+    def create_header(self, secondary=False): # {{{
         buf = StringIO()
-        tagx_block = IndexEntry.tagx_block(self.is_periodical)
+        if secondary:
+            tagx_block = TAGX().secondary
+        else:
+            tagx_block = (TAGX().periodical if self.is_periodical else
+                            (TAGX_BOOK().hierarchical_book if
+                                self.book_has_subchapters else
+                                TAGX_BOOK().flat_book))
         header_length = 192
 
         # Ident 0 - 4
@@ -420,7 +578,7 @@ class Indexer(object): # {{{
         buf.write(pack(b'>I', 0)) # Filled in later
 
         # Number of index records 24-28
-        buf.write(pack(b'>I', len(self.records)))
+        buf.write(pack(b'>I', 1 if secondary else len(self.records)))
 
         # Index Encoding 28-32
         buf.write(pack(b'>I', 65001)) # utf-8
@@ -429,7 +587,8 @@ class Indexer(object): # {{{
         buf.write(b'\xff'*4)
 
         # Number of index entries 36-40
-        buf.write(pack(b'>I', len(self.indices)))
+        indices = list(SecondaryIndexEntry.entries()) if secondary else self.indices
+        buf.write(pack(b'>I', len(indices)))
 
         # ORDT offset 40-44
         buf.write(pack(b'>I', 0))
@@ -441,7 +600,7 @@ class Indexer(object): # {{{
         buf.write(pack(b'>I', 0))
 
         # Number of CNCX records 52-56
-        buf.write(pack(b'>I', len(self.cncx.records)))
+        buf.write(pack(b'>I', 0 if secondary else len(self.cncx.records)))
 
         # Unknown 56-180
         buf.write(b'\0'*124)
@@ -455,10 +614,16 @@ class Indexer(object): # {{{
         # TAGX block
         buf.write(tagx_block)
 
-        num = len(self.indices)
+        num = len(indices)
 
         # The index of the last entry in the NCX
-        buf.write(encode_number_as_hex(num-1))
+        idx = indices[-1].index
+        if isinstance(idx, int):
+            idx = encode_number_as_hex(idx)
+        else:
+            idx = idx.encode('ascii')
+            idx = (bytes(bytearray([len(idx)]))) + idx
+        buf.write(idx)
 
         # The number of entries in the NCX
         buf.write(pack(b'>H', num))
@@ -480,47 +645,98 @@ class Indexer(object): # {{{
     # }}}
 
     def create_book_index(self): # {{{
+        self.book_has_subchapters = False
         indices = []
-        seen = set()
+        seen, sub_seen = set(), set()
         id_offsets = self.serializer.id_offsets
 
-        for node in self.oeb.toc.iterdescendants():
+        # Flatten toc to contain only chapters and subchapters
+        # Anything deeper than a subchapter is made into a subchapter
+        chapters = []
+        for node in self.oeb.toc:
             try:
                 offset = id_offsets[node.href]
                 label = self.cncx[node.title]
             except:
-                self.log.warn('TOC item %s not found in document'%node.href)
+                self.log.warn('TOC item %s [%s] not found in document'%(
+                    node.title, node.href))
                 continue
+
             if offset in seen:
                 continue
             seen.add(offset)
-            index = IndexEntry(offset, label)
-            indices.append(index)
 
-        indices.sort(key=lambda x:x.offset)
+            subchapters = []
+            chapters.append((offset, label, subchapters))
 
-        # Set lengths
-        for i, index in enumerate(indices):
-            try:
-                next_offset = indices[i+1].offset
-            except:
-                next_offset = self.serializer.body_end_offset
-            index.length = next_offset - index.offset
+            for descendant in node.iterdescendants():
+                try:
+                    offset = id_offsets[descendant.href]
+                    label = self.cncx[descendant.title]
+                except:
+                    self.log.warn('TOC item %s [%s] not found in document'%(
+                        descendant.title, descendant.href))
+                    continue
 
-        # Remove empty nodes
-        indices = [i for i in indices if i.length > 0]
+                if offset in sub_seen:
+                    continue
+                sub_seen.add(offset)
+                subchapters.append((offset, label))
 
-        # Set index values
-        for i, index in enumerate(indices):
-            index.index = i
+            subchapters.sort(key=lambda x:x[0])
 
-        # Set lengths again to close up any gaps left by filtering
-        for i, index in enumerate(indices):
-            try:
-                next_offset = indices[i+1].offset
-            except:
-                next_offset = self.serializer.body_end_offset
-            index.length = next_offset - index.offset
+        chapters.sort(key=lambda x:x[0])
+
+        chapters = [(BookIndexEntry(x[0], x[1]), [
+            BookIndexEntry(y[0], y[1]) for y in x[2]]) for x in chapters]
+
+        def set_length(indices):
+            for i, index in enumerate(indices):
+                try:
+                    next_offset = indices[i+1].offset
+                except:
+                    next_offset = self.serializer.body_end_offset
+                index.length = next_offset - index.offset
+
+        # Set chapter and subchapter lengths
+        set_length([x[0] for x in chapters])
+        for x in chapters:
+            set_length(x[1])
+
+        # Remove empty chapters
+        chapters = [x for x in chapters if x[0].length > 0]
+
+        # Remove invalid subchapters
+        for i, x in enumerate(list(chapters)):
+            chapter, subchapters = x
+            ok_subchapters = []
+            for sc in subchapters:
+                if sc.offset < chapter.next_offset and sc.length > 0:
+                    ok_subchapters.append(sc)
+            chapters[i] = (chapter, ok_subchapters)
+
+        # Reset chapter and subchapter lengths in case any were removed
+        set_length([x[0] for x in chapters])
+        for x in chapters:
+            set_length(x[1])
+
+        # Set index and depth values
+        indices = []
+        for index, x in enumerate(chapters):
+            x[0].index = index
+            indices.append(x[0])
+
+        for chapter, subchapters in chapters:
+            for sc in subchapters:
+                index += 1
+                sc.index = index
+                sc.parent_index = chapter.index
+                indices.append(sc)
+                sc.depth = 1
+                self.book_has_subchapters = True
+            if subchapters:
+                chapter.first_child_index = subchapters[0].index
+                chapter.last_child_index = subchapters[-1].index
 
         return indices
 
@@ -536,11 +752,12 @@ class Indexer(object): # {{{
 
         id_offsets = self.serializer.id_offsets
 
-        periodical = IndexEntry(periodical_node_offset,
+        periodical = PeriodicalIndexEntry(periodical_node_offset,
                 self.cncx[periodical_node.title],
-                class_offset=self.cncx[periodical_node.klass])
+                self.cncx[periodical_node.klass], 0)
         periodical.length = periodical_node_size
         periodical.first_child_index = 1
+        periodical.image_index = self.masthead_offset
 
         seen_sec_offsets = set()
         seen_art_offsets = set()
@@ -556,7 +773,7 @@ class Indexer(object): # {{{
             if offset in seen_sec_offsets:
                 continue
             seen_sec_offsets.add(offset)
-            section = IndexEntry(offset, label, class_offset=klass, depth=1)
+            section = PeriodicalIndexEntry(offset, label, klass, 1)
             section.parent_index = 0
             for art in sec:
                 try:
@@ -568,9 +785,11 @@ class Indexer(object): # {{{
                 if offset in seen_art_offsets:
                     continue
                 seen_art_offsets.add(offset)
-                article = IndexEntry(offset, label, class_offset=klass,
-                        depth=2)
+                article = PeriodicalIndexEntry(offset, label, klass, 2)
                 normalized_articles.append(article)
+                article.author_offset = self.cncx[art.author]
+                article.desc_offset = self.cncx[art.description]
+
             if normalized_articles:
                 normalized_articles.sort(key=lambda x:x.offset)
                 normalized_sections.append((section, normalized_articles))

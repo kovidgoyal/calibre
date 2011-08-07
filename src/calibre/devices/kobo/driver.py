@@ -333,8 +333,14 @@ class KOBO(USBMS):
             except Exception as e:
                 if 'no such column' not in str(e):
                     raise
-                cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
-                    'where BookID is Null and ContentID =?',t)
+                try:
+                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                        'where BookID is Null and ContentID =?',t)
+                except Exception as e:
+                    if 'no such column' not in str(e):
+                        raise
+                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' ' \
+                        'where BookID is Null and ContentID =?',t)
 
 
             connection.commit()

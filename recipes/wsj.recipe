@@ -38,6 +38,7 @@ class WallStreetJournal(BasicNewsRecipe):
                     dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive","articleTabs_tab_video","articleTabs_tab_map","articleTabs_tab_slideshow","articleTabs_tab_quotes","articleTabs_tab_document"]),
                     {'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map','insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
                     dict(rel='shortcut icon'),
+                    {'class':lambda x: x and 'sTools' in x},
                     ]
     remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
 

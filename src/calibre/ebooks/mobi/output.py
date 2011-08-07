@@ -50,13 +50,11 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('When adding the Table of Contents to the book, add it at the start of the '
                 'book instead of the end. Not recommended.')
         ),
-        OptionRecommendation(name='mobi_navpoints_only_deepest',
-            recommended_value=False,
-            help=_('When adding navpoints for the chapter-to-chapter'
-                ' navigation on the kindle, use only the lowest level '
-                'of items in the TOC, instead of items at every level.')
+        OptionRecommendation(name='extract_to', recommended_value=None,
+            help=_('Extract the contents of the MOBI file to the'
+                ' specified directory. If the directory already '
+                'exists, it will be deleted.')
         ),
-
         OptionRecommendation(name='kindlegen',
             recommended_value=False,
             help=('Use kindlegen (must be in your PATH) to generate the'
@@ -184,4 +182,9 @@ class MOBIOutput(OutputFormatPlugin):
             writer = MobiWriter(opts,
                             write_page_breaks_after_item=write_page_breaks_after_item)
             writer(oeb, output_path)
+
+        if opts.extract_to is not None:
+            from calibre.ebooks.mobi.debug import inspect_mobi
+            ddir = opts.extract_to
+            inspect_mobi(output_path, ddir=ddir)
 

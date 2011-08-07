@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt4.Qt import (QIcon, Qt, QWidget, QSize,
-    pyqtSignal, QToolButton, QMenu,
+    pyqtSignal, QToolButton, QMenu, QAction,
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
 
 
@@ -178,7 +178,12 @@ class SearchBar(QWidget): # {{{
         x.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
 
         parent.advanced_search_button = x = QToolButton(self)
-        parent.advanced_search_button.setShortcut(_("Shift+Ctrl+F"))
+        parent.advanced_search_toggle_action = ac = QAction(parent)
+        parent.addAction(ac)
+        parent.keyboard.register_shortcut('advanced search toggle',
+                _('Advanced search'), default_keys=(_("Shift+Ctrl+F"),),
+                action=ac)
+        ac.triggered.connect(x.click)
         x.setIcon(QIcon(I('search.png')))
         l.addWidget(x)
         x.setToolTip(_("Advanced search"))

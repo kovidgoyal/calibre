@@ -1810,6 +1810,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     for t in categories[sc]:
                         user_categories[c].append([t.name, sc, 0])
 
+        gst_icon = icon_map['gst'] if icon_map else None
         for user_cat in sorted(user_categories.keys(), key=sort_key):
             items = []
             names_seen = {}
@@ -1825,7 +1826,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
                         else:
                             t = copy.copy(taglist[label][n])
-                            t.icon = icon_map['gst']
+                            t.icon = gst_icon
                             names_seen[t.name] = t
                             items.append(t)
                     else:
@@ -3023,7 +3024,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         format = os.path.splitext(path)[1][1:].lower()
         stream = path if hasattr(path, 'read') else lopen(path, 'rb')
         stream.seek(0)
-        mi = get_metadata(stream, format, use_libprs_metadata=False)
+        mi = get_metadata(stream, format, use_libprs_metadata=False,
+                force_read_metadata=True)
         stream.seek(0)
         if mi.series_index is None:
             mi.series_index = self.get_next_series_num_for(mi.series)
