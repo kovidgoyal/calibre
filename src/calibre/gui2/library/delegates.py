@@ -310,6 +310,12 @@ class CcNumberDelegate(QStyledItemDelegate): # {{{
             editor.setDecimals(2)
         return editor
 
+    def setModelData(self, editor, model, index):
+        val = editor.value()
+        if val == editor.minimum():
+            val = None
+        model.setData(index, QVariant(val), Qt.EditRole)
+
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]

@@ -9,7 +9,7 @@ import os
 from functools import partial
 from threading import Thread
 
-from PyQt4.Qt import QMenu, QToolButton
+from PyQt4.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog, Dispatcher, warning_dialog
@@ -95,10 +95,10 @@ class CopyToLibraryAction(InterfaceAction):
     popup_type = QToolButton.InstantPopup
     dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
     action_type = 'current'
+    action_add_menu = True
 
     def genesis(self):
-        self.menu = QMenu(self.gui)
-        self.qaction.setMenu(self.menu)
+        self.menu = self.qaction.menu()
 
     @property
     def stats(self):

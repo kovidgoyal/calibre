@@ -843,6 +843,12 @@ class ActionNextMatch(InterfaceActionBase):
     description = _('Find the next or previous match when searching in '
             'your calibre library in highlight mode')
 
+class ActionPickRandom(InterfaceActionBase):
+    name = 'Pick Random Book'
+    actual_plugin = 'calibre.gui2.actions.random:PickRandomAction'
+    description = _('Choose a random book from your calibre library')
+
+
 class ActionStore(InterfaceActionBase):
     name = 'Store'
     author = 'John Schember'
@@ -873,7 +879,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
-        ActionPluginUpdater]
+        ActionPluginUpdater, ActionPickRandom]
 
 # }}}
 

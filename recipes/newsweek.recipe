@@ -8,6 +8,9 @@ class Newsweek(BasicNewsRecipe):
     language       = 'en'
     encoding       = 'utf-8'
     no_stylesheets = True
+    recipe_disabled = ('Newsweek was taken over by The Daily Beast,'
+            ' newsweek.com no longer exists, so this recipe '
+            ' has been disabled.')
 
     BASE_URL = 'http://www.newsweek.com'
 

@@ -16,7 +16,7 @@ from collections import OrderedDict
 
 from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
                      QMenu, QIcon, pyqtSignal, QUrl,
-                     QDialog, QSystemTrayIcon, QApplication, QKeySequence)
+                     QDialog, QSystemTrayIcon, QApplication)
 
 from calibre import  prints
 from calibre.constants import __appname__, isosx
@@ -40,6 +40,7 @@ from calibre.gui2.init import LibraryViewMixin, LayoutMixin
 from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
+from calibre.gui2.keyboard import Manager
 
 
 class Listener(Thread): # {{{
@@ -104,6 +105,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def __init__(self, opts, parent=None, gui_debug=None):
         global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        self.keyboard = Manager(self)
         _gui = self
         self.opts = opts
         self.device_connected = None
@@ -238,7 +240,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.eject_action.setEnabled(False)
         self.addAction(self.quit_action)
         self.system_tray_menu.addAction(self.quit_action)
-        self.quit_action.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Q))
+        self.keyboard.register_shortcut('quit calibre', _('Quit calibre'),
+                default_keys=('Ctrl+Q',), action=self.quit_action)
         self.system_tray_icon.setContextMenu(self.system_tray_menu)
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
@@ -249,7 +252,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         self.esc_action = QAction(self)
         self.addAction(self.esc_action)
-        self.esc_action.setShortcut(QKeySequence(Qt.Key_Escape))
+        self.keyboard.register_shortcut('clear current search',
+                _('Clear the current search'), default_keys=('Esc',),
+                action=self.esc_action)
         self.esc_action.triggered.connect(self.esc)
 
         ####################### Start spare job server ########################
@@ -339,6 +344,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 if ac.plugin_path is None:
                     raise
         self.device_manager.set_current_library_uuid(db.library_id)
+
+        self.keyboard.finalize()
 
         # Collect cycles now
         gc.collect()

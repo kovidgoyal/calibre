@@ -430,6 +430,7 @@ class MobiWriter(object):
         text.seek(npos)
         return data, overlap
 
+    # TBS {{{
     def _generate_flat_indexed_navpoints(self):
         # Assemble a HTMLRecordData instance for each HTML record
         # Return True if valid, False if invalid
@@ -1174,6 +1175,8 @@ class MobiWriter(object):
 
         self._tbSequence = tbSequence
 
+    # }}}
+
     def _evaluate_periodical_toc(self):
         '''
         Periodical:
@@ -1634,7 +1637,7 @@ class MobiWriter(object):
         now = int(time.time())
         nrecords = len(self._records)
         self._write(title, pack('>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
-            'BOOK', 'MOBI', pack('>IIH', nrecords, 0, nrecords))
+            'BOOK', 'MOBI', pack('>IIH', (2*nrecords)-1, 0, nrecords))
         offset = self._tell() + (8 * nrecords) + 2
         for i, record in enumerate(self._records):
             self._write(pack('>I', offset), '\0', pack('>I', 2*i)[1:])
@@ -1707,8 +1710,6 @@ class MobiWriter(object):
         '''
         from calibre.ebooks.oeb.base import TOC
         items = list(self._oeb.toc.iterdescendants())
-        if self.opts.mobi_navpoints_only_deepest:
-            items = [i for i in items if i.depth == 1]
         offsets = {i:self._id_offsets.get(i.href, -1) for i in items if i.href}
         items = [i for i in items if offsets[i] > -1]
         items.sort(key=lambda i:offsets[i])

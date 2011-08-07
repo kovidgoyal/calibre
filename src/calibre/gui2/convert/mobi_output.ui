@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>521</width>
-    <height>331</height>
+    <height>342</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -55,22 +55,12 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="2">
+   <item row="8" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Kindle options</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Periodical masthead font:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="opt_masthead_font"/>
-      </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -101,7 +91,7 @@
      </layout>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="9" column="0">
     <spacer name="verticalSpacer_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -125,13 +115,6 @@
     <widget class="QCheckBox" name="opt_mobi_ignore_margins">
      <property name="text">
       <string>Ignore &amp;margins</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_mobi_navpoints_only_deepest">
-     <property name="text">
-      <string>Use only &amp;lowest level of items in the TOC for chapter-to-chapter navigation</string>
      </property>
     </widget>
    </item>

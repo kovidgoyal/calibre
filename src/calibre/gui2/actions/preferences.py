@@ -5,7 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QIcon, QMenu, Qt
+from functools import partial
+
+from PyQt4.Qt import QIcon, Qt
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
@@ -16,24 +18,23 @@ class PreferencesAction(InterfaceAction):
 
     name = 'Preferences'
     action_spec = (_('Preferences'), 'config.png', None, _('Ctrl+P'))
+    action_add_menu = True
+    action_menu_clone_qaction = _('Change calibre behavior')
 
     def genesis(self):
-        pm = QMenu()
-        pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
+        pm = self.qaction.menu()
+        cm = partial(self.create_menu_action, pm)
         if isosx:
-            pm.addAction(QIcon(I('config.png')), _('Change calibre behavior'), self.do_config)
-        pm.addAction(QIcon(I('wizard.png')), _('Run welcome wizard'),
-                self.gui.run_wizard)
-        pm.addAction(QIcon(I('plugins/plugin_updater.png')),
-                _('Get plugins to enhance calibre'), self.get_plugins)
+            pm.addAction(QIcon(I('config.png')), _('Preferences'), self.do_config)
+        cm('welcome wizard', _('Run welcome wizard'),
+                icon='wizard.png', triggered=self.gui.run_wizard)
+        cm('plugin updater', _('Get plugins to enhance calibre'),
+                icon='plugins/plugin_updater.png', triggered=self.get_plugins)
         if not DEBUG:
             pm.addSeparator()
-            ac = pm.addAction(QIcon(I('debug.png')), _('Restart in debug mode'),
-                self.debug_restart)
-            ac.setShortcut('Ctrl+Shift+R')
-            self.gui.addAction(ac)
+            cm('restart', _('Restart in debug mode'), icon='debug.png',
+                    triggered=self.debug_restart, shortcut='Ctrl+Shift+R')
 
-        self.qaction.setMenu(pm)
         self.preferences_menu = pm
         for x in (self.gui.preferences_action, self.qaction):
             x.triggered.connect(self.do_config)
