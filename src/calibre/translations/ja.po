@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-05 18:14+0000\n"
-"PO-Revision-Date: 2011-08-05 17:19+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-06 06:36+0000\n"
+"Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-06 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-08-07 04:35+0000\n"
 "X-Generator: Launchpad (build 13613)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -427,7 +427,7 @@ msgstr "Calibreライブラリをハイライトモードで検索時に、次�
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "calibreのライブラリからランダムに書籍を選択"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:856
 msgid "Search for books from different book sellers"
@@ -2500,7 +2500,7 @@ msgstr "2つのパラグラフに挟まれた、空白のパラグラフを取�
 msgid ""
 "Left aligned scene break markers are center aligned. Replace soft scene "
 "breaks that use multiple blank lines with horizontal rules."
-msgstr ""
+msgstr "左寄せのシーン区切りマーカーを中央にします。複数行からなるソフト･シーン区切りを水平区切り線にします。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:565
 msgid ""
@@ -3510,7 +3510,7 @@ msgstr "書籍に目次を追加する場合、最後ではなく書籍の最初
 msgid ""
 "Extract the contents of the MOBI file to the specified directory. If the "
 "directory already exists, it will be deleted."
-msgstr ""
+msgstr "MOBIファイルの内容を指定したディレクトリに展開します。もしディレクトリがすでにある場合、それは削除されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:110
 msgid "All articles"
@@ -3522,7 +3522,7 @@ msgstr "これはAmazon Topaz ブックです。処理できません。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:490
 msgid "No details available"
-msgstr ""
+msgstr "詳細不明"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1499
 msgid "Title Page"
@@ -5483,7 +5483,7 @@ msgstr "同じタグを持つ本"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
@@ -8527,12 +8527,12 @@ msgstr "アイテムが選択されていません"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:206
 msgid "You must select at least one item from the list."
-msgstr ""
+msgstr "最低でもリストから１つのアイテムを選択しなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:210
 msgid "Are you sure you want to delete the following items?"
-msgstr ""
+msgstr "本当にこれらのアイテムを削除しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:70
@@ -10329,11 +10329,11 @@ msgstr "使用できるタグのリストにタグを追加し、現在の書籍
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:109
 msgid "Tag"
-msgstr ""
+msgstr "タグ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:112
 msgid "Count"
-msgstr ""
+msgstr "カウント"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
@@ -18104,6 +18104,8 @@ msgid ""
 "with the items being \"id:value\". Find the pair with the id equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(val, key) -- "
+"valをコンマ区切りの\"id:value\"と言う形式のアイテムのリストと解釈し、keyと同じidのvalueを返します。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:531
 msgid ""
@@ -18294,6 +18296,9 @@ msgid ""
 "list1 and list2 are separated by separator, as are the items in the returned "
 "list."
 msgstr ""
+"list_union(list1, list2, separator) -- "
+"list1とlist2のアイテムをつなげて、大小文字無視の比較で同じアイテムを取り除いたリストを返します。もし大小文字が違う場合、list1の物が使われま"
+"す。list1とlist2、そして返されるリストのアイテムはseparatorで区切られます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:865
 msgid ""
@@ -18302,6 +18307,9 @@ msgid ""
 "items in list1 and list2 are separated by separator, as are the items in the "
 "returned list."
 msgstr ""
+"list_difference(list1, list2, separator) -- "
+"大小文字無視の比較を使い、list1の中からlist2の中に該当する物を取り除いたリストを返します。list1とlist2、そして返されるリストのアイテム"
+"はseparatorで区切られます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:884
 msgid ""
@@ -18310,6 +18318,9 @@ msgid ""
 "The items in list1 and list2 are separated by separator, as are the items in "
 "the returned list."
 msgstr ""
+"list_intersection(list1, list2, separator) -- "
+"大小文字無視の比較を使い、list1の中からlist2の中に該当しない物を取り除いたリストを返します。list1とlist2、そして返されるリストのアイテ"
+"ムはseparatorで区切られます。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:903
 msgid ""
@@ -18318,6 +18329,9 @@ msgid ""
 "otherwise descending. The list items are separated by separator, as are the "
 "items in the returned list."
 msgstr ""
+"list_sort(list, direction, separator) -- 大小文字無視のソートを行ったlistを返します。もし "
+"direction が0の場合、リストは昇順で、それ以外の時には降順でソートされます。listと返されるリストのアイテムはseparatorで区切られます"
+"。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:916
 msgid ""
@@ -18497,7 +18511,7 @@ msgstr "スペイン語 (ニカラグア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "Spanish (Colombia)"
-msgstr ""
+msgstr "スペイン語 (コロンビア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "German (AT)"
@@ -19152,7 +19166,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:115
 msgid "Specify columns to sort the booklist by on startup"
-msgstr ""
+msgstr "スタート時に書籍リストをソートする列を指定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:116
 msgid ""
@@ -19164,10 +19178,14 @@ msgid ""
 "For example, set it to [('authors',0),('title',0)] to sort by\n"
 "title within authors."
 msgstr ""
+"calibreのスタート時にソートされる列の組を与えます。\n"
+"もし保存されたソート履歴を使う場合には、引数はNoneになりますが、それ以外の場合にはこれは、列, 順序 "
+"のペアからなるリストです。列は、列のツールチップに表示される、列の検索名です。順序が0の時には昇順、1の時には降順となります。\n"
+"例えば、 [('authors',0),('title',0)] は著者と、その中でタイトルの順にソートされます。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:125
 msgid "Control how dates are displayed"
-msgstr ""
+msgstr "どのように日付が表示されるのかを制御"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:126
 msgid ""
@@ -19189,6 +19207,23 @@ msgid ""
 "publication default if not set: MMM yyyy\n"
 "timestamp default if not set: dd MMM yyyy"
 msgstr ""
+"出版日とタイムスタンプ(日付)に使われるフォーマット。\n"
+"出版日がGUI上でどのように表示されるかを調整する文字列は、、、\n"
+"d    前に0を付けない日付の数字 (1 to 31)\n"
+"dd    前に0を付ける日付の数字 (01 to 31)\n"
+"ddd    ローカライズされた曜日の短縮形。(例 \"Mon\", \"Sun\").\n"
+"dddd    ローカライズされた曜日名(例 \"Monday\", \"Sunday\").\n"
+"M    頭に0を付けない月の数字 (1 to 12).\n"
+"MM    頭に0を付けた月の数字 (01 to 12) \n"
+"MMM    ローカライズされた月の名前の短縮形 (例 \"Jan\", \"Dec\").\n"
+"MMMM    ローカライズされた長い月の名前 (例 \"January\", \"December\").\n"
+"yy    2桁での年 (00 から 99).\n"
+"yyyy    4桁での年。\n"
+"例えば、9 Jan 2010の場合、以下のような表示になります。\n"
+"MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010\n"
+"MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10\n"
+"指定されない場合の、出版日のディフォールト: MMM yyyy\n"
+"指定されない場合の、タイムスタンプのディフォールト: dd MMM yyyy"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:147
 msgid "Control sorting of titles and series in the library display"

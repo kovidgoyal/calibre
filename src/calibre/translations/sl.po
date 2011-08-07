@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-05 18:14+0000\n"
-"PO-Revision-Date: 2011-08-05 20:39+0000\n"
+"PO-Revision-Date: 2011-08-06 20:57+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2011-08-06 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-08-07 04:36+0000\n"
 "X-Generator: Launchpad (build 13613)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
@@ -927,7 +927,7 @@ msgstr "Da"
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:147
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1086
 msgid "Main"
-msgstr "Središče"
+msgstr "Glavni pomn."
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
@@ -4529,7 +4529,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:35
 msgid "Create a catalog of the books in your calibre library"
-msgstr "Ustvari katalog knjig v moji knjižnici calibre"
+msgstr "Ustvari katalog knjig v knjižnici calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:34
 msgid "No books selected for catalog generation"
@@ -8173,7 +8173,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:44
 msgid "Choose location for calibre library"
-msgstr ""
+msgstr "Izberite mesto za knjižnico calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:51
 msgid "Same as current"
@@ -11507,7 +11507,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:143
 msgid "Remove unused series (Series that have no books)"
-msgstr "Odstrani neuporabljene serije (Serije, ki ne vsebujejo knjig)"
+msgstr "Odstrani neuporabljene zbirke (zbirke, ki ne vsebujejo knjig)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:178
 msgid ""

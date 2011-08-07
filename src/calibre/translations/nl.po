@@ -44,14 +44,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-05 18:14+0000\n"
-"PO-Revision-Date: 2011-08-06 00:59+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
+"PO-Revision-Date: 2011-08-06 19:45+0000\n"
+"Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-06 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-08-07 04:35+0000\n"
 "X-Generator: Launchpad (build 13613)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -284,7 +284,7 @@ msgstr "Actie in de gebruikersinterface"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "Instellingen"
+msgstr "Voorkeuren"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -987,7 +987,7 @@ msgstr "Geheugenkaart B"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
-msgstr "Debug log"
+msgstr "Debuglog"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
@@ -1057,8 +1057,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
-"\"Bestanden naar iTunes Media map %s kopiëren\" is ingeschakeld in iTunes "
-"Voorkeuren|Geavanceerd"
+"U kunt ‘Bestanden naar iTunes Media map %s kopiëren’ in iTunes bij "
+"Voorkeuren|Geavanceerd inschakelen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid ""
@@ -1069,9 +1069,9 @@ msgid ""
 msgstr ""
 "<p>Deze instelling dient overeen te komen met uw iTunes "
 "<i>Voorkeuren</i>|<i>Geavanceerd</i> instelling.</p><p>Uitschakelen zal "
-"kopieën van boeken verzonden naar iTunes opslaan in uw calibre configuratie "
-"map.</p><p>Inschakelen geeft aan dat iTunes is ingesteld om kopieën van uw "
-"boeken op te slaan in uw iTunes Media map.</p>"
+"kopieën van boeken verzonden naar iTunes opslaan in uw calibre-"
+"configuratiemap.</p><p>Inschakelen geeft aan dat iTunes is ingesteld om "
+"kopieën van uw boeken op te slaan in uw iTunes Media map.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
 msgid "Apple device"
@@ -1668,7 +1668,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:87
 msgid "Preserve cover aspect ratio when building thumbnails"
-msgstr "Behoud verhouding van boekomslag bij het maken van voorbeeldweergave"
+msgstr "Behoud verhouding van de omslag bij het maken van voorbeeldweergave"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:89
 msgid ""
@@ -1676,9 +1676,9 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
-"Kies deze optie wanneer de voorbeeldweergave van de omslag de hoogte-"
-"breedteverhouding van de omslag moeten behouden. Als dit niet is ingesteld "
-"heeft de voorbeeldweergave maximale grootte, onafhankelijk van de hoogte-"
+"Kies deze optie wanneer de voorbeeldweergave van de omslag de breedte-hoogte "
+"verhouding van de omslag moeten behouden. Als dit niet is ingesteld heeft de "
+"voorbeeldweergave maximale grootte, onafhankelijk van de hoogte-"
 "breedteverhoudingen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:93
@@ -1889,8 +1889,8 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
-"ID te verkrijgen via 'Instellingen -> Diversen -> Verkijg informatie' om het "
-"door de gebruiker gedefinieerde apparaat te installeren"
+"ID te verkrijgen via ‘Voorkeuren -> Diversen -> Informatie verkrijgen’ om "
+"het door de gebruiker gedefinieerde apparaat te installeren"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
@@ -1915,9 +1915,9 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
-"Dit veld wordt alleen gebruikt in Windows. ID te verkrijgen via "
-"'Instellingen -> Diversen -> Verkijg informatie' om het door de gebruiker "
-"gedefinieerde apparaat te installeren"
+"Dit veld wordt alleen gebruikt in Windows. ID te verkrijgen via ‘Voorkeuren -"
+"> Diversen -> Informatie verkrijgen’ om het door de gebruiker gedefinieerde "
+"apparaat te installeren"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
@@ -3310,7 +3310,7 @@ msgstr "Verwerking met veel uitleg"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:292
 msgid "Convert LRS to LRS, useful for debugging."
-msgstr "Zet LRS naar LRF om, handig om fouten op te sporen."
+msgstr "Zet LRS naar LRS om, handig om fouten op te sporen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
@@ -4994,7 +4994,7 @@ msgstr "Geen boeken gesecteerd voor cataloguscreatie"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:57
 #, python-format
 msgid "Generating %s catalog..."
-msgstr "Catalogus %s genereren…"
+msgstr "Catalogus %s aanmaken…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:81
 msgid "Catalog generated."
@@ -5465,7 +5465,7 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
 msgstr ""
-"De geselecteerde boeken zullen <b>definitief verwijderd</b> worden en de "
+"De geselecteerde boeken zullen <b>permanent verwijderd</b> worden en de "
 "bestanden zullen uit de calibre-bibliotheek verwijderd worden. Weet u het "
 "zeker?"
 
@@ -5474,7 +5474,7 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> from your device. Are "
 "you sure?"
 msgstr ""
-"De geselecteerde boeken zullen <b>definitief verwijderd</b> worden van uw "
+"De geselecteerde boeken zullen <b>permanent verwijderd</b> worden van uw "
 "apparaat. Weet u het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
@@ -6919,7 +6919,7 @@ msgstr "Standaard"
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:130
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:131
 msgid "Heading"
-msgstr "Kop"
+msgstr "Koptekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:132
 msgid "Pre-formatted"
@@ -7075,7 +7075,7 @@ msgstr "Foutopsporing"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:21
 msgid "Debug the conversion process."
-msgstr "Zoeken fouten in conversieproces."
+msgstr "Naar fouten in het conversieproces zoeken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:56
@@ -7110,8 +7110,7 @@ msgid ""
 msgstr ""
 "Het foutopsporingsproces slaat de tussentijdse HTML, die in diverse stadia "
 "van het conversieproces wordt aangemaakt, op. Deze HTML-bestanden kunnen "
-"soms een goed startpunt opleveren voor het handmatig bewerken van een "
-"conversie."
+"soms een goed startpunt zijn voor het handmatig bewerken van een conversie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
@@ -9048,8 +9047,8 @@ msgid ""
 "You can also customise the plugin locations using <b>Preferences -> "
 "Customise the toolbar</b>"
 msgstr ""
-"U kunt plaatsen van de plug-ins ook aanpassen met <b>Instellingen -> "
-"Werkbalk aanpassen</b>"
+"U kunt plaatsen van de plug-ins ook aanpassen met <b>Voorkeuren -> Werkbalk "
+"aanpassen</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
@@ -9128,7 +9127,7 @@ msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
 msgstr ""
-"Alle aangevinkte boeken zullen <b>definitief</b> van het apparaat "
+"Alle aangevinkte boeken zullen <b>permanent</b> van het apparaat "
 "<b>verwijderd</b> worden. Controleer de lijst op fouten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
@@ -9340,7 +9339,7 @@ msgid ""
 msgstr ""
 "Vervang alle waarden voor sorteerauteur met een automatisch\n"
 "uit het auteur-veld berekende waarde. Hoe die omzetting exact gebeurd\n"
-"kan ingesteld worden via Instellingen->Geavanceerd->Tweaks"
+"kan ingesteld worden via Voorkeuren->Geavanceerd->Aanpassingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:96
 msgid "Recalculate all author sort values"
@@ -9352,8 +9351,8 @@ msgid ""
 "after changing Preferences->Advanced->Tweaks->Author sort name algorithm"
 msgstr ""
 "Kopieer de waarde van sorteerauteur naar auteur, voor elke auteur. Dit "
-"gebruikt u waarschijnlijk na het aanpassen van Instellingen->Geavanceerd-"
-">Tweaks->Algoritme voor auteurssortering"
+"gebruikt u waarschijnlijk na het aanpassen van Voorkeuren->Geavanceerd-"
+">Aanpassingen->Algoritme voor auteurssortering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:99
 msgid "Copy all author sort values to author"
@@ -9381,7 +9380,7 @@ msgstr "&Alle niet-apparaat gerelateerde taken stoppen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
-msgstr "Van &calibre naar klembord kopieren"
+msgstr "Naar &klembord kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:53
 msgid "Show &details"
@@ -9663,7 +9662,7 @@ msgstr "Als dit is ingesteld wordt de reeks verwijderd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:548
 msgid "&Clear series"
-msgstr "Reeks wissen/ops&chonen"
+msgstr "Reeks &wissen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:549
 msgid ""
@@ -9736,7 +9735,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:570
 msgid "Change title to title &case"
-msgstr "Wijzig bes&chikbare hoofdletters in titels naar titelformaat"
+msgstr "Wijzig hoofd&lettergebruik in titels naar titelformaat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:571
 msgid ""
@@ -9792,7 +9791,7 @@ msgstr "&Basismetadata"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:519
 msgid "&Custom metadata"
-msgstr "Aangepaste metadata"
+msgstr "&Aangepaste metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
 msgid "Load searc&h/replace:"
@@ -10401,11 +10400,11 @@ msgid ""
 "only restores books, not any settings stored in the database, or any custom "
 "recipes.<p>Do you want to restore the database?"
 msgstr ""
-"Uw boekenlijst met alle metadata is opgeslagen in één bestand, de "
-"database.Metadata voor elk boek zijn ook als backup opgeslagen in de map van "
-"dat boek.<p>Deze actie zal de database opnieuw opbouwen aan de hand van deze "
+"Uw boekenlijst met alle metadata is opgeslagen in één bestand, de database. "
+"Metadata voor elk boek zijn ook als backup opgeslagen in de map van dat "
+"boek.<p>Deze actie zal de database opnieuw opbouwen aan de hand van deze "
 "individuele backups. Dit is nuttig als u door beschadiging van de database "
-"een lege boekenlijst te zien krijgt. Herstellen herstelt aleen de metadata, "
+"een lege boekenlijst te zien krijgt. Herstellen herstelt alleen de metadata, "
 "geen instellingen of recepten die u heeft opgeslagen.<p>Wilt u de database "
 "herstellen?"
 
@@ -10489,7 +10488,7 @@ msgid ""
 "                soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
-"                Download dit elke week op de aangegeven dag na\n"
+"                Download dit tijdschrift elke week op de aangegeven dag na\n"
 "                de aangegeven tijd. Als u bv. maandag na 13u00 kiest wordt\n"
 "                dit elke maandag na 13u00 gedownload.\n"
 "            "
@@ -10510,7 +10509,8 @@ msgid ""
 "                month, as soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
-"                Download dit elke maand op de aangegeven dagen na\n"
+"                Download dit tijdschrift elke maand op de aangegeven dagen "
+"na\n"
 "                de aangegeven tijd. Als u bv. de 1e en de 15e na 13u00 kiest "
 "wordt\n"
 "                dit de 1e en 15e van de maand na 13u00 gedownload.\n"
@@ -10973,8 +10973,8 @@ msgstr "De naam wordt al gebruikt, misschien met ander hoofdlettergebruik."
 msgid ""
 "The current tag category will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"De huidige labelcategorie zal <b>definitief verwijderd</b> worden. Weet u "
-"het zeker?"
+"De huidige labelcategorie zal <b>permanent verwijderd</b> worden. Weet u het "
+"zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:166
 msgid "User Categories Editor"
@@ -11198,9 +11198,9 @@ msgid ""
 "windows you used to edit files in the epub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
-"<p>Pak de ePub uit om de inhoud in een browser te tonen. Rechtsklik op "
+"<p>Pak de ePub uit om de inhoud in een browser te tonen. Klik met rechts op "
 "bestanden en kies ‘Openen met…’ uw favoriete tekstverwerker. Wanneer de "
-"aanpassingen compleet zijn sluit dan de browser <b>en de gebruikte "
+"aanpassingen compleet zijn sluit u de browser <b>en de gebruikte "
 "tekstverwerker</b>.</p><p>Herbouw de ePub en uw bibliotheek wordt "
 "bijgewerkt.</p>"
 
@@ -11236,7 +11236,8 @@ msgstr "Geen recept geselecteerd"
 #, python-format
 msgid "The attached file: %(fname)s is a recipe to download %(title)s."
 msgstr ""
-"Het bijgevoegde bestand: %(fname)s is een recept voor downloaden %(title)s."
+"Het bijgevoegde bestand: %(fname)s is een recept voor het downloaden van "
+"%(title)s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:149
 msgid "Recipe for "
@@ -11342,7 +11343,7 @@ msgstr "Recept &delen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
-msgstr "Receptbestanden weergeven"
+msgstr "Receptbestanden &weergeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid "Customize &builtin recipe"
@@ -11350,7 +11351,7 @@ msgstr "Inge&bouwd recept aanpassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:264
 msgid "&Load recipe from file"
-msgstr "Recept uit bestand laden"
+msgstr "Recept uit bestand &laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:266
 msgid ""
@@ -11407,7 +11408,7 @@ msgstr "Verwijder feed uit recept"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:281
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:284
 msgid "Add feed to recipe"
-msgstr "Voeg feed aan recept toe"
+msgstr "Feed aan recept toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:282
 msgid "&Feed title:"
@@ -11426,8 +11427,9 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a "
 "href=\"http://manual.calibre-ebook.com/news.html\">User Recipes</a>"
 msgstr ""
-"Voor hulp bij het schrijven van geavanceerde nieuws recepten, bezoek <a "
-"href=\"http://manual.calibre-ebook.com/news.html\">Gebruikers Recepten</a>"
+"Voor hulp bij het schrijven van geavanceerde nieuwsrecepten, bezoek <a "
+"href=\"http://manual.calibre-ebook.com/news.html\">Gebruikers Recepten</a> "
+"(Engelstalig)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:287
 msgid "Recipe source code (python)"
@@ -11481,7 +11483,7 @@ msgstr "Nieuws:"
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:144
 #, python-format
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr "Bijgesloten is de periodiek %s gedownload door calibre."
+msgstr "Bijgesloten is het tijdschrift %s, door calibre gedownload."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:193
 msgid "E-book:"
@@ -11999,7 +12001,7 @@ msgstr "Geminimaliseerd naar het systeemvak starten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:37
 msgid "Log debugging information to console"
-msgstr "Debuginformatie naar console schrijven"
+msgstr "Foutopsporingsinformatie naar console schrijven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:39
 msgid "Do not check for updates"
@@ -12331,7 +12333,7 @@ msgstr "Titel en auteur opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:936
 msgid "You must specify a title and author before generating a cover"
-msgstr "U moet een titel en auteur opgeven voordat u een omslag genereert"
+msgstr "U moet een titel en auteur opgeven voordat u een omslag aanmaakt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:955
 msgid "Invalid cover"
@@ -13668,15 +13670,15 @@ msgstr "Verkrijg debuginformatie"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
 msgid "Copy to &clipboard"
-msgstr "Kopieer van &calibre naar klembord"
+msgstr "&Kopieer naar klembord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Debug device detection"
-msgstr "Zoek fouten in apparaatdetectie"
+msgstr "Fouten in apparaatdetectie zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
-msgstr "Apparaat informatie verkrijgen"
+msgstr "Apparaatinformatie verkrijgen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:34
 msgid "User-defined device information"
@@ -13704,7 +13706,7 @@ msgid ""
 msgstr ""
 "Kopieer deze waarden naar het klembord, plak ze in een teksteditor en plaats "
 "ze dan in het GEBRUIKERS_APPARAAT door de plug-in voor het apparaat in te "
-"stellen in Instellingen -> Plug-ins. Denk eraan om ook de mappen op te geven "
+"stellen in Voorkeuren -> Plug-ins. Denk eraan om ook de mappen op te geven "
 "waar de boeken naartoe moeten. Veranderingen worden pas actief nadat u "
 "calibre herstart.\n"
 
@@ -14218,7 +14220,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:68
 msgid "Debug &device detection"
-msgstr "Foutopsporing apparaat &detectie"
+msgstr "Fouten in apparaat&detectie zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:69
 msgid "Get information to setup the &user defined device"
@@ -14767,7 +14769,7 @@ msgstr ""
 "Hier kunt u instellen hoe calibre uw boeken moet bewaren als u ‘Naar "
 "apparaat versturen’ kiest. Deze instelling kan overschreven worden voor "
 "individuele apparaten door de apparaatverbinding-plug-ins aan te passen in "
-"Instellingen->Geavanceerd->plug-ins"
+"Voorkeuren->Geavanceerd->Plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:424
@@ -15188,8 +15190,8 @@ msgid ""
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
 msgstr ""
-"Maak/bewerk tweaks voor plug-ins die u geïnstalleerd heeft. Documentatie "
-"daarvoor kunt u op de website van de plug-ins vinden."
+"Maak/bewerk aanpassingen voor plug-ins die u geïnstalleerd heeft. "
+"Documentatie daarvoor kunt u op de website van de plug-ins vinden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:278
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:318
@@ -15208,9 +15210,8 @@ msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
-"Uw tweaks zijn ongeldig. Probeer de aanpassingen te resetten en deze "
-"vervolgens één voor één weer te veranderen totdat u de ongeldige aanpassing "
-"vind."
+"Uw aanpassingen zijn ongeldig. Probeer de aanpassingen te resetten en deze "
+"vervolgens één voor één te veranderen totdat u de ongeldige aanpassing vind."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:88
 msgid ""
@@ -15257,7 +15258,7 @@ msgstr "Geen zoekopdracht geselecteerd"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:342
 msgid "The selected search will be <b>permanently deleted</b>. Are you sure?"
 msgstr ""
-"De geselecteerde zoekopdracht zal <b>definitief gewist worden</b>. Weet u "
+"De geselecteerde zoekopdracht zal <b>permanent verwijderd worden</b>. Weet u "
 "het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:367
@@ -16186,8 +16187,8 @@ msgid ""
 "automatically."
 msgstr ""
 "U hebt calibre in debugmodus gestart. Na het sluiten van calibre, zal de "
-"debuglog beschikbaar zijn in dit bestand: %s<p>De log zal automatisch worden "
-"weergegeven."
+"debuglog beschikbaar zijn in dit bestand: %s<p>De log zal automatisch "
+"weergegeven worden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:550
 msgid "Conversion Error"
@@ -19545,7 +19546,7 @@ msgstr "lowercase(val) -- geeft waarde van het veld terug in kleine letters"
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
 "titlecase(val) -- geeft de waarde van het veld terug in (Engelstalige) title-"
-"case"
+"case (Elke Woord Met Hoofdletter)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:730
 msgid "capitalize(val) -- return value of the field capitalized"
@@ -19945,7 +19946,7 @@ msgstr "Artikel zonder naam"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:22
 msgid "Download periodical content from the internet"
-msgstr "Periodieke inhoud van het internet downloaden"
+msgstr "Tijdschriften van het internet downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:37
 msgid ""
@@ -20025,7 +20026,7 @@ msgstr "Probeer omslag te downloaden…"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:888
 msgid "Generating masthead..."
-msgstr "Colofon genereren…"
+msgstr "Colofon aanmaken…"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:968
 #, python-format
@@ -20075,7 +20076,7 @@ msgid ""
 "Periodicals service."
 msgstr ""
 "Inloggen niet gelukt. Controleer uw gebruikersnaam en wachtwoord voor de "
-"calibre-periodiekendienst."
+"calibre-tijdschriftendienst."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1446
 msgid ""
@@ -21049,7 +21050,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:299
 msgid "Specify which font to use when generating a default cover"
 msgstr ""
-"Specificeer welk lettertype gebruikt moet worden bij het genereren van een "
+"Specificeer welk lettertype gebruikt moet worden bij het aanmaken van een "
 "standaardomslag"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:300

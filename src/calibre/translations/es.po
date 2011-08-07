@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-05 18:14+0000\n"
-"PO-Revision-Date: 2011-08-05 15:51+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-06 08:21+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-06 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-08-07 04:36+0000\n"
 "X-Generator: Launchpad (build 13613)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -457,7 +457,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Escoger un libro aleatorio de la biblioteca de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:856
 msgid "Search for books from different book sellers"
@@ -2755,6 +2755,9 @@ msgid ""
 "Left aligned scene break markers are center aligned. Replace soft scene "
 "breaks that use multiple blank lines with horizontal rules."
 msgstr ""
+"Los marcadores de salto de escena alineados a la izquierda se centrarán. Los "
+"saltos de escena con múltiples líneas en blanco se sustituirán por líneas "
+"horizontales."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:565
 msgid ""
@@ -3866,6 +3869,8 @@ msgid ""
 "Extract the contents of the MOBI file to the specified directory. If the "
 "directory already exists, it will be deleted."
 msgstr ""
+"Estraer el contenido del fichero MOBI en el directorio especificado. Si el "
+"directorio ya existe, se borrará"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:110
 msgid "All articles"
@@ -3877,7 +3882,7 @@ msgstr "Este es un libro Topaz de Amazon. No se puede procesar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:490
 msgid "No details available"
-msgstr ""
+msgstr "No hay detalles disponibles"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1499
 msgid "Title Page"
@@ -5995,7 +6000,7 @@ msgstr "Libros con las mismas etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
@@ -9161,12 +9166,12 @@ msgstr "No hay elementos seleccionados"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:206
 msgid "You must select at least one item from the list."
-msgstr ""
+msgstr "Debe seleccionar al menos un elemento de la lista."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:210
 msgid "Are you sure you want to delete the following items?"
-msgstr ""
+msgstr "¿Está seguro de que quiere borrar los siguientes elementos?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:70
@@ -11085,11 +11090,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:109
 msgid "Tag"
-msgstr ""
+msgstr "Etiqueta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:112
 msgid "Count"
-msgstr ""
+msgstr "Recuento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
@@ -19417,6 +19422,9 @@ msgid ""
 "with the items being \"id:value\". Find the pair with the id equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(val, clave) -- interpreta el valor como una lista de elementos "
+"separados por comas, con los elementos de la forma «id:valor». Encuentra la "
+"pareja con «id» igual a «clave» y devuelve el «valor» correspondiente."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:531
 msgid ""
@@ -19638,6 +19646,11 @@ msgid ""
 "list1 and list2 are separated by separator, as are the items in the returned "
 "list."
 msgstr ""
+"list_union(lista1, lista2, separador) -- devuelve una lista construida por "
+"combinación de los elementos en «lista1» y «lista2», eliminando los "
+"duplicados de «lista2» (no distingue mayúsculas y minúsculas, se mantiene la "
+"versión de «lista1»). Los elementos de «lista1» y «lista2» están separados "
+"por «separador», así como los de la lista resultante."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:865
 msgid ""
@@ -19646,6 +19659,10 @@ msgid ""
 "items in list1 and list2 are separated by separator, as are the items in the "
 "returned list."
 msgstr ""
+"list_difference(lista1, lista2, separador) -- devuelve una lista construida "
+"eliminando de «lista1» cualquier elemento que aparezca en «lista2», sin "
+"distinguir mayúsculas y minúsculas. Los elementos de «lista1» y «lista2» "
+"están separados por «separador», así como los de la lista resultante."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:884
 msgid ""
@@ -19654,6 +19671,11 @@ msgid ""
 "The items in list1 and list2 are separated by separator, as are the items in "
 "the returned list."
 msgstr ""
+"list_intersection(lista1, lista2, separador) -- devuelve una lista "
+"construida eliminando de «lista1» cualquier elemento que no aparezca en "
+"«lista2», sin distinguir mayúsculas y minúsculas. Los elementos de «lista1» "
+"y «lista2» están separados por «separador», así como los de la lista "
+"resultante."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:903
 msgid ""
@@ -19662,6 +19684,11 @@ msgid ""
 "otherwise descending. The list items are separated by separator, as are the "
 "items in the returned list."
 msgstr ""
+"list_sort(lista, dirección, separador) -- devuelve «lista» ordenada sin "
+"distinción de mayúsculas y minúculas. Si «dirección» es cero, la lista se "
+"ordena de manera ascendente, en caso contrario, de manera descendente. Los "
+"elementos de «lista» están separados por «separador», así como los de la "
+"lista resultante."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:916
 msgid ""
@@ -19843,7 +19870,7 @@ msgstr "Español (Nicaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "Spanish (Colombia)"
-msgstr ""
+msgstr "Español (Colombia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "German (AT)"
