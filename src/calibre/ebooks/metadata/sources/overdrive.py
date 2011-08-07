@@ -208,8 +208,8 @@ class OverDrive(Source):
                 if len(xref_q) < len(token):
                     xref_q = token
 
-        #log.error('Initial query is %s'%initial_q)
-        #log.error('Cross reference query is %s'%xref_q)
+        log.error('Initial query is %s'%initial_q)
+        log.error('Cross reference query is %s'%xref_q)
 
         q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
         query = '{"szKeyword":"'+initial_q+'"}'
@@ -224,29 +224,30 @@ class OverDrive(Source):
 
         # get the search results object
         results = False
+        iterations = 0
         while results == False:
+            iterations += 1
             xreq = mechanize.Request(q_xref)
             xreq.add_header('X-Requested-With', 'XMLHttpRequest')
             xreq.add_header('Referer', q_init_search)
             xreq.add_header('Accept', 'application/json, text/javascript, */*')
             raw = br.open_novisit(xreq).read()
             for m in re.finditer(ur'"iTotalDisplayRecords":(?P<displayrecords>\d+).*?"iTotalRecords":(?P<totalrecords>\d+)', raw):
-                if int(m.group('displayrecords')) >= 1:
-                    results = True
-                elif int(m.group('totalrecords')) >= 1:
-                    if int(m.group('totalrecords')) >= 100:
-                        if xref_q.find('+') != -1:
-                            xref_tokens = xref_q.split('+')
-                            xref_q = xref_tokens[0]
-                            for token in xref_tokens:
-                                if len(xref_q) < len(token):
-                                    xref_q = token
-                            #log.error('rewrote xref_q, new query is '+xref_q)
-                    else:
-                        xref_q = ''
-                    q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
-                elif int(m.group('totalrecords')) == 0:
+                if int(m.group('totalrecords')) == 0:
                     return ''
+                elif int(m.group('displayrecords')) >= 1:
+                    results = True
+                elif int(m.group('totalrecords')) >= 1 and iterations < 3:
+                    if xref_q.find('+') != -1:
+                        xref_tokens = xref_q.split('+')
+                        xref_q = xref_tokens[0]
+                        for token in xref_tokens:
+                            if len(xref_q) < len(token):
+                                xref_q = token
+                        #log.error('rewrote xref_q, new query is '+xref_q)
+                else:
+                        xref_q = ''
+                q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
 
         return self.sort_ovrdrv_results(raw, log, title, title_tokens, author, author_tokens)
 
@@ -461,10 +462,10 @@ if __name__ == '__main__':
         [
 
             (
-                {'title':'Foundation and Earth',
-                    'authors':['Asimov']},
-                [title_test('Foundation and Earth', exact=True),
-                    authors_test(['Isaac Asimov'])]
+                {'title':'The Sea Kings Daughter',
+                    'authors':['Elizabeth Peters']},
+                [title_test('The Sea Kings Daughter', exact=False),
+                    authors_test(['Elizabeth Peters'])]
             ),
 
             (
