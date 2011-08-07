@@ -169,19 +169,26 @@ def get_trailing_data(record, extra_data_flags):
     :return: Trailing data, record - trailing data
     '''
     data = OrderedDict()
-    for i in xrange(16, -1, -1):
-        flag = 1 << i # 2**i
-        if flag & extra_data_flags:
-            if i == 0:
-                # Only the first two bits are used for the size since there can
-                # never be more than 3 trailing multibyte chars
-                sz = (ord(record[-1]) & 0b11) + 1
-                consumed = 1
-            else:
-                sz, consumed = decint(record, forward=False)
+    flags = extra_data_flags >> 1
+
+    num = 0
+    while flags:
+        num += 1
+        if flags & 0b1:
+            sz, consumed = decint(record, forward=False)
             if sz > consumed:
-                data[i] = record[-sz:-consumed]
+                data[num] = record[-sz:-consumed]
             record = record[:-sz]
+        flags >>= 1
+    # Read multibyte chars if any
+    if extra_data_flags & 0b1:
+        # Only the first two bits are used for the size since there can
+        # never be more than 3 trailing multibyte chars
+        sz = (ord(record[-1]) & 0b11) + 1
+        consumed = 1
+        if sz > consumed:
+            data[0] = record[-sz:-consumed]
+        record = record[:-sz]
     return data, record
 
 def encode_trailing_data(raw):

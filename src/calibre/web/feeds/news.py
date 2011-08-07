@@ -1083,40 +1083,9 @@ class BasicNewsRecipe(Recipe):
     MI_HEIGHT = 60
 
     def default_masthead_image(self, out_path):
-        from calibre.ebooks.conversion.config import load_defaults
-        from calibre.utils.fonts import fontconfig
-        font_path = default_font = P('fonts/liberation/LiberationSerif-Bold.ttf')
-        recs = load_defaults('mobi_output')
-        masthead_font_family = recs.get('masthead_font', 'Default')
-
-        if masthead_font_family != 'Default':
-            masthead_font = fontconfig.files_for_family(masthead_font_family)
-            # Assume 'normal' always in dict, else use default
-            # {'normal': (path_to_font, friendly name)}
-            if 'normal' in masthead_font:
-                font_path = masthead_font['normal'][0]
-
-        if not font_path or not os.access(font_path, os.R_OK):
-            font_path = default_font
-
-        try:
-            from PIL import Image, ImageDraw, ImageFont
-            Image, ImageDraw, ImageFont
-        except ImportError:
-            import Image, ImageDraw, ImageFont
-
-        img = Image.new('RGB', (self.MI_WIDTH, self.MI_HEIGHT), 'white')
-        draw = ImageDraw.Draw(img)
-        try:
-            font = ImageFont.truetype(font_path, 48)
-        except:
-            font = ImageFont.truetype(default_font, 48)
-        text = self.get_masthead_title().encode('utf-8')
-        width, height = draw.textsize(text, font=font)
-        left = max(int((self.MI_WIDTH - width)/2.), 0)
-        top = max(int((self.MI_HEIGHT - height)/2.), 0)
-        draw.text((left, top), text, fill=(0,0,0), font=font)
-        img.save(open(out_path, 'wb'), 'JPEG')
+        from calibre.ebooks import generate_masthead
+        generate_masthead(self.get_masthead_title(), output_path=out_path,
+                width=self.MI_WIDTH, height=self.MI_HEIGHT)
 
     def prepare_masthead_image(self, path_to_image, out_path):
         from calibre import fit_image

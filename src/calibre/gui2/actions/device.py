@@ -60,6 +60,15 @@ class ShareConnMenu(QMenu): # {{{
 
         self.email_actions = []
 
+        if hasattr(parent, 'keyboard'):
+            r = parent.keyboard.register_shortcut
+            prefix = 'Share/Connect Menu '
+            for attr in ('folder', 'bambook', 'itunes'):
+                if not (iswindows or isosx) and attr == 'itunes':
+                    continue
+                ac = getattr(self, 'connect_to_%s_action'%attr)
+                r(prefix + attr, unicode(ac.text()), action=ac)
+
     def server_state_changed(self, running):
         text = _('Start Content Server')
         if running:

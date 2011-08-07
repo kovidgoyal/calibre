@@ -38,17 +38,17 @@ def get_metadata_(src, encoding=None):
     if match:
         title = match.group(2)
     else:
-        pat = re.compile('<title>([^<>]+?)</title>', re.IGNORECASE)
-        match = pat.search(src)
-        if match:
-            title = match.group(1)
-    if not title:
-        for x in ('Title','DC.title','DCTERMS.title'):
+        for x in ('DC.title','DCTERMS.title','Title'):
             pat = get_meta_regexp_(x)
             match = pat.search(src)
             if match:
                 title = match.group(1)
                 break
+    if not title:
+        pat = re.compile('<title>([^<>]+?)</title>', re.IGNORECASE)
+        match = pat.search(src)
+        if match:
+            title = match.group(1)
 
     # Author
     author = None
@@ -57,7 +57,7 @@ def get_metadata_(src, encoding=None):
     if match:
         author = match.group(2).replace(',', ';')
     else:
-        for x in ('Author','DC.creator.aut','DCTERMS.creator.aut'):
+        for x in ('Author','DC.creator.aut','DCTERMS.creator.aut', 'DC.creator'):
             pat = get_meta_regexp_(x)
             match = pat.search(src)
             if match:

@@ -82,23 +82,20 @@ class ChooseLibraryAction(InterfaceAction):
     action_spec = (_('%d books'), 'lt.png',
             _('Choose calibre library to work with'), None)
     dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    action_add_menu = True
+    action_menu_clone_qaction = _('Switch/create library...')
 
     def genesis(self):
         self.count_changed(0)
         self.qaction.triggered.connect(self.choose_library,
                 type=Qt.QueuedConnection)
+        self.action_choose = self.menuless_qaction
 
         self.stats = LibraryUsageStats()
         self.popup_type = (QToolButton.InstantPopup if len(self.stats.stats) > 1 else
                 QToolButton.MenuButtonPopup)
 
-        self.create_action(spec=(_('Switch/create library...'), 'lt.png', None,
-            None), attr='action_choose')
-        self.action_choose.triggered.connect(self.choose_library,
-                type=Qt.QueuedConnection)
-        self.choose_menu = QMenu(self.gui)
-        self.qaction.setMenu(self.choose_menu)
-
+        self.choose_menu = self.qaction.menu()
 
         if not os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.choose_menu.addAction(self.action_choose)
@@ -110,7 +107,7 @@ class ChooseLibraryAction(InterfaceAction):
             self.delete_menu = QMenu(_('Remove library'))
             self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
 
-        ac = self.create_action(spec=(_('Pick a random book'), 'catalog.png',
+        ac = self.create_action(spec=(_('Pick a random book'), 'random.png',
             None, None), attr='action_pick_random')
         ac.triggered.connect(self.pick_random)
         self.choose_menu.addAction(ac)
@@ -152,10 +149,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.choose_menu.addMenu(self.maintenance_menu)
 
     def pick_random(self, *args):
-        import random
-        pick = random.randint(0, self.gui.library_view.model().rowCount(None))
-        self.gui.library_view.set_current_row(pick)
-        self.gui.library_view.scroll_to_row(pick)
+        self.gui.iactions['Pick Random Book'].pick_random()
 
     def library_name(self):
         db = self.gui.library_view.model().db

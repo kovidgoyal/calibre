@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QModelIndex, QMenu
+from PyQt4.Qt import QModelIndex
 
 from calibre.gui2 import error_dialog, Dispatcher
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook
@@ -22,20 +22,22 @@ class ConvertAction(InterfaceAction):
     action_spec = (_('Convert books'), 'convert.png', None, _('C'))
     dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
     action_type = 'current'
+    action_add_menu = True
 
     def genesis(self):
-        cm = QMenu()
-        cm.addAction(_('Convert individually'), partial(self.convert_ebook,
+        m = self.convert_menu = self.qaction.menu()
+        cm = partial(self.create_menu_action, self.convert_menu)
+        cm('convert-individual', _('Convert individually'),
+                icon=self.qaction.icon(), triggered=partial(self.convert_ebook,
             False, bulk=False))
-        cm.addAction(_('Bulk convert'),
-                partial(self.convert_ebook, False, bulk=True))
-        cm.addSeparator()
-        ac = cm.addAction(
-                _('Create a catalog of the books in your calibre library'))
-        ac.triggered.connect(self.gui.iactions['Generate Catalog'].generate_catalog)
-        self.qaction.setMenu(cm)
+        cm('convert-bulk', _('Bulk convert'),
+                triggered=partial(self.convert_ebook, False, bulk=True))
+        m.addSeparator()
+        cm('create-catalog',
+                _('Create a catalog of the books in your calibre library'),
+                icon='catalog.png', shortcut=False,
+                triggered=self.gui.iactions['Generate Catalog'].generate_catalog)
         self.qaction.triggered.connect(self.convert_ebook)
-        self.convert_menu = cm
         self.conversion_jobs = {}
 
     def location_selected(self, loc):

@@ -532,7 +532,7 @@ class MobiMLizer(object):
             bstate.pbreak = True
         if isblock:
             para = bstate.para
-            if para is not None and para.text == u'\xa0':
+            if para is not None and para.text == u'\xa0' and len(para) < 1:
                 para.getparent().replace(para, etree.Element(XHTML('br')))
             bstate.para = None
             bstate.istate = None
