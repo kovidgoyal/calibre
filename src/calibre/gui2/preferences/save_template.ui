@@ -48,6 +48,12 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+        </property>
+        <property name="minimumContentsLength">
+         <number>40</number>
+        </property>
        </widget>
       </item>
       <item row="1" column="1">
