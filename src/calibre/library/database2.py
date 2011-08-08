@@ -3024,7 +3024,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         format = os.path.splitext(path)[1][1:].lower()
         stream = path if hasattr(path, 'read') else lopen(path, 'rb')
         stream.seek(0)
-        mi = get_metadata(stream, format, use_libprs_metadata=False)
+        mi = get_metadata(stream, format, use_libprs_metadata=False,
+                force_read_metadata=True)
         stream.seek(0)
         if mi.series_index is None:
             mi.series_index = self.get_next_series_num_for(mi.series)

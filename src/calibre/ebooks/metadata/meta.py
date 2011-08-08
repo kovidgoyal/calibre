@@ -67,10 +67,6 @@ def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
 
     return mi
 
-def is_recipe(filename):
-    return filename.startswith('calibre') and \
-        filename.rpartition('.')[0].endswith('_recipe_out')
-
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False,
                  force_read_metadata=False, pattern=None):
     pos = 0
@@ -106,7 +102,7 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
     mi = MetaInformation(None, None)
     name = os.path.basename(getattr(stream, 'name', ''))
     base = metadata_from_filename(name, pat=pattern)
-    if force_read_metadata or is_recipe(name) or prefs['read_file_metadata']:
+    if force_read_metadata or prefs['read_file_metadata']:
         mi = get_file_type_metadata(stream, stream_type)
     if base.title == os.path.splitext(name)[0] and \
             base.is_null('authors') and base.is_null('isbn'):

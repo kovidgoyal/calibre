@@ -50,7 +50,7 @@ class SaveToDiskAction(InterfaceAction):
         cm('single format', _('Save only %s format to disk')%
                 prefs['output_format'].upper(),
                 triggered=partial(self.save_single_format_to_disk, False))
-        cm('fingle dir and format',
+        cm('single dir and format',
                 _('Save only %s format to disk in a single directory')%
                 prefs['output_format'].upper(),
                 triggered=partial(self.save_single_fmt_to_single_dir, False))
@@ -115,10 +115,7 @@ class SaveToDiskAction(InterfaceAction):
                     opts.save_cover = False
                     opts.write_opf = False
                     opts.template = opts.send_template
-            if single_dir:
-                opts.template = opts.template.split('/')[-1].strip()
-                if not opts.template:
-                    opts.template = '{title} - {authors}'
+            opts.single_dir = single_dir
             self._saver = Saver(self.gui, self.gui.library_view.model().db,
                     Dispatcher(self._books_saved), rows, path, opts,
                     spare_server=self.gui.spare_server)
