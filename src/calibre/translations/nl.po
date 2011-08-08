@@ -44,14 +44,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-05 18:14+0000\n"
-"PO-Revision-Date: 2011-08-06 19:45+0000\n"
-"Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
+"PO-Revision-Date: 2011-08-07 11:35+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-07 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-08-08 04:35+0000\n"
 "X-Generator: Launchpad (build 13613)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -10978,7 +10978,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:166
 msgid "User Categories Editor"
-msgstr "Beheerebruikerscategorieën"
+msgstr "Beheer gebruikerscategorieën"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category name: "
@@ -14735,7 +14735,7 @@ msgstr "Alleen bij versturen"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:72
 msgid "Automatic management"
-msgstr "Automatisch onderhoud"
+msgstr "Automatisch beheer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
 msgid "Metadata &management:"
@@ -14751,14 +14751,14 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
-"<li><b>Handmatig onderhoud</b>: calibre wijzigt de metadata en voegt "
-"collecties alleen toe als een boek is verzonden. Met deze optie zal calibre "
-"nooit een collectie verwijderen.</li>\n"
+"<li><b>Handmatig beheer</b>: calibre wijzigt de metadata en voegt collecties "
+"alleen toe als een boek is verzonden. Met deze optie zal calibre nooit een "
+"collectie verwijderen.</li>\n"
 "<li><b>Alleen bij versturen</b>: calibre wijzigt de metadata en voegt en "
 "verandert collecties voor een boek alleen wanneer het naar het apparaat "
 "wordt verzonden.</li>\n"
-"<li><b>Automatisch onderhoud</b>: calibre houdt automatisch de metadata op "
-"het apparaat gelijk met de calibre-bibliotheek bij elke verbinding.</li></ul>"
+"<li><b>Automatisch beheer</b>: calibre houdt automatisch de metadata op het "
+"apparaat gelijk met de calibre-bibliotheek bij elke verbinding.</li></ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:77
 msgid ""
@@ -15880,7 +15880,7 @@ msgstr "Uitgevers beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:54
 msgid "Manage Tags"
-msgstr "Labels Beheren"
+msgstr "Labels beheren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:465
@@ -20487,7 +20487,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:93
 msgid "Control partitioning of Tag Browser"
-msgstr "Indelen van de labelbrowser beheren"
+msgstr "Sortering van de labelbrowser beheren"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:94
 msgid ""

@@ -8,19 +8,19 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-05 18:14+0000\n"
-"PO-Revision-Date: 2011-08-05 16:31+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-07 22:44+0000\n"
+"Last-Translator: erlis <Unknown>\n"
 "Language-Team: Albanian <sq@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-06 04:35+0000\n"
+"X-Launchpad-Export-Date: 2011-08-08 04:35+0000\n"
 "X-Generator: Launchpad (build 13613)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "A ka absolutisht asgjë"
+msgstr "nuk bën absolutisht asgjë"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:103
@@ -194,42 +194,42 @@ msgstr "A ka absolutisht asgjë"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr ""
+msgstr "I/e panjohur"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr ""
+msgstr "Bazë"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
 msgid "Customize"
-msgstr "Personalizojeni"
+msgstr "Personalizo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:56
 msgid "Cannot configure"
-msgstr ""
+msgstr "Nuk mund të konfigurohet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr ""
+msgstr "Lloji i skedarit"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr ""
+msgstr "Lexues Metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr ""
+msgstr "Shkrues Metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr ""
+msgstr "Gjenerator katalogu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
-msgstr ""
+msgstr "Veprim i ndërfaqes së perdoruesit"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:557
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:18
@@ -239,16 +239,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "ParapÃ«lqime..."
+msgstr "Preferenca"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "Dyqan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "Dyqan për E-Book"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""

@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-05 18:14+0000\n"
-"PO-Revision-Date: 2011-08-06 20:57+0000\n"
+"PO-Revision-Date: 2011-08-07 20:37+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2011-08-07 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-08-08 04:36+0000\n"
 "X-Generator: Launchpad (build 13613)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
@@ -901,7 +901,7 @@ msgstr "Omogoči imenovan vtičnik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:556
 msgid "Disable the named plugin"
-msgstr "Onemogoči imenovan vtičnik"
+msgstr "Onemogoči imenovani vtičnik"
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:270
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:279
@@ -7008,7 +7008,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:75
 msgid "Disable compression of the file contents"
-msgstr ""
+msgstr "Onemogoči stiskanje vsebine datotek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:76
 msgid "Do not add Table of Contents to book"
@@ -8882,7 +8882,7 @@ msgstr "O&bjavljeno:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:564
 msgid "Clear published date"
-msgstr ""
+msgstr "Počisti datum objave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:567
 msgid "Remove &format:"
@@ -10634,7 +10634,7 @@ msgstr "Regularni izraz (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:152
 msgid "Publisher:"
-msgstr ""
+msgstr "Založnik:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:153
 msgid "Regular expression (?P<publisher>)"
@@ -10642,7 +10642,7 @@ msgstr "Regularni izraz (?P<publisher>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:155
 msgid "Published:"
-msgstr ""
+msgstr "Objavljeno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:156
 msgid "Regular expression (?P<published>)"
@@ -12614,7 +12614,7 @@ msgstr "Nikoli"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:142
 msgid "By first letter"
-msgstr ""
+msgstr "Po začetnicah"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:142
 msgid "Disabled"
@@ -12646,11 +12646,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:212
 msgid "Disable &animations"
-msgstr ""
+msgstr "Onemogoči &animacije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:213
 msgid "Disable &notifications in system tray"
-msgstr ""
+msgstr "Onemogoči o&bvestila v sistemskem pladnju"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:214
 msgid "Show &splash screen at startup"
@@ -12827,7 +12827,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:158
 msgid "Published date"
-msgstr ""
+msgstr "Datum objave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:265
 #, python-format
@@ -14577,7 +14577,7 @@ msgstr "Išči %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:399
 #, python-format
 msgid "Search for everything but %s"
-msgstr ""
+msgstr "Išči vse drugo kot %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:411
 #, python-format
@@ -14601,12 +14601,12 @@ msgstr "Pokaži kategorijo"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:434
 #, python-format
 msgid "Search for books in category %s"
-msgstr ""
+msgstr "Išči knjige v kategoriji %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:440
 #, python-format
 msgid "Search for books not in category %s"
-msgstr ""
+msgstr "Išči knjige zunaj kategorije %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:449
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:454
@@ -14620,7 +14620,7 @@ msgstr "Pokaži vse kategorije"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:479
 msgid "Change sub-categorization scheme"
-msgstr ""
+msgstr "Spremeni shemo podkategorij"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:499
 msgid "First letter is usable only when sorting by name"
@@ -14735,6 +14735,8 @@ msgid ""
 "%(app)s has been updated to version <b>%(ver)s</b>. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"Izšla je nova različica %(app)s - <b>%(ver)s</b>. Oglejte si <a "
+"href=\"http://calibre-ebook.com/whats-new\">seznam novosti (v angl.)</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:80
 msgid "Update available!"
@@ -16692,7 +16694,7 @@ msgstr "Datum"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:45
 msgid "The published date"
-msgstr ""
+msgstr "Datum objave"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
