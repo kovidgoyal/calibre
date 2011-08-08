@@ -6,6 +6,7 @@ Created on 15 May 2010
 import os
 
 from calibre.devices.usbms.driver import USBMS, BookList
+from calibre.ebooks import BOOK_EXTENSIONS
 
 # This class is added to the standard device plugin chain, so that it can
 # be configured. It has invalid vendor_id etc, so it will never match a
@@ -16,8 +17,8 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     description    = _('Use an arbitrary folder as a device.')
     author         = 'John Schember/Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS     = ['epub', 'fb2', 'mobi', 'azw', 'lrf', 'tcr', 'pmlz', 'lit',
-                   'rtf', 'rb', 'pdf', 'oeb', 'txt', 'pdb', 'prc']
+    FORMATS     = BOOK_EXTENSIONS
+
     VENDOR_ID   = [0xffff]
     PRODUCT_ID  = [0xffff]
     BCD         = [0xffff]
