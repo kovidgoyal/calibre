@@ -296,8 +296,8 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
             replace_whitespace=opts.replace_whitespace, safe_format=False)
     except Exception, e:
         raise ValueError(_('Failed to calculate path for '
-            'save to disk. Template: %s\n'
-            'Error: %s'%(opts.template, e)))
+            'save to disk. Template: %(templ)s\n'
+            'Error: %(err)s')%dict(templ=opts.template, err=e))
     if opts.single_dir:
         components = components[-1:]
     if not components:

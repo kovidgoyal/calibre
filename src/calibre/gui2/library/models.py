@@ -62,7 +62,7 @@ class BooksModel(QAbstractTableModel): # {{{
                         'rating'    : _('Rating'),
                         'publisher' : _("Publisher"),
                         'tags'      : _("Tags"),
-                        'series'    : _("Series"),
+                        'series'    : ngettext("Series", 'Series', 1),
                         'last_modified' : _('Modified'),
     }
 
