@@ -300,13 +300,13 @@ class CcNumberDelegate(QStyledItemDelegate): # {{{
         col = m.column_map[index.column()]
         if m.custom_columns[col]['datatype'] == 'int':
             editor = QSpinBox(parent)
-            editor.setRange(-100, 100000000)
+            editor.setRange(-1000000, 100000000)
             editor.setSpecialValueText(_('Undefined'))
             editor.setSingleStep(1)
         else:
             editor = QDoubleSpinBox(parent)
             editor.setSpecialValueText(_('Undefined'))
-            editor.setRange(-100., 100000000)
+            editor.setRange(-1000000., 100000000)
             editor.setDecimals(2)
         return editor
 
