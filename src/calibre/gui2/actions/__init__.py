@@ -115,7 +115,7 @@ class InterfaceAction(QObject):
         bn = self.__class__.__name__
         if getattr(self.interface_action_base_plugin, 'name'):
             bn = self.interface_action_base_plugin.name
-        return u'%s (%s)'%(bn, self.name)
+        return u'Interface Action: %s (%s)'%(bn, self.name)
 
     def create_action(self, spec=None, attr='qaction'):
         if spec is None:

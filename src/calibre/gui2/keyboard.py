@@ -172,10 +172,10 @@ class Delegate(QStyledItemDelegate): # {{{
                 keys = _('None')
             else:
                 keys = ', '.join(keys)
-            html = '<h4>%s</h4>%s: %s'%(shortcut['name'], _('Shortcuts'), keys)
+            html = '<b>%s</b><br>%s: %s'%(shortcut['name'], _('Shortcuts'), keys)
         else:
             # Group
-            html = '<h2>%s</h2>'%data.data
+            html = '<h3>%s</h3>'%data.data
         doc =  QTextDocument()
         doc.setHtml(html)
         return doc
