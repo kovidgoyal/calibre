@@ -113,7 +113,7 @@ class InterfaceAction(QObject):
     @property
     def unique_name(self):
         bn = self.__class__.__name__
-        if hasattr(self.interface_action_base_plugin, 'name'):
+        if getattr(self.interface_action_base_plugin, 'name'):
             bn = self.interface_action_base_plugin.name
         return u'%s (%s)'%(bn, self.name)
 
