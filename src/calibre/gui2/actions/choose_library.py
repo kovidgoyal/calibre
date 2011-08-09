@@ -79,13 +79,14 @@ class LibraryUsageStats(object): # {{{
 class ChooseLibraryAction(InterfaceAction):
 
     name = 'Choose Library'
-    action_spec = (_('%d books'), 'lt.png',
+    action_spec = (_('Choose Library'), 'lt.png',
             _('Choose calibre library to work with'), None)
     dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
     action_add_menu = True
     action_menu_clone_qaction = _('Switch/create library...')
 
     def genesis(self):
+        self.base_text = _('%d books')
         self.count_changed(0)
         self.qaction.triggered.connect(self.choose_library,
                 type=Qt.QueuedConnection)
@@ -376,7 +377,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.switch_requested(self.qs_locations[idx])
 
     def count_changed(self, new_count):
-        text = self.action_spec[0]%new_count
+        text = self.base_text%new_count
         a = self.qaction
         a.setText(text)
         tooltip = self.action_spec[2] + '\n\n' + text
