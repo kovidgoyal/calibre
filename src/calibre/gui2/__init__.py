@@ -425,6 +425,8 @@ class FileIconProvider(QFileIconProvider):
              'snb'     : 'snb',
              'djv'     : 'djvu',
              'djvu'    : 'djvu',
+             'xps'     : 'xps',
+             'oxps'    : 'xps',
              }
 
     def __init__(self):
