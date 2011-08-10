@@ -44,15 +44,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-08 18:51+0000\n"
-"PO-Revision-Date: 2011-08-08 21:11+0000\n"
+"PO-Revision-Date: 2011-08-09 16:29+0000\n"
 "Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-09 04:36+0000\n"
-"X-Generator: Launchpad (build 13628)\n"
+"X-Launchpad-Export-Date: 2011-08-10 04:32+0000\n"
+"X-Generator: Launchpad (build 13636)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -10274,7 +10274,7 @@ msgid ""
 "have to restart calibre for the plugin to take effect."
 msgstr ""
 "Plug-in <b>{0}</b> succesvol geïnstalleerd onder <b>{1} plug-ins</b>. "
-"Misschien moet je calibre herstarten voor de plug-in werkt."
+"Misschien moet u calibre herstarten voordat de plug-in werkt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:747
 msgid ""
@@ -10317,7 +10317,7 @@ msgstr "Moet herstarten"
 msgid ""
 "You must restart calibre before you can configure the <b>%s</b> plugin"
 msgstr ""
-"Je moet calibre herstarten voor je plug-in <b>%s</b> kan configureren"
+"U moet calibre herstarten voordat u plug-in <b>%s</b> kunt configureren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:794
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:322
@@ -10547,11 +10547,11 @@ msgid ""
 "                0.1 days to download a periodical more than once a day.\n"
 "            "
 msgstr ""
-"                Download dit tijdschrift elke x dagen. Als je bijvoorbeeld "
-"30 dagen\n"
+"                Download dit tijdschrift elke x dagen. Als u bijvoorbeeld 30 "
+"dagen\n"
 "                kiest wordt deze om de dertig dagen gedownload. Merk op dat\n"
-"                je periodes van minder dan 1 dag kan kiezen, zoals 0.1 dag "
-"om\n"
+"                u ook periodes van minder dan 1 dag kunt kiezen, zoals 0.1 "
+"dag om\n"
 "                het tijdschrift meerdere keren per dag te downloaden.\n"
 "            "
 
@@ -11126,7 +11126,7 @@ msgstr "Geen kolom gekozen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:302
 msgid "You must specify a column to be colored"
-msgstr "Je moet een te kleuren kolom specificeren"
+msgstr "U moet een te kleuren kolom specificeren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:305
 msgid "No template provided"
@@ -11765,7 +11765,7 @@ msgstr[1] "Weet u zeker dat u de geselecteerde taken wilt stoppen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:478
 msgid "Do you really want to stop all non-device jobs?"
-msgstr "Wil je echt alle niet-apparaatgebonden taken stoppen?"
+msgstr "Wilt u echt alle niet-apparaatgebonden taken stoppen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
@@ -19305,7 +19305,7 @@ msgstr ""
 "ieder `patroon, waarde` paar, controleer of het veld overeen komt met de "
 "reguliere expressie in 'patroon' en geef deze waarde terug als dit klopt. "
 "Als geen enkel patroon overeen komt, dan wordt waarde_anders terug gegeven. "
-"Je kan een onbeperkt aantal 'patroon, waarde'-paren opgeven"
+"U kunt een onbeperkt aantal 'patroon, waarde'-paren opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:352
 msgid "switch requires an odd number of arguments"
@@ -19433,11 +19433,10 @@ msgstr ""
 "rechts' tekens van het einde van de string. 'Tekens links' en 'tekens "
 "rechts' moeten gehele getallen zijn. Bijvoorbeeld, neem aan dat de titel van "
 "een boek gelijk is aan 'Van den vos Reynaerde en andere oud-hollandse "
-"verhalen', en je wilt een tekst van maximaal 15 tekens. Zal "
-"{title:shorten(9,-,5)} resulteren in 'Van den V-halen'. Als de veldlengte "
-"korter is dan 'tekens links' + 'tekens recht' + de lengte van 'midden "
-"tekst', zal de tekst gelijk blijven. Bijvoorbeeld 'Anna Bijns' zal niet "
-"veranderen."
+"verhalen', en u wilt een tekst van maximaal 15 tekens. Zal {title:shorten(9,-"
+",5)} resulteren in 'Van den V-halen'. Als de veldlengte korter is dan "
+"'tekens links' + 'tekens recht' + de lengte van 'midden tekst', zal de tekst "
+"gelijk blijven. Bijvoorbeeld 'Anna Bijns' zal niet veranderen."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:527
 msgid ""
@@ -19651,7 +19650,7 @@ msgid ""
 msgstr ""
 "first_non_empty(waarde, waarde, ...) -- geeft de eerste waarde terug die "
 "niet leeg is. Als alle waarden leeg zijn, zal een lege waarde worden "
-"teruggegeven. Je kan een onbeperkt aantal waarden opgeven."
+"teruggegeven. U kunt een onbeperkt aantal waarden opgeven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:842
 msgid ""
@@ -19661,8 +19660,8 @@ msgid ""
 msgstr ""
 "and(waarde, waarde, ...) -- geeft de string \"1\" terug indien alle waarden "
 "niet leeg zijn, anders wordt een lege string terug gegeven. Deze functie "
-"werkt goed met test of first_non_empty. Je kan zo veel waarden opgeven als "
-"je wil."
+"werkt goed met test of first_non_empty. U kunt een onbeperkt aantal waarden "
+"opgeven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:859
 msgid ""
@@ -19673,7 +19672,7 @@ msgstr ""
 "or(waarde, waarde, ...) -- geeft de string \"1\" terug indien één of "
 "meerdere waarden niet leeg zijn (of wel, geen enkele waarde leeg is), anders "
 "wordt een lege string terug gegeven. Deze functie werkt goed met test of "
-"first_non_empty. Je kan zo veel waarden opgeven als je wil."
+"first_non_empty. U kunt een onbeperkt aantal waarden opgeven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:876
 msgid ""
@@ -19683,7 +19682,7 @@ msgid ""
 msgstr ""
 "not(waarde) -- geeft de string \"1\" terug als de waarde leeg is, anders "
 "wordt een lege string terug gegeven. Deze functie werkt goed met test of "
-"first_non_empty. Je kan zo veel waarden opgeven als je wil."
+"first_non_empty. U kunt een onbeperkt aantal waarden opgeven."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:888
 msgid ""

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-08 18:51+0000\n"
-"PO-Revision-Date: 2011-08-05 18:04+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-09 08:23+0000\n"
+"Last-Translator: keski <Unknown>\n"
 "Language-Team: Estonian <et@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-09 04:36+0000\n"
-"X-Generator: Launchpad (build 13628)\n"
+"X-Launchpad-Export-Date: 2011-08-10 04:32+0000\n"
+"X-Generator: Launchpad (build 13636)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -337,7 +337,7 @@ msgstr "Loo calibre raamatukogust kataloog"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Konverdi raamatud erinevatesse e-raamatu formaatidesse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Delete books from your calibre library or connected device"
@@ -345,11 +345,11 @@ msgstr "Kustuta raamatud calibre kogust või ühendatud seadmest"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Muuda calibre kogu raamatute andmeid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Loe raamatuid calibre kogust"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Download news from the internet in ebook form"
@@ -357,11 +357,11 @@ msgstr "Lae alla uudised e-raamatu formaadis"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Näita kiiresti seotud raamatute nimekirja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Ekspordi raamatud calibre kogust kõvakettale"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Show book details in a separate popup"
@@ -373,7 +373,7 @@ msgstr "Taaskäivita calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "Ava kaust, kus asuvad raamatu failid calibre kogus"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Send books to the connected device"
@@ -427,7 +427,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Vali suvaline raamat calibre kogust"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:856
 msgid "Search for books from different book sellers"
