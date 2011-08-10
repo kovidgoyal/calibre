@@ -78,6 +78,25 @@ class Manager(QObject): # {{{
 
     def register_shortcut(self, unique_name, name, default_keys=(),
             description=None, action=None, group=None):
+        '''
+        Register a shortcut with calibre. calibre will manage the shortcut,
+        automatically resolving conflicts and allowing the user to customize
+        it.
+
+        :param unique_name: A string that uniquely identifies this shortcut
+        :param name: A user visible name describing the action performed by
+        this shortcut
+        :param default_keys: A tuple of keys that trigger this shortcut. Each
+        key must be a string. For example: ('Ctrl+A', 'Alt+B', 'C',
+        'Shift+Meta_D'). These keys will be assigned to the
+        shortcut unless there is a conflict.
+        :param action: A QAction object. The shortcut will cause this QAction
+        to be triggered. Connect to its triggered signal in your code to
+        respond to the shortcut.
+        :param group: A string describing what "group" this shortcut belongs
+        to. This is used to organize the list of shortcuts when the user is
+        customizing them.
+        '''
         if unique_name in self.shortcuts:
             name = self.shortcuts[unique_name]['name']
             raise NameConflict('Shortcut for %r already registered by %s'%(
