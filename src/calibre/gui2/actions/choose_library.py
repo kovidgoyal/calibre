@@ -8,13 +8,14 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QMenu, Qt, QInputDialog, QToolButton
+from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
+        QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize)
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.config import prefs
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
-    question_dialog, info_dialog, open_local_file)
+    question_dialog, info_dialog, open_local_file, choose_dir)
 from calibre.library.database2 import LibraryDatabase2
 from calibre.gui2.actions import InterfaceAction
 
@@ -74,6 +75,62 @@ class LibraryUsageStats(object): # {{{
         if stats is not None:
             self.stats[newloc] = stats
         self.write_stats()
+# }}}
+
+class MovedDialog(QDialog): # {{{
+
+    def __init__(self, stats, location, parent=None):
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(_('No library found'))
+        self._l = l = QGridLayout(self)
+        self.setLayout(l)
+        self.stats, self.location = stats, location
+
+        loc = self.oldloc = location.replace('/', os.sep)
+        self.header = QLabel(_('No existing calibre library was found at %s. '
+            'If the library was moved, select its new location below. '
+            'Otherwise calibre will forget this library.')%loc)
+        self.header.setWordWrap(True)
+        ncols = 2
+        l.addWidget(self.header, 0, 0, 1, ncols)
+        self.cl = QLabel('<br><b>'+_('New location of this library:'))
+        l.addWidget(self.cl, 1, 0, 1, ncols)
+        self.loc = QLineEdit(loc, self)
+        l.addWidget(self.loc, 2, 0, 1, 1)
+        self.cd = QToolButton(self)
+        self.cd.setIcon(QIcon(I('document_open.png')))
+        self.cd.clicked.connect(self.choose_dir)
+        l.addWidget(self.cd, 2, 1, 1, 1)
+        self.bb = QDialogButtonBox(self)
+        b = self.bb.addButton(_('Library moved'), self.bb.AcceptRole)
+        b.setIcon(QIcon(I('ok.png')))
+        b = self.bb.addButton(_('Forget library'), self.bb.RejectRole)
+        b.setIcon(QIcon(I('edit-clear.png')))
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        l.addWidget(self.bb, 3, 0, 1, ncols)
+        self.resize(self.sizeHint() + QSize(100, 50))
+
+    def choose_dir(self):
+        d = choose_dir(self, 'library moved choose new loc',
+                _('New library location'), default_dir=self.oldloc)
+        if d is not None:
+            self.loc.setText(d)
+
+    def reject(self):
+        self.stats.remove(self.location)
+        QDialog.reject(self)
+
+    def accept(self):
+        newloc = unicode(self.loc.text())
+        if not LibraryDatabase2.exists_at(newloc):
+            error_dialog(self, _('No library found'),
+                    _('No existing calibre library found at %s')%newloc,
+                    show=True)
+            return
+        self.stats.rename(self.location, newloc)
+        self.newloc = newloc
+        QDialog.accept(self)
 # }}}
 
 class ChooseLibraryAction(InterfaceAction):
@@ -339,14 +396,14 @@ class ChooseLibraryAction(InterfaceAction):
         loc = location.replace('/', os.sep)
         exists = self.gui.library_view.model().db.exists_at(loc)
         if not exists:
-            warning_dialog(self.gui, _('No library found'),
-                    _('No existing calibre library was found at %s.'
-                    ' It will be removed from the list of known'
-                    ' libraries.')%loc, show=True)
-            self.stats.remove(location)
+            d = MovedDialog(self.stats, location, self.gui)
+            ret = d.exec_()
             self.build_menus()
             self.gui.iactions['Copy To Library'].build_menus()
-            return
+            if ret == d.Accepted:
+                loc = d.newloc.replace('/', os.sep)
+            else:
+                return
 
         prefs['library_path'] = loc
         #from calibre.utils.mem import memory
