@@ -27,7 +27,7 @@
    <item row="1" column="0">
     <widget class="QCheckBox" name="opt_read_file_metadata">
      <property name="text">
-      <string>Read &amp;metadata from &amp;file contents rather than file name</string>
+      <string>Read &amp;metadata from file contents rather than file name</string>
      </property>
     </widget>
    </item>
