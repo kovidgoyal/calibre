@@ -88,7 +88,7 @@ class Manager(QObject): # {{{
         this shortcut
         :param default_keys: A tuple of keys that trigger this shortcut. Each
         key must be a string. For example: ('Ctrl+A', 'Alt+B', 'C',
-        'Shift+Meta_D'). These keys will be assigned to the
+        'Shift+Meta+D'). These keys will be assigned to the
         shortcut unless there is a conflict.
         :param action: A QAction object. The shortcut will cause this QAction
         to be triggered. Connect to its triggered signal in your code to
