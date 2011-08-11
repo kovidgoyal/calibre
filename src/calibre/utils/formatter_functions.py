@@ -46,6 +46,14 @@ class FormatterFunctions(object):
     def get_builtins(self):
         return self._builtins
 
+    def get_builtins_and_aliases(self):
+        res = {}
+        for f in self._builtins.itervalues():
+            res[f.name] = f
+            for a in f.aliases:
+                res[a] = f
+        return res
+
     def get_functions(self):
         return self._functions
 
