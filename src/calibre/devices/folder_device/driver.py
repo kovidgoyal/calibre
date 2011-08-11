@@ -17,7 +17,7 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     description    = _('Use an arbitrary folder as a device.')
     author         = 'John Schember/Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS     = BOOK_EXTENSIONS
+    FORMATS     = list(BOOK_EXTENSIONS)
 
     VENDOR_ID   = [0xffff]
     PRODUCT_ID  = [0xffff]

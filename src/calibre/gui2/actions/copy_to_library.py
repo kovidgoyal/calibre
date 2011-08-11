@@ -12,7 +12,7 @@ from threading import Thread
 from PyQt4.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2 import error_dialog, Dispatcher, warning_dialog
+from calibre.gui2 import error_dialog, Dispatcher, warning_dialog, gprefs
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.utils.config import prefs, tweaks
 
@@ -65,14 +65,37 @@ class Worker(Thread): # {{{
                     as_path=True)
                 if p:
                     paths.append(p)
-            added = False
+            automerged = False
             if prefs['add_formats_to_existing']:
                 identical_book_list = newdb.find_identical_books(mi)
                 if identical_book_list: # books with same author and nearly same title exist in newdb
-                    added = True
+                    automerged = True
+                    seen_fmts = set()
                     for identical_book in identical_book_list:
-                        self.add_formats(identical_book, paths, newdb, replace=False)
-            if not added:
+                        ib_fmts = newdb.formats(identical_book, index_is_id=True)
+                        if ib_fmts:
+                            seen_fmts |= set(ib_fmts.split(','))
+                        replace = gprefs['automerge'] == 'overwrite'
+                        self.add_formats(identical_book, paths, newdb,
+                                replace=replace)
+
+                    if gprefs['automerge'] == 'new record':
+                        incoming_fmts = \
+                            set([os.path.splitext(path)[-1].replace('.',
+                                '').upper() for path in paths])
+
+                        if incoming_fmts.intersection(seen_fmts):
+                            # There was at least one duplicate format
+                            # so create a new record and put the
+                            # incoming formats into it
+                            # We should arguably put only the duplicate
+                            # formats, but no real harm is done by having
+                            # all formats
+                            newdb.import_book(mi, paths, notify=False, import_hooks=False,
+                                apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+                                preserve_uuid=False)
+
+            if not automerged:
                 newdb.import_book(mi, paths, notify=False, import_hooks=False,
                     apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
                     preserve_uuid=self.delete_after)

@@ -169,7 +169,9 @@ def _config(): # {{{
     c.add_opt('scheduler_search_history', default=[],
         help='Search history for the recipe scheduler')
     c.add_opt('plugin_search_history', default=[],
-        help='Search history for the recipe scheduler')
+        help='Search history for the plugin preferences')
+    c.add_opt('shortcuts_search_history', default=[],
+        help='Search history for the keyboard preferences')
     c.add_opt('worker_limit', default=6,
             help=_(
         'Maximum number of simultaneous conversion/news download jobs. '
@@ -425,6 +427,8 @@ class FileIconProvider(QFileIconProvider):
              'snb'     : 'snb',
              'djv'     : 'djvu',
              'djvu'    : 'djvu',
+             'xps'     : 'xps',
+             'oxps'    : 'xps',
              }
 
     def __init__(self):
