@@ -9,7 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 from collections import OrderedDict
 
-import time, re
+import re
 
 class Economist(BasicNewsRecipe):
 
@@ -31,42 +31,33 @@ class Economist(BasicNewsRecipe):
             {'class': lambda x: x and 'share-links-header' in x},
     ]
     keep_only_tags = [dict(id='ec-article-body')]
-    needs_subscription = False
     no_stylesheets = True
     preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
         lambda x:'</html>')]
 
+    # economist.com has started throttling after about 60% of the total has
+    # downloaded with connection reset by peer (104) errors.
+    delay = 1
+
+    needs_subscription = False
     '''
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
-        br.open('http://www.economist.com')
-        req = mechanize.Request(
-                'http://www.economist.com/members/members.cfm?act=exec_login',
-                headers = {
-                    'Referer':'http://www.economist.com/',
-                    },
-                data=urllib.urlencode({
-                    'logging_in' : 'Y',
-                    'returnURL'  : '/',
-                    'email_address': self.username,
-                    'fakepword' : 'Password',
-                    'pword'     : self.password,
-                    'x'         : '0',
-                    'y'         : '0',
-                    }))
-        br.open(req).read()
+        if self.username and self.password:
+            br.open('http://www.economist.com/user/login')
+            br.select_form(nr=1)
+            br['name'] = self.username
+            br['pass'] = self.password
+            res = br.submit()
+            raw = res.read()
+            if '>Log out<' not in raw:
+                raise ValueError('Failed to login to economist.com. '
+                        'Check your username and password.')
         return br
     '''
 
     def parse_index(self):
-        try:
-            return self.economist_parse_index()
-        except:
-            raise
-            self.log.warn(
-                'Initial attempt to parse index failed, retrying in 30 seconds')
-            time.sleep(30)
-            return self.economist_parse_index()
+        return self.economist_parse_index()
 
     def economist_parse_index(self):
         soup = self.index_to_soup(self.INDEX)

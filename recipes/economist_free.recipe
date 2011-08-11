@@ -36,27 +36,10 @@ class Economist(BasicNewsRecipe):
     preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
         lambda x:'</html>')]
 
-    '''
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser()
-        br.open('http://www.economist.com')
-        req = mechanize.Request(
-                'http://www.economist.com/members/members.cfm?act=exec_login',
-                headers = {
-                    'Referer':'http://www.economist.com/',
-                    },
-                data=urllib.urlencode({
-                    'logging_in' : 'Y',
-                    'returnURL'  : '/',
-                    'email_address': self.username,
-                    'fakepword' : 'Password',
-                    'pword'     : self.password,
-                    'x'         : '0',
-                    'y'         : '0',
-                    }))
-        br.open(req).read()
-        return br
-    '''
+    # economist.com has started throttling after about 60% of the total has
+    # downloaded with connection reset by peer (104) errors.
+    delay = 1
+
 
     def parse_index(self):
         try:
