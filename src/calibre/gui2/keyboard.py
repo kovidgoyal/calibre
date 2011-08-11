@@ -18,8 +18,10 @@ from PyQt4.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
 from calibre.utils.config import JSONConfig
 from calibre.constants import DEBUG
 from calibre import prints
-from calibre.utils.icu import sort_key
-from calibre.gui2 import NONE, error_dialog
+from calibre.utils.icu import sort_key, lower
+from calibre.gui2 import NONE, error_dialog, info_dialog
+from calibre.utils.search_query_parser import SearchQueryParser
+from calibre.gui2.search_box import SearchBox2
 
 ROOT = QModelIndex()
 
@@ -136,10 +138,11 @@ class Node(object):
         for child in self.children:
             yield child
 
-class ConfigModel(QAbstractItemModel):
+class ConfigModel(QAbstractItemModel, SearchQueryParser):
 
     def __init__(self, keyboard, parent=None):
         QAbstractItemModel.__init__(self, parent)
+        SearchQueryParser.__init__(self, ['all'])
 
         self.keyboard = keyboard
         groups = sorted(keyboard.groups, key=sort_key)
@@ -232,6 +235,74 @@ class ConfigModel(QAbstractItemModel):
             kmap[sc['unique_name']] = keys
         self.keyboard.config['map'] = kmap
 
+    def universal_set(self):
+        ans = set()
+        for i, group in enumerate(self.data):
+            ans.add((i, -1))
+            for j, sc in enumerate(group.children):
+                ans.add((i, j))
+        return ans
+
+    def get_matches(self, location, query, candidates=None):
+        if candidates is None:
+            candidates = self.universal_set()
+        ans = set([])
+        if not query:
+            return ans
+        query = lower(query)
+        for c, p in candidates:
+            if p < 0:
+                if query in lower(self.data[c].data):
+                    ans.add((c, p))
+            else:
+                try:
+                    sc = self.data[c].children[p].data
+                except:
+                    continue
+                if query in lower(sc['name']):
+                    ans.add((c, p))
+        return ans
+
+    def find(self, query):
+        query = query.strip()
+        if not query:
+            return ROOT
+        matches = self.parse(query)
+        if not matches:
+            return ROOT
+        matches = list(sorted(matches))
+        c, p = matches[0]
+        cat_idx = self.index(c, 0)
+        if p == -1:
+            return cat_idx
+        return self.index(p, 0, cat_idx)
+
+    def find_next(self, idx, query, backwards=False):
+        query = query.strip()
+        if not query:
+            return idx
+        matches = self.parse(query)
+        if not matches:
+            return idx
+        if idx.parent().isValid():
+            loc = (idx.parent().row(), idx.row())
+        else:
+            loc = (idx.row(), -1)
+        if loc not in matches:
+            return self.find(query)
+        if len(matches) == 1:
+            return ROOT
+        matches = list(sorted(matches))
+        i = matches.index(loc)
+        if backwards:
+            ans = i - 1 if i - 1 >= 0 else len(matches)-1
+        else:
+            ans = i + 1 if i + 1 < len(matches) else 0
+
+        ans = matches[ans]
+
+        return (self.index(ans[0], 0) if ans[1] < 0 else
+                self.index(ans[1], 0, self.index(ans[0], 0)))
 
 # }}}
 
@@ -474,16 +545,28 @@ class ShortcutConfig(QWidget): # {{{
         self.setLayout(self._layout)
         self.header = QLabel(_('Double click on any entry to change the'
             ' keyboard shortcuts associated with it'))
-        l.addWidget(self.header, 0, 0, 1, 1)
+        l.addWidget(self.header, 0, 0, 1, 3)
         self.view = QTreeView(self)
         self.view.setAlternatingRowColors(True)
         self.view.setHeaderHidden(True)
         self.view.setAnimated(True)
-        l.addWidget(self.view, 1, 0, 1, 1)
+        l.addWidget(self.view, 1, 0, 1, 3)
         self.delegate = Delegate()
         self.view.setItemDelegate(self.delegate)
         self.delegate.sizeHintChanged.connect(self.scrollTo)
         self.delegate.changed_signal.connect(self.changed_signal)
+        self.search = SearchBox2(self)
+        self.search.initialize('shortcuts_search_history',
+                help_text=_('Search for a shortcut by name'))
+        self.search.search.connect(self.find)
+        l.addWidget(self.search, 2, 0, 1, 1)
+        self.nb = QPushButton(QIcon(I('arrow-down.png')), _('&Next'), self)
+        self.pb = QPushButton(QIcon(I('arrow-up.png')), _('&Previous'), self)
+        self.nb.clicked.connect(self.find_next)
+        self.pb.clicked.connect(self.find_previous)
+        l.addWidget(self.nb, 2, 1, 1, 1)
+        l.addWidget(self.pb, 2, 2, 1, 1)
+        l.setColumnStretch(0, 100)
 
     def restore_defaults(self):
         self._model.restore_defaults()
@@ -503,6 +586,37 @@ class ShortcutConfig(QWidget): # {{{
     @property
     def is_editing(self):
         return self.view.state() == self.view.EditingState
+
+    def find(self, query):
+        idx = self._model.find(query)
+        if not idx.isValid():
+            return info_dialog(self, _('No matches'),
+                    _('Could not find any matching shortcuts'), show=True,
+                    show_copy_button=False)
+        self.highlight_index(idx)
+
+    def highlight_index(self, idx):
+        self.view.scrollTo(idx)
+        self.view.selectionModel().select(idx,
+                self.view.selectionModel().ClearAndSelect)
+        self.view.setCurrentIndex(idx)
+
+    def find_next(self, *args):
+        idx = self.view.currentIndex()
+        if not idx.isValid():
+            idx = self._model.index(0, 0)
+        idx = self._model.find_next(idx,
+                unicode(self.search.currentText()))
+        self.highlight_index(idx)
+
+    def find_previous(self, *args):
+        idx = self.view.currentIndex()
+        if not idx.isValid():
+            idx = self._model.index(0, 0)
+        idx = self._model.find_next(idx,
+            unicode(self.search.currentText()), backwards=True)
+        self.highlight_index(idx)
+
 
 # }}}
 
