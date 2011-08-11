@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-08-08 18:51+0000\n"
+"POT-Creation-Date: 2011-08-10 14:21+0000\n"
 "PO-Revision-Date: 2011-08-05 16:22+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-08-09 04:47+0000\n"
-"X-Generator: Launchpad (build 13628)\n"
+"X-Launchpad-Export-Date: 2011-08-11 04:47+0000\n"
+"X-Generator: Launchpad (build 13644)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -153,7 +153,7 @@ msgstr "Не робить абсолютно нічого"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:766
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:371
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:404
@@ -203,6 +203,7 @@ msgstr "Основне"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:228
 msgid "Customize"
 msgstr "Вигляд"
 
@@ -570,6 +571,7 @@ msgstr "Шаблонні функції"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1077
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1089
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1100
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1111
 msgid "Advanced"
 msgstr "Розширено"
 
@@ -633,10 +635,19 @@ msgid "Fine tune how calibre behaves in various contexts"
 msgstr "Досконале налаштування поводження calibre в різних ситуаціях"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1098
+msgid "Keyboard"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1104
+msgid "Customize the keyboard shortcuts used by calibre"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:80
 msgid "Miscellaneous"
 msgstr "Різне"
 
-#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1104
+#: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1115
 msgid "Miscellaneous advanced configuration"
 msgstr "Різні додаткові налаштування"
 
@@ -896,7 +907,7 @@ msgstr "Вимкніть вибраний плагін"
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:270
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:279
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:230
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:667
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:130
@@ -1071,7 +1082,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1079
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1114
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:452
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1139
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1141
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:330
@@ -4197,7 +4208,7 @@ msgstr "Відключити анімацію користувацького і�
 msgid "tag browser categories not to display"
 msgstr "помітити категорії перегляду для невідображення"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:492
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:494
 msgid "Choose Files"
 msgstr "Виберіть файли"
 
@@ -4495,12 +4506,8 @@ msgid "Select destination for %(title)s.%(fmt)s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:82
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:57
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:171
-#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:125
-#, python-format
-msgid "%d books"
-msgstr "%d книг(а/и)"
+msgid "Choose Library"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:83
 msgid "Choose calibre library to work with"
@@ -4510,82 +4517,90 @@ msgstr "Виберіть бібліотеку calibre з якою працюва
 msgid "Switch/create library..."
 msgstr "Ввімкнути/створити бібліотеку..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:103
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:89
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:57
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:171
+#: /home/kovid/work/calibre/src/calibre/library/server/opds.py:125
+#, python-format
+msgid "%d books"
+msgstr "%d книг(а/и)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:87
 msgid "Quick switch"
 msgstr "Швидке перемикання"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:88
 msgid "Rename library"
 msgstr "Переназвати бібліотеку"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:107
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:108
 msgid "Remove library"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/random.py:17
 msgid "Pick a random book"
 msgstr "Обрати довільну книгу"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:131
 msgid "Library Maintenance"
 msgstr "Обслуговування бібліотеки"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:132
 msgid "Library metadata backup status"
 msgstr "Статус резервного копіювання бібліотечних метаданих"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:136
 msgid "Start backing up metadata of all books"
 msgstr "Почати резервне копіювання метаданих всіх книг"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:139
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:140
 msgid "Check library"
 msgstr "Перевірити бібліотеку"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:144
 msgid "Restore database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:215
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:216
 msgid "Rename"
 msgstr "Перейменувати"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:216
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:217
 #, python-format
 msgid "Choose a new name for the library <b>%s</b>. "
 msgstr "Виберіть нове ім'я для бібліотеки <b>%s</b>. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:217
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:218
 msgid "Note that the actual library folder will be renamed."
 msgstr "Зверніть увагу, що актуальна папка бібліотеки буде перейменована."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:225
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:726
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:291
 msgid "Already exists"
 msgstr "Вже існує"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:225
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:226
 #, python-format
 msgid "The folder %s already exists. Delete it first."
 msgstr "Папка %s вже існує. Видалити вже існуючу."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:229
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:283
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:230
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:284
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:666
 msgid "Too long"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:237
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:238
 msgid "Rename failed"
 msgstr "Помилка перейменування"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:238
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:239
 #, python-format
 msgid ""
 "Failed to rename the library at %s. The most common cause for this is if one "
@@ -4595,41 +4610,41 @@ msgstr ""
 "цього є та, що один з файлів в бібліотеці може бути відкрито в іншій "
 "програмі."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:252
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:253
 msgid "Library removed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:253
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:254
 #, python-format
 msgid ""
 "The library %s has been removed from calibre. The files remain on your "
 "computer, if you want to delete them, you will have to do so manually."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:266
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:267
 msgid "none"
 msgstr "немає"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:267
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:268
 msgid "Backup status"
 msgstr "Cтатус резервного копіювання"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:268
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:269
 #, python-format
 msgid "Book metadata files remaining to be written: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:274
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:275
 msgid "Backup metadata"
 msgstr "Резервне копіювання метаданих"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:275
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:276
 msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book every three seconds."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:284
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:285
 #, python-format
 msgid ""
 "Path to library too long. Must be less than %d characters. Move your library "
@@ -4637,7 +4652,7 @@ msgid ""
 "to the new location and try again."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:319
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:320
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:733
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:111
@@ -4646,13 +4661,13 @@ msgstr ""
 msgid "Success"
 msgstr "Успішно"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:320
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:321
 msgid ""
 "Found no errors in your calibre library database. Do you want calibre to "
 "check if the files in your  library match the information in the database?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:326
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:741
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:956
@@ -4662,25 +4677,25 @@ msgstr ""
 msgid "Failed"
 msgstr "Невдача"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:326
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:327
 msgid "Database integrity check failed, click Show details for details."
 msgstr ""
 "Перевірка цілісності бази даних завершилась з помилка. Натисніть \"Показати "
 "деталі\" для відповідної дії"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:331
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:332
 msgid "No problems found"
 msgstr "Проблем не знайдено"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:332
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:333
 msgid "The files in your library match the information in the database."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:342
 msgid "No library found"
 msgstr "Бібліотеку не знайдено"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:342
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:343
 #, python-format
 msgid ""
 "No existing calibre library was found at %s. It will be removed from the "
@@ -4689,21 +4704,21 @@ msgstr ""
 "Бібліотеки calibre в %s не знайдено. Вона буде видалена зі списку відомих "
 "бібліотек."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:408
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:413
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:409
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:414
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:886
 msgid "Not allowed"
 msgstr "Не дозволено"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:409
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:410
 msgid ""
 "You cannot change libraries while using the environment variable "
 "CALIBRE_OVERRIDE_DATABASE_PATH."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:414
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:415
 msgid "You cannot change libraries while jobs are running."
 msgstr "Ви не можете змінити бібліотеку під час виконання операцій"
 
@@ -4942,49 +4957,53 @@ msgid "Connect to Bambook"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:56
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:73
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:77
 msgid "Start Content Server"
 msgstr "Запустити контент сервер"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:75
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:73
+msgid "Start/stop content server"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:79
 msgid "Stop Content Server"
 msgstr "Зупинити контент сервер"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:86
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:90
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:109
 msgid "Email to"
 msgstr "Надіслати email до"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:90
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:94
 msgid "Email to and delete from library"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:103
 msgid "(delete from library)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:118
 msgid "Setup email based sharing of books"
 msgstr "Налаштувати спільний доступ на основі електронної пошти"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:136
 msgid "D"
 msgstr "D"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:136
 msgid "Send to device"
 msgstr "Надіслати до пристрою"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:150
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:154
 msgid "Connect/share"
 msgstr "Під'єднатись/роздати"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:79
 msgid "Stopping"
 msgstr "Зупиняється"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:188
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:192
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:80
 msgid "Stopping server, this could take upto a minute, please wait..."
 msgstr ""
@@ -5267,13 +5286,13 @@ msgid "Cannot configure before calibre is restarted."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
-msgid "&Restart"
-msgstr "&Перезапустити"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:59
 msgid "Ctrl+R"
 msgstr "Ctrl+R"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
+msgid "Restart"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -9587,72 +9606,73 @@ msgid ""
 "Note: You can set intervals of less than a day, by typing the value manually."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:196
+#. NOTE: Number of news sources
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:197
 #, python-format
 msgid "%s news sources"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:310
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:311
 msgid "Need username and password"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:311
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:312
 msgid "You must provide a username and/or password to use this news source."
 msgstr ""
 "Ви повинні надати ім'я користувача та пароль для використання цього джерела "
 "новин."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:351
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:352
 msgid "Account"
 msgstr "Обліковий запис"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:352
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:353
 msgid "(optional)"
 msgstr "(за бажанням)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:353
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:354
 msgid "(required)"
 msgstr "(потрібно вказати)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:370
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:371
 msgid "Created by: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:377
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
 msgid "Last downloaded: never"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:379
 msgid "never"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:384
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:385
 #, python-format
 msgid "%(days)d days, %(hours)d hours and %(mins)d minutes ago"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:400
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:401
 msgid "Last downloaded:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:428
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:429
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "Schedule news download"
 msgstr "Розклад завантаження новин"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:431
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:432
 msgid "Add a custom news source"
 msgstr "Додати власне джерело новин"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:436
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:437
 msgid "Download all scheduled new sources"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:542
 msgid "No internet connection"
 msgstr "Відсутнє під'єднання до Інтернету"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:542
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:543
 msgid "Cannot download news as no internet connection is active"
 msgstr ""
 "Не можу завантажити новини, через відстуність активного Інтернет підключення"
@@ -10705,6 +10725,60 @@ msgstr[1] ""
 msgid "Do you really want to stop all non-device jobs?"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:200
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:86
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:204
+msgid "Custom"
+msgstr "Користувацькі"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:81
+msgid "&Alternate shortcut:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
+msgid "&Shortcut:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:261
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:296
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:320
+#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:83
+#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:83
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:113
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:358
+msgid "None"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:235
+#, python-format
+msgid "Default (some keys may conflict): %s"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:255
+#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
+msgid "Press a key..."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:276
+#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:80
+msgid "Already assigned"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:278
+#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:82
+msgid "already assigned to"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:323
+msgid "Shortcuts"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
 msgstr ""
@@ -11621,7 +11695,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:66
-msgid "Read &metadata from &file contents rather than file name"
+msgid "Read &metadata from file contents rather than file name"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:67
@@ -13826,28 +13900,6 @@ msgstr ""
 msgid "({0} of all)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:48
-#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
-#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:83
-#: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:83
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:138
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:113
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:358
-msgid "None"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
-msgid "Press a key..."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:80
-msgid "Already assigned"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:82
-msgid "already assigned to"
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid " or "
@@ -13878,17 +13930,9 @@ msgstr "Рамка"
 msgid "&Custom"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:76
-msgid "&Shortcut:"
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:82
 msgid "Click to change"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:81
-msgid "&Alternate shortcut:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:38
@@ -17926,11 +17970,6 @@ msgstr "Ви"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:203
 msgid "Scheduled"
 msgstr "Заплановано"
-
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:86
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/model.py:204
-msgid "Custom"
-msgstr "Користувацькі"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:118
 msgid "Next section"
