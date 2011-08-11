@@ -5,7 +5,7 @@ www.independent.co.uk
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class TheIndependent(BasicNewsRecipe):
     title                 = 'The Independent'
@@ -67,7 +67,7 @@ class TheIndependent(BasicNewsRecipe):
 
     def get_article_url(self, article):
         return article.get('guid',  None)
-            
+
     def preprocess_html(self, soup):
         for item in soup.body.findAll(style=True):
             del item['style']
@@ -82,5 +82,5 @@ class TheIndependent(BasicNewsRecipe):
             if not item.attrs and not item.contents:
                item.extract()
         soup2 = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        soup2.body.replaceWith(soup.body)        
+        soup2.body.replaceWith(soup.body)
         return soup2
