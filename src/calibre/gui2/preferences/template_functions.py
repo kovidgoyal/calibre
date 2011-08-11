@@ -83,7 +83,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.builtin_source_dict = {}
 
         self.funcs = formatter_functions.get_functions()
-        self.builtins = formatter_functions.get_builtins()
+        self.builtins = formatter_functions.get_builtins_and_aliases()
 
         self.build_function_names_box()
         self.function_name.currentIndexChanged[str].connect(self.function_index_changed)
@@ -151,7 +151,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         name = unicode(self.function_name.currentText())
         if name in self.funcs:
             error_dialog(self.gui, _('Template functions'),
-                         _('Name already used'), show=True)
+                         _('Name %s already used')%(name,), show=True)
             return
         if self.argument_count.value() == 0:
             box = warning_dialog(self.gui, _('Template functions'),
