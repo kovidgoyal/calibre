@@ -7399,7 +7399,7 @@ msgstr "&Dezactivează scalarea fontului"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:147
 msgid "Base &font size:"
-msgstr "Mărime %font de bază:"
+msgstr "Mărime &font de bază:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:150
 msgid "Wizard to help you choose an appropriate font size key"
