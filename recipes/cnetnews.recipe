@@ -30,8 +30,14 @@ class CnetNews(BasicNewsRecipe):
     remove_tags = [
                     dict(name='div', attrs={'id':'tweetmemeAndFacebook'})
                     ,dict(name='ul', attrs={'class':'contentTools'})
+                    ,dict(name='aside', attrs={'id':'filed'})
+                    ,dict(name='div', attrs={'class':'postLinks'})
+                    ,dict(name='span', attrs={'class':'shareButton'})
+                    ,dict(name='span', attrs={'class':'printButton'})
+                    ,dict(name='span', attrs={'class':'emailButton'})
+                    ,dict(name='div', attrs={'class':'editorBio'})
                   ]
-    keep_only_tags = dict(name='div', attrs={'class':'txtWrap'})
+    keep_only_tags = dict(name='div', attrs={'class':'post'})
 
     feeds = [(u'News', u'http://news.cnet.com/2547-1_3-0-20.xml')]
 
