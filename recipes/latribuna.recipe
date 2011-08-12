@@ -23,7 +23,7 @@ class LaTribuna(BasicNewsRecipe):
     encoding              = 'utf-8'
     language = 'es_HN'
 
-    lang                  = 'es-HN'
+    lang                  = 'es_HN'
     direction             = 'ltr'
 
     html2lrf_options = [
