@@ -583,7 +583,7 @@ class ShortcutConfig(QWidget): # {{{
 
     def scrollTo(self, index):
         if index is not None:
-            self.view.scrollTo(index, self.view.PositionAtCenter)
+            self.view.scrollTo(index, self.view.PositionAtTop)
 
     @property
     def is_editing(self):
