@@ -297,7 +297,7 @@ Even after doing this, you may have problems. One common source of problems is t
 programs block |app| from opening a connection to send email. Try adding an exclusion for |app| in your
 antivirus program.
 
-.. note:: GMail can disable your account if you use it to send large amounts of email. So, when using gmail to send mail |app| automatically restricts
+.. note:: Google can disable your account if you use it to send large amounts of email. So, when using GMail to send mail |app| automatically restricts
           itself to sending one book every five minutes. If you don't mind risking your account being blocked you can reduce this wait interval by
           going to Preferences->Tweaks in |app|.
 
@@ -318,7 +318,7 @@ must return ``CONFIG_SCSI_MULTI_LUN=y``. If you don't see either, you have to re
 My device is getting mounted read-only in linux, so |app| cannot connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-linux kernels mount devices read-only when their filesystems have errors. You can repair the filesystem with::
+Linux kernels mount devices read-only when their filesystems have errors. You can repair the filesystem with::
 
     sudo fsck.vfat -y /dev/sdc
 
