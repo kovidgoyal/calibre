@@ -453,7 +453,7 @@ class Delegate(QStyledItemDelegate): # {{{
     def to_doc(self, index):
         data = index.data(Qt.UserRole).toPyObject()
         if data is None:
-            html = _('<b>An unknown error occurred</b>')
+            html = _('<b>This shortcut no longer exists</b>')
         elif data.is_shortcut:
             shortcut = data.data
             # Shortcut
