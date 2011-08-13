@@ -452,7 +452,9 @@ class Delegate(QStyledItemDelegate): # {{{
 
     def to_doc(self, index):
         data = index.data(Qt.UserRole).toPyObject()
-        if data.is_shortcut:
+        if data is None:
+            html = _('<b>An unknown error occurred</b>')
+        elif data.is_shortcut:
             shortcut = data.data
             # Shortcut
             keys = [unicode(k.toString(k.NativeText)) for k in shortcut['keys']]
