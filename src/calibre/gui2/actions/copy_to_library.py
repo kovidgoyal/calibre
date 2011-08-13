@@ -15,6 +15,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import error_dialog, Dispatcher, warning_dialog, gprefs
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.date import now
 
 class Worker(Thread): # {{{
 
@@ -55,6 +56,8 @@ class Worker(Thread): # {{{
         for i, x in enumerate(self.ids):
             mi = self.db.get_metadata(x, index_is_id=True, get_cover=True,
                     cover_as_data=True)
+            if not gprefs['preserve_date_on_ctl']:
+                mi.timestamp = now()
             self.progress(i, mi.title)
             fmts = self.db.formats(x, index_is_id=True)
             if not fmts: fmts = []

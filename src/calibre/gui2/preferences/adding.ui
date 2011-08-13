@@ -58,7 +58,7 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QCheckBox" name="opt_add_formats_to_existing">
      <property name="toolTip">
       <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
@@ -72,7 +72,7 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="3" column="1">
     <widget class="QComboBox" name="opt_automerge">
      <property name="toolTip">
       <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
@@ -88,7 +88,7 @@ Author matching is exact.</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="label_230">
      <property name="text">
       <string>&amp;Tags to apply when adding a book:</string>
@@ -98,14 +98,14 @@ Author matching is exact.</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="QLineEdit" name="opt_new_book_tags">
      <property name="toolTip">
       <string>A comma-separated list of tags that will be applied to books added to the library</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="5" column="0" colspan="2">
     <widget class="QGroupBox" name="metadata_box">
      <property name="title">
       <string>&amp;Configure metadata from file name</string>
@@ -125,6 +125,13 @@ Author matching is exact.</string>
        </spacer>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_preserve_date_on_ctl">
+     <property name="text">
+      <string>When &amp;copying books from one library to another, preserve the date</string>
+     </property>
     </widget>
    </item>
   </layout>
