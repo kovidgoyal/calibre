@@ -18,7 +18,7 @@ class JuventudRebelde(BasicNewsRecipe):
     encoding               = 'utf8'
     publisher              = 'Juventud Rebelde'
     category               = 'Noticias'
-    language               = 'es_ES'
+    language               = 'es'
     publication_type       = 'Periodico'
     extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .title{font-weight: bold} .read{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
     preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
