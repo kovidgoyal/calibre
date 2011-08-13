@@ -1,55 +1,46 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008-2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2011, Oscar Megia Lopez'
 '''
 juventudrebelde.cu
 '''
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
-from calibre import strftime
-from calibre.web.feeds.news import BasicNewsRecipe
+class JuventudRebelde(BasicNewsRecipe):
+    title                  = u'Juventud Rebelde'
+    __author__             = 'Oscar Megia Lopez'
+    description            = 'Periodico cubano'
+    oldest_article         = 30
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    #delay                  = 1
+    use_embedded_content   = False
+    encoding               = 'utf8'
+    publisher              = 'Juventud Rebelde'
+    category               = 'Noticias'
+    language               = 'es_ES'
+    publication_type       = 'Periodico'
+    extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .title{font-weight: bold} .read{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+    conversion_options = {
+                             'comments'        : description
+                            ,'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                         }
 
-class Juventudrebelde(BasicNewsRecipe):
-    title                 = 'Juventud Rebelde'
-    __author__            = 'Darko Miletic'
-    description           = 'Diario de la Juventud Cubana'
-    publisher             = 'Juventud rebelde'
-    category              = 'news, politics, Cuba'
-    oldest_article        = 2
-    max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'cp1252'
-    language = 'es_CU'
-
-    cover_url             = strftime('http://www.juventudrebelde.cu/UserFiles/File/impreso/iportada-%Y-%m-%d.jpg')
-    remove_javascript     = True
-
-    html2lrf_options = [
-                          '--comment'  , description
-                        , '--category' , category
-                        , '--publisher', publisher
-                        , '--ignore-tables'
+    keep_only_tags    = [
+                       dict(name='div', attrs={'class':['title']})
+                       ,dict(attrs={'class':['read']})
+                       ,dict(attrs={'class':['author']})
                         ]
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
+    remove_tags = [
+                       dict(name='div', attrs={'class':['share']}),
+                  ]
 
-    keep_only_tags = [dict(name='div', attrs={'id':'noticia'})]
+    remove_attributes = ['width','height']
 
-    feeds = [
-               (u'Generales', u'http://www.juventudrebelde.cu/rss/generales.php' )
-              ,(u'Cuba', u'http://www.juventudrebelde.cu/rss/generales.php?seccion=cuba' )
-              ,(u'Internacionales', u'http://www.juventudrebelde.cu/rss/generales.php?seccion=internacionales' )
-              ,(u'Opinion', u'http://www.juventudrebelde.cu/rss/generales.php?seccion=opinion' )
-              ,(u'Cultura', u'http://www.juventudrebelde.cu/rss/generales.php?seccion=cultura' )
-              ,(u'Deportes', u'http://www.juventudrebelde.cu/rss/generales.php?seccion=deportes' )
-              ,(u'Lectura', u'http://www.juventudrebelde.cu/rss/generales.php?seccion=lectura' )
-            ]
-
-    def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Language" content="es-CU"/>'
-        soup.head.insert(0,mtag)
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
+    feeds          = [(u'Generales', u'http://www.juventudrebelde.cu/get/rss/grupo/generales/'), (u'Internacionales', u'http://www.psychologytoday.com/blog/romance-redux/feed'), (u'Ciencia y Tecnica', u'http://www.juventudrebelde.cu/get/rss/noticias/ciencia-tecnica/'), (u'Opini\xf3n', u'http://www.juventudrebelde.cu/get/rss/noticias/opinion/'), (u'Cuba', u'http://www.juventudrebelde.cu/get/rss/noticias/cuba/'), (u'Cultura', u'http://www.juventudrebelde.cu/get/rss/noticias/cultura/'), (u'Deportes', u'http://www.juventudrebelde.cu/get/rss/noticias/deportes')]
 
