@@ -130,7 +130,7 @@ Author matching is exact.</string>
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_preserve_date_on_ctl">
      <property name="text">
-      <string>When &amp;copying books from one library to another, preserve the date</string>
+      <string>When using the  &quot;&amp;Copy to library&quot; action to copy books between libraries, preserve the date</string>
      </property>
     </widget>
    </item>
