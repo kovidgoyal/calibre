@@ -228,11 +228,15 @@ class SearchBox2(QComboBox): # {{{
                 self.clear()
             else:
                 self.normalize_state()
+                # must turn off case sensitivity here so that tag browser strings
+                # are not case-insensitively replaced from history
+                self.line_edit.completer().setCaseSensitivity(Qt.CaseSensitive)
                 self.setEditText(txt)
                 self.line_edit.end(False)
                 if emit_changed:
                     self.changed.emit()
                 self._do_search(store_in_history=store_in_history)
+                self.line_edit.completer().setCaseSensitivity(Qt.CaseInsensitive)
             self.focus_to_library.emit()
         finally:
             if not store_in_history:
