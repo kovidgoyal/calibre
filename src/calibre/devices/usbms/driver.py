@@ -287,6 +287,9 @@ class USBMS(CLI, Device):
         if iswindows:
             # must put a \ after the prefix or it will read the current directory
             res += os.sep
+        else:
+            # for *nix file systems, must put a sep on the front.
+            res = os.sep + res
 
         # read down the path directory by directory, doing a case-insensitive
         # compare. Build a new path of the components with the case as on disk.
