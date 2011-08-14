@@ -108,6 +108,12 @@ class SearchBox2(QComboBox): # {{{
         self.colorize = colorize
         self.clear()
 
+    def hide_completer_popup(self):
+        try:
+            self.lineEdit().completer().popup().setVisible(False)
+        except:
+            pass
+
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
         self.line_edit.setStyleSheet(
@@ -185,6 +191,7 @@ class SearchBox2(QComboBox): # {{{
         self.do_search()
 
     def _do_search(self, store_in_history=True):
+        self.hide_completer_popup()
         text = unicode(self.currentText()).strip()
         if not text:
             return self.clear()
@@ -221,15 +228,11 @@ class SearchBox2(QComboBox): # {{{
                 self.clear()
             else:
                 self.normalize_state()
-                self.lineEdit().setCompleter(None)
                 self.setEditText(txt)
                 self.line_edit.end(False)
                 if emit_changed:
                     self.changed.emit()
                 self._do_search(store_in_history=store_in_history)
-                c = QCompleter()
-                self.lineEdit().setCompleter(c)
-                c.setCompletionMode(c.PopupCompletion)
             self.focus_to_library.emit()
         finally:
             if not store_in_history:
