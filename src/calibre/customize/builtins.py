@@ -1029,7 +1029,7 @@ class TemplateFunctions(PreferencesPlugin):
     category = 'Advanced'
     gui_category = _('Advanced')
     category_order = 5
-    name_order = 4
+    name_order = 5
     config_widget = 'calibre.gui2.preferences.template_functions'
     description = _('Create your own template functions')
 
@@ -1092,6 +1092,17 @@ class Tweaks(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.tweaks'
     description = _('Fine tune how calibre behaves in various contexts')
 
+class Keyboard(PreferencesPlugin):
+    name = 'Keyboard'
+    icon = I('keyboard-prefs.png')
+    gui_name = _('Keyboard')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.keyboard'
+    description = _('Customize the keyboard shortcuts used by calibre')
+
 class Misc(PreferencesPlugin):
     name = 'Misc'
     icon = I('exec.png')
@@ -1106,7 +1117,7 @@ class Misc(PreferencesPlugin):
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
-        MetadataSources]
+        MetadataSources, Keyboard]
 
 #}}}
 

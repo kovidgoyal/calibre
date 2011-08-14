@@ -62,7 +62,7 @@ class BooksModel(QAbstractTableModel): # {{{
                         'rating'    : _('Rating'),
                         'publisher' : _("Publisher"),
                         'tags'      : _("Tags"),
-                        'series'    : _("Series"),
+                        'series'    : ngettext("Series", 'Series', 1),
                         'last_modified' : _('Modified'),
     }
 
@@ -694,7 +694,7 @@ class BooksModel(QAbstractTableModel): # {{{
         # we will get asked to display columns we don't know about. Must test for this.
         if col >= len(self.column_to_dc_map):
             return NONE
-        if role in (Qt.DisplayRole, Qt.EditRole):
+        if role in (Qt.DisplayRole, Qt.EditRole, Qt.ToolTipRole):
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:

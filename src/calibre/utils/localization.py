@@ -112,6 +112,7 @@ _extra_lang_codes = {
         'zh_TW' : _('Traditional Chinese'),
         'en'    : _('English'),
         'en_AU' : _('English (Australia)'),
+        'en_BG' : _('English (Bulgaria)'),
         'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
         'en_GR' : _('English (Greece)'),
@@ -164,30 +165,32 @@ _lcase_map = {}
 for k in _extra_lang_codes:
     _lcase_map[k.lower()] = k
 
-def get_language(lang):
+def _load_iso639():
     global _iso639
+    if _iso639 is None:
+        ip = P('localization/iso639.pickle', allow_user_override=False)
+        with open(ip, 'rb') as f:
+            _iso639 = cPickle.load(f)
+    return _iso639
+
+def get_language(lang):
     translate = _
     lang = _lcase_map.get(lang, lang)
     if lang in _extra_lang_codes:
         # The translator was not active when _extra_lang_codes was defined, so
         # re-translate
         return translate(_extra_lang_codes[lang])
-    ip = P('localization/iso639.pickle')
-    if not os.path.exists(ip):
-        return lang
-    if _iso639 is None:
-        _iso639 = cPickle.load(open(ip, 'rb'))
+    iso639 = _load_iso639()
     ans = lang
     lang = lang.split('_')[0].lower()
     if len(lang) == 2:
-        ans = _iso639['by_2'].get(lang, ans)
+        ans = iso639['by_2'].get(lang, ans)
     elif len(lang) == 3:
-        if lang in _iso639['by_3b']:
-            ans = _iso639['by_3b'][lang]
+        if lang in iso639['by_3b']:
+            ans = iso639['by_3b'][lang]
         else:
-            ans = _iso639['by_3t'].get(lang, ans)
+            ans = iso639['by_3t'].get(lang, ans)
     return translate(ans)
-
 
 _udc = None
 

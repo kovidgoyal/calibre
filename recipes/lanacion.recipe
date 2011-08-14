@@ -17,18 +17,15 @@ class Lanacion(BasicNewsRecipe):
     use_embedded_content  = False
     no_stylesheets        = True
     language              = 'es_AR'
-    delay                 = 14
     publication_type      = 'newspaper'
     remove_empty_feeds    = True
-    masthead_url          = 'http://www.lanacion.com.ar/_ui/desktop/imgs/layout/logos/ln341x47.gif'
+    masthead_url          = 'http://www.lanacion.com.ar/_ui/desktop/imgs/layout/logos/ln-home.gif'
     extra_css             = """
-                                h1{font-family: Georgia,serif}
-                                h2{color: #626262; font-weight: normal; font-size: 1.1em}
+                                h1{font-family: TheSans,Arial,sans-serif}
                                 body{font-family: Arial,sans-serif}
-                                img{margin-top: 0.5em; margin-bottom: 0.2em; display: block}
-                                .notaFecha{color: #808080; font-size: small}
-                                .notaEpigrafe{font-size: x-small}
-                                .topNota h1{font-family: Arial,sans-serif}
+                                img{display: block}
+                                .firma,.fecha{font-size: small}
+                                .epigrafe-columna{font-size: x-small}
                             """
 
 
@@ -39,21 +36,13 @@ class Lanacion(BasicNewsRecipe):
                         , 'language' : language
                         }
 
-    keep_only_tags = [  
-                        dict(name='div', attrs={'class':['topNota','itemHeader','nota','itemBody']})
-                       ,dict(name='div', attrs={'id':'content'})
-                     ]
-    
     remove_tags = [
-                     dict(name='div' , attrs={'class':'notaComentario floatFix noprint' })
-                    ,dict(name='ul'  , attrs={'class':['cajaHerramientas cajaTop noprint','herramientas noprint']})
-                    ,dict(name='div' , attrs={'class':['titulosMultimedia','herramientas noprint','cajaHerramientas noprint','cajaHerramientas floatFix']   })
-                    ,dict(attrs={'class':['izquierda','espacio17','espacio10','espacio20','floatFix ultimasNoticias','relacionadas','titulosMultimedia','derecha','techo color','encuesta','izquierda compartir','floatFix','videoCentro']})
-                    ,dict(name=['iframe','embed','object','form','base','hr','meta','link','input'])
+                     dict(name=['iframe','embed','object','meta','link'])
+                    ,dict(attrs={'id':['herramientas','relacionadas','ampliar']})
                   ]
                   
-    remove_tags_after = dict(attrs={'class':['tags','nota-destacado']})
-    remove_attributes = ['height','width','visible','onclick','data-count','name']
+    remove_tags_before = dict(attrs={'id':'encabezado'})
+    remove_tags_after  = dict(attrs={'id':'relacionadas'})
 
     feeds          = [
                          (u'Politica'             , u'http://servicios.lanacion.com.ar/herramientas/rss/categoria_id=30'  )
@@ -91,6 +80,15 @@ class Lanacion(BasicNewsRecipe):
         if link.rfind('galeria=') > 0:
            return None        
         return link
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.lanacion.com.ar/edicion-impresa')
+        atap = soup.find(attrs={'class':'tapa'})
+        if atap:
+           li = atap.find('img')
+           if li:
+              return li['src']
+        return None
         
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

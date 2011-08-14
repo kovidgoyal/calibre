@@ -44,7 +44,7 @@ class OpenBooksStore(BasicStoreConfig, StorePlugin):
             for data in doc.xpath('//ul[@id="object_list"]//li'):
                 if counter <= 0:
                     break
-    
+
                 id = ''.join(data.xpath('.//div[@class="links"]/a[1]/@href'))
                 id = id.strip()
                 if not id:

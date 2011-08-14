@@ -19,6 +19,53 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.14
+  date: 2011-08-12
+
+  new features:
+    - title: "Make the keyboard shortcuts used by the main calibre interface user customizable, via Preferences->Advanced->Keyboard"
+      type: major
+
+    - title: "When switching libraries, if the library no longer exists, give the user a chance to specify a new location for the library, in case it was moved, before forgetting it."
+      tickets: [822018]
+
+    - title: "Template language: Add strcat and strlen builtin functions."
+      tickets: [821935]
+  
+  bug fixes:
+    - title: "The various options to control how automerging works when adding books now also apply when copying a book from one library to another."
+      tickets: [822033]
+
+    - title: "Ebook viewer: Respond to key presses even when the book display area does not have keyboard focus"
+
+    - title: "Allow integer and float column values to go to -999999. -1000000 is the value of 'undefined'."
+      tickets: [821941]
+
+    - title: "Fix in calibre browser not working for the Open books store in Get Books."
+      tickets: [822359]
+
+    - title: "Fix regression in 0.8.13 that caused incorrect title/author for downloaded news if you turned off reading metadata from file contents in Preferences->Adding books"
+
+    - title: "Save to disk: When saving to a single directory, handle the case of the save to disk template containing path separators inside template expression correctly."
+      tickets: [821912]
+
+    - title: "Get Books: Always read metadata from the file contents, ignoring the setting in Preferences->Adding books"
+
+    - title: "Fix merge_metadata to not overwrite non-text fields ('bool', 'int', 'float', 'rating', 'datetime') that have a value of zero/false instead of None."
+      tickets: [821665]
+
+  improved recipes:
+    - The Independent
+
+  new recipes:
+    - title: "Novinite"
+      author: Martin Tsanchev
+
+    - title: "Blog Escrevinhador"
+      author: Diniz Bortolotto
+
+
+
 - version: 0.8.13
   date: 2011-08-05
 
@@ -251,8 +298,8 @@
     - title: Techcrunch and Pecat
       author: Darko Miletic
 
-    - title: Vio Mundo, IDG Now and Tojolaco
-      author: Diniz Bortoletto
+    - title: "Vio Mundo, IDG Now! and Tojolaco"
+      author: Diniz Bortolotto
 
     - title: Geek and Poke, Automatiseringgids IT 
       author: DrMerry

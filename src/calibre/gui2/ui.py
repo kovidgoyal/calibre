@@ -522,6 +522,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             self.card_a_view.reset()
             self.card_b_view.reset()
         self.device_manager.set_current_library_uuid(db.library_id)
+        self.library_view.set_current_row(0)
         # Run a garbage collection now so that it does not freeze the
         # interface later
         gc.collect()

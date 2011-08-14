@@ -755,6 +755,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if self.current_index > 0:
             self.load_path(self.iterator.spine[self.current_index-1], pos=1.0)
 
+    def keyPressEvent(self, event):
+        MainWindow.keyPressEvent(self, event)
+        if not event.isAccepted():
+            if not self.view.handle_key_press(event):
+                event.ignore()
+
     def __enter__(self):
         return self
 
