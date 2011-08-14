@@ -53,6 +53,7 @@ def finalize(shortcuts, custom_keys_map={}): # {{{
                 if DEBUG:
                     prints('Key %r for shortcut %s is already used by'
                             ' %s, ignoring'%(x, shortcut['name'], seen[x]['name']))
+                keys_map[unique_name] = ()
                 continue
             seen[x] = shortcut
             keys.append(ks)
@@ -149,7 +150,7 @@ class ConfigModel(QAbstractItemModel, SearchQueryParser):
         shortcut_map = {k:v.copy() for k, v in
                 self.keyboard.shortcuts.iteritems()}
         for un, s in shortcut_map.iteritems():
-            s['keys'] = tuple(self.keyboard.keys_map[un])
+            s['keys'] = tuple(self.keyboard.keys_map.get(un, ()))
             s['unique_name'] = un
             s['group'] = [g for g, names in self.keyboard.groups.iteritems() if un in
                     names][0]
