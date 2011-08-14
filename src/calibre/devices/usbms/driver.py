@@ -13,7 +13,7 @@ for a particular device.
 import os, re, time, json, uuid, functools
 from itertools import cycle
 
-from calibre.constants import numeric_version
+from calibre.constants import numeric_version, iswindows
 from calibre import prints, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.devices.usbms.cli import CLI
@@ -258,10 +258,10 @@ class USBMS(CLI, Device):
         for i, infile in enumerate(files):
             mdata, fname = metadata.next(), names.next()
             filepath = self.normalize_path(self.create_upload_path(path, mdata, fname))
-            paths.append(filepath)
             if not hasattr(infile, 'read'):
                 infile = self.normalize_path(infile)
             self.put_file(infile, filepath, replace_file=True)
+            paths.append(self.correct_case_of_filename(filepath))
             try:
                 self.upload_cover(os.path.dirname(filepath),
                                   os.path.splitext(os.path.basename(filepath))[0],
@@ -275,6 +275,38 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Transferring books to device...'))
         debug_print('USBMS: finished uploading %d books'%(len(files)))
         return zip(paths, cycle([on_card]))
+
+    # Get the real case of the underlying filename. Can differ from what we
+    # have on case-insensitive file systems.
+    def correct_case_of_filename(self, filepath):
+        path = os.path.abspath(filepath);
+        comps = path.split(os.sep)
+        if not comps:
+            return filepath
+        res = comps[0]
+        if iswindows:
+            # must put a \ after the prefix or it will read the current directory
+            res += os.sep
+
+        # read down the path directory by directory, doing a case-insensitive
+        # compare. Build a new path of the components with the case as on disk.
+        for comp in comps[1:]:
+            sc = os.listdir(res)
+            for c in sc:
+                if c.lower() == comp.lower():
+                    res = os.path.join(res, c);
+                    continue
+        # now see if the old and new path point at the same book. If we have
+        # a case-sensitive file system on the device, then we might have
+        # generated the wrong path. Books are considered the same if their
+        # mtime and size are the same.
+        before = os.stat(filepath)
+        after = os.stat(res)
+        if before.st_mtime == after.st_mtime and before.st_size == after.st_size:
+            # the same. the new path is valid. Might == the old one, but that is OK
+            return res
+        # not the same. The old path must be used.
+        return filepath
 
     def upload_cover(self, path, filename, metadata, filepath):
         '''
