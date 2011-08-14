@@ -610,6 +610,7 @@ class ShortcutConfig(QWidget): # {{{
         self.view.selectionModel().select(idx,
                 self.view.selectionModel().ClearAndSelect)
         self.view.setCurrentIndex(idx)
+        self.view.setFocus(Qt.OtherFocusReason)
 
     def find_next(self, *args):
         idx = self.view.currentIndex()
