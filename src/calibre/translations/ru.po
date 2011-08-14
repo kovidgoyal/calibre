@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-12 20:55+0000\n"
+"PO-Revision-Date: 2011-08-13 15:57+0000\n"
 "Last-Translator: Viatcheslav <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-08-13 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-08-14 04:36+0000\n"
 "X-Generator: Launchpad (build 13674)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -370,7 +370,7 @@ msgstr "Экспорт книг из библиотеки Сalibre на жест
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Show book details in a separate popup"
-msgstr "Показывать детали книги в отдельном окне"
+msgstr "Показывать описание книги в отдельном окне"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Restart calibre"
@@ -440,7 +440,7 @@ msgstr "Искать книги других продавцов"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:872
 msgid "Get new calibre plugins or update your existing ones"
-msgstr "Получить новые модули Calibre или обновить существующие"
+msgstr "Загрузить новые плагины или обновить существующие"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:891
 msgid "Look and Feel"
@@ -589,7 +589,7 @@ msgstr "Создать собственную шаблонную функцию"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1039
 msgid "Sharing books by email"
-msgstr "Отправить книжку по e-mail"
+msgstr "Пересылка книг по E-mail"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1041
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1053
@@ -906,11 +906,11 @@ msgstr "Вывести список всех установленных плаг
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:554
 msgid "Enable the named plugin"
-msgstr "Включить указанное дополнение"
+msgstr "Включить указанный плагин"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:556
 msgid "Disable the named plugin"
-msgstr "Отключить указанное дополнение"
+msgstr "Отключить указанный плагин"
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:270
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:279
@@ -2824,6 +2824,9 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
+"Этот параметер нужен только если EPUB файл будет исползован сFBReaderJ. При "
+"использовании этого параметра файловая структура внутри EPUB файла будет "
+"переделана, все файлы будут размещаться в корне."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:184
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:206
@@ -4406,7 +4409,7 @@ msgstr "Схема размещения пользовательского ин�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:190
 msgid "Show the average rating per item indication in the tag browser"
-msgstr "Показывать средний рейтинг в просмотрщике меток"
+msgstr "Показывать средний рейтинг в просмотрщике тегов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:192
 msgid "Disable UI animations"
@@ -5429,11 +5432,11 @@ msgstr "F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "Fetch news"
-msgstr "Получить новости"
+msgstr "Сбор новостей"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:54
 msgid "Fetching news from "
-msgstr "Получить новости из "
+msgstr "Сбор новостей из "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:83
 msgid " fetched."
@@ -5511,7 +5514,7 @@ msgstr "Запустить стартовый мастер"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Get plugins to enhance calibre"
-msgstr "Загрузить дополнения"
+msgstr "Получить плагины для расширения calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:35
 msgid "Restart in debug mode"
@@ -5597,7 +5600,7 @@ msgstr "Нажмите кнопку \"показать детали\" чтобы
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:767
 msgid "Show book details"
-msgstr "Показать подробности"
+msgstr "Показать описание книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:17
 msgid "I"
@@ -6126,7 +6129,7 @@ msgstr "Копировать обложку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:548
 msgid "Double-click to open Book Details window"
-msgstr "Сделайте двойной клик, чтобы открыть окно Подробности о Книге."
+msgstr "Двойной клик откроет окно с описанием книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:549
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
@@ -6800,7 +6803,7 @@ msgstr " кб"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:63
 msgid "&Flatten EPUB file structure"
-msgstr ""
+msgstr "&Плоская структура файла EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_input.py:12
 msgid "FB2 Input"
@@ -7078,7 +7081,7 @@ msgstr "Ра&змер отступа:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:169
 msgid "&Line size:"
-msgstr ""
+msgstr "&Размер строки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -8915,7 +8918,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:869
 msgid "Custom metadata"
-msgstr ""
+msgstr "Пользовательские метаданные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:61
 msgid "Search/Replace"
@@ -9497,7 +9500,7 @@ msgstr "Требуется обновление Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:392
 msgid "Plugin deprecated"
-msgstr "Устаревшее дополнение"
+msgstr "Устаревший плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:394
 msgid "New version available"
@@ -9509,7 +9512,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:427
 msgid "This plugin has been deprecated and should be uninstalled"
-msgstr "Это дополнение устарело и должно быть удалено"
+msgstr "Этот плагин устарел и должен быть удален"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:428
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:432
@@ -9532,11 +9535,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:439
 msgid "You can install this plugin"
-msgstr "Вы можете установить это дополнение"
+msgstr "Вы можете установить этот плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:442
 msgid "A new version of this plugin is available"
-msgstr "Доступна новая версия этого дополнения"
+msgstr "Доступна новая версия этого плагина"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:444
 msgid "This plugin is installed and up-to-date"
@@ -9552,11 +9555,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:481
 msgid "User plugins"
-msgstr "Пользовательские дополнения"
+msgstr "Пользовательские плагины"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:486
 msgid "User Plugins"
-msgstr "Пользовательские дополнения"
+msgstr "Пользовательские Плагины"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:494
 msgid "Filter list of plugins"
@@ -9574,11 +9577,11 @@ msgstr "&Установить"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:536
 msgid "Install the selected plugin"
-msgstr "Установить выбранное дополнение"
+msgstr "Установить выбранный плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:527
 msgid "&Customize plugin "
-msgstr "&Настроить дополнение "
+msgstr "&Настроить плагин "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:528
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:580
@@ -9591,7 +9594,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:541
 msgid "Show history of changes to this plugin"
-msgstr "Показать историю изменений для этого дополнения"
+msgstr "Показать историю изменений этого плагина"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:545
 msgid "Plugin &Forum Thread"
@@ -9600,20 +9603,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:109
 msgid "Enable/&Disable plugin"
-msgstr "Включить/&Отключить дополнение"
+msgstr "Включить/&Отключить плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:555
 msgid "Enable or disable this plugin"
-msgstr "Включить или отключить это дополнение"
+msgstr "Включить или отключить этот плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:111
 msgid "&Remove plugin"
-msgstr "&Удалить дополнение"
+msgstr "&Удалить плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:560
 msgid "Uninstall the selected plugin"
-msgstr "Удалить выбранное дополнение"
+msgstr "Удалить выбранный плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:569
 msgid "Donate to developer"
@@ -9621,17 +9624,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:570
 msgid "Donate to the developer of this plugin"
-msgstr "Пожертвовать разработчику этого дополнения"
+msgstr "Пожертвовать разработчику этого плагина"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:579
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:110
 msgid "&Customize plugin"
-msgstr "&Настроить дополнение"
+msgstr "&Настроить плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:675
 #, python-format
 msgid "Are you sure you want to uninstall the <b>%s</b> plugin?"
-msgstr "Вы уверены, что хотите удалить дополнение <b>%s</b>?"
+msgstr "Вы уверены, что хотите удалить плагин <b>%s</b>?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:687
 #, python-format
@@ -9645,10 +9648,10 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
-"Установка дополнений представляет собой угрозу безопасности. Дополнения "
-"могут содержать вирусы/вредоносное программное обеспечение. Устанавливайте "
-"дополнение только если Вы получили его из надежного источника. Вы уверены, "
-"что хотите продолжить?"
+"Установка плагинов представляет собой угрозу безопасности. Плагины могут "
+"содержать вирусы/вредоносное программное обеспечение. Устанавливайте плагин "
+"только если Вы получили его из надежного источника. Вы уверены, что хотите "
+"продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:705
 #, python-format
@@ -9668,12 +9671,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:715
 #, python-format
 msgid "Downloading plugin zip attachment: %s"
-msgstr "Загрузка zip вложения дополнения: %s"
+msgstr "Загрузка zip вложения плагина: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:720
 #, python-format
 msgid "Installing plugin: %s"
-msgstr "Установка дополнения: %s"
+msgstr "Установка плагина: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:732
 #, python-format
@@ -10971,7 +10974,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:253
 msgid "Cover Browser"
-msgstr ""
+msgstr "Просмотр обложек"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:113
 msgid "Shift+Alt+B"
@@ -10980,7 +10983,7 @@ msgstr "Shift+Alt+B"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:250
 msgid "Tag Browser"
-msgstr ""
+msgstr "Просмотр тегов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:129
 msgid "Shift+Alt+T"
@@ -11004,7 +11007,7 @@ msgstr "Подключено "
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:229
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:232
 msgid "Book Details"
-msgstr "Детали книги"
+msgstr "Описание Книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:231
@@ -11977,7 +11980,7 @@ msgstr "Комментарии"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:811
 msgid "Basic metadata"
-msgstr ""
+msgstr "Основные метаданные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 msgid "Has cover"
@@ -12094,7 +12097,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:66
 msgid "Read &metadata from file contents rather than file name"
-msgstr ""
+msgstr "Считывать &метаданные из содержимого файла, а не из его имени"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:67
 msgid ""
@@ -12169,7 +12172,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:87
 msgid "&Configure metadata from file name"
-msgstr "Настроить метаданные из названия файла"
+msgstr "&Настройка получения метаданных из имени файла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -12885,7 +12888,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:254
 msgid "Show as HTML in book details"
-msgstr ""
+msgstr "Показывать как HTML в описании книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:260
@@ -13123,7 +13126,7 @@ msgstr "Основной интерфейс"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:221
 msgid "Select displayed metadata"
-msgstr ""
+msgstr "Выберите какие метаданные отображать"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:222
 msgid "Move up"
@@ -13155,6 +13158,8 @@ msgid ""
 "Note that <b>comments</b> will always be displayed at the end, regardless of "
 "the position you assign here."
 msgstr ""
+"Заметьте, что <b>комментарии</b> отображаются всегда в конце, вне "
+"зависимости от положения в списке."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:233
 msgid "Tags browser category &partitioning method:"
@@ -13176,7 +13181,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:239
 msgid "&Collapse when more items than:"
-msgstr ""
+msgstr "&Группировать если элементов больше чем"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:240
 msgid ""
@@ -13195,7 +13200,7 @@ msgstr "Показывать средний рейтинг в просмотрщ
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:243
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "Категории с &иерархической структурой:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:244
 msgid ""
@@ -13575,7 +13580,7 @@ msgstr "%(plugin_type)s %(plugins)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:183
 msgid "plugins"
-msgstr "дополнения"
+msgstr "плагины"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:192
 msgid ""
@@ -13585,15 +13590,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:223
 msgid "Search for plugin"
-msgstr "Искать дополнения"
+msgstr "Поиск плагинов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:233
 msgid "Could not find any matching plugins"
-msgstr "Не удалось найти ни одного соотвествующего дополнения"
+msgstr "Не удалось найти ни одного соотвествующего плагина"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:274
 msgid "Add plugin"
-msgstr "Добавить дополнение"
+msgstr "Добавить плагин"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:306
 msgid "No valid plugin path"
@@ -13631,7 +13636,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Get &new plugins"
-msgstr "Загрузить &новые дополнения"
+msgstr "Загрузить &новые плагины"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Check for &updated plugins"
@@ -13643,7 +13648,7 @@ msgstr "Загрузить плагин из файла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "Any custom field"
-msgstr ""
+msgstr "Пользовательские поля"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:35
 msgid "The lookup name of any custom field (these names begin with \"#\")."
@@ -13661,7 +13666,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:57
 msgid "Save &template"
-msgstr "Сохранить шаблон"
+msgstr "Шаблон сохранения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:58
 msgid ""
@@ -14938,7 +14943,7 @@ msgstr "Пользовательская категория %s не сущест
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:300
 msgid "Find item in tag browser"
-msgstr "Найти элементы в браузере тэгов."
+msgstr "Найти элемент в просмотре тэгов."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:304
 msgid ""
@@ -14982,7 +14987,7 @@ msgstr "Сортировать по средней оценке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:363
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr "Устанавливает порядок сортировки для записей в Tag Browser"
+msgstr "Задать порядок сортировки для записей в просмотре тегов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:370
 msgid "Match all"
@@ -15240,7 +15245,7 @@ msgstr "Скачать обновление"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:94
 msgid "Update &plugins"
-msgstr "Обновить дополнения"
+msgstr "Обновить плагины"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:153
 #, python-format
@@ -17298,6 +17303,8 @@ msgid ""
 "The format in which to display dates. %(day)s - day, %(month)s - month, "
 "%(year)s - year. Default is: %(default)s"
 msgstr ""
+"Формат отображения даты. %(day)s - день, %(month)s - месяц, %(year)s - год. "
+"По умолчанию: %(default)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:121
 msgid "Convert paths to lowercase."
@@ -18860,7 +18867,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:69
 msgid "Use author sort in Tag Browser"
-msgstr ""
+msgstr "Использовать сортировку по авторам при просмотре тегов"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:70
 msgid ""

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-09 13:12+0000\n"
-"Last-Translator: Rudolf Metz <Unknown>\n"
+"PO-Revision-Date: 2011-08-13 18:34+0000\n"
+"Last-Translator: Manichean <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-13 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-08-14 04:36+0000\n"
 "X-Generator: Launchpad (build 13674)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -389,6 +389,8 @@ msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Bücher per E-Mail oder das Web senden, auch mit iTunes oder Ordnern "
+"verbinden, als ob es Geräte wären"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:802
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -438,7 +440,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Zufälliges Buch aus ihrer Calibre- Bibliothek auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:856
 msgid "Search for books from different book sellers"
@@ -651,11 +653,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1098
 msgid "Keyboard"
-msgstr ""
+msgstr "Tastatur"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1104
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Anpassen der von Calibre verwendeten Tastenkürzel"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:109
@@ -1465,11 +1467,11 @@ msgstr "Kommunikation mit dem Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:53
 msgid "The Kobo supports several collections including "
-msgstr ""
+msgstr "Der Kobo unterstützt Sammlungen, einschließlich "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:55
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "Etiketten für automatische Verwaltung erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:543
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1540,7 +1542,7 @@ msgstr "Kommunikation mit dem Moovybook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "Kommunikation mit dem COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1601,6 +1603,9 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+". Zwei besondere Sammlungen sind verfügbar: %(abt)s:%(abtv)s und "
+"%(aba)s:%(abav)s. Fügen sie diese Werte der Liste hinzu, um sie zu "
+"aktivieren. Die Sammlungen erhalten den Namen nach dem \":\"- Zeichen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -1831,6 +1836,12 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Fehler beim Zugriff auf Dateien auf dem Hauptspeicher ihres Gerätes. Sie "
+"sollten den Hersteller des Gerätes wegen Unterstützung kontaktieren. Häufige "
+"Möglichkeiten zur Behebung sind: Versuchen sie ein anderes USB- Kabel oder "
+"einen anderen USB- Port am Rechner. Wenn das Gerät die Möglichkeit zum "
+"\"Zurücksetzen auf Fabrikvoreinstellungen\" hat, benutzen sie es. "
+"Zugrundeliegender Fehler: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:113
 #, python-format
@@ -1841,6 +1852,13 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"Fehler beim Zugriff auf Dateien auf der SD- Karte in ihrem Gerät. Dies kann "
+"viele Ursachen haben. Die SD- Karte kann beschädigt sein, die Kapazität kann "
+"zu groß für das Gerät sein, die Karte kann schreibgeschützt sein etc. "
+"Versuchen sie, eine andere SD- Karte zu benutzen, oder formatieren sie die "
+"Karte mit dem FAT32- Dateisystem neu. Stellen sie auch sicher, dass nicht zu "
+"viele Dateien im Stammverzeichns der SD- Karte sind. Zugrundeliegender "
+"Fehler: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
@@ -1870,7 +1888,7 @@ msgstr "USB Revision ID (hexadezimal)"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Händlerzeichenfolge des Windows-Hauptspeichers"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1892,7 +1910,7 @@ msgstr "ID Zeichenfolge des Windows-Hauptspeichers"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Händler-Zeichenfolge der Windows-Karte A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
@@ -1901,7 +1919,7 @@ msgstr "ID-Zeichenfolge der Windows-Karte A"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "Ordner des Hauptspeichers"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -1909,6 +1927,8 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
+"Ordner eintragen, in dem die Bücher gespeichert werden sollen. Der Ordner "
+"wird jeder Vorlage für die Übertragung an Geräte vorangestellt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
@@ -2128,6 +2148,9 @@ msgid ""
 "default. Use %(en)s to enable.  Individual actions can be disabled with the "
 "%(dis)s options."
 msgstr ""
+"Modifiziert den Dokumententext und die Struktur durch Anwendung häufiger "
+"Muster. Standardmäßig deaktiviert. Nutzen sie %(en)s zur Aktivierung. "
+"Individuelle Aktionen können mit der Option %(dis)s deaktiviert werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:18
@@ -2163,6 +2186,9 @@ msgid ""
 "List builtin recipe names. You can create an ebook from a builtin recipe "
 "like this: ebook-convert \"Recipe Name.recipe\" output.epub"
 msgstr ""
+"Anzeigen der Namen der vorinstallierten Nachrichtenquellen. Sie können aus "
+"einer vorinstallierten Quelle ein Ebook wie folgt erstellen: ebook-convert "
+"\"Recipe Name.recipe\" output.epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:288
 msgid "Output saved to"
@@ -3072,10 +3098,12 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "cp1251, latin1 and utf-8."
 msgstr ""
+"Zeichenkodierung für die Eingabe- HTML- Dateien. Häufige Werte sind: cp1252, "
+"cp1251, latin1 und utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
-msgstr ""
+msgstr "Füge verknüpfte Dateien in Breitensuch- Reihenfolge hinzu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:92
 msgid ""
@@ -3084,6 +3112,11 @@ msgid ""
 "the order A, B, D, C.  With this option, they will instead be added as A, B, "
 "C, D"
 msgstr ""
+"Normalerweise fügt Calibre Dateien beim Verfolgen von Verknüpfungen in HTML- "
+"Dateien in Tiefensuchordnung hinzu, d.h., wenn Datei A mit B und C, aber B "
+"mit D verknüpft ist, werden die Dateien in der Reihenfolge A, B, D, C "
+"hinzugefügt. Mit dieser Option werden sie stattdessen in der Reihenfolge A, "
+"B, C, D hinzugefügt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:62
 #, python-format
@@ -3092,12 +3125,12 @@ msgstr "Mehrere HTML Dateien im Archiv gefunden. %s wird nur benutzt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:68
 msgid "No top level HTML file found."
-msgstr ""
+msgstr "Keine HTML- Datei für oberste Ebene gefunden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:71
 #, python-format
 msgid "Top level HTML file %s is empty"
-msgstr ""
+msgstr "Die HTML- Datei %s für die oberste Ebene ist leer"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:30
 msgid ""
@@ -3742,6 +3775,8 @@ msgid ""
 "To use isbndb.com you have to sign up for a free account at isbndb.com and "
 "get an access key."
 msgstr ""
+"Um isbndb.com zu benutzen, müssen sie sich für ein kostenloses Nutzerkonto "
+"auf isbndb.com registrieren und einen Zugriffsschlüssel erhalten."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -4498,6 +4533,12 @@ msgid ""
 "set and default to the color displayed by the reader (generally this is "
 "black)."
 msgstr ""
+"Zeichenfarbe nicht von der Ausgabe entfernen. Dies ist nur sinnvoll, wenn "
+"die Textausgabe-Formatierung auf Textile eingestellt ist. Textile ist die "
+"einzige Formatierung welche die Einstellung der Zeichenfarbe unterstützt. "
+"Wenn diese Einstellung nicht definiert ist, wird keine Zeichenfarbe "
+"eingestellt und die Farbe wird durch den Reader bestimmt (gewöhnlich ist die "
+"Farbe schwarz)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:112
 msgid "Send file to storage card instead of main memory by default"
@@ -4908,27 +4949,27 @@ msgstr "Füge Benutzeranmerkungen zur Datenbank hinzu"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:123
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Zuletzt gelesene Seite: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:129
 #, python-format
 msgid "%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Zuletzt gelesene Seite: Ort %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:148
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
-msgstr ""
+msgstr "<b>Ort %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 #, python-format
 msgid "<b>Page %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Seite %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:162
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Ort %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:37
@@ -4968,31 +5009,34 @@ msgid ""
 "No existing calibre library was found at %s. If the library was moved, "
 "select its new location below. Otherwise calibre will forget this library."
 msgstr ""
+"Am Ort %s wurde keine vorhandene Calibre- Bibliothek gefunden. Wenn die "
+"Bibliothek verschoben wurde, wählen sie unten den neuen Ort. Anderweitig "
+"wird Calibre diese Bibliothek vergessen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:96
 msgid "New location of this library:"
-msgstr ""
+msgstr "Neuer Ort dieser Bibliothek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:105
 msgid "Library moved"
-msgstr ""
+msgstr "Bibliothek verschoben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:107
 msgid "Forget library"
-msgstr ""
+msgstr "Bibliothek vergessen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:116
 msgid "New library location"
-msgstr ""
+msgstr "Neuer Ort der Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
 #, python-format
 msgid "No existing calibre library found at %s"
-msgstr ""
+msgstr "Keine vorhandene Calibre am Ort %s gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:139
 msgid "Choose Library"
-msgstr ""
+msgstr "Bibliothek auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:140
 msgid "Choose calibre library to work with"
@@ -5105,6 +5149,8 @@ msgid ""
 "The library %s has been removed from calibre. The files remain on your "
 "computer, if you want to delete them, you will have to do so manually."
 msgstr ""
+"Die Bibliothek %s wurde aus Calibre entfernt. Die Dateien bleiben auf ihrem "
+"Computer, wenn sie sie löschen wollen, müssen sie dies manuell tun."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "none"
@@ -5461,7 +5507,7 @@ msgstr "Content Server starten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:73
 msgid "Start/stop content server"
-msgstr ""
+msgstr "Startet/stoppt den Content Server"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:79
 msgid "Stop Content Server"
@@ -5820,7 +5866,7 @@ msgstr "Strg+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Restart"
-msgstr ""
+msgstr "Neustart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -5960,7 +6006,7 @@ msgstr "Bücher mit den gleichen Schlagwörtern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
@@ -5972,20 +6018,20 @@ msgstr "Nach eBooks suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "author"
-msgstr ""
+msgstr "Autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "title"
-msgstr ""
+msgstr "Titel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "book"
-msgstr ""
+msgstr "Buch"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
 msgid "Search for this %s"
-msgstr ""
+msgstr "Nach diesem %s suchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -10168,7 +10214,7 @@ msgstr "Versionshistorie fehlt"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:773
 #, python-format
 msgid "Unable to find the version history for %s"
-msgstr ""
+msgstr "Versionshistorie für %s konnte nicht gefunden werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:780
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:333

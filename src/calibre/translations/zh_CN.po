@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-13 03:59+0000\n"
+"PO-Revision-Date: 2011-08-13 05:50+0000\n"
 "Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-13 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-08-14 04:37+0000\n"
 "X-Generator: Launchpad (build 13674)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -12433,19 +12433,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:221
 msgid "No lookup name was provided"
-msgstr ""
+msgstr "未指定字段名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:225
 msgid ""
 "The lookup name must contain only lower case letters, digits and "
 "underscores, and start with a letter"
-msgstr ""
+msgstr "字段名必须以小写字母、数字和下划线组成，并必须以字母开头。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:228
 msgid ""
 "Lookup names cannot end with _index, because these names are reserved for "
 "the index of a series column."
-msgstr ""
+msgstr "字段名不能以_index结尾，因为这类名字被内部预留用于做栏位值的索引。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:238
 msgid "No column heading was provided"
@@ -12454,7 +12454,7 @@ msgstr "未提供栏抬头"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:248
 #, python-format
 msgid "The lookup name %s is already used"
-msgstr ""
+msgstr "字段名 %s 已经被占用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:260
 #, python-format
@@ -12463,19 +12463,19 @@ msgstr "抬头 %s 已被使用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:271
 msgid "You must enter a template for composite columns"
-msgstr ""
+msgstr "你必须输入一个模版用于构造栏位"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:281
 msgid "You must enter at least one value for enumeration columns"
-msgstr ""
+msgstr "枚举类型的栏位至少需要包含一个枚举值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:285
 msgid "You cannot provide the empty value, as it is included by default"
-msgstr ""
+msgstr "你不能提供空值，因为它总是默认就被包含在内。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:289
 msgid "The value \"{0}\" is in the list more than once"
-msgstr ""
+msgstr "“{0}” 的值在列表中出现了多次"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:297
 msgid ""
@@ -12643,7 +12643,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:263
 msgid "Colors"
-msgstr ""
+msgstr "颜色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -12660,24 +12660,24 @@ msgstr "调试设备检测"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
-msgstr ""
+msgstr "获取设备信息"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:34
 msgid "User-defined device information"
-msgstr ""
+msgstr "用户自定义设备信息"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:57
 msgid "Device Detection"
-msgstr ""
+msgstr "设置检测"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:52
 msgid "Ensure your device is disconnected, then press OK"
-msgstr ""
+msgstr "请确保你的设备没有连接，然后点“确认”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:58
 msgid "Ensure your device is connected, then press OK"
-msgstr ""
+msgstr "请确保连接你的设备，然后点“确认”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:89
 msgid ""
@@ -12968,112 +12968,112 @@ msgstr "需要重启"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
-msgstr ""
+msgstr "数据源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:50
 msgid "Cover priority"
-msgstr ""
+msgstr "封面优先级"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:77
 msgid "This source is configured and ready to go"
-msgstr ""
+msgstr "本元数据下载源已配置完成，可用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:78
 msgid "This source needs configuration"
-msgstr ""
+msgstr "本元数据下载源需配置后方可使用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:94
 msgid ""
 "This plugin is useful only for <b>Chinese</b> language books. It can return "
 "incorrect results for books in English. Are you sure you want to enable it?"
-msgstr ""
+msgstr "本插件只对 <b>中文</b> 书籍效果较好，对于英文书籍，它可能会返回不准确的信息。你确认要启动它吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:158
 msgid "Published date"
-msgstr ""
+msgstr "出版日期"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:265
 #, python-format
 msgid "<b>Configure %(name)s</b><br>%(desc)s"
-msgstr ""
+msgstr "<b>配置 %(name)s 插件</b><br>%(desc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:322
 msgid "No source selected"
-msgstr ""
+msgstr "未选择元数据下载源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:323
 msgid "No source selected, cannot configure."
-msgstr ""
+msgstr "未选择元数据下载源，无法配置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:116
 msgid "Metadata sources"
-msgstr ""
+msgstr "元数据下载源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:117
 msgid ""
 "Disable any metadata sources you do not want by unchecking them. You can "
 "also set the cover priority. Covers from sources that have a higher "
 "(smaller) priority will be preferred when bulk downloading metadata.\n"
-msgstr ""
+msgstr "可以在这里禁用不需要的元数据下载源或设置封面优先级，来自具有较高优先级的元数据下载源的封面在批量设置书籍元数据时会被优先选用。\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:119
 msgid ""
 "Sources with a red X next to their names must be configured before they will "
 "be used. "
-msgstr ""
+msgstr "名称前出现红色X标记的元数据下载源需要在对它们进行配置后方可使用。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:120
 msgid "Configure selected source"
-msgstr ""
+msgstr "配置选定的元数据下载源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:122
 msgid ""
 "If you uncheck any fields, metadata for those fields will not be downloaded"
-msgstr ""
+msgstr "如果不选定部分字段，这些字段的元数据将不会被下载。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:123
 msgid "&Select all"
-msgstr ""
+msgstr "全部选中(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:124
 msgid "&Clear all"
-msgstr ""
+msgstr "全部清除(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:125
 msgid "&Select default"
-msgstr ""
+msgstr "选择默认(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:126
 msgid ""
 "Restore your own subset of checked fields that you define using the 'Set as "
 "default' button"
-msgstr ""
+msgstr "恢复到用“设为默认”按钮定义的默认选中项"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:127
 msgid "&Set as default"
-msgstr ""
+msgstr "设为默认(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:128
 msgid ""
 "Store the currently checked fields as a default you can restore using the "
 "'Select default' button"
-msgstr ""
+msgstr "把当前选中的字段保存为默认设定值，以后可以通过“选择默认”按钮使用这个设定值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:129
 msgid "Convert all downloaded comments to plain &text"
-msgstr ""
+msgstr "把下载的注释转换为纯文本(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:130
 msgid "Swap author names from FN LN to LN, FN"
-msgstr ""
+msgstr "交换作者姓和名，从“名 姓”转换为“姓, 名”"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:131
 msgid "Max. number of &tags to download:"
-msgstr ""
+msgstr "最大标签下载个数(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:132
 msgid "Max. &time to wait after first match is found:"
-msgstr ""
+msgstr "在获得第一个搜索结果后的最大等待时间(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:133
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:135
@@ -13083,7 +13083,7 @@ msgstr " 秒"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:134
 msgid "Max. time to wait after first &cover is found:"
-msgstr ""
+msgstr "在获得第一个封面后的最大等待时间(&T)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:136
 msgid ""
@@ -13098,15 +13098,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:138
 msgid "Prefer &fewer tags"
-msgstr ""
+msgstr "优先选用标签值较少的结果(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:38
 msgid "No proxies used"
-msgstr ""
+msgstr "未设置代理服务器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:42
 msgid "<b>Using proxies:</b>"
-msgstr ""
+msgstr "<b>使用代理服务器：</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc.py:64
 msgid "Failed to install command line tools."
@@ -13127,7 +13127,7 @@ msgstr "如果您移动 calibre.app，您必须重新安装命令行工具。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:66
 msgid "Max. simultaneous conversion/news download jobs:"
-msgstr ""
+msgstr "允许的最大同时进行的转换和新闻下载作务数："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:67
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
@@ -13139,7 +13139,7 @@ msgstr "调试设备检测(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:69
 msgid "Get information to setup the &user defined device"
-msgstr ""
+msgstr "获取用于设置用户自定义设备的信息(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:70
 msgid "Open calibre &configuration directory"
@@ -13285,15 +13285,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:223
 msgid "Search for plugin"
-msgstr ""
+msgstr "搜索插件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:233
 msgid "Could not find any matching plugins"
-msgstr ""
+msgstr "无法找到匹配的插件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:274
 msgid "Add plugin"
-msgstr ""
+msgstr "添加插件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:306
 msgid "No valid plugin path"
@@ -13307,11 +13307,11 @@ msgstr "%s 不是合法的插件路径"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:316
 #, python-format
 msgid "Select an actual plugin under <b>%s</b> to customize"
-msgstr ""
+msgstr "无法配置插件分类，选择 <b>%s</b> 分类中的一个插件进行配置。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:346
 msgid "Plugin <b>{0}</b> successfully removed"
-msgstr ""
+msgstr "<b>{0}</b> 插件已经成功卸载"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:354
 msgid "Cannot remove builtin plugin"
@@ -13329,15 +13329,15 @@ msgstr "从可以通过配置插件的启用与否来调整 calibre 的功能特
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Get &new plugins"
-msgstr ""
+msgstr "获取新的插件(&N)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Check for &updated plugins"
-msgstr ""
+msgstr "检查插件更新(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:114
 msgid "&Load plugin from file"
-msgstr ""
+msgstr "从文件加载插件(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "Any custom field"
@@ -13378,7 +13378,7 @@ msgstr "可用变量："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:60
 msgid "Template Editor"
-msgstr ""
+msgstr "模版编辑器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:68
 msgid ""
@@ -13614,7 +13614,7 @@ msgstr "访问日志:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:128
 msgid "You need to restart the server for changes to take effect"
-msgstr ""
+msgstr "你需要重启服务器使新的设置生效"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:124
 msgid "Server &port:"
@@ -13771,66 +13771,66 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:173
 msgid "Template functions"
-msgstr ""
+msgstr "模版函数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:137
 msgid "You cannot delete a built-in function"
-msgstr ""
+msgstr "不能删除内置模版函数"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:147
 msgid "Function not defined"
-msgstr ""
+msgstr "函数未定义"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:154
 #, python-format
 msgid "Name %s already used"
-msgstr ""
+msgstr "函数名 %s 已经被占用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:158
 msgid ""
 "Argument count should be -1 or greater than zero. Setting it to zero means "
 "that this function cannot be used in single function mode."
-msgstr ""
+msgstr "参数个数应该设为-1或大于0的值。把参数个数设为0，意味着这个函数无法在单函数模式中使用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"
-msgstr ""
+msgstr "编译函数时发生异常"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:202
 msgid "function source code not available"
-msgstr ""
+msgstr "函数源代码不存在"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
-msgstr ""
+msgstr "函数(&F)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:97
 msgid "Enter the name of the function to create."
-msgstr ""
+msgstr "输入要创建的函数名称。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:98
 msgid "Arg &count:"
-msgstr ""
+msgstr "参数个数(&C)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
-msgstr ""
+msgstr "如果函数参数个数可变，请设为-1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
-msgstr ""
+msgstr "删除(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:103
 msgid "&Replace"
-msgstr ""
+msgstr "替换(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "创建(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
-msgstr ""
+msgstr "程序代码(&P)：(确认使用正确的 Python 对齐规则)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
@@ -13854,15 +13854,15 @@ msgstr "连接设备后的主工具栏"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:221
 msgid "The optional second toolbar"
-msgstr ""
+msgstr "可选的第二工具栏"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:222
 msgid "The menubar"
-msgstr ""
+msgstr "菜单栏"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:223
 msgid "The menubar when a device is connected"
-msgstr ""
+msgstr "设备连接后的菜单栏"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:224
 msgid "The context menu for the books in the calibre library"
@@ -13874,7 +13874,7 @@ msgstr "设备上书籍的语境菜单"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:228
 msgid "The context menu for the cover browser"
-msgstr ""
+msgstr "封面浏览器的右键菜单"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:262
 msgid "Cannot add"
@@ -13883,7 +13883,7 @@ msgstr "无法添加"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:263
 #, python-format
 msgid "Cannot add the actions %s to this location"
-msgstr ""
+msgstr "无法把 %s 添加到这个位置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:281
 msgid "Cannot remove"
@@ -13896,7 +13896,7 @@ msgstr "此处无法移除 %s 操作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:101
 msgid "Choose the toolbar to customize"
-msgstr ""
+msgstr "选择要自定义的工具栏"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:102
 msgid "A&vailable actions"
