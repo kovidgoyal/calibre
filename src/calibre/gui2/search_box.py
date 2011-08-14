@@ -228,7 +228,7 @@ class SearchBox2(QComboBox): # {{{
                 self.clear()
             else:
                 self.normalize_state()
-                # must turn off case sensitivity here so that tag browser strings
+                # must turn on case sensitivity here so that tag browser strings
                 # are not case-insensitively replaced from history
                 self.line_edit.completer().setCaseSensitivity(Qt.CaseSensitive)
                 self.setEditText(txt)
