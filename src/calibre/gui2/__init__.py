@@ -97,6 +97,7 @@ gprefs.defaults['book_display_fields'] = [
         ('last_modified', False), ('size', False),
         ]
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
+gprefs.defaults['preserve_date_on_ctl'] = True
 
 # }}}
 

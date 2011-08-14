@@ -1,0 +1,35 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1308572538(BasicNewsRecipe):
+    title = u'Novinite.com'
+    __author__ = 'Martin Tsanchev'
+    description = 'Real time provider of the latest Bulgarian news in English'
+    category = 'Business, Politics, Society, Sports, Crime, Lifestyle, World, People'
+    language  = 'en_BG'
+    encoding = 'utf-8'
+    oldest_article = 7
+    max_articles_per_feed = 10
+    keep_only_tags    = [dict(name='div', attrs={'id':'content'})]
+    remove_tags = [dict(name='a', attrs={'class':'twitter-share-button'})]
+    remove_tags_after  = dict(id='textsize')
+    no_stylesheets        = True
+    feeds  = [(u'Business', u'http://www.novinite.com/services/news_rdf.php?category_id=1'),
+(u'Finance', u'http://www.novinite.com/services/news_rdf.php?category_id=15'),
+(u'Energy', u'http://www.novinite.com/services/news_rdf.php?category_id=16'),
+(u'Industry', u'http://www.novinite.com/services/news_rdf.php?category_id=17'),
+(u'Properties', u'http://www.novinite.com/services/news_rdf.php?category_id=18'),
+(u'Politics', u'http://www.novinite.com/services/news_rdf.php?category_id=2'),
+(u'Diplomacy', u'http://www.novinite.com/services/news_rdf.php?category_id=20'),
+(u'Defense', u'http://www.novinite.com/services/news_rdf.php?category_id=21'),
+(u'Bulgaria in EU', u'http://www.novinite.com/services/news_rdf.php?category_id=22'),
+(u'Domestic', u'http://www.novinite.com/services/news_rdf.php?category_id=23'),
+(u'Society', u'http://www.novinite.com/services/news_rdf.php?category_id=3'),
+(u'Environment', u'http://www.novinite.com/services/news_rdf.php?category_id=24'),
+(u'Education', u'http://www.novinite.com/services/news_rdf.php?category_id=25'),
+(u'Culture', u'http://www.novinite.com/services/news_rdf.php?category_id=26'),
+(u'Archaeology', u'http://www.novinite.com/services/news_rdf.php?category_id=34'),
+(u'Health', u'http://www.novinite.com/services/news_rdf.php?category_id=62'),
+(u'Sports', u'http://www.novinite.com/services/news_rdf.php?category_id=4'),
+(u'Crime', u'http://www.novinite.com/services/news_rdf.php?category_id=5'),
+(u'Lifestyle', u'http://www.novinite.com/services/news_rdf.php?category_id=6'),
+(u'World', u'http://www.novinite.com/services/news_rdf.php?category_id=30')]
