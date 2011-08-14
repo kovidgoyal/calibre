@@ -20,7 +20,7 @@ from calibre.constants import DEBUG
 from calibre import prints
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE, error_dialog, info_dialog
-from calibre.utils.search_query_parser import SearchQueryParser
+from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.gui2.search_box import SearchBox2
 
 ROOT = QModelIndex()
@@ -590,11 +590,19 @@ class ShortcutConfig(QWidget): # {{{
         return self.view.state() == self.view.EditingState
 
     def find(self, query):
-        idx = self._model.find(query)
+        if not query:
+            return
+        try:
+            idx = self._model.find(query)
+        except ParseException:
+            self.search.search_done(False)
+            return
+        self.search.search_done(True)
         if not idx.isValid():
-            return info_dialog(self, _('No matches'),
-                    _('Could not find any matching shortcuts'), show=True,
-                    show_copy_button=False)
+            info_dialog(self, _('No matches'),
+                    _('Could not find any shortcuts matching %s')%query,
+                    show=True, show_copy_button=False)
+            return
         self.highlight_index(idx)
 
     def highlight_index(self, idx):

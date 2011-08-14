@@ -163,6 +163,8 @@ class SearchBox2(QComboBox): # {{{
     # Comes from the combobox itself
     def keyPressEvent(self, event):
         k = event.key()
+        if k in (Qt.Key_Enter, Qt.Key_Return):
+            return self.do_search()
         if k not in (Qt.Key_Up, Qt.Key_Down):
             QComboBox.keyPressEvent(self, event)
         else:
