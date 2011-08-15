@@ -1476,6 +1476,14 @@ class StoreWoblinkStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB']
 
+class XinXiiStore(StoreBase):
+    name = 'XinXii'
+    description = ''
+    actual_plugin = 'calibre.gui2.store.stores.xinxii_plugin:XinXiiStore'
+    
+    headquarters = 'DE'
+    formats = ['EPUB', 'PDF']
+
 class StoreZixoStore(StoreBase):
     name = 'Zixo'
     author = u'Tomasz Długosz'
@@ -1524,6 +1532,7 @@ plugins += [
     StoreWHSmithUKStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore,
+    XinXiiStore,
     StoreZixoStore
 ]
 
