@@ -190,6 +190,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
         if len(candidates) == 1:
             fpath = os.path.join(cpath, candidates[0])
         else:
-            fpath = ans.name
+            # We are on a case sensitive filesystem
+            fpath = os.path.join(cpath, fname)
     return ans, fpath
 
