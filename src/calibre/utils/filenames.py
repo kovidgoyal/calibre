@@ -3,11 +3,12 @@ Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.
 '''
 
-import os
+import os, errno
 from math import ceil
 
-from calibre import sanitize_file_name
-from calibre.constants import preferred_encoding, iswindows
+from calibre import sanitize_file_name, isbytestring, force_unicode
+from calibre.constants import (preferred_encoding, iswindows,
+        filesystem_encoding)
 from calibre.utils.localization import get_udc
 
 def ascii_text(orig):
@@ -113,4 +114,82 @@ def is_case_sensitive(path):
         is_case_sensitive = not os.path.exists(f2)
         os.remove(f1)
     return is_case_sensitive
+
+def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
+    '''
+    Open the file pointed to by path with the specified mode. If any
+    directories in path do not exist, they are created. Returns the
+    opened file object and the path to the opened file object. This path is
+    guaranteed to have the same case as the on disk path. For case insensitive
+    filesystems, the returned path may be different from the passed in path.
+    The returned path is always unicode and always an absolute path.
+
+    If mode is None, then this function assumes that path points to a directory
+    and return the path to the directory as the file object.
+
+    mkdir_mode specifies the mode with which any missing directories in path
+    are created.
+    '''
+    if isbytestring(path):
+        path = path.decode(filesystem_encoding)
+
+    path = os.path.abspath(path)
+
+    sep = force_unicode(os.sep, 'ascii')
+
+    if path.endswith(sep):
+        path = path[:-1]
+    if not path:
+        raise ValueError('Path must not point to root')
+
+    components = path.split(sep)
+    if not components:
+        raise ValueError('Invalid path: %r'%path)
+
+    cpath = sep
+    if iswindows:
+        # Always upper case the drive letter and add a trailing slash so that
+        # the first os.listdir works correctly
+        cpath = components[0].upper() + sep
+
+    # Create all the directories in path, putting the on disk case version of
+    # the directory into cpath
+    dirs = components[1:] if mode is None else components[1:-1]
+    for comp in dirs:
+        cdir = os.path.join(cpath, comp)
+        try:
+            os.mkdir(cdir, mkdir_mode)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                if not os.path.exists(cdir):
+                    # Check for exists again, as we could have got a permission
+                    # denied error
+                    raise
+            # This component already exists, ensure the case is correct
+            cl = comp.lower()
+            candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
+            if len(candidates) == 1:
+                cdir = os.path.join(cpath, candidates[0])
+            # else: We are on a case sensitive file system so cdir must already
+            # be correct
+        cpath = cdir
+
+    if mode is None:
+        ans = fpath = cpath
+    else:
+        fname = components[-1]
+        ans = open(os.path.join(cpath, fname), mode)
+        # Ensure file and all its metadata is written to disk so that subsequent
+        # listdir() has file name in it. I don't know if this is actually
+        # necessary, but given the diversity of platforms, best to be safe.
+        ans.flush()
+        os.fsync(ans.fileno())
+
+        cl = fname.lower()
+        candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
+        if len(candidates) == 1:
+            fpath = os.path.join(cpath, candidates[0])
+        else:
+            fpath = ans.name
+    return ans, fpath
 
