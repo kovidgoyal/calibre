@@ -167,11 +167,16 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
                     raise
             # This component already exists, ensure the case is correct
             cl = comp.lower()
-            candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
-            if len(candidates) == 1:
-                cdir = os.path.join(cpath, candidates[0])
-            # else: We are on a case sensitive file system so cdir must already
-            # be correct
+            try:
+                candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
+            except:
+                # No permission to do a listdir, just use the original case
+                pass
+            else:
+                if len(candidates) == 1:
+                    cdir = os.path.join(cpath, candidates[0])
+                # else: We are on a case sensitive file system so cdir must already
+                # be correct
         cpath = cdir
 
     if mode is None:
