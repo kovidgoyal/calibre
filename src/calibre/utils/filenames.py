@@ -3,7 +3,7 @@ Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.
 '''
 
-import os, errno
+import os
 from math import ceil
 
 from calibre import sanitize_file_name, isbytestring, force_unicode
@@ -152,31 +152,27 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
         # the first os.listdir works correctly
         cpath = components[0].upper() + sep
 
-    # Create all the directories in path, putting the on disk case version of
+    bdir = path if mode is None else os.path.dirname(path)
+    if not os.path.exists(bdir):
+        os.makedirs(bdir, mkdir_mode)
+
+    # Walk all the directories in path, putting the on disk case version of
     # the directory into cpath
     dirs = components[1:] if mode is None else components[1:-1]
     for comp in dirs:
         cdir = os.path.join(cpath, comp)
+        cl = comp.lower()
         try:
-            os.mkdir(cdir, mkdir_mode)
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                if not os.path.exists(cdir):
-                    # Check for exists again, as we could have got a permission
-                    # denied error
-                    raise
-            # This component already exists, ensure the case is correct
-            cl = comp.lower()
-            try:
-                candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
-            except:
-                # No permission to do a listdir, just use the original case
-                pass
-            else:
-                if len(candidates) == 1:
-                    cdir = os.path.join(cpath, candidates[0])
-                # else: We are on a case sensitive file system so cdir must already
-                # be correct
+            candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
+        except:
+            # Dont have permission to do the listdir, assume the case is
+            # correct
+            pass
+        else:
+            if len(candidates) == 1:
+                cdir = os.path.join(cpath, candidates[0])
+            # else: We are on a case sensitive file system so cdir must already
+            # be correct
         cpath = cdir
 
     if mode is None:
