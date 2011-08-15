@@ -166,7 +166,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0777):
             candidates = [c for c in os.listdir(cpath) if c.lower() == cl]
         except:
             # Dont have permission to do the listdir, assume the case is
-            # correct
+            # correct as we have no way to check it.
             pass
         else:
             if len(candidates) == 1:
