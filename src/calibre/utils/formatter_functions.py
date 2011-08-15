@@ -963,7 +963,7 @@ class BuiltinListSort(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, direction, separator):
         res = [l.strip() for l in list1.split(separator) if l.strip()]
-        return ', '.join(sorted(res, key=sort_key, reverse=direction != 0))
+        return ', '.join(sorted(res, key=sort_key, reverse=direction != "0"))
 
 class BuiltinToday(BuiltinFormatterFunction):
     name = 'today'
