@@ -273,10 +273,9 @@ class GetTranslations(Translations):
 class ISO639(Command):
 
     description = 'Compile translations for ISO 639 codes'
-    XML = '/usr/lib/python2.7/site-packages/pycountry/databases/iso639.xml'
 
     def run(self, opts):
-        src = self.XML
+        src = self.j(self.d(self.SRC), 'setup', 'iso639.xml')
         if not os.path.exists(src):
             raise Exception(src + ' does not exist')
         dest = self.j(self.d(self.SRC), 'resources', 'localization',
@@ -290,20 +289,27 @@ class ISO639(Command):
         by_2 = {}
         by_3b = {}
         by_3t = {}
+        m2to3 = {}
+        m3to2 = {}
         codes2, codes3t, codes3b = set([]), set([]), set([])
         for x in root.xpath('//iso_639_entry'):
             name = x.get('name')
             two = x.get('iso_639_1_code', None)
+            threeb = x.get('iso_639_2B_code')
+            threet = x.get('iso_639_2T_code')
             if two is not None:
                 by_2[two] = name
                 codes2.add(two)
-            by_3b[x.get('iso_639_2B_code')] = name
-            by_3t[x.get('iso_639_2T_code')] = name
+                m2to3[two] = threet
+                m3to2[threeb] = m3to2[threet] = two
+            by_3b[threeb] = name
+            by_3t[threet] = name
             codes3b.add(x.get('iso_639_2B_code'))
             codes3t.add(x.get('iso_639_2T_code'))
 
         from cPickle import dump
         x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
-                'codes3b':codes3b, 'codes3t':codes3t}
+                'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
+                '3to2':m3to2}
         dump(x, open(dest, 'wb'), -1)
 

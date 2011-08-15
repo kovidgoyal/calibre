@@ -24,6 +24,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('read_file_metadata', prefs)
         r('swap_author_names', prefs)
         r('add_formats_to_existing', prefs)
+        r('preserve_date_on_ctl', gprefs)
         choices = [
                 (_('Ignore duplicate incoming formats'), 'ignore'),
                 (_('Overwrite existing duplicate formats'), 'overwrite'),

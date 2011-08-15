@@ -8,9 +8,13 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from zipfile import ZipFile
 
-from PyQt4.Qt import QToolButton, QAction, QIcon, QObject, QMenu
+from PyQt4.Qt import (QToolButton, QAction, QIcon, QObject, QMenu,
+        QKeySequence)
 
+from calibre import prints
 from calibre.gui2 import Dispatcher
+from calibre.gui2.keyboard import NameConflict
+
 
 class InterfaceAction(QObject):
 
@@ -108,7 +112,10 @@ class InterfaceAction(QObject):
 
     @property
     def unique_name(self):
-        return u'%s(%s)'%(self.__class__.__name__, self.name)
+        bn = self.__class__.__name__
+        if getattr(self.interface_action_base_plugin, 'name'):
+            bn = self.interface_action_base_plugin.name
+        return u'Interface Action: %s (%s)'%(bn, self.name)
 
     def create_action(self, spec=None, attr='qaction'):
         if spec is None:
@@ -129,7 +136,6 @@ class InterfaceAction(QObject):
             a.setToolTip(text)
             a.setStatusTip(text)
             a.setWhatsThis(text)
-        keys = ()
         shortcut_action = action
         desc = tooltip if tooltip else None
         if attr == 'qaction':
@@ -138,9 +144,22 @@ class InterfaceAction(QObject):
             keys = ((shortcut,) if isinstance(shortcut, basestring) else
                     tuple(shortcut))
 
-        self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
-                unicode(shortcut_action.text()), default_keys=keys,
-                action=shortcut_action, description=desc)
+            if spec[0] and not (attr=='qaction' and self.popup_type ==
+                    QToolButton.InstantPopup):
+                try:
+                    self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
+                        unicode(spec[0]), default_keys=keys,
+                        action=shortcut_action, description=desc,
+                        group=self.action_spec[0])
+                except NameConflict as e:
+                    try:
+                        prints(unicode(e))
+                    except:
+                        pass
+                    shortcut_action.setShortcuts([QKeySequence(key,
+                        QKeySequence.PortableText) for key in keys])
+
+
         if attr is not None:
             setattr(self, attr, action)
         if attr == 'qaction' and self.action_add_menu:
@@ -166,10 +185,11 @@ class InterfaceAction(QObject):
             ac.setToolTip(description)
             ac.setStatusTip(description)
             ac.setWhatsThis(description)
+
         if shortcut is not False:
             self.gui.keyboard.register_shortcut(unique_name,
                 unicode(text), default_keys=keys,
-                action=ac, description=description)
+                action=ac, description=description, group=self.action_spec[0])
         if triggered is not None:
             ac.triggered.connect(triggered)
         return ac

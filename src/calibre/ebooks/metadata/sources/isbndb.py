@@ -35,7 +35,7 @@ class ISBNDB(Source):
 
     options = (
             Option('isbndb_key', 'string', None, _('IsbnDB key:'),
-                _('To use isbndb.com you have to sign up for a free account'
+                _('To use isbndb.com you have to sign up for a free account '
                     'at isbndb.com and get an access key.')),
             )
 
