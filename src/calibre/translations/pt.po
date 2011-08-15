@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-05 17:43+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-14 19:15+0000\n"
+"Last-Translator: razel1982 <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-13 04:43+0000\n"
+"X-Launchpad-Export-Date: 2011-08-15 04:34+0000\n"
 "X-Generator: Launchpad (build 13674)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -222,11 +222,11 @@ msgstr "Leitor de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "Gravador de metadados"
+msgstr "Escritor de Metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "Criador de catálogos"
+msgstr "Gerador de catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
@@ -249,7 +249,7 @@ msgstr "Armazenar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr "Uma loja de ebooks."
+msgstr "Uma loja de livros digitais."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -347,23 +347,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Editar metadados de livros na sua biblioteca do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Ler livros na biblioteca do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Baixar noticias da internet em formato de ebook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Mostrar lista rápida de livros relacionados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Exportar livros da sua biblioteca do calibre para o disco rígido"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Show book details in a separate popup"
@@ -394,7 +394,7 @@ msgstr "Pesquisar no Manual de Utilizador do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 msgid "Customize calibre"
-msgstr ""
+msgstr "Customizar o calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Easily find books similar to the currently selected one"
@@ -407,19 +407,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:823
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Copie livros do dispositivo para a sua biblioteca do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Edite as colecções nas quais livros são colocados no seu dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Copie um livro de uma biblioteca do calibre para outra"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Make small tweaks to epub files in your calibre library"
 msgstr ""
+"Faça pequenas modificações a ficheiros epub na sua biblioteca do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid ""
@@ -429,7 +430,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Escolha um livro aleatório da sua biblioteca do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:856
 msgid "Search for books from different book sellers"
@@ -453,7 +454,8 @@ msgstr "Interface"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Ajuste a aparência e o manuseamento do calibre às suas preferências."
+msgstr ""
+"Ajuste a aparência e o comportamento do calibre às suas preferências."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:903
 msgid "Behavior"
@@ -550,16 +552,17 @@ msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Controle a forma como o Calibre exporta ficheiro da sua base de dados quando "
-"grava para o disco"
+"Controle a forma como o Calibre exporta ficheiros da sua base de dados "
+"quando grava para o disco"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1005
 msgid "Sending books to devices"
-msgstr "Enviar livros para os dispositivos"
+msgstr "A enviar livros para os dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1011
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "Controle a forma como o Calibre transfere livros para o seu e-reader"
+msgstr ""
+"Controle a forma como o Calibre transfere livros para o seu leitor de e-books"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1017
 msgid "Metadata plugboards"
@@ -567,11 +570,11 @@ msgstr "Módulos de extensão de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1023
 msgid "Change metadata fields before saving/sending"
-msgstr "Alterar os metadados antes de gravar/enviar"
+msgstr "Alterar os campos de metadados antes de gravar/enviar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1028
 msgid "Template Functions"
-msgstr "Funções de Template"
+msgstr "Funções de Modelos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1030
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1077
@@ -583,7 +586,7 @@ msgstr "Avançadas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1034
 msgid "Create your own template functions"
-msgstr "Criar as suas próprias funções de template"
+msgstr "Crie as suas próprias funções de modelos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1039
 msgid "Sharing books by email"
@@ -593,7 +596,7 @@ msgstr "Partilhar livros por e-mail"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1053
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1066
 msgid "Sharing"
-msgstr "Partilhar"
+msgstr "Partilha"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1045
 msgid ""

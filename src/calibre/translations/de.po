@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-13 18:34+0000\n"
-"Last-Translator: Manichean <Unknown>\n"
+"PO-Revision-Date: 2011-08-14 10:35+0000\n"
+"Last-Translator: Flavio Waechter <chuehbueb@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-14 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-08-15 04:33+0000\n"
 "X-Generator: Launchpad (build 13674)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -19824,7 +19824,7 @@ msgstr "Öffnen"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "Cancel"
-msgstr "Abrrechen"
+msgstr "Abbrechen"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"

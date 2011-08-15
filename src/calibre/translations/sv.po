@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-11 20:56+0000\n"
+"PO-Revision-Date: 2011-08-14 18:11+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-13 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-08-15 04:35+0000\n"
 "X-Generator: Launchpad (build 13674)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -3477,6 +3477,7 @@ msgstr "Etiketter"
 msgid "Series"
 msgid_plural "Series"
 msgstr[0] "Serier"
+msgstr[1] "Series"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:746
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
@@ -3701,6 +3702,8 @@ msgid ""
 "To use isbndb.com you have to sign up for a free account at isbndb.com and "
 "get an access key."
 msgstr ""
+"För att använda isbndb.com måste du registrera dig för ett gratis konto på "
+"isbndb.com och få en snabbtangent."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -4933,27 +4936,30 @@ msgid ""
 "No existing calibre library was found at %s. If the library was moved, "
 "select its new location below. Otherwise calibre will forget this library."
 msgstr ""
+"Inga befintliga Calibre-biblioteket hittades på %s. Om biblioteket "
+"flyttades, välj den nya platsen nedan. Annars Calibre kommer att glömma "
+"detta bibliotek."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:96
 msgid "New location of this library:"
-msgstr ""
+msgstr "Ny plats för detta bibliotek:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:105
 msgid "Library moved"
-msgstr ""
+msgstr "Bibliotek flyttat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:107
 msgid "Forget library"
-msgstr ""
+msgstr "Glöm biblioteket"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:116
 msgid "New library location"
-msgstr ""
+msgstr "Nya bibliotekets plats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
 #, python-format
 msgid "No existing calibre library found at %s"
-msgstr ""
+msgstr "Inga befintliga Calibre biblioteket finns på %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:139
 msgid "Choose Library"
@@ -11438,6 +11444,15 @@ msgid ""
 "group names for the various metadata entries are documented in "
 "tooltips.</p></div>"
 msgstr ""
+"<div style=\"font-size:10pt;\">\n"
+"<p> Sätt ett mönster med reguljärt uttryck att använda när man försöker "
+"gissa eboks metadata från filnamn </p>\n"
+"<p>En <a href=\"http://manual.calibre-"
+"ebook.com/regexp.html\">handledning</a> om hur man använder reguljära "
+"uttryck finns att tillgå.</p>\n"
+"<p>Använd <b>Test</b> funktionalitet nedan för att testa din vanliga uttryck "
+"på några prov filnamn (kom ihåg att inkludera filtillägget). Gruppen namnen "
+"för de olika metadata poster dokumenteras i verktygstips.</p></div>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:133
 msgid "Regular &expression"
@@ -11678,7 +11693,7 @@ msgstr "Färdig"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:374
 #, python-format
 msgid "Default: %s [Currently not conflicting: %s]"
-msgstr ""
+msgstr "Grundinställning: %s [Just nu inte i konflikt med: %s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:393
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
@@ -11703,10 +11718,11 @@ msgstr "Genvägar"
 msgid ""
 "Double click on any entry to change the keyboard shortcuts associated with it"
 msgstr ""
+"Dubbelklicka på en post för att ändra kortkommandon i samband med det"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:560
 msgid "Search for a shortcut by name"
-msgstr ""
+msgstr "Sök efter en genväg vid namn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:232
@@ -11716,7 +11732,7 @@ msgstr "Inga träffar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:594
 msgid "Could not find any matching shortcuts"
-msgstr ""
+msgstr "Kunde inte hitta några passande genvägar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
@@ -13320,6 +13336,16 @@ msgid ""
 "book&lt;/a&gt;</pre> will generate a link to the book on the Beam ebooks "
 "site."
 msgstr ""
+"Om markerad, kommer den här kolumnen visas som HTML i bokens detaljer och "
+"media servern.  Detta kan användas för att bygga länkar med mallspråket. "
+"Till exempel mallen "
+"<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;{series:| "
+"[|}{series_index:| [|]]}</pre>kommer skapa ett fält som visar titeln i "
+"fetstil stora bokstäver, tillsammans med serien, till exempel "
+"<br>\"<big><b>An Oblique Approach</b></big> [Belisarius [1]]\". Mallen "
+"<pre>&lt;a href=\"http://www.beam-"
+"ebooks.de/ebook/{identifiers:select(beam)}\"&gt;Beams bok&lt;/a&gt;</pre> "
+"kommer att generera en länk till boken på Beams e-bokwebbplats."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:177
 msgid "My Tags"
@@ -13355,6 +13381,10 @@ msgid ""
 "displays the number with 2 digits after the decimal point and thousands "
 "separated by commas."
 msgstr ""
+"Examples: The format <code>{0:.1f}</code> ger ett flyttal med en siffra "
+"efter decimalkommat. Formatet <code>Price:&nbsp;$&nbsp;{0:,.2f}</code> "
+"skriver \"Price&nbsp;$&nbsp;\" visar sedan antal med 2 siffror efter "
+"decimalkommat och tusentals separerade med kommatecken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:221
 msgid "No lookup name was provided"
@@ -14967,7 +14997,7 @@ msgstr "Odefinierad funktion"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:154
 #, python-format
 msgid "Name %s already used"
-msgstr ""
+msgstr "Namnet %s används redan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:158
 msgid ""
@@ -19176,6 +19206,12 @@ msgid ""
 "string1 is longer than max. You can pass as many `prefix, string` pairs as "
 "you wish."
 msgstr ""
+"strcat_max(max, string1, prefix2, string2, ...) -- Returnerar en sträng som "
+"bildas genom att sammanfoga argumenten. Det returnerade värdet initieras "
+"till sträng1. `Prefix, är sträng` par till i slutet av värde så länge den "
+"resulterande strängens längd är mindre än `max`. Sträng1 returneras även om "
+"sträng1 är längre än max. Du kan skicka så många 'prefix, sträng `par som du "
+"vill."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:383
 msgid "strcat_max requires 2 or more arguments"
@@ -19225,6 +19261,13 @@ msgid ""
 "regexp matches the identifier's value. If there is a match, return "
 "found_val, otherwise return not_found_val."
 msgstr ""
+"identifier_in_list(val, id, found_val, not_found_val) -- behandla val som en "
+"lista med identifierare separerade med kommatecken och jämför strängen mot "
+"varje värde i listan. En identifierare har formatet \"ID: värde\". ID-"
+"parametern ska vara antingen \"id\" eller \"id: RegExp\". Det första fallet "
+"ger träff om det finns någon identifierare med detta ID. Det andra fallet "
+"ger träff om regexp matchar identifierare värde. Om det är en träff, "
+"returneras found_val, annars returneras not_found_val."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:472
 msgid ""
@@ -19404,6 +19447,19 @@ msgid ""
 "\"B.C\". Assuming a #genre value of \"A.B.C, D.E.F\", {#genre:subitems(0,1)} "
 "returns \"A, D\". {#genre:subitems(0,2)} returns \"A.B, D.E\""
 msgstr ""
+"subitems(val, start_index, end_index) -- Denna funktion används för att "
+"bryta isär listor över sådant som genrer. Det tolkar värde som en "
+"kommaseparerad lista, där varje objekt är en punktseparerad lista. "
+"Returnerar en ny lista gjort genom att först hitta alla punktavgränsad "
+"poster, så för varje sådan del utvinna start_index `till` end_index "
+"`komponenter, sedan kombinera ihop resultaten.  Den första komponenten i en "
+"punktseparerad lista har ett index på noll. Om ett index är negativt, då det "
+"räknas från slutet av listan. Som ett specialfall, är en end_index noll "
+"antas vara längden på listan. Exempel med grundmalläge och anta ett #genre "
+"värde \"A.B.C\": {#genre:subitems(0,1)} returnerar \"A\". "
+"{#genre:subitems(0,2)} returnerar \"A.B\". {#genre:subitems(1,0)} returnerar "
+"\"B.C\". Antag ett #genre värde \"A.B.C, D.E.F\", {#genre:subitems(0,1)} "
+"returnerar \"A, D\". {#genre:subitems(0,2)} returnerar \"A.B, D.E\""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:730
 msgid ""
@@ -19419,6 +19475,17 @@ msgid ""
 "year as two digit number (00 to 99). yyyy : the year as four digit number. "
 "iso  : the date with time and timezone. Must be the only format present"
 msgstr ""
+"format_date(val, format_string) -- format värdet, vilket måste vara ett "
+"datum med hjälp av format_string, returneras en sträng. Formateringskoder "
+"är: d: dagen som tal utan inledande nolla (1 till 31) DD: dagen som tal med "
+"inledande nolla (01 till 31) ddd: det förkortade lokaliserade dagsnamnet "
+"(t.ex. \"Mon\" till \"Sun \"). dddd: det långa lokaliserade dagsnamnet "
+"(t.ex. \"måndag\" till \"söndag\"). M: månaden som nummer utan inledande "
+"nolla (1 till 12). MM: månaden som tal med inledande nolla (01 till 12) MMM: "
+"det förkortade lokaliserade månadsnamnet (t.ex. \"Jan\" till \"December\"). "
+"MMMM: det långa lokaliserade månadsnamnet (t.ex. \"januari\" till "
+"\"December\"). yy: Året som två siffror (00 till 99). yyyy: året som fyra "
+"siffror. iso: datum med tid och tidszon. Måste vara det enda använda formatet"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:759
 msgid "uppercase(val) -- return value of the field in upper case"
@@ -19613,7 +19680,7 @@ msgstr "Engelska (Australien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Bulgaria)"
-msgstr ""
+msgstr "Engelska (Bulgarien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (New Zealand)"
