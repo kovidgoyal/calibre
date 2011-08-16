@@ -42,49 +42,56 @@ class AmazonUKKindleStore(StorePlugin):
             doc = html.fromstring(f.read())
 
             # Amazon has two results pages.
-            is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')
-            # Horizontal grid of books.
-            if is_shot:
-                data_xpath = '//div[contains(@class, "result")]'
-                cover_xpath = './/div[@class="productTitle"]//img/@src'
-            # Vertical list of books.
-            else:
-                data_xpath = '//div[contains(@class, "product")]'
-                cover_xpath = './div[@class="productImage"]/a/img/@src'
+            # 20110725: seems that is_shot is gone.
+#            is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')
+#            # Horizontal grid of books.
+#            if is_shot:
+#                data_xpath = '//div[contains(@class, "result")]'
+#                format_xpath = './/div[@class="productTitle"]/text()'
+#                cover_xpath = './/div[@class="productTitle"]//img/@src'
+#            # Vertical list of books.
+#            else:
+            data_xpath = '//div[contains(@class, "result") and contains(@class, "product")]'
+            format_xpath = './/span[@class="format"]/text()'
+            cover_xpath = './/img[@class="productImage"]/@src'
+# end is_shot else
 
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
                     break
 
+                # Even though we are searching digital-text only Amazon will still
+                # put in results for non Kindle books (author pages). So we need
+                # to explicitly check if the item is a Kindle book and ignore it
+                # if it isn't.
+                format = ''.join(data.xpath(format_xpath))
+                if 'kindle' not in format.lower():
+                    continue
+
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
-                asin = ''.join(data.xpath('./@name'))
-                if not asin:
-                    continue
+                asin = ''.join(data.xpath("@name"))
+
                 cover_url = ''.join(data.xpath(cover_xpath))
 
-                title = ''.join(data.xpath('.//div[@class="productTitle"]/a/text()'))
+                title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
+
+#                if is_shot:
+#                    author = format.split(' von ')[-1]
+#                else:
+                author = ''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()'))
+                author = author.split('by ')[-1]
 
                 counter -= 1
 
                 s = SearchResult()
                 s.cover_url = cover_url.strip()
                 s.title = title.strip()
+                s.author = author.strip()
                 s.price = price.strip()
                 s.detail_item = asin.strip()
-                s.formats = ''
-
-                if is_shot:
-                    # Amazon UK does not include the author on the grid layout
-                    s.author = ''
-                    self.get_details(s, timeout)
-                    if s.formats != 'Kindle':
-                        continue
-                else:
-                    author = ''.join(data.xpath('.//div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
-                    s.author = author.split(' by ')[-1].strip()
-                    s.formats = 'Kindle'
+                s.formats = 'Kindle'
 
                 yield s
 

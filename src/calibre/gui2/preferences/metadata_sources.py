@@ -262,8 +262,8 @@ class PluginConfig(QWidget): # {{{
 
         self.l = l = QVBoxLayout()
         self.setLayout(l)
-        self.c = c = QLabel(_('<b>Configure %s</b><br>%s') % (plugin.name,
-            plugin.description))
+        self.c = c = QLabel(_('<b>Configure %(name)s</b><br>%(desc)s') % dict(
+            name=plugin.name, desc=plugin.description))
         c.setAlignment(Qt.AlignHCenter)
         l.addWidget(c)
 

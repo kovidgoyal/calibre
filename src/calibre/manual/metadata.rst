@@ -2,14 +2,14 @@
 
 .. _metadata:
 
-Editing E-book Metadata
+Editing Ebook Metadata
 ========================
 
 .. contents:: Contents
   :depth: 2
   :local:
 
-E-books come in all shapes and sizes and more often than not, their metadata (things like title/author/series/publisher) is incomplete or incorrect.
+Ebooks come in all shapes and sizes and more often than not, their metadata (things like title/author/series/publisher) is incomplete or incorrect.
 The simplest way to change metadata in |app| is to simply double click on an entry and type in the correct replacement.
 For more sophisticated, "power editing" use the edit metadata tools discussed below.
 
@@ -72,7 +72,7 @@ Regular expression mode has some differences from character mode, beyond (of cou
 
 The third and most important is that the replace string can make reference to parts of the search string by using backreferences. A backreference is ``\\n`` where n is an integer that refers to the n'th parenthesized group in the search expression. For example, given the same example as above, `a bad cat`, a search expression `a (...) (...)`, and a replace expression `a \\2 \\1`, the result will be `a cat bad`. Please see the :ref:`regexptutorial` for more information on backreferences.
 
-One useful pattern: assume you want to change the case of an entire field. The easiest way to do this is to use character mode, but lets further assume you want to use regular expression mode. The search expression should be `(.*)` the replace expression should be `\1`, and the desired case change function should be selected.
+One useful pattern: assume you want to change the case of an entire field. The easiest way to do this is to use character mode, but lets further assume you want to use regular expression mode. The search expression should be `(.*)` the replace expression should be `\\1`, and the desired case change function should be selected.
 
 Finally, in regular expression mode you can copy values from one field to another. Simply make the source and destination field different. The copy can replace the destination field, prepend to the field (add to the front), or append to the field (add at the end). The 'use comma' checkbox tells |app| to (or not to) add a comma between the text and the destination field in prepend and append modes. If the destination is multiple (e.g., tags), then you cannot uncheck this box.
 

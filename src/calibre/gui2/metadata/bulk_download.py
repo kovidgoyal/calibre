@@ -196,7 +196,7 @@ def download(ids, db, do_identify, covers,
         ans[i] = mi
         count += 1
         notifications.put((count/len(ids),
-            _('Downloaded %d of %d')%(count, len(ids))))
+            _('Downloaded %(num)d of %(tot)d')%dict(num=count, tot=len(ids))))
     log('Download complete, with %d failures'%len(failed_ids))
     return (ans, failed_ids, failed_covers, title_map, all_failed)
 

@@ -57,7 +57,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                            lambda: [n for (id, n) in self.db.all_publishers()],
                            lambda: self.db.all_tags()
                           ]
-        category_names  = ['', _('Authors'), _('Series'), _('Publishers'), _('Tags')]
+        category_names  = ['', _('Authors'), ngettext('Series', 'Series', 2), _('Publishers'), _('Tags')]
 
         cvals = {}
         for key,cc in self.db.custom_field_metadata().iteritems():
@@ -260,6 +260,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.applied_items = [cat[2] for cat in self.categories.get(self.current_cat_name, [])]
         else:
             self.applied_items = []
+        self.applied_items.sort(key=lambda x:sort_key(self.all_items[x].name))
         self.display_filtered_categories(None)
 
     def accept(self):

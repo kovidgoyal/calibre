@@ -341,7 +341,7 @@ def random_user_agent():
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     '''
     Create a mechanize browser for web scraping. The browser handles cookies,
-    refresh requests and ignores robots.txt. Also uses proxy if avaialable.
+    refresh requests and ignores robots.txt. Also uses proxy if available.
 
     :param honor_time: If True honors pause time in refresh requests
     :param max_time: Maximum time in seconds to wait during a refresh request
@@ -353,9 +353,14 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     if user_agent is None:
         user_agent = USER_AGENT_MOBILE if mobile_browser else USER_AGENT
     opener.addheaders = [('User-agent', user_agent)]
-    http_proxy = get_proxies().get('http', None)
+    proxies = get_proxies()
+    http_proxy = proxies.get('http', None)
     if http_proxy:
         opener.set_proxies({'http':http_proxy})
+    https_proxy = proxies.get('https', None)
+    if https_proxy:
+        opener.set_proxies({'https':https_proxy})
+
     return opener
 
 def fit_image(width, height, pwidth, pheight):
@@ -474,7 +479,7 @@ def strftime(fmt, t=None):
 def my_unichr(num):
     try:
         return unichr(num)
-    except ValueError:
+    except (ValueError, OverflowError):
         return u'?'
 
 def entity_to_unicode(match, exceptions=[], encoding='cp1252',

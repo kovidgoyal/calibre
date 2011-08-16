@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, locale, re, cStringIO, cPickle
-from gettext import GNUTranslations
+from gettext import GNUTranslations, NullTranslations
 from zipfile import ZipFile
 
 _available_translations = None
@@ -71,13 +71,13 @@ def set_translators():
     lang = get_lang()
     if lang:
         buf = iso639 = None
-        if os.access(lang+'.po', os.R_OK):
+        mpath = get_lc_messages_path(lang)
+        if mpath and os.access(mpath+'.po', os.R_OK):
             from calibre.translations.msgfmt import make
             buf = cStringIO.StringIO()
-            make(lang+'.po', buf)
+            make(mpath+'.po', buf)
             buf = cStringIO.StringIO(buf.getvalue())
 
-        mpath = get_lc_messages_path(lang)
         if mpath is not None:
             with ZipFile(P('localization/locales.zip',
                 allow_user_override=False), 'r') as zf:
@@ -91,12 +91,17 @@ def set_translators():
                 except:
                     pass # No iso639 translations for this lang
 
+        t = None
         if buf is not None:
             t = GNUTranslations(buf)
             if iso639 is not None:
                 iso639 = GNUTranslations(iso639)
                 t.add_fallback(iso639)
-            t.install(unicode=True)
+
+        if t is None:
+            t = NullTranslations()
+
+        t.install(unicode=True, names=('ngettext',))
 
 _iso639 = None
 _extra_lang_codes = {
@@ -107,6 +112,7 @@ _extra_lang_codes = {
         'zh_TW' : _('Traditional Chinese'),
         'en'    : _('English'),
         'en_AU' : _('English (Australia)'),
+        'en_BG' : _('English (Bulgaria)'),
         'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
         'en_GR' : _('English (Greece)'),
@@ -135,6 +141,7 @@ _extra_lang_codes = {
         'es_VE' : _('Spanish (Venezuela)'),
         'es_BO' : _('Spanish (Bolivia)'),
         'es_NI' : _('Spanish (Nicaragua)'),
+        'es_CO' : _('Spanish (Colombia)'),
         'de_AT' : _('German (AT)'),
         'fr_BE' : _('French (BE)'),
         'nl'    : _('Dutch (NL)'),
@@ -142,45 +149,48 @@ _extra_lang_codes = {
         'und'   : _('Unknown')
         }
 
+if False:
+    # Extra strings needed for Qt
+
+    # NOTE: Ante Meridian (i.e. like 10:00 AM)
+    _('AM')
+    # NOTE: Post Meridian (i.e. like 10:00 PM)
+    _('PM')
+    # NOTE: Ante Meridian (i.e. like 10:00 am)
+    _('am')
+    # NOTE: Post Meridian (i.e. like 10:00 pm)
+    _('pm')
+
 _lcase_map = {}
 for k in _extra_lang_codes:
     _lcase_map[k.lower()] = k
 
-def get_language(lang):
+def _load_iso639():
     global _iso639
+    if _iso639 is None:
+        ip = P('localization/iso639.pickle', allow_user_override=False)
+        with open(ip, 'rb') as f:
+            _iso639 = cPickle.load(f)
+    return _iso639
+
+def get_language(lang):
+    translate = _
     lang = _lcase_map.get(lang, lang)
     if lang in _extra_lang_codes:
         # The translator was not active when _extra_lang_codes was defined, so
         # re-translate
-        return _(_extra_lang_codes[lang])
-    ip = P('localization/iso639.pickle')
-    if not os.path.exists(ip):
-        return lang
-    if _iso639 is None:
-        _iso639 = cPickle.load(open(ip, 'rb'))
+        return translate(_extra_lang_codes[lang])
+    iso639 = _load_iso639()
     ans = lang
     lang = lang.split('_')[0].lower()
     if len(lang) == 2:
-        ans = _iso639['by_2'].get(lang, ans)
+        ans = iso639['by_2'].get(lang, ans)
     elif len(lang) == 3:
-        if lang in _iso639['by_3b']:
-            ans = _iso639['by_3b'][lang]
+        if lang in iso639['by_3b']:
+            ans = iso639['by_3b'][lang]
         else:
-            ans = _iso639['by_3t'].get(lang, ans)
-    return _(ans)
-
-
-def set_qt_translator(translator):
-    lang = get_lang()
-    if lang is not None:
-        if lang == 'nds':
-            lang = 'de'
-        mpath = get_lc_messages_path(lang)
-        if mpath is not None:
-            p = os.path.join(mpath, 'qt.qm')
-            if os.path.exists(p):
-                return translator.load(p)
-    return False
+            ans = iso639['by_3t'].get(lang, ans)
+    return translate(ans)
 
 _udc = None
 

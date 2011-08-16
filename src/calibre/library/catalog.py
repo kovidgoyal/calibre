@@ -10,7 +10,7 @@ from xml.sax.saxutils import escape
 from lxml import etree
 from types import StringType, UnicodeType
 
-from calibre import prints, prepare_string_for_xml, strftime
+from calibre import (prints, prepare_string_for_xml, strftime, force_unicode)
 from calibre.constants import preferred_encoding, DEBUG
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
@@ -54,12 +54,12 @@ class CSV_XML(CatalogPlugin): # {{{
                 action = None,
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: %s,\n'
+                    'Available fields: %(fields)s,\n'
                     'plus user-created custom fields.\n'
-                    'Example: %s=title,authors,tags\n'
+                    'Example: %(opt)s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: CSV, XML output formats")%(', '.join(FIELDS),
-                        '--fields')),
+                    "Applies to: CSV, XML output formats")%dict(
+                        fields=', '.join(FIELDS), opt='--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -250,12 +250,12 @@ class BIBTEX(CatalogPlugin): # {{{
                 action = None,
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: %s.\n'
+                    'Available fields: %(fields)s.\n'
                     'plus user-created custom fields.\n'
-                    'Example: %s=title,authors,tags\n'
+                    'Example: %(opt)s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: BIBTEX output format")%(', '.join(FIELDS),
-                        '--fields')),
+                    "Applies to: BIBTEX output format")%dict(
+                        fields=', '.join(FIELDS), opt='--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -1083,15 +1083,11 @@ class EPUB_MOBI(CatalogPlugin):
             self.__totalSteps += incremental_jobs
 
             # Load section list templates
-            templates = []
-            with open(P('catalog/section_list_templates.py'), 'r') as f:
-                for line in f:
-                    t = re.match("(by_.+_template)",line)
-                    if t:
-                        templates.append(t.group(1))
-            execfile(P('catalog/section_list_templates.py'), locals())
-            for t in templates:
-                setattr(self,t,eval(t))
+            templates = {}
+            execfile(P('catalog/section_list_templates.py'), templates)
+            for name, template in templates.iteritems():
+                if name.startswith('by_') and name.endswith('_template'):
+                    setattr(self, name, force_unicode(template, 'utf-8'))
 
         # Accessors
         if True:

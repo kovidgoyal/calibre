@@ -45,7 +45,7 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//ol[@class="results"]//li[contains(@class, "icon_title")]'):
+            for data in doc.xpath('//ol[@class="results"]//li[contains(@class, "icon_title") and not(contains(@class, "toplink"))]'):
                 if counter <= 0:
                     break
 
@@ -69,7 +69,7 @@ class GutenbergStore(BasicStoreConfig, StorePlugin):
                 yield s
 
     def get_details(self, search_result, timeout):
-        url = url_slash_cleaner('http://m.gutenberg.org/' + search_result.detail_item + '.mobile')
+        url = url_slash_cleaner('http://m.gutenberg.org/' + search_result.detail_item)
         
         br = browser()
         with closing(br.open(url, timeout=timeout)) as nf:

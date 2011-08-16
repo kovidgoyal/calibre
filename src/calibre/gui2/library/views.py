@@ -477,6 +477,8 @@ class BooksView(QTableView): # {{{
         # arbitrary: scroll bar + header + some
         max_width = self.width() - (self.verticalScrollBar().width() +
                                     self.verticalHeader().width() + 10)
+        if max_width < 200:
+            max_width = 200
         if new_size > max_width:
             self.column_header.blockSignals(True)
             self.setColumnWidth(col, max_width)
@@ -567,7 +569,8 @@ class BooksView(QTableView): # {{{
         if md.hasFormat('text/uri-list') and not \
                 md.hasFormat('application/calibre+from_library'):
             urls = [unicode(u.toLocalFile()) for u in md.urls()]
-            return [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
+            return [u for u in urls if os.path.splitext(u)[1] and
+                    os.path.exists(u)]
 
     def drag_icon(self, cover, multiple):
         cover = cover.scaledToHeight(120, Qt.SmoothTransformation)
@@ -716,7 +719,7 @@ class BooksView(QTableView): # {{{
                     break
 
     def set_current_row(self, row, select=True):
-        if row > -1:
+        if row > -1 and row < self.model().rowCount(QModelIndex()):
             h = self.horizontalHeader()
             logical_indices = list(range(h.count()))
             logical_indices = [x for x in logical_indices if not

@@ -240,7 +240,7 @@
           <string>Book </string>
          </property>
          <property name="maximum">
-          <double>9999.989999999999782</double>
+          <double>9999999999.99</double>
          </property>
          <property name="value">
           <double>1.000000000000000</double>

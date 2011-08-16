@@ -726,8 +726,8 @@ class CoversWidget(QWidget): # {{{
         if num < 2:
             txt = _('Could not find any covers for <b>%s</b>')%self.book.title
         else:
-            txt = _('Found <b>%d</b> covers of %s. Pick the one you like'
-                    ' best.')%(num-1, self.title)
+            txt = _('Found <b>%(num)d</b> covers of %(title)s. Pick the one you like'
+                    ' best.')%dict(num=num-1, title=self.title)
         self.msg.setText(txt)
 
         self.finished.emit()

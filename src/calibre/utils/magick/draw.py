@@ -107,7 +107,7 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     return ret
 
 def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg',
-              preserve_aspect_ratio=True):
+              preserve_aspect_ratio=True, compression_quality=70):
     img = Image()
     img.load(data)
     owidth, oheight = img.size
@@ -122,7 +122,7 @@ def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg',
     canvas = create_canvas(img.size[0], img.size[1], bgcolor)
     canvas.compose(img)
     if fmt == 'jpg':
-        canvas.set_compression_quality(70)
+        canvas.set_compression_quality(compression_quality)
     return (canvas.size[0], canvas.size[1], canvas.export(fmt))
 
 def identify_data(data):

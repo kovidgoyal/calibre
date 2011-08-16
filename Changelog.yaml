@@ -19,6 +19,291 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.14
+  date: 2011-08-12
+
+  new features:
+    - title: "Make the keyboard shortcuts used by the main calibre interface user customizable, via Preferences->Advanced->Keyboard"
+      type: major
+
+    - title: "When switching libraries, if the library no longer exists, give the user a chance to specify a new location for the library, in case it was moved, before forgetting it."
+      tickets: [822018]
+
+    - title: "Template language: Add strcat and strlen builtin functions."
+      tickets: [821935]
+  
+  bug fixes:
+    - title: "The various options to control how automerging works when adding books now also apply when copying a book from one library to another."
+      tickets: [822033]
+
+    - title: "Ebook viewer: Respond to key presses even when the book display area does not have keyboard focus"
+
+    - title: "Allow integer and float column values to go to -999999. -1000000 is the value of 'undefined'."
+      tickets: [821941]
+
+    - title: "Fix in calibre browser not working for the Open books store in Get Books."
+      tickets: [822359]
+
+    - title: "Fix regression in 0.8.13 that caused incorrect title/author for downloaded news if you turned off reading metadata from file contents in Preferences->Adding books"
+
+    - title: "Save to disk: When saving to a single directory, handle the case of the save to disk template containing path separators inside template expression correctly."
+      tickets: [821912]
+
+    - title: "Get Books: Always read metadata from the file contents, ignoring the setting in Preferences->Adding books"
+
+    - title: "Fix merge_metadata to not overwrite non-text fields ('bool', 'int', 'float', 'rating', 'datetime') that have a value of zero/false instead of None."
+      tickets: [821665]
+
+  improved recipes:
+    - The Independent
+
+  new recipes:
+    - title: "Novinite"
+      author: Martin Tsanchev
+
+    - title: "Blog Escrevinhador"
+      author: Diniz Bortolotto
+
+
+
+- version: 0.8.13
+  date: 2011-08-05
+
+  new features:
+    - title: "Add a new action 'Pick Random Book' that can be added to the toolbar via Preferences->Toolbars."
+      tickets: [818315]
+
+    - title: "Driver for Droid X2"
+      tickets: [821053]
+
+    - title: "PDF metadata: Support reading/writing of tags from the Keywords field in PDF files."
+
+    - title: "MOBI Input: Speedup reading of HUFF/CDIC compressed files"
+
+    - title: "MOBI Output: Add a command line option --extract-to that uses the inspect MOBI tool to extract the created MOBI file to the specified directory"
+
+    - title: "Template language: Add a few new functions to manipulate lists (list_difference, list_intersection, list_sort)"
+
+    - title: "Make the Manage Tags/Publishers/etc. dialog show a column with counts for each item, to easily sort by number of items"
+
+    - title: "MOBI Output: Generate navpoints for items at every level in the TOC, not just the deepest level"
+  
+  bug fixes:
+    - title: "MOBI Output: Remove option to choose masthead font as the font selection control causes crashes on some windows systems"
+
+    - title: "MOBI Output: Fix bug that caused paragraphs that had only a non breaking space as text before the first child element to be removed."
+      tickets: [819058]
+
+    - title: "Display undefined dates properly in the Book details panel."
+      tickets: [819222]
+
+    - title: "Fix regression that broke deleting of books from first generation Kobos with un-upgraded firmware"
+      tickets: [818704] 
+
+    - title: "Get books: Fix Gutenberg store and improvements to chitanka.info and e-knigni.net"
+
+    - title: "News download: Support https proxies"
+
+    - title: "Check library did not know about original_* files"
+
+    - title: "Fix crash caused by having very large numbers of authors > 100 for a book"
+
+  improved recipes:
+    - Nikkei News
+
+  new recipes:
+    - title: Carta Capital
+      author: Pablo Aldama
+
+    - title: El Tiempo, El Colombiano and Portafolio Colombia
+      author: Cavalencia
+
+
+- version: 0.8.12
+  date: 2011-07-29
+
+  new features:
+    - title: "Content server: Return the correct last modified date when serving ebook files. Also allow getting of book metadata as /get/opf/<book_id>"
+
+    - title: "Driver for the COBY MP977"
+
+    - title: "Get Books: Remove epub bud store. Add Ozon.ru and e-knigni.net stores. Fix broken amazon UK and DE stores."
+      tickets: [816091]
+
+    - title: "Add a new tweak to Preferences->Tweaks that allows auto generation of series numbers when importing books with a series name, but no number"
+      tickets: [815573]
+  
+  bug fixes:
+    - title: "Fix a regression in 0.8.11 that broke calibre on linux systems that use a file system encoding that cannot support cyrillic characters"
+      tickets: [815224]
+
+    - title: "Fix long titles not wrapping in cover browser"
+      tickets: [816595]
+
+    - title: "When adding books, handle the case of files without read permission more gracefully."
+      tickets: [814771]
+
+    - title: "When changing metadata in EPUB files do not use the opf: namespace prefix on newly created elements. Apparently, FBReaderJ doesn't understand XML namespaces."
+      tickets: [814722]
+
+    - title: "Prevent metadata download from returning published dates earlier than 101 A.D."
+
+    - title: "Fix a bug where dates before 101AD in the database could cause errors"
+      tickets: [814964]
+
+    - title: "Fix an error in the book details panel if the user sets the default author link to blank"
+
+  improved recipes:
+    - The Economist
+    - Instapaper
+    - Corren
+
+  new recipes:
+    - title: Counterpunch
+      author: O. Emmerson
+
+    - title: National Geographic (PL)
+      author: Marcin Urban
+      
+    - title: Caros Amigos
+      author: Pablo Aldama
+      
+    - title: Aksiyon Dergisi
+      author: thomass
+
+    - title: Dnevnik (MK) and +Info
+      author: Darko Spasovski
+
+    - title: Dagens Industri
+      author: Jonas Svensson
+
+
+- version: 0.8.11
+  date: 2011-07-22
+
+  new features:
+    - title: "When doing a conversion from some format to the same format, save the original file"
+      description: "When calibre does a conversion from the same format to the same format, for
+        example, from EPUB to EPUB, the original file is saved as original_epub, so that in case the
+        conversion is poor, you can change the settings and run it again. The original is automatically used
+        every time you run a conversion with that format as input. If you want to disable this,
+        there is a tweak that prevents calibre from saving the originals in Preferences->Tweaks. You can
+        easily replace the converted version with the original in the Edit metadata dialog by right 
+        clicking on the list of formats in the top right corner."
+      type: major
+
+    - title: "Conversion pipeline: Add an option to control the height of the blank lines inserted by calibre"
+
+    - title: "Drivers for bq DaVinci, Samsung Galaxy ACE GT-S5830 and Medion e-reader"
+
+    - title: "Get Books: Add stores Chitanka and Bookoteka. Remove epubbuy.de at store's request"
+
+    - title: "Content server: Add a link at the bottom of the mobile interface to switch to the full interface."
+      tickets: [812525]
+
+    - title: "Update the kindle icon shown when a Kindle is connected to use a picture of the Kindle 3"
+      tickets: [810852]
+
+    - title: "MOBI Output: When converting epub documents that have a start element in their guide, use it to mark the starting position at which the MOBI file will be opened."
+      tickets: [804755]
+
+    - title: "News download: Add a default Accept header to all requests"
+  
+  bug fixes:
+    - title: "Fix regression that broke loading translations from .po files in the working directory"
+
+    - title: "Fix conversion dialog not allowing series numbers larger than 9999"
+      tickets: [813281]
+
+    - title: "Conversion pipeline: When adding/removing entries to the manifest, ignore unparseable URLs instead of erroring out on them"
+
+    - title: "SD Card in Azbooka not being detected"
+      tickets: [812750]
+
+    - title: "Conversion pipeline: Strip out large blocks of contiguous space (more than 10000 contiguous blanks) as these slow down the conversion process and are almost always indicative of an error in the input document."
+
+    - title: "ebook-convert: Abort if a keyboard interrupt is raised during parsing"
+
+    - title: "Regex builder: Show a nicer error message when the user has the file open in another program on windows."
+      tickets: [811641]
+
+    - title: "When converting in the GUI, set all identifiers present in the book's metadata in the output file, if the output format supports them."
+
+  improved recipes:
+    - NBObline
+    - JBPress
+    - Instapaper
+    - Die Zeit
+    - Wired (UK)
+
+  new recipes:
+    - title: Utrinski Vesnik
+      author: Darko Spasovski
+
+    - title: IDG.se
+      author: zapt0
+
+    - title: Los Andes
+      author: Darko Miletic
+
+    - title: De Luns a Venres
+      author: Susana Sotelo Docío
+
+    - title: "Nikkei News subscription version"
+      author: Ado Nishimura
+
+- version: 0.8.10
+  date: 2011-07-15
+
+  new features:
+    - title: "Add a right click menu to the cover browser. It allows you to view a book, edit metadata etc. from within the cover browser. The menu can be customized in Preferences->Toolbars"
+
+    - title: "Allow selecting and stopping multiple jobs at once in the jobs window"
+      tickets: [810349]
+
+    - title: "When editing metadata directly in the book list, have a little pop up menu so that all existing values can be accessed by mouse only. For example, when you edit authors, you can use the mouse to select an existing author."
+
+    - title: "Get Books: Add ebook.nl and fix price parsing for the legimi store"
+
+    - title: "Drivers for Samsung Infuse and Motorola XPERT"
+
+    - title: "Tag Browser: Make hierarchical items work in group searched terms."
+
+  bug fixes:
+    - title: "Allow setting numbers larger than 99 in custom series columns"
+
+    - title: "Fix a bug that caused the same news download sent via a USB connection to the device on two different days resulting in a duplicate on the device"
+
+    - title: "Ensure English in the list of interface languages in Preferences is always listed in English, so that it does not become hard to find"
+
+    - title: "SNB Output: Fix bug in handling unicode file names"
+
+    - title: "Fix sorting problem in manage categories. Fix poor performance problem when dropping multiple books onto a user category."
+
+    - title: "Remove 'empty field' error dialogs in bulk search/replace, instead setting the fields to their default value."
+
+    - title: "Fix regression that broke communicating with Kobo devices using outdated firmware"
+      tickets: [807832]
+
+    - title: "LRF Input: Fix conversion of LRF files with non ascii titles on some windows systems"
+      tickets: [807641]
+
+  improved recipes:
+    - Time
+    - Freakonomics Blog
+    - io9
+    - "Computer Act!ve"
+
+  new recipes:
+    - title: Techcrunch and Pecat
+      author: Darko Miletic
+
+    - title: "Vio Mundo, IDG Now! and Tojolaco"
+      author: Diniz Bortolotto
+
+    - title: Geek and Poke, Automatiseringgids IT 
+      author: DrMerry
+
 - version: 0.8.9
   date: 2011-07-08
 
@@ -32,7 +317,7 @@
     - title: "Conversion pipeline: Add option to control if duplicate entries are allowed when generating the Table of Contents from links."
       tickets: [806095]
 
-    - title: "Metadata download: When merging results, if the query to the xisbn service hangs, wait no more than 10 seconds. Also try harder to preserve the month when downlaoding published date. Do not throw away isbnless results if there are some sources that return isbns and some that do not."
+    - title: "Metadata download: When merging results, if the query to the xisbn service hangs, wait no more than 10 seconds. Also try harder to preserve the month when downloading published date. Do not throw away isbnless results if there are some sources that return isbns and some that do not."
       tickets: [798309]
 
     - title: "Get Books: Remove OpenLibrary since it has the same files as archive.org. Allow direct downloading from Project Gutenberg."
@@ -617,7 +902,7 @@
 
 
 - version: 0.8.0
-  date: 2010-05-06
+  date: 2011-05-06
 
   new features:
     - title: "Go to http://calibre-ebook.com/new-in/eight to see what's new in 0.8.0"

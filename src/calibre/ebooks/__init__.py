@@ -8,6 +8,7 @@ from various formats.
 '''
 
 import traceback, os, re
+from cStringIO import StringIO
 from calibre import CurrentDir
 
 class ConversionError(Exception):
@@ -27,8 +28,9 @@ class ParserError(ValueError):
 
 BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'text', 'htm', 'xhtm',
                    'html', 'htmlz', 'xhtml', 'pdf', 'pdb', 'pdr', 'prc', 'mobi', 'azw', 'doc',
-                   'epub', 'fb2', 'djvu', 'lrx', 'cbr', 'cbz', 'cbc', 'oebzip',
-                   'rb', 'imp', 'odt', 'chm', 'tpz', 'azw1', 'pml', 'pmlz', 'mbp', 'tan', 'snb']
+                   'epub', 'fb2', 'djv', 'djvu', 'lrx', 'cbr', 'cbz', 'cbc', 'oebzip',
+                   'rb', 'imp', 'odt', 'chm', 'tpz', 'azw1', 'pml', 'pmlz', 'mbp', 'tan', 'snb',
+                   'xps', 'oxps']
 
 class HTMLRenderer(object):
 
@@ -159,7 +161,7 @@ def normalize(x):
     return x
 
 def calibre_cover(title, author_string, series_string=None,
-        output_format='jpg', title_size=46, author_size=36):
+        output_format='jpg', title_size=46, author_size=36, logo_path=None):
     title = normalize(title)
     author_string = normalize(author_string)
     series_string = normalize(series_string)
@@ -167,7 +169,9 @@ def calibre_cover(title, author_string, series_string=None,
     lines = [TextLine(title, title_size), TextLine(author_string, author_size)]
     if series_string:
         lines.append(TextLine(series_string, author_size))
-    return create_cover_page(lines, I('library.png'), output_format='jpg')
+    if logo_path is None:
+        logo_path = I('library.png')
+    return create_cover_page(lines, logo_path, output_format='jpg')
 
 UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc)$')
 
@@ -207,4 +211,45 @@ def unit_convert(value, base, font, dpi):
             result = value * 0.40
     return result
 
+def generate_masthead(title, output_path=None, width=600, height=60):
+    from calibre.ebooks.conversion.config import load_defaults
+    from calibre.utils.fonts import fontconfig
+    font_path = default_font = P('fonts/liberation/LiberationSerif-Bold.ttf')
+    recs = load_defaults('mobi_output')
+    masthead_font_family = recs.get('masthead_font', 'Default')
+
+    if masthead_font_family != 'Default':
+        masthead_font = fontconfig.files_for_family(masthead_font_family)
+        # Assume 'normal' always in dict, else use default
+        # {'normal': (path_to_font, friendly name)}
+        if 'normal' in masthead_font:
+            font_path = masthead_font['normal'][0]
+
+    if not font_path or not os.access(font_path, os.R_OK):
+        font_path = default_font
+
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        Image, ImageDraw, ImageFont
+    except ImportError:
+        import Image, ImageDraw, ImageFont
+
+    img = Image.new('RGB', (width, height), 'white')
+    draw = ImageDraw.Draw(img)
+    try:
+        font = ImageFont.truetype(font_path, 48)
+    except:
+        font = ImageFont.truetype(default_font, 48)
+    text = title.encode('utf-8')
+    width, height = draw.textsize(text, font=font)
+    left = max(int((width - width)/2.), 0)
+    top = max(int((height - height)/2.), 0)
+    draw.text((left, top), text, fill=(0,0,0), font=font)
+    if output_path is None:
+        f = StringIO()
+        img.save(f, 'JPEG')
+        return f.getvalue()
+    else:
+        with open(output_path, 'wb') as f:
+            img.save(f, 'JPEG')
 

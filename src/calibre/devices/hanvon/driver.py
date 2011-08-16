@@ -131,7 +131,7 @@ class AZBOOKA(ALEX):
     description = _('Communicate with the Azbooka')
 
     VENDOR_NAME      = 'LINUX'
-    WINDOWS_MAIN_MEM = 'FILE-STOR_GADGET'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Azbooka Internal Memory'
 

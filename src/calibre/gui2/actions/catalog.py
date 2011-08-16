@@ -82,7 +82,8 @@ class GenerateCatalogAction(InterfaceAction):
         self.gui.sync_catalogs()
         if job.fmt not in ['EPUB','MOBI']:
             export_dir = choose_dir(self.gui, _('Export Catalog Directory'),
-                    _('Select destination for %s.%s') % (job.catalog_title, job.fmt.lower()))
+                    _('Select destination for %(title)s.%(fmt)s') % dict(
+                        title=job.catalog_title, fmt=job.fmt.lower()))
             if export_dir:
                 destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
                 shutil.copyfile(job.catalog_file_path, destination)

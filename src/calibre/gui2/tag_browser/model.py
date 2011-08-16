@@ -394,7 +394,7 @@ class TagsModel(QAbstractItemModel): # {{{
                                 not fm['is_custom'] and \
                                 not fm['kind'] == 'user' \
                             else False
-            in_uc = fm['kind'] == 'user'
+            in_uc = fm['kind'] == 'user' and not is_gst
             tt = key if in_uc else None
 
             if collapse_model == 'first letter':
@@ -500,6 +500,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             if i < len(components)-1:
                                 t = copy.copy(tag)
                                 t.original_name = '.'.join(components[:i+1])
+                                t.count = 0
                                 if key != 'search':
                                     # This 'manufactured' intermediate node can
                                     # be searched, but cannot be edited.
@@ -523,6 +524,12 @@ class TagsModel(QAbstractItemModel): # {{{
 
         for category in self.category_nodes:
             process_one_node(category, state_map.get(category.category_key, {}))
+
+    def get_category_editor_data(self, category):
+        for cat in self.root_item.children:
+            if cat.category_key == category:
+                return [(t.tag.id, t.tag.original_name, t.tag.count)
+                        for t in cat.child_tags() if t.tag.count > 0]
 
     # Drag'n Drop {{{
     def mimeTypes(self):
@@ -685,44 +692,37 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def handle_user_category_drop(self, on_node, ids, column):
         categories = self.db.prefs.get('user_categories', {})
-        category = categories.get(on_node.category_key[1:], None)
-        if category is None:
+        cat_contents = categories.get(on_node.category_key[1:], None)
+        if cat_contents is None:
             return
+        cat_contents = set([(v, c) for v,c,ign in cat_contents])
+
         fm_src = self.db.metadata_for_field(column)
+        label = fm_src['label']
+
         for id in ids:
-            label = fm_src['label']
             if not fm_src['is_custom']:
                 if label == 'authors':
-                    items = self.db.get_authors_with_ids()
-                    items = [(i[0], i[1].replace('|', ',')) for i in items]
                     value = self.db.authors(id, index_is_id=True)
                     value = [v.replace('|', ',') for v in value.split(',')]
                 elif label == 'publisher':
-                    items = self.db.get_publishers_with_ids()
                     value = self.db.publisher(id, index_is_id=True)
                 elif label == 'series':
-                    items = self.db.get_series_with_ids()
                     value = self.db.series(id, index_is_id=True)
             else:
-                items = self.db.get_custom_items_with_ids(label=label)
                 if fm_src['datatype'] != 'composite':
                     value = self.db.get_custom(id, label=label, index_is_id=True)
                 else:
                     value = self.db.get_property(id, loc=fm_src['rec_index'],
                                                  index_is_id=True)
-            if value is None:
-                return
-            if not isinstance(value, list):
-                value = [value]
-            for val in value:
-                for (v, c, id) in category:
-                    if v == val and c == column:
-                        break
-                else:
-                    category.append([val, column, 0])
-            categories[on_node.category_key[1:]] = category
-            self.db.prefs.set('user_categories', categories)
-            self.refresh_required.emit()
+            if value:
+                if not isinstance(value, list):
+                    value = [value]
+                cat_contents |= set([(v, column) for v in value])
+
+        categories[on_node.category_key[1:]] = [[v, c, 0] for v,c in cat_contents]
+        self.db.prefs.set('user_categories', categories)
+        self.refresh_required.emit()
 
     def handle_drop(self, on_node, ids):
         #print 'Dropped ids:', ids, on_node.tag

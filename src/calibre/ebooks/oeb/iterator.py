@@ -92,7 +92,7 @@ class EbookIterator(object):
         self.config = DynamicConfig(name='iterator')
         ext = os.path.splitext(pathtoebook)[1].replace('.', '').lower()
         ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
-        self.ebook_ext = ext
+        self.ebook_ext = ext.replace('original_', '')
 
     def search(self, text, index, backwards=False):
         text = text.lower()

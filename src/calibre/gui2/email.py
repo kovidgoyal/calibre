@@ -120,7 +120,7 @@ def send_mails(jobnames, callback, attachments, to_s, subjects,
                 texts, attachment_names, job_manager):
     for name, attachment, to, subject, text, aname in zip(jobnames,
             attachments, to_s, subjects, texts, attachment_names):
-        description = _('Email %s to %s') % (name, to)
+        description = _('Email %(name)s to %(to)s') % dict(name=name, to=to)
         job = ThreadedJob('email', description, gui_sendmail, (attachment, aname, to,
                 subject, text), {}, callback)
         job_manager.run_threaded_job(job)

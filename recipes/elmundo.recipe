@@ -18,7 +18,7 @@ class ElMundo(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'iso8859_15'
-    language              = 'es_ES'
+    language              = 'es'
     masthead_url          = 'http://estaticos03.elmundo.es/elmundo/iconos/v4.x/v4.01/bg_h1.png'
     publication_type      = 'newspaper'
     extra_css             = """

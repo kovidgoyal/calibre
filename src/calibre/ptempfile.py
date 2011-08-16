@@ -27,6 +27,9 @@ def remove_dir(x):
     except:
         pass
 
+def app_prefix(prefix):
+    return '%s_%s_%s'%(__appname__, __version__, prefix)
+
 def base_dir():
     global _base_dir
     if _base_dir is not None and not os.path.exists(_base_dir):
@@ -44,7 +47,7 @@ def base_dir():
             _base_dir = td
         else:
             base = os.environ.get('CALIBRE_TEMP_DIR', None)
-            prefix = u'%s_%s_tmp_'%(__appname__, __version__)
+            prefix = app_prefix(u'tmp_')
             try:
                 # First try an ascii path as that is what was done historically
                 # and we dont want to break working code
@@ -60,6 +63,32 @@ def base_dir():
             atexit.register(remove_dir, _base_dir)
     return _base_dir
 
+def _make_file(suffix, prefix, base):
+    try:
+        fd, name = tempfile.mkstemp(suffix, prefix, dir=base)
+    except UnicodeDecodeError:
+        global _base_dir
+        from calibre.constants import filesystem_encoding
+        base_dir()
+        if not isinstance(_base_dir, unicode):
+            _base_dir = _base_dir.decode(filesystem_encoding)
+        base = base.decode(filesystem_encoding)
+        fd, name = tempfile.mkstemp(suffix, prefix, dir=dir)
+    return fd, name
+
+def _make_dir(suffix, prefix, base):
+    try:
+        tdir = tempfile.mkdtemp(suffix, prefix, base)
+    except ValueError:
+        global _base_dir
+        from calibre.constants import filesystem_encoding
+        base_dir()
+        if not isinstance(_base_dir, unicode):
+            _base_dir = _base_dir.decode(filesystem_encoding)
+        base = base.decode(filesystem_encoding)
+        tdir = tempfile.mkdtemp(suffix, prefix, base)
+    return tdir
+
 class PersistentTemporaryFile(object):
     """
     A file-like object that is a temporary file that is available even after being closed on
@@ -72,18 +101,7 @@ class PersistentTemporaryFile(object):
             prefix = ""
         if dir is None:
             dir = base_dir()
-        try:
-            fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
-                                    dir=dir)
-        except UnicodeDecodeError:
-            global _base_dir
-            from calibre.constants import filesystem_encoding
-            base_dir()
-            if not isinstance(_base_dir, unicode):
-                _base_dir = _base_dir.decode(filesystem_encoding)
-            dir = dir.decode(filesystem_encoding)
-            fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
-                                    dir=dir)
+        fd, name = _make_file(suffix, prefix, dir)
 
         self._file = os.fdopen(fd, mode)
         self._name = name
@@ -114,7 +132,8 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     '''
     if dir is None:
         dir = base_dir()
-    tdir = tempfile.mkdtemp(suffix, __appname__+"_"+ __version__+"_" +prefix, dir)
+    tdir = _make_dir(suffix, prefix, dir)
+
     atexit.register(remove_dir, tdir)
     return tdir
 
@@ -131,7 +150,7 @@ class TemporaryDirectory(object):
         self.keep = keep
 
     def __enter__(self):
-        self.tdir = tempfile.mkdtemp(self.suffix, __appname__+"_"+ __version__+"_" +self.prefix, self.dir)
+        self.tdir = _make_dir(self.suffix, self.prefix, self.dir)
         return self.tdir
 
     def __exit__(self, *args):
@@ -151,9 +170,7 @@ class TemporaryFile(object):
         self._file = None
 
     def __enter__(self):
-        fd, name = tempfile.mkstemp(self.suffix,
-                __appname__+"_"+ __version__+"_" + self.prefix,
-                                    dir=self.dir)
+        fd, name = _make_file(self.suffix, self.prefix, self.dir)
         self._file = os.fdopen(fd, self.mode)
         self._name = name
         self._file.close()

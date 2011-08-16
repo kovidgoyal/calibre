@@ -64,7 +64,7 @@ class KINDLE(USBMS):
 
     EBOOK_DIR_MAIN = 'documents'
     EBOOK_DIR_CARD_A = 'documents'
-    DELETE_EXTS = ['.mbp','.tan','.pdr']
+    DELETE_EXTS = ['.mbp', '.tan', '.pdr', '.ea', '.apnx', '.phl']
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_ANNOTATIONS = True
 

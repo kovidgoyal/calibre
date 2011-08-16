@@ -183,7 +183,6 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.blockSignals(False)
 
     def indicate_no_items(self):
-        print 'no items'
         self.no_valid_items = True
         self.items.clear()
         self.items.addItem(QListWidgetItem(_('**No items found**')))
