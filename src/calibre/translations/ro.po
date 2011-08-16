@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-12 16:01+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-15 10:52+0000\n"
+"Last-Translator: Lucian Martin <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-08-13 04:43+0000\n"
-"X-Generator: Launchpad (build 13674)\n"
+"X-Launchpad-Export-Date: 2011-08-16 04:33+0000\n"
+"X-Generator: Launchpad (build 13687)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -16408,70 +16408,77 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:52
 msgid "Maximum width of the viewer window, in pixels."
-msgstr ""
+msgstr "Lăţimea maximă a ferestrei vizualizatorului, în pixeli."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:54
 msgid "Resize images larger than the viewer window to fit inside it"
 msgstr ""
+"Redimensionează imaginile mai mari decât fereastra vizualizatorului pentru a "
+"încape în fereastră"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:55
 msgid "Hyphenate text"
-msgstr ""
+msgstr "Foloseşte cratima pentru despărţirea în silabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:57
 msgid "Default language for hyphenation rules"
-msgstr ""
+msgstr "Limba implicită pentru regulile de despărţire în silabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 msgid "Save the current position in the document, when quitting"
-msgstr ""
+msgstr "Salvează poziţia curentă în document la ieşire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
 msgid "Have the mouse wheel turn pages"
-msgstr ""
+msgstr "Foloseşte rotiţa de la mouse pentru a întoarce paginile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:63
 msgid ""
 "The time, in seconds, for the page flip animation. Default is half a second."
 msgstr ""
+"Timpul, în secunde, pentru animaţia întoarcerii paginii. Valoarea implicită "
+"este de jumătate de secundă."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:66
 msgid "Font options"
-msgstr ""
+msgstr "Opțiuni font"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:68
 msgid "The serif font family"
-msgstr ""
+msgstr "Familia de fonturi serif"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:70
 msgid "The sans-serif font family"
-msgstr ""
+msgstr "Familia de fonturi sans-serif"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:72
 msgid "The monospaced font family"
-msgstr ""
+msgstr "Familia de fonturi monospace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:73
 msgid "The standard font size in px"
-msgstr ""
+msgstr "Mărimea standard a fonturilor în px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:74
 msgid "The monospaced font size in px"
-msgstr ""
+msgstr "Mărimea fontului monospace în px"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:75
 msgid "The standard font type"
-msgstr ""
+msgstr "Tipul standard de font"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:126
 msgid "Still editing"
-msgstr ""
+msgstr "Încă se editează"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:127
 msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
 msgstr ""
+"Sunteţi în mijlocul editării unei scurtături de la tastatură. Completaţi "
+"această acţiune mai întâi, apăsând click în afara casetei de editare a "
+"scurtăturii."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
 msgid "&Lookup in dictionary"
@@ -16480,7 +16487,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:540
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
 msgid "Go to..."
-msgstr ""
+msgstr "Du-te la..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:552
 msgid "Next Section"
@@ -16488,23 +16495,23 @@ msgstr "Secţiunea următoare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:553
 msgid "Previous Section"
-msgstr ""
+msgstr "Secţiunea precedentă"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:555
 msgid "Document Start"
-msgstr ""
+msgstr "Început document"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:556
 msgid "Document End"
-msgstr ""
+msgstr "Sfârşit document"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:558
 msgid "Section Start"
-msgstr ""
+msgstr "Început secţiune"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:559
 msgid "Section End"
-msgstr ""
+msgstr "Sfârşit secţiune"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:12
 msgid "Scroll to the next page"
@@ -16512,7 +16519,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:15
 msgid "Scroll to the previous page"
-msgstr ""
+msgstr "Parcurge la pagina anterioară"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/keys.py:18
 msgid "Scroll to the next section"
@@ -16556,11 +16563,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:118
 msgid "Book format"
-msgstr ""
+msgstr "Format carte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:199
 msgid "Position in book"
-msgstr ""
+msgstr "Poziţia în carte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:206
 msgid "Go to a reference. To get reference numbers, use the reference mode."
@@ -16568,11 +16575,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:214
 msgid "Search for text in book"
-msgstr ""
+msgstr "Caută text în carte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:293
 msgid "Print Preview"
-msgstr ""
+msgstr "Previzualizare imprimare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:304
 msgid "Clear list of recently opened books"
@@ -16581,15 +16588,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:366
 #, python-format
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
-msgstr ""
+msgstr "Se conectează la dict.org pentru a căuta: <b>%s</b>&hellip;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:472
 msgid "Choose ebook"
-msgstr ""
+msgstr "Alege carte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:473
 msgid "Ebooks"
-msgstr ""
+msgstr "Cărţi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:495
 #, python-format
@@ -16597,19 +16604,21 @@ msgid ""
 "Make font size %(which)s\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"Mărime font %(which)s\n"
+"Mărire curentă: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:497
 msgid "larger"
-msgstr ""
+msgstr "mai mare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:499
 msgid "smaller"
-msgstr ""
+msgstr "mai mică"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:515
 #, python-format
 msgid "No matches found for: %s"
-msgstr ""
+msgstr "Nu s-au găsit potriviri pentru: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:552
 msgid "Loading flow..."
@@ -16618,7 +16627,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:590
 #, python-format
 msgid "Laying out %s"
-msgstr ""
+msgstr "Se aranjează %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:621
 #, python-format
@@ -16627,41 +16636,45 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:625
 msgid "Add bookmark"
-msgstr ""
+msgstr "Adaugă semn de carte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:626
 msgid "Enter title for bookmark:"
-msgstr ""
+msgstr "Introduceţi un titlu pentru semnul de carte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:636
 msgid "Manage Bookmarks"
-msgstr ""
+msgstr "Gestionează semnele de carte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:677
 msgid "Loading ebook..."
-msgstr ""
+msgstr "Se încarcă e-cartea..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:689
 msgid "Could not open ebook"
-msgstr ""
+msgstr "Nu s-a putut deschide cartea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:788
 msgid "Options to control the ebook viewer"
-msgstr ""
+msgstr "Opţiuni pentru controlul vizualizatorului cărţilor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:795
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
+"Dacă este specificat, fereastra vizualizatorului va încerca să vină în prim "
+"plan atunci când este pornit."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:798
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
+"Dacă este specificat, fereastra vizualizatorului va încerca să pornească pe "
+"tot ecranul."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:803
 msgid "Print javascript alert and console messages to the console"
-msgstr ""
+msgstr "Afişează alerta javascript şi mesajele de consolă pe consolă"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:809
 msgid ""
@@ -16669,86 +16682,89 @@ msgid ""
 "\n"
 "View an ebook.\n"
 msgstr ""
+"Fişier %prog [options]\n"
+"\n"
+"Vizualizează o carte.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:189
 msgid "E-book Viewer"
-msgstr ""
+msgstr "Vizualizator Cărţi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:190
 msgid "Close dictionary"
-msgstr ""
+msgstr "Închide dicţionarul"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:192
 msgid "toolBar"
-msgstr ""
+msgstr "barăUnelte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:195
 msgid "Next page"
-msgstr ""
+msgstr "Pagina următoare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:196
 msgid "Previous page"
-msgstr ""
+msgstr "Pagina anterioară"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:197
 msgid "Font size larger"
-msgstr ""
+msgstr "Mărime font mai mare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:198
 msgid "Font size smaller"
-msgstr ""
+msgstr "Mărime font mai mică"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:202
 msgid "Find next"
-msgstr ""
+msgstr "Caută următorul"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:203
 msgid "Find next occurrence"
-msgstr ""
+msgstr "Caută următoarea apariţie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:207
 msgid "Reference Mode"
-msgstr ""
+msgstr "Mod Referinţă"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:208
 msgid "Bookmark"
-msgstr ""
+msgstr "Semn de carte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:209
 msgid "Toggle full screen"
-msgstr ""
+msgstr "Vizualizează pe tot ecranul"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:210
 msgid "Print"
-msgstr ""
+msgstr "Tipărește"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:211
 msgid "Find previous"
-msgstr ""
+msgstr "Găsiţi elementul anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
 msgid "Find previous occurrence"
-msgstr ""
+msgstr "Găsiţi apariţia anterioară"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
-msgstr ""
+msgstr "Tipăreşte cartea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:984
 msgid "Drag to resize"
-msgstr ""
+msgstr "Trage pentru a redimensiona"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1019
 msgid "Show"
-msgstr ""
+msgstr "Afișează"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1026
 msgid "Hide"
-msgstr ""
+msgstr "Ascunde"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1063
 msgid "Toggle"
-msgstr ""
+msgstr "Comută"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:438
 #, python-format
@@ -16756,19 +16772,21 @@ msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
 msgstr ""
+"Alegeţi dispozitivul dumneavoastră de citit. Dacă dispozitivul nu se află în "
+"listă, alegeţi un dispozitiv \"%s\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
 msgid "Moving library..."
-msgstr ""
+msgstr "Se mută biblioteca..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:515
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:516
 msgid "Failed to move library"
-msgstr ""
+msgstr "Mutarea bibliotecii a eşuat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:570
 msgid "Invalid database"
-msgstr ""
+msgstr "Bază de date invalidă"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:571
 #, python-format
@@ -16776,20 +16794,24 @@ msgid ""
 "<p>An invalid library already exists at %(loc)s, delete it before trying to "
 "move the existing library.<br>Error: %(err)s"
 msgstr ""
+"<p>O bibliotecă invalidă există deja în %(loc)s. Ştergeţi-o înainte de a "
+"încerca să mutaţi biblioteca curentă.<br>Eroare: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:582
 msgid "Could not move library"
-msgstr ""
+msgstr "Nu s-a putut muta biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:662
 msgid "Select location for books"
-msgstr ""
+msgstr "Selectaţi o locaţie pentru cărţi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:683
 #, python-format
 msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
 msgstr ""
+"Trebuie să selectaţi un director gol pentru biblioteca dumneavoastră "
+"calibre. %s nu este gol."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:757
 msgid "welcome wizard"
@@ -16802,7 +16824,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:47
 msgid "Welcome to calibre"
-msgstr ""
+msgstr "Bun venit la calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:48
@@ -16810,15 +16832,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:48
 msgid "The one stop solution to all your e-book needs."
-msgstr ""
+msgstr "O soluţie pentru toate nevoile dumneavoastră referitoare la e-cărţi."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:57
 msgid "&Manufacturers"
-msgstr ""
+msgstr "&Producători"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:58
 msgid "&Devices"
-msgstr ""
+msgstr "&Dispozitive"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:49
 #, python-format
@@ -16826,18 +16848,25 @@ msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
+"<h2>Felicitări!</h2> Aţi setat calibre cu succes. Apăsaţi butonul %s pentru "
+"aplicarea setărilor."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
 "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
+"<h2>Clipuri demonstrative</h2>Clipurile ce demonstrează diferitele "
+"caracteristici ale calibre sunt disponibile <a href=\"http://calibre-"
+"ebook.com/demo\">online</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:51
 msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a "
 "href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
+"<h2>Manual de Utilizare</h2>Manualul de Utilizare este de asemena disponibil "
+"<a href=\"http://manual.calibre-ebook.com\">online</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -16847,14 +16876,20 @@ msgid ""
 "button below. You will also have to register your gmail address in your "
 "Amazon account."
 msgstr ""
+"<p>calibre poate trimite automat cărţi pe Kindle-ul dumneavoastră. Pentru "
+"aceasta trebuie să configuraţi livrarea de e-mail-uri de mai jos. Cea mai "
+"uşoară cale este să creeaţi un cont gratuit <a "
+"href=\"http://gmail.com\">GMail</a> şi să apăsaţi butonul Foloseşte GMail de "
+"mai jos. Va trebui să vă înregistraţi adresa GMail în contul dumneavoastră "
+"Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:50
 msgid "&Kindle email:"
-msgstr ""
+msgstr "E-mail &Kindle:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:57
 msgid "Choose your &language:"
-msgstr ""
+msgstr "Alege &limba:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
@@ -16867,7 +16902,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:59
 msgid "&Change"
-msgstr ""
+msgstr "Modifi&că"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:60
 msgid ""
@@ -16875,44 +16910,48 @@ msgid ""
 "location. If a calibre library already exists at the new location, calibre "
 "will switch to using it."
 msgstr ""
+"Dacă aveţi o bibliotecă existentă, ea va fi copiată în noua locaţie. Dacă "
+"biblioteca există deja în locaţia nouă, calibre o va folosi pe aceasta."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 #, python-format
 msgid "Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption"
-msgstr ""
+msgstr "Se foloseşte: %(un)s:%(pw)s@%(host)s:%(port)s şi criptarea %(enc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
-msgstr ""
+msgstr "Se trimite..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:44
 msgid "Mail successfully sent"
-msgstr ""
+msgstr "E-mail trimis cu succes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:59
 msgid "Setup sending email using"
-msgstr ""
+msgstr "Setează trimiterea de e-mail-uri folosind"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:61
 msgid ""
 "If you don't have an account, you can sign up for a free {name} email "
 "account at <a href=\"http://{url}\">http://{url}</a>. {extra}"
 msgstr ""
+"Dacă nu aveţi un cont, înregistraţi-vă un cont {name} gratuit la <a "
+"href=\"http://{url}\">http://{url}</a>. {extra}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:68
 #, python-format
 msgid "Your %s &email address:"
-msgstr ""
+msgstr "Adresa %s de &e-mail:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:69
 #, python-format
 msgid "Your %s &username:"
-msgstr ""
+msgstr "Numele de &utilizator %s:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:70
 #, python-format
 msgid "Your %s &password:"
-msgstr ""
+msgstr "&Parola %s:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:89
 #, python-format
@@ -16921,28 +16960,31 @@ msgid ""
 "your %s email address to the allowed email addresses in your Amazon.com "
 "Kindle management page."
 msgstr ""
+"Dacă plănuţi să folosiţi e-mail-ul pentru a trimite cărţi pe Kindle-ul "
+"dumneavoastră, amintiţi-vă să adăugaţi adresa dumneavoastră %s la adresele "
+"permise în pagina de gestionare a Kindle pe Amazon.com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "Setup"
-msgstr ""
+msgstr "Configurare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:102
 msgid "Incorrect username"
-msgstr ""
+msgstr "Nume de utilizator incorect"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:103
 #, python-format
 msgid "%s needs the full email address as your username"
-msgstr ""
+msgstr "%s are nevoie de adresa de e-mail completă ca şi nume de utilizator"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
 msgid "OK to proceed?"
-msgstr ""
+msgstr "Continuaţi?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
 msgid ""
 "This will display your email password on the screen. Is it OK to proceed?"
-msgstr ""
+msgstr "Aceasta va afişa parola e-mail-ului pe ecran. Doriţi să continuaţi?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:199
 msgid ""
