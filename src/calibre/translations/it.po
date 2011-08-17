@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-14 16:26+0000\n"
+"PO-Revision-Date: 2011-08-16 09:04+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-15 04:34+0000\n"
-"X-Generator: Launchpad (build 13674)\n"
+"X-Launchpad-Export-Date: 2011-08-17 04:40+0000\n"
+"X-Generator: Launchpad (build 13697)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1806,7 +1806,7 @@ msgstr "Legge i metadati dai file sul dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:63
 msgid "Use author sort instead of author"
-msgstr "Usa ordinamento autore invece di autore"
+msgstr "Usa l'ordinamento autore invece dell'autore"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:65
 msgid "Template to control how books are saved"
@@ -1846,7 +1846,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr "ID del Vendor USB (in hex)"
+msgstr "Vendor ID USB (in hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1861,7 +1861,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr "ID dispositivo USB (in hex)"
+msgstr "Product ID USB (in hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
@@ -1871,7 +1871,7 @@ msgstr "ID di revisione USB (in hex)"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 msgid "Windows main memory vendor string"
-msgstr "stringa di identificazione del vendor nella memoria di Windows"
+msgstr "Stringa di identificazione del produttore nella memoria di Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1882,7 +1882,7 @@ msgid ""
 "Get information to set up the user-defined device"
 msgstr ""
 "Questo campo è usato solo in Windows. Ottieni questo ID andando in "
-"Preferenze -> Varie -> Ottieni informazioni per configurare un device "
+"Preferenze -> Varie -> Ottieni informazioni per configurare un dispositivo "
 "definito dall'utente"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
@@ -1893,12 +1893,12 @@ msgstr "Stringa di identificazione nella memoria di Windows"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr "stringa di identificazione del vendor della Card A in Windows"
+msgstr "Stringa di identificazione del produttore della scheda A in Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr "stringa di identificazione della Card A in Windows"
+msgstr "Stringa di identificazione della scheda A in Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
@@ -2596,7 +2596,7 @@ msgstr "La versione del titolo da usare per l'ordinamento. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:468
 msgid "String to be used when sorting by author. "
-msgstr "Stringa da usare nell'ordinamento per autore. "
+msgstr "Stringa da utilizzare quando si ordina per autore. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:472
 msgid "Set the cover to the specified file or URL"
@@ -2687,8 +2687,7 @@ msgstr ""
 msgid ""
 "Turn indentation created from multiple non-breaking space entities into CSS "
 "indents."
-msgstr ""
-"Cambia l'indentazione ottenuta con spazi multipli in un'indentazione CSS."
+msgstr "Cambia il rientro ottenuto con spazi multipli in un rientro CSS."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:542
 msgid ""
@@ -2840,9 +2839,9 @@ msgstr ""
 "Corregge i problemi comuni nei file EPUB che possono causarne il rifiuto dai "
 "dispositivi mal progettati.\n"
 "\n"
-"Di default, non viene effettuata alcuna correzione e vengono visualizzati i "
-"messaggi per ogni errore individuato. Usare le opzioni per controllare quali "
-"errori correggere automaticamente."
+"In modo predefinito, non viene effettuata alcuna correzione e vengono "
+"visualizzati i messaggi per ogni errore individuato. Usare le opzioni per "
+"controllare quali errori correggere automaticamente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/main.py:52
 msgid "You must specify an epub file"
@@ -2943,7 +2942,7 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
-"Questa opzione è necessario solo se si intende usare l'epub con FBReaderJ. "
+"Questa opzione è necessaria solo se si intende usare l'epub con FBReaderJ. "
 "Verrà linearizzata la struttura all'interno dell'epub, tutti i file verranno "
 "spostati nella cartella principale."
 
@@ -3118,7 +3117,7 @@ msgstr "Creazione di file LIT da EPUB in corso..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:320
 msgid "\tBook Designer file detected."
-msgstr "\tFile di Book Designer individuato"
+msgstr "\tFile di Book Designer individuato."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:322
 msgid "\tParsing HTML..."
@@ -3283,7 +3282,7 @@ msgstr "Imposta il titolo del libro"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
-msgstr "Imposta la chiave per la classificazione del titolo"
+msgstr "Imposta la chiave di ordinamento per il titolo"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
@@ -3291,7 +3290,7 @@ msgstr "Imposta l'autore"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
-msgstr "Imposta la chiave per la classificazione dell'autore"
+msgstr "Imposta la chiave di ordinamento per l'autore"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
 msgid "The category this book belongs to. E.g.: History"
@@ -3379,8 +3378,8 @@ msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
 msgstr ""
-"Indentazione minima paragrafo (l'indentazione della prima riga di un "
-"paragrafo) in pt. Predefinita: %default"
+"Rientro minimo paragrafo (il rientro della prima riga di un paragrafo) in "
+"pt. Predefinita: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:112
 msgid ""
@@ -3600,7 +3599,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
-msgstr "Imposta il BookID nel file LRF"
+msgstr "Imposta il BookID nei file LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:153
 msgid "No file specified"
@@ -3637,7 +3636,7 @@ msgstr ""
 "\n"
 "%prog [options] ISBN\n"
 "\n"
-"Recupera un'immagine di copertina/metadato sociale per il libro identificato "
+"Recupera un'immagine di copertina/metadati sociali per il libro identificato "
 "con da ISBN da LibraryThing.com\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1374
@@ -3768,7 +3767,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:26
 msgid "When present, use author sort field as author."
-msgstr "Quando disponibile, utilizzare l'autore per ordinare la lista."
+msgstr "Se presente, usa il campo di ordinamento autore come autore."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:30
 msgid ""
@@ -3944,7 +3943,7 @@ msgstr "Note"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:139
 msgid "Sidebar"
-msgstr "Menu a lato"
+msgstr "Barra laterale"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
@@ -4243,8 +4242,8 @@ msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
-"Dimensioni del documento personalizzate. Usare il formato ampiezzaXaltezza "
-"e.g. '123x123' per indicare l'ampiezza e l'altezza. Questa opzione "
+"Dimensioni del documento personalizzate. Usare il formato ampiezzaxaltezza, "
+"come '123x123', per indicare l'ampiezza e l'altezza. Questa opzione "
 "sovrascrive e ha precedenza su ogni altra opzione che specifica le "
 "dimensioni di pagina."
 
@@ -4337,7 +4336,7 @@ msgid ""
 "Specify whether or not to insert two space characters to indent the first "
 "line of each paragraph."
 msgstr ""
-"Specifica se inserire due spazi per indentare la prima riga di ciascun "
+"Specifica se inserire due spazi per rientrare la prima riga di ciascun "
 "paragrafo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:44
@@ -4529,7 +4528,7 @@ msgstr "Usa numeri romani per i numeri delle serie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:122
 msgid "Sort tags list by name, popularity, or rating"
-msgstr "Ordina i tag per nome, popolarità o valutazione"
+msgstr "Ordina l'elenco dei tag per nome, popolarità o valutazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:124
 msgid "Match tags by any or all."
@@ -5344,7 +5343,7 @@ msgstr "Rimuovi tutti i formati dai libri selezionati, tranne..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:101
 msgid "Remove all formats from selected books"
-msgstr "Rimuovere tutti i formati di libri selezionati"
+msgstr "Rimuovi tutti i formati di libri selezionati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:104
 msgid "Remove covers from selected books"
@@ -5807,7 +5806,7 @@ msgstr "Riavvia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
-msgstr "Salvataggio di formato individuale sul disco..."
+msgstr "Salva formato singolo su disco..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:39
 msgid "S"
@@ -6203,7 +6202,7 @@ msgstr "Aggiunta dei duplicati..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:460
 msgid "Saving..."
-msgstr "Salvataggio..."
+msgstr "Salvataggio in corso..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:467
 msgid "Collecting data, please wait..."
@@ -6385,7 +6384,7 @@ msgstr "Fai clic per aprire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:132
 msgid "Ids"
-msgstr "Id"
+msgstr "ID"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:164
 #, python-format
@@ -6693,11 +6692,11 @@ msgstr "&Lista dei tag desiderati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:325
 msgid "Books tagged as Wishlist items will be displayed with an X"
-msgstr "I libri etichettati come desiderati saranno mostrati con un X"
+msgstr "I libri etichettati come desiderati saranno mostrati con una X"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:326
 msgid "&Thumbnail width"
-msgstr "Larghezza &anteprima"
+msgstr "Larghezza minia&tura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:327
 msgid "Size hint for Description cover thumbnails"
@@ -6830,11 +6829,11 @@ msgstr "Taglia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:100
 msgid "Increase Indentation"
-msgstr "Incrementa indentazione"
+msgstr "Aumenta rientro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:102
 msgid "Decrease Indentation"
-msgstr "Riduci indentazione"
+msgstr "Riduci rientro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:104
 msgid "Select all"
@@ -7356,9 +7355,6 @@ msgid ""
 "paragraph indent, to ensure that paragraphs can be easily distinguished. "
 "This option controls the width of that indent."
 msgstr ""
-"<p>Quando calibre rimuove la spaziatura tra i paragrafi, inserisce "
-"automaticamente un rientro di paragrafo, per assicurarsi che i paragrafi "
-"siano ben distinti. Questa opzione controlla l'ampiezza del rientro."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:167
 msgid "Smarten &punctuation"
@@ -7566,7 +7562,7 @@ msgstr "Riscalda la grandezza delle immagini per dispositivi &Palm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:74
 msgid "Use author &sort for author"
-msgstr "Usa autore &sort per autore."
+msgstr "U&sa l'ordinamento autore come autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:75
 msgid "Disable compression of the file contents"
@@ -7863,7 +7859,7 @@ msgstr "Nascondi il nome del capitolo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:44
 msgid "Don't indent the first line for each paragraph"
-msgstr "Non indentare la prima riga per ogni paragrafo"
+msgstr "Non rientrare la prima riga per ogni paragrafo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/snb_output_ui.py:45
 msgid "Insert empty line between paragraphs"
@@ -8500,7 +8496,7 @@ msgstr "Utilizza sotto cartelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:84
 msgid "Use author sort for author"
-msgstr "Usa classificazione autore come autore"
+msgstr "&sa l'ordinamento autore come autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
@@ -9060,7 +9056,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:52
 msgid "Author sort"
-msgstr "Ordinamento per autore"
+msgstr "Ordinamento autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:55
 msgid "Link"
@@ -9109,7 +9105,7 @@ msgstr "Iniziali maiuscole"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:181
 msgid "Copy to author sort"
-msgstr ""
+msgstr "Copia in ordinamento autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:184
 msgid "Copy to author"
@@ -9146,7 +9142,7 @@ msgstr "Ordina per autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:92
 msgid "Sort by author sort"
-msgstr "Ordina per ordine autore"
+msgstr "Ordina per ordinamento autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:93
 msgid ""
@@ -9167,7 +9163,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:99
 msgid "Copy all author sort values to author"
-msgstr ""
+msgstr "Copia tutti valori di ordinamento autore in autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:45
 msgid "Details of job"
@@ -9394,7 +9390,7 @@ msgstr "Modifica metadati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:526
 msgid "A&utomatically set author sort"
-msgstr "Imposta a&utomaticamente la Classificazione autore"
+msgstr "Imposta a&utomaticamento l'ordinamento autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:527
 msgid "&Swap title and author"
@@ -9539,7 +9535,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:572
 msgid "Update &title sort"
-msgstr ""
+msgstr "Aggiorna l'ordinamen&to titolo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:573
 msgid ""
@@ -11966,23 +11962,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:139
 msgid "Title &sort:"
-msgstr ""
+msgstr "Or&dinamento titolo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:147
 msgid ""
 " The green color indicates that the current title sort matches the current "
 "title"
 msgstr ""
-" Il colore verde indica che l'attuale ordine per titolo corrisponde al "
-"titolo attuale"
+" Il colore verde indica che l'ordinamento titolo attuale corrisponde al "
+"titolo corrente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:150
 msgid ""
 " The red color warns that the current title sort does not match the current "
 "title. No action is required if this is what you want."
 msgstr ""
-" Il colore rosso avvisa che l'attuale ordine per titolo non corrisponde al "
-"titolo attuale. Non è richiesta alcuna azione se è il risultato voluto."
+" Il colore rosso avvisa che l'ordinamento titolo attuale non corrisponde al "
+"titolo corrente. Non è richiesta alcuna azione se è il risultato voluto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:213
 msgid "Authors changed"
@@ -12001,11 +11997,11 @@ msgid ""
 "If the box is colored green, then text matches the individual author's sort "
 "strings. If it is colored red, then the authors and this text do not match."
 msgstr ""
-"Specificare come gli autori di questo libro devono essere ordinati. Per "
+"Specificare come gli autori di questo libro devono essere ordinati. Ad "
 "esempio Alessandro Manzoni deve essere ordinato come Manzoni, Alessandro. Se "
 "il riquadro è di colore verde, allora il testo corrisponde alla stringhe "
-"individuali dell'ordinamento per autore. Se è di colore rosso, allora gli "
-"autori e questo testo non corrispondono."
+"individuali dell'ordinamento autore. Se è di colore rosso, allora gli autori "
+"e questo testo non corrispondono."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:307
 msgid "Author s&ort:"
@@ -12016,16 +12012,16 @@ msgid ""
 " The green color indicates that the current author sort matches the current "
 "author"
 msgstr ""
-" Il colore verde indica che ordine per autore in uso corrisponde con "
-"l'autore attuale"
+" Il colore verde indica che l'ordinamento autore attuale  corrisponde "
+"all'autore corrente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:320
 msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author. No action is required if this is what you want."
 msgstr ""
-" Il colore rosso indica che l'attuale ordine per autore non corrisponde "
-"all'autore attuale. Non è richiesta alcuna azione se è il risultato voluto."
+" Il colore rosso indica che l'ordinamento autore attuale non corrisponde "
+"all'autore corrente. Non è richiesta alcuna azione se è il risultato voluto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:493
 msgid "&Number:"
@@ -17735,7 +17731,7 @@ msgstr "Identificatori"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:207
 msgid "Author Sort"
-msgstr "Classificazione autore"
+msgstr "Ordinamento autore"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:319
 msgid "Title Sort"
@@ -17873,8 +17869,8 @@ msgid ""
 msgstr ""
 "Normalmente calibre convertirà tutti i caratteri non anglofoni nei loro "
 "corrispettivi equivalenti per i nomi dei documenti. ATTENZIONE: se la "
-"funzione è disabilitata è possibile incontrare errori nel salvataggio "
-"dipendenti dal quanto bene il filesystem utilizzato supporti unicode."
+"funzione è disabilitata, è possibile incontrare errori nel salvataggio che "
+"dipendono dal livello di supporto unicode del filesystem utilizzato."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:113
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:117
@@ -19538,7 +19534,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:115
 msgid "Specify columns to sort the booklist by on startup"
-msgstr ""
+msgstr "Specifica le colonne dell'elenco da ordinare all'avvio"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:116
 msgid ""
@@ -19733,7 +19729,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:247
 msgid "Specify how SONY collections are sorted"
-msgstr ""
+msgstr "Specifica l'ordinamento delle raccolte SONY"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:248
 msgid ""
@@ -19802,7 +19798,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:291
 msgid "Set the maximum number of sort 'levels'"
-msgstr ""
+msgstr "Imposta il numero massimo di 'livelli' di ordinamento"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:292
 msgid ""
@@ -19846,7 +19842,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:318
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Lingua da utilizzare in fase di ordinamento."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:319
 msgid ""
