@@ -23,6 +23,7 @@ from calibre.utils.formatter import validation_formatter
 from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.gui2.languages import LanguagesEdit
 
 
 class RatingDelegate(QStyledItemDelegate): # {{{
@@ -155,7 +156,7 @@ class TextDelegate(QStyledItemDelegate): # {{{
     def __init__(self, parent):
         '''
         Delegate for text data. If auto_complete_function needs to return a list
-        of text items to auto-complete with. The funciton is None no
+        of text items to auto-complete with. If the function is None no
         auto-complete will be used.
         '''
         QStyledItemDelegate.__init__(self, parent)
@@ -227,6 +228,20 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
             model.setData(index, QVariant(val), Qt.EditRole)
         else:
             QStyledItemDelegate.setModelData(self, editor, model, index)
+# }}}
+
+class LanguagesDelegate(QStyledItemDelegate): # {{{
+
+    def createEditor(self, parent, option, index):
+        editor = LanguagesEdit(parent)
+        ct = index.data(Qt.DisplayRole).toString()
+        editor.setEditText(ct)
+        editor.lineEdit().selectAll()
+        return editor
+
+    def setModelData(self, editor, model, index):
+        val = ','.join(editor.lang_codes)
+        model.setData(index, QVariant(val), Qt.EditRole)
 # }}}
 
 class CcDateDelegate(QStyledItemDelegate): # {{{

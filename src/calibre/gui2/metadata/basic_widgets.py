@@ -34,6 +34,7 @@ from calibre.library.comments import comments_to_html
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.icu import strcmp
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.gui2.languages import LanguagesEdit as LE
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
@@ -1131,6 +1132,43 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
                 allow_case_change=True)
         return True
 
+# }}}
+
+class LanguagesEdit(LE): # {{{
+
+    LABEL = _('&Languages:')
+    TOOLTIP = _('A comma separated list of languages for this book')
+
+    def __init__(self, *args, **kwargs):
+        LE.__init__(self, *args, **kwargs)
+        self.setToolTip(self.TOOLTIP)
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self): return self.lang_codes
+        def fset(self, val): self.lang_codes = val
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        lc = []
+        langs = db.languages(id_, index_is_id=True)
+        if langs:
+            lc = [x.strip() for x in langs.split(',')]
+        self.current_val = self.original_val = lc
+
+    def commit(self, db, id_):
+        bad = self.validate()
+        if bad:
+            error_dialog(self, _('Unknown language'),
+                    ngettext('The language %s is not recognized',
+                        'The languages %s are not recognized', len(bad))%(
+                            ', '.join(bad)),
+                    show=True)
+            return False
+        cv = self.current_val
+        if cv != self.original_val:
+            db.set_languages(id_, cv)
+        return True
 # }}}
 
 class IdentifiersEdit(QLineEdit): # {{{

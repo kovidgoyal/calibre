@@ -291,6 +291,8 @@ class ISO639(Command):
         by_3t = {}
         m2to3 = {}
         m3to2 = {}
+        m3bto3t = {}
+        nm = {}
         codes2, codes3t, codes3b = set([]), set([]), set([])
         for x in root.xpath('//iso_639_entry'):
             name = x.get('name')
@@ -304,12 +306,15 @@ class ISO639(Command):
                 m3to2[threeb] = m3to2[threet] = two
             by_3b[threeb] = name
             by_3t[threet] = name
+            if threeb != threet:
+                m3bto3t[threeb] = threet
             codes3b.add(x.get('iso_639_2B_code'))
             codes3t.add(x.get('iso_639_2T_code'))
+            nm[name.lower().partition(';')[0].strip()] = threet
 
         from cPickle import dump
         x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
                 'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
-                '3to2':m3to2}
+                '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
         dump(x, open(dest, 'wb'), -1)
 
