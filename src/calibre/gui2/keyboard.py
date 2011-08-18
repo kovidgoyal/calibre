@@ -114,6 +114,8 @@ class Manager(QObject): # {{{
         custom_keys_map = {un:tuple(keys) for un, keys in self.config.get(
             'map', {}).iteritems()}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
+        #import pprint
+        #pprint.pprint(self.keys_map)
 
 # }}}
 

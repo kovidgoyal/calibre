@@ -13,7 +13,7 @@ from functools import partial
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
-        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu)
+        QSizePolicy, QPalette, QFrame, QSize, QKeySequence, QMenu, QShortcut)
 
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import ResizableDialog, error_dialog, gprefs, pixmap_to_data
@@ -44,6 +44,16 @@ class MetadataSingleDialogBase(ResizableDialog):
 
     def setupUi(self, *args): # {{{
         self.resize(990, 650)
+
+        self.download_shortcut = QShortcut(self)
+        self.download_shortcut.setKey(QKeySequence('Ctrl+D',
+            QKeySequence.PortableText))
+        p = self.parent()
+        if hasattr(p, 'keyboard'):
+            kname = u'Interface Action: Edit Metadata (Edit Metadata) : menu action : download'
+            sc = p.keyboard.keys_map.get(kname, None)
+            if sc:
+                self.download_shortcut.setKey(sc[0])
 
         self.button_box = QDialogButtonBox(
                 QDialogButtonBox.Ok|QDialogButtonBox.Cancel, Qt.Horizontal,
@@ -195,6 +205,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.fetch_metadata_button = QPushButton(
                 _('&Download metadata'), self)
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
+        self.download_shortcut.activated.connect(self.fetch_metadata_button.click)
         font = self.fmb_font = QFont()
         font.setBold(True)
         self.fetch_metadata_button.setFont(font)
