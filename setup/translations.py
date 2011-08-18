@@ -310,7 +310,11 @@ class ISO639(Command):
                 m3bto3t[threeb] = threet
             codes3b.add(x.get('iso_639_2B_code'))
             codes3t.add(x.get('iso_639_2T_code'))
-            nm[name.lower().partition(';')[0].strip()] = threet
+            base_name = name.lower()
+            nm[base_name] = threet
+            simple_name = base_name.partition(';')[0].strip()
+            if simple_name not in nm:
+                nm[simple_name] = threet
 
         from cPickle import dump
         x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
