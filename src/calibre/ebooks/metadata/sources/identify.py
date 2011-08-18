@@ -484,6 +484,7 @@ def identify(log, abort, # {{{
             'publication dates')
     start_time = time.time()
     results = merge_identify_results(results, log)
+
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
 

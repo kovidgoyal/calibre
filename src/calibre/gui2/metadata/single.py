@@ -354,6 +354,8 @@ class MetadataSingleDialogBase(ResizableDialog):
             self.series.current_val = mi.series
             if mi.series_index is not None:
                 self.series_index.current_val = float(mi.series_index)
+        if not mi.is_null('languages'):
+            self.languages.lang_codes = mi.languages
         if mi.comments and mi.comments.strip():
             self.comments.current_val = mi.comments
 

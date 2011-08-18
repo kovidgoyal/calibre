@@ -161,7 +161,7 @@ class FieldsModel(QAbstractListModel): # {{{
                 'tags' : _('Tags'),
                 'title': _('Title'),
                 'series': _('Series'),
-                'language': _('Language'),
+                'languages': _('Languages'),
         }
         self.overrides = {}
         self.exclude = frozenset(['series_index'])
