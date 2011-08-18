@@ -979,6 +979,11 @@ class DocumentView(QWebView): # {{{
         return ret
 
     def keyPressEvent(self, event):
+        if not self.handle_key_press(event):
+            return QWebView.keyPressEvent(self, event)
+
+    def handle_key_press(self, event):
+        handled = True
         key = self.shortcuts.get_match(event)
         func = self.goto_location_actions.get(key, None)
         if func is not None:
@@ -996,7 +1001,8 @@ class DocumentView(QWebView): # {{{
         elif key == 'Right':
             self.scroll_by(x=15)
         else:
-            return QWebView.keyPressEvent(self, event)
+            handled = False
+        return handled
 
     def resizeEvent(self, event):
         ret = QWebView.resizeEvent(self, event)

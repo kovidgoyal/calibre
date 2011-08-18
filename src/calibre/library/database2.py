@@ -39,6 +39,8 @@ from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.errors import NoSuchFormat
+from calibre.utils.localization import (canonicalize_lang,
+        calibre_langcode_to_name)
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30*1024*1024
@@ -372,6 +374,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 'aum_sortconcat(link.id, authors.name, authors.sort, authors.link)'),
             'last_modified',
             '(SELECT identifiers_concat(type, val) FROM identifiers WHERE identifiers.book=books.id) identifiers',
+            ('languages', 'languages', 'lang_code',
+                'sortconcat(link.id, languages.lang_code)'),
             ]
         lines = []
         for col in columns:
@@ -390,7 +394,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
              'size':4, 'rating':5, 'tags':6, 'comments':7, 'series':8,
              'publisher':9, 'series_index':10, 'sort':11, 'author_sort':12,
              'formats':13, 'path':14, 'pubdate':15, 'uuid':16, 'cover':17,
-             'au_map':18, 'last_modified':19, 'identifiers':20}
+             'au_map':18, 'last_modified':19, 'identifiers':20, 'languages':21}
 
         for k,v in self.FIELD_MAP.iteritems():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
@@ -469,7 +473,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 'author_sort', 'authors', 'comment', 'comments',
                 'publisher', 'rating', 'series', 'series_index', 'tags',
                 'title', 'timestamp', 'uuid', 'pubdate', 'ondevice',
-                'metadata_last_modified',
+                'metadata_last_modified', 'languages',
                 ):
             fm = {'comment':'comments', 'metadata_last_modified':
                     'last_modified'}.get(prop, prop)
@@ -930,6 +934,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         tags = row[fm['tags']]
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
+        languages = row[fm['languages']]
+        if languages:
+            mi.languages = [i.strip() for i in languages.split(',')]
         mi.series = row[fm['series']]
         if mi.series:
             mi.series_index = row[fm['series_index']]
@@ -1390,7 +1397,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 ('authors', 'authors', 'author'),
                 ('publishers', 'publishers', 'publisher'),
                 ('tags', 'tags', 'tag'),
-                ('series', 'series', 'series')
+                ('series', 'series', 'series'),
+                ('languages', 'languages', 'lang_code'),
                 ]:
             doit(ltable, table, ltable_col)
 
@@ -1507,6 +1515,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         'series'   : self.get_series_with_ids,
                         'publisher': self.get_publishers_with_ids,
                         'tags'     : self.get_tags_with_ids,
+                        'languages': self.get_languages_with_ids,
                         'rating'   : self.get_ratings_with_ids,
                     }
                 func = funcs.get(category, None)
@@ -1521,6 +1530,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 for l in list:
                     (id, val, sort_val) = (l[0], l[1], l[2])
                     tids[category][val] = (id, sort_val)
+            elif category == 'languages':
+                for l in list:
+                    id, val = l[0], calibre_langcode_to_name(l[1])
+                    tids[category][l[1]] = (id, val)
             elif cat['datatype'] == 'series':
                 for l in list:
                     (id, val) = (l[0], l[1])
@@ -1620,6 +1633,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 item.rt += rating
                                 item.rc += 1
                         except:
+                            prints(tid_cat, val)
                             prints('get_categories: item', val, 'is not in', cat, 'list!')
 
         #print 'end phase "books":', time.clock() - last, 'seconds'
@@ -1683,6 +1697,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             elif category == 'authors':
                 # Clean up the authors strings to human-readable form
                 formatter = (lambda x: x.replace('|', ','))
+                items = [v for v in tcategories[category].values() if v.c > 0]
+            elif category == 'languages':
+                # Use a human readable language string
+                formatter = calibre_langcode_to_name
                 items = [v for v in tcategories[category].values() if v.c > 0]
             else:
                 formatter = (lambda x:unicode(x))
@@ -2043,6 +2061,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if should_replace_field('comments'):
             doit(self.set_comment, id, mi.comments, notify=False, commit=False)
 
+        if should_replace_field('languages'):
+            doit(self.set_languages, id, mi.languages, notify=False, commit=False)
+
         # Setting series_index to zero is acceptable
         if mi.series_index is not None:
             doit(self.set_series_index, id, mi.series_index, notify=False,
@@ -2265,6 +2286,37 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', [id])
 
+    def set_languages(self, book_id, languages, notify=True, commit=True):
+        self.conn.execute(
+            'DELETE FROM books_languages_link WHERE book=?', (book_id,))
+        self.conn.execute('''DELETE FROM languages WHERE (SELECT COUNT(id)
+                                 FROM books_languages_link WHERE
+                                 lang_code=languages.id) < 1''')
+
+        books_to_refresh = set([book_id])
+        final_languages = []
+        for l in languages:
+            lc = canonicalize_lang(l)
+            if not lc or lc in final_languages or lc in ('und', 'zxx', 'mis',
+                    'mul'):
+                continue
+            final_languages.append(lc)
+            lc_id = self.conn.get('SELECT id FROM languages WHERE lang_code=?',
+                    (lc,), all=False)
+            if lc_id is None:
+                lc_id = self.conn.execute('''INSERT INTO languages(lang_code)
+                                           VALUES (?)''', (lc,)).lastrowid
+            self.conn.execute('''INSERT INTO books_languages_link(book, lang_code)
+                                     VALUES (?,?)''', (book_id, lc_id))
+        self.dirtied(books_to_refresh, commit=False)
+        if commit:
+            self.conn.commit()
+        self.data.set(book_id, self.FIELD_MAP['languages'],
+                u','.join(final_languages), row_is_id=True)
+        if notify:
+            self.notify('metadata', [book_id])
+        return books_to_refresh
+
     def set_timestamp(self, id, dt, notify=True, commit=True):
         if dt:
             self.conn.execute('UPDATE books SET timestamp=? WHERE id=?', (dt, id))
@@ -2359,6 +2411,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def get_tags_with_ids(self):
         result = self.conn.get('SELECT id,name FROM tags')
+        if not result:
+            return []
+        return result
+
+    def get_languages_with_ids(self):
+        result = self.conn.get('SELECT id,lang_code FROM languages')
         if not result:
             return []
         return result
@@ -3024,7 +3082,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         format = os.path.splitext(path)[1][1:].lower()
         stream = path if hasattr(path, 'read') else lopen(path, 'rb')
         stream.seek(0)
-        mi = get_metadata(stream, format, use_libprs_metadata=False)
+        mi = get_metadata(stream, format, use_libprs_metadata=False,
+                force_read_metadata=True)
         stream.seek(0)
         if mi.series_index is None:
             mi.series_index = self.get_next_series_num_for(mi.series)

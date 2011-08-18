@@ -106,7 +106,7 @@ class MobiWriter(object):
             self.log.exception('Failed to generate MOBI index:')
         else:
             self.primary_index_record_idx = len(self.records)
-            for i in xrange(len(self.records)):
+            for i in xrange(self.last_text_record_idx + 1):
                 if i == 0: continue
                 tbs = self.indexer.get_trailing_byte_sequence(i)
                 self.records[i] += encode_trailing_data(tbs)
@@ -146,6 +146,7 @@ class MobiWriter(object):
         oeb = self.oeb
         oeb.logger.info('Serializing images...')
         self.image_records = []
+        self.image_map = {}
 
         mh_href = self.masthead_offset = None
         if 'masthead' in oeb.guide:
@@ -171,10 +172,12 @@ class MobiWriter(object):
                 oeb.logger.warn('Bad image file %r' % item.href)
                 continue
             else:
+                self.image_map[item.href] = len(self.image_records)
+                self.image_records.append(data)
+
                 if item.href == mh_href:
                     self.masthead_offset = len(self.image_records) - 1
                 elif item.href == cover_href:
-                    self.image_records.append(data)
                     self.cover_offset = len(self.image_records) - 1
                     try:
                         data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
@@ -193,7 +196,7 @@ class MobiWriter(object):
 
     def generate_text(self):
         self.oeb.logger.info('Serializing markup content...')
-        self.serializer = Serializer(self.oeb, self.images,
+        self.serializer = Serializer(self.oeb, self.image_map,
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
         self.text_length = len(text)
@@ -331,7 +334,9 @@ class MobiWriter(object):
             if self.indexer.is_flat_periodical:
                 bt = 0x102
             elif self.indexer.is_periodical:
-                bt = 0x101
+                # If you change this, remember to change the cdetype in the EXTH
+                # header as well
+                bt = 0x103
 
         record0.write(pack(b'>IIIII',
             0xe8, bt, 65001, uid, 6))
@@ -506,7 +511,9 @@ class MobiWriter(object):
 
         # Write cdetype
         if self.is_periodical:
-            data = b'NWPR'
+            # If you set the book type header field to 0x101 use NWPR here if
+            # you use 0x103 use MAGZ
+            data = b'MAGZ'
         else:
             data = b'EBOK'
         exth.write(pack(b'>II', 501, len(data)+8))
@@ -530,8 +537,6 @@ class MobiWriter(object):
             exth.write(pack(b'>II', EXTH_CODES['lastupdatetime'], len(datestr) + 8))
             exth.write(datestr)
             nrecs += 1
-            exth.write(pack(b'>III', EXTH_CODES['versionnumber'], 12, 7))
-            nrecs += 1
 
         if self.is_periodical:
             # Pretend to be amazon's super secret periodical generator
@@ -539,7 +544,7 @@ class MobiWriter(object):
         else:
             # Pretend to be kindlegen 1.2
             vals = {204:201, 205:1, 206:2, 207:33307}
-        for code, val in vals:
+        for code, val in vals.iteritems():
             exth.write(pack(b'>III', code, 12, val))
             nrecs += 1
 

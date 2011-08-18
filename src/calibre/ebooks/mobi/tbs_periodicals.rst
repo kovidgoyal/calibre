@@ -13,9 +13,9 @@ First sequences:
 0b0110 : 80 2
 0b0111 : 80 2 80
 
-Other sequences:
-0b0101 : 4 1a
-0b0001 : c b1
+0b0001 = 0
+0b0010 = 0
+0b0100 = 2
 
 Opening record
 ----------------

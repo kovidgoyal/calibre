@@ -33,8 +33,10 @@ class CNCX(object): # {{{
             self.strings[item.title] = 0
             if is_periodical:
                 self.strings[item.klass] = 0
-                aut, desc = item.author, item.description
-                self.strings[item.author] = self.strings[item.description] = 0
+                if item.author:
+                    self.strings[item.author] = 0
+                if item.description:
+                    self.strings[item.description] = 0
 
         self.records = []
         offset = 0
@@ -65,10 +67,10 @@ class CNCX(object): # {{{
 class TAGX(object): # {{{
 
     BITMASKS = {11:0b1}
-    BITMASKS.update({x:i+1 for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
-    BITMASKS.update({x:i+1 for i, x in enumerate([69, 70, 71, 72, 73])})
+    BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
+    BITMASKS.update({x:(1 << i) for i, x in enumerate([69, 70, 71, 72, 73])})
 
-    NUM_VALUES = defaultdict(lambda x:1)
+    NUM_VALUES = defaultdict(lambda :1)
     NUM_VALUES[11] = 3
     NUM_VALUES[0] = 0
 
@@ -80,7 +82,7 @@ class TAGX(object): # {{{
         buf.append(tag)
         buf.append(self.NUM_VALUES[tag])
         # bitmask
-        buf.append((1 << (self.BITMASKS[tag])) if tag else 0)
+        buf.append(self.BITMASKS[tag] if tag else 0)
         # eof
         buf.append(0 if tag else 1)
 
@@ -95,7 +97,8 @@ class TAGX(object): # {{{
         '''
         TAGX block for the Primary index header of a periodical
         '''
-        map(self.add_tag, (1, 2, 3, 4, 5, 21, 22, 23, 0, 69, 70, 71, 72, 73, 0))
+        list(map(self.add_tag, (1, 2, 3, 4, 5, 21, 22, 23, 0, 69, 70, 71, 72,
+            73, 0)))
         return self.header(2) + bytes(self.byts)
 
     @property
@@ -103,7 +106,21 @@ class TAGX(object): # {{{
         '''
         TAGX block for the secondary index header of a periodical
         '''
-        map(self.add_tag, (11, 0))
+        list(map(self.add_tag, (11, 0)))
+        return self.header(1) + bytes(self.byts)
+
+
+
+class TAGX_BOOK(TAGX):
+    BITMASKS = dict(TAGX.BITMASKS)
+    BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 21, 22, 23])})
+
+    @property
+    def hierarchical_book(self):
+        '''
+        TAGX block for the primary index header of a hierarchical book
+        '''
+        list(map(self.add_tag, (1, 2, 3, 4, 21, 22, 23, 0)))
         return self.header(1) + bytes(self.byts)
 
     @property
@@ -111,8 +128,9 @@ class TAGX(object): # {{{
         '''
         TAGX block for the primary index header of a flat book
         '''
-        map(self.add_tag, (1, 2, 3, 4, 0))
+        list(map(self.add_tag, (1, 2, 3, 4, 0)))
         return self.header(1) + bytes(self.byts)
+
 
 # }}}
 
@@ -181,8 +199,11 @@ class IndexEntry(object):
     def entry_type(self):
         ans = 0
         for tag in self.tag_nums:
-            ans |= (1 << (TAGX.BITMASKS[tag])) # 1 << x == 2**x
+            ans |= TAGX.BITMASKS[tag]
         return ans
+
+    def attr_for_tag(self, tag):
+        return self.RTAG_MAP[tag]
 
     @property
     def bytestring(self):
@@ -201,13 +222,13 @@ class IndexEntry(object):
             for attr in ('image_index', 'desc_offset', 'author_offset'):
                 val = getattr(self, attr)
                 if val is not None:
-                    tag = self.RTAG_MAP[attr]
+                    tag = self.TAG_VALUES[attr]
                     bm = TAGX.BITMASKS[tag]
                     flags |= bm
             buf.write(bytes(bytearray([flags])))
 
         for tag in self.tag_nums:
-            attr = self.RTAG_MAP[tag]
+            attr = self.attr_for_tag(tag)
             val = getattr(self, attr)
             if isinstance(val, int):
                 val = [val]
@@ -223,10 +244,21 @@ class IndexEntry(object):
         ans = buf.getvalue()
         return ans
 
+class BookIndexEntry(IndexEntry):
+
+    @property
+    def entry_type(self):
+        tagx = TAGX_BOOK()
+        ans = 0
+        for tag in self.tag_nums:
+            ans |= tagx.BITMASKS[tag]
+        return ans
+
+
 class PeriodicalIndexEntry(IndexEntry):
 
     def __init__(self, offset, label_offset, class_offset, depth):
-        IndexEntry.__init__(offset, label_offset)
+        IndexEntry.__init__(self, offset, label_offset)
         self.depth = depth
         self.class_offset = class_offset
         self.control_byte_count = 2
@@ -237,12 +269,14 @@ class SecondaryIndexEntry(IndexEntry):
                 'mastheadImage':69}
 
     def __init__(self, index):
-        IndexEntry.__init__(self, index, 0)
+        IndexEntry.__init__(self, 0, 0)
+        self.index = index
 
         tag = self.INDEX_MAP[index]
 
         # The values for this index entry
-        self.secondary = [len(self.INDEX_MAP) if tag == min(
+        # I dont know what the 5 means, it is not the number of entries
+        self.secondary = [5 if tag == min(
             self.INDEX_MAP.itervalues()) else 0, 0, tag]
 
     @property
@@ -456,7 +490,6 @@ class Indexer(object): # {{{
                     if not desc: desc = _('No details available')
                     node.author, node.description = aut, desc
 
-
         self.cncx = CNCX(oeb.toc, self.is_periodical)
 
         if self.is_periodical:
@@ -478,7 +511,7 @@ class Indexer(object): # {{{
     def create_index_record(self, secondary=False): # {{{
         header_length = 192
         buf = StringIO()
-        indices = list(SecondaryIndexEntry.entries) if secondary else self.indices
+        indices = list(SecondaryIndexEntry.entries()) if secondary else self.indices
 
         # Write index entries
         offsets = []
@@ -524,7 +557,9 @@ class Indexer(object): # {{{
             tagx_block = TAGX().secondary
         else:
             tagx_block = (TAGX().periodical if self.is_periodical else
-                            TAGX().flat_book)
+                            (TAGX_BOOK().hierarchical_book if
+                                self.book_has_subchapters else
+                                TAGX_BOOK().flat_book))
         header_length = 192
 
         # Ident 0 - 4
@@ -552,7 +587,7 @@ class Indexer(object): # {{{
         buf.write(b'\xff'*4)
 
         # Number of index entries 36-40
-        indices = list(SecondaryIndexEntry.entries) if secondary else self.indices
+        indices = list(SecondaryIndexEntry.entries()) if secondary else self.indices
         buf.write(pack(b'>I', len(indices)))
 
         # ORDT offset 40-44
@@ -583,8 +618,12 @@ class Indexer(object): # {{{
 
         # The index of the last entry in the NCX
         idx = indices[-1].index
-        buf.write(encode_number_as_hex(idx) if isinstance(idx, int) else
-                idx.encode('ascii'))
+        if isinstance(idx, int):
+            idx = encode_number_as_hex(idx)
+        else:
+            idx = idx.encode('ascii')
+            idx = (bytes(bytearray([len(idx)]))) + idx
+        buf.write(idx)
 
         # The number of entries in the NCX
         buf.write(pack(b'>H', num))
@@ -606,47 +645,98 @@ class Indexer(object): # {{{
     # }}}
 
     def create_book_index(self): # {{{
+        self.book_has_subchapters = False
         indices = []
-        seen = set()
+        seen, sub_seen = set(), set()
         id_offsets = self.serializer.id_offsets
 
-        for node in self.oeb.toc.iterdescendants():
+        # Flatten toc to contain only chapters and subchapters
+        # Anything deeper than a subchapter is made into a subchapter
+        chapters = []
+        for node in self.oeb.toc:
             try:
                 offset = id_offsets[node.href]
                 label = self.cncx[node.title]
             except:
-                self.log.warn('TOC item %s not found in document'%node.href)
+                self.log.warn('TOC item %s [%s] not found in document'%(
+                    node.title, node.href))
                 continue
+
             if offset in seen:
                 continue
             seen.add(offset)
-            index = IndexEntry(offset, label)
-            indices.append(index)
 
-        indices.sort(key=lambda x:x.offset)
+            subchapters = []
+            chapters.append((offset, label, subchapters))
 
-        # Set lengths
-        for i, index in enumerate(indices):
-            try:
-                next_offset = indices[i+1].offset
-            except:
-                next_offset = self.serializer.body_end_offset
-            index.length = next_offset - index.offset
+            for descendant in node.iterdescendants():
+                try:
+                    offset = id_offsets[descendant.href]
+                    label = self.cncx[descendant.title]
+                except:
+                    self.log.warn('TOC item %s [%s] not found in document'%(
+                        descendant.title, descendant.href))
+                    continue
 
-        # Remove empty nodes
-        indices = [i for i in indices if i.length > 0]
+                if offset in sub_seen:
+                    continue
+                sub_seen.add(offset)
+                subchapters.append((offset, label))
 
-        # Set index values
-        for i, index in enumerate(indices):
-            index.index = i
+            subchapters.sort(key=lambda x:x[0])
 
-        # Set lengths again to close up any gaps left by filtering
-        for i, index in enumerate(indices):
-            try:
-                next_offset = indices[i+1].offset
-            except:
-                next_offset = self.serializer.body_end_offset
-            index.length = next_offset - index.offset
+        chapters.sort(key=lambda x:x[0])
+
+        chapters = [(BookIndexEntry(x[0], x[1]), [
+            BookIndexEntry(y[0], y[1]) for y in x[2]]) for x in chapters]
+
+        def set_length(indices):
+            for i, index in enumerate(indices):
+                try:
+                    next_offset = indices[i+1].offset
+                except:
+                    next_offset = self.serializer.body_end_offset
+                index.length = next_offset - index.offset
+
+        # Set chapter and subchapter lengths
+        set_length([x[0] for x in chapters])
+        for x in chapters:
+            set_length(x[1])
+
+        # Remove empty chapters
+        chapters = [x for x in chapters if x[0].length > 0]
+
+        # Remove invalid subchapters
+        for i, x in enumerate(list(chapters)):
+            chapter, subchapters = x
+            ok_subchapters = []
+            for sc in subchapters:
+                if sc.offset < chapter.next_offset and sc.length > 0:
+                    ok_subchapters.append(sc)
+            chapters[i] = (chapter, ok_subchapters)
+
+        # Reset chapter and subchapter lengths in case any were removed
+        set_length([x[0] for x in chapters])
+        for x in chapters:
+            set_length(x[1])
+
+        # Set index and depth values
+        indices = []
+        for index, x in enumerate(chapters):
+            x[0].index = index
+            indices.append(x[0])
+
+        for chapter, subchapters in chapters:
+            for sc in subchapters:
+                index += 1
+                sc.index = index
+                sc.parent_index = chapter.index
+                indices.append(sc)
+                sc.depth = 1
+                self.book_has_subchapters = True
+            if subchapters:
+                chapter.first_child_index = subchapters[0].index
+                chapter.last_child_index = subchapters[-1].index
 
         return indices
 

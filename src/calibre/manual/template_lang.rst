@@ -273,7 +273,9 @@ The following functions are available in addition to those described in single-f
     * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole.
     * ``raw_field(name)`` -- returns the metadata field named by name without applying any formatting.
     * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
+    * ``strcat_max(max, string1, prefix2, string2, ...)`` -- Returns a string formed by concatenating the arguments. The returned value is initialized to string1. `Prefix, string` pairs are added to the end of the value as long as the resulting string length is less than `max`. String1 is returned even if string1 is longer than max. You can pass as many `prefix, string` pairs as you wish.
     * ``strcmp(x, y, lt, eq, gt)`` -- does a case-insensitive comparison x and y as strings. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
+    * ``strlen(a)`` -- Returns the length of the string passed as the argument.
     * ``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th characters of ``str``. The first character in ``str`` is the zero'th character. If end is negative, then it indicates that many characters counting from the right. If end is zero, then it indicates the last character. For example, ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)`` returns ``'234'``.
     * ``subtract(x, y)`` -- returns x - y. Throws an exception if either x or y are not numbers.
     * ``today()`` -- return a date string for today. This value is designed for use in format_date or days_between, but can be manipulated like any other string. The date is in ISO format.

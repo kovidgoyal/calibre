@@ -20,6 +20,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.date import parse_date, utcnow
 from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.localization import canonicalize_lang
 from calibre import as_unicode
 
 NAMESPACES = {
@@ -95,7 +96,9 @@ def to_metadata(browser, log, entry_, timeout): # {{{
         return mi
 
     mi.comments = get_text(extra, description)
-    #mi.language = get_text(extra, language)
+    lang = canonicalize_lang(get_text(extra, language))
+    if lang:
+        mi.language = lang
     mi.publisher = get_text(extra, publisher)
 
     # ISBN
@@ -162,7 +165,7 @@ class GoogleBooks(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
         'comments', 'publisher', 'identifier:isbn', 'rating',
-        'identifier:google']) # language currently disabled
+        'identifier:google', 'languages'])
     supports_gzip_transfer_encoding = True
     cached_cover_url_is_reliable = False
 

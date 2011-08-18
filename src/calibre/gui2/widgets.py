@@ -1063,9 +1063,16 @@ class Splitter(QSplitter):
             self.action_toggle = QAction(QIcon(icon), _('Toggle') + ' ' + label,
                     self)
             self.action_toggle.triggered.connect(self.toggle_triggered)
-            self.action_toggle.setShortcut(shortcut)
             if parent is not None:
                 parent.addAction(self.action_toggle)
+                if hasattr(parent, 'keyboard'):
+                    parent.keyboard.register_shortcut('splitter %s %s'%(name,
+                        label), unicode(self.action_toggle.text()),
+                        default_keys=(shortcut,), action=self.action_toggle)
+                else:
+                    self.action_toggle.setShortcut(shortcut)
+            else:
+                self.action_toggle.setShortcut(shortcut)
 
     def toggle_triggered(self, *args):
         self.toggle_side_pane()

@@ -239,7 +239,7 @@ class DBAdder(QObject): # {{{
 
 class Adder(QObject): # {{{
 
-    ADD_TIMEOUT = 600 # seconds
+    ADD_TIMEOUT = 900 # seconds (15 minutes)
 
     def __init__(self, parent, db, callback, spare_server=None):
         QObject.__init__(self, parent)

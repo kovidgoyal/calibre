@@ -6,11 +6,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import Qt
 
 from calibre.gui2.convert.mobi_output_ui import Ui_Form
 from calibre.gui2.convert import Widget
-from calibre.gui2.widgets import FontFamilyModel
 
 font_family_model = None
 
@@ -26,10 +24,12 @@ class PluginWidget(Widget, Ui_Form):
                 ['prefer_author_sort', 'rescale_images', 'toc_title',
                     'mobi_ignore_margins', 'mobi_toc_at_start',
                 'dont_compress', 'no_inline_toc',
-                'masthead_font','personal_doc', 'mobi_navpoints_only_deepest']
+                'personal_doc']#, 'mobi_navpoints_only_deepest']
                 )
-        from calibre.utils.fonts import fontconfig
         self.db, self.book_id = db, book_id
+
+        '''
+        from calibre.utils.fonts import fontconfig
 
         global font_family_model
         if font_family_model is None:
@@ -46,9 +46,11 @@ class PluginWidget(Widget, Ui_Form):
 
         self.font_family_model = font_family_model
         self.opt_masthead_font.setModel(self.font_family_model)
+        '''
 
         self.initialize_options(get_option, get_help, db, book_id)
 
+    '''
     def set_value_handler(self, g, val):
         if unicode(g.objectName()) in 'opt_masthead_font':
             idx = -1
@@ -59,3 +61,4 @@ class PluginWidget(Widget, Ui_Form):
             g.setCurrentIndex(idx)
             return True
         return False
+    '''

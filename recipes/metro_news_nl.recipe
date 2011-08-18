@@ -2,6 +2,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title = u'Metro Nieuws NL'
+    description = u'Metro Nieuws - NL'
+# Version 1.2, updated cover image to match the changed website.
+# added info date on title
     oldest_article = 2
     max_articles_per_feed = 100
     __author__     = u'DrMerry'
@@ -10,11 +13,11 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     simultaneous_downloads = 5
     delay          = 1
 #    timefmt        = ' [%A, %d %B, %Y]'
-    timefmt        = ''
+    timefmt        = ' [%A, %d %b %Y]'
     no_stylesheets = True
     remove_javascript = True
     remove_empty_feeds = True
-    cover_url      = 'http://www.readmetro.com/img/en/metroholland/last/1/small.jpg'
+    cover_url      = 'http://www.oldreadmetro.com/img/en/metroholland/last/1/small.jpg'
     remove_empty_feeds = True
     publication_type = 'newspaper'
     remove_tags_before = dict(name='div', attrs={'id':'date'})

@@ -54,20 +54,22 @@ class AddAction(InterfaceAction):
     def genesis(self):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)
         self.add_menu = self.qaction.menu()
-        self.add_menu.addAction(_('Add books from directories, including '
+        ma = partial(self.create_menu_action, self.add_menu)
+        ma('recursive-single', _('Add books from directories, including '
             'sub-directories (One book per directory, assumes every ebook '
-            'file is the same book in a different format)'),
+            'file is the same book in a different format)')).triggered.connect(
             self.add_recursive_single)
-        self.add_menu.addAction(_('Add books from directories, including '
+        ma('recursive-multiple', _('Add books from directories, including '
             'sub directories (Multiple books per directory, assumes every '
-            'ebook file is a different book)'), self.add_recursive_multiple)
+            'ebook file is a different book)')).triggered.connect(
+                    self.add_recursive_multiple)
         self.add_menu.addSeparator()
-        self.add_menu.addAction(_('Add Empty book. (Book entry with no '
-            'formats)'), self.add_empty, _('Shift+Ctrl+E'))
-        self.add_menu.addAction(_('Add from ISBN'), self.add_from_isbn)
+        ma('add-empty', _('Add Empty book. (Book entry with no formats)'),
+                shortcut=_('Shift+Ctrl+E')).triggered.connect(self.add_empty)
+        ma('add-isbn', _('Add from ISBN')).triggered.connect(self.add_from_isbn)
         self.add_menu.addSeparator()
-        self.add_menu.addAction(_('Add files to selected book records'),
-                self.add_formats, _('Shift+A'))
+        ma('add-formats', _('Add files to selected book records'),
+                triggered=self.add_formats, shortcut=_('Shift+A'))
 
         self.qaction.triggered.connect(self.add_books)
 
@@ -82,7 +84,8 @@ class AddAction(InterfaceAction):
         view = self.gui.library_view
         rows = view.selectionModel().selectedRows()
         if not rows:
-            return
+            return error_dialog(self.gui, _('No books selected'),
+                    _('Cannot add files as no books are selected'), show=True)
         ids = [view.model().id(r) for r in rows]
 
         if len(ids) > 1 and not question_dialog(self.gui,

@@ -8,14 +8,14 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, \
-    QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication, \
-    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect
+from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal,
+    QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication,
+    QPoint, QPixmap, QUrl, QImage, QPainter, QColor, QRect)
 
-from calibre.gui2.library.delegates import RatingDelegate, PubDateDelegate, \
-    TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, \
-    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate, \
-    CcEnumDelegate, CcNumberDelegate
+from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
+    TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate,
+    CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
+    CcEnumDelegate, CcNumberDelegate, LanguagesDelegate)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.utils.config import tweaks, prefs
 from calibre.gui2 import error_dialog, gprefs
@@ -85,6 +85,7 @@ class BooksView(QTableView): # {{{
         self.pubdate_delegate = PubDateDelegate(self)
         self.last_modified_delegate = DateDelegate(self,
                 tweak_name='gui_last_modified_display_format')
+        self.languages_delegate = LanguagesDelegate(self)
         self.tags_delegate = CompleteDelegate(self, ',', 'all_tags')
         self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
         self.cc_names_delegate = CompleteDelegate(self, '&', 'all_custom', True)
@@ -306,6 +307,7 @@ class BooksView(QTableView): # {{{
         state['hidden_columns'] = [cm[i] for i in  range(h.count())
                 if h.isSectionHidden(i) and cm[i] != 'ondevice']
         state['last_modified_injected'] = True
+        state['languages_injected'] = True
         state['sort_history'] = \
             self.cleanup_sort_history(self.model().sort_history)
         state['column_positions'] = {}
@@ -390,7 +392,7 @@ class BooksView(QTableView): # {{{
 
     def get_default_state(self):
         old_state = {
-                'hidden_columns': ['last_modified'],
+                'hidden_columns': ['last_modified', 'languages'],
                 'sort_history':[DEFAULT_SORT],
                 'column_positions': {},
                 'column_sizes': {},
@@ -399,6 +401,7 @@ class BooksView(QTableView): # {{{
                     'timestamp':'center',
                     'pubdate':'center'},
                 'last_modified_injected': True,
+                'languages_injected': True,
                 }
         h = self.column_header
         cm = self.column_map
@@ -430,11 +433,20 @@ class BooksView(QTableView): # {{{
                     if ans is not None:
                         db.prefs[name] = ans
                 else:
+                    injected = False
                     if not ans.get('last_modified_injected', False):
+                        injected = True
                         ans['last_modified_injected'] = True
                         hc = ans.get('hidden_columns', [])
                         if 'last_modified' not in hc:
                             hc.append('last_modified')
+                    if not ans.get('languages_injected', False):
+                        injected = True
+                        ans['languages_injected'] = True
+                        hc = ans.get('hidden_columns', [])
+                        if 'languages' not in hc:
+                            hc.append('languages')
+                    if injected:
                         db.prefs[name] = ans
         return ans
 
@@ -501,7 +513,7 @@ class BooksView(QTableView): # {{{
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) in (self.rating_delegate,
                     self.timestamp_delegate, self.pubdate_delegate,
-                    self.last_modified_delegate):
+                    self.last_modified_delegate, self.languages_delegate):
                 self.setItemDelegateForColumn(i, self.itemDelegate())
 
         cm = self.column_map
@@ -719,7 +731,7 @@ class BooksView(QTableView): # {{{
                     break
 
     def set_current_row(self, row, select=True):
-        if row > -1:
+        if row > -1 and row < self.model().rowCount(QModelIndex()):
             h = self.horizontalHeader()
             logical_indices = list(range(h.count()))
             logical_indices = [x for x in logical_indices if not

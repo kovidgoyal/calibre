@@ -310,7 +310,16 @@ class TemplateFormatter(string.Formatter):
             ans = string.Formatter.vformat(self, fmt, args, kwargs)
         return self.compress_spaces.sub(' ', ans).strip()
 
-    ########## a formatter guaranteed not to throw and exception ############
+    ########## a formatter that throws exceptions ############
+
+    def unsafe_format(self, fmt, kwargs, book):
+        self.kwargs = kwargs
+        self.book = book
+        self.composite_values = {}
+        self.locals = {}
+        return self.vformat(fmt, [], kwargs).strip()
+
+    ########## a formatter guaranteed not to throw an exception ############
 
     def safe_format(self, fmt, kwargs, error_value, book):
         self.kwargs = kwargs
