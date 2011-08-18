@@ -111,12 +111,12 @@ def config(defaults=None):
                 'to supports unicode.'))
     x('timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', year='%Y', default='%b, %Y'))
+                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
+                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
     x('send_timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', year='%Y', default='%b, %Y'))
+                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
+                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
     x('to_lowercase', default=False,
             help=_('Convert paths to lowercase.'))
     x('replace_whitespace', default=False,

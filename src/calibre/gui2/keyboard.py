@@ -20,7 +20,7 @@ from calibre.constants import DEBUG
 from calibre import prints
 from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import NONE, error_dialog, info_dialog
-from calibre.utils.search_query_parser import SearchQueryParser
+from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.gui2.search_box import SearchBox2
 
 ROOT = QModelIndex()
@@ -53,6 +53,7 @@ def finalize(shortcuts, custom_keys_map={}): # {{{
                 if DEBUG:
                     prints('Key %r for shortcut %s is already used by'
                             ' %s, ignoring'%(x, shortcut['name'], seen[x]['name']))
+                keys_map[unique_name] = ()
                 continue
             seen[x] = shortcut
             keys.append(ks)
@@ -113,6 +114,8 @@ class Manager(QObject): # {{{
         custom_keys_map = {un:tuple(keys) for un, keys in self.config.get(
             'map', {}).iteritems()}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
+        #import pprint
+        #pprint.pprint(self.keys_map)
 
 # }}}
 
@@ -149,7 +152,7 @@ class ConfigModel(QAbstractItemModel, SearchQueryParser):
         shortcut_map = {k:v.copy() for k, v in
                 self.keyboard.shortcuts.iteritems()}
         for un, s in shortcut_map.iteritems():
-            s['keys'] = tuple(self.keyboard.keys_map[un])
+            s['keys'] = tuple(self.keyboard.keys_map.get(un, ()))
             s['unique_name'] = un
             s['group'] = [g for g, names in self.keyboard.groups.iteritems() if un in
                     names][0]
@@ -590,11 +593,19 @@ class ShortcutConfig(QWidget): # {{{
         return self.view.state() == self.view.EditingState
 
     def find(self, query):
-        idx = self._model.find(query)
+        if not query:
+            return
+        try:
+            idx = self._model.find(query)
+        except ParseException:
+            self.search.search_done(False)
+            return
+        self.search.search_done(True)
         if not idx.isValid():
-            return info_dialog(self, _('No matches'),
-                    _('Could not find any matching shortcuts'), show=True,
-                    show_copy_button=False)
+            info_dialog(self, _('No matches'),
+                    _('Could not find any shortcuts matching %s')%query,
+                    show=True, show_copy_button=False)
+            return
         self.highlight_index(idx)
 
     def highlight_index(self, idx):
@@ -602,6 +613,7 @@ class ShortcutConfig(QWidget): # {{{
         self.view.selectionModel().select(idx,
                 self.view.selectionModel().ClearAndSelect)
         self.view.setCurrentIndex(idx)
+        self.view.setFocus(Qt.OtherFocusReason)
 
     def find_next(self, *args):
         idx = self.view.currentIndex()

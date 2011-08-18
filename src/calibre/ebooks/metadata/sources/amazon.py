@@ -22,6 +22,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
+from calibre.utils.localization import canonicalize_lang
 
 class Worker(Thread): # Get details {{{
 
@@ -106,10 +107,11 @@ class Worker(Thread): # Get details {{{
             r'([0-9.]+) (out of|von|su|étoiles sur) (\d+)( (stars|Sternen|stelle)){0,1}')
 
         lm = {
-                'en': ('English', 'Englisch'),
-                'fr': ('French', 'Français'),
-                'it': ('Italian', 'Italiano'),
-                'de': ('German', 'Deutsch'),
+                'eng': ('English', 'Englisch'),
+                'fra': ('French', 'Français'),
+                'ita': ('Italian', 'Italiano'),
+                'deu': ('German', 'Deutsch'),
+                'spa': ('Spanish', 'Espa\xf1ol', 'Espaniol'),
                 }
         self.lang_map = {}
         for code, names in lm.iteritems():
@@ -374,8 +376,11 @@ class Worker(Thread): # Get details {{{
     def parse_language(self, pd):
         for x in reversed(pd.xpath(self.language_xpath)):
             if x.tail:
-                ans = x.tail.strip()
-                ans = self.lang_map.get(ans, None)
+                raw = x.tail.strip()
+                ans = self.lang_map.get(raw, None)
+                if ans:
+                    return ans
+                ans = canonicalize_lang(ans)
                 if ans:
                     return ans
 # }}}
@@ -388,7 +393,7 @@ class Amazon(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate',
-        'language'])
+        'languages'])
     has_html_comments = True
     supports_gzip_transfer_encoding = True
 
