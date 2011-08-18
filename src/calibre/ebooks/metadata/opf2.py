@@ -1328,7 +1328,8 @@ def metadata_to_opf(mi, as_string=True):
             '[http://calibre-ebook.com]'
 
     if not mi.languages:
-        mi.languages = ['UND']
+        lang = get_lang().replace('_', '-').partition('-')[0]
+        mi.languages = [lang]
 
     root = etree.fromstring(textwrap.dedent(
     '''
@@ -1380,7 +1381,7 @@ def metadata_to_opf(mi, as_string=True):
         factory(DC('rights'), mi.rights)
     for lang in mi.languages:
         if not lang or lang.lower() == 'und':
-            lang = get_lang().replace('_', '-').partition('-')[0]
+            continue
         factory(DC('language'), lang)
     if mi.tags:
         for tag in mi.tags:

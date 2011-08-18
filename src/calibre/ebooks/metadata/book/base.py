@@ -730,8 +730,6 @@ class Metadata(object):
         if self.identifiers:
             fmt('Identifiers', u', '.join(['%s:%s'%(k, v) for k, v in
                 self.identifiers.iteritems()]))
-        if self.languages:
-            fmt('Languages', u', '.join(self.languages))
         if self.comments:
             fmt('Comments', self.comments)
 

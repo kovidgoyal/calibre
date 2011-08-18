@@ -260,6 +260,12 @@ def langnames_to_langcodes(names):
 
     return ans
 
+def lang_as_iso639_1(name_or_code):
+    code = canonicalize_lang(name_or_code)
+    if code is not None:
+        iso639 = _load_iso639()
+        return iso639['3to2'].get(code, None)
+
 _udc = None
 
 def get_udc():
