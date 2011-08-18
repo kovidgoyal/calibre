@@ -590,8 +590,9 @@ from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 from calibre.ebooks.metadata.sources.overdrive import OverDrive
 from calibre.ebooks.metadata.sources.douban import Douban
+from calibre.ebooks.metadata.sources.ozon import Ozon
 
-plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban]
+plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
 
 # }}}
 
@@ -1476,6 +1477,14 @@ class StoreWoblinkStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB']
 
+class XinXiiStore(StoreBase):
+    name = 'XinXii'
+    description = ''
+    actual_plugin = 'calibre.gui2.store.stores.xinxii_plugin:XinXiiStore'
+    
+    headquarters = 'DE'
+    formats = ['EPUB', 'PDF']
+
 class StoreZixoStore(StoreBase):
     name = 'Zixo'
     author = u'Tomasz Długosz'
@@ -1524,6 +1533,7 @@ plugins += [
     StoreWHSmithUKStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore,
+    XinXiiStore,
     StoreZixoStore
 ]
 

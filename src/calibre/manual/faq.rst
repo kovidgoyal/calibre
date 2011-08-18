@@ -360,7 +360,7 @@ When you first run |app|, it will ask you for a folder in which to store your bo
 
 Metadata about the books is stored in the file ``metadata.db`` at the top level of the library folder This file is is a sqlite database. When backing up your library make sure you copy the entire folder and all its sub-folders.
 
-The library folder and all it's contents make up what is called a *|app| library*. You can have multiple such libraries. To manage the libraries, click the |app| icon on the toolbar. You can create new libraries, remove/rename existing ones and switch between libraries easily.
+The library folder and all it's contents make up what is called a |app| library. You can have multiple such libraries. To manage the libraries, click the |app| icon on the toolbar. You can create new libraries, remove/rename existing ones and switch between libraries easily.
 
 You can copy or move books between different libraries (once you have more than one library setup) by right clicking on a book and selecting the :guilabel:`Copy to library` action. 
 
