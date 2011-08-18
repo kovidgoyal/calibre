@@ -26,6 +26,8 @@ from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
 
+BASE_TITLE = _('Edit Metadata')
+
 class MetadataSingleDialogBase(ResizableDialog):
 
     view_format = pyqtSignal(object, object)
@@ -77,7 +79,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         ll.addSpacing(10)
 
         self.setWindowIcon(QIcon(I('edit_input.png')))
-        self.setWindowTitle(_('Edit Metadata'))
+        self.setWindowTitle(BASE_TITLE)
 
         self.create_basic_metadata_widgets()
 
@@ -267,8 +269,11 @@ class MetadataSingleDialogBase(ResizableDialog):
         title = self.title.current_val
         if len(title) > 50:
             title = title[:50] + u'\u2026'
-        self.setWindowTitle(_('Edit Metadata') + ' - ' +
-                title)
+        self.setWindowTitle(BASE_TITLE + ' - ' +
+                title + ' - ' +
+                _(' [%(num)d of %(tot)d]')%dict(num=
+                    self.current_row+1,
+                tot=len(self.row_list)))
 
     def swap_title_author(self, *args):
         title = self.title.current_val
