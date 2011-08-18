@@ -205,8 +205,8 @@ class Resources(Command):
         dest = self.j(self.RESOURCES, 'template-functions.json')
         function_dict = {}
         import inspect
-        from calibre.utils.formatter_functions import all_builtin_functions
-        for obj in all_builtin_functions:
+        from calibre.utils.formatter_functions import formatter_functions
+        for obj in formatter_functions.get_builtins().values():
             eval_func = inspect.getmembers(obj,
                     lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
             try:

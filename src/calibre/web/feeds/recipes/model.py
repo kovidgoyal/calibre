@@ -217,6 +217,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             self.all_urns.add(urn)
             if ok(urn):
                 lang = x.get('language', 'und')
+                if lang:
+                    lang = lang.replace('-', '_')
                 if lang not in lang_map:
                     lang_map[lang] = factory(NewsCategory, new_root, lang)
                 factory(NewsItem, lang_map[lang], urn, x.get('title'))

@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re, urllib
+import urllib
 from contextlib import closing
 
 from lxml import html
@@ -45,24 +45,26 @@ class AmazonDEKindleStore(StorePlugin):
             doc = html.fromstring(f.read())
 
             # Amazon has two results pages.
-            is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')
-            # Horizontal grid of books.
-            if is_shot:
-                data_xpath = '//div[contains(@class, "result")]'
-                format_xpath = './/div[@class="productTitle"]/text()'
-                cover_xpath = './/div[@class="productTitle"]//img/@src'
-            # Vertical list of books.
-            else:
-                data_xpath = '//div[@class="productData"]'
-                format_xpath = './/span[@class="format"]/text()'
-                cover_xpath = '../div[@class="productImage"]/a/img/@src'
+            # 20110725: seems that is_shot is gone.
+#            is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')
+#            # Horizontal grid of books.
+#            if is_shot:
+#                data_xpath = '//div[contains(@class, "result")]'
+#                format_xpath = './/div[@class="productTitle"]/text()'
+#                cover_xpath = './/div[@class="productTitle"]//img/@src'
+#            # Vertical list of books.
+#            else:
+            data_xpath = '//div[contains(@class, "result") and contains(@class, "product")]'
+            format_xpath = './/span[@class="format"]/text()'
+            cover_xpath = './/img[@class="productImage"]/@src'
+# end is_shot else
 
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
                     break
 
                 # Even though we are searching digital-text only Amazon will still
-                # put in results for non Kindle books (author pages). Se we need
+                # put in results for non Kindle books (author pages). So we need
                 # to explicitly check if the item is a Kindle book and ignore it
                 # if it isn't.
                 format = ''.join(data.xpath(format_xpath))
@@ -71,28 +73,18 @@ class AmazonDEKindleStore(StorePlugin):
 
                 # We must have an asin otherwise we can't easily reference the
                 # book later.
-                asin_href = None
-                asin_a = data.xpath('.//div[@class="productTitle"]/a[1]')
-                if asin_a:
-                    asin_href = asin_a[0].get('href', '')
-                    m = re.search(r'/dp/(?P<asin>.+?)(/|$)', asin_href)
-                    if m:
-                        asin = m.group('asin')
-                    else:
-                        continue
-                else:
-                    continue
+                asin = ''.join(data.xpath("@name"))
 
                 cover_url = ''.join(data.xpath(cover_xpath))
 
-                title = ''.join(data.xpath('.//div[@class="productTitle"]/a/text()'))
+                title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
 
-                if is_shot:
-                    author = format.split(' von ')[-1]
-                else:
-                    author = ''.join(data.xpath('.//div[@class="productTitle"]/span[@class="ptBrand"]/text()'))
-                    author = author.split(' von ')[-1]
+#                if is_shot:
+#                    author = format.split(' von ')[-1]
+#                else:
+                author = ''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()'))
+                author = author.split('von ')[-1]
 
                 counter -= 1
 

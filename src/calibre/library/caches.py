@@ -15,6 +15,7 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
+from calibre.utils.localization import canonicalize_lang
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
@@ -721,9 +722,13 @@ class ResultCache(SearchQueryParser): # {{{
                 if loc == db_col['authors']:
                     ### DB stores authors with commas changed to bars, so change query
                     if matchkind == REGEXP_MATCH:
-                        q = query.replace(',', r'\|');
+                        q = query.replace(',', r'\|')
                     else:
-                        q = query.replace(',', '|');
+                        q = query.replace(',', '|')
+                elif loc == db_col['languages']:
+                    q = canonicalize_lang(query)
+                    if q is None:
+                        q = query
                 else:
                     q = query
 

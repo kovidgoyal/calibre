@@ -15,7 +15,6 @@ APP_UID  = 'libprs500'
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
         config_dir)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
-from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 
@@ -41,7 +40,7 @@ if isosx:
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Fetch News', 'Store', 'Save To Disk', 'Connect Share', None,
         'Remove Books',
         )
 else:
@@ -56,7 +55,7 @@ else:
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Fetch News', 'Save To Disk', 'Store', 'Connect Share', None,
         'Remove Books', None, 'Help', 'Preferences',
         )
 
@@ -74,6 +73,13 @@ gprefs.defaults['action-layout-context-menu-device'] = (
         'Add To Library', 'Edit Collections',
         )
 
+gprefs.defaults['action-layout-context-menu-cover-browser'] = (
+        'Edit Metadata', 'Send To Device', 'Save To Disk',
+        'Connect Share', 'Copy To Library', None,
+        'Convert Books', 'View', 'Open Folder', 'Show Book Details',
+        'Similar Books', 'Tweak ePub', None, 'Remove Books',
+        )
+
 gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['automerge'] = 'ignore'
@@ -88,9 +94,10 @@ gprefs.defaults['book_display_fields'] = [
         ('path', True), ('publisher', False), ('rating', False),
         ('author_sort', False), ('sort', False), ('timestamp', False),
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
-        ('last_modified', False), ('size', False),
+        ('last_modified', False), ('size', False), ('languages', False),
         ]
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
+gprefs.defaults['preserve_date_on_ctl'] = True
 
 # }}}
 
@@ -163,7 +170,9 @@ def _config(): # {{{
     c.add_opt('scheduler_search_history', default=[],
         help='Search history for the recipe scheduler')
     c.add_opt('plugin_search_history', default=[],
-        help='Search history for the recipe scheduler')
+        help='Search history for the plugin preferences')
+    c.add_opt('shortcuts_search_history', default=[],
+        help='Search history for the keyboard preferences')
     c.add_opt('worker_limit', default=6,
             help=_(
         'Maximum number of simultaneous conversion/news download jobs. '
@@ -417,6 +426,10 @@ class FileIconProvider(QFileIconProvider):
              'rtf'     : 'rtf',
              'odt'     : 'odt',
              'snb'     : 'snb',
+             'djv'     : 'djvu',
+             'djvu'    : 'djvu',
+             'xps'     : 'xps',
+             'oxps'    : 'xps',
              }
 
     def __init__(self):
@@ -624,6 +637,22 @@ class ResizableDialog(QDialog):
         nw = min(self.width(), nw)
         self.resize(nw, nh)
 
+class Translator(QTranslator):
+    '''
+    Translator to load translations for strings in Qt from the calibre
+    translations. Does not support advanced features of Qt like disambiguation
+    and plural forms.
+    '''
+
+    def translate(self, *args, **kwargs):
+        try:
+            src = unicode(args[1])
+        except:
+            return u''
+        t = _
+        return t(src)
+
+
 gui_thread = None
 
 qt_app = None
@@ -670,9 +699,8 @@ class Application(QApplication):
     def load_translations(self):
         if self._translator is not None:
             self.removeTranslator(self._translator)
-        self._translator = QTranslator(self)
-        if set_qt_translator(self._translator):
-            self.installTranslator(self._translator)
+        self._translator = Translator(self)
+        self.installTranslator(self._translator)
 
     def event(self, e):
         if callable(self.file_event_hook) and e.type() == QEvent.FileOpen:

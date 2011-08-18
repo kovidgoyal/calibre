@@ -8,13 +8,14 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt4.Qt import QMenu, Qt, QInputDialog, QToolButton
+from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
+        QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize)
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.config import prefs
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
-    question_dialog, info_dialog, open_local_file)
+    question_dialog, info_dialog, open_local_file, choose_dir)
 from calibre.library.database2 import LibraryDatabase2
 from calibre.gui2.actions import InterfaceAction
 
@@ -76,29 +77,83 @@ class LibraryUsageStats(object): # {{{
         self.write_stats()
 # }}}
 
+class MovedDialog(QDialog): # {{{
+
+    def __init__(self, stats, location, parent=None):
+        QDialog.__init__(self, parent)
+        self.setWindowTitle(_('No library found'))
+        self._l = l = QGridLayout(self)
+        self.setLayout(l)
+        self.stats, self.location = stats, location
+
+        loc = self.oldloc = location.replace('/', os.sep)
+        self.header = QLabel(_('No existing calibre library was found at %s. '
+            'If the library was moved, select its new location below. '
+            'Otherwise calibre will forget this library.')%loc)
+        self.header.setWordWrap(True)
+        ncols = 2
+        l.addWidget(self.header, 0, 0, 1, ncols)
+        self.cl = QLabel('<br><b>'+_('New location of this library:'))
+        l.addWidget(self.cl, 1, 0, 1, ncols)
+        self.loc = QLineEdit(loc, self)
+        l.addWidget(self.loc, 2, 0, 1, 1)
+        self.cd = QToolButton(self)
+        self.cd.setIcon(QIcon(I('document_open.png')))
+        self.cd.clicked.connect(self.choose_dir)
+        l.addWidget(self.cd, 2, 1, 1, 1)
+        self.bb = QDialogButtonBox(self)
+        b = self.bb.addButton(_('Library moved'), self.bb.AcceptRole)
+        b.setIcon(QIcon(I('ok.png')))
+        b = self.bb.addButton(_('Forget library'), self.bb.RejectRole)
+        b.setIcon(QIcon(I('edit-clear.png')))
+        self.bb.accepted.connect(self.accept)
+        self.bb.rejected.connect(self.reject)
+        l.addWidget(self.bb, 3, 0, 1, ncols)
+        self.resize(self.sizeHint() + QSize(100, 50))
+
+    def choose_dir(self):
+        d = choose_dir(self, 'library moved choose new loc',
+                _('New library location'), default_dir=self.oldloc)
+        if d is not None:
+            self.loc.setText(d)
+
+    def reject(self):
+        self.stats.remove(self.location)
+        QDialog.reject(self)
+
+    def accept(self):
+        newloc = unicode(self.loc.text())
+        if not LibraryDatabase2.exists_at(newloc):
+            error_dialog(self, _('No library found'),
+                    _('No existing calibre library found at %s')%newloc,
+                    show=True)
+            return
+        self.stats.rename(self.location, newloc)
+        self.newloc = newloc
+        QDialog.accept(self)
+# }}}
+
 class ChooseLibraryAction(InterfaceAction):
 
     name = 'Choose Library'
-    action_spec = (_('%d books'), 'lt.png',
+    action_spec = (_('Choose Library'), 'lt.png',
             _('Choose calibre library to work with'), None)
     dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    action_add_menu = True
+    action_menu_clone_qaction = _('Switch/create library...')
 
     def genesis(self):
+        self.base_text = _('%d books')
         self.count_changed(0)
         self.qaction.triggered.connect(self.choose_library,
                 type=Qt.QueuedConnection)
+        self.action_choose = self.menuless_qaction
 
         self.stats = LibraryUsageStats()
         self.popup_type = (QToolButton.InstantPopup if len(self.stats.stats) > 1 else
                 QToolButton.MenuButtonPopup)
 
-        self.create_action(spec=(_('Switch/create library...'), 'lt.png', None,
-            None), attr='action_choose')
-        self.action_choose.triggered.connect(self.choose_library,
-                type=Qt.QueuedConnection)
-        self.choose_menu = QMenu(self.gui)
-        self.qaction.setMenu(self.choose_menu)
-
+        self.choose_menu = self.qaction.menu()
 
         if not os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.choose_menu.addAction(self.action_choose)
@@ -110,7 +165,7 @@ class ChooseLibraryAction(InterfaceAction):
             self.delete_menu = QMenu(_('Remove library'))
             self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
 
-        ac = self.create_action(spec=(_('Pick a random book'), 'catalog.png',
+        ac = self.create_action(spec=(_('Pick a random book'), 'random.png',
             None, None), attr='action_pick_random')
         ac.triggered.connect(self.pick_random)
         self.choose_menu.addAction(ac)
@@ -152,10 +207,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.choose_menu.addMenu(self.maintenance_menu)
 
     def pick_random(self, *args):
-        import random
-        pick = random.randint(0, self.gui.library_view.model().rowCount(None))
-        self.gui.library_view.set_current_row(pick)
-        self.gui.library_view.scroll_to_row(pick)
+        self.gui.iactions['Pick Random Book'].pick_random()
 
     def library_name(self):
         db = self.gui.library_view.model().db
@@ -344,14 +396,14 @@ class ChooseLibraryAction(InterfaceAction):
         loc = location.replace('/', os.sep)
         exists = self.gui.library_view.model().db.exists_at(loc)
         if not exists:
-            warning_dialog(self.gui, _('No library found'),
-                    _('No existing calibre library was found at %s.'
-                    ' It will be removed from the list of known'
-                    ' libraries.')%loc, show=True)
-            self.stats.remove(location)
+            d = MovedDialog(self.stats, location, self.gui)
+            ret = d.exec_()
             self.build_menus()
             self.gui.iactions['Copy To Library'].build_menus()
-            return
+            if ret == d.Accepted:
+                loc = d.newloc.replace('/', os.sep)
+            else:
+                return
 
         prefs['library_path'] = loc
         #from calibre.utils.mem import memory
@@ -382,7 +434,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.switch_requested(self.qs_locations[idx])
 
     def count_changed(self, new_count):
-        text = self.action_spec[0]%new_count
+        text = self.base_text%new_count
         a = self.qaction
         a.setText(text)
         tooltip = self.action_spec[2] + '\n\n' + text

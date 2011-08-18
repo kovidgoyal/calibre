@@ -289,9 +289,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.documentation.clear()
         if name in self.funcs:
             self.documentation.setPlainText(self.funcs[name].doc)
-            if name in self.builtins:
-                if name in self.builtin_source_dict:
-                    self.source_code.setPlainText(self.builtin_source_dict[name])
+            if name in self.builtins and name in self.builtin_source_dict:
+                self.source_code.setPlainText(self.builtin_source_dict[name])
             else:
                 self.source_code.setPlainText(self.funcs[name].program_text)
 

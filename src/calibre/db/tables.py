@@ -12,10 +12,12 @@ from datetime import datetime
 from dateutil.tz import tzoffset
 
 from calibre.constants import plugins
-from calibre.utils.date import parse_date, local_tz
+from calibre.utils.date import parse_date, local_tz, UNDEFINED_DATE
 from calibre.ebooks.metadata import author_to_author_sort
 
 _c_speedup = plugins['speedup'][0]
+
+ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
 
 def _c_convert_timestamp(val):
     if not val:
@@ -27,8 +29,11 @@ def _c_convert_timestamp(val):
     if ret is None:
         return parse_date(val, as_utc=False)
     year, month, day, hour, minutes, seconds, tzsecs = ret
-    return datetime(year, month, day, hour, minutes, seconds,
+    try:
+        return datetime(year, month, day, hour, minutes, seconds,
                 tzinfo=tzoffset(None, tzsecs)).astimezone(local_tz)
+    except OverflowError:
+        return UNDEFINED_DATE.astimezone(local_tz)
 
 class Table(object):
 
@@ -57,6 +62,8 @@ class OneToOneTable(Table):
     timestamp, size, etc.
     '''
 
+    table_type = ONE_ONE
+
     def read(self, db):
         self.book_col_map = {}
         idcol = 'id' if self.metadata['table'] == 'books' else 'book'
@@ -73,6 +80,17 @@ class SizeTable(OneToOneTable):
                 'WHERE data.book=books.id) FROM books'):
             self.book_col_map[row[0]] = self.unserialize(row[1])
 
+class CompositeTable(OneToOneTable):
+
+    def read(self, db):
+        self.book_col_map = {}
+        d = self.metadata['display']
+        self.composite_template = ['composite_template']
+        self.contains_html = d['contains_html']
+        self.make_category = d['make_category']
+        self.composite_sort = d['composite_sort']
+        self.use_decorations = d['use_decorations']
+
 class ManyToOneTable(Table):
 
     '''
@@ -82,9 +100,10 @@ class ManyToOneTable(Table):
     Each book however has only one value for data of this type.
     '''
 
+    table_type = MANY_ONE
+
     def read(self, db):
         self.id_map = {}
-        self.extra_map = {}
         self.col_book_map = {}
         self.book_col_map = {}
         self.read_id_maps(db)
@@ -105,6 +124,9 @@ class ManyToOneTable(Table):
             self.col_book_map[row[1]].append(row[0])
             self.book_col_map[row[0]] = row[1]
 
+        for key in tuple(self.col_book_map.iterkeys()):
+            self.col_book_map[key] = tuple(self.col_book_map[key])
+
 class ManyToManyTable(ManyToOneTable):
 
     '''
@@ -112,6 +134,8 @@ class ManyToManyTable(ManyToOneTable):
     can have more than one value and each value can be mapped to more than one
     book. For example: tags or authors.
     '''
+
+    table_type = MANY_MANY
 
     def read_maps(self, db):
         for row in db.conn.execute(
@@ -124,14 +148,21 @@ class ManyToManyTable(ManyToOneTable):
                 self.book_col_map[row[0]] = []
             self.book_col_map[row[0]].append(row[1])
 
+        for key in tuple(self.col_book_map.iterkeys()):
+            self.col_book_map[key] = tuple(self.col_book_map[key])
+
+        for key in tuple(self.book_col_map.iterkeys()):
+            self.book_col_map[key] = tuple(self.book_col_map[key])
+
 class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
         self.alink_map = {}
+        self.asort_map  = {}
         for row in db.conn.execute(
                 'SELECT id, name, sort, link FROM authors'):
             self.id_map[row[0]] = row[1]
-            self.extra_map[row[0]] = (row[2] if row[2] else
+            self.asort_map[row[0]] = (row[2] if row[2] else
                     author_to_author_sort(row[1]))
             self.alink_map[row[0]] = row[3]
 
@@ -141,14 +172,25 @@ class FormatsTable(ManyToManyTable):
         pass
 
     def read_maps(self, db):
+        self.fname_map = {}
         for row in db.conn.execute('SELECT book, format, name FROM data'):
             if row[1] is not None:
-                if row[1] not in self.col_book_map:
-                    self.col_book_map[row[1]] = []
-                self.col_book_map[row[1]].append(row[0])
+                fmt = row[1].upper()
+                if fmt not in self.col_book_map:
+                    self.col_book_map[fmt] = []
+                self.col_book_map[fmt].append(row[0])
                 if row[0] not in self.book_col_map:
                     self.book_col_map[row[0]] = []
-                self.book_col_map[row[0]].append((row[1], row[2]))
+                self.book_col_map[row[0]].append(fmt)
+                if row[0] not in self.fname_map:
+                    self.fname_map[row[0]] = {}
+                self.fname_map[row[0]][fmt] = row[2]
+
+        for key in tuple(self.col_book_map.iterkeys()):
+            self.col_book_map[key] = tuple(self.col_book_map[key])
+
+        for key in tuple(self.book_col_map.iterkeys()):
+            self.book_col_map[key] = tuple(self.book_col_map[key])
 
 class IdentifiersTable(ManyToManyTable):
 
@@ -162,6 +204,9 @@ class IdentifiersTable(ManyToManyTable):
                     self.col_book_map[row[1]] = []
                 self.col_book_map[row[1]].append(row[0])
                 if row[0] not in self.book_col_map:
-                    self.book_col_map[row[0]] = []
-                self.book_col_map[row[0]].append((row[1], row[2]))
+                    self.book_col_map[row[0]] = {}
+                self.book_col_map[row[0]][row[1]] = row[2]
+
+        for key in tuple(self.col_book_map.iterkeys()):
+            self.col_book_map[key] = tuple(self.col_book_map[key])
 

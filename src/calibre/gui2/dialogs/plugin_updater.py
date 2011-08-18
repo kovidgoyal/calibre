@@ -701,7 +701,9 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
         if DEBUG:
             prints('Locating zip file for %s: %s'% (display_plugin.name, display_plugin.forum_link))
-        self.gui.status_bar.showMessage(_('Locating zip file for %s: %s') % (display_plugin.name, display_plugin.forum_link))
+        self.gui.status_bar.showMessage(
+                _('Locating zip file for %(name)s: %(link)s') % dict(
+                    name=display_plugin.name, link=display_plugin.forum_link))
         plugin_zip_url = self._read_zip_attachment_url(display_plugin.forum_link)
         if not plugin_zip_url:
             return error_dialog(self.gui, _('Install Plugin Failed'),

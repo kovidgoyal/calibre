@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os, shutil, time
 
 from calibre.devices.errors import PathError
+from calibre.utils.filenames import case_preserving_open_file
 
 class File(object):
 
@@ -46,10 +47,8 @@ class CLI(object):
             path = os.path.join(path, infile.name)
         if not replace_file and os.path.exists(path):
             raise PathError('File already exists: ' + path)
-        d = os.path.dirname(path)
-        if not os.path.exists(d):
-            os.makedirs(d)
-        with open(path, 'w+b') as dest:
+        dest, actual_path = case_preserving_open_file(path)
+        with dest:
             try:
                 shutil.copyfileobj(infile, dest)
             except IOError:
@@ -62,6 +61,7 @@ class CLI(object):
             #if not check_transfer(infile, dest): raise Exception('Transfer failed')
         if close:
             infile.close()
+        return actual_path
 
     def munge_path(self, path):
         if path.startswith('/') and not (path.startswith(self._main_prefix) or \

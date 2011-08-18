@@ -11,7 +11,7 @@ defaults.
 '''
 
 #: Auto increment series index
-# The algorithm used to assign a new book in an existing series a series number.
+# The algorithm used to assign a book added to an existing series a series number.
 # New series numbers assigned using this tweak are always integer values, except
 # if a constant non-integer is specified.
 # Possible values are:
@@ -27,7 +27,19 @@ defaults.
 # series_index_auto_increment = 'next'
 # series_index_auto_increment = 'next_free'
 # series_index_auto_increment = 16.5
+#
+# Set the use_series_auto_increment_tweak_when_importing tweak to True to
+# use the above values when importing/adding books. If this tweak is set to
+# False (the default) then the series number will be set to 1 if it is not
+# explicitly set to during the import. If set to True, then the
+# series index will be set according to the series_index_auto_increment setting.
+# Note that the use_series_auto_increment_tweak_when_importing tweak is used
+# only when a value is not provided during import. If the importing regular
+# expression produces a value for series_index, or if you are reading metadata
+# from books and the import plugin produces a value, than that value will
+# be used irrespective of the setting of the tweak.
 series_index_auto_increment = 'next'
+use_series_auto_increment_tweak_when_importing = False
 
 #: Add separator after completing an author name
 # Should the completion separator be append
@@ -167,6 +179,9 @@ save_template_title_series_sorting = 'library_order'
 # changed. Changes to this tweak won't have an effect until the book is modified
 # in some way. If you enter an invalid pattern, it is silently ignored.
 # To disable use the expression: '^$'
+# This expression is designed for articles that are followed by spaces. If you
+# also need to match articles that are followed by other characters, for example L'
+# in French, use: r"^(A\s+|The\s+|An\s+|L')" instead.
 # Default: '^(A|The|An)\s+'
 title_sort_articles=r'^(A|The|An)\s+'
 
@@ -365,4 +380,11 @@ server_listen_on = '0.0.0.0'
 # what it should be and it causes other random bugs on some systems, so turn it
 # on at your own risk!
 unified_title_toolbar_on_osx = False
+
+#: Save original file when converting from same format to same format
+# When calibre does a conversion from the same format to the same format, for
+# example, from EPUB to EPUB, the original file is saved, so that in case the
+# conversion is poor, you can tweak the settings and run it again. By setting
+# this to False you can prevent calibre from saving the original file.
+save_original_format = True
 

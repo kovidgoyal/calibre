@@ -6,6 +6,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+from calibre.utils.filenames import ascii_filename
+
 class StorePlugin(object): # {{{
     '''
     A plugin representing an online ebook repository (store). The store can
@@ -43,7 +45,7 @@ class StorePlugin(object): # {{{
     The easiest way to handle affiliate money payouts is to randomly select
     between the author's affiliate id and calibre's affiliate id so that
     70% of the time the author's id is used.
-    
+
     See declined.txt for a list of stores that do not want to be included.
     '''
 
@@ -53,7 +55,7 @@ class StorePlugin(object): # {{{
         self.gui = gui
         self.name = name
         self.base_plugin = None
-        self.config = JSONConfig('store/stores/' + self.name)
+        self.config = JSONConfig('store/stores/' + ascii_filename(self.name))
 
     def open(self, gui, parent=None, detail_item=None, external=False):
         '''

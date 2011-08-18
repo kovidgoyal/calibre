@@ -143,7 +143,9 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         pt = PersistentTemporaryFile(suffix='.recipe')
         pt.write(src.encode('utf-8'))
         pt.close()
-        body = _('The attached file: %s is a recipe to download %s.')%(os.path.basename(pt.name), title)
+        body = _('The attached file: %(fname)s is a '
+                'recipe to download %(title)s.')%dict(
+                    fname=os.path.basename(pt.name), title=title)
         subject = _('Recipe for ')+title
         url = QUrl('mailto:')
         url.addQueryItem('subject', subject)

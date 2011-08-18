@@ -24,7 +24,10 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     'font_size_mapping', 'line_height', 'minimum_line_height',
                     'linearize_tables', 'smarten_punctuation',
                     'disable_font_rescaling', 'insert_blank_line',
-                    'remove_paragraph_spacing', 'remove_paragraph_spacing_indent_size','input_encoding',
+                    'remove_paragraph_spacing',
+                    'remove_paragraph_spacing_indent_size',
+                    'insert_blank_line_size',
+                    'input_encoding',
                     'asciiize', 'keep_ligatures']
                 )
         for val, text in [

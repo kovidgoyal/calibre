@@ -137,16 +137,18 @@ def add_pipeline_options(parser, plumber):
                       'extra_css', 'smarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
-                      'insert_blank_line', 'remove_paragraph_spacing','remove_paragraph_spacing_indent_size',
+                      'insert_blank_line', 'insert_blank_line_size',
+                      'remove_paragraph_spacing',
+                      'remove_paragraph_spacing_indent_size',
                       'asciiize',
                   ]
                   ),
 
               'HEURISTIC PROCESSING' : (
                   _('Modify the document text and structure using common'
-                     ' patterns. Disabled by default. Use %s to enable. '
-                     ' Individual actions can be disabled with the %s options.')
-                  % ('--enable-heuristics', '--disable-*'),
+                     ' patterns. Disabled by default. Use %(en)s to enable. '
+                     ' Individual actions can be disabled with the %(dis)s options.')
+                  % dict(en='--enable-heuristics', dis='--disable-*'),
                   ['enable_heuristics'] + HEURISTIC_OPTIONS
                   ),
 
@@ -208,12 +210,13 @@ def add_pipeline_options(parser, plumber):
             if rec.level < rec.HIGH:
                 option_recommendation_to_cli_option(add_option, rec)
 
-    parser.add_option('--list-recipes', default=False, action='store_true',
-            help=_('List builtin recipes'))
-
 def option_parser():
-    return OptionParser(usage=USAGE)
-
+    parser = OptionParser(usage=USAGE)
+    parser.add_option('--list-recipes', default=False, action='store_true',
+            help=_('List builtin recipe names. You can create an ebook from '
+                'a builtin recipe like this: ebook-convert "Recipe Name.recipe" '
+                'output.epub'))
+    return parser
 
 class ProgressBar(object):
 

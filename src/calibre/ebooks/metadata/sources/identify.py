@@ -22,6 +22,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import utc_tz, as_utc
 from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower
+from calibre.utils.date import UNDEFINED_DATE
 
 # Download worker {{{
 class Worker(Thread):
@@ -483,6 +484,7 @@ def identify(log, abort, # {{{
             'publication dates')
     start_time = time.time()
     results = merge_identify_results(results, log)
+
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
 
@@ -490,6 +492,8 @@ def identify(log, abort, # {{{
     max_tags = msprefs['max_tags']
     for r in results:
         r.tags = r.tags[:max_tags]
+        if getattr(r.pubdate, 'year', 2000) <= UNDEFINED_DATE.year:
+            r.pubdate = None
 
     if msprefs['swap_author_names']:
         for r in results:

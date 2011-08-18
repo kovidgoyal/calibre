@@ -9,8 +9,8 @@ Module to implement the Cover Flow feature
 
 import sys, os, time
 
-from PyQt4.Qt import QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, \
-        QStackedLayout, QLabel, QByteArray, pyqtSignal
+from PyQt4.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize,
+        QStackedLayout, QLabel, QByteArray, pyqtSignal)
 
 from calibre import plugins
 from calibre.gui2 import config, available_height, available_width, gprefs
@@ -29,12 +29,14 @@ if pictureflow is not None:
             pictureflow.FlowImages.__init__(self)
             self.images = []
             self.captions = []
+            self.subtitles = []
             for f in os.listdir(dirpath):
                 f = os.path.join(dirpath, f)
                 img = QImage(f)
                 if not img.isNull():
                     self.images.append(img)
                     self.captions.append(os.path.basename(f))
+                    self.subtitles.append('%d bytes'%os.stat(f).st_size)
 
         def count(self):
             return len(self.images)
@@ -44,6 +46,9 @@ if pictureflow is not None:
 
         def caption(self, index):
             return self.captions[index]
+
+        def subtitle(self, index):
+            return self.subtitles[index]
 
         def currentChanged(self, index):
             print 'current changed:', index
@@ -84,6 +89,7 @@ if pictureflow is not None:
     class CoverFlow(pictureflow.PictureFlow):
 
         dc_signal = pyqtSignal()
+        context_menu_requested = pyqtSignal()
 
         def __init__(self, parent=None):
             pictureflow.PictureFlow.__init__(self, parent,
@@ -94,6 +100,17 @@ if pictureflow is not None:
                 QSizePolicy.Expanding))
             self.dc_signal.connect(self._data_changed,
                     type=Qt.QueuedConnection)
+            self.context_menu = None
+            self.setContextMenuPolicy(Qt.DefaultContextMenu)
+
+        def set_context_menu(self, cm):
+            self.context_menu = cm
+
+        def contextMenuEvent(self, event):
+            if self.context_menu is not None:
+                self.context_menu_requested.emit()
+                self.context_menu.popup(event.globalPos())
+                event.accept()
 
         def sizeHint(self):
             return self.minimumSize()
@@ -149,6 +166,7 @@ class CoverFlowMixin(object):
             self.cover_flow_sync_flag = True
             self.cover_flow = CoverFlow(parent=self)
             self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
+            self.cover_flow.context_menu_requested.connect(self.cf_context_menu_requested)
             self.library_view.selectionModel().currentRowChanged.connect(
                     self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
@@ -233,6 +251,14 @@ class CoverFlowMixin(object):
                 self.cover_flow.currentSlide() != current.row():
             self.cover_flow.setCurrentSlide(current.row())
         self.cover_flow_sync_flag = True
+
+    def cf_context_menu_requested(self):
+        row = self.cover_flow.currentSlide()
+        m = self.library_view.model()
+        index = m.index(row, 0)
+        sm = self.library_view.selectionModel()
+        sm.select(index, sm.ClearAndSelect|sm.Rows)
+        self.library_view.setCurrentIndex(index)
 
     def cover_flow_do_sync(self):
         self.cover_flow_sync_flag = True

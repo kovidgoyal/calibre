@@ -11,10 +11,10 @@ import textwrap, re, os
 
 from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog,
-    QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox)
+    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
+    QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox, QAction)
 
-from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
+from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
@@ -33,6 +33,8 @@ from calibre.gui2.comments_editor import Editor
 from calibre.library.comments import comments_to_html
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.icu import strcmp
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.gui2.languages import LanguagesEdit as LE
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
@@ -572,7 +574,9 @@ class BuddyLabel(QLabel): # {{{
         self.setAlignment(Qt.AlignRight|Qt.AlignVCenter)
 # }}}
 
-class Format(QListWidgetItem): # {{{
+# Formats {{{
+
+class Format(QListWidgetItem):
 
     def __init__(self, parent, ext, size, path=None, timestamp=None):
         self.path = path
@@ -588,13 +592,52 @@ class Format(QListWidgetItem): # {{{
             self.setToolTip(text)
             self.setStatusTip(text)
 
-# }}}
+class OrigAction(QAction):
 
-class FormatsManager(QWidget): # {{{
+    restore_fmt = pyqtSignal(object)
+
+    def __init__(self, fmt, parent):
+        self.fmt = fmt.replace('ORIGINAL_', '')
+        QAction.__init__(self, _('Restore %s from the original')%self.fmt, parent)
+        self.triggered.connect(self._triggered)
+
+    def _triggered(self):
+        self.restore_fmt.emit(self.fmt)
+
+class FormatList(_FormatList):
+
+    restore_fmt = pyqtSignal(object)
 
     def __init__(self, parent):
+        _FormatList.__init__(self, parent)
+        self.setContextMenuPolicy(Qt.DefaultContextMenu)
+
+    def contextMenuEvent(self, event):
+        originals = [self.item(x).ext.upper() for x in range(self.count())]
+        originals = [x for x in originals if x.startswith('ORIGINAL_')]
+        if not originals:
+            return
+        self.cm = cm = QMenu(self)
+        for fmt in originals:
+            action = OrigAction(fmt, cm)
+            action.restore_fmt.connect(self.restore_fmt)
+            cm.addAction(action)
+        cm.popup(event.globalPos())
+        event.accept()
+
+    def remove_format(self, fmt):
+        for i in range(self.count()):
+            f = self.item(i)
+            if f.ext.upper() == fmt.upper():
+                self.takeItem(i)
+                break
+
+class FormatsManager(QWidget):
+
+    def __init__(self, parent, copy_fmt):
         QWidget.__init__(self, parent)
         self.dialog = parent
+        self.copy_fmt = copy_fmt
         self.changed = False
 
         self.l = l = QGridLayout()
@@ -628,6 +671,7 @@ class FormatsManager(QWidget): # {{{
         self.formats = FormatList(self)
         self.formats.setAcceptDrops(True)
         self.formats.formats_dropped.connect(self.formats_dropped)
+        self.formats.restore_fmt.connect(self.restore_fmt)
         self.formats.delete_format.connect(self.remove_format)
         self.formats.itemDoubleClicked.connect(self.show_format)
         self.formats.setDragDropMode(self.formats.DropOnly)
@@ -640,7 +684,7 @@ class FormatsManager(QWidget): # {{{
         l.addWidget(self.remove_format_button,        2, 2, 1, 1)
         l.addWidget(self.formats,                     0, 1, 3, 1)
 
-
+        self.temp_files = []
 
     def initialize(self, db, id_):
         self.changed = False
@@ -693,6 +737,16 @@ class FormatsManager(QWidget): # {{{
                              self.dialog.title.current_val,
                              [(_('Books'), BOOK_EXTENSIONS)])
         self._add_formats(files)
+
+    def restore_fmt(self, fmt):
+        pt = PersistentTemporaryFile(suffix='_restore_fmt.'+fmt.lower())
+        ofmt = 'ORIGINAL_'+fmt
+        with pt:
+            self.copy_fmt(ofmt, pt)
+        self._add_formats((pt.name,))
+        self.temp_files.append(pt.name)
+        self.changed = True
+        self.formats.remove_format(ofmt)
 
     def _add_formats(self, paths):
         added = False
@@ -774,6 +828,13 @@ class FormatsManager(QWidget): # {{{
 
     def break_cycles(self):
         self.dialog = None
+        self.copy_fmt = None
+        for name in self.temp_files:
+            try:
+                os.remove(name)
+            except:
+                pass
+        self.temp_files = []
 # }}}
 
 class Cover(ImageView): # {{{
@@ -878,9 +939,10 @@ class Cover(ImageView): # {{{
         series = self.dialog.series.current_val
         series_string = None
         if series:
-            series_string = _('Book %s of %s')%(
-                    fmt_sidx(self.dialog.series_index.current_val,
-                    use_roman=config['use_roman_numerals_for_series_number']), series)
+            series_string = _('Book %(sidx)s of %(series)s')%dict(
+                    sidx=fmt_sidx(self.dialog.series_index.current_val,
+                    use_roman=config['use_roman_numerals_for_series_number']),
+                    series=series)
         self.current_val = calibre_cover(title, author,
                 series_string=series_string)
 
@@ -921,8 +983,8 @@ class Cover(ImageView): # {{{
             self.setPixmap(pm)
             tt = _('This book has no cover')
             if self._cdata:
-                tt = _('Cover size: %dx%d pixels') % \
-                (pm.width(), pm.height())
+                tt = _('Cover size: %(width)d x %(height)d pixels') % \
+                dict(width=pm.width(), height=pm.height())
             self.setToolTip(tt)
 
         return property(fget=fget, fset=fset)
@@ -1070,6 +1132,43 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
                 allow_case_change=True)
         return True
 
+# }}}
+
+class LanguagesEdit(LE): # {{{
+
+    LABEL = _('&Languages:')
+    TOOLTIP = _('A comma separated list of languages for this book')
+
+    def __init__(self, *args, **kwargs):
+        LE.__init__(self, *args, **kwargs)
+        self.setToolTip(self.TOOLTIP)
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self): return self.lang_codes
+        def fset(self, val): self.lang_codes = val
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        lc = []
+        langs = db.languages(id_, index_is_id=True)
+        if langs:
+            lc = [x.strip() for x in langs.split(',')]
+        self.current_val = self.original_val = lc
+
+    def commit(self, db, id_):
+        bad = self.validate()
+        if bad:
+            error_dialog(self, _('Unknown language'),
+                    ngettext('The language %s is not recognized',
+                        'The languages %s are not recognized', len(bad))%(
+                            ', '.join(bad)),
+                    show=True)
+            return False
+        cv = self.current_val
+        if cv != self.original_val:
+            db.set_languages(id_, cv)
+        return True
 # }}}
 
 class IdentifiersEdit(QLineEdit): # {{{

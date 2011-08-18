@@ -51,19 +51,19 @@ collection_template = '''\
 '''
 
 ABOUT='''\
-calibre is the one stop solution for all your e-book needs. It was created
-originally by Kovid Goyal, to help him manage his e-book collection and is now
-very actively developed by an international community of e-book enthusiasts.
+calibre is the one stop solution for all your ebook needs. It was created
+originally by Kovid Goyal, to help him manage his ebook collection and is now
+very actively developed by an international community of ebook enthusiasts.
 
-Its goal is to empower you, the user, to do whatever you like with the e-books
+Its goal is to empower you, the user, to do whatever you like with the ebooks
 in your collection. You can convert them to many different formats, read them
 on your computer, send them to many different devices, edit their metadata
 and covers, etc.
 
 calibre also allows you to download news from a variety of different sources all
-over the internet and read conveniently in e-books form. In keeping with its
+over the Internet and read conveniently in ebooks form. In keeping with its
 philosophy of empowering the user, it has a simple system to allow you to add
-your own favorite news sources. In fact, most the builtin news sources in
+your own favorite news sources. In fact, most the built-in news sources in
 calibre were originally contributed by users.
 '''
 

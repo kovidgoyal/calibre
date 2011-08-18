@@ -492,11 +492,11 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.set_page_number(frac)
 
     def magnification_changed(self, val):
-        tt = _('Make font size %s\nCurrent magnification: %.1f')
+        tt = _('Make font size %(which)s\nCurrent magnification: %(mag).1f')
         self.action_font_size_larger.setToolTip(
-                tt %(_('larger'), val))
+                tt %dict(which=_('larger'), mag=val))
         self.action_font_size_smaller.setToolTip(
-                tt %(_('smaller'), val))
+                tt %dict(which=_('smaller'), mag=val))
 
     def find(self, text, repeat=False, backwards=False):
         if not text:
@@ -661,12 +661,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def save_current_position(self):
         if not self.get_remember_current_page_opt():
             return
-        try:
-            pos = self.view.bookmark()
-            bookmark = '%d#%s'%(self.current_index, pos)
-            self.iterator.add_bookmark(('calibre_current_page_bookmark', bookmark))
-        except:
-            traceback.print_exc()
+        if hasattr(self, 'current_index'):
+            try:
+                pos = self.view.bookmark()
+                bookmark = '%d#%s'%(self.current_index, pos)
+                self.iterator.add_bookmark(('calibre_current_page_bookmark', bookmark))
+            except:
+                traceback.print_exc()
 
     def load_ebook(self, pathtoebook):
         if self.iterator is not None:
@@ -753,6 +754,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def previous_document(self):
         if self.current_index > 0:
             self.load_path(self.iterator.spine[self.current_index-1], pos=1.0)
+
+    def keyPressEvent(self, event):
+        MainWindow.keyPressEvent(self, event)
+        if not event.isAccepted():
+            if not self.view.handle_key_press(event):
+                event.ignore()
 
     def __enter__(self):
         return self

@@ -17,7 +17,7 @@ class TagsIcons(dict):
 
     category_icons = ['authors', 'series', 'formats', 'publisher', 'rating',
                       'news',    'tags',   'custom:', 'user:',     'search',
-                      'identifiers',       'gst']
+                      'identifiers', 'languages', 'gst']
     def __init__(self, icon_dict):
         for a in self.category_icons:
             if a not in icon_dict:
@@ -37,6 +37,7 @@ category_icon_map = {
                     'search'     : 'search.png',
                     'identifiers': 'identifiers.png',
                     'gst'        : 'catalog.png',
+                    'languages'  : 'languages.png',
             }
 
 
@@ -114,6 +115,21 @@ class FieldMetadata(dict):
                            'is_custom':False,
                            'is_category':True,
                            'is_csp': False}),
+            ('languages', {'table':'languages',
+                           'column':'lang_code',
+                           'link_column':'lang_code',
+                           'category_sort':'lang_code',
+                           'datatype':'text',
+                           'is_multiple':{'cache_to_list': ',',
+                                          'ui_to_list': ',',
+                                          'list_to_ui': ', '},
+                           'kind':'field',
+                           'name':_('Languages'),
+                           'search_terms':['languages', 'language'],
+                           'is_custom':False,
+                           'is_category':True,
+                           'is_csp': False}),
+
             ('series',    {'table':'series',
                            'column':'name',
                            'link_column':'series',
@@ -121,7 +137,7 @@ class FieldMetadata(dict):
                            'datatype':'series',
                            'is_multiple':{},
                            'kind':'field',
-                           'name':_('Series'),
+                           'name':ngettext('Series', 'Series', 2),
                            'search_terms':['series'],
                            'is_custom':False,
                            'is_category':True,

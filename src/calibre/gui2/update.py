@@ -15,6 +15,7 @@ from calibre.gui2 import config, dynamic, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 
 URL = 'http://status.calibre-ebook.com/latest'
+#URL = 'http://localhost:8000/latest'
 NO_CALIBRE_UPDATE = '-0.0.0'
 VSEP = '|'
 
@@ -70,10 +71,10 @@ class UpdateNotification(QDialog):
         self.logo.setPixmap(QPixmap(I('lt.png')).scaled(100, 100,
             Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
         self.label = QLabel(('<p>'+
-            _('%s has been updated to version <b>%s</b>. '
+            _('%(app)s has been updated to version <b>%(ver)s</b>. '
             'See the <a href="http://calibre-ebook.com/whats-new'
-            '">new features</a>.'))%(
-                __appname__, calibre_version))
+            '">new features</a>.'))%dict(
+                app=__appname__, ver=calibre_version))
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
         self.setWindowTitle(_('Update available!'))

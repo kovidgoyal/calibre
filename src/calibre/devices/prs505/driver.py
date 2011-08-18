@@ -67,10 +67,10 @@ class PRS505(USBMS):
         _('Comma separated list of metadata fields '
             'to turn into collections on the device. Possibilities include: ')+\
                     'series, tags, authors' +\
-            _('. Two special collections are available: %s:%s and %s:%s. Add  '
+            _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
             'these values to the list to enable them. The collections will be '
-            'given the name provided after the ":" character.')%(
-                                    'abt', ALL_BY_TITLE, 'aba', ALL_BY_AUTHOR),
+            'given the name provided after the ":" character.')%dict(
+                            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR),
             _('Upload separate cover thumbnails for books (newer readers)') +
             ':::'+_('Normally, the SONY readers get the cover image from the'
                 ' ebook file itself. With this option, calibre will send a '

@@ -446,7 +446,8 @@ class ITUNES(DriverBase):
                          }
 
                         if self.report_progress is not None:
-                            self.report_progress((i+1)/book_count, _('%d of %d') % (i+1, book_count))
+                            self.report_progress((i+1)/book_count,
+                                _('%(num)d of %(tot)d') % dict(num=i+1, tot=book_count))
                     self._purge_orphans(library_books, cached_books)
 
                 elif iswindows:
@@ -485,7 +486,8 @@ class ITUNES(DriverBase):
 
                             if self.report_progress is not None:
                                 self.report_progress((i+1)/book_count,
-                                        _('%d of %d') % (i+1, book_count))
+                                        _('%(num)d of %(tot)d') % dict(num=i+1,
+                                            tot=book_count))
                         self._purge_orphans(library_books, cached_books)
 
                     finally:
@@ -1075,7 +1077,8 @@ class ITUNES(DriverBase):
 
                 # Report progress
                 if self.report_progress is not None:
-                    self.report_progress((i+1)/file_count, _('%d of %d') % (i+1, file_count))
+                    self.report_progress((i+1)/file_count,
+                        _('%(num)d of %(tot)d') % dict(num=i+1, tot=file_count))
 
         elif iswindows:
             try:
@@ -1118,7 +1121,8 @@ class ITUNES(DriverBase):
 
                     # Report progress
                     if self.report_progress is not None:
-                        self.report_progress((i+1)/file_count, _('%d of %d') % (i+1, file_count))
+                        self.report_progress((i+1)/file_count,
+                                _('%(num)d of %(tot)d') % dict(num=i+1, tot=file_count))
             finally:
                 pythoncom.CoUninitialize()
 
@@ -3107,7 +3111,8 @@ class ITUNES_ASYNC(ITUNES):
                      }
 
                     if self.report_progress is not None:
-                        self.report_progress((i+1)/book_count, _('%d of %d') % (i+1, book_count))
+                        self.report_progress((i+1)/book_count,
+                                _('%(num)d of %(tot)d') % dict(num=i+1, tot=book_count))
 
             elif iswindows:
                 try:
@@ -3147,7 +3152,8 @@ class ITUNES_ASYNC(ITUNES):
 
                         if self.report_progress is not None:
                             self.report_progress((i+1)/book_count,
-                                    _('%d of %d') % (i+1, book_count))
+                                    _('%(num)d of %(tot)d') % dict(num=i+1,
+                                        tot=book_count))
 
                 finally:
                     pythoncom.CoUninitialize()

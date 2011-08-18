@@ -569,9 +569,9 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
             det = traceback.format_exc()
             error_dialog(parent, _('Invalid database'),
                 _('<p>An invalid library already exists at '
-                    '%s, delete it before trying to move the '
-                    'existing library.<br>Error: %s')%(newloc,
-                        str(err)), det, show=True)
+                    '%(loc)s, delete it before trying to move the '
+                    'existing library.<br>Error: %(err)s')%dict(loc=newloc,
+                        err=str(err)), det, show=True)
             callback(None)
             return
         else:
@@ -604,16 +604,21 @@ class LibraryPage(QWizardPage, LibraryUI):
     def init_languages(self):
         self.language.blockSignals(True)
         self.language.clear()
-        from calibre.utils.localization import available_translations, \
-            get_language, get_lang
+        from calibre.utils.localization import (available_translations,
+            get_language, get_lang)
         lang = get_lang()
         if lang is None or lang not in available_translations():
             lang = 'en'
-        self.language.addItem(get_language(lang), QVariant(lang))
-        items = [(l, get_language(l)) for l in available_translations() \
+        def get_esc_lang(l):
+            if l == 'en':
+                return 'English'
+            return get_language(l)
+
+        self.language.addItem(get_esc_lang(lang), QVariant(lang))
+        items = [(l, get_esc_lang(l)) for l in available_translations()
                  if l != lang]
         if lang != 'en':
-            items.append(('en', get_language('en')))
+            items.append(('en', get_esc_lang('en')))
         items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         for item in items:
             self.language.addItem(item[1], QVariant(item[0]))
