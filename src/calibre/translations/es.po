@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-12 14:35+0000\n"
+"PO-Revision-Date: 2011-08-17 12:49+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-13 04:45+0000\n"
-"X-Generator: Launchpad (build 13674)\n"
+"X-Launchpad-Export-Date: 2011-08-18 04:34+0000\n"
+"X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
 msgid ""
@@ -3778,6 +3778,8 @@ msgid ""
 "To use isbndb.com you have to sign up for a free account at isbndb.com and "
 "get an access key."
 msgstr ""
+"Para usar isbndb.com tiene que registrar una cuenta gratuita en isbndb.com y "
+"obtener una clave de acceso."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -5040,27 +5042,30 @@ msgid ""
 "No existing calibre library was found at %s. If the library was moved, "
 "select its new location below. Otherwise calibre will forget this library."
 msgstr ""
+"No se encontró una biblioteca de calibre en %s. Si la biblioteca ha sido "
+"movido, seleccione la nueva ubicación abajo. En caso contrario, calibre "
+"olvidará esta biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:96
 msgid "New location of this library:"
-msgstr ""
+msgstr "Nueva ubicación para esta biblioteca:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:105
 msgid "Library moved"
-msgstr ""
+msgstr "Biblioteca movida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:107
 msgid "Forget library"
-msgstr ""
+msgstr "Olvidar biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:116
 msgid "New library location"
-msgstr ""
+msgstr "Nueva ubicación de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
 #, python-format
 msgid "No existing calibre library found at %s"
-msgstr ""
+msgstr "No se encontró una biblioteca de calibre en %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:139
 msgid "Choose Library"
@@ -6484,7 +6489,7 @@ msgstr "Hacer una donación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:117
 msgid "Click to open"
-msgstr "Clic para abrir"
+msgstr "Pulse para abrir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:132
 msgid "Ids"
@@ -10373,7 +10378,8 @@ msgstr "**No se encontraron elementos**"
 msgid ""
 "Click in a column  in the library view to see the information for that book"
 msgstr ""
-"Pulse en una columna en la vista de biblioteca para ver información del libro"
+"Pulse sobre una columna en la vista de biblioteca para ver la información "
+"del libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:205
 msgid "Books with selected item \"{0}\": {1}"
@@ -11840,7 +11846,7 @@ msgstr "Hecho"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:374
 #, python-format
 msgid "Default: %s [Currently not conflicting: %s]"
-msgstr ""
+msgstr "Valor predeterminado: %s [Sin conflicto actualmente: %s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:393
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
@@ -11865,10 +11871,12 @@ msgstr "Atajos"
 msgid ""
 "Double click on any entry to change the keyboard shortcuts associated with it"
 msgstr ""
+"Pulse dos veces en cualquier entrada para cambiar los atajos de teclado "
+"asociados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:560
 msgid "Search for a shortcut by name"
-msgstr ""
+msgstr "Buscar un atajo por nombre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:232
@@ -11878,7 +11886,7 @@ msgstr "Sin coincidencias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:594
 msgid "Could not find any matching shortcuts"
-msgstr ""
+msgstr "No se encontró ningún atajo que coincida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
@@ -11986,7 +11994,7 @@ msgstr "Marcado para borrarlo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1303
 msgid "Double click to <b>edit</b> me<br><br>"
-msgstr "Doble clic para <b>editarme</b><br><br>"
+msgstr "Pulse dos veces para <b>editarme</b><br><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:167
 #, python-format
@@ -12382,7 +12390,7 @@ msgid ""
 msgstr ""
 "Última modificación: %s\n"
 "\n"
-"Doble clic para ver"
+"Pulse dos veces para ver"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:600
 #, python-format
@@ -15175,7 +15183,7 @@ msgstr "La función no está definida"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:154
 #, python-format
 msgid "Name %s already used"
-msgstr ""
+msgstr "El nombre %s ya está en uso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:158
 msgid ""
@@ -16085,7 +16093,7 @@ msgstr "Contrae todas las categorías"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:346
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
-"No hay más coincidencias. </b><p> Click en Buscar para volver a la primera "
+"No hay más coincidencias.</b><p>Pulse en Buscar para volver a la primera "
 "coincidencia."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:359
@@ -16128,8 +16136,8 @@ msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"
 msgstr ""
-"Todos estos administradores de categorías están disponibles al dar clic "
-"derecho en los elementos del explorador de etiquetas arriba"
+"Todos estos administradores de categorías están disponibles pulsando con el "
+"botón derecho sobre los elementos del explorador de etiquetas arriba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:345
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:378
@@ -16552,7 +16560,7 @@ msgstr "&General"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:204
 msgid "Double click to change a keyboard shortcut"
-msgstr "Haga doble clic para cambiar un atajo de teclado"
+msgstr "Pulse dos veces para cambiar un atajo de teclado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:205
 msgid "&Keyboard shortcuts"
@@ -19926,7 +19934,7 @@ msgstr "Inglés (Australia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Bulgaria)"
-msgstr ""
+msgstr "Inglés (Bulgaria)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (New Zealand)"
@@ -20877,7 +20885,7 @@ msgstr ""
 "Este ajuste afecta a la visualización de la biblioteca de calibre. No tiene\n"
 "efecto en los dispositivos. Además, los títulos de libros añadidos antes de\n"
 "cambiar el ajuste conservarán su orden hasta que se modifique el título.\n"
-"Es suficiente con hacer doble clic en el título y pulsar la tecla intro sin\n"
+"Es suficiente con pulsar dos veces en el título y pulsar la tecla intro sin\n"
 "cambiar nada para actualizar el orden."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:161

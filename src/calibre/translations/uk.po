@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-16 19:18+0000\n"
-"Last-Translator: CrabMan <Unknown>\n"
+"PO-Revision-Date: 2011-08-17 14:18+0000\n"
+"Last-Translator: starvit <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-08-17 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-08-18 04:34+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -345,7 +345,7 @@ msgstr "Видалити книги з Calibre або підключеного �
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Редагувати метадані книжок у бібліотеці Сalibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Read books in your calibre library"
@@ -361,7 +361,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Перенести книги із бібліотеки Сalibre на жорсткий диск"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Show book details in a separate popup"
@@ -427,7 +427,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Вибрати випадковим чином книгу із бібліотеки Сalibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:856
 msgid "Search for books from different book sellers"
@@ -18710,6 +18710,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:350
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr ""
+"Максимальна ширина та висота для обкладинок збережених у бібліотеці Calibre"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:351
 msgid ""
@@ -18765,7 +18766,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:380
 msgid "Save original file when converting from same format to same format"
-msgstr ""
+msgstr "Зберегти початкові файли при перетворенні у той же ж самий формат"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid ""

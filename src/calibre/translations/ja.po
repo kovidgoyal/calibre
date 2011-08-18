@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-16 11:29+0000\n"
+"PO-Revision-Date: 2011-08-18 02:58+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-17 04:40+0000\n"
+"X-Launchpad-Export-Date: 2011-08-18 04:33+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -5556,7 +5556,7 @@ msgstr "書籍"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
 msgid "Search for this %s"
-msgstr ""
+msgstr "%s を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -11067,7 +11067,7 @@ msgstr "完了"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:374
 #, python-format
 msgid "Default: %s [Currently not conflicting: %s]"
-msgstr ""
+msgstr "ディフォールト：%s [現在、他と重なっていません%s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:393
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
@@ -11091,11 +11091,11 @@ msgstr "ショートカット"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:546
 msgid ""
 "Double click on any entry to change the keyboard shortcuts associated with it"
-msgstr ""
+msgstr "項目をダブルクリックすることで、それに付随したキーボード・ショートカットを変更することができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:560
 msgid "Search for a shortcut by name"
-msgstr ""
+msgstr "名前でショートカットを探す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:232
@@ -11105,7 +11105,7 @@ msgstr "該当なし"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:594
 msgid "Could not find any matching shortcuts"
-msgstr ""
+msgstr "一致するショートカットがありませんでした"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
@@ -12045,7 +12045,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:66
 msgid "Read &metadata from file contents rather than file name"
-msgstr ""
+msgstr "書誌情報をファイル名ではなく、ファイルの内容から読み込む(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:67
 msgid ""
@@ -13660,7 +13660,7 @@ msgstr "使用できる変数："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:60
 msgid "Template Editor"
-msgstr ""
+msgstr "テンプレート・エディタ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:68
 msgid ""
@@ -14139,7 +14139,7 @@ msgstr "関数が未定義"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:154
 #, python-format
 msgid "Name %s already used"
-msgstr ""
+msgstr "名前 %s はすでに使われています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:158
 msgid ""
@@ -14362,7 +14362,7 @@ msgstr "検索 (高度な検索は左のボタンをクリック)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:383
 msgid "Start search"
-msgstr ""
+msgstr "検索開始"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:393
 msgid "Enable or disable search highlighting."
@@ -15204,11 +15204,11 @@ msgstr "接続されたデバイスを取り外し(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:243
 msgid "Quit calibre"
-msgstr ""
+msgstr "Calibreを終了"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:256
 msgid "Clear the current search"
-msgstr ""
+msgstr "現在の検索をクリア"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:354
 msgid "Debug mode"
@@ -17519,7 +17519,7 @@ msgstr "空白をアンダースコアに置換"
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:125
 msgid ""
 "Save into a single directory, ignoring the template directory structure"
-msgstr ""
+msgstr "テンプレートディレクトリの構造を無視して単一ディレクトリに保存する。"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:298
 #, python-format
@@ -17527,11 +17527,13 @@ msgid ""
 "Failed to calculate path for save to disk. Template: %(templ)s\n"
 "Error: %(err)s"
 msgstr ""
+"ディスクに保存する際のパスの計算に失敗しました。テンプレート: %(templ)s\n"
+"エラー: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:304
 #, python-format
 msgid "Template evaluation resulted in no path components. Template: %s"
-msgstr ""
+msgstr "テンプレートの解釈の結果、パスが生成されませんでした。テンプレート：%s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:398
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:431
@@ -17984,7 +17986,7 @@ msgstr "strcat(a, b, ...) -- 全ての引数をつなぎ合わせた文字列を
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:151
 msgid "strlen(a) -- Returns the length of the string passed as the argument"
-msgstr ""
+msgstr "strlen(a) -- 引数として渡した文字列の長さを返す。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:164
 msgid ""
@@ -18134,18 +18136,22 @@ msgid ""
 "string1 is longer than max. You can pass as many `prefix, string` pairs as "
 "you wish."
 msgstr ""
+"strcat_max(max, string1, prefix2, string2, ...) -- "
+"引数を結合した文字列を返す。返る値は、string1に初期化される。`Prefix, string` の組が、最終的な文字列の長さが `max` "
+"以下である限り、値の後ろに付け加えられてゆく。String1 は、それがmax以上の長さであっても返される。いくつ `prefix, string` "
+"の組を付け加えてもかまわない。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:383
 msgid "strcat_max requires 2 or more arguments"
-msgstr ""
+msgstr "strcat_max は2つ以上の引数が必要です。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:385
 msgid "strcat_max requires an even number of arguments"
-msgstr ""
+msgstr "strcat_max は偶数個の引数が必要です。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:389
 msgid "first argument to strcat_max must be an integer"
-msgstr ""
+msgstr "strcat_max の最初の引数は整数でなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:407
 msgid ""
@@ -18557,7 +18563,7 @@ msgstr "英語 (オーストラリア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Bulgaria)"
-msgstr ""
+msgstr "英語（ブルガリア）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (New Zealand)"
@@ -19384,7 +19390,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:147
 msgid "Control sorting of titles and series in the library display"
-msgstr ""
+msgstr "ライブラリ表示のタイトルとシリーズのソート順を設定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:148
 msgid ""
@@ -19405,10 +19411,18 @@ msgid ""
 "return\n"
 "without changing anything is sufficient to change the sort."
 msgstr ""
+"ライブラリ表示のタイトルとシリーズのソート順を設定する。もし 'library_order' "
+"にセットされた場合、タイトル・ソートのフィールドがタイトルの替わりに使われます。手動でタイトル・ソートのフィールドを編集しない限り、頭にある冠詞は無視され"
+"ます。もし 'strictly_alphabetic' "
+"にセットされた場合には、タイトルはそのままソートされます。（タイトル・ソートではなくタイトルでソートされる）例えば、library_order の時 "
+"`The Client` は 'C' としてソートされます。strictly_alphabetic の場合には、これは 'T' "
+"としてソートされます。このフラグはCalibreのライブラリ表示に影響します。デバイスには影響しません。加えて、このフラグを変更する前に追加された書籍のタ"
+"イトルは、タイトルが変更されるまで前のままになります。その場合には、タイトルをダブルクリックして、何も変更せずリターンを押せば、タイトル・ソートを変更でき"
+"ます。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:161
 msgid "Control formatting of title and series when used in templates"
-msgstr ""
+msgstr "テンプレートで使用された時のタイトルとシリーズのフォーマットを設定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:162
 msgid ""
@@ -19426,10 +19440,18 @@ msgid ""
 "will become \"Lord of the Rings, The\". If the tweak is set to\n"
 "strictly_alphabetic, it would remain \"The Lord of the Rings\"."
 msgstr ""
+"ディスクに保存/デバイスに送る、時のタイトルとシリーズ名がどのようにフォーマットされるかをコントロールする。動作はどのフィールドを処理しているかによって変"
+"わってくる。もしタイトルを処理している場合でこのtweakを 'library_order' "
+"にすると、タイトルはタイトル・ソートに置き換えられます。もし 'strictly_alphabetic' "
+"に設定された時はタイトルは変更されません。シリーズを処理している時、'library_order' に設定すると、'The' と 'An' "
+"の様な冠詞は最後に移動します。もし 'strictly_alphabetic' に設定された場合、シリーズは変更されません。例えば、もしこのtweakが "
+"library_order に設定されて居る場合、\"The Lord of the Rings\" は \"Lord of the Rings, "
+"The\" になります。もしこのtweakが strictly_alphabetic の場合、 \"The Lord of the Rings\" "
+"のままです。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:174
 msgid "Set the list of words considered to be \"articles\" for sort strings"
-msgstr ""
+msgstr "文字列ソート時に「冠詞」として扱われるワードのリスト。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:175
 msgid ""
@@ -19444,10 +19466,14 @@ msgid ""
 "To disable use the expression: '^$'\n"
 "Default: '^(A|The|An)\\s+'"
 msgstr ""
+"タイトル・ソート文字列を計算時に「冠詞」として扱われるワードのリスト。このリストは正規表現で、冠詞を'or'機能のバー「|」で区切った物になります。比較は"
+"大小文字無視で行われ、それは変更できません。このtweakへの変更は書籍がなんらかの方法で修正されるまで有効になりません。もし無効なパターンを入力した場合"
+"、これは単純に無視されます。無効にする場合には次の表現を使ってください： '^$'\n"
+"ディフォールト: '^(A|The|An)\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:184
 msgid "Specify a folder calibre should connect to at startup"
-msgstr ""
+msgstr "Calibreのスタート時に接続するフォルダーを指定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:185
 msgid ""
@@ -19461,10 +19487,16 @@ msgid ""
 "auto_connect_to_folder = 'C:\\\\Users\\\\someone\\\\Desktop\\\\testlib'\n"
 "auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'"
 msgstr ""
+"Calibreのスタート時にconnect_to_folderを使って接続するフォルダーを指定これはフォルダーへのフルパスです。calibreのスタート時"
+"にフォルダーが存在しなかった場合、これは無視されます。もしパスの中に '\\' "
+"の文字がある場合（Windowsのパスのように）、それを2重にしなければなりません。\n"
+"例:\n"
+"auto_connect_to_folder = 'C:\\\\Users\\\\someone\\\\Desktop\\\\testlib'\n"
+"auto_connect_to_folder = '/home/dropbox/My Dropbox/someone/library'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:194
 msgid "Specify renaming rules for SONY collections"
-msgstr ""
+msgstr "SONYのコレクションの改名ルールを指定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:195
 msgid ""
@@ -19536,6 +19568,47 @@ msgid ""
 "sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n"
 "sony_collection_name_template='{category:||: }{value}'"
 msgstr ""
+"SONYのコレクションの改名ルールを指定する。このtweakは書誌情報管理が自動に設定されている場合のみに有効です。\n"
+"SONYのコレクションは、フィールドがスタンダードかカスタムかによって名前付けが変わります。\n"
+"スタンダード・フィールドに由来するコレクションは、そのフィールドの値によって名付けられます。\n"
+"例えば、もしスタンダードの「シリーズ」列が'Darkover'と言う値を持っていた場合、コレクション名も'Darkover'となります。\n"
+"カスタム・フィールドから由来するコレクションは、値にフィールド名を追加した物になります。\n"
+"例えば、もし「My "
+"Series」と言うカスタムのシリーズ列に'Darkover'と言う値が合った場合、ディフォールトではコレクションは'Darkover (My "
+"Series)'と名付けられます。\n"
+"以下このドキュメントでは'Darkover'は値、'My Series'はカテゴリと呼ぶことにします。\n"
+"もし２つの書籍にフィールドがあり、それらから同じコレクション名が生成される場合、両方の書籍はそのコレクションに入ります。\n"
+"このtweakは、スタンダードとカスタムのフィールドからどのようにコレクションを命名するかを指定することができます。\n"
+"これを使って、例えば'Foo'ではなく'Foo (Tag)'の様に、スタンダード・フィールドに説明を追加することもできます。\n"
+"あるいは複数のフィールドが最終的に同じコレクションになるように強制することもできます。\n"
+"例えば、'series', '#my_series_1', と '#my_series_2'の値が'some_value "
+"(Series)'となるように設定すると、それによってすべてのフィールドが１つのコレクションに入れられます。\n"
+"２つの関連するtweakがあります。\n"
+"1つ目はどのカテゴリ名をどの書誌情報フィールドに対応させるかを決めます。\n"
+"2つ目はテンプレートで、どのように値とカテゴリを結合してコレクション名を作るかを決めます。\n"
+"最初のtweak、sony_collection_renaming_rulesの構文は：\n"
+"{'field_lookup_name':'category_name_to_use', 'lookup_name':'name', ...}\n"
+"2つ目のtweak、sony_collection_name_templateはテンプレートです。これは変換ルールや保存テンプレートと同じテンプレート言語"
+"を使っています。\n"
+"このtweakはどのように値とカテゴリを結合してコレクション名を作るかを決めます。\n"
+"使用できるフィールドは２つだけで、 {category} と {value} です。\n"
+"{value} フィールドは空になることはありません。\n"
+"{category} フィールドは空になることもあります。\n"
+"ディフォールトはまず値を入れ、空で無い場合カテゴリを括弧でくるんで付け足します：'{value} {category:|(|)}'\n"
+"例：（最初の３つの例では2つ目のtweakが変更されていないこととします。）\n"
+"1:３つのシリーズ列を1つのコレクションに統合したい。列の検索名は、'series', '#series_1' と "
+"'#series_2'。括弧は必要ない。\n"
+"この場合のtweakの設定は：\n"
+"sony_collection_renaming_rules={'series':'', '#series_1':'', "
+"'#series_2':''}\n"
+"2: '(Series)'がシリーズから作られたコレクションのに現れ、'(Tag)'がタグから作られたコレクションに現れるようにしたい：\n"
+"sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n"
+"3: 'series' と '#myseries'が統合され、コレクション名に'(Series)'が追加されるようにしたい：\n"
+"sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}\n"
+"4: 例２と同様だが、カテゴリ名が括弧の中に現れるのではなく、値にコロンで区切って追加したい。（'Series: Darkover'のように）\n"
+"この場合にはカテゴリ名をフォーマットするテンプレートを返る必要がある。最終的な２つのtweakは：\n"
+"sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n"
+"sony_collection_name_template='{category:||: }{value}'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:247
 msgid "Specify how SONY collections are sorted"
@@ -19570,13 +19643,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:265
 msgid "Control how tags are applied when copying books to another library"
-msgstr ""
+msgstr "他のライブラリに書籍をコピーする場合にどのようにタグを扱うかをコントロール"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:266
 msgid ""
 "Set this to True to ensure that tags in 'Tags to add when adding\n"
 "a book' are added when copying books to another library"
-msgstr ""
+msgstr "これをTrueにした場合、他のライブラリに書籍をコピーする時に、「書籍を追加するときに追加するタグ」と同じタグを追加する。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:270
 msgid "Set the maximum number of tags to show per book in the content server"
@@ -19717,7 +19790,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:356
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "ダウンロードしたニュースをどこに送るか"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:357
 msgid ""
@@ -19728,10 +19801,13 @@ msgid ""
 "that if there isn't enough free space available on the location you choose,\n"
 "the files will be sent to the location with the most free space."
 msgstr ""
+"ダウンロードしたニュースを自動的に接続したデバイスに送る場合、calibreはディフォールトではメインメモリに送ります。このtweakを変更することでどこ"
+"に送るかを変更できます。有効な値は\"main\", \"carda\", "
+"\"cardb\"です。注：もし選択した場所に十分なスペースが無い場合、ファイルはもっとも空きがある場所へ送られます。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:364
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "コンテントサーバーがどのインターフェイスにlistenするか"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:365
 msgid ""
@@ -19743,10 +19819,14 @@ msgid ""
 "to '::' to listen to all incoming IPv6 and IPv4 connections (this may not\n"
 "work on all operating systems)"
 msgstr ""
+"ディフォールトでは、Calibreのコンテントサーバーは '0.0.0.0' "
+"にlistenします。これはすべてのインターフェイスのIPv4接続を受け付けると言うことです。この値を、例えば'127.0.0.1'に変える事でローカルマ"
+"シンからの接続のみに限定したり、'::'に変える事で、すべてのIPv4とIPv6の接続を受けることができます。（ただし、これはすべてのOSで動作するとは限"
+"りません）"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:372
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "OS Xでのユニファイド・ツールバー"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:373
 msgid ""
@@ -19759,10 +19839,14 @@ msgid ""
 "it\n"
 "on at your own risk!"
 msgstr ""
+"もしこのオプションを有効にしてcalibreをリスタートすると、他のOS "
+"Xアプリケーションに普通に見られるように、ツールバーはタイトルバーと'unified'（同一化）されます。\n"
+"しかしながら、これにはいくつかのバグがあります。例えば、ツールバーの最小幅があるべき姿より2倍になったり、他のランダムなバグを引き起こします。なので、自分"
+"の判断でONにしてください。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:380
 msgid "Save original file when converting from same format to same format"
-msgstr ""
+msgstr "同じフォーマットから同じフォーマットへ変換する場合、オリジナルのファイルを保存しておく。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid ""
@@ -19771,3 +19855,5 @@ msgid ""
 "conversion is poor, you can tweak the settings and run it again. By setting\n"
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
+"calibreが、例えばEPUBからEPUBのように、同じフォーマットから同じフォーマットへ変換する場合、元のファイルを穂損します。なので、変換がおかしい"
+"場合このtweakを使ってもう一度実行することができます。これをFalseにするとcalibreは元のファイルを保存しなくなります。"
