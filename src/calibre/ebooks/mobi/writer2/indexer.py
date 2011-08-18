@@ -305,9 +305,7 @@ class TBS(object): # {{{
     def __init__(self, data, is_periodical, first=False, section_map={},
             after_first=False):
         self.section_map = section_map
-        #import pprint
-        #pprint.pprint(data)
-        #print()
+
         if is_periodical:
             # The starting bytes.
             # The value is zero which I think indicates the periodical
@@ -420,6 +418,8 @@ class TBS(object): # {{{
                 first_article = articles[0]
                 last_article = articles[-1]
                 num = len(articles)
+                last_article_ends = (last_article in data['ends'] or
+                        last_article in data['completes'])
 
                 try:
                     next_sec = sections[i+1]
@@ -440,6 +440,19 @@ class TBS(object): # {{{
                 if next_sec is not None:
                     buf.write(encode_tbs(last_article.index-next_sec.index,
                         {0b1000: 0}))
+
+
+                # If a section TOC starts and extends into the next record add
+                # a trailing vwi. We detect this by TBS type==3, processing last
+                # section present in the record, and the last article in that
+                # section either ends or completes and doesn't finish
+                # on the last byte of the record.
+                elif (typ == self.type_011 and last_article_ends and
+                      ((last_article.offset+last_article.size) % RECORD_SIZE > 0)
+                     ):
+                    buf.write(encode_tbs(last_article.index-section.index-1,
+                        {0b1000: 0}))
+
         else:
             buf.write(encode_tbs(spanner.index - parent_section_index,
                 {0b0001: 0}))
@@ -518,6 +531,7 @@ class Indexer(object): # {{{
         for i in indices:
             offsets.append(buf.tell())
             buf.write(i.bytestring)
+
         index_block = align_block(buf.getvalue())
 
         # Write offsets to index entries as an IDXT block
@@ -772,9 +786,11 @@ class Indexer(object): # {{{
                 continue
             if offset in seen_sec_offsets:
                 continue
+
             seen_sec_offsets.add(offset)
             section = PeriodicalIndexEntry(offset, label, klass, 1)
             section.parent_index = 0
+
             for art in sec:
                 try:
                     offset = id_offsets[art.href]
@@ -830,6 +846,7 @@ class Indexer(object): # {{{
             for art in articles:
                 i += 1
                 art.index = i
+
                 art.parent_index = sec.index
 
         for sec, normalized_articles in normalized_sections:
@@ -905,6 +922,7 @@ class Indexer(object): # {{{
                     'spans':None, 'offset':offset, 'record_number':i+1}
 
             for index in self.indices:
+
                 if index.offset >= next_offset:
                     # Node starts after current record
                     if index.depth == deepest:

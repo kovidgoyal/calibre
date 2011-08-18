@@ -197,6 +197,7 @@ class MobiWriter(object):
     def generate_text(self):
         self.oeb.logger.info('Serializing markup content...')
         self.serializer = Serializer(self.oeb, self.image_map,
+                self.is_periodical,
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
         self.text_length = len(text)
