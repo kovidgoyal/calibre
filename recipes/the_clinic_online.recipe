@@ -1,0 +1,27 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1313555075(BasicNewsRecipe):
+    news                  = True
+    title          = u'The Clinic'
+    __author__            = 'Alex Mitrani'
+    description           = u'Online version of Chilean satirical weekly'
+    publisher             = u'The Clinic'
+    category              = 'news, politics, Chile, rss'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    summary_length        = 1000
+    language              = 'es_CL'
+
+    remove_javascript     = True
+    no_stylesheets        = True
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.theclinic.cl/wp-content/themes/tc12m/css/ui/mainLogoTC-top.png'
+    remove_tags_before = dict(name='article', attrs={'class':'scope bordered'})
+    remove_tags_after  = dict(name='div', attrs={'id':'commentsSection'})
+    remove_tags = [dict(name='span', attrs={'class':'relTags'})
+		,dict(name='div', attrs={'class':'articleActivity hdcol'})
+		,dict(name='div', attrs={'id':'commentsSection'})
+	]
+
+    feeds          = [(u'The Clinic Online', u'http://www.theclinic.cl/feed/')]
