@@ -201,7 +201,7 @@ class MobiWriter(object):
             finally:
                 item.unload_data_from_memory()
 
-        if self.image_records[0] is None:
+        if self.image_records and self.image_records[0] is None:
             raise ValueError('Failed to find masthead image in manifest')
 
     # }}}
