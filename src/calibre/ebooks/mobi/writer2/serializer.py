@@ -37,6 +37,7 @@ class Serializer(object):
         is written after every element of the spine in ``oeb``.
         '''
         self.oeb = oeb
+        # Map of image hrefs to image index in the MOBI file
         self.images = images
         self.logger = oeb.logger
         self.is_periodical = is_periodical
