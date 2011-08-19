@@ -181,7 +181,7 @@ save_template_title_series_sorting = 'library_order'
 # To disable use the expression: '^$'
 # This expression is designed for articles that are followed by spaces. If you
 # also need to match articles that are followed by other characters, for example L'
-# in French, use: r"^(A\s+|The\s+|An\s+|L')" instead.
+# in French, use: "^(A\s+|The\s+|An\s+|L')" instead.
 # Default: '^(A|The|An)\s+'
 title_sort_articles=r'^(A|The|An)\s+'
 
