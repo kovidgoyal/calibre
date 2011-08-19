@@ -374,8 +374,8 @@ class Editor(QFrame): # {{{
                     self.current_keys])
         if not current: current = _('None')
 
-        self.use_default.setText(_('Default: %s [Currently not conflicting: %s]')%
-                (default, current))
+        self.use_default.setText(_('Default: %(deflt)s [Currently not conflicting: %(curr)s]')%
+                dict(deflt=default, curr=current))
 
         if shortcut['set_to_default']:
             self.use_default.setChecked(True)
