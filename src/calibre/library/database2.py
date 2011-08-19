@@ -925,12 +925,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         formats = row[fm['formats']]
         mi.format_metadata = {}
         if not formats:
-            formats = None
+            good_formats = None
         else:
             formats = formats.split(',')
+            good_formats = []
             for f in formats:
-                mi.format_metadata[f] = self.format_metadata(id, f)
-        mi.formats = formats
+                try:
+                    mi.format_metadata[f] = self.format_metadata(id, f)
+                except:
+                    pass
+                else:
+                    good_formats.append(f)
+        mi.formats = good_formats
         tags = row[fm['tags']]
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -1213,7 +1219,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except: # If path contains strange characters this throws an exc
                 candidates = []
             if format and candidates and os.path.exists(candidates[0]):
-                shutil.copyfile(candidates[0], fmt_path)
+                try:
+                    shutil.copyfile(candidates[0], fmt_path)
+                except:
+                    # This can happen if candidates[0] or fmt_path is too long,
+                    # which can happen if the user copied the library from a
+                    # non windows machine to a windows machine.
+                    return None
                 return fmt_path
 
     def copy_format_to(self, index, fmt, dest, index_is_id=False):
