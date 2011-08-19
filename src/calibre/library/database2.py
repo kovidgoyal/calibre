@@ -1645,7 +1645,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 item.rt += rating
                                 item.rc += 1
                         except:
-                            prints(tid_cat, val)
                             prints('get_categories: item', val, 'is not in', cat, 'list!')
 
         #print 'end phase "books":', time.clock() - last, 'seconds'
@@ -2303,7 +2302,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             'DELETE FROM books_languages_link WHERE book=?', (book_id,))
         self.conn.execute('''DELETE FROM languages WHERE (SELECT COUNT(id)
                                  FROM books_languages_link WHERE
-                                 lang_code=languages.id) < 1''')
+                                 books_languages_link.lang_code=languages.id) < 1''')
 
         books_to_refresh = set([book_id])
         final_languages = []

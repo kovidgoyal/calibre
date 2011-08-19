@@ -19,6 +19,69 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.15
+  date: 2011-08-19
+
+  new features:
+    - title: "Add a 'languages' metadata field."
+      type: major
+      description: "This is useful if you have a multi-lingual book collection. You can now set one or more languages per book via the Edit Metadata dialog. If you want the languages
+      column to be visible, then go to Preferences->Add your own columns and unhide the languages columns. You can also bulk set the languages on multiple books via the bulk edit metadata dialog. You can also have the languages show up in the book details panel on the right by going to Preferences->Look and Feel->Book details" 
+
+    - title: "Get Books: Add XinXii store."
+    
+    - title: "Metadata download plugin for ozon.ru, enabled only when user selects russian as their language in the welcome wizard."
+
+    - title: "Bambook driver: Allow direct transfer of PDF files to Bambook devices"
+
+    - title: "Driver for Coby MID7015A and Asus EEE Note"
+
+    - title: "Edit metadata dialog: The keyboard shortcut Ctrl+D can now be used to trigger a metadata download. Also show the row number of the book being edited in the titlebar"
+
+    - title: "Add an option to not preserve the date when using the 'Copy to Library' function (found in Preferences->Adding books)"
+  
+  bug fixes:
+    - title: "Linux binary: Use readlink -f rather than readlink -e in the launcher scripts so that they work with recent releases of busybox"
+
+    - title: "When bulk downloading metadata for more than 100 books at a time, automatically split up the download into batches of 100."
+      tickets: [828373]
+
+    - title: "When deleting books from the Kindle also delete 'sidecar' .apnx and .ph1 files as the kindle does not clean them up automatically"
+      tickets: [827684]
+
+    - title: "Fix a subtle bug in the device drivers that caused calibre to lose track of some books on the device if you used author_sort in the send to device template and your books have author sort values that differ only in case."
+      tickets: [825706]
+
+    - title: "Fix scene break character pattern not saved in conversion preferences"
+      tickets: [826038]
+
+    - title: "Keyboard shortcuts: Fix a bug triggered by some third party plugins that made the keyboard preferences unusable in OS X."
+      tickets: [826325]
+
+    - title: "Search box: Fix completion no longer working after using Tag Browser to do a search. Also ensure that completer popup is always hidden when a search is performed."
+
+    - title: "Fix pressing Enter in the search box causes the same search to be executed twice in the plugins and keyboard shortcuts preferences panels"
+
+    - title: "Catalog generation: Fix error creating epub/mobi catalogs on non UTF-8 windows systems when the metadata contained non ASCII characters"
+
+  improved recipes:
+    - Financial Times UK
+    - La Tercera
+    - Folha de Sao Paolo
+    - Metro niews NL 
+    - La Nacion
+    - Juventud Rebelde
+    - Rzeczpospolita Online
+    - Newsweek Polska
+    - CNET news
+
+  new recipes:
+    - title: El Mostrador and The Clinic
+      author: Alex Mitrani
+
+    - title: Patente de Corso
+      author: Oscar Megia Lopez
+
 - version: 0.8.14
   date: 2011-08-12
 
