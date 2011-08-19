@@ -1027,7 +1027,7 @@ class OPF(object): # {{{
             if self.guide is not None:
                 for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
                     for item in self.guide:
-                        if item.type.lower() == t:
+                        if item.type and item.type.lower() == t:
                             return item.path
             try:
                 return self.guess_cover()
