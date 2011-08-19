@@ -109,20 +109,6 @@ class TAGX(object): # {{{
         list(map(self.add_tag, (11, 0)))
         return self.header(1) + bytes(self.byts)
 
-
-
-class TAGX_BOOK(TAGX):
-    BITMASKS = dict(TAGX.BITMASKS)
-    BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 21, 22, 23])})
-
-    @property
-    def hierarchical_book(self):
-        '''
-        TAGX block for the primary index header of a hierarchical book
-        '''
-        list(map(self.add_tag, (1, 2, 3, 4, 21, 22, 23, 0)))
-        return self.header(1) + bytes(self.byts)
-
     @property
     def flat_book(self):
         '''
@@ -243,17 +229,6 @@ class IndexEntry(object):
 
         ans = buf.getvalue()
         return ans
-
-class BookIndexEntry(IndexEntry):
-
-    @property
-    def entry_type(self):
-        tagx = TAGX_BOOK()
-        ans = 0
-        for tag in self.tag_nums:
-            ans |= tagx.BITMASKS[tag]
-        return ans
-
 
 class PeriodicalIndexEntry(IndexEntry):
 
@@ -571,9 +546,7 @@ class Indexer(object): # {{{
             tagx_block = TAGX().secondary
         else:
             tagx_block = (TAGX().periodical if self.is_periodical else
-                            (TAGX_BOOK().hierarchical_book if
-                                self.book_has_subchapters else
-                                TAGX_BOOK().flat_book))
+                                TAGX().flat_book)
         header_length = 192
 
         # Ident 0 - 4
@@ -659,7 +632,6 @@ class Indexer(object): # {{{
     # }}}
 
     def create_book_index(self): # {{{
-        self.book_has_subchapters = False
         indices = []
         seen = set()
         id_offsets = self.serializer.id_offsets
@@ -679,7 +651,7 @@ class Indexer(object): # {{{
                 continue
             seen.add(offset)
 
-            indices.append(BookIndexEntry(offset, label))
+            indices.append(IndexEntry(offset, label))
 
         indices.sort(key=lambda x:x.offset)
 
@@ -703,7 +675,7 @@ class Indexer(object): # {{{
                 next_offset = self.serializer.body_end_offset
             index.length = next_offset - index.offset
 
-        # Set index and depth values
+        # Set index values
         for index, x in enumerate(indices):
             x.index = index
 
