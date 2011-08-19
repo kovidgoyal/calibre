@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.15\n"
-"POT-Creation-Date: 2011-08-19 09:03+MDT\n"
-"PO-Revision-Date: 2011-08-19 09:03+MDT\n"
+"POT-Creation-Date: 2011-08-19 09:05+MDT\n"
+"PO-Revision-Date: 2011-08-19 09:05+MDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -9751,7 +9751,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
 #, python-format
-msgid "Default: %s [Currently not conflicting: %s]"
+msgid "Default: %(deflt)s [Currently not conflicting: %(curr)s]"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:396
