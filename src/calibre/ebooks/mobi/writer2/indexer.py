@@ -435,7 +435,26 @@ class TBS(object): # {{{
         self.bytestring = buf.getvalue()
 
     def book_tbs(self, data, first):
-        self.bytestring = b''
+        spanner = data['spans']
+        if spanner is not None:
+            self.bytestring = encode_tbs(spanner.index, {0b010: 0, 0b001: 0},
+                    flag_size=3)
+        else:
+            starts, completes, ends = (data['starts'], data['completes'],
+                                        data['ends'])
+            if (not completes and (
+                (len(starts) == 1 and not ends) or (len(ends) == 1 and not
+                    starts))):
+                node = starts[0] if starts else ends[0]
+                self.bytestring = encode_tbs(node.index, {0b010: 0}, flag_size=3)
+            else:
+                nodes = []
+                for x in (starts, completes, ends):
+                    nodes.extend(x)
+                nodes.sort(key=lambda x:x.index)
+                self.bytestring = encode_tbs(nodes[0].index, {0b010:0,
+                    0b100: len(nodes)}, flag_size=3)
+
 # }}}
 
 class Indexer(object): # {{{
