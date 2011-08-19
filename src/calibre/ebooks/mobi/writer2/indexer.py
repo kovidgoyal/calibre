@@ -693,7 +693,7 @@ class Indexer(object): # {{{
 
 
         # Remove empty indices
-        indices = [x for x in indices if x[0].length > 0]
+        indices = [x for x in indices if x.length > 0]
 
         # Reset lengths in case any were removed
         for i, index in enumerate(indices):
@@ -705,7 +705,7 @@ class Indexer(object): # {{{
 
         # Set index and depth values
         for index, x in enumerate(indices):
-            x[0].index = index
+            x.index = index
 
         return indices
 
