@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-12 17:43+0000\n"
-"PO-Revision-Date: 2011-08-18 02:58+0000\n"
+"PO-Revision-Date: 2011-08-18 07:06+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-18 04:33+0000\n"
+"X-Launchpad-Export-Date: 2011-08-19 04:33+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -19612,7 +19612,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:247
 msgid "Specify how SONY collections are sorted"
-msgstr ""
+msgstr "どのようにSONYコレクションがソートされるかを指定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:248
 msgid ""
@@ -19640,6 +19640,17 @@ msgid ""
 "[ ( [list of fields], sort field ) , ( [ list of fields ] , sort field ) ]\n"
 "Default: empty (no rules), so no collection attributes are named."
 msgstr ""
+"どのようにSONYコレクションがソートされるかを指定する。このtweakは、書誌情報管理が自動になっている場合のみ有効です。\n"
+"コレクションごとに、どの書誌情報を使ってソートするのかを指定することができます。\n"
+"このtweakのフォーマットは、コレクションを作っている書誌情報フィールドのリストで、それに加えてソート値を持つ書誌情報フィールドの名前が続きます。\n"
+"例：以下は、出版日とタグから作られたコレクションがカスタム列'#mydate'の値でソートされ、'series'から作られたコレクションが'series_"
+"index'でソートされ、その他の全てのコレクションがタイトルでソートされる事を表しています。もしコレクションの書誌情報フィールドが指定されない時、それが"
+"シリーズ・ベースのコレクションならシリーズの順、それ以外の場合はタイトルの順になります。\n"
+"[(['pubdate', 'tags'],'#mydate'), (['series'],'series_index'), (['*'], "
+"'title')]\n"
+"注：括弧とかぎ括弧は必要です。文法は：\n"
+"[ ( [list of fields], sort field ) , ( [ list of fields ] , sort field ) ]\n"
+"ディフォールト: 空（ルールなし）、なのでコレクション属性は指定されません。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:265
 msgid "Control how tags are applied when copying books to another library"
@@ -19653,12 +19664,12 @@ msgstr "これをTrueにした場合、他のライブラリに書籍をコピ�
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:270
 msgid "Set the maximum number of tags to show per book in the content server"
-msgstr ""
+msgstr "コンテントサーバーで書籍ごとに表示する最大のタグ数を設定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:273
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
-msgstr ""
+msgstr "コンテントサーバーが表示したり、しなかったりするカスタム書誌情報フィールドを設定。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:274
 msgid ""
@@ -19678,10 +19689,24 @@ msgid ""
 "content_server_will_display = ['*']\n"
 "content_server_wont_display['#mycomments']"
 msgstr ""
+"content_server_will_display は表示すべきカスタムフィールドのリスト。\n"
+"content_server_wont_display は表示すべきでないカスタムフィールドのリスト。\n"
+"wont_displayの方がwill_displayより高い優先度を持つ。\n"
+"特別な値'*'は全てのフィールドを意味する。値[]はエントリーが無いことを意味する。\n"
+"ディフォールト：\n"
+"content_server_will_display = ['*']\n"
+"content_server_wont_display = []\n"
+"例:\n"
+"カスタムフィールド、#mytags と #genre のみを表示したい場合：\n"
+"content_server_will_display = ['#mytags', '#genre']\n"
+"content_server_wont_display = []\n"
+"#mycomments以外の全てのフィールドを表示したい場合:\n"
+"content_server_will_display = ['*']\n"
+"content_server_wont_display['#mycomments']"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:291
 msgid "Set the maximum number of sort 'levels'"
-msgstr ""
+msgstr "ソート「レベル」の最大数を設定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:292
 msgid ""
@@ -19694,10 +19719,13 @@ msgid ""
 "level sorts, and if you are seeing a slowdown, reduce the value of this "
 "tweak."
 msgstr ""
+"calibreが特定の操作、例えば検索やデバイス挿入等、の後にライブラリを再ソートする時に使うソートの「レベル」の最大数を設定する。各ソートレベルはパフォ"
+"ーマンスへの影響があります。もしデーターベースが大きい場合（数千書籍）影響は目に見えるでしょう。もし複数レベルのソートが必要でなく、遅さが目立ってきた場合"
+"、このtweakの値を減らしてください。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:299
 msgid "Specify which font to use when generating a default cover"
-msgstr ""
+msgstr "ディフォールトの表紙を生成する時に使うフォントを指定する"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:300
 msgid ""
@@ -19706,10 +19734,12 @@ msgid ""
 "(Liberation\n"
 "Serif) does not contain glyphs for the language of the books in your library."
 msgstr ""
+"ディフォールトの表紙を生成する時のタイトル、著者、フッター等に使用するフォントの、.ttf "
+"フォントファイルに対する絶対パス。もしディフォールトフォント（Liberation Serif）が、ライブラリの書籍の言語を含んでいない場合に有用です。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:306
 msgid "Control behavior of the book list"
-msgstr ""
+msgstr "書籍リストの動作をコントロール"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:307
 msgid ""
@@ -19722,10 +19752,17 @@ msgid ""
 "You can also control whether the book list scrolls horizontal per column or\n"
 "per pixel. Default is per column."
 msgstr ""
+"書籍リストでのダブルクリック時の挙動をコントロールできます。\n"
+"選択肢： open_viewer, do_nothing, edit_cell, edit_metadata.\n"
+"edit_metadataを選択した場合、シングルクリックでの編集が無効になる副作用があります。\n"
+"ディフォールト: open_viewer.\n"
+"例: doubleclick_on_library_view = 'do_nothing'\n"
+"これに加えて、書籍リストが水平方向へスクロールする動作が、列ごとかピクセルごとかをコントロールする事もできます。\n"
+"ディフォールトは列ごとです。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:318
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "ソート時に使われる言語"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:319
 msgid ""
@@ -19740,10 +19777,19 @@ msgid ""
 "Example: locale_for_sorting = 'fr' -- sort using French rules.\n"
 "Example: locale_for_sorting = 'nb' -- sort using Norwegian rules."
 msgstr ""
+"このtweakに設定することで強制的に特定の言語のソート順に変更することができます。\n"
+"これは例えばcalibreを英語で使っているが自分の住んでいる所の言語のソート順にしたい時などに有用です。tweakを望む言語の、ISO 639-"
+"1言語コード（小文字）に設定してください。サポートされているロケールのリストはここで探せます\n"
+"http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/nls/rbagsicusorts"
+"equencetables.htm\n"
+"\n"
+"ディフォールト: locale_for_sorting = '' -- calibreが表示している言語を使用\n"
+"例: locale_for_sorting = 'fr' -- フランス語ルールでソート\n"
+"例: locale_for_sorting = 'nb' -- ノルウェー語ルールでソート"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid "Number of columns for custom metadata in the edit metadata dialog"
-msgstr ""
+msgstr "書誌情報編集ダイアログでのカスタム書誌情報列の個数"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:331
 msgid ""
@@ -19752,10 +19798,12 @@ msgid ""
 "two\n"
 "columns. If False, one column is used."
 msgstr ""
+"書誌情報を一つずつ編集する時のカスタム書誌情報列を１つにするか2つにするかを指定する。\n"
+"もしTrueの場合フィールドは２つの列を使ってレイアウトされ、もしFalseの場合1つの列が使われます。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:336
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "メールを送信する前に待つ秒数"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:337
 msgid ""
@@ -19765,10 +19813,13 @@ msgid ""
 "making email sending fail. Changes will take effect only after a restart of\n"
 "calibre."
 msgstr ""
+"gmailやhotmailのような公開emailサービスを使う場合の、メールを送信する前に待つ秒数。\n"
+"ディフォールトは5分。これを低くするとサーバーのSPAM制限に引っかかる可能性が出てきて、送信に失敗する可能性があります。変更はcalibreのリスタート"
+"後に有効になります。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:344
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "書籍リストの端にある明るい黄色いラインを取り除く"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:345
 msgid ""
@@ -19776,10 +19827,12 @@ msgid ""
 "when a section of the user interface is hidden. Changes will take effect\n"
 "after a restart of calibre."
 msgstr ""
+"書籍リストの端にある、ユーザーインターフェイスの一部が隠れている時に表示される、明るい黄色い線を表示するかどうかを設定する。変更はcalibreのリスター"
+"ト後に有効になります。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:350
 msgid "The maximum width and height for covers saved in the calibre library"
-msgstr ""
+msgstr "calibreのライブラリに保存される表紙の幅、高さの最大値"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:351
 msgid ""
@@ -19787,6 +19840,7 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
+"calibreのライブラリ内の全ての表紙は、アスペクト比を保ちながらこのサイズにリサイズされます。これは異常に大きな表紙による遅さを避けるためにあります。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:356
 msgid "Where to send downloaded news"
