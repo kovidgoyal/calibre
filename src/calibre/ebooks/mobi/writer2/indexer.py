@@ -661,13 +661,12 @@ class Indexer(object): # {{{
     def create_book_index(self): # {{{
         self.book_has_subchapters = False
         indices = []
-        seen, sub_seen = set(), set()
+        seen = set()
         id_offsets = self.serializer.id_offsets
 
-        # Flatten toc to contain only chapters and subchapters
-        # Anything deeper than a subchapter is made into a subchapter
-        chapters = []
-        for node in self.oeb.toc:
+        # Flatten toc so that chapter to chapter jumps work with all sub
+        # chapter levels as well
+        for node in self.oeb.toc.iterdescendants():
             try:
                 offset = id_offsets[node.href]
                 label = self.cncx[node.title]
@@ -680,77 +679,33 @@ class Indexer(object): # {{{
                 continue
             seen.add(offset)
 
-            subchapters = []
-            chapters.append((offset, label, subchapters))
+            indices.append(BookIndexEntry(offset, label))
 
-            for descendant in node.iterdescendants():
-                try:
-                    offset = id_offsets[descendant.href]
-                    label = self.cncx[descendant.title]
-                except:
-                    self.log.warn('TOC item %s [%s] not found in document'%(
-                        descendant.title, descendant.href))
-                    continue
+        indices.sort(key=lambda x:x.offset)
 
-                if offset in sub_seen:
-                    continue
-                sub_seen.add(offset)
-                subchapters.append((offset, label))
+        # Set lengths
+        for i, index in enumerate(indices):
+            try:
+                next_offset = indices[i+1].offset
+            except:
+                next_offset = self.serializer.body_end_offset
+            index.length = next_offset - index.offset
 
-            subchapters.sort(key=lambda x:x[0])
 
-        chapters.sort(key=lambda x:x[0])
+        # Remove empty indices
+        indices = [x for x in indices if x[0].length > 0]
 
-        chapters = [(BookIndexEntry(x[0], x[1]), [
-            BookIndexEntry(y[0], y[1]) for y in x[2]]) for x in chapters]
-
-        def set_length(indices):
-            for i, index in enumerate(indices):
-                try:
-                    next_offset = indices[i+1].offset
-                except:
-                    next_offset = self.serializer.body_end_offset
-                index.length = next_offset - index.offset
-
-        # Set chapter and subchapter lengths
-        set_length([x[0] for x in chapters])
-        for x in chapters:
-            set_length(x[1])
-
-        # Remove empty chapters
-        chapters = [x for x in chapters if x[0].length > 0]
-
-        # Remove invalid subchapters
-        for i, x in enumerate(list(chapters)):
-            chapter, subchapters = x
-            ok_subchapters = []
-            for sc in subchapters:
-                if sc.offset < chapter.next_offset and sc.length > 0:
-                    ok_subchapters.append(sc)
-            chapters[i] = (chapter, ok_subchapters)
-
-        # Reset chapter and subchapter lengths in case any were removed
-        set_length([x[0] for x in chapters])
-        for x in chapters:
-            set_length(x[1])
+        # Reset lengths in case any were removed
+        for i, index in enumerate(indices):
+            try:
+                next_offset = indices[i+1].offset
+            except:
+                next_offset = self.serializer.body_end_offset
+            index.length = next_offset - index.offset
 
         # Set index and depth values
-        indices = []
-        for index, x in enumerate(chapters):
+        for index, x in enumerate(indices):
             x[0].index = index
-            indices.append(x[0])
-
-        for chapter, subchapters in chapters:
-            for sc in subchapters:
-                index += 1
-                sc.index = index
-                sc.parent_index = chapter.index
-                indices.append(sc)
-                sc.depth = 1
-                self.book_has_subchapters = True
-            if subchapters:
-                chapter.first_child_index = subchapters[0].index
-                chapter.last_child_index = subchapters[-1].index
 
         return indices
 
