@@ -25,6 +25,7 @@ from calibre.library.caches import (_match, CONTAINS_MATCH, EQUALS_MATCH,
 from calibre import strftime, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
+from calibre.utils.localization import calibre_langcode_to_name
 
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
@@ -64,6 +65,7 @@ class BooksModel(QAbstractTableModel): # {{{
                         'tags'      : _("Tags"),
                         'series'    : ngettext("Series", 'Series', 1),
                         'last_modified' : _('Modified'),
+                        'languages' : _('Languages'),
     }
 
     def __init__(self, parent=None, buffer=40):
@@ -71,7 +73,8 @@ class BooksModel(QAbstractTableModel): # {{{
         self.db = None
         self.book_on_device = None
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
-                              'tags', 'series', 'timestamp', 'pubdate']
+                              'tags', 'series', 'timestamp', 'pubdate',
+                              'languages']
         self.default_image = default_image()
         self.sorted_on = DEFAULT_SORT
         self.sort_history = [self.sorted_on]
@@ -540,6 +543,13 @@ class BooksModel(QAbstractTableModel): # {{{
             else:
                 return None
 
+        def languages(r, idx=-1):
+            lc = self.db.data[r][idx]
+            if lc:
+                langs = [calibre_langcode_to_name(l.strip()) for l in lc.split(',')]
+                return QVariant(', '.join(langs))
+            return None
+
         def tags(r, idx=-1):
             tags = self.db.data[r][idx]
             if tags:
@@ -641,6 +651,8 @@ class BooksModel(QAbstractTableModel): # {{{
                                 siix=self.db.field_metadata['series_index']['rec_index']),
                    'ondevice' : functools.partial(text_type,
                                 idx=self.db.field_metadata['ondevice']['rec_index'], mult=None),
+                   'languages': functools.partial(languages,
+                                idx=self.db.field_metadata['languages']['rec_index']),
                    }
 
         self.dc_decorator = {
@@ -884,6 +896,9 @@ class BooksModel(QAbstractTableModel): # {{{
                     if val.isNull() or not val.isValid():
                         return False
                     self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
+                elif column == 'languages':
+                    val = val.split(',')
+                    self.db.set_languages(id, val)
                 else:
                     books_to_refresh |= self.db.set(row, column, val,
                                                     allow_case_change=True)

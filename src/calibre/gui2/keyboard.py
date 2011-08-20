@@ -114,6 +114,8 @@ class Manager(QObject): # {{{
         custom_keys_map = {un:tuple(keys) for un, keys in self.config.get(
             'map', {}).iteritems()}
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
+        #import pprint
+        #pprint.pprint(self.keys_map)
 
 # }}}
 
@@ -372,8 +374,8 @@ class Editor(QFrame): # {{{
                     self.current_keys])
         if not current: current = _('None')
 
-        self.use_default.setText(_('Default: %s [Currently not conflicting: %s]')%
-                (default, current))
+        self.use_default.setText(_('Default: %(deflt)s [Currently not conflicting: %(curr)s]')%
+                dict(deflt=default, curr=current))
 
         if shortcut['set_to_default']:
             self.use_default.setChecked(True)
