@@ -17,6 +17,9 @@ class LanguagesEdit(MultiCompleteComboBox):
         MultiCompleteComboBox.__init__(self, parent)
 
         self._lang_map = lang_map()
+        self.names_with_commas = [x for x in self._lang_map.itervalues() if ',' in x]
+        self.comma_map = {k:k.replace(',', '|') for k in self.names_with_commas}
+        self.comma_rmap = {v:k for k, v in self.comma_map.iteritems()}
         self._rmap = {v:k for k,v in self._lang_map.iteritems()}
 
         all_items = sorted(self._lang_map.itervalues(),
@@ -25,12 +28,19 @@ class LanguagesEdit(MultiCompleteComboBox):
         for item in all_items:
             self.addItem(item)
 
+    @property
+    def vals(self):
+        raw = unicode(self.lineEdit().text())
+        for k, v in self.comma_map.iteritems():
+            raw = raw.replace(k, v)
+        parts = [x.strip() for x in raw.split(',')]
+        return [self.comma_rmap.get(x, x) for x in parts]
+
     @dynamic_property
     def lang_codes(self):
 
         def fget(self):
-            vals = [x.strip() for x in
-                    unicode(self.lineEdit().text()).split(',')]
+            vals = self.vals
             ans = []
             for name in vals:
                 if name:
@@ -50,8 +60,7 @@ class LanguagesEdit(MultiCompleteComboBox):
         return property(fget=fget, fset=fset)
 
     def validate(self):
-        vals = [x.strip() for x in
-                    unicode(self.lineEdit().text()).split(',')]
+        vals = self.vals
         bad = []
         for name in vals:
             if name:
