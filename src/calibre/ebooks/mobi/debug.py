@@ -1421,7 +1421,7 @@ class MOBIFile(object): # {{{
                 except:
                     pass
             if fmt is not None:
-                self.image_records.append(ImageRecord(i, r, fmt))
+                self.image_records.append(ImageRecord(len(self.image_records)+1, r, fmt))
             else:
                 self.binary_records.append(BinaryRecord(i, r))
 

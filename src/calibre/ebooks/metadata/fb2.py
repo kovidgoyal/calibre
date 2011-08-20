@@ -147,15 +147,12 @@ def _parse_cover_data(root, imgid, mi):
     if elm_binary:
         mimetype = elm_binary[0].get('content-type', 'image/jpeg')
         mime_extensions = guess_all_extensions(mimetype)
-        
+
         if not mime_extensions and mimetype.startswith('image/'):
-            prints("WARNING: Unsupported or misspelled mime-type '%s'. "\
-                   "Trying to recovery mime-type from id_ref='%s'" % (mimetype, imgid) )
-            ctype = guess_type(imgid) # -> (mime-type, encoding)
-            mimetype_fromid = ctype[0]
+            mimetype_fromid = guess_type(imgid)[0]
             if mimetype_fromid and mimetype_fromid.startswith('image/'):
                 mime_extensions = guess_all_extensions(mimetype_fromid)
-        
+
         if mime_extensions:
             pic_data = elm_binary[0].text
             if pic_data:
