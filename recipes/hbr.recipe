@@ -13,6 +13,8 @@ class HBR(BasicNewsRecipe):
     no_stylesheets = True
 
     LOGIN_URL = 'http://hbr.org/login?request_url=/'
+    LOGOUT_URL = 'http://hbr.org/logout?request_url=/'
+
     INDEX = 'http://hbr.org/archive-toc/BR'
 
     keep_only_tags = [dict(name='div', id='pageContainer')]
@@ -34,6 +36,7 @@ class HBR(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
+        #'''
         br.open(self.LOGIN_URL)
         br.select_form(name='signin-form')
         br['signin-form:username'] = self.username
@@ -42,9 +45,13 @@ class HBR(BasicNewsRecipe):
         if 'My Account' not in raw:
             raise Exception('Failed to login, are you sure your username and password are correct?')
         self.logout_url = None
-        link = br.find_link(text='Sign out')
-        if link:
-            self.logout_url = link.absolute_url
+        try:
+            link = br.find_link(text='Sign out')
+            if link:
+                self.logout_url = link.absolute_url
+        except:
+            self.logout_url = self.LOGOUT_URL
+        #'''
         return br
 
     def cleanup(self):
@@ -57,6 +64,8 @@ class HBR(BasicNewsRecipe):
 
 
     def hbr_get_toc(self):
+        #return self.index_to_soup(open('/t/hbr.html').read())
+
         today = date.today()
         future = today + timedelta(days=30)
         for x in [x.strftime('%y%m') for x in (future, today)]:
@@ -66,53 +75,43 @@ class HBR(BasicNewsRecipe):
                 return soup
         raise Exception('Could not find current issue')
 
-    def hbr_parse_section(self, container, feeds):
-        current_section = None
-        current_articles = []
-        for x in container.findAll(name=['li', 'h3', 'h4']):
-            if x.name in ['h3', 'h4'] and not x.findAll(True):
-                if current_section and current_articles:
-                    feeds.append((current_section, current_articles))
-                current_section = self.tag_to_string(x)
-                current_articles = []
-                self.log('\tFound section:', current_section)
-            if x.name == 'li':
-                a = x.find('a', href=True)
-                if a is not None:
-                    title = self.tag_to_string(a)
-                    url = a.get('href')
-                    if '/ar/' not in url:
-                        continue
-                    if url.startswith('/'):
-                        url = 'http://hbr.org'+url
-                    url = self.map_url(url)
-                    p = x.find('p')
-                    desc = ''
-                    if p is not None:
-                        desc = self.tag_to_string(p)
-                    if not title or not url:
-                        continue
-                    self.log('\t\tFound article:', title)
-                    self.log('\t\t\t', url)
-                    self.log('\t\t\t', desc)
-                    current_articles.append({'title':title, 'url':url,
-                        'description':desc, 'date':''})
-        if current_section and current_articles:
-            feeds.append((current_section, current_articles))
-
-
-
     def hbr_parse_toc(self, soup):
         feeds = []
-        features = soup.find(id='issueFeaturesContent')
-        self.hbr_parse_section(features, feeds)
-        departments = soup.find(id='issueDepartments')
-        self.hbr_parse_section(departments, feeds)
+        current_section = None
+        articles = []
+        for x in soup.find(id='archiveToc').findAll(['h3', 'h4']):
+            if x.name == 'h3':
+                if current_section is not None and articles:
+                    feeds.append((current_section, articles))
+                current_section = self.tag_to_string(x).capitalize()
+                articles = []
+                self.log('\tFound section:', current_section)
+            else:
+                a = x.find('a', href=True)
+                if a is None: continue
+                title = self.tag_to_string(a)
+                url = a['href']
+                if '/ar/' not in url:
+                    continue
+                if url.startswith('/'):
+                    url = 'http://hbr.org' + url
+                url = self.map_url(url)
+                p = x.parent.find('p')
+                desc = ''
+                if p is not None:
+                    desc = self.tag_to_string(p)
+                self.log('\t\tFound article:', title)
+                self.log('\t\t\t', url)
+                self.log('\t\t\t', desc)
+
+                articles.append({'title':title, 'url':url, 'description':desc,
+                    'date':''})
         return feeds
 
 
     def parse_index(self):
         soup = self.hbr_get_toc()
+        #open('/t/hbr.html', 'wb').write(unicode(soup).encode('utf-8'))
         feeds = self.hbr_parse_toc(soup)
         return feeds
 
