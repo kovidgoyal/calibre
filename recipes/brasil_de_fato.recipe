@@ -6,7 +6,7 @@ class BrasilDeFato(BasicNewsRecipe):
     news                  = True
     title          = u'Brasil de Fato'
     __author__            = 'Alex Mitrani'
-    description           = u'Uma vis„o popular do Brasil e do mundo.'
+    description           = u'Uma vis√£o popular do Brasil e do mundo.'
     publisher             = u'SOCIEDADE EDITORIAL BRASIL DE FATO'
     category              = 'news, politics, Brazil, rss, Portuguese'
     oldest_article = 10
@@ -27,5 +27,5 @@ class BrasilDeFato(BasicNewsRecipe):
 	,(u'Internacional', u'http://www.brasildefato.com.br/rss_internacional')
 	,(u'Entrevista', u'http://www.brasildefato.com.br/rss_entrevista')
 	,(u'Cultura', u'http://www.brasildefato.com.br/rss_cultura')
-	,(u'An·lise', u'http://www.brasildefato.com.br/rss_analise')
+	,(u'An√°lise', u'http://www.brasildefato.com.br/rss_analise')
 	]
