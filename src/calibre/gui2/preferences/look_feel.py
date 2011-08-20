@@ -10,12 +10,11 @@ from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
-from calibre.gui2 import config, gprefs, qt_app
+from calibre.gui2 import config, gprefs, qt_app, NONE
 from calibre.utils.localization import (available_translations,
     get_language, get_lang)
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
-from calibre.gui2 import NONE
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.preferences.coloring import EditRules
 
