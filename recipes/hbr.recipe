@@ -36,6 +36,8 @@ class HBR(BasicNewsRecipe):
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
+        self.logout_url = None
+
         #'''
         br.open(self.LOGIN_URL)
         br.select_form(name='signin-form')
@@ -44,7 +46,6 @@ class HBR(BasicNewsRecipe):
         raw = br.submit().read()
         if 'My Account' not in raw:
             raise Exception('Failed to login, are you sure your username and password are correct?')
-        self.logout_url = None
         try:
             link = br.find_link(text='Sign out')
             if link:
