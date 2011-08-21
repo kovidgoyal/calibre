@@ -723,7 +723,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 1, 1)
-        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -859,7 +859,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 2, 1)
-        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
