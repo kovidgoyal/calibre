@@ -16,6 +16,8 @@ class LanguagesEdit(MultiCompleteComboBox):
     def __init__(self, parent=None):
         MultiCompleteComboBox.__init__(self, parent)
 
+        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.setMinimumContentsLength(20)
         self._lang_map = lang_map()
         self.names_with_commas = [x for x in self._lang_map.itervalues() if ',' in x]
         self.comma_map = {k:k.replace(',', '|') for k in self.names_with_commas}

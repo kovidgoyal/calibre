@@ -186,7 +186,7 @@ def _config(): # {{{
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
     c.add_opt('gui_layout', choices=['wide', 'narrow'],
-            help=_('The layout of the user interface.\nWide has the '
+            help=_('The layout of the user interface. Wide has the '
                 'book details panel on the right and narrow has '
                 'it at the bottom.'), default='wide')
     c.add_opt('show_avg_rating', default=True,
