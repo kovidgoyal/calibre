@@ -28,6 +28,7 @@ from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 from calibre.utils.magick.draw import save_cover_data_to, add_borders_to_image
+from calibre.utils.localization import canonicalize_lang
 
 class LoginFailed(ValueError):
     pass
@@ -1117,6 +1118,9 @@ class BasicNewsRecipe(Recipe):
         mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
         mi.timestamp = nowf()
         mi.comments = self.description
+        language = canonicalize_lang(self.language)
+        if language is not None:
+            mi.language = language
         if not isinstance(mi.comments, unicode):
             mi.comments = mi.comments.decode('utf-8', 'replace')
         mi.pubdate = nowf()
