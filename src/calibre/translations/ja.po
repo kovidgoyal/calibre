@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-18 07:06+0000\n"
-"Last-Translator: Ado Nishimura <Unknown>\n"
+"PO-Revision-Date: 2011-08-20 09:42+0000\n"
+"Last-Translator: Koichi Akabe <vbkaisetsu@gmail.com>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-08-21 04:45+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -863,7 +863,7 @@ msgstr "それが含まれているzipファイルへのパスを指定して、
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:548
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
-msgstr "カスタムのプラグインを名前によって取り除きます。ビルトインのプラグインには影響はありません。"
+msgstr "カスタムのプラグインを名前で削除します。組み込みのプラグインには影響しません。"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:550
 msgid ""
@@ -3234,7 +3234,7 @@ msgstr[0] "シリーズ"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "言語"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"
@@ -3480,7 +3480,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:24
 msgid "Downloads metadata and covers from OZON.ru"
-msgstr ""
+msgstr "書誌情報と表紙をOZON.ruからダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -9153,7 +9153,7 @@ msgstr "EBookファイルから設定(&e)"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1139
 msgid "&Languages:"
-msgstr ""
+msgstr "言語(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:533
@@ -11080,7 +11080,7 @@ msgstr "完了"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
 #, python-format
 msgid "Default: %(deflt)s [Currently not conflicting: %(curr)s]"
-msgstr ""
+msgstr "ディフォールト: %(deflt)s [現在、重複していない物: %(curr)s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
@@ -11099,7 +11099,7 @@ msgstr "すでに定義されています："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:459
 msgid "<b>This shortcut no longer exists</b>"
-msgstr ""
+msgstr "<b>このショートカットはもう存在していません</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:468
 msgid "Shortcuts"
@@ -11123,7 +11123,7 @@ msgstr "該当なし"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:606
 #, python-format
 msgid "Could not find any shortcuts matching %s"
-msgstr ""
+msgstr "%s にマッチするショートカットを見つけられませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
@@ -11703,18 +11703,17 @@ msgstr "タグを変更しました。タグエディターを使うために、
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1140
 msgid "A comma separated list of languages for this book"
-msgstr ""
+msgstr "この書籍の言語のコンマ区切りのリスト"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1162
 msgid "Unknown language"
-msgstr ""
+msgstr "不明な言語"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1163
 #, python-format
 msgid "The language %s is not recognized"
 msgid_plural "The languages %s are not recognized"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "言語 %s を認識できませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1175
 msgid "I&ds:"
@@ -11913,7 +11912,7 @@ msgstr "calibreがどのように書誌情報をダウンロードするかを�
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:285
 #, python-format
 msgid " [%(num)d of %(tot)d]"
-msgstr ""
+msgstr " [%(num)d / %(tot)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:327
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:334
@@ -12162,7 +12161,7 @@ msgstr "ファイル名から書誌情報を設定(&C)"
 msgid ""
 "When using the  \"&Copy to library\" action to copy books between libraries, "
 "preserve the date"
-msgstr ""
+msgstr "「ライブラリにコピー(&C)」を使ってライブラリ間で書籍をコピーする時に、日付をそのままにする。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -17548,6 +17547,8 @@ msgid ""
 "The format in which to display dates. %(day)s - day, %(month)s - month, "
 "%(mn)s - month number, %(year)s - year. Default is: %(default)s"
 msgstr ""
+"日付表示時のフォーマット。 %(day)s - 日, %(month)s - 月(の名前), %(mn)s - 月の番号, %(year)s - 年. "
+"ディフォールトは: %(default)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:121
 msgid "Convert paths to lowercase."
@@ -19512,6 +19513,13 @@ msgid ""
 "in French, use: r\"^(A\\s+|The\\s+|An\\s+|L')\" instead.\n"
 "Default: '^(A|The|An)\\s+'"
 msgstr ""
+"タイトル・ソート文字列を計算時に「冠詞」として扱われるワードのリスト。このリストは正規表現で、冠詞を'or'機能のバー「|」で区切った物になります。比較は"
+"大小文字無視で行われ、それは変更できません。このtweakへの変更は書籍がなんらかの方法で修正されるまで有効になりません。もし無効なパターンを入力した場合"
+"、これは単純に無視されます。\n"
+"無効にする場合には次の表現を使ってください： '^$'\n"
+"この表現は後ろに空白を伴う冠詞を想定しています。もし後ろに他の文字をともなう冠詞にもマッチさせたい場合、例えばフランス語のL'の場合には、かわりに "
+"r\"^(A\\s+|The\\s+|An\\s+|L')\" を使ってください。\n"
+"ディフォールト: '^(A|The|An)\\\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:187
 msgid "Specify a folder calibre should connect to at startup"

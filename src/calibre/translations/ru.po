@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-18 09:08+0000\n"
-"Last-Translator: Alexandr Belugin <Unknown>\n"
+"PO-Revision-Date: 2011-08-20 09:14+0000\n"
+"Last-Translator: Viatcheslav <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-08-21 04:45+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -1399,7 +1399,7 @@ msgstr "Соединиться с Kindle 2/3"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr "Отправлять номер страницы при передаче книг"
+msgstr "Отправлять информацию о номерах старниц при передаче книг"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1408,10 +1408,11 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
-"Kindle 3 и новее могут использовать информацию о номерах страниц в MOBI-"
-"файлах. С этой опцией calibre посчитает и отправит эту информацию на Kindle "
-"во время выгрузки MOBI-файлов через USB. Обратите внимание, что номера "
-"страниц не соотвествуют какой-либо бумажной книге."
+"Устройства Kindle 3 и более новые могут использовать информацию о номерах "
+"страниц в файлах MOBI. При активации этой опции calibre просчитает и "
+"отправит эту информацию в Kindle при отправке файлов MOBI через USB. "
+"Обратите внимание, что номера страниц не соответствуют какой либо бумажной "
+"книге."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
@@ -3379,7 +3380,7 @@ msgstr[2] "Серий"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Языки"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"
@@ -3887,22 +3888,30 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:41
 #, python-format
 msgid "Number of pixels to crop from the left most x (default is %s)"
-msgstr "Количество точек для обрезания от самой левой x (по умолчанию: %s)"
+msgstr ""
+"Число пикселей, предназначенных к обрезанию, от самого левого положение по "
+"оси Х (по умолчанию: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:44
 #, python-format
 msgid "Number of pixels to crop from the left most y (default is %s)"
-msgstr "Количество точек для обрезания от самой левой y (по умолчанию: %s)"
+msgstr ""
+"Число пикселей, предназначенных к обрезанию, от самого верхнего положения по "
+"оси Y (по умолчанию: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:47
 #, python-format
 msgid "Number of pixels to crop from the right most x (default is %s)"
-msgstr "Количество точек для обрезания от самой правой x (по умолчанию: %s)"
+msgstr ""
+"Число пикселей, предназначенных к обрезанию, от самого правого положения по "
+"оси Х (по умолчанию: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:50
 #, python-format
 msgid "Number of pixels to crop from the right most y (default is %s)"
-msgstr "Количество точек для обрезания от самой правой y (по умолчанию: %s)"
+msgstr ""
+"Число пикселей, предназначенных к обрезанию, от самого нижнего положения по "
+"оси Y (по умолчанию: %s)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/crop.py:53
 msgid ""
@@ -4316,7 +4325,7 @@ msgstr "Сообщить, если доступна новая версия"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:121
 msgid "Use Roman numerals for series number"
-msgstr "Использовать Римские цифры для нумерации"
+msgstr "Использовать Римские цифры для нумерации книг в серии"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 msgid "Sort tags list by name, popularity, or rating"
@@ -4400,6 +4409,9 @@ msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr ""
+"Максимальное число одновременно выполняемых заданий конвертации/скачивания "
+"новостей. Это число в два раза больше фактического значения по историческим "
+"причинам."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:181
 msgid "Download social metadata (tags/rating/etc.)"
@@ -7955,11 +7967,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:718
 msgid "Automatically number books"
-msgstr ""
+msgstr "Автоматически нумеровать книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:721
 msgid "Force numbers to start with "
-msgstr ""
+msgstr "Задать начало нумрации с "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:793
 msgid ""
@@ -9160,7 +9172,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:564
 msgid "&Automatically number books in this series"
-msgstr ""
+msgstr "&Автоматически нумеровать книги в серии"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:565
 msgid ""
@@ -9168,10 +9180,13 @@ msgid ""
 "for that series. Checking this box will tell calibre to start numbering\n"
 "from the value in the box"
 msgstr ""
+"Нумерация серий обычно начинается с самого большого числа,\n"
+"которое есть в базе данных для этой серии.\n"
+"Установка данной опции укажет calibre начать нумерацию с указанной цифры."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:568
 msgid "&Force numbers to start with:"
-msgstr ""
+msgstr "&Задать начало нумрации с:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:569
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1364
@@ -9250,7 +9265,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1139
 msgid "&Languages:"
-msgstr ""
+msgstr "&Языки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:533
@@ -11656,7 +11671,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:494
 msgid "&Number:"
-msgstr ""
+msgstr "&Номер:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:591
 #, python-format
@@ -11774,7 +11789,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1140
 msgid "A comma separated list of languages for this book"
-msgstr ""
+msgstr "Список языков данной книги через запятую"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1162
 msgid "Unknown language"
@@ -11802,12 +11817,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1238
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1300
 msgid "This ISBN number is valid"
-msgstr "Этот номер ISBN допустим"
+msgstr "Это корректный номер ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1241
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1303
 msgid "This ISBN number is invalid"
-msgstr "Этот номер ISBN недопустим"
+msgstr "Это не корректный номер ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1266
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1288
@@ -12427,7 +12442,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:213
 msgid "Enter a number"
-msgstr "Введите числовое значение"
+msgstr "Введите число"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:218
 msgid "Enter a date in the format YYYY-MM-DD"
@@ -12813,6 +12828,8 @@ msgid ""
 "The colors box must be empty or contain the same number of items as the "
 "value box"
 msgstr ""
+"Количество цветов должно соответствовать количеству значений либо быть "
+"пустым."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:302
 msgid "The color {0} is unknown"
@@ -12906,7 +12923,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:245
 msgid "Format for &numbers"
-msgstr ""
+msgstr "Формат &чисел"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:246
 msgid "&Template"
@@ -14654,15 +14671,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:106
 msgid "Number of search threads to use"
-msgstr ""
+msgstr "Количество используемых поисковых потоков"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:107
 msgid "Number of cache update threads to use"
-msgstr ""
+msgstr "Количество потоков обновления кеша"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:108
 msgid "Number of conver download threads to use"
-msgstr ""
+msgstr "Количество используемых потоков конвертации и скачивания"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:109
 msgid "Number of details threads to use"
@@ -14678,11 +14695,11 @@ msgstr "Количество одновременно выполняемых п�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:107
 msgid "Number of simultaneous cache updates"
-msgstr ""
+msgstr "Количество одновременных обновлений кеша"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:108
 msgid "Number of simultaneous cover downloads"
-msgstr ""
+msgstr "Количество одновременных загрузок обложки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:109
 msgid "Number of simultaneous details downloads"
@@ -17357,6 +17374,8 @@ msgid ""
 "The format in which to display dates. %(day)s - day, %(month)s - month, "
 "%(mn)s - month number, %(year)s - year. Default is: %(default)s"
 msgstr ""
+"Формат отображения дат.  %(day)s - день, %(month)s - месяц, %(mn)s - номер "
+"месяца, %(year)s - год. По умолчанию: %(default)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:121
 msgid "Convert paths to lowercase."
@@ -17405,7 +17424,8 @@ msgstr "Таймаут в секундах. По умолчанию %default"
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:29
 #, python-format
 msgid "The max number of worker threads to use. Default is %default"
-msgstr "Максимальное количество используемых нитей. По умолчанию %default"
+msgstr ""
+"Максимальное количество используемых рабочих потоков. По умолчанию %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:31
 msgid "Set a password to restrict access. By default access is unrestricted."
@@ -17426,6 +17446,8 @@ msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
 msgstr ""
+"Максимальное количество элементов, возвращаемых запросом OPDS. Эта величина "
+"влияет на Stanza, WordPlayer, интеграцию."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:43
 #, python-format
@@ -17825,24 +17847,28 @@ msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"add(x, y) -- возвращает x + y. Выдает exception, если х или у не числа."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:175
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"subtract(x, y) -- возвращает x - y. Выдает exception, если х или у не числа."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:186
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"multiply(x, y) -- возвращает x * y. Выдает exception, если х или у не числа."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:197
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"divide(x, y) -- возвращает x / y. Выдает exception, если х или у не числа."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:209
 msgid ""
@@ -17950,7 +17976,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:385
 msgid "strcat_max requires an even number of arguments"
-msgstr ""
+msgstr "strcat_max требует четного числа аргументов"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:389
 msgid "first argument to strcat_max must be an integer"
@@ -18065,6 +18091,8 @@ msgid ""
 "human_readable(v) -- return a string representing the number v in KB, MB, "
 "GB, etc."
 msgstr ""
+"human_readable(v) -- возвращает строку, представляющюю число v в виде KB, "
+"MB, GB, и т.д."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:635
 msgid ""
@@ -19234,6 +19262,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:273
 msgid "Set the maximum number of tags to show per book in the content server"
 msgstr ""
+"Задайте максимальное количество тегов, которые будут показаны для каждой "
+"книги на контент сервере"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:276
 msgid ""

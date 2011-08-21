@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.8.12\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-07 20:37+0000\n"
+"PO-Revision-Date: 2011-08-20 10:32+0000\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Martin Srebotnjak <miles@filmsi.net>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-08-21 04:46+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
@@ -647,11 +647,11 @@ msgstr "Podrobna nastavitev obnašanja calibre v različnih kontekstih"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1099
 msgid "Keyboard"
-msgstr ""
+msgstr "Tipkovnica"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1105
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Prilagodite tipke za bližnjice, ki jih uporablja calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1110
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110

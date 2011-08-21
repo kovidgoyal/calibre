@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-14 10:35+0000\n"
-"Last-Translator: Flavio Waechter <chuehbueb@gmail.com>\n"
+"PO-Revision-Date: 2011-08-20 18:58+0000\n"
+"Last-Translator: Armin Geller <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:39+0000\n"
+"X-Launchpad-Export-Date: 2011-08-21 04:44+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1043,6 +1043,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"\"Kopieren von Dateien zum iTunes Medienordner %s\" ist aktiviert in den "
+"iTunes Einstellungen|Erweitert"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid ""
@@ -1051,6 +1053,11 @@ msgid ""
 "your calibre configuration directory.</p><p>Enabling indicates that iTunes "
 "is configured to store copies in your iTunes Media folder.</p>"
 msgstr ""
+"<p>Diese Einstellung sollte ihrer iTunes "
+"<i>Einstellungen</i>|<i>Erweitert</i> Einstellung entsprechen.</p><p>Das "
+"Deaktivieren wird Kopien der an iTunes übertragenen Bücher im Calibre "
+"Einstellungsverzeichnis speichern.</p><p>Aktivieren gibt an, dass iTunes so "
+"konfiguriert ist, das Kopien im iTunes Medienordner gespeichert werden.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
 msgid "Apple device"
@@ -3553,7 +3560,7 @@ msgstr[1] "Reihen"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Sprache"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"
@@ -3820,7 +3827,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:24
 msgid "Downloads metadata and covers from OZON.ru"
-msgstr ""
+msgstr "Lade Metadaten und Cover von OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -3886,7 +3893,7 @@ msgstr "Dies ist ein Amazon Topaz-Buch. Es kann nicht verarbeitet werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
 msgid "No details available"
-msgstr ""
+msgstr "Keine Details verfügbar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1499
 msgid "Title Page"
@@ -4822,7 +4829,7 @@ msgstr "Keine Bücher ausgewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:88
 msgid "Cannot add files as no books are selected"
-msgstr ""
+msgstr "Kann keine Dateien hinzufügen, da keine Bücher ausgewählt sind."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:92
 msgid "Are you sure"
@@ -9109,12 +9116,12 @@ msgstr "Keine Einträge ausgewählt"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:206
 msgid "You must select at least one item from the list."
-msgstr ""
+msgstr "Sie müssen zumindest ein Element der Liste auswählen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:210
 msgid "Are you sure you want to delete the following items?"
-msgstr ""
+msgstr "Sind Sie sicher, dass Sie die folgenden Elemente löschen wollen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:70
@@ -9715,7 +9722,7 @@ msgstr "Aus &Ebook- Datei(en) setzen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1139
 msgid "&Languages:"
-msgstr ""
+msgstr "&Sprachen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:533
@@ -10070,6 +10077,7 @@ msgstr "Aktualisierungsprüfung fehlgeschlagen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:474
 msgid "Unable to reach the MobileRead plugins forum index page."
 msgstr ""
+"Es ist nicht möglich, die MobileRead Plugin Forum Index-Seite zu erreichen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:481
 msgid "User plugins"
@@ -10108,7 +10116,7 @@ msgstr "Optionen diese Plugins anpassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:540
 msgid "Version &History"
-msgstr ""
+msgstr "Version &Historie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:541
 msgid "Show history of changes to this plugin"
@@ -10278,7 +10286,7 @@ msgstr "Autoren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:188
 msgid "**No items found**"
-msgstr ""
+msgstr "**keine Einträge gefunden**"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:189
 msgid ""
@@ -10289,7 +10297,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:205
 msgid "Books with selected item \"{0}\": {1}"
-msgstr ""
+msgstr "Bücher mit ausgewähten Element \"{0}\":{1}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:211
 msgid ""
@@ -10303,7 +10311,7 @@ msgstr "Kurzansicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:74
 msgid "Items"
-msgstr ""
+msgstr "Elemente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:95
@@ -11054,11 +11062,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:109
 msgid "Tag"
-msgstr ""
+msgstr "Etikett"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:112
 msgid "Count"
-msgstr ""
+msgstr "Zähler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
@@ -11700,7 +11708,8 @@ msgstr " - Aufträge"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:470
 msgid "Do you really want to stop the selected job?"
 msgid_plural "Do you really want to stop all the selected jobs?"
-msgstr[0] "Möchten Sie den ausgewählten Auftrag wirklich anhalten?"
+msgstr[0] "Möchten Sie wirklich den ausgewählten Auftrag anhalten?"
+msgstr[1] "Möchten Sie wirklich alle ausgewählten Aufträge anhalten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:478
 msgid "Do you really want to stop all non-device jobs?"
@@ -11765,20 +11774,22 @@ msgstr "schon belegt mit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:459
 msgid "<b>This shortcut no longer exists</b>"
-msgstr ""
+msgstr "<b>Diese Tastenkombination existiert nicht mehr</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:468
 msgid "Shortcuts"
-msgstr ""
+msgstr "Tastenkombinationen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:551
 msgid ""
 "Double click on any entry to change the keyboard shortcuts associated with it"
 msgstr ""
+"Doppelklick auf beliebigen Eintrag um die zugeortnete Tastatur-"
+"Tastenkombination zu ändern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:565
 msgid "Search for a shortcut by name"
-msgstr ""
+msgstr "Suche einer Tastenkombination nach Namen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:605
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:232
@@ -11789,7 +11800,7 @@ msgstr "Keine Treffer"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:606
 #, python-format
 msgid "Could not find any shortcuts matching %s"
-msgstr ""
+msgstr "Kann keine Tastenkombination mit %s finden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
@@ -12413,14 +12424,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1162
 msgid "Unknown language"
-msgstr ""
+msgstr "Unbekannte Sprache"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1163
 #, python-format
 msgid "The language %s is not recognized"
 msgid_plural "The languages %s are not recognized"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Die Sprache %s ist nicht bekannt"
+msgstr[1] "Die Sprachen %s sind nicht bekannt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1175
 msgid "I&ds:"
@@ -13123,7 +13134,7 @@ msgstr "Geben Sie eine Regular Expression ein"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:224
 #, python-format
 msgid "You can match multiple values by separating them with %s"
-msgstr ""
+msgstr "Durch Trennung mit %s können Sie mehrere Werte auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:239
 msgid "Create/edit a column coloring rule"

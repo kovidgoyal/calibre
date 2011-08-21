@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-15 18:39+0000\n"
-"Last-Translator: Khoa Dang <Unknown>\n"
+"PO-Revision-Date: 2011-08-20 07:06+0000\n"
+"Last-Translator: Alice Joseph <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-08-21 04:46+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -246,11 +246,11 @@ msgstr "Tùy chỉnh"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "Cửa hàng"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "Cửa hàng sách điện tử."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -371,7 +371,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 msgid "Restart calibre"
-msgstr ""
+msgstr "Khởi động lại calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 msgid "Open the folder that contains the book files in your calibre library"
@@ -4564,7 +4564,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:201
 msgid "Restore database"
-msgstr ""
+msgstr "Khôi phục CSDL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:273
 msgid "Rename"
@@ -5444,13 +5444,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:110
 msgid "Stores"
-msgstr ""
+msgstr "Cửa hàng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_dialog.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:285
 msgid "Choose stores"
-msgstr ""
+msgstr "Chọn cửa hàng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:106
@@ -5470,6 +5470,9 @@ msgid ""
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
 msgstr ""
+"Dùng công cụ tìm kiếm, bạn có thể dễ dàng chọn sách cho mình với giá tốt "
+"nhất. Đồng thời bạn còn được biết thêm nhiều thông tin hữu ích khác (như "
+"tình trạng DRM của sách)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:142
 msgid ""
@@ -12853,7 +12856,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:237
 msgid "Restore &defaults"
-msgstr ""
+msgstr "Trở về mặc định"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:238
 msgid "Save changes"
@@ -13887,11 +13890,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:93
 msgid "Restore this tweak to its default value"
-msgstr ""
+msgstr "Khôi phục giá trị mặc định"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:94
 msgid "Restore &default"
-msgstr ""
+msgstr "Trở về mặc định"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:95
 msgid "Apply any changes you made to this tweak"
@@ -14018,7 +14021,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:39
 msgid "Open store in external web browswer"
-msgstr ""
+msgstr "Mở trang web của cửa hàng bằng trình duyệt ngoài"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:219
 msgid "&Name:"
@@ -14111,13 +14114,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
 msgid "This store only distributes ebooks without DRM."
-msgstr ""
+msgstr "Cửa hàng này chỉ phân phối sách không có DRM."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:138
 msgid ""
 "This store distributes ebooks with DRM. It may have some titles without DRM, "
 "but you will need to check on a per title basis."
 msgstr ""
+"Cửa hàng này phân phối sách có DRM. Có thể có một vài tựa sách không có DRM "
+"nhưng bạn cần phải tự kiểm tra."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:140
 #, python-format
@@ -14131,12 +14136,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:215
 #, python-format
 msgid "Buying from this store supports the calibre developer: %s."
-msgstr ""
+msgstr "Mua sách từ cửa hàng này là ủng hộ cho người phát triển calibre: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:145
 #, python-format
 msgid "This store distributes ebooks in the following formats: %s"
-msgstr ""
+msgstr "Cửa hàng này phân phối các định dạng sách điện tử: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
 msgid "Configure..."
@@ -14729,7 +14734,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:234
 msgid "&Restore"
-msgstr ""
+msgstr "&Khôi phục"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:239
 msgid "&Eject connected device"
@@ -16091,7 +16096,7 @@ msgstr ""
 msgid ""
 "Path to the calibre library. Default is to use the path stored in the "
 "settings."
-msgstr ""
+msgstr "Đường dẫn tới thư viện calibre."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:125
 msgid ""
@@ -17071,7 +17076,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:374
 msgid "Path to the database in which books are stored"
-msgstr ""
+msgstr "Đường dẫn tới cơ sở dữ liệu nơi mà sách được lưu"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:376
 msgid "Pattern to guess metadata from filenames"
@@ -17087,7 +17092,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:382
 msgid "Path to directory in which your library of books is stored"
-msgstr ""
+msgstr "Đường dẫn tới thư mục mà thư viện sách của bạn được lưu"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:384
 msgid "The language in which to display the user interface"
@@ -18219,7 +18224,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Restore Defaults"
-msgstr ""
+msgstr "Trở Lại Mặc Định"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"

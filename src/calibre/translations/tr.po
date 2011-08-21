@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-17 14:48+0000\n"
-"Last-Translator: kulkke <Unknown>\n"
+"PO-Revision-Date: 2011-08-20 19:32+0000\n"
+"Last-Translator: thomass <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-08-21 04:46+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -646,20 +646,20 @@ msgstr "Farklı içeriklerde Calibre'nin nasıl davranacağını ince ayar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1099
 msgid "Keyboard"
-msgstr ""
+msgstr "Klavye"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1105
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Calibre tarafından kullanılan kısayolları düzenle"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1110
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
 msgid "Miscellaneous"
-msgstr "Çeşitli"
+msgstr "Muhtelif"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1116
 msgid "Miscellaneous advanced configuration"
-msgstr "Çeşitli gelişmiş ayarlar"
+msgstr "Çeşitli ileri düzey ayarlar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -1819,6 +1819,10 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Cihazınızın ana hafızasına ulaşılamadı. Destek için cihazın üreticisiyle "
+"irtibat kurmalısınız. Genel düzeltme yolları: Farklı bir USB kablosu/USB "
+"girişi deneyin. Eğer cihazınızda  \"fabrika ayarlarına dön\" gibi bir ayar "
+"varsa onu kullanın.Sebep olan hata : %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:113
 #, python-format
@@ -1829,6 +1833,11 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"Cihazdaki SD karta ulaşılamadı. Bunun bir çok sebebi olabilir: SD kart bozuk "
+"olabilir; cihazın desteklemediği kadar büyük kapasiteli olabilir; yazma "
+"koruması açık olabilir,..vb. Farklı bir SD kart deneyin veya Sd kartınızı "
+"FAT32 dosya sistemiyle formatlayın. Ayrıca SD kartın ana klasöründe aşırı "
+"fazla dosya olmamasına dikkat edin. Sebep olan hata: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
@@ -1896,12 +1905,12 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
-"Kitapların saklandığı klasöre gir. Bu klasör herhangi bir send_to_device "
+"Kitapların saklanacağı klasörü girin. Bu klasör herhangi bir send_to_device "
 "şablonunun önüne eklenmiştir."
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr "Kart A klasörü"
+msgstr "Kart A'nın klasörü"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:207
 #, python-format
@@ -2170,6 +2179,8 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
+"Dönüştürme adımlarının değişik noktalarındaki sonuşları kaydet. Eğer hatanın "
+"hangi aşamadan kaynaklanadığını bilmiyorsanız faydalı olabilr."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:121
 msgid ""
@@ -2178,6 +2189,9 @@ msgid ""
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
 msgstr ""
+"Girdi profilini belirleyin. Bu profil dönüştürme sistemine girdi "
+"dosyasındaki çeşitli bilgileri nasıl kullanacağı bilgisini verir. örneğin "
+"çözüünürlüğe bağlı uzunluk( yani piksel cinsinden uzunluk) Seçimler şunlar:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:132
 msgid ""
