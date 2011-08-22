@@ -53,6 +53,12 @@ class WallStreetJournal(BasicNewsRecipe):
 
         return soup
 
+    def abs_wsj_url(self, href):
+        if not href.startswith('http'):
+            href = 'http://online.wsj.com' + href
+        return href
+
+
     def wsj_get_index(self):
         return self.index_to_soup('http://online.wsj.com/itp')
 
@@ -83,14 +89,14 @@ class WallStreetJournal(BasicNewsRecipe):
             pageone = a['href'].endswith('pageone')
             if pageone:
                title = 'Front Section'
-               url = 'http://online.wsj.com' + a['href']
+               url = self.abs_wsj_url(a['href'])
                feeds = self.wsj_add_feed(feeds,title,url)
                title = 'What''s News'
                url = url.replace('pageone','whatsnews')
                feeds = self.wsj_add_feed(feeds,title,url)
             else:
                title = self.tag_to_string(a)
-               url = 'http://online.wsj.com' + a['href']
+               url = self.abs_wsj_url(a['href'])
                feeds = self.wsj_add_feed(feeds,title,url)
         return feeds
 
@@ -146,7 +152,7 @@ class WallStreetJournal(BasicNewsRecipe):
                 title = self.tag_to_string(a).strip() + ' [%s]'%meta
             else:
                 title = self.tag_to_string(a).strip()
-            url = 'http://online.wsj.com'+a['href']
+            url = self.abs_wsj_url(a['href'])
             desc = ''
             for p in container.findAll('p'):
                 desc = self.tag_to_string(p)
