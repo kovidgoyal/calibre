@@ -40,11 +40,11 @@ class SVD_se(BasicNewsRecipe):
               ,(u'Kultur'      , u'http://www.svd.se/kulturnoje/nyheter/?service=rss')
             ]
 
-    keep_only_tags = [dict(name='div', attrs={'id':'articlecontent'})]
-    remove_tags_after = dict(name='div',attrs={'class':'articlebody normal'})
+    keep_only_tags = [dict(name='div', attrs={'id':['article-content', 'articlecontent']})]
+    remove_tags_after = dict(name='div',attrs={'class':'articlebody'})
     remove_tags = [
                      dict(name=['object','link','base'])
-                    ,dict(name='div',attrs={'class':['articlead','factcolumn']})
+                    ,dict(name='div',attrs={'class':['articlead','factcolumn', 'article-ad']})
                     ,dict(name='ul', attrs={'class':'toolbar articletop clearfix'})
                     ,dict(name='p', attrs={'class':'more'})
                   ]
