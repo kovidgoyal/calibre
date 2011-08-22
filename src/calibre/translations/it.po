@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-20 15:44+0000\n"
+"PO-Revision-Date: 2011-08-21 06:08+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-21 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-08-22 04:36+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -8481,6 +8481,9 @@ msgid ""
 "support them. If you send these formats to your {1} they may not work. Are "
 "you sure?"
 msgstr ""
+"Hai abilitato i formati <b>{0}</b> per il tuo {1}. Il {1} potrebbe non "
+"supportarli. Se invii questi formati al tuo {1} potrebbero non funzionare. "
+"Sei sicuro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:148
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:485
@@ -8507,6 +8510,9 @@ msgid ""
 "If checked, books are placed into sub directories based on their metadata on "
 "the device. If unchecked, books are all put into the top level directory."
 msgstr ""
+"Se marcata, i libri sono posizionati in sottocartelle del dispositivo sulla "
+"base dei loro metadati, Se non marcata, i libri sono posizionati nella "
+"cartella principale."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:83
 msgid "Use sub directories"
@@ -9553,6 +9559,8 @@ msgid ""
 "Update title sort based on the current title. This will be applied only "
 "after other changes to title."
 msgstr ""
+"Aggiorna l'ordinamento titolo sulla base del titolo corrente. Sarà applicata "
+"solo dopo le altre modifiche al titolo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:583
 msgid "Update &title sort"
@@ -9587,7 +9595,7 @@ msgstr "&Elimina copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:591
 msgid "Set from &ebook file(s)"
-msgstr ""
+msgstr "Imposta da file di ebook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1139
@@ -9979,7 +9987,7 @@ msgstr "Mostra la cronologia delle modifiche a questo plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:545
 msgid "Plugin &Forum Thread"
-msgstr ""
+msgstr "Sezione Plugin del &forum"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:109
@@ -10075,6 +10083,9 @@ msgid ""
 "uninstalled. Please post the error message in details below into the forum "
 "thread for this plugin and restart Calibre."
 msgstr ""
+"Si è verificato un problema durante l'installazione di questo plugin. Il "
+"plugin non sarà installato. Riporta il messaggio di errore che segue nella "
+"discussione del forum relativa al plugin e riavvia calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:772
 msgid "Version history missing"
@@ -10634,7 +10645,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:180
 msgid "A&dvanced Search"
-msgstr "R&icerca Avanzata"
+msgstr "R&icerca avanzata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:220
@@ -12904,7 +12915,7 @@ msgstr "Nessuna condizione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:359
 msgid "You must specify at least one non-empty condition for this rule"
-msgstr ""
+msgstr "Devi specificare almeno una condizione non vuota per questa regola"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:447
 #, python-format
@@ -19978,6 +19989,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:333
 msgid "Number of columns for custom metadata in the edit metadata dialog"
 msgstr ""
+"Numero di colonne per i metadati personalizzati nella finestra di modifica "
+"dei metadati"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:334
 msgid ""
@@ -20014,6 +20027,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:353
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr ""
+"La larghezza e l'altezza massima della copertine salvate nella biblioteca di "
+"calibre"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:354
 msgid ""
@@ -20039,6 +20054,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:367
 msgid "What interfaces should the content server listen on"
 msgstr ""
+"Su quale interfaccia dovrebbe rimanere in ascolto il server dei contenuti"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:368
 msgid ""

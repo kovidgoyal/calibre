@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-05 15:58+0000\n"
+"PO-Revision-Date: 2011-08-21 15:51+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-08-22 04:35+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -442,7 +442,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Tria un llibre a l'atzar de la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Search for books from different book sellers"
@@ -658,11 +658,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1099
 msgid "Keyboard"
-msgstr ""
+msgstr "Teclat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1105
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Personalitza les dreceres de teclat del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1110
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -2749,6 +2749,9 @@ msgid ""
 "Left aligned scene break markers are center aligned. Replace soft scene "
 "breaks that use multiple blank lines with horizontal rules."
 msgstr ""
+"Els marcadors de salt d'escena alineats a l'esquerra se centren. Es "
+"suprimeixen els salts d'escena amb múltiples línies en blanc per línies "
+"horitzontals."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:565
 msgid ""
@@ -3106,6 +3109,10 @@ msgid ""
 "the order A, B, D, C.  With this option, they will instead be added as A, B, "
 "C, D"
 msgstr ""
+"Normalment, quan el calibre segueix enllaços en fitxers HTML comença per la "
+"màxima fondària, és a dir, si el fitxer A enllaça al B i C, però el B "
+"enllaça al D, el fitxers s'afegeixen en l'ordre A, B, D, C. Amb aquesta "
+"opció s'afegeixen en l'ordre A, B, C, D"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:62
 #, python-format
@@ -3533,7 +3540,7 @@ msgstr[1] "Sèries"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Idiomes"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"
@@ -3744,6 +3751,8 @@ msgid ""
 "To use isbndb.com you have to sign up for a free account at isbndb.com and "
 "get an access key."
 msgstr ""
+"Per utilitzar isbndb.com cal registrar un compte gratuït a isbndb.com i "
+"aconseguir una clau d'accés."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3792,7 +3801,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:24
 msgid "Downloads metadata and covers from OZON.ru"
-msgstr ""
+msgstr "Baixa metadades i portades d'OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -3848,6 +3857,8 @@ msgid ""
 "Extract the contents of the MOBI file to the specified directory. If the "
 "directory already exists, it will be deleted."
 msgstr ""
+"Extrau els continguts del fitxer MOBI a la carpeta especificada. Si ja "
+"existeix, la carpeta se suprimirà."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:110
 msgid "All articles"
@@ -3859,7 +3870,7 @@ msgstr "Aquest és un llibre Amazon Topaz. No es pot processar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
 msgid "No details available"
-msgstr ""
+msgstr "No es disposa de detalls"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1499
 msgid "Title Page"
@@ -4804,7 +4815,7 @@ msgstr "No s'ha seleccionat cap llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:88
 msgid "Cannot add files as no books are selected"
-msgstr ""
+msgstr "No es pot afegir fitxers perquè no hi ha llibres seleccionats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:92
 msgid "Are you sure"
@@ -4998,31 +5009,34 @@ msgid ""
 "No existing calibre library was found at %s. If the library was moved, "
 "select its new location below. Otherwise calibre will forget this library."
 msgstr ""
+"No s'ha trobat cap biblioteca del calibre a %s. Seleccioneu la nova ubicació "
+"a continuació si és que s'ha mogut la carpeta. Si no és així, el calibre "
+"oblidarà aquesta biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:96
 msgid "New location of this library:"
-msgstr ""
+msgstr "Ubicació nova de la biblioteca:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:105
 msgid "Library moved"
-msgstr ""
+msgstr "S'ha mogut la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:107
 msgid "Forget library"
-msgstr ""
+msgstr "Oblida la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:116
 msgid "New library location"
-msgstr ""
+msgstr "Nova ubicació de la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
 #, python-format
 msgid "No existing calibre library found at %s"
-msgstr ""
+msgstr "No hi ha cap biblioteca del calibre a %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:139
 msgid "Choose Library"
-msgstr ""
+msgstr "Trieu la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:140
 msgid "Choose calibre library to work with"
@@ -5494,7 +5508,7 @@ msgstr "Inicia el servidor de continguts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:73
 msgid "Start/stop content server"
-msgstr ""
+msgstr "Inicia/atura el servidor de continguts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:79
 msgid "Stop Content Server"
@@ -5849,7 +5863,7 @@ msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Restart"
-msgstr ""
+msgstr "Reinicia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -5986,7 +6000,7 @@ msgstr "Llibres amb les mateixes etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
@@ -5998,20 +6012,20 @@ msgstr "Cerca llibres electrònics"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "author"
-msgstr ""
+msgstr "autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "title"
-msgstr ""
+msgstr "títol"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "book"
-msgstr ""
+msgstr "llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
 msgid "Search for this %s"
-msgstr ""
+msgstr "Cerca aquest %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -9195,12 +9209,12 @@ msgstr "No s'ha seleccionat cap element"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:206
 msgid "You must select at least one item from the list."
-msgstr ""
+msgstr "Heu de seleccionar almenys un element de la llista."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:210
 msgid "Are you sure you want to delete the following items?"
-msgstr ""
+msgstr "Segur que voleu suprimir els elements següents?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:70
@@ -9796,7 +9810,7 @@ msgstr "Estableix a partir del(s) fitxer(s) del llibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1139
 msgid "&Languages:"
-msgstr ""
+msgstr "&Idiomes:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:533
@@ -11128,11 +11142,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:109
 msgid "Tag"
-msgstr ""
+msgstr "Etiqueta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:112
 msgid "Count"
-msgstr ""
+msgstr "Recompte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
@@ -11828,7 +11842,7 @@ msgstr "Acabat"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
 #, python-format
 msgid "Default: %(deflt)s [Currently not conflicting: %(curr)s]"
-msgstr ""
+msgstr "Per defecte: %(deflt)s [Actualment sense conflicte: %(curr)s)]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
@@ -11847,20 +11861,21 @@ msgstr "ja s'ha assignat a"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:459
 msgid "<b>This shortcut no longer exists</b>"
-msgstr ""
+msgstr "<b>Aquesta drecera ja no existeix</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:468
 msgid "Shortcuts"
-msgstr ""
+msgstr "Dreceres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:551
 msgid ""
 "Double click on any entry to change the keyboard shortcuts associated with it"
 msgstr ""
+"Feu doble clic a una entrada per canviar les dreceres de teclat associades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:565
 msgid "Search for a shortcut by name"
-msgstr ""
+msgstr "Cerca una drecera pel nom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:605
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:232
@@ -11871,7 +11886,7 @@ msgstr "Cap coincidència"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:606
 #, python-format
 msgid "Could not find any shortcuts matching %s"
-msgstr ""
+msgstr "No s'ha trobat cap drecera que coincideixi amb %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
@@ -12489,18 +12504,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1140
 msgid "A comma separated list of languages for this book"
-msgstr ""
+msgstr "Una llista d'idiomes separats per comes per al llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1162
 msgid "Unknown language"
-msgstr ""
+msgstr "Idioma desconegut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1163
 #, python-format
 msgid "The language %s is not recognized"
 msgid_plural "The languages %s are not recognized"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "No es reconeix l'idioma %s"
+msgstr[1] "No es reconeixen els idiomes %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1175
 msgid "I&ds:"
@@ -12713,7 +12728,7 @@ msgstr "Canvia com el calibre baixa les metadades"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:285
 #, python-format
 msgid " [%(num)d of %(tot)d]"
-msgstr ""
+msgstr " [%(num)d de %(tot)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:327
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:334
@@ -12897,6 +12912,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:69
 msgid "Read &metadata from file contents rather than file name"
 msgstr ""
+"En lloc de llegir les &metadades a partir del nom del fitxer fes-ho a partir "
+"del seu contingut"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:70
 msgid ""
@@ -12997,6 +13014,8 @@ msgid ""
 "When using the  \"&Copy to library\" action to copy books between libraries, "
 "preserve the date"
 msgstr ""
+"Conserva la data en utilitzar l'acció «&Copia a la biblioteca» per copiar "
+"llibres entre biblioteques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -14649,7 +14668,7 @@ msgstr "Variables que es disposa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:60
 msgid "Template Editor"
-msgstr ""
+msgstr "Editor de plantilles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:68
 msgid ""
@@ -15202,7 +15221,7 @@ msgstr "Funció no definida"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:154
 #, python-format
 msgid "Name %s already used"
-msgstr ""
+msgstr "El nom %s ja està en ús"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:158
 msgid ""
@@ -15434,7 +15453,7 @@ msgstr "Cerca (per a cerca avançada feu clic al botó de l'esquerra)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:392
 msgid "Start search"
-msgstr ""
+msgstr "Inicia la cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:402
 msgid "Enable or disable search highlighting."
@@ -16321,11 +16340,11 @@ msgstr "&Expulseu el dispositiu connectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:243
 msgid "Quit calibre"
-msgstr ""
+msgstr "Surt del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:256
 msgid "Clear the current search"
-msgstr ""
+msgstr "Suprimeix la cerca actual"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:354
 msgid "Debug mode"
@@ -18759,6 +18778,8 @@ msgid ""
 "The format in which to display dates. %(day)s - day, %(month)s - month, "
 "%(mn)s - month number, %(year)s - year. Default is: %(default)s"
 msgstr ""
+"El format en què es visualitzaran les dates. %(day)s: dia, %(month)s: mes, "
+"%(mn)s: nombre del mes, %(year)s: any. Per defecte: %(default)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:121
 msgid "Convert paths to lowercase."
@@ -18772,6 +18793,7 @@ msgstr "Reemplaça els espais en blanc amb guions baixos."
 msgid ""
 "Save into a single directory, ignoring the template directory structure"
 msgstr ""
+"Desa a una sola carpeta, ignorant l'estructura de carpetes de la plantilla"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:298
 #, python-format
@@ -18779,11 +18801,14 @@ msgid ""
 "Failed to calculate path for save to disk. Template: %(templ)s\n"
 "Error: %(err)s"
 msgstr ""
+"No s'ha pogut calcular el camí per desar al disc. Plantilla: %(templ)s\n"
+"Error: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:304
 #, python-format
 msgid "Template evaluation resulted in no path components. Template: %s"
 msgstr ""
+"L'avaluació de la plantilla no dóna cap component per al camí. Plantilla: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:398
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:431
@@ -19266,7 +19291,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:151
 msgid "strlen(a) -- Returns the length of the string passed as the argument"
-msgstr ""
+msgstr "strlen(a) -- s'obté la longitud del text passat com a argument"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:164
 msgid ""
@@ -19434,15 +19459,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:383
 msgid "strcat_max requires 2 or more arguments"
-msgstr ""
+msgstr "strcat_max requereix dos o més arguments"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:385
 msgid "strcat_max requires an even number of arguments"
-msgstr ""
+msgstr "strcat_max requereix un nombre parell d'arguments"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:389
 msgid "first argument to strcat_max must be an integer"
-msgstr ""
+msgstr "el primer argument de strcat_max ha de ser un enter"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:407
 msgid ""
@@ -19859,7 +19884,7 @@ msgstr "Anglès (Austràlia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Bulgaria)"
-msgstr ""
+msgstr "Anglès (Bulgària)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (New Zealand)"
@@ -19975,7 +20000,7 @@ msgstr "Espanyol (Nicaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "Spanish (Colombia)"
-msgstr ""
+msgstr "Espanyol (Colòmbia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "German (AT)"

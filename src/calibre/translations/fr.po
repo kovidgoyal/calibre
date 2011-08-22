@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-14 12:01+0000\n"
-"Last-Translator: sengian <Unknown>\n"
+"PO-Revision-Date: 2011-08-21 11:32+0000\n"
+"Last-Translator: Vincent Coiffier <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-08-22 04:36+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -450,7 +450,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Choisir un livre au hasard à partir de votre librairie calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Search for books from different book sellers"
@@ -670,7 +670,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1099
 msgid "Keyboard"
-msgstr ""
+msgstr "Clavier"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1105
 msgid "Customize the keyboard shortcuts used by calibre"
@@ -3571,7 +3571,7 @@ msgstr[1] "Séries"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Langues"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"
@@ -3798,6 +3798,8 @@ msgid ""
 "To use isbndb.com you have to sign up for a free account at isbndb.com and "
 "get an access key."
 msgstr ""
+"Pour utiliser isbndb.com, vous devez vous inscrire pour un compte gratuit à "
+"isbndb.com et obtenir la clef d'accès."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3847,7 +3849,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:24
 msgid "Downloads metadata and covers from OZON.ru"
-msgstr ""
+msgstr "Télécharge les métadonnées et les couvertures à partir de OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -3905,6 +3907,8 @@ msgid ""
 "Extract the contents of the MOBI file to the specified directory. If the "
 "directory already exists, it will be deleted."
 msgstr ""
+"Extraire le contenu du fichier MOBI dans le répertoire spécifié. Si le "
+"répertoire existe déjà, il sera supprimé."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:110
 msgid "All articles"
@@ -4866,7 +4870,7 @@ msgstr "Aucun livre sélectionné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:88
 msgid "Cannot add files as no books are selected"
-msgstr ""
+msgstr "Impossible d'ajouter des fichiers car aucun livre n'est sélectionné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:92
 msgid "Are you sure"
@@ -5063,10 +5067,13 @@ msgid ""
 "No existing calibre library was found at %s. If the library was moved, "
 "select its new location below. Otherwise calibre will forget this library."
 msgstr ""
+"Aucune librairie existante n'a été trouvée à %s. Si la librairie a été "
+"déplacée, sélectionner le nouvel emplacement ci-dessous. Sinon calibre "
+"oubliera cette librairie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:96
 msgid "New location of this library:"
-msgstr ""
+msgstr "Nouvel emplacement de cette librairie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:105
 msgid "Library moved"
@@ -5078,16 +5085,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:116
 msgid "New library location"
-msgstr ""
+msgstr "Nouvel emplacement de la librairie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
 #, python-format
 msgid "No existing calibre library found at %s"
-msgstr ""
+msgstr "Aucune librairie existante trouvée à %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:139
 msgid "Choose Library"
-msgstr ""
+msgstr "Choisir la librairie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:140
 msgid "Choose calibre library to work with"
@@ -5566,7 +5573,7 @@ msgstr "Démarrer le serveur de contenu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:73
 msgid "Start/stop content server"
-msgstr ""
+msgstr "Arrêter/démarrer le serveur de contenu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:79
 msgid "Stop Content Server"
@@ -5934,7 +5941,7 @@ msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Restart"
-msgstr ""
+msgstr "Redémarrer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -6074,7 +6081,7 @@ msgstr "Livres avec les mêmes étiquettes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
@@ -6086,20 +6093,20 @@ msgstr "Rechercher des ebooks"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "author"
-msgstr ""
+msgstr "auteur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "title"
-msgstr ""
+msgstr "titre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "book"
-msgstr ""
+msgstr "livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
 msgid "Search for this %s"
-msgstr ""
+msgstr "Rechercher avec %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -6305,6 +6312,8 @@ msgid ""
 "Cannot add some files as you do not have  permission to access them. Click "
 "Show Details to see the list of such files."
 msgstr ""
+"Impossible d'ajouter quelques fichiers car vous n'avez pas la permission d'y "
+"accéder. Cliquer Afficher Détails pour voir la liste de ces fichiers."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:358
 msgid "Added"
@@ -9275,12 +9284,12 @@ msgstr "Pas d'articles sélectionnés"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:206
 msgid "You must select at least one item from the list."
-msgstr ""
+msgstr "Vous devez sélectionner au moins un élément dans la liste."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:210
 msgid "Are you sure you want to delete the following items?"
-msgstr ""
+msgstr "Êtes-vous sûr de vouloir supprimer les éléments suivants?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:70
@@ -9883,7 +9892,7 @@ msgstr "Fixer à partir du(des) fichier(s) &ebook(s)"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1139
 msgid "&Languages:"
-msgstr ""
+msgstr "&Langues:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:533
@@ -11197,11 +11206,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:109
 msgid "Tag"
-msgstr ""
+msgstr "Étiquette"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:112
 msgid "Count"
-msgstr ""
+msgstr "Compte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
@@ -11904,7 +11913,7 @@ msgstr "Terminé"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:377
 #, python-format
 msgid "Default: %(deflt)s [Currently not conflicting: %(curr)s]"
-msgstr ""
+msgstr "Par défaut : %(deflt)s [Actuellement pas en conflit: %(curr)s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
@@ -11923,20 +11932,22 @@ msgstr "Déjà assigné à"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:459
 msgid "<b>This shortcut no longer exists</b>"
-msgstr ""
+msgstr "<b>Ce raccourci n'existe plus</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:468
 msgid "Shortcuts"
-msgstr ""
+msgstr "Raccourcis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:551
 msgid ""
 "Double click on any entry to change the keyboard shortcuts associated with it"
 msgstr ""
+"Double cliquer sur une entrée pour changer le raccourci clavier associée à "
+"celle-ci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:565
 msgid "Search for a shortcut by name"
-msgstr ""
+msgstr "Rechercher un raccourci par nom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:605
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:232
@@ -11947,7 +11958,7 @@ msgstr "Pas de résultats"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:606
 #, python-format
 msgid "Could not find any shortcuts matching %s"
-msgstr ""
+msgstr "Impossible de trouver un raccourci correspondant à %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
@@ -12571,7 +12582,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1140
 msgid "A comma separated list of languages for this book"
-msgstr ""
+msgstr "Une liste séparée par des virgules de langues pour ce livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1162
 msgid "Unknown language"
@@ -12581,8 +12592,8 @@ msgstr ""
 #, python-format
 msgid "The language %s is not recognized"
 msgid_plural "The languages %s are not recognized"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "La langue %s n'est pas reconnue"
+msgstr[1] "Les langues %s ne sont pas reconnues"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1175
 msgid "I&ds:"
@@ -12794,7 +12805,7 @@ msgstr "Modifier la manière dont Calibre télécharge les métadonnées"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:285
 #, python-format
 msgid " [%(num)d of %(tot)d]"
-msgstr ""
+msgstr " [%(num)d sur %(tot)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:327
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:334
@@ -12973,6 +12984,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:69
 msgid "Read &metadata from file contents rather than file name"
 msgstr ""
+"Lire les &métadonnées à partir du contenu du fichier au lieu du nom de "
+"fichier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:70
 msgid ""
