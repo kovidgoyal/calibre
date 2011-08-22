@@ -308,6 +308,11 @@ class MobiMLizer(object):
         istate = copy.copy(istates[-1])
         istate.rendered = False
         istate.list_num = 0
+        if tag == 'ol' and 'start' in elem.attrib:
+            try:
+                istate.list_num = int(elem.attrib['start'])-1
+            except:
+                pass
         istates.append(istate)
         left = 0
         display = style['display']
