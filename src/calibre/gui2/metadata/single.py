@@ -130,10 +130,15 @@ class MetadataSingleDialogBase(ResizableDialog):
         ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
         ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
         ac3 = m.addAction(QIcon(I('user_profile.png')), _('Manage authors'))
+        ac4 = m.addAction(QIcon(I('next.png')),
+                _('Copy author to author sort'))
+        ac5 = m.addAction(QIcon(I('previous.png')),
+                _('Copy author sort to author'))
+
         b.setMenu(m)
         self.authors = AuthorsEdit(self, ac3)
         self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac,
-                ac2)
+                ac2, ac4, ac5)
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
 
         self.swap_title_author_button = QToolButton(self)
