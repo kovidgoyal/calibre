@@ -98,6 +98,7 @@ gprefs.defaults['book_display_fields'] = [
         ]
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 gprefs.defaults['preserve_date_on_ctl'] = True
+gprefs.defaults['cb_fullscreen'] = False
 
 # }}}
 

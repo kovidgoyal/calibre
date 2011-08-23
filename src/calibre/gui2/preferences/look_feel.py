@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (QApplication, QFont, QFontInfo, QFontDialog,
-        QAbstractListModel, Qt, QIcon)
+        QAbstractListModel, Qt, QIcon, QKeySequence)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -129,6 +129,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('disable_tray_notification', config)
         r('use_roman_numerals_for_series_number', config)
         r('separate_cover_flow', config, restart_required=True)
+        r('cb_fullscreen', gprefs)
 
         choices = [(_('Off'), 'off'), (_('Small'), 'small'),
             (_('Medium'), 'medium'), (_('Large'), 'large')]
@@ -170,6 +171,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.tabWidget.addTab(self.edit_rules,
                 QIcon(I('format-fill-color.png')), _('Column coloring'))
         self.tabWidget.setCurrentIndex(0)
+        keys = [QKeySequence('F11', QKeySequence.PortableText), QKeySequence(
+            'Ctrl+Shift+F', QKeySequence.PortableText)]
+        keys = [unicode(x.toString(QKeySequence.NativeText)) for x in keys]
+        self.fs_help_msg.setText(unicode(self.fs_help_msg.text())%(
+            _(' or ').join(keys)))
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
