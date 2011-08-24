@@ -1,5 +1,5 @@
 import re
-import chardet
+from calibre.ebooks import chardet
 
 def get_encoding(page):
     text = re.sub('</?[^>]*>\s*', ' ', page)
