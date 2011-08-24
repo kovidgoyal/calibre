@@ -504,6 +504,9 @@ class Indexer(object): # {{{
         else:
             self.indices = self.create_book_index()
 
+        if not self.indices:
+            raise ValueError('No valid entries in TOC, cannot generate index')
+
         self.records.append(self.create_index_record())
         self.records.insert(0, self.create_header())
         self.records.extend(self.cncx.records)

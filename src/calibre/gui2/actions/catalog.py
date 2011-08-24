@@ -17,7 +17,7 @@ from calibre.gui2.actions import InterfaceAction
 class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
-    action_spec = (_('Create a catalog of the books in your calibre library'), 'catalog.png', 'Catalog builder', None)
+    action_spec = (_('Create catalog'), 'catalog.png', 'Catalog builder', None)
     dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
 
     def genesis(self):

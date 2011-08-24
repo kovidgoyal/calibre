@@ -308,7 +308,7 @@ class AuthorSortEdit(EnLineEdit):
     LABEL = _('Author s&ort:')
 
     def __init__(self, parent, authors_edit, autogen_button, db,
-            copy_a_to_as_action, copy_as_to_a_action):
+            copy_a_to_as_action, copy_as_to_a_action, a_to_as, as_to_a):
         EnLineEdit.__init__(self, parent)
         self.authors_edit = authors_edit
         self.db = db
@@ -333,6 +333,8 @@ class AuthorSortEdit(EnLineEdit):
         autogen_button.clicked.connect(self.auto_generate)
         copy_a_to_as_action.triggered.connect(self.auto_generate)
         copy_as_to_a_action.triggered.connect(self.copy_to_authors)
+        a_to_as.triggered.connect(self.author_to_sort)
+        as_to_a.triggered.connect(self.sort_to_author)
         self.update_state()
 
     @dynamic_property
@@ -389,9 +391,20 @@ class AuthorSortEdit(EnLineEdit):
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
-        au = re.sub(r'\s+et al\.$', '', au)
+        au = re.sub(r'\s+et al\.$', '', au).strip()
         authors = string_to_authors(au)
         self.current_val = self.db.author_sort_from_authors(authors)
+
+    def author_to_sort(self, *args):
+        au = unicode(self.authors_edit.text())
+        au = re.sub(r'\s+et al\.$', '', au).strip()
+        if au:
+            self.current_val = au
+
+    def sort_to_author(self, *args):
+        aus = self.current_val
+        if aus:
+            self.authors_edit.current_val = [aus]
 
     def initialize(self, db, id_):
         self.current_val = db.author_sort(id_, index_is_id=True)

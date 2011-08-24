@@ -15,7 +15,7 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.utils.localization import canonicalize_lang
+from calibre.utils.localization import canonicalize_lang, lang_map
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
@@ -728,7 +728,9 @@ class ResultCache(SearchQueryParser): # {{{
                 elif loc == db_col['languages']:
                     q = canonicalize_lang(query)
                     if q is None:
-                        q = query
+                        lm = lang_map()
+                        rm = {v.lower():k for k,v in lm.iteritems()}
+                        q = rm.get(query, query)
                 else:
                     q = query
 

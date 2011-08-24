@@ -62,10 +62,16 @@ authors_completer_append_separator = False
 # The author name suffixes are words that are ignored when they occur at the
 # end of an author name. The case of the suffix is ignored and trailing
 # periods are automatically handled.
+# The author name copy words are a set of words which if they occur in an
+# author name cause the automatically geenrated author sort string to be
+# identical to the author name. This means that the sort for a string like Acme
+# Inc. will be Acme Inc. instead of Inc., Acme
 author_sort_copy_method = 'comma'
 author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
                         'MD', 'M.D', 'I', 'II', 'III', 'IV',
                         'Junior', 'Senior')
+author_name_copywords = ('Corporation', 'Company', 'Co.', 'Agency', 'Council',
+        'Committee', 'Inc.', 'Institute', 'Society', 'Club', 'Team')
 
 #: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,

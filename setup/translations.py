@@ -206,6 +206,10 @@ class Translations(POT): # {{{
             for x in (i, j, d):
                 if os.path.exists(x):
                     os.remove(x)
+        zf = self.DEST + '.zip'
+        if os.path.exists(zf):
+            os.remove(zf)
+
 # }}}
 
 class GetTranslations(Translations):
@@ -273,13 +277,14 @@ class GetTranslations(Translations):
 class ISO639(Command):
 
     description = 'Compile translations for ISO 639 codes'
+    DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
+            'iso639.pickle')
 
     def run(self, opts):
         src = self.j(self.d(self.SRC), 'setup', 'iso639.xml')
         if not os.path.exists(src):
             raise Exception(src + ' does not exist')
-        dest = self.j(self.d(self.SRC), 'resources', 'localization',
-                'iso639.pickle')
+        dest = self.DEST
         if not self.newer(dest, src):
             self.info('Pickled code is up to date')
             return
@@ -321,4 +326,9 @@ class ISO639(Command):
                 'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
                 '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
         dump(x, open(dest, 'wb'), -1)
+
+    def clean(self):
+        if os.path.exists(self.DEST):
+            os.remove(self.DEST)
+
 
