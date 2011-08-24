@@ -26,9 +26,4 @@ class PolitiFactCom(BasicNewsRecipe):
                      (u'Statements', u'http://www.politifact.com/feeds/statements/truth-o-meter/')
                      ]
 
-    def preprocess_html(self, soup):
-        for alink in soup.findAll('a'):
-            if alink.string is not None:
-                tstr = alink.string
-                alink.replaceWith(tstr)
-        return soup
+
