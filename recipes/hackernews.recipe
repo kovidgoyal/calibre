@@ -1,0 +1,90 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+'''
+Hacker News
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+from urlparse import urlparse
+
+class HackerNews(BasicNewsRecipe):
+    title                 = 'Hacker News'
+    __author__            = 'Tom Scholl'
+    description           = u'Hacker News, run by Y Combinator. Anything that good hackers would find interesting, with a focus on programming and startups.'
+    publisher             = 'Y Combinator'
+    category              = 'news, programming, it, technology'
+    masthead_url          = 'http://i55.tinypic.com/2u6io76.png'
+    cover_url             = 'http://i55.tinypic.com/2u6io76.png'
+    delay                 = 5
+    max_articles_per_feed = 5
+    use_embedded_content  = False
+    no_stylesheets        = True
+    encoding              = 'utf-8'
+    language              = 'en'
+    requires_version      = (0,8,16)
+
+    feeds = [
+                (u'Hacker News', 'http://news.ycombinator.com/rss')
+            ]
+            
+    temp_files = []
+    articles_are_obfuscated = True
+    
+    def get_readable_content(self, url):
+        self.log('get_readable_content(' + url + ')')
+        br = self.get_browser()
+        f = br.open(url)
+        html = f.read()
+        f.close()
+
+        data = self.extract_readable_article(html, url)
+        article_html = data[0]
+        extracted_title = data[1]
+        article_html = u'<cite><strong>' + extracted_title + u'</strong></cite><span> (' + self.prettyify_url(url) + u')</span><br/>' + article_html
+        return u'<html><head><title>' + extracted_title + u'</title></head><body>' + article_html + u'</body></html>'
+
+    def get_hn_content(self, url):
+        self.log('get_hn_content(' + url + ')')
+        # this could be improved
+        br = self.get_browser()
+        f = br.open(url)
+        html = f.read()
+        f.close()
+        return html
+        
+    def get_obfuscated_article(self, url):
+        if url.startswith('http://news.ycombinator.com'):
+            content = self.get_hn_content(url)
+        else:
+            # TODO: use content-type header instead of url
+            is_image = False
+            for ext in ['.jpg', '.png', '.svg', '.gif', '.jpeg', '.tiff', '.bmp',]:
+                if url.endswith(ext):
+                    is_image = True
+                    break
+                    
+            if is_image:
+                self.log('using image_content (' + url + ')')
+                content = u'<html><body><img src="' + url + u'"></body></html>'
+            else:
+                content = self.get_readable_content(url)
+
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(content)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+        
+    def is_link_wanted(self, url, tag):
+        if url.endswith('.pdf'):
+            return False
+        return True
+        
+    def prettyify_url(self, url):
+        return urlparse(url).hostname
+        
+    def populate_article_metadata(self, article, soup, first):
+        article.text_summary = self.prettyify_url(article.url)
+        article.summary = article.text_summary
+
+

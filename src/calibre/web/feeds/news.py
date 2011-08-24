@@ -29,6 +29,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 from calibre.utils.magick.draw import save_cover_data_to, add_borders_to_image
 from calibre.utils.localization import canonicalize_lang
+from readability import readability
 
 class LoginFailed(ValueError):
     pass
@@ -515,7 +516,16 @@ class BasicNewsRecipe(Recipe):
             entity_to_unicode(match, encoding=enc)))
         return BeautifulSoup(_raw, markupMassage=massage)
 
-
+    def extract_readable_article(self, html, base_url):
+        '''
+        Extracts main article content from 'html', cleans up and returns as a (article_html, extracted_title) tuple.
+        Based on the original readability algorithm by Arc90.
+        '''
+        doc = readability.Document(html, url=base_url)
+        article_html = doc.summary()
+        extracted_title = doc.title()
+        return (article_html, extracted_title)
+        
     def sort_index_by(self, index, weights):
         '''
         Convenience method to sort the titles in `index` according to `weights`.
