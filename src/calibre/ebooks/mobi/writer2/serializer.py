@@ -116,6 +116,12 @@ class Serializer(object):
         buf.write(b'</html>')
         self.end_offset = buf.tell()
         self.fixup_links()
+        if self.start_offset is None:
+            # If we don't set a start offset, the stupid Kindle will
+            # open the book at the location of the first IndexEntry, which
+            # could be anywhere. So ensure the book is always opened at the
+            # beginning, instead.
+            self.start_offset = self.body_start_offset
         return buf.getvalue()
 
     def serialize_head(self):
