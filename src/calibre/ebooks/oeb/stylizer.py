@@ -27,7 +27,6 @@ from calibre import force_unicode
 from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import XPNSMAP, xpath, urlnormalize
-from calibre.ebooks.cssselect import css_to_xpath_no_case
 
 cssutils_log.setLevel(logging.WARN)
 
@@ -99,49 +98,25 @@ FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
 
 
-class CSSSelector(object):
-
+class CSSSelector(etree.XPath):
+    MIN_SPACE_RE = re.compile(r' *([>~+]) *')
     LOCAL_NAME_RE = re.compile(r"(?<!local-)name[(][)] *= *'[^:]+:")
 
     def __init__(self, css, namespaces=XPNSMAP):
+        css = self.MIN_SPACE_RE.sub(r'\1', css)
         if isinstance(css, unicode):
             # Workaround for bug in lxml on windows/OS X that causes a massive
             # memory leak with non ASCII selectors
             css = css.encode('ascii', 'ignore').decode('ascii')
         try:
-            path = self.LOCAL_NAME_RE.sub(r"local-name() = '", css_to_xpath(css))
-            self.sel1 = etree.XPath(css_to_xpath(css), namespaces=namespaces)
-        except:
-            self.sel1 = lambda x: []
-        try:
-            path = self.LOCAL_NAME_RE.sub(r"local-name() = '",
-                    css_to_xpath_no_case(css))
-            self.sel2 = etree.XPath(path, namespaces=namespaces)
-        except:
-            self.sel2 = lambda x: []
-        self.sel2_use_logged = False
+            path = css_to_xpath(css)
+        except UnicodeEncodeError: # Bug in css_to_xpath
+            path = '/'
+        except NotImplementedError: # Probably a subselect like :hover
+            path = '/'
+        path = self.LOCAL_NAME_RE.sub(r"local-name() = '", path)
+        etree.XPath.__init__(self, path, namespaces=namespaces)
         self.css = css
-
-    def __call__(self, node, log):
-        try:
-            ans = self.sel1(node)
-        except (AssertionError, ExpressionError, etree.XPathSyntaxError,
-                    NameError, # thrown on OS X instead of SelectorSyntaxError
-                    SelectorSyntaxError):
-            return []
-
-        if not ans:
-            try:
-                ans = self.sel2(node)
-            except:
-                return []
-            else:
-                if ans and not self.sel2_use_logged:
-                    self.sel2_use_logged = True
-                    log.warn('Interpreting class and tag selectors case'
-                        ' insensitively in the CSS selector: %s'%self.css)
-        return ans
-
 
     def __repr__(self):
         return '<%s %s for %r>' % (
@@ -149,21 +124,6 @@ class CSSSelector(object):
             hex(abs(id(self)))[2:],
             self.css)
 
-_selector_cache = {}
-
-MIN_SPACE_RE = re.compile(r' *([>~+]) *')
-
-def get_css_selector(raw_selector):
-    css = MIN_SPACE_RE.sub(r'\1', raw_selector)
-    if isinstance(css, unicode):
-        # Workaround for bug in lxml on windows/OS X that causes a massive
-        # memory leak with non ASCII selectors
-        css = css.encode('ascii', 'ignore').decode('ascii')
-    ans = _selector_cache.get(css, None)
-    if ans is None:
-        ans = CSSSelector(css)
-        _selector_cache[css] = ans
-    return ans
 
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
@@ -263,12 +223,41 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
+        class_sel_pat = re.compile(r'\.[a-z]+', re.IGNORECASE)
+        capital_sel_pat = re.compile(r'h|[A-Z]+')
         for _, _, cssdict, text, _ in rules:
             fl = ':first-letter' in text
             if fl:
                 text = text.replace(':first-letter', '')
-            selector = get_css_selector(text)
-            matches = selector(tree, self.logger)
+            try:
+                selector = CSSSelector(text)
+            except (AssertionError, ExpressionError, etree.XPathSyntaxError,
+                    NameError, # thrown on OS X instead of SelectorSyntaxError
+                    SelectorSyntaxError):
+                continue
+            try:
+                matches = selector(tree)
+            except etree.XPathEvalError:
+                continue
+
+            if not matches:
+                ntext = capital_sel_pat.sub(lambda m: m.group().lower(), text)
+                if ntext != text:
+                    self.logger.warn('Transformed CSS selector', text, 'to',
+                            ntext)
+                    selector = CSSSelector(ntext)
+                    matches = selector(tree)
+
+            if not matches and class_sel_pat.match(text) and text.lower() != text:
+                found = False
+                ltext = text.lower()
+                for x in tree.xpath('//*[@class]'):
+                    if ltext.endswith('.'+x.get('class').lower()):
+                        matches.append(x)
+                        found = True
+                if found:
+                    self.logger.warn('Ignoring case mismatches for CSS selector: %s in %s'
+                        %(text, item.href))
             if fl:
                 from lxml.builder import ElementMaker
                 E = ElementMaker(namespace=XHTML_NS)
