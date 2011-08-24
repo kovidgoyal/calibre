@@ -118,7 +118,6 @@ class CSSSelector(object):
                     css_to_xpath_no_case(css))
             self.sel2 = etree.XPath(path, namespaces=namespaces)
         except:
-            raise
             self.sel2 = lambda x: []
         self.sel2_use_logged = False
         self.css = css
