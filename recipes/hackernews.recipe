@@ -16,8 +16,8 @@ class HackerNews(BasicNewsRecipe):
     category              = 'news, programming, it, technology'
     masthead_url          = 'http://i55.tinypic.com/2u6io76.png'
     cover_url             = 'http://i55.tinypic.com/2u6io76.png'
-    delay                 = 5
-    max_articles_per_feed = 5
+    delay                 = 1
+    max_articles_per_feed = 30
     use_embedded_content  = False
     no_stylesheets        = True
     encoding              = 'utf-8'
