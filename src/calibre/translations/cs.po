@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-05 16:54+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-23 23:07+0000\n"
+"Last-Translator: Jan Kubík <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:36+0000\n"
+"X-Launchpad-Export-Date: 2011-08-24 04:36+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -333,7 +333,7 @@ msgstr "Přenést poznámky z připojeného Kindle (experimentální)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:736
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Sestavit katalog knih ve vaší knihovně Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:741
 msgid "Convert books to various ebook formats"
@@ -353,7 +353,7 @@ msgstr "Číst knihy ve vaší knihovně Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Stáhnout zprávy z internetu ve formě e-knihy"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:766
 msgid "Show a list of related books quickly"
@@ -365,7 +365,7 @@ msgstr "Exportovat knihy z knihovny Calibre na pevný disk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:776
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Ukázat detaily knihy v odděleném okně"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 msgid "Restart calibre"
@@ -392,7 +392,7 @@ msgstr "Prohlédnout uživatelský manuál Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
 msgid "Customize calibre"
-msgstr ""
+msgstr "Přizpůsobit Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:813
 msgid "Easily find books similar to the currently selected one"
@@ -401,7 +401,7 @@ msgstr "Snadno najde knihy podobné právě vybrané knize"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:818
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "Přepne mezi různými knihovnami Calibre a provede na nich údržbu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:824
 msgid "Copy books from the devce to your calibre library"
@@ -427,11 +427,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Vybrat náhodnou knihu z knihovny Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Hledej knihy od různých knihkupců"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:873
 msgid "Get new calibre plugins or update your existing ones"
@@ -635,11 +635,11 @@ msgstr "Doladit chování calibre v různých situacích"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1099
 msgid "Keyboard"
-msgstr ""
+msgstr "Klávesnice"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1105
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Přizpůsobte si klávesové zkratky používané v Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1110
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -1397,6 +1397,10 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Kindle 3 a novější verze mohou používat informace o čísle stránky v "
+"souborech MOBI. S touto funkcí Calibre tuto informaci spočítá a odešle do "
+"Kindle během nahrávání MOBI souborů přes USB. Upozorňujeme, že tato čísla "
+"stránek neodpovídají číslům v papírových knihách."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
@@ -1409,6 +1413,9 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Jsou dva způsoby generování čísel stránek. Použitím té přesnější vzniknou "
+"stránky lépe odpovídající tištěné knize. Nicméně tato metoda je pomalejší a "
+"zpomalí odesílání souborů do Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1420,7 +1427,7 @@ msgstr "Komunikace s Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:53
 msgid "The Kobo supports several collections including "
-msgstr ""
+msgstr "Kobo podporuje mnoho kolekcí včetně "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:55
 msgid "Create tags for automatic management"
@@ -1490,11 +1497,11 @@ msgstr "Komunikace s Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "Spojeno se čtečkou Moovybook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "Spojeno s COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1518,7 +1525,7 @@ msgstr "Komunikace se čtečkou Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color and TSR eBook readers."
-msgstr ""
+msgstr "Spojeno s Nook Color a čtečkami TSR eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1606,7 +1613,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:93
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Hledej knihy ve všech složkách"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:95
 msgid ""
@@ -1840,7 +1847,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "Hlavní adresář paměti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -3357,15 +3364,15 @@ msgstr "Štítky"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:140
 msgid "Series"
 msgid_plural "Series"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Série"
+msgstr[1] "Série"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:757
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Jazyky"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"
@@ -5121,7 +5128,7 @@ msgstr "Nelze smazat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:144
 msgid "Choose formats to be deleted"
-msgstr "Vyberte formáty, které nechcete smazat"
+msgstr "Vyberte formáty, které chcete smazat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:162
 msgid ""
@@ -6788,11 +6795,11 @@ msgstr "Nerozdělovat na &zalomeních stran"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:58
 msgid "No default &cover"
-msgstr "Obálka nenalezena"
+msgstr "Nevytvářet &obálku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:59
 msgid "No &SVG cover"
-msgstr "Žádná SVG obálka"
+msgstr "Nevytvářet &SVG obálku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output_ui.py:60
 msgid "Preserve cover &aspect ratio"
@@ -9260,7 +9267,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1139
 msgid "&Languages:"
-msgstr ""
+msgstr "&Jazyky:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:533
@@ -11724,7 +11731,7 @@ msgstr "Nemohu načíst metadata z %s formátu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:851
 msgid "&Browse"
-msgstr "&Listovat"
+msgstr "&Procházet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:853
 msgid "T&rim"
@@ -11797,8 +11804,8 @@ msgstr ""
 #, python-format
 msgid "The language %s is not recognized"
 msgid_plural "The languages %s are not recognized"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Jazyk %s není rozpozán."
+msgstr[1] "Jazyky %s nejsou rozpozány."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1175
 msgid "I&ds:"
@@ -15681,6 +15688,8 @@ msgid ""
 "Make font size %(which)s\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"%(which)s\n"
+"Současná velikost: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:497
 msgid "larger"
