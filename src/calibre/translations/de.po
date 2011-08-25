@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-20 18:58+0000\n"
-"Last-Translator: Armin Geller <Unknown>\n"
+"PO-Revision-Date: 2011-08-24 15:05+0000\n"
+"Last-Translator: Rudolf Metz <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-21 04:44+0000\n"
-"X-Generator: Launchpad (build 13697)\n"
+"X-Launchpad-Export-Date: 2011-08-25 04:37+0000\n"
+"X-Generator: Launchpad (build 13727)\n"
 "Generated-By: pygettext.py 1.5\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3560,7 +3560,7 @@ msgstr[1] "Reihen"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr "Sprache"
+msgstr "Sprachen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"

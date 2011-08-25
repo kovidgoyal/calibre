@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-20 09:14+0000\n"
-"Last-Translator: Viatcheslav <Unknown>\n"
+"PO-Revision-Date: 2011-08-24 13:42+0000\n"
+"Last-Translator: Nkolay Parukhin <parukhin@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-08-21 04:45+0000\n"
-"X-Generator: Launchpad (build 13697)\n"
+"X-Launchpad-Export-Date: 2011-08-25 04:38+0000\n"
+"X-Generator: Launchpad (build 13727)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1000,7 +1000,7 @@ msgstr "Использовать Серии как Категории в iTunes/
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "Использовать название серий как жанр iTunes, категорию iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
@@ -1058,7 +1058,7 @@ msgstr "Обновление списка метаданных устройст�
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3155
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d из %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1130
@@ -1445,7 +1445,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:55
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "Создать теги для автоматического упрвления"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:543
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
