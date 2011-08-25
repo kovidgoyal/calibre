@@ -124,7 +124,7 @@ class ANDROID(USBMS):
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
-            'GENERIC-', 'ZTE', 'MID']
+            'GENERIC-', 'ZTE', 'MID', 'QUALCOMM']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
