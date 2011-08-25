@@ -138,6 +138,12 @@ class BasicNewsRecipe(Recipe):
     #: Reverse the order of articles in each feed
     reverse_article_order = False
 
+    #: Automatically extract all the text from downloaded article pages. Uses
+    #: the algorithms from the readability project. Setting this to True, means
+    #: that you do not have to worry about cleaning up the downloaded HTML
+    #: manually (though manual cleanup will always be superior).
+    auto_cleanup = False
+
     #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
     #: `</head>` tag thereby overriding all :term:`CSS` except that which is
@@ -452,6 +458,35 @@ class BasicNewsRecipe(Recipe):
         '''
         return None
 
+    def preprocess_raw_html(self, raw_html, url):
+        '''
+        This method is called with the source of each downloaded :term:`HTML` file, before
+        it is parsed into an object tree. raw_html is a unicode string
+        representing the raw HTML downloaded from the web. url is the URL from
+        which the HTML was downloaded.
+
+        Note that this method acts *before* preprocess_regexps.
+
+        This method must return the processed raw_html as a unicode object.
+        '''
+        return raw_html
+
+    def preprocess_raw_html_(self, raw_html, url):
+        raw_html = self.preprocess_raw_html(raw_html, url)
+        if self.auto_cleanup:
+            try:
+                data = self.extract_readable_article(raw_html, url)
+            except:
+                self.log.exception('Auto cleanup of URL: %r failed'%url)
+            else:
+                article_html = data[0]
+                extracted_title = data[1]
+                article_html = re.sub(ur'</?(html|body)/?>', u'', article_html)
+                article_html = u'<h1>%s</h1>%s'%(extracted_title, article_html)
+                raw_html = (
+                    u'<html><head><title>%s</title></head><body>%s</body></html>'%
+                    (extracted_title, article_html))
+        return raw_html
 
     def preprocess_html(self, soup):
         '''
@@ -515,13 +550,13 @@ class BasicNewsRecipe(Recipe):
             entity_to_unicode(match, encoding=enc)))
         return BeautifulSoup(_raw, markupMassage=massage)
 
-    def extract_readable_article(self, html, base_url):
+    def extract_readable_article(self, html, url):
         '''
         Extracts main article content from 'html', cleans up and returns as a (article_html, extracted_title) tuple.
         Based on the original readability algorithm by Arc90.
         '''
         from calibre.ebooks.readability import readability
-        doc = readability.Document(html, self.log, url=base_url)
+        doc = readability.Document(html, self.log, url=url)
         article_html = doc.summary()
         extracted_title = doc.title()
         return (article_html, extracted_title)
@@ -671,6 +706,7 @@ class BasicNewsRecipe(Recipe):
             setattr(self.web2disk_options, extra, getattr(self, extra))
         self.web2disk_options.postprocess_html = self._postprocess_html
         self.web2disk_options.encoding = self.encoding
+        self.web2disk_options.preprocess_raw_html = self.preprocess_raw_html_
 
         if self.delay > 0:
             self.simultaneous_downloads = 1
@@ -1417,12 +1453,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
 
 class AutomaticNewsRecipe(BasicNewsRecipe):
 
-    keep_only_tags = [dict(name=['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'])]
-
-    def fetch_embedded_article(self, article, dir, f, a, num_of_feeds):
-        if self.use_embedded_content:
-            self.web2disk_options.keep_only_tags = []
-        return BasicNewsRecipe.fetch_embedded_article(self, article, dir, f, a, num_of_feeds)
+    auto_cleanup = True
 
 class CalibrePeriodical(BasicNewsRecipe):
 
