@@ -1163,6 +1163,7 @@ class LanguagesEdit(LE): # {{{
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
+        self.init_langs(db)
         lc = []
         langs = db.languages(id_, index_is_id=True)
         if langs:
