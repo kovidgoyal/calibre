@@ -2,14 +2,15 @@ import re, sys
 from collections import defaultdict
 
 from lxml.etree import tostring
-from lxml.html import fragment_fromstring, document_fromstring
+from lxml.html import (fragment_fromstring, document_fromstring,
+        tostring as htostring)
 
 from calibre.ebooks.readability.htmls import build_doc, get_body, get_title, shorten_title
 from calibre.ebooks.readability.cleaners import html_cleaner, clean_attributes
 
 def tounicode(tree_or_node, **kwargs):
     kwargs['encoding'] = unicode
-    return tostring(tree_or_node, **kwargs)
+    return htostring(tree_or_node, **kwargs)
 
 
 REGEXES = {
@@ -144,6 +145,7 @@ class Document:
 
         sibling_score_threshold = max([10, best_candidate['content_score'] * 0.2])
         output = document_fromstring('<div/>')
+        parent = output.xpath('//div')[0]
         best_elem = best_candidate['elem']
         for sibling in best_elem.getparent().getchildren():
             #if isinstance(sibling, NavigableString): continue#in lxml there no concept of simple text
@@ -165,10 +167,10 @@ class Document:
                     append = True
 
             if append:
-                output.append(sibling)
+                parent.append(sibling)
         #if output is not None:
         #   output.append(best_elem)
-        return output
+        return output.find('body')
 
     def select_best_candidate(self, candidates):
         sorted_candidates = sorted(candidates.values(), key=lambda x: x['content_score'], reverse=True)

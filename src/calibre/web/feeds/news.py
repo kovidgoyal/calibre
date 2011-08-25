@@ -475,17 +475,10 @@ class BasicNewsRecipe(Recipe):
         raw_html = self.preprocess_raw_html(raw_html, url)
         if self.auto_cleanup:
             try:
-                data = self.extract_readable_article(raw_html, url)
+                raw_html = self.extract_readable_article(raw_html, url)
             except:
                 self.log.exception('Auto cleanup of URL: %r failed'%url)
-            else:
-                article_html = data[0]
-                extracted_title = data[1]
-                article_html = re.sub(ur'</?(html|body)/?>', u'', article_html)
-                article_html = u'<h1>%s</h1>%s'%(extracted_title, article_html)
-                raw_html = (
-                    u'<html><head><title>%s</title></head><body>%s</body></html>'%
-                    (extracted_title, article_html))
+
         return raw_html
 
     def preprocess_html(self, soup):
@@ -556,10 +549,41 @@ class BasicNewsRecipe(Recipe):
         Based on the original readability algorithm by Arc90.
         '''
         from calibre.ebooks.readability import readability
+        from lxml.html import (fragment_fromstring, tostring,
+                document_fromstring)
+
         doc = readability.Document(html, self.log, url=url)
         article_html = doc.summary()
         extracted_title = doc.title()
-        return (article_html, extracted_title)
+
+        frag = fragment_fromstring(article_html)
+        if frag.tag == 'html':
+            root = frag
+        elif frag.tag == 'body':
+            root = document_fromstring(
+                u'<html><head><title>%s</title></head></html>' %
+                extracted_title)
+            root.append(frag)
+        else:
+            root = document_fromstring(
+                u'<html><head><title>%s</title></head><body/></html>' %
+                extracted_title)
+            root.xpath('//body')[0].append(frag)
+
+        body = root.xpath('//body')[0]
+        has_title = False
+        for x in body.iterdescendants():
+            if x.text == extracted_title:
+                has_title = True
+        inline_titles = body.xpath('//h1|//h2')
+        if not has_title and not inline_titles:
+            heading = body.makeelement('h2')
+            heading.text = extracted_title
+            body.insert(0, heading)
+
+        raw_html = tostring(root, encoding=unicode)
+
+        return raw_html
 
     def sort_index_by(self, index, weights):
         '''

@@ -38,11 +38,7 @@ class HackerNews(BasicNewsRecipe):
         html = f.read()
         f.close()
 
-        data = self.extract_readable_article(html, url)
-        article_html = data[0]
-        extracted_title = data[1]
-        article_html = u'<cite><strong>' + extracted_title + u'</strong></cite><span> (' + self.prettyify_url(url) + u')</span><br/>' + article_html
-        return u'<html><head><title>' + extracted_title + u'</title></head><body>' + article_html + u'</body></html>'
+        return self.extract_readable_article(html, url)
 
     def get_hn_content(self, url):
         self.log('get_hn_content(' + url + ')')
