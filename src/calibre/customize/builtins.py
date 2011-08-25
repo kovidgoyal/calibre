@@ -590,8 +590,9 @@ from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
 from calibre.ebooks.metadata.sources.isbndb import ISBNDB
 from calibre.ebooks.metadata.sources.overdrive import OverDrive
 from calibre.ebooks.metadata.sources.douban import Douban
+from calibre.ebooks.metadata.sources.ozon import Ozon
 
-plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban]
+plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
 
 # }}}
 
@@ -843,6 +844,12 @@ class ActionNextMatch(InterfaceActionBase):
     description = _('Find the next or previous match when searching in '
             'your calibre library in highlight mode')
 
+class ActionPickRandom(InterfaceActionBase):
+    name = 'Pick Random Book'
+    actual_plugin = 'calibre.gui2.actions.random:PickRandomAction'
+    description = _('Choose a random book from your calibre library')
+
+
 class ActionStore(InterfaceActionBase):
     name = 'Store'
     author = 'John Schember'
@@ -873,7 +880,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
         ActionAddToLibrary, ActionEditCollections, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionNextMatch, ActionStore,
-        ActionPluginUpdater]
+        ActionPluginUpdater, ActionPickRandom]
 
 # }}}
 
@@ -1023,7 +1030,7 @@ class TemplateFunctions(PreferencesPlugin):
     category = 'Advanced'
     gui_category = _('Advanced')
     category_order = 5
-    name_order = 4
+    name_order = 5
     config_widget = 'calibre.gui2.preferences.template_functions'
     description = _('Create your own template functions')
 
@@ -1086,6 +1093,17 @@ class Tweaks(PreferencesPlugin):
     config_widget = 'calibre.gui2.preferences.tweaks'
     description = _('Fine tune how calibre behaves in various contexts')
 
+class Keyboard(PreferencesPlugin):
+    name = 'Keyboard'
+    icon = I('keyboard-prefs.png')
+    gui_name = _('Keyboard')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 4
+    config_widget = 'calibre.gui2.preferences.keyboard'
+    description = _('Customize the keyboard shortcuts used by calibre')
+
 class Misc(PreferencesPlugin):
     name = 'Misc'
     icon = I('exec.png')
@@ -1100,7 +1118,7 @@ class Misc(PreferencesPlugin):
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
-        MetadataSources]
+        MetadataSources, Keyboard]
 
 #}}}
 
@@ -1470,6 +1488,14 @@ class StoreWoblinkStore(StoreBase):
     headquarters = 'PL'
     formats = ['EPUB']
 
+class XinXiiStore(StoreBase):
+    name = 'XinXii'
+    description = ''
+    actual_plugin = 'calibre.gui2.store.stores.xinxii_plugin:XinXiiStore'
+    
+    headquarters = 'DE'
+    formats = ['EPUB', 'PDF']
+
 class StoreZixoStore(StoreBase):
     name = 'Zixo'
     author = u'Tomasz Długosz'
@@ -1519,6 +1545,7 @@ plugins += [
     StoreWHSmithUKStore,
     StoreWizardsTowerBooksStore,
     StoreWoblinkStore,
+    XinXiiStore,
     StoreZixoStore
 ]
 

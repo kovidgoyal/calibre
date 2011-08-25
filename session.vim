@@ -21,3 +21,5 @@ vipy.session.add_content_browser('.r', ',r', 'Recipe',
     vipy.session.glob_based_iterator(os.path.join(project_dir, 'recipes', '*.recipe')),
     vipy.session.regexp_based_matcher(r'title\s*=\s*(?P<title>.+)', 'title', recipe_title_callback))
 EOFPY
+
+nmap \log :enew<CR>:read ! bzr log -l 500 ../.. <CR>:e ../../Changelog.yaml<CR>:e constants.py<CR>

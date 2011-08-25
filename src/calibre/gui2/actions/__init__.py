@@ -8,9 +8,13 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from zipfile import ZipFile
 
-from PyQt4.Qt import QToolButton, QAction, QIcon, QObject
+from PyQt4.Qt import (QToolButton, QAction, QIcon, QObject, QMenu,
+        QKeySequence)
 
+from calibre import prints
 from calibre.gui2 import Dispatcher
+from calibre.gui2.keyboard import NameConflict
+
 
 class InterfaceAction(QObject):
 
@@ -66,6 +70,14 @@ class InterfaceAction(QObject):
     #: shortcut must be a translated string if not None
     action_spec = ('text', 'icon', None, None)
 
+    #: If True, a menu is automatically created and added to self.qaction
+    action_add_menu = False
+
+    #: If True, a clone of self.qaction is added to the menu of self.qaction
+    #: If you want the text of this action to be different from that of
+    #: self.qaction, set this variable to the new text
+    action_menu_clone_qaction = False
+
     #: Set of locations to which this action must not be added.
     #: See :attr:`all_locations` for a list of possible locations
     dont_add_to = frozenset([])
@@ -75,7 +87,8 @@ class InterfaceAction(QObject):
     dont_remove_from = frozenset([])
 
     all_locations = frozenset(['toolbar', 'toolbar-device', 'context-menu',
-        'context-menu-device', 'toolbar-child', 'menubar', 'menubar-device'])
+        'context-menu-device', 'toolbar-child', 'menubar', 'menubar-device',
+        'context-menu-cover-browser'])
 
     #: Type of action
     #: 'current' means acts on the current view
@@ -94,7 +107,15 @@ class InterfaceAction(QObject):
         self.Dispatcher = partial(Dispatcher, parent=self)
         self.create_action()
         self.gui.addAction(self.qaction)
+        self.gui.addAction(self.menuless_qaction)
         self.genesis()
+
+    @property
+    def unique_name(self):
+        bn = self.__class__.__name__
+        if getattr(self.interface_action_base_plugin, 'name'):
+            bn = self.interface_action_base_plugin.name
+        return u'Interface Action: %s (%s)'%(bn, self.name)
 
     def create_action(self, spec=None, attr='qaction'):
         if spec is None:
@@ -104,19 +125,74 @@ class InterfaceAction(QObject):
             action = QAction(QIcon(I(icon)), text, self.gui)
         else:
             action = QAction(text, self.gui)
-        action.setAutoRepeat(self.auto_repeat)
-        text = tooltip if tooltip else text
-        action.setToolTip(text)
-        action.setStatusTip(text)
-        action.setWhatsThis(text)
-        action.setAutoRepeat(False)
-        if shortcut:
-            if isinstance(shortcut, list):
-                action.setShortcuts(shortcut)
-            else:
-                action.setShortcut(shortcut)
-        setattr(self, attr, action)
+        if attr == 'qaction':
+            mt = (action.text() if self.action_menu_clone_qaction is True else
+                    unicode(self.action_menu_clone_qaction))
+            self.menuless_qaction = ma = QAction(action.icon(), mt, self.gui)
+            ma.triggered.connect(action.trigger)
+        for a in ((action, ma) if attr == 'qaction' else (action,)):
+            a.setAutoRepeat(self.auto_repeat)
+            text = tooltip if tooltip else text
+            a.setToolTip(text)
+            a.setStatusTip(text)
+            a.setWhatsThis(text)
+        shortcut_action = action
+        desc = tooltip if tooltip else None
+        if attr == 'qaction':
+            shortcut_action = ma
+        if shortcut is not None:
+            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+                    tuple(shortcut))
+
+            if spec[0] and not (attr=='qaction' and self.popup_type ==
+                    QToolButton.InstantPopup):
+                try:
+                    self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
+                        unicode(spec[0]), default_keys=keys,
+                        action=shortcut_action, description=desc,
+                        group=self.action_spec[0])
+                except NameConflict as e:
+                    try:
+                        prints(unicode(e))
+                    except:
+                        pass
+                    shortcut_action.setShortcuts([QKeySequence(key,
+                        QKeySequence.PortableText) for key in keys])
+
+
+        if attr is not None:
+            setattr(self, attr, action)
+        if attr == 'qaction' and self.action_add_menu:
+            menu = QMenu()
+            action.setMenu(menu)
+            if self.action_menu_clone_qaction:
+                menu.addAction(self.menuless_qaction)
         return action
+
+    def create_menu_action(self, menu, unique_name, text, icon=None, shortcut=None,
+            description=None, triggered=None):
+        ac = menu.addAction(text)
+        if icon is not None:
+            if not isinstance(icon, QIcon):
+                icon = QIcon(I(icon))
+            ac.setIcon(icon)
+        keys = ()
+        if shortcut is not None and shortcut is not False:
+            keys = ((shortcut,) if isinstance(shortcut, basestring) else
+                    tuple(shortcut))
+        unique_name = '%s : menu action : %s'%(self.unique_name, unique_name)
+        if description is not None:
+            ac.setToolTip(description)
+            ac.setStatusTip(description)
+            ac.setWhatsThis(description)
+
+        if shortcut is not False:
+            self.gui.keyboard.register_shortcut(unique_name,
+                unicode(text), default_keys=keys,
+                action=ac, description=description, group=self.action_spec[0])
+        if triggered is not None:
+            ac.triggered.connect(triggered)
+        return ac
 
     def load_resources(self, names):
         '''

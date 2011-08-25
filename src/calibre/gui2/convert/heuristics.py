@@ -72,10 +72,11 @@ class HeuristicsWidget(Widget, Ui_Form):
             return True
 
     def load_histories(self):
+        val = unicode(self.opt_replace_scene_breaks.currentText())
+        
         self.opt_replace_scene_breaks.clear()
         self.opt_replace_scene_breaks.lineEdit().setText('')
 
-        val = unicode(self.opt_replace_scene_breaks.currentText())
         rssb_hist = gprefs.get('replace_scene_breaks_history', self.rssb_defaults)
         if val in rssb_hist:
             del rssb_hist[rssb_hist.index(val)]

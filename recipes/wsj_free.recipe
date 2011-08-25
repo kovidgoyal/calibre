@@ -40,6 +40,7 @@ class WallStreetJournal(BasicNewsRecipe):
                     dict(name='div', attrs={'data-flash-settings':True}),
                     {'class':['insetContent embedType-interactive insetCol3wide','insetCol6wide','insettipUnit']},
                     dict(rel='shortcut icon'),
+                    {'class':lambda x: x and 'sTools' in x},
                     ]
     remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
 

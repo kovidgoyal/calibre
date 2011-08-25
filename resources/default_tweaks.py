@@ -179,6 +179,9 @@ save_template_title_series_sorting = 'library_order'
 # changed. Changes to this tweak won't have an effect until the book is modified
 # in some way. If you enter an invalid pattern, it is silently ignored.
 # To disable use the expression: '^$'
+# This expression is designed for articles that are followed by spaces. If you
+# also need to match articles that are followed by other characters, for example L'
+# in French, use: r"^(A\s+|The\s+|An\s+|L')" instead.
 # Default: '^(A|The|An)\s+'
 title_sort_articles=r'^(A|The|An)\s+'
 

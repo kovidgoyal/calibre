@@ -500,6 +500,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             if i < len(components)-1:
                                 t = copy.copy(tag)
                                 t.original_name = '.'.join(components[:i+1])
+                                t.count = 0
                                 if key != 'search':
                                     # This 'manufactured' intermediate node can
                                     # be searched, but cannot be edited.
@@ -523,6 +524,12 @@ class TagsModel(QAbstractItemModel): # {{{
 
         for category in self.category_nodes:
             process_one_node(category, state_map.get(category.category_key, {}))
+
+    def get_category_editor_data(self, category):
+        for cat in self.root_item.children:
+            if cat.category_key == category:
+                return [(t.tag.id, t.tag.original_name, t.tag.count)
+                        for t in cat.child_tags() if t.tag.count > 0]
 
     # Drag'n Drop {{{
     def mimeTypes(self):

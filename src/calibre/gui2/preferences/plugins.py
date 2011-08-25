@@ -239,6 +239,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.plugin_view.selectionModel().select(idx,
                 self.plugin_view.selectionModel().ClearAndSelect)
         self.plugin_view.setCurrentIndex(idx)
+        self.plugin_view.setFocus(Qt.OtherFocusReason)
 
     def find_next(self, *args):
         idx = self.plugin_view.currentIndex()

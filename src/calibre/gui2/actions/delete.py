@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QMenu, QObject, QTimer
+from PyQt4.Qt import QObject, QTimer
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog
@@ -18,7 +18,7 @@ from calibre.utils.recycle_bin import can_recycle
 
 single_shot = partial(QTimer.singleShot, 10)
 
-class MultiDeleter(QObject):
+class MultiDeleter(QObject): # {{{
 
     def __init__(self, gui, ids, callback):
         from calibre.gui2.dialogs.progress import ProgressDialog
@@ -77,32 +77,36 @@ class MultiDeleter(QObject):
             error_dialog(self.gui, _('Failed to delete'),
                     _('Failed to delete some books, click the Show Details button'
                     ' for details.'), det_msg='\n\n'.join(msg), show=True)
+# }}}
 
 class DeleteAction(InterfaceAction):
 
     name = 'Remove Books'
     action_spec = (_('Remove books'), 'trash.png', None, 'Del')
     action_type = 'current'
+    action_add_menu = True
+    action_menu_clone_qaction = _('Remove selected books')
 
     def genesis(self):
         self.qaction.triggered.connect(self.delete_books)
-        self.delete_menu = QMenu()
-        self.delete_menu.addAction(_('Remove selected books'), self.delete_books)
-        self.delete_menu.addAction(
+        self.delete_menu = self.qaction.menu()
+        m = partial(self.create_menu_action, self.delete_menu)
+        m('delete-specific',
                 _('Remove files of a specific format from selected books..'),
-                self.delete_selected_formats)
-        self.delete_menu.addAction(
+                triggered=self.delete_selected_formats)
+        m('delete-except',
                 _('Remove all formats from selected books, except...'),
-                self.delete_all_but_selected_formats)
-        self.delete_menu.addAction(
+                triggered=self.delete_all_but_selected_formats)
+        m('delete-all',
                 _('Remove all formats from selected books'),
-                self.delete_all_formats)
-        self.delete_menu.addAction(
-                _('Remove covers from selected books'), self.delete_covers)
+                triggered=self.delete_all_formats)
+        m('delete-covers',
+                _('Remove covers from selected books'),
+                triggered=self.delete_covers)
         self.delete_menu.addSeparator()
-        self.delete_menu.addAction(
+        m('delete-matching',
                 _('Remove matching books from device'),
-                self.remove_matching_books_from_device)
+                triggered=self.remove_matching_books_from_device)
         self.qaction.setMenu(self.delete_menu)
         self.delete_memory = {}
 

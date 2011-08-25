@@ -284,11 +284,22 @@ The most likely cause of this is your antivirus program. Try temporarily disabli
 I cannot send emails using |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Because of the large amount of spam in email, sending email can be tricky as different servers use different strategies to block email spam. 
+Because of the large amount of spam in email, sending email can be tricky, as different mail servers use different strategies to block email. 
 The most common problem is if you are sending email directly (without a mail relay) in |app|. Many servers (for example, Amazon) block email
-that does not come from a well known relay. The easiest way around this is to setup a free GMail account and then goto Preferences->Email in |app| and
-click the "Use Gmail" button. |app| will then use Gmail to send the mail. Remember to update the email preferences in on your Amazon Kindle page to
-allow email sent from your Gmail email address.
+that does not come from a well known relay. The most robust way to setup email sending in |app| is to do the following:
+
+  * Create a free GMail account at `Google <http://www.gmail.com>`_. 
+  * Goto Preferences->Email in |app| and click the "Use Gmail" button and fill in the information asked for.
+  * |app| will then use GMail to send the mail.
+  * If you are sending to your Kindle, remember to update the email preferences on your Amazon Kindle page to allow email sent from your GMail email address.
+
+Even after doing this, you may have problems. One common source of problems is that some poorly designed antivirus
+programs block |app| from opening a connection to send email. Try adding an exclusion for |app| in your
+antivirus program.
+
+.. note:: Google can disable your account if you use it to send large amounts of email. So, when using GMail to send mail |app| automatically restricts
+          itself to sending one book every five minutes. If you don't mind risking your account being blocked you can reduce this wait interval by
+          going to Preferences->Tweaks in |app|.
 
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -307,7 +318,7 @@ must return ``CONFIG_SCSI_MULTI_LUN=y``. If you don't see either, you have to re
 My device is getting mounted read-only in linux, so |app| cannot connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-linux kernels mount devices read-only when their filesystems have errors. You can repair the filesystem with::
+Linux kernels mount devices read-only when their filesystems have errors. You can repair the filesystem with::
 
     sudo fsck.vfat -y /dev/sdc
 
@@ -508,7 +519,7 @@ There are three possible things I know of, that can cause this:
 
     * You are using a Wacom branded mouse. There is an incompatibility between Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom mouse.
 
-    * You have invalid files in your fonts folder. If this is the case, start |app| in debug mode as desribed in the previous answer and you will get messages about invalid files in :file:`C:\\Windows\\fonts`. Delete these files and you will be fine.
+    * Sometimes if some software has installed lots of new files in your fonts folder, |app| can crash until it finishes indexing them. Just start |app|, then leave it alone for about 20 minutes, without clicking on anything. After that you should be able to use |app| as normal.
 
 
 |app| is not starting on OS X?
@@ -544,7 +555,7 @@ If you still cannot get the installer to work and you are on windows, you can us
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Your antivirus program is wrong. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
+Your antivirus program is wrong. Antivirus programs use heuristics, patterns of code that "looks suspicuous" to detect viruses. It's rather like racial profiling. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
 
 How do I backup |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

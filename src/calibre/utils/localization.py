@@ -112,6 +112,7 @@ _extra_lang_codes = {
         'zh_TW' : _('Traditional Chinese'),
         'en'    : _('English'),
         'en_AU' : _('English (Australia)'),
+        'en_BG' : _('English (Bulgaria)'),
         'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
         'en_GR' : _('English (Greece)'),
@@ -164,30 +165,106 @@ _lcase_map = {}
 for k in _extra_lang_codes:
     _lcase_map[k.lower()] = k
 
-def get_language(lang):
+def _load_iso639():
     global _iso639
+    if _iso639 is None:
+        ip = P('localization/iso639.pickle', allow_user_override=False)
+        with open(ip, 'rb') as f:
+            _iso639 = cPickle.load(f)
+    return _iso639
+
+def get_language(lang):
     translate = _
     lang = _lcase_map.get(lang, lang)
     if lang in _extra_lang_codes:
         # The translator was not active when _extra_lang_codes was defined, so
         # re-translate
         return translate(_extra_lang_codes[lang])
-    ip = P('localization/iso639.pickle')
-    if not os.path.exists(ip):
-        return lang
-    if _iso639 is None:
-        _iso639 = cPickle.load(open(ip, 'rb'))
+    iso639 = _load_iso639()
     ans = lang
     lang = lang.split('_')[0].lower()
     if len(lang) == 2:
-        ans = _iso639['by_2'].get(lang, ans)
+        ans = iso639['by_2'].get(lang, ans)
     elif len(lang) == 3:
-        if lang in _iso639['by_3b']:
-            ans = _iso639['by_3b'][lang]
+        if lang in iso639['by_3b']:
+            ans = iso639['by_3b'][lang]
         else:
-            ans = _iso639['by_3t'].get(lang, ans)
+            ans = iso639['by_3t'].get(lang, ans)
     return translate(ans)
 
+def calibre_langcode_to_name(lc, localize=True):
+    iso639 = _load_iso639()
+    translate = _ if localize else lambda x: x
+    try:
+        return translate(iso639['by_3t'][lc])
+    except:
+        pass
+    return lc
+
+def canonicalize_lang(raw):
+    if not raw:
+        return None
+    if not isinstance(raw, unicode):
+        raw = raw.decode('utf-8', 'ignore')
+    raw = raw.lower().strip()
+    if not raw:
+        return None
+    raw = raw.replace('_', '-').partition('-')[0].strip()
+    if not raw:
+        return None
+    iso639 = _load_iso639()
+    m2to3 = iso639['2to3']
+
+    if len(raw) == 2:
+        ans = m2to3.get(raw, None)
+        if ans is not None:
+            return ans
+    elif len(raw) == 3:
+        if raw in iso639['by_3t']:
+            return raw
+        if raw in iso639['3bto3t']:
+            return iso639['3bto3t'][raw]
+
+    return iso639['name_map'].get(raw, None)
+
+_lang_map = None
+
+def lang_map():
+    ' Return mapping of ISO 639 3 letter codes to localized language names '
+    iso639 = _load_iso639()
+    translate = _
+    global _lang_map
+    if _lang_map is None:
+        _lang_map = {k:translate(v) for k, v in iso639['by_3t'].iteritems()}
+    return _lang_map
+
+def langnames_to_langcodes(names):
+    '''
+    Given a list of localized language names return a mapping of the names to 3
+    letter ISO 639 language codes. If a name is not recognized, it is mapped to
+    None.
+    '''
+    iso639 = _load_iso639()
+    translate = _
+    ans = {}
+    names = set(names)
+    for k, v in iso639['by_3t'].iteritems():
+        tv = translate(v)
+        if tv in names:
+            names.remove(tv)
+            ans[tv] = k
+        if not names:
+            break
+    for x in names:
+        ans[x] = None
+
+    return ans
+
+def lang_as_iso639_1(name_or_code):
+    code = canonicalize_lang(name_or_code)
+    if code is not None:
+        iso639 = _load_iso639()
+        return iso639['3to2'].get(code, None)
 
 _udc = None
 

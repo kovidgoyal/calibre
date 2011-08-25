@@ -23,6 +23,7 @@ from calibre.utils.formatter import validation_formatter
 from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.gui2.languages import LanguagesEdit
 
 
 class RatingDelegate(QStyledItemDelegate): # {{{
@@ -155,7 +156,7 @@ class TextDelegate(QStyledItemDelegate): # {{{
     def __init__(self, parent):
         '''
         Delegate for text data. If auto_complete_function needs to return a list
-        of text items to auto-complete with. The funciton is None no
+        of text items to auto-complete with. If the function is None no
         auto-complete will be used.
         '''
         QStyledItemDelegate.__init__(self, parent)
@@ -229,6 +230,20 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
             QStyledItemDelegate.setModelData(self, editor, model, index)
 # }}}
 
+class LanguagesDelegate(QStyledItemDelegate): # {{{
+
+    def createEditor(self, parent, option, index):
+        editor = LanguagesEdit(parent)
+        ct = index.data(Qt.DisplayRole).toString()
+        editor.setEditText(ct)
+        editor.lineEdit().selectAll()
+        return editor
+
+    def setModelData(self, editor, model, index):
+        val = ','.join(editor.lang_codes)
+        model.setData(index, QVariant(val), Qt.EditRole)
+# }}}
+
 class CcDateDelegate(QStyledItemDelegate): # {{{
     '''
     Delegate for custom columns dates. Because this delegate stores the
@@ -300,15 +315,21 @@ class CcNumberDelegate(QStyledItemDelegate): # {{{
         col = m.column_map[index.column()]
         if m.custom_columns[col]['datatype'] == 'int':
             editor = QSpinBox(parent)
-            editor.setRange(-100, 100000000)
+            editor.setRange(-1000000, 100000000)
             editor.setSpecialValueText(_('Undefined'))
             editor.setSingleStep(1)
         else:
             editor = QDoubleSpinBox(parent)
             editor.setSpecialValueText(_('Undefined'))
-            editor.setRange(-100., 100000000)
+            editor.setRange(-1000000., 100000000)
             editor.setDecimals(2)
         return editor
+
+    def setModelData(self, editor, model, index):
+        val = editor.value()
+        if val == editor.minimum():
+            val = None
+        model.setData(index, QVariant(val), Qt.EditRole)
 
     def setEditorData(self, editor, index):
         m = index.model()
