@@ -556,7 +556,11 @@ class BasicNewsRecipe(Recipe):
         article_html = doc.summary()
         extracted_title = doc.title()
 
-        frag = fragment_fromstring(article_html)
+        try:
+            frag = fragment_fromstring(article_html)
+        except:
+            doc = document_fromstring(article_html)
+            frag = doc.xpath('//body')[-1]
         if frag.tag == 'html':
             root = frag
         elif frag.tag == 'body':
