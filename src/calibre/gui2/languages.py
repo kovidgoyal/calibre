@@ -13,7 +13,7 @@ from calibre.utils.icu import sort_key, lower
 
 class LanguagesEdit(MultiCompleteComboBox):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, db=None):
         MultiCompleteComboBox.__init__(self, parent)
 
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
@@ -23,9 +23,14 @@ class LanguagesEdit(MultiCompleteComboBox):
         self.comma_map = {k:k.replace(',', '|') for k in self.names_with_commas}
         self.comma_rmap = {v:k for k, v in self.comma_map.iteritems()}
         self._rmap = {lower(v):k for k,v in self._lang_map.iteritems()}
+        if db is not None:
+            self.init_langs(db)
 
+    def init_langs(self, db):
+        pmap = {self._lang_map.get(x[1], x[1]):1 for x in
+                db.get_languages_with_ids()}
         all_items = sorted(self._lang_map.itervalues(),
-            key=sort_key)
+            key=lambda x: (-pmap.get(x, 0), sort_key(x)))
         self.update_items_cache(all_items)
         for item in all_items:
             self.addItem(item)

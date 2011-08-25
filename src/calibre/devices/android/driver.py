@@ -19,11 +19,12 @@ class ANDROID(USBMS):
 
     VENDOR_ID   = {
             # HTC
-            0x0bb4 : { 0xc02 : [0x100, 0x0227, 0x0226, 0x222],
-                       0xc01 : [0x100, 0x0227, 0x0226],
-                       0xff9 : [0x0100, 0x0227, 0x0226],
-                       0xc87 : [0x0100, 0x0227, 0x0226],
-                       0xc91 : [0x0100, 0x0227, 0x0226],
+            0x0bb4 : { 0xc02  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc01  : [0x100, 0x0227, 0x0226],
+                       0xff9  : [0x0100, 0x0227, 0x0226],
+                       0xc86  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc87  : [0x0100, 0x0227, 0x0226],
+                       0xc91  : [0x0100, 0x0227, 0x0226],
                        0xc92  : [0x100, 0x0227, 0x0226, 0x222],
                        0xc97  : [0x100, 0x0227, 0x0226, 0x222],
                        0xc99  : [0x100, 0x0227, 0x0226, 0x222],
@@ -124,7 +125,7 @@ class ANDROID(USBMS):
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
-            'GENERIC-', 'ZTE', 'MID']
+            'GENERIC-', 'ZTE', 'MID', 'QUALCOMM']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
