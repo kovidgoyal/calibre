@@ -1,12 +1,15 @@
 import re, sys
 from collections import defaultdict
 
-from lxml.etree import tostring, tounicode
+from lxml.etree import tostring
 from lxml.html import fragment_fromstring, document_fromstring
 
 from calibre.ebooks.readability.htmls import build_doc, get_body, get_title, shorten_title
 from calibre.ebooks.readability.cleaners import html_cleaner, clean_attributes
 
+def tounicode(tree_or_node, **kwargs):
+    kwargs['encoding'] = unicode
+    return tostring(tree_or_node, **kwargs)
 
 
 REGEXES = {
