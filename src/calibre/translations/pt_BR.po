@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-05 16:23+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-25 19:09+0000\n"
+"Last-Translator: Luiz Real <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:50+0000\n"
-"X-Generator: Launchpad (build 13697)\n"
+"X-Launchpad-Export-Date: 2011-08-26 04:32+0000\n"
+"X-Generator: Launchpad (build 13779)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -250,7 +250,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "Uma loja de e-book."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -328,31 +328,31 @@ msgstr "Alterar metadados a partir de %s arquivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:726
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Adicione livros ao calibre ou ao dispositivo conectado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:731
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Buscar as anotações de um Kindle conectado (experimental)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:736
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Gerar um catálogo dos livros em sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:741
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Converter livros para vários formatos de e-book"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:746
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Remover livros de sua biblioteca calibre ou dispositivo conectado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Editar metadados de livros de sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Leia livros em sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Download news from the internet in ebook form"
