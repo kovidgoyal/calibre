@@ -515,6 +515,7 @@ class Delegate(QStyledItemDelegate): # {{{
                 ckey = QKeySequence(ckey, QKeySequence.PortableText)
                 matched = False
                 for s in editor.all_shortcuts:
+                    if s is editor.shortcut: continue
                     for k in s['keys']:
                         if k == ckey:
                             matched = True
