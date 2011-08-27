@@ -149,11 +149,11 @@ class InterfaceAction(QObject):
             if shortcut_name is None and spec[0]:
                 shortcut_name = unicode(spec[0])
 
-            if shortcut_name and not (attr=='qaction' and self.popup_type ==
-                    QToolButton.InstantPopup):
+            if shortcut_name and self.action_spec[0] and not (
+                    attr == 'qaction' and self.popup_type == QToolButton.InstantPopup):
                 try:
                     self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
-                        unicode(spec[0]), default_keys=keys,
+                        shortcut_name, default_keys=keys,
                         action=shortcut_action, description=desc,
                         group=self.action_spec[0])
                 except NameConflict as e:

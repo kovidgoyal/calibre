@@ -307,6 +307,18 @@ class ConfigModel(QAbstractItemModel, SearchQueryParser):
         return (self.index(ans[0], 0) if ans[1] < 0 else
                 self.index(ans[1], 0, self.index(ans[0], 0)))
 
+    def index_for_group(self, name):
+        for i in range(self.rowCount()):
+            node = self.data[i]
+            if node.data == name:
+                return self.index(i, 0)
+
+    @property
+    def group_names(self):
+        for i in range(self.rowCount()):
+            node = self.data[i]
+            yield node.data
+
 # }}}
 
 class Editor(QFrame): # {{{
@@ -632,6 +644,15 @@ class ShortcutConfig(QWidget): # {{{
             unicode(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
+    def highlight_group(self, group_name):
+        idx = self.view.model().index_for_group(group_name)
+        if idx is not None:
+            self.view.expand(idx)
+            self.view.scrollTo(idx, self.view.PositionAtTop)
+            self.view.selectionModel().select(idx,
+                    self.view.selectionModel().ClearAndSelect)
+            self.view.setCurrentIndex(idx)
+            self.view.setFocus(Qt.OtherFocusReason)
 
 # }}}
 
