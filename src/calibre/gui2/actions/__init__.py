@@ -120,7 +120,7 @@ class InterfaceAction(QObject):
             bn = self.interface_action_base_plugin.name
         return u'Interface Action: %s (%s)'%(bn, self.name)
 
-    def create_action(self, spec=None, attr='qaction'):
+    def create_action(self, spec=None, attr='qaction', shortcut_name=None):
         if spec is None:
             spec = self.action_spec
         text, icon, tooltip, shortcut = spec
@@ -146,8 +146,10 @@ class InterfaceAction(QObject):
         if shortcut is not None:
             keys = ((shortcut,) if isinstance(shortcut, basestring) else
                     tuple(shortcut))
+            if shortcut_name is None and spec[0]:
+                shortcut_name = unicode(spec[0])
 
-            if spec[0] and not (attr=='qaction' and self.popup_type ==
+            if shortcut_name and not (attr=='qaction' and self.popup_type ==
                     QToolButton.InstantPopup):
                 try:
                     self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
