@@ -335,6 +335,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        self.languages.init_langs(self.db)
         self.languages.setEditText('')
         self.exec_()
 

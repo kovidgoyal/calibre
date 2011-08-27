@@ -122,12 +122,17 @@ class Cache(object):
         formats = self._field_for('formats', book_id)
         mi.format_metadata = {}
         if not formats:
-            formats = None
+            good_formats = None
         else:
+            good_formats = []
             for f in formats:
-                mi.format_metadata[f] = self._format_metadata(book_id, f)
-            formats = ','.join(formats)
-        mi.formats = formats
+                try:
+                    mi.format_metadata[f] = self._format_metadata(book_id, f)
+                except:
+                    pass
+                else:
+                    good_formats.append(f)
+        mi.formats = good_formats
         mi.has_cover = _('Yes') if self._field_for('cover', book_id,
                 default_value=False) else ''
         mi.tags = list(self._field_for('tags', book_id, default_value=()))

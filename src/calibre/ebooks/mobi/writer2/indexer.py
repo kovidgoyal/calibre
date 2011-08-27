@@ -109,20 +109,6 @@ class TAGX(object): # {{{
         list(map(self.add_tag, (11, 0)))
         return self.header(1) + bytes(self.byts)
 
-
-
-class TAGX_BOOK(TAGX):
-    BITMASKS = dict(TAGX.BITMASKS)
-    BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 21, 22, 23])})
-
-    @property
-    def hierarchical_book(self):
-        '''
-        TAGX block for the primary index header of a hierarchical book
-        '''
-        list(map(self.add_tag, (1, 2, 3, 4, 21, 22, 23, 0)))
-        return self.header(1) + bytes(self.byts)
-
     @property
     def flat_book(self):
         '''
@@ -244,17 +230,6 @@ class IndexEntry(object):
         ans = buf.getvalue()
         return ans
 
-class BookIndexEntry(IndexEntry):
-
-    @property
-    def entry_type(self):
-        tagx = TAGX_BOOK()
-        ans = 0
-        for tag in self.tag_nums:
-            ans |= tagx.BITMASKS[tag]
-        return ans
-
-
 class PeriodicalIndexEntry(IndexEntry):
 
     def __init__(self, offset, label_offset, class_offset, depth):
@@ -305,9 +280,7 @@ class TBS(object): # {{{
     def __init__(self, data, is_periodical, first=False, section_map={},
             after_first=False):
         self.section_map = section_map
-        #import pprint
-        #pprint.pprint(data)
-        #print()
+
         if is_periodical:
             # The starting bytes.
             # The value is zero which I think indicates the periodical
@@ -420,6 +393,8 @@ class TBS(object): # {{{
                 first_article = articles[0]
                 last_article = articles[-1]
                 num = len(articles)
+                last_article_ends = (last_article in data['ends'] or
+                        last_article in data['completes'])
 
                 try:
                     next_sec = sections[i+1]
@@ -440,6 +415,19 @@ class TBS(object): # {{{
                 if next_sec is not None:
                     buf.write(encode_tbs(last_article.index-next_sec.index,
                         {0b1000: 0}))
+
+
+                # If a section TOC starts and extends into the next record add
+                # a trailing vwi. We detect this by TBS type==3, processing last
+                # section present in the record, and the last article in that
+                # section either ends or completes and doesn't finish
+                # on the last byte of the record.
+                elif (typ == self.type_011 and last_article_ends and
+                      ((last_article.offset+last_article.size) % RECORD_SIZE > 0)
+                     ):
+                    buf.write(encode_tbs(last_article.index-section.index-1,
+                        {0b1000: 0}))
+
         else:
             buf.write(encode_tbs(spanner.index - parent_section_index,
                 {0b0001: 0}))
@@ -447,7 +435,26 @@ class TBS(object): # {{{
         self.bytestring = buf.getvalue()
 
     def book_tbs(self, data, first):
-        self.bytestring = b''
+        spanner = data['spans']
+        if spanner is not None:
+            self.bytestring = encode_tbs(spanner.index, {0b010: 0, 0b001: 0},
+                    flag_size=3)
+        else:
+            starts, completes, ends = (data['starts'], data['completes'],
+                                        data['ends'])
+            if (not completes and (
+                (len(starts) == 1 and not ends) or (len(ends) == 1 and not
+                    starts))):
+                node = starts[0] if starts else ends[0]
+                self.bytestring = encode_tbs(node.index, {0b010: 0}, flag_size=3)
+            else:
+                nodes = []
+                for x in (starts, completes, ends):
+                    nodes.extend(x)
+                nodes.sort(key=lambda x:x.index)
+                self.bytestring = encode_tbs(nodes[0].index, {0b010:0,
+                    0b100: len(nodes)}, flag_size=3)
+
 # }}}
 
 class Indexer(object): # {{{
@@ -497,6 +504,9 @@ class Indexer(object): # {{{
         else:
             self.indices = self.create_book_index()
 
+        if not self.indices:
+            raise ValueError('No valid entries in TOC, cannot generate index')
+
         self.records.append(self.create_index_record())
         self.records.insert(0, self.create_header())
         self.records.extend(self.cncx.records)
@@ -518,6 +528,7 @@ class Indexer(object): # {{{
         for i in indices:
             offsets.append(buf.tell())
             buf.write(i.bytestring)
+
         index_block = align_block(buf.getvalue())
 
         # Write offsets to index entries as an IDXT block
@@ -557,9 +568,7 @@ class Indexer(object): # {{{
             tagx_block = TAGX().secondary
         else:
             tagx_block = (TAGX().periodical if self.is_periodical else
-                            (TAGX_BOOK().hierarchical_book if
-                                self.book_has_subchapters else
-                                TAGX_BOOK().flat_book))
+                                TAGX().flat_book)
         header_length = 192
 
         # Ident 0 - 4
@@ -645,15 +654,13 @@ class Indexer(object): # {{{
     # }}}
 
     def create_book_index(self): # {{{
-        self.book_has_subchapters = False
         indices = []
-        seen, sub_seen = set(), set()
+        seen = set()
         id_offsets = self.serializer.id_offsets
 
-        # Flatten toc to contain only chapters and subchapters
-        # Anything deeper than a subchapter is made into a subchapter
-        chapters = []
-        for node in self.oeb.toc:
+        # Flatten toc so that chapter to chapter jumps work with all sub
+        # chapter levels as well
+        for node in self.oeb.toc.iterdescendants():
             try:
                 offset = id_offsets[node.href]
                 label = self.cncx[node.title]
@@ -666,77 +673,33 @@ class Indexer(object): # {{{
                 continue
             seen.add(offset)
 
-            subchapters = []
-            chapters.append((offset, label, subchapters))
+            indices.append(IndexEntry(offset, label))
 
-            for descendant in node.iterdescendants():
-                try:
-                    offset = id_offsets[descendant.href]
-                    label = self.cncx[descendant.title]
-                except:
-                    self.log.warn('TOC item %s [%s] not found in document'%(
-                        descendant.title, descendant.href))
-                    continue
+        indices.sort(key=lambda x:x.offset)
 
-                if offset in sub_seen:
-                    continue
-                sub_seen.add(offset)
-                subchapters.append((offset, label))
+        # Set lengths
+        for i, index in enumerate(indices):
+            try:
+                next_offset = indices[i+1].offset
+            except:
+                next_offset = self.serializer.body_end_offset
+            index.length = next_offset - index.offset
 
-            subchapters.sort(key=lambda x:x[0])
 
-        chapters.sort(key=lambda x:x[0])
+        # Remove empty indices
+        indices = [x for x in indices if x.length > 0]
 
-        chapters = [(BookIndexEntry(x[0], x[1]), [
-            BookIndexEntry(y[0], y[1]) for y in x[2]]) for x in chapters]
+        # Reset lengths in case any were removed
+        for i, index in enumerate(indices):
+            try:
+                next_offset = indices[i+1].offset
+            except:
+                next_offset = self.serializer.body_end_offset
+            index.length = next_offset - index.offset
 
-        def set_length(indices):
-            for i, index in enumerate(indices):
-                try:
-                    next_offset = indices[i+1].offset
-                except:
-                    next_offset = self.serializer.body_end_offset
-                index.length = next_offset - index.offset
-
-        # Set chapter and subchapter lengths
-        set_length([x[0] for x in chapters])
-        for x in chapters:
-            set_length(x[1])
-
-        # Remove empty chapters
-        chapters = [x for x in chapters if x[0].length > 0]
-
-        # Remove invalid subchapters
-        for i, x in enumerate(list(chapters)):
-            chapter, subchapters = x
-            ok_subchapters = []
-            for sc in subchapters:
-                if sc.offset < chapter.next_offset and sc.length > 0:
-                    ok_subchapters.append(sc)
-            chapters[i] = (chapter, ok_subchapters)
-
-        # Reset chapter and subchapter lengths in case any were removed
-        set_length([x[0] for x in chapters])
-        for x in chapters:
-            set_length(x[1])
-
-        # Set index and depth values
-        indices = []
-        for index, x in enumerate(chapters):
-            x[0].index = index
-            indices.append(x[0])
-
-        for chapter, subchapters in chapters:
-            for sc in subchapters:
-                index += 1
-                sc.index = index
-                sc.parent_index = chapter.index
-                indices.append(sc)
-                sc.depth = 1
-                self.book_has_subchapters = True
-            if subchapters:
-                chapter.first_child_index = subchapters[0].index
-                chapter.last_child_index = subchapters[-1].index
+        # Set index values
+        for index, x in enumerate(indices):
+            x.index = index
 
         return indices
 
@@ -772,9 +735,11 @@ class Indexer(object): # {{{
                 continue
             if offset in seen_sec_offsets:
                 continue
+
             seen_sec_offsets.add(offset)
             section = PeriodicalIndexEntry(offset, label, klass, 1)
             section.parent_index = 0
+
             for art in sec:
                 try:
                     offset = id_offsets[art.href]
@@ -830,6 +795,7 @@ class Indexer(object): # {{{
             for art in articles:
                 i += 1
                 art.index = i
+
                 art.parent_index = sec.index
 
         for sec, normalized_articles in normalized_sections:
@@ -905,6 +871,7 @@ class Indexer(object): # {{{
                     'spans':None, 'offset':offset, 'record_number':i+1}
 
             for index in self.indices:
+
                 if index.offset >= next_offset:
                     # Node starts after current record
                     if index.depth == deepest:

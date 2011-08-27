@@ -307,6 +307,18 @@ class ConfigModel(QAbstractItemModel, SearchQueryParser):
         return (self.index(ans[0], 0) if ans[1] < 0 else
                 self.index(ans[1], 0, self.index(ans[0], 0)))
 
+    def index_for_group(self, name):
+        for i in range(self.rowCount()):
+            node = self.data[i]
+            if node.data == name:
+                return self.index(i, 0)
+
+    @property
+    def group_names(self):
+        for i in range(self.rowCount()):
+            node = self.data[i]
+            yield node.data
+
 # }}}
 
 class Editor(QFrame): # {{{
@@ -374,8 +386,8 @@ class Editor(QFrame): # {{{
                     self.current_keys])
         if not current: current = _('None')
 
-        self.use_default.setText(_('Default: %s [Currently not conflicting: %s]')%
-                (default, current))
+        self.use_default.setText(_('Default: %(deflt)s [Currently not conflicting: %(curr)s]')%
+                dict(deflt=default, curr=current))
 
         if shortcut['set_to_default']:
             self.use_default.setChecked(True)
@@ -515,6 +527,7 @@ class Delegate(QStyledItemDelegate): # {{{
                 ckey = QKeySequence(ckey, QKeySequence.PortableText)
                 matched = False
                 for s in editor.all_shortcuts:
+                    if s is editor.shortcut: continue
                     for k in s['keys']:
                         if k == ckey:
                             matched = True
@@ -558,7 +571,8 @@ class ShortcutConfig(QWidget): # {{{
         l.addWidget(self.view, 1, 0, 1, 3)
         self.delegate = Delegate()
         self.view.setItemDelegate(self.delegate)
-        self.delegate.sizeHintChanged.connect(self.scrollTo)
+        self.delegate.sizeHintChanged.connect(self.editor_opened,
+                type=Qt.QueuedConnection)
         self.delegate.changed_signal.connect(self.changed_signal)
         self.search = SearchBox2(self)
         self.search.initialize('shortcuts_search_history',
@@ -584,9 +598,8 @@ class ShortcutConfig(QWidget): # {{{
         self._model = ConfigModel(keyboard, parent=self)
         self.view.setModel(self._model)
 
-    def scrollTo(self, index):
-        if index is not None:
-            self.view.scrollTo(index, self.view.PositionAtTop)
+    def editor_opened(self, index):
+        self.view.scrollTo(index, self.view.EnsureVisible)
 
     @property
     def is_editing(self):
@@ -631,6 +644,15 @@ class ShortcutConfig(QWidget): # {{{
             unicode(self.search.currentText()), backwards=True)
         self.highlight_index(idx)
 
+    def highlight_group(self, group_name):
+        idx = self.view.model().index_for_group(group_name)
+        if idx is not None:
+            self.view.expand(idx)
+            self.view.scrollTo(idx, self.view.PositionAtTop)
+            self.view.selectionModel().select(idx,
+                    self.view.selectionModel().ClearAndSelect)
+            self.view.setCurrentIndex(idx)
+            self.view.setFocus(Qt.OtherFocusReason)
 
 # }}}
 

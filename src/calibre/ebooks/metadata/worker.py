@@ -33,7 +33,7 @@ def serialize_metadata_for(formats, tdir, id_):
     if not mi.application_id:
         mi.application_id = '__calibre_dummy__'
     with open(os.path.join(tdir, '%s.opf'%id_), 'wb') as f:
-        f.write(metadata_to_opf(mi))
+        f.write(metadata_to_opf(mi, default_lang='und'))
     if cdata:
         with open(os.path.join(tdir, str(id_)), 'wb') as f:
             f.write(cdata)

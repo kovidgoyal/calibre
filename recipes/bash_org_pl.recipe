@@ -1,0 +1,15 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Bash_org_pl(BasicNewsRecipe):
+    title          = u'Bash.org.pl'
+    __author__        = 'fenuks'
+    description   = 'Bash.org.pl - funny quotations from IRC discussions'
+    category       = 'funny quotations, humour'
+    language       = 'pl'
+    oldest_article = 15
+    cover_url = u'http://userlogos.org/files/logos/dzikiosiol/none_0.png'
+    max_articles_per_feed = 100
+    no_stylesheets= True
+    keep_only_tags= [dict(name='div', attrs={'class':'quote post-content post-body'})]
+    feeds          = [(u'Cytaty', u'http://bash.org.pl/rss')]

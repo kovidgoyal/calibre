@@ -98,6 +98,7 @@ gprefs.defaults['book_display_fields'] = [
         ]
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 gprefs.defaults['preserve_date_on_ctl'] = True
+gprefs.defaults['cb_fullscreen'] = False
 
 # }}}
 
@@ -173,6 +174,8 @@ def _config(): # {{{
         help='Search history for the plugin preferences')
     c.add_opt('shortcuts_search_history', default=[],
         help='Search history for the keyboard preferences')
+    c.add_opt('tweaks_search_history', default=[],
+        help='Search history for tweaks')
     c.add_opt('worker_limit', default=6,
             help=_(
         'Maximum number of simultaneous conversion/news download jobs. '
@@ -186,7 +189,9 @@ def _config(): # {{{
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
     c.add_opt('gui_layout', choices=['wide', 'narrow'],
-            help=_('The layout of the user interface'), default='wide')
+            help=_('The layout of the user interface. Wide has the '
+                'book details panel on the right and narrow has '
+                'it at the bottom.'), default='wide')
     c.add_opt('show_avg_rating', default=True,
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,

@@ -1,0 +1,52 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Yagmur(BasicNewsRecipe):
+    title          = u'Yagmur Dergisi'
+    __author__            = u'thomass'
+    description            = 'Üç Aylık Dil, Kültür ve Edebiyat Dergisi'
+    oldest_article         = 90
+    max_articles_per_feed  =100
+    no_stylesheets         = True
+    #delay                  = 1
+    #use_embedded_content   = False
+
+    #publisher              = '  '
+    category               = 'dergi, ilim, kültür, edebiyat,Türkçe'
+    language               = 'tr'
+    publication_type = 'magazine'
+    encoding               = 'ISO 8859-9'
+    publisher              = 'thomass'
+
+ 
+
+    #extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    conversion_options = {
+                            'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                         }
+    #extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    #keep_only_tags    = [dict(name='h1', attrs={'class':['georgia_30']})]
+
+    #remove_attributes = ['aria-describedby']
+    #remove_tags  = [dict(name='div', attrs={'id':['renk10']}) ]
+    cover_img_url = 'http://www.sizinti.com.tr/images/dergiler/d2.gif'
+    masthead_url = 'http://www.sizinti.com.tr/images/dergiler/d2.gif'
+    #remove_tags_before = dict(id='content-right')
+
+
+    #remove_empty_feeds= True
+    #remove_attributes = ['width','height']
+
+    feeds          = [
+                      ( u'Yagmur', u'http://open.dapper.net/services/yagmur'),
+                        ]
+
+    #def preprocess_html(self, soup):
+     #   return self.adeify_images(soup)
+    def print_version(self, url):       #there is a probem caused by table format
+     return url.replace('http://www.yagmurdergisi.com.tr/konu_goster.php?konu_id=', 'http://www.yagmurdergisi.com.tr/yazformati.php?konu_id=')
+

@@ -130,6 +130,8 @@ class RecursiveFetcher(object):
         self.remove_tags_before  = getattr(options, 'remove_tags_before', None)
         self.keep_only_tags      = getattr(options, 'keep_only_tags', [])
         self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup)
+        self.preprocess_raw_html = getattr(options, 'preprocess_raw_html',
+                lambda raw, url: raw)
         self.prepreprocess_html_ext = getattr(options, 'skip_ad_pages', lambda soup: None)
         self.postprocess_html_ext= getattr(options, 'postprocess_html', None)
         self._is_link_wanted     = getattr(options, 'is_link_wanted',
@@ -139,14 +141,16 @@ class RecursiveFetcher(object):
         self.failed_links = []
         self.job_info = job_info
 
-    def get_soup(self, src):
+    def get_soup(self, src, url=None):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
         nmassage += [(re.compile(r'<!DOCTYPE .+?>', re.DOTALL), lambda m: '')] # Some websites have buggy doctype declarations that mess up beautifulsoup
         # Remove comments as they can leave detritus when extracting tags leaves
         # multiple nested comments
         nmassage.append((re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''))
-        soup = BeautifulSoup(xml_to_unicode(src, self.verbose, strip_encoding_pats=True)[0], markupMassage=nmassage)
+        usrc = xml_to_unicode(src, self.verbose, strip_encoding_pats=True)[0]
+        usrc = self.preprocess_raw_html(usrc, url)
+        soup = BeautifulSoup(usrc, markupMassage=nmassage)
 
         replace = self.prepreprocess_html_ext(soup)
         if replace is not None:
@@ -425,7 +429,7 @@ class RecursiveFetcher(object):
                     else:
                         dsrc = xml_to_unicode(dsrc, self.verbose)[0]
 
-                    soup = self.get_soup(dsrc)
+                    soup = self.get_soup(dsrc, url=iurl)
 
                     base = soup.find('base', href=True)
                     if base is not None:

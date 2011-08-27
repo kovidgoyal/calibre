@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>660</width>
+    <width>756</width>
     <height>531</height>
    </rect>
   </property>
@@ -15,7 +15,23 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
+    <widget class="QLabel" name="label_18">
+     <property name="text">
+      <string>Values for the tweaks are shown below. Edit them to change the behavior of calibre. Your changes will only take effect &lt;b&gt;after a restart&lt;/b&gt; of calibre.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QSplitter" name="splitter">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>10</verstretch>
+      </sizepolicy>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -24,16 +40,6 @@
      </property>
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="label_18">
-         <property name="text">
-          <string>Values for the tweaks are shown below. Edit them to change the behavior of calibre. Your changes will only take effect &lt;b&gt;after a restart&lt;/b&gt; of calibre.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QListView" name="tweaks_view">
          <property name="sizePolicy">
@@ -72,8 +78,8 @@
       </layout>
      </widget>
      <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="1" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Help</string>
@@ -92,7 +98,7 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="2" column="0" colspan="3">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>Edit tweak</string>
@@ -128,12 +134,59 @@
          </layout>
         </widget>
        </item>
+       <item row="0" column="0">
+        <widget class="SearchBox2" name="search">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>10</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+         </property>
+         <property name="minimumContentsLength">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="next_button">
+         <property name="text">
+          <string>&amp;Next</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="previous_button">
+         <property name="text">
+          <string>&amp;Previous</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>SearchBox2</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/search_box.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../../../resources/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

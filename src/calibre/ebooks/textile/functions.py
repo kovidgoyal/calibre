@@ -196,10 +196,40 @@ class Textile(object):
         (re.compile(r'{(u\"|\"u)}'),     r'&#252;'),   #  u-diaeresis
         (re.compile(r'{(y\'|\'y)}'),     r'&#253;'),   #  y-acute
         (re.compile(r'{(y\"|\"y)}'),     r'&#255;'),   #  y-diaeresis
+
+        (re.compile(r'{(C\ˇ|\ˇC)}'),     r'&#268;'),   #  C-caron
+        (re.compile(r'{(c\ˇ|\ˇc)}'),     r'&#269;'),   #  c-caron
+        (re.compile(r'{(D\ˇ|\ˇD)}'),     r'&#270;'),   #  D-caron
+        (re.compile(r'{(d\ˇ|\ˇd)}'),     r'&#271;'),   #  d-caron
+        (re.compile(r'{(E\ˇ|\ˇE)}'),     r'&#282;'),   #  E-caron
+        (re.compile(r'{(e\ˇ|\ˇe)}'),     r'&#283;'),   #  e-caron
+        (re.compile(r'{(L\'|\'L)}'),     r'&#313;'),   #  L-acute
+        (re.compile(r'{(l\'|\'l)}'),     r'&#314;'),   #  l-acute
+        (re.compile(r'{(L\ˇ|\ˇL)}'),     r'&#317;'),   #  L-caron
+        (re.compile(r'{(l\ˇ|\ˇl)}'),     r'&#318;'),   #  l-caron
+        (re.compile(r'{(N\ˇ|\ˇN)}'),     r'&#327;'),   #  N-caron
+        (re.compile(r'{(n\ˇ|\ˇn)}'),     r'&#328;'),   #  n-caron
+
         (re.compile(r'{OE}'),            r'&#338;'),   #  OE
         (re.compile(r'{oe}'),            r'&#339;'),   #  oe
-        (re.compile(r'{(S\^|\^S)}'),     r'&Scaron;'), #  Scaron
-        (re.compile(r'{(s\^|\^s)}'),     r'&scaron;'), #  scaron
+
+        (re.compile(r'{(R\'|\'R)}'),     r'&#340;'),   #  R-acute
+        (re.compile(r'{(r\'|\'r)}'),     r'&#341;'),   #  r-acute
+        (re.compile(r'{(R\ˇ|\ˇR)}'),     r'&#344;'),   #  R-caron
+        (re.compile(r'{(r\ˇ|\ˇr)}'),     r'&#345;'),   #  r-caron
+
+        (re.compile(r'{(S\^|\^S)}'),     r'&#348;'),   #  S-circumflex
+        (re.compile(r'{(s\^|\^s)}'),     r'&#349;'),   #  s-circumflex
+        
+        (re.compile(r'{(S\ˇ|\ˇS)}'),     r'&#352;'),   #  S-caron
+        (re.compile(r'{(s\ˇ|\ˇs)}'),     r'&#353;'),   #  s-caron
+        (re.compile(r'{(T\ˇ|\ˇT)}'),     r'&#356;'),   #  T-caron
+        (re.compile(r'{(t\ˇ|\ˇt)}'),     r'&#357;'),   #  t-caron
+        (re.compile(r'{(U\°|\°U)}'),     r'&#366;'),   #  U-ring
+        (re.compile(r'{(u\°|\°u)}'),     r'&#367;'),   #  u-ring
+        (re.compile(r'{(Z\ˇ|\ˇZ)}'),     r'&#381;'),   #  Z-caron
+        (re.compile(r'{(z\ˇ|\ˇz)}'),     r'&#382;'),   #  z-caron
+        
         (re.compile(r'{\*}'),            r'&#8226;'),  #  bullet
         (re.compile(r'{Fr}'),            r'&#8355;'),  #  Franc
         (re.compile(r'{(L=|=L)}'),       r'&#8356;'),  #  Lira
@@ -219,13 +249,13 @@ class Textile(object):
     ]
     glyph_defaults = [
         (re.compile(r'(\d+\'?\"?)( ?)x( ?)(?=\d+)'),                   r'\1\2&#215;\3'),                       #  dimension sign
-        (re.compile(r'(\d+)\'(\s)', re.I),                             r'\1&#8242;\2'),                          #  prime
-        (re.compile(r'(\d+)\"(\s)', re.I),                             r'\1&#8243;\2'),                          #  prime-double
+        (re.compile(r'(\d+)\'(\s)', re.I),                             r'\1&#8242;\2'),                        #  prime
+        (re.compile(r'(\d+)\"(\s)', re.I),                             r'\1&#8243;\2'),                        #  prime-double
         (re.compile(r'\b([A-Z][A-Z0-9]{2,})\b(?:[(]([^)]*)[)])'),      r'<acronym title="\2">\1</acronym>'),   #  3+ uppercase acronym
         (re.compile(r'\b([A-Z][A-Z\'\-]+[A-Z])(?=[\s.,\)>])'),         r'<span class="caps">\1</span>'),       #  3+ uppercase
         (re.compile(r'\b(\s{0,1})?\.{3}'),                             r'\1&#8230;'),                          #  ellipsis
         (re.compile(r'^[\*_-]{3,}$', re.M),                            r'<hr />'),                             #  <hr> scene-break
-        (re.compile(r'(^|[^-])--([^-]|$)'),                                r'\1&#8212;\2'),                        #  em dash
+        (re.compile(r'(^|[^-])--([^-]|$)'),                            r'\1&#8212;\2'),                        #  em dash
         (re.compile(r'\s-(?:\s|$)'),                                   r' &#8211; '),                          #  en dash
         (re.compile(r'\b( ?)[([]TM[])]', re.I),                        r'\1&#8482;'),                          #  trademark
         (re.compile(r'\b( ?)[([]R[])]', re.I),                         r'\1&#174;'),                           #  registered
