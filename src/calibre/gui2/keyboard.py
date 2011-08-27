@@ -558,7 +558,8 @@ class ShortcutConfig(QWidget): # {{{
         l.addWidget(self.view, 1, 0, 1, 3)
         self.delegate = Delegate()
         self.view.setItemDelegate(self.delegate)
-        self.delegate.sizeHintChanged.connect(self.scrollTo)
+        self.delegate.sizeHintChanged.connect(self.editor_opened,
+                type=Qt.QueuedConnection)
         self.delegate.changed_signal.connect(self.changed_signal)
         self.search = SearchBox2(self)
         self.search.initialize('shortcuts_search_history',
@@ -584,9 +585,8 @@ class ShortcutConfig(QWidget): # {{{
         self._model = ConfigModel(keyboard, parent=self)
         self.view.setModel(self._model)
 
-    def scrollTo(self, index):
-        if index is not None:
-            self.view.scrollTo(index, self.view.PositionAtTop)
+    def editor_opened(self, index):
+        self.view.scrollTo(index, self.view.EnsureVisible)
 
     @property
     def is_editing(self):
