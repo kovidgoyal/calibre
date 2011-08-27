@@ -984,7 +984,11 @@ OptionRecommendation(name='sr3_replace',
         if fkey is None:
             fkey = self.opts.dest.fkey
         else:
-            fkey = map(float, fkey.split(','))
+            try:
+                fkey = map(float, fkey.split(','))
+            except:
+                self.log.error('Invalid font size key: %r ignoring'%fkey)
+                fkey = self.opts.dest.fkey
 
         from calibre.ebooks.oeb.transforms.jacket import Jacket
         Jacket()(self.oeb, self.opts, self.user_metadata)
