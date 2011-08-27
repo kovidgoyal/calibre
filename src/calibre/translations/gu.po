@@ -1,26 +1,26 @@
-# Esperanto translation for calibre
-# Copyright (c) 2010 Rosetta Contributors and Canonical Ltd 2010
+# Gujarati translation for calibre
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
 # This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-19 15:12+0000\n"
-"PO-Revision-Date: 2011-08-05 17:49+0000\n"
-"Last-Translator: Kalle Kniivilä <kalle@kniivila.net>\n"
-"Language-Team: Esperanto <eo@li.org>\n"
+"PO-Revision-Date: 2011-08-20 06:46+0000\n"
+"Last-Translator: Hasit Bhatt <hasit.p.bhatt@gmail.com>\n"
+"Language-Team: Gujarati <gu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-20 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-08-21 04:44+0000\n"
 "X-Generator: Launchpad (build 13697)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "Faras absolute nenion"
+msgstr "કઈ પણ કરતું નથી"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:103
@@ -195,17 +195,17 @@ msgstr "Faras absolute nenion"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "Nekonata"
+msgstr "અજ્ઞાત"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "Bazo"
+msgstr "આધાર"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:363
 msgid "Customize"
-msgstr ""
+msgstr "વૈવિધ્યપૂર્ણ બનાવો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:52
@@ -215,15 +215,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr "Dosiertipo"
+msgstr "ફાઈલનો પ્રકાર"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "Legado de metadatumoj"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "Skribado de metadatumoj"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
@@ -241,16 +241,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr ""
+msgstr "પસંદગીઓ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "સંગ્રહ કરો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "ઈ-બૂક સ્ટોર"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -258,9 +258,6 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Kreu pmlz-arkivon, kiu enhavas la pml-dosieron kaj ĉiujn bildojn el la "
-"dosierujo \"pmlname_img\" aŭ \"images\". Ĉi tiu kromprogrameto estas "
-"funkciigata ĉiufoje kiam al la biblioteko estas aldonita plm-dosiero."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:50
 msgid ""
@@ -271,7 +268,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
-msgstr "Ekstrakti la kovrilon el bildstriaj dosieroj"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:164
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:175
@@ -296,15 +293,15 @@ msgstr "Ekstrakti la kovrilon el bildstriaj dosieroj"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:386
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Legi metadatumojn el %s dosieroj"
+msgstr "%s ફાઈલમાંથી મેટાડેટા વાંચો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:323
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Legi metadatumojn el libroj en arkivoj de la formato rar."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:397
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Legi metadatumojn el libroj en arkivoj de la formato zip."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:410
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:431
@@ -314,14 +311,14 @@ msgstr "Legi metadatumojn el libroj en arkivoj de la formato zip."
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:484
 #, python-format
 msgid "Set metadata in %s files"
-msgstr "Meti metadatumojn en dosieroj %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:420
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:452
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:495
 #, python-format
 msgid "Set metadata from %s files"
-msgstr "Meti metadatumojn el dosieroj %s"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:726
 msgid "Add books to calibre or the connected device"
@@ -337,7 +334,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:741
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "ઈ-બૂકને જુદા જુદા સ્વરૂપોમાં ફેરવો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:746
 msgid "Delete books from your calibre library or connected device"
@@ -349,15 +346,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "તમારી calibre લાઈબ્રેરીમાં પુસ્તકો વાંચો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "ઈ-બૂક ફોર્મમાં ઈન્ટરનેટ પરથી સમાચાર ડાઉનલોડ કરો."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:766
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "સંલગ્ન પુસ્તકોની યાદી ત્વરિત બતાવો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:771
 msgid "Export books from your calibre library to the hard disk"
@@ -369,7 +366,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 msgid "Restart calibre"
-msgstr ""
+msgstr "calibre ફરીથી શરુ કરો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 msgid "Open the folder that contains the book files in your calibre library"
@@ -377,7 +374,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "જોડાયેલ સાધનને પુસ્તકો મોકલો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 msgid ""
@@ -413,7 +410,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:834
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "પુસ્તકને એક calibre લાઈબ્રેરીમાંથી બીજી લાઈબ્રેરી કોપી કરો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:839
 msgid "Make small tweaks to epub files in your calibre library"
@@ -431,7 +428,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "જુદા જુદા પુસ્તક વિક્રેતાઓના પુસ્તકો શોધો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:873
 msgid "Get new calibre plugins or update your existing ones"
@@ -439,7 +436,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:892
 msgid "Look and Feel"
-msgstr ""
+msgstr "દેખાવ અને વર્તણૂક"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:894
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:906
@@ -447,7 +444,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:928
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:940
 msgid "Interface"
-msgstr ""
+msgstr "ઇન્ટરફેસ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:898
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
@@ -455,7 +452,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:904
 msgid "Behavior"
-msgstr ""
+msgstr "વર્તણુક"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:910
 msgid "Change the way calibre behaves"
@@ -472,7 +469,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:926
 msgid "Toolbar"
-msgstr ""
+msgstr "ટુલબાર"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:932
 msgid ""
@@ -482,7 +479,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:938
 msgid "Searching"
-msgstr ""
+msgstr "શોધી રહ્યા છીએ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:944
 msgid "Customize the way searching for books works in calibre"
@@ -490,7 +487,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:949
 msgid "Input Options"
-msgstr ""
+msgstr "ઇનપુટ વિકલ્પો"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:951
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:962
@@ -569,7 +566,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1101
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1112
 msgid "Advanced"
-msgstr ""
+msgstr "અદ્યતન"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1035
 msgid "Create your own template functions"
@@ -583,7 +580,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1054
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1067
 msgid "Sharing"
-msgstr ""
+msgstr "વહેંચી રહ્યા છીએ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1046
 msgid ""
@@ -612,7 +609,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1076
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
 msgid "Plugins"
-msgstr ""
+msgstr "પ્લગ-ઇન"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1082
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -628,7 +625,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1099
 msgid "Keyboard"
-msgstr ""
+msgstr "કીબોર્ડ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1105
 msgid "Customize the keyboard shortcuts used by calibre"
@@ -637,7 +634,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1110
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
 msgid "Miscellaneous"
-msgstr ""
+msgstr "વિવિધ જાતનું"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1116
 msgid "Miscellaneous advanced configuration"
@@ -645,7 +642,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "Enigo al konvertilo"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:134
 msgid ""
@@ -654,21 +651,16 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
-"Indiku la signokodon de la enigata dokumento. Ĉi tiu elekto estas prioritata "
-"al ajna signokodo indikita en la dokumento mem. Aparte utila por dokumentoj "
-"sen indiko pri signokodo, aŭ kun erara indiko."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:234
 msgid "Conversion Output"
-msgstr "Rezulto de la konvertado"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:248
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Se elektita, la eliga kromprogramo provos krei rezulton laŭeble legeblan por "
-"homaj okuloj. Eventuale ne influos iujn eligajn kromprogramojn."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
@@ -677,79 +669,73 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
-msgstr "Eniga profilo"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:53
 msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"Ĉi tiu profilo provas indiki prudentajn defaŭltojn, kaj povas utili, se vi "
-"scias nenion pri la enigata dokumento."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:61
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:454
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
-"Ĉi tiu profilo estas celita por la aparatoj Sony PRS, ekzemple "
-"500/505/600/700."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:73
 msgid "This profile is intended for the SONY PRS 300."
-msgstr "Ĉi tiu profilo estas celita por la aparato Sony PRS 300."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:82
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
 msgid "This profile is intended for the SONY PRS-900."
-msgstr "Ĉi tiu profilo estas celita por la aparato Sony PRS-900"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:90
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:539
 msgid "This profile is intended for the Microsoft Reader."
-msgstr "Ĉi tiu aparato estas celita por Microsoft Reader."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:101
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:550
 msgid "This profile is intended for the Mobipocket books."
-msgstr "Ĉi tiu profilo estas celita por libroj de la formato Mobipocket"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
 msgid "This profile is intended for the Hanlin V3 and its clones."
 msgstr ""
-"Ĉi tiu profilo estas celita por la aparato Hanlin V3 kaj ĝiaj klonoj."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:126
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:575
 msgid "This profile is intended for the Hanlin V5 and its clones."
 msgstr ""
-"Ĉi tiu profilo estas celita por la aparato Hanlin V5 kaj ĝiaj klonoj."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:136
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:583
 msgid "This profile is intended for the Cybook G3."
-msgstr "Ĉi tiu profilo estas celita por la aparato Cybook G3."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:149
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:597
 msgid "This profile is intended for the Cybook Opus."
-msgstr "Ĉi tiu aparato estas celita por la aparato Cybook Opus."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:161
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:610
 msgid "This profile is intended for the Amazon Kindle."
-msgstr "Ĉi tiu profilo estas celita por la aparato Amazon Kindle"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:173
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:660
 msgid "This profile is intended for the Irex Illiad."
-msgstr "Ĉi tiu profilo estas celita por la aparato iRex Illiad"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:185
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:673
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr "Ĉi ti profilo estas celita por la aparato iRex Digital Reader 1000."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:198
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:687
@@ -759,11 +745,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:210
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:701
 msgid "This profile is intended for the B&N Nook."
-msgstr "Ĉi tiu profilo estas celita por la aparato B&N Nook."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:232
 msgid "Output profile"
-msgstr "Profilo por la eligo"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:236
 msgid ""
@@ -771,9 +757,6 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Ĉi tiu profilo provas indiki normalajn bazajn elektojn, kaj estas utila se "
-"vi volas produkti dokumenton kiu estu legata per komputilo aŭ per pluraj "
-"diversaj aparatoj."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid ""
@@ -796,7 +779,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:485
 msgid "This profile is intended for the SONY PRS-300."
-msgstr "Ĉi tiu profilo estas celita por la aparato Sony PRS-300."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
 msgid "Suitable for use with any e-ink device"
@@ -808,19 +791,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr "Ĉi tiu profilo estas celita por la 5-cola aparato JetBook."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Ĉi tiu profilo estas celita por la aparatoj Sony PRS, 500/505/700 ktp. en "
-"horizontala pozicio. Utilas ĉefe por bildstrioj."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:636
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr "Ĉi tiu profilo estas celita por la aparato Amazon Kindle DX."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:713
 msgid "This profile is intended for the B&N Nook Color."
@@ -832,7 +813,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr "Instalitaj kromprogramoj"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
@@ -840,11 +821,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Local plugin customization"
-msgstr "Agordoj de lokaj kromprogramoj"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr "Malŝaltitaj kromprogramoj"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
@@ -853,7 +834,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:493
 #, python-format
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Aktivigo de kromprogramo malsukcesis %s kun la indiko:"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:540
 msgid ""
@@ -862,42 +843,32 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
-"    agordoj de %prog\n"
-"\n"
-"   Agordi Calibre per aktivigo de eksteraj kromprogramoj.\n"
-"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:546
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
-"Aldoni kromprogramon, indikante la padon al la zip-dosierujo en kiu ĝi "
-"troviĝas."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:548
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
-"Forigi kromprogramon indikante ĝian nomon. Ne influas enkonstruitajn "
-"kromprogramojn."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:550
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
-"Agordi kromprogramon. Indiku la nomon de la kromprogramo kaj la agordokodon, "
-"dividite per komo."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:552
 msgid "List all installed plugins"
-msgstr "Listigi ĉiujn kromprogramojn"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:554
 msgid "Enable the named plugin"
-msgstr "Ŝalti la indikitan kromprogramon"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:556
 msgid "Disable the named plugin"
-msgstr "Malŝalti la indikitan kromprogramon"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:270
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:279
@@ -943,15 +914,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
 msgid "Communicate with Android phones."
-msgstr "Komuniki kun telefonoj de la sistemo Android."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:118
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
-"Listo, dividita per komoj, de dosierujoj por sendado de e-libroj al la "
-"aparato. La unua ekzistanta estos uzata."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:171
 msgid "Communicate with S60 phones."
@@ -1188,18 +1157,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr "Komuniki kun la aparato Binatone Readme."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr "Komuniki kun la programebla telefono Blackberry."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:263
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
-msgstr "Kovid Goyal"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1219,7 +1188,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:25
 msgid "Communicate with the EB600 eBook reader."
-msgstr "Komuniki kun la aparato EB600."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:192
 msgid "Communicate with the Astak Mentor EB600"
@@ -1251,7 +1220,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr "Komuniki kun la aparato ESlick."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
@@ -1265,19 +1234,19 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:29
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
 msgid "Device Interface"
-msgstr "Aparata interfaco"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr "Komuniki kun la aparatoj de la tipo Hanlin V3."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:96
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr "Komuniki kun la aparatoj de la tipo Hanlin V5."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:114
 msgid "Communicate with the BOOX eBook reader."
-msgstr "Komuniki kun la aparato BOOX."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:132
 msgid ""
@@ -1287,7 +1256,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:22
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr "Komuniki kun la aparato Hanvon N520."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:47
 msgid "Communicate with The Book reader."
@@ -1311,13 +1280,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr "Komuniki kun la aparato IRex Iliad."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:43
 msgid "John Schember"
-msgstr "John Schember"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:57
 msgid "Cannot get files from this device"
@@ -1325,7 +1294,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr "Komuniki kun la aparato IRex Digital Reader 1000"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
@@ -1333,11 +1302,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:15
 msgid "Communicate with the Iriver Story reader."
-msgstr "Komuniki kun la aparato Iriver Story."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:20
 msgid "Communicate with the JetBook eBook reader."
-msgstr "Komuniki kun la aparato JetBook."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
@@ -1358,7 +1327,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
-msgstr "Komuniki kun la aparato Kindle."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:171
 msgid "Communicate with the Kindle 2/3 eBook reader."
@@ -1390,7 +1359,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:257
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr "Komuniki kun la aparato Kindle DX."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:24
 msgid "Communicate with the Kobo Reader"
@@ -1474,7 +1443,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr "Komuniki kun la reta tabuleto Nokia 770."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
@@ -1486,11 +1455,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
-msgstr "Nook"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr "Komuniki kun la aparato Nook."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color and TSR eBook readers."
@@ -1498,7 +1467,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr "Komuniki kun la aparato Nuut2"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
@@ -2663,9 +2632,6 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Sekvi ĉiujn lokajn ligojn en html-dosiero kaj kreu zip-dosieron kiu enhavas "
-"ĉiujn ligitajn dosierojn. Tiu kromprogramo estas funkciigata ĉiufoje kiam vi "
-"aldonas html-dosieron al la biblioteko."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:60
 msgid ""

@@ -10,23 +10,23 @@ class FairbanksDailyNewsminer(BasicNewsRecipe):
     publisher   = 'http://www.newsminer.com/'
     category    = 'news, Alaska, Fairbanks'
     language    = 'en'
-    
+
     # Make article titles, author and date bold, italic or small font.
     # http://assets.matchbin.com/sites/635/stylesheets/newsminer.com.css
     # (signature_line contains date, views, comments)
-    extra_css = ''' 
+    extra_css = '''
                     .story_item_headline { font-size: medium; font-weight: bold; }
                     .story_item_author { font-size: small; font-style:italic; }
                     .signature_line { font-size: small; }
                 '''
-    
+
     remove_javascript = True
     use_embedded_content = False
     no_stylesheets = True
     language = 'en'
     encoding = 'utf8'
     conversion_options = {'linearize_tables':True}
-    
+
     # TODO: The News-miner cover image seems a bit small.  Can this be enlarged by 10-30%?
     masthead_url = 'http://d2uh5w9wm14i0w.cloudfront.net/sites/635/assets/top_masthead_-_menu_pic.jpg'
 
@@ -49,11 +49,11 @@ class FairbanksDailyNewsminer(BasicNewsRecipe):
 
     #preprocess_regexps = [(re.compile(r'<span[^>]*addthis_separator*>'), lambda match: '') ]
     #preprocess_regexps = [(re.compile(r'span class="addthis_separator">|</span>'), lambda match: '') ]
-    
+
     #preprocess_regexps = [
     #           (re.compile(r'<start>.*?<end>', re.IGNORECASE | re.DOTALL), lambda match : ''),
     #               ]
-    
+
     #def get_browser(self):
     #def preprocess_html(soup, first_fetch):
     #    date = self.tag_to_string(soup.find('span', attrs={'class':'story_item_date updated'}))
@@ -77,10 +77,10 @@ class FairbanksDailyNewsminer(BasicNewsRecipe):
                     dict(name='img', attrs={'class':'dont_touch_me'}),
                     dict(name='span', attrs={'class':'number_recommendations'}),
                     #dict(name='div', attrs={'class':'signature_line'}),
-                    
+
                     # Removes div within <!-- AddThis Button BEGIN --> <!-- AddThis Button END -->
                     dict(name='div', attrs={'class':'addthis_toolbox addthis_default_style'}),
-                    
+
                     dict(name='div', attrs={'class':'related_content'}),
                     dict(name='div', attrs={'id':'comments_container'})
                   ]
@@ -100,10 +100,10 @@ class FairbanksDailyNewsminer(BasicNewsRecipe):
         (u'Politics', u'http://newsminer.com/rss/rss_feeds/politics_news?content_type=article&tags=politics_news&page_name=rss_feeds&instance=politics_news'),
         (u'Sports', u'http://newsminer.com/rss/rss_feeds/sports_news?content_type=article&tags=sports_news&page_name=rss_feeds&instance=sports_news'),
         (u'Latitude 65 feed', u'http://newsminer.com/rss/rss_feeds/latitude_65?content_type=article&tags=latitude_65&page_name=rss_feeds&offset=0&instance=latitude_65'),
-        (u'Sundays', u'http://newsminer.com/rss/rss_feeds/Sundays?content_type=article&tags=alaska_science_forum+scott_mccrea+interior_gardening+in_the_bush+judy_ferguson+book_reviews+theresa_bakker+judith_kleinfeld+interior_scrapbook+nuggets_comics+freeze_frame&page_name=rss_feeds&tag_inclusion=or&instance=Sundays'),
+        #(u'Sundays', u'http://newsminer.com/rss/rss_feeds/Sundays?content_type=article&tags=alaska_science_forum+scott_mccrea+interior_gardening+in_the_bush+judy_ferguson+book_reviews+theresa_bakker+judith_kleinfeld+interior_scrapbook+nuggets_comics+freeze_frame&page_name=rss_feeds&tag_inclusion=or&instance=Sundays'),
         (u'Outdoors', u'http://newsminer.com/rss/rss_feeds/Outdoors?content_type=article&tags=outdoors&page_name=rss_feeds&instance=Outdoors'),
         #(u'Fairbanks Grizzlies', u'http://newsminer.com/rss/rss_feeds/fairbanks_grizzlies?content_type=article&tags=fairbanks_grizzlies&page_name=rss_feeds&instance=fairbanks_grizzlies'),
-        (u'Newsminer', u'http://newsminer.com/rss/rss_feeds/Newsminer?content_type=article&tags=ted_stevens_bullets+ted_stevens+sports_news+business_news+fairbanks_grizzlies+dermot_cole_column+outdoors+alaska_science_forum+scott_mccrea+interior_gardening+in_the_bush+judy_ferguson+book_reviews+theresa_bakker+judith_kleinfeld+interior_scrapbook+nuggets_comics+freeze_frame&page_name=rss_feeds&tag_inclusion=or&instance=Newsminer'),
+        #(u'Newsminer', u'http://newsminer.com/rss/rss_feeds/Newsminer?content_type=article&tags=ted_stevens_bullets+ted_stevens+sports_news+business_news+fairbanks_grizzlies+dermot_cole_column+outdoors+alaska_science_forum+scott_mccrea+interior_gardening+in_the_bush+judy_ferguson+book_reviews+theresa_bakker+judith_kleinfeld+interior_scrapbook+nuggets_comics+freeze_frame&page_name=rss_feeds&tag_inclusion=or&instance=Newsminer'),
         (u'Opinion', u'http://newsminer.com/rss/rss_feeds/Opinion?content_type=article&tags=editorials&page_name=rss_feeds&instance=Opinion'),
         (u'Youth', u'http://newsminer.com/rss/rss_feeds/Youth?content_type=article&tags=youth&page_name=rss_feeds&instance=Youth'),
         #(u'Dermot Cole Blog', u'http://newsminer.com/rss/rss_feeds/dermot_cole_blog+rss?content_type=blog+entry&sort_by=posted_on&user_ids=3015275&page_name=blogs_dermot_cole&limit=10&instance=dermot_cole_blog+rss'),

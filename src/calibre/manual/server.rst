@@ -34,10 +34,14 @@ The exact technique for enabling the proxy modules will vary depending on your A
     RewriteEngine on
     RewriteRule ^/calibre/(.*) http://localhost:8080/calibre/$1 [proxy]
     RewriteRule ^/calibre http://localhost:8080 [proxy]
+    SetEnv force-proxy-request-1.0 1
+    SetEnv proxy-nokeepalive 1
 
 That's all, you will now be able to access the |app| Content Server under the /calibre URL in your apache server. The above rules pass all requests under /calibre to the calibre server running on port 8080 and thanks to the --url-prefix option above, the calibre server handles them transparently.
 
 .. note:: If you are willing to devote an entire VirtualHost to the content server, then there is no need to use --url-prefix and RewriteRule, instead just use the ProxyPass directive.
+
+.. note:: The server engine calibre uses, CherryPy, can have trouble with proxying and KeepAlive requests, so turn them off in Apache, with the SetEnv directives shown above.
 
 In process
 ------------

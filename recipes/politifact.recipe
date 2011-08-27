@@ -26,4 +26,7 @@ class PolitiFactCom(BasicNewsRecipe):
                      (u'Statements', u'http://www.politifact.com/feeds/statements/truth-o-meter/')
                      ]
 
-
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.set_handle_gzip(True)
+        return br
