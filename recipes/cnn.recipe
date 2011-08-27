@@ -28,11 +28,12 @@ class CNN(BasicNewsRecipe):
         (re.compile(r'<style.*?</style>', re.DOTALL), lambda m: ''),
     ]
 
-    keep_only_tags = [dict(id='cnnContentContainer')]
+    keep_only_tags = [dict(id=['cnnContentContainer', 'storycontent'])]
     remove_tags = [
             {'class':['cnn_strybtntools', 'cnn_strylftcntnt',
                 'cnn_strybtntools', 'cnn_strybtntoolsbttm', 'cnn_strybtmcntnt',
-                'cnn_strycntntrgt']},
+                'cnn_strycntntrgt', 'hed_side', 'foot']},
+            dict(id=['ie_column']),
     ]
 
 

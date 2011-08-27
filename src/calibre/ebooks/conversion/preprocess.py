@@ -343,6 +343,7 @@ class HTMLPreProcessor(object):
                   (re.compile(u'`\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ò'),
                   (re.compile(u'`\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ù'),
                   (re.compile(u'`\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ù'),
+                  
                   # ` with letter before
                   (re.compile(u'a\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'à'),
                   (re.compile(u'A\s*(<br.*?>)*\s*`', re.UNICODE), lambda match: u'À'),
@@ -364,10 +365,14 @@ class HTMLPreProcessor(object):
                   (re.compile(u'´\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'É'),
                   (re.compile(u'´\s*(<br.*?>)*\s*i', re.UNICODE), lambda match: u'í'),
                   (re.compile(u'´\s*(<br.*?>)*\s*I', re.UNICODE), lambda match: u'Í'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*l', re.UNICODE), lambda match: u'ĺ'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*L', re.UNICODE), lambda match: u'Ĺ'),
                   (re.compile(u'´\s*(<br.*?>)*\s*o', re.UNICODE), lambda match: u'ó'),
                   (re.compile(u'´\s*(<br.*?>)*\s*O', re.UNICODE), lambda match: u'Ó'),
                   (re.compile(u'´\s*(<br.*?>)*\s*n', re.UNICODE), lambda match: u'ń'),
                   (re.compile(u'´\s*(<br.*?>)*\s*N', re.UNICODE), lambda match: u'Ń'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*r', re.UNICODE), lambda match: u'ŕ'),
+                  (re.compile(u'´\s*(<br.*?>)*\s*R', re.UNICODE), lambda match: u'Ŕ'),
                   (re.compile(u'´\s*(<br.*?>)*\s*s', re.UNICODE), lambda match: u'ś'),
                   (re.compile(u'´\s*(<br.*?>)*\s*S', re.UNICODE), lambda match: u'Ś'),
                   (re.compile(u'´\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ú'),
@@ -400,7 +405,31 @@ class HTMLPreProcessor(object):
                   # ˙
                   (re.compile(u'˙\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ż'),
                   (re.compile(u'˙\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ż'),
-
+                  
+                  # ˇ
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*c', re.UNICODE), lambda match: u'č'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*C', re.UNICODE), lambda match: u'Č'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*d', re.UNICODE), lambda match: u'ď'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*D', re.UNICODE), lambda match: u'Ď'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*e', re.UNICODE), lambda match: u'ě'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*E', re.UNICODE), lambda match: u'Ě'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*l', re.UNICODE), lambda match: u'ľ'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*L', re.UNICODE), lambda match: u'Ľ'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*n', re.UNICODE), lambda match: u'ň'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*N', re.UNICODE), lambda match: u'Ň'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*r', re.UNICODE), lambda match: u'ř'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*R', re.UNICODE), lambda match: u'Ř'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*s', re.UNICODE), lambda match: u'š'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*S', re.UNICODE), lambda match: u'Š'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*t', re.UNICODE), lambda match: u'ť'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*T', re.UNICODE), lambda match: u'Ť'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*z', re.UNICODE), lambda match: u'ž'),
+                  (re.compile(u'ˇ\s*(<br.*?>)*\s*Z', re.UNICODE), lambda match: u'Ž'),
+                  
+                  # °
+                  (re.compile(u'°\s*(<br.*?>)*\s*u', re.UNICODE), lambda match: u'ů'),
+                  (re.compile(u'°\s*(<br.*?>)*\s*U', re.UNICODE), lambda match: u'Ů'),
+                  
                   # If pdf printed from a browser then the header/footer has a reliable pattern
                   (re.compile(r'((?<=</a>)\s*file:/{2,4}[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
 
@@ -510,7 +539,7 @@ class HTMLPreProcessor(object):
                 end_rules.append((re.compile(u'(?<=.{%i}[–—])\s*<p>\s*(?=[[a-z\d])' % length), lambda match: ''))
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíóńśúâêîôûçąężıãõñæøþðßě,:)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
+                    (re.compile(u'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:“”)\IA\u00DF]|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?\s*[\w\d$(])' % length, re.UNICODE), wrap_lines),
                 )
 
         for rule in self.PREPROCESS + start_rules:

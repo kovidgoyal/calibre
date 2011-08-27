@@ -1,0 +1,39 @@
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
+'''
+Fetch fluter.de
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1313693926(BasicNewsRecipe):
+
+    title = u'Fluter'
+    description = 'fluter.de Magazin der Bundeszentrale für politische Bildung/bpb'
+    language = 'de'
+    encoding = 'UTF-8'
+
+    __author__ = 'Armin Geller' # 2011-08-19
+
+    oldest_article = 7
+    max_articles_per_feed = 50
+
+
+    remove_tags = [
+                        dict(name='div', attrs={'id':["comments"]}),
+                        dict(attrs={'class':['commentlink']}),
+                    ]
+
+
+    keep_only_tags = [
+                        dict(name='div', attrs={'class':["grid_8 articleText"]}),
+                        dict(name='div', attrs={'class':["articleTextInnerText"]}),
+                      ]
+
+    feeds =  [
+               (u'Inhalt:', u'http://www.fluter.de/de/?tpl=907'),
+              ]
+
+    extra_css = '.cs_img {margin-right: 10pt;}'
+

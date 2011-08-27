@@ -19,6 +19,90 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.16
+  date: 2011-08-26
+
+  new features:
+    - title: "News download: Add algorithms to automatically clean up downloaded HTML"
+      description: "Use the algorithms from the Readability project to automatically cleanup downloaded HTML. You can turn this on in your own recipes by adding auto_cleanup=True to the recipe. It is turned on by default for basic recipes created via the GUI. This makes it a little easier to develop recipes for beginners."
+      type: major
+
+    - title: "Add an option to Preferences->Look and Feel->Cover Browser to show the cover browser full screen. When showing the cover browser in a separate window, you can make it fullscreen by pressing the F11 key."
+      tickets: [829855 ]
+ 
+    - title: "Show the languages currently used at the top of the drop down list of languages"
+
+    - title: "When automatically computing author sort from author's name, if the name contains certain words like Inc., Company, Team, etc. use the author name as the sort string directly. The list of such words can be controlled via Preferences->Tweaks."
+      tickets: [797895]
+
+    - title: "Add a search for individual tweaks to Preferences->Tweaks"
+
+    - title: "Drivers for a few new android phones"
+ 
+  bug fixes:
+    - title: "Fix line unwrapping algorithms to account for some central European characters as well."
+      tickets: [822744]
+
+    - title: "Switch to using more modern language names/translations from the iso-codes package"
+
+    - title: "Allow cases insensitive entering of language names for convenience."
+      tickets: [832761]
+
+    - title: "When adding a text indent to paragraphs as part of the remove spacing between paragraphs transformation, do not add an indent to paragraphs that are directly centered or right aligned."
+      tickets: [830439]
+
+    - title: "Conversion pipeline: More robust handling of case insensitive tag and class css selectors"
+
+    - title: "MOBI Output: Add support for the start attribute on <ol> tags"
+
+    - title: "When adding books that have no language specified, do not automatically set the language to calibre's interface language."
+      tickets: [830092]
+
+    - title: "Fix use of tag browser to search for languages when calibre is translated to a non English language"
+      tickets: [830078]
+
+    - title: "When downloading news, set the language field correctly"
+
+    - title: "Fix languages field in the Edit metadata dialog too wide"
+      tickets: [829912]
+
+    - title: "Fix setting of languages that have commas in their names broken"
+
+    - title: "FB2 Input: When convert FB2 files, read the cover from the FB2 file correctly."
+      tickets: [829240]
+
+  improved recipes:
+    - Politifact
+    - Reuters
+    - Sueddeutsche
+    - CNN
+    - Financial Times UK
+    - MSDN Magazine
+    - Houston Chronicle
+    - Harvard Business Review
+
+  new recipes:
+    - title: CBN News and Fairbanks Daily
+      author: by Roger
+
+    - title: Hacker News
+      author: Tom Scholl
+
+    - title: Various Turkish news sources
+      author: thomass
+
+    - title: Cvece Zla
+      author: Darko Miletic
+
+    - title: Various Polish news sources
+      author: fenuks
+
+    - title: Fluter
+      author: Armin Geller
+
+    - title: Brasil de Fato
+      author: Alex Mitrani
+
 - version: 0.8.15
   date: 2011-08-19
 

@@ -219,6 +219,7 @@ class %(classname)s(%(base_class)s):
     title          = %(title)s
     oldest_article = %(oldest_article)d
     max_articles_per_feed = %(max_articles)d
+    auto_cleanup = True
 
     feeds          = %(feeds)s
 '''%dict(classname=classname, title=repr(title),

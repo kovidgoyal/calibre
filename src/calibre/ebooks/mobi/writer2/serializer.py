@@ -85,7 +85,8 @@ class Serializer(object):
                 spine_item(item).is_section_start = True
                 for i, article in enumerate(articles):
                     si = spine_item(article)
-                    si.is_article_start = True
+                    if si is not None:
+                        si.is_article_start = True
 
         items = list(self.oeb.spine)
         in_sec = in_art = False
@@ -116,6 +117,12 @@ class Serializer(object):
         buf.write(b'</html>')
         self.end_offset = buf.tell()
         self.fixup_links()
+        if self.start_offset is None and not self.is_periodical:
+            # If we don't set a start offset, the stupid Kindle will
+            # open the book at the location of the first IndexEntry, which
+            # could be anywhere. So ensure the book is always opened at the
+            # beginning, instead.
+            self.start_offset = self.body_start_offset
         return buf.getvalue()
 
     def serialize_head(self):
