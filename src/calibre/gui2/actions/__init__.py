@@ -173,7 +173,9 @@ class InterfaceAction(QObject):
         return action
 
     def create_menu_action(self, menu, unique_name, text, icon=None, shortcut=None,
-            description=None, triggered=None):
+            description=None, triggered=None, shortcut_name=None):
+        if shortcut_name is None:
+            shortcut_name = unicode(text)
         ac = menu.addAction(text)
         if icon is not None:
             if not isinstance(icon, QIcon):
@@ -191,7 +193,7 @@ class InterfaceAction(QObject):
 
         if shortcut is not False:
             self.gui.keyboard.register_shortcut(unique_name,
-                unicode(text), default_keys=keys,
+                shortcut_name, default_keys=keys,
                 action=ac, description=description, group=self.action_spec[0])
         if triggered is not None:
             ac.triggered.connect(triggered)
