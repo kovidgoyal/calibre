@@ -56,11 +56,11 @@ class RW2010Store(BasicStoreConfig, StorePlugin):
 
                 with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
                     idata = html.fromstring(nf.read())
-                    cover_url = ''.join(idata.xpath('//div[@class="boxa"]/div[1]/img/@src'))
-                    author = ''.join(idata.xpath('//div[@class="boxb"]/h3[3]/span/text()'))
+                    cover_url = ''.join(idata.xpath('//div[@class="boxa"]//div[@class="img"]/img/@src'))
+                    author = ''.join(idata.xpath('//div[@class="boxb"]//h3[text()="Autor: "]/span/text()'))
                     title = ''.join(idata.xpath('//div[@class="boxb"]/h2[1]/text()'))
                     title = re.sub(r'\(#.+\)', '', title)
-                    formats = ''.join(idata.xpath('//div[@class="boxb"]/h3[6]/span/text()'))
+                    formats = ''.join(idata.xpath('//div[@class="boxb"]//h3[text()="Format pliku: "]/span/text()'))
                     price = ''.join(idata.xpath('//div[@class="price-box"]/span/text()')) + ',00 zł'
 
                 counter -= 1
