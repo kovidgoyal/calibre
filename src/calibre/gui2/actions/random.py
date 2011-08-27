@@ -14,7 +14,8 @@ from calibre.gui2.actions import InterfaceAction
 class PickRandomAction(InterfaceAction):
 
     name = 'Pick Random Book'
-    action_spec = (_('Pick a random book'), 'random.png', 'Catalog builder', None)
+    action_spec = (_('Pick a random book'), 'random.png',
+            'Select a random book from your calibre library', ())
     dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
 
     def genesis(self):

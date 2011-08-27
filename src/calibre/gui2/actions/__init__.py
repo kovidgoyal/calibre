@@ -67,7 +67,10 @@ class InterfaceAction(QObject):
 
     #: Of the form: (text, icon_path, tooltip, keyboard shortcut)
     #: icon, tooltip and keyboard shortcut can be None
-    #: shortcut must be a translated string if not None
+    #: shortcut must be a string, None or tuple of shortcuts.
+    #: If None, a keyboard shortcut corresponding to the action is not
+    #: registered. If you pass an empty tuple, then the shortcut is registered
+    #: with no default key binding.
     action_spec = ('text', 'icon', None, None)
 
     #: If True, a menu is automatically created and added to self.qaction
