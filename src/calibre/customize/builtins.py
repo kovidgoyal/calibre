@@ -255,7 +255,7 @@ class LRXMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw4'])
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):
@@ -510,6 +510,7 @@ from calibre.ebooks.lit.input import LITInput
 from calibre.ebooks.mobi.input import MOBIInput
 from calibre.ebooks.odt.input import ODTInput
 from calibre.ebooks.pdb.input import PDBInput
+from calibre.ebooks.azw4.input import AZW4Input
 from calibre.ebooks.pdf.input import PDFInput
 from calibre.ebooks.pml.input import PMLInput
 from calibre.ebooks.rb.input import RBInput
@@ -606,6 +607,7 @@ plugins += [
     MOBIInput,
     ODTInput,
     PDBInput,
+    AZW4Input,
     PDFInput,
     PMLInput,
     RBInput,
