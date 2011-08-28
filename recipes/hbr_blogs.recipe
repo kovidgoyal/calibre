@@ -9,6 +9,11 @@ class HBR(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     language = 'en'
     no_stylesheets = True
+    recipe_disabled = ('hbr.org has started requiring the use of javascript'
+            ' to log into their website. This is unsupported in calibre, so'
+            ' this recipe has been disabled. If you would like to see '
+            ' HBR supported in calibre, contact hbr.org and ask them'
+            ' to provide a javascript free login method.')
 
     LOGIN_URL = 'http://hbr.org/login?request_url=/'
     LOGOUT_URL = 'http://hbr.org/logout?request_url=/'
