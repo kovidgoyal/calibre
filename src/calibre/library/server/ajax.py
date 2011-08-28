@@ -56,6 +56,8 @@ class AjaxServer(object):
     def add_routes(self, connect):
         base_href = '/ajax'
         connect('ajax_book', base_href+'/book/{book_id}', self.ajax_book)
+        connect('ajax_categories', base_href+'/categories',
+                self.ajax_categories)
 
     # Get book metadata {{{
     @Endpoint()
@@ -85,7 +87,7 @@ class AjaxServer(object):
 
         data['cover'] = absurl(u'/get/cover/%d'%book_id)
         data['thumbnail'] = absurl(u'/get/thumb/%d'%book_id)
-        mi.format_metadata = {k:dict(v) for k, v in
+        mi.format_metadata = {k.lower():dict(v) for k, v in
                 mi.format_metadata.iteritems()}
         for v in mi.format_metadata.itervalues():
             mtime = v.get('mtime', None)
@@ -112,3 +114,6 @@ class AjaxServer(object):
         return data
     # }}}
 
+    @Endpoint()
+    def ajax_categories(self):
+        pass
