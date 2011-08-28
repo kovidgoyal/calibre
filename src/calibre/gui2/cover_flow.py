@@ -161,6 +161,7 @@ class CBDialog(QDialog):
         a.setShortcuts([QKeySequence('Esc', QKeySequence.PortableText)])
 
         self.pre_fs_geom = None
+        cover_flow.setFocus(Qt.OtherFocusReason)
 
     def closeEvent(self, *args):
         if not self.isFullScreen():
@@ -174,13 +175,15 @@ class CBDialog(QDialog):
             self.restoreGeometry(self.pre_fs_geom)
             self.pre_fs_geom = None
 
+    def show_fullscreen(self):
+        self.pre_fs_geom = bytearray(self.saveGeometry())
+        self.showFullScreen()
+
     def toggle_fullscreen(self, *args):
         if self.isFullScreen():
             self.show_normal()
         else:
-            self.pre_fs_geom = bytearray(self.saveGeometry())
-            self.showFullScreen()
-
+            self.show_fullscreen()
 
 
 class CoverFlowMixin(object):
@@ -255,7 +258,7 @@ class CoverFlowMixin(object):
         d.addAction(self.cb_splitter.action_toggle)
         self.cover_flow.setVisible(True)
         self.cover_flow.setFocus(Qt.OtherFocusReason)
-        d.showFullScreen() if gprefs['cb_fullscreen'] else d.show()
+        d.show_fullscreen() if gprefs['cb_fullscreen'] else d.show()
         self.cb_splitter.button.set_state_to_hide()
         d.closed.connect(self.cover_browser_closed)
         self.cb_dialog = d
