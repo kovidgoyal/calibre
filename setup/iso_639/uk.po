@@ -1,21 +1,26 @@
-# Ukrainian translation for calibre
-# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
-# This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# Translation of ISO 639-3 (language names) to Ukrainian
 #
+# This file is distributed under the same license as the iso-codes package.
+#
+# Copyright (C) 2010 Free Software Foundation, Inc.
+#
+# Maxim V. Dziumanenko <dziumanenko@gmail.com>, 2010.
+# Yuri Chornoivan <yurchor@ukr.net>, 2010, 2011.
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: iso_639_3\n"
+"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
+"devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-08-27 02:50+0000\n"
-"PO-Revision-Date: 2011-08-27 03:19+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Ukrainian <uk@li.org>\n"
+"PO-Revision-Date: 2011-08-27 05:12+0000\n"
+"Last-Translator: yurchor <Unknown>\n"
+"Language-Team: Ukrainian <translation-team-uk@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-08-27 05:35+0000\n"
+"X-Launchpad-Export-Date: 2011-08-28 05:11+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
+"Language: uk\n"
 
 #. name for aaa
 msgid "Ghotuo"

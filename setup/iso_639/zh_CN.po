@@ -1,21 +1,26 @@
-# Chinese (Simplified) translation for calibre
-# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
-# This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# Chinese (CN) translations of ISO 639 Language names
+# Copyright (C)
+#  2001 Free Software Foundation, Inc.
+#  Mai Hao Hui <mhh@126.com>, 2001 (translations from galeon)
+#  Alastair McKinstry <mckinstry@computer.org>, 2001.
+#  LI Daobing <lidaobing@gmail.com>, 2007, 2008.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: iso_639_3\n"
+"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
+"devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-08-27 02:50+0000\n"
-"PO-Revision-Date: 2011-08-27 03:20+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
+"PO-Revision-Date: 2011-08-27 06:16+0000\n"
+"Last-Translator: LI Daobing <lidaobing@gmail.com>\n"
+"Language-Team: Chinese (simplified) <translation-team-zh-"
+"cn@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-08-27 05:40+0000\n"
+"X-Launchpad-Export-Date: 2011-08-28 05:17+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
+"Language: zh_CN\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -495,7 +500,7 @@ msgstr ""
 
 #. name for afr
 msgid "Afrikaans"
-msgstr ""
+msgstr "南非荷兰语"
 
 #. name for afs
 msgid "Creole, Afro-Seminole"
@@ -1011,7 +1016,7 @@ msgstr ""
 
 #. name for amh
 msgid "Amharic"
-msgstr ""
+msgstr "阿拉伯语"
 
 #. name for ami
 msgid "Amis"
@@ -1399,7 +1404,7 @@ msgstr ""
 
 #. name for ara
 msgid "Arabic"
-msgstr ""
+msgstr "阿拉伯语"
 
 #. name for arb
 msgid "Arabic, Standard"
@@ -1539,7 +1544,7 @@ msgstr ""
 
 #. name for asm
 msgid "Assamese"
-msgstr ""
+msgstr "阿萨姆语"
 
 #. name for asn
 msgid "Asuriní, Xingú"
@@ -2019,7 +2024,7 @@ msgstr ""
 
 #. name for aze
 msgid "Azerbaijani"
-msgstr ""
+msgstr "阿塞拜疆语"
 
 #. name for azg
 msgid "Amuzgo, San Pedro Amuzgos"
@@ -2083,7 +2088,7 @@ msgstr ""
 
 #. name for bal
 msgid "Baluchi"
-msgstr ""
+msgstr "俾路支语"
 
 #. name for bam
 msgid "Bambara"
@@ -2247,7 +2252,7 @@ msgstr ""
 
 #. name for bcc
 msgid "Balochi, Southern"
-msgstr ""
+msgstr "南俾路支语"
 
 #. name for bcd
 msgid "Babar, North"
@@ -2487,7 +2492,7 @@ msgstr ""
 
 #. name for bel
 msgid "Belarusian"
-msgstr ""
+msgstr "白俄罗斯语"
 
 #. name for bem
 msgid "Bemba (Zambia)"
@@ -2691,7 +2696,7 @@ msgstr ""
 
 #. name for bgn
 msgid "Balochi, Western"
-msgstr ""
+msgstr "西俾路支语"
 
 #. name for bgo
 msgid "Baga Koga"
@@ -2699,7 +2704,7 @@ msgstr ""
 
 #. name for bgp
 msgid "Balochi, Eastern"
-msgstr ""
+msgstr "东俾路支语"
 
 #. name for bgq
 msgid "Bagri"
@@ -3739,7 +3744,7 @@ msgstr ""
 
 #. name for bre
 msgid "Breton"
-msgstr ""
+msgstr "布里多尼语"
 
 #. name for brf
 msgid "Bera"
@@ -3815,7 +3820,7 @@ msgstr ""
 
 #. name for brx
 msgid "Bodo (India)"
-msgstr ""
+msgstr "博多语"
 
 #. name for bry
 msgid "Burui"
@@ -4063,7 +4068,7 @@ msgstr ""
 
 #. name for bul
 msgid "Bulgarian"
-msgstr ""
+msgstr "保加利亚语"
 
 #. name for bum
 msgid "Bulu (Cameroon)"
@@ -4687,7 +4692,7 @@ msgstr ""
 
 #. name for cat
 msgid "Catalan"
-msgstr ""
+msgstr "加泰罗尼亚语"
 
 #. name for cav
 msgid "Cavineña"
@@ -4875,7 +4880,7 @@ msgstr ""
 
 #. name for cdo
 msgid "Chinese, Min Dong"
-msgstr ""
+msgstr "汉语, 闽东话"
 
 #. name for cdr
 msgid "Cinda-Regi-Tiyal"
@@ -4911,7 +4916,7 @@ msgstr ""
 
 #. name for ces
 msgid "Czech"
-msgstr ""
+msgstr "捷克语"
 
 #. name for cet
 msgid "Centúúm"
@@ -5143,7 +5148,7 @@ msgstr ""
 
 #. name for cjy
 msgid "Chinese, Jinyu"
-msgstr ""
+msgstr "汉语, 晋语"
 
 #. name for cka
 msgid "Chin, Khumi Awa"
@@ -5279,7 +5284,7 @@ msgstr ""
 
 #. name for cmn
 msgid "Chinese, Mandarin"
-msgstr ""
+msgstr "汉语, 官话"
 
 #. name for cmo
 msgid "Mnong, Central"
@@ -5487,7 +5492,7 @@ msgstr ""
 
 #. name for cpx
 msgid "Chinese, Pu-Xian"
-msgstr ""
+msgstr "汉语, 莆仙话"
 
 #. name for cpy
 msgid "Ashéninka, South Ucayali"
@@ -5639,7 +5644,7 @@ msgstr ""
 
 #. name for csl
 msgid "Chinese Sign Language"
-msgstr ""
+msgstr "汉语手语"
 
 #. name for csm
 msgid "Miwok, Central Sierra"
@@ -5863,7 +5868,7 @@ msgstr ""
 
 #. name for czh
 msgid "Chinese, Huizhou"
-msgstr ""
+msgstr "汉语, 徽语"
 
 #. name for czk
 msgid "Knaanic"
@@ -5875,7 +5880,7 @@ msgstr ""
 
 #. name for czo
 msgid "Chinese, Min Zhong"
-msgstr ""
+msgstr "汉语, 闽中话"
 
 #. name for czt
 msgid "Chin, Zotung"
@@ -5931,7 +5936,7 @@ msgstr ""
 
 #. name for dan
 msgid "Danish"
-msgstr ""
+msgstr "丹麦语"
 
 #. name for dao
 msgid "Chin, Daai"
@@ -6151,7 +6156,7 @@ msgstr ""
 
 #. name for deu
 msgid "German"
-msgstr ""
+msgstr "德语"
 
 #. name for dev
 msgid "Domung"
@@ -7019,7 +7024,7 @@ msgstr ""
 
 #. name for eee
 msgid "E"
-msgstr ""
+msgstr "五色话"
 
 #. name for efa
 msgid "Efai"
@@ -7235,7 +7240,7 @@ msgstr ""
 
 #. name for eng
 msgid "English"
-msgstr ""
+msgstr "英语"
 
 #. name for enh
 msgid "Enets, Tundra"
@@ -7283,7 +7288,7 @@ msgstr ""
 
 #. name for epo
 msgid "Esperanto"
-msgstr ""
+msgstr "世界语"
 
 #. name for era
 msgid "Eravallan"
@@ -7367,7 +7372,7 @@ msgstr ""
 
 #. name for est
 msgid "Estonian"
-msgstr ""
+msgstr "爱沙尼亚语"
 
 #. name for esu
 msgid "Yupik, Central"
@@ -7419,7 +7424,7 @@ msgstr ""
 
 #. name for eus
 msgid "Basque"
-msgstr ""
+msgstr "巴斯克语"
 
 #. name for eve
 msgid "Even"
@@ -7507,7 +7512,7 @@ msgstr ""
 
 #. name for fao
 msgid "Faroese"
-msgstr ""
+msgstr "法罗语"
 
 #. name for fap
 msgid "Palor"
@@ -7583,7 +7588,7 @@ msgstr ""
 
 #. name for fin
 msgid "Finnish"
-msgstr ""
+msgstr "芬兰语"
 
 #. name for fip
 msgid "Fipa"
@@ -7683,7 +7688,7 @@ msgstr ""
 
 #. name for fra
 msgid "French"
-msgstr ""
+msgstr "法语"
 
 #. name for frc
 msgid "French, Cajun"
@@ -7875,7 +7880,7 @@ msgstr ""
 
 #. name for gan
 msgid "Chinese, Gan"
-msgstr ""
+msgstr "汉语, 赣语"
 
 #. name for gao
 msgid "Gants"
@@ -8411,7 +8416,7 @@ msgstr ""
 
 #. name for gle
 msgid "Irish"
-msgstr ""
+msgstr "爱尔兰语"
 
 #. name for glg
 msgid "Galician"
@@ -8867,7 +8872,7 @@ msgstr ""
 
 #. name for guj
 msgid "Gujarati"
-msgstr ""
+msgstr "古吉拉特语"
 
 #. name for guk
 msgid "Gumuz"
@@ -9147,7 +9152,7 @@ msgstr ""
 
 #. name for hak
 msgid "Chinese, Hakka"
-msgstr ""
+msgstr "汉语, 客家话"
 
 #. name for hal
 msgid "Halang"
@@ -9259,7 +9264,7 @@ msgstr ""
 
 #. name for heb
 msgid "Hebrew"
-msgstr ""
+msgstr "希伯来语"
 
 #. name for hed
 msgid "Herdé"
@@ -9347,7 +9352,7 @@ msgstr ""
 
 #. name for hin
 msgid "Hindi"
-msgstr ""
+msgstr "印地语"
 
 #. name for hio
 msgid "Tsoa"
@@ -9547,7 +9552,7 @@ msgstr ""
 
 #. name for hns
 msgid "Hindustani, Caribbean"
-msgstr ""
+msgstr "加勒比印度斯坦语"
 
 #. name for hnu
 msgid "Hung"
@@ -9671,7 +9676,7 @@ msgstr ""
 
 #. name for hrv
 msgid "Croatian"
-msgstr ""
+msgstr "克罗地亚语"
 
 #. name for hrx
 msgid "Hunsrik"
@@ -9695,7 +9700,7 @@ msgstr ""
 
 #. name for hsn
 msgid "Chinese, Xiang"
-msgstr ""
+msgstr "汉语, 湘语"
 
 #. name for hss
 msgid "Harsusi"
@@ -9771,7 +9776,7 @@ msgstr ""
 
 #. name for hun
 msgid "Hungarian"
-msgstr ""
+msgstr "匈牙利语"
 
 #. name for huo
 msgid "Hu"
@@ -10235,7 +10240,7 @@ msgstr ""
 
 #. name for ind
 msgid "Indonesian"
-msgstr ""
+msgstr "印尼语"
 
 #. name for ing
 msgid "Degexit'an"
@@ -10379,7 +10384,7 @@ msgstr ""
 
 #. name for isl
 msgid "Icelandic"
-msgstr ""
+msgstr "冰岛语"
 
 #. name for ism
 msgid "Masimasi"
@@ -10407,7 +10412,7 @@ msgstr ""
 
 #. name for ita
 msgid "Italian"
-msgstr ""
+msgstr "意大利语"
 
 #. name for itb
 msgid "Itneg, Binongan"
@@ -10899,7 +10904,7 @@ msgstr ""
 
 #. name for jpn
 msgid "Japanese"
-msgstr ""
+msgstr "日语"
 
 #. name for jpr
 msgid "Judeo-Persian"
@@ -11035,7 +11040,7 @@ msgstr ""
 
 #. name for kac
 msgid "Kachin"
-msgstr ""
+msgstr "景颇语"
 
 #. name for kad
 msgid "Kadara"
@@ -12511,7 +12516,7 @@ msgstr ""
 
 #. name for kor
 msgid "Korean"
-msgstr ""
+msgstr "朝鲜语"
 
 #. name for kos
 msgid "Kosraean"
@@ -13759,7 +13764,7 @@ msgstr ""
 
 #. name for lav
 msgid "Latvian"
-msgstr ""
+msgstr "拉脱维亚语"
 
 #. name for law
 msgid "Lauje"
@@ -14247,7 +14252,7 @@ msgstr ""
 
 #. name for lit
 msgid "Lithuanian"
-msgstr ""
+msgstr "立陶宛语"
 
 #. name for liu
 msgid "Logorik"
@@ -14811,7 +14816,7 @@ msgstr ""
 
 #. name for ltc
 msgid "Chinese, Late Middle"
-msgstr ""
+msgstr "中古汉语"
 
 #. name for ltg
 msgid "Latgalian"
@@ -16023,7 +16028,7 @@ msgstr ""
 
 #. name for mkd
 msgid "Macedonian"
-msgstr ""
+msgstr "马其顿语"
 
 #. name for mke
 msgid "Mawchi"
@@ -16367,7 +16372,7 @@ msgstr ""
 
 #. name for mnp
 msgid "Chinese, Min Bei"
-msgstr ""
+msgstr "汉语, 闽北语"
 
 #. name for mnq
 msgid "Minriq"
@@ -18555,7 +18560,7 @@ msgstr ""
 
 #. name for nld
 msgid "Dutch"
-msgstr ""
+msgstr "荷兰语"
 
 #. name for nle
 msgid "Nyala, East"
@@ -18883,7 +18888,7 @@ msgstr ""
 
 #. name for nor
 msgid "Norwegian"
-msgstr ""
+msgstr "挪威语"
 
 #. name for nos
 msgid "Nisu, Eastern"
@@ -19555,7 +19560,7 @@ msgstr ""
 
 #. name for och
 msgid "Chinese, Old"
-msgstr ""
+msgstr "上古汉语"
 
 #. name for oci
 msgid "Occitan (post 1500)"
@@ -20207,7 +20212,7 @@ msgstr ""
 
 #. name for pan
 msgid "Panjabi"
-msgstr ""
+msgstr "旁遮普语"
 
 #. name for pao
 msgid "Paiute, Northern"
@@ -20311,11 +20316,11 @@ msgstr ""
 
 #. name for pbt
 msgid "Pashto, Southern"
-msgstr ""
+msgstr "南普什图语"
 
 #. name for pbu
 msgid "Pashto, Northern"
-msgstr ""
+msgstr "北普什图语"
 
 #. name for pbv
 msgid "Pnar"
@@ -20923,7 +20928,7 @@ msgstr ""
 
 #. name for pmu
 msgid "Panjabi, Mirpur"
-msgstr ""
+msgstr "东旁遮普语"
 
 #. name for pmw
 msgid "Miwok, Plains"
@@ -20947,7 +20952,7 @@ msgstr ""
 
 #. name for pnb
 msgid "Panjabi, Western"
-msgstr ""
+msgstr "西旁遮普语"
 
 #. name for pnc
 msgid "Pannei"
@@ -21059,7 +21064,7 @@ msgstr ""
 
 #. name for pol
 msgid "Polish"
-msgstr ""
+msgstr "波兰语"
 
 #. name for pom
 msgid "Pomo, Southeastern"
@@ -21083,7 +21088,7 @@ msgstr ""
 
 #. name for por
 msgid "Portuguese"
-msgstr ""
+msgstr "葡萄牙语"
 
 #. name for pos
 msgid "Popoluca, Sayula"
@@ -21327,7 +21332,7 @@ msgstr ""
 
 #. name for pst
 msgid "Pashto, Central"
-msgstr ""
+msgstr "中普什图语"
 
 #. name for psu
 msgid "Prākrit, Sauraseni"
@@ -21451,7 +21456,7 @@ msgstr ""
 
 #. name for pus
 msgid "Pushto"
-msgstr ""
+msgstr "普什图语"
 
 #. name for put
 msgid "Putoh"
@@ -22067,7 +22072,7 @@ msgstr ""
 
 #. name for rmc
 msgid "Romani, Carpathian"
-msgstr ""
+msgstr "喀尔巴阡罗姆语"
 
 #. name for rmd
 msgid "Danish, Traveller"
@@ -22099,7 +22104,7 @@ msgstr ""
 
 #. name for rml
 msgid "Romani, Baltic"
-msgstr ""
+msgstr "波罗的罗姆语"
 
 #. name for rmm
 msgid "Roma"
@@ -22107,7 +22112,7 @@ msgstr ""
 
 #. name for rmn
 msgid "Romani, Balkan"
-msgstr ""
+msgstr "巴尔干罗姆语"
 
 #. name for rmo
 msgid "Romani, Sinte"
@@ -22139,7 +22144,7 @@ msgstr ""
 
 #. name for rmw
 msgid "Romani, Welsh"
-msgstr ""
+msgstr "威尔士罗姆语"
 
 #. name for rmx
 msgid "Romam"
@@ -22215,11 +22220,11 @@ msgstr ""
 
 #. name for rom
 msgid "Romany"
-msgstr ""
+msgstr "罗姆语"
 
 #. name for ron
 msgid "Romanian"
-msgstr ""
+msgstr "罗马尼亚语"
 
 #. name for roo
 msgid "Rotokas"
@@ -22331,7 +22336,7 @@ msgstr ""
 
 #. name for rus
 msgid "Russian"
-msgstr ""
+msgstr "俄语"
 
 #. name for rut
 msgid "Rutul"
@@ -23315,7 +23320,7 @@ msgstr ""
 
 #. name for slk
 msgid "Slovak"
-msgstr ""
+msgstr "斯洛伐克语"
 
 #. name for sll
 msgid "Salt-Yui"
@@ -23355,7 +23360,7 @@ msgstr ""
 
 #. name for slv
 msgid "Slovenian"
-msgstr ""
+msgstr "斯洛文尼亚语"
 
 #. name for slw
 msgid "Sialum"
@@ -23671,7 +23676,7 @@ msgstr ""
 
 #. name for spa
 msgid "Spanish"
-msgstr ""
+msgstr "西班牙语"
 
 #. name for spb
 msgid "Sepa (Indonesia)"
@@ -23755,7 +23760,7 @@ msgstr ""
 
 #. name for sqi
 msgid "Albanian"
-msgstr ""
+msgstr "阿尔巴尼亚语"
 
 #. name for sqm
 msgid "Suma"
@@ -23847,7 +23852,7 @@ msgstr ""
 
 #. name for srp
 msgid "Serbian"
-msgstr ""
+msgstr "塞尔维亚语"
 
 #. name for srq
 msgid "Sirionó"
@@ -24195,7 +24200,7 @@ msgstr ""
 
 #. name for swe
 msgid "Swedish"
-msgstr ""
+msgstr "瑞典语"
 
 #. name for swf
 msgid "Sere"
@@ -25015,7 +25020,7 @@ msgstr ""
 
 #. name for tha
 msgid "Thai"
-msgstr ""
+msgstr "泰语"
 
 #. name for thc
 msgid "Tai Hang Tong"
@@ -26187,7 +26192,7 @@ msgstr ""
 
 #. name for tur
 msgid "Turkish"
-msgstr ""
+msgstr "土耳其语"
 
 #. name for tus
 msgid "Tuscarora"
@@ -26827,7 +26832,7 @@ msgstr ""
 
 #. name for urd
 msgid "Urdu"
-msgstr ""
+msgstr "乌尔都语"
 
 #. name for ure
 msgid "Uru"
@@ -27123,7 +27128,7 @@ msgstr ""
 
 #. name for vie
 msgid "Vietnamese"
-msgstr ""
+msgstr "越南语"
 
 #. name for vif
 msgid "Vili"
@@ -28151,7 +28156,7 @@ msgstr ""
 
 #. name for wuu
 msgid "Chinese, Wu"
-msgstr ""
+msgstr "汉语, 吴语"
 
 #. name for wuv
 msgid "Wuvulu-Aua"
@@ -30007,7 +30012,7 @@ msgstr ""
 
 #. name for yue
 msgid "Chinese, Yue"
-msgstr ""
+msgstr "汉语, 粤语"
 
 #. name for yuf
 msgid "Havasupai-Walapai-Yavapai"
@@ -30259,7 +30264,7 @@ msgstr ""
 
 #. name for zch
 msgid "Zhuang, Central Hongshuihe"
-msgstr ""
+msgstr "中红水河土语"
 
 #. name for zdj
 msgid "Comorian, Ngazidja"
@@ -30275,7 +30280,7 @@ msgstr ""
 
 #. name for zeh
 msgid "Zhuang, Eastern Hongshuihe"
-msgstr ""
+msgstr "东红水河土语"
 
 #. name for zen
 msgid "Zenaga"
@@ -30287,7 +30292,7 @@ msgstr ""
 
 #. name for zgb
 msgid "Zhuang, Guibei"
-msgstr ""
+msgstr "桂北土语"
 
 #. name for zgm
 msgid "Zhuang, Minz"
@@ -30295,7 +30300,7 @@ msgstr ""
 
 #. name for zgn
 msgid "Zhuang, Guibian"
-msgstr ""
+msgstr "桂边土语"
 
 #. name for zgr
 msgid "Magori"
@@ -30303,7 +30308,7 @@ msgstr ""
 
 #. name for zha
 msgid "Zhuang"
-msgstr ""
+msgstr "壮语"
 
 #. name for zhb
 msgid "Zhaba"
@@ -30311,7 +30316,7 @@ msgstr ""
 
 #. name for zhd
 msgid "Zhuang, Dai"
-msgstr ""
+msgstr "文麻土语"
 
 #. name for zhi
 msgid "Zhire"
@@ -30319,11 +30324,11 @@ msgstr ""
 
 #. name for zhn
 msgid "Zhuang, Nong"
-msgstr ""
+msgstr "砚广土语"
 
 #. name for zho
 msgid "Chinese"
-msgstr ""
+msgstr "中文"
 
 #. name for zhw
 msgid "Zhoa"
@@ -30415,7 +30420,7 @@ msgstr ""
 
 #. name for zlj
 msgid "Zhuang, Liujiang"
-msgstr ""
+msgstr "柳江土语"
 
 #. name for zlm
 msgid "Malay (individual language)"
@@ -30423,11 +30428,11 @@ msgstr ""
 
 #. name for zln
 msgid "Zhuang, Lianshan"
-msgstr ""
+msgstr "连山土语"
 
 #. name for zlq
 msgid "Zhuang, Liuqian"
-msgstr ""
+msgstr "柳黔土语"
 
 #. name for zma
 msgid "Manda (Australia)"
@@ -30687,7 +30692,7 @@ msgstr ""
 
 #. name for zqe
 msgid "Zhuang, Qiubei"
-msgstr ""
+msgstr "邱北土语"
 
 #. name for zra
 msgid "Kara (Korea)"
@@ -30819,19 +30824,19 @@ msgstr ""
 
 #. name for zyb
 msgid "Zhuang, Yongbei"
-msgstr ""
+msgstr "邕北土语"
 
 #. name for zyg
 msgid "Zhuang, Yang"
-msgstr ""
+msgstr "德靖土语"
 
 #. name for zyj
 msgid "Zhuang, Youjiang"
-msgstr ""
+msgstr "右江土语"
 
 #. name for zyn
 msgid "Zhuang, Yongnan"
-msgstr ""
+msgstr "邕南土语"
 
 #. name for zyp
 msgid "Zyphe"
@@ -30843,4 +30848,4 @@ msgstr ""
 
 #. name for zzj
 msgid "Zhuang, Zuojiang"
-msgstr ""
+msgstr "左江土语"

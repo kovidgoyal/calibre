@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-26 22:46+0000\n"
+"PO-Revision-Date: 2011-08-27 12:48+0000\n"
 "Last-Translator: Jan Kubík <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-08-27 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-08-28 04:32+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1994,6 +1994,8 @@ msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"Když převádíte CBC, nepřidávat odkaz na každou stránku do obsahu. Všimněte "
+"si, že toto funguje pouze když má obsah více než jednu sekci."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:467
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:479
@@ -2297,6 +2299,9 @@ msgid ""
 "entries, i.e. allow more than one entry with the same text, provided that "
 "they point to a different location."
 msgstr ""
+"Když vytváří obsah z odkazů ve vstupním dokumentu, povolte duplicitní "
+"vstupy, tj. dovolte více než jeden vstup se stejným textem, za předpokladu "
+"že odkazují na rozdílná místa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:281
 msgid ""
@@ -2474,6 +2479,11 @@ msgid ""
 "by Chinese and Japanese for instance) the representation based on the "
 "current calibre interface language will be used."
 msgstr ""
+"Přeloží znaky unicode do ASCII. Používejte opatrně protože to nahradí znaky "
+"unicode ASCII. Například nahradí \"%s\" za \"Mikhail Gorbachiov\". Také su "
+"všimněte, že v případech kdy je více možností výkladu znaků (například znaky "
+"společné pro čínštinu a japonštinu) bude použit výklad podle současně "
+"nastaveného jazyka rozhraní calibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:443
 msgid ""
@@ -4564,7 +4574,7 @@ msgid ""
 "Add books from directories, including sub-directories (One book per "
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
-"Přidat knihy z adresárů, včetně podadresářů (předpokládá se, že každý "
+"Přidat knihy z adresářů, včetně podadresářů (předpokládá se, že každý "
 "adresář představuje jednu knihu a soubory v něm jsou různé formáty té samé "
 "knihy)"
 
@@ -4573,7 +4583,7 @@ msgid ""
 "Add books from directories, including sub directories (Multiple books per "
 "directory, assumes every ebook file is a different book)"
 msgstr ""
-"Přidat knihy z adresárů, včetně podadresářů (vícero knih v jednom adresáři, "
+"Přidat knihy z adresářů, včetně podadresářů (vícero knih v jednom adresáři, "
 "předpokládá se že každý soubor představuje jednu knihu)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:67
@@ -4841,7 +4851,7 @@ msgstr "Přepnout/vytvořit knihovnu..."
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:125
 #, python-format
 msgid "%d books"
-msgstr "%d knih(y)"
+msgstr "%d knih"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:87
@@ -5047,7 +5057,7 @@ msgstr "Převést knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:30
 msgid "Convert individually"
-msgstr "Převést Individuálně"
+msgstr "Převést individuálně"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:33
 msgid "Bulk convert"
@@ -6045,7 +6055,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:539
 msgid "Saved"
-msgstr "Uložené"
+msgstr "Uloženo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:56
 msgid "Searching for sub-folders"
@@ -7038,15 +7048,15 @@ msgstr "Heurostické zpracování"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:116
 msgid "Unwrap lines"
-msgstr ""
+msgstr "Nezalamovat řádky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:117
 msgid "Line &un-wrap factor :"
-msgstr ""
+msgstr "Měřítko &nezalamování řádků:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:118
 msgid "Detect and markup unformatted chapter headings and sub headings"
-msgstr ""
+msgstr "Najít neformátované hlavičky a podhlavičky kapitol"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:119
 msgid "Renumber sequences of <h1> or <h2> tags to prevent splitting"
@@ -7070,7 +7080,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:124
 msgid "Italicize common words and patterns"
-msgstr ""
+msgstr "Předeď na kurzívu běžná slova a vzorce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:125
 msgid "Replace entity indents with CSS indents"
@@ -7479,7 +7489,7 @@ msgstr "PDF Vstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:44
 msgid "Line &Un-Wrapping Factor:"
-msgstr "Řádkový rozbalovací faktor:"
+msgstr "Měřítko &nezalamování řádků:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:45
 msgid "No &Images"
@@ -8736,6 +8746,8 @@ msgid ""
 "Copy the custom columns, saved searches, column widths, plugboards,\n"
 "user categories, and other information from the old to the new library"
 msgstr ""
+"Kopíruje uživatelské sloupce, uložené vyhledávání, šířku sloupců, pluginy, "
+"uživatelské kategorie a další informace ze staré do nové knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:85
 msgid "&Move current library to new location"
@@ -9068,7 +9080,7 @@ msgstr "Aktivní Joby"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:49
 msgid "&Stop selected jobs"
-msgstr ""
+msgstr "&Zastavit vybrané úlohy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:50
 msgid "Show job &details"
@@ -9249,16 +9261,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:984
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 msgid "Delete saved search/replace"
-msgstr "Smazat uložené hledej/nahraď"
+msgstr "Smazat uložené najít/nahradit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:985
 msgid "The selected saved search/replace will be deleted. Are you sure?"
-msgstr ""
+msgstr "Vybrané uložené najít/nahradit budou smazány. Jste si jistý?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1002
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1010
 msgid "Save search/replace"
-msgstr "Uložit hledat/nahradit"
+msgstr "Uložit najít/nahradit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1003
 msgid "Search/replace name:"
@@ -9268,7 +9280,7 @@ msgstr ""
 msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
-msgstr ""
+msgstr "Uložené najít/nahradit již existuje a bude přepsáno. Jste si jistý?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:535
 msgid "Edit Meta information"
@@ -9481,11 +9493,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
 msgid "Select saved search/replace to load."
-msgstr ""
+msgstr "Vyberte uložené najít/nahradit k načtení."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:598
 msgid "Save current search/replace"
-msgstr ""
+msgstr "Uložit současné najít/nahradit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:599
 msgid "Sa&ve"
@@ -9895,6 +9907,9 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
+"Ïnstalování pluginů je <b>bezpečnostní riziko</b>. Pluginy mohou obsahovat "
+"viry/malware. Instalujte pouze z prověřených zdrojů. Jste si jisti, že "
+"chcete instalovat?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:705
 #, python-format
@@ -10086,7 +10101,7 @@ msgstr "Uložené hledání už uloženo"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:76
 #, python-format
 msgid "The saved search %s already exists, perhaps with different case"
-msgstr ""
+msgstr "Uložené hledání %s již existuje, možná s odlišným případem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/saved_search_editor.py:62
 msgid ""
@@ -10156,11 +10171,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:103
 msgid "&Days of the month:"
-msgstr ""
+msgstr "&Dny v měsíci:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:105
 msgid "Comma separated list of days of the month. For example: 1, 15"
-msgstr ""
+msgstr "Čárkou oddělený seznam dnů v měsíci. Například: 1, 15"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:109
 msgid "Download &after:"
@@ -10275,11 +10290,11 @@ msgstr "Naplánovat ke stažení:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 msgid "Days of  week"
-msgstr ""
+msgstr "Dny v týdnu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 msgid "Days of month"
-msgstr ""
+msgstr "Dny v měsíci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
 msgid "Every x days"
@@ -10917,6 +10932,8 @@ msgid ""
 "You will lose any unsaved changes. To save your changes, click the "
 "Add/Update recipe button. Continue?"
 msgstr ""
+"Ztratíte všechny neuložené změny. K uložení změn klikněte tlačítko "
+"Přidat/Aktualizovat &zdroj. Pokračovat?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:257
 msgid "Add custom news source"
@@ -11861,6 +11878,8 @@ msgid ""
 "You have changed the authors for this book. You must save these changes "
 "before you can use Manage authors. Do you want to save these changes?"
 msgstr ""
+"Změnil jste autory této knihy. Musíte tyto změny uložit předtím než můžete "
+"Spravovat autory. Chcete tyto změny uložit?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:303
 msgid ""
@@ -12008,7 +12027,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1153
 msgid "A comma separated list of languages for this book"
-msgstr ""
+msgstr "Čárkou oddělený seznam jazyků této knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1176
 msgid "Unknown language"
@@ -13298,6 +13317,9 @@ msgid ""
 "used for the subject. Also, the same templates used for \"Save to disk\" "
 "such as {title} and {author_sort} can be used here."
 msgstr ""
+"Předmět emailu používaný pro odeslání. Když necháte prázdné, jako předmět "
+"bude použit název knihy. Také zde mohou být použity šablony používané pro "
+"\"Uložit na disk\" jako {title} a {author_sort}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:37
 msgid ""
@@ -13568,11 +13590,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:77
 msgid "This source is configured and ready to go"
-msgstr ""
+msgstr "Tento zdroj je nastaven a připraven k použití"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:78
 msgid "This source needs configuration"
-msgstr ""
+msgstr "Tento zdroj potřebuje nastavit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:94
 msgid ""
@@ -14194,7 +14216,7 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
-"Zde můžete nastavit, jakým způsobem Calibre uloží Vaše knihy, když kliknete "
+"Zde můžete nastavit, jakým způsobem calibre uloží Vaše knihy, když kliknete "
 "na tlačítko Odeslat do zařízení. Toto nastavení může být potlačeno pro "
 "jednotlivá zařízení přizpůsobením pluginů rozhraní zařízení v Nastavení-> "
 "Upřesnit-> Pluginy"
@@ -14640,15 +14662,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:470
 msgid "Create saved search"
-msgstr ""
+msgstr "Vytvořit uložené hledání"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:474
 msgid "Delete saved search"
-msgstr ""
+msgstr "Smazat uložené hledání"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:478
 msgid "Manage saved searches"
-msgstr ""
+msgstr "Spravovat uložená hledání"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:488
 msgid "*Current search"
@@ -14752,7 +14774,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:218
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:221
 msgid "false"
-msgstr ""
+msgstr "ne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:216
@@ -14927,7 +14949,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:63
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "Close"
-msgstr ""
+msgstr "Zavřít"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:212
 msgid "&Price:"
@@ -15084,7 +15106,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
 msgid "File is not a supported ebook type. Save to disk?"
-msgstr ""
+msgstr "Soubor není podporovaný typ knihy. Uložit na disk?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
@@ -15756,7 +15778,7 @@ msgstr "Výchozí jazyk pro pravidla dělení slov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 msgid "Save the current position in the document, when quitting"
-msgstr ""
+msgstr "Uložit současnou pozici v dokumentu při zavídání."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
 msgid "Have the mouse wheel turn pages"
@@ -17456,7 +17478,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:67
 #, python-format
 msgid "%(tt)sAverage rating is %(rating)3.1f"
-msgstr ""
+msgstr "%(tt)s Průměrné hodnocení je %(rating)3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3401
 #, python-format
@@ -17580,7 +17602,7 @@ msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
-"Calibre uloží obálku knihy do odděleného souboru k aktuálním e-book souborům."
+"Calibre uloží obálku knihy do odděleného souboru k aktuálním souborům knih."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:91
 msgid ""
@@ -17643,6 +17665,8 @@ msgid ""
 "Failed to calculate path for save to disk. Template: %(templ)s\n"
 "Error: %(err)s"
 msgstr ""
+"Selhalo počítání cesty pro uložení na disk. Šablona: %(templ)s\n"
+"Chyba: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:304
 #, python-format
@@ -19059,7 +19083,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:652
 msgid "Save"
-msgstr ""
+msgstr "Uložit"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
@@ -19071,7 +19095,7 @@ msgstr "Storno"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"
-msgstr ""
+msgstr "&Zavřít"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Apply"
@@ -19079,11 +19103,11 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:674
 msgid "Don't Save"
-msgstr ""
+msgstr "Neukládat"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:676
 msgid "Close without Saving"
-msgstr ""
+msgstr "Zavřít bez uložení"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:678
 msgid "Discard"
@@ -19107,7 +19131,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:693
 msgid "Save All"
-msgstr ""
+msgstr "Uložit vše"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:696
 msgid "Abort"
@@ -19723,6 +19747,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:389
 msgid "Save original file when converting from same format to same format"
 msgstr ""
+"Uložit původní soubor když převádíte knihy ze stejného formátu do stejného"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:390
 msgid ""
@@ -19731,3 +19756,8 @@ msgid ""
 "conversion is poor, you can tweak the settings and run it again. By setting\n"
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
+"Když calibre převádí ze stejného formátu do stejného, například\n"
+"z EPUB do EPUB, původní soubor je uložen, takže v případě\n"
+"že převod je špatný, můžete upravit nastavení a zkusit to znovu.\n"
+"Když je nastaveno na \"Ne\" můžete zabránit aby calibre ukládalo\n"
+"původní soubor."

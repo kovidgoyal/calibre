@@ -1,21 +1,25 @@
-# Hungarian translation for calibre
-# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
-# This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# Hungarian translations of ISO 639 Language names
+# Copyright (C) 2000 Free Software Foundation, Inc.
+# Andras TIMAR <timar@gnome.hu>, 2000-2001.
+# VERÓK István <vi@fsf.hu>, 2004
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: iso_639_3\n"
+"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
+"devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-08-27 02:50+0000\n"
-"PO-Revision-Date: 2011-08-27 03:22+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Hungarian <hu@li.org>\n"
+"PO-Revision-Date: 2011-08-27 08:42+0000\n"
+"Last-Translator: SZERVÑC Attila <Unknown>\n"
+"Language-Team: Hungarian <debian-l10n-hungarian@lists.d.o>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-08-27 05:12+0000\n"
+"X-Launchpad-Export-Date: 2011-08-28 04:48+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
+"X-Poedit-Country: HUNGARY\n"
+"Language: hu\n"
+"X-Poedit-Language: Hungarian\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -83,7 +87,7 @@ msgstr ""
 
 #. name for aar
 msgid "Afar"
-msgstr ""
+msgstr "afar"
 
 #. name for aas
 msgid "Aasáx"
@@ -151,7 +155,7 @@ msgstr ""
 
 #. name for abk
 msgid "Abkhazian"
-msgstr ""
+msgstr "abház"
 
 #. name for abl
 msgid "Lampung Nyo"
@@ -225,9 +229,10 @@ msgstr ""
 msgid "Gikyode"
 msgstr ""
 
+# src/trans.h:220
 #. name for ace
 msgid "Achinese"
-msgstr ""
+msgstr "akinéz"
 
 #. name for acf
 msgid "Creole French, Saint Lucian"
@@ -235,7 +240,7 @@ msgstr ""
 
 #. name for ach
 msgid "Acoli"
-msgstr ""
+msgstr "acoli"
 
 #. name for aci
 msgid "Aka-Cari"
@@ -303,7 +308,7 @@ msgstr ""
 
 #. name for ada
 msgid "Adangme"
-msgstr ""
+msgstr "adangme"
 
 #. name for adb
 msgid "Adabe"
@@ -471,7 +476,7 @@ msgstr ""
 
 #. name for afh
 msgid "Afrihili"
-msgstr ""
+msgstr "afrihili"
 
 #. name for afi
 msgid "Akrukay"
@@ -493,9 +498,10 @@ msgstr ""
 msgid "Tapei"
 msgstr ""
 
+# src/trans.h:281 src/trans.h:318
 #. name for afr
 msgid "Afrikaans"
-msgstr ""
+msgstr "afrikaans"
 
 #. name for afs
 msgid "Creole, Afro-Seminole"
@@ -795,7 +801,7 @@ msgstr ""
 
 #. name for aka
 msgid "Akan"
-msgstr ""
+msgstr "akan"
 
 #. name for akb
 msgid "Batak Angkola"
@@ -835,7 +841,7 @@ msgstr ""
 
 #. name for akk
 msgid "Akkadian"
-msgstr ""
+msgstr "akkád"
 
 #. name for akl
 msgid "Aklanon"
@@ -907,7 +913,7 @@ msgstr ""
 
 #. name for ale
 msgid "Aleut"
-msgstr ""
+msgstr "aleut"
 
 #. name for alf
 msgid "Alege"
@@ -1009,9 +1015,10 @@ msgstr ""
 msgid "Amarag"
 msgstr ""
 
+# src/trans.h:283
 #. name for amh
 msgid "Amharic"
-msgstr ""
+msgstr "amhara"
 
 #. name for ami
 msgid "Amis"
@@ -1147,7 +1154,7 @@ msgstr ""
 
 #. name for anp
 msgid "Angika"
-msgstr ""
+msgstr "angika"
 
 #. name for anq
 msgid "Jarawa (India)"
@@ -1397,9 +1404,10 @@ msgstr ""
 msgid "Akuntsu"
 msgstr ""
 
+# src/trans.h:283
 #. name for ara
 msgid "Arabic"
-msgstr ""
+msgstr "arab"
 
 #. name for arb
 msgid "Arabic, Standard"
@@ -1417,9 +1425,10 @@ msgstr ""
 msgid "Arrarnta, Western"
 msgstr ""
 
+# src/trans.h:294
 #. name for arg
 msgid "Aragonese"
-msgstr ""
+msgstr "aragóniai"
 
 #. name for arh
 msgid "Arhuaco"
@@ -1451,7 +1460,7 @@ msgstr ""
 
 #. name for arp
 msgid "Arapaho"
-msgstr ""
+msgstr "arapaho"
 
 #. name for arq
 msgid "Arabic, Algerian"
@@ -1475,7 +1484,7 @@ msgstr ""
 
 #. name for arw
 msgid "Arawak"
-msgstr ""
+msgstr "arawak"
 
 #. name for arx
 msgid "Aruá (Rodonia State)"
@@ -1539,7 +1548,7 @@ msgstr ""
 
 #. name for asm
 msgid "Assamese"
-msgstr ""
+msgstr "asszámi"
 
 #. name for asn
 msgid "Asuriní, Xingú"
@@ -1781,9 +1790,10 @@ msgstr ""
 msgid "Arabic, Uzbeki"
 msgstr ""
 
+# src/trans.h:283
 #. name for ava
 msgid "Avaric"
-msgstr ""
+msgstr "avar"
 
 #. name for avb
 msgid "Avau"
@@ -1795,7 +1805,7 @@ msgstr ""
 
 #. name for ave
 msgid "Avestan"
-msgstr ""
+msgstr "aveszti"
 
 #. name for avi
 msgid "Avikam"
@@ -1835,7 +1845,7 @@ msgstr ""
 
 #. name for awa
 msgid "Awadhi"
-msgstr ""
+msgstr "avádi"
 
 #. name for awb
 msgid "Awa (Papua New Guinea)"
@@ -1967,7 +1977,7 @@ msgstr ""
 
 #. name for aym
 msgid "Aymara"
-msgstr ""
+msgstr "aymara"
 
 #. name for ayn
 msgid "Arabic, Sanaani"
@@ -2017,9 +2027,10 @@ msgstr ""
 msgid "Azerbaijani, South"
 msgstr ""
 
+# src/trans.h:311
 #. name for aze
 msgid "Azerbaijani"
-msgstr ""
+msgstr "azeri"
 
 #. name for azg
 msgid "Amuzgo, San Pedro Amuzgos"
@@ -2079,19 +2090,20 @@ msgstr ""
 
 #. name for bak
 msgid "Bashkir"
-msgstr ""
+msgstr "baskír"
 
 #. name for bal
 msgid "Baluchi"
-msgstr ""
+msgstr "baluchi"
 
 #. name for bam
 msgid "Bambara"
-msgstr ""
+msgstr "bambara"
 
+# src/trans.h:220
 #. name for ban
 msgid "Balinese"
-msgstr ""
+msgstr "balinéz"
 
 #. name for bao
 msgid "Waimaha"
@@ -2479,15 +2491,16 @@ msgstr ""
 
 #. name for bej
 msgid "Beja"
-msgstr ""
+msgstr "beja"
 
 #. name for bek
 msgid "Bebeli"
 msgstr ""
 
+# src/trans.h:286
 #. name for bel
 msgid "Belarusian"
-msgstr ""
+msgstr "belorusz"
 
 #. name for bem
 msgid "Bemba (Zambia)"
@@ -2495,7 +2508,7 @@ msgstr ""
 
 #. name for ben
 msgid "Bengali"
-msgstr ""
+msgstr "bengáli"
 
 #. name for beo
 msgid "Beami"
@@ -2795,7 +2808,7 @@ msgstr ""
 
 #. name for bho
 msgid "Bhojpuri"
-msgstr ""
+msgstr "bhodzspuri"
 
 #. name for bhp
 msgid "Bima"
@@ -2875,7 +2888,7 @@ msgstr ""
 
 #. name for bik
 msgid "Bikol"
-msgstr ""
+msgstr "bikol"
 
 #. name for bil
 msgid "Bile"
@@ -2887,7 +2900,7 @@ msgstr ""
 
 #. name for bin
 msgid "Bini"
-msgstr ""
+msgstr "bini"
 
 #. name for bio
 msgid "Nai"
@@ -2907,7 +2920,7 @@ msgstr ""
 
 #. name for bis
 msgid "Bislama"
-msgstr ""
+msgstr "biszlama"
 
 #. name for bit
 msgid "Berinomo"
@@ -3131,7 +3144,7 @@ msgstr ""
 
 #. name for bla
 msgid "Siksika"
-msgstr ""
+msgstr "szikszika"
 
 #. name for blb
 msgid "Bilua"
@@ -3439,7 +3452,7 @@ msgstr ""
 
 #. name for bod
 msgid "Tibetan"
-msgstr ""
+msgstr "tibeti"
 
 #. name for boe
 msgid "Mundabli"
@@ -3497,9 +3510,10 @@ msgstr ""
 msgid "Borôro"
 msgstr ""
 
+# src/trans.h:309
 #. name for bos
 msgid "Bosnian"
-msgstr ""
+msgstr "bosnyák"
 
 #. name for bot
 msgid "Bongo"
@@ -3723,7 +3737,7 @@ msgstr ""
 
 #. name for bra
 msgid "Braj"
-msgstr ""
+msgstr "bradzs"
 
 #. name for brb
 msgid "Lave"
@@ -3737,9 +3751,10 @@ msgstr ""
 msgid "Baraamu"
 msgstr ""
 
+# src/trans.h:285
 #. name for bre
 msgid "Breton"
-msgstr ""
+msgstr "breton"
 
 #. name for brf
 msgid "Bera"
@@ -4017,9 +4032,10 @@ msgstr ""
 msgid "Batak Alas-Kluet"
 msgstr ""
 
+# src/trans.h:285
 #. name for bua
 msgid "Buriat"
-msgstr ""
+msgstr "burját"
 
 #. name for bub
 msgid "Bua"
@@ -4041,9 +4057,10 @@ msgstr ""
 msgid "Bushoong"
 msgstr ""
 
+# src/trans.h:220
 #. name for bug
 msgid "Buginese"
-msgstr ""
+msgstr "buginéz"
 
 #. name for buh
 msgid "Bunu, Younuo"
@@ -4061,9 +4078,10 @@ msgstr ""
 msgid "Bugawac"
 msgstr ""
 
+# src/trans.h:285
 #. name for bul
 msgid "Bulgarian"
-msgstr ""
+msgstr "bolgár"
 
 #. name for bum
 msgid "Bulu (Cameroon)"
@@ -4627,7 +4645,7 @@ msgstr ""
 
 #. name for cad
 msgid "Caddo"
-msgstr ""
+msgstr "caddo"
 
 #. name for cae
 msgid "Lehar"
@@ -4685,9 +4703,10 @@ msgstr ""
 msgid "Tsimané"
 msgstr ""
 
+# src/trans.h:287
 #. name for cat
 msgid "Catalan"
-msgstr ""
+msgstr "katalán"
 
 #. name for cav
 msgid "Cavineña"
@@ -4899,7 +4918,7 @@ msgstr ""
 
 #. name for ceb
 msgid "Cebuano"
-msgstr ""
+msgstr "cebuano"
 
 #. name for ceg
 msgid "Chamacoco"
@@ -4909,9 +4928,10 @@ msgstr ""
 msgid "Cen"
 msgstr ""
 
+# src/trans.h:290
 #. name for ces
 msgid "Czech"
-msgstr ""
+msgstr "cseh"
 
 #. name for cet
 msgid "Centúúm"
@@ -4951,11 +4971,11 @@ msgstr ""
 
 #. name for cha
 msgid "Chamorro"
-msgstr ""
+msgstr "chamorro"
 
 #. name for chb
 msgid "Chibcha"
-msgstr ""
+msgstr "csibcsa"
 
 #. name for chc
 msgid "Catawba"
@@ -4965,9 +4985,10 @@ msgstr ""
 msgid "Chontal, Highland Oaxaca"
 msgstr ""
 
+# src/trans.h:290
 #. name for che
 msgid "Chechen"
-msgstr ""
+msgstr "csecsen"
 
 #. name for chf
 msgid "Chontal, Tabasco"
@@ -4975,7 +4996,7 @@ msgstr ""
 
 #. name for chg
 msgid "Chagatai"
-msgstr ""
+msgstr "chagati"
 
 #. name for chh
 msgid "Chinook"
@@ -4987,7 +5008,7 @@ msgstr ""
 
 #. name for chk
 msgid "Chuukese"
-msgstr ""
+msgstr "csukéz"
 
 #. name for chl
 msgid "Cahuilla"
@@ -4999,15 +5020,15 @@ msgstr ""
 
 #. name for chn
 msgid "Chinook jargon"
-msgstr ""
+msgstr "chinook zsargon"
 
 #. name for cho
 msgid "Choctaw"
-msgstr ""
+msgstr "csoktó"
 
 #. name for chp
 msgid "Chipewyan"
-msgstr ""
+msgstr "csippeva"
 
 #. name for chq
 msgid "Chinantec, Quiotepec"
@@ -5015,7 +5036,7 @@ msgstr ""
 
 #. name for chr
 msgid "Cherokee"
-msgstr ""
+msgstr "cserokí"
 
 #. name for cht
 msgid "Cholón"
@@ -5027,7 +5048,7 @@ msgstr ""
 
 #. name for chv
 msgid "Chuvash"
-msgstr ""
+msgstr "csuvas"
 
 #. name for chw
 msgid "Chuwabu"
@@ -5039,7 +5060,7 @@ msgstr ""
 
 #. name for chy
 msgid "Cheyenne"
-msgstr ""
+msgstr "csejen"
 
 #. name for chz
 msgid "Chinantec, Ozumacín"
@@ -5411,19 +5432,20 @@ msgstr ""
 
 #. name for cop
 msgid "Coptic"
-msgstr ""
+msgstr "kopt"
 
 #. name for coq
 msgid "Coquille"
 msgstr ""
 
+# src/trans.h:363
 #. name for cor
 msgid "Cornish"
-msgstr ""
+msgstr "cornwalli"
 
 #. name for cos
 msgid "Corsican"
-msgstr ""
+msgstr "korzikai"
 
 #. name for cot
 msgid "Caquinte"
@@ -5517,9 +5539,10 @@ msgstr ""
 msgid "Coeur d'Alene"
 msgstr ""
 
+# src/trans.h:299
 #. name for cre
 msgid "Cree"
-msgstr ""
+msgstr "cree"
 
 #. name for crf
 msgid "Caramanta"
@@ -5603,7 +5626,7 @@ msgstr ""
 
 #. name for csb
 msgid "Kashubian"
-msgstr ""
+msgstr "kasubi"
 
 #. name for csc
 msgid "Catalan Sign Language"
@@ -5855,7 +5878,7 @@ msgstr ""
 
 #. name for cym
 msgid "Welsh"
-msgstr ""
+msgstr "velszi"
 
 #. name for cyo
 msgid "Cuyonon"
@@ -5919,7 +5942,7 @@ msgstr ""
 
 #. name for dak
 msgid "Dakota"
-msgstr ""
+msgstr "dakota"
 
 #. name for dal
 msgid "Dahalo"
@@ -5929,9 +5952,10 @@ msgstr ""
 msgid "Damakawa"
 msgstr ""
 
+# src/trans.h:291
 #. name for dan
 msgid "Danish"
-msgstr ""
+msgstr "dán"
 
 #. name for dao
 msgid "Chin, Daai"
@@ -5947,7 +5971,7 @@ msgstr ""
 
 #. name for dar
 msgid "Dargwa"
-msgstr ""
+msgstr "dargwa"
 
 #. name for das
 msgid "Daho-Doo"
@@ -6123,7 +6147,7 @@ msgstr ""
 
 #. name for del
 msgid "Delaware"
-msgstr ""
+msgstr "delavár"
 
 #. name for dem
 msgid "Dem"
@@ -6131,7 +6155,7 @@ msgstr ""
 
 #. name for den
 msgid "Slave (Athapascan)"
-msgstr ""
+msgstr "Szolga (atapaszkán)"
 
 #. name for dep
 msgid "Delaware, Pidgin"
@@ -6149,9 +6173,10 @@ msgstr ""
 msgid "Desano"
 msgstr ""
 
+# src/trans.h:298
 #. name for deu
 msgid "German"
-msgstr ""
+msgstr "német"
 
 #. name for dev
 msgid "Domung"
@@ -6207,7 +6232,7 @@ msgstr ""
 
 #. name for dgr
 msgid "Dogrib"
-msgstr ""
+msgstr "dogrib"
 
 #. name for dgs
 msgid "Dogoso"
@@ -6323,7 +6348,7 @@ msgstr ""
 
 #. name for din
 msgid "Dinka"
-msgstr ""
+msgstr "dinka"
 
 #. name for dio
 msgid "Dibo"
@@ -6799,7 +6824,7 @@ msgstr ""
 
 #. name for dua
 msgid "Duala"
-msgstr ""
+msgstr "duala"
 
 #. name for dub
 msgid "Dubli"
@@ -6955,7 +6980,7 @@ msgstr ""
 
 #. name for dyu
 msgid "Dyula"
-msgstr ""
+msgstr "djula"
 
 #. name for dyy
 msgid "Dyaabugay"
@@ -6983,7 +7008,7 @@ msgstr ""
 
 #. name for dzo
 msgid "Dzongkha"
-msgstr ""
+msgstr "dzongka"
 
 #. name for ebg
 msgid "Ebughu"
@@ -7031,7 +7056,7 @@ msgstr ""
 
 #. name for efi
 msgid "Efik"
-msgstr ""
+msgstr "efik"
 
 #. name for ega
 msgid "Ega"
@@ -7047,7 +7072,7 @@ msgstr ""
 
 #. name for egy
 msgid "Egyptian (Ancient)"
-msgstr ""
+msgstr "óegyiptomi"
 
 #. name for ehu
 msgid "Ehueun"
@@ -7071,7 +7096,7 @@ msgstr ""
 
 #. name for eka
 msgid "Ekajuk"
-msgstr ""
+msgstr "ekajuk"
 
 #. name for eke
 msgid "Ekit"
@@ -7131,7 +7156,7 @@ msgstr ""
 
 #. name for ell
 msgid "Greek, Modern (1453-)"
-msgstr ""
+msgstr "modern görög (1453-)"
 
 #. name for elm
 msgid "Eleme"
@@ -7151,7 +7176,7 @@ msgstr ""
 
 #. name for elx
 msgid "Elamite"
-msgstr ""
+msgstr "elamita"
 
 #. name for ema
 msgid "Emai-Iuleha-Ora"
@@ -7233,9 +7258,10 @@ msgstr ""
 msgid "Enets, Forest"
 msgstr ""
 
+# src/trans.h:293
 #. name for eng
 msgid "English"
-msgstr ""
+msgstr "angol"
 
 #. name for enh
 msgid "Enets, Tundra"
@@ -7243,7 +7269,7 @@ msgstr ""
 
 #. name for enm
 msgid "English, Middle (1100-1500)"
-msgstr ""
+msgstr "közép-angol (1100-1500)"
 
 #. name for enn
 msgid "Engenni"
@@ -7281,9 +7307,10 @@ msgstr ""
 msgid "Epie"
 msgstr ""
 
+# src/trans.h:298
 #. name for epo
 msgid "Esperanto"
-msgstr ""
+msgstr "eszperantó"
 
 #. name for era
 msgid "Eravallan"
@@ -7365,9 +7392,10 @@ msgstr ""
 msgid "Yupik, Central Siberian"
 msgstr ""
 
+# src/trans.h:309
 #. name for est
 msgid "Estonian"
-msgstr ""
+msgstr "észt"
 
 #. name for esu
 msgid "Yupik, Central"
@@ -7417,9 +7445,10 @@ msgstr ""
 msgid "Semimi"
 msgstr ""
 
+# src/trans.h:284
 #. name for eus
 msgid "Basque"
-msgstr ""
+msgstr "baszk"
 
 #. name for eve
 msgid "Even"
@@ -7435,11 +7464,11 @@ msgstr ""
 
 #. name for ewe
 msgid "Ewe"
-msgstr ""
+msgstr "ewe"
 
 #. name for ewo
 msgid "Ewondo"
-msgstr ""
+msgstr "ewondo"
 
 #. name for ext
 msgid "Extremaduran"
@@ -7505,9 +7534,10 @@ msgstr ""
 msgid "Fang (Equatorial Guinea)"
 msgstr ""
 
+# src/trans.h:294
 #. name for fao
 msgid "Faroese"
-msgstr ""
+msgstr "feröi"
 
 #. name for fap
 msgid "Palor"
@@ -7517,13 +7547,14 @@ msgstr ""
 msgid "Fataleka"
 msgstr ""
 
+# src/trans.h:206 src/trans.h:207
 #. name for fas
 msgid "Persian"
-msgstr ""
+msgstr "perzsa"
 
 #. name for fat
 msgid "Fanti"
-msgstr ""
+msgstr "fanti"
 
 #. name for fau
 msgid "Fayu"
@@ -7575,15 +7606,16 @@ msgstr ""
 
 #. name for fij
 msgid "Fijian"
-msgstr ""
+msgstr "fidzsi"
 
 #. name for fil
 msgid "Filipino"
 msgstr ""
 
+# src/trans.h:295
 #. name for fin
 msgid "Finnish"
-msgstr ""
+msgstr "finn"
 
 #. name for fip
 msgid "Fipa"
@@ -7663,7 +7695,7 @@ msgstr ""
 
 #. name for fon
 msgid "Fon"
-msgstr ""
+msgstr "fon"
 
 #. name for for
 msgid "Fore"
@@ -7681,9 +7713,10 @@ msgstr ""
 msgid "Fas"
 msgstr ""
 
+# src/trans.h:296
 #. name for fra
 msgid "French"
-msgstr ""
+msgstr "francia"
 
 #. name for frc
 msgid "French, Cajun"
@@ -7775,7 +7808,7 @@ msgstr ""
 
 #. name for ful
 msgid "Fulah"
-msgstr ""
+msgstr "fula"
 
 #. name for fum
 msgid "Fum"
@@ -7789,9 +7822,10 @@ msgstr ""
 msgid "Fulfulde, Central-Eastern Niger"
 msgstr ""
 
+# src/trans.h:227
 #. name for fur
 msgid "Friulian"
-msgstr ""
+msgstr "friul"
 
 #. name for fut
 msgid "Futuna-Aniwa"
@@ -7823,7 +7857,7 @@ msgstr ""
 
 #. name for gaa
 msgid "Ga"
-msgstr ""
+msgstr "ga"
 
 #. name for gab
 msgid "Gabri"
@@ -7915,7 +7949,7 @@ msgstr ""
 
 #. name for gay
 msgid "Gayo"
-msgstr ""
+msgstr "gajo"
 
 #. name for gaz
 msgid "Oromo, West Central"
@@ -8185,9 +8219,10 @@ msgstr ""
 msgid "Enya"
 msgstr ""
 
+# src/trans.h:299
 #. name for gez
 msgid "Geez"
-msgstr ""
+msgstr "gíz"
 
 #. name for gfk
 msgid "Patpatar"
@@ -8313,9 +8348,10 @@ msgstr ""
 msgid "Goaria"
 msgstr ""
 
+# src/trans.h:270
 #. name for gil
 msgid "Gilbertese"
-msgstr ""
+msgstr "gilberti"
 
 #. name for gim
 msgid "Gimi (Eastern Highlands)"
@@ -8409,9 +8445,10 @@ msgstr ""
 msgid "Nanai"
 msgstr ""
 
+# src/trans.h:303
 #. name for gle
 msgid "Irish"
-msgstr ""
+msgstr "ír"
 
 #. name for glg
 msgid "Galician"
@@ -8447,7 +8484,7 @@ msgstr ""
 
 #. name for glv
 msgid "Manx"
-msgstr ""
+msgstr "manx"
 
 #. name for glw
 msgid "Glavda"
@@ -8631,7 +8668,7 @@ msgstr ""
 
 #. name for gon
 msgid "Gondi"
-msgstr ""
+msgstr "gondi"
 
 #. name for goo
 msgid "Gone Dau"
@@ -8647,7 +8684,7 @@ msgstr ""
 
 #. name for gor
 msgid "Gorontalo"
-msgstr ""
+msgstr "gorontalo"
 
 #. name for gos
 msgid "Gronings"
@@ -8655,7 +8692,7 @@ msgstr ""
 
 #. name for got
 msgid "Gothic"
-msgstr ""
+msgstr "gót"
 
 #. name for gou
 msgid "Gavar"
@@ -8705,13 +8742,14 @@ msgstr ""
 msgid "Garasia, Rajput"
 msgstr ""
 
+# src/trans.h:299
 #. name for grb
 msgid "Grebo"
-msgstr ""
+msgstr "grebo"
 
 #. name for grc
 msgid "Greek, Ancient (to 1453)"
-msgstr ""
+msgstr "ógörög (1453-ig)"
 
 #. name for grd
 msgid "Guruntum-Mbaaru"
@@ -8739,7 +8777,7 @@ msgstr ""
 
 #. name for grn
 msgid "Guarani"
-msgstr ""
+msgstr "guarani"
 
 #. name for gro
 msgid "Groma"
@@ -8867,7 +8905,7 @@ msgstr ""
 
 #. name for guj
 msgid "Gujarati"
-msgstr ""
+msgstr "gudzsarati"
 
 #. name for guk
 msgid "Gumuz"
@@ -9139,7 +9177,7 @@ msgstr ""
 
 #. name for hai
 msgid "Haida"
-msgstr ""
+msgstr "haida"
 
 #. name for haj
 msgid "Hajong"
@@ -9187,7 +9225,7 @@ msgstr ""
 
 #. name for hau
 msgid "Hausa"
-msgstr ""
+msgstr "hausza"
 
 #. name for hav
 msgid "Havu"
@@ -9195,7 +9233,7 @@ msgstr ""
 
 #. name for haw
 msgid "Hawaiian"
-msgstr ""
+msgstr "hawaii"
 
 #. name for hax
 msgid "Haida, Southern"
@@ -9259,7 +9297,7 @@ msgstr ""
 
 #. name for heb
 msgid "Hebrew"
-msgstr ""
+msgstr "héber"
 
 #. name for hed
 msgid "Herdé"
@@ -9283,7 +9321,7 @@ msgstr ""
 
 #. name for her
 msgid "Herero"
-msgstr ""
+msgstr "herero"
 
 #. name for hgm
 msgid "Hai//om"
@@ -9343,11 +9381,11 @@ msgstr ""
 
 #. name for hil
 msgid "Hiligaynon"
-msgstr ""
+msgstr "hiligajnon"
 
 #. name for hin
 msgid "Hindi"
-msgstr ""
+msgstr "hindi"
 
 #. name for hio
 msgid "Tsoa"
@@ -9359,7 +9397,7 @@ msgstr ""
 
 #. name for hit
 msgid "Hittite"
-msgstr ""
+msgstr "hettita"
 
 #. name for hiw
 msgid "Hiw"
@@ -9467,11 +9505,11 @@ msgstr ""
 
 #. name for hmn
 msgid "Hmong"
-msgstr ""
+msgstr "hmong"
 
 #. name for hmo
 msgid "Hiri Motu"
-msgstr ""
+msgstr "hiri motu"
 
 #. name for hmp
 msgid "Miao, Northern Mashan"
@@ -9669,9 +9707,10 @@ msgstr ""
 msgid "Hruso"
 msgstr ""
 
+# src/trans.h:289
 #. name for hrv
 msgid "Croatian"
-msgstr ""
+msgstr "horvát"
 
 #. name for hrx
 msgid "Hunsrik"
@@ -9769,9 +9808,10 @@ msgstr ""
 msgid "Hungana"
 msgstr ""
 
+# src/trans.h:300
 #. name for hun
 msgid "Hungarian"
-msgstr ""
+msgstr "magyar"
 
 #. name for huo
 msgid "Hu"
@@ -9779,7 +9819,7 @@ msgstr ""
 
 #. name for hup
 msgid "Hupa"
-msgstr ""
+msgstr "hupa"
 
 #. name for huq
 msgid "Tsat"
@@ -9859,7 +9899,7 @@ msgstr ""
 
 #. name for hye
 msgid "Armenian"
-msgstr ""
+msgstr "örmény"
 
 #. name for iai
 msgid "Iaai"
@@ -9879,7 +9919,7 @@ msgstr ""
 
 #. name for iba
 msgid "Iban"
-msgstr ""
+msgstr "iba"
 
 #. name for ibb
 msgid "Ibibio"
@@ -9915,7 +9955,7 @@ msgstr ""
 
 #. name for ibo
 msgid "Igbo"
-msgstr ""
+msgstr "igbo"
 
 #. name for ibr
 msgid "Ibuoro"
@@ -9971,7 +10011,7 @@ msgstr ""
 
 #. name for ido
 msgid "Ido"
-msgstr ""
+msgstr "ido"
 
 #. name for idr
 msgid "Indri"
@@ -10123,7 +10163,7 @@ msgstr ""
 
 #. name for iku
 msgid "Inuktitut"
-msgstr ""
+msgstr "inuktitut"
 
 #. name for ikv
 msgid "Iku-Gora-Ankwa"
@@ -10149,9 +10189,10 @@ msgstr ""
 msgid "Ila"
 msgstr ""
 
+# src/prefs.c:380
 #. name for ile
 msgid "Interlingue"
-msgstr ""
+msgstr "interlingva"
 
 #. name for ilg
 msgid "Garig-Ilgar"
@@ -10171,7 +10212,7 @@ msgstr ""
 
 #. name for ilo
 msgid "Iloko"
-msgstr ""
+msgstr "iloko"
 
 #. name for ils
 msgid "International Sign"
@@ -10227,23 +10268,25 @@ msgstr ""
 
 #. name for ina
 msgid "Interlingua (International Auxiliary Language Association)"
-msgstr ""
+msgstr "interlingva (Nemzetközi Segédnyelv Egyesület)"
 
 #. name for inb
 msgid "Inga"
 msgstr ""
 
+# src/trans.h:302
 #. name for ind
 msgid "Indonesian"
-msgstr ""
+msgstr "indonéz"
 
 #. name for ing
 msgid "Degexit'an"
 msgstr ""
 
+# src/trans.h:293
 #. name for inh
 msgid "Ingush"
-msgstr ""
+msgstr "ingus"
 
 #. name for inj
 msgid "Inga, Jungle"
@@ -10299,7 +10342,7 @@ msgstr ""
 
 #. name for ipk
 msgid "Inupiaq"
-msgstr ""
+msgstr "inupiak"
 
 #. name for ipo
 msgid "Ipiko"
@@ -10377,9 +10420,10 @@ msgstr ""
 msgid "Ishkashimi"
 msgstr ""
 
+# src/trans.h:301
 #. name for isl
 msgid "Icelandic"
-msgstr ""
+msgstr "izlandi"
 
 #. name for ism
 msgid "Masimasi"
@@ -10405,9 +10449,10 @@ msgstr ""
 msgid "Isu (Menchum Division)"
 msgstr ""
 
+# src/trans.h:287
 #. name for ita
 msgid "Italian"
-msgstr ""
+msgstr "olasz"
 
 #. name for itb
 msgid "Itneg, Binongan"
@@ -10597,9 +10642,10 @@ msgstr ""
 msgid "Yaur"
 msgstr ""
 
+# src/trans.h:222
 #. name for jav
 msgid "Javanese"
-msgstr ""
+msgstr "jávai"
 
 #. name for jax
 msgid "Malay, Jambi"
@@ -10627,7 +10673,7 @@ msgstr ""
 
 #. name for jbo
 msgid "Lojban"
-msgstr ""
+msgstr "lodzsban"
 
 #. name for jbr
 msgid "Jofotek-Bromnya"
@@ -10897,13 +10943,15 @@ msgstr ""
 msgid "Aramaic, Jewish Palestinian"
 msgstr ""
 
+# src/trans.h:222
 #. name for jpn
 msgid "Japanese"
-msgstr ""
+msgstr "japán"
 
+# src/trans.h:206 src/trans.h:207
 #. name for jpr
 msgid "Judeo-Persian"
-msgstr ""
+msgstr "judeo-perzsa"
 
 #. name for jqr
 msgid "Jaqaru"
@@ -10913,9 +10961,10 @@ msgstr ""
 msgid "Jarai"
 msgstr ""
 
+# src/trans.h:283
 #. name for jrb
 msgid "Judeo-Arabic"
-msgstr ""
+msgstr "judeo-arab"
 
 #. name for jrr
 msgid "Jiru"
@@ -11027,15 +11076,15 @@ msgstr ""
 
 #. name for kaa
 msgid "Kara-Kalpak"
-msgstr ""
+msgstr "kara-kalpak"
 
 #. name for kab
 msgid "Kabyle"
-msgstr ""
+msgstr "kabile"
 
 #. name for kac
 msgid "Kachin"
-msgstr ""
+msgstr "kachin"
 
 #. name for kad
 msgid "Kadara"
@@ -11079,7 +11128,7 @@ msgstr ""
 
 #. name for kan
 msgid "Kannada"
-msgstr ""
+msgstr "kannada"
 
 #. name for kao
 msgid "Xaasongaxango"
@@ -11095,15 +11144,16 @@ msgstr ""
 
 #. name for kas
 msgid "Kashmiri"
-msgstr ""
+msgstr "kasmíri"
 
 #. name for kat
 msgid "Georgian"
-msgstr ""
+msgstr "grúz"
 
+# src/trans.h:316
 #. name for kau
 msgid "Kanuri"
-msgstr ""
+msgstr "kanuri"
 
 #. name for kav
 msgid "Katukína"
@@ -11111,7 +11161,7 @@ msgstr ""
 
 #. name for kaw
 msgid "Kawi"
-msgstr ""
+msgstr "kawi"
 
 #. name for kax
 msgid "Kao"
@@ -11123,7 +11173,7 @@ msgstr ""
 
 #. name for kaz
 msgid "Kazakh"
-msgstr ""
+msgstr "kazah"
 
 #. name for kba
 msgid "Kalarko"
@@ -11139,7 +11189,7 @@ msgstr ""
 
 #. name for kbd
 msgid "Kabardian"
-msgstr ""
+msgstr "kabardi"
 
 #. name for kbe
 msgid "Kanju"
@@ -11735,7 +11785,7 @@ msgstr ""
 
 #. name for kha
 msgid "Khasi"
-msgstr ""
+msgstr "kazi"
 
 #. name for khb
 msgid "Lü"
@@ -11785,9 +11835,10 @@ msgstr ""
 msgid "Khandesi"
 msgstr ""
 
+# src/trans.h:220
 #. name for kho
 msgid "Khotanese"
-msgstr ""
+msgstr "kotáni"
 
 #. name for khp
 msgid "Kapori"
@@ -11875,7 +11926,7 @@ msgstr ""
 
 #. name for kik
 msgid "Kikuyu"
-msgstr ""
+msgstr "kikuyu"
 
 #. name for kil
 msgid "Kariya"
@@ -11887,7 +11938,7 @@ msgstr ""
 
 #. name for kin
 msgid "Kinyarwanda"
-msgstr ""
+msgstr "kinyarwanda"
 
 #. name for kio
 msgid "Kiowa"
@@ -11903,7 +11954,7 @@ msgstr ""
 
 #. name for kir
 msgid "Kirghiz"
-msgstr ""
+msgstr "kirgiz"
 
 #. name for kis
 msgid "Kis"
@@ -12247,7 +12298,7 @@ msgstr ""
 
 #. name for kmb
 msgid "Kimbundu"
-msgstr ""
+msgstr "kimbundu"
 
 #. name for kmc
 msgid "Dong, Southern"
@@ -12491,11 +12542,11 @@ msgstr ""
 
 #. name for kom
 msgid "Komi"
-msgstr ""
+msgstr "komi"
 
 #. name for kon
 msgid "Kongo"
-msgstr ""
+msgstr "kongo"
 
 #. name for koo
 msgid "Konzo"
@@ -12509,13 +12560,15 @@ msgstr ""
 msgid "Kota (Gabon)"
 msgstr ""
 
+# src/trans.h:223
 #. name for kor
 msgid "Korean"
-msgstr ""
+msgstr "koreai"
 
+# src/trans.h:223
 #. name for kos
 msgid "Kosraean"
-msgstr ""
+msgstr "koszrai"
 
 #. name for kot
 msgid "Lagwan"
@@ -12563,7 +12616,7 @@ msgstr ""
 
 #. name for kpe
 msgid "Kpelle"
-msgstr ""
+msgstr "kpelle"
 
 #. name for kpf
 msgid "Komba"
@@ -12763,7 +12816,7 @@ msgstr ""
 
 #. name for krc
 msgid "Karachay-Balkar"
-msgstr ""
+msgstr "karacsai-balkar"
 
 #. name for krd
 msgid "Kairui-Midiki"
@@ -12795,7 +12848,7 @@ msgstr ""
 
 #. name for krl
 msgid "Karelian"
-msgstr ""
+msgstr "kareliai"
 
 #. name for krm
 msgid "Krim"
@@ -12821,9 +12874,10 @@ msgstr ""
 msgid "Kanuri, Tumari"
 msgstr ""
 
+# src/trans.h:316
 #. name for kru
 msgid "Kurukh"
-msgstr ""
+msgstr "kuruk"
 
 #. name for krv
 msgid "Kavet"
@@ -13055,7 +13109,7 @@ msgstr ""
 
 #. name for kua
 msgid "Kuanyama"
-msgstr ""
+msgstr "kuanyama"
 
 #. name for kub
 msgid "Kutep"
@@ -13103,7 +13157,7 @@ msgstr ""
 
 #. name for kum
 msgid "Kumyk"
-msgstr ""
+msgstr "kumyk"
 
 #. name for kun
 msgid "Kunama"
@@ -13121,9 +13175,10 @@ msgstr ""
 msgid "Karipuna"
 msgstr ""
 
+# src/trans.h:316
 #. name for kur
 msgid "Kurdish"
-msgstr ""
+msgstr "kurd"
 
 #. name for kus
 msgid "Kusaal"
@@ -13131,7 +13186,7 @@ msgstr ""
 
 #. name for kut
 msgid "Kutenai"
-msgstr ""
+msgstr "kutenai"
 
 #. name for kuu
 msgid "Kuskokwim, Upper"
@@ -13685,9 +13740,10 @@ msgstr ""
 msgid "Lacandon"
 msgstr ""
 
+# src/trans.h:47 src/trans.h:50
 #. name for lad
 msgid "Ladino"
-msgstr ""
+msgstr "ladino"
 
 #. name for lae
 msgid "Pattani"
@@ -13703,7 +13759,7 @@ msgstr ""
 
 #. name for lah
 msgid "Lahnda"
-msgstr ""
+msgstr "landa"
 
 #. name for lai
 msgid "Lambya"
@@ -13723,15 +13779,16 @@ msgstr ""
 
 #. name for lam
 msgid "Lamba"
-msgstr ""
+msgstr "lamba"
 
 #. name for lan
 msgid "Laru"
 msgstr ""
 
+# src/prefs.c:397 src/trans.h:125
 #. name for lao
 msgid "Lao"
-msgstr ""
+msgstr "lao"
 
 #. name for lap
 msgid "Laka (Chad)"
@@ -13749,17 +13806,19 @@ msgstr ""
 msgid "Lama (Togo)"
 msgstr ""
 
+# src/trans.h:47 src/trans.h:50
 #. name for lat
 msgid "Latin"
-msgstr ""
+msgstr "latin"
 
 #. name for lau
 msgid "Laba"
 msgstr ""
 
+# src/trans.h:289
 #. name for lav
 msgid "Latvian"
-msgstr ""
+msgstr "lett"
 
 #. name for law
 msgid "Lauje"
@@ -14063,7 +14122,7 @@ msgstr ""
 
 #. name for lez
 msgid "Lezghian"
-msgstr ""
+msgstr "lezgi"
 
 #. name for lfa
 msgid "Lefa"
@@ -14223,7 +14282,7 @@ msgstr ""
 
 #. name for lin
 msgid "Lingala"
-msgstr ""
+msgstr "lingala"
 
 #. name for lio
 msgid "Liki"
@@ -14245,9 +14304,10 @@ msgstr ""
 msgid "Lisu"
 msgstr ""
 
+# src/trans.h:309
 #. name for lit
 msgid "Lithuanian"
-msgstr ""
+msgstr "litván"
 
 #. name for liu
 msgid "Logorik"
@@ -14619,7 +14679,7 @@ msgstr ""
 
 #. name for lol
 msgid "Mongo"
-msgstr ""
+msgstr "mongo"
 
 #. name for lom
 msgid "Loma (Liberia)"
@@ -14675,7 +14735,7 @@ msgstr ""
 
 #. name for loz
 msgid "Lozi"
-msgstr ""
+msgstr "lozi"
 
 #. name for lpa
 msgid "Lelepa"
@@ -14843,11 +14903,11 @@ msgstr ""
 
 #. name for lua
 msgid "Luba-Lulua"
-msgstr ""
+msgstr "luba-lulua"
 
 #. name for lub
 msgid "Luba-Katanga"
-msgstr ""
+msgstr "luba-katanga"
 
 #. name for luc
 msgid "Aringa"
@@ -14867,11 +14927,11 @@ msgstr ""
 
 #. name for lug
 msgid "Ganda"
-msgstr ""
+msgstr "ganda"
 
 #. name for lui
 msgid "Luiseno"
-msgstr ""
+msgstr "luisendo"
 
 #. name for luj
 msgid "Luna"
@@ -14891,11 +14951,11 @@ msgstr ""
 
 #. name for lun
 msgid "Lunda"
-msgstr ""
+msgstr "lunda"
 
 #. name for luo
 msgid "Luo (Kenya and Tanzania)"
-msgstr ""
+msgstr "luo (Kenya és Tanzánia)"
 
 #. name for lup
 msgid "Lumbu"
@@ -14911,7 +14971,7 @@ msgstr ""
 
 #. name for lus
 msgid "Lushai"
-msgstr ""
+msgstr "lushai"
 
 #. name for lut
 msgid "Lushootseed"
@@ -15027,7 +15087,7 @@ msgstr ""
 
 #. name for mad
 msgid "Madurese"
-msgstr ""
+msgstr "maduri"
 
 #. name for mae
 msgid "Bo-Rukul"
@@ -15039,7 +15099,7 @@ msgstr ""
 
 #. name for mag
 msgid "Magahi"
-msgstr ""
+msgstr "magahi"
 
 #. name for mah
 msgid "Marshallese"
@@ -15047,7 +15107,7 @@ msgstr ""
 
 #. name for mai
 msgid "Maithili"
-msgstr ""
+msgstr "maithili"
 
 #. name for maj
 msgid "Mazatec, Jalapa De Díaz"
@@ -15055,11 +15115,11 @@ msgstr ""
 
 #. name for mak
 msgid "Makasar"
-msgstr ""
+msgstr "makasar"
 
 #. name for mal
 msgid "Malayalam"
-msgstr ""
+msgstr "malajalam"
 
 #. name for mam
 msgid "Mam"
@@ -15067,7 +15127,7 @@ msgstr ""
 
 #. name for man
 msgid "Mandingo"
-msgstr ""
+msgstr "mandingo"
 
 #. name for maq
 msgid "Mazatec, Chiquihuitlán"
@@ -15075,11 +15135,11 @@ msgstr ""
 
 #. name for mar
 msgid "Marathi"
-msgstr ""
+msgstr "marathi"
 
 #. name for mas
 msgid "Masai"
-msgstr ""
+msgstr "maszáj"
 
 #. name for mat
 msgid "Matlatzinca, San Francisco"
@@ -15331,7 +15391,7 @@ msgstr ""
 
 #. name for mdf
 msgid "Moksha"
-msgstr ""
+msgstr "moksa"
 
 #. name for mdg
 msgid "Massalat"
@@ -15375,7 +15435,7 @@ msgstr ""
 
 #. name for mdr
 msgid "Mandar"
-msgstr ""
+msgstr "mandar"
 
 #. name for mds
 msgid "Maria (Papua New Guinea)"
@@ -15615,7 +15675,7 @@ msgstr ""
 
 #. name for mga
 msgid "Irish, Middle (900-1200)"
-msgstr ""
+msgstr "közép-ír (900-1200)"
 
 #. name for mgb
 msgid "Mararit"
@@ -15871,7 +15931,7 @@ msgstr ""
 
 #. name for min
 msgid "Minangkabau"
-msgstr ""
+msgstr "minangkabau"
 
 #. name for mio
 msgid "Mixtec, Pinotepa Nacional"
@@ -16021,9 +16081,10 @@ msgstr ""
 msgid "Siliput"
 msgstr ""
 
+# src/trans.h:305
 #. name for mkd
 msgid "Macedonian"
-msgstr ""
+msgstr "macedón"
 
 #. name for mke
 msgid "Mawchi"
@@ -16135,7 +16196,7 @@ msgstr ""
 
 #. name for mlg
 msgid "Malagasy"
-msgstr ""
+msgstr "malagasy"
 
 #. name for mlh
 msgid "Mape"
@@ -16185,9 +16246,10 @@ msgstr ""
 msgid "Masalit"
 msgstr ""
 
+# src/trans.h:377
 #. name for mlt
 msgid "Maltese"
-msgstr ""
+msgstr "máltai"
 
 #. name for mlu
 msgid "To'abaita"
@@ -16319,7 +16381,7 @@ msgstr ""
 
 #. name for mnc
 msgid "Manchu"
-msgstr ""
+msgstr "manchu"
 
 #. name for mnd
 msgid "Mondé"
@@ -16343,7 +16405,7 @@ msgstr ""
 
 #. name for mni
 msgid "Manipuri"
-msgstr ""
+msgstr "manipuri"
 
 #. name for mnj
 msgid "Munji"
@@ -16431,7 +16493,7 @@ msgstr ""
 
 #. name for moh
 msgid "Mohawk"
-msgstr ""
+msgstr "mohawk"
 
 #. name for moi
 msgid "Mboi"
@@ -16451,7 +16513,7 @@ msgstr ""
 
 #. name for mon
 msgid "Mongolian"
-msgstr ""
+msgstr "mongol"
 
 #. name for moo
 msgid "Monom"
@@ -16471,7 +16533,7 @@ msgstr ""
 
 #. name for mos
 msgid "Mossi"
-msgstr ""
+msgstr "mossi"
 
 #. name for mot
 msgid "Barí"
@@ -16735,7 +16797,7 @@ msgstr ""
 
 #. name for mri
 msgid "Maori"
-msgstr ""
+msgstr "maori"
 
 #. name for mrj
 msgid "Mari, Western"
@@ -17047,7 +17109,7 @@ msgstr ""
 
 #. name for mul
 msgid "Multiple languages"
-msgstr ""
+msgstr "több nyelv"
 
 #. name for mum
 msgid "Maiwala"
@@ -17069,9 +17131,10 @@ msgstr ""
 msgid "Murle"
 msgstr ""
 
+# src/trans.h:299
 #. name for mus
 msgid "Creek"
-msgstr ""
+msgstr "creek"
 
 #. name for mut
 msgid "Muria, Western"
@@ -17239,7 +17302,7 @@ msgstr ""
 
 #. name for mwl
 msgid "Mirandese"
-msgstr ""
+msgstr "mirandese"
 
 #. name for mwm
 msgid "Sar"
@@ -17263,7 +17326,7 @@ msgstr ""
 
 #. name for mwr
 msgid "Marwari"
-msgstr ""
+msgstr "marwari"
 
 #. name for mws
 msgid "Mwimbi-Muthambi"
@@ -17403,7 +17466,7 @@ msgstr ""
 
 #. name for mya
 msgid "Burmese"
-msgstr ""
+msgstr "burmai"
 
 #. name for myb
 msgid "Mbay"
@@ -17479,7 +17542,7 @@ msgstr ""
 
 #. name for myv
 msgid "Erzya"
-msgstr ""
+msgstr "erzija"
 
 #. name for myw
 msgid "Muyuw"
@@ -17651,7 +17714,7 @@ msgstr ""
 
 #. name for nap
 msgid "Neapolitan"
-msgstr ""
+msgstr "nápolyi"
 
 #. name for naq
 msgid "Nama (Namibia)"
@@ -17671,7 +17734,7 @@ msgstr ""
 
 #. name for nau
 msgid "Nauru"
-msgstr ""
+msgstr "nauru"
 
 #. name for nav
 msgid "Navajo"
@@ -17735,7 +17798,7 @@ msgstr ""
 
 #. name for nbl
 msgid "Ndebele, South"
-msgstr ""
+msgstr "ndebele (déli)"
 
 #. name for nbm
 msgid "Ngbaka Ma'bo"
@@ -17895,7 +17958,7 @@ msgstr ""
 
 #. name for nde
 msgid "Ndebele, North"
-msgstr ""
+msgstr "ndebele (északi)"
 
 #. name for ndf
 msgid "Nadruvian"
@@ -17935,7 +17998,7 @@ msgstr ""
 
 #. name for ndo
 msgid "Ndonga"
-msgstr ""
+msgstr "ndonga"
 
 #. name for ndp
 msgid "Ndo"
@@ -18039,7 +18102,7 @@ msgstr ""
 
 #. name for nep
 msgid "Nepali"
-msgstr ""
+msgstr "nepáli"
 
 #. name for neq
 msgid "Mixe, North Central"
@@ -18291,7 +18354,7 @@ msgstr ""
 
 #. name for nia
 msgid "Nias"
-msgstr ""
+msgstr "nias"
 
 #. name for nib
 msgid "Nakame"
@@ -18363,7 +18426,7 @@ msgstr ""
 
 #. name for niu
 msgid "Niuean"
-msgstr ""
+msgstr "niuei"
 
 #. name for niv
 msgid "Gilyak"
@@ -18553,9 +18616,10 @@ msgstr ""
 msgid "Nalca"
 msgstr ""
 
+# src/trans.h:292
 #. name for nld
 msgid "Dutch"
-msgstr ""
+msgstr "holland"
 
 #. name for nle
 msgid "Nyala, East"
@@ -18773,9 +18837,10 @@ msgstr ""
 msgid "Ngete"
 msgstr ""
 
+# src/trans.h:306
 #. name for nno
 msgid "Norwegian Nynorsk"
-msgstr ""
+msgstr "norvég (nynorsk)"
 
 #. name for nnp
 msgid "Naga, Wancho"
@@ -18847,7 +18912,7 @@ msgstr ""
 
 #. name for nog
 msgid "Nogai"
-msgstr ""
+msgstr "nogai"
 
 #. name for noh
 msgid "Nomu"
@@ -18871,7 +18936,7 @@ msgstr ""
 
 #. name for non
 msgid "Norse, Old"
-msgstr ""
+msgstr "ónorvég"
 
 #. name for nop
 msgid "Numanggang"
@@ -18881,9 +18946,10 @@ msgstr ""
 msgid "Ngongo"
 msgstr ""
 
+# src/trans.h:306
 #. name for nor
 msgid "Norwegian"
-msgstr ""
+msgstr "norvég"
 
 #. name for nos
 msgid "Nisu, Eastern"
@@ -19075,7 +19141,7 @@ msgstr ""
 
 #. name for nso
 msgid "Sotho, Northern"
-msgstr ""
+msgstr "sotho (északi)"
 
 #. name for nsp
 msgid "Nepalese Sign Language"
@@ -19415,15 +19481,15 @@ msgstr ""
 
 #. name for nym
 msgid "Nyamwezi"
-msgstr ""
+msgstr "nyamwezi"
 
 #. name for nyn
 msgid "Nyankole"
-msgstr ""
+msgstr "nyankole"
 
 #. name for nyo
 msgid "Nyoro"
-msgstr ""
+msgstr "nyoro"
 
 #. name for nyp
 msgid "Nyang'i"
@@ -19475,7 +19541,7 @@ msgstr ""
 
 #. name for nzi
 msgid "Nzima"
-msgstr ""
+msgstr "nzima"
 
 #. name for nzk
 msgid "Nzakara"
@@ -19651,7 +19717,7 @@ msgstr ""
 
 #. name for oji
 msgid "Ojibwa"
-msgstr ""
+msgstr "odzsibwa"
 
 #. name for ojp
 msgid "Japanese, Old"
@@ -19955,11 +20021,11 @@ msgstr ""
 
 #. name for ori
 msgid "Oriya"
-msgstr ""
+msgstr "orija"
 
 #. name for orm
 msgid "Oromo"
-msgstr ""
+msgstr "oromo"
 
 #. name for orn
 msgid "Orang Kanaq"
@@ -20003,7 +20069,7 @@ msgstr ""
 
 #. name for osa
 msgid "Osage"
-msgstr ""
+msgstr "oszage"
 
 #. name for osc
 msgid "Oscan"
@@ -20039,7 +20105,7 @@ msgstr ""
 
 #. name for ota
 msgid "Turkish, Ottoman (1500-1928)"
-msgstr ""
+msgstr "török (ottomán) (1500-1928)"
 
 #. name for otb
 msgid "Tibetan, Old"
@@ -20181,9 +20247,10 @@ msgstr ""
 msgid "Paranawát"
 msgstr ""
 
+# src/trans.h:300
 #. name for pag
 msgid "Pangasinan"
-msgstr ""
+msgstr "pangasini"
 
 #. name for pah
 msgid "Tenharim"
@@ -20199,11 +20266,11 @@ msgstr ""
 
 #. name for pal
 msgid "Pahlavi"
-msgstr ""
+msgstr "pahlavi"
 
 #. name for pam
 msgid "Pampanga"
-msgstr ""
+msgstr "pampanga"
 
 #. name for pan
 msgid "Panjabi"
@@ -20215,7 +20282,7 @@ msgstr ""
 
 #. name for pap
 msgid "Papiamento"
-msgstr ""
+msgstr "papiamento"
 
 #. name for paq
 msgid "Parya"
@@ -20235,7 +20302,7 @@ msgstr ""
 
 #. name for pau
 msgid "Palauan"
-msgstr ""
+msgstr "palaui"
 
 #. name for pav
 msgid "Pakaásnovos"
@@ -20581,9 +20648,10 @@ msgstr ""
 msgid "Phimbi"
 msgstr ""
 
+# src/trans.h:313
 #. name for phn
 msgid "Phoenician"
-msgstr ""
+msgstr "főníciai"
 
 #. name for pho
 msgid "Phunoi"
@@ -20791,7 +20859,7 @@ msgstr ""
 
 #. name for pli
 msgid "Pali"
-msgstr ""
+msgstr "pali"
 
 #. name for plj
 msgid "Polci"
@@ -21057,17 +21125,19 @@ msgstr ""
 msgid "Pokangá"
 msgstr ""
 
+# src/trans.h:307
 #. name for pol
 msgid "Polish"
-msgstr ""
+msgstr "lengyel"
 
 #. name for pom
 msgid "Pomo, Southeastern"
 msgstr ""
 
+# src/trans.h:302
 #. name for pon
 msgid "Pohnpeian"
-msgstr ""
+msgstr "ponpei"
 
 #. name for poo
 msgid "Pomo, Central"
@@ -21081,9 +21151,10 @@ msgstr ""
 msgid "Popoluca, Texistepec"
 msgstr ""
 
+# src/trans.h:308
 #. name for por
 msgid "Portuguese"
-msgstr ""
+msgstr "portugál"
 
 #. name for pos
 msgid "Popoluca, Sayula"
@@ -21223,7 +21294,7 @@ msgstr ""
 
 #. name for pro
 msgid "Provençal, Old (to 1500)"
-msgstr ""
+msgstr "provanszál, ó (1500-ig)"
 
 #. name for prp
 msgid "Parsi"
@@ -21451,7 +21522,7 @@ msgstr ""
 
 #. name for pus
 msgid "Pushto"
-msgstr ""
+msgstr "pushto"
 
 #. name for put
 msgid "Putoh"
@@ -21563,7 +21634,7 @@ msgstr ""
 
 #. name for que
 msgid "Quechua"
-msgstr ""
+msgstr "kecsua"
 
 #. name for quf
 msgid "Quechua, Lambayeque"
@@ -21811,7 +21882,7 @@ msgstr ""
 
 #. name for raj
 msgid "Rajasthani"
-msgstr ""
+msgstr "radzsasztani"
 
 #. name for rak
 msgid "Tulu-Bohuai"
@@ -21835,7 +21906,7 @@ msgstr ""
 
 #. name for rap
 msgid "Rapanui"
-msgstr ""
+msgstr "rapanui"
 
 #. name for raq
 msgid "Saam"
@@ -22213,13 +22284,15 @@ msgstr ""
 msgid "Romblomanon"
 msgstr ""
 
+# src/trans.h:309
 #. name for rom
 msgid "Romany"
-msgstr ""
+msgstr "roma"
 
+# src/trans.h:309
 #. name for ron
 msgid "Romanian"
-msgstr ""
+msgstr "román"
 
 #. name for roo
 msgid "Rotokas"
@@ -22315,7 +22388,7 @@ msgstr ""
 
 #. name for run
 msgid "Rundi"
-msgstr ""
+msgstr "rundi"
 
 #. name for ruo
 msgid "Romanian, Istro"
@@ -22329,9 +22402,10 @@ msgstr ""
 msgid "Romanian, Megleno"
 msgstr ""
 
+# src/trans.h:224
 #. name for rus
 msgid "Russian"
-msgstr ""
+msgstr "orosz"
 
 #. name for rut
 msgid "Rutul"
@@ -22395,7 +22469,7 @@ msgstr ""
 
 #. name for sad
 msgid "Sandawe"
-msgstr ""
+msgstr "sandawe"
 
 #. name for sae
 msgid "Sabanê"
@@ -22407,11 +22481,11 @@ msgstr ""
 
 #. name for sag
 msgid "Sango"
-msgstr ""
+msgstr "szango"
 
 #. name for sah
 msgid "Yakut"
-msgstr ""
+msgstr "jakut"
 
 #. name for saj
 msgid "Sahu"
@@ -22425,9 +22499,10 @@ msgstr ""
 msgid "Aramaic, Samaritan"
 msgstr ""
 
+# src/trans.h:193
 #. name for san
 msgid "Sanskrit"
-msgstr ""
+msgstr "szankszrit"
 
 #. name for sao
 msgid "Sause"
@@ -22445,13 +22520,14 @@ msgstr ""
 msgid "Saraveca"
 msgstr ""
 
+# src/trans.h:193
 #. name for sas
 msgid "Sasak"
-msgstr ""
+msgstr "szaszak"
 
 #. name for sat
 msgid "Santali"
-msgstr ""
+msgstr "szantáli"
 
 #. name for sau
 msgid "Saleman"
@@ -22619,11 +22695,12 @@ msgstr ""
 
 #. name for scn
 msgid "Sicilian"
-msgstr ""
+msgstr "friuli"
 
+# src/trans.h:44
 #. name for sco
 msgid "Scots"
-msgstr ""
+msgstr "skót"
 
 #. name for scp
 msgid "Helambu Sherpa"
@@ -22779,7 +22856,7 @@ msgstr ""
 
 #. name for sel
 msgid "Selkup"
-msgstr ""
+msgstr "szelkup"
 
 #. name for sen
 msgid "Sénoufo, Nanerigé"
@@ -22847,7 +22924,7 @@ msgstr ""
 
 #. name for sga
 msgid "Irish, Old (to 900)"
-msgstr ""
+msgstr "óír (900-ig)"
 
 #. name for sgb
 msgid "Ayta, Mag-antsi"
@@ -22975,7 +23052,7 @@ msgstr ""
 
 #. name for shn
 msgid "Shan"
-msgstr ""
+msgstr "shan"
 
 #. name for sho
 msgid "Shanga"
@@ -23035,7 +23112,7 @@ msgstr ""
 
 #. name for sid
 msgid "Sidamo"
-msgstr ""
+msgstr "szidamo"
 
 #. name for sie
 msgid "Simaa"
@@ -23313,9 +23390,10 @@ msgstr ""
 msgid "Salumá"
 msgstr ""
 
+# src/trans.h:312
 #. name for slk
 msgid "Slovak"
-msgstr ""
+msgstr "szlovák"
 
 #. name for sll
 msgid "Salt-Yui"
@@ -23353,9 +23431,10 @@ msgstr ""
 msgid "Selaru"
 msgstr ""
 
+# src/trans.h:313
 #. name for slv
 msgid "Slovenian"
-msgstr ""
+msgstr "szlovén"
 
 #. name for slw
 msgid "Sialum"
@@ -23407,7 +23486,7 @@ msgstr ""
 
 #. name for smj
 msgid "Lule Sami"
-msgstr ""
+msgstr "lule szami"
 
 #. name for smk
 msgid "Bolinao"
@@ -23427,7 +23506,7 @@ msgstr ""
 
 #. name for smo
 msgid "Samoan"
-msgstr ""
+msgstr "szamoai"
 
 #. name for smp
 msgid "Samaritan"
@@ -23475,7 +23554,7 @@ msgstr ""
 
 #. name for sna
 msgid "Shona"
-msgstr ""
+msgstr "shona"
 
 #. name for snb
 msgid "Sebuyau"
@@ -23487,7 +23566,7 @@ msgstr ""
 
 #. name for snd
 msgid "Sindhi"
-msgstr ""
+msgstr "szindi"
 
 #. name for sne
 msgid "Bidayuh, Bau"
@@ -23513,9 +23592,10 @@ msgstr ""
 msgid "Sango, Riverain"
 msgstr ""
 
+# src/trans.h:313
 #. name for snk
 msgid "Soninke"
-msgstr ""
+msgstr "soninke"
 
 #. name for snl
 msgid "Sangil"
@@ -23595,7 +23675,7 @@ msgstr ""
 
 #. name for sog
 msgid "Sogdian"
-msgstr ""
+msgstr "sogdi"
 
 #. name for soh
 msgid "Aka"
@@ -23619,7 +23699,7 @@ msgstr ""
 
 #. name for som
 msgid "Somali"
-msgstr ""
+msgstr "szomáli"
 
 #. name for soo
 msgid "Songo"
@@ -23643,7 +23723,7 @@ msgstr ""
 
 #. name for sot
 msgid "Sotho, Southern"
-msgstr ""
+msgstr "sotho, déli"
 
 #. name for sou
 msgid "Thai, Southern"
@@ -23671,7 +23751,7 @@ msgstr ""
 
 #. name for spa
 msgid "Spanish"
-msgstr ""
+msgstr "spanyol"
 
 #. name for spb
 msgid "Sepa (Indonesia)"
@@ -23753,9 +23833,10 @@ msgstr ""
 msgid "Shau"
 msgstr ""
 
+# src/trans.h:282
 #. name for sqi
 msgid "Albanian"
-msgstr ""
+msgstr "albán"
 
 #. name for sqm
 msgid "Suma"
@@ -23801,9 +23882,10 @@ msgstr ""
 msgid "Sardinian, Logudorese"
 msgstr ""
 
+# src/trans.h:305
 #. name for srd
 msgid "Sardinian"
-msgstr ""
+msgstr "szardíniai"
 
 #. name for sre
 msgid "Sara"
@@ -23845,9 +23927,10 @@ msgstr ""
 msgid "Sardinian, Campidanese"
 msgstr ""
 
+# src/trans.h:311
 #. name for srp
 msgid "Serbian"
-msgstr ""
+msgstr "szerb"
 
 #. name for srq
 msgid "Sirionó"
@@ -23855,7 +23938,7 @@ msgstr ""
 
 #. name for srr
 msgid "Serer"
-msgstr ""
+msgstr "serer"
 
 #. name for srs
 msgid "Sarsi"
@@ -23975,7 +24058,7 @@ msgstr ""
 
 #. name for ssw
 msgid "Swati"
-msgstr ""
+msgstr "swati"
 
 #. name for ssx
 msgid "Samberigi"
@@ -24107,11 +24190,11 @@ msgstr ""
 
 #. name for suk
 msgid "Sukuma"
-msgstr ""
+msgstr "sukuma"
 
 #. name for sun
 msgid "Sundanese"
-msgstr ""
+msgstr "szundanéz"
 
 #. name for suq
 msgid "Suri"
@@ -24123,7 +24206,7 @@ msgstr ""
 
 #. name for sus
 msgid "Susu"
-msgstr ""
+msgstr "susu"
 
 #. name for sut
 msgid "Subtiaba"
@@ -24137,9 +24220,10 @@ msgstr ""
 msgid "Sumbwa"
 msgstr ""
 
+# src/trans.h:311
 #. name for sux
 msgid "Sumerian"
-msgstr ""
+msgstr "sumér"
 
 #. name for suy
 msgid "Suyá"
@@ -24193,9 +24277,10 @@ msgstr ""
 msgid "Swahili, Congo"
 msgstr ""
 
+# src/trans.h:315
 #. name for swe
 msgid "Swedish"
-msgstr ""
+msgstr "svéd"
 
 #. name for swf
 msgid "Sere"
@@ -24359,15 +24444,16 @@ msgstr ""
 
 #. name for syn
 msgid "Senaya"
-msgstr ""
+msgstr "szenaja"
 
 #. name for syo
 msgid "Suoy"
 msgstr ""
 
+# src/trans.h:311
 #. name for syr
 msgid "Syriac"
-msgstr ""
+msgstr "szír"
 
 #. name for sys
 msgid "Sinyar"
@@ -24383,7 +24469,7 @@ msgstr ""
 
 #. name for sza
 msgid "Semelai"
-msgstr ""
+msgstr "szemelai"
 
 #. name for szb
 msgid "Ngalum"
@@ -24395,11 +24481,11 @@ msgstr ""
 
 #. name for szd
 msgid "Seru"
-msgstr ""
+msgstr "szeru"
 
 #. name for sze
 msgid "Seze"
-msgstr ""
+msgstr "szeze"
 
 #. name for szg
 msgid "Sengele"
@@ -24411,11 +24497,11 @@ msgstr ""
 
 #. name for szn
 msgid "Sula"
-msgstr ""
+msgstr "Szula"
 
 #. name for szp
 msgid "Suabo"
-msgstr ""
+msgstr "szuabo"
 
 #. name for szv
 msgid "Isu (Fako Division)"
@@ -24423,7 +24509,7 @@ msgstr ""
 
 #. name for szw
 msgid "Sawai"
-msgstr ""
+msgstr "szavai"
 
 #. name for taa
 msgid "Tanana, Lower"
@@ -24431,7 +24517,7 @@ msgstr ""
 
 #. name for tab
 msgid "Tabassaran"
-msgstr ""
+msgstr "tabaszár"
 
 #. name for tac
 msgid "Tarahumara, Lowland"
@@ -24439,7 +24525,7 @@ msgstr ""
 
 #. name for tad
 msgid "Tause"
-msgstr ""
+msgstr "tausze"
 
 #. name for tae
 msgid "Tariana"
@@ -24451,11 +24537,12 @@ msgstr ""
 
 #. name for tag
 msgid "Tagoi"
-msgstr ""
+msgstr "tagoj"
 
+# src/trans.h:289
 #. name for tah
 msgid "Tahitian"
-msgstr ""
+msgstr "tahiti"
 
 #. name for taj
 msgid "Tamang, Eastern"
@@ -24463,23 +24550,24 @@ msgstr ""
 
 #. name for tak
 msgid "Tala"
-msgstr ""
+msgstr "tala"
 
 #. name for tal
 msgid "Tal"
-msgstr ""
+msgstr "tal"
 
 #. name for tam
 msgid "Tamil"
-msgstr ""
+msgstr "tamil"
 
+# src/trans.h:116
 #. name for tan
 msgid "Tangale"
-msgstr ""
+msgstr "tangale"
 
 #. name for tao
 msgid "Yami"
-msgstr ""
+msgstr "jami"
 
 #. name for tap
 msgid "Taabwa"
@@ -24487,7 +24575,7 @@ msgstr ""
 
 #. name for taq
 msgid "Tamasheq"
-msgstr ""
+msgstr "tamasek"
 
 #. name for tar
 msgid "Tarahumara, Central"
@@ -24499,7 +24587,7 @@ msgstr ""
 
 #. name for tat
 msgid "Tatar"
-msgstr ""
+msgstr "tatár"
 
 #. name for tau
 msgid "Tanana, Upper"
@@ -24507,15 +24595,15 @@ msgstr ""
 
 #. name for tav
 msgid "Tatuyo"
-msgstr ""
+msgstr "tatuyo"
 
 #. name for taw
 msgid "Tai"
-msgstr ""
+msgstr "Tai"
 
 #. name for tax
 msgid "Tamki"
-msgstr ""
+msgstr "tamki"
 
 #. name for tay
 msgid "Atayal"
@@ -24535,7 +24623,7 @@ msgstr ""
 
 #. name for tbc
 msgid "Takia"
-msgstr ""
+msgstr "takia"
 
 #. name for tbd
 msgid "Kaki Ae"
@@ -24543,11 +24631,11 @@ msgstr ""
 
 #. name for tbe
 msgid "Tanimbili"
-msgstr ""
+msgstr "tanimbili"
 
 #. name for tbf
 msgid "Mandara"
-msgstr ""
+msgstr "mandara"
 
 #. name for tbg
 msgid "Tairora, North"
@@ -24559,11 +24647,11 @@ msgstr ""
 
 #. name for tbi
 msgid "Gaam"
-msgstr ""
+msgstr "gám"
 
 #. name for tbj
 msgid "Tiang"
-msgstr ""
+msgstr "tiang"
 
 #. name for tbk
 msgid "Tagbanwa, Calamian"
@@ -24571,7 +24659,7 @@ msgstr ""
 
 #. name for tbl
 msgid "Tboli"
-msgstr ""
+msgstr "tboli"
 
 #. name for tbm
 msgid "Tagbu"
@@ -24583,19 +24671,19 @@ msgstr ""
 
 #. name for tbo
 msgid "Tawala"
-msgstr ""
+msgstr "tavala"
 
 #. name for tbp
 msgid "Taworta"
-msgstr ""
+msgstr "tavorta"
 
 #. name for tbr
 msgid "Tumtum"
-msgstr ""
+msgstr "tumtum"
 
 #. name for tbs
 msgid "Tanguat"
-msgstr ""
+msgstr "tanguat"
 
 #. name for tbt
 msgid "Tembo (Kitembo)"
@@ -24603,7 +24691,7 @@ msgstr ""
 
 #. name for tbu
 msgid "Tubar"
-msgstr ""
+msgstr "tubar"
 
 #. name for tbv
 msgid "Tobo"
@@ -24615,11 +24703,11 @@ msgstr ""
 
 #. name for tbx
 msgid "Kapin"
-msgstr ""
+msgstr "kapin"
 
 #. name for tby
 msgid "Tabaru"
-msgstr ""
+msgstr "tabaru"
 
 #. name for tbz
 msgid "Ditammari"
@@ -24635,23 +24723,24 @@ msgstr ""
 
 #. name for tcc
 msgid "Datooga"
-msgstr ""
+msgstr "datooga"
 
 #. name for tcd
 msgid "Tafi"
-msgstr ""
+msgstr "tafi"
 
 #. name for tce
 msgid "Tutchone, Southern"
-msgstr ""
+msgstr "Tutcsone, dél"
 
 #. name for tcf
 msgid "Tlapanec, Malinaltepec"
 msgstr ""
 
+# src/trans.h:116
 #. name for tcg
 msgid "Tamagario"
-msgstr ""
+msgstr "tamagarjó"
 
 #. name for tch
 msgid "Creole English, Turks And Caicos"
@@ -24659,7 +24748,7 @@ msgstr ""
 
 #. name for tci
 msgid "Wára"
-msgstr ""
+msgstr "vára"
 
 #. name for tck
 msgid "Tchitchege"
@@ -24679,7 +24768,7 @@ msgstr ""
 
 #. name for tco
 msgid "Taungyo"
-msgstr ""
+msgstr "taungjo"
 
 #. name for tcp
 msgid "Chin, Tawr"
@@ -24687,7 +24776,7 @@ msgstr ""
 
 #. name for tcq
 msgid "Kaiy"
-msgstr ""
+msgstr "kaij"
 
 #. name for tcs
 msgid "Creole, Torres Strait"
@@ -24695,7 +24784,7 @@ msgstr ""
 
 #. name for tct
 msgid "T'en"
-msgstr ""
+msgstr "t'en"
 
 #. name for tcu
 msgid "Tarahumara, Southeastern"
@@ -24707,23 +24796,25 @@ msgstr ""
 
 #. name for tcx
 msgid "Toda"
-msgstr ""
+msgstr "toda"
 
 #. name for tcy
 msgid "Tulu"
-msgstr ""
+msgstr "tulu"
 
 #. name for tcz
 msgid "Chin, Thado"
 msgstr ""
 
+# src/trans.h:116
 #. name for tda
 msgid "Tagdal"
-msgstr ""
+msgstr "tagdal"
 
+# src/trans.h:300
 #. name for tdb
 msgid "Panchpargania"
-msgstr ""
+msgstr "pancspargania"
 
 #. name for tdc
 msgid "Emberá-Tadó"
@@ -24739,7 +24830,7 @@ msgstr ""
 
 #. name for tdf
 msgid "Talieng"
-msgstr ""
+msgstr "talieng"
 
 #. name for tdg
 msgid "Tamang, Western"
@@ -24747,19 +24838,20 @@ msgstr ""
 
 #. name for tdh
 msgid "Thulung"
-msgstr ""
+msgstr "tulung"
 
+# src/trans.h:47 src/trans.h:50
 #. name for tdi
 msgid "Tomadino"
-msgstr ""
+msgstr "tomadinó"
 
 #. name for tdj
 msgid "Tajio"
-msgstr ""
+msgstr "tadzsió"
 
 #. name for tdk
 msgid "Tambas"
-msgstr ""
+msgstr "tambasz"
 
 #. name for tdl
 msgid "Sur"
@@ -24767,15 +24859,15 @@ msgstr ""
 
 #. name for tdn
 msgid "Tondano"
-msgstr ""
+msgstr "tondanó"
 
 #. name for tdo
 msgid "Teme"
-msgstr ""
+msgstr "teme"
 
 #. name for tdq
 msgid "Tita"
-msgstr ""
+msgstr "tita"
 
 #. name for tdr
 msgid "Todrah"
@@ -24783,7 +24875,7 @@ msgstr ""
 
 #. name for tds
 msgid "Doutai"
-msgstr ""
+msgstr "doutaj"
 
 #. name for tdt
 msgid "Tetun Dili"
@@ -24795,7 +24887,7 @@ msgstr ""
 
 #. name for tdv
 msgid "Toro"
-msgstr ""
+msgstr "toró"
 
 #. name for tdx
 msgid "Malagasy, Tandroy-Mahafaly"
@@ -24827,15 +24919,16 @@ msgstr ""
 
 #. name for tef
 msgid "Teressa"
-msgstr ""
+msgstr "teressza"
 
 #. name for teg
 msgid "Teke-Tege"
 msgstr ""
 
+# src/trans.h:290
 #. name for teh
 msgid "Tehuelche"
-msgstr ""
+msgstr "tehelcse"
 
 #. name for tei
 msgid "Torricelli"
@@ -24847,11 +24940,11 @@ msgstr ""
 
 #. name for tel
 msgid "Telugu"
-msgstr ""
+msgstr "telugu"
 
 #. name for tem
 msgid "Timne"
-msgstr ""
+msgstr "timne"
 
 #. name for ten
 msgid "Tama (Colombia)"
@@ -24859,19 +24952,19 @@ msgstr ""
 
 #. name for teo
 msgid "Teso"
-msgstr ""
+msgstr "teszo"
 
 #. name for tep
 msgid "Tepecano"
-msgstr ""
+msgstr "tepekano"
 
 #. name for teq
 msgid "Temein"
-msgstr ""
+msgstr "temejn"
 
 #. name for ter
 msgid "Tereno"
-msgstr ""
+msgstr "tereno"
 
 #. name for tes
 msgid "Tengger"
@@ -24879,7 +24972,7 @@ msgstr ""
 
 #. name for tet
 msgid "Tetum"
-msgstr ""
+msgstr "tetum"
 
 #. name for teu
 msgid "Soo"
@@ -24887,7 +24980,7 @@ msgstr ""
 
 #. name for tev
 msgid "Teor"
-msgstr ""
+msgstr "teor"
 
 #. name for tew
 msgid "Tewa (USA)"
@@ -24897,29 +24990,31 @@ msgstr ""
 msgid "Tennet"
 msgstr ""
 
+# src/trans.h:316
 #. name for tey
 msgid "Tulishi"
-msgstr ""
+msgstr "tulisi"
 
 #. name for tfi
 msgid "Gbe, Tofin"
 msgstr ""
 
+# src/trans.h:300
 #. name for tfn
 msgid "Tanaina"
-msgstr ""
+msgstr "tanajna"
 
 #. name for tfo
 msgid "Tefaro"
-msgstr ""
+msgstr "tefaró"
 
 #. name for tfr
 msgid "Teribe"
-msgstr ""
+msgstr "reribe"
 
 #. name for tft
 msgid "Ternate"
-msgstr ""
+msgstr "ternate"
 
 #. name for tga
 msgid "Sagalla"
@@ -24929,13 +25024,14 @@ msgstr ""
 msgid "Tobilung"
 msgstr ""
 
+# src/trans.h:316
 #. name for tgc
 msgid "Tigak"
-msgstr ""
+msgstr "tigak"
 
 #. name for tgd
 msgid "Ciwogai"
-msgstr ""
+msgstr "civogai"
 
 #. name for tge
 msgid "Tamang, Eastern Gorkha"
@@ -24943,11 +25039,11 @@ msgstr ""
 
 #. name for tgf
 msgid "Chalikha"
-msgstr ""
+msgstr "csalika"
 
 #. name for tgg
 msgid "Tangga"
-msgstr ""
+msgstr "tanga"
 
 #. name for tgh
 msgid "Creole English, Tobagonian"
@@ -24955,15 +25051,16 @@ msgstr ""
 
 #. name for tgi
 msgid "Lawunuia"
-msgstr ""
+msgstr "lavunuia"
 
 #. name for tgk
 msgid "Tajik"
-msgstr ""
+msgstr "tadzsik"
 
+# src/trans.h:116
 #. name for tgl
 msgid "Tagalog"
-msgstr ""
+msgstr "tagalog"
 
 #. name for tgn
 msgid "Tandaganon"
@@ -24975,39 +25072,43 @@ msgstr ""
 
 #. name for tgp
 msgid "Tangoa"
-msgstr ""
+msgstr "tangoa"
 
+# src/trans.h:316
 #. name for tgq
 msgid "Tring"
-msgstr ""
+msgstr "tring"
 
+# src/trans.h:223
 #. name for tgr
 msgid "Tareng"
-msgstr ""
+msgstr "tareng"
 
 #. name for tgs
 msgid "Nume"
-msgstr ""
+msgstr "nume"
 
 #. name for tgt
 msgid "Tagbanwa, Central"
 msgstr ""
 
+# src/trans.h:116
 #. name for tgu
 msgid "Tanggu"
-msgstr ""
+msgstr "tangu"
 
 #. name for tgv
 msgid "Tingui-Boto"
-msgstr ""
+msgstr "tingui-Boto"
 
 #. name for tgw
 msgid "Senoufo, Tagwana"
 msgstr ""
 
+# src/trans.h:291
 #. name for tgx
 msgid "Tagish"
-msgstr ""
+msgstr "tagis"
 
 #. name for tgy
 msgid "Togoyo"
@@ -25015,7 +25116,7 @@ msgstr ""
 
 #. name for tha
 msgid "Thai"
-msgstr ""
+msgstr "thai"
 
 #. name for thc
 msgid "Tai Hang Tong"
@@ -25031,11 +25132,11 @@ msgstr ""
 
 #. name for thf
 msgid "Thangmi"
-msgstr ""
+msgstr "tangmi"
 
 #. name for thh
 msgid "Tarahumara, Northern"
-msgstr ""
+msgstr "tarahumara, észak"
 
 #. name for thi
 msgid "Tai Long"
@@ -25051,7 +25152,7 @@ msgstr ""
 
 #. name for thm
 msgid "Aheu"
-msgstr ""
+msgstr "aheu"
 
 #. name for thn
 msgid "Thachanadan"
@@ -25071,15 +25172,17 @@ msgstr ""
 
 #. name for ths
 msgid "Thakali"
-msgstr ""
+msgstr "takali"
 
+# src/trans.h:289
 #. name for tht
 msgid "Tahltan"
-msgstr ""
+msgstr "talta"
 
+# src/trans.h:316
 #. name for thu
 msgid "Thuri"
-msgstr ""
+msgstr "turi"
 
 #. name for thv
 msgid "Tamahaq, Tahaggart"
@@ -25087,7 +25190,7 @@ msgstr ""
 
 #. name for thw
 msgid "Thudam"
-msgstr ""
+msgstr "tudam"
 
 #. name for thx
 msgid "The"
@@ -25095,7 +25198,7 @@ msgstr ""
 
 #. name for thy
 msgid "Tha"
-msgstr ""
+msgstr "ta"
 
 #. name for thz
 msgid "Tamajeq, Tayart"
@@ -25105,21 +25208,23 @@ msgstr ""
 msgid "Tamazight, Tidikelt"
 msgstr ""
 
+# src/trans.h:316
 #. name for tic
 msgid "Tira"
-msgstr ""
+msgstr "tira"
 
 #. name for tid
 msgid "Tidong"
-msgstr ""
+msgstr "tidong"
 
 #. name for tif
 msgid "Tifal"
-msgstr ""
+msgstr "tifal"
 
+# src/trans.h:316
 #. name for tig
 msgid "Tigre"
-msgstr ""
+msgstr "tigre"
 
 #. name for tih
 msgid "Murut, Timugon"
@@ -25127,15 +25232,16 @@ msgstr ""
 
 #. name for tii
 msgid "Tiene"
-msgstr ""
+msgstr "tiene"
 
 #. name for tij
 msgid "Tilung"
-msgstr ""
+msgstr "tilung"
 
+# src/trans.h:316
 #. name for tik
 msgid "Tikar"
-msgstr ""
+msgstr "tikar"
 
 #. name for til
 msgid "Tillamook"
@@ -25143,27 +25249,29 @@ msgstr ""
 
 #. name for tim
 msgid "Timbe"
-msgstr ""
+msgstr "timbe"
 
 #. name for tin
 msgid "Tindi"
-msgstr ""
+msgstr "tindi"
 
 #. name for tio
 msgid "Teop"
-msgstr ""
+msgstr "teop"
 
+# src/trans.h:316
 #. name for tip
 msgid "Trimuris"
-msgstr ""
+msgstr "trimurisz"
 
 #. name for tiq
 msgid "Tiéfo"
 msgstr ""
 
+# src/trans.h:316
 #. name for tir
 msgid "Tigrinya"
-msgstr ""
+msgstr "tigrinya"
 
 #. name for tis
 msgid "Itneg, Masadiit"
@@ -25171,7 +25279,7 @@ msgstr ""
 
 #. name for tit
 msgid "Tinigua"
-msgstr ""
+msgstr "tinigua"
 
 #. name for tiu
 msgid "Adasen"
@@ -25179,15 +25287,15 @@ msgstr ""
 
 #. name for tiv
 msgid "Tiv"
-msgstr ""
+msgstr "tiv"
 
 #. name for tiw
 msgid "Tiwi"
-msgstr ""
+msgstr "tivi"
 
 #. name for tix
 msgid "Tiwa, Southern"
-msgstr ""
+msgstr "tiva, déli"
 
 #. name for tiy
 msgid "Tiruray"
@@ -25199,7 +25307,7 @@ msgstr ""
 
 #. name for tja
 msgid "Tajuasohn"
-msgstr ""
+msgstr "tajuason"
 
 #. name for tjg
 msgid "Tunjung"
@@ -25207,7 +25315,7 @@ msgstr ""
 
 #. name for tji
 msgid "Tujia, Northern"
-msgstr ""
+msgstr "tujia, észak"
 
 #. name for tjm
 msgid "Timucua"
@@ -25223,7 +25331,7 @@ msgstr ""
 
 #. name for tjs
 msgid "Tujia, Southern"
-msgstr ""
+msgstr "tujia, dél"
 
 #. name for tju
 msgid "Tjurruru"
@@ -25235,7 +25343,7 @@ msgstr ""
 
 #. name for tkb
 msgid "Buksa"
-msgstr ""
+msgstr "buksza"
 
 #. name for tkd
 msgid "Tukudede"
@@ -25243,7 +25351,7 @@ msgstr ""
 
 #. name for tke
 msgid "Takwane"
-msgstr ""
+msgstr "takvane"
 
 #. name for tkf
 msgid "Tukumanféd"
@@ -25255,11 +25363,11 @@ msgstr ""
 
 #. name for tkl
 msgid "Tokelau"
-msgstr ""
+msgstr "tokelau"
 
 #. name for tkm
 msgid "Takelma"
-msgstr ""
+msgstr "takelma"
 
 #. name for tkn
 msgid "Toku-No-Shima"
@@ -25271,7 +25379,7 @@ msgstr ""
 
 #. name for tkq
 msgid "Tee"
-msgstr ""
+msgstr "tee"
 
 #. name for tkr
 msgid "Tsakhur"
@@ -25279,7 +25387,7 @@ msgstr ""
 
 #. name for tks
 msgid "Takestani"
-msgstr ""
+msgstr "takesztán"
 
 #. name for tkt
 msgid "Tharu, Kathoriya"
@@ -25291,15 +25399,15 @@ msgstr ""
 
 #. name for tkw
 msgid "Teanu"
-msgstr ""
+msgstr "teanu"
 
 #. name for tkx
 msgid "Tangko"
-msgstr ""
+msgstr "tangko"
 
 #. name for tkz
 msgid "Takua"
-msgstr ""
+msgstr "takua"
 
 #. name for tla
 msgid "Tepehuan, Southwestern"
@@ -25307,7 +25415,7 @@ msgstr ""
 
 #. name for tlb
 msgid "Tobelo"
-msgstr ""
+msgstr "tobelo"
 
 #. name for tlc
 msgid "Totonac, Yecuatla"
@@ -25315,15 +25423,15 @@ msgstr ""
 
 #. name for tld
 msgid "Talaud"
-msgstr ""
+msgstr "talaud"
 
 #. name for tlf
 msgid "Telefol"
-msgstr ""
+msgstr "telefol"
 
 #. name for tlg
 msgid "Tofanma"
-msgstr ""
+msgstr "tofanma"
 
 #. name for tlh
 msgid "Klingon"
@@ -25331,31 +25439,33 @@ msgstr ""
 
 #. name for tli
 msgid "Tlingit"
-msgstr ""
+msgstr "tlingit"
 
 #. name for tlj
 msgid "Talinga-Bwisi"
 msgstr ""
 
+# src/trans.h:116
 #. name for tlk
 msgid "Taloki"
-msgstr ""
+msgstr "taloki"
 
 #. name for tll
 msgid "Tetela"
-msgstr ""
+msgstr "tetela"
 
 #. name for tlm
 msgid "Tolomako"
-msgstr ""
+msgstr "tolomakó"
 
 #. name for tln
 msgid "Talondo'"
 msgstr ""
 
+# src/trans.h:116
 #. name for tlo
 msgid "Talodi"
-msgstr ""
+msgstr "talodi"
 
 #. name for tlp
 msgid "Totonac, Filomena Mata-Coahuitlán"
@@ -25365,33 +25475,36 @@ msgstr ""
 msgid "Tai Loi"
 msgstr ""
 
+# src/trans.h:220
 #. name for tlr
 msgid "Talise"
-msgstr ""
+msgstr "talisze"
 
+# src/trans.h:116
 #. name for tls
 msgid "Tambotalo"
-msgstr ""
+msgstr "tambotalo"
 
 #. name for tlt
 msgid "Teluti"
-msgstr ""
+msgstr "teluti"
 
 #. name for tlu
 msgid "Tulehu"
-msgstr ""
+msgstr "tulehu"
 
 #. name for tlv
 msgid "Taliabu"
-msgstr ""
+msgstr "taliabu"
 
 #. name for tlw
 msgid "Wemale, South"
-msgstr ""
+msgstr "vemale, dél"
 
+# src/trans.h:290
 #. name for tlx
 msgid "Khehek"
-msgstr ""
+msgstr "kehek"
 
 #. name for tly
 msgid "Talysh"
@@ -25403,15 +25516,15 @@ msgstr ""
 
 #. name for tmb
 msgid "Katbol"
-msgstr ""
+msgstr "katbol"
 
 #. name for tmc
 msgid "Tumak"
-msgstr ""
+msgstr "tumak"
 
 #. name for tmd
 msgid "Haruai"
-msgstr ""
+msgstr "haruai"
 
 #. name for tme
 msgid "Tremembé"
@@ -25423,19 +25536,19 @@ msgstr ""
 
 #. name for tmg
 msgid "Ternateño"
-msgstr ""
+msgstr "ternateño"
 
 #. name for tmh
 msgid "Tamashek"
-msgstr ""
+msgstr "tamasek"
 
 #. name for tmi
 msgid "Tutuba"
-msgstr ""
+msgstr "tutuba"
 
 #. name for tmj
 msgid "Samarokena"
-msgstr ""
+msgstr "szamarokena"
 
 #. name for tmk
 msgid "Tamang, Northwestern"
@@ -25449,13 +25562,14 @@ msgstr ""
 msgid "Tai Thanh"
 msgstr ""
 
+# src/trans.h:302
 #. name for tmn
 msgid "Taman (Indonesia)"
-msgstr ""
+msgstr "taman (Indonézia)"
 
 #. name for tmo
 msgid "Temoq"
-msgstr ""
+msgstr "temok"
 
 #. name for tmp
 msgid "Tai Mène"
@@ -25463,7 +25577,7 @@ msgstr ""
 
 #. name for tmq
 msgid "Tumleo"
-msgstr ""
+msgstr "tumleo"
 
 #. name for tmr
 msgid "Aramaic, Jewish Babylonian (ca. 200-1200 CE)"
@@ -25471,11 +25585,11 @@ msgstr ""
 
 #. name for tms
 msgid "Tima"
-msgstr ""
+msgstr "tima"
 
 #. name for tmt
 msgid "Tasmate"
-msgstr ""
+msgstr "tasmate"
 
 #. name for tmu
 msgid "Iau"
@@ -25485,21 +25599,22 @@ msgstr ""
 msgid "Tembo (Motembo)"
 msgstr ""
 
+# src/trans.h:298
 #. name for tmw
 msgid "Temuan"
-msgstr ""
+msgstr "temuan"
 
 #. name for tmy
 msgid "Tami"
-msgstr ""
+msgstr "tami"
 
 #. name for tmz
 msgid "Tamanaku"
-msgstr ""
+msgstr "tamanaku"
 
 #. name for tna
 msgid "Tacana"
-msgstr ""
+msgstr "Tacana"
 
 #. name for tnb
 msgid "Tunebo, Western"
@@ -25519,19 +25634,19 @@ msgstr ""
 
 #. name for tng
 msgid "Tobanga"
-msgstr ""
+msgstr "tobanga"
 
 #. name for tnh
 msgid "Maiani"
-msgstr ""
+msgstr "majani"
 
 #. name for tni
 msgid "Tandia"
-msgstr ""
+msgstr "tandia"
 
 #. name for tnk
 msgid "Kwamera"
-msgstr ""
+msgstr "kvamera"
 
 #. name for tnl
 msgid "Lenakel"
@@ -25539,7 +25654,7 @@ msgstr ""
 
 #. name for tnm
 msgid "Tabla"
-msgstr ""
+msgstr "tabla"
 
 #. name for tnn
 msgid "Tanna, North"
@@ -25547,15 +25662,16 @@ msgstr ""
 
 #. name for tno
 msgid "Toromono"
-msgstr ""
+msgstr "toromono"
 
 #. name for tnp
 msgid "Whitesands"
 msgstr ""
 
+# src/trans.h:47 src/trans.h:50
 #. name for tnq
 msgid "Taino"
-msgstr ""
+msgstr "tajno"
 
 #. name for tnr
 msgid "Bedik"
@@ -25579,23 +25695,23 @@ msgstr ""
 
 #. name for tnw
 msgid "Tonsawang"
-msgstr ""
+msgstr "tonsavang"
 
 #. name for tnx
 msgid "Tanema"
-msgstr ""
+msgstr "tanema"
 
 #. name for tny
 msgid "Tongwe"
-msgstr ""
+msgstr "tongve"
 
 #. name for tnz
 msgid "Tonga (Thailand)"
-msgstr ""
+msgstr "tonga (Thaiföld)"
 
 #. name for tob
 msgid "Toba"
-msgstr ""
+msgstr "toba"
 
 #. name for toc
 msgid "Totonac, Coyutla"
@@ -25603,7 +25719,7 @@ msgstr ""
 
 #. name for tod
 msgid "Toma"
-msgstr ""
+msgstr "toma"
 
 #. name for toe
 msgid "Tomedes"
@@ -25615,15 +25731,15 @@ msgstr ""
 
 #. name for tog
 msgid "Tonga (Nyasa)"
-msgstr ""
+msgstr "tonga (nyasza)"
 
 #. name for toh
 msgid "Gitonga"
-msgstr ""
+msgstr "gitonga"
 
 #. name for toi
 msgid "Tonga (Zambia)"
-msgstr ""
+msgstr "tonga (Zambia)"
 
 #. name for toj
 msgid "Tojolabal"
@@ -25631,15 +25747,15 @@ msgstr ""
 
 #. name for tol
 msgid "Tolowa"
-msgstr ""
+msgstr "tolova"
 
 #. name for tom
 msgid "Tombulu"
-msgstr ""
+msgstr "tombulu"
 
 #. name for ton
 msgid "Tonga (Tonga Islands)"
-msgstr ""
+msgstr "tonga (Tonga-szigetek)"
 
 #. name for too
 msgid "Totonac, Xicotepec De Juárez"
@@ -25669,13 +25785,14 @@ msgstr ""
 msgid "Taromi, Upper"
 msgstr ""
 
+# src/trans.h:299
 #. name for tow
 msgid "Jemez"
-msgstr ""
+msgstr "Dzsemez"
 
 #. name for tox
 msgid "Tobian"
-msgstr ""
+msgstr "tobi"
 
 #. name for toy
 msgid "Topoiyo"
@@ -25687,7 +25804,7 @@ msgstr ""
 
 #. name for tpa
 msgid "Taupota"
-msgstr ""
+msgstr "taupota"
 
 #. name for tpc
 msgid "Tlapanec, Azoyú"
@@ -25703,11 +25820,11 @@ msgstr ""
 
 #. name for tpg
 msgid "Kula"
-msgstr ""
+msgstr "kula"
 
 #. name for tpi
 msgid "Tok Pisin"
-msgstr ""
+msgstr "tok pisin"
 
 #. name for tpj
 msgid "Tapieté"
@@ -25715,7 +25832,7 @@ msgstr ""
 
 #. name for tpk
 msgid "Tupinikin"
-msgstr ""
+msgstr "tupinikin"
 
 #. name for tpl
 msgid "Tlapanec, Tlacoapa"
@@ -25723,7 +25840,7 @@ msgstr ""
 
 #. name for tpm
 msgid "Tampulma"
-msgstr ""
+msgstr "tampulma"
 
 #. name for tpn
 msgid "Tupinambá"
@@ -25739,7 +25856,7 @@ msgstr ""
 
 #. name for tpq
 msgid "Tukpa"
-msgstr ""
+msgstr "tukpa"
 
 #. name for tpr
 msgid "Tuparí"
@@ -25751,11 +25868,11 @@ msgstr ""
 
 #. name for tpu
 msgid "Tampuan"
-msgstr ""
+msgstr "tampua"
 
 #. name for tpv
 msgid "Tanapag"
-msgstr ""
+msgstr "tanapag"
 
 #. name for tpw
 msgid "Tupí"
@@ -25779,15 +25896,15 @@ msgstr ""
 
 #. name for tql
 msgid "Lehali"
-msgstr ""
+msgstr "lehali"
 
 #. name for tqm
 msgid "Turumsa"
-msgstr ""
+msgstr "turumsza"
 
 #. name for tqn
 msgid "Tenino"
-msgstr ""
+msgstr "tenino"
 
 #. name for tqo
 msgid "Toaripi"
@@ -25795,15 +25912,15 @@ msgstr ""
 
 #. name for tqp
 msgid "Tomoip"
-msgstr ""
+msgstr "tomoip"
 
 #. name for tqq
 msgid "Tunni"
-msgstr ""
+msgstr "tunni"
 
 #. name for tqr
 msgid "Torona"
-msgstr ""
+msgstr "torona"
 
 #. name for tqt
 msgid "Totonac, Western"
@@ -25815,23 +25932,24 @@ msgstr ""
 
 #. name for tqw
 msgid "Tonkawa"
-msgstr ""
+msgstr "tonkava"
 
 #. name for tra
 msgid "Tirahi"
-msgstr ""
+msgstr "tirahi"
 
 #. name for trb
 msgid "Terebu"
-msgstr ""
+msgstr "terebu"
 
 #. name for trc
 msgid "Triqui, Copala"
 msgstr ""
 
+# src/trans.h:316
 #. name for trd
 msgid "Turi"
-msgstr ""
+msgstr "turi"
 
 #. name for tre
 msgid "Tarangan, East"
@@ -25847,7 +25965,7 @@ msgstr ""
 
 #. name for trh
 msgid "Turaka"
-msgstr ""
+msgstr "turaka"
 
 #. name for tri
 msgid "Trió"
@@ -25855,7 +25973,7 @@ msgstr ""
 
 #. name for trj
 msgid "Toram"
-msgstr ""
+msgstr "torám"
 
 #. name for trl
 msgid "Scottish, Traveller"
@@ -25863,7 +25981,7 @@ msgstr ""
 
 #. name for trm
 msgid "Tregami"
-msgstr ""
+msgstr "tregami"
 
 #. name for trn
 msgid "Trinitario"
@@ -25883,15 +26001,16 @@ msgstr ""
 
 #. name for trr
 msgid "Taushiro"
-msgstr ""
+msgstr "tausiro"
 
 #. name for trs
 msgid "Triqui, Chicahuaxtla"
 msgstr ""
 
+# src/trans.h:316
 #. name for trt
 msgid "Tunggare"
-msgstr ""
+msgstr "tungare"
 
 #. name for tru
 msgid "Turoyo"
@@ -25903,7 +26022,7 @@ msgstr ""
 
 #. name for trw
 msgid "Torwali"
-msgstr ""
+msgstr "torvali"
 
 #. name for trx
 msgid "Bidayuh, Tringgus-Sembaan"
@@ -25911,7 +26030,7 @@ msgstr ""
 
 #. name for try
 msgid "Turung"
-msgstr ""
+msgstr "turung"
 
 #. name for trz
 msgid "Torá"
@@ -25919,23 +26038,24 @@ msgstr ""
 
 #. name for tsa
 msgid "Tsaangi"
-msgstr ""
+msgstr "caangi"
 
 #. name for tsb
 msgid "Tsamai"
-msgstr ""
+msgstr "camaj"
 
 #. name for tsc
 msgid "Tswa"
-msgstr ""
+msgstr "cva"
 
+# src/trans.h:309
 #. name for tsd
 msgid "Tsakonian"
-msgstr ""
+msgstr "cakoni"
 
 #. name for tse
 msgid "Tunisian Sign Language"
-msgstr ""
+msgstr "tunéziai jelnyelv"
 
 #. name for tsf
 msgid "Tamang, Southwestern"
@@ -25943,23 +26063,24 @@ msgstr ""
 
 #. name for tsg
 msgid "Tausug"
-msgstr ""
+msgstr "tauszug"
 
 #. name for tsh
 msgid "Tsuvan"
-msgstr ""
+msgstr "tszuvan"
 
+# src/trans.h:227
 #. name for tsi
 msgid "Tsimshian"
-msgstr ""
+msgstr "cimsi"
 
 #. name for tsj
 msgid "Tshangla"
-msgstr ""
+msgstr "tsangla"
 
 #. name for tsk
 msgid "Tseku"
-msgstr ""
+msgstr "tszeku"
 
 #. name for tsl
 msgid "Ts'ün-Lao"
@@ -25967,23 +26088,23 @@ msgstr ""
 
 #. name for tsm
 msgid "Turkish Sign Language"
-msgstr ""
+msgstr "török jelnyelv"
 
 #. name for tsn
 msgid "Tswana"
-msgstr ""
+msgstr "tswana"
 
 #. name for tso
 msgid "Tsonga"
-msgstr ""
+msgstr "tsonga"
 
 #. name for tsp
 msgid "Toussian, Northern"
-msgstr ""
+msgstr "tuszi, északi"
 
 #. name for tsq
 msgid "Thai Sign Language"
-msgstr ""
+msgstr "thai jelnyelv"
 
 #. name for tsr
 msgid "Akei"
@@ -25991,7 +26112,7 @@ msgstr ""
 
 #. name for tss
 msgid "Taiwan Sign Language"
-msgstr ""
+msgstr "tajvani jelnyelv"
 
 #. name for tst
 msgid "Songway Kiini, Tondi"
@@ -25999,19 +26120,20 @@ msgstr ""
 
 #. name for tsu
 msgid "Tsou"
-msgstr ""
+msgstr "tszou"
 
 #. name for tsv
 msgid "Tsogo"
-msgstr ""
+msgstr "tszogo"
 
+# src/trans.h:227
 #. name for tsw
 msgid "Tsishingini"
-msgstr ""
+msgstr "tszisingini"
 
 #. name for tsx
 msgid "Mubami"
-msgstr ""
+msgstr "mubami"
 
 #. name for tsy
 msgid "Tebul Sign Language"
@@ -26019,7 +26141,7 @@ msgstr ""
 
 #. name for tsz
 msgid "Purepecha"
-msgstr ""
+msgstr "purepecsa"
 
 #. name for tta
 msgid "Tutelo"
@@ -26027,7 +26149,7 @@ msgstr ""
 
 #. name for ttb
 msgid "Gaa"
-msgstr ""
+msgstr "gaa"
 
 #. name for ttc
 msgid "Tektiteko"
@@ -26055,11 +26177,11 @@ msgstr ""
 
 #. name for tti
 msgid "Tobati"
-msgstr ""
+msgstr "tobati"
 
 #. name for ttj
 msgid "Tooro"
-msgstr ""
+msgstr "tóró"
 
 #. name for ttk
 msgid "Totoro"
@@ -26067,15 +26189,15 @@ msgstr ""
 
 #. name for ttl
 msgid "Totela"
-msgstr ""
+msgstr "totela"
 
 #. name for ttm
 msgid "Tutchone, Northern"
-msgstr ""
+msgstr "tutcson, (északi)"
 
 #. name for ttn
 msgid "Towei"
-msgstr ""
+msgstr "tovei"
 
 #. name for tto
 msgid "Ta'oih, Lower"
@@ -26083,7 +26205,7 @@ msgstr ""
 
 #. name for ttp
 msgid "Tombelala"
-msgstr ""
+msgstr "tombelala"
 
 #. name for ttq
 msgid "Tamajaq, Tawallammat"
@@ -26091,11 +26213,11 @@ msgstr ""
 
 #. name for ttr
 msgid "Tera"
-msgstr ""
+msgstr "tera"
 
 #. name for tts
 msgid "Thai, Northeastern"
-msgstr ""
+msgstr "thai, (észak-kelet)"
 
 #. name for ttt
 msgid "Tat, Muslim"
@@ -26103,11 +26225,11 @@ msgstr ""
 
 #. name for ttu
 msgid "Torau"
-msgstr ""
+msgstr "torau"
 
 #. name for ttv
 msgid "Titan"
-msgstr ""
+msgstr "titan"
 
 #. name for ttw
 msgid "Long Wat"
@@ -26115,11 +26237,11 @@ msgstr ""
 
 #. name for tty
 msgid "Sikaritai"
-msgstr ""
+msgstr "sikaritaj"
 
 #. name for ttz
 msgid "Tsum"
-msgstr ""
+msgstr "tszum"
 
 #. name for tua
 msgid "Wiarumus"
@@ -26139,7 +26261,7 @@ msgstr ""
 
 #. name for tue
 msgid "Tuyuca"
-msgstr ""
+msgstr "tujuca"
 
 #. name for tuf
 msgid "Tunebo, Central"
@@ -26147,47 +26269,49 @@ msgstr ""
 
 #. name for tug
 msgid "Tunia"
-msgstr ""
+msgstr "tunia"
 
 #. name for tuh
 msgid "Taulil"
-msgstr ""
+msgstr "taulil"
 
+# src/trans.h:316
 #. name for tui
 msgid "Tupuri"
-msgstr ""
+msgstr "tupuri"
 
 #. name for tuj
 msgid "Tugutil"
-msgstr ""
+msgstr "tugutil"
 
 #. name for tuk
 msgid "Turkmen"
-msgstr ""
+msgstr "türkmén"
 
 #. name for tul
 msgid "Tula"
-msgstr ""
+msgstr "tula"
 
 #. name for tum
 msgid "Tumbuka"
-msgstr ""
+msgstr "tumbuka"
 
 #. name for tun
 msgid "Tunica"
-msgstr ""
+msgstr "tunica"
 
 #. name for tuo
 msgid "Tucano"
-msgstr ""
+msgstr "tucano"
 
 #. name for tuq
 msgid "Tedaga"
-msgstr ""
+msgstr "tedaga"
 
+# src/trans.h:316
 #. name for tur
 msgid "Turkish"
-msgstr ""
+msgstr "török"
 
 #. name for tus
 msgid "Tuscarora"
@@ -26199,7 +26323,7 @@ msgstr ""
 
 #. name for tuv
 msgid "Turkana"
-msgstr ""
+msgstr "turkana"
 
 #. name for tux
 msgid "Tuxináwa"
@@ -26209,21 +26333,22 @@ msgstr ""
 msgid "Tugen"
 msgstr ""
 
+# src/trans.h:316
 #. name for tuz
 msgid "Turka"
-msgstr ""
+msgstr "turka"
 
 #. name for tva
 msgid "Vaghua"
-msgstr ""
+msgstr "vagua"
 
 #. name for tvd
 msgid "Tsuvadi"
-msgstr ""
+msgstr "tszuvadi"
 
 #. name for tve
 msgid "Te'un"
-msgstr ""
+msgstr "teun"
 
 #. name for tvk
 msgid "Ambrym, Southeast"
@@ -26231,7 +26356,7 @@ msgstr ""
 
 #. name for tvl
 msgid "Tuvalu"
-msgstr ""
+msgstr "tuvalu"
 
 #. name for tvm
 msgid "Tela-Masbuar"
@@ -26239,15 +26364,16 @@ msgstr ""
 
 #. name for tvn
 msgid "Tavoyan"
-msgstr ""
+msgstr "tavoja"
 
+# src/trans.h:316
 #. name for tvo
 msgid "Tidore"
-msgstr ""
+msgstr "tidore"
 
 #. name for tvs
 msgid "Taveta"
-msgstr ""
+msgstr "taveta"
 
 #. name for tvt
 msgid "Naga, Tutsa"
@@ -26255,7 +26381,7 @@ msgstr ""
 
 #. name for tvw
 msgid "Sedoa"
-msgstr ""
+msgstr "szedoa"
 
 #. name for tvy
 msgid "Pidgin, Timor"
@@ -26263,7 +26389,7 @@ msgstr ""
 
 #. name for twa
 msgid "Twana"
-msgstr ""
+msgstr "tvana"
 
 #. name for twb
 msgid "Tawbuid, Western"
@@ -26277,17 +26403,18 @@ msgstr ""
 msgid "Twents"
 msgstr ""
 
+# src/trans.h:302
 #. name for twe
 msgid "Tewa (Indonesia)"
-msgstr ""
+msgstr "teva (Indonézia)"
 
 #. name for twf
 msgid "Tiwa, Northern"
-msgstr ""
+msgstr "tiva, északi"
 
 #. name for twg
 msgid "Tereweng"
-msgstr ""
+msgstr "tereveng"
 
 #. name for twh
 msgid "Tai Dón"
@@ -26295,11 +26422,11 @@ msgstr ""
 
 #. name for twi
 msgid "Twi"
-msgstr ""
+msgstr "twi"
 
 #. name for twl
 msgid "Tawara"
-msgstr ""
+msgstr "tavara"
 
 #. name for twm
 msgid "Monpa, Tawang"
@@ -26307,19 +26434,19 @@ msgstr ""
 
 #. name for twn
 msgid "Twendi"
-msgstr ""
+msgstr "tvendi"
 
 #. name for two
 msgid "Tswapong"
-msgstr ""
+msgstr "tszvapong"
 
 #. name for twp
 msgid "Ere"
-msgstr ""
+msgstr "ere"
 
 #. name for twq
 msgid "Tasawaq"
-msgstr ""
+msgstr "taszavak"
 
 #. name for twr
 msgid "Tarahumara, Southwestern"
@@ -26329,21 +26456,22 @@ msgstr ""
 msgid "Turiwára"
 msgstr ""
 
+# src/trans.h:298
 #. name for twu
 msgid "Termanu"
-msgstr ""
+msgstr "termanu"
 
 #. name for tww
 msgid "Tuwari"
-msgstr ""
+msgstr "tuvari"
 
 #. name for twx
 msgid "Tewe"
-msgstr ""
+msgstr "teve"
 
 #. name for twy
 msgid "Tawoyan"
-msgstr ""
+msgstr "tavoja"
 
 #. name for txa
 msgid "Tombonuo"
@@ -26351,11 +26479,11 @@ msgstr ""
 
 #. name for txb
 msgid "Tokharian B"
-msgstr ""
+msgstr "tokári B"
 
 #. name for txc
 msgid "Tsetsaut"
-msgstr ""
+msgstr "tszetszaut"
 
 #. name for txe
 msgid "Totoli"
@@ -26363,11 +26491,11 @@ msgstr ""
 
 #. name for txg
 msgid "Tangut"
-msgstr ""
+msgstr "tangut"
 
 #. name for txh
 msgid "Thracian"
-msgstr ""
+msgstr "trák"
 
 #. name for txi
 msgid "Ikpeng"
@@ -26375,7 +26503,7 @@ msgstr ""
 
 #. name for txm
 msgid "Tomini"
-msgstr ""
+msgstr "tomini"
 
 #. name for txn
 msgid "Tarangan, West"
@@ -26387,15 +26515,16 @@ msgstr ""
 
 #. name for txq
 msgid "Tii"
-msgstr ""
+msgstr "tii"
 
+# src/trans.h:289
 #. name for txr
 msgid "Tartessian"
-msgstr ""
+msgstr "tarteszi"
 
 #. name for txs
 msgid "Tonsea"
-msgstr ""
+msgstr "tonszea"
 
 #. name for txt
 msgid "Citak"
@@ -26407,19 +26536,19 @@ msgstr ""
 
 #. name for txx
 msgid "Tatana"
-msgstr ""
+msgstr "tatana"
 
 #. name for txy
 msgid "Malagasy, Tanosy"
-msgstr ""
+msgstr "malagasy, Tanosy"
 
 #. name for tya
 msgid "Tauya"
-msgstr ""
+msgstr "tauja"
 
 #. name for tye
 msgid "Kyenga"
-msgstr ""
+msgstr "kjenga"
 
 #. name for tyh
 msgid "O'du"
@@ -26431,15 +26560,16 @@ msgstr ""
 
 #. name for tyj
 msgid "Tai Do"
-msgstr ""
+msgstr "Taj Dó"
 
+# src/prefs.c:397 src/trans.h:125
 #. name for tyl
 msgid "Thu Lao"
-msgstr ""
+msgstr "Tu lao"
 
 #. name for tyn
 msgid "Kombai"
-msgstr ""
+msgstr "kombaj"
 
 #. name for typ
 msgid "Thaypan"
@@ -26459,11 +26589,11 @@ msgstr ""
 
 #. name for tyu
 msgid "Kua"
-msgstr ""
+msgstr "kua"
 
 #. name for tyv
 msgid "Tuvinian"
-msgstr ""
+msgstr "tuvini"
 
 #. name for tyx
 msgid "Teke-Tyee"
@@ -26475,7 +26605,7 @@ msgstr ""
 
 #. name for tza
 msgid "Tanzanian Sign Language"
-msgstr ""
+msgstr "tanzániai jelnyelv"
 
 #. name for tzh
 msgid "Tzeltal"
@@ -26491,7 +26621,7 @@ msgstr ""
 
 #. name for tzn
 msgid "Tugun"
-msgstr ""
+msgstr "tugun"
 
 #. name for tzo
 msgid "Tzotzil"
@@ -26499,7 +26629,7 @@ msgstr ""
 
 #. name for tzx
 msgid "Tabriak"
-msgstr ""
+msgstr "tabriak"
 
 #. name for uam
 msgid "Uamué"
@@ -26507,7 +26637,7 @@ msgstr ""
 
 #. name for uan
 msgid "Kuan"
-msgstr ""
+msgstr "kuán"
 
 #. name for uar
 msgid "Tairuma"
@@ -26515,7 +26645,7 @@ msgstr ""
 
 #. name for uba
 msgid "Ubang"
-msgstr ""
+msgstr "ubang"
 
 #. name for ubi
 msgid "Ubi"
@@ -26527,11 +26657,11 @@ msgstr ""
 
 #. name for ubr
 msgid "Ubir"
-msgstr ""
+msgstr "ubir"
 
 #. name for ubu
 msgid "Umbu-Ungu"
-msgstr ""
+msgstr "umbu-ungu"
 
 #. name for uby
 msgid "Ubykh"
@@ -26555,23 +26685,23 @@ msgstr ""
 
 #. name for udj
 msgid "Ujir"
-msgstr ""
+msgstr "udzsir"
 
 #. name for udl
 msgid "Wuzlam"
-msgstr ""
+msgstr "vuzlam"
 
 #. name for udm
 msgid "Udmurt"
-msgstr ""
+msgstr "udmurt"
 
 #. name for udu
 msgid "Uduk"
-msgstr ""
+msgstr "uduk"
 
 #. name for ues
 msgid "Kioko"
-msgstr ""
+msgstr "kjoko"
 
 #. name for ufi
 msgid "Ufim"
@@ -26579,7 +26709,7 @@ msgstr ""
 
 #. name for uga
 msgid "Ugaritic"
-msgstr ""
+msgstr "uragi"
 
 #. name for ugb
 msgid "Kuku-Ugbanh"
@@ -26591,31 +26721,31 @@ msgstr ""
 
 #. name for ugn
 msgid "Ugandan Sign Language"
-msgstr ""
+msgstr "ugandai jelnyelv"
 
 #. name for ugo
 msgid "Ugong"
-msgstr ""
+msgstr "ugong"
 
 #. name for ugy
 msgid "Uruguayan Sign Language"
-msgstr ""
+msgstr "uruguayi jelnyelv"
 
 #. name for uha
 msgid "Uhami"
-msgstr ""
+msgstr "uhámi"
 
 #. name for uhn
 msgid "Damal"
-msgstr ""
+msgstr "damal"
 
 #. name for uig
 msgid "Uighur"
-msgstr ""
+msgstr "ujgur"
 
 #. name for uis
 msgid "Uisai"
-msgstr ""
+msgstr "ujszaj"
 
 #. name for uiv
 msgid "Iyive"
@@ -26625,9 +26755,10 @@ msgstr ""
 msgid "Tanjijili"
 msgstr ""
 
+# src/trans.h:316
 #. name for uka
 msgid "Kaburi"
-msgstr ""
+msgstr "kaburi"
 
 #. name for ukg
 msgid "Ukuriguma"
@@ -26639,7 +26770,7 @@ msgstr ""
 
 #. name for ukl
 msgid "Ukrainian Sign Language"
-msgstr ""
+msgstr "ukrán jelnyelv"
 
 #. name for ukp
 msgid "Ukpe-Bayobiri"
@@ -26649,9 +26780,10 @@ msgstr ""
 msgid "Ukwa"
 msgstr ""
 
+# src/trans.h:227
 #. name for ukr
 msgid "Ukrainian"
-msgstr ""
+msgstr "ukrán"
 
 #. name for uks
 msgid "Urubú-Kaapor Sign Language"
@@ -26667,7 +26799,7 @@ msgstr ""
 
 #. name for ula
 msgid "Fungwa"
-msgstr ""
+msgstr "fungva"
 
 #. name for ulb
 msgid "Ulukwumi"
@@ -26715,7 +26847,7 @@ msgstr ""
 
 #. name for umb
 msgid "Umbundu"
-msgstr ""
+msgstr "umbundu"
 
 #. name for umc
 msgid "Marrucinian"
@@ -26723,11 +26855,11 @@ msgstr ""
 
 #. name for umd
 msgid "Umbindhamu"
-msgstr ""
+msgstr "umbindamu"
 
 #. name for umg
 msgid "Umbuygamu"
-msgstr ""
+msgstr "umbujgamu"
 
 #. name for umi
 msgid "Ukit"
@@ -26735,7 +26867,7 @@ msgstr ""
 
 #. name for umm
 msgid "Umon"
-msgstr ""
+msgstr "umon"
 
 #. name for umn
 msgid "Naga, Makyan"
@@ -26751,11 +26883,11 @@ msgstr ""
 
 #. name for umr
 msgid "Umbugarla"
-msgstr ""
+msgstr "umbugarla"
 
 #. name for ums
 msgid "Pendau"
-msgstr ""
+msgstr "pendau"
 
 #. name for umu
 msgid "Munsee"
@@ -26765,17 +26897,19 @@ msgstr ""
 msgid "Watut, North"
 msgstr ""
 
+# src/prefs.c:380
 #. name for und
 msgid "Undetermined"
-msgstr ""
+msgstr "ismeretlen"
 
 #. name for une
 msgid "Uneme"
 msgstr ""
 
+# src/trans.h:305
 #. name for ung
 msgid "Ngarinyin"
-msgstr ""
+msgstr "ngarinyin"
 
 #. name for unk
 msgid "Enawené-Nawé"
@@ -26783,7 +26917,7 @@ msgstr ""
 
 #. name for unm
 msgid "Unami"
-msgstr ""
+msgstr "unámi"
 
 #. name for unp
 msgid "Worora"
@@ -26803,43 +26937,46 @@ msgstr ""
 
 #. name for uok
 msgid "Uokha"
-msgstr ""
+msgstr "uoka"
 
 #. name for upi
 msgid "Umeda"
-msgstr ""
+msgstr "umeda"
 
 #. name for upv
 msgid "Uripiv-Wala-Rano-Atchin"
 msgstr ""
 
+# src/trans.h:227
 #. name for ura
 msgid "Urarina"
-msgstr ""
+msgstr "urarina"
 
 #. name for urb
 msgid "Urubú-Kaapor"
 msgstr ""
 
+# src/trans.h:227
 #. name for urc
 msgid "Urningangg"
-msgstr ""
+msgstr "urningang"
 
 #. name for urd
 msgid "Urdu"
-msgstr ""
+msgstr "urdu"
 
 #. name for ure
 msgid "Uru"
-msgstr ""
+msgstr "uru"
 
 #. name for urf
 msgid "Uradhi"
-msgstr ""
+msgstr "uradi"
 
+# src/trans.h:316
 #. name for urg
 msgid "Urigina"
-msgstr ""
+msgstr "urugina"
 
 #. name for urh
 msgid "Urhobo"
@@ -26855,15 +26992,17 @@ msgstr ""
 
 #. name for url
 msgid "Urali"
-msgstr ""
+msgstr "uráli"
 
+# src/trans.h:227
 #. name for urm
 msgid "Urapmin"
-msgstr ""
+msgstr "urapmin"
 
+# src/trans.h:227
 #. name for urn
 msgid "Uruangnirin"
-msgstr ""
+msgstr "uruangnirin"
 
 #. name for uro
 msgid "Ura (Papua New Guinea)"
@@ -26879,15 +27018,15 @@ msgstr ""
 
 #. name for urt
 msgid "Urat"
-msgstr ""
+msgstr "urát"
 
 #. name for uru
 msgid "Urumi"
-msgstr ""
+msgstr "urumi"
 
 #. name for urv
 msgid "Uruava"
-msgstr ""
+msgstr "uruava"
 
 #. name for urw
 msgid "Sop"
@@ -26895,7 +27034,7 @@ msgstr ""
 
 #. name for urx
 msgid "Urimo"
-msgstr ""
+msgstr "urimo"
 
 #. name for ury
 msgid "Orya"
@@ -26929,9 +27068,10 @@ msgstr ""
 msgid "Uya"
 msgstr ""
 
+# src/trans.h:224
 #. name for uta
 msgid "Otank"
-msgstr ""
+msgstr "otank"
 
 #. name for ute
 msgid "Ute-Southern Paiute"
@@ -26939,7 +27079,7 @@ msgstr ""
 
 #. name for utp
 msgid "Amba (Solomon Islands)"
-msgstr ""
+msgstr "amba (Salamon-szigetek)"
 
 #. name for utr
 msgid "Etulo"
@@ -26951,7 +27091,7 @@ msgstr ""
 
 #. name for uum
 msgid "Urum"
-msgstr ""
+msgstr "urum"
 
 #. name for uun
 msgid "Kulon-Pazeh"
@@ -26987,15 +27127,15 @@ msgstr ""
 
 #. name for uzb
 msgid "Uzbek"
-msgstr ""
+msgstr "üzbég"
 
 #. name for uzn
 msgid "Uzbek, Northern"
-msgstr ""
+msgstr "üzbég, északi"
 
 #. name for uzs
 msgid "Uzbek, Southern"
-msgstr ""
+msgstr "üzbég, déli"
 
 #. name for vaa
 msgid "Vaagri Booli"
@@ -27003,15 +27143,15 @@ msgstr ""
 
 #. name for vae
 msgid "Vale"
-msgstr ""
+msgstr "vale"
 
 #. name for vaf
 msgid "Vafsi"
-msgstr ""
+msgstr "vafszi"
 
 #. name for vag
 msgid "Vagla"
-msgstr ""
+msgstr "vagla"
 
 #. name for vah
 msgid "Varhadi-Nagpuri"
@@ -27019,7 +27159,7 @@ msgstr ""
 
 #. name for vai
 msgid "Vai"
-msgstr ""
+msgstr "vai"
 
 #. name for vaj
 msgid "Vasekela Bushman"
@@ -27031,15 +27171,16 @@ msgstr ""
 
 #. name for vam
 msgid "Vanimo"
-msgstr ""
+msgstr "vanimó"
 
 #. name for van
 msgid "Valman"
-msgstr ""
+msgstr "valmán"
 
+# src/prefs.c:397 src/trans.h:125
 #. name for vao
 msgid "Vao"
-msgstr ""
+msgstr "vao"
 
 #. name for vap
 msgid "Vaiphei"
@@ -27051,7 +27192,7 @@ msgstr ""
 
 #. name for vas
 msgid "Vasavi"
-msgstr ""
+msgstr "vasavi"
 
 #. name for vau
 msgid "Vanuma"
@@ -27059,11 +27200,11 @@ msgstr ""
 
 #. name for vav
 msgid "Varli"
-msgstr ""
+msgstr "varli"
 
 #. name for vay
 msgid "Wayu"
-msgstr ""
+msgstr "vaju"
 
 #. name for vbb
 msgid "Babar, Southeast"
@@ -27075,11 +27216,11 @@ msgstr ""
 
 #. name for vec
 msgid "Venetian"
-msgstr ""
+msgstr "velencei"
 
 #. name for ved
 msgid "Veddah"
-msgstr ""
+msgstr "vedda"
 
 #. name for vel
 msgid "Veluws"
@@ -27091,7 +27232,7 @@ msgstr ""
 
 #. name for ven
 msgid "Venda"
-msgstr ""
+msgstr "venda"
 
 #. name for veo
 msgid "Ventureño"
@@ -27103,11 +27244,11 @@ msgstr ""
 
 #. name for ver
 msgid "Mom Jango"
-msgstr ""
+msgstr "mom dzsango"
 
 #. name for vgr
 msgid "Vaghri"
-msgstr ""
+msgstr "vagri"
 
 #. name for vgt
 msgid "Vlaamse Gebarentaal"
@@ -27119,11 +27260,12 @@ msgstr ""
 
 #. name for vid
 msgid "Vidunda"
-msgstr ""
+msgstr "vidunda"
 
+# src/trans.h:270
 #. name for vie
 msgid "Vietnamese"
-msgstr ""
+msgstr "vietnami"
 
 #. name for vif
 msgid "Vili"
@@ -27139,7 +27281,7 @@ msgstr ""
 
 #. name for vin
 msgid "Vinza"
-msgstr ""
+msgstr "vinza"
 
 #. name for vis
 msgid "Vishavan"
@@ -27147,27 +27289,29 @@ msgstr ""
 
 #. name for vit
 msgid "Viti"
-msgstr ""
+msgstr "viti"
 
 #. name for viv
 msgid "Iduna"
-msgstr ""
+msgstr "iduna"
 
 #. name for vka
 msgid "Kariyarra"
-msgstr ""
+msgstr "karijarra"
 
 #. name for vki
 msgid "Ija-Zuba"
 msgstr ""
 
+# src/trans.h:223
 #. name for vkj
 msgid "Kujarge"
-msgstr ""
+msgstr "kudzsarge"
 
+# src/trans.h:316
 #. name for vkk
 msgid "Kaur"
-msgstr ""
+msgstr "kaur"
 
 #. name for vkl
 msgid "Kulisusu"
@@ -27175,11 +27319,12 @@ msgstr ""
 
 #. name for vkm
 msgid "Kamakan"
-msgstr ""
+msgstr "kamakán"
 
+# src/trans.h:223
 #. name for vko
 msgid "Kodeoha"
-msgstr ""
+msgstr "kodeoha"
 
 #. name for vkp
 msgid "Creole Portuguese, Korlai"
@@ -27191,11 +27336,11 @@ msgstr ""
 
 #. name for vku
 msgid "Kurrama"
-msgstr ""
+msgstr "kurrama"
 
 #. name for vlp
 msgid "Valpei"
-msgstr ""
+msgstr "valpej"
 
 #. name for vls
 msgid "Vlaams"
@@ -27207,7 +27352,7 @@ msgstr ""
 
 #. name for vmb
 msgid "Mbabaram"
-msgstr ""
+msgstr "mbabarám"
 
 #. name for vmc
 msgid "Mixtec, Juxtlahuaca"
@@ -27219,7 +27364,7 @@ msgstr ""
 
 #. name for vme
 msgid "Masela, East"
-msgstr ""
+msgstr "masela, kelet"
 
 #. name for vmf
 msgid "Mainfränkisch"
@@ -27231,11 +27376,11 @@ msgstr ""
 
 #. name for vmh
 msgid "Maraghei"
-msgstr ""
+msgstr "maragei"
 
 #. name for vmi
 msgid "Miwa"
-msgstr ""
+msgstr "miva"
 
 #. name for vmj
 msgid "Mixtec, Ixtayutla"
@@ -27247,7 +27392,7 @@ msgstr ""
 
 #. name for vml
 msgid "Malgana"
-msgstr ""
+msgstr "malgana"
 
 #. name for vmm
 msgid "Mixtec, Mitlatongo"
@@ -27263,11 +27408,11 @@ msgstr ""
 
 #. name for vmr
 msgid "Marenje"
-msgstr ""
+msgstr "marendzse"
 
 #. name for vms
 msgid "Moksela"
-msgstr ""
+msgstr "moksela"
 
 #. name for vmu
 msgid "Muluridyi"
@@ -27279,7 +27424,7 @@ msgstr ""
 
 #. name for vmw
 msgid "Makhuwa"
-msgstr ""
+msgstr "makuva"
 
 #. name for vmx
 msgid "Mixtec, Tamazola"
@@ -27295,7 +27440,7 @@ msgstr ""
 
 #. name for vnk
 msgid "Vano"
-msgstr ""
+msgstr "vano"
 
 #. name for vnm
 msgid "Vinmavis"
@@ -27303,19 +27448,19 @@ msgstr ""
 
 #. name for vnp
 msgid "Vunapu"
-msgstr ""
+msgstr "vunapu"
 
 #. name for vol
 msgid "Volapük"
-msgstr ""
+msgstr "volapük"
 
 #. name for vor
 msgid "Voro"
-msgstr ""
+msgstr "voro"
 
 #. name for vot
 msgid "Votic"
-msgstr ""
+msgstr "vót"
 
 #. name for vra
 msgid "Vera'a"
@@ -27327,19 +27472,19 @@ msgstr ""
 
 #. name for vrs
 msgid "Varisi"
-msgstr ""
+msgstr "varisi"
 
 #. name for vrt
 msgid "Burmbar"
-msgstr ""
+msgstr "burmbar"
 
 #. name for vsi
 msgid "Moldova Sign Language"
-msgstr ""
+msgstr "moldovai jelnyelv"
 
 #. name for vsl
 msgid "Venezuelan Sign Language"
-msgstr ""
+msgstr "venezuelai jelnyelv"
 
 #. name for vsv
 msgid "Valencian Sign Language"
@@ -27351,7 +27496,7 @@ msgstr ""
 
 #. name for vum
 msgid "Vumbu"
-msgstr ""
+msgstr "vumbu"
 
 #. name for vun
 msgid "Vunjo"
@@ -27367,7 +27512,7 @@ msgstr ""
 
 #. name for waa
 msgid "Walla Walla"
-msgstr ""
+msgstr "Valla-valla"
 
 #. name for wab
 msgid "Wab"
@@ -27379,11 +27524,12 @@ msgstr ""
 
 #. name for wad
 msgid "Wandamen"
-msgstr ""
+msgstr "vandamen"
 
+# src/trans.h:377
 #. name for wae
 msgid "Walser"
-msgstr ""
+msgstr "valszer"
 
 #. name for waf
 msgid "Wakoná"
@@ -27397,13 +27543,14 @@ msgstr ""
 msgid "Watubela"
 msgstr ""
 
+# src/trans.h:294
 #. name for wai
 msgid "Wares"
-msgstr ""
+msgstr "varesz"
 
 #. name for waj
 msgid "Waffa"
-msgstr ""
+msgstr "vaffa"
 
 #. name for wal
 msgid "Wolaytta"
@@ -27411,23 +27558,24 @@ msgstr ""
 
 #. name for wam
 msgid "Wampanoag"
-msgstr ""
+msgstr "vampanoag"
 
 #. name for wan
 msgid "Wan"
-msgstr ""
+msgstr "van"
 
 #. name for wao
 msgid "Wappo"
-msgstr ""
+msgstr "vappo"
 
 #. name for wap
 msgid "Wapishana"
 msgstr ""
 
+# src/trans.h:298
 #. name for waq
 msgid "Wageman"
-msgstr ""
+msgstr "vageman"
 
 #. name for war
 msgid "Waray (Philippines)"
@@ -27435,11 +27583,11 @@ msgstr ""
 
 #. name for was
 msgid "Washo"
-msgstr ""
+msgstr "washo"
 
 #. name for wat
 msgid "Kaninuwa"
-msgstr ""
+msgstr "kaninuva"
 
 #. name for wau
 msgid "Waurá"
@@ -27447,15 +27595,15 @@ msgstr ""
 
 #. name for wav
 msgid "Waka"
-msgstr ""
+msgstr "vaka"
 
 #. name for waw
 msgid "Waiwai"
-msgstr ""
+msgstr "vajvaj"
 
 #. name for wax
 msgid "Watam"
-msgstr ""
+msgstr "vatam"
 
 #. name for way
 msgid "Wayana"
@@ -27467,23 +27615,23 @@ msgstr ""
 
 #. name for wba
 msgid "Warao"
-msgstr ""
+msgstr "varao"
 
 #. name for wbb
 msgid "Wabo"
-msgstr ""
+msgstr "vabo"
 
 #. name for wbe
 msgid "Waritai"
-msgstr ""
+msgstr "varitáj"
 
 #. name for wbf
 msgid "Wara"
-msgstr ""
+msgstr "vara"
 
 #. name for wbh
 msgid "Wanda"
-msgstr ""
+msgstr "vanda"
 
 #. name for wbi
 msgid "Vwanji"
@@ -27491,15 +27639,15 @@ msgstr ""
 
 #. name for wbj
 msgid "Alagwa"
-msgstr ""
+msgstr "alagva"
 
 #. name for wbk
 msgid "Waigali"
-msgstr ""
+msgstr "vaigali"
 
 #. name for wbl
 msgid "Wakhi"
-msgstr ""
+msgstr "vaki"
 
 #. name for wbm
 msgid "Wa"
@@ -27511,7 +27659,7 @@ msgstr ""
 
 #. name for wbq
 msgid "Waddar"
-msgstr ""
+msgstr "vaddar"
 
 #. name for wbr
 msgid "Wagdi"
@@ -27519,7 +27667,7 @@ msgstr ""
 
 #. name for wbt
 msgid "Wanman"
-msgstr ""
+msgstr "vanman"
 
 #. name for wbv
 msgid "Wajarri"
@@ -27563,11 +27711,11 @@ msgstr ""
 
 #. name for wed
 msgid "Wedau"
-msgstr ""
+msgstr "vedau"
 
 #. name for weh
 msgid "Weh"
-msgstr ""
+msgstr "veh"
 
 #. name for wei
 msgid "Kiunum"
@@ -27579,7 +27727,7 @@ msgstr ""
 
 #. name for weo
 msgid "Wemale, North"
-msgstr ""
+msgstr "vernale, északi"
 
 #. name for wep
 msgid "Westphalien"
@@ -27587,7 +27735,7 @@ msgstr ""
 
 #. name for wer
 msgid "Weri"
-msgstr ""
+msgstr "veri"
 
 #. name for wes
 msgid "Pidgin, Cameroon"
@@ -27595,15 +27743,15 @@ msgstr ""
 
 #. name for wet
 msgid "Perai"
-msgstr ""
+msgstr "peraj"
 
 #. name for weu
 msgid "Welaung"
-msgstr ""
+msgstr "velaung"
 
 #. name for wew
 msgid "Wejewa"
-msgstr ""
+msgstr "vedzseva"
 
 #. name for wfg
 msgid "Yafi"
@@ -27611,7 +27759,7 @@ msgstr ""
 
 #. name for wga
 msgid "Wagaya"
-msgstr ""
+msgstr "vagaja"
 
 #. name for wgb
 msgid "Wagawaga"
@@ -27623,7 +27771,7 @@ msgstr ""
 
 #. name for wgi
 msgid "Wahgi"
-msgstr ""
+msgstr "vahgi"
 
 #. name for wgo
 msgid "Waigeo"
@@ -27631,11 +27779,11 @@ msgstr ""
 
 #. name for wgy
 msgid "Warrgamay"
-msgstr ""
+msgstr "vargamáj"
 
 #. name for wha
 msgid "Manusela"
-msgstr ""
+msgstr "manusela"
 
 #. name for whg
 msgid "Wahgi, North"
@@ -27651,7 +27799,7 @@ msgstr ""
 
 #. name for wib
 msgid "Toussian, Southern"
-msgstr ""
+msgstr "tuszi, déli"
 
 #. name for wic
 msgid "Wichita"
@@ -27723,7 +27871,7 @@ msgstr ""
 
 #. name for wja
 msgid "Waja"
-msgstr ""
+msgstr "vadzsa"
 
 #. name for wji
 msgid "Warji"
@@ -27739,7 +27887,7 @@ msgstr ""
 
 #. name for wkd
 msgid "Wakde"
-msgstr ""
+msgstr "vakde"
 
 #. name for wkl
 msgid "Kalanadi"
@@ -27755,7 +27903,7 @@ msgstr ""
 
 #. name for wla
 msgid "Walio"
-msgstr ""
+msgstr "valio"
 
 #. name for wlc
 msgid "Comorian, Mwali"
@@ -27767,15 +27915,15 @@ msgstr ""
 
 #. name for wlg
 msgid "Kunbarlang"
-msgstr ""
+msgstr "kunbarlang"
 
 #. name for wli
 msgid "Waioli"
-msgstr ""
+msgstr "vajoli"
 
 #. name for wlk
 msgid "Wailaki"
-msgstr ""
+msgstr "vailaki"
 
 #. name for wll
 msgid "Wali (Sudan)"
@@ -27787,19 +27935,20 @@ msgstr ""
 
 #. name for wln
 msgid "Walloon"
-msgstr ""
+msgstr "vallon"
 
 #. name for wlo
 msgid "Wolio"
-msgstr ""
+msgstr "volio"
 
 #. name for wlr
 msgid "Wailapa"
-msgstr ""
+msgstr "vailapa"
 
+# src/trans.h:7 src/trans.h:123
 #. name for wls
 msgid "Wallisian"
-msgstr ""
+msgstr "vallisi"
 
 #. name for wlu
 msgid "Wuliwuli"
@@ -27811,15 +27960,16 @@ msgstr ""
 
 #. name for wlw
 msgid "Walak"
-msgstr ""
+msgstr "valak"
 
 #. name for wlx
 msgid "Wali (Ghana)"
 msgstr ""
 
+# src/trans.h:287
 #. name for wly
 msgid "Waling"
-msgstr ""
+msgstr "valing"
 
 #. name for wma
 msgid "Mawa (Nigeria)"
@@ -27827,11 +27977,11 @@ msgstr ""
 
 #. name for wmb
 msgid "Wambaya"
-msgstr ""
+msgstr "vambaja"
 
 #. name for wmc
 msgid "Wamas"
-msgstr ""
+msgstr "vamas"
 
 #. name for wmd
 msgid "Mamaindé"
@@ -27839,7 +27989,7 @@ msgstr ""
 
 #. name for wme
 msgid "Wambule"
-msgstr ""
+msgstr "vambule"
 
 #. name for wmh
 msgid "Waima'a"
@@ -27847,15 +27997,16 @@ msgstr ""
 
 #. name for wmi
 msgid "Wamin"
-msgstr ""
+msgstr "vamin"
 
+# src/trans.h:302
 #. name for wmm
 msgid "Maiwa (Indonesia)"
-msgstr ""
+msgstr "maiva (Indonézia)"
 
 #. name for wmn
 msgid "Waamwang"
-msgstr ""
+msgstr "vámvang"
 
 #. name for wmo
 msgid "Wom (Papua New Guinea)"
@@ -27863,7 +28014,7 @@ msgstr ""
 
 #. name for wms
 msgid "Wambon"
-msgstr ""
+msgstr "vambon"
 
 #. name for wmt
 msgid "Walmajarri"
@@ -27871,7 +28022,7 @@ msgstr ""
 
 #. name for wmw
 msgid "Mwani"
-msgstr ""
+msgstr "mvani"
 
 #. name for wmx
 msgid "Womo"
@@ -27887,7 +28038,7 @@ msgstr ""
 
 #. name for wnd
 msgid "Wandarang"
-msgstr ""
+msgstr "vandarang"
 
 #. name for wne
 msgid "Waneci"
@@ -27895,7 +28046,7 @@ msgstr ""
 
 #. name for wng
 msgid "Wanggom"
-msgstr ""
+msgstr "vanggom"
 
 #. name for wni
 msgid "Comorian, Ndzwani"
@@ -27911,15 +28062,15 @@ msgstr ""
 
 #. name for wno
 msgid "Wano"
-msgstr ""
+msgstr "vano"
 
 #. name for wnp
 msgid "Wanap"
-msgstr ""
+msgstr "vanap"
 
 #. name for wnu
 msgid "Usan"
-msgstr ""
+msgstr "uszan"
 
 #. name for woa
 msgid "Tyaraity"
@@ -27927,19 +28078,20 @@ msgstr ""
 
 #. name for wob
 msgid "Wè Northern"
-msgstr ""
+msgstr "vé, északi"
 
 #. name for woc
 msgid "Wogeo"
-msgstr ""
+msgstr "vogeo"
 
+# src/trans.h:223
 #. name for wod
 msgid "Wolani"
-msgstr ""
+msgstr "volani"
 
 #. name for woe
 msgid "Woleaian"
-msgstr ""
+msgstr "voleai"
 
 #. name for wof
 msgid "Wolof, Gambian"
@@ -27951,15 +28103,15 @@ msgstr ""
 
 #. name for woi
 msgid "Kamang"
-msgstr ""
+msgstr "kamang"
 
 #. name for wok
 msgid "Longto"
-msgstr ""
+msgstr "longto"
 
 #. name for wol
 msgid "Wolof"
-msgstr ""
+msgstr "wolof"
 
 #. name for wom
 msgid "Wom (Nigeria)"
@@ -27967,15 +28119,15 @@ msgstr ""
 
 #. name for won
 msgid "Wongo"
-msgstr ""
+msgstr "vongo"
 
 #. name for woo
 msgid "Manombai"
-msgstr ""
+msgstr "manombaj"
 
 #. name for wor
 msgid "Woria"
-msgstr ""
+msgstr "voria"
 
 #. name for wos
 msgid "Hanga Hundi"
@@ -27991,15 +28143,15 @@ msgstr ""
 
 #. name for wpc
 msgid "Maco"
-msgstr ""
+msgstr "mako"
 
 #. name for wra
 msgid "Warapu"
-msgstr ""
+msgstr "varapu"
 
 #. name for wrb
 msgid "Warluwara"
-msgstr ""
+msgstr "varluvara"
 
 #. name for wrd
 msgid "Warduji"
@@ -28027,27 +28179,28 @@ msgstr ""
 
 #. name for wrn
 msgid "Warnang"
-msgstr ""
+msgstr "varnang"
 
+# src/trans.h:223
 #. name for wrp
 msgid "Waropen"
-msgstr ""
+msgstr "varopen"
 
 #. name for wrr
 msgid "Wardaman"
-msgstr ""
+msgstr "vardamán"
 
 #. name for wrs
 msgid "Waris"
-msgstr ""
+msgstr "varis"
 
 #. name for wru
 msgid "Waru"
-msgstr ""
+msgstr "varu"
 
 #. name for wrv
 msgid "Waruna"
-msgstr ""
+msgstr "varuna"
 
 #. name for wrw
 msgid "Gugu Warra"
@@ -28059,7 +28212,7 @@ msgstr ""
 
 #. name for wry
 msgid "Merwari"
-msgstr ""
+msgstr "mervari"
 
 #. name for wrz
 msgid "Waray (Australia)"
@@ -28071,11 +28224,11 @@ msgstr ""
 
 #. name for wsi
 msgid "Wusi"
-msgstr ""
+msgstr "vuszi"
 
 #. name for wsk
 msgid "Waskia"
-msgstr ""
+msgstr "vaszkia"
 
 #. name for wsr
 msgid "Owenia"
@@ -28083,11 +28236,11 @@ msgstr ""
 
 #. name for wss
 msgid "Wasa"
-msgstr ""
+msgstr "vasza"
 
 #. name for wsu
 msgid "Wasu"
-msgstr ""
+msgstr "vaszu"
 
 #. name for wsv
 msgid "Wotapuri-Katarqalai"
@@ -28099,7 +28252,7 @@ msgstr ""
 
 #. name for wti
 msgid "Berta"
-msgstr ""
+msgstr "berta"
 
 #. name for wtk
 msgid "Watakataui"
@@ -28107,7 +28260,7 @@ msgstr ""
 
 #. name for wtm
 msgid "Mewati"
-msgstr ""
+msgstr "mevati"
 
 #. name for wtw
 msgid "Wotu"
@@ -28119,7 +28272,7 @@ msgstr ""
 
 #. name for wub
 msgid "Wunambal"
-msgstr ""
+msgstr "vunanbal"
 
 #. name for wud
 msgid "Wudu"
@@ -28131,11 +28284,11 @@ msgstr ""
 
 #. name for wul
 msgid "Silimo"
-msgstr ""
+msgstr "szilimo"
 
 #. name for wum
 msgid "Wumbvu"
-msgstr ""
+msgstr "vumbvu"
 
 #. name for wun
 msgid "Bungu"
@@ -28149,9 +28302,10 @@ msgstr ""
 msgid "Wutung"
 msgstr ""
 
+# src/trans.h:220
 #. name for wuu
 msgid "Chinese, Wu"
-msgstr ""
+msgstr "kínai, Wu"
 
 #. name for wuv
 msgid "Wuvulu-Aua"
@@ -28159,7 +28313,7 @@ msgstr ""
 
 #. name for wux
 msgid "Wulna"
-msgstr ""
+msgstr "vulna"
 
 #. name for wuy
 msgid "Wauyai"
@@ -28167,7 +28321,7 @@ msgstr ""
 
 #. name for wwa
 msgid "Waama"
-msgstr ""
+msgstr "váma"
 
 #. name for wwo
 msgid "Wetamut"
@@ -28175,11 +28329,11 @@ msgstr ""
 
 #. name for wwr
 msgid "Warrwa"
-msgstr ""
+msgstr "varrva"
 
 #. name for www
 msgid "Wawa"
-msgstr ""
+msgstr "vava"
 
 #. name for wxa
 msgid "Waxianghua"
@@ -28215,11 +28369,11 @@ msgstr ""
 
 #. name for xac
 msgid "Kachari"
-msgstr ""
+msgstr "kacsari"
 
 #. name for xad
 msgid "Adai"
-msgstr ""
+msgstr "adáj"
 
 #. name for xae
 msgid "Aequian"
@@ -28227,7 +28381,7 @@ msgstr ""
 
 #. name for xag
 msgid "Aghwan"
-msgstr ""
+msgstr "agván"
 
 #. name for xai
 msgid "Kaimbé"
@@ -28257,13 +28411,14 @@ msgstr ""
 msgid "Aquitanian"
 msgstr ""
 
+# src/trans.h:316
 #. name for xar
 msgid "Karami"
-msgstr ""
+msgstr "karámi"
 
 #. name for xas
 msgid "Kamas"
-msgstr ""
+msgstr "kamasz"
 
 #. name for xat
 msgid "Katawixi"
@@ -28299,23 +28454,25 @@ msgstr ""
 
 #. name for xbi
 msgid "Kombio"
-msgstr ""
+msgstr "kombio"
 
+# src/trans.h:285
 #. name for xbm
 msgid "Breton, Middle"
-msgstr ""
+msgstr "breton, közép"
 
 #. name for xbn
 msgid "Kenaboi"
 msgstr ""
 
+# src/trans.h:285
 #. name for xbo
 msgid "Bolgarian"
-msgstr ""
+msgstr "bolgár"
 
 #. name for xbr
 msgid "Kambera"
-msgstr ""
+msgstr "kambera"
 
 #. name for xbw
 msgid "Kambiwá"
@@ -28411,11 +28568,11 @@ msgstr ""
 
 #. name for xel
 msgid "Kelo"
-msgstr ""
+msgstr "kelo"
 
 #. name for xem
 msgid "Kembayan"
-msgstr ""
+msgstr "kembajan"
 
 #. name for xep
 msgid "Epi-Olmec"
@@ -28455,27 +28612,27 @@ msgstr ""
 
 #. name for xgr
 msgid "Garza"
-msgstr ""
+msgstr "garza"
 
 #. name for xha
 msgid "Harami"
-msgstr ""
+msgstr "harámi"
 
 #. name for xhc
 msgid "Hunnic"
-msgstr ""
+msgstr "hun"
 
 #. name for xhd
 msgid "Hadrami"
-msgstr ""
+msgstr "hadrámi"
 
 #. name for xhe
 msgid "Khetrani"
-msgstr ""
+msgstr "ketrani"
 
 #. name for xho
 msgid "Xhosa"
-msgstr ""
+msgstr "xhosa"
 
 #. name for xhr
 msgid "Hernican"
@@ -28523,7 +28680,7 @@ msgstr ""
 
 #. name for xiv
 msgid "Indus Valley Language"
-msgstr ""
+msgstr "Indus-völgyi nyelv"
 
 #. name for xiy
 msgid "Xipaya"
@@ -28531,7 +28688,7 @@ msgstr ""
 
 #. name for xka
 msgid "Kalkoti"
-msgstr ""
+msgstr "kalkoti"
 
 #. name for xkb
 msgid "Nago, Northern"
@@ -28551,7 +28708,7 @@ msgstr ""
 
 #. name for xkf
 msgid "Khengkha"
-msgstr ""
+msgstr "kengka"
 
 #. name for xkg
 msgid "Kagoro"
@@ -28563,7 +28720,7 @@ msgstr ""
 
 #. name for xki
 msgid "Kenyan Sign Language"
-msgstr ""
+msgstr "kenyai jelnyelv"
 
 #. name for xkj
 msgid "Kajali"
@@ -28587,11 +28744,12 @@ msgstr ""
 
 #. name for xkp
 msgid "Kabatei"
-msgstr ""
+msgstr "kabatej"
 
+# src/trans.h:223
 #. name for xkq
 msgid "Koroni"
-msgstr ""
+msgstr "koroni"
 
 #. name for xkr
 msgid "Xakriabá"
@@ -28603,7 +28761,7 @@ msgstr ""
 
 #. name for xkt
 msgid "Kantosi"
-msgstr ""
+msgstr "kantosi"
 
 #. name for xku
 msgid "Kaamba"
@@ -28615,23 +28773,25 @@ msgstr ""
 
 #. name for xkw
 msgid "Kembra"
-msgstr ""
+msgstr "kembra"
 
+# src/trans.h:223
 #. name for xkx
 msgid "Karore"
-msgstr ""
+msgstr "karore"
 
 #. name for xky
 msgid "Uma' Lasan"
 msgstr ""
 
+# src/trans.h:316
 #. name for xkz
 msgid "Kurtokha"
-msgstr ""
+msgstr "kurtoka"
 
 #. name for xla
 msgid "Kamula"
-msgstr ""
+msgstr "kamula"
 
 #. name for xlb
 msgid "Loup B"
@@ -28687,7 +28847,7 @@ msgstr ""
 
 #. name for xmb
 msgid "Mbonga"
-msgstr ""
+msgstr "mbonga"
 
 #. name for xmc
 msgid "Makhuwa-Marrevone"
@@ -28707,7 +28867,7 @@ msgstr ""
 
 #. name for xmg
 msgid "Mengaka"
-msgstr ""
+msgstr "mengaka"
 
 #. name for xmh
 msgid "Kuku-Muminh"
@@ -28717,17 +28877,18 @@ msgstr ""
 msgid "Majera"
 msgstr ""
 
+# src/trans.h:305
 #. name for xmk
 msgid "Macedonian, Ancient"
-msgstr ""
+msgstr "macedón, ősi"
 
 #. name for xml
 msgid "Malaysian Sign Language"
-msgstr ""
+msgstr "maláj jelnyelv"
 
 #. name for xmm
 msgid "Malay, Manado"
-msgstr ""
+msgstr "maláj, Manado"
 
 #. name for xmn
 msgid "Persian, Manichaean Middle"
@@ -28735,7 +28896,7 @@ msgstr ""
 
 #. name for xmo
 msgid "Morerebi"
-msgstr ""
+msgstr "morerebi"
 
 #. name for xmp
 msgid "Kuku-Mu'inh"
@@ -28751,15 +28912,15 @@ msgstr ""
 
 #. name for xms
 msgid "Moroccan Sign Language"
-msgstr ""
+msgstr "marokkói jelnyelv"
 
 #. name for xmt
 msgid "Matbat"
-msgstr ""
+msgstr "matbat"
 
 #. name for xmu
 msgid "Kamu"
-msgstr ""
+msgstr "kamu"
 
 #. name for xmv
 msgid "Malagasy, Tankarana"
@@ -28771,7 +28932,7 @@ msgstr ""
 
 #. name for xmx
 msgid "Maden"
-msgstr ""
+msgstr "maden"
 
 #. name for xmy
 msgid "Mayaguduna"
@@ -28783,7 +28944,7 @@ msgstr ""
 
 #. name for xna
 msgid "North Arabian, Ancient"
-msgstr ""
+msgstr "észak-arábiai, ősi"
 
 #. name for xnb
 msgid "Kanakanabu"
@@ -28791,27 +28952,28 @@ msgstr ""
 
 #. name for xng
 msgid "Mongolian, Middle"
-msgstr ""
+msgstr "mongol, közép"
 
 #. name for xnh
 msgid "Kuanhua"
-msgstr ""
+msgstr "kvanhua"
 
 #. name for xnn
 msgid "Kankanay, Northern"
-msgstr ""
+msgstr "kankanáj, északi"
 
 #. name for xno
 msgid "Anglo-Norman"
 msgstr ""
 
+# src/trans.h:316
 #. name for xnr
 msgid "Kangri"
-msgstr ""
+msgstr "kangri"
 
 #. name for xns
 msgid "Kanashi"
-msgstr ""
+msgstr "kanasi"
 
 #. name for xnt
 msgid "Narragansett"
@@ -28821,13 +28983,14 @@ msgstr ""
 msgid "O'chi'chi'"
 msgstr ""
 
+# src/trans.h:223
 #. name for xod
 msgid "Kokoda"
-msgstr ""
+msgstr "kokoda"
 
 #. name for xog
 msgid "Soga"
-msgstr ""
+msgstr "soga"
 
 #. name for xoi
 msgid "Kominimung"
@@ -28841,9 +29004,10 @@ msgstr ""
 msgid "Komo (Sudan)"
 msgstr ""
 
+# src/trans.h:223
 #. name for xon
 msgid "Konkomba"
-msgstr ""
+msgstr "konkomba"
 
 #. name for xoo
 msgid "Xukurú"
@@ -28855,11 +29019,12 @@ msgstr ""
 
 #. name for xor
 msgid "Korubo"
-msgstr ""
+msgstr "korubo"
 
+# src/trans.h:223
 #. name for xow
 msgid "Kowaki"
-msgstr ""
+msgstr "kovaki"
 
 #. name for xpc
 msgid "Pecheneg"
@@ -28869,13 +29034,15 @@ msgstr ""
 msgid "Kpelle, Liberia"
 msgstr ""
 
+# src/trans.h:206 src/trans.h:207
 #. name for xpg
 msgid "Phrygian"
-msgstr ""
+msgstr "fríg"
 
+# src/trans.h:307
 #. name for xpi
 msgid "Pictish"
-msgstr ""
+msgstr "pikt"
 
 #. name for xpk
 msgid "Pano, Kulina"
@@ -28911,19 +29078,20 @@ msgstr ""
 
 #. name for xpu
 msgid "Punic"
-msgstr ""
+msgstr "pun"
 
 #. name for xpy
 msgid "Puyo"
-msgstr ""
+msgstr "pujo"
 
 #. name for xqa
 msgid "Karakhanid"
 msgstr ""
 
+# src/trans.h:282
 #. name for xqt
 msgid "Qatabanian"
-msgstr ""
+msgstr "katabáni"
 
 #. name for xra
 msgid "Krahô"
@@ -28963,7 +29131,7 @@ msgstr ""
 
 #. name for xrw
 msgid "Karawa"
-msgstr ""
+msgstr "karava"
 
 #. name for xsa
 msgid "Sabaean"
@@ -28975,7 +29143,7 @@ msgstr ""
 
 #. name for xsc
 msgid "Scythian"
-msgstr ""
+msgstr "szkíta"
 
 #. name for xsd
 msgid "Sidetic"
@@ -28991,7 +29159,7 @@ msgstr ""
 
 #. name for xsi
 msgid "Sio"
-msgstr ""
+msgstr "szio"
 
 #. name for xsj
 msgid "Subi"
@@ -29011,19 +29179,20 @@ msgstr ""
 
 #. name for xso
 msgid "Solano"
-msgstr ""
+msgstr "szolano"
 
 #. name for xsp
 msgid "Silopi"
-msgstr ""
+msgstr "silopi"
 
 #. name for xsq
 msgid "Makhuwa-Saka"
 msgstr ""
 
+# src/trans.h:311
 #. name for xsr
 msgid "Sherpa"
-msgstr ""
+msgstr "serpa"
 
 #. name for xss
 msgid "Assan"
@@ -29121,9 +29290,10 @@ msgstr ""
 msgid "Mixtec, Yoloxochitl"
 msgstr ""
 
+# src/trans.h:309
 #. name for xtz
 msgid "Tasmanian"
-msgstr ""
+msgstr "tasmán"
 
 #. name for xua
 msgid "Kurumba, Alu"
@@ -29135,19 +29305,20 @@ msgstr ""
 
 #. name for xug
 msgid "Kunigami"
-msgstr ""
+msgstr "kunigami"
 
 #. name for xuj
 msgid "Kurumba, Jennu"
 msgstr ""
 
+# src/trans.h:309
 #. name for xum
 msgid "Umbrian"
-msgstr ""
+msgstr "umbriai"
 
 #. name for xuo
 msgid "Kuo"
-msgstr ""
+msgstr "kuo"
 
 #. name for xup
 msgid "Umpqua, Upper"
@@ -29171,7 +29342,7 @@ msgstr ""
 
 #. name for xvi
 msgid "Kamviri"
-msgstr ""
+msgstr "kamviri"
 
 #. name for xvn
 msgid "Vandalic"
@@ -29259,7 +29430,7 @@ msgstr ""
 
 #. name for yad
 msgid "Yagua"
-msgstr ""
+msgstr "jagua"
 
 #. name for yae
 msgid "Pumé"
@@ -29277,9 +29448,10 @@ msgstr ""
 msgid "Yazgulyam"
 msgstr ""
 
+# src/prefs.c:397 src/trans.h:125
 #. name for yai
 msgid "Yagnobi"
-msgstr ""
+msgstr "jagnobi"
 
 #. name for yaj
 msgid "Banda-Yangere"
@@ -29295,19 +29467,21 @@ msgstr ""
 
 #. name for yam
 msgid "Yamba"
-msgstr ""
+msgstr "jamba"
 
 #. name for yan
 msgid "Mayangna"
 msgstr ""
 
+# src/prefs.c:397 src/trans.h:125
 #. name for yao
 msgid "Yao"
-msgstr ""
+msgstr "yao"
 
+# src/trans.h:222
 #. name for yap
 msgid "Yapese"
-msgstr ""
+msgstr "jap"
 
 #. name for yaq
 msgid "Yaqui"
@@ -29315,7 +29489,7 @@ msgstr ""
 
 #. name for yar
 msgid "Yabarana"
-msgstr ""
+msgstr "jabarana"
 
 #. name for yas
 msgid "Nugunu (Cameroon)"
@@ -29323,11 +29497,11 @@ msgstr ""
 
 #. name for yat
 msgid "Yambeta"
-msgstr ""
+msgstr "jambeta"
 
 #. name for yau
 msgid "Yuwana"
-msgstr ""
+msgstr "juvana"
 
 #. name for yav
 msgid "Yangben"
@@ -29339,7 +29513,7 @@ msgstr ""
 
 #. name for yax
 msgid "Yauma"
-msgstr ""
+msgstr "jauma"
 
 #. name for yay
 msgid "Agwagwune"
@@ -29351,15 +29525,15 @@ msgstr ""
 
 #. name for yba
 msgid "Yala"
-msgstr ""
+msgstr "jala"
 
 #. name for ybb
 msgid "Yemba"
-msgstr ""
+msgstr "yemba"
 
 #. name for ybd
 msgid "Yangbye"
-msgstr ""
+msgstr "jangbie"
 
 #. name for ybe
 msgid "Yugur, West"
@@ -29367,7 +29541,7 @@ msgstr ""
 
 #. name for ybh
 msgid "Yakha"
-msgstr ""
+msgstr "jakha"
 
 #. name for ybi
 msgid "Yamphu"
@@ -29375,7 +29549,7 @@ msgstr ""
 
 #. name for ybj
 msgid "Hasha"
-msgstr ""
+msgstr "hasa"
 
 #. name for ybk
 msgid "Bokha"
@@ -29385,21 +29559,24 @@ msgstr ""
 msgid "Yukuben"
 msgstr ""
 
+# src/trans.h:223
 #. name for ybm
 msgid "Yaben"
-msgstr ""
+msgstr "jaben"
 
 #. name for ybn
 msgid "Yabaâna"
 msgstr ""
 
+# src/prefs.c:397 src/trans.h:125
 #. name for ybo
 msgid "Yabong"
-msgstr ""
+msgstr "jabong"
 
+# src/prefs.c:397 src/trans.h:125
 #. name for ybx
 msgid "Yawiyo"
-msgstr ""
+msgstr "javijo"
 
 #. name for yby
 msgid "Yaweyuha"
@@ -29415,7 +29592,7 @@ msgstr ""
 
 #. name for ycn
 msgid "Yucuna"
-msgstr ""
+msgstr "jukuna"
 
 #. name for ycp
 msgid "Chepya"
@@ -29423,7 +29600,7 @@ msgstr ""
 
 #. name for ydd
 msgid "Yiddish, Eastern"
-msgstr ""
+msgstr "jiddis, keleti"
 
 #. name for yde
 msgid "Yangum Dey"
@@ -29431,35 +29608,37 @@ msgstr ""
 
 #. name for ydg
 msgid "Yidgha"
-msgstr ""
+msgstr "jidga"
 
 #. name for ydk
 msgid "Yoidik"
-msgstr ""
+msgstr "joidik"
 
 #. name for yds
 msgid "Yiddish Sign Language"
-msgstr ""
+msgstr "jiddis jelnyelv"
 
 #. name for yea
 msgid "Ravula"
 msgstr ""
 
+# src/trans.h:296
 #. name for yec
 msgid "Yeniche"
-msgstr ""
+msgstr "jenicse"
 
 #. name for yee
 msgid "Yimas"
-msgstr ""
+msgstr "jimas"
 
 #. name for yei
 msgid "Yeni"
 msgstr ""
 
+# src/trans.h:301
 #. name for yej
 msgid "Yevanic"
-msgstr ""
+msgstr "jevani"
 
 #. name for yel
 msgid "Yela"
@@ -29467,11 +29646,11 @@ msgstr ""
 
 #. name for yen
 msgid "Yendang"
-msgstr ""
+msgstr "jendang"
 
 #. name for yer
 msgid "Tarok"
-msgstr ""
+msgstr "tarok"
 
 #. name for yes
 msgid "Yeskwa"
@@ -29487,7 +29666,7 @@ msgstr ""
 
 #. name for yev
 msgid "Yapunda"
-msgstr ""
+msgstr "japunda"
 
 #. name for yey
 msgid "Yeyi"
@@ -29497,21 +29676,23 @@ msgstr ""
 msgid "Yangum Gel"
 msgstr ""
 
+# src/prefs.c:397 src/trans.h:125
 #. name for ygm
 msgid "Yagomi"
-msgstr ""
+msgstr "jagomi"
 
 #. name for ygp
 msgid "Gepo"
 msgstr ""
 
+# src/trans.h:285
 #. name for ygr
 msgid "Yagaria"
-msgstr ""
+msgstr "jagaria"
 
 #. name for ygw
 msgid "Yagwoia"
-msgstr ""
+msgstr "jagvoja"
 
 #. name for yha
 msgid "Buyang, Baha"
@@ -29527,11 +29708,11 @@ msgstr ""
 
 #. name for yia
 msgid "Yinggarda"
-msgstr ""
+msgstr "jingarda"
 
 #. name for yid
 msgid "Yiddish"
-msgstr ""
+msgstr "jiddis"
 
 #. name for yif
 msgid "Ache"
@@ -29543,11 +29724,11 @@ msgstr ""
 
 #. name for yih
 msgid "Yiddish, Western"
-msgstr ""
+msgstr "jiddis, nyugati"
 
 #. name for yii
 msgid "Yidiny"
-msgstr ""
+msgstr "jidini"
 
 #. name for yij
 msgid "Yindjibarndi"
@@ -29567,7 +29748,7 @@ msgstr ""
 
 #. name for yin
 msgid "Yinchia"
-msgstr ""
+msgstr "jincsia"
 
 #. name for yip
 msgid "Pholo"
@@ -29583,7 +29764,7 @@ msgstr ""
 
 #. name for yis
 msgid "Yis"
-msgstr ""
+msgstr "jis"
 
 #. name for yit
 msgid "Lalu, Eastern"
@@ -29611,11 +29792,11 @@ msgstr ""
 
 #. name for yka
 msgid "Yakan"
-msgstr ""
+msgstr "jakan"
 
 #. name for ykg
 msgid "Yukaghir, Northern"
-msgstr ""
+msgstr "jukagir. északi"
 
 #. name for yki
 msgid "Yoke"
@@ -29635,35 +29816,37 @@ msgstr ""
 
 #. name for yko
 msgid "Yasa"
-msgstr ""
+msgstr "jasa"
 
 #. name for ykr
 msgid "Yekora"
-msgstr ""
+msgstr "jekora"
 
 #. name for ykt
 msgid "Kathu"
 msgstr ""
 
+# src/prefs.c:397 src/trans.h:125
 #. name for yky
 msgid "Yakoma"
-msgstr ""
+msgstr "jakoma"
 
 #. name for yla
 msgid "Yaul"
-msgstr ""
+msgstr "jaul"
 
 #. name for ylb
 msgid "Yaleba"
 msgstr ""
 
+# src/trans.h:222
 #. name for yle
 msgid "Yele"
-msgstr ""
+msgstr "jele"
 
 #. name for ylg
 msgid "Yelogu"
-msgstr ""
+msgstr "jelogu"
 
 #. name for yli
 msgid "Yali, Angguruk"
@@ -29701,9 +29884,10 @@ msgstr ""
 msgid "Yamphe"
 msgstr ""
 
+# src/trans.h:222
 #. name for ymb
 msgid "Yambes"
-msgstr ""
+msgstr "jambesz"
 
 #. name for ymc
 msgid "Muji, Southern"
@@ -29713,9 +29897,10 @@ msgstr ""
 msgid "Muda"
 msgstr ""
 
+# src/prefs.c:397 src/trans.h:125
 #. name for yme
 msgid "Yameo"
-msgstr ""
+msgstr "jameo"
 
 #. name for ymg
 msgid "Yamongeri"
@@ -29743,7 +29928,7 @@ msgstr ""
 
 #. name for ymn
 msgid "Yamna"
-msgstr ""
+msgstr "jamna"
 
 #. name for ymo
 msgid "Yangum Mon"
@@ -29751,7 +29936,7 @@ msgstr ""
 
 #. name for ymp
 msgid "Yamap"
-msgstr ""
+msgstr "jamap"
 
 #. name for ymq
 msgid "Muji, Qila"
@@ -29783,7 +29968,7 @@ msgstr ""
 
 #. name for ynd
 msgid "Yandruwandha"
-msgstr ""
+msgstr "jandruvanda"
 
 #. name for yne
 msgid "Lang'e"
@@ -29791,15 +29976,15 @@ msgstr ""
 
 #. name for yng
 msgid "Yango"
-msgstr ""
+msgstr "jango"
 
 #. name for ynh
 msgid "Yangho"
-msgstr ""
+msgstr "jangho"
 
 #. name for ynk
 msgid "Yupik, Naukan"
-msgstr ""
+msgstr "jupi, Naukan"
 
 #. name for ynl
 msgid "Yangulam"
@@ -29807,31 +29992,33 @@ msgstr ""
 
 #. name for ynn
 msgid "Yana"
-msgstr ""
+msgstr "jana"
 
 #. name for yno
 msgid "Yong"
-msgstr ""
+msgstr "jong"
 
+# src/trans.h:193
 #. name for yns
 msgid "Yansi"
-msgstr ""
+msgstr "jansi"
 
 #. name for ynu
 msgid "Yahuna"
-msgstr ""
+msgstr "jahuna"
 
 #. name for yob
 msgid "Yoba"
-msgstr ""
+msgstr "joba"
 
 #. name for yog
 msgid "Yogad"
-msgstr ""
+msgstr "jogád"
 
+# src/trans.h:223
 #. name for yoi
 msgid "Yonaguni"
-msgstr ""
+msgstr "jonaguni"
 
 #. name for yok
 msgid "Yokuts"
@@ -29851,19 +30038,21 @@ msgstr ""
 
 #. name for yor
 msgid "Yoruba"
-msgstr ""
+msgstr "joruba"
 
+# src/prefs.c:397 src/trans.h:125
 #. name for yos
 msgid "Yos"
-msgstr ""
+msgstr "josz"
 
 #. name for yox
 msgid "Yoron"
-msgstr ""
+msgstr "joron"
 
+# src/prefs.c:397 src/trans.h:125
 #. name for yoy
 msgid "Yoy"
-msgstr ""
+msgstr "joj"
 
 #. name for ypa
 msgid "Phala"
@@ -29907,11 +30096,12 @@ msgstr ""
 
 #. name for yrb
 msgid "Yareba"
-msgstr ""
+msgstr "jareba"
 
+# src/prefs.c:397 src/trans.h:125
 #. name for yre
 msgid "Yaouré"
-msgstr ""
+msgstr "jauré"
 
 #. name for yri
 msgid "Yarí"
@@ -29947,7 +30137,7 @@ msgstr ""
 
 #. name for ysl
 msgid "Yugoslavian Sign Language"
-msgstr ""
+msgstr "jugoszláv jelnyelv"
 
 #. name for ysn
 msgid "Sani"
@@ -29995,19 +30185,20 @@ msgstr ""
 
 #. name for yub
 msgid "Yugambal"
-msgstr ""
+msgstr "jugambál"
 
 #. name for yuc
 msgid "Yuchi"
-msgstr ""
+msgstr "jucsi"
 
 #. name for yud
 msgid "Arabic, Judeo-Tripolitanian"
 msgstr ""
 
+# src/trans.h:220
 #. name for yue
 msgid "Chinese, Yue"
-msgstr ""
+msgstr "kínai, Yue"
 
 #. name for yuf
 msgid "Havasupai-Walapai-Yavapai"
@@ -30031,11 +30222,11 @@ msgstr ""
 
 #. name for yul
 msgid "Yulu"
-msgstr ""
+msgstr "julu"
 
 #. name for yum
 msgid "Quechan"
-msgstr ""
+msgstr "kecsa"
 
 #. name for yun
 msgid "Bena (Nigeria)"
@@ -30043,7 +30234,7 @@ msgstr ""
 
 #. name for yup
 msgid "Yukpa"
-msgstr ""
+msgstr "jukpa"
 
 #. name for yuq
 msgid "Yuqui"
@@ -30055,7 +30246,7 @@ msgstr ""
 
 #. name for yut
 msgid "Yopno"
-msgstr ""
+msgstr "jopno"
 
 #. name for yuu
 msgid "Yugh"
@@ -30067,7 +30258,7 @@ msgstr ""
 
 #. name for yux
 msgid "Yukaghir, Southern"
-msgstr ""
+msgstr "jukagir, déli"
 
 #. name for yuy
 msgid "Yugur, East"
@@ -30079,7 +30270,7 @@ msgstr ""
 
 #. name for yva
 msgid "Yawa"
-msgstr ""
+msgstr "jawa"
 
 #. name for yvt
 msgid "Yavitero"
@@ -30103,7 +30294,7 @@ msgstr ""
 
 #. name for ywr
 msgid "Yawuru"
-msgstr ""
+msgstr "javuru"
 
 #. name for ywt
 msgid "Lalo, Xishanba"
@@ -30147,11 +30338,11 @@ msgstr ""
 
 #. name for zad
 msgid "Zapotec, Cajonos"
-msgstr ""
+msgstr "zapoték, Cajonos"
 
 #. name for zae
 msgid "Zapotec, Yareni"
-msgstr ""
+msgstr "zapoték, Yareni"
 
 #. name for zaf
 msgid "Zapotec, Ayoquesco"
@@ -30159,27 +30350,27 @@ msgstr ""
 
 #. name for zag
 msgid "Zaghawa"
-msgstr ""
+msgstr "zagava"
 
 #. name for zah
 msgid "Zangwal"
-msgstr ""
+msgstr "zangval"
 
 #. name for zai
 msgid "Zapotec, Isthmus"
-msgstr ""
+msgstr "zapoték, Isthmus"
 
 #. name for zaj
 msgid "Zaramo"
-msgstr ""
+msgstr "zaramo"
 
 #. name for zak
 msgid "Zanaki"
-msgstr ""
+msgstr "zanaki"
 
 #. name for zal
 msgid "Zauzou"
-msgstr ""
+msgstr "zozu"
 
 #. name for zam
 msgid "Zapotec, Miahuatlán"
@@ -30191,7 +30382,7 @@ msgstr ""
 
 #. name for zap
 msgid "Zapotec"
-msgstr ""
+msgstr "zapoték"
 
 #. name for zaq
 msgid "Zapotec, Aloápam"
@@ -30199,7 +30390,7 @@ msgstr ""
 
 #. name for zar
 msgid "Zapotec, Rincón"
-msgstr ""
+msgstr "zapoték, Rincón"
 
 #. name for zas
 msgid "Zapotec, Santo Domingo Albarradas"
@@ -30207,11 +30398,12 @@ msgstr ""
 
 #. name for zat
 msgid "Zapotec, Tabaa"
-msgstr ""
+msgstr "zapoték, Tabaa"
 
+# src/trans.h:193
 #. name for zau
 msgid "Zangskari"
-msgstr ""
+msgstr "zangskari"
 
 #. name for zav
 msgid "Zapotec, Yatzachi"
@@ -30219,11 +30411,11 @@ msgstr ""
 
 #. name for zaw
 msgid "Zapotec, Mitla"
-msgstr ""
+msgstr "zapoték, Mitla"
 
 #. name for zax
 msgid "Zapotec, Xadani"
-msgstr ""
+msgstr "zapoték, Xadani"
 
 #. name for zay
 msgid "Zayse-Zergulla"
@@ -30231,7 +30423,7 @@ msgstr ""
 
 #. name for zaz
 msgid "Zari"
-msgstr ""
+msgstr "zari"
 
 #. name for zbc
 msgid "Berawan, Central"
@@ -30271,7 +30463,7 @@ msgstr ""
 
 #. name for zeg
 msgid "Zenag"
-msgstr ""
+msgstr "zenag"
 
 #. name for zeh
 msgid "Zhuang, Eastern Hongshuihe"
@@ -30279,11 +30471,11 @@ msgstr ""
 
 #. name for zen
 msgid "Zenaga"
-msgstr ""
+msgstr "zenaga"
 
 #. name for zga
 msgid "Kinga"
-msgstr ""
+msgstr "kinga"
 
 #. name for zgb
 msgid "Zhuang, Guibei"
@@ -30299,35 +30491,37 @@ msgstr ""
 
 #. name for zgr
 msgid "Magori"
-msgstr ""
+msgstr "magori"
 
 #. name for zha
 msgid "Zhuang"
-msgstr ""
+msgstr "zsuang"
 
 #. name for zhb
 msgid "Zhaba"
-msgstr ""
+msgstr "zsaba"
 
 #. name for zhd
 msgid "Zhuang, Dai"
 msgstr ""
 
+# src/trans.h:316
 #. name for zhi
 msgid "Zhire"
-msgstr ""
+msgstr "zsire"
 
 #. name for zhn
 msgid "Zhuang, Nong"
 msgstr ""
 
+# src/trans.h:220
 #. name for zho
 msgid "Chinese"
-msgstr ""
+msgstr "kínai"
 
 #. name for zhw
 msgid "Zhoa"
-msgstr ""
+msgstr "zsoa"
 
 #. name for zia
 msgid "Zia"
@@ -30335,7 +30529,7 @@ msgstr ""
 
 #. name for zib
 msgid "Zimbabwe Sign Language"
-msgstr ""
+msgstr "zimbabwei jelnyelv"
 
 #. name for zik
 msgid "Zimakani"
@@ -30345,21 +30539,22 @@ msgstr ""
 msgid "Zialo"
 msgstr ""
 
+# src/trans.h:377
 #. name for zim
 msgid "Mesme"
-msgstr ""
+msgstr "mesme"
 
 #. name for zin
 msgid "Zinza"
-msgstr ""
+msgstr "zinza"
 
 #. name for zir
 msgid "Ziriya"
-msgstr ""
+msgstr "zirija"
 
 #. name for ziw
 msgid "Zigula"
-msgstr ""
+msgstr "zigula"
 
 #. name for ziz
 msgid "Zizilivakan"
@@ -30367,15 +30562,15 @@ msgstr ""
 
 #. name for zka
 msgid "Kaimbulawa"
-msgstr ""
+msgstr "kaimbulava"
 
 #. name for zkb
 msgid "Koibal"
-msgstr ""
+msgstr "koibal"
 
 #. name for zkg
 msgid "Koguryo"
-msgstr ""
+msgstr "kongurio"
 
 #. name for zkh
 msgid "Khorezmian"
@@ -30383,7 +30578,7 @@ msgstr ""
 
 #. name for zkk
 msgid "Karankawa"
-msgstr ""
+msgstr "karankava"
 
 #. name for zko
 msgid "Kott"
@@ -30411,7 +30606,7 @@ msgstr ""
 
 #. name for zkz
 msgid "Khazar"
-msgstr ""
+msgstr "kazár"
 
 #. name for zlj
 msgid "Zhuang, Liujiang"
@@ -30435,11 +30630,11 @@ msgstr ""
 
 #. name for zmb
 msgid "Zimba"
-msgstr ""
+msgstr "zimba"
 
 #. name for zmc
 msgid "Margany"
-msgstr ""
+msgstr "margani"
 
 #. name for zmd
 msgid "Maridan"
@@ -30447,7 +30642,7 @@ msgstr ""
 
 #. name for zme
 msgid "Mangerr"
-msgstr ""
+msgstr "mangerr"
 
 #. name for zmf
 msgid "Mfinu"
@@ -30475,7 +30670,7 @@ msgstr ""
 
 #. name for zml
 msgid "Madngele"
-msgstr ""
+msgstr "madngele"
 
 #. name for zmm
 msgid "Marimanindji"
@@ -30487,11 +30682,11 @@ msgstr ""
 
 #. name for zmo
 msgid "Molo"
-msgstr ""
+msgstr "molo"
 
 #. name for zmp
 msgid "Mpuono"
-msgstr ""
+msgstr "mpuono"
 
 #. name for zmq
 msgid "Mituku"
@@ -30503,15 +30698,15 @@ msgstr ""
 
 #. name for zms
 msgid "Mbesa"
-msgstr ""
+msgstr "mbesa"
 
 #. name for zmt
 msgid "Maringarr"
-msgstr ""
+msgstr "maringar"
 
 #. name for zmu
 msgid "Muruwari"
-msgstr ""
+msgstr "muruvari"
 
 #. name for zmv
 msgid "Mbariman-Gudhinma"
@@ -30523,15 +30718,15 @@ msgstr ""
 
 #. name for zmx
 msgid "Bomitaba"
-msgstr ""
+msgstr "bombitaba"
 
 #. name for zmy
 msgid "Mariyedi"
-msgstr ""
+msgstr "marijedi"
 
 #. name for zmz
 msgid "Mbandja"
-msgstr ""
+msgstr "mbandja"
 
 #. name for zna
 msgid "Zan Gula"
@@ -30543,15 +30738,15 @@ msgstr ""
 
 #. name for zng
 msgid "Mang"
-msgstr ""
+msgstr "mang"
 
 #. name for znk
 msgid "Manangkari"
-msgstr ""
+msgstr "mankari"
 
 #. name for zns
 msgid "Mangas"
-msgstr ""
+msgstr "mangas"
 
 #. name for zoc
 msgid "Zoque, Copainalá"
@@ -30591,7 +30786,7 @@ msgstr ""
 
 #. name for zpc
 msgid "Zapotec, Choapan"
-msgstr ""
+msgstr "zapoték, Choapan"
 
 #. name for zpd
 msgid "Zapotec, Southeastern Ixtlán"
@@ -30599,7 +30794,7 @@ msgstr ""
 
 #. name for zpe
 msgid "Zapotec, Petapa"
-msgstr ""
+msgstr "zapoték, Petapa"
 
 #. name for zpf
 msgid "Zapotec, San Pedro Quiatoni"
@@ -30643,7 +30838,7 @@ msgstr ""
 
 #. name for zpp
 msgid "Zapotec, El Alto"
-msgstr ""
+msgstr "zapoték, El Alto"
 
 #. name for zpq
 msgid "Zapotec, Zoogocho"
@@ -30671,7 +30866,7 @@ msgstr ""
 
 #. name for zpw
 msgid "Zapotec, Zaniza"
-msgstr ""
+msgstr "zapoték, Zaniza"
 
 #. name for zpx
 msgid "Zapotec, San Baltazar Loxicha"
@@ -30707,11 +30902,11 @@ msgstr ""
 
 #. name for zrp
 msgid "Zarphatic"
-msgstr ""
+msgstr "zapatik"
 
 #. name for zrs
 msgid "Mairasi"
-msgstr ""
+msgstr "mairasi"
 
 #. name for zsa
 msgid "Sarasira"
@@ -30723,7 +30918,7 @@ msgstr ""
 
 #. name for zsl
 msgid "Zambian Sign Language"
-msgstr ""
+msgstr "zambiai jelnyelv"
 
 #. name for zsm
 msgid "Malay, Standard"
@@ -30731,7 +30926,7 @@ msgstr ""
 
 #. name for zsr
 msgid "Zapotec, Southern Rincon"
-msgstr ""
+msgstr "zapoték, dél-Rincon"
 
 #. name for zsu
 msgid "Sukurum"
@@ -30759,7 +30954,7 @@ msgstr ""
 
 #. name for ztp
 msgid "Zapotec, Loxicha"
-msgstr ""
+msgstr "zapoték, Loxicha"
 
 #. name for ztq
 msgid "Zapotec, Quioquitani-Quierí"
@@ -30775,7 +30970,7 @@ msgstr ""
 
 #. name for ztu
 msgid "Zapotec, Güilá"
-msgstr ""
+msgstr "zapoték, Güilá"
 
 #. name for ztx
 msgid "Zapotec, Zaachila"
@@ -30783,27 +30978,29 @@ msgstr ""
 
 #. name for zty
 msgid "Zapotec, Yatee"
-msgstr ""
+msgstr "zapoték, Yatee"
 
 #. name for zua
 msgid "Zeem"
 msgstr ""
 
+# src/trans.h:223
 #. name for zuh
 msgid "Tokano"
-msgstr ""
+msgstr "tokano"
 
 #. name for zul
 msgid "Zulu"
-msgstr ""
+msgstr "zulu"
 
+# src/trans.h:316
 #. name for zum
 msgid "Kumzari"
-msgstr ""
+msgstr "kumzari"
 
 #. name for zun
 msgid "Zuni"
-msgstr ""
+msgstr "zuni"
 
 #. name for zuy
 msgid "Zumaya"
