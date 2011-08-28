@@ -10,7 +10,7 @@ import re, os, posixpath, json
 import cherrypy
 
 from calibre import fit_image, guess_type
-from calibre.utils.date import fromtimestamp
+from calibre.utils.date import fromtimestamp, isoformat
 from calibre.library.caches import SortKeyGenerator
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ebooks.metadata import authors_to_string
@@ -18,6 +18,7 @@ from calibre.utils.magick.draw import (save_cover_data_to, Image,
         thumbnail as generate_thumbnail)
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
+from calibre.utils.config import prefs
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub']
@@ -199,12 +200,47 @@ class ContentServer(object):
         cherrypy.response.headers['Content-Type'] = \
                 'application/json; charset=utf-8'
         mi = self.db.get_metadata(id_, index_is_id=True)
+        try:
+            mi.rating = mi.rating/2.
+        except:
+            mi.rating = 0.0
         cherrypy.response.timeout = 3600
         cherrypy.response.headers['Last-Modified'] = \
                 self.last_modified(mi.last_modified)
 
         data = self.json_codec.encode_book_metadata(mi)
-        return json.dumps(data, ensure_ascii=False).encode('utf-8')
+        for x in ('publication_type', 'size', 'db_id', 'lpath', 'mime',
+                'rights', 'book_producer'):
+            data.pop(x, None)
+
+        def absurl(url):
+            return self.opts.url_prefix + url
+
+        data['cover'] = absurl(u'/get/cover/%d'%id_)
+        data['thumbnail'] = absurl(u'/get/thumb/%d'%id_)
+        for v in mi.format_metadata.itervalues():
+            mtime = v.get('mtime', None)
+            if mtime is not None:
+                v['mtime'] = isoformat(mtime, as_utc=True)
+        data['format_metadata'] = mi.format_metadata
+        fmts = set(x.lower() for x in mi.format_metadata.iterkeys())
+        pf = prefs['output_format'].lower()
+        other_fmts = list(fmts)
+        try:
+            fmt = pf if pf in fmts else other_fmts[0]
+        except:
+            fmt = None
+        if fmts and fmt:
+            other_fmts = [x for x in fmts if x != fmt]
+        data['formats'] = sorted(fmts)
+        if fmt:
+            data['main_format'] = {fmt: absurl(u'/get/%s/%d'%(fmt, id_))}
+        else:
+            data['main_format'] = None
+        data['other_formats'] = {fmt: absurl(u'/get/%s/%d'%(fmt, id_)) for fmt
+                in other_fmts}
+
+        return json.dumps(data, indent=2, ensure_ascii=False).encode('utf-8')
 
     def get_format(self, id, format):
         format = format.upper()
