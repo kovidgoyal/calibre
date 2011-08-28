@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, os, posixpath
+import re, os, posixpath, json
 
 import cherrypy
 
@@ -92,6 +92,8 @@ class ContentServer(object):
             return self.get_cover(id)
         if what == 'opf':
             return self.get_metadata_as_opf(id)
+        if what == 'json':
+            return self.get_metadata_as_json(id)
         return self.get_format(id, what)
 
     def static(self, name):
@@ -192,6 +194,17 @@ class ContentServer(object):
                 self.last_modified(mi.last_modified)
 
         return data
+
+    def get_metadata_as_json(self, id_):
+        cherrypy.response.headers['Content-Type'] = \
+                'application/json; charset=utf-8'
+        mi = self.db.get_metadata(id_, index_is_id=True)
+        cherrypy.response.timeout = 3600
+        cherrypy.response.headers['Last-Modified'] = \
+                self.last_modified(mi.last_modified)
+
+        data = self.json_codec.encode_book_metadata(mi)
+        return json.dumps(data, ensure_ascii=False).encode('utf-8')
 
     def get_format(self, id, format):
         format = format.upper()

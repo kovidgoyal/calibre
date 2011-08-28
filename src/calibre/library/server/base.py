@@ -26,6 +26,7 @@ from calibre.library.server.cache import Cache
 from calibre.library.server.browse import BrowseServer
 from calibre.utils.search_query_parser import saved_searches
 from calibre import prints
+from calibre.ebooks.metadata.book.json_codec import JsonCodec
 
 
 class DispatchController(object): # {{{
@@ -167,6 +168,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         root_conf = self.config.get('/', {})
         root_conf['request.dispatch'] = self.__dispatcher__.dispatcher
         self.config['/'] = root_conf
+        self.json_codec = JsonCodec()
 
     def set_database(self, db):
         self.db = db
