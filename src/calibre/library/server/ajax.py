@@ -410,6 +410,9 @@ class AjaxServer(object):
     @Endpoint()
     def ajax_books_in(self, category, item, sort='title', num=25, offset=0,
             sort_order='asc'):
+        '''
+        Return the books (as list of ids) present in the specified category.
+        '''
         try:
             dname, ditem = map(decode_name, (category, item))
         except:
@@ -471,6 +474,10 @@ class AjaxServer(object):
     @Endpoint()
     def ajax_search(self, query='', sort='title', offset=0, num=25,
             sort_order='asc'):
+        '''
+        Return the books (as list of ids) matching the specified search query.
+        '''
+
         try:
             num = int(num)
         except:
