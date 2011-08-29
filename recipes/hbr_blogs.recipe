@@ -5,15 +5,15 @@ class HBR(BasicNewsRecipe):
 
     title = 'Harvard Business Review Blogs'
     description = 'To subscribe go to http://hbr.harvardbusiness.org'
-    needs_subscription = True
     __author__ = 'Kovid Goyal'
     language = 'en'
     no_stylesheets = True
-    recipe_disabled = ('hbr.org has started requiring the use of javascript'
-            ' to log into their website. This is unsupported in calibre, so'
-            ' this recipe has been disabled. If you would like to see '
-            ' HBR supported in calibre, contact hbr.org and ask them'
-            ' to provide a javascript free login method.')
+    #recipe_disabled = ('hbr.org has started requiring the use of javascript'
+    #        ' to log into their website. This is unsupported in calibre, so'
+    #        ' this recipe has been disabled. If you would like to see '
+    #        ' HBR supported in calibre, contact hbr.org and ask them'
+    #        ' to provide a javascript free login method.')
+    needs_subscription = False
 
     LOGIN_URL = 'http://hbr.org/login?request_url=/'
     LOGOUT_URL = 'http://hbr.org/logout?request_url=/'
@@ -41,6 +41,7 @@ class HBR(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         self.logout_url = None
+        return br
 
         #'''
         br.open(self.LOGIN_URL)
