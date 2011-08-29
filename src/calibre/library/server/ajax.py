@@ -259,6 +259,7 @@ class AjaxServer(object):
         subcategories = []
         meta = fm[toplevel]
         item_names = {}
+        children = set()
 
         if meta['kind'] == 'user':
             fullname = ((toplevel + '.' + subcategory) if subcategory is not
@@ -282,7 +283,6 @@ class AjaxServer(object):
             category_name = toplevel[1:].split('.')
             # When browsing by user categories we ignore hierarchical normal
             # columns, so children can be empty
-            children = set()
 
         elif toplevel in hierarchical_categories:
             items = []
@@ -312,6 +312,9 @@ class AjaxServer(object):
             subcategories = [{'name':x.rpartition('.')[-1],
                 'url':hexlify(toplevel+'.'+x),
                 'icon':category_icon(toplevel, meta)} for x in children]
+        else:
+            items = categories[toplevel]
+            category_name = meta['name']
 
         for x in subcategories:
             x['url'] = category_url(self.opts.url_prefix, x['url'])
