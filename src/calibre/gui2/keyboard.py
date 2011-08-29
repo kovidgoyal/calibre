@@ -117,6 +117,13 @@ class Manager(QObject): # {{{
         #import pprint
         #pprint.pprint(self.keys_map)
 
+    def replace_action(self, unique_name, new_action):
+        sc = self.shortcuts[unique_name]
+        ac = sc['action']
+        if ac is not None:
+            new_action.setShortcuts(ac.shortcuts())
+            ac.setShortcuts([])
+
 # }}}
 
 # Model {{{
