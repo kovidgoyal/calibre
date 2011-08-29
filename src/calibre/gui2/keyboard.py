@@ -110,6 +110,13 @@ class Manager(QObject): # {{{
         group = group if group else _('Miscellaneous')
         self.groups[group] = self.groups.get(group, []) + [unique_name]
 
+    def unregister_shortcut(self, unique_name):
+        '''
+        Remove a registered shortcut. You need to call finalize() after you are
+        don unregistering.
+        '''
+        self.shortcuts.pop(unique_name, None)
+
     def finalize(self):
         custom_keys_map = {un:tuple(keys) for un, keys in self.config.get(
             'map', {}).iteritems()}
