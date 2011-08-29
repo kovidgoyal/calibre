@@ -206,9 +206,9 @@ def unit_convert(value, base, font, dpi):
         elif unit == 'pc':
             result = value * 12.0
         elif unit == 'mm':
-            result = value * 0.04
+            result = value * 2.8346456693
         elif unit == 'cm':
-            result = value * 0.40
+            result = value * 28.346456693
     return result
 
 def generate_masthead(title, output_path=None, width=600, height=60):
