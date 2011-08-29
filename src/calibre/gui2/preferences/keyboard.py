@@ -37,7 +37,7 @@ class ConfigWidget(ConfigWidgetBase):
     def refresh_gui(self, gui):
         gui.keyboard.finalize()
 
-    def highligh_group(self, group_name):
+    def highlight_group(self, group_name):
         self.conf_widget.highlight_group(group_name)
 
 if __name__ == '__main__':
