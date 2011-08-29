@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from future_builtins import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import json
 from functools import wraps
+from binascii import hexlify, unhexlify
 
 import cherrypy
 
@@ -64,11 +66,19 @@ def category_icon(category, meta): # {{{
     return icon
 # }}}
 
+def encode_name(name):
+    if isinstance(name, unicode):
+        name = name.encode('utf-8')
+    return hexlify(name)
+
+def decode_name(name):
+    return unhexlify(name).decode('utf-8')
+
 def absurl(prefix, url):
     return prefix + url
 
 def category_url(prefix, cid):
-    return absurl(prefix, '/ajax/category/'+cid)
+    return absurl(prefix, '/ajax/category/'+encode_name(cid))
 
 def icon_url(prefix, name):
     return absurl(prefix, '/browse/icon/'+name)
@@ -93,7 +103,7 @@ class AjaxServer(object):
                 self.ajax_category)
 
         # List of books in specified category
-        connect('ajax_books_in', base_href+'/books_in/{category}/{name}',
+        connect('ajax_books_in', base_href+'/books_in/{category}/{item}',
                 self.ajax_books_in)
 
 
@@ -190,7 +200,7 @@ class AjaxServer(object):
             if category.startswith('@'):
                 category = category.partition('.')[0]
                 display_name = category[1:]
-            url = force_unicode(category).encode('utf-8')
+            url = force_unicode(category)
             icon = category_icon(category, meta)
             ans[url] = (display_name, icon)
 
@@ -264,31 +274,33 @@ class AjaxServer(object):
 
         base_url = absurl(self.opts.url_prefix, '/ajax/category/'+name)
 
-        if name in ('newest', 'allbooks'):
-            if name == 'newest':
-                sort, sort_order = 'timestamp', 'desc'
-            raise cherrypy.InternalRedirect(
-                '/ajax/books_in/%s/dummy?num=%s&offset=%s&sort=%s&sort_order=%s'%(
-                    name, num, offset, sort, sort_order))
-
         if sort not in ('rating', 'name', 'popularity'):
             sort = 'name'
 
         if sort_order not in ('asc', 'desc'):
             sort_order = 'asc'
 
+        try:
+            dname = decode_name(name)
+        except:
+            raise cherrypy.HTTPError(404, 'Invalid encoding of category name'
+                    ' %r'%name)
+
+        if dname in ('newest', 'allbooks'):
+            if dname == 'newest':
+                sort, sort_order = 'timestamp', 'desc'
+            raise cherrypy.InternalRedirect(
+                '/ajax/books_in/%s/%s?sort=%s&sort_order=%s'%(
+                    encode_name(dname), encode_name('0'), sort, sort_order))
+
         fm = self.db.field_metadata
         categories = self.categories_cache()
         hierarchical_categories = self.db.prefs['categories_using_hierarchy']
 
-        if name in categories:
-            toplevel = name
+        subcategory = dname
+        toplevel = subcategory.partition('.')[0]
+        if toplevel == subcategory:
             subcategory = None
-        else:
-            subcategory = name
-            toplevel = subcategory.partition('.')[0]
-            if toplevel == subcategory:
-                subcategory = None
         if toplevel not in categories or toplevel not in fm:
             raise cherrypy.HTTPError(404, 'Category %r not found'%toplevel)
 
@@ -371,8 +383,8 @@ class AjaxServer(object):
             'average_rating': x.avg_rating,
             'count': x.count,
             'url': absurl(self.opts.url_prefix, '/ajax/books_in/%s/%s'%(
-                x.category if x.category else toplevel,
-                x.original_name if x.id is None else x.id)),
+                encode_name(x.category if x.category else toplevel),
+                encode_name(x.original_name if x.id is None else unicode(x.id)))),
             'has_children': x.original_name in children,
             } for x in items]
 
@@ -391,8 +403,61 @@ class AjaxServer(object):
 
     # Books in the specified category {{{
     @Endpoint()
-    def ajax_books_in(self, name, item, sort='title', num=100, offset=0,
+    def ajax_books_in(self, category, item, sort='title', num=25, offset=0,
             sort_order='asc'):
-        pass
+        try:
+            dname, ditem = map(decode_name, (category, item))
+        except:
+            raise cherrypy.HTTPError(404, 'Invalid encoded param: %r'%category)
+
+        try:
+            num = int(num)
+        except:
+            raise cherrypy.HTTPError(404, "Invalid num: %r"%num)
+        try:
+            offset = int(offset)
+        except:
+            raise cherrypy.HTTPError(404, "Invalid offset: %r"%offset)
+
+        if sort_order not in ('asc', 'desc'):
+            sort_order = 'asc'
+
+        if dname in ('allbooks', 'newest'):
+            ids = self.search_cache('')
+        elif dname == 'search':
+            try:
+                ids = self.search_cache('search:"%s"'%ditem)
+            except:
+                raise cherrypy.HTTPError(404, 'Search: %r not understood'%ditem)
+        else:
+            try:
+                cid = int(ditem)
+            except:
+                raise cherrypy.HTTPError(404,
+                        'Category id %r not an integer'%ditem)
+
+            if dname == 'news':
+                dname = 'tags'
+            ids = self.db.get_books_for_category(dname, cid)
+            all_ids = set(self.search_cache(''))
+            # Implement restriction
+            ids = ids.intersection(all_ids)
+
+        ids = list(ids)
+        sfield = self.db.data.sanitize_sort_field_name(sort)
+        if sfield not in self.db.field_metadata.sortable_field_keys():
+            raise cherrypy.HTTPError(404, '%s is not a valid sort field'%sort)
+        self.db.data.multisort(fields=[(sfield, sort_order == 'asc')], subsort=True,
+                only_ids=ids)
+        total_num = len(ids)
+        ids = ids[offset:offset+num]
+        return {
+                'total_num': total_num, 'sort_order':sort_order,
+                'offset':offset, 'num':len(ids), 'sort':sort,
+                'base_url':'/ajax/books_in/%s/%s'%(category, item),
+                'book_ids':ids
+        }
+
+
     # }}}
 
