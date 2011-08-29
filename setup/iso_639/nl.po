@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-08-27 02:50+0000\n"
-"PO-Revision-Date: 2011-08-27 16:42+0000\n"
-"Last-Translator: Freek de Kruijf <Unknown>\n"
+"PO-Revision-Date: 2011-08-28 11:47+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-08-28 04:41+0000\n"
+"X-Launchpad-Export-Date: 2011-08-29 04:33+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
 "Language: nl\n"
 
@@ -412,7 +412,7 @@ msgstr "Argentijnse gebarentaal"
 
 #. name for aee
 msgid "Pashayi, Northeast"
-msgstr ""
+msgstr "Pashai, Noordoost"
 
 #. name for aek
 msgid "Haeke"
@@ -436,7 +436,7 @@ msgstr ""
 
 #. name for aer
 msgid "Arrernte, Eastern"
-msgstr ""
+msgstr "Arrernte, Oosterlijk"
 
 #. name for aes
 msgid "Alsea"
@@ -504,7 +504,7 @@ msgstr "Afrikaans"
 
 #. name for afs
 msgid "Creole, Afro-Seminole"
-msgstr ""
+msgstr "Creools, Afro-Seminools"
 
 #. name for aft
 msgid "Afitti"
@@ -592,7 +592,7 @@ msgstr ""
 
 #. name for agt
 msgid "Agta, Central Cagayan"
-msgstr ""
+msgstr "Agta, Centraal Cagayan"
 
 #. name for agu
 msgid "Aguacateco"
@@ -1116,7 +1116,7 @@ msgstr ""
 
 #. name for ang
 msgid "English, Old (ca. 450-1100)"
-msgstr "Engels, Oud (ca.450-1100)"
+msgstr "Engels, Oud (ca. 450-1100)"
 
 #. name for anh
 msgid "Nend"
@@ -2200,7 +2200,7 @@ msgstr ""
 
 #. name for bbp
 msgid "Banda, West Central"
-msgstr ""
+msgstr "Banda, West-Centraal"
 
 #. name for bbq
 msgid "Bamali"
@@ -2244,7 +2244,7 @@ msgstr ""
 
 #. name for bca
 msgid "Bai, Central"
-msgstr ""
+msgstr "Bai, Centraal"
 
 #. name for bcb
 msgid "Bainouk-Samik"
@@ -2288,7 +2288,7 @@ msgstr "Bunaba"
 
 #. name for bcl
 msgid "Bicolano, Central"
-msgstr ""
+msgstr "Bicolano, Centraal"
 
 #. name for bcm
 msgid "Bannoni"
@@ -3720,7 +3720,7 @@ msgstr "Baangi"
 
 #. name for bqy
 msgid "Bengkala Sign Language"
-msgstr "Benkala gebarentaal"
+msgstr "Bengalese gebarentaal"
 
 #. name for bqz
 msgid "Bakaka"
@@ -4756,7 +4756,7 @@ msgstr ""
 
 #. name for cbn
 msgid "Nyahkur"
-msgstr ""
+msgstr "Nauruaans"
 
 #. name for cbo
 msgid "Izora"
@@ -4772,7 +4772,7 @@ msgstr "Cashinahua"
 
 #. name for cbt
 msgid "Chayahuita"
-msgstr ""
+msgstr "Chagatai"
 
 #. name for cbu
 msgid "Candoshi-Shapra"
@@ -4788,7 +4788,7 @@ msgstr ""
 
 #. name for cby
 msgid "Carabayo"
-msgstr ""
+msgstr "Carabayaans"
 
 #. name for cca
 msgid "Cauca"
@@ -5148,7 +5148,7 @@ msgstr ""
 
 #. name for cjy
 msgid "Chinese, Jinyu"
-msgstr ""
+msgstr "Chinees, Jinyu"
 
 #. name for cka
 msgid "Chin, Khumi Awa"
@@ -5156,7 +5156,7 @@ msgstr ""
 
 #. name for ckb
 msgid "Kurdish, Central"
-msgstr ""
+msgstr "Koerdisch, Centraal"
 
 #. name for ckh
 msgid "Chak"
@@ -5216,7 +5216,7 @@ msgstr ""
 
 #. name for cld
 msgid "Neo-Aramaic, Chaldean"
-msgstr ""
+msgstr "Neo-Aramaïsch, Chaldenees"
 
 #. name for cle
 msgid "Chinantec, Lealao"
@@ -5268,7 +5268,7 @@ msgstr ""
 
 #. name for cmg
 msgid "Mongolian, Classical"
-msgstr ""
+msgstr "Mongools, Klassiek"
 
 #. name for cmi
 msgid "Emberá-Chamí"
@@ -5356,7 +5356,7 @@ msgstr ""
 
 #. name for cnx
 msgid "Cornish, Middle"
-msgstr ""
+msgstr "Cornisch, middel"
 
 #. name for coa
 msgid "Malay, Cocos Islands"
@@ -5424,7 +5424,7 @@ msgstr ""
 
 #. name for cor
 msgid "Cornish"
-msgstr "Cornish"
+msgstr "Cornisch"
 
 #. name for cos
 msgid "Corsican"
@@ -5492,7 +5492,7 @@ msgstr ""
 
 #. name for cpx
 msgid "Chinese, Pu-Xian"
-msgstr ""
+msgstr "Chinees, Pu-Xian"
 
 #. name for cpy
 msgid "Ashéninka, South Ucayali"
@@ -5544,19 +5544,19 @@ msgstr ""
 
 #. name for crj
 msgid "Cree, Southern East"
-msgstr ""
+msgstr "Cree, Zuid-oost"
 
 #. name for crk
 msgid "Cree, Plains"
-msgstr ""
+msgstr "Cree, prairie"
 
 #. name for crl
 msgid "Cree, Northern East"
-msgstr ""
+msgstr "Cree, Noord-oost"
 
 #. name for crm
 msgid "Cree, Moose"
-msgstr ""
+msgstr "Cree, eland"
 
 #. name for crn
 msgid "Cora, El Nayar"
@@ -5572,7 +5572,7 @@ msgstr ""
 
 #. name for crr
 msgid "Algonquian, Carolina"
-msgstr ""
+msgstr "Algonquiaans, Carolina"
 
 #. name for crs
 msgid "Creole French, Seselwa"
@@ -5612,23 +5612,23 @@ msgstr "Kasjoebiaans"
 
 #. name for csc
 msgid "Catalan Sign Language"
-msgstr ""
+msgstr "Catalaanse gebarentaal"
 
 #. name for csd
 msgid "Chiangmai Sign Language"
-msgstr ""
+msgstr "Chiangmai gebarentaal"
 
 #. name for cse
 msgid "Czech Sign Language"
-msgstr ""
+msgstr "Tsjechische gebarentaal"
 
 #. name for csf
 msgid "Cuba Sign Language"
-msgstr ""
+msgstr "Cubaanse gebarentaal"
 
 #. name for csg
 msgid "Chilean Sign Language"
-msgstr ""
+msgstr "Chileense gebarentaal"
 
 #. name for csh
 msgid "Chin, Asho"
@@ -5644,15 +5644,15 @@ msgstr ""
 
 #. name for csl
 msgid "Chinese Sign Language"
-msgstr ""
+msgstr "Chinese gebarentaal"
 
 #. name for csm
 msgid "Miwok, Central Sierra"
-msgstr ""
+msgstr "Miwok, Centraal Sierra"
 
 #. name for csn
 msgid "Colombian Sign Language"
-msgstr ""
+msgstr "Colombiaanse gebarentaal"
 
 #. name for cso
 msgid "Chinantec, Sochiapan"
@@ -5660,23 +5660,23 @@ msgstr ""
 
 #. name for csq
 msgid "Croatia Sign Language"
-msgstr ""
+msgstr "Kroatische gebarentaal"
 
 #. name for csr
 msgid "Costa Rican Sign Language"
-msgstr ""
+msgstr "Costa Ricaanse gebarentaal"
 
 #. name for css
 msgid "Ohlone, Southern"
-msgstr ""
+msgstr "Ohlone, Zuiderlijk"
 
 #. name for cst
 msgid "Ohlone, Northern"
-msgstr ""
+msgstr "Ohlone, Noorderlijk"
 
 #. name for csw
 msgid "Cree, Swampy"
-msgstr ""
+msgstr "Cree, moeras"
 
 #. name for csy
 msgid "Chin, Siyin"
@@ -5836,7 +5836,7 @@ msgstr ""
 
 #. name for cwd
 msgid "Cree, Woods"
-msgstr ""
+msgstr "Cree, bos"
 
 #. name for cwe
 msgid "Kwere"
@@ -5868,7 +5868,7 @@ msgstr ""
 
 #. name for czh
 msgid "Chinese, Huizhou"
-msgstr ""
+msgstr "Chinees, Huizhou"
 
 #. name for czk
 msgid "Knaanic"
@@ -6628,7 +6628,7 @@ msgstr ""
 
 #. name for doq
 msgid "Dominican Sign Language"
-msgstr ""
+msgstr "Dominicaanse gebarentaal"
 
 #. name for dor
 msgid "Dori'o"
@@ -7016,7 +7016,7 @@ msgstr ""
 
 #. name for ecs
 msgid "Ecuadorian Sign Language"
-msgstr ""
+msgstr "Ecuadoriaanse gebarentaal"
 
 #. name for ecy
 msgid "Eteocypriot"
@@ -7348,7 +7348,7 @@ msgstr ""
 
 #. name for esl
 msgid "Egypt Sign Language"
-msgstr ""
+msgstr "Egyptische gebarentaal"
 
 #. name for esm
 msgid "Esuma"
@@ -7356,11 +7356,11 @@ msgstr ""
 
 #. name for esn
 msgid "Salvadoran Sign Language"
-msgstr ""
+msgstr "Salvadoriaanse gebarentaal"
 
 #. name for eso
 msgid "Estonian Sign Language"
-msgstr ""
+msgstr "Estlandse gebarentaal"
 
 #. name for esq
 msgid "Esselen"
@@ -7368,7 +7368,7 @@ msgstr ""
 
 #. name for ess
 msgid "Yupik, Central Siberian"
-msgstr ""
+msgstr "Eskimo's (Inuit), Centraal Siberisch"
 
 #. name for est
 msgid "Estonian"
@@ -7376,7 +7376,7 @@ msgstr "Estlands"
 
 #. name for esu
 msgid "Yupik, Central"
-msgstr ""
+msgstr "Eskimo's (Inuit), Centraal"
 
 #. name for etb
 msgid "Etebi"
@@ -7388,7 +7388,7 @@ msgstr ""
 
 #. name for eth
 msgid "Ethiopian Sign Language"
-msgstr ""
+msgstr "Ethiopische gebarentaal"
 
 #. name for etn
 msgid "Eton (Vanuatu)"
@@ -7552,7 +7552,7 @@ msgstr ""
 
 #. name for fcs
 msgid "Quebec Sign Language"
-msgstr ""
+msgstr "Quebec gebarentaal (Canada)"
 
 #. name for fer
 msgid "Feroge"
@@ -7704,11 +7704,11 @@ msgstr ""
 
 #. name for frm
 msgid "French, Middle (ca. 1400-1600)"
-msgstr "Frans, Middel (ca.1400-1600)"
+msgstr "Frans, Middel (ca. 1400-1600)"
 
 #. name for fro
 msgid "French, Old (842-ca. 1400)"
-msgstr "Frans, Oud (842-ca.1400)"
+msgstr "Frans, Oud (842-ca. 1400)"
 
 #. name for frp
 msgid "Arpitan"
@@ -7724,7 +7724,7 @@ msgstr "Fries, Noord (Duitsland)"
 
 #. name for frs
 msgid "Frisian, Eastern"
-msgstr ""
+msgstr "Fries, Oostelijk (Duitsland)"
 
 #. name for frt
 msgid "Fortsenal"
@@ -7732,19 +7732,19 @@ msgstr ""
 
 #. name for fry
 msgid "Frisian, Western"
-msgstr ""
+msgstr "Fries"
 
 #. name for fse
 msgid "Finnish Sign Language"
-msgstr ""
+msgstr "Finse gebarentaal"
 
 #. name for fsl
 msgid "French Sign Language"
-msgstr ""
+msgstr "Franse gebarentaal"
 
 #. name for fss
 msgid "Finland-Swedish Sign Language"
-msgstr ""
+msgstr "Fins-Zweedse gebarentaal"
 
 #. name for fub
 msgid "Fulfulde, Adamawa"
@@ -7880,7 +7880,7 @@ msgstr ""
 
 #. name for gan
 msgid "Chinese, Gan"
-msgstr ""
+msgstr "Chinees, Gan"
 
 #. name for gao
 msgid "Gants"
@@ -8476,11 +8476,11 @@ msgstr ""
 
 #. name for gmh
 msgid "German, Middle High (ca. 1050-1500)"
-msgstr "Duits, Middel Hoog (ca.1050-1500)"
+msgstr "Duits, Middel hoog (ca. 1050-1500)"
 
 #. name for gml
 msgid "German, Middle Low"
-msgstr ""
+msgstr "Duits, Middel laag"
 
 #. name for gmm
 msgid "Gbaya-Mbodomo"
@@ -8612,7 +8612,7 @@ msgstr ""
 
 #. name for goh
 msgid "German, Old High (ca. 750-1050)"
-msgstr "Duits, Oud Hoog (ca.750-1050)"
+msgstr "Duits, Oud hoog (ca. 750-1050)"
 
 #. name for goi
 msgid "Gobasi"
@@ -8792,11 +8792,11 @@ msgstr ""
 
 #. name for gse
 msgid "Ghanaian Sign Language"
-msgstr ""
+msgstr "Ghaneese gebarentaal"
 
 #. name for gsg
 msgid "German Sign Language"
-msgstr ""
+msgstr "Duitse gebarentaal"
 
 #. name for gsl
 msgid "Gusilay"
@@ -8804,7 +8804,7 @@ msgstr ""
 
 #. name for gsm
 msgid "Guatemalan Sign Language"
-msgstr ""
+msgstr "Guatemaalse gebarentaal"
 
 #. name for gsn
 msgid "Gusan"
@@ -8820,11 +8820,11 @@ msgstr ""
 
 #. name for gss
 msgid "Greek Sign Language"
-msgstr ""
+msgstr "Griekse gebarentaal"
 
 #. name for gsw
 msgid "German, Swiss"
-msgstr ""
+msgstr "Duits, Zwitserland"
 
 #. name for gta
 msgid "Guató"
@@ -8908,7 +8908,7 @@ msgstr ""
 
 #. name for gus
 msgid "Guinean Sign Language"
-msgstr ""
+msgstr "Guinese gebarentaal"
 
 #. name for gut
 msgid "Maléku Jaíka"
@@ -9116,7 +9116,7 @@ msgstr ""
 
 #. name for hab
 msgid "Hanoi Sign Language"
-msgstr ""
+msgstr "Hanoier gebarentaal"
 
 #. name for hac
 msgid "Gurani"
@@ -9132,7 +9132,7 @@ msgstr ""
 
 #. name for haf
 msgid "Haiphong Sign Language"
-msgstr ""
+msgstr "Haiphongnese gebarentaal"
 
 #. name for hag
 msgid "Hanga"
@@ -9152,7 +9152,7 @@ msgstr ""
 
 #. name for hak
 msgid "Chinese, Hakka"
-msgstr ""
+msgstr "Chinees, Hakka"
 
 #. name for hal
 msgid "Halang"
@@ -9252,7 +9252,7 @@ msgstr ""
 
 #. name for hds
 msgid "Honduras Sign Language"
-msgstr ""
+msgstr "Hondurese gebarentaal"
 
 #. name for hdy
 msgid "Hadiyya"
@@ -9392,7 +9392,7 @@ msgstr ""
 
 #. name for hks
 msgid "Hong Kong Sign Language"
-msgstr ""
+msgstr "Hong-Kongse gebarentaal"
 
 #. name for hla
 msgid "Halia"
@@ -9692,15 +9692,15 @@ msgstr ""
 
 #. name for hsh
 msgid "Hungarian Sign Language"
-msgstr ""
+msgstr "Hongaarse gebarentaal"
 
 #. name for hsl
 msgid "Hausa Sign Language"
-msgstr ""
+msgstr "Hausaanse gebarentaal"
 
 #. name for hsn
 msgid "Chinese, Xiang"
-msgstr ""
+msgstr "Chinees, Xiang"
 
 #. name for hss
 msgid "Harsusi"
@@ -9944,7 +9944,7 @@ msgstr ""
 
 #. name for icl
 msgid "Icelandic Sign Language"
-msgstr ""
+msgstr "IJslandse gebarentaal"
 
 #. name for icr
 msgid "Creole English, Islander"
@@ -10256,7 +10256,7 @@ msgstr ""
 
 #. name for inl
 msgid "Indonesian Sign Language"
-msgstr ""
+msgstr "Indonesische gebarentaal"
 
 #. name for inm
 msgid "Minaean"
@@ -10276,7 +10276,7 @@ msgstr ""
 
 #. name for ins
 msgid "Indian Sign Language"
-msgstr ""
+msgstr "Indische gebarentaal"
 
 #. name for int
 msgid "Intha"
@@ -10364,11 +10364,11 @@ msgstr ""
 
 #. name for ise
 msgid "Italian Sign Language"
-msgstr ""
+msgstr "Italiaanse gebarentaal"
 
 #. name for isg
 msgid "Irish Sign Language"
-msgstr ""
+msgstr "Ierse gebarentaal"
 
 #. name for ish
 msgid "Esan"
@@ -10400,7 +10400,7 @@ msgstr ""
 
 #. name for isr
 msgid "Israeli Sign Language"
-msgstr ""
+msgstr "Israëlische gebarentaal"
 
 #. name for ist
 msgid "Istriot"
@@ -10728,7 +10728,7 @@ msgstr ""
 
 #. name for jhs
 msgid "Jhankot Sign Language"
-msgstr ""
+msgstr "Jhankotse gebarentaal (Nepal)"
 
 #. name for jia
 msgid "Jina"
@@ -10808,7 +10808,7 @@ msgstr ""
 
 #. name for jls
 msgid "Jamaican Sign Language"
-msgstr ""
+msgstr "Jamaicaanse gebarentaal"
 
 #. name for jma
 msgid "Dima"
@@ -10892,7 +10892,7 @@ msgstr ""
 
 #. name for jos
 msgid "Jordanian Sign Language"
-msgstr ""
+msgstr "Jordanese gebarentaal"
 
 #. name for jow
 msgid "Jowulu"
@@ -10936,7 +10936,7 @@ msgstr ""
 
 #. name for jsl
 msgid "Japanese Sign Language"
-msgstr ""
+msgstr "Japanse gebarentaal"
 
 #. name for jua
 msgid "Júma"
@@ -10988,7 +10988,7 @@ msgstr ""
 
 #. name for jus
 msgid "Jumla Sign Language"
-msgstr ""
+msgstr "Jumlase gebarentaal"
 
 #. name for jut
 msgid "Jutish"
@@ -11672,7 +11672,7 @@ msgstr ""
 
 #. name for kgi
 msgid "Selangor Sign Language"
-msgstr ""
+msgstr "Selangorese gebarentaal"
 
 #. name for kgj
 msgid "Kham, Gamale"
@@ -11776,7 +11776,7 @@ msgstr ""
 
 #. name for khk
 msgid "Mongolian, Halh"
-msgstr ""
+msgstr "Mongools, Halh"
 
 #. name for khl
 msgid "Lusi"
@@ -13204,7 +13204,7 @@ msgstr ""
 
 #. name for kvk
 msgid "Korean Sign Language"
-msgstr ""
+msgstr "Koreaanse gebarentaal"
 
 #. name for kvl
 msgid "Karen, Brek"
@@ -13844,7 +13844,7 @@ msgstr ""
 
 #. name for lbs
 msgid "Libyan Sign Language"
-msgstr ""
+msgstr "Lybische gebarentaal"
 
 #. name for lbt
 msgid "Lachi"
@@ -14420,7 +14420,7 @@ msgstr ""
 
 #. name for lls
 msgid "Lithuanian Sign Language"
-msgstr ""
+msgstr "Litouwse gebarentaal"
 
 #. name for llu
 msgid "Lau"
@@ -14772,7 +14772,7 @@ msgstr ""
 
 #. name for lsg
 msgid "Lyons Sign Language"
-msgstr ""
+msgstr "Lyonese gebarentaal"
 
 #. name for lsh
 msgid "Lish"
@@ -14784,7 +14784,7 @@ msgstr ""
 
 #. name for lsl
 msgid "Latvian Sign Language"
-msgstr ""
+msgstr "Letse gebarentaal"
 
 #. name for lsm
 msgid "Saamia"
@@ -14792,11 +14792,11 @@ msgstr ""
 
 #. name for lso
 msgid "Laos Sign Language"
-msgstr ""
+msgstr "Laotiaanse gebarentaal"
 
 #. name for lsp
 msgid "Panamanian Sign Language"
-msgstr ""
+msgstr "Panamese gebarentaal"
 
 #. name for lsr
 msgid "Aruop"
@@ -14808,11 +14808,11 @@ msgstr ""
 
 #. name for lst
 msgid "Trinidad and Tobago Sign Language"
-msgstr ""
+msgstr "Trinidad en Tobago gebarentaal"
 
 #. name for lsy
 msgid "Mauritian Sign Language"
-msgstr ""
+msgstr "Mauritaanse gebarentaal"
 
 #. name for ltc
 msgid "Chinese, Late Middle"
@@ -15008,7 +15008,7 @@ msgstr ""
 
 #. name for lzh
 msgid "Chinese, Literary"
-msgstr ""
+msgstr "Chinees, Literair"
 
 #. name for lzl
 msgid "Litzlitz"
@@ -15360,7 +15360,7 @@ msgstr ""
 
 #. name for mdl
 msgid "Maltese Sign Language"
-msgstr ""
+msgstr "Maltese gebarentaal"
 
 #. name for mdm
 msgid "Mayogo"
@@ -15588,7 +15588,7 @@ msgstr ""
 
 #. name for mfs
 msgid "Mexican Sign Language"
-msgstr ""
+msgstr "Mexicaanse gebarentaal"
 
 #. name for mft
 msgid "Mokerang"
@@ -16372,7 +16372,7 @@ msgstr ""
 
 #. name for mnp
 msgid "Chinese, Min Bei"
-msgstr ""
+msgstr "Chinees, Min Bei"
 
 #. name for mnq
 msgid "Minriq"
@@ -16824,7 +16824,7 @@ msgstr ""
 
 #. name for msd
 msgid "Yucatec Maya Sign Language"
-msgstr ""
+msgstr "Yucateeks Maya gebarentaal"
 
 #. name for mse
 msgid "Musey"
@@ -16880,7 +16880,7 @@ msgstr ""
 
 #. name for msr
 msgid "Mongolian Sign Language"
-msgstr ""
+msgstr "Mongoolse gebarentaal"
 
 #. name for mss
 msgid "Masela, West"
@@ -17120,7 +17120,7 @@ msgstr ""
 
 #. name for mvf
 msgid "Mongolian, Peripheral"
-msgstr ""
+msgstr "Mongools, perifeer"
 
 #. name for mvg
 msgid "Mixtec, Yucuañe"
@@ -17512,7 +17512,7 @@ msgstr ""
 
 #. name for mzc
 msgid "Madagascar Sign Language"
-msgstr ""
+msgstr "Madagaskarse gebarentaal"
 
 #. name for mzd
 msgid "Malimba"
@@ -17524,7 +17524,7 @@ msgstr ""
 
 #. name for mzg
 msgid "Monastic Sign Language"
-msgstr ""
+msgstr "Monastische gebarentaal (monniken)"
 
 #. name for mzh
 msgid "Wichí Lhamtés Güisnay"
@@ -17596,7 +17596,7 @@ msgstr ""
 
 #. name for mzy
 msgid "Mozambican Sign Language"
-msgstr ""
+msgstr "Mozambikaanse gebarentaal"
 
 #. name for mzz
 msgid "Maiadomu"
@@ -17648,7 +17648,7 @@ msgstr ""
 
 #. name for nan
 msgid "Chinese, Min Nan"
-msgstr ""
+msgstr "Chinees, Min Nan"
 
 #. name for nao
 msgid "Naaba"
@@ -17768,7 +17768,7 @@ msgstr ""
 
 #. name for nbs
 msgid "Namibian Sign Language"
-msgstr ""
+msgstr "Namibische gebarentaal"
 
 #. name for nbt
 msgid "Na"
@@ -17864,7 +17864,7 @@ msgstr ""
 
 #. name for ncs
 msgid "Nicaraguan Sign Language"
-msgstr ""
+msgstr "Nicaraguaanse gebarentaal"
 
 #. name for nct
 msgid "Naga, Chothe"
@@ -19060,7 +19060,7 @@ msgstr ""
 
 #. name for nsi
 msgid "Nigerian Sign Language"
-msgstr ""
+msgstr "Nigeriaanse gebarentaal"
 
 #. name for nsk
 msgid "Naskapi"
@@ -19068,7 +19068,7 @@ msgstr ""
 
 #. name for nsl
 msgid "Norwegian Sign Language"
-msgstr ""
+msgstr "Noorse gebarentaal"
 
 #. name for nsm
 msgid "Naga, Sumi"
@@ -19084,7 +19084,7 @@ msgstr ""
 
 #. name for nsp
 msgid "Nepalese Sign Language"
-msgstr ""
+msgstr "Nepalese gebarentaal"
 
 #. name for nsq
 msgid "Miwok, Northern Sierra"
@@ -19092,7 +19092,7 @@ msgstr ""
 
 #. name for nsr
 msgid "Maritime Sign Language"
-msgstr ""
+msgstr "Maritieme gebarentaal"
 
 #. name for nss
 msgid "Nali"
@@ -19492,7 +19492,7 @@ msgstr ""
 
 #. name for nzs
 msgid "New Zealand Sign Language"
-msgstr ""
+msgstr "Nieuw-Zeelandse gebarentaal"
 
 #. name for nzu
 msgid "Teke-Nzikou"
@@ -19560,7 +19560,7 @@ msgstr ""
 
 #. name for och
 msgid "Chinese, Old"
-msgstr ""
+msgstr "Chinees, Oud"
 
 #. name for oci
 msgid "Occitan (post 1500)"
@@ -19568,7 +19568,7 @@ msgstr "Occitaans (na 1500)"
 
 #. name for oco
 msgid "Cornish, Old"
-msgstr ""
+msgstr "Cornisch, oud"
 
 #. name for ocu
 msgid "Matlatzinca, Atzingo"
@@ -19596,7 +19596,7 @@ msgstr ""
 
 #. name for ofs
 msgid "Frisian, Old"
-msgstr ""
+msgstr "Fries, Oud"
 
 #. name for ofu
 msgid "Efutop"
@@ -19708,7 +19708,7 @@ msgstr ""
 
 #. name for okl
 msgid "Kentish Sign Language, Old"
-msgstr ""
+msgstr "Kentse gebarentaal, Oud"
 
 #. name for okm
 msgid "Korean, Middle (10th-16th cent.)"
@@ -20408,7 +20408,7 @@ msgstr ""
 
 #. name for pdc
 msgid "German, Pennsylvania"
-msgstr ""
+msgstr "Duits, Transsylvanië"
 
 #. name for pdi
 msgid "Pa Di"
@@ -20480,7 +20480,7 @@ msgstr ""
 
 #. name for peo
 msgid "Persian, Old (ca. 600-400 B.C.)"
-msgstr "Oud Perzisch (ca.600-400 B.C.)"
+msgstr "Perzisch, Oud (ca. 600-400 B.C.)"
 
 #. name for pep
 msgid "Kunja"
@@ -20756,7 +20756,7 @@ msgstr ""
 
 #. name for pks
 msgid "Pakistan Sign Language"
-msgstr ""
+msgstr "Pakistaanse gebarentaal"
 
 #. name for pkt
 msgid "Maleng"
@@ -21216,7 +21216,7 @@ msgstr ""
 
 #. name for prl
 msgid "Peruvian Sign Language"
-msgstr ""
+msgstr "Peruaanse gebarentaal"
 
 #. name for prm
 msgid "Kibiri"
@@ -21268,7 +21268,7 @@ msgstr ""
 
 #. name for prz
 msgid "Providencia Sign Language"
-msgstr ""
+msgstr "Providenciaanse gebarentaal"
 
 #. name for psa
 msgid "Awyu, Asue"
@@ -21276,7 +21276,7 @@ msgstr ""
 
 #. name for psc
 msgid "Persian Sign Language"
-msgstr ""
+msgstr "Perzische gebarentaal"
 
 #. name for psd
 msgid "Plains Indian Sign Language"
@@ -21288,7 +21288,7 @@ msgstr ""
 
 #. name for psg
 msgid "Penang Sign Language"
-msgstr ""
+msgstr "Penangse gebarentaal"
 
 #. name for psh
 msgid "Pashayi, Southwest"
@@ -21300,7 +21300,7 @@ msgstr ""
 
 #. name for psl
 msgid "Puerto Rican Sign Language"
-msgstr ""
+msgstr "Puerto-Ricaanse gebarentaal"
 
 #. name for psm
 msgid "Pauserna"
@@ -21312,11 +21312,11 @@ msgstr ""
 
 #. name for pso
 msgid "Polish Sign Language"
-msgstr ""
+msgstr "Poolse gebarentaal"
 
 #. name for psp
 msgid "Philippine Sign Language"
-msgstr ""
+msgstr "Filipijnse gebarentaal"
 
 #. name for psq
 msgid "Pasi"
@@ -21324,7 +21324,7 @@ msgstr ""
 
 #. name for psr
 msgid "Portuguese Sign Language"
-msgstr ""
+msgstr "Portugese gebarentaal"
 
 #. name for pss
 msgid "Kaulong"
@@ -21532,7 +21532,7 @@ msgstr ""
 
 #. name for pys
 msgid "Paraguayan Sign Language"
-msgstr ""
+msgstr "Paraguayaanse gebarentaal"
 
 #. name for pyu
 msgid "Puyuma"
@@ -22128,7 +22128,7 @@ msgstr ""
 
 #. name for rms
 msgid "Romanian Sign Language"
-msgstr ""
+msgstr "Roemeense gebarentaal"
 
 #. name for rmt
 msgid "Domari"
@@ -22268,11 +22268,11 @@ msgstr ""
 
 #. name for rsi
 msgid "Rennellese Sign Language"
-msgstr ""
+msgstr "Rennellese gebarentaal"
 
 #. name for rsl
 msgid "Russian Sign Language"
-msgstr ""
+msgstr "Russische gebarentaal"
 
 #. name for rth
 msgid "Ratahan"
@@ -22696,7 +22696,7 @@ msgstr ""
 
 #. name for sdl
 msgid "Saudi Arabian Sign Language"
-msgstr ""
+msgstr "Saudi Arabische gebarentaal"
 
 #. name for sdm
 msgid "Semandang"
@@ -22844,7 +22844,7 @@ msgstr ""
 
 #. name for sfs
 msgid "South African Sign Language"
-msgstr ""
+msgstr "Zuid-Afrikaanse gebarentaal"
 
 #. name for sfw
 msgid "Sehwi"
@@ -22872,7 +22872,7 @@ msgstr ""
 
 #. name for sgg
 msgid "Swiss-German Sign Language"
-msgstr ""
+msgstr "Zwisters-Duitse gebarentaal"
 
 #. name for sgh
 msgid "Shughni"
@@ -22920,7 +22920,7 @@ msgstr ""
 
 #. name for sgx
 msgid "Sierra Leone Sign Language"
-msgstr ""
+msgstr "Sierra Leonese gebarentaal"
 
 #. name for sgy
 msgid "Sanglechi"
@@ -23300,7 +23300,7 @@ msgstr ""
 
 #. name for slf
 msgid "Swiss-Italian Sign Language"
-msgstr ""
+msgstr "Zwitsers-Italiaanse gebarentaal"
 
 #. name for slg
 msgid "Selungai Murut"
@@ -23348,7 +23348,7 @@ msgstr ""
 
 #. name for sls
 msgid "Singapore Sign Language"
-msgstr ""
+msgstr "Singaporese gebarentaal"
 
 #. name for slt
 msgid "Sila"
@@ -23784,7 +23784,7 @@ msgstr ""
 
 #. name for sqs
 msgid "Sri Lankan Sign Language"
-msgstr ""
+msgstr "Sri Lankaanse gebarentaal"
 
 #. name for sqt
 msgid "Soqotri"
@@ -23952,7 +23952,7 @@ msgstr ""
 
 #. name for ssp
 msgid "Spanish Sign Language"
-msgstr ""
+msgstr "Spaanse gebarentaal"
 
 #. name for ssq
 msgid "So'a"
@@ -23960,7 +23960,7 @@ msgstr ""
 
 #. name for ssr
 msgid "Swiss-French Sign Language"
-msgstr ""
+msgstr "Zwitsers-Franse gebarentaal"
 
 #. name for sss
 msgid "Sô"
@@ -24172,7 +24172,7 @@ msgstr ""
 
 #. name for svk
 msgid "Slovakian Sign Language"
-msgstr ""
+msgstr "Slowaakse gebarentaal"
 
 #. name for svr
 msgid "Savara"
@@ -24228,7 +24228,7 @@ msgstr ""
 
 #. name for swl
 msgid "Swedish Sign Language"
-msgstr ""
+msgstr "Zweedse gebarentaal"
 
 #. name for swm
 msgid "Samosa"
@@ -24384,7 +24384,7 @@ msgstr ""
 
 #. name for syy
 msgid "Al-Sayyid Bedouin Sign Language"
-msgstr ""
+msgstr "Al-Sayyidische bedoeïen gebarentaal"
 
 #. name for sza
 msgid "Semelai"
@@ -25472,7 +25472,7 @@ msgstr ""
 
 #. name for tmr
 msgid "Aramaic, Jewish Babylonian (ca. 200-1200 CE)"
-msgstr ""
+msgstr "Aramees, Joods Babylonisch (ca. 200-1200 AD)"
 
 #. name for tms
 msgid "Tima"
@@ -25940,7 +25940,7 @@ msgstr ""
 
 #. name for tse
 msgid "Tunisian Sign Language"
-msgstr ""
+msgstr "Tunesische gebarentaal"
 
 #. name for tsf
 msgid "Tamang, Southwestern"
@@ -25972,7 +25972,7 @@ msgstr ""
 
 #. name for tsm
 msgid "Turkish Sign Language"
-msgstr ""
+msgstr "Turkse gebarentaal"
 
 #. name for tsn
 msgid "Tswana"
@@ -25988,7 +25988,7 @@ msgstr ""
 
 #. name for tsq
 msgid "Thai Sign Language"
-msgstr ""
+msgstr "Thaise gebarentaal"
 
 #. name for tsr
 msgid "Akei"
@@ -25996,7 +25996,7 @@ msgstr ""
 
 #. name for tss
 msgid "Taiwan Sign Language"
-msgstr ""
+msgstr "Taiwanese gebarentaal"
 
 #. name for tst
 msgid "Songway Kiini, Tondi"
@@ -26020,7 +26020,7 @@ msgstr ""
 
 #. name for tsy
 msgid "Tebul Sign Language"
-msgstr ""
+msgstr "Tebulse gebarentaal"
 
 #. name for tsz
 msgid "Purepecha"
@@ -26480,7 +26480,7 @@ msgstr ""
 
 #. name for tza
 msgid "Tanzanian Sign Language"
-msgstr ""
+msgstr "Tanzaniaanse gebarentaal"
 
 #. name for tzh
 msgid "Tzeltal"
@@ -26596,7 +26596,7 @@ msgstr ""
 
 #. name for ugn
 msgid "Ugandan Sign Language"
-msgstr ""
+msgstr "Ugandese gebarentaal"
 
 #. name for ugo
 msgid "Ugong"
@@ -26604,7 +26604,7 @@ msgstr ""
 
 #. name for ugy
 msgid "Uruguayan Sign Language"
-msgstr ""
+msgstr "Uruguayaanse gebarentaal"
 
 #. name for uha
 msgid "Uhami"
@@ -26644,7 +26644,7 @@ msgstr ""
 
 #. name for ukl
 msgid "Ukrainian Sign Language"
-msgstr ""
+msgstr "Oekraïense gebarentaal"
 
 #. name for ukp
 msgid "Ukpe-Bayobiri"
@@ -26660,7 +26660,7 @@ msgstr "Oekraïens"
 
 #. name for uks
 msgid "Urubú-Kaapor Sign Language"
-msgstr "Urubu-Kaapor gebarentaal (Braziliaans)"
+msgstr ""
 
 #. name for uku
 msgid "Ukue"
@@ -27340,15 +27340,15 @@ msgstr ""
 
 #. name for vsi
 msgid "Moldova Sign Language"
-msgstr ""
+msgstr "Moldavische gebarentaal"
 
 #. name for vsl
 msgid "Venezuelan Sign Language"
-msgstr ""
+msgstr "Venezuelaanse gebarentaal"
 
 #. name for vsv
 msgid "Valencian Sign Language"
-msgstr ""
+msgstr "Valenciaanse gebarentaal"
 
 #. name for vto
 msgid "Vitou"
@@ -28156,7 +28156,7 @@ msgstr ""
 
 #. name for wuu
 msgid "Chinese, Wu"
-msgstr ""
+msgstr "Chinees, Wu"
 
 #. name for wuv
 msgid "Wuvulu-Aua"
@@ -28568,7 +28568,7 @@ msgstr ""
 
 #. name for xki
 msgid "Kenyan Sign Language"
-msgstr ""
+msgstr "Kenyaanse gebarentaal"
 
 #. name for xkj
 msgid "Kajali"
@@ -28728,7 +28728,7 @@ msgstr ""
 
 #. name for xml
 msgid "Malaysian Sign Language"
-msgstr ""
+msgstr "Maleisische gebarentaal"
 
 #. name for xmm
 msgid "Malay, Manado"
@@ -28756,7 +28756,7 @@ msgstr ""
 
 #. name for xms
 msgid "Moroccan Sign Language"
-msgstr ""
+msgstr "Marokaanse gebarentaal"
 
 #. name for xmt
 msgid "Matbat"
@@ -28796,7 +28796,7 @@ msgstr ""
 
 #. name for xng
 msgid "Mongolian, Middle"
-msgstr ""
+msgstr "Mongools, middel"
 
 #. name for xnh
 msgid "Kuanhua"
@@ -29212,7 +29212,7 @@ msgstr ""
 
 #. name for xwo
 msgid "Oirat, Written"
-msgstr ""
+msgstr "Oirat, geschreven"
 
 #. name for xwr
 msgid "Kwerba Mamberamo"
@@ -29444,7 +29444,7 @@ msgstr ""
 
 #. name for yds
 msgid "Yiddish Sign Language"
-msgstr ""
+msgstr "Jiddische gebarentaal"
 
 #. name for yea
 msgid "Ravula"
@@ -29952,7 +29952,7 @@ msgstr ""
 
 #. name for ysl
 msgid "Yugoslavian Sign Language"
-msgstr ""
+msgstr "Joegoslavische gebarentaal"
 
 #. name for ysn
 msgid "Sani"
@@ -30012,7 +30012,7 @@ msgstr ""
 
 #. name for yue
 msgid "Chinese, Yue"
-msgstr ""
+msgstr "Chinees, Yue"
 
 #. name for yuf
 msgid "Havasupai-Walapai-Yavapai"
@@ -30340,7 +30340,7 @@ msgstr ""
 
 #. name for zib
 msgid "Zimbabwe Sign Language"
-msgstr ""
+msgstr "Zimbabwaanse gebarentaal"
 
 #. name for zik
 msgid "Zimakani"

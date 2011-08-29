@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-27 02:50+0000\n"
-"PO-Revision-Date: 2011-08-27 10:55+0000\n"
+"PO-Revision-Date: 2011-08-28 10:42+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-08-28 05:07+0000\n"
+"X-Launchpad-Export-Date: 2011-08-29 04:33+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
 
 #. name for aaa
@@ -83,7 +83,7 @@ msgstr ""
 
 #. name for aar
 msgid "Afar"
-msgstr "Afarense"
+msgstr "Afar"
 
 #. name for aas
 msgid "Aasáx"
@@ -403,7 +403,7 @@ msgstr "Árabe alto egipcio"
 
 #. name for aed
 msgid "Argentine Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos argentino"
 
 #. name for aee
 msgid "Pashayi, Northeast"
@@ -423,7 +423,7 @@ msgstr ""
 
 #. name for aen
 msgid "Armenian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos armenio"
 
 #. name for aeq
 msgid "Aer"
@@ -467,7 +467,7 @@ msgstr ""
 
 #. name for afg
 msgid "Afghan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos afgano"
 
 #. name for afh
 msgid "Afrihili"
@@ -1507,11 +1507,11 @@ msgstr ""
 
 #. name for ase
 msgid "American Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos estadounidense"
 
 #. name for asf
 msgid "Australian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos australiano"
 
 #. name for asg
 msgid "Cishingini"
@@ -1551,11 +1551,11 @@ msgstr ""
 
 #. name for asp
 msgid "Algerian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos argelino"
 
 #. name for asq
 msgid "Austrian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos austriaco"
 
 #. name for asr
 msgid "Asuri"
@@ -1579,7 +1579,7 @@ msgstr ""
 
 #. name for asw
 msgid "Australian Aborigines Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos aborigen australiano"
 
 #. name for asx
 msgid "Muratayak"
@@ -2479,7 +2479,7 @@ msgstr ""
 
 #. name for bej
 msgid "Beja"
-msgstr "Beja"
+msgstr "Beya"
 
 #. name for bek
 msgid "Bebeli"
@@ -4955,7 +4955,7 @@ msgstr "Chamorro"
 
 #. name for chb
 msgid "Chibcha"
-msgstr "Chibcha"
+msgstr "Muisca"
 
 #. name for chc
 msgid "Catawba"
@@ -5023,7 +5023,7 @@ msgstr ""
 
 #. name for chu
 msgid "Slavonic, Old"
-msgstr ""
+msgstr "Eslavo antiguo"
 
 #. name for chv
 msgid "Chuvash"
@@ -6623,7 +6623,7 @@ msgstr ""
 
 #. name for doq
 msgid "Dominican Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos dominicano"
 
 #. name for dor
 msgid "Dori'o"
@@ -6955,7 +6955,7 @@ msgstr ""
 
 #. name for dyu
 msgid "Dyula"
-msgstr "Dyula"
+msgstr "Diula"
 
 #. name for dyy
 msgid "Dyaabugay"
@@ -7011,7 +7011,7 @@ msgstr ""
 
 #. name for ecs
 msgid "Ecuadorian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos ecuatoriano"
 
 #. name for ecy
 msgid "Eteocypriot"
@@ -7343,7 +7343,7 @@ msgstr ""
 
 #. name for esl
 msgid "Egypt Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos egipcio"
 
 #. name for esm
 msgid "Esuma"
@@ -7351,7 +7351,7 @@ msgstr ""
 
 #. name for esn
 msgid "Salvadoran Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos salvadoreño"
 
 #. name for eso
 msgid "Estonian Sign Language"
@@ -7383,7 +7383,7 @@ msgstr ""
 
 #. name for eth
 msgid "Ethiopian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos etíope"
 
 #. name for etn
 msgid "Eton (Vanuatu)"
@@ -7547,7 +7547,7 @@ msgstr ""
 
 #. name for fcs
 msgid "Quebec Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos de Quebec"
 
 #. name for fer
 msgid "Feroge"
@@ -7715,11 +7715,11 @@ msgstr ""
 
 #. name for frr
 msgid "Frisian, Northern"
-msgstr ""
+msgstr "Frisón norteño"
 
 #. name for frs
 msgid "Frisian, Eastern"
-msgstr ""
+msgstr "Frisón oriental"
 
 #. name for frt
 msgid "Fortsenal"
@@ -7727,11 +7727,11 @@ msgstr ""
 
 #. name for fry
 msgid "Frisian, Western"
-msgstr ""
+msgstr "Frisón occidental"
 
 #. name for fse
 msgid "Finnish Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos finlandés"
 
 #. name for fsl
 msgid "French Sign Language"
@@ -7739,7 +7739,7 @@ msgstr "Lenguaje de signos francés"
 
 #. name for fss
 msgid "Finland-Swedish Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos sueco-finlandés"
 
 #. name for fub
 msgid "Fulfulde, Adamawa"
@@ -7775,7 +7775,7 @@ msgstr ""
 
 #. name for ful
 msgid "Fulah"
-msgstr "Fulah"
+msgstr "Fula"
 
 #. name for fum
 msgid "Fum"
@@ -8187,7 +8187,7 @@ msgstr ""
 
 #. name for gez
 msgid "Geez"
-msgstr "Geez"
+msgstr "Ge'ez"
 
 #. name for gfk
 msgid "Patpatar"
@@ -8471,11 +8471,11 @@ msgstr ""
 
 #. name for gmh
 msgid "German, Middle High (ca. 1050-1500)"
-msgstr ""
+msgstr "Alto alemán medio (ca. 1050-1500)"
 
 #. name for gml
 msgid "German, Middle Low"
-msgstr ""
+msgstr "Bajo alemán medio"
 
 #. name for gmm
 msgid "Gbaya-Mbodomo"
@@ -8607,7 +8607,7 @@ msgstr ""
 
 #. name for goh
 msgid "German, Old High (ca. 750-1050)"
-msgstr ""
+msgstr "Alto alemán antiguo (ca. 750-1050)"
 
 #. name for goi
 msgid "Gobasi"
@@ -8787,11 +8787,11 @@ msgstr ""
 
 #. name for gse
 msgid "Ghanaian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos ganés"
 
 #. name for gsg
 msgid "German Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos alemán"
 
 #. name for gsl
 msgid "Gusilay"
@@ -8799,7 +8799,7 @@ msgstr ""
 
 #. name for gsm
 msgid "Guatemalan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos guatemalteco"
 
 #. name for gsn
 msgid "Gusan"
@@ -8903,7 +8903,7 @@ msgstr ""
 
 #. name for gus
 msgid "Guinean Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos guineano"
 
 #. name for gut
 msgid "Maléku Jaíka"
@@ -9111,7 +9111,7 @@ msgstr ""
 
 #. name for hab
 msgid "Hanoi Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos de Hanoi"
 
 #. name for hac
 msgid "Gurani"
@@ -9187,7 +9187,7 @@ msgstr ""
 
 #. name for hau
 msgid "Hausa"
-msgstr "Haussa"
+msgstr "Hausa"
 
 #. name for hav
 msgid "Havu"
@@ -9247,7 +9247,7 @@ msgstr ""
 
 #. name for hds
 msgid "Honduras Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos hondureño"
 
 #. name for hdy
 msgid "Hadiyya"
@@ -9343,7 +9343,7 @@ msgstr ""
 
 #. name for hil
 msgid "Hiligaynon"
-msgstr "Hiligaynon"
+msgstr "Hiligainón"
 
 #. name for hin
 msgid "Hindi"
@@ -9387,7 +9387,7 @@ msgstr ""
 
 #. name for hks
 msgid "Hong Kong Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos de Hong Kong"
 
 #. name for hla
 msgid "Halia"
@@ -9691,7 +9691,7 @@ msgstr "Lenguaje de signos húngaro"
 
 #. name for hsl
 msgid "Hausa Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos hausa"
 
 #. name for hsn
 msgid "Chinese, Xiang"
@@ -9719,7 +9719,7 @@ msgstr ""
 
 #. name for htx
 msgid "Hittite, Middle"
-msgstr ""
+msgstr "Hitita medio"
 
 #. name for hub
 msgid "Huambisa"
@@ -9939,7 +9939,7 @@ msgstr ""
 
 #. name for icl
 msgid "Icelandic Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos islandés"
 
 #. name for icr
 msgid "Creole English, Islander"
@@ -10171,7 +10171,7 @@ msgstr ""
 
 #. name for ilo
 msgid "Iloko"
-msgstr "Iloko"
+msgstr "Ilocano"
 
 #. name for ils
 msgid "International Sign"
@@ -10243,7 +10243,7 @@ msgstr ""
 
 #. name for inh
 msgid "Ingush"
-msgstr "Ingush"
+msgstr "Ingusetio"
 
 #. name for inj
 msgid "Inga, Jungle"
@@ -10251,7 +10251,7 @@ msgstr ""
 
 #. name for inl
 msgid "Indonesian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos indonesio"
 
 #. name for inm
 msgid "Minaean"
@@ -10271,7 +10271,7 @@ msgstr ""
 
 #. name for ins
 msgid "Indian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos indio"
 
 #. name for int
 msgid "Intha"
@@ -10299,7 +10299,7 @@ msgstr ""
 
 #. name for ipk
 msgid "Inupiaq"
-msgstr "Inupiak"
+msgstr "Iñupiaq"
 
 #. name for ipo
 msgid "Ipiko"
@@ -10359,11 +10359,11 @@ msgstr ""
 
 #. name for ise
 msgid "Italian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos italiano"
 
 #. name for isg
 msgid "Irish Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos Irlandés"
 
 #. name for ish
 msgid "Esan"
@@ -10395,7 +10395,7 @@ msgstr ""
 
 #. name for isr
 msgid "Israeli Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos israelí"
 
 #. name for ist
 msgid "Istriot"
@@ -10643,7 +10643,7 @@ msgstr ""
 
 #. name for jcs
 msgid "Jamaican Country Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos campesino jamaicano"
 
 #. name for jct
 msgid "Krymchak"
@@ -10803,7 +10803,7 @@ msgstr ""
 
 #. name for jls
 msgid "Jamaican Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos jamaicano"
 
 #. name for jma
 msgid "Dima"
@@ -10887,7 +10887,7 @@ msgstr ""
 
 #. name for jos
 msgid "Jordanian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos jordano"
 
 #. name for jow
 msgid "Jowulu"
@@ -10903,7 +10903,7 @@ msgstr "Japonés"
 
 #. name for jpr
 msgid "Judeo-Persian"
-msgstr "Judeo-Persa"
+msgstr "Judeo-persa"
 
 #. name for jqr
 msgid "Jaqaru"
@@ -11027,7 +11027,7 @@ msgstr ""
 
 #. name for kaa
 msgid "Kara-Kalpak"
-msgstr "Kara-Kalpak"
+msgstr "Karakalpako"
 
 #. name for kab
 msgid "Kabyle"
@@ -11787,7 +11787,7 @@ msgstr ""
 
 #. name for kho
 msgid "Khotanese"
-msgstr "Khotanese"
+msgstr "Khotanés"
 
 #. name for khp
 msgid "Kapori"
@@ -12495,7 +12495,7 @@ msgstr "Komi"
 
 #. name for kon
 msgid "Kongo"
-msgstr "Kongo"
+msgstr "Kikongo"
 
 #. name for koo
 msgid "Konzo"
@@ -13103,7 +13103,7 @@ msgstr ""
 
 #. name for kum
 msgid "Kumyk"
-msgstr "Kumyk"
+msgstr "Cumuco"
 
 #. name for kun
 msgid "Kunama"
@@ -13199,7 +13199,7 @@ msgstr ""
 
 #. name for kvk
 msgid "Korean Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos coreano"
 
 #. name for kvl
 msgid "Karen, Brek"
@@ -13839,7 +13839,7 @@ msgstr ""
 
 #. name for lbs
 msgid "Libyan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos libio"
 
 #. name for lbt
 msgid "Lachi"
@@ -14063,7 +14063,7 @@ msgstr ""
 
 #. name for lez
 msgid "Lezghian"
-msgstr "Lezghiano"
+msgstr "Lezguino"
 
 #. name for lfa
 msgid "Lefa"
@@ -14803,15 +14803,15 @@ msgstr ""
 
 #. name for lst
 msgid "Trinidad and Tobago Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos trinitense"
 
 #. name for lsy
 msgid "Mauritian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos mauritano"
 
 #. name for ltc
 msgid "Chinese, Late Middle"
-msgstr ""
+msgstr "Chino medio tardío"
 
 #. name for ltg
 msgid "Latgalian"
@@ -14843,11 +14843,11 @@ msgstr "Luxemburgués"
 
 #. name for lua
 msgid "Luba-Lulua"
-msgstr "Luba-Lulua"
+msgstr "Chiluba"
 
 #. name for lub
 msgid "Luba-Katanga"
-msgstr "Luba-Katanga"
+msgstr "Kiluba"
 
 #. name for luc
 msgid "Aringa"
@@ -14867,11 +14867,11 @@ msgstr ""
 
 #. name for lug
 msgid "Ganda"
-msgstr "Ganda"
+msgstr "Luganda"
 
 #. name for lui
 msgid "Luiseno"
-msgstr "Luiseno"
+msgstr "Luiseño"
 
 #. name for luj
 msgid "Luna"
@@ -14911,7 +14911,7 @@ msgstr ""
 
 #. name for lus
 msgid "Lushai"
-msgstr "Lushai"
+msgstr "Mizo"
 
 #. name for lut
 msgid "Lushootseed"
@@ -15027,7 +15027,7 @@ msgstr ""
 
 #. name for mad
 msgid "Madurese"
-msgstr "Madurese"
+msgstr "Madurés"
 
 #. name for mae
 msgid "Bo-Rukul"
@@ -15055,7 +15055,7 @@ msgstr ""
 
 #. name for mak
 msgid "Makasar"
-msgstr "Makasar"
+msgstr "Macasar"
 
 #. name for mal
 msgid "Malayalam"
@@ -15075,7 +15075,7 @@ msgstr ""
 
 #. name for mar
 msgid "Marathi"
-msgstr "Marath"
+msgstr "Maratí"
 
 #. name for mas
 msgid "Masai"
@@ -15355,7 +15355,7 @@ msgstr ""
 
 #. name for mdl
 msgid "Maltese Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos maltés"
 
 #. name for mdm
 msgid "Mayogo"
@@ -15583,7 +15583,7 @@ msgstr ""
 
 #. name for mfs
 msgid "Mexican Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos mexicano"
 
 #. name for mft
 msgid "Mokerang"
@@ -16343,7 +16343,7 @@ msgstr ""
 
 #. name for mni
 msgid "Manipuri"
-msgstr ""
+msgstr "Meitei"
 
 #. name for mnj
 msgid "Munji"
@@ -16395,7 +16395,7 @@ msgstr ""
 
 #. name for mnw
 msgid "Mon"
-msgstr ""
+msgstr "Mon"
 
 #. name for mnx
 msgid "Manikion"
@@ -16543,7 +16543,7 @@ msgstr ""
 
 #. name for mpl
 msgid "Watut, Middle"
-msgstr ""
+msgstr "Watut medio"
 
 #. name for mpm
 msgid "Mixtec, Yosondúa"
@@ -16719,7 +16719,7 @@ msgstr ""
 
 #. name for mre
 msgid "Martha's Vineyard Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos de Martha's Vineyard"
 
 #. name for mrf
 msgid "Elseng"
@@ -16819,7 +16819,7 @@ msgstr ""
 
 #. name for msd
 msgid "Yucatec Maya Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos maya yucateca"
 
 #. name for mse
 msgid "Musey"
@@ -16875,7 +16875,7 @@ msgstr ""
 
 #. name for msr
 msgid "Mongolian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos mongol"
 
 #. name for mss
 msgid "Masela, West"
@@ -17507,7 +17507,7 @@ msgstr ""
 
 #. name for mzc
 msgid "Madagascar Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos malgache"
 
 #. name for mzd
 msgid "Malimba"
@@ -17519,7 +17519,7 @@ msgstr ""
 
 #. name for mzg
 msgid "Monastic Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos monástico"
 
 #. name for mzh
 msgid "Wichí Lhamtés Güisnay"
@@ -17591,7 +17591,7 @@ msgstr ""
 
 #. name for mzy
 msgid "Mozambican Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos mozambiqueño"
 
 #. name for mzz
 msgid "Maiadomu"
@@ -17671,7 +17671,7 @@ msgstr ""
 
 #. name for nau
 msgid "Nauru"
-msgstr "Naurí"
+msgstr "Nauruano"
 
 #. name for nav
 msgid "Navajo"
@@ -17763,7 +17763,7 @@ msgstr ""
 
 #. name for nbs
 msgid "Namibian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos namibio"
 
 #. name for nbt
 msgid "Na"
@@ -17859,7 +17859,7 @@ msgstr ""
 
 #. name for ncs
 msgid "Nicaraguan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos nicaragüense"
 
 #. name for nct
 msgid "Naga, Chothe"
@@ -18039,7 +18039,7 @@ msgstr ""
 
 #. name for nep
 msgid "Nepali"
-msgstr "Nepalés"
+msgstr "Nepalí"
 
 #. name for neq
 msgid "Mixe, North Central"
@@ -18363,7 +18363,7 @@ msgstr ""
 
 #. name for niu
 msgid "Niuean"
-msgstr "Niuean"
+msgstr "Niuano"
 
 #. name for niv
 msgid "Gilyak"
@@ -18847,7 +18847,7 @@ msgstr ""
 
 #. name for nog
 msgid "Nogai"
-msgstr "Nogai"
+msgstr "Nogayo"
 
 #. name for noh
 msgid "Nomu"
@@ -19055,7 +19055,7 @@ msgstr ""
 
 #. name for nsi
 msgid "Nigerian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos nigeriano"
 
 #. name for nsk
 msgid "Naskapi"
@@ -19075,11 +19075,11 @@ msgstr ""
 
 #. name for nso
 msgid "Sotho, Northern"
-msgstr "Sotho norteño"
+msgstr "Sepedi"
 
 #. name for nsp
 msgid "Nepalese Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos nepalí"
 
 #. name for nsq
 msgid "Miwok, Northern Sierra"
@@ -19087,7 +19087,7 @@ msgstr ""
 
 #. name for nsr
 msgid "Maritime Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos marítimo"
 
 #. name for nss
 msgid "Nali"
@@ -19291,7 +19291,7 @@ msgstr ""
 
 #. name for nwc
 msgid "Newari, Old"
-msgstr ""
+msgstr "Newari antiguo"
 
 #. name for nwe
 msgid "Ngwe"
@@ -19311,7 +19311,7 @@ msgstr ""
 
 #. name for nwx
 msgid "Newar, Middle"
-msgstr ""
+msgstr "Newari medio"
 
 #. name for nwy
 msgid "Nottoway-Meherrin"
@@ -19475,7 +19475,7 @@ msgstr ""
 
 #. name for nzi
 msgid "Nzima"
-msgstr "Nzima"
+msgstr "Nzema"
 
 #. name for nzk
 msgid "Nzakara"
@@ -19487,7 +19487,7 @@ msgstr ""
 
 #. name for nzs
 msgid "New Zealand Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos neozelandés"
 
 #. name for nzu
 msgid "Teke-Nzikou"
@@ -19511,11 +19511,11 @@ msgstr ""
 
 #. name for oar
 msgid "Aramaic, Old (up to 700 BCE)"
-msgstr ""
+msgstr "Arameo antiguo (hasta 700 A. C.)"
 
 #. name for oav
 msgid "Avar, Old"
-msgstr ""
+msgstr "Ávaro antiguo"
 
 #. name for obi
 msgid "Obispeño"
@@ -19539,7 +19539,7 @@ msgstr ""
 
 #. name for obr
 msgid "Burmese, Old"
-msgstr ""
+msgstr "Birmano antiguo"
 
 #. name for obt
 msgid "Breton, Old"
@@ -19555,7 +19555,7 @@ msgstr ""
 
 #. name for och
 msgid "Chinese, Old"
-msgstr ""
+msgstr "Chino antiguo"
 
 #. name for oci
 msgid "Occitan (post 1500)"
@@ -19563,7 +19563,7 @@ msgstr ""
 
 #. name for oco
 msgid "Cornish, Old"
-msgstr ""
+msgstr "Córnico antiguo"
 
 #. name for ocu
 msgid "Matlatzinca, Atzingo"
@@ -19591,7 +19591,7 @@ msgstr ""
 
 #. name for ofs
 msgid "Frisian, Old"
-msgstr ""
+msgstr "Frisón antiguo"
 
 #. name for ofu
 msgid "Efutop"
@@ -19607,7 +19607,7 @@ msgstr ""
 
 #. name for oge
 msgid "Georgian, Old"
-msgstr ""
+msgstr "Georgiano antiguo"
 
 #. name for ogg
 msgid "Ogbogolo"
@@ -19623,7 +19623,7 @@ msgstr ""
 
 #. name for oht
 msgid "Hittite, Old"
-msgstr ""
+msgstr "Hitita antiguo"
 
 #. name for ohu
 msgid "Hungarian, Old"
@@ -19703,11 +19703,11 @@ msgstr ""
 
 #. name for okl
 msgid "Kentish Sign Language, Old"
-msgstr ""
+msgstr "Lenguaje de signos antiguo de Kent"
 
 #. name for okm
 msgid "Korean, Middle (10th-16th cent.)"
-msgstr ""
+msgstr "Coreano medio (s. X-XVI)"
 
 #. name for okn
 msgid "Oki-No-Erabu"
@@ -19715,7 +19715,7 @@ msgstr ""
 
 #. name for oko
 msgid "Korean, Old (3rd-9th cent.)"
-msgstr ""
+msgstr "Coreano antiguo (s. III-IX)"
 
 #. name for okr
 msgid "Kirike"
@@ -19803,11 +19803,11 @@ msgstr ""
 
 #. name for omp
 msgid "Manipuri, Old"
-msgstr ""
+msgstr "Meitei antiguo"
 
 #. name for omr
 msgid "Marathi, Old"
-msgstr ""
+msgstr "Maratí antiguo"
 
 #. name for omt
 msgid "Omotik"
@@ -19823,7 +19823,7 @@ msgstr ""
 
 #. name for omx
 msgid "Mon, Old"
-msgstr ""
+msgstr "Mon antiguo"
 
 #. name for ona
 msgid "Ona"
@@ -19883,7 +19883,7 @@ msgstr ""
 
 #. name for onw
 msgid "Nubian, Old"
-msgstr ""
+msgstr "Nubio antiguo"
 
 #. name for onx
 msgid "Onin Based Pidgin"
@@ -19907,7 +19907,7 @@ msgstr ""
 
 #. name for oos
 msgid "Ossetic, Old"
-msgstr ""
+msgstr "Osetio antiguo"
 
 #. name for opa
 msgid "Okpamheri"
@@ -19959,7 +19959,7 @@ msgstr "Oriya"
 
 #. name for orm
 msgid "Oromo"
-msgstr "Oromo (Afan)"
+msgstr "Oromo"
 
 #. name for orn
 msgid "Orang Kanaq"
@@ -20023,7 +20023,7 @@ msgstr "Español antiguo"
 
 #. name for oss
 msgid "Ossetian"
-msgstr ""
+msgstr "Osetio"
 
 #. name for ost
 msgid "Osatu"
@@ -20035,7 +20035,7 @@ msgstr ""
 
 #. name for osx
 msgid "Saxon, Old"
-msgstr ""
+msgstr "Sajón antiguo"
 
 #. name for ota
 msgid "Turkish, Ottoman (1500-1928)"
@@ -20043,7 +20043,7 @@ msgstr "Turco otomano (1500-1928)"
 
 #. name for otb
 msgid "Tibetan, Old"
-msgstr ""
+msgstr "Tibetano antiguo"
 
 #. name for otd
 msgid "Ot Danum"
@@ -20103,7 +20103,7 @@ msgstr ""
 
 #. name for oty
 msgid "Tamil, Old"
-msgstr ""
+msgstr "Tamil antiguo"
 
 #. name for otz
 msgid "Otomi, Ixtenco"
@@ -20123,7 +20123,7 @@ msgstr ""
 
 #. name for oui
 msgid "Uighur, Old"
-msgstr ""
+msgstr "Uigur antiguo"
 
 #. name for oum
 msgid "Ouma"
@@ -20139,7 +20139,7 @@ msgstr ""
 
 #. name for owl
 msgid "Welsh, Old"
-msgstr ""
+msgstr "Galés antiguo"
 
 #. name for oyb
 msgid "Oy"
@@ -20183,7 +20183,7 @@ msgstr ""
 
 #. name for pag
 msgid "Pangasinan"
-msgstr "Pangasinan"
+msgstr "Pangasinense"
 
 #. name for pah
 msgid "Tenharim"
@@ -20203,7 +20203,7 @@ msgstr "Pahlavi"
 
 #. name for pam
 msgid "Pampanga"
-msgstr "Pampanga"
+msgstr "Pampango"
 
 #. name for pan
 msgid "Panjabi"
@@ -20235,7 +20235,7 @@ msgstr ""
 
 #. name for pau
 msgid "Palauan"
-msgstr "Palauan"
+msgstr "Palauano"
 
 #. name for pav
 msgid "Pakaásnovos"
@@ -20475,7 +20475,7 @@ msgstr ""
 
 #. name for peo
 msgid "Persian, Old (ca. 600-400 B.C.)"
-msgstr ""
+msgstr "Persa antiguo (ca. 600-400 A. C.)"
 
 #. name for pep
 msgid "Kunja"
@@ -20751,7 +20751,7 @@ msgstr ""
 
 #. name for pks
 msgid "Pakistan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos pakistaní"
 
 #. name for pkt
 msgid "Maleng"
@@ -21067,7 +21067,7 @@ msgstr ""
 
 #. name for pon
 msgid "Pohnpeian"
-msgstr "Pohnpeian"
+msgstr "Pohnpeiano"
 
 #. name for poo
 msgid "Pomo, Central"
@@ -21211,7 +21211,7 @@ msgstr ""
 
 #. name for prl
 msgid "Peruvian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos peruano"
 
 #. name for prm
 msgid "Kibiri"
@@ -21271,7 +21271,7 @@ msgstr ""
 
 #. name for psc
 msgid "Persian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos persa"
 
 #. name for psd
 msgid "Plains Indian Sign Language"
@@ -21295,7 +21295,7 @@ msgstr ""
 
 #. name for psl
 msgid "Puerto Rican Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos puertorriqueño"
 
 #. name for psm
 msgid "Pauserna"
@@ -21319,7 +21319,7 @@ msgstr ""
 
 #. name for psr
 msgid "Portuguese Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos portugués"
 
 #. name for pss
 msgid "Kaulong"
@@ -21451,7 +21451,7 @@ msgstr ""
 
 #. name for pus
 msgid "Pushto"
-msgstr "Pashtún"
+msgstr "Pastún"
 
 #. name for put
 msgid "Putoh"
@@ -21527,7 +21527,7 @@ msgstr ""
 
 #. name for pys
 msgid "Paraguayan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos paraguayo"
 
 #. name for pyu
 msgid "Puyuma"
@@ -21811,7 +21811,7 @@ msgstr ""
 
 #. name for raj
 msgid "Rajasthani"
-msgstr "Rajasthani"
+msgstr "Rajastaní"
 
 #. name for rak
 msgid "Tulu-Bohuai"
@@ -22119,7 +22119,7 @@ msgstr ""
 
 #. name for rmq
 msgid "Caló"
-msgstr ""
+msgstr "Caló"
 
 #. name for rms
 msgid "Romanian Sign Language"
@@ -22315,7 +22315,7 @@ msgstr ""
 
 #. name for run
 msgid "Rundi"
-msgstr "Kiroundi"
+msgstr "Kirundi"
 
 #. name for ruo
 msgid "Romanian, Istro"
@@ -22395,7 +22395,7 @@ msgstr ""
 
 #. name for sad
 msgid "Sandawe"
-msgstr "Sandawe"
+msgstr "Sandavés"
 
 #. name for sae
 msgid "Sabanê"
@@ -22411,7 +22411,7 @@ msgstr "Sango"
 
 #. name for sah
 msgid "Yakut"
-msgstr "Yakut"
+msgstr "Yakuto"
 
 #. name for saj
 msgid "Sahu"
@@ -22451,7 +22451,7 @@ msgstr "Sasak"
 
 #. name for sat
 msgid "Santali"
-msgstr "Santali"
+msgstr "Santalí"
 
 #. name for sau
 msgid "Saleman"
@@ -22691,7 +22691,7 @@ msgstr ""
 
 #. name for sdl
 msgid "Saudi Arabian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos saudí"
 
 #. name for sdm
 msgid "Semandang"
@@ -22839,7 +22839,7 @@ msgstr ""
 
 #. name for sfs
 msgid "South African Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos sudafricano"
 
 #. name for sfw
 msgid "Sehwi"
@@ -22867,7 +22867,7 @@ msgstr ""
 
 #. name for sgg
 msgid "Swiss-German Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos germano-suizo"
 
 #. name for sgh
 msgid "Shughni"
@@ -22915,7 +22915,7 @@ msgstr ""
 
 #. name for sgx
 msgid "Sierra Leone Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos sierraleonés"
 
 #. name for sgy
 msgid "Sanglechi"
@@ -23295,7 +23295,7 @@ msgstr ""
 
 #. name for slf
 msgid "Swiss-Italian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos italo-suizo"
 
 #. name for slg
 msgid "Selungai Murut"
@@ -23343,7 +23343,7 @@ msgstr ""
 
 #. name for sls
 msgid "Singapore Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos singapurense"
 
 #. name for slt
 msgid "Sila"
@@ -23407,7 +23407,7 @@ msgstr ""
 
 #. name for smj
 msgid "Lule Sami"
-msgstr "Sami Lule"
+msgstr "Sami lule"
 
 #. name for smk
 msgid "Bolinao"
@@ -23515,7 +23515,7 @@ msgstr ""
 
 #. name for snk
 msgid "Soninke"
-msgstr "Soninke"
+msgstr "Soninké"
 
 #. name for snl
 msgid "Sangil"
@@ -23595,7 +23595,7 @@ msgstr ""
 
 #. name for sog
 msgid "Sogdian"
-msgstr "Sogdian"
+msgstr "Sogdiano"
 
 #. name for soh
 msgid "Aka"
@@ -23643,7 +23643,7 @@ msgstr ""
 
 #. name for sot
 msgid "Sotho, Southern"
-msgstr "Sotho sureño"
+msgstr "Sesotho"
 
 #. name for sou
 msgid "Thai, Southern"
@@ -23779,7 +23779,7 @@ msgstr "Árabe siciliano"
 
 #. name for sqs
 msgid "Sri Lankan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos ceilanés"
 
 #. name for sqt
 msgid "Soqotri"
@@ -23975,7 +23975,7 @@ msgstr ""
 
 #. name for ssw
 msgid "Swati"
-msgstr "Siswati"
+msgstr "Swazi"
 
 #. name for ssx
 msgid "Samberigi"
@@ -24223,7 +24223,7 @@ msgstr ""
 
 #. name for swl
 msgid "Swedish Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos sueco"
 
 #. name for swm
 msgid "Samosa"
@@ -24851,7 +24851,7 @@ msgstr "Telugú"
 
 #. name for tem
 msgid "Timne"
-msgstr "Timne"
+msgstr "Temné"
 
 #. name for ten
 msgid "Tama (Colombia)"
@@ -24879,7 +24879,7 @@ msgstr ""
 
 #. name for tet
 msgid "Tetum"
-msgstr "Tetum"
+msgstr "Tetun"
 
 #. name for teu
 msgid "Soo"
@@ -25119,7 +25119,7 @@ msgstr ""
 
 #. name for tig
 msgid "Tigre"
-msgstr "Tigre"
+msgstr "Tigré"
 
 #. name for tih
 msgid "Murut, Timugon"
@@ -25163,7 +25163,7 @@ msgstr ""
 
 #. name for tir
 msgid "Tigrinya"
-msgstr "Tigrinya"
+msgstr "Tigriña"
 
 #. name for tis
 msgid "Itneg, Masadiit"
@@ -25251,11 +25251,11 @@ msgstr ""
 
 #. name for tkg
 msgid "Malagasy, Tesaka"
-msgstr ""
+msgstr "Malgache tesaka"
 
 #. name for tkl
 msgid "Tokelau"
-msgstr "Tokelau"
+msgstr "Tokelauano"
 
 #. name for tkm
 msgid "Takelma"
@@ -25427,7 +25427,7 @@ msgstr ""
 
 #. name for tmh
 msgid "Tamashek"
-msgstr "Tamashek"
+msgstr "Targuí"
 
 #. name for tmi
 msgid "Tutuba"
@@ -25615,7 +25615,7 @@ msgstr ""
 
 #. name for tog
 msgid "Tonga (Nyasa)"
-msgstr "Tonga (Nyasa)"
+msgstr "Tonga (Malaui)"
 
 #. name for toh
 msgid "Gitonga"
@@ -25707,7 +25707,7 @@ msgstr ""
 
 #. name for tpi
 msgid "Tok Pisin"
-msgstr "Tok Pisin"
+msgstr "Tok pisin"
 
 #. name for tpj
 msgid "Tapieté"
@@ -25935,7 +25935,7 @@ msgstr ""
 
 #. name for tse
 msgid "Tunisian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos tunecino"
 
 #. name for tsf
 msgid "Tamang, Southwestern"
@@ -25971,7 +25971,7 @@ msgstr "Lenguaje de signos turco"
 
 #. name for tsn
 msgid "Tswana"
-msgstr "Setchwana"
+msgstr "Setsuana"
 
 #. name for tso
 msgid "Tsonga"
@@ -25983,7 +25983,7 @@ msgstr ""
 
 #. name for tsq
 msgid "Thai Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos tailandés"
 
 #. name for tsr
 msgid "Akei"
@@ -25991,7 +25991,7 @@ msgstr ""
 
 #. name for tss
 msgid "Taiwan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos taiwanés"
 
 #. name for tst
 msgid "Songway Kiini, Tondi"
@@ -26163,7 +26163,7 @@ msgstr ""
 
 #. name for tuk
 msgid "Turkmen"
-msgstr "Turkmeno"
+msgstr "Turcomano"
 
 #. name for tul
 msgid "Tula"
@@ -26231,7 +26231,7 @@ msgstr ""
 
 #. name for tvl
 msgid "Tuvalu"
-msgstr "Tuvalu"
+msgstr "Tuvaluano"
 
 #. name for tvm
 msgid "Tela-Masbuar"
@@ -26295,7 +26295,7 @@ msgstr ""
 
 #. name for twi
 msgid "Twi"
-msgstr "Tchi"
+msgstr "Twi"
 
 #. name for twl
 msgid "Tawara"
@@ -26463,7 +26463,7 @@ msgstr ""
 
 #. name for tyv
 msgid "Tuvinian"
-msgstr "Tuvinian"
+msgstr "Tuvano"
 
 #. name for tyx
 msgid "Teke-Tyee"
@@ -26475,7 +26475,7 @@ msgstr ""
 
 #. name for tza
 msgid "Tanzanian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos tanzano"
 
 #. name for tzh
 msgid "Tzeltal"
@@ -26591,7 +26591,7 @@ msgstr ""
 
 #. name for ugn
 msgid "Ugandan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos ugandés"
 
 #. name for ugo
 msgid "Ugong"
@@ -26599,7 +26599,7 @@ msgstr ""
 
 #. name for ugy
 msgid "Uruguayan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos uruguayo"
 
 #. name for uha
 msgid "Uhami"
@@ -27315,7 +27315,7 @@ msgstr ""
 
 #. name for vot
 msgid "Votic"
-msgstr "Votic"
+msgstr "Vótico"
 
 #. name for vra
 msgid "Vera'a"
@@ -27783,7 +27783,7 @@ msgstr ""
 
 #. name for wlm
 msgid "Welsh, Middle"
-msgstr ""
+msgstr "Galés medio"
 
 #. name for wln
 msgid "Walloon"
@@ -27959,7 +27959,7 @@ msgstr ""
 
 #. name for wol
 msgid "Wolof"
-msgstr "Wolof"
+msgstr "Wólof"
 
 #. name for wom
 msgid "Wom (Nigeria)"
@@ -28563,7 +28563,7 @@ msgstr ""
 
 #. name for xki
 msgid "Kenyan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos keniano"
 
 #. name for xkj
 msgid "Kajali"
@@ -28723,7 +28723,7 @@ msgstr ""
 
 #. name for xml
 msgid "Malaysian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos malasio"
 
 #. name for xmm
 msgid "Malay, Manado"
@@ -28731,7 +28731,7 @@ msgstr ""
 
 #. name for xmn
 msgid "Persian, Manichaean Middle"
-msgstr ""
+msgstr "Persa medio maniqueo"
 
 #. name for xmo
 msgid "Morerebi"
@@ -28751,7 +28751,7 @@ msgstr ""
 
 #. name for xms
 msgid "Moroccan Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos marroquí"
 
 #. name for xmt
 msgid "Matbat"
@@ -28791,7 +28791,7 @@ msgstr ""
 
 #. name for xng
 msgid "Mongolian, Middle"
-msgstr ""
+msgstr "Mongol medio"
 
 #. name for xnh
 msgid "Kuanhua"
@@ -29307,7 +29307,7 @@ msgstr "Yao"
 
 #. name for yap
 msgid "Yapese"
-msgstr "Yapese"
+msgstr "Yapés"
 
 #. name for yaq
 msgid "Yaqui"
@@ -29423,7 +29423,7 @@ msgstr ""
 
 #. name for ydd
 msgid "Yiddish, Eastern"
-msgstr ""
+msgstr "Yidis oriental"
 
 #. name for yde
 msgid "Yangum Dey"
@@ -29439,7 +29439,7 @@ msgstr ""
 
 #. name for yds
 msgid "Yiddish Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos yidis"
 
 #. name for yea
 msgid "Ravula"
@@ -29531,7 +29531,7 @@ msgstr ""
 
 #. name for yid
 msgid "Yiddish"
-msgstr "Yidish"
+msgstr "Yidis"
 
 #. name for yif
 msgid "Ache"
@@ -29543,7 +29543,7 @@ msgstr ""
 
 #. name for yih
 msgid "Yiddish, Western"
-msgstr ""
+msgstr "Yidis occidental"
 
 #. name for yii
 msgid "Yidiny"
@@ -30191,7 +30191,7 @@ msgstr ""
 
 #. name for zap
 msgid "Zapotec"
-msgstr "Zapoteca"
+msgstr "Zapoteco"
 
 #. name for zaq
 msgid "Zapotec, Aloápam"
@@ -30335,7 +30335,7 @@ msgstr ""
 
 #. name for zib
 msgid "Zimbabwe Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos zimbabuense"
 
 #. name for zik
 msgid "Zimakani"
@@ -30723,7 +30723,7 @@ msgstr ""
 
 #. name for zsl
 msgid "Zambian Sign Language"
-msgstr ""
+msgstr "Lenguaje de signos zambiano"
 
 #. name for zsm
 msgid "Malay, Standard"
@@ -30803,7 +30803,7 @@ msgstr ""
 
 #. name for zun
 msgid "Zuni"
-msgstr "Zuni"
+msgstr "Zuñi"
 
 #. name for zuy
 msgid "Zumaya"
