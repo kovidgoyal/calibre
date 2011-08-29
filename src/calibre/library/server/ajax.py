@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import json
 from functools import wraps
-from binascii import hexlify, unhexlify
 
 import cherrypy
 
@@ -188,7 +187,7 @@ class AjaxServer(object):
             if category.startswith('@'):
                 category = category.partition('.')[0]
                 display_name = category[1:]
-            url = hexlify(force_unicode(category).encode('utf-8'))
+            url = force_unicode(category).encode('utf-8')
             icon = category_icon(category, meta)
             ans[url] = (display_name, icon)
 
@@ -245,10 +244,7 @@ class AjaxServer(object):
             toplevel = name
             subcategory = None
         else:
-            try:
-                subcategory = unhexlify(name)
-            except:
-                raise cherrypy.HTTPError(404, 'Invalid category id: %r'%name)
+            subcategory = name
             toplevel = subcategory.partition('.')[0]
             if toplevel == subcategory:
                 subcategory = None
@@ -310,7 +306,7 @@ class AjaxServer(object):
                 children = set('.'.join(x[:lsp+1]) for x in category_names if len(x) >
                         lsp+1 and x[:lsp] == subcategory_parts)
             subcategories = [{'name':x.rpartition('.')[-1],
-                'url':hexlify(toplevel+'.'+x),
+                'url':toplevel+'.'+x,
                 'icon':category_icon(toplevel, meta)} for x in children]
         else:
             items = categories[toplevel]
@@ -333,7 +329,8 @@ class AjaxServer(object):
             'average_rating': x.avg_rating,
             'count': x.count,
             'url': absurl(self.opts.url_prefix, '/ajax/books_in/%s/%s'%(
-                hexlify(toplevel), hexlify(x.original_name))),
+                x.category if x.category else toplevel,
+                x.original_name)),
             'has_children': x.original_name in children,
             } for x in items]
 
