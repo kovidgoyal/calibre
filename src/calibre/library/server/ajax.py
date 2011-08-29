@@ -19,7 +19,7 @@ from calibre.utils.config import prefs
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.utils.icu import sort_key
 from calibre.library.server import custom_fields_to_display
-from calibre import force_unicode
+from calibre import force_unicode, isbytestring
 from calibre.library.field_metadata import category_icon_map
 
 class Endpoint(object): # {{{
@@ -66,6 +66,7 @@ def category_icon(category, meta): # {{{
     return icon
 # }}}
 
+# URL Encoding {{{
 def encode_name(name):
     if isinstance(name, unicode):
         name = name.encode('utf-8')
@@ -82,6 +83,7 @@ def category_url(prefix, cid):
 
 def icon_url(prefix, name):
     return absurl(prefix, '/browse/icon/'+name)
+# }}}
 
 class AjaxServer(object):
 
@@ -105,6 +107,9 @@ class AjaxServer(object):
         # List of books in specified category
         connect('ajax_books_in', base_href+'/books_in/{category}/{item}',
                 self.ajax_books_in)
+
+        # Search
+        connect('ajax_search', base_href+'/search', self.ajax_search)
 
 
     # Get book metadata {{{
@@ -422,6 +427,10 @@ class AjaxServer(object):
         if sort_order not in ('asc', 'desc'):
             sort_order = 'asc'
 
+        sfield = self.db.data.sanitize_sort_field_name(sort)
+        if sfield not in self.db.field_metadata.sortable_field_keys():
+            raise cherrypy.HTTPError(404, '%s is not a valid sort field'%sort)
+
         if dname in ('allbooks', 'newest'):
             ids = self.search_cache('')
         elif dname == 'search':
@@ -444,9 +453,6 @@ class AjaxServer(object):
             ids = ids.intersection(all_ids)
 
         ids = list(ids)
-        sfield = self.db.data.sanitize_sort_field_name(sort)
-        if sfield not in self.db.field_metadata.sortable_field_keys():
-            raise cherrypy.HTTPError(404, '%s is not a valid sort field'%sort)
         self.db.data.multisort(fields=[(sfield, sort_order == 'asc')], subsort=True,
                 only_ids=ids)
         total_num = len(ids)
@@ -454,10 +460,44 @@ class AjaxServer(object):
         return {
                 'total_num': total_num, 'sort_order':sort_order,
                 'offset':offset, 'num':len(ids), 'sort':sort,
-                'base_url':'/ajax/books_in/%s/%s'%(category, item),
+                'base_url':absurl(self.opts.url_prefix, '/ajax/books_in/%s/%s'%(category, item)),
                 'book_ids':ids
         }
 
 
     # }}}
 
+    # Search {{{
+    @Endpoint()
+    def ajax_search(self, query='', sort='title', offset=0, num=25,
+            sort_order='asc'):
+        try:
+            num = int(num)
+        except:
+            raise cherrypy.HTTPError(404, "Invalid num: %r"%num)
+        try:
+            offset = int(offset)
+        except:
+            raise cherrypy.HTTPError(404, "Invalid offset: %r"%offset)
+        sfield = self.db.data.sanitize_sort_field_name(sort)
+        if sfield not in self.db.field_metadata.sortable_field_keys():
+            raise cherrypy.HTTPError(404, '%s is not a valid sort field'%sort)
+
+        if isbytestring(query):
+            query = query.decode('UTF-8')
+        ids = self.db.search_getting_ids(query.strip(), self.search_restriction)
+        ids = list(ids)
+        self.db.data.multisort(fields=[(sfield, sort_order == 'asc')], subsort=True,
+                only_ids=ids)
+        total_num = len(ids)
+        ids = ids[offset:offset+num]
+        return {
+                'total_num': total_num, 'sort_order':sort_order,
+                'offset':offset, 'num':len(ids), 'sort':sort,
+                'base_url':absurl(self.opts.url_prefix, '/ajax/search'),
+                'query': query,
+                'book_ids':ids
+        }
+
+
+    # }}}
