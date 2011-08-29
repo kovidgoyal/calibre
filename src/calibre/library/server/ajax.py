@@ -100,6 +100,9 @@ class AjaxServer(object):
     # Get book metadata {{{
     @Endpoint()
     def ajax_book(self, book_id):
+        '''
+        Return the metadata of the book as a JSON dictionary.
+        '''
         cherrypy.response.headers['Content-Type'] = \
                 'application/json; charset=utf-8'
         try:
@@ -212,6 +215,44 @@ class AjaxServer(object):
     @Endpoint()
     def ajax_category(self, name, sort='title', num=100, offset=0,
             sort_order='asc'):
+        '''
+        Return a dictionary describing the category specified by name. The
+        dictionary looks like::
+
+            {
+                'category_name': Category display name,
+                'base_url': Base URL for this category,
+                'total_num': Total numberof items in this category,
+                'offset': The offset for the items returned in this result,
+                'num': The number of items returned in this result,
+                'sort': How the returned items are sorted,
+                'sort_order': asc or desc
+                'subcategories': List of sub categories of this category.
+                'items': List of items in this category,
+            }
+
+        Each subcategory is a dictionary of the same form as those returned by
+        ajax_categories().
+
+        Each  item is a dictionary of the form::
+
+            {
+                'name': Display name,
+                'average_rating': Average rating for books in this item,
+                'count': Number of books in this item,
+                'url': URL to get list of books in this item,
+                'has_children': If True this item contains sub categories, look
+                for an entry corresponding to this item in subcategories int he
+                main dictionary,
+            }
+
+        :param sort: How to sort the returned items. CHoices are: name, rating,
+                     popularity
+        :param sort_order: asc or desc
+
+        To learn how to create subcategories see
+        http://manual.calibre-ebook.com/sub_groups.html
+        '''
         try:
             num = int(num)
         except:
@@ -315,6 +356,7 @@ class AjaxServer(object):
         for x in subcategories:
             x['url'] = category_url(self.opts.url_prefix, x['url'])
             x['icon'] = icon_url(self.opts.url_prefix, x['icon'])
+            x['is_category'] = True
 
         sort_keygen = {
                 'name': lambda x: sort_key(x.sort if x.sort else x.original_name),
@@ -338,7 +380,7 @@ class AjaxServer(object):
                 'category_name': category_name,
                 'base_url': base_url,
                 'total_num': total_num,
-                'offset':offset, 'num':num, 'sort':sort,
+                'offset':offset, 'num':len(items), 'sort':sort,
                 'sort_order':sort_order,
                 'subcategories':subcategories,
                 'items':items,
