@@ -113,7 +113,7 @@ class Manager(QObject): # {{{
     def unregister_shortcut(self, unique_name):
         '''
         Remove a registered shortcut. You need to call finalize() after you are
-        don unregistering.
+        done unregistering.
         '''
         self.shortcuts.pop(unique_name, None)
 
