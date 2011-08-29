@@ -372,7 +372,7 @@ class AjaxServer(object):
             'count': x.count,
             'url': absurl(self.opts.url_prefix, '/ajax/books_in/%s/%s'%(
                 x.category if x.category else toplevel,
-                x.original_name)),
+                x.id if x.id is not None else x.original_name)),
             'has_children': x.original_name in children,
             } for x in items]
 
