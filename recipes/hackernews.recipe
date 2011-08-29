@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 Hacker News
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 from calibre.ptempfile import PersistentTemporaryFile
 from urlparse import urlparse
 import re
@@ -46,20 +45,20 @@ class HackerNews(BasicNewsRecipe):
         self.log('get_hn_content(' + url + ')')
         soup = self.index_to_soup(url)
         main = soup.find('tr').findNextSiblings('tr', limit=2)[1].td
-        
+
         title = self.tag_to_string(main.find('td', 'title'))
         link = main.find('td', 'title').find('a')['href']
         if link.startswith('item?'):
             link = 'http://news.ycombinator.com/' + link
         readable_link = link.rpartition('http://')[2].rpartition('https://')[2]
         subtext = self.tag_to_string(main.find('td', 'subtext'))
-        
+
         title_content_td = main.find('td', 'title').findParent('tr').findNextSiblings('tr', limit=3)[2].findAll('td', limit=2)[1]
         title_content = u''
         if not title_content_td.find('form'):
             title_content_td.name ='div'
             title_content = title_content_td.prettify()
-        
+
         comments = u''
         for td in main.findAll('td', 'default'):
             comhead = td.find('span', 'comhead')
@@ -76,11 +75,11 @@ class HackerNews(BasicNewsRecipe):
                 indent_width = (int(td.parent.find('td').img['width']) * 2) / 3
                 td['style'] = 'padding-left: ' + str(indent_width) + 'px'
                 comments = comments + com_title + td.prettify()
-        
+
         body = u'<h3>' + title + u'</h3><p><a href="' + link + u'">' + readable_link + u'</a><br/><strong>' + subtext +  u'</strong></p>' + title_content + u'<br/>'
         body = body + comments
         return u'<html><title>' + title + u'</title><body>' + body + '</body></html>'
-        
+
     def get_obfuscated_article(self, url):
         if url.startswith('http://news.ycombinator.com'):
             content = self.get_hn_content(url)
@@ -114,11 +113,11 @@ class HackerNews(BasicNewsRecipe):
     def populate_article_metadata(self, article, soup, first):
         article.text_summary = self.prettyify_url(article.url)
         article.summary = article.text_summary
-        
+
 #    def parse_index(self):
 #        feeds = []
 #        feeds.append((u'Hacker News',[{'title': 'Testing', 'url': 'http://news.ycombinator.com/item?id=2935944'}]))
 #        return feeds
-        
+
 
 
