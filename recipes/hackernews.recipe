@@ -97,10 +97,6 @@ class HackerNews(BasicNewsRecipe):
                 content = u'<html><body><img src="' + url + u'"></body></html>'
             else:
                 content = self.get_readable_content(url)
-                
-        f = open('/tmp/hn_content.html', 'w')
-        f.write(content)
-        f.close()
 
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
         self.temp_files[-1].write(content)
