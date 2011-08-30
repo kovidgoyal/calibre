@@ -498,7 +498,8 @@ class BrowseServer(object):
                         xml(s, True),
                         xml(_('Loading, please wait'))+'&hellip;',
                         unicode(c),
-                        xml(u'/browse/category_group/%s/%s'%(category, s), True),
+                        xml(u'/browse/category_group/%s/%s'%(category,
+                            hexlify(s.encode('utf-8'))), True),
                         self.opts.url_prefix)
                     for s, c in category_groups.items()]
             items = '\n\n'.join(items)
@@ -538,7 +539,11 @@ class BrowseServer(object):
         category_meta = self.db.field_metadata
         datatype = category_meta[category]['datatype']
 
-        if not group:
+        try:
+            group = unhexlify(group)
+            if isbytestring(group):
+                group = group.decode('utf-8')
+        except:
             raise cherrypy.HTTPError(404, 'invalid group')
 
         items = categories[category]
