@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-24 09:23+0000\n"
+"PO-Revision-Date: 2011-08-29 10:13+0000\n"
 "Last-Translator: Lucian Martin <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-08-27 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-08-30 04:47+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4722,6 +4722,9 @@ msgid ""
 "The layout of the user interface. Wide has the book details panel on the "
 "right and narrow has it at the bottom."
 msgstr ""
+"Aranjamentul interfeţei utilizatorului. În modul lat, detaliile cărţii sunt "
+"afişate în partea dreaptă, iar în modul îngust, detaliile sunt afişate în "
+"partea de jos."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:196
 msgid "Show the average rating per item indication in the tag browser"
@@ -5012,7 +5015,7 @@ msgstr "<b>Locaţie %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
-msgstr ""
+msgstr "Creează catalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:34
 msgid "No books selected for catalog generation"
@@ -12631,11 +12634,11 @@ msgstr "Setează autorul din sortare autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:134
 msgid "Copy author to author sort"
-msgstr ""
+msgstr "Copiază autor în sortare autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:136
 msgid "Copy author sort to author"
-msgstr ""
+msgstr "Copiază sortare autor în autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:147
 msgid "Swap the author and title"
@@ -15261,7 +15264,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:324
 msgid "Search for tweak"
-msgstr ""
+msgstr "Caută o ajustare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:338
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:378
@@ -19436,6 +19439,9 @@ msgid ""
 "with the items being \"id:value\". Find the pair with the id equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(val, key) -- interpretează valoarea ca şi o listă de elemente "
+"separate prin virgule, cu elementele fiind \"id:value\". Găseşte perechea cu "
+"\"id\" egal cu \"key\" şi returnează valoarea corespunzătoare."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:586
 msgid ""
@@ -19533,7 +19539,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:786
 msgid "capitalize(val) -- return value of the field capitalized"
-msgstr ""
+msgstr "capitalize(val) -- returnează valoarea câmpului cu majuscule"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:795
 msgid "booksize() -- return value of the size field"
@@ -19561,6 +19567,9 @@ msgid ""
 "empty. If all values are empty, then the empty value is returned.You can "
 "have as many values as you want."
 msgstr ""
+"first_non_empty(value, value, ...) -- returnează prima valoare care nu este "
+"vidă. Dacă toate valorile sunt vide, atunci valoarea vidă este returnată. Se "
+"pot folosi oricâte valori."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:850
 msgid ""
@@ -19568,6 +19577,9 @@ msgid ""
 "empty, otherwise returns the empty string. This function works well with "
 "test or first_non_empty. You can have as many values as you want."
 msgstr ""
+"and(value, value, ...) -- returnează şirul \"1\" dacă toate valorile nu sunt "
+"vide, altfel returnează şirul gol. Această funcţie funcţionează bine "
+"împreună cu \"test\" sau \"first_non_empty\". Se pot folosi oricâte valori."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:867
 msgid ""
@@ -19575,6 +19587,9 @@ msgid ""
 "otherwise returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
+"or(value, value, ...) -- returnează şirul \"1\" dacă oricare valoare nu este "
+"vidă, altfel returnează şirul gol. Această funcţie funcţionează bine "
+"împreună cu \"test\" sau \"first_non_empty\". Se pot folosi oricâte valori."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:884
 msgid ""
@@ -19582,6 +19597,9 @@ msgid ""
 "returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
+"not(value) -- returnează şirul \"1\" dacă valoarea este vidă, altfel "
+"returnează şirul gol. Această funcţie funcţionează bine împreună cu \"test\" "
+"sau \"first_non_empty\". Se pot folosi oricâte valori."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:896
 msgid ""
@@ -19622,6 +19640,9 @@ msgid ""
 "format_date or days_between, but can be manipulated like any other string. "
 "The date is in ISO format."
 msgstr ""
+"today() -- returnează un şir cu data de azi. Valoarea este făcută pentru a "
+"fi folosită în \"format_date\" sau \"days_between\", dar poate fi manipulată "
+"ca şi oricare alt şir. Data este în formatul ISO."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:983
 msgid ""

@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-27 02:41+0000\n"
+"PO-Revision-Date: 2011-08-30 02:18+0000\n"
 "Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-28 04:33+0000\n"
+"X-Launchpad-Export-Date: 2011-08-30 04:48+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -10176,7 +10176,7 @@ msgstr "无效名称"
 msgid ""
 "That name contains leading or trailing periods, multiple periods in a row or "
 "spaces before or after periods."
-msgstr ""
+msgstr "分类名称不能以点号开头或结尾，也不允许出现连续多个点或在点号前后出现空格。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:230
@@ -12012,6 +12012,11 @@ msgid ""
 "Title match ignores leading indefinite articles (\"the\", \"a\", \"an\"), "
 "punctuation, case, etc. Author match is exact."
 msgstr ""
+"自动合并：如果在书库中发现已经存在相似标题和作者的记录，把新加入的书籍文件格式合并到\n"
+"该记录中。右侧的下拉框控制对于该书籍记录中已经包含相同文件格式的书籍时的处理方式。\n"
+"注意：这个选项也对“复到到书库”功能生效。\n"
+"\n"
+"匹配书籍标题时会忽略冠词(\"the\", \"a\", \"an\")、标点符号、大小写等。作者会进行精确匹配。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:77
 msgid "&Automerge added books if they already exist in the calibre library:"
@@ -12036,6 +12041,15 @@ msgid ""
 "punctuation, case, etc.\n"
 "Author matching is exact."
 msgstr ""
+"自动合并：如果在书库中发现已经存在相似标题和作者的记录，把新加入的书籍文件格式合并到\n"
+"该记录中。本下拉框控制对于该书籍记录中已经包含相同文件格式的书籍时的处理方式： \n"
+"\n"
+"忽略与已有文件格式重复的文件 - calibre 书库中已有的文件不会被替换\n"
+"与已有文件格式重复时覆盖已有的文件 - calibre 书库中已有的文件会被替换成新加入的文件\n"
+"文件格式重复时创建一本新的书籍 - 为新加入的重复文件创建一个新的书籍记录\n"
+"\n"
+"匹配书籍标题时会忽略冠词(\"the\", \"a\", \"an\")、标点符号、大小写等。\n"
+"作者会进行精确匹配。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:88
 msgid "&Tags to apply when adding a book:"
@@ -12553,6 +12567,14 @@ msgid ""
 "book&lt;/a&gt;</pre> will generate a link to the book on the Beam ebooks "
 "site."
 msgstr ""
+"如果选中，在书籍详情和内容服务程序中这个栏位会以 HTML 格式解析并显示。模版语言在这里也可以使用，用于创建超级链接。比如： "
+"<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;{series:| "
+"[|}{series_index:| [|]]}</pre> "
+"这个模版可以创建一个以加粗大字体显示书籍标题并同时显示系列名称的字段，显示效果类似于：<br>\"<big><b>An Oblique "
+"Approach</b></big> [Belisarius [1]]\".\r\n"
+"<pre>&lt;a href=\"http://www.beam-"
+"ebooks.de/ebook/{identifiers:select(beam)}\"&gt;Beam book&lt;/a&gt;</pre> "
+"这个模版可以用于创建一个指向 Bean 电子书网站的书籍信息页面的链接。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:177
 msgid "My Tags"
@@ -12568,7 +12590,7 @@ msgstr "我的评分"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:180
 msgid "People"
-msgstr ""
+msgstr "人名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:207
 msgid ""
@@ -12576,6 +12598,8 @@ msgid ""
 "leading zeros. The format <code>{0:d}&nbsp;days</code> prints the number "
 "then the word \"days\""
 msgstr ""
+"示例： <code>{0:0>4d}</code> 指定显示格式为 4 位数字并冠以 0 补全。 <code>{0:d}&nbsp;天</code> "
+"显示数字并添加“天”字结尾。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:212
 msgid ""
@@ -12900,6 +12924,8 @@ msgid ""
 "used for the subject. Also, the same templates used for \"Save to disk\" "
 "such as {title} and {author_sort} can be used here."
 msgstr ""
+"发送电子邮件时使用的标题。如果留空，书籍标题会作为邮件标题。这里同样可以使用 {title} 和 {author_sort} "
+"等在“保存到磁盘”功能中所使用的模版。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:37
 msgid ""
@@ -13041,6 +13067,11 @@ msgid ""
 "Manage Authors. You can use the values {author} and \n"
 "{author_sort}, and any template function."
 msgstr ""
+"<p>输入一个用于在书籍信息对话框中为书籍作者\n"
+"创建超级链接的模版。这个模版会在“管理作者信息”中\n"
+"没有为作者指定链接时自动生成链接时使用。这里可以使用\n"
+"{author} 和 {author_sort} 的值，也可以使用其它任何\n"
+"模版函数。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Use &Roman numerals for series"
@@ -13064,6 +13095,10 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"选项在标签浏览器中如何显示数量超过一定限制的分类。\n"
+"设为“首字母”可以把结果按首字母A, B, C... 分类排序。\n"
+"设为“分区”可以把结果分为多个固定大小的子类。\n"
+"设为“禁用”则不会进行结果归类。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:181
 msgid "&Collapse when more items than:"
@@ -13093,6 +13128,13 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"以逗号隔开的栏位名称列表，这些栏位的值如果包含\n"
+"点号，在标签浏览器会便会以树型结构显示。例如：如果\n"
+"这里的列表包含 'tags' 这个名称，那么出现在标签栏位中的\n"
+" 'Mystery.English' 和 'Mystery.Thriller' 在标签浏览器中\n"
+"会显示为在 'Mystery' 项下包含 'English' 和 'Thriller' 两项。\n"
+"如果这里的列表没有包含 'tags'，那么这两个标签值会各自\n"
+"对应一行。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:218
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -13104,12 +13146,12 @@ msgstr "浏览模式下显示的书籍封面数量(&N), 须重启生效:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:231
 msgid "When showing cover browser in separate window, show it &fullscreen"
-msgstr ""
+msgstr "当在独立窗口中显示封面浏览器时，以全屏模式显示(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
 #, python-format
 msgid "You can press the %s keys to toggle full screen mode."
-msgstr ""
+msgstr "按 %s 键切换全屏模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:260
 msgid "Main Interface"
@@ -13282,6 +13324,9 @@ msgid ""
 "metadata sources has a genre like tag set for the book you are searching "
 "for. Most often, they all have large tag sets."
 msgstr ""
+"<p>不同的元数据源可能会给同一本书标记不同的标签。如果选中这个选项，calibre "
+"会选择使用包含较少的标签的结果。这类结果可能会更接近于用标签描述书籍的种类，而标签较多的情况下，常常会是用于描述书籍的内容。\n"
+"<p>注意：这个选项在实际中只会在某个元数据源包含所查书籍标签值像是种类描述的情况下生效。在大部分的情况下，元数据源提供的标签信息都包含很多个标签。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:138
 msgid "Prefer &fewer tags"
@@ -14224,11 +14269,11 @@ msgstr "删除已存搜索条件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:478
 msgid "Manage saved searches"
-msgstr ""
+msgstr "管理已存搜索数据"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:488
 msgid "*Current search"
-msgstr ""
+msgstr "* 当前搜索结果"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
@@ -14242,11 +14287,11 @@ msgstr "(所有书籍)"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:21
 msgid ""
 "Books display will be restricted to those matching a selected saved search"
-msgstr ""
+msgstr "只会显示符合当前选择搜索条件的书籍记录"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:53
 msgid " or the search "
-msgstr ""
+msgstr " 或搜索条件 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:87
 msgid "({0} of {1})"
@@ -14399,7 +14444,7 @@ msgid ""
 "This store is headquartered in %s. This is a good indication of what market "
 "the store caters to. However, this does not necessarily mean that the store "
 "is limited to that market only."
-msgstr ""
+msgstr "本商店总部位于 %s。这表明了该商店主要面向的客户市场，但这不表示该商店只向该区域销售书籍。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:143
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:215
@@ -14488,13 +14533,13 @@ msgstr "同时进行的书籍详情获取数量"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
-msgstr ""
+msgstr "查询："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:77
 msgid "Books:"
-msgstr ""
+msgstr "书籍："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:144
@@ -14503,11 +14548,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:63
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "Close"
-msgstr ""
+msgstr "关闭"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:212
 msgid "&Price:"
-msgstr ""
+msgstr "价格(&P)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:219
 msgid "Download:"
@@ -14536,7 +14581,7 @@ msgid ""
 "Detected price as: %s. Check with the store before making a purchase to "
 "verify this price is correct. This price often does not include promotions "
 "the store may be running."
-msgstr ""
+msgstr "检测到的书籍价格是： %s 。在购买前请在书籍商店再次确认这个价格是否正确，同时这个价格常常并未包含商店所可能提供的各种折扣。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:203
 msgid ""
@@ -14545,6 +14590,7 @@ msgid ""
 "what you can do with this book. Check with the store before making any "
 "purchases to ensure you can actually read this book."
 msgstr ""
+"本书被检测为具有 DRM 保护。这本书可能无法在你的阅读器上阅读并且你对这本书可以做的操作会有限制。购买前请与书籍商店确认你是否可以阅读这本书籍。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:205
 msgid ""
@@ -14553,17 +14599,19 @@ msgid ""
 "conversion. However, before making a purchase double check the DRM status "
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
+"本书被检测为无 DRM 保护。你应该可以通过 calibre 把它转换为你的设备所支持的格式并阅读本书。但在购买前请在书籍商店再次确认它的 DRM "
+"状态，calibre 可能无法正常识别部分商店的所标识的 DRM 状态。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:207
 msgid ""
 "The DRM status of this book could not be determined. There is a very high "
 "likelihood that this book is actually DRM restricted."
-msgstr ""
+msgstr "无法确认本书的 DRM 保护状态，但很有可能这本书是被 DRM 保护的。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:212
 #, python-format
 msgid "The following formats can be downloaded directly: %s."
-msgstr ""
+msgstr "以下书籍格式可以直接下载： %s 。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:41
 msgid "Download..."
@@ -14676,7 +14724,7 @@ msgstr "%p%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:307
 msgid "The grouped search term name is \"{0}\""
-msgstr ""
+msgstr "分组搜索条件名是 \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:731
 msgid ""
@@ -14803,6 +14851,8 @@ msgid ""
 "*foo will filter all categories at once, showing only those items\n"
 "containing the text \"foo\""
 msgstr ""
+"搜索条目，采用“包含”条件进行搜索，任何包含指定文本的条目都会被搜索到。你可以使用与书籍搜索类似的语法指定只搜索部分分类。比如：tags:foo "
+"会找到包含 foo 的标签，但不会找到其它包含 foo 的字段。输入 *foo 会在所有分类中同时查找，并只显示包含文本 foo 的条目。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:312
 msgid "ALT+f"
@@ -14857,64 +14907,64 @@ msgstr "管理作者、标签等数据"
 msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"
-msgstr ""
+msgstr "所有分类数据管理器都可以上面的标签浏览器中通过右键点击相应项目打开"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:345
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:407
 #, python-format
 msgid "Rename %s"
-msgstr ""
+msgstr "重命名 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:349
 #, python-format
 msgid "Edit sort for %s"
-msgstr ""
+msgstr "修改 %s 的排序作者值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:352
 #, python-format
 msgid "Edit link for %s"
-msgstr ""
+msgstr "修改 %s 的链接"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:359
 #, python-format
 msgid "Add %s to user category"
-msgstr ""
+msgstr "把 %s 添加到用户分类"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:372
 #, python-format
 msgid "Children of %s"
-msgstr ""
+msgstr "%s 的子项"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:382
 #, python-format
 msgid "Delete search %s"
-msgstr ""
+msgstr "删除搜索条件 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:387
 #, python-format
 msgid "Remove %(item)s from category %(cat)s"
-msgstr ""
+msgstr "把 %(item)s 从分类 %(cat)s 中移除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:394
 #, python-format
 msgid "Search for %s"
-msgstr ""
+msgstr "查找 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:399
 #, python-format
 msgid "Search for everything but %s"
-msgstr ""
+msgstr "查找除 %s 以外的所有信息"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:411
 #, python-format
 msgid "Add sub-category to %s"
-msgstr ""
+msgstr "添加子分类到 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:415
 #, python-format
 msgid "Delete user category %s"
-msgstr ""
+msgstr "删除用户分类 %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:420
 #, python-format
@@ -14928,12 +14978,12 @@ msgstr "显示分类"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:434
 #, python-format
 msgid "Search for books in category %s"
-msgstr ""
+msgstr "在分类 %s 中搜索书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:440
 #, python-format
 msgid "Search for books not in category %s"
-msgstr ""
+msgstr "在分类 %s 以外搜索书籍"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:449
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:454
@@ -14947,16 +14997,16 @@ msgstr "显示所有分类"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:479
 msgid "Change sub-categorization scheme"
-msgstr ""
+msgstr "修改子分类模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:499
 msgid "First letter is usable only when sorting by name"
-msgstr ""
+msgstr "首字母只在按名称排序时可用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:70
 #, python-format
 msgid "Convert book %(num)d of %(total)d (%(title)s)"
-msgstr ""
+msgstr "转换书籍 第 %(num)d 本，共 %(total)d 本 (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:222
@@ -14969,7 +15019,7 @@ msgstr "无法转换某些书籍"
 msgid ""
 "Could not convert %(num)d of %(tot)d books, because no suitable source "
 "format was found."
-msgstr ""
+msgstr "由于无法找到合适的源文件格式，无法转换第 %(num)d 本书籍(共 %(tot)d 本)。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:133
 msgid "Queueing books for bulk conversion"
@@ -14982,7 +15032,7 @@ msgstr "正在排队 "
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:197
 #, python-format
 msgid "Convert book %(num)d of %(tot)d (%(title)s)"
-msgstr ""
+msgstr "转换书籍 第 %(num)d 本，共 %(tot)d 本 (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:271
 msgid "Fetch news from "
@@ -15013,11 +15063,11 @@ msgstr "弹出已连接设备(&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:243
 msgid "Quit calibre"
-msgstr ""
+msgstr "退出 calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:256
 msgid "Clear the current search"
-msgstr ""
+msgstr "清除当前搜索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:354
 msgid "Debug mode"
@@ -15059,7 +15109,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:638
 msgid "Active jobs"
-msgstr ""
+msgstr "活动的任务"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:706
 msgid ""
@@ -15073,6 +15123,8 @@ msgid ""
 "%(app)s has been updated to version <b>%(ver)s</b>. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"%(app)s 已经更新到 <b>%(ver)s</b> 版。查看 <a href=\"http://calibre-ebook.com/whats-"
+"new\">新功能</a>。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:80
 msgid "Update available!"
@@ -15088,12 +15140,12 @@ msgstr "获取更新(&G)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:94
 msgid "Update &plugins"
-msgstr ""
+msgstr "更新插件(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:153
 #, python-format
 msgid " (%d plugin updates)"
-msgstr ""
+msgstr " (共 %d 个插件更新)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:156
 msgid "Update found"
@@ -15101,21 +15153,21 @@ msgstr "发现更新"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:159
 msgid "updated plugins"
-msgstr ""
+msgstr "已更新插件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:190
 msgid "Plugin Updates"
-msgstr ""
+msgstr "插件更新"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:188
 #, python-format
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "%d 个插件更新可用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:192
 msgid "Install and configure user plugins"
-msgstr ""
+msgstr "安装并配置用户插件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -15362,13 +15414,13 @@ msgstr "标准字体类型"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:126
 msgid "Still editing"
-msgstr ""
+msgstr "正在修改"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:127
 msgid ""
 "You are in the middle of editing a keyboard shortcut first complete that, by "
 "clicking outside the  shortcut editing box."
-msgstr ""
+msgstr "你正在修改一个键盘快捷键设置。在快捷键编辑框外点击可以完成设置。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:536
 msgid "&Lookup in dictionary"
@@ -15473,7 +15525,7 @@ msgstr "打印预览"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:304
 msgid "Clear list of recently opened books"
-msgstr ""
+msgstr "清除最近打开的书籍列表"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:366
 #, python-format
@@ -15494,14 +15546,16 @@ msgid ""
 "Make font size %(which)s\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"设置字体大小 %(which)s\n"
+"当前放大比例： %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:497
 msgid "larger"
-msgstr ""
+msgstr "更大"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:499
 msgid "smaller"
-msgstr ""
+msgstr "更小"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:515
 #, python-format
@@ -15655,7 +15709,7 @@ msgstr "触发器"
 msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
-msgstr ""
+msgstr "选择你的电子书阅读设备。如果你的设备不在列表中，选择 \"%s\" 设备。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:499
 msgid "Moving library..."
@@ -15675,7 +15729,7 @@ msgstr "无效数据库"
 msgid ""
 "<p>An invalid library already exists at %(loc)s, delete it before trying to "
 "move the existing library.<br>Error: %(err)s"
-msgstr ""
+msgstr "<p>%(loc)s 存在一个无效的书库，在移动当前书库前请先删除该无效书库。 <br>错误：%(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:582
 msgid "Could not move library"
@@ -15739,6 +15793,7 @@ msgid ""
 "<h2>User Manual</h2>A User Manual is also available <a "
 "href=\"http://manual.calibre-ebook.com\">online</a>."
 msgstr ""
+"可 <a href=\"http://manual.calibre-ebook.com\">在线</a> 查阅 <h2>用户手册</h2> 。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/kindle_ui.py:49
 msgid ""
@@ -15780,7 +15835,7 @@ msgstr "如果您已有 calibre 书库，它将被复制到新位置。若 calib
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 #, python-format
 msgid "Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption"
-msgstr ""
+msgstr "使用： %(un)s:%(pw)s@%(host)s:%(port)s 及 %(enc)s 加密"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
@@ -15830,21 +15885,21 @@ msgstr "配置"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:102
 msgid "Incorrect username"
-msgstr ""
+msgstr "用户名不正确"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:103
 #, python-format
 msgid "%s needs the full email address as your username"
-msgstr ""
+msgstr "%s 需要输入你的电子邮件地址作为你的用户名"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:154
 msgid "OK to proceed?"
-msgstr ""
+msgstr "要继续吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:155
 msgid ""
 "This will display your email password on the screen. Is it OK to proceed?"
-msgstr ""
+msgstr "该操作会在屏幕上明文显示你的电子邮件地址密码。要继续吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:199
 msgid ""
@@ -15852,6 +15907,8 @@ msgid ""
 "verify your account periodically, before it will let calibre send email. In "
 "this case, I strongly suggest you setup a free gmail account instead."
 msgstr ""
+"如果你使用 Hotmail 邮件帐号，微软会要求你定期验证你的帐号，calibre 只能使用验证通过的帐号发送邮件。所以，强烈建议你开设一个免费的 "
+"Gmail 帐号来使用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:232
@@ -15867,17 +15924,17 @@ msgstr "您需要设置发信人电子邮件地址"
 msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
-msgstr ""
+msgstr "你必须对邮件服务器同时设置用户名 <b>和</b> 密码，或者都不设。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:238
 msgid "Please enter a username and password or set encryption to None "
-msgstr ""
+msgstr "请输入用户名和密码，或者把“加密”设为“无” "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:243
 msgid ""
 "No username and password set for mailserver. Most  mailservers need a "
 "username and password. Are you sure?"
-msgstr ""
+msgstr "没有为邮件服务器设置用户名和密码。大部分邮件服务器都需要用户名和密码，你确定不设置吗？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
@@ -16048,7 +16105,7 @@ msgstr "空的"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:571
 msgid "Invalid boolean query \"{0}\""
-msgstr ""
+msgstr "无效的布尔查询 \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:55
 #, python-format
@@ -16954,7 +17011,7 @@ msgstr "标签必须只包含小写字母，数字及下划线，并且以字母
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:67
 #, python-format
 msgid "%(tt)sAverage rating is %(rating)3.1f"
-msgstr ""
+msgstr "%(tt)s 平均评分为 %(rating)3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3401
 #, python-format
@@ -17044,7 +17101,7 @@ msgstr "出版日期"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
-msgstr ""
+msgstr "该书籍元数据的最后修改日期"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
@@ -17248,7 +17305,7 @@ msgstr "书库"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:280
 msgid "home"
-msgstr ""
+msgstr "主页"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:613
@@ -18164,22 +18221,22 @@ msgstr "荷兰语(比利时)"
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:156
 msgid "AM"
-msgstr ""
+msgstr "上午"
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
 msgid "PM"
-msgstr ""
+msgstr "下午"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
 msgid "am"
-msgstr ""
+msgstr "上午"
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:162
 msgid "pm"
-msgstr ""
+msgstr "下午"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"

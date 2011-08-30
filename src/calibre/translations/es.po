@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-27 08:28+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2011-08-30 00:55+0000\n"
+"Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-28 04:33+0000\n"
+"X-Launchpad-Export-Date: 2011-08-30 04:47+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -12848,7 +12848,7 @@ msgstr "calibre está descargando metadatos desde: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:425
 msgid "Please wait"
-msgstr "Por favor, espere"
+msgstr "Espere un momento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:454
 msgid "Query: "

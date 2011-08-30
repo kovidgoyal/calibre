@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-25 19:09+0000\n"
-"Last-Translator: Luiz Real <Unknown>\n"
+"PO-Revision-Date: 2011-08-30 00:42+0000\n"
+"Last-Translator: Nestor Carvalho <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-08-27 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-08-30 04:48+0000\n"
 "X-Generator: Launchpad (build 13794)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -195,7 +195,7 @@ msgstr "Não faz absolutamente nada"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "Desconhecido"
+msgstr "Desconhecido(a)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -250,7 +250,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr "Uma loja de e-book."
+msgstr "Uma loja de e-books."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -274,7 +274,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
-msgstr "Extrair a capa dos arquivos de HQ"
+msgstr "Extrair a capa de arquivos de HQ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:164
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:175
@@ -356,23 +356,23 @@ msgstr "Leia livros em sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Baixe notícias da internet em formato de e-book"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:766
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Mostra rapidamente uma lista de livros relacionados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:771
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Exporta livros de sua biblioteca calibre para o disco rígido"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:776
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Mostrar detalhes do livro numa janela popup separada"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 msgid "Restart calibre"
-msgstr ""
+msgstr "Reiniciar calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 msgid "Open the folder that contains the book files in your calibre library"
@@ -380,7 +380,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:792
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Enviar livros para o dispositivo conectado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:797
 msgid ""
@@ -391,32 +391,33 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:803
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr "Navegar no Manual do Usuário do calibre"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:808
 msgid "Customize calibre"
-msgstr ""
+msgstr "Personalizar o calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:813
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Encontra facilmente livros similares ao atualmente selecionado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:818
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
+"Alterna entre diferentes bibliotecas calibre e realiza manutenção nelas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:824
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Copiar livros de um dispositivo para sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:829
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Editar as coleções em que os livros estão no seu dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:834
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Copia um livro de uma biblioteca calibre para outra"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:839
 msgid "Make small tweaks to epub files in your calibre library"
@@ -430,7 +431,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Escolhe aleatoriamente um livro em sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:857
 msgid "Search for books from different book sellers"
@@ -472,7 +473,7 @@ msgstr "Adiciona suas próprias colunas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:921
 msgid "Add/remove your own columns to the calibre book list"
-msgstr "Adiciona/remove suas próprias colunas na lista de livro do calibre"
+msgstr "Adiciona/remove suas próprias colunas na lista de livros do calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:926
 msgid "Toolbar"
