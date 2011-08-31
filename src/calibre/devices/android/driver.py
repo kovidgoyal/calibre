@@ -184,3 +184,24 @@ class S60(USBMS):
 
     VENDOR_NAME = 'NOKIA'
     WINDOWS_MAIN_MEM = 'S60'
+
+class WEBOS(USBMS):
+
+    name           = 'WebOS driver'
+    gui_name       = 'WebOS Tablet'
+    description    = _('Communicate with WebOS tablets.')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['mobi', 'azw', 'prc']
+
+    VENDOR_ID   = [0x0830]
+    PRODUCT_ID  = [0x8074]
+    BCD         = [0x0327]
+
+    EBOOK_DIR_MAIN = '.palmkindle'
+    VENDOR_NAME = 'HP'
+    WINDOWS_MAIN_MEM = 'WEBOS-DEVICE'
+
+
