@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-24 21:13+0000\n"
-"Last-Translator: koliberek <Unknown>\n"
+"PO-Revision-Date: 2011-08-30 17:24+0000\n"
+"Last-Translator: Johnny J <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-08-27 04:49+0000\n"
-"X-Generator: Launchpad (build 13794)\n"
+"X-Launchpad-Export-Date: 2011-08-31 04:32+0000\n"
+"X-Generator: Launchpad (build 13815)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -18807,7 +18807,7 @@ msgstr "Książki w twojej bibliotece"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:277
 msgid "By "
-msgstr "według "
+msgstr "autorstwa "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:278
 msgid "Books sorted by "

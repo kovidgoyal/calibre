@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-28 18:09+0000\n"
+"PO-Revision-Date: 2011-08-30 16:48+0000\n"
 "Last-Translator: Sidorychev Alexander <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-08-29 04:32+0000\n"
-"X-Generator: Launchpad (build 13794)\n"
+"X-Launchpad-Export-Date: 2011-08-31 04:32+0000\n"
+"X-Generator: Launchpad (build 13815)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -4333,7 +4333,7 @@ msgstr "Сортировать список меток по названию, п
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:126
 msgid "Match tags by any or all."
-msgstr ""
+msgstr "Выберите теги по одному или все."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:128
 msgid "Number of covers to show in the cover browsing mode"
@@ -4436,6 +4436,8 @@ msgid ""
 "The layout of the user interface. Wide has the book details panel on the "
 "right and narrow has it at the bottom."
 msgstr ""
+"Макет пользовательского интерфейса. При широком панель сведений о книге "
+"справа, при узком внизу."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:196
 msgid "Show the average rating per item indication in the tag browser"
@@ -4571,7 +4573,7 @@ msgstr "Нет Выбранных книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:88
 msgid "Cannot add files as no books are selected"
-msgstr ""
+msgstr "Не удается добавить файлы, книга не выбрана"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:92
 msgid "Are you sure"
@@ -4674,7 +4676,7 @@ msgstr "Не поддерживается"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:57
 msgid "Fetching annotations is not supported for this device"
-msgstr ""
+msgstr "Получение аннотации не поддерживается для этого устройства"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:245
@@ -4697,7 +4699,7 @@ msgstr "Добавить пользовательские аннотации в 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:123
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Последняя прочитаная стр.: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:129
 #, python-format
@@ -4712,7 +4714,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 #, python-format
 msgid "<b>Page %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Страница %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:162
 #, python-format
@@ -4721,7 +4723,7 @@ msgstr "<b>Размещение %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
-msgstr ""
+msgstr "Создать каталог"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:34
 msgid "No books selected for catalog generation"
@@ -4907,7 +4909,7 @@ msgstr "Статус резервирования"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:326
 #, python-format
 msgid "Book metadata files remaining to be written: %s"
-msgstr ""
+msgstr "Осталось записать файлов метаданных книги: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:332
 msgid "Backup metadata"
@@ -4918,6 +4920,8 @@ msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book every three seconds."
 msgstr ""
+"Метаданные будут резервироваться пока calibre запущен, примерно 1 книга в 3 "
+"секунды."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:342
 #, python-format
@@ -4926,6 +4930,9 @@ msgid ""
 "to a location with a shorter path using Windows Explorer, then point calibre "
 "to the new location and try again."
 msgstr ""
+"Путь до библиотеки слишком длинный. Должен быть короче на %d символов. "
+"Переместите вашу библиотеку в директорию с коротким путем, используя Windows "
+"Explorer, затем укажите calibre новый путь и попробуйте снова."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:733
@@ -4941,6 +4948,8 @@ msgid ""
 "Found no errors in your calibre library database. Do you want calibre to "
 "check if the files in your  library match the information in the database?"
 msgstr ""
+"Ошибок в базе calibre не найдено. Хотите чтобы calibre проверил, совпадают "
+"ли файлы с информацией в базе?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:383
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:186
@@ -8582,12 +8591,13 @@ msgstr "Пере&местить текущую библиотеку на нов�
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:23
 #, python-format
 msgid "Add \"%s\" to toolbars or menus"
-msgstr ""
+msgstr "Добавить \"%s\" на панель инструментов или в меню"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:29
 #, python-format
 msgid "Select the toolbars and/or menus to add <b>%s</b> to:"
 msgstr ""
+"Выберите панель инструментов и/или меню для добавления в них <b>%s</b> :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:45
 msgid ""
@@ -8674,6 +8684,8 @@ msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
 msgstr ""
+"Все выделенные книги будут <b>безвозвратно удалены</b> из вашего устройства. "
+"Пожалуйста, проверьте список."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
 msgid "Location"
