@@ -98,10 +98,10 @@ class RecipeInput(InputFormatPlugin):
                 raise ValueError('%r is not a valid recipe file or builtin recipe' %
                         recipe_or_file)
 
-            ro = recipe(opts, log, self.report_progress)
-            disabled = getattr(ro, 'recipe_disabled', None)
+            disabled = getattr(recipe, 'recipe_disabled', None)
             if disabled is not None:
                 raise RecipeDisabled(disabled)
+            ro = recipe(opts, log, self.report_progress)
             ro.download()
             self.recipe_object = ro
 
