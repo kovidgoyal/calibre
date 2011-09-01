@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-29 10:00+0000\n"
-"Last-Translator: Sebastian Morkisch <Unknown>\n"
+"PO-Revision-Date: 2011-08-31 23:22+0000\n"
+"Last-Translator: Marton Huebler <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-30 04:46+0000\n"
-"X-Generator: Launchpad (build 13794)\n"
+"X-Launchpad-Export-Date: 2011-09-01 04:36+0000\n"
+"X-Generator: Launchpad (build 13827)\n"
 "Generated-By: pygettext.py 1.5\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2764,6 +2764,8 @@ msgid ""
 "Left aligned scene break markers are center aligned. Replace soft scene "
 "breaks that use multiple blank lines with horizontal rules."
 msgstr ""
+"Linksbündige Abschnittswechsel werden zentriert. Weiche Abschnittswechsel, "
+"die mehrere Leerzeilen benutzen, werden mit horizontalen Linien ersetzt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:565
 msgid ""
@@ -3824,6 +3826,13 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"Zusätzliche Metadaten können vom Anbieter für geschützte digitale Inhalte - "
+"Overdrive.com - geladen werden. Dies beinhaltet eine Reihe von "
+"Schlagwörtern, die in Bibliotheken und Kommentaren genutzt werden, wozu auch "
+"die ISBN des eBooks, einschließlich der verwendeten  Sprachen erhältlich "
+"sind. Die Sammlung dieser Daten ist wegen zusätzlich benötigter Zeit zur "
+"Gewinnung, standardmäßig abgeschaltet. Wählen Sie die Option \"Alle "
+"Metadaten laden\" weiter unten, um die Metadaten trotzdem herunterzuladen."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:24
 msgid "Downloads metadata and covers from OZON.ru"
@@ -3994,6 +4003,8 @@ msgid ""
 "Could not find reasonable point at which to split: %(path)s Sub-tree size: "
 "%(size)d KB"
 msgstr ""
+"Konnte keine passende Stelle zum Aufteilen finden: Baumgröße von %(path)s "
+"ist %(size)d KB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
@@ -4537,6 +4548,9 @@ msgid ""
 "with a txt-output-formatting option that is not none because links are "
 "always removed with plain text output."
 msgstr ""
+"Links im Dokument nicht enfernen. Dies ist nur sinnvoll, wenn es gemeinsam "
+"mit einer txt-output-formatting Option, die nicht \"none\" ist, benutzt wird "
+"- da bei einfacher Textausgabe Links immer entfernt werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:66
 msgid ""
@@ -4544,6 +4558,10 @@ msgid ""
 "paired with a txt-output-formatting option that is not none because links "
 "are always removed with plain text output."
 msgstr ""
+"Abbildungen im Dokument nicht enfernen. Dies ist nur sinnvoll, wenn es "
+"gemeinsam mit einer txt-output-formatting Option, die nicht \"none\" ist, "
+"benutzt wird - da bei einfacher Textausgabe Abbildungen immer entfernt "
+"werden."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:71
 msgid ""
@@ -12686,7 +12704,7 @@ msgstr "Ändern sie, wie Calibre Metadaten herunterlädt"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:290
 #, python-format
 msgid " [%(num)d of %(tot)d]"
-msgstr ""
+msgstr " [%(num)d von %(tot)d]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:332
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:339
@@ -12869,7 +12887,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:69
 msgid "Read &metadata from file contents rather than file name"
-msgstr ""
+msgstr "&Metadaten aus Dateiinhalt statt Dateinamen lesen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:70
 msgid ""

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-05 17:08+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-08-31 23:03+0000\n"
+"Last-Translator: PALOTAI ÉVA <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-27 04:45+0000\n"
-"X-Generator: Launchpad (build 13794)\n"
+"X-Launchpad-Export-Date: 2011-09-01 04:36+0000\n"
+"X-Generator: Launchpad (build 13827)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -258,9 +258,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"PMLZ archívum készítése, amely tartalmazza a PML fájlt és a hozzá kapcsolódó "
-"képeket a 'pmlnév_img' vagy az 'images' mappában. Ez a plugin minden "
-"alkalommal elindul, amikor egy PML fájlt ad a könyvtárhoz."
+"Egy  PMLZ archívumot készít,  amely tartalmazza a PML fájlt és a hozzá "
+"kapcsolódó képeket a 'pmlnév_img' vagy az 'images' könyvtárban. Ez a plugin "
+"minden alkalommal elindul, amikor egy PML fájlt ad a könyvtárhoz."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:50
 msgid ""
@@ -268,9 +268,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
-"Új TXTZ archívum létrehozása, ha olyan TXT fájlt importálunk, amely Markdown "
-"vagy Textile referenciákat tartamlaz képekre. A hivatkozott képek és a TXT "
-"is hozzá lesz adva az archívumhoz."
+"Új TXTZ archívumot hoz létre, ha olyan TXT fájlt importálunk, amely Markdown "
+"vagy Textile referenciákat tartalmaz képekre. A hivatkozott képek és a TXT "
+"fájl is hozzá lesz adva az archívumhoz."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
@@ -417,7 +417,7 @@ msgstr "Bemásolhatsz könyeket a calibre könyvtáradba"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:829
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Szerkeszthető az olvasódon található könyvek gyüjteménye"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:834
 msgid "Copy a book from one calibre library to another"
@@ -431,7 +431,7 @@ msgstr ""
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
-msgstr ""
+msgstr "Kereséskor kiemeli a calibre könyvtáradban található egyezéseket"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:850
 msgid "Choose a random book from your calibre library"
@@ -693,7 +693,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "%s  formátumba konvertálja az e-könyveket"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -926,6 +926,7 @@ msgstr "A bővítmény letiltása"
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
+"Túl hosszú az elérési út a könyvtárhoz. Kevesebb mint %d karakter lehet"
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:136
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:647
@@ -946,7 +947,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1101
 msgid "Card A"
-msgstr ""
+msgstr "\"A\" kártya"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
@@ -2941,7 +2942,7 @@ msgstr "CSS filet ad kimenetként az alapértelmezett helyett"
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
-msgstr ""
+msgstr "Sablon alapján HTML index fájl-t generál az alapértelmezett helyett."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:38
 msgid ""
@@ -2972,6 +2973,8 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "cp1251, latin1 and utf-8."
 msgstr ""
+"A bejövő HTML fájl karakterkódolása. Alapból a cp1252, cp1251, latin1 and "
+"utf-8-at tartalmazza."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
@@ -2989,6 +2992,7 @@ msgstr ""
 #, python-format
 msgid "Multiple HTML files found in the archive. Only %s will be used."
 msgstr ""
+"Az archívum többszörös HTML fájlt tartalmaz. Csak a%s lesz felhasználva"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:68
 msgid "No top level HTML file found."
@@ -3681,6 +3685,9 @@ msgid ""
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 msgstr ""
+"Hagyja figyelmen kívül az eredeti dokumentum margóit. \r\n"
+"Ha \"False\", akkor a MOBI plugin megpróbálja az eredeti dokumentumban "
+"megadott margókat konvertálni, egyébként figyelmen kívül hagyja."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:50
 msgid ""
@@ -4126,6 +4133,8 @@ msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "full first page of the generated pdf."
 msgstr ""
+"Megőrzi a borító eredeti képarányát, ahelyett, hogy kitöltené a generált pdf "
+"teljes első oldalát."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/pdftohtml.py:57
 msgid "Could not find pdftohtml, check it is in your PATH"
@@ -4144,6 +4153,9 @@ msgid ""
 "depth reduced by default to accommodate applications that can not convert "
 "images on their own such as Dropbook."
 msgstr ""
+"Ne csökkentse a képek méretét, vagy bitmélységét. Ez alapból megtörténik, "
+"hogy megfeleljen olyan alkalmazásoknak, mint a Dropbook, melyek maguk nem "
+"tudják a képeket konvertálni."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -4202,6 +4214,8 @@ msgid ""
 "Specify whether or not to hide the chapter title for each chapter. Useful "
 "for image-only output (eg. comics)."
 msgstr ""
+"Határozza meg, hogy mutassa, vagy elrejtse-e az összes fejezet címét. "
+"Hasznos pl. a képregényeknél."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:48
 msgid "Resize all the images for full screen view. "
@@ -4712,7 +4726,7 @@ msgstr "Csak könyvárat használjon"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:246
 msgid "User annotations generated from main library only"
-msgstr ""
+msgstr "Felhasználói megjegyzéseket csak a főkönyvtárból lehet generálni."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:70
 msgid "No books selected to fetch annotations from"
@@ -4920,6 +4934,8 @@ msgid ""
 "The library %s has been removed from calibre. The files remain on your "
 "computer, if you want to delete them, you will have to do so manually."
 msgstr ""
+"A %s könyvtárat eltávolították a calibre-ből. A fájlok megmaradtak a "
+"számítógépén, ha törölni akarja azokat, tegye meg manuálisan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "none"
@@ -4953,6 +4969,9 @@ msgid ""
 "to a location with a shorter path using Windows Explorer, then point calibre "
 "to the new location and try again."
 msgstr ""
+"A könyvtár elérési útvonala túl hosszú. Kevesebb, mint %d karakter lehet. "
+"Helyezze át a könytárat a Windows Explorer használatával, majd jelölje meg a "
+"Calibrenek az új útvonalat és próbálja újra."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:733
@@ -5151,7 +5170,7 @@ msgstr "Bizonyos formátumú könyvek törlése a kiválasztottakból..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:98
 msgid "Remove all formats from selected books, except..."
-msgstr ""
+msgstr "Távolítsa el a kiválasztott könyvek minden formázását, kivéve..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:101
 msgid "Remove all formats from selected books"

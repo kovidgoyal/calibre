@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-30 16:30+0000\n"
-"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
+"PO-Revision-Date: 2011-08-31 16:16+0000\n"
+"Last-Translator: scipo <Unknown>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-08-31 04:32+0000\n"
-"X-Generator: Launchpad (build 13815)\n"
+"X-Launchpad-Export-Date: 2011-09-01 04:37+0000\n"
+"X-Generator: Launchpad (build 13827)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1051,6 +1051,11 @@ msgid ""
 "your calibre configuration directory.</p><p>Enabling indicates that iTunes "
 "is configured to store copies in your iTunes Media folder.</p>"
 msgstr ""
+"<p>Questa impostazione deve corrispondere a quella in iTunes "
+"<i>Preferenze</i>|<i>Avanzate</i>.</p><p>Se disabilitata copie dei libri "
+"trasferiti verso iTunes saranno salvate nella cartella di configurazione di "
+"calibre.</p><p>Se abilitata indica che iTunes è configurato per salvare le "
+"copie nella cartella Media di iTunes.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
 msgid "Apple device"
@@ -3089,12 +3094,12 @@ msgstr "Trovati diversi file HTML nell'archivio. Sarà utilizzato solo %s."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:68
 msgid "No top level HTML file found."
-msgstr ""
+msgstr "Nessun file HTML di primo livello trovato."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:71
 #, python-format
 msgid "Top level HTML file %s is empty"
-msgstr ""
+msgstr "Il file HTML di primo livello %s è vuoto"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/output.py:30
 msgid ""
@@ -3163,7 +3168,7 @@ msgstr "%s è un file vuoto"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:565
 #, python-format
 msgid "Failed to parse link %(tag)s %(children)s"
-msgstr ""
+msgstr "Errore nel parsing del link %(tag)s %(children)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:610
 #, python-format
@@ -7264,6 +7269,7 @@ msgstr "Rileva e marca titoli e sottotitoli non formattati dei capitoli"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:119
 msgid "Renumber sequences of <h1> or <h2> tags to prevent splitting"
 msgstr ""
+"Rinumera sequenze di tag <h1> o <h2> per evitare di spezzare il testo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:120
 msgid "Delete blank lines between paragraphs"
@@ -9688,7 +9694,7 @@ msgstr "Tipo di identificatore:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:607
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:629
 msgid "Choose which identifier type to operate upon"
-msgstr ""
+msgstr "Scegli su quale identificatore lavorare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:608
 msgid "Te&mplate:"
@@ -9773,6 +9779,10 @@ msgid ""
 "is\n"
 "not multiple and the destination field is multiple"
 msgstr ""
+"Specifica se i risultati devono essere spezzati in valori multipli o\n"
+"lasciati come valori singoli. Questa opzione ha effetto maggiore se il "
+"campo\n"
+"d'origine non è multiplo e quello di destinazione invece lo è"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:627
 msgid "Split &result"
@@ -9795,6 +9805,8 @@ msgid ""
 "Used when displaying test results to separate values in multiple-valued "
 "fields"
 msgstr ""
+"Usando per separare i valori in campi multivalore quando si mostrano i "
+"risultati dei test"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:634
 msgid "Test text"
@@ -9903,6 +9915,10 @@ msgid ""
 "\n"
 "Right-click and choose Donate to reward: "
 msgstr ""
+"Questo plugin è GRATUITO ma puoi premiare lo sviluppatore per il suo sforzo\n"
+"con un dono via PayPal.\n"
+"\n"
+"Clicca con il pulsante destro e scegli Dona per premiarlo: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:387
 msgid "Platform unavailable"
@@ -10510,14 +10526,22 @@ msgid ""
 "<p>Also, the setting for deleting periodicals older than a number of days, "
 "below, takes priority over this setting."
 msgstr ""
+"<p>Se impostata, questa opzione fa sì che calibre conservi al massimo il "
+"numero specificato di uscite di questo periodico. Ogni volta che viene "
+"scaricata una nuova uscita, la più vecchia viene cancellata se il totale è "
+"maggiore di questo numero.\n"
+"<p>Nota che questa opzione funziona solo se hai impostato sopra l'opzione "
+"per aggiungere il titolo come tag.\n"
+"<p>Inoltre, l'impostazione più sotto per cancellare periodici più vecchi di "
+"un numero di giorni ha priorità su questa opzione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "all issues"
-msgstr ""
+msgstr "tutte le uscite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid " issues"
-msgstr ""
+msgstr " uscite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:228
 msgid "&Advanced"
