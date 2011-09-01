@@ -179,6 +179,9 @@ class AjaxServer(object):
         the metadata. The format for the metadata is the same as in
         ajax_book(). If no book is found for a given id, it is mapped to null
         in the dictionary.
+
+        This endpoint can be used with either GET or POST requests, variable
+        name is ids: /ajax/books?ids=1,2,3,4,5
         '''
         if ids is None:
             raise cherrypy.HTTPError(404, 'Must specify some ids')
