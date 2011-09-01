@@ -55,11 +55,9 @@ class BookotekaStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//a[@class="item_link"]/@style'))
-                cover_url = re.sub(r'.*\(', '', cover_url)
-                cover_url = re.sub(r'\).*', '', cover_url)
+                cover_url = ''.join(data.xpath('.//a[@class="item_link"]/img/@src'))
                 title = ''.join(data.xpath('.//div[@class="shelf_title"]/a/text()'))
-                author = ''.join(data.xpath('.//div[@class="shelf_authors"]/text()'))
+                author = ''.join(data.xpath('.//div[@class="shelf_authors"][1]/text()'))
                 price = ''.join(data.xpath('.//span[@class="EBOOK"]/text()'))
                 price = price.replace('.', ',')
                 formats = ', '.join(data.xpath('.//a[@class="fancybox protected"]/text()'))
