@@ -93,8 +93,9 @@ class AjaxServer(object):
     def add_routes(self, connect):
         base_href = '/ajax'
 
-        # Metadata for a particular book
+        # Metadata for books
         connect('ajax_book', base_href+'/book/{book_id}', self.ajax_book)
+        connect('ajax_books', base_href+'/books', self.ajax_books)
 
         # The list of top level categories
         connect('ajax_categories', base_href+'/categories',
@@ -113,26 +114,12 @@ class AjaxServer(object):
 
 
     # Get book metadata {{{
-    @Endpoint()
-    def ajax_book(self, book_id):
-        '''
-        Return the metadata of the book as a JSON dictionary.
-        '''
-        cherrypy.response.headers['Content-Type'] = \
-                'application/json; charset=utf-8'
-        try:
-            book_id = int(book_id)
-            mi = self.db.get_metadata(book_id, index_is_id=True)
-        except:
-            raise cherrypy.HTTPError(404, 'No book with id: %r'%book_id)
+    def ajax_book_to_json(self, book_id):
+        mi = self.db.get_metadata(book_id, index_is_id=True)
         try:
             mi.rating = mi.rating/2.
         except:
             mi.rating = 0.0
-        cherrypy.response.timeout = 3600
-        cherrypy.response.headers['Last-Modified'] = \
-                self.last_modified(mi.last_modified)
-
         data = self.ajax_json_codec.encode_book_metadata(mi)
         for x in ('publication_type', 'size', 'db_id', 'lpath', 'mime',
                 'rights', 'book_producer'):
@@ -164,7 +151,61 @@ class AjaxServer(object):
         data['other_formats'] = {fmt: absurl(self.opts.url_prefix, u'/get/%s/%d'%(fmt, book_id)) for fmt
                 in other_fmts}
 
+        return data, mi.last_modified
+
+    @Endpoint(set_last_modified=False)
+    def ajax_book(self, book_id):
+        '''
+        Return the metadata of the book as a JSON dictionary.
+        '''
+        cherrypy.response.timeout = 3600
+
+        try:
+            book_id = int(book_id)
+            data, last_modified = self.ajax_book_to_json(book_id)
+        except:
+            raise cherrypy.HTTPError(404, 'No book with id: %r'%book_id)
+
+        cherrypy.response.headers['Last-Modified'] = \
+                self.last_modified(last_modified)
+
         return data
+
+    @Endpoint(set_last_modified=False)
+    def ajax_books(self, ids=None):
+        '''
+        Return the metadata for a list of books specified as a comma separated
+        list of ids. The metadata is returned as a dictionary mapping ids to
+        the metadata. The format for the metadata is the same as in
+        ajax_book(). If no book is found for a given id, it is mapped to null
+        in the dictionary.
+        '''
+        if ids is None:
+            raise cherrypy.HTTPError(404, 'Must specify some ids')
+        try:
+            ids = set(int(x.strip()) for x in ids.split(','))
+        except:
+            raise cherrypy.HTTPError(404, 'ids must be a comma separated list'
+                    ' of integers')
+        ans = {}
+        lm = None
+        for book_id in ids:
+            try:
+                data, last_modified = self.ajax_book_to_json(book_id)
+            except:
+                ans[book_id] = None
+            else:
+                ans[book_id] = data
+                if lm is None or last_modified > lm:
+                    lm = last_modified
+
+        cherrypy.response.timeout = 3600
+        cherrypy.response.headers['Last-Modified'] = \
+                self.last_modified(lm if lm is not None else
+                        self.db.last_modified())
+
+        return ans
+
     # }}}
 
     # Top level categories {{{
