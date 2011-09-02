@@ -162,6 +162,17 @@ class CBDialog(QDialog):
 
         self.pre_fs_geom = None
         cover_flow.setFocus(Qt.OtherFocusReason)
+        self.view_action = a = QAction(self)
+        iactions = parent.iactions
+        self.addAction(a)
+        a.setShortcuts(list(iactions['View'].menuless_qaction.shortcuts())+
+                [QKeySequence(Qt.Key_Space)])
+        a.triggered.connect(iactions['View'].menuless_qaction.trigger)
+        self.sd_action = a = QAction(self)
+        self.addAction(a)
+        a.setShortcuts(list(iactions['Send To Device'].
+            menuless_qaction.shortcuts()))
+        a.triggered.connect(iactions['Send To Device'].menuless_qaction.trigger)
 
     def closeEvent(self, *args):
         if not self.isFullScreen():

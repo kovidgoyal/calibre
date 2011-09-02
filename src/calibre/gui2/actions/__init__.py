@@ -199,7 +199,7 @@ class InterfaceAction(QObject):
         the keyboard shortcuts for this action. By default it is set to the
         value of ``text``.
 
-        :return: The created Qation, This action has one extra attribute
+        :return: The created QAction, This action has one extra attribute
         calibre_shortcut_unique_name which if not None refers to the unique
         name under which this action is registered with the keyboard manager.
         '''
