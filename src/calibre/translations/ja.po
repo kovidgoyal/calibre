@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-08-26 17:29+0000\n"
-"PO-Revision-Date: 2011-08-26 15:33+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-09-01 05:40+0000\n"
+"Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-08-27 04:46+0000\n"
-"X-Generator: Launchpad (build 13794)\n"
+"X-Launchpad-Export-Date: 2011-09-02 04:39+0000\n"
+"X-Generator: Launchpad (build 13830)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -4278,7 +4278,7 @@ msgstr "最大同時処理数をCPUの数に制限する。"
 msgid ""
 "The layout of the user interface. Wide has the book details panel on the "
 "right and narrow has it at the bottom."
-msgstr ""
+msgstr "ユーザーインターフェイスのレイアウト。「広い」の時は書籍の詳細情報パネルが右に表示され、「狭い」の時は下に表示されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:196
 msgid "Show the average rating per item indication in the tag browser"
@@ -4557,7 +4557,7 @@ msgstr "<b>場所：%(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
-msgstr ""
+msgstr "カタログ作成"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:34
 msgid "No books selected for catalog generation"
@@ -11888,11 +11888,11 @@ msgstr "ソート用タイトルをタイトルから設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:134
 msgid "Copy author to author sort"
-msgstr ""
+msgstr "著者を著者ソートへコピー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:136
 msgid "Copy author sort to author"
-msgstr ""
+msgstr "著者ソートを著者へコピー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:147
 msgid "Swap the author and title"
@@ -13257,12 +13257,12 @@ msgstr "表紙ブラウザーで表示される表紙の数（要リスタート
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:231
 msgid "When showing cover browser in separate window, show it &fullscreen"
-msgstr ""
+msgstr "表紙ブラウザーを別ウインドウで表示する場合、フルスクリーンで表示する。(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
 #, python-format
 msgid "You can press the %s keys to toggle full screen mode."
-msgstr ""
+msgstr "%s キーでフルスクリーンモードをトグルすることができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:260
 msgid "Main Interface"
@@ -14370,7 +14370,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:324
 msgid "Search for tweak"
-msgstr ""
+msgstr "tweakを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:338
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:378
@@ -19288,6 +19288,18 @@ msgid ""
 "Acme\n"
 "Inc. will be Acme Inc. instead of Inc., Acme"
 msgstr ""
+"著者名を著者名ソートへコピーする時に使うアルゴリズム。\n"
+"使用できる値は：\n"
+"invert: \"fn ln\" を \"ln, fn\"にする。\n"
+"copy  : 変更なしに著者から著者ソートへコピー\n"
+"comma : もし名前に','が使われていれば、'copy'、それ以外の場合には 'invert'\n"
+"nocomma : \"fn ln\" から \"ln fn\" にする。(コンマ無し)\n"
+"このtweakが変更された時には、著者と一緒に保存されているauthor_sort "
+"の値を再計算する必要があります。左側のタグの部分で著者の部分を右クリックして、'著者を管理'を選択肢し、'全ての著者名（ソート）の値を再計算する'を選んで"
+"ください。\n"
+"著者名の接尾辞は著者名の最後にある場合に無視される言葉です。 接尾辞の大小文字は無視され最後のピリオドは自動的に処理されます。\n"
+"「著者名コピー語」はいくつかの単語で、著者ソートにコピーする時に、これらが著者名にあった場合、自動的に著者ソートが著者の内容と同一になることを保証します。"
+"つまり\"Acme Inc.\"はそのままコピーされ、\"Inc., Acme\"にはならないという事です。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:75
 msgid "Use author sort in Tag Browser"
@@ -19539,6 +19551,13 @@ msgid ""
 "in French, use: \"^(A\\s+|The\\s+|An\\s+|L')\" instead.\n"
 "Default: '^(A|The|An)\\s+'"
 msgstr ""
+"タイトル・ソート文字列を計算時に「冠詞」として扱われるワードのリスト。このリストは正規表現で、冠詞を'or'機能のバー「|」で区切った物になります。比較は"
+"大小文字無視で行われ、それは変更できません。このtweakへの変更は書籍がなんらかの方法で修正されるまで有効になりません。もし無効なパターンを入力した場合"
+"、これは単純に無視されます。\n"
+"無効にする場合には次の表現を使ってください： '^$'\n"
+"この表現は後ろに空白を伴う冠詞を想定しています。もし後ろに他の文字をともなう冠詞にもマッチさせたい場合、例えばフランス語のL'の場合には、かわりに "
+"\"^(A\\s+|The\\s+|An\\s+|L')\" を使ってください。\n"
+"ディフォールト: '^(A|The|An)\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:193
 msgid "Specify a folder calibre should connect to at startup"
