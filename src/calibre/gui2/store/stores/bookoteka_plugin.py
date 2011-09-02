@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
 import urllib
 from contextlib import closing
 
@@ -24,7 +23,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class BookotekaStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        
+
         url = 'http://bookoteka.pl/ebooki'
         detail_url = None
 
@@ -41,16 +40,16 @@ class BookotekaStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://bookoteka.pl/list?search=' + urllib.quote_plus(query) + '&cat=1&hp=1&type=1'
-        
+
         br = browser()
-        
+
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
             for data in doc.xpath('//li[@class="EBOOK"]'):
                 if counter <= 0:
                     break
-                
+
                 id = ''.join(data.xpath('.//a[@class="item_link"]/@href'))
                 if not id:
                     continue
@@ -63,7 +62,7 @@ class BookotekaStore(BasicStoreConfig, StorePlugin):
                 formats = ', '.join(data.xpath('.//a[@class="fancybox protected"]/text()'))
 
                 counter -= 1
-                
+
                 s = SearchResult()
                 s.cover_url = 'http://bookoteka.pl' + cover_url
                 s.title = title.strip()
@@ -72,5 +71,5 @@ class BookotekaStore(BasicStoreConfig, StorePlugin):
                 s.detail_item = 'http://bookoteka.pl' + id.strip()
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.formats = formats.strip()
-                
+
                 yield s
