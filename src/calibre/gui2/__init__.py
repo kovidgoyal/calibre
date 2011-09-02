@@ -425,6 +425,7 @@ class FileIconProvider(QFileIconProvider):
              'mobi'    : 'mobi',
              'mbp'     : 'zero',
              'azw1'    : 'mobi',
+             'azw4'    : 'pdf',
              'tpz'     : 'mobi',
              'tan'     : 'zero',
              'epub'    : 'epub',
