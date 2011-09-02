@@ -84,7 +84,9 @@ In order to convert a collection of HTML files in a specific oder, you have to c
       </body>
    </html>
 
-Then just add this HTML file to the GUI and use the convert button to create your ebook.
+Then just add this HTML file to the GUI and use the convert button to create your ebook. 
+
+.. note:: By default, when adding HTML files, |app| follows links in the files in *depth first* order. This means that if file A.html links to B.html and C.html and D.html, but B.html also links to D.html, then the files will be in the order A.html, B.html, D.html, C.html. If instead you want the order to be A.html, B.html, C.html, D.html then you must tell |app| to add your files in *breadth first* order. Do this by going to Preferences->Plugins and customizing the HTML to ZIP plugin.
 
 
 How do I use some of the advanced features of the conversion tools?
