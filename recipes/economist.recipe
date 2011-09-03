@@ -77,32 +77,23 @@ class Economist(BasicNewsRecipe):
                 continue
             self.log('Found section: %s'%section_title)
             articles = []
-            for h5 in section.findAll('h5'):
-                article_title = self.tag_to_string(h5).strip()
-                if not article_title:
-                    continue
-                data = h5.findNextSibling(attrs={'class':'article'})
-                if data is None: continue
-                a = data.find('a', href=True)
-                if a is None: continue
-                url = a['href']
-                if url.startswith('/'): url = 'http://www.economist.com'+url
-                url += '/print'
-                article_title += ': %s'%self.tag_to_string(a).strip()
-                articles.append({'title':article_title, 'url':url,
-                    'description':'', 'date':''})
-            if not articles:
-                # We have last or first section
-                for art in section.findAll(attrs={'class':'article'}):
-                    a = art.find('a', href=True)
-                    if a is not None:
-                        url = a['href']
-                        if url.startswith('/'): url = 'http://www.economist.com'+url
-                        url += '/print'
-                        title = self.tag_to_string(a)
-                        if title:
-                            articles.append({'title':title, 'url':url,
-                            'description':'', 'date':''})
+            subsection = ''
+            for node in section.findAll(attrs={'class':'article'}):
+                subsec = node.findPreviousSibling('h5')
+                if subsec is not None:
+                    subsection = self.tag_to_string(subsec)
+                prefix = (subsection+': ') if subsection else ''
+                a = node.find('a', href=True)
+                if a is not None:
+                    url = a['href']
+                    if url.startswith('/'): url = 'http://www.economist.com'+url
+                    url += '/print'
+                    title = self.tag_to_string(a)
+                    if title:
+                        title = prefix + title
+                        self.log('\tFound article:', title)
+                        articles.append({'title':title, 'url':url,
+                        'description':'', 'date':''})
 
             if articles:
                 if section_title not in feeds:
