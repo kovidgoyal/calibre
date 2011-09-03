@@ -87,8 +87,6 @@ Constants you probably do not need to change
 -----------------------------------------------------------------------------
 """
 
-EXECUTABLE_NAME_FOR_USAGE = "python markdown.py"
-
 RTL_BIDI_RANGES = ( (u'\u0590', u'\u07FF'),
                      # Hebrew (0590-05FF), Arabic (0600-06FF),
                      # Syriac (0700-074F), Arabic supplement (0750-077F),
@@ -603,57 +601,9 @@ def markdownFromFile(input = None,
     md.convertFile(input, output, encoding)
 
 
-OPTPARSE_WARNING = """
-Python 2.3 or higher required for advanced command line options.
-For lower versions of Python use:
-
-      %s INPUT_FILE > OUTPUT_FILE
-
-""" % EXECUTABLE_NAME_FOR_USAGE
-
-def parse_options():
-    import optparse
-    parser = optparse.OptionParser(usage="%prog INPUTFILE [options]")
-
-    parser.add_option("-f", "--file", dest="filename",
-                      help="write output to OUTPUT_FILE",
-                      metavar="OUTPUT_FILE")
-    parser.add_option("-e", "--encoding", dest="encoding",
-                      help="encoding for input and output files",)
-    parser.add_option("-s", "--safe", dest="safe_mode", default=False,
-                      help="same mode ('replace', 'remove' or 'escape'  user's HTML tag)")
-    parser.add_option("-m", "--output_format", default=DEFAULT_OUTPUT_FORMAT,
-                      dest="output_format",
-                      help="output formats ('xhtml1', 'xhtml', 'html4' or html)")
-    parser.add_option("-x", "--extension", action="append", dest="extensions",
-                      help = "load extension EXTENSION", metavar="EXTENSION")
-
-    (options, args) = parser.parse_args()
-
-    if not len(args) == 1:
-        parser.print_help()
-        return None
-    else:
-        input_file = args[0]
-
-    if not options.extensions:
-        options.extensions = []
-
-    return {'input': input_file,
-            'output': options.filename,
-            'safe_mode': options.safe_mode,
-            'extensions': options.extensions,
-            'encoding': options.encoding,
-            'output_format': options.output_format }
-
-
 def main():
-    options = parse_options()
-
-    if not options:
-        sys.exit(0)
-
-    markdownFromFile(**options)
+    from commandline import run
+    run()
 
 
 if __name__ == '__main__':
