@@ -63,7 +63,7 @@ authors_completer_append_separator = False
 # end of an author name. The case of the suffix is ignored and trailing
 # periods are automatically handled.
 # The author name copy words are a set of words which if they occur in an
-# author name cause the automatically geenrated author sort string to be
+# author name cause the automatically generated author sort string to be
 # identical to the author name. This means that the sort for a string like Acme
 # Inc. will be Acme Inc. instead of Inc., Acme
 author_sort_copy_method = 'comma'
