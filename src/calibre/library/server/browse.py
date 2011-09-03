@@ -695,8 +695,8 @@ class BrowseServer(object):
                         for tag in dbtags:
                             tval = ('<a title="Browse books by {3}: {0}"'
                             ' href="{1}" class="details_category_link">{2}</a>')
-                            href='/browse/matches/%s/%s' % \
-                            (quote(tag.category), quote(str(tag.id)))
+                            href='%s/browse/matches/%s/%s' % \
+                            (self.opts.url_prefix, quote(tag.category), quote(str(tag.id)))
                             vals.append(tval.format(xml(tag.name, True),
                                 xml(href, True),
                                 xml(val if len(dbtags) == 1 else tag.name),

@@ -8,7 +8,7 @@ Added parsing of Definition Lists to Python-Markdown.
 A simple example:
 
     Apple
-    :   Pomaceous fruit of plants of the genus Malus in 
+    :   Pomaceous fruit of plants of the genus Malus in
         the family Rosaceae.
     :   An american computer company.
 
@@ -80,11 +80,11 @@ class DefListIndentProcessor(markdown.blockprocessors.ListIndentProcessor):
     ITEM_TYPES = ['dd']
     LIST_TYPES = ['dl']
 
-    def create_item(parent, block):
+    def create_item(self, parent, block):
         """ Create a new dd and parse the block with it as the parent. """
         dd = markdown.etree.SubElement(parent, 'dd')
         self.parser.parseBlocks(dd, [block])
- 
+
 
 
 class DefListExtension(markdown.Extension):
@@ -95,7 +95,7 @@ class DefListExtension(markdown.Extension):
         md.parser.blockprocessors.add('defindent',
                                       DefListIndentProcessor(md.parser),
                                       '>indent')
-        md.parser.blockprocessors.add('deflist', 
+        md.parser.blockprocessors.add('deflist',
                                       DefListProcessor(md.parser),
                                       '>ulist')
 

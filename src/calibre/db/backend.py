@@ -25,7 +25,8 @@ from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
 from calibre.utils.filenames import is_case_sensitive
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
-        SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, CompositeTable)
+        SizeTable, FormatsTable, AuthorsTable, IdentifiersTable,
+        CompositeTable, LanguagesTable)
 # }}}
 
 '''
@@ -604,11 +605,12 @@ class DB(object):
         for col in ('series', 'publisher', 'rating'):
             tables[col] = ManyToOneTable(col, self.field_metadata[col].copy())
 
-        for col in ('authors', 'tags', 'formats', 'identifiers'):
+        for col in ('authors', 'tags', 'formats', 'identifiers', 'languages'):
             cls = {
                     'authors':AuthorsTable,
                     'formats':FormatsTable,
                     'identifiers':IdentifiersTable,
+                    'languages':LanguagesTable,
                   }.get(col, ManyToManyTable)
             tables[col] = cls(col, self.field_metadata[col].copy())
 

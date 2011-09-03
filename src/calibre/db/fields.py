@@ -51,9 +51,13 @@ class Field(object):
 
     def __iter__(self):
         '''
-        Iterate over the ids for all values in this field
+        Iterate over the ids for all values in this field.
+
+        WARNING: Some fields such as composite fields and virtual
+        fields like ondevice do not have ids for their values, in such
+        cases this is an empty iterator.
         '''
-        raise NotImplementedError()
+        return iter(())
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):
         '''
@@ -76,9 +80,6 @@ class OneToOneField(Field):
         return (item_id,)
 
     def __iter__(self):
-        return self.table.book_col_map.iterkeys()
-
-    def iter_book_ids(self):
         return self.table.book_col_map.iterkeys()
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):
@@ -152,9 +153,6 @@ class OnDeviceField(OneToOneField):
         return ', '.join(loc) + ((' (%s books)'%count) if count > 1 else '')
 
     def __iter__(self):
-        return iter(())
-
-    def iter_book_ids(self):
         return iter(())
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):

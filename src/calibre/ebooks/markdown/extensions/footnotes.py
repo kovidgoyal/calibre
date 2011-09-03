@@ -43,7 +43,7 @@ class FootnoteExtension(markdown.Extension):
 
         for key, value in configs:
             self.config[key][0] = value
-            
+
         self.reset()
 
     def extendMarkdown(self, md, md_globals):
@@ -82,7 +82,7 @@ class FootnoteExtension(markdown.Extension):
                         return (child, element), False
                 finder(child)
             return None
-                
+
         res = finder(root)
         return res
 
@@ -106,7 +106,7 @@ class FootnoteExtension(markdown.Extension):
 
         div = etree.Element("div")
         div.set('class', 'footnote')
-        hr = etree.SubElement(div, "hr")
+        etree.SubElement(div, "hr")
         ol = etree.SubElement(div, "ol")
 
         for id in self.footnotes.keys():
@@ -149,9 +149,9 @@ class FootnotePreprocessor(markdown.preprocessors.Preprocessor):
         Keywords:
 
         * lines: A list of lines of text
-        
+
         Return: A list of lines with footnote definitions removed.
-        
+
         """
         i, id, footnote = self._findFootnoteDefinition(lines)
 
@@ -175,9 +175,9 @@ class FootnotePreprocessor(markdown.preprocessors.Preprocessor):
         * lines: A list of lines of text.
 
         Return: A three item tuple containing the index of the first line of a
-        footnote definition, the id of the definition and the body of the 
+        footnote definition, the id of the definition and the body of the
         definition.
-        
+
         """
         counter = 0
         for line in lines:
@@ -199,7 +199,6 @@ class FootnotePreprocessor(markdown.preprocessors.Preprocessor):
 
         """
         items = []
-        item = -1
         i = 0 # to keep track of where we are
 
         def detab(line):
@@ -277,7 +276,6 @@ class FootnoteTreeprocessor(markdown.treeprocessors.Treeprocessor):
                     ind = element.getchildren().find(child)
                     element.getchildren().insert(ind + 1, footnotesDiv)
                     child.tail = None
-                fnPlaceholder.parent.replaceChild(fnPlaceholder, footnotesDiv)
             else:
                 root.append(footnotesDiv)
 

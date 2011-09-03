@@ -125,11 +125,14 @@ class Manager(QObject): # {{{
         #pprint.pprint(self.keys_map)
 
     def replace_action(self, unique_name, new_action):
+        '''
+        Replace the action associated with a shortcut.
+        Once you're done calling replace_action() for all shortcuts you want
+        replaced, call finalize() to have the shortcuts assigned to the replaced
+        actions.
+        '''
         sc = self.shortcuts[unique_name]
-        ac = sc['action']
-        if ac is not None:
-            new_action.setShortcuts(ac.shortcuts())
-            ac.setShortcuts([])
+        sc['action'] = new_action
 
 # }}}
 

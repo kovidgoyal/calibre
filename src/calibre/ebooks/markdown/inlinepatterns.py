@@ -47,6 +47,7 @@ from urlparse import urlparse, urlunparse
 import sys
 if sys.version >= "3.0":
     from html import entities as htmlentitydefs
+    htmlentitydefs
 else:
     import htmlentitydefs
 
@@ -215,7 +216,6 @@ class HtmlPattern (Pattern):
     """ Store raw inline html and return a placeholder. """
     def handleMatch (self, m):
         rawhtml = m.group(2)
-        inline = True
         place_holder = self.markdown.htmlStash.store(rawhtml)
         return place_holder
 

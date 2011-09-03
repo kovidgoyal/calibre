@@ -220,12 +220,11 @@ class InterfaceAction(QObject):
             ac.setStatusTip(description)
             ac.setWhatsThis(description)
 
-        ac.calibre_shortcut_unique_name = None
+        ac.calibre_shortcut_unique_name = unique_name
         if shortcut is not False:
             self.gui.keyboard.register_shortcut(unique_name,
                 shortcut_name, default_keys=keys,
                 action=ac, description=description, group=self.action_spec[0])
-            ac.calibre_shortcut_unique_name = unique_name
         if triggered is not None:
             ac.triggered.connect(triggered)
         return ac

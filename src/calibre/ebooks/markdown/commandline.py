@@ -9,7 +9,7 @@ Markdown is called from the command line.
 import markdown
 import sys
 import logging
-from logging import DEBUG, INFO, WARN, ERROR, CRITICAL
+from logging import DEBUG, INFO, CRITICAL
 
 EXECUTABLE_NAME_FOR_USAGE = "python markdown.py"
 """ The name used in the usage statement displayed for python versions < 2.3.
@@ -57,7 +57,7 @@ def parse_options():
     parser.add_option("-s", "--safe", dest="safe", default=False,
                       metavar="SAFE_MODE",
                       help="safe mode ('replace', 'remove' or 'escape'  user's HTML tag)")
-    parser.add_option("-o", "--output_format", dest="output_format", 
+    parser.add_option("-o", "--output_format", dest="output_format",
                       default='xhtml1', metavar="OUTPUT_FORMAT",
                       help="Format of output. One of 'xhtml1' (default) or 'html4'.")
     parser.add_option("--noisy",
