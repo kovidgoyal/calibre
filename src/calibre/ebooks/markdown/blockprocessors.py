@@ -3,10 +3,10 @@ CORE MARKDOWN BLOCKPARSER
 =============================================================================
 
 This parser handles basic parsing of Markdown blocks.  It doesn't concern itself
-with inline elements such as **bold** or *italics*, but rather just catches 
+with inline elements such as **bold** or *italics*, but rather just catches
 blocks, lists, quotes, etc.
 
-The BlockParser is made up of a bunch of BlockProssors, each handling a 
+The BlockParser is made up of a bunch of BlockProssors, each handling a
 different type of block. Extensions may add/replace/remove BlockProcessors
 as they need to alter how markdown blocks are parsed.
 
@@ -16,8 +16,8 @@ import re
 import markdown
 
 class BlockProcessor:
-    """ Base class for block processors. 
-    
+    """ Base class for block processors.
+
     Each subclass will provide the methods below to work with the source and
     tree. Each processor will need to define it's own ``test`` and ``run``
     methods. The ``test`` method should return True or False, to indicate
@@ -58,32 +58,32 @@ class BlockProcessor:
         return '\n'.join(lines)
 
     def test(self, parent, block):
-        """ Test for block type. Must be overridden by subclasses. 
-        
+        """ Test for block type. Must be overridden by subclasses.
+
         As the parser loops through processors, it will call the ``test`` method
         on each to determine if the given block of text is of that type. This
         method must return a boolean ``True`` or ``False``. The actual method of
-        testing is left to the needs of that particular block type. It could 
+        testing is left to the needs of that particular block type. It could
         be as simple as ``block.startswith(some_string)`` or a complex regular
         expression. As the block type may be different depending on the parent
-        of the block (i.e. inside a list), the parent etree element is also 
+        of the block (i.e. inside a list), the parent etree element is also
         provided and may be used as part of the test.
 
         Keywords:
-        
+
         * ``parent``: A etree element which will be the parent of the block.
-        * ``block``: A block of text from the source which has been split at 
+        * ``block``: A block of text from the source which has been split at
             blank lines.
         """
         pass
 
     def run(self, parent, blocks):
-        """ Run processor. Must be overridden by subclasses. 
-        
+        """ Run processor. Must be overridden by subclasses.
+
         When the parser determines the appropriate type of a block, the parser
         will call the corresponding processor's ``run`` method. This method
         should parse the individual lines of the block and append them to
-        the etree. 
+        the etree.
 
         Note that both the ``parent`` and ``etree`` keywords are pointers
         to instances of the objects which should be edited in place. Each
@@ -103,8 +103,8 @@ class BlockProcessor:
 
 
 class ListIndentProcessor(BlockProcessor):
-    """ Process children of list items. 
-    
+    """ Process children of list items.
+
     Example:
         * a list item
             process this part
@@ -154,7 +154,7 @@ class ListIndentProcessor(BlockProcessor):
         """ Create a new li and parse the block with it as the parent. """
         li = markdown.etree.SubElement(parent, 'li')
         self.parser.parseBlocks(li, [block])
- 
+
     def get_level(self, parent, block):
         """ Get level of indent based on list level. """
         # Get indent level
@@ -188,7 +188,7 @@ class CodeBlockProcessor(BlockProcessor):
 
     def test(self, parent, block):
         return block.startswith(' '*markdown.TAB_LENGTH)
-    
+
     def run(self, parent, blocks):
         sibling = self.lastChild(parent)
         block = blocks.pop(0)
@@ -208,7 +208,7 @@ class CodeBlockProcessor(BlockProcessor):
             block, theRest = self.detab(block)
             code.text = markdown.AtomicString('%s\n' % block.rstrip())
         if theRest:
-            # This block contained unindented line(s) after the first indented 
+            # This block contained unindented line(s) after the first indented
             # line. Insert these lines as the first block of the master blocks
             # list for future processing.
             blocks.insert(0, theRest)
@@ -229,7 +229,7 @@ class BlockQuoteProcessor(BlockProcessor):
             # Pass lines before blockquote in recursively for parsing forst.
             self.parser.parseBlocks(parent, [before])
             # Remove ``> `` from begining of each line.
-            block = '\n'.join([self.clean(line) for line in 
+            block = '\n'.join([self.clean(line) for line in
                             block[m.start():].split('\n')])
         sibling = self.lastChild(parent)
         if sibling and sibling.tag == "blockquote":
@@ -355,7 +355,7 @@ class HashHeaderProcessor(BlockProcessor):
                 blocks.insert(0, after)
         else:
             # This should never happen, but just in case...
-            message(CRITICAL, "We've got a problem header!")
+            print("We've got a problem header!")
 
 
 class SetextHeaderProcessor(BlockProcessor):
@@ -407,7 +407,7 @@ class HRProcessor(BlockProcessor):
             # Recursively parse lines before hr so they get parsed first.
             self.parser.parseBlocks(parent, ['\n'.join(prelines)])
         # create hr
-        hr = markdown.etree.SubElement(parent, 'hr')
+        markdown.etree.SubElement(parent, 'hr')
         # check for lines in block after hr.
         lines = lines[len(prelines)+1:]
         if len(lines):
@@ -418,7 +418,7 @@ class HRProcessor(BlockProcessor):
 class EmptyBlockProcessor(BlockProcessor):
     """ Process blocks and start with an empty line. """
 
-    # Detect a block that only contains whitespace 
+    # Detect a block that only contains whitespace
     # or only whitespace on the first line.
     RE = re.compile(r'^\s*\n')
 

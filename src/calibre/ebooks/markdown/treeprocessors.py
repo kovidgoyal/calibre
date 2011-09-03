@@ -24,8 +24,8 @@ class Treeprocessor(Processor):
     def run(self, root):
         """
         Subclasses of Treeprocessor should implement a `run` method, which
-        takes a root ElementTree. This method can return another ElementTree 
-        object, and the existing root ElementTree will be replaced, or it can 
+        takes a root ElementTree. This method can return another ElementTree
+        object, and the existing root ElementTree will be replaced, or it can
         modify the current tree and return None.
         """
         pass
@@ -185,7 +185,7 @@ class InlineProcessor(Treeprocessor):
                     result.append(node)
 
                 else: # wrong placeholder
-                    end = index + len(prefix)
+                    end = index + len(self.__placeholder_prefix)
                     linkText(data[strartIndex:end])
                     strartIndex = end
             else:
@@ -278,7 +278,7 @@ class InlineProcessor(Treeprocessor):
             for element, lst in insertQueue:
                 if element.text:
                     element.text = \
-                        markdown.inlinepatterns.handleAttributes(element.text, 
+                        markdown.inlinepatterns.handleAttributes(element.text,
                                                                  element)
                 i = 0
                 for newChild in lst:

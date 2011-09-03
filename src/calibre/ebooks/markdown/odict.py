@@ -1,7 +1,7 @@
 class OrderedDict(dict):
     """
     A dictionary that keeps its keys in the order in which they're inserted.
-    
+
     Copied from Django's SortedDict with some modifications.
 
     """
@@ -156,7 +156,7 @@ class OrderedDict(dict):
                 self.keyOrder.insert(i, key)
             else:
                 self.keyOrder.append(key)
-        except Error:
+        except Exception as e:
             # restore to prevent data loss and reraise
             self.keyOrder.insert(n, key)
-            raise Error
+            raise e

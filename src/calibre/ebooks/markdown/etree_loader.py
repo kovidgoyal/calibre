@@ -8,9 +8,11 @@ def importETree():
     etree_in_c = None
     try: # Is it Python 2.5+ with C implemenation of ElementTree installed?
         import xml.etree.cElementTree as etree_in_c
+        etree_in_c
     except ImportError:
         try: # Is it Python 2.5+ with Python implementation of ElementTree?
             import xml.etree.ElementTree as etree
+            etree
         except ImportError:
             try: # An earlier version of Python with cElementTree installed?
                 import cElementTree as etree_in_c
