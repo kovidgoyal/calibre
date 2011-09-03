@@ -49,6 +49,8 @@ class DispatchController(object): # {{{
         elif self.prefix:
             self.dispatcher.connect(name+'prefix_extra', self.prefix, self,
                     **kwargs)
+            self.dispatcher.connect(name+'prefix_extra_trailing',
+                    self.prefix+'/', self, **kwargs)
         self.dispatcher.connect(name, route, self, **kwargs)
         self.funcs.append(expose(func))
 
