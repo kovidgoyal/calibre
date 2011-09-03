@@ -15,7 +15,7 @@ from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks import unit_convert
-from calibre.ebooks.txt.unsmarten import unsmarten
+from calibre.ebooks.textile.unsmarten import unsmarten
 
 class TextileMLizer(OEB2HTML):
 
@@ -43,7 +43,8 @@ class TextileMLizer(OEB2HTML):
         self.style_smallcap = False
 
         txt = self.mlize_spine(oeb_book)
-        txt = unsmarten(txt)
+        if self.opts.unsmarten_punctuation:
+            txt = unsmarten(txt)
 
         # Do some tidying up
         txt = self.tidy_up(txt)
