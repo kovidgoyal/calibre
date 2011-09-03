@@ -13,7 +13,8 @@ from functools import wraps, partial
 
 from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
-from calibre.ebooks.book.base import Metadata
+from calibre.db.tables import VirtualTable
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import now
 
 def api(f):
@@ -189,7 +190,8 @@ class Cache(object):
                 if table.metadata['datatype'] == 'composite':
                     self.composites.add(field)
 
-            self.fields['ondevice'] = create_field('ondevice', None)
+            self.fields['ondevice'] = create_field('ondevice',
+                    VirtualTable('ondevice'))
 
     @read_api
     def field_for(self, name, book_id, default_value=None):

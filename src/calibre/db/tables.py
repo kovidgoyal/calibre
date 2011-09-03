@@ -13,6 +13,7 @@ from dateutil.tz import tzoffset
 
 from calibre.constants import plugins
 from calibre.utils.date import parse_date, local_tz, UNDEFINED_DATE
+from calibre.utils.localization import lang_map
 from calibre.ebooks.metadata import author_to_author_sort
 
 _c_speedup = plugins['speedup'][0]
@@ -53,6 +54,19 @@ class Table(object):
 
         self.link_table = (link_table if link_table else
                 'books_%s_link'%self.metadata['table'])
+
+class VirtualTable(Table):
+
+    '''
+    A dummy table used for fields that only exist in memory like ondevice
+    '''
+
+    def __init__(self, name, table_type=ONE_ONE, datatype='text'):
+        metadata = {'datatype':datatype, 'table':name}
+        self.table_type = table_type
+        Table.__init__(self, name, metadata)
+
+
 
 class OneToOneTable(Table):
 
@@ -210,3 +224,9 @@ class IdentifiersTable(ManyToManyTable):
         for key in tuple(self.col_book_map.iterkeys()):
             self.col_book_map[key] = tuple(self.col_book_map[key])
 
+class LanguagesTable(ManyToManyTable):
+
+    def read_id_maps(self, db):
+        ManyToManyTable.read_id_maps(self, db)
+        lm = lang_map()
+        self.lang_name_map = {x:lm.get(x, x) for x in self.id_map.itervalues()}
