@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 from collections import OrderedDict
 from functools import partial
 
-import sip
 from PyQt4.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame,
         QApplication, QSize, QRectF, QWidget, QTreeView,
@@ -127,17 +126,13 @@ class Manager(QObject): # {{{
 
     def replace_action(self, unique_name, new_action):
         '''
-        Replace the action associated with a shortcut. If this method returns
-        False you must call finalize() to have shortcuts set on the new action
-        correctly.
+        Replace the action associated with a shortcut.
+        Once you're done calling replace_action() for all shortcuts you want
+        replaced, call finalize() to have the shortcuts assigned to the replaced
+        actions.
         '''
         sc = self.shortcuts[unique_name]
-        ac = sc['action']
-        if ac is not None and not sip.isdeleted(ac):
-            new_action.setShortcuts(ac.shortcuts())
-            ac.setShortcuts([])
-            return True
-        return False
+        sc['action'] = new_action
 
 # }}}
 
