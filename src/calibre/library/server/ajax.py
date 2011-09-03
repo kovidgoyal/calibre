@@ -83,6 +83,10 @@ def category_url(prefix, cid):
 
 def icon_url(prefix, name):
     return absurl(prefix, '/browse/icon/'+name)
+
+def books_in_url(prefix, category, cid):
+    return absurl(prefix, '/ajax/books_in/%s/%s'%(
+        encode_name(category), encode_name(cid)))
 # }}}
 
 class AjaxServer(object):
@@ -114,7 +118,7 @@ class AjaxServer(object):
 
 
     # Get book metadata {{{
-    def ajax_book_to_json(self, book_id):
+    def ajax_book_to_json(self, book_id, get_category_urls=True):
         mi = self.db.get_metadata(book_id, index_is_id=True)
         try:
             mi.rating = mi.rating/2.
@@ -151,18 +155,46 @@ class AjaxServer(object):
         data['other_formats'] = {fmt: absurl(self.opts.url_prefix, u'/get/%s/%d'%(fmt, book_id)) for fmt
                 in other_fmts}
 
+        if get_category_urls:
+            category_urls = data['category_urls'] = {}
+            ccache = self.categories_cache()
+            for key in mi.all_field_keys():
+                fm = mi.metadata_for_field(key)
+                if (fm and fm['is_category'] and not fm['is_csp'] and
+                        key != 'formats' and fm['datatype'] not in ['rating']):
+                    categories = mi.get(key)
+                    if isinstance(categories, basestring):
+                        categories = [categories]
+                    if categories is None:
+                        categories = []
+                    dbtags = {}
+                    for category in categories:
+                        for tag in ccache.get(key, []):
+                            if tag.original_name == category:
+                                dbtags[category] = books_in_url(self.opts.url_prefix,
+                                    tag.category if tag.category else key,
+                                    tag.original_name if tag.id is None else
+                                    unicode(tag.id))
+                                break
+                    category_urls[key] = dbtags
+
         return data, mi.last_modified
 
     @Endpoint(set_last_modified=False)
-    def ajax_book(self, book_id):
+    def ajax_book(self, book_id, category_urls='true'):
         '''
         Return the metadata of the book as a JSON dictionary.
+
+        If category_urls == 'true' the returned dictionary also contains a
+        mapping of category names to URLs that return the list of books in the
+        given category.
         '''
         cherrypy.response.timeout = 3600
 
         try:
             book_id = int(book_id)
-            data, last_modified = self.ajax_book_to_json(book_id)
+            data, last_modified = self.ajax_book_to_json(book_id,
+                    get_category_urls=category_urls.lower()=='true')
         except:
             raise cherrypy.HTTPError(404, 'No book with id: %r'%book_id)
 
@@ -172,7 +204,7 @@ class AjaxServer(object):
         return data
 
     @Endpoint(set_last_modified=False)
-    def ajax_books(self, ids=None):
+    def ajax_books(self, ids=None, category_urls='true'):
         '''
         Return the metadata for a list of books specified as a comma separated
         list of ids. The metadata is returned as a dictionary mapping ids to
@@ -192,9 +224,11 @@ class AjaxServer(object):
                     ' of integers')
         ans = {}
         lm = None
+        gcu = category_urls.lower()=='true'
         for book_id in ids:
             try:
-                data, last_modified = self.ajax_book_to_json(book_id)
+                data, last_modified = self.ajax_book_to_json(book_id,
+                        get_category_urls=gcu)
             except:
                 ans[book_id] = None
             else:
@@ -431,9 +465,9 @@ class AjaxServer(object):
             'name':item_names.get(x, x.original_name),
             'average_rating': x.avg_rating,
             'count': x.count,
-            'url': absurl(self.opts.url_prefix, '/ajax/books_in/%s/%s'%(
-                encode_name(x.category if x.category else toplevel),
-                encode_name(x.original_name if x.id is None else unicode(x.id)))),
+            'url': books_in_url(self.opts.url_prefix,
+                x.category if x.category else toplevel,
+                x.original_name if x.id is None else unicode(x.id)),
             'has_children': x.original_name in children,
             } for x in items]
 
