@@ -170,7 +170,7 @@ class MOBIOutput(OutputFormatPlugin):
         self.check_for_periodical()
         write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
         from calibre.utils.config import tweaks
-        if tweaks.get('new_mobi_writer', False):
+        if tweaks.get('new_mobi_writer', True):
             from calibre.ebooks.mobi.writer2.main import MobiWriter
             MobiWriter
         else:
