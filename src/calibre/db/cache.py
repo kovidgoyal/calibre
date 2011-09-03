@@ -347,8 +347,9 @@ class Cache(object):
                     as_path=as_path)
 
     @read_api
-    def multisort(self, fields):
-        all_book_ids = frozenset(self._all_book_ids())
+    def multisort(self, fields, ids_to_sort=None):
+        all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
+                else ids_to_sort)
         get_metadata = partial(self._get_metadata, get_user_categories=False)
 
         sort_keys = tuple(self.fields[field[0]].sort_keys_for_books(get_metadata,
