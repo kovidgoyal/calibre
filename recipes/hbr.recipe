@@ -49,7 +49,6 @@ class HBR(BasicNewsRecipe):
         br['signin-form:username'] = self.username
         br['signin-form:password'] = self.password
         raw = br.submit().read()
-        open('/t/crap.html', 'wb').write(raw)
         if '>Sign out<' not in raw:
             raise Exception('Failed to login, are you sure your username and password are correct?')
         try:

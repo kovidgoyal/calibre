@@ -49,7 +49,7 @@ class CNCX(object): # {{{
             if 0xfbf8 - buf.tell() < 6 + len(raw):
                 # Records in PDB files cannot be larger than 0x10000, so we
                 # stop well before that.
-                pad = 0xfbf8 - self._ctoc.tell()
+                pad = 0xfbf8 - buf.tell()
                 buf.write(b'\0' * pad)
                 self.records.append(buf.getvalue())
                 buf.truncate(0)

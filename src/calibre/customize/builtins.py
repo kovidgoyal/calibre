@@ -557,7 +557,7 @@ from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.user_defined.driver import USER_DEFINED
-from calibre.devices.android.driver import ANDROID, S60
+from calibre.devices.android.driver import ANDROID, S60, WEBOS
 from calibre.devices.nokia.driver import N770, N810, E71X, E52
 from calibre.devices.eslick.driver import ESLICK, EBK52
 from calibre.devices.nuut2.driver import NUUT2
@@ -658,8 +658,7 @@ plugins += [
     KINDLE_DX,
     NOOK, NOOK_COLOR,
     PRS505,
-    ANDROID,
-    S60,
+    ANDROID, S60, WEBOS,
     N770,
     E71X,
     E52,
@@ -1277,6 +1276,17 @@ class StoreEKnigiStore(StoreBase):
     formats = ['EPUB', 'PDF', 'HTML']
     affiliate = True
 
+class StoreEscapeMagazineStore(StoreBase):
+    name = 'EscapeMagazine'
+    author = u'Tomasz Długosz'
+    description = u'Książki elektroniczne w formie pliku komputerowego PDF. Zabezpieczone hasłem.'
+    actual_plugin = 'calibre.gui2.store.stores.escapemagazine_plugin:EscapeMagazineStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['PDF']
+    affiliate = True
+
 class StoreFeedbooksStore(StoreBase):
     name = 'Feedbooks'
     description = u'Feedbooks is a cloud publishing and distribution service, connected to a large ecosystem of reading systems and social networks. Provides a variety of genres from independent and classic books.'
@@ -1415,6 +1425,16 @@ class StorePragmaticBookshelfStore(StoreBase):
     headquarters = 'US'
     formats = ['EPUB', 'MOBI', 'PDF']
 
+class StoreRW2010Store(StoreBase):
+    name = 'RW2010'
+    description = u'Polski serwis self-publishingowy. Pliki PDF, EPUB i MOBI. Maksymalna cena utworu nie przekracza u nas 10 złotych!'
+    actual_plugin = 'calibre.gui2.store.stores.rw2010_plugin:RW2010Store'
+    author = u'Tomasz Długosz'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+
 class StoreSmashwordsStore(StoreBase):
     name = 'Smashwords'
     description = u'An ebook publishing and distribution platform for ebook authors, publishers and readers. Covers many genres and formats.'
@@ -1483,7 +1503,7 @@ class XinXiiStore(StoreBase):
     name = 'XinXii'
     description = ''
     actual_plugin = 'calibre.gui2.store.stores.xinxii_plugin:XinXiiStore'
-    
+
     headquarters = 'DE'
     formats = ['EPUB', 'PDF']
 
@@ -1513,6 +1533,7 @@ plugins += [
     StoreEBookShoppeUKStore,
     StoreEHarlequinStore,
     StoreEKnigiStore,
+    StoreEscapeMagazineStore,
     StoreFeedbooksStore,
     StoreFoylesUKStore,
     StoreGandalfStore,
@@ -1528,6 +1549,7 @@ plugins += [
     StoreOReillyStore,
     StoreOzonRUStore,
     StorePragmaticBookshelfStore,
+    StoreRW2010Store,
     StoreSmashwordsStore,
     StoreVirtualoStore,
     StoreWaterstonesUKStore,

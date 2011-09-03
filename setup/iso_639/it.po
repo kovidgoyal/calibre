@@ -9,17 +9,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: iso_639_3\n"
-"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-devel@lists.alioth."
-"debian.org>\n"
-"POT-Creation-Date: 2011-05-27 14:59+0200\n"
-"PO-Revision-Date: 2011-06-10 19:47+0200\n"
+"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
+"devel@lists.alioth.debian.org>\n"
+"POT-Creation-Date: 2011-08-27 02:50+0000\n"
+"PO-Revision-Date: 2011-08-27 04:52+0000\n"
 "Last-Translator: Milo Casagrande <milo@casagrande.name>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
-"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Launchpad-Export-Date: 2011-08-28 04:50+0000\n"
+"X-Generator: Launchpad (build 13794)\n"
+"Language: it\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -15368,7 +15369,7 @@ msgstr "Mayogo"
 
 #. name for mdn
 msgid "Mbati"
-msgstr "Mbati "
+msgstr "Mbati"
 
 #. name for mdp
 msgid "Mbala"
@@ -17940,7 +17941,7 @@ msgstr "Ngundi"
 
 #. name for ndo
 msgid "Ndonga"
-msgstr "Ndonga "
+msgstr "Ndonga"
 
 #. name for ndp
 msgid "Ndo"
@@ -23892,7 +23893,7 @@ msgstr "Sera"
 
 #. name for srz
 msgid "Shahmirzadi"
-msgstr "Shahmirzadi "
+msgstr "Shahmirzadi"
 
 #. name for ssb
 msgid "Sama, Southern"

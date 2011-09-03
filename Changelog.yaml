@@ -19,6 +19,56 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.17
+  date: 2011-09-02
+
+  new features:
+    - title: "Basic support for Amazon AZW4 format (PDF wrapped inside a MOBI)"
+
+    - title: "When showing the cover browser in a separate window, allow the use of the V, D shortcut keys to view the current book and send it to device respectively."
+      tickets: [836402]
+
+    - title: "Add an option in Preferences->Miscellaneous to abort conversion jobs that take too long."
+      tickets: [835233]
+
+    - title: "Driver for HTC Evo and HP TouchPad (with kindle app)"
+
+    - title: "Preferences->Adding books, detect when the user specifies a test expression with no file extension and popup a warning"
+  
+  bug fixes:
+    - title: "E-book viewer: Ensure toolbars are always visible"
+
+    - title: "Content server: Fix grouping of Tags/authors not working for some non english languages with Internet Explorer"
+      tickets: [835238]
+
+    - title: "When downloading metadata from amazon, fix italics inside brackets getting lost."
+      tickets: [836857]
+
+    - title: "Get Books: Add EscapeMagazine.pl and RW2010.pl stores"
+
+    - title: "Conversion pipeline: Fix conversion of cm/mm to pts. Fixes use of cm as a length unit when converting to MOBI."
+
+    - title: "When showing the cover browser in a separate window, focus the cover browser so that keyboard shortcuts work immediately."
+      tickets: [835933]
+
+    - title: "HTMLZ Output: Fix special chars like ampersands, etc. not being converted to entities"
+
+    - title: "Keyboard shortcuts config: Fix clicking done in the shortcut editor with shortcuts set to default caused the displayed shortcut to be always set to None"
+
+    - title: "Fix bottom most entries in keyboard shortcuts not editable"
+
+  improved recipes:
+    - Hacker News
+    - Nikkei News
+
+  new recipes:
+    - title: "Haber 7 and Hira"
+      authors: thomass
+
+    - title: "NTV and NTVSpor by A Erdogan"
+      author: A Erdogan
+
+
 - version: 0.8.16
   date: 2011-08-26
 

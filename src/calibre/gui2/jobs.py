@@ -181,6 +181,20 @@ class JobManager(QAbstractTableModel): # {{{
                     self.dataChanged.emit(
                         self.index(idx, 0), self.index(idx, 3))
 
+        # Kill parallel jobs that have gone on too long
+        try:
+            wmax_time = gprefs['worker_max_time'] * 60
+        except:
+            wmax_time = 0
+
+        if wmax_time > 0:
+            for job in self.jobs:
+                if isinstance(job, ParallelJob):
+                    rtime = job.running_time
+                    if (rtime is not None and rtime > wmax_time and
+                            job.duration is None):
+                        job.timed_out = True
+                        self.server.kill_job(job)
 
     def _add_job(self, job):
         self.layoutAboutToBeChanged.emit()

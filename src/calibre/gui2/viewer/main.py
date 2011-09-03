@@ -359,7 +359,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         mult = vprefs.get('multiplier', None)
         if mult:
             self.view.multiplier = mult
-
+        # On windows Qt lets the user hide toolbars via a right click in a very
+        # specific location, ensure they are visible.
+        self.tool_bar.setVisible(True)
+        self.tool_bar2.setVisible(True)
 
     def lookup(self, word):
         self.dictionary_view.setHtml('<html><body><p>'+ \

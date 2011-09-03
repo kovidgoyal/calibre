@@ -92,6 +92,8 @@ class ContentServer(object):
             return self.get_cover(id)
         if what == 'opf':
             return self.get_metadata_as_opf(id)
+        if what == 'json':
+            raise cherrypy.InternalRedirect('/ajax/book/%d'%id)
         return self.get_format(id, what)
 
     def static(self, name):
@@ -192,6 +194,7 @@ class ContentServer(object):
                 self.last_modified(mi.last_modified)
 
         return data
+
 
     def get_format(self, id, format):
         format = format.upper()

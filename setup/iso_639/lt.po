@@ -7,16 +7,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: iso_639_3\n"
-"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-devel@lists.alioth."
-"debian.org>\n"
-"POT-Creation-Date: 2011-05-27 14:59+0200\n"
-"PO-Revision-Date: 2009-04-14 11:56+0300\n"
-"Last-Translator: Kęstutis Biliūnas <kebil@kaunas.init.lt>\n"
+"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
+"devel@lists.alioth.debian.org>\n"
+"POT-Creation-Date: 2011-08-27 02:50+0000\n"
+"PO-Revision-Date: 2011-08-27 05:30+0000\n"
+"Last-Translator: Kęstutis Biliūnas <Unknown>\n"
 "Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
-"Language: lt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2011-08-28 04:54+0000\n"
+"X-Generator: Launchpad (build 13794)\n"
+"Language: lt\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -123,9 +125,8 @@ msgid "Ayta, Ambala"
 msgstr ""
 
 #. name for abd
-#, fuzzy
 msgid "Manide"
-msgstr "Mandar"
+msgstr ""
 
 #. name for abe
 msgid "Abnaki, Western"
@@ -1284,9 +1285,8 @@ msgid "Bukiyip"
 msgstr ""
 
 #. name for apf
-#, fuzzy
 msgid "Agta, Pahanan"
-msgstr "Arabų, Bahreino"
+msgstr ""
 
 #. name for apg
 msgid "Ampanang"
@@ -2361,9 +2361,8 @@ msgid "Bade"
 msgstr ""
 
 #. name for bdf
-#, fuzzy
 msgid "Biage"
-msgstr "Osage"
+msgstr ""
 
 #. name for bdg
 msgid "Bonggi"
@@ -3102,9 +3101,8 @@ msgid "Bakumpai"
 msgstr ""
 
 #. name for bks
-#, fuzzy
 msgid "Sorsoganon, Northern"
-msgstr "Šiaurės fryzų"
+msgstr ""
 
 #. name for bkt
 msgid "Boloki"
@@ -4683,9 +4681,8 @@ msgid "Nicobarese, Car"
 msgstr ""
 
 #. name for car
-#, fuzzy
 msgid "Carib, Galibi"
-msgstr "Karibų"
+msgstr ""
 
 #. name for cas
 msgid "Tsimané"
@@ -4784,9 +4781,8 @@ msgid "Cacua"
 msgstr ""
 
 #. name for cbw
-#, fuzzy
 msgid "Kinabalian"
-msgstr "Kabardinų"
+msgstr ""
 
 #. name for cby
 msgid "Carabayo"
@@ -6997,9 +6993,8 @@ msgid "Ebughu"
 msgstr ""
 
 #. name for ebk
-#, fuzzy
 msgid "Bontok, Eastern"
-msgstr "Rytų fryzų"
+msgstr ""
 
 #. name for ebo
 msgid "Teke-Ebo"
@@ -7714,9 +7709,8 @@ msgid "French, Old (842-ca. 1400)"
 msgstr ""
 
 #. name for frp
-#, fuzzy
 msgid "Arpitan"
-msgstr "Asturianų"
+msgstr ""
 
 #. name for frq
 msgid "Forak"
@@ -8816,7 +8810,7 @@ msgstr ""
 
 #. name for gso
 msgid "Gbaya, Southwest"
-msgstr "Gbaja, pietvakarių "
+msgstr "Gbaja, pietvakarių"
 
 #. name for gsp
 msgid "Wasembo"
@@ -10236,7 +10230,8 @@ msgstr ""
 
 #. name for ina
 msgid "Interlingua (International Auxiliary Language Association)"
-msgstr "Interlingua (tarpinė kalba) (Tarptautinė pagalbinės kalbos asociacija)"
+msgstr ""
+"Interlingua (tarpinė kalba) (Tarptautinė pagalbinės kalbos asociacija)"
 
 #. name for inb
 msgid "Inga"
@@ -10811,9 +10806,8 @@ msgid "Ngile"
 msgstr ""
 
 #. name for jls
-#, fuzzy
 msgid "Jamaican Sign Language"
-msgstr "Zambijos gestų kalba"
+msgstr ""
 
 #. name for jma
 msgid "Dima"
@@ -11029,7 +11023,7 @@ msgstr ""
 
 #. name for jye
 msgid "Arabic, Judeo-Yemeni"
-msgstr "Arabų, Jemeno judėjų "
+msgstr "Arabų, Jemeno judėjų"
 
 #. name for jyy
 msgid "Jaya"
@@ -11196,9 +11190,8 @@ msgid "Keliko"
 msgstr ""
 
 #. name for kbp
-#, fuzzy
 msgid "Kabiyè"
-msgstr "Kabilų"
+msgstr ""
 
 #. name for kbq
 msgid "Kamano"
@@ -11573,9 +11566,8 @@ msgid "Kurichiya"
 msgstr ""
 
 #. name for kfi
-#, fuzzy
 msgid "Kurumba, Kannada"
-msgstr "Kanadų"
+msgstr ""
 
 #. name for kfj
 msgid "Kemiehua"
@@ -11770,9 +11762,8 @@ msgid "Khuen"
 msgstr ""
 
 #. name for khg
-#, fuzzy
 msgid "Tibetan, Khams"
-msgstr "Tibetiečių"
+msgstr ""
 
 #. name for khh
 msgid "Kehu"
@@ -12175,9 +12166,8 @@ msgid "Kendeje"
 msgstr ""
 
 #. name for klg
-#, fuzzy
 msgid "Tagakaulo"
-msgstr "Tagalų"
+msgstr ""
 
 #. name for klh
 msgid "Weliki"
@@ -13532,9 +13522,8 @@ msgid "Kpatili"
 msgstr ""
 
 #. name for kyn
-#, fuzzy
 msgid "Binukidnon, Northern"
-msgstr "Šiaurės fryzų"
+msgstr ""
 
 #. name for kyo
 msgid "Kelon"
@@ -13689,9 +13678,8 @@ msgid "Kalabra"
 msgstr ""
 
 #. name for laa
-#, fuzzy
 msgid "Subanen, Southern"
-msgstr "Sami, pietų"
+msgstr ""
 
 #. name for lab
 msgid "Linear A"
@@ -13826,9 +13814,8 @@ msgid "Ladakhi"
 msgstr ""
 
 #. name for lbk
-#, fuzzy
 msgid "Bontok, Central"
-msgstr "Dinkų, pietų centrinė"
+msgstr ""
 
 #. name for lbl
 msgid "Bikol, Libon"
@@ -14559,9 +14546,8 @@ msgid "Lanoh"
 msgstr ""
 
 #. name for lni
-#, fuzzy
 msgid "Daantanai'"
-msgstr "Radžastano"
+msgstr ""
 
 #. name for lnj
 msgid "Leningitij"
@@ -14824,18 +14810,16 @@ msgid "Trinidad and Tobago Sign Language"
 msgstr ""
 
 #. name for lsy
-#, fuzzy
 msgid "Mauritian Sign Language"
-msgstr "Jūrininkystės gestų kalba"
+msgstr ""
 
 #. name for ltc
 msgid "Chinese, Late Middle"
 msgstr "Kinų, vėlyvųjų viduramžių"
 
 #. name for ltg
-#, fuzzy
 msgid "Latgalian"
-msgstr "Katalonų"
+msgstr ""
 
 #. name for lti
 msgid "Leti (Indonesia)"
@@ -14966,9 +14950,8 @@ msgid "Lavukaleve"
 msgstr ""
 
 #. name for lvs
-#, fuzzy
 msgid "Latvian, Standard"
-msgstr "Estų, bendrinė"
+msgstr ""
 
 #. name for lvu
 msgid "Levuka"
@@ -15359,9 +15342,8 @@ msgid "Massalat"
 msgstr ""
 
 #. name for mdh
-#, fuzzy
 msgid "Maguindanaon"
-msgstr "Mandingo"
+msgstr ""
 
 #. name for mdi
 msgid "Mamvu"
@@ -15712,9 +15694,8 @@ msgid "Manda (Tanzania)"
 msgstr ""
 
 #. name for mgt
-#, fuzzy
 msgid "Mongol"
-msgstr "Mongolų"
+msgstr ""
 
 #. name for mgu
 msgid "Mailu"
@@ -16469,9 +16450,8 @@ msgid "Morori"
 msgstr "Maorių"
 
 #. name for mom
-#, fuzzy
 msgid "Mangue"
-msgstr "Manču"
+msgstr ""
 
 #. name for mon
 msgid "Mongolian"
@@ -16822,9 +16802,8 @@ msgid "Maremgi"
 msgstr ""
 
 #. name for mry
-#, fuzzy
 msgid "Mandaya"
-msgstr "Mandar"
+msgstr ""
 
 #. name for mrz
 msgid "Marind"
@@ -17019,9 +16998,8 @@ msgid "Asaro'o"
 msgstr ""
 
 #. name for mtw
-#, fuzzy
 msgid "Binukidnon, Southern"
-msgstr "Dinkų, pietvakarių"
+msgstr ""
 
 #. name for mtx
 msgid "Mixtec, Tidaá"
@@ -17668,9 +17646,8 @@ msgid "Nangikurrunggurr"
 msgstr ""
 
 #. name for nan
-#, fuzzy
 msgid "Chinese, Min Nan"
-msgstr "Kinų"
+msgstr ""
 
 #. name for nao
 msgid "Naaba"
@@ -18041,9 +18018,8 @@ msgid "Nyenkha"
 msgstr ""
 
 #. name for nei
-#, fuzzy
 msgid "Hittite, Neo-"
-msgstr "Hetitų"
+msgstr ""
 
 #. name for nej
 msgid "Neko"
@@ -18322,9 +18298,8 @@ msgid "Nias"
 msgstr "Nias"
 
 #. name for nib
-#, fuzzy
 msgid "Nakame"
-msgstr "Makasar"
+msgstr ""
 
 #. name for nid
 msgid "Ngandi"
@@ -18887,9 +18862,8 @@ msgid "Noiri"
 msgstr ""
 
 #. name for noj
-#, fuzzy
 msgid "Nonuya"
-msgstr "Ndongų"
+msgstr ""
 
 #. name for nok
 msgid "Nooksack"
@@ -18980,9 +18954,8 @@ msgid "Napu"
 msgstr ""
 
 #. name for nqg
-#, fuzzy
 msgid "Nago, Southern"
-msgstr "Sami, pietų"
+msgstr ""
 
 #. name for nqk
 msgid "Ede Nago, Kura"
@@ -19553,9 +19526,8 @@ msgid "Obispeño"
 msgstr ""
 
 #. name for obk
-#, fuzzy
 msgid "Bontok, Southern"
-msgstr "Pietų sotų"
+msgstr ""
 
 #. name for obl
 msgid "Oblo"
@@ -20518,9 +20490,8 @@ msgid "Pomo, Southern"
 msgstr ""
 
 #. name for pes
-#, fuzzy
 msgid "Persian, Iranian"
-msgstr "Persų"
+msgstr ""
 
 #. name for pev
 msgid "Pémono"
@@ -20567,9 +20538,8 @@ msgid "Rerep"
 msgstr ""
 
 #. name for pgl
-#, fuzzy
 msgid "Irish, Primitive"
-msgstr "Krymo turkų"
+msgstr ""
 
 #. name for pgn
 msgid "Paelignian"
@@ -21272,9 +21242,8 @@ msgid "Puri"
 msgstr ""
 
 #. name for prs
-#, fuzzy
 msgid "Persian, Afghan"
-msgstr "Persų"
+msgstr ""
 
 #. name for prt
 msgid "Phai"
@@ -21561,9 +21530,8 @@ msgid "Poyanáwa"
 msgstr ""
 
 #. name for pys
-#, fuzzy
 msgid "Paraguayan Sign Language"
-msgstr "Urugvajiečių gestų kalba"
+msgstr ""
 
 #. name for pyu
 msgid "Puyuma"
@@ -21918,9 +21886,8 @@ msgid "Palaung, Rumai"
 msgstr ""
 
 #. name for rbk
-#, fuzzy
 msgid "Bontok, Northern"
-msgstr "Šiaurės sothų"
+msgstr ""
 
 #. name for rbl
 msgid "Bikol, Miraya"
@@ -22567,9 +22534,8 @@ msgid "Sagala"
 msgstr ""
 
 #. name for sbn
-#, fuzzy
 msgid "Bhil, Sindhi"
-msgstr "Sindų"
+msgstr ""
 
 #. name for sbo
 msgid "Sabüm"
@@ -22936,9 +22902,8 @@ msgid "Sangisari"
 msgstr ""
 
 #. name for sgs
-#, fuzzy
 msgid "Samogitian"
-msgstr "Samojiečių"
+msgstr ""
 
 #. name for sgt
 msgid "Brokpake"
@@ -22957,9 +22922,8 @@ msgid "Sierra Leone Sign Language"
 msgstr "Siera Leonės gestų kalba"
 
 #. name for sgy
-#, fuzzy
 msgid "Sanglechi"
-msgstr "Balučių"
+msgstr ""
 
 #. name for sgz
 msgid "Sursurunga"
@@ -23814,9 +23778,8 @@ msgid "Sou"
 msgstr ""
 
 #. name for sqr
-#, fuzzy
 msgid "Arabic, Siculo"
-msgstr "Arabų, įlankos"
+msgstr ""
 
 #. name for sqs
 msgid "Sri Lankan Sign Language"
@@ -23911,9 +23874,8 @@ msgid "Suruí"
 msgstr ""
 
 #. name for srv
-#, fuzzy
 msgid "Sorsoganon, Southern"
-msgstr "Pietų sotų"
+msgstr ""
 
 #. name for srw
 msgid "Serua"
@@ -25008,9 +24970,8 @@ msgid "Tagalog"
 msgstr "Tagalų"
 
 #. name for tgn
-#, fuzzy
 msgid "Tandaganon"
-msgstr "Pangasinan"
+msgstr ""
 
 #. name for tgo
 msgid "Sudest"
@@ -25293,9 +25254,8 @@ msgid "Tukumanféd"
 msgstr ""
 
 #. name for tkg
-#, fuzzy
 msgid "Malagasy, Tesaka"
-msgstr "Malagasių"
+msgstr ""
 
 #. name for tkl
 msgid "Tokelau"
@@ -27114,9 +27074,8 @@ msgid "Babar, Southeast"
 msgstr ""
 
 #. name for vbk
-#, fuzzy
 msgid "Bontok, Southwestern"
-msgstr "Dinkų, pietvakarių"
+msgstr ""
 
 #. name for vec
 msgid "Venetian"
@@ -28351,9 +28310,8 @@ msgid "Breton, Middle"
 msgstr "Bretonų, viduramžių"
 
 #. name for xbn
-#, fuzzy
 msgid "Kenaboi"
-msgstr "Kutenai"
+msgstr ""
 
 #. name for xbo
 msgid "Bolgarian"
@@ -28580,9 +28538,8 @@ msgid "Kalkoti"
 msgstr ""
 
 #. name for xkb
-#, fuzzy
 msgid "Nago, Northern"
-msgstr "Sami, šiaurės"
+msgstr ""
 
 #. name for xkc
 msgid "Kho'ini"
@@ -28809,9 +28766,8 @@ msgid "Kamu"
 msgstr ""
 
 #. name for xmv
-#, fuzzy
 msgid "Malagasy, Tankarana"
-msgstr "Malajų, bendrinė"
+msgstr ""
 
 #. name for xmw
 msgid "Malagasy, Tsimihety"
@@ -29334,9 +29290,8 @@ msgid "Banda-Yangere"
 msgstr ""
 
 #. name for yak
-#, fuzzy
 msgid "Yakama"
-msgstr "Makasar"
+msgstr ""
 
 #. name for yal
 msgid "Yalunka"
@@ -29347,9 +29302,8 @@ msgid "Yamba"
 msgstr ""
 
 #. name for yan
-#, fuzzy
 msgid "Mayangna"
-msgstr "Malagasių"
+msgstr ""
 
 #. name for yao
 msgid "Yao"
@@ -30588,9 +30542,8 @@ msgid "Zan Gula"
 msgstr ""
 
 #. name for zne
-#, fuzzy
 msgid "Zande (individual language)"
-msgstr "Zande"
+msgstr ""
 
 #. name for zng
 msgid "Mang"

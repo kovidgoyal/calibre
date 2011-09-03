@@ -198,6 +198,10 @@ class InterfaceAction(QObject):
         :param shortcut_name: The test displayed to the user when customizing
         the keyboard shortcuts for this action. By default it is set to the
         value of ``text``.
+
+        :return: The created QAction, This action has one extra attribute
+        calibre_shortcut_unique_name which if not None refers to the unique
+        name under which this action is registered with the keyboard manager.
         '''
         if shortcut_name is None:
             shortcut_name = unicode(text)
@@ -216,10 +220,12 @@ class InterfaceAction(QObject):
             ac.setStatusTip(description)
             ac.setWhatsThis(description)
 
+        ac.calibre_shortcut_unique_name = None
         if shortcut is not False:
             self.gui.keyboard.register_shortcut(unique_name,
                 shortcut_name, default_keys=keys,
                 action=ac, description=description, group=self.action_spec[0])
+            ac.calibre_shortcut_unique_name = unique_name
         if triggered is not None:
             ac.triggered.connect(triggered)
         return ac

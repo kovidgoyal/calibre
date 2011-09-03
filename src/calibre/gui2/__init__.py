@@ -99,6 +99,7 @@ gprefs.defaults['book_display_fields'] = [
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
 gprefs.defaults['preserve_date_on_ctl'] = True
 gprefs.defaults['cb_fullscreen'] = False
+gprefs.defaults['worker_max_time'] = 0
 
 # }}}
 
@@ -424,6 +425,7 @@ class FileIconProvider(QFileIconProvider):
              'mobi'    : 'mobi',
              'mbp'     : 'zero',
              'azw1'    : 'mobi',
+             'azw4'    : 'pdf',
              'tpz'     : 'mobi',
              'tan'     : 'zero',
              'epub'    : 'epub',
