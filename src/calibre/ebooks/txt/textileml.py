@@ -447,10 +447,10 @@ class TextileMLizer(OEB2HTML):
         # Close all open tags.
         tags.reverse()
         for t in tags:
-            if tag in ('pre', 'ul', 'ol', 'li', 'table'):
-                if tag == 'pre':
+            if t in ('pre', 'ul', 'ol', 'li', 'table'):
+                if t == 'pre':
                     self.in_pre = False
-                elif tag in ('ul', 'ol'):
+                elif t in ('ul', 'ol'):
                     if self.list: self.list.pop()
                     if not self.list: text.append('\n')
             else:
