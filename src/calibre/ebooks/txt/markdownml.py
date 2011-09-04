@@ -77,7 +77,7 @@ class MarkdownMLizer(OEB2HTML):
         text = text.replace('\r', ' ')
         # Condense redundant spaces created by replacing newlines with spaces.
         text = re.sub(r'[ ]{2,}', ' ', text)
-        text = re.sub(r'\t+', '', text)
+        #text = re.sub(r'\t+', '', text)
         if self.remove_space_after_newline == True:
             text = re.sub(r'^ +', '', text)
             self.remove_space_after_newline = False
@@ -189,20 +189,30 @@ class MarkdownMLizer(OEB2HTML):
                 txt += '(' + attribs['src'] + ')'
                 text.append(txt)
         elif tag in ('ol', 'ul'):
-            self.list.append({'name': tag, 'num': 0})
             tags.append(tag)
+            # Add the list to our lists of lists so we can track
+            # nested lists.
+            self.list.append({'name': tag, 'num': 0})
         elif tag == 'li':
+            # Get the last list from our list of lists
             if self.list:
                 li = self.list[-1]
             else:
                 li = {'name': 'ul', 'num': 0}
+            # Add a new line to start the item
             text.append('\n')
+            # Add indent if we have nested lists.
+            list_count = len(self.list)
+            # We only care about indenting nested lists.
+            if (list_count - 1) > 0:
+                text.append('\t' * (list_count - 1))
+            # Add blockquote if we have a blockquote in a list item.
             text.append(bq)
+            # Write the proper sign for ordered and unorded lists.
             if li['name'] == 'ul':
                 text.append('+ ')
             elif li['name'] == 'ol':
                 text.append(unicode(len(self.list)) + '. ')
-            tags.append('')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
@@ -222,7 +232,7 @@ class MarkdownMLizer(OEB2HTML):
         # Close all open tags.
         tags.reverse()
         for t in tags:
-            if t in ('pre', 'ul', 'ol', 'li', '>'):
+            if t in ('pre', 'ul', 'ol', '>'):
                 if t == 'pre':
                     self.in_pre = False
                     text.append('\n')
