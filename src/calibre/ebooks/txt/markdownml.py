@@ -55,10 +55,15 @@ class MarkdownMLizer(OEB2HTML):
     def tidy_up(self, text):
         # Remove blank space form beginning of paragraph.
         text = re.sub('(?msu)^[ ]{1,3}', '', text)
+        # pre has 4 spaces. We trimmed 3 so anything with a space left is a pre.
+        text = re.sub('(?msu)^[ ]', '    ', text)
+        
         # Remove spaces from blank lines.
         text = re.sub('(?msu)^[ ]+$', '', text)
+        
         # Reduce blank lines
         text = re.sub('(?msu)\n{7,}', '\n' * 6, text)
+        
         # Remove blank lines at beginning and end of document.
         text = re.sub('^\s*', '', text)
         text = re.sub('\s*$', '\n\n', text)
@@ -80,6 +85,12 @@ class MarkdownMLizer(OEB2HTML):
     def prepare_string_for_markdown(self, txt):
         txt = re.sub(r'([\\`*_{}\[\]()#+!])', r'\\\1', txt)
         return txt
+    
+    def prepare_string_for_pre(self, txt):
+        new_text = []
+        for l in txt.splitlines():
+            new_text.append('    ' + l)
+        return '\n'.join(new_text)
 
     def dump_text(self, elem, stylizer):
         '''
@@ -97,7 +108,7 @@ class MarkdownMLizer(OEB2HTML):
             return ['']
 
         # Setup our variables.
-        text = ['']
+        text = []
         style = stylizer.style(elem)
         tags = []
         tag = barename(elem.tag)
@@ -143,29 +154,41 @@ class MarkdownMLizer(OEB2HTML):
             self.blockquotes += 1
             tags.append('>')
             text.append('> ' * self.blockquotes)
-        elif tag in ('code', 'pre'):
-            self.in_pre = True
-            text.append('    ')
+        elif tag == 'code':
+            if not self.in_pre:
+                text.append('`')
+                tags.append('`')
+        elif tag == 'pre':
+            if not self.in_pre:
+                text.append('\n')
+                tags.append('pre')
+                self.in_pre = True
         elif tag == 'hr':
             text.append('\n* * *')
             tags.append('\n')
         elif tag == 'a':
             # Only write links with absolute (external) urls.
-            if attribs.has_key('href') and '://' in attribs['href']:
+            if self.opts.keep_links and attribs.has_key('href') and '://' in attribs['href']:
                 title = ''
                 if attribs.has_key('title'):
-                    title = ' "' + attribs['title'] + '" '
+                    title = ' "' + attribs['title'] + '"'
+                    remove_space = self.remove_space_after_newline
+                    title = self.remove_newlines(title)
+                    self.remove_space_after_newline = remove_space
                 text.append('[')
                 tags.append('](' + attribs['href'] + title + ')')
         elif tag == 'img':
             if self.opts.keep_image_references:
                 txt = '!'
                 if attribs.has_key('alt'):
-                    txt += '[' + attribs['alt'] + ']'
+                    remove_space = self.remove_space_after_newline
+                    txt += '[' + self.remove_newlines(attribs['alt']) + ']'
+                    self.remove_space_after_newline = remove_space
                 txt += '(' + attribs['src'] + ')'
                 text.append(txt)
         elif tag in ('ol', 'ul'):
             self.list.append({'name': tag, 'num': 0})
+            tags.append(tag)
         elif tag == 'li':
             if self.list:
                 li = self.list[-1]
@@ -182,7 +205,9 @@ class MarkdownMLizer(OEB2HTML):
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             txt = elem.text
-            if not self.in_pre:
+            if self.in_pre:
+                txt = self.prepare_string_for_pre(txt)
+            else:
                 txt = self.prepare_string_for_markdown(self.remove_newlines(txt))
             text.append(txt)
 
@@ -193,16 +218,12 @@ class MarkdownMLizer(OEB2HTML):
         # Close all open tags.
         tags.reverse()
         for t in tags:
-            if t in ('pre', 'ul', 'ol', 'li', '>', 'block'):
+            if t in ('pre', 'ul', 'ol', 'li', '>'):
                 if t == 'pre':
                     self.in_pre = False
+                    text.append('\n')
                 elif t == '>':
                     self.blockquotes -= 1
-                elif t == 'block':
-                    if self.style_bold:
-                        text.append('**')
-                    if self.style_italic:
-                        text.append('*')
                 elif t in ('ul', 'ol'):
                     if self.list:
                         self.list.pop()
@@ -224,7 +245,9 @@ class MarkdownMLizer(OEB2HTML):
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:
             tail = elem.tail
-            if not self.in_pre:
+            if self.in_pre:
+                tail = self.prepare_string_for_pre(tail)
+            else:
                 tail = self.prepare_string_for_markdown(self.remove_newlines(tail))
             text.append(tail)
 
