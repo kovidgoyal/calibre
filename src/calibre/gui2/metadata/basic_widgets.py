@@ -1227,7 +1227,9 @@ class IdentifiersEdit(QLineEdit): # {{{
                         val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
             txt = ', '.join(['%s:%s'%(k.lower(), v) for k, v in ids])
-            self.setText(txt.strip())
+            # Use clear + insert instead of setText so that undo works
+            self.clear()
+            self.insert(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
@@ -1319,7 +1321,7 @@ class ISBNDialog(QDialog) : # {{{
         self.line_edit.setStyleSheet('QLineEdit { background-color: %s }'%col)
 
     def text(self):
-        return unicode(self.line_edit.text())
+        return check_isbn(unicode(self.line_edit.text()))
 
 # }}}
 
