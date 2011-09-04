@@ -15,6 +15,8 @@ from calibre import prints
 from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
 
+def menu_action_unique_name(plugin, unique_name):
+    return u'%s : menu action : %s'%(plugin.unique_name, unique_name)
 
 class InterfaceAction(QObject):
 
@@ -214,7 +216,7 @@ class InterfaceAction(QObject):
         if shortcut is not None and shortcut is not False:
             keys = ((shortcut,) if isinstance(shortcut, basestring) else
                     tuple(shortcut))
-        unique_name = '%s : menu action : %s'%(self.unique_name, unique_name)
+        unique_name = menu_action_unique_name(self, unique_name)
         if description is not None:
             ac.setToolTip(description)
             ac.setStatusTip(description)
