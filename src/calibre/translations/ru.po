@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-02 15:04+0000\n"
+"PO-Revision-Date: 2011-09-04 04:12+0000\n"
 "Last-Translator: Sidorychev Alexander <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-09-03 04:46+0000\n"
+"X-Launchpad-Export-Date: 2011-09-04 04:39+0000\n"
 "X-Generator: Launchpad (build 13830)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -251,7 +251,7 @@ msgstr "Параметры"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr "Сохранить"
+msgstr "Магазины"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
@@ -19484,7 +19484,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:359
 msgid "The maximum width and height for covers saved in the calibre library"
-msgstr ""
+msgstr "Максимальная ширина и высота обложек книг в calibre"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:360
 msgid ""
@@ -19541,6 +19541,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:389
 msgid "Save original file when converting from same format to same format"
 msgstr ""
+"Сохранить оригинальный файл при преобразовании из текущего формата в тот же "
+"формат"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:390
 msgid ""

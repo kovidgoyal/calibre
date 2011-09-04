@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-08-28 15:45+0000\n"
+"PO-Revision-Date: 2011-09-03 16:16+0000\n"
 "Last-Translator: Jan Kubík <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-09-03 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-09-04 04:38+0000\n"
 "X-Generator: Launchpad (build 13830)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -970,7 +970,7 @@ msgstr "Komunikovat s telefony S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:193
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Spojeno s tablety s WebOS"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -1006,7 +1006,7 @@ msgstr "Ukládat obálky z iTunes/iBooks do mezipaměti"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:123
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Povolit nahrání do mezipaměti a zobrazení obálek z iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
 #, python-format
@@ -1014,6 +1014,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"\"Kopírování souborů do složky iTunes Media %s\" je povoleno v Nastavení "
+"iTunes|Pokročilé"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid ""
@@ -1571,6 +1573,9 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+". Dvě speciální kolekce jsou k dispozici:  %(abt)s:%(abtv)s a "
+"%(aba)s:%(abav)s. Přidejte tyto hodnoty do seznamu, aby jste je "
+"zpřístupnili. Kolekce budou pojmenovány podle jména za dvojtečkou."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -1808,6 +1813,11 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"Selhal přístup k souborům na SD kartě ve vašem zařízení. Může to mít mnoho "
+"příčin. SD karta může být poškozená, může mít moc velkou kapacitu pro vaše "
+"zařízení, může být chráněna proti přepsání atd. Zkuste jinou SD kartu nebo "
+"přeformátovat tu stávající na systém souborů FAT32. Také se ujistěte, že "
+"není moc souborů v kořenovém adresáři vaší SD karty. Základní chyba: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
@@ -1871,6 +1881,8 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
+"Zadejte adresář, kam budou ukládány knihy. Tento adresář je předřazen před "
+"všemi šablonami send_to_device"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
@@ -2083,6 +2095,9 @@ msgid ""
 "default. Use %(en)s to enable.  Individual actions can be disabled with the "
 "%(dis)s options."
 msgstr ""
+"Modifikovat text a strukturu dokumentu pomocí společných znaků. Ve "
+"standardním nastavení vypnuto. Použijte %(en)s k zapnutí. Jednotlivé akce "
+"mohou být zakázány pomocí nastavení %(dis)s."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:18
@@ -3593,7 +3608,7 @@ msgstr "Stránka Amazonu k použití:"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:410
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
-msgstr ""
+msgstr "Metadata od Amazonu budou načtena pomocí místní stránky Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:537
 msgid "Amazon timed out. Try again later."
@@ -3656,6 +3671,7 @@ msgstr "Stáhnout všechna metadata (pomalé)"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
 msgstr ""
+"Povolte tuto možnost k získání všech dostupných metadat od Overdrive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:49
 msgid ""
@@ -3665,6 +3681,11 @@ msgid ""
 "time required. Check the download all metadata option below to enable "
 "downloading this data."
 msgstr ""
+"Další metadata mohou být získána ze stránky knihy na Overdrive. To zahrnuje "
+"omezený soubor znaků používaný knihovnami, komentáře, jazyk a ISBN knihy. "
+"Sbírání těchto dat je v základním nastavení zakázáno kvůli časové "
+"náročnosti. Zaškrtněte \"stáhnout všechna metadata\" níže k povolení "
+"stahování těchto metadat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:24
 msgid "Downloads metadata and covers from OZON.ru"

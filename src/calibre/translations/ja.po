@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-01 05:40+0000\n"
+"PO-Revision-Date: 2011-09-04 03:41+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-09-03 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-09-04 04:39+0000\n"
 "X-Generator: Launchpad (build 13830)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -246,7 +246,7 @@ msgstr "基本設定"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr "保存"
+msgstr "ストア"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
@@ -941,7 +941,7 @@ msgstr "電話機 S60 と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:193
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "WebOSタブレットと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -13502,15 +13502,15 @@ msgstr "コマンドライン・ツールをインストール"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:67
 msgid "&Abort conversion jobs that take more than:"
-msgstr ""
+msgstr "これ以上の変換ジョブを停止(&A)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:71
 msgid "Never abort"
-msgstr ""
+msgstr "停止しない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:72
 msgid " minutes"
-msgstr ""
+msgstr " 分"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:52
 msgid "Device currently connected: "
@@ -15923,14 +15923,14 @@ msgstr "EBookをプリント"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:103
 msgid "Test name invalid"
-msgstr ""
+msgstr "テストメールが無効"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
 #, python-format
 msgid ""
 "The name <b>%r</b> does not appear to end with a file extension. The name "
 "must end with a file  extension like .epub or .mobi"
-msgstr ""
+msgstr "名前<b>%r</b>にはファイル拡張子がありません。名前は .epub や .mobi のような拡張子がなければなりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:993
 msgid "Drag to resize"
@@ -18626,7 +18626,7 @@ msgstr "待ち..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
-msgstr ""
+msgstr "中断しました。時間がかかりすぎています。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"

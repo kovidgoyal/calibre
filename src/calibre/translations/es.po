@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-08-30 00:55+0000\n"
-"Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
+"PO-Revision-Date: 2011-09-03 07:28+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-03 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-09-04 04:40+0000\n"
 "X-Generator: Launchpad (build 13830)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -1001,7 +1001,7 @@ msgstr "Comunicar con teléfonos S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:193
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Comunicar con tabletas WebOS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -14474,15 +14474,15 @@ msgstr "Instalar &herramientas de línea de órdenes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:67
 msgid "&Abort conversion jobs that take more than:"
-msgstr ""
+msgstr "&Abortar tareas de conversión que duren más de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:71
 msgid "Never abort"
-msgstr ""
+msgstr "No abortar nunca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:72
 msgid " minutes"
-msgstr ""
+msgstr " minutos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:52
 msgid "Device currently connected: "
@@ -17047,7 +17047,7 @@ msgstr "Imprimir libro electrónico"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:103
 msgid "Test name invalid"
-msgstr ""
+msgstr "Nombre de prueba no válido"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
 #, python-format
@@ -17055,6 +17055,8 @@ msgid ""
 "The name <b>%r</b> does not appear to end with a file extension. The name "
 "must end with a file  extension like .epub or .mobi"
 msgstr ""
+"El nombre <b>%r</b> no termina con una extensión. El nombre debe terminar "
+"con una extensión de fichero como «.epup» o «.mobi»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:993
 msgid "Drag to resize"
@@ -20006,7 +20008,7 @@ msgstr "Esperando..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
-msgstr ""
+msgstr "Abortado, tardaba demasiado"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"
