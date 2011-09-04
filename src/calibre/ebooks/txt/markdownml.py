@@ -156,7 +156,7 @@ class MarkdownMLizer(OEB2HTML):
             tags.append('>')
             text.append('> ' * self.blockquotes)
         elif tag == 'code':
-            if not self.in_pre:
+            if not self.in_pre and not self.in_code:
                 text.append('`')
                 tags.append('`')
                 self.in_code = True
