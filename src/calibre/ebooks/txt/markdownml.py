@@ -22,6 +22,7 @@ class MarkdownMLizer(OEB2HTML):
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to Markdown formatted TXT...')
         self.opts = opts
+        self.in_code = False
         self.in_pre = False
         self.list = []
         self.blockquotes = 0
@@ -158,6 +159,7 @@ class MarkdownMLizer(OEB2HTML):
             if not self.in_pre:
                 text.append('`')
                 tags.append('`')
+                self.in_code = True
         elif tag == 'pre':
             if not self.in_pre:
                 text.append('\n')
@@ -207,6 +209,8 @@ class MarkdownMLizer(OEB2HTML):
             txt = elem.text
             if self.in_pre:
                 txt = self.prepare_string_for_pre(txt)
+            elif self.in_code:
+                txt = self.remove_newlines(txt)
             else:
                 txt = self.prepare_string_for_markdown(self.remove_newlines(txt))
             text.append(txt)
@@ -234,6 +238,8 @@ class MarkdownMLizer(OEB2HTML):
                     self.style_bold = False
                 elif t == '*':
                     self.style_italic = False
+                elif t == '`':
+                    self.in_code = False
                 text.append('%s' % t)
 
         # Soft scene breaks.
@@ -247,6 +253,8 @@ class MarkdownMLizer(OEB2HTML):
             tail = elem.tail
             if self.in_pre:
                 tail = self.prepare_string_for_pre(tail)
+            elif self.in_code:
+                tail = self.remove_newlines(tail)
             else:
                 tail = self.prepare_string_for_markdown(self.remove_newlines(tail))
             text.append(tail)
