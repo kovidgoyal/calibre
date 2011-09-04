@@ -70,7 +70,6 @@ class MarkdownMLizer(OEB2HTML):
             l = re.sub('\t', '', l)
             new_text.append(start + l)
         text = '\n'.join(new_text)
-        print(text)
         
         # Remove spaces from blank lines.
         text = re.sub('(?msu)^[ ]+$', '', text)
