@@ -59,6 +59,19 @@ class MarkdownMLizer(OEB2HTML):
         # pre has 4 spaces. We trimmed 3 so anything with a space left is a pre.
         text = re.sub('(?msu)^[ ]', '    ', text)
         
+        # Remove tabs that aren't at the beinning of a line
+        new_text = []
+        for l in text.splitlines():
+            start = re.match('\t+', l)
+            if start:
+                start = start.group()
+            else:
+                start = ''
+            l = re.sub('\t', '', l)
+            new_text.append(start + l)
+        text = '\n'.join(new_text)
+        print(text)
+        
         # Remove spaces from blank lines.
         text = re.sub('(?msu)^[ ]+$', '', text)
         
@@ -77,7 +90,7 @@ class MarkdownMLizer(OEB2HTML):
         text = text.replace('\r', ' ')
         # Condense redundant spaces created by replacing newlines with spaces.
         text = re.sub(r'[ ]{2,}', ' ', text)
-        #text = re.sub(r'\t+', '', text)
+        text = re.sub(r'\t+', '', text)
         if self.remove_space_after_newline == True:
             text = re.sub(r'^ +', '', text)
             self.remove_space_after_newline = False
@@ -212,7 +225,8 @@ class MarkdownMLizer(OEB2HTML):
             if li['name'] == 'ul':
                 text.append('+ ')
             elif li['name'] == 'ol':
-                text.append(unicode(len(self.list)) + '. ')
+                li['num'] += 1
+                text.append(unicode(li['num']) + '. ')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
@@ -241,8 +255,7 @@ class MarkdownMLizer(OEB2HTML):
                 elif t in ('ul', 'ol'):
                     if self.list:
                         self.list.pop()
-                    if not self.list:
-                        text.append('\n')
+                    text.append('\n')
             else:
                 if t == '**':
                     self.style_bold = False
