@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-02 17:40+0000\n"
+"PO-Revision-Date: 2011-09-04 15:13+0000\n"
 "Last-Translator: Lucian Martin <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-09-03 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-09-05 04:52+0000\n"
 "X-Generator: Launchpad (build 13830)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -997,7 +997,7 @@ msgstr "Comunică cu telefoanele S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:193
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Comunică cu tabletele WebOS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -11272,7 +11272,7 @@ msgstr "Nu se poate previzualiza"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:101
 msgid "You must first explode the epub before previewing."
-msgstr ""
+msgstr "Trebuie să explodaţi fişierul epub înainte de previzualizare."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -11282,14 +11282,21 @@ msgid ""
 "windows you used to edit files in the epub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>Explodează fişierul ePub pentru a afişa conţinutul într-o fereastră a "
+"browserului de fişiere. Pentru ajustarea fişierelor individuale, apăsaţi "
+"click dreapta, pe urmă selectaţi \"Deschide cu...\" editorul de text "
+"preferat. La finalizarea ajustărilor, închideţi fereastra browserului <b>şi "
+"fereastra editorului folosit pentru editarea fişierului "
+"epub</b>.</p><p>Reconstruiţi fişierul ePub actualizând biblioteca "
+"dumneavoastră calibre.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 msgid "Display contents of exploded ePub"
-msgstr ""
+msgstr "Afişează conţinutul fişierului ePub explodat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:63
 msgid "&Explode ePub"
-msgstr ""
+msgstr "&Explodează ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:64
 msgid "Discard changes"
@@ -11297,7 +11304,7 @@ msgstr "Renunță la modificări"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:66
 msgid "Rebuild ePub from exploded contents"
-msgstr ""
+msgstr "Reconstruieşte un fişier ePub din conţinut explodat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:67
 msgid "&Rebuild ePub"
@@ -14469,15 +14476,15 @@ msgstr "&Instalează unelte pentru linia de comandă"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:67
 msgid "&Abort conversion jobs that take more than:"
-msgstr ""
+msgstr "&Anulează sarcinile de conversie dacă durează mai mult de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:71
 msgid "Never abort"
-msgstr ""
+msgstr "Nu anula niciodată"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:72
 msgid " minutes"
-msgstr ""
+msgstr " minute"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:52
 msgid "Device currently connected: "
@@ -17061,7 +17068,7 @@ msgstr "Tipăreşte cartea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:103
 msgid "Test name invalid"
-msgstr ""
+msgstr "Nume de test invalid"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
 #, python-format
@@ -17069,6 +17076,8 @@ msgid ""
 "The name <b>%r</b> does not appear to end with a file extension. The name "
 "must end with a file  extension like .epub or .mobi"
 msgstr ""
+"Numele <b>%r</b> nu conţine o extensie de fişier. Numele trebuie să aibă o "
+"extensie cum ar fi .epub sau .mobi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:993
 msgid "Drag to resize"
@@ -19667,6 +19676,10 @@ msgid ""
 "comma as the separator, but authors uses an ampersand. Examples: "
 "{tags:count(,)}, {authors:count(&)}"
 msgstr ""
+"count(val, separator) -- interpretează valoarea ca şi o listă de elemente "
+"separate prin \"separator\", returnând numărul de elemente din listă. "
+"Majoritatea listelor folosesc virgula ca şi separator, dar pentru autori se "
+"foloseşte \"&\". Exemple: {tags:count(,)}, {authors:count(&)}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:547
 msgid ""
@@ -19853,6 +19866,12 @@ msgid ""
 "list1 and list2 are separated by separator, as are the items in the returned "
 "list."
 msgstr ""
+"list_union(list1, list2, separator) -- returnează o listă creată prin unirea "
+"elementelor din \"list1\" şi \"list2\", eliminând elementele duplicate "
+"folosind o comparare care nu ţine cont de literele mari sau mici. Dacă "
+"elementele diferă prin litere mari sau mici, cele din \"list1\" sunt "
+"folosite. Elementele din \"list1\" şi \"list2\" sunt separate prin "
+"\"separator\" ca şi elementele din lista returnată."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:921
 msgid ""
@@ -19861,6 +19880,11 @@ msgid ""
 "items in list1 and list2 are separated by separator, as are the items in the "
 "returned list."
 msgstr ""
+"list_difference(list1, list2, separator) -- returnează o listă creată prin "
+"eliminarea din \"list1\" orice element găsit în \"list2\", folosind o "
+"comparare care nu ţine cont de literele mari sau mici. Elementele din "
+"\"list1\" şi \"list2\" sunt separate prin \"separator\" ca şi elementele din "
+"lista returnată."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:940
 msgid ""
@@ -19869,6 +19893,11 @@ msgid ""
 "The items in list1 and list2 are separated by separator, as are the items in "
 "the returned list."
 msgstr ""
+"list_intersection(list1, list2, separator) -- returnează o listă prin "
+"eliminarea din \"list1\" orice element care nu a fost găsit în \"list2\", "
+"folosind o comparare care nu ţine cont de literele mari sau mici. Elementele "
+"din \"list1\" şi \"list2\" sunt separate prin \"separator\" ca şi elementele "
+"din lista returnată."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:959
 msgid ""
@@ -19877,6 +19906,11 @@ msgid ""
 "otherwise descending. The list items are separated by separator, as are the "
 "items in the returned list."
 msgstr ""
+"list_sort(list, direction, separator) -- returnează lista sortată folosind o "
+"sertare care nu ţine cont de literele mari sau mici. Dacă \"direction\" este "
+"zero, lista este sortată ascendent, altfel este sortată descendent. "
+"Elementele listei sunt separate prin \"separator\" ca şi cele din lista "
+"returnată."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:972
 msgid ""
@@ -19906,7 +19940,7 @@ msgstr "Se așteaptă..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
-msgstr ""
+msgstr "S-a anulat, durează prea mult"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"

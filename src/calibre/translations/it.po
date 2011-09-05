@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-04 00:01+0000\n"
-"Last-Translator: alvido <Unknown>\n"
+"PO-Revision-Date: 2011-09-04 21:05+0000\n"
+"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-04 04:39+0000\n"
+"X-Launchpad-Export-Date: 2011-09-05 04:51+0000\n"
 "X-Generator: Launchpad (build 13830)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -344,7 +344,7 @@ msgstr "Genera un catalogo dei libri nella libreria di calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:742
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Converte gli ebook in vari formati"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:747
 msgid "Delete books from your calibre library or connected device"
@@ -437,6 +437,8 @@ msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Trova la prossima o la precedente occorrenza durante la ricerca nella "
+"libreria calibre in modalità evidenziata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
 msgid "Choose a random book from your calibre library"
@@ -990,7 +992,7 @@ msgstr "Comunica con i telefoni S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:193
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Comunica con tablet WebOS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -1045,6 +1047,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"\"Copia i file nella cartella iTunes Media %s\" è abilitata nelle preferenze "
+"iTunes|Avanzate"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid ""
@@ -1611,6 +1615,9 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+". Due raccolte speciali sono disponibili: %(abt)s:%(abtv)s e "
+"%(aba)s:%(abav)s. Aggiungi questi valori all'elenco per abilitarli. Alle "
+"raccolte sarà dato il nome fornito dopo il carattere \":\" ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:74
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -1840,6 +1847,12 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Impossibile accedere ai file nelle memoria principale del dispositivo. "
+"Contatta il fornitore per supporto. Le più comuni soluzioni possono essere: "
+"provare con un altro cavo USB, provare ad usare un'altra porta USB del "
+"computer. Se il dispositivo è stato riportato alle impostazioni di fabbrica, "
+"controlla le impostazioni di comunicazione.\r\n"
+" Errore implicito: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:113
 #, python-format
@@ -1850,12 +1863,12 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
-"Errore nell'accesso ai file sulla scheda SD del tuo dispositivo. "
-"Quest'errore può accadere per diversi motivi. La scheda SD potrebbe essere "
-"corrotta, troppo grande per il tuo dispositivo, protetta per la scrittura, "
-"ecc. Prova una scheda SD diversa oppure formattala di nuvo usando il "
-"filesystem FAT32. Assicurati anche che non ci siano troppi file alla radice "
-"della tua scheda SD. Errore sottostante: %s"
+"Errore nell'accesso ai file sulla scheda SD del tuo dispositivo. Questo "
+"errore si può verificare per diversi motivi. La scheda SD potrebbe essere "
+"danneggiata, troppo grande per il tuo dispositivo, protetta per la "
+"scrittura, ecc. Prova una scheda SD diversa oppure formattala di nuovo "
+"usando il filesystem FAT32. Assicurati anche che non ci siano troppi file "
+"nella radice della scheda SD. Errore implicito: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
@@ -2382,6 +2395,9 @@ msgid ""
 "entries, i.e. allow more than one entry with the same text, provided that "
 "they point to a different location."
 msgstr ""
+"Quando crei un indice dai collegamenti nel documento in ingresso, consenti "
+"la duplicazione delle voci, ovvero permetti più di una voce con lo stesso "
+"testo, a condizione che si riferiscano a una posizione diversa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:281
 msgid ""
@@ -2530,13 +2546,15 @@ msgid ""
 "Set the height of the inserted blank lines (in em). The height of the lines "
 "between paragraphs will be twice the value set here."
 msgstr ""
+"Imposta l'altezza delle righe vuote inserite (in em). L'altezza delle righe "
+"tra i paragrafi sarà doppia del valore impostato qui."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:396
 msgid ""
 "Remove the first image from the input ebook. Useful if the first image in "
 "the source file is a cover and you are specifying an external cover."
 msgstr ""
-"Rimuovi la prima immagine dall'ebook di input. Utile se la prima immagine "
+"Rimuovi la prima immagine dall'ebook in ingresso. Utile se la prima immagine "
 "del file sorgente è una copertina e si sta indicando una copertina esterna."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:404
@@ -2735,6 +2753,9 @@ msgid ""
 "Left aligned scene break markers are center aligned. Replace soft scene "
 "breaks that use multiple blank lines with horizontal rules."
 msgstr ""
+"I marcatori di interruzione di scena allineati a sinistra sono centrati. "
+"Sostituisci le interruzioni di scena leggere, che usano più paragrafi vuoti, "
+"con un tratteggio orizzontale."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:565
 msgid ""
@@ -3081,10 +3102,12 @@ msgid ""
 "Character encoding for the input HTML files. Common choices include: cp1252, "
 "cp1251, latin1 and utf-8."
 msgstr ""
+"Codifica caratteri per i file HTML in ingresso. Le scelte più comuni "
+"includono: cp1252, cp1251, latin1 e utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:91
 msgid "Add linked files in breadth first order"
-msgstr ""
+msgstr "Aggiungi i file collegati in ordine di ampiezza"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:92
 msgid ""
@@ -3093,6 +3116,10 @@ msgid ""
 "the order A, B, D, C.  With this option, they will instead be added as A, B, "
 "C, D"
 msgstr ""
+"Normalmente, quando si seguono i collegamenti nei file HTML, calibre da "
+"priorità ai file con più collegamenti, ovvero se il file A è collegato a B e "
+"C, ma B è collegato a D, i file saranno aggiunti nell'ordine A, B, D, C. Con "
+"questa opzione, saranno invece aggiunti come A, B, C, D"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/htmlz/input.py:62
 #, python-format
@@ -4959,7 +4986,7 @@ msgstr "<b>Posizione %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
-msgstr ""
+msgstr "Crea un catalogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:34
 msgid "No books selected for catalog generation"
@@ -5405,8 +5432,8 @@ msgid ""
 "Choose formats <b>not</b> to be deleted.<p>Note that this will never remove "
 "all formats from a book."
 msgstr ""
-"Scegli i formati che<b>non</b> devono essere eliminati.<p>Notare che questo "
-"non rimuoverà tutti i formati da un libro"
+"Scegli i formati che<b>non</b> devono essere eliminati.<p>Nota che questo "
+"non rimuoverà tutti i formati da un libro."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:188
 msgid ""
@@ -5929,15 +5956,15 @@ msgstr "Q"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Show quickview"
-msgstr ""
+msgstr "Mostra quickview"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:31
 msgid "No quickview available"
-msgstr ""
+msgstr "Nessun quickview disponibile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:32
 msgid "Quickview is not available for books on the device."
-msgstr ""
+msgstr "Quickview non è disponibile per i libri nel dispositivo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
@@ -10181,7 +10208,7 @@ msgstr "Il plugin: %s non può essere disattivato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:66
 msgid "Aborting..."
-msgstr "Interruzione..."
+msgstr "Interruzione in corso..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
@@ -10212,7 +10239,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:73
 msgid "Quickview"
-msgstr ""
+msgstr "Quickview"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:74
 msgid "Items"
@@ -14061,11 +14088,11 @@ msgstr "&Installa gli strumenti per i comandi di linea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:67
 msgid "&Abort conversion jobs that take more than:"
-msgstr ""
+msgstr "Interrompi i lavori di conversione che impiegano più di:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:71
 msgid "Never abort"
-msgstr ""
+msgstr "Non interrompere mai"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:72
 msgid " minutes"
@@ -19039,7 +19066,7 @@ msgstr "In attesa..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
-msgstr ""
+msgstr "Interrotto, impiegava troppo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"
@@ -20199,10 +20226,10 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
-"Tutte le copertine nella bibliotaca do calibre saranno ridimensionate, "
-"mantenendo le proporzioni,\n"
-"per adattarsi a questa grandezza. Questo serve a prevenire rallentamenti "
-"causati da copertine troppo grandi"
+"Tutte le copertine nella biblioteca di calibre saranno ridimensionate, "
+"mantenendo \n"
+"le proporzioni, per adattarsi a questa grandezza. Questo serve a prevenire \n"
+"rallentamenti causati da copertine troppo grandi"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:365
 msgid "Where to send downloaded news"
@@ -20220,7 +20247,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:373
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "Su quale interfaccia deve rimanere in ascolto il server di contenuti"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:374
 msgid ""
@@ -20232,10 +20259,16 @@ msgid ""
 "to '::' to listen to all incoming IPv6 and IPv4 connections (this may not\n"
 "work on all operating systems)"
 msgstr ""
+"L'impostazione predefinita del server contenuti di calibre rimane in ascolto "
+"su '0.0.0.0', che significa che accetta connessioni IPv4 da tutte le "
+"interfacce di rete. Si può cambiare questa impostazione, ad esempio, "
+"'127.0.0.1' per restare in ascolto solo per le connessioni locali alla "
+"macchina, oppure '::' per restare in ascolto di tutte le connessioni IPv6 e "
+"IPv4 (ciò potrebbe non funzionare su alcuni sistemi operativi)"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Barra degli strumenti unificata su OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:382
 msgid ""
@@ -20248,14 +20281,15 @@ msgid ""
 "it\n"
 "on at your own risk!"
 msgstr ""
-"Se abilitate questa opzione e riavviate calibre, la barra degli strumenti "
-"sarà \"unita\"\n"
-"con la barra dei titoli  come in una  applicazione OS X. Tuttavia, facendo "
-"questo si hanno \n"
-"alcuni problemi, per esempio la minima  larghezza diventa doppia \n"
-"di quello che dovrebbe essere e questo  potrebbe essere causa altri problemi "
-"saltuari su alcuni sistemi, se attivate \n"
-"questa funzione lo fate a vostro rischio!"
+"Se abiliti questa opzione e riavvii calibre, la barra degli strumenti sarà "
+"\"unificata\"\n"
+"con la barra del titolo come tutte le applicazione OS X. Tuttavia, questa "
+"funzione può \n"
+"comportare alcuni problemi, ad esempio, la larghezza minima della barra "
+"diventa doppia \n"
+"di quella prevista e ciò potrebbe causare altri problemi saltuari su alcuni "
+"sistemi, se attivi \n"
+"questa funzione, lo fai a tuo rischio!"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:389
 msgid "Save original file when converting from same format to same format"
@@ -20273,4 +20307,4 @@ msgstr ""
 "Quando calibre converte dallo stesso formato allo stesso formato, per\n"
 "esempio da EPUB a EPUB, il file originale viene salvato, così se la\n"
 "conversione è scadente, puoi modificare i parametri e lanciarla di nuovo.\n"
-"Impostando questo a Falso impedisci a calibre di salvare il file originale."
+"Impostandola a Falso impedisci a calibre di salvare il file originale."
