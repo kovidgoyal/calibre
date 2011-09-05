@@ -12,8 +12,6 @@ import re
 
 from lxml import etree
 
-from calibre.ebooks.txt.unsmarten import unsmarten
-
 
 BLOCK_TAGS = [
     'div',
@@ -78,8 +76,6 @@ class TXTMLizer(object):
             output += '\n\n\n\n\n\n'
         output = u''.join(output)
         output = u'\n'.join(l.rstrip() for l in output.splitlines())
-        if self.opts.unsmarten_punctuation:
-            output = unsmarten(output)
         output = self.cleanup_text(output)
 
         return output

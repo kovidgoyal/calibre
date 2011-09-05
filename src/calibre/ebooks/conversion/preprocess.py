@@ -605,6 +605,9 @@ class HTMLPreProcessor(object):
 
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = self.smarten_punctuation(html)
+            
+        if getattr(self.extra_opts, 'unsmarten_punctuation', False):
+            html = self.unsmarten_punctuation(html)
 
         unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
         if unsupported_unicode_chars:
@@ -634,5 +637,14 @@ class HTMLPreProcessor(object):
         html = re.sub(r'(?u)(?<=\w)\s?(\.\s?){2}\.', '&hellip;', html)
         # convert double dashes to em-dash
         html = re.sub(r'\s--\s', u'\u2014', html)
+        return substitute_entites(html)
+
+    def unsmarten_punctuation(self, html):
+        from calibre.utils.unsmarten import unsmarten_html
+        from calibre.ebooks.chardet import substitute_entites
+        from calibre.ebooks.conversion.utils import HeuristicProcessor
+        preprocessor = HeuristicProcessor(self.extra_opts, self.log)
+        html = preprocessor.fix_nbsp_indents(html)
+        html = unsmarten_html(html)
         return substitute_entites(html)
 
