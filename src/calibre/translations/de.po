@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-03 22:30+0000\n"
-"Last-Translator: noses <Unknown>\n"
+"PO-Revision-Date: 2011-09-05 11:17+0000\n"
+"Last-Translator: Klaus Thenmayer <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-04 04:38+0000\n"
-"X-Generator: Launchpad (build 13830)\n"
+"X-Launchpad-Export-Date: 2011-09-06 04:39+0000\n"
+"X-Generator: Launchpad (build 13861)\n"
 "Generated-By: pygettext.py 1.5\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -989,7 +989,7 @@ msgstr "Kommunikation mit S60-Telefonen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:193
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Kommuniziere mit WebOS Tablets."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -13191,6 +13191,8 @@ msgid ""
 "Enter either an identifier type or an identifier type and value of the form "
 "identifier:value"
 msgstr ""
+"Gäbe entweder einen Identifiertyp oder einen Identifiertyp mit einem Wert in "
+"der Form Identifier:Wert an"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:213
 msgid "Enter a number"
@@ -13535,6 +13537,9 @@ msgid ""
 "leading zeros. The format <code>{0:d}&nbsp;days</code> prints the number "
 "then the word \"days\""
 msgstr ""
+"Das Format <code>{0:0>4d}</code> gibt eine vierstellige Zahl mit führenden "
+"Nullen an. Das Format <code>{0:d}&nbsp;days</code> gibt die Nummer und das "
+"Wort \"days\" aus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:212
 msgid ""
@@ -13878,6 +13883,10 @@ msgid ""
 "used for the subject. Also, the same templates used for \"Save to disk\" "
 "such as {title} and {author_sort} can be used here."
 msgstr ""
+"Betreff des Emails wenn es versandt wird. Wenn das Feld leergelassen wird, "
+"dann wird der Titel als Betreff verwendet. Es können auch dieselben Vorlagen "
+"wie zum Beispiel {title} und {author_sort} wie beim \"Auf Festplatte "
+"speichern\" verwendet werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:37
 msgid ""
@@ -14103,11 +14112,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:231
 msgid "When showing cover browser in separate window, show it &fullscreen"
 msgstr ""
+"Wenn der Coverbrowser in einem separaten Fenster angezeigt wird, zeige ihn "
+"in &Vollbild"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
 #, python-format
 msgid "You can press the %s keys to toggle full screen mode."
-msgstr ""
+msgstr "Du kannst die %s Tasten drücken, um in den Vollbildmodus zu wechseln"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:260
 msgid "Main Interface"
@@ -14368,11 +14379,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:71
 msgid "Never abort"
-msgstr ""
+msgstr "Nie abbrechen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:72
 msgid " minutes"
-msgstr ""
+msgstr " Minuten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:52
 msgid "Device currently connected: "
