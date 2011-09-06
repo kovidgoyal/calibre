@@ -571,7 +571,7 @@ from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
-        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY)
+        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY, EX124G)
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
@@ -707,7 +707,7 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ADAM,
-    MOOVYBOOK, COBY,
+    MOOVYBOOK, COBY, EX124G,
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
