@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-import os, shutil#, unittest
+import os, shutil, unittest, tempfile
 
 def create_db(library_path):
     from calibre.library.database2 import LibraryDatabase2
@@ -17,5 +17,17 @@ def create_db(library_path):
     src = os.path.join(os.path.dirname(__file__), 'metadata.db')
     db = os.path.join(library_path, 'metadata.db')
     shutil.copyfile(src, db)
-    db = LibraryDatabase2(library_path)
+    return db
+
+class ReadingTest(unittest.TestCase):
+
+    def setUp(self):
+        self.library_path = tempfile.mkdtemp()
+        create_db(self.library_path)
+
+    def tearDown(self):
+        shutil.rmtree(self.library_path)
+
+    def test_read(self):
+        pass
 
