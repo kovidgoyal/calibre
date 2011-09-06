@@ -1024,6 +1024,10 @@ OptionRecommendation(name='sr3_replace',
                 self.output_plugin.file_type not in ('mobi', 'lrf'):
             from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
             LinearizeTables()(self.oeb, self.opts)
+            
+        if self.opts.unsmarten_punctuation:
+            from calibre.ebooks.oeb.transforms.unsmarten import UnsmartenPunctuation
+            UnsmartenPunctuation()(self.oeb, self.opts)
 
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
