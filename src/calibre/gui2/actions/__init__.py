@@ -180,30 +180,30 @@ class InterfaceAction(QObject):
             description=None, triggered=None, shortcut_name=None):
         '''
         Convenience method to easily add actions to a QMenu.
+        Returns the created QAction, This action has one extra attribute
+        calibre_shortcut_unique_name which if not None refers to the unique
+        name under which this action is registered with the keyboard manager.
 
         :param menu: The QMenu the newly created action will be added to
         :param unique_name: A unique name for this action, this must be
-        globally unique, so make it as descriptive as possible. If in doubt add
-        a uuid to it.
+            globally unique, so make it as descriptive as possible. If in doubt add
+            a uuid to it.
         :param text: The text of the action.
         :param icon: Either a QIcon or a file name. The file name is passed to
-        the I() builtin, so you do not need to pass the full path to the images
-        directory.
+            the I() builtin, so you do not need to pass the full path to the images
+            directory.
         :param shortcut: A string, a list of strings, None or False. If False,
-        no keyboard shortcut is registered for this action. If None, a keyboard
-        shortcut with no default keybinding is registered. String and list of
-        strings register a shortcut with default keybinding as specified.
+            no keyboard shortcut is registered for this action. If None, a keyboard
+            shortcut with no default keybinding is registered. String and list of
+            strings register a shortcut with default keybinding as specified.
         :param description: A description for this action. Used to set
-        tooltips.
+            tooltips.
         :param triggered: A callable which is connected to the triggered signal
-        of the created action.
+            of the created action.
         :param shortcut_name: The test displayed to the user when customizing
-        the keyboard shortcuts for this action. By default it is set to the
-        value of ``text``.
+            the keyboard shortcuts for this action. By default it is set to the
+            value of ``text``.
 
-        :return: The created QAction, This action has one extra attribute
-        calibre_shortcut_unique_name which if not None refers to the unique
-        name under which this action is registered with the keyboard manager.
         '''
         if shortcut_name is None:
             shortcut_name = unicode(text)
