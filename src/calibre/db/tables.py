@@ -66,8 +66,6 @@ class VirtualTable(Table):
         self.table_type = table_type
         Table.__init__(self, name, metadata)
 
-
-
 class OneToOneTable(Table):
 
     '''
