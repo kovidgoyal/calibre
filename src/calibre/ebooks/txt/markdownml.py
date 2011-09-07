@@ -15,7 +15,6 @@ from functools import partial
 from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
-from calibre.ebooks.txt.unsmarten import unsmarten
 
 class MarkdownMLizer(OEB2HTML):
 
@@ -34,8 +33,6 @@ class MarkdownMLizer(OEB2HTML):
         self.style_italic = False
 
         txt = self.mlize_spine(oeb_book)
-        if self.opts.unsmarten_punctuation:
-            txt = unsmarten(txt)
 
         # Do some tidying up
         txt = self.tidy_up(txt)

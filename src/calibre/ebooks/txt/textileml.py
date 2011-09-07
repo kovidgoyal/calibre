@@ -83,7 +83,7 @@ class TextileMLizer(OEB2HTML):
             for i in self.our_ids:
                 if i not in self.our_links:
                     text = re.sub(r'%?\('+i+'\)\xa0?%?', r'', text)
-                    
+
         # Remove obvious non-needed escaping, add sub/sup-script ones
         text = check_escaping(text, ['\*', '_', '\*'])
         # escape the super/sub-scripts if needed
@@ -189,7 +189,7 @@ class TextileMLizer(OEB2HTML):
         emright = int(round(right / stylizer.profile.fbase))
         if emright >= 1:
             txt += ')' * emright
-            
+
         return txt
 
     def check_id_tag(self, attribs):
@@ -235,7 +235,7 @@ class TextileMLizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
-        
+
         # Ignore anything that is set to not be displayed.
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
@@ -246,7 +246,7 @@ class TextileMLizer(OEB2HTML):
             ems = int(round(float(style.marginTop) / style.fontSize) - 1)
             if ems >= 1:
                 text.append(u'\n\n\xa0' * ems)
-            
+
         if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div'):
             if tag == 'div':
                 tag = 'p'
@@ -432,7 +432,7 @@ class TextileMLizer(OEB2HTML):
                 'span', 'table', 'tr', 'td'):
             if not self.in_a_link:
                 text.append(self.check_styles(style))
-        
+
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             txt = elem.text

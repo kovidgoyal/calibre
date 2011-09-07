@@ -7,9 +7,6 @@ __docformat__ = 'restructuredtext en'
 import re
 
 def unsmarten(txt):
-    from calibre.ebooks.txt.unsmarten import unsmarten as txt_unsmarten
-    txt = txt_unsmarten(txt)
-    
     txt = re.sub(u'&#162;|&cent;|¢',     r'{c\}',  txt)  # cent
     txt = re.sub(u'&#163;|&pound;|£',    r'{L-}',  txt)  # pound
     txt = re.sub(u'&#165;|&yen;|¥',      r'{Y=}',  txt)  # yen

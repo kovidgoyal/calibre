@@ -415,6 +415,13 @@ OptionRecommendation(name='smarten_punctuation',
             )
         ),
 
+OptionRecommendation(name='unsmarten_punctuation',
+        recommended_value=False, level=OptionRecommendation.LOW,
+        help=_('Convert fancy quotes, dashes and ellipsis to their '
+               'plain equivalents.'
+            )
+        ),
+
 OptionRecommendation(name='read_metadata_from_opf',
             recommended_value=None, level=OptionRecommendation.LOW,
             short_switch='m',
@@ -1017,6 +1024,10 @@ OptionRecommendation(name='sr3_replace',
                 self.output_plugin.file_type not in ('mobi', 'lrf'):
             from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
             LinearizeTables()(self.oeb, self.opts)
+            
+        if self.opts.unsmarten_punctuation:
+            from calibre.ebooks.oeb.transforms.unsmarten import UnsmartenPunctuation
+            UnsmartenPunctuation()(self.oeb, self.opts)
 
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,

@@ -56,10 +56,6 @@ class TXTOutput(OutputFormatPlugin):
                     '* plain: Produce plain text.\n'
                     '* markdown: Produce Markdown formatted text.\n'
                     '* textile: Produce Textile formatted text.')),
-        OptionRecommendation(name='unsmarten_punctuation',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Convert fancy quotes, dashes and ellipsis to their '
-            'plain equivalents.')),
         OptionRecommendation(name='keep_links',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Do not remove links within the document. This is only ' \
