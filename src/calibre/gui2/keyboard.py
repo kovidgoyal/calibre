@@ -116,6 +116,11 @@ class Manager(QObject): # {{{
         done unregistering.
         '''
         self.shortcuts.pop(unique_name, None)
+        for group in self.groups.itervalues():
+            try:
+                group.remove(unique_name)
+            except ValueError:
+                pass
 
     def finalize(self):
         custom_keys_map = {un:tuple(keys) for un, keys in self.config.get(

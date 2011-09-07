@@ -5113,6 +5113,8 @@ Author '{0}':
 
         if catalog_source_built:
             recommendations = []
+            recommendations.append(('remove_fake_margins', False,
+                OptionRecommendation.HIGH))
             if DEBUG:
                 recommendations.append(('comments', '\n'.join(line for line in build_log),
                     OptionRecommendation.HIGH))

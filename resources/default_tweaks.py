@@ -70,8 +70,17 @@ author_sort_copy_method = 'comma'
 author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
                         'MD', 'M.D', 'I', 'II', 'III', 'IV',
                         'Junior', 'Senior')
+author_name_prefixes = ('Mr', 'Mrs', 'Ms', 'Dr', 'Prof')
 author_name_copywords = ('Corporation', 'Company', 'Co.', 'Agency', 'Council',
         'Committee', 'Inc.', 'Institute', 'Society', 'Club', 'Team')
+
+#: Splitting multiple author names
+# By default, calibre splits a string containing multiple author names on
+# ampersands and the words "and" and "with". You can customize the splitting
+# by changing the regular expression below. Strings are split on whatever the
+# specified regular expression matches.
+# Default: r'(?i),?\s+(and|with)\s+'
+authors_split_regex = r'(?i),?\s+(and|with)\s+'
 
 #: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,

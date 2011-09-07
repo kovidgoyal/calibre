@@ -636,12 +636,3 @@ class HTMLPreProcessor(object):
         html = re.sub(r'\s--\s', u'\u2014', html)
         return substitute_entites(html)
 
-    def unsmarten_punctuation(self, html):
-        from calibre.utils.unsmarten import unsmarten_html
-        from calibre.ebooks.chardet import substitute_entites
-        from calibre.ebooks.conversion.utils import HeuristicProcessor
-        preprocessor = HeuristicProcessor(self.extra_opts, self.log)
-        html = preprocessor.fix_nbsp_indents(html)
-        html = unsmarten_html(html)
-        return substitute_entites(html)
-

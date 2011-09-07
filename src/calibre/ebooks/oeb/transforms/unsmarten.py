@@ -10,16 +10,22 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XPath, barename
 from calibre.utils.unsmarten import unsmarten_text
 
 class UnsmartenPunctuation(object):
-    
+
+    def __init__(self):
+        self.html_tags = XPath('descendant::h:*')
+
     def unsmarten(self, root):
-        for x in XPath('//h:*')(root):
+        for x in self.html_tags(root):
             if not barename(x) == 'pre':
-                if hasattr(x, 'text') and x.text:
+                if getattr(x, 'text', None):
                     x.text = unsmarten_text(x.text)
-                if hasattr(x, 'tail') and x.tail:
+                if getattr(x, 'tail', None) and x.tail:
                     x.tail = unsmarten_text(x.tail)
 
     def __call__(self, oeb, context):
+        bx = XPath('//h:body')
         for x in oeb.manifest.items:
             if x.media_type in OEB_DOCS:
-                self.unsmarten(x.data)
+                for body in bx(x.data):
+                    self.unsmarten(body)
+

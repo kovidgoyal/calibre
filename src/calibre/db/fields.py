@@ -164,7 +164,7 @@ class ManyToOneField(Field):
     def for_book(self, book_id, default_value=None):
         ids = self.table.book_col_map.get(book_id, None)
         if ids is not None:
-            ans = self.id_map[ids]
+            ans = self.table.id_map[ids]
         else:
             ans = default_value
         return ans
@@ -182,7 +182,7 @@ class ManyToOneField(Field):
         return self.table.id_map.iterkeys()
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):
-        keys = {id_ : self._sort_key(self.id_map.get(id_, '')) for id_ in
+        keys = {id_ : self._sort_key(self.table.id_map.get(id_, '')) for id_ in
                 all_book_ids}
         return {id_ : keys.get(
             self.book_col_map.get(id_, None), '') for id_ in all_book_ids}
@@ -196,7 +196,7 @@ class ManyToManyField(Field):
     def for_book(self, book_id, default_value=None):
         ids = self.table.book_col_map.get(book_id, ())
         if ids:
-            ans = tuple(self.id_map[i] for i in ids)
+            ans = tuple(self.table.id_map[i] for i in ids)
         else:
             ans = default_value
         return ans
@@ -211,7 +211,7 @@ class ManyToManyField(Field):
         return self.table.id_map.iterkeys()
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):
-        keys = {id_ : self._sort_key(self.id_map.get(id_, '')) for id_ in
+        keys = {id_ : self._sort_key(self.table.id_map.get(id_, '')) for id_ in
                 all_book_ids}
 
         def sort_key_for_book(book_id):
@@ -222,6 +222,13 @@ class ManyToManyField(Field):
 
         return {id_ : sort_key_for_book(id_) for id_ in all_book_ids}
 
+class IdentifiersField(ManyToManyField):
+
+    def for_book(self, book_id, default_value=None):
+        ids = self.table.book_col_map.get(book_id, ())
+        if not ids:
+            ids = default_value
+        return ids
 
 class AuthorsField(ManyToManyField):
 
@@ -249,6 +256,8 @@ def create_field(name, table):
         cls = OnDeviceField
     elif name == 'formats':
         cls = FormatsField
+    elif name == 'identifiers':
+        cls = IdentifiersField
     elif table.metadata['datatype'] == 'composite':
         cls = CompositeField
     return cls(name, table)

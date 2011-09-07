@@ -10,11 +10,17 @@ import os, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-from calibre import relpath, guess_type, remove_bracketed_text
+from calibre import relpath, guess_type, remove_bracketed_text, prints
 
 from calibre.utils.config import tweaks
 
-_author_pat = re.compile(',?\s+(and|with)\s+', re.IGNORECASE)
+try:
+    _author_pat = re.compile(tweaks['authors_split_regex'])
+except:
+    prints ('Author split regexp:', tweaks['authors_split_regex'],
+            'is invalid, using default')
+    _author_pat = re.compile(r'(?i),?\s+(and|with)\s+')
+
 def string_to_authors(raw):
     raw = raw.replace('&&', u'\uffff')
     raw = _author_pat.sub('&', raw)
@@ -44,6 +50,17 @@ def author_to_author_sort(author, method=None):
 
     if method == u'copy':
         return author
+
+    prefixes = set([x.lower() for x in tweaks['author_name_prefixes']])
+    prefixes |= set([x+u'.' for x in prefixes])
+    while True:
+        if not tokens:
+            return author
+        tok = tokens[0].lower()
+        if tok in prefixes:
+            tokens = tokens[1:]
+        else:
+            break
 
     suffixes = set([x.lower() for x in tweaks['author_name_suffixes']])
     suffixes |= set([x+u'.' for x in suffixes])

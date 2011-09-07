@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import SIGNAL, QVariant
+from PyQt4.Qt import SIGNAL, QVariant, Qt
 
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -45,6 +45,12 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 self.font_key_wizard)
         self.opt_remove_paragraph_spacing.toggle()
         self.opt_remove_paragraph_spacing.toggle()
+        self.opt_smarten_punctuation.stateChanged.connect(
+                lambda state: state != Qt.Unchecked and
+                self.opt_unsmarten_punctuation.setCheckState(Qt.Unchecked))
+        self.opt_unsmarten_punctuation.stateChanged.connect(
+                lambda state: state != Qt.Unchecked and
+                self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
 
     def get_value_handler(self, g):
         if g is self.opt_change_justification:
