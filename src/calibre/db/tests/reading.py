@@ -38,7 +38,7 @@ class ReadingTest(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.library_path)
 
-    def test_read(self):
+    def test_read(self): # {{{
         cache = init_cache(self.library_path)
         tests = {
                 2 : {
@@ -48,7 +48,7 @@ class ReadingTest(unittest.TestCase):
                     'author_sort': 'One, Author',
                     'series' : 'Series One',
                     'series_index': 1.0,
-                    'tags':('Tag One',),
+                    'tags':('Tag Two', 'Tag One'),
                     'rating': 4.0,
                     'identifiers': {'test':'one'},
                     'timestamp': datetime.datetime(2011, 9, 5, 15, 6,
@@ -103,7 +103,7 @@ class ReadingTest(unittest.TestCase):
             for field, expected_val in test.iteritems():
                 self.assertEqual(expected_val,
                         cache.field_for(field, book_id))
-            break
+        # }}}
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(ReadingTest)
