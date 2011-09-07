@@ -291,6 +291,8 @@ class PRS505(USBMS):
             thumbnail_dir = os.path.join(thumbnail_dir, relpath)
             if not os.path.exists(thumbnail_dir):
                 os.makedirs(thumbnail_dir)
-            with open(os.path.join(thumbnail_dir, 'main_thumbnail.jpg'), 'wb') as f:
+            cpath = os.path.join(thumbnail_dir, 'main_thumbnail.jpg')
+            with open(cpath, 'wb') as f:
                 f.write(metadata.thumbnail[-1])
+            debug_print('Cover uploaded to: %r'%cpath)
 
