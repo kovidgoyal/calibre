@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-08-31 23:03+0000\n"
-"Last-Translator: PALOTAI ÉVA <Unknown>\n"
+"PO-Revision-Date: 2011-09-06 18:07+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-03 04:41+0000\n"
-"X-Generator: Launchpad (build 13830)\n"
+"X-Launchpad-Export-Date: 2011-09-07 04:35+0000\n"
+"X-Generator: Launchpad (build 13861)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -15777,14 +15777,16 @@ msgid ""
 "Make font size %(which)s\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"Betűméret változtatása %(which)s\n"
+"Jelenlegi nagyítás mértéke: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:500
 msgid "larger"
-msgstr ""
+msgstr "nagyobbra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:502
 msgid "smaller"
-msgstr ""
+msgstr "kisebbre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:518
 #, python-format
