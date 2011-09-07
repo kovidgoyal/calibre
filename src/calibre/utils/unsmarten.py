@@ -36,8 +36,8 @@ _mreplace = MReplace({
         '‘':"'",
         '’':"'",
         '′':"'",
-}
-)
+})
+
 unsmarten_text = _mreplace.mreplace
 
 
