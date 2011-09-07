@@ -200,7 +200,12 @@ class Cache(object):
         ``book_id``. If no such book exists or it has no defined value for the
         field ``name`` or no such field exists, then ``default_value`` is returned.
 
-        The returned value for is_multiple fields are always tuples.
+        default_values is not used for title, title_sort, authors, author_sort
+        and series_index. This is because these always have values in the db.
+        default_value is used for all custom columns.
+
+        The returned value for is_multiple fields are always tuples, unless
+        default_value is returned.
         '''
         if self.composites and name in self.composites:
             return self.composite_for(name, book_id,
@@ -254,7 +259,7 @@ class Cache(object):
         '''
         Frozen set of all known book ids.
         '''
-        return frozenset(self.fields['uuid'].iter_book_ids())
+        return frozenset(self.fields['uuid'])
 
     @read_api
     def all_field_ids(self, name):
@@ -348,17 +353,37 @@ class Cache(object):
 
     @read_api
     def multisort(self, fields, ids_to_sort=None):
+        '''
+        Return a list of sorted book ids. If ids_to_sort is None, all book ids
+        are returned.
+
+        fields must be a list of 2-tuples of the form (field_name,
+        ascending=True or False). The most significant field is the first
+        2-tuple.
+        '''
         all_book_ids = frozenset(self._all_book_ids() if ids_to_sort is None
                 else ids_to_sort)
         get_metadata = partial(self._get_metadata, get_user_categories=False)
 
-        sort_keys = tuple(self.fields[field[0]].sort_keys_for_books(get_metadata,
-            all_book_ids) for field in fields)
+        fm = {'title':'sort', 'authors':'author_sort'}
+
+        def sort_key(field):
+            'Handle series type fields'
+            ans = self.fields[fm.get(field, field)].sort_keys_for_books(get_metadata,
+                                                        all_book_ids)
+            idx = field + '_index'
+            if idx in self.fields:
+                idx_ans = self.fields[idx].sort_keys_for_books(get_metadata,
+                    all_book_ids)
+                ans = {k:(v, idx_ans[k]) for k, v in ans.iteritems()}
+            return ans
+
+        sort_keys = tuple(sort_key(field[0]) for field in fields)
 
         if len(sort_keys) == 1:
             sk = sort_keys[0]
             return sorted(all_book_ids, key=lambda i:sk[i], reverse=not
-                    fields[1])
+                    fields[0][1])
         else:
             return sorted(all_book_ids, key=partial(SortKey, fields, sort_keys))
 

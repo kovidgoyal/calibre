@@ -39,8 +39,40 @@ class ReadingTest(unittest.TestCase):
         shutil.rmtree(self.library_path)
 
     def test_read(self): # {{{
+        'Test the reading of data from the database'
         cache = init_cache(self.library_path)
         tests = {
+                3  : {
+                    'title': 'Unknown',
+                    'sort': 'Unknown',
+                    'authors': ('Unknown',),
+                    'author_sort': 'Unknown',
+                    'series' : None,
+                    'series_index': 1.0,
+                    'rating': None,
+                    'tags': None,
+                    'identifiers': None,
+                    'timestamp': datetime.datetime(2011, 9, 7, 13, 54, 41,
+                        tzinfo=local_tz),
+                    'pubdate': datetime.datetime(2011, 9, 7, 13, 54, 41,
+                        tzinfo=local_tz),
+                    'last_modified': datetime.datetime(2011, 9, 7, 13, 54, 41,
+                        tzinfo=local_tz),
+                    'publisher': None,
+                    'languages': None,
+                    'comments': None,
+                    '#enum': None,
+                    '#authors':None,
+                    '#date':None,
+                    '#rating':None,
+                    '#series':None,
+                    '#series_index': None,
+                    '#tags':None,
+                    '#yesno':None,
+                    '#comments': None,
+
+                },
+
                 2 : {
                     'title': 'Title One',
                     'sort': 'One',
@@ -74,10 +106,10 @@ class ReadingTest(unittest.TestCase):
                     'sort': 'Title Two',
                     'authors': ('Author Two', 'Author One'),
                     'author_sort': 'Two, Author & One, Author',
-                    'series' : 'Series Two',
+                    'series' : 'Series One',
                     'series_index': 2.0,
                     'rating': 6.0,
-                    'tags': ('Tag Two',),
+                    'tags': ('Tag One',),
                     'identifiers': {'test':'two'},
                     'timestamp': datetime.datetime(2011, 9, 6, 0, 0,
                         tzinfo=local_tz),
@@ -104,6 +136,48 @@ class ReadingTest(unittest.TestCase):
                 self.assertEqual(expected_val,
                         cache.field_for(field, book_id))
         # }}}
+
+    def test_sorting(self): # {{{
+        'Test sorting'
+        cache = init_cache(self.library_path)
+        for field, order in {
+                'title'  : [2, 1, 3],
+                'authors': [2, 1, 3],
+                'series' : [3, 2, 1],
+                'tags'   : [3, 1, 2],
+                'rating' : [3, 2, 1],
+                # 'identifiers': [3, 2, 1], There is no stable sort since 1 and
+                # 2 have the same identifier keys
+                # TODO: Add an empty book to the db and ensure that empty
+                # fields sort the same as they do in db2
+                'timestamp': [2, 1, 3],
+                'pubdate'  : [1, 2, 3],
+                'publisher': [3, 2, 1],
+                'last_modified': [2, 1, 3],
+                'languages': [3, 2, 1],
+                'comments': [3, 2, 1],
+                '#enum' : [3, 2, 1],
+                '#authors' : [3, 2, 1],
+                '#date': [3, 1, 2],
+                '#rating':[3, 2, 1],
+                '#series':[3, 2, 1],
+                '#tags':[3, 2, 1],
+                '#yesno':[3, 1, 2],
+                '#comments':[3, 2, 1],
+            }.iteritems():
+            x = list(reversed(order))
+            self.assertEqual(order, cache.multisort([(field, True)],
+                ids_to_sort=x),
+                    'Ascending sort of %s failed'%field)
+            self.assertEqual(x, cache.multisort([(field, False)],
+                ids_to_sort=order),
+                    'Descending sort of %s failed'%field)
+
+        # Test subsorting
+        self.assertEqual([3, 2, 1], cache.multisort([('identifiers', True),
+            ('title', True)]), 'Subsort failed')
+    # }}}
+
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(ReadingTest)
