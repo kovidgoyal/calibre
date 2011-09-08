@@ -153,10 +153,7 @@ class Cache(object):
             if meta['datatype'] == 'composite':
                 composites.append(key)
             else:
-                defval = None
-                if meta['is_multiple'] and meta['datatype'] == 'text':
-                    defval = []
-                val = self._field_for(key, book_id, default_value=defval)
+                val = self._field_for(key, book_id)
                 if isinstance(val, tuple):
                     val = list(val)
                 extra = self._field_for(key+'_index', book_id)
