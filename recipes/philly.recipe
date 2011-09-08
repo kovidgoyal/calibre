@@ -11,7 +11,10 @@ class BasicUserRecipe1314970845(BasicNewsRecipe):
 
     feeds          = [
             (u'Front Page', u'http://www.philly.com/inquirer_front_page.rss'),
-            (u'Local and Regional', u'http://www.philly.com/inquirer_local.rss'),
+            (u'Philly.com News', u'http://www.philly.com/philly_news.rss'),
+            (u'National/World (Philly.com)', u'http://www.philly.com/philly_news_nation.rss'),
+            (u'Politics (Philly.com)', u'http://www.philly.com/philly_politics.rss'),
+            (u'Local (Philly.com)', u'http://www.philly.com/philly_news_local.rss'),
             (u'South Jersey News', u'http://www.philly.com/inq_news_south_jersey.rss'),
             (u'Sports', u'http://www.philly.com/inquirer_sports.rss'),
             (u'Tech News', u'http://www.philly.com/philly_tech.rss'),
@@ -26,6 +29,7 @@ class BasicUserRecipe1314970845(BasicNewsRecipe):
             (u'Home and Design', u'http://www.philly.com/inq_home_design.rss'),
             (u'News Columnists', u'http://www.philly.com/inq_columnists.rss'),
             (u'Editorial', u'http://www.philly.com/inq_news_editorial.rss'),
-            (u'Travel', u'http://www.philly.com/inquirer_travel.rss'), (u'Obituaries', u'http://www.philly.com/inquirer_obituaries.rss')
+            (u'Travel', u'http://www.philly.com/inquirer_travel.rss'),
+            (u'Obituaries', u'http://www.philly.com/inquirer_obituaries.rss')
     ]
 
