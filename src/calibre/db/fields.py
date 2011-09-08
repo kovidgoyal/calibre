@@ -33,6 +33,8 @@ class Field(object):
             self._default_sort_key = UNDEFINED_DATE
         if self.name == 'languages':
             self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
+        self.is_multiple = (bool(self.metadata['is_multiple']) or self.name ==
+                'formats')
 
     @property
     def metadata(self):
@@ -141,6 +143,7 @@ class OnDeviceField(OneToOneField):
     def __init__(self, name, table):
         self.name = name
         self.book_on_device_func = None
+        self.is_multiple = False
 
     def book_on_device(self, book_id):
         if callable(self.book_on_device_func):

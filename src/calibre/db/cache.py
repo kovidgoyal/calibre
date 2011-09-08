@@ -120,10 +120,9 @@ class Cache(object):
         mi.ondevice_col = self._field_for('ondevice', book_id, default_value='')
         mi.last_modified = self._field_for('last_modified', book_id,
                 default_value=n)
-        formats = self._field_for('formats', book_id, default_value=())
+        formats = self._field_for('formats', book_id)
         mi.format_metadata = {}
-        mi.languages = list(self._field_for('languages', book_id,
-            default_value=()))
+        mi.languages = list(self._field_for('languages', book_id))
         if not formats:
             good_formats = None
         else:
@@ -208,16 +207,13 @@ class Cache(object):
         ``book_id``. If no such book exists or it has no defined value for the
         field ``name`` or no such field exists, then ``default_value`` is returned.
 
-        default_values is not used for title, title_sort, authors, author_sort
+        default_value is not used for title, title_sort, authors, author_sort
         and series_index. This is because these always have values in the db.
         default_value is used for all custom columns.
 
-        The returned value for is_multiple fields are always tuples, unless
-        default_value is returned.
-
-        WARNING: When returning the value for a is_multiple custom field this
-        method returns None (the default_value) if no value is set. The
-        get_custom() method from the old interface returned []
+        The returned value for is_multiple fields are always tuples, even when
+        no values are found (in other words, default_value is ignored). The
+        exception is identifiers for which the returned value is always a dict.
 
         WARNING: For is_multiple fields this method returns tuples, the old
         interface generally returned lists.
@@ -230,7 +226,13 @@ class Cache(object):
             return self.composite_for(name, book_id,
                     default_value=default_value)
         try:
-            return self.fields[name].for_book(book_id, default_value=default_value)
+            field = self.fields[name]
+        except KeyError:
+            return default_value
+        if field.is_multiple:
+            default_value = {} if name == 'identifiers' else ()
+        try:
+            return field.for_book(book_id, default_value=default_value)
         except (KeyError, IndexError):
             return default_value
 

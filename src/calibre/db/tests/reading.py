@@ -34,9 +34,9 @@ class ReadingTest(BaseTest):
                     'series' : None,
                     'series_index': 1.0,
                     'rating': None,
-                    'tags': None,
-                    'formats':None,
-                    'identifiers': None,
+                    'tags': (),
+                    'formats':(),
+                    'identifiers': {},
                     'timestamp': datetime.datetime(2011, 9, 7, 13, 54, 41,
                         tzinfo=local_tz),
                     'pubdate': datetime.datetime(2011, 9, 7, 13, 54, 41,
@@ -44,15 +44,15 @@ class ReadingTest(BaseTest):
                     'last_modified': datetime.datetime(2011, 9, 7, 13, 54, 41,
                         tzinfo=local_tz),
                     'publisher': None,
-                    'languages': None,
+                    'languages': (),
                     'comments': None,
                     '#enum': None,
-                    '#authors':None,
+                    '#authors':(),
                     '#date':None,
                     '#rating':None,
                     '#series':None,
                     '#series_index': None,
-                    '#tags':None,
+                    '#tags':(),
                     '#yesno':None,
                     '#comments': None,
 
@@ -66,7 +66,7 @@ class ReadingTest(BaseTest):
                     'series' : 'Series One',
                     'series_index': 1.0,
                     'tags':('Tag Two', 'Tag One'),
-                    'formats': None,
+                    'formats': (),
                     'rating': 4.0,
                     'identifiers': {'test':'one'},
                     'timestamp': datetime.datetime(2011, 9, 5, 15, 6,
@@ -96,7 +96,7 @@ class ReadingTest(BaseTest):
                     'series_index': 2.0,
                     'rating': 6.0,
                     'tags': ('Tag One',),
-                    'formats':None,
+                    'formats':(),
                     'identifiers': {'test':'two'},
                     'timestamp': datetime.datetime(2011, 9, 6, 0, 0,
                         tzinfo=local_tz),
@@ -120,8 +120,10 @@ class ReadingTest(BaseTest):
         }
         for book_id, test in tests.iteritems():
             for field, expected_val in test.iteritems():
-                self.assertEqual(expected_val,
-                        cache.field_for(field, book_id))
+                val = cache.field_for(field, book_id)
+                self.assertEqual(expected_val, val,
+                        'Book id: %d Field: %s failed: %r != %r'%(
+                            book_id, field, expected_val, val))
         # }}}
 
     def test_sorting(self): # {{{
