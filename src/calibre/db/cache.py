@@ -120,8 +120,10 @@ class Cache(object):
         mi.ondevice_col = self._field_for('ondevice', book_id, default_value='')
         mi.last_modified = self._field_for('last_modified', book_id,
                 default_value=n)
-        formats = self._field_for('formats', book_id)
+        formats = self._field_for('formats', book_id, default_value=())
         mi.format_metadata = {}
+        mi.languages = list(self._field_for('languages', book_id,
+            default_value=()))
         if not formats:
             good_formats = None
         else:
@@ -146,20 +148,26 @@ class Cache(object):
             default_value={}))
         mi.application_id = book_id
         mi.id = book_id
-        composites = {}
+        composites = []
         for key, meta in self.field_metadata.custom_iteritems():
             mi.set_user_metadata(key, meta)
             if meta['datatype'] == 'composite':
                 composites.append(key)
             else:
-                mi.set(key, val=self._field_for(meta['label'], book_id),
-                        extra=self._field_for(meta['label']+'_index', book_id))
-        for c in composites:
+                defval = None
+                if meta['is_multiple'] and meta['datatype'] == 'text':
+                    defval = []
+                val = self._field_for(key, book_id, default_value=defval)
+                if isinstance(val, tuple):
+                    val = list(val)
+                extra = self._field_for(key+'_index', book_id)
+                mi.set(key, val=val, extra=extra)
+        for key in composites:
             mi.set(key, val=self._composite_for(key, book_id, mi))
 
         user_cat_vals = {}
         if get_user_categories:
-            user_cats = self.prefs['user_categories']
+            user_cats = self.backend.prefs['user_categories']
             for ucat in user_cats:
                 res = []
                 for name,cat,ign in user_cats[ucat]:
@@ -206,6 +214,17 @@ class Cache(object):
 
         The returned value for is_multiple fields are always tuples, unless
         default_value is returned.
+
+        WARNING: When returning the value for a is_multiple custom field this
+        method returns None (the default_value) if no value is set. The
+        get_custom() method from the old interface returned []
+
+        WARNING: For is_multiple fields this method returns tuples, the old
+        interface generally returned lists.
+
+        WARNING: For is_multiple fields the order of items is always in link
+        order (order in which they were entered), whereas the old db had them
+        in random order for fields other than author.
         '''
         if self.composites and name in self.composites:
             return self.composite_for(name, book_id,

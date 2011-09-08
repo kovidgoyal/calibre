@@ -927,7 +927,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not formats:
             good_formats = None
         else:
-            formats = formats.split(',')
+            formats = sorted(formats.split(','))
             good_formats = []
             for f in formats:
                 try:

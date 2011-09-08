@@ -7,40 +7,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-
-import os, shutil, unittest, tempfile, datetime
+import shutil, unittest, tempfile, datetime
+from cStringIO import StringIO
 
 from calibre.utils.date import local_tz
+from calibre.db.tests.base import BaseTest
 
-def create_db(library_path):
-    from calibre.library.database2 import LibraryDatabase2
-    if LibraryDatabase2.exists_at(library_path):
-        raise ValueError('A library already exists at %r'%library_path)
-    src = os.path.join(os.path.dirname(__file__), 'metadata.db')
-    db = os.path.join(library_path, 'metadata.db')
-    shutil.copyfile(src, db)
-    return db
-
-def init_cache(library_path):
-    from calibre.db.backend import DB
-    from calibre.db.cache import Cache
-    backend = DB(library_path)
-    cache = Cache(backend)
-    cache.init()
-    return cache
-
-class ReadingTest(unittest.TestCase):
+class ReadingTest(BaseTest):
 
     def setUp(self):
         self.library_path = tempfile.mkdtemp()
-        create_db(self.library_path)
+        self.create_db(self.library_path)
 
     def tearDown(self):
         shutil.rmtree(self.library_path)
 
     def test_read(self): # {{{
         'Test the reading of data from the database'
-        cache = init_cache(self.library_path)
+        cache = self.init_cache(self.library_path)
         tests = {
                 3  : {
                     'title': 'Unknown',
@@ -51,6 +35,7 @@ class ReadingTest(unittest.TestCase):
                     'series_index': 1.0,
                     'rating': None,
                     'tags': None,
+                    'formats':None,
                     'identifiers': None,
                     'timestamp': datetime.datetime(2011, 9, 7, 13, 54, 41,
                         tzinfo=local_tz),
@@ -81,6 +66,7 @@ class ReadingTest(unittest.TestCase):
                     'series' : 'Series One',
                     'series_index': 1.0,
                     'tags':('Tag Two', 'Tag One'),
+                    'formats': None,
                     'rating': 4.0,
                     'identifiers': {'test':'one'},
                     'timestamp': datetime.datetime(2011, 9, 5, 15, 6,
@@ -110,6 +96,7 @@ class ReadingTest(unittest.TestCase):
                     'series_index': 2.0,
                     'rating': 6.0,
                     'tags': ('Tag One',),
+                    'formats':None,
                     'identifiers': {'test':'two'},
                     'timestamp': datetime.datetime(2011, 9, 6, 0, 0,
                         tzinfo=local_tz),
@@ -139,7 +126,7 @@ class ReadingTest(unittest.TestCase):
 
     def test_sorting(self): # {{{
         'Test sorting'
-        cache = init_cache(self.library_path)
+        cache = self.init_cache(self.library_path)
         for field, order in {
                 'title'  : [2, 1, 3],
                 'authors': [2, 1, 3],
@@ -178,6 +165,28 @@ class ReadingTest(unittest.TestCase):
             ('title', True)]), 'Subsort failed')
     # }}}
 
+    def test_get_metadata(self): # {{{
+        'Test get_metadata() returns the same data for both backends'
+        from calibre.library.database2 import LibraryDatabase2
+        old = LibraryDatabase2(self.library_path)
+        for i in xrange(1, 3):
+            old.add_format(i, 'txt%d'%i, StringIO(b'random%d'%i),
+                    index_is_id=True)
+            old.add_format(i, 'text%d'%i, StringIO(b'random%d'%i),
+                    index_is_id=True)
+
+        old_metadata = {i:old.get_metadata(i, index_is_id=True) for i in
+                xrange(1, 4)}
+        old = None
+
+        cache = self.init_cache(self.library_path)
+
+        new_metadata = {i:cache.get_metadata(i) for i in xrange(1, 4)}
+        cache = None
+        for mi2, mi1 in zip(new_metadata.values(), old_metadata.values()):
+            self.compare_metadata(mi1, mi2)
+
+    # }}}
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(ReadingTest)

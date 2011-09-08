@@ -110,7 +110,7 @@ class CompositeField(OneToOneField):
         with self._lock:
             ans = self._render_cache.get(book_id, None)
         if ans is None:
-            ans = mi.get(self.metadata['label'])
+            ans = mi.get('#'+self.metadata['label'])
             with self._lock:
                 self._render_cache[book_id] = ans
         return ans
@@ -128,7 +128,7 @@ class CompositeField(OneToOneField):
             ans = self._render_cache.get(book_id, None)
         if ans is None:
             mi = get_metadata(book_id)
-            ans = mi.get(self.metadata['label'])
+            ans = mi.get('#'+self.metadata['label'])
         return ans
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):
@@ -264,6 +264,9 @@ class AuthorsField(ManyToManyField):
         }
 
 class FormatsField(ManyToManyField):
+
+    def for_book(self, book_id, default_value=None):
+        return self.table.book_col_map.get(book_id, default_value)
 
     def format_fname(self, book_id, fmt):
         return self.table.fname_map[book_id][fmt.upper()]

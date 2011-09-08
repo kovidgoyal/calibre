@@ -202,7 +202,7 @@ class FormatsTable(ManyToManyTable):
             self.col_book_map[key] = tuple(self.col_book_map[key])
 
         for key in tuple(self.book_col_map.iterkeys()):
-            self.book_col_map[key] = tuple(self.book_col_map[key])
+            self.book_col_map[key] = tuple(sorted(self.book_col_map[key]))
 
 class IdentifiersTable(ManyToManyTable):
 
