@@ -14,7 +14,7 @@ from calibre.customize.conversion import OptionRecommendation
 class MOBIOutput(OutputFormatPlugin):
 
     name = 'MOBI Output'
-    author = 'Marshall T. Vandegrift'
+    author = 'Kovid Goyal'
     file_type = 'mobi'
 
     options = set([
