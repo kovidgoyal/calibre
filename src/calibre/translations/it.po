@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-04 21:05+0000\n"
-"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
+"PO-Revision-Date: 2011-09-07 10:13+0000\n"
+"Last-Translator: alvido <Unknown>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-05 04:51+0000\n"
-"X-Generator: Launchpad (build 13830)\n"
+"X-Launchpad-Export-Date: 2011-09-08 04:35+0000\n"
+"X-Generator: Launchpad (build 13891)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3974,6 +3974,8 @@ msgid ""
 "Could not find reasonable point at which to split: %(path)s Sub-tree size: "
 "%(size)d KB"
 msgstr ""
+"Could not find reasonable point at which to split: %(path)s Sub-tree size: "
+"%(size)d KB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
@@ -5730,6 +5732,15 @@ msgid ""
 "and subsequently selected books will be permanently <b>deleted</b> from your "
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"I formati dei libri selezionati saranno uniti nel <b> primo libro "
+"selezionato</b> (%s). I metadati nel primo libro selezionato non saranno "
+"cambiati. Autore, Titolo, ISBN e tutti i metadati  <i>non</i> saranno "
+"uniti.<br><br>Dopo la fusione il secondo ed i successivi libri selezionati, "
+"con tutti i metadati saranno<b>cancellati</b>. <br><br>Tutti i formati del "
+"primo libro selezionato saranno tenuti ed ogni altro formato duplicato nel "
+"secondo e seguenti libri selezionati saranno definitivamente "
+"<b>cancellati</b> dalla vostra libreria calibre.<br><br>  Sei tu "
+"<b>sicuro</b> di voler procedere?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:302
 #, python-format
@@ -6617,7 +6628,7 @@ msgstr "Creare un nuovo tag citazione?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
 msgid "Add files path with formats?"
-msgstr ""
+msgstr "Add files path with formats?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:84
 msgid "Expression to form the BibTeX citation tag:"

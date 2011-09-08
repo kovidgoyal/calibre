@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-04 03:41+0000\n"
-"Last-Translator: Ado Nishimura <Unknown>\n"
+"PO-Revision-Date: 2011-09-08 04:29+0000\n"
+"Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-09-05 04:52+0000\n"
-"X-Generator: Launchpad (build 13830)\n"
+"X-Launchpad-Export-Date: 2011-09-08 04:35+0000\n"
+"X-Generator: Launchpad (build 13891)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -227,11 +227,11 @@ msgstr "書誌情報書き出し"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "カタログ・ジェネレータ"
+msgstr "カタログ生成"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
-msgstr "ユーザインターフェース・アクション"
+msgstr "ユーザーインターフェースアクション"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:557
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -241,7 +241,7 @@ msgstr "ユーザインターフェース・アクション"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "基本設定"
+msgstr "設定"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -403,11 +403,11 @@ msgstr "現在選択されている物に似ている書籍を簡単に探す"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:819
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr "違ったCalibreのライブラリとの間をスイッチし、それらのメインテナンスを行う。"
+msgstr "別のCalibreのライブラリに切り替えてメンテナンスを実行します"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:825
 msgid "Copy books from the devce to your calibre library"
-msgstr "デバイスから書籍をCalibreのライブラリへコピーする。"
+msgstr "書籍をデバイスからCalibreのライブラリへコピーする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Edit the collections in which books are placed on your device"
@@ -419,7 +419,7 @@ msgstr "一つのCalibreライブラリから他へ書籍をコピーする"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:840
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr "CalibreライブラリにあるEPubファイルにちょっとした修正を加える"
+msgstr "CalibreライブラリにあるEPUBファイルにちょっとした修正を加える"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:845
 msgid ""
@@ -1272,7 +1272,7 @@ msgstr "デバイスを普通のフォルダとして使う。"
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:29
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
 msgid "Device Interface"
-msgstr "デバイス・インターフェース"
+msgstr "デバイスインターフェース"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
@@ -1387,7 +1387,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:187
 msgid "Use slower but more accurate page number generation"
-msgstr "遅いが正確なページ番号生成"
+msgstr "遅くなりますが、より正確なページ番号を生成します"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:189
 msgid ""
@@ -2044,7 +2044,7 @@ msgid ""
 "Control the automatic generation of a Table of Contents. By default, if the "
 "source file has a Table of Contents, it will be used in preference to the "
 "automatically generated one."
-msgstr "目次の自動生成のコントロールをします。ディフォールトでは、もし入力ファイルが目次を持っていた場合、優先的に自動生成されます。"
+msgstr "目次の自動生成をコントロールします。デフォルトでは、入力ファイルに目次があった場合に優先的に自動生成されます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:185
 msgid "Options to set metadata in the output"
@@ -2679,8 +2679,7 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
-"通常、入力ファイルに表紙が無く指定もされなかった場合、タイトルや作者などからディフォールトの表紙が作成されます。このオプションはこの表紙の生成を無効にしま"
-"す。"
+"通常、入力ファイルに表紙がなく指定しなかった場合、タイトルや作者などからデフォルトの表紙が作成されます。このオプションでは表紙の生成を無効にします。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
@@ -2789,13 +2788,13 @@ msgstr "出力に使う、ディフォールトと違うCSSファイル。"
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
-msgstr "ディフォールトと違うhtmlのindexファイルを生成するときのテンプレート。"
+msgstr "デフォルトと異なるhtmlのindexファイルを生成するときのテンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:38
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
-msgstr "ディフォールトと違う、htmlの本の内容を生成する時に使うテンプレート"
+msgstr "デフォルトと異なるhtmlの本の内容を生成する時に使うテンプレート"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:41
 msgid ""
@@ -3652,12 +3651,12 @@ msgstr "OPF/NCX/etc. 生成オプション"
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:35
 #, python-format
 msgid "OPF version to generate. Default is %default."
-msgstr "OPFヴァージョンが生成されました。ディフォールトは%defaultです。"
+msgstr "OPFバージョンが生成されました。デフォルトは%defaultです。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:37
 msgid ""
 "Generate an Adobe \"page-map\" file if pagination information is available."
-msgstr "もし、ページ情報がある場合、Adobe \"page-map\"ファイルを生成します。"
+msgstr "ページ情報がある場合は、Adobe \"page-map\"ファイルを生成します。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdb/ereader/reader132.py:128
 msgid "Footnotes"
@@ -4283,7 +4282,7 @@ msgstr "最大同時処理数をCPUの数に制限する。"
 msgid ""
 "The layout of the user interface. Wide has the book details panel on the "
 "right and narrow has it at the bottom."
-msgstr "ユーザーインターフェイスのレイアウト。「広い」の時は書籍の詳細情報パネルが右に表示され、「狭い」の時は下に表示されます。"
+msgstr "ユーザーインターフェースのレイアウト。「広い」の時は書籍の詳細情報パネルが右に表示され、「狭い」の時は下に表示されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:197
 msgid "Show the average rating per item indication in the tag browser"
@@ -5763,7 +5762,8 @@ msgstr "許可がありません"
 msgid ""
 "Cannot add some files as you do not have  permission to access them. Click "
 "Show Details to see the list of such files."
-msgstr "ファイルにアクセスする権限が無いので、ファイルを追加できませんでした。「詳細を表示」をクリックすると問題のファイルのリストが見れます。"
+msgstr ""
+"ファイルにアクセスする権限が無いので、ファイルを追加できませんでした。「詳細を表示」をクリックして問題のファイルのリストを参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:358
 msgid "Added"
@@ -9706,7 +9706,7 @@ msgstr "**見つかりませんでした**"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:189
 msgid ""
 "Click in a column  in the library view to see the information for that book"
-msgstr "ライブラリビューの列をクリックして、書籍の情報を見ることができます。"
+msgstr "ライブラリビューの列をクリックすると書籍の情報を参照できます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:205
 msgid "Books with selected item \"{0}\": {1}"
@@ -10201,7 +10201,7 @@ msgid ""
 "interface\">User Manual</a> for more help"
 msgstr ""
 "詳細な情報は<a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
-"interface\">ユーザーマニュアル</a>を見てください。"
+"interface\">ユーザーマニュアル</a>を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:218
@@ -10306,7 +10306,7 @@ msgstr "現在のタグ・カテゴリは<b>永久に削除されます</b>。�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:166
 msgid "User Categories Editor"
-msgstr "ユーザー・カテゴリ編集"
+msgstr "ユーザーカテゴリの編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:167
 msgid "Category name: "
@@ -10636,7 +10636,7 @@ msgstr "カスタム・ニュースソースを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:258
 msgid "Available user recipes"
-msgstr "利用可能なユーザー・レシピ"
+msgstr "利用可能なユーザーレシピ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:259
 msgid "Add/Update &recipe"
@@ -10735,7 +10735,7 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a "
 "href=\"http://manual.calibre-ebook.com/news.html\">User Recipes</a>"
 msgstr ""
-"アドバンスモードのニュース・レシピを作るには<a href=\"http://manual.calibre-"
+"アドバンスモードのニュースレシピを作るには<a href=\"http://manual.calibre-"
 "ebook.com/news.html\">ユーザー・レシピ</a>を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:287
@@ -11421,7 +11421,7 @@ msgstr "新しいcalibreライブラリの場所を選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:164
 msgid "Initializing user interface..."
-msgstr "ユーザーインターフェイスを初期化..."
+msgstr "ユーザーインターフェースを初期化..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:189
 msgid "Repairing failed"
@@ -12032,8 +12032,8 @@ msgid ""
 "single distinctive word from the title.<p>To see the full log, click Show "
 "Details."
 msgstr ""
-"検索にマッチする書籍がありませんでした。<b>少ない検索条件</b>にしてみてください。例えば、著者のラストネームだけにしたり、タイトルの一部だけを使って"
-"ください。「詳細を表示」をクリックするとログが見れます。"
+"検索にマッチする書籍がありませんでした。<b>検索条件を減らして</b> "
+"みてください。例えば、著者の姓だけにしたり、タイトルの一部だけを指定してください。ログ全体を参照するには、「詳細を表示」をクリックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:542
 msgid "Current cover"
@@ -13119,7 +13119,7 @@ msgstr " か "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:31
 msgid "User Interface &layout (needs restart):"
-msgstr "ユーザー・インターフェースのレイアウト (再起動が必要)"
+msgstr "ユーザーインターフェースのレイアウト (再起動が必要)(&L):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:41
 msgid "Choose &language (requires restart):"
@@ -13159,7 +13159,7 @@ msgstr "アイコンの下のテキストを表示(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:89
 msgid "Interface font:"
-msgstr "インターフェイス･フォント"
+msgstr "インターフェースのフォント:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:98
 msgid "Change &font (needs restart)"
@@ -14888,7 +14888,7 @@ msgid ""
 "interface\">User Manual</a> for more help"
 msgstr ""
 "詳細な説明は <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
-"interface\">ユーザー・マニュアル</a> をご覧ください"
+"interface\">ユーザーマニュアル</a> を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_progress_dialog_ui.py:51
 msgid "Updating book cache"
@@ -15355,8 +15355,8 @@ msgid ""
 "%(app)s has been updated to version <b>%(ver)s</b>. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
-"%(app)s はヴァージョン <b>%(ver)s</b>にアップデートされました。詳細は<a href=\"http://calibre-"
-"ebook.com/whats-new\">新しい機能</a>を見てください。"
+"%(app)s はバージョン <b>%(ver)s</b>にアップデートされました。詳細は<a href=\"http://calibre-"
+"ebook.com/whats-new\">新しい機能</a>を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:80
 msgid "Update available!"
@@ -15586,7 +15586,7 @@ msgstr "最後に使ったウインドウのサイズを覚える"
 msgid ""
 "Set the user CSS stylesheet. This can be used to customize the look of all "
 "books."
-msgstr "ユーザー・スタイルシートを設定。これはすべての書籍の見た目をカスタマイズすることができます。"
+msgstr "ユーザースタイルシートを設定。すべての書籍の見た目をカスタマイズすることができます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:52
 msgid "Maximum width of the viewer window, in pixels."
@@ -16858,8 +16858,8 @@ msgid ""
 "please see the search related documentation in the User Manual. Default is "
 "to do no filtering."
 msgstr ""
-"検索文字列で結果をフィルターする。検索文字列のフォーマットについては、ユーザーマニュアルの検索関連のドキュメントを参照してください。ディフォールトは何もフ"
-"ィルターしません。"
+"検索文字列で結果をフィルターする。検索文字列のフォーマットについては、ユーザーマニュアルの検索関連のドキュメントを参照してください。デフォルトは何もフィル"
+"ターしません。"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:145
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1044
@@ -17146,7 +17146,7 @@ msgid ""
 "Default: no filtering"
 msgstr ""
 "結果を検索文字列でフィルターします。検索文字列のフォーマットについては、ユーザーマニュアルの検索関連ドキュメントを参照してください。\n"
-"ディフォールト：フィルター無し"
+"デフォルト：フィルターなし"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:668
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:503
@@ -17949,7 +17949,7 @@ msgstr "ライブラリの書籍が保存されているディレクトリへの
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:384
 msgid "The language in which to display the user interface"
-msgstr "ユーザー・インターフェースの言語"
+msgstr "ユーザーインターフェースの言語"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:386
 msgid "The default output format for ebook conversions."
@@ -18848,7 +18848,7 @@ msgstr "インタープリターが終了"
 msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
-msgstr "インタープリターがコマンドを実行中に終了しました。コマンドを見るには「詳細を表示」をクリックしてください。"
+msgstr "インタープリターがコマンドを実行中に終了しました。コマンドを参照するには、「詳細を表示」をクリックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
@@ -18962,7 +18962,7 @@ msgstr "デバッグ用トレースバックはこのログの前のほうにあ
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:924
 msgid "Run with -vv to see the reason"
-msgstr "-wを付けて実行すると理由が見れます"
+msgstr "-wを付けて実行すると理由が参照できます"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:947
 msgid "Fetching feeds..."

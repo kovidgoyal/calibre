@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-03 01:08+0000\n"
+"PO-Revision-Date: 2011-09-07 08:30+0000\n"
 "Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-09-04 04:40+0000\n"
-"X-Generator: Launchpad (build 13830)\n"
+"X-Launchpad-Export-Date: 2011-09-08 04:36+0000\n"
+"X-Generator: Launchpad (build 13891)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -14213,11 +14213,11 @@ msgid ""
 "Add/edit tweaks for any custom plugins you have installed. Documentation for "
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
-msgstr ""
+msgstr "添加/编辑你所安装的自定义插件的优化调整项。优化调整项的相关文档应当会在插件所在的网站上提供。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:324
 msgid "Search for tweak"
-msgstr ""
+msgstr "搜索优化调整项"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:338
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:378
@@ -14242,6 +14242,7 @@ msgid ""
 "calibre. Your changes will only take effect <b>after a restart</b> of "
 "calibre."
 msgstr ""
+"所选的优化调整项的可用值如下所示。编辑它们可以改变 calibre 的行为。你做的任何修改会在 <b>重启</b> calibre 后生效。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:56
 msgid "Edit tweaks for any custom plugins you have installed"
@@ -14674,7 +14675,7 @@ msgstr "从本书店买书可以帮助该 calibre 开发人员： %s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:276
 msgid "Customize get books search"
-msgstr ""
+msgstr "自定义获取图书搜索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:286
 msgid "Configure search"
@@ -15736,14 +15737,14 @@ msgstr "打印电子书"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:103
 msgid "Test name invalid"
-msgstr ""
+msgstr "无效的测试名称"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
 #, python-format
 msgid ""
 "The name <b>%r</b> does not appear to end with a file extension. The name "
 "must end with a file  extension like .epub or .mobi"
-msgstr ""
+msgstr "文件名 <b>%r</b> 中似乎没有以文件扩展名结尾。这里文件名必须以扩展名结尾，比如 .epub 或 .mobi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:993
 msgid "Drag to resize"
@@ -17238,7 +17239,7 @@ msgstr "下划线替换空格。"
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:125
 msgid ""
 "Save into a single directory, ignoring the template directory structure"
-msgstr ""
+msgstr "保存到单个目录，忽略目录结构模版"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:298
 #, python-format
@@ -17246,11 +17247,13 @@ msgid ""
 "Failed to calculate path for save to disk. Template: %(templ)s\n"
 "Error: %(err)s"
 msgstr ""
+"无法生成保存到磁盘的路径。模版： %(templ)s\n"
+"错误： %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:304
 #, python-format
 msgid "Template evaluation resulted in no path components. Template: %s"
-msgstr ""
+msgstr "通过模版生成的路径无效。模版： %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:398
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:431
@@ -17354,7 +17357,7 @@ msgstr "平均评分"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:127
 #, python-format
 msgid "%(prefix)s: %(rating).1f stars"
-msgstr ""
+msgstr "%(prefix)s： %(rating).1f 星"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:164
 #, python-format
@@ -17380,23 +17383,23 @@ msgstr "主页"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:387
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:452
 msgid "Browse books by"
-msgstr ""
+msgstr "书籍浏览类别："
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:392
 msgid "Choose a category to browse by:"
-msgstr ""
+msgstr "选项要浏览的分类："
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:523
 msgid "Browsing by"
-msgstr ""
+msgstr "书籍浏览类别："
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:524
 msgid "Up"
-msgstr ""
+msgstr "向上一层"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:654
 msgid "in"
-msgstr ""
+msgstr "属于："
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:657
 msgid "Books in"
@@ -17409,7 +17412,7 @@ msgstr "其它格式"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:753
 #, python-format
 msgid "Read %(title)s in the %(fmt)s format"
-msgstr ""
+msgstr "阅读《%(title)s》 格式： %(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:758
 msgid "Get"
@@ -17433,7 +17436,7 @@ msgstr "该书已被删除"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:874
 msgid "in search"
-msgstr ""
+msgstr "(在搜索结果中)"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:876
 msgid "Matching books"
@@ -17474,13 +17477,13 @@ msgstr "源代码改变后自动重载服务程序。可能不适用所有环境
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:158
 msgid "Switch to the full interface (non-mobile interface)"
-msgstr ""
+msgstr "切换到完整界面（非移动设备界面）"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:161
 msgid ""
 "The full interface gives you many more features, but it may not work well on "
 "a small screen"
-msgstr ""
+msgstr "完整界面可以提供给你更多的功能，但在小尺寸的屏幕上可能效果不会很好。"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:125
 #, python-format
@@ -17505,7 +17508,7 @@ msgstr "标签：%s<br />"
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:174
 #, python-format
 msgid "SERIES: %(series)s [%(sidx)s]<br />"
-msgstr ""
+msgstr "系列： %(series)s [%(sidx)s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:271
 msgid "Books in your library"
@@ -17513,7 +17516,7 @@ msgstr "书库中的书籍"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:277
 msgid "By "
-msgstr ""
+msgstr "分类 "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:278
 msgid "Books sorted by "
@@ -17640,7 +17643,7 @@ msgstr "未知函数 {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:129
 msgid "missing closing parenthesis"
-msgstr ""
+msgstr "缺少右括号"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:148
 msgid "expression is not function or constant"
@@ -17657,7 +17660,7 @@ msgstr "格式：类型 {0} 需要十进制 (浮点) 值，得 {1}"
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:299
 #, python-format
 msgid "%s: unknown function"
-msgstr ""
+msgstr "%s： 未知函数"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:357
 msgid "No such variable "
@@ -17665,7 +17668,7 @@ msgstr "无此变量 "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:72
 msgid "No documentation provided"
-msgstr ""
+msgstr "未提供文档"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:105
 msgid ""
@@ -18103,7 +18106,7 @@ msgstr "等候中..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
-msgstr ""
+msgstr "中断，工作时间过长"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"
@@ -18147,7 +18150,7 @@ msgstr "英语(澳大利亚)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Bulgaria)"
-msgstr ""
+msgstr "英语 (保加利亚)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (New Zealand)"
@@ -18159,7 +18162,7 @@ msgstr "英语(加拿大)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (Greece)"
-msgstr ""
+msgstr "英语 (希腊)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "English (India)"
@@ -18171,7 +18174,7 @@ msgstr "英语(泰国)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Turkey)"
-msgstr ""
+msgstr "英语 (土耳其)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Cyprus)"
@@ -18179,7 +18182,7 @@ msgstr "英语(塞浦路斯)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Czechoslovakia)"
-msgstr ""
+msgstr "英语 (捷克斯洛伐克)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Pakistan)"
@@ -18187,11 +18190,11 @@ msgstr "英语(巴基斯坦)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Croatia)"
-msgstr ""
+msgstr "英语 (克罗地亚)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "英语 (印度尼西亚)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "English (Israel)"
@@ -18215,7 +18218,7 @@ msgstr "英语(中国)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "English (South Africa)"
-msgstr ""
+msgstr "英语 (南非)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "Spanish (Paraguay)"
@@ -18223,47 +18226,47 @@ msgstr "西班牙语(巴拉圭)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
 msgid "Spanish (Uruguay)"
-msgstr ""
+msgstr "西班牙语 (乌拉圭)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "西班牙语 (阿根廷)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "西班牙语 (墨西哥)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "Spanish (Cuba)"
-msgstr ""
+msgstr "西班牙语 (古巴)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "Spanish (Chile)"
-msgstr ""
+msgstr "西班牙语 (智利)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "Spanish (Ecuador)"
-msgstr ""
+msgstr "西班牙语 (厄瓜多尔)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
 msgid "Spanish (Honduras)"
-msgstr ""
+msgstr "西班牙语 (洪都拉斯)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
 msgid "Spanish (Venezuela)"
-msgstr ""
+msgstr "西班牙语 (委内瑞拉)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
 msgid "Spanish (Bolivia)"
-msgstr ""
+msgstr "西班牙语 (玻利维亚)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "Spanish (Nicaragua)"
-msgstr ""
+msgstr "西班牙语 (尼加拉瓜)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "Spanish (Colombia)"
-msgstr ""
+msgstr "西班牙语 (哥伦比亚)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "German (AT)"
@@ -18431,15 +18434,15 @@ msgstr "\t失败链接："
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:920
 msgid "Could not fetch article."
-msgstr ""
+msgstr "无法获取文章。"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:922
 msgid "The debug traceback is available earlier in this log"
-msgstr ""
+msgstr "调试用信息出现在日志文件前部"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:924
 msgid "Run with -vv to see the reason"
-msgstr ""
+msgstr "以 -vv 参数运行，以便查看出错的原因"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:947
 msgid "Fetching feeds..."
