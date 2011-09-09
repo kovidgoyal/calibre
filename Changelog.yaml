@@ -19,6 +19,56 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.18
+  date: 2011-09-09
+
+  new features:
+    - title: "Kindle news download: On Kindle 3 and newer have the View Articles and Sections menu remember the current article."
+      tickets: [748741]
+
+    - title: "Conversion: Add option to unsmarten puctuation under Look & Feel"
+
+    - title: "Driver of Motorola Ex124G and Pandigital Nova Tablet"
+
+    - title: "Allow downloading metadata from amazon.co.jp. To use it, configure the amazon metadata source to use the Japanese amazon site."
+      tickets: [842447]
+
+    - title: "When automatically generating author sort for author name, ignore common prefixes like Mr. Dr. etc. Controllable via tweak. Also add a tweak to allow control of how a string is split up into multiple authors."
+      tickets: [795984]
+
+    - title: "TXT Output: Preserve as much formatting as possible when generating Markdown output including various CSS styles"
+  
+  bug fixes:
+    - title: "Fix pubdate incorrect when used in save to disk template in timezones ahead of GMT."
+      tickets: [844445]
+
+    - title: "When attempting to stop multiple device jobs at once, only show a single error message"
+      tickets: [841588]
+
+    - title: "Fix conversion of large EPUB files to PDF erroring out on systems with a limited number of available file handles"
+      tickets: [816616]
+
+    - title: "EPUB catalog generation: Fix some entries going off the left edge of the page for unread/wishlist items"
+
+    - title: "When setting language in an EPUB file always use the 2 letter language code in preference to the three letter code, when possible."
+      tickets: [841201] 
+
+    - title: "Content server: Fix --url-prefix not used for links in the book details view."
+
+    - title: "MOBI Input: When links in a MOBI file point to just before block elements, and there is a page break on the block element, the links can end up pointing to the wrong place on conversion. Adjust the location in such cases to point to the block element directly."
+
+  improved recipes:
+    - Kopalnia Wiedzy
+    - FilmWeb.pl
+    - Philadelphia Inquirer
+    - Honolulu Star Advertiser
+    - Counterpunch
+    - Philadelphia Inquirer
+
+  new recipes:
+    - title: Various Polish news sources
+      author: fenuks
+
 - version: 0.8.17
   date: 2011-09-02
 
