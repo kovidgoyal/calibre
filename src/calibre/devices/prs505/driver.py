@@ -56,6 +56,8 @@ class PRS505(USBMS):
 
     SUPPORTS_SUB_DIRS = True
     MUST_READ_METADATA = True
+    NUKE_COMMENTS = _('Comments have been removed as the SONY reader'
+            ' chokes on them')
     SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
     SCAN_FROM_ROOT = False

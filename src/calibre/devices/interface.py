@@ -74,6 +74,12 @@ class DevicePlugin(Plugin):
     #: For example: ``frozenset(['kobo'])``
     VIRTUAL_BOOK_EXTENSIONS = frozenset([])
 
+    #: Whether to nuke comments in the copy of the book sent to the device. If
+    #: not None this should be short string that the comments will be replaced
+    #: by.
+    NUKE_COMMENTS = None
+
+
     @classmethod
     def get_gui_name(cls):
         if hasattr(cls, 'gui_name'):
