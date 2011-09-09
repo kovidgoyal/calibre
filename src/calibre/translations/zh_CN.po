@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-07 08:30+0000\n"
+"PO-Revision-Date: 2011-09-08 08:24+0000\n"
 "Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-09-08 04:36+0000\n"
-"X-Generator: Launchpad (build 13891)\n"
+"X-Launchpad-Export-Date: 2011-09-09 04:36+0000\n"
+"X-Generator: Launchpad (build 13900)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -14752,6 +14752,10 @@ msgid ""
 "will be a .epub file. You can add this book to calibre using \"Add Books\" "
 "and selecting the file from the ADE library folder."
 msgstr ""
+"本电子书 EPUB 文件具有 DRM 保护，你将被提示把它保存到你的电脑上。当它保存完成后，可以用 <a "
+"href=\"http://www.adobe.com/products/digitaleditions/\">Adobe Digital "
+"Editions</a> (ADE) 软件打开它。<p>ADE 会继续下载实际的 EPUB 格式的电子书文件。你可以把这本书通过 calibre "
+"的“添加书籍”功能加入书库。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
 msgid "File is not a supported ebook type. Save to disk?"
@@ -16176,6 +16180,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"设置要在分类目录中输出的数据库字段，字段名之间以逗号隔开。\n"
+"可用的字段名：%(fields)s，\n"
+"以及所有用户自定义的字段。\n"
+"举例：%(opt)s=title,authors,tags\n"
+"默认值：'%%default'\n"
+"适用于：CSV 和 XML 输出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:68
 #, python-format
@@ -16185,6 +16195,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"输出时排序所用字段。\n"
+"可用字段：author_sort, id, rating, size, timestamp, title_sort\n"
+"默认值：'%default'\n"
+"适用于：CSV 和 XML 输出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:251
 #, python-format
@@ -16197,6 +16211,12 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"设置要在分类目录中输出的数据库字段，字段名之间以逗号隔开。\n"
+"可用的字段名：%(fields)s，\n"
+"以及所有用户自定义的字段。\n"
+"举例：%(opt)s=title,authors,tags\n"
+"默认值：'%%default'\n"
+"适用于：BIBTEX 输出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:264
 #, python-format
@@ -16206,6 +16226,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"输出时排序所用字段。\n"
+"可用字段：author_sort, id, rating, size, timestamp, title_sort\n"
+"默认值：'%default'\n"
+"适用于：BIBTEX 输出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:273
 #, python-format
@@ -16215,6 +16239,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"为 BibTeX 项创建引文。\n"
+"布尔值：True，False\n"
+"默认值：'%default'\n"
+"适用于：BIBTEX 输出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:282
 #, python-format
@@ -16224,6 +16252,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"为已选择格式的 BibTeX 项创建文件。\n"
+"布尔值：True，False\n"
+"默认值：'%default'\n"
+"适用于：BIBTEX 输出格式"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:291
 #, python-format
@@ -19081,22 +19113,22 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:274
 msgid "Control how tags are applied when copying books to another library"
-msgstr ""
+msgstr "控制当把书籍复到另一个书库时，如何设置标签值"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:275
 msgid ""
 "Set this to True to ensure that tags in 'Tags to add when adding\n"
 "a book' are added when copying books to another library"
-msgstr ""
+msgstr "把本项设置为 True 以保证当把书籍复制到另一个书库时，会自动添加在“添加书籍时自动添加标签”中设置的标签值。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:279
 msgid "Set the maximum number of tags to show per book in the content server"
-msgstr ""
+msgstr "设置在内容服务器中每本书所显示的最大标签数量"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:282
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
-msgstr ""
+msgstr "控制内容服务器中需要显示或隐藏的元数据字段。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:283
 msgid ""
@@ -19119,7 +19151,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:300
 msgid "Set the maximum number of sort 'levels'"
-msgstr ""
+msgstr "设置最大排序层数"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:301
 msgid ""
@@ -19135,7 +19167,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:308
 msgid "Specify which font to use when generating a default cover"
-msgstr ""
+msgstr "设置在生成默认封面时所使用的字体"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:309
 msgid ""
@@ -19178,6 +19210,13 @@ msgid ""
 "Example: locale_for_sorting = 'fr' -- sort using French rules.\n"
 "Example: locale_for_sorting = 'nb' -- sort using Norwegian rules."
 msgstr ""
+"设置本优化调整项可以强制 calibre 使用指定语言的排序规则。当你以英语界面运行 calibre "
+"而希望它以别的语言的排序规则进行排序，只需在此设置希望使用的排序语言的 ISO 639-1 "
+"代码即可（以小写字母）。你可以在下面的网址找到所有可以支持的语言种类：http://publib.boulder.ibm.com/infocenter/i"
+"series/v5r3/topic/nls/rbagsicusortsequencetables.htm\n"
+"默认值：locale_for_sorting = '' -- 使用 calibre 的界面语言\n"
+"举例：locale_for_sorting = 'fr' -- 使用法语规则排序。\n"
+"举例：locale_for_sorting = 'nb' -- 使用挪威语规则排序。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:339
 msgid "Number of columns for custom metadata in the edit metadata dialog"

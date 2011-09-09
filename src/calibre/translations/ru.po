@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-02 20:51+0000\n"
-"PO-Revision-Date: 2011-09-04 04:12+0000\n"
+"PO-Revision-Date: 2011-09-09 04:28+0000\n"
 "Last-Translator: Sidorychev Alexander <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-09-05 04:53+0000\n"
-"X-Generator: Launchpad (build 13830)\n"
+"X-Launchpad-Export-Date: 2011-09-09 04:36+0000\n"
+"X-Generator: Launchpad (build 13900)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -12463,23 +12463,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
 msgid "is"
-msgstr ""
+msgstr "является"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:54
 msgid "is not"
-msgstr ""
+msgstr "не является"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
-msgstr ""
+msgstr "подпадает под шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "does not match pattern"
-msgstr ""
+msgstr "не подпадает под шаблон"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
-msgstr ""
+msgstr "Если в ___ колонке ___ значения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:210
 msgid ""
@@ -12506,7 +12506,7 @@ msgstr "Введите регулярное выражение"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:224
 #, python-format
 msgid "You can match multiple values by separating them with %s"
-msgstr ""
+msgstr "Вы можете указать несколько значений, разделяя их %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:239
 msgid "Create/edit a column coloring rule"
@@ -12573,6 +12573,7 @@ msgstr ""
 msgid ""
 "<li>If the <b>%(col)s</b> column <b>%(action)s</b> value: <b>%(val)s</b>"
 msgstr ""
+"<li>Если в <b>%(col)s</b> колонке <b>%(action)s</b> значения: <b>%(val)s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:483
 msgid ""
@@ -12607,7 +12608,7 @@ msgstr "Добавить расширенное правило"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:572
 msgid "No rule selected"
-msgstr ""
+msgstr "Правило не выбрано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:573
 #, python-format
