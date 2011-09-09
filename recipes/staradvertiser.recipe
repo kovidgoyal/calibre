@@ -37,8 +37,10 @@ class Starbulletin(BasicNewsRecipe):
                         }
     keep_only_tags = [
                          dict(attrs={'id':'hsa_storyTitle'})
+			,dict(attrs={'id':'hsa_storyTitle article-important'})
                         ,dict(attrs={'class':['hsa_dateStamp','hsa_postCredit','storyDeck']})
                         ,dict(name='span',attrs={'class':['hsa_dateStamp','hsa_postCredit']})
+			,dict(name='span',attrs={'class':['hsa_dateStamp article-important','hsa_postCredit article-important']})
                         ,dict(name='div',attrs={'class':'storytext article-important'})
                         ,dict(name='div',attrs={'class':'storytext'})
                      ]
