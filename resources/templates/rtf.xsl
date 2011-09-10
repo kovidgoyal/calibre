@@ -98,7 +98,7 @@
                     <xsl:apply-templates/>
                </emph>
             </xsl:when>
-            <xsl:when test = "@underlined">
+            <xsl:when test = "@underlined and @underlined != 'false'">
                <emph rend = "paragraph-emph-underlined">
                     <xsl:apply-templates/>
                </emph>
@@ -447,6 +447,15 @@
         <xsl:element name ="a">
             <xsl:attribute name = "href">
                <xsl:value-of select = "@link"/>
+            </xsl:attribute>
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:template>
+	
+    <xsl:template match = "rtf:field[@type='bookmark-start']">
+        <xsl:element name ="a">
+            <xsl:attribute name = "id">
+               <xsl:value-of select = "@number"/>
             </xsl:attribute>
             <xsl:apply-templates/>
         </xsl:element>
