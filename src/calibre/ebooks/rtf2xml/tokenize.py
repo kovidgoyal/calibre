@@ -114,6 +114,7 @@ class Tokenize:
         # this is for older RTF
         input_file = self.__par_exp.sub('\n\\par \n', input_file)
         input_file = self.__cwdigit_exp.sub("\g<1>\n\g<2>", input_file)
+        input_file = self.__cs_ast.sub("\g<1>", input_file)
         input_file = self.__ms_hex_exp.sub("\\mshex0\g<1> ", input_file)
         input_file = self.__utf_ud.sub("\\{\\uc0 \g<1>\\}", input_file)
         #remove \n in bin data
@@ -163,6 +164,8 @@ class Tokenize:
         self.__splitexp = re.compile(r"(\\[{}]|\n|\\[^\s\\{}&]+(?:[ \t\r\f\v])?)")
         #this is for old RTF
         self.__par_exp = re.compile(r'(\\\n+|\\ )')
+        #handle improper cs char-style with \* before without {
+        self.__cs_ast = re.compile(r'\\\*([\n ]*\\cs\d+[\n \\]+)')
         #handle cw using a digit as argument and without space as delimiter
         self.__cwdigit_exp = re.compile(r"(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)")
 

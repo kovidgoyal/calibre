@@ -496,7 +496,7 @@ Instead, ingore all section information in a field-block.
             self.__token_info = line[:16]
             action = self.__state_dict.get(self.__state)
             if action == None:
-                sys.stderr.write('no no matching state in module sections.py\n')
+                sys.stderr.write('no matching state in module sections.py\n')
                 sys.stderr.write(self.__state + '\n')
             action(line)
         read_obj.close()
