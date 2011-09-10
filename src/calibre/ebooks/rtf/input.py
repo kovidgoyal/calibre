@@ -41,7 +41,7 @@ border_style_map = {
 
 class InlineClass(etree.XSLTExtension):
 
-    FMTS = ('italics', 'bold', 'underlined', 'strike-through', 'small-caps')
+    FMTS = ('italics', 'bold', 'strike-through', 'small-caps')
 
     def __init__(self, log):
         etree.XSLTExtension.__init__(self)
@@ -54,6 +54,9 @@ class InlineClass(etree.XSLTExtension):
         for x in self.FMTS:
             if input_node.get(x, None) == 'true':
                 classes.append(x)
+        #underlined is special
+        if input_node.get('underlined', 'false') != 'false':
+                classes.append('underlined')
         fs = input_node.get('font-size', False)
         if fs:
             if fs not in self.font_sizes:

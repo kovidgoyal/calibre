@@ -256,7 +256,7 @@
             <xsl:value-of select="'italic'"/>
             <xsl:text>;</xsl:text>
         </xsl:if>
-        <xsl:if test="@underline and @underline != 'false'">
+        <xsl:if test="@underlined and @underlined != 'false'">
             <xsl:text>text-decoration:underline</xsl:text>
             <xsl:text>;</xsl:text>
         </xsl:if>
