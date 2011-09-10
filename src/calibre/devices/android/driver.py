@@ -199,7 +199,7 @@ class WEBOS(USBMS):
     FORMATS     = ['mobi', 'azw', 'prc']
 
     VENDOR_ID   = [0x0830]
-    PRODUCT_ID  = [0x8074]
+    PRODUCT_ID  = [0x8074, 0x8072]
     BCD         = [0x0327]
 
     EBOOK_DIR_MAIN = '.palmkindle'
