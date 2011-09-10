@@ -445,9 +445,7 @@
 
     <xsl:template match = "rtf:field[@type='hyperlink']">
         <xsl:element name ="a">
-            <xsl:attribute name = "href">
-               <xsl:value-of select = "@link"/>
-            </xsl:attribute>
+            <xsl:attribute name = "href"><xsl:if test="not(contains(@link, '/'))">#</xsl:if><xsl:value-of select = "@link"/></xsl:attribute>
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>
