@@ -198,9 +198,10 @@ class PDFWriter(QObject): # {{{
         try:
             outPDF = PdfFileWriter(title=self.metadata.title, author=self.metadata.author)
             for item in self.combine_queue:
-                inputPDF = PdfFileReader(open(item, 'rb'))
-                for page in inputPDF.pages:
-                    outPDF.addPage(page)
+                with open(item, 'rb') as item_stream:
+                    inputPDF = PdfFileReader(item_stream)
+                    for page in inputPDF.pages:
+                        outPDF.addPage(page)
             outPDF.write(self.out_stream)
         finally:
             self._delete_tmpdir()

@@ -498,7 +498,8 @@ class BrowseServer(object):
                         xml(s, True),
                         xml(_('Loading, please wait'))+'&hellip;',
                         unicode(c),
-                        xml(u'/browse/category_group/%s/%s'%(category, s), True),
+                        xml(u'/browse/category_group/%s/%s'%(category,
+                            hexlify(s.encode('utf-8'))), True),
                         self.opts.url_prefix)
                     for s, c in category_groups.items()]
             items = '\n\n'.join(items)
@@ -538,7 +539,11 @@ class BrowseServer(object):
         category_meta = self.db.field_metadata
         datatype = category_meta[category]['datatype']
 
-        if not group:
+        try:
+            group = unhexlify(group)
+            if isbytestring(group):
+                group = group.decode('utf-8')
+        except:
             raise cherrypy.HTTPError(404, 'invalid group')
 
         items = categories[category]
@@ -690,8 +695,8 @@ class BrowseServer(object):
                         for tag in dbtags:
                             tval = ('<a title="Browse books by {3}: {0}"'
                             ' href="{1}" class="details_category_link">{2}</a>')
-                            href='/browse/matches/%s/%s' % \
-                            (quote(tag.category), quote(str(tag.id)))
+                            href='%s/browse/matches/%s/%s' % \
+                            (self.opts.url_prefix, quote(tag.category), quote(str(tag.id)))
                             vals.append(tval.format(xml(tag.name, True),
                                 xml(href, True),
                                 xml(val if len(dbtags) == 1 else tag.name),

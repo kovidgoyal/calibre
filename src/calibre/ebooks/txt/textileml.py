@@ -15,7 +15,7 @@ from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks import unit_convert
-from calibre.ebooks.txt.unsmarten import unsmarten
+from calibre.ebooks.textile.unsmarten import unsmarten
 
 class TextileMLizer(OEB2HTML):
 
@@ -43,7 +43,8 @@ class TextileMLizer(OEB2HTML):
         self.style_smallcap = False
 
         txt = self.mlize_spine(oeb_book)
-        txt = unsmarten(txt)
+        if self.opts.unsmarten_punctuation:
+            txt = unsmarten(txt)
 
         # Do some tidying up
         txt = self.tidy_up(txt)
@@ -82,7 +83,7 @@ class TextileMLizer(OEB2HTML):
             for i in self.our_ids:
                 if i not in self.our_links:
                     text = re.sub(r'%?\('+i+'\)\xa0?%?', r'', text)
-                    
+
         # Remove obvious non-needed escaping, add sub/sup-script ones
         text = check_escaping(text, ['\*', '_', '\*'])
         # escape the super/sub-scripts if needed
@@ -188,7 +189,7 @@ class TextileMLizer(OEB2HTML):
         emright = int(round(right / stylizer.profile.fbase))
         if emright >= 1:
             txt += ')' * emright
-            
+
         return txt
 
     def check_id_tag(self, attribs):
@@ -234,7 +235,7 @@ class TextileMLizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
-        
+
         # Ignore anything that is set to not be displayed.
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
@@ -245,7 +246,7 @@ class TextileMLizer(OEB2HTML):
             ems = int(round(float(style.marginTop) / style.fontSize) - 1)
             if ems >= 1:
                 text.append(u'\n\n\xa0' * ems)
-            
+
         if tag in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div'):
             if tag == 'div':
                 tag = 'p'
@@ -431,7 +432,7 @@ class TextileMLizer(OEB2HTML):
                 'span', 'table', 'tr', 'td'):
             if not self.in_a_link:
                 text.append(self.check_styles(style))
-        
+
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             txt = elem.text
@@ -447,10 +448,10 @@ class TextileMLizer(OEB2HTML):
         # Close all open tags.
         tags.reverse()
         for t in tags:
-            if tag in ('pre', 'ul', 'ol', 'li', 'table'):
-                if tag == 'pre':
+            if t in ('pre', 'ul', 'ol', 'li', 'table'):
+                if t == 'pre':
                     self.in_pre = False
-                elif tag in ('ul', 'ol'):
+                elif t in ('ul', 'ol'):
                     if self.list: self.list.pop()
                     if not self.list: text.append('\n')
             else:

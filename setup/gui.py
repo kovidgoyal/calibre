@@ -17,8 +17,8 @@ class GUI(Command):
 
     @classmethod
     def find_forms(cls):
-        from calibre.gui2 import find_forms
-        return find_forms(cls.SRC)
+        # We do not use the calibre function find_forms as
+        # mporting calibre.gui2 may not work
         forms = []
         for root, _, files in os.walk(cls.PATH):
             for name in files:
@@ -29,8 +29,9 @@ class GUI(Command):
 
     @classmethod
     def form_to_compiled_form(cls, form):
-        from calibre.gui2 import form_to_compiled_form
-        return form_to_compiled_form(form)
+        # We do not use the calibre function form_to_compiled_form as
+        # importing calibre.gui2 may not work
+        return form.rpartition('.')[0]+'_ui.py'
 
     def run(self, opts):
         self.build_forms()

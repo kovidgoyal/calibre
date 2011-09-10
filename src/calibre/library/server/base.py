@@ -24,6 +24,7 @@ from calibre.library.server.xml import XMLServer
 from calibre.library.server.opds import OPDSServer
 from calibre.library.server.cache import Cache
 from calibre.library.server.browse import BrowseServer
+from calibre.library.server.ajax import AjaxServer
 from calibre.utils.search_query_parser import saved_searches
 from calibre import prints
 
@@ -48,6 +49,8 @@ class DispatchController(object): # {{{
         elif self.prefix:
             self.dispatcher.connect(name+'prefix_extra', self.prefix, self,
                     **kwargs)
+            self.dispatcher.connect(name+'prefix_extra_trailing',
+                    self.prefix+'/', self, **kwargs)
         self.dispatcher.connect(name, route, self, **kwargs)
         self.funcs.append(expose(func))
 
@@ -99,7 +102,7 @@ cherrypy.engine.bonjour = BonJour(cherrypy.engine)
 # }}}
 
 class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
-        BrowseServer):
+        BrowseServer, AjaxServer):
 
     server_name = __appname__ + '/' + __version__
 
@@ -163,6 +166,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         self.__dispatcher__ = DispatchController(self.opts.url_prefix, wsgi)
         for x in self.__class__.__bases__:
             if hasattr(x, 'add_routes'):
+                x.__init__(self)
                 x.add_routes(self, self.__dispatcher__)
         root_conf = self.config.get('/', {})
         root_conf['request.dispatch'] = self.__dispatcher__.dispatcher

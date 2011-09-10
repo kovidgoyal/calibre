@@ -152,6 +152,12 @@ def get_func(name):
 
 def main():
     if iswindows:
+        if '--multiprocessing-fork' in sys.argv:
+            # We are using the multiprocessing module on windows to launch a
+            # worker process
+            from multiprocessing import freeze_support
+            freeze_support()
+            return 0
         # Close open file descriptors inherited from parent
         # On Unix this is done by the subprocess module
         os.closerange(3, 256)

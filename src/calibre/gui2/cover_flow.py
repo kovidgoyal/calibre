@@ -9,8 +9,8 @@ Module to implement the Cover Flow feature
 
 import sys, os, time
 
-from PyQt4.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize,
-        QStackedLayout, QLabel, QByteArray, pyqtSignal)
+from PyQt4.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
+        QStackedLayout, QLabel, QByteArray, pyqtSignal, QKeySequence)
 
 from calibre import plugins
 from calibre.gui2 import config, available_height, available_width, gprefs
@@ -150,11 +150,52 @@ class CBDialog(QDialog):
         if not self.restoreGeometry(geom):
             h, w = available_height()-60, int(available_width()/1.5)
             self.resize(w, h)
+        self.action_fs_toggle = a = QAction(self)
+        self.addAction(a)
+        a.setShortcuts([QKeySequence('F11', QKeySequence.PortableText),
+            QKeySequence('Ctrl+Shift+F', QKeySequence.PortableText)])
+        a.triggered.connect(self.toggle_fullscreen)
+        self.action_esc_fs = a = QAction(self)
+        a.triggered.connect(self.show_normal)
+        self.addAction(a)
+        a.setShortcuts([QKeySequence('Esc', QKeySequence.PortableText)])
+
+        self.pre_fs_geom = None
+        cover_flow.setFocus(Qt.OtherFocusReason)
+        self.view_action = a = QAction(self)
+        iactions = parent.iactions
+        self.addAction(a)
+        a.setShortcuts(list(iactions['View'].menuless_qaction.shortcuts())+
+                [QKeySequence(Qt.Key_Space)])
+        a.triggered.connect(iactions['View'].menuless_qaction.trigger)
+        self.sd_action = a = QAction(self)
+        self.addAction(a)
+        a.setShortcuts(list(iactions['Send To Device'].
+            menuless_qaction.shortcuts()))
+        a.triggered.connect(iactions['Send To Device'].menuless_qaction.trigger)
 
     def closeEvent(self, *args):
-        geom = bytearray(self.saveGeometry())
-        gprefs['cover_browser_dialog_geometry'] = geom
+        if not self.isFullScreen():
+            geom = bytearray(self.saveGeometry())
+            gprefs['cover_browser_dialog_geometry'] = geom
         self.closed.emit()
+
+    def show_normal(self):
+        self.showNormal()
+        if self.pre_fs_geom is not None:
+            self.restoreGeometry(self.pre_fs_geom)
+            self.pre_fs_geom = None
+
+    def show_fullscreen(self):
+        self.pre_fs_geom = bytearray(self.saveGeometry())
+        self.showFullScreen()
+
+    def toggle_fullscreen(self, *args):
+        if self.isFullScreen():
+            self.show_normal()
+        else:
+            self.show_fullscreen()
+
 
 class CoverFlowMixin(object):
 
@@ -228,7 +269,7 @@ class CoverFlowMixin(object):
         d.addAction(self.cb_splitter.action_toggle)
         self.cover_flow.setVisible(True)
         self.cover_flow.setFocus(Qt.OtherFocusReason)
-        d.show()
+        d.show_fullscreen() if gprefs['cb_fullscreen'] else d.show()
         self.cb_splitter.button.set_state_to_hide()
         d.closed.connect(self.cover_browser_closed)
         self.cb_dialog = d

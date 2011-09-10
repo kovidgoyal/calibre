@@ -523,6 +523,7 @@ class MobiReader(object):
         for x in root.xpath('//ncx'):
             x.getparent().remove(x)
         svg_tags = []
+        forwardable_anchors = []
         for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
             for x in tag.attrib:
@@ -651,6 +652,15 @@ class MobiReader(object):
                     attrib['href'] = "#filepos%d" % int(filepos)
                 except ValueError:
                     pass
+            if (tag.tag == 'a' and attrib.get('id', '').startswith('filepos')
+                    and not tag.text and (tag.tail is None or not
+                        tag.tail.strip()) and getattr(tag.getnext(), 'tag',
+                            None) in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                                'div', 'p')):
+                # This is an empty anchor immediately before a block tag, move
+                # the id onto the block tag instead
+                forwardable_anchors.append(tag)
+
             if styles:
                 ncls = None
                 rule = '; '.join(styles)
@@ -678,6 +688,17 @@ class MobiReader(object):
 
             if hasattr(parent, 'remove'):
                 parent.remove(tag)
+
+        for tag in forwardable_anchors:
+            block = tag.getnext()
+            tag.getparent().remove(tag)
+
+            if 'id' in block.attrib:
+                tag.tail = block.text
+                block.text = None
+                block.insert(0, tag)
+            else:
+                block.attrib['id'] = tag.attrib['id']
 
     def get_left_whitespace(self, tag):
 

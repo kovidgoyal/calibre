@@ -1,0 +1,73 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class CBN(BasicNewsRecipe):
+    title          = u'CBN News'
+    __author__ = 'Roger'
+    # TODO: I just noticed this is downloading 25+ articles, while
+    # the online site is only publishing at most 7 articles daily.
+    # So, somehow this needs to be fixed it only downloads max 7 articles
+    oldest_article = 7
+    max_articles_per_feed = 100
+
+    description = 'The Christian Broadcasting Network'
+    publisher   = 'http://www.cbn.com/'
+    category    = 'news, religion, spiritual, christian'
+    language    = 'en'
+
+    # Make article titles, author and date bold, italic or small font.
+    # TODO: Could use a smaller title text
+    # TODO: Italicize Author and Publisher?
+    #
+    # http://www.cbn.com/App_Themes/Common/base.css,
+    # http://www.cbn.com/App_Themes/CBNNews/article.css",
+    # ... and many more style sheets.
+    #extra_css = '''
+    #                .story_item_headline { font-size: medium; font-weight: bold; }
+    #                .story_item_author { font-size: small; font-style:italic; }
+    #                .signature_line { font-size: small; }
+    #            '''
+
+    remove_javascript = True
+    use_embedded_content = False
+    no_stylesheets = True
+    language = 'en'
+    encoding = 'iso-8859-1'
+    conversion_options = {'linearize_tables':True}
+
+    # TODO: No masterhead_url for CBN, using one I grepped from a news article
+    # (There's a better/higher contrast blue on white background image, but
+    # can't get it or it's too big -- embedded into a larger jpeg?)
+    masthead_url = 'http://www.cbn.com/templates/images/cbn_com_logo.jpg'
+
+    keep_only_tags = [
+                        dict(name='h1', attrs={'id':'articleTitle'}),
+                        dict(name='div', attrs={'class':'articleAuthor'}),
+                        dict(name='div', attrs={'class':'articleDate'}),
+                        dict(name='div', attrs={'class':'articleText'}),
+                     ]
+
+    remove_tags = [
+                        # The article image is usually Adobe Flash Player Image
+                        # The snapshot .jpg image files of the video are found
+                        # within a URL folder named "PageFiles_Files"
+                        # Filter this for now.
+                        # (Majority of images seem to be Adobe Flash.)
+                        dict(name='div', attrs={'class':'articleImage'}),
+                  ]
+
+
+    # Comment-out or uncomment any of the following RSS feeds according to your
+    # liking.
+    # A full list can be found here: http://www.cbn.com/rss.aspx
+
+    feeds = [
+            (u'World', u'http://www.cbn.com/cbnnews/world/feed/'),
+            (u'US', u'http://www.cbn.com/cbnnews/us/feed/'),
+            (u'Inside Israel', u'http://www.cbn.com/cbnnews/insideisrael/feed/'),
+            (u'Politics', u'http://www.cbn.com/cbnnews/politics/feed/'),
+            (u'Christian World News', u'http://www.cbn.com/cbnnews/shows/cwn/feed/'),
+            (u'Health and Science', u'http://www.cbn.com/cbnnews/healthscience/feed/'),
+            (u'Finance', u'http://www.cbn.com/cbnnews/finance/feed/'),
+             ]
+

@@ -19,17 +19,20 @@ class ANDROID(USBMS):
 
     VENDOR_ID   = {
             # HTC
-            0x0bb4 : { 0xc02 : [0x100, 0x0227, 0x0226, 0x222],
-                       0xc01 : [0x100, 0x0227, 0x0226],
-                       0xff9 : [0x0100, 0x0227, 0x0226],
-                       0xc87 : [0x0100, 0x0227, 0x0226],
-                       0xc91 : [0x0100, 0x0227, 0x0226],
+            0x0bb4 : { 0xc02  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc01  : [0x100, 0x0227, 0x0226],
+                       0xff9  : [0x0100, 0x0227, 0x0226],
+                       0xc86  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc87  : [0x0100, 0x0227, 0x0226],
+                       0xc8d  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc91  : [0x0100, 0x0227, 0x0226],
                        0xc92  : [0x100, 0x0227, 0x0226, 0x222],
                        0xc97  : [0x100, 0x0227, 0x0226, 0x222],
                        0xc99  : [0x100, 0x0227, 0x0226, 0x222],
                        0xca2  : [0x100, 0x0227, 0x0226, 0x222],
                        0xca3  : [0x100, 0x0227, 0x0226, 0x222],
                        0xca4  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xca9  : [0x100, 0x0227, 0x0226, 0x222]
             },
 
             # Eken
@@ -78,6 +81,7 @@ class ANDROID(USBMS):
 
             # LG
             0x1004 : {
+                    0x61c5 : [0x100, 0x226, 0x9999],
                     0x61cc : [0x100],
                     0x61ce : [0x100],
                     0x618e : [0x226, 0x9999, 0x100]
@@ -123,7 +127,7 @@ class ANDROID(USBMS):
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
-            'GENERIC-', 'ZTE', 'MID']
+            'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -133,11 +137,11 @@ class ANDROID(USBMS):
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
             'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
-            'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A']
+            'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A', 'ALPANDIGITAL']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
-            '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870']
+            '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
@@ -182,3 +186,24 @@ class S60(USBMS):
 
     VENDOR_NAME = 'NOKIA'
     WINDOWS_MAIN_MEM = 'S60'
+
+class WEBOS(USBMS):
+
+    name           = 'WebOS driver'
+    gui_name       = 'WebOS Tablet'
+    description    = _('Communicate with WebOS tablets.')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['mobi', 'azw', 'prc']
+
+    VENDOR_ID   = [0x0830]
+    PRODUCT_ID  = [0x8074]
+    BCD         = [0x0327]
+
+    EBOOK_DIR_MAIN = '.palmkindle'
+    VENDOR_NAME = 'HP'
+    WINDOWS_MAIN_MEM = 'WEBOS-DEVICE'
+
+

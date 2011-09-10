@@ -97,6 +97,9 @@ class MobiWriter(object):
     # Indexing {{{
     def generate_index(self):
         self.primary_index_record_idx = None
+        if self.oeb.toc.count() < 1:
+            self.log.warn('No TOC, MOBI index not generated')
+            return
         try:
             self.indexer = Indexer(self.serializer, self.last_text_record_idx,
                     len(self.records[self.last_text_record_idx]),
@@ -147,15 +150,19 @@ class MobiWriter(object):
         oeb.logger.info('Serializing images...')
         self.image_records = []
         self.image_map = {}
+        self.masthead_offset = 0
+        index = 1
 
-        mh_href = self.masthead_offset = None
+        mh_href = None
         if 'masthead' in oeb.guide:
             mh_href = oeb.guide['masthead'].href
+            self.image_records.append(None)
+            index += 1
         elif self.is_periodical:
             # Generate a default masthead
-            data = generate_masthead(unicode(self.oeb.metadata('title')[0]))
+            data = generate_masthead(unicode(self.oeb.metadata['title'][0]))
             self.image_records.append(data)
-            self.masthead_offset = 0
+            index += 1
 
         cover_href = self.cover_offset = self.thumbnail_offset = None
         if (oeb.metadata.cover and
@@ -172,13 +179,16 @@ class MobiWriter(object):
                 oeb.logger.warn('Bad image file %r' % item.href)
                 continue
             else:
-                self.image_map[item.href] = len(self.image_records)
-                self.image_records.append(data)
+                if mh_href and item.href == mh_href:
+                    self.image_records[0] = data
+                    continue
 
-                if item.href == mh_href:
-                    self.masthead_offset = len(self.image_records) - 1
-                elif item.href == cover_href:
-                    self.cover_offset = len(self.image_records) - 1
+                self.image_records.append(data)
+                self.image_map[item.href] = index
+                index += 1
+
+                if cover_href and item.href == cover_href:
+                    self.cover_offset = self.image_map[item.href] - 1
                     try:
                         data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
                             maxsizeb=MAX_THUMB_SIZE)
@@ -186,9 +196,13 @@ class MobiWriter(object):
                         oeb.logger.warn('Failed to generate thumbnail')
                     else:
                         self.image_records.append(data)
-                        self.thumbnail_offset = len(self.image_records) - 1
+                        self.thumbnail_offset = index - 1
+                        index += 1
             finally:
                 item.unload_data_from_memory()
+
+        if self.image_records and self.image_records[0] is None:
+            raise ValueError('Failed to find masthead image in manifest')
 
     # }}}
 
@@ -197,6 +211,7 @@ class MobiWriter(object):
     def generate_text(self):
         self.oeb.logger.info('Serializing markup content...')
         self.serializer = Serializer(self.oeb, self.image_map,
+                self.is_periodical,
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
         self.text_length = len(text)
@@ -575,7 +590,7 @@ class MobiWriter(object):
         Write the PalmDB header
         '''
         title = ascii_filename(unicode(self.oeb.metadata.title[0])).replace(
-                ' ', '_')
+                ' ', '_')[:32]
         title = title + (b'\0' * (32 - len(title)))
         now = int(time.time())
         nrecords = len(self.records)

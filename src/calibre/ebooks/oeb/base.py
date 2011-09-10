@@ -885,7 +885,8 @@ class Manifest(object):
                 try:
                     data = etree.fromstring(data, parser=parser)
                 except etree.XMLSyntaxError as err:
-                    self.oeb.log.exception('Initial parse failed:')
+                    self.oeb.log.debug('Initial parse failed, using more'
+                            ' forgiving parsers')
                     repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
                     data = ENTITY_RE.sub(repl, data)
                     try:

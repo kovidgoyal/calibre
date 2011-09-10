@@ -14,7 +14,6 @@ __contributors__ = ["Martin 'Joey' Schulze", "Ricardo Reyes", "Kevin Jay North"]
 # TODO:
 #   Support decoded entities with unifiable.
 
-if not hasattr(__builtins__, 'True'): True, False = 1, 0
 import re, sys, urllib, htmlentitydefs, codecs
 import sgmllib
 sgmllib.charref = re.compile('&#([xX]?[0-9a-fA-F]+)[^0-9a-fA-F]')
@@ -215,7 +214,7 @@ class _html2text(sgmllib.SGMLParser):
                 self.blockquote -= 1
                 self.p()
 
-        if tag in ['em', 'i', 'u']: self.o("_")
+        if tag in ['em', 'i']: self.o("*")
         if tag in ['strong', 'b']: self.o("**")
         if tag == "code" and not self.pre: self.o('`') #TODO: `` `this` ``
         if tag == "abbr":
