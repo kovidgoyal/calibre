@@ -93,7 +93,7 @@ def get_metadata(stream):
     stream.seek(0)
     cpg = detect_codepage(stream)
     stream.seek(0)
-    
+
     title_match = title_pat.search(block)
     if title_match is not None:
         title = decode(title_match.group(1).strip(), cpg)
@@ -162,7 +162,6 @@ def set_metadata(stream, options):
         index = src.rindex('}')
         return src[:index] + r'{\ '[:-1] + name + ' ' + val + '}}'
     src, pos = get_document_info(stream)
-    print 'I was thre'
     if src is not None:
         create_metadata(stream, options)
     else:
