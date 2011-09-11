@@ -11,6 +11,7 @@ Write content to PDF.
 import os
 import shutil
 
+from calibre import isosx
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import unit, paper_size, \
     orientation
@@ -164,6 +165,8 @@ class PDFWriter(QObject): # {{{
             self.logger.debug('\tRendering item %s as %i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
             printer = get_pdf_printer(self.opts)
             printer.setOutputFileName(item_path)
+            if isosx:
+                printer.setOutputFormat(QPrinter.NativeFormat)
             self.view.print_(printer)
             printer.abort()
         self._render_book()
