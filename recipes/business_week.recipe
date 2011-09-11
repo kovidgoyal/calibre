@@ -87,7 +87,7 @@ class BusinessWeek(BasicNewsRecipe):
         return rest
 
     def print_version(self, url):
-        if '/news/' in url or '/blog/ in url':
+        if '/news/' in url or '/blog/' in url:
            return url
         if '/magazine' in url:
           rurl = url.replace('http://www.businessweek.com/','http://www.businessweek.com/printer/')
