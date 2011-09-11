@@ -165,6 +165,10 @@ class PDFWriter(QObject): # {{{
             self.logger.debug('\tRendering item %s as %i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
             printer = get_pdf_printer(self.opts)
             printer.setOutputFileName(item_path)
+            # We have to set the engine to Native on OS X after the call to set
+            # filename. Setting a filename with .pdf as the extension causes
+            # Qt to set the format to use Qt's PDF engine even if native was
+            # previously set on the printer.
             if isosx:
                 printer.setOutputFormat(QPrinter.NativeFormat)
             self.view.print_(printer)
@@ -182,6 +186,8 @@ class PDFWriter(QObject): # {{{
         item_path = os.path.join(self.tmp_path, 'cover.pdf')
         printer = get_pdf_printer(self.opts)
         printer.setOutputFileName(item_path)
+        if isosx:
+            printer.setOutputFormat(QPrinter.NativeFormat)
         self.combine_queue.insert(0, item_path)
         p = QPixmap()
         p.loadFromData(self.cover_data)
@@ -232,6 +238,8 @@ class ImagePDFWriter(object):
     def render_images(self, outpath, mi, items):
         printer = get_pdf_printer(self.opts, for_comic=True)
         printer.setOutputFileName(outpath)
+        if isosx:
+            printer.setOutputFormat(QPrinter.NativeFormat)
         printer.setDocName(mi.title)
         printer.setCreator(u'%s [%s]'%(__appname__, __version__))
         # Seems to be no way to set author
