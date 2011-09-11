@@ -654,8 +654,9 @@ class MobiReader(object):
                     pass
             if (tag.tag == 'a' and attrib.get('id', '').startswith('filepos')
                     and not tag.text and (tag.tail is None or not
-                        tag.tail.strip()) and tag.getnext().tag in ('h1', 'h2',
-                            'h3', 'h4', 'h5', 'h6', 'div', 'p')):
+                        tag.tail.strip()) and getattr(tag.getnext(), 'tag',
+                            None) in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                                'div', 'p')):
                 # This is an empty anchor immediately before a block tag, move
                 # the id onto the block tag instead
                 forwardable_anchors.append(tag)

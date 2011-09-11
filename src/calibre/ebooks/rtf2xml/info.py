@@ -68,7 +68,6 @@ class Info:
 
         'cw<di<create-tim'  : (self.__found_tag_with_tokens_func, 'creation-time'),
         'cw<di<revis-time'  : (self.__found_tag_with_tokens_func, 'revision-time'),
-        'cw<di<edit-time_'  : (self.__found_tag_with_tokens_func, 'editing-time'),
         'cw<di<print-time'  : (self.__found_tag_with_tokens_func, 'printing-time'),
         'cw<di<backuptime'  : (self.__found_tag_with_tokens_func, 'backup-time'),
 
@@ -77,6 +76,7 @@ class Info:
         'cw<di<numofchrws'  : (self.__single_field_func, 'number-of-characters-without-space'),
         'cw<di<num-of-pag'  : (self.__single_field_func, 'number-of-pages'),
         'cw<di<version___'  : (self.__single_field_func, 'version'),
+        'cw<di<edit-time_'  : (self.__single_field_func, 'editing-time'),
         'cw<di<intern-ver'  : (self.__single_field_func, 'internal-version-number'),
         'cw<di<internalID'  : (self.__single_field_func, 'internal-id-number'),
         }

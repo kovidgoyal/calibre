@@ -31,10 +31,10 @@ class Filmweb_pl(BasicNewsRecipe):
                          (u'Recenzje redakcji', u'http://www.filmweb.pl/feed/reviews/latest'),
                          (u'Recenzje użytkowników', u'http://www.filmweb.pl/feed/user-reviews/latest')]
 
-    def skip_ad_pages(self, soup):
-        skip_tag = soup.find('a', attrs={'class':'welcomeScreenButton'})['href']
-        #self.log.warn(skip_tag)
+    def skip_ad_pages(self, soup):   
+        skip_tag = soup.find('a', attrs={'class':'welcomeScreenButton'})
         if skip_tag is not None:
-            return self.index_to_soup(skip_tag, raw=True)
-        else:
-            None
+            self.log.warn('skip_tag')
+            self.log.warn(skip_tag)
+            return self.index_to_soup(skip_tag['href'], raw=True)
+        

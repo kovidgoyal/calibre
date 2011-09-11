@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from future_builtins import map
+#from future_builtins import map
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,6 +12,8 @@ from threading import Lock
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY
 from calibre.utils.icu import sort_key
+from calibre.utils.date import UNDEFINED_DATE
+from calibre.utils.localization import calibre_langcode_to_name
 
 class Field(object):
 
@@ -21,7 +23,18 @@ class Field(object):
                 'series', 'enumeration')
         self.table_type = self.table.table_type
         dt = self.metadata['datatype']
-        self._sort_key = (sort_key if dt == 'text' else lambda x: x)
+        self._sort_key = (sort_key if dt in ('text', 'series', 'enumeration') else lambda x: x)
+        self._default_sort_key = ''
+        if self.metadata['datatype'] in ('int', 'float', 'rating'):
+            self._default_sort_key = 0
+        elif self.metadata['datatype'] == 'bool':
+            self._default_sort_key = None
+        elif self.metadata['datatype'] == 'datetime':
+            self._default_sort_key = UNDEFINED_DATE
+        if self.name == 'languages':
+            self._sort_key = lambda x:sort_key(calibre_langcode_to_name(x))
+        self.is_multiple = (bool(self.metadata['is_multiple']) or self.name ==
+                'formats')
 
     @property
     def metadata(self):
@@ -63,7 +76,8 @@ class Field(object):
         '''
         Return a mapping of book_id -> sort_key. The sort key is suitable for
         use in sorting the list of all books by this field, via the python cmp
-        method.
+        method. all_book_ids is the list/set of book ids for which sort_keys
+        should be generated.
         '''
         raise NotImplementedError()
 
@@ -83,8 +97,8 @@ class OneToOneField(Field):
         return self.table.book_col_map.iterkeys()
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):
-        return {id_ : self._sort_key(self.book_col_map.get(id_, '')) for id_ in
-                all_book_ids}
+        return {id_ : self._sort_key(self.table.book_col_map.get(id_,
+            self._default_sort_key)) for id_ in all_book_ids}
 
 class CompositeField(OneToOneField):
 
@@ -98,7 +112,7 @@ class CompositeField(OneToOneField):
         with self._lock:
             ans = self._render_cache.get(book_id, None)
         if ans is None:
-            ans = mi.get(self.metadata['label'])
+            ans = mi.get('#'+self.metadata['label'])
             with self._lock:
                 self._render_cache[book_id] = ans
         return ans
@@ -116,7 +130,7 @@ class CompositeField(OneToOneField):
             ans = self._render_cache.get(book_id, None)
         if ans is None:
             mi = get_metadata(book_id)
-            ans = mi.get(self.metadata['label'])
+            ans = mi.get('#'+self.metadata['label'])
         return ans
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):
@@ -129,6 +143,7 @@ class OnDeviceField(OneToOneField):
     def __init__(self, name, table):
         self.name = name
         self.book_on_device_func = None
+        self.is_multiple = False
 
     def book_on_device(self, book_id):
         if callable(self.book_on_device_func):
@@ -182,10 +197,12 @@ class ManyToOneField(Field):
         return self.table.id_map.iterkeys()
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):
-        keys = {id_ : self._sort_key(self.table.id_map.get(id_, '')) for id_ in
-                all_book_ids}
-        return {id_ : keys.get(
-            self.book_col_map.get(id_, None), '') for id_ in all_book_ids}
+        ans = {id_ : self.table.book_col_map.get(id_, None)
+                for id_ in all_book_ids}
+        sk_map = {cid : (self._default_sort_key if cid is None else
+                self._sort_key(self.table.id_map[cid]))
+                for cid in ans.itervalues()}
+        return {id_ : sk_map[cid] for id_, cid in ans.iteritems()}
 
 class ManyToManyField(Field):
 
@@ -211,16 +228,17 @@ class ManyToManyField(Field):
         return self.table.id_map.iterkeys()
 
     def sort_keys_for_books(self, get_metadata, all_book_ids):
-        keys = {id_ : self._sort_key(self.table.id_map.get(id_, '')) for id_ in
-                all_book_ids}
+        ans = {id_ : self.table.book_col_map.get(id_, ())
+                for id_ in all_book_ids}
+        all_cids = set()
+        for cids in ans.itervalues():
+            all_cids = all_cids.union(set(cids))
+        sk_map = {cid : self._sort_key(self.table.id_map[cid])
+                for cid in all_cids}
+        return {id_ : (tuple(sk_map[cid] for cid in cids) if cids else
+                        (self._default_sort_key,))
+                for id_, cids in ans.iteritems()}
 
-        def sort_key_for_book(book_id):
-            item_ids = self.table.book_col_map.get(book_id, ())
-            if self.alphabetical_sort:
-                item_ids = sorted(item_ids, key=keys.get)
-            return tuple(map(keys.get, item_ids))
-
-        return {id_ : sort_key_for_book(id_) for id_ in all_book_ids}
 
 class IdentifiersField(ManyToManyField):
 
@@ -229,6 +247,15 @@ class IdentifiersField(ManyToManyField):
         if not ids:
             ids = default_value
         return ids
+
+    def sort_keys_for_books(self, get_metadata, all_book_ids):
+        'Sort by identifier keys'
+        ans = {id_ : self.table.book_col_map.get(id_, ())
+                for id_ in all_book_ids}
+        return {id_ : (tuple(sorted(cids.iterkeys())) if cids else
+                        (self._default_sort_key,))
+                for id_, cids in ans.iteritems()}
+
 
 class AuthorsField(ManyToManyField):
 
@@ -240,6 +267,9 @@ class AuthorsField(ManyToManyField):
         }
 
 class FormatsField(ManyToManyField):
+
+    def for_book(self, book_id, default_value=None):
+        return self.table.book_col_map.get(book_id, default_value)
 
     def format_fname(self, book_id, fmt):
         return self.table.fname_map[book_id][fmt.upper()]

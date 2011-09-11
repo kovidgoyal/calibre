@@ -144,6 +144,7 @@ class UploadToGoogleCode(Command): # {{{
         pw = re.search(r'(?s)remoteuser = .*@gmail.com.*?remotepass = (\S+)',
                 raw).group(1).strip()
         br = mechanize.Browser()
+        br.set_handle_robots(False)
         br.open('http://gmail.com')
         br.select_form(nr=0)
         br.form['Email'] = self.USERNAME

@@ -14,7 +14,7 @@ from calibre.customize.conversion import OptionRecommendation
 class MOBIOutput(OutputFormatPlugin):
 
     name = 'MOBI Output'
-    author = 'Marshall T. Vandegrift'
+    author = 'Kovid Goyal'
     file_type = 'mobi'
 
     options = set([
@@ -55,13 +55,6 @@ class MOBIOutput(OutputFormatPlugin):
                 ' specified directory. If the directory already '
                 'exists, it will be deleted.')
         ),
-        OptionRecommendation(name='kindlegen',
-            recommended_value=False,
-            help=('Use kindlegen (must be in your PATH) to generate the'
-                ' binary wrapper for the MOBI format. Useful to debug '
-                ' the calibre MOBI output.')
-        ),
-
     ])
 
     def check_for_periodical(self):
@@ -175,13 +168,9 @@ class MOBIOutput(OutputFormatPlugin):
             MobiWriter
         else:
             from calibre.ebooks.mobi.writer import MobiWriter
-        if opts.kindlegen:
-            from calibre.ebooks.mobi.kindlegen import kindlegen
-            kindlegen(oeb, opts, input_plugin, output_path)
-        else:
-            writer = MobiWriter(opts,
-                            write_page_breaks_after_item=write_page_breaks_after_item)
-            writer(oeb, output_path)
+        writer = MobiWriter(opts,
+                        write_page_breaks_after_item=write_page_breaks_after_item)
+        writer(oeb, output_path)
 
         if opts.extract_to is not None:
             from calibre.ebooks.mobi.debug import inspect_mobi

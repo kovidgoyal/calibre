@@ -53,4 +53,3 @@ class CheckBrackets:
                         'total number of brackets is %s') % self.__bracket_count
             return (False, msg)
         return (True, "Brackets match!")
-

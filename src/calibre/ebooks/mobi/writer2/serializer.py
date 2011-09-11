@@ -204,7 +204,7 @@ class Serializer(object):
             # if href is provided add a link ref to the toc level output (e.g. feed_0/index.html)
             if href is not None:
                 # resolve the section url in id_offsets
-                buf.write('<mbp:pagebreak/>')
+                buf.write('<mbp:pagebreak />')
                 self.id_offsets[urlnormalize(href)] = buf.tell()
 
             if tocref.klass == "periodical":
@@ -229,7 +229,7 @@ class Serializer(object):
                 buf.write(tocitem.title)
                 buf.write('</u></b></font></a></li>')
 
-            buf.write('</ul><div height="1em"></div></div>')
+            buf.write('</ul><div height="1em"></div></div><mbp:pagebreak />')
 
         self.anchor_offset = buf.tell()
         buf.write(b'<body>')

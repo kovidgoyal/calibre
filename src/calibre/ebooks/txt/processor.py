@@ -12,6 +12,7 @@ import os, re
 
 from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.metadata.opf2 import OPFCreator
+
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
 
