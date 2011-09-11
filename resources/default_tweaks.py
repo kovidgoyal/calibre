@@ -61,7 +61,7 @@ authors_completer_append_separator = False
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
 # The author name suffixes are words that are ignored when they occur at the
 # end of an author name. The case of the suffix is ignored and trailing
-# periods are automatically handled.
+# periods are automatically handled. The same is true for prefixes.
 # The author name copy words are a set of words which if they occur in an
 # author name cause the automatically generated author sort string to be
 # identical to the author name. This means that the sort for a string like Acme
