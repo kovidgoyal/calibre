@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-09 21:09+0000\n"
-"PO-Revision-Date: 2011-09-09 08:56+0000\n"
-"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
+"PO-Revision-Date: 2011-09-10 10:26+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-10 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-09-11 04:45+0000\n"
 "X-Generator: Launchpad (build 13900)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -1575,7 +1575,7 @@ msgstr "Comunicar con el COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Comunicar con el Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -2597,6 +2597,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:420
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
 msgstr ""
+"Convertir comillas, rayas y puntos suspensivos tipográficos en sus "
+"equivalentes simples."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:428
 msgid ""
@@ -3756,7 +3758,7 @@ msgstr "Italia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:424
 msgid "Japan"
-msgstr ""
+msgstr "Japón"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:428
 msgid "Amazon website to use:"
@@ -7534,7 +7536,7 @@ msgstr "Corregir la &puntuación"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:150
 msgid "&UnSmarten punctuation"
-msgstr ""
+msgstr "&Puntuación sencilla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:154
 msgid "&Linearize tables"
@@ -11826,6 +11828,8 @@ msgid ""
 "Some of the jobs cannot be stopped. Click Show details to see the list of "
 "unstoppable jobs."
 msgstr ""
+"Algunas tareas no se pueden detener. Pulse en  «Mostrar detalles» para ver "
+"la lista."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:321
 msgid "Unavailable"
@@ -20778,10 +20782,31 @@ msgid ""
 "Acme\n"
 "Inc. will be Acme Inc. instead of Inc., Acme"
 msgstr ""
+"El algoritmo usado para copiar el autor en el orden de autor\n"
+"Los valores posibles son:\n"
+"invert: Transforma «nom ape» en «ape, nom»\n"
+"copy: Copia author en author_sort sin modificaciones\n"
+"comma: Usa «copy» si hay una coma en el nombre, si no, usa «invert»\n"
+"nocomma: «nom ape» -> «ape nom» (sin coma)\n"
+"Al cambiar este ajuste, el orden de autor almacenado para cada autor debe\n"
+"recalcularse pulsando con el botón derecho en un autor del panel de "
+"etiquetas\n"
+"de la izquierda, seleccionando «Administrar autores» y pulsando «Recalcular\n"
+"todos los valores de orden de autor». Los sufijos de nombre de autor son\n"
+"palabras que no se tienen en cuenta cuando aparecen al final de un nombre "
+"de\n"
+"autor. Los sufijos no distinguen mayúsculas y minúsculas, y los puntos al "
+"final se\n"
+"manejan de manera automática.\n"
+"Las «palabras copia» de nombre autor son un conjunto de palabras que, si\n"
+"aparecen en un nombre autor, hacen que el orden de autor generado de manera\n"
+"automática sea idéntico al nombre de autor. Esto significa que el orden "
+"para\n"
+"algo como «Acme Inc.» será «Acme Inc.» y no «Inc., Acme»."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"
-msgstr ""
+msgstr "División de múltiples nombres de autor"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:77
 msgid ""
@@ -20792,6 +20817,12 @@ msgid ""
 "specified regular expression matches.\n"
 "Default: r'(?i),?\\s+(and|with)\\s+'"
 msgstr ""
+"De manera predeterminada, calibre divide un texto que contiene múltiples\n"
+"autores en los caracteres «&» y en las palabras «and» y  «with». Puede\n"
+"personalizar cómo se hace la división cambiando la expresión regular de\n"
+"más abajo. Los textos se dividen en cualquier posición que coincida con la\n"
+"expresión.\n"
+"Valor predeterminado: r'(?i),?\\s+(and|with)\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:84
 msgid "Use author sort in Tag Browser"

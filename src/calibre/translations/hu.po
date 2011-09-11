@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-09 21:09+0000\n"
-"PO-Revision-Date: 2011-09-06 18:07+0000\n"
+"PO-Revision-Date: 2011-09-10 19:05+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-10 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-09-11 04:44+0000\n"
 "X-Generator: Launchpad (build 13900)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3425,7 +3425,7 @@ msgstr[1] "Sorozatok"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Nyelvek"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"
@@ -5617,7 +5617,7 @@ msgstr "Ctrl+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:22
 msgid "Change calibre behavior"
-msgstr ""
+msgstr "A calibre működésének beállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:208
@@ -5626,7 +5626,7 @@ msgstr "Beállítás Varázsló indítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Get plugins to enhance calibre"
-msgstr ""
+msgstr "A calibre funkcióit kibővítő pluginok letöltése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:35
 msgid "Restart in debug mode"
@@ -5805,7 +5805,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
 msgid "Search for this %s"
-msgstr ""
+msgstr "Keresés a következő adatra: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -6216,7 +6216,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:118
 msgid "Click to open"
-msgstr "Kattints a megnyitásért"
+msgstr "Mappa megnyitása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:133
 msgid "Ids"
@@ -6244,7 +6244,7 @@ msgstr "Borító másolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:555
 msgid "Double-click to open Book Details window"
-msgstr "Kattints duplán a könyv részleteinek megjelenítéséhez"
+msgstr "Kattintson duplán a könyv részleteinek megjelenítéséhez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:556
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
@@ -9171,7 +9171,7 @@ msgstr "&Cím és szerző felcserélése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:539
 msgid "Author s&ort: "
-msgstr "Rendezési forma: "
+msgstr "Szerző rendezési forma : "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:540
 msgid ""
@@ -9339,7 +9339,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1152
 msgid "&Languages:"
-msgstr ""
+msgstr "Nyelvek:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:538
@@ -11743,7 +11743,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:308
 msgid "Author s&ort:"
-msgstr ""
+msgstr "Szerző rendezési forma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:318
 msgid ""
@@ -11759,7 +11759,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:507
 msgid "&Number:"
-msgstr ""
+msgstr "Sorszám:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:604
 #, python-format
@@ -11877,7 +11877,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1153
 msgid "A comma separated list of languages for this book"
-msgstr ""
+msgstr "A könyvben használt nyelvek vesszővel elválasztott listája"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1176
 msgid "Unknown language"
@@ -11927,7 +11927,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1329
 msgid "&Publisher:"
-msgstr ""
+msgstr "Kiadó:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1399
 msgid "Clear date"
@@ -12013,14 +12013,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:211
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:401
 msgid "Next"
-msgstr ""
+msgstr "Következő"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:67
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:221
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:384
 msgid "Previous"
-msgstr ""
+msgstr "Előző"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:113
 msgid ""
@@ -12077,11 +12077,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:211
 msgid "&Download metadata"
-msgstr ""
+msgstr "Metaadatok letöltése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:223
 msgid "Configure download metadata"
-msgstr ""
+msgstr "Metaadatok letöltésének beállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:227
 msgid "Change how calibre downloads metadata"
@@ -12116,11 +12116,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:588
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:793
 msgid "Change cover"
-msgstr ""
+msgstr "Borítócsere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:647
 msgid "Co&mments"
-msgstr ""
+msgstr "&Megjegyzés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:687
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:834
@@ -12178,6 +12178,8 @@ msgstr "Lekérdezés: "
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:473
 msgid "Failed to download metadata. Click Show Details to see details"
 msgstr ""
+"Nem sikerült a metaadatok letöltése. Kattintson a \"Részletek "
+"megjelenítése\" gombra a további információkért."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:482
 msgid ""
@@ -12203,6 +12205,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:721
 msgid "Failed to download any covers, click \"Show details\" for details."
 msgstr ""
+"Nem sikerült a borító letöltése, kattintson a \"Részletek megjelenítése\" "
+"gombra a további információkért"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:727
 #, python-format
@@ -15550,7 +15554,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:197
 msgid "Page flip &duration:"
-msgstr ""
+msgstr "Lapozási effekt időtartama:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "disabled"
@@ -15558,7 +15562,7 @@ msgstr "letiltva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Mouse &wheel flips pages"
-msgstr ""
+msgstr "Az egér görgetőgomb is lapoz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:202
 msgid "Maximum &view width:"
@@ -15566,11 +15570,11 @@ msgstr "Maximális ablakszélesség"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:203
 msgid "&General"
-msgstr ""
+msgstr "Általános"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:204
 msgid "Double click to change a keyboard shortcut"
-msgstr ""
+msgstr "Kattintson duplán a gyorsbillentyűkód megváltoztatásához"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:205
 msgid "&Keyboard shortcuts"
@@ -15637,6 +15641,7 @@ msgstr ""
 msgid ""
 "The time, in seconds, for the page flip animation. Default is half a second."
 msgstr ""
+"A lapozási animáció időtartama másodpercben. Alapérték: 0,5 másodperc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:66
 msgid "Font options"
@@ -15687,7 +15692,7 @@ msgstr "Ugrás..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:552
 msgid "Next Section"
-msgstr ""
+msgstr "Következő szakasz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:553
 msgid "Previous Section"
@@ -15781,7 +15786,7 @@ msgstr "Nyomtatási kép"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:304
 msgid "Clear list of recently opened books"
-msgstr ""
+msgstr "A legutóbb megnyitott könyvek listájának törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:369
 #, python-format
@@ -15916,7 +15921,7 @@ msgstr "Következő keresése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:203
 msgid "Find next occurrence"
-msgstr ""
+msgstr "Következő előfordulás keresése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:207
 msgid "Reference Mode"
@@ -15936,11 +15941,11 @@ msgstr "Nyomtatás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:211
 msgid "Find previous"
-msgstr ""
+msgstr "Előző keresése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:212
 msgid "Find previous occurrence"
-msgstr ""
+msgstr "Előző előfordulás keresése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
