@@ -34,7 +34,7 @@ class DispatchController(object): # {{{
     def __init__(self, prefix, wsgi=False):
         self.dispatcher = cherrypy.dispatch.RoutesDispatcher()
         self.funcs = []
-        self.seen = set([])
+        self.seen = set()
         self.prefix = prefix if prefix else ''
         if wsgi:
             self.prefix = ''
