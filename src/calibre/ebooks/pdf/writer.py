@@ -202,7 +202,7 @@ class PDFWriter(QObject): # {{{
                     inputPDF = PdfFileReader(item_stream)
                     for page in inputPDF.pages:
                         outPDF.addPage(page)
-            outPDF.write(self.out_stream)
+                        outPDF.write(self.out_stream)
         finally:
             self._delete_tmpdir()
             self.loop.exit(0)
