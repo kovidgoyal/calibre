@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-09 21:09+0000\n"
-"PO-Revision-Date: 2011-09-04 15:13+0000\n"
+"PO-Revision-Date: 2011-09-11 11:04+0000\n"
 "Last-Translator: Lucian Martin <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-09-10 04:53+0000\n"
+"X-Launchpad-Export-Date: 2011-09-12 04:51+0000\n"
 "X-Generator: Launchpad (build 13900)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1560,7 +1560,7 @@ msgstr "Comunică cu dispozitivul COBY."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Comunică cu dispozitivul Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -3758,7 +3758,7 @@ msgstr "Italia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:424
 msgid "Japan"
-msgstr ""
+msgstr "Japonia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:428
 msgid "Amazon website to use:"
@@ -11830,6 +11830,8 @@ msgid ""
 "Some of the jobs cannot be stopped. Click Show details to see the list of "
 "unstoppable jobs."
 msgstr ""
+"Unele sarcini nu pot fi oprite. Apăsaţi \"Arată detalii\" pentru afişarea "
+"listei cu sarcinile ce nu pot fi oprite."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:321
 msgid "Unavailable"
@@ -19742,6 +19744,10 @@ msgid ""
 "function to get the size for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
+"formats_sizes() -- returnează o listă de elemente separate prin \":\" ce "
+"reprezintă mărimile în octeţi a formatelor cărţii. Se poate folosi funcţia "
+"\"select\" pentru a afla mărimea unui format specific. De notat e faptul că "
+"numele formatelor sunt scrise întotdeauna cu litere mari; de ex. EPUB."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:621
 msgid ""

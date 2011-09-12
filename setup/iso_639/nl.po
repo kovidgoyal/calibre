@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-02 16:21+0000\n"
-"PO-Revision-Date: 2011-08-31 14:12+0000\n"
+"PO-Revision-Date: 2011-09-11 12:48+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-03 04:59+0000\n"
-"X-Generator: Launchpad (build 13830)\n"
+"X-Launchpad-Export-Date: 2011-09-12 04:53+0000\n"
+"X-Generator: Launchpad (build 13900)\n"
 "Language: nl\n"
 
 #. name for aaa
@@ -424,7 +424,7 @@ msgstr ""
 
 #. name for aem
 msgid "Arem"
-msgstr ""
+msgstr "Arem"
 
 #. name for aen
 msgid "Armenian Sign Language"
@@ -436,7 +436,7 @@ msgstr ""
 
 #. name for aer
 msgid "Arrernte, Eastern"
-msgstr "Arrernte, Oostelijk"
+msgstr "Arrernte, oostelijk"
 
 #. name for aes
 msgid "Alsea"
@@ -784,11 +784,11 @@ msgstr "Arabisch, Zuid-Levantijns"
 
 #. name for ajt
 msgid "Arabic, Judeo-Tunisian"
-msgstr "Arabisch, Judeo-Tunesisch"
+msgstr "Arabisch, Joods-Tunesisch"
 
 #. name for aju
 msgid "Arabic, Judeo-Moroccan"
-msgstr "Arabisch, Judeo-Marokkaans"
+msgstr "Arabisch, Joods-Marokkaans"
 
 #. name for ajw
 msgid "Ajawa"
@@ -1116,7 +1116,7 @@ msgstr ""
 
 #. name for ang
 msgid "English, Old (ca. 450-1100)"
-msgstr "Engels, Oud (ca. 450-1100)"
+msgstr "Engels, oud (ca. 450-1100)"
 
 #. name for anh
 msgid "Nend"
@@ -1412,7 +1412,7 @@ msgstr ""
 
 #. name for arc
 msgid "Aramaic, Official (700-300 BCE)"
-msgstr ""
+msgstr "Aramees, officieel (700-300 B.C.)"
 
 #. name for ard
 msgid "Arabana"
@@ -1460,7 +1460,7 @@ msgstr "Arapaho"
 
 #. name for arq
 msgid "Arabic, Algerian"
-msgstr ""
+msgstr "Arabisch, Algerijns"
 
 #. name for arr
 msgid "Karo (Brazil)"
@@ -1492,7 +1492,7 @@ msgstr ""
 
 #. name for arz
 msgid "Arabic, Egyptian"
-msgstr ""
+msgstr "Arabisch, Egyptisch"
 
 #. name for asa
 msgid "Asu (Tanzania)"
@@ -1844,7 +1844,7 @@ msgstr "Awadhi"
 
 #. name for awb
 msgid "Awa (Papua New Guinea)"
-msgstr ""
+msgstr "Awa (Papua Nieuw-Guinea)"
 
 #. name for awc
 msgid "Cicipu"
@@ -1924,7 +1924,7 @@ msgstr ""
 
 #. name for axm
 msgid "Armenian, Middle"
-msgstr "Armeens, Midden"
+msgstr "Armeens, middel"
 
 #. name for axx
 msgid "Xaragure"
@@ -1984,11 +1984,11 @@ msgstr "Ayoreo"
 
 #. name for ayp
 msgid "Arabic, North Mesopotamian"
-msgstr ""
+msgstr "Arabisch, noord Mesopotamisch"
 
 #. name for ayq
 msgid "Ayi (Papua New Guinea)"
-msgstr ""
+msgstr "Ayi (Papua Nieuw-Guinea)"
 
 #. name for ayr
 msgid "Aymara, Central"
@@ -2076,7 +2076,7 @@ msgstr "Tuki"
 
 #. name for bah
 msgid "Creole English, Bahamas"
-msgstr ""
+msgstr "Creools Engels, Bahama's"
 
 #. name for baj
 msgid "Barakai"
@@ -2112,7 +2112,7 @@ msgstr "Beiers"
 
 #. name for bas
 msgid "Basa (Cameroon)"
-msgstr "Basa (Cameroen)"
+msgstr "Basa (Kameroen)"
 
 #. name for bau
 msgid "Bada (Nigeria)"
@@ -2240,7 +2240,7 @@ msgstr "Befang"
 
 #. name for bbz
 msgid "Creole Arabic, Babalia"
-msgstr ""
+msgstr "Creools Arabisch, Babalia"
 
 #. name for bca
 msgid "Bai, Central"
@@ -2252,7 +2252,7 @@ msgstr ""
 
 #. name for bcc
 msgid "Balochi, Southern"
-msgstr "Balochi, Zuidelijk"
+msgstr "Balochi, zuidelijk"
 
 #. name for bcd
 msgid "Babar, North"
@@ -2540,7 +2540,7 @@ msgstr ""
 
 #. name for bey
 msgid "Beli (Papua New Guinea)"
-msgstr ""
+msgstr "Beli (Papua Nieuw-Guinea)"
 
 #. name for bez
 msgid "Bena (Tanzania)"
@@ -2620,7 +2620,7 @@ msgstr "Bazigar"
 
 #. name for bfs
 msgid "Bai, Southern"
-msgstr "Bai, Zuidelijk"
+msgstr "Bai, zuidelijk"
 
 #. name for bft
 msgid "Balti"
@@ -2928,7 +2928,7 @@ msgstr "Birifor, Zuid"
 
 #. name for biw
 msgid "Kol (Cameroon)"
-msgstr ""
+msgstr "Kol (Kameroen)"
 
 #. name for bix
 msgid "Bijori"
@@ -2964,7 +2964,7 @@ msgstr "Mien, Biao-Jiao"
 
 #. name for bjf
 msgid "Neo-Aramaic, Barzani Jewish"
-msgstr ""
+msgstr "Neo-Aramees, Barzani Joods"
 
 #. name for bjg
 msgid "Bidyogo"
@@ -2988,7 +2988,7 @@ msgstr ""
 
 #. name for bjl
 msgid "Bulu (Papua New Guinea)"
-msgstr ""
+msgstr "Bulu (Papua Nieuw-Guinea)"
 
 #. name for bjm
 msgid "Bajelani"
@@ -3044,7 +3044,7 @@ msgstr "Kyak"
 
 #. name for bkc
 msgid "Baka (Cameroon)"
-msgstr ""
+msgstr "Baka (Kameroen)"
 
 #. name for bkd
 msgid "Binukid"
@@ -3080,7 +3080,7 @@ msgstr "Berik"
 
 #. name for bkm
 msgid "Kom (Cameroon)"
-msgstr ""
+msgstr "Kom (Kameroen)"
 
 #. name for bkn
 msgid "Bukitan"
@@ -3288,7 +3288,7 @@ msgstr ""
 
 #. name for bmn
 msgid "Bina (Papua New Guinea)"
-msgstr ""
+msgstr "Bina (Papua Nieuw-Guinea)"
 
 #. name for bmo
 msgid "Bambalang"
@@ -3612,7 +3612,7 @@ msgstr "Bian Marind"
 
 #. name for bpw
 msgid "Bo (Papua New Guinea)"
-msgstr "Bo (Papua Nieuw Guinea)"
+msgstr "Bo (Papua Nieuw-Guinea)"
 
 #. name for bpx
 msgid "Bareli, Palya"
@@ -3736,7 +3736,7 @@ msgstr "Lave"
 
 #. name for brc
 msgid "Creole Dutch, Berbice"
-msgstr "Berbice Creools Nederlands"
+msgstr "Creools Nederlands, Berbice"
 
 #. name for brd
 msgid "Baraamu"
@@ -3932,7 +3932,7 @@ msgstr "Bata"
 
 #. name for btc
 msgid "Bati (Cameroon)"
-msgstr "Bati (Cameroen)"
+msgstr "Bati (Kameroen)"
 
 #. name for btd
 msgid "Batak Dairi"
@@ -4072,7 +4072,7 @@ msgstr "Bulgaars"
 
 #. name for bum
 msgid "Bulu (Cameroon)"
-msgstr "Bulu (Cameroen)"
+msgstr "Bulu (Kameroen)"
 
 #. name for bun
 msgid "Sherbro"
@@ -4552,11 +4552,11 @@ msgstr "Bisu"
 
 #. name for bzj
 msgid "Kriol English, Belize"
-msgstr "Engels-Creools, Belize"
+msgstr "Creools Engels, Belize"
 
 #. name for bzk
 msgid "Creole English, Nicaragua"
-msgstr "Engels-Creools, Nicaragua"
+msgstr "Creools Engels, Nicaragua"
 
 #. name for bzl
 msgid "Boano (Sulawesi)"
@@ -4640,7 +4640,7 @@ msgstr "Laalaa"
 
 #. name for caf
 msgid "Carrier, Southern"
-msgstr "Carrier, Zuidelijk"
+msgstr "Carrier, zuidelijk"
 
 #. name for cag
 msgid "Nivaclé"
@@ -4784,7 +4784,7 @@ msgstr ""
 
 #. name for cbw
 msgid "Kinabalian"
-msgstr ""
+msgstr "Kinabalinees"
 
 #. name for cby
 msgid "Carabayo"
@@ -4800,7 +4800,7 @@ msgstr ""
 
 #. name for ccd
 msgid "Creole, Cafundo"
-msgstr ""
+msgstr "Creools, Cafundo"
 
 #. name for cce
 msgid "Chopi"
@@ -4824,7 +4824,7 @@ msgstr ""
 
 #. name for ccm
 msgid "Creole Malay, Malaccan"
-msgstr ""
+msgstr "Creools Maleis, Malakka"
 
 #. name for cco
 msgid "Chinantec, Comaltepec"
@@ -4888,7 +4888,7 @@ msgstr ""
 
 #. name for cds
 msgid "Chadian Sign Language"
-msgstr "Tsjaadse gebarentaal"
+msgstr "Tsjadische gebarentaal"
 
 #. name for cdy
 msgid "Chadong"
@@ -5000,7 +5000,7 @@ msgstr ""
 
 #. name for chm
 msgid "Mari (Russia)"
-msgstr "Mari (Russisch)"
+msgstr "Mari (Rusland)"
 
 #. name for chn
 msgid "Chinook jargon"
@@ -5028,7 +5028,7 @@ msgstr ""
 
 #. name for chu
 msgid "Slavonic, Old"
-msgstr "Slavisch, Oud Kerk"
+msgstr "Slavisch, oud (kerk)"
 
 #. name for chv
 msgid "Chuvash"
@@ -5156,7 +5156,7 @@ msgstr ""
 
 #. name for ckb
 msgid "Kurdish, Central"
-msgstr "Koerdisch, Centraal"
+msgstr "Koerdisch, centraal"
 
 #. name for ckh
 msgid "Chak"
@@ -5256,7 +5256,7 @@ msgstr ""
 
 #. name for cly
 msgid "Chatino, Eastern Highland"
-msgstr "Chatino, Oostelijk-Hoogland"
+msgstr "Chatino, oostelijk hoogland"
 
 #. name for cma
 msgid "Maa"
@@ -5268,7 +5268,7 @@ msgstr ""
 
 #. name for cmg
 msgid "Mongolian, Classical"
-msgstr "Mongools, Klassiek"
+msgstr "Mongools, klassiek"
 
 #. name for cmi
 msgid "Emberá-Chamí"
@@ -5288,7 +5288,7 @@ msgstr "Chinees, Mandarijn"
 
 #. name for cmo
 msgid "Mnong, Central"
-msgstr "Mnong, Centraal"
+msgstr "Mnong, centraal"
 
 #. name for cmr
 msgid "Chin, Mro"
@@ -5472,7 +5472,7 @@ msgstr ""
 
 #. name for cpg
 msgid "Greek, Cappadocian"
-msgstr ""
+msgstr "Grieks, Cappadonisch"
 
 #. name for cpi
 msgid "Pidgin English, Chinese"
@@ -5536,7 +5536,7 @@ msgstr ""
 
 #. name for crh
 msgid "Turkish, Crimean"
-msgstr ""
+msgstr "Turks, Crimean"
 
 #. name for cri
 msgid "Sãotomense"
@@ -5544,7 +5544,7 @@ msgstr ""
 
 #. name for crj
 msgid "Cree, Southern East"
-msgstr "Cree, Zuidelijk Oost"
+msgstr "Cree, zuidelijk oost"
 
 #. name for crk
 msgid "Cree, Plains"
@@ -5576,7 +5576,7 @@ msgstr "Algonquiaans, Carolina"
 
 #. name for crs
 msgid "Creole French, Seselwa"
-msgstr ""
+msgstr "Creools Frans, Seselwa"
 
 #. name for crt
 msgid "Chorote, Iyojwa'ja"
@@ -5668,11 +5668,11 @@ msgstr "Costa Ricaanse gebarentaal"
 
 #. name for css
 msgid "Ohlone, Southern"
-msgstr "Ohlone, Zuidelijk"
+msgstr "Ohlone, zuidelijk"
 
 #. name for cst
 msgid "Ohlone, Northern"
-msgstr "Ohlone, Noordelijk"
+msgstr "Ohlone, noordelijk"
 
 #. name for csw
 msgid "Cree, Swampy"
@@ -5724,7 +5724,7 @@ msgstr ""
 
 #. name for ctp
 msgid "Chatino, Western Highland"
-msgstr "Chatino, Westelijk Hoogland"
+msgstr "Chatino, westelijk hoogland"
 
 #. name for cts
 msgid "Bicolano, Northern Catanduanes"
@@ -6056,7 +6056,7 @@ msgstr ""
 
 #. name for dcr
 msgid "Negerhollands"
-msgstr ""
+msgstr "Negerhollands"
 
 #. name for ddd
 msgid "Dongotono"
@@ -6408,7 +6408,7 @@ msgstr ""
 
 #. name for djk
 msgid "Eastern Maroon Creole"
-msgstr ""
+msgstr "Oost-Maroon, Creools"
 
 #. name for djl
 msgid "Djiwarli"
@@ -6616,7 +6616,7 @@ msgstr ""
 
 #. name for don
 msgid "Toura (Papua New Guinea)"
-msgstr ""
+msgstr "Toura (Papua Nieuw-Guinea)"
 
 #. name for doo
 msgid "Dongo"
@@ -6716,7 +6716,7 @@ msgstr ""
 
 #. name for drt
 msgid "Drents"
-msgstr ""
+msgstr "Drents"
 
 #. name for dru
 msgid "Rukai"
@@ -6728,7 +6728,7 @@ msgstr ""
 
 #. name for dsb
 msgid "Sorbian, Lower"
-msgstr ""
+msgstr "Sorbisch, lager"
 
 #. name for dse
 msgid "Dutch Sign Language"
@@ -6852,7 +6852,7 @@ msgstr ""
 
 #. name for dum
 msgid "Dutch, Middle (ca. 1050-1350)"
-msgstr "Nederlands, Middel (ca. 1050-1350)"
+msgstr "Nederlands, middel (ca. 1050-1350)"
 
 #. name for dun
 msgid "Dusun Deyah"
@@ -7052,7 +7052,7 @@ msgstr ""
 
 #. name for egy
 msgid "Egyptian (Ancient)"
-msgstr "Egyptisch (Oud)"
+msgstr "Egyptisch (antiek)"
 
 #. name for ehu
 msgid "Ehueun"
@@ -7092,7 +7092,7 @@ msgstr ""
 
 #. name for ekk
 msgid "Estonian, Standard"
-msgstr ""
+msgstr "Estlands, standaard"
 
 #. name for ekl
 msgid "Kol"
@@ -7248,7 +7248,7 @@ msgstr ""
 
 #. name for enm
 msgid "English, Middle (1100-1500)"
-msgstr "Engels, Middel (1100-1500)"
+msgstr "Engels, middel (1100-1500)"
 
 #. name for enn
 msgid "Engenni"
@@ -7368,7 +7368,7 @@ msgstr ""
 
 #. name for ess
 msgid "Yupik, Central Siberian"
-msgstr "Eskimo's (Inuit), Centraal Siberisch"
+msgstr "Eskimo's (Inuit), centraal Siberisch"
 
 #. name for est
 msgid "Estonian"
@@ -7376,7 +7376,7 @@ msgstr "Estlands"
 
 #. name for esu
 msgid "Yupik, Central"
-msgstr "Eskimo's (Inuit), Centraal"
+msgstr "Eskimo's (Inuit), centraal"
 
 #. name for etb
 msgid "Etebi"
@@ -7396,7 +7396,7 @@ msgstr ""
 
 #. name for eto
 msgid "Eton (Cameroon)"
-msgstr ""
+msgstr "Eton (Kameroen)"
 
 #. name for etr
 msgid "Edolo"
@@ -7408,7 +7408,7 @@ msgstr ""
 
 #. name for ett
 msgid "Etruscan"
-msgstr ""
+msgstr "Etruskisch"
 
 #. name for etu
 msgid "Ejagham"
@@ -7600,7 +7600,7 @@ msgstr ""
 
 #. name for fit
 msgid "Finnish, Tornedalen"
-msgstr "Fins (Tornedalen)"
+msgstr "Fins, Tornedalen"
 
 #. name for fiw
 msgid "Fiwaga"
@@ -7608,7 +7608,7 @@ msgstr ""
 
 #. name for fkv
 msgid "Finnish, Kven"
-msgstr ""
+msgstr "Fins, Kven"
 
 #. name for fla
 msgid "Kalispel-Pend d'Oreille"
@@ -7680,7 +7680,7 @@ msgstr ""
 
 #. name for fpe
 msgid "Creole English, Fernando Po"
-msgstr "Krio Fernando Po"
+msgstr "Creools Engels, Fernando Po"
 
 #. name for fqs
 msgid "Fas"
@@ -7700,15 +7700,15 @@ msgstr ""
 
 #. name for frk
 msgid "Frankish"
-msgstr ""
+msgstr "Frankisch"
 
 #. name for frm
 msgid "French, Middle (ca. 1400-1600)"
-msgstr "Frans, Middel (ca. 1400-1600)"
+msgstr "Frans, middel (ca. 1400-1600)"
 
 #. name for fro
 msgid "French, Old (842-ca. 1400)"
-msgstr "Frans, Oud (842-ca. 1400)"
+msgstr "Frans, oud (842-ca. 1400)"
 
 #. name for frp
 msgid "Arpitan"
@@ -7720,11 +7720,11 @@ msgstr ""
 
 #. name for frr
 msgid "Frisian, Northern"
-msgstr "Fries, Noordelijk (Duitsland)"
+msgstr "Fries, noordelijk (Duitsland)"
 
 #. name for frs
 msgid "Frisian, Eastern"
-msgstr "Fries, Oostelijk (Duitsland)"
+msgstr "Fries, oostelijk (Duitsland)"
 
 #. name for frt
 msgid "Fortsenal"
@@ -7808,7 +7808,7 @@ msgstr ""
 
 #. name for fuv
 msgid "Fulfulde, Nigerian"
-msgstr "Fulfulde (Nigiriaans)"
+msgstr "Fulfulde, Nigeriaans"
 
 #. name for fuy
 msgid "Fuyug"
@@ -8036,11 +8036,11 @@ msgstr ""
 
 #. name for gcf
 msgid "Creole French, Guadeloupean"
-msgstr ""
+msgstr "Creools Frans, Guadelouper"
 
 #. name for gcl
 msgid "Creole English, Grenadian"
-msgstr ""
+msgstr "Creools Engels, Grenadian"
 
 #. name for gcn
 msgid "Gaina"
@@ -8048,11 +8048,11 @@ msgstr ""
 
 #. name for gcr
 msgid "Creole French, Guianese"
-msgstr ""
+msgstr "Creools Frans, Guianees"
 
 #. name for gct
 msgid "German, Colonia Tovar"
-msgstr ""
+msgstr "Duits, Colonia Tovar"
 
 #. name for gda
 msgid "Lohar, Gade"
@@ -8152,7 +8152,7 @@ msgstr ""
 
 #. name for geh
 msgid "German, Hutterite"
-msgstr ""
+msgstr "Duits, Hutterite"
 
 #. name for gei
 msgid "Gebe"
@@ -8260,7 +8260,7 @@ msgstr ""
 
 #. name for ghc
 msgid "Gaelic, Hiberno-Scottish"
-msgstr ""
+msgstr "Keltisch, Hiberno-schots"
 
 #. name for ghe
 msgid "Ghale, Southern"
@@ -8336,7 +8336,7 @@ msgstr ""
 
 #. name for gip
 msgid "Gimi (West New Britain)"
-msgstr ""
+msgstr "Gimi (west nieuw Brittannië)"
 
 #. name for giq
 msgid "Gelao, Green"
@@ -8404,7 +8404,7 @@ msgstr ""
 
 #. name for gla
 msgid "Gaelic, Scottish"
-msgstr ""
+msgstr "Keltisch, schots"
 
 #. name for glc
 msgid "Bon Gula"
@@ -8476,11 +8476,11 @@ msgstr ""
 
 #. name for gmh
 msgid "German, Middle High (ca. 1050-1500)"
-msgstr "Duits, Middel hoog (ca. 1050-1500)"
+msgstr "Duits, middel hoog (ca. 1050-1500)"
 
 #. name for gml
 msgid "German, Middle Low"
-msgstr "Duits, Middel laag"
+msgstr "Duits, middel laag"
 
 #. name for gmm
 msgid "Gbaya-Mbodomo"
@@ -8576,7 +8576,7 @@ msgstr ""
 
 #. name for gnw
 msgid "Guaraní, Western Bolivian"
-msgstr ""
+msgstr "Guaraní, west-Boliviaans"
 
 #. name for gnz
 msgid "Ganzi"
@@ -8612,7 +8612,7 @@ msgstr ""
 
 #. name for goh
 msgid "German, Old High (ca. 750-1050)"
-msgstr "Duits, Oud hoog (ca. 750-1050)"
+msgstr "Duits, oud hoog (ca. 750-1050)"
 
 #. name for goi
 msgid "Gobasi"
@@ -8656,7 +8656,7 @@ msgstr "Gorontalo"
 
 #. name for gos
 msgid "Gronings"
-msgstr ""
+msgstr "Gronings"
 
 #. name for got
 msgid "Gothic"
@@ -8716,7 +8716,7 @@ msgstr "Grebo"
 
 #. name for grc
 msgid "Greek, Ancient (to 1453)"
-msgstr "Grieks, Oud (tot 1453)"
+msgstr "Grieks, antiek (tot 1453)"
 
 #. name for grd
 msgid "Guruntum-Mbaaru"
@@ -8868,7 +8868,7 @@ msgstr ""
 
 #. name for gui
 msgid "Guaraní, Eastern Bolivian"
-msgstr ""
+msgstr "Guaraní, oost-Bolivian"
 
 #. name for guj
 msgid "Gujarati"
@@ -8880,7 +8880,7 @@ msgstr ""
 
 #. name for gul
 msgid "Creole English, Sea Island"
-msgstr ""
+msgstr "Creools Engels, zee eilanden"
 
 #. name for gum
 msgid "Guambiano"
@@ -9088,7 +9088,7 @@ msgstr ""
 
 #. name for gyn
 msgid "Creole English, Guyanese"
-msgstr ""
+msgstr "Creools Engels, Guyanees"
 
 #. name for gyr
 msgid "Guarayu"
@@ -9188,7 +9188,7 @@ msgstr ""
 
 #. name for hat
 msgid "Creole, Haitian"
-msgstr ""
+msgstr "Creools, Haïtiaans"
 
 #. name for hau
 msgid "Hausa"
@@ -9228,11 +9228,11 @@ msgstr ""
 
 #. name for hbo
 msgid "Hebrew, Ancient"
-msgstr ""
+msgstr "Hebreeuws, antiek"
 
 #. name for hbs
 msgid "Serbo-Croatian"
-msgstr ""
+msgstr "Servo-Kroatisch"
 
 #. name for hbu
 msgid "Habu"
@@ -9240,7 +9240,7 @@ msgstr ""
 
 #. name for hca
 msgid "Creole Hindi, Andaman"
-msgstr ""
+msgstr "Creools Hindi, Andaman"
 
 #. name for hch
 msgid "Huichol"
@@ -9520,7 +9520,7 @@ msgstr ""
 
 #. name for hna
 msgid "Mina (Cameroon)"
-msgstr ""
+msgstr "Mina (Kameroen)"
 
 #. name for hnd
 msgid "Hindko, Southern"
@@ -9688,7 +9688,7 @@ msgstr ""
 
 #. name for hsb
 msgid "Sorbian, Upper"
-msgstr ""
+msgstr "Servisch, hoger"
 
 #. name for hsh
 msgid "Hungarian Sign Language"
@@ -9852,7 +9852,7 @@ msgstr ""
 
 #. name for hwc
 msgid "Creole English, Hawai'i"
-msgstr ""
+msgstr "Creools Engels, Hawai"
 
 #. name for hwo
 msgid "Hwana"
@@ -9948,7 +9948,7 @@ msgstr "IJslandse gebarentaal"
 
 #. name for icr
 msgid "Creole English, Islander"
-msgstr ""
+msgstr "Creools Engels, eilanders"
 
 #. name for ida
 msgid "Idakho-Isukha-Tiriki"
@@ -9956,7 +9956,7 @@ msgstr ""
 
 #. name for idb
 msgid "Indo-Portuguese"
-msgstr ""
+msgstr "Indo-Portugees"
 
 #. name for idc
 msgid "Idon"
@@ -10428,7 +10428,7 @@ msgstr ""
 
 #. name for itk
 msgid "Judeo-Italian"
-msgstr ""
+msgstr "Joods-Italiaans"
 
 #. name for itl
 msgid "Itelmen"
@@ -10576,7 +10576,7 @@ msgstr ""
 
 #. name for jam
 msgid "Creole English, Jamaican"
-msgstr ""
+msgstr "Creools Engels, Jamaicaans"
 
 #. name for jao
 msgid "Yanyuwa"
@@ -10592,7 +10592,7 @@ msgstr ""
 
 #. name for jas
 msgid "Javanese, New Caledonian"
-msgstr ""
+msgstr "Javaans, nieuw Caledonisch"
 
 #. name for jat
 msgid "Jakati"
@@ -10620,7 +10620,7 @@ msgstr ""
 
 #. name for jbe
 msgid "Judeo-Berber"
-msgstr ""
+msgstr "Joods-Berbers"
 
 #. name for jbj
 msgid "Arandai"
@@ -10664,7 +10664,7 @@ msgstr ""
 
 #. name for jdt
 msgid "Judeo-Tat"
-msgstr ""
+msgstr "Joods-Tat"
 
 #. name for jeb
 msgid "Jebero"
@@ -10716,7 +10716,7 @@ msgstr ""
 
 #. name for jge
 msgid "Judeo-Georgian"
-msgstr ""
+msgstr "Joods-Gregoriaans"
 
 #. name for jgo
 msgid "Ngomba"
@@ -10768,7 +10768,7 @@ msgstr ""
 
 #. name for jim
 msgid "Jimi (Cameroon)"
-msgstr ""
+msgstr "Jimi (Kameroen)"
 
 #. name for jio
 msgid "Jiamao"
@@ -10900,7 +10900,7 @@ msgstr ""
 
 #. name for jpa
 msgid "Aramaic, Jewish Palestinian"
-msgstr ""
+msgstr "Aramees, Joodse Palesteinen"
 
 #. name for jpn
 msgid "Japanese"
@@ -10908,7 +10908,7 @@ msgstr "Japans"
 
 #. name for jpr
 msgid "Judeo-Persian"
-msgstr "Judeo-Perzisch"
+msgstr "Joods-Perzisch"
 
 #. name for jqr
 msgid "Jaqaru"
@@ -10920,7 +10920,7 @@ msgstr ""
 
 #. name for jrb
 msgid "Judeo-Arabic"
-msgstr "Judeo-Arabisch"
+msgstr "Joods-Arabisch"
 
 #. name for jrr
 msgid "Jiru"
@@ -11024,7 +11024,7 @@ msgstr ""
 
 #. name for jye
 msgid "Arabic, Judeo-Yemeni"
-msgstr ""
+msgstr "Arabisch, Joods-Jemenitisch"
 
 #. name for jyy
 msgid "Jaya"
@@ -11280,7 +11280,7 @@ msgstr ""
 
 #. name for kcl
 msgid "Kela (Papua New Guinea)"
-msgstr ""
+msgstr "Kela (Papua Nieuw-Guinea)"
 
 #. name for kcm
 msgid "Gula (Central African Republic)"
@@ -12268,7 +12268,7 @@ msgstr ""
 
 #. name for kmf
 msgid "Kare (Papua New Guinea)"
-msgstr ""
+msgstr "Kare (Papua Nieuw-Guinea)"
 
 #. name for kmg
 msgid "Kâte"
@@ -12316,7 +12316,7 @@ msgstr ""
 
 #. name for kmr
 msgid "Kurdish, Northern"
-msgstr ""
+msgstr "Koerdisch, Noordelijk"
 
 #. name for kms
 msgid "Kamasau"
@@ -12332,7 +12332,7 @@ msgstr ""
 
 #. name for kmv
 msgid "Creole French, Karipúna"
-msgstr ""
+msgstr "Creools Frans, Karipúna"
 
 #. name for kmw
 msgid "Komo (Democratic Republic of Congo)"
@@ -12492,7 +12492,7 @@ msgstr ""
 
 #. name for kol
 msgid "Kol (Papua New Guinea)"
-msgstr ""
+msgstr "Kol (Papua Nieuw-Guinea)"
 
 #. name for kom
 msgid "Komi"
@@ -13436,7 +13436,7 @@ msgstr ""
 
 #. name for kxr
 msgid "Koro (Papua New Guinea)"
-msgstr ""
+msgstr "Koro (Papua Nieuw-Guinea)"
 
 #. name for kxs
 msgid "Kangjia"
@@ -14024,7 +14024,7 @@ msgstr ""
 
 #. name for leo
 msgid "Leti (Cameroon)"
-msgstr ""
+msgstr "Leti (Kameroen)"
 
 #. name for lep
 msgid "Lepcha"
@@ -14048,7 +14048,7 @@ msgstr ""
 
 #. name for leu
 msgid "Kara (Papua New Guinea)"
-msgstr ""
+msgstr "Kara (Papua Nieuw-Guinea)"
 
 #. name for lev
 msgid "Lamma"
@@ -14224,7 +14224,7 @@ msgstr ""
 
 #. name for lim
 msgid "Limburgan"
-msgstr ""
+msgstr "Limburgs"
 
 #. name for lin
 msgid "Lingala"
@@ -14244,7 +14244,7 @@ msgstr ""
 
 #. name for lir
 msgid "English, Liberian"
-msgstr ""
+msgstr "Engels, Liberiaans"
 
 #. name for lis
 msgid "Lisu"
@@ -14372,7 +14372,7 @@ msgstr ""
 
 #. name for lle
 msgid "Lele (Papua New Guinea)"
-msgstr ""
+msgstr "Lele (Papua Nieuw-Guinea)"
 
 #. name for llf
 msgid "Hermit"
@@ -14660,7 +14660,7 @@ msgstr ""
 
 #. name for lou
 msgid "Creole French, Louisiana"
-msgstr ""
+msgstr "Creools Frans, Louisiana"
 
 #. name for lov
 msgid "Lopi"
@@ -14816,7 +14816,7 @@ msgstr "Mauritaanse gebarentaal"
 
 #. name for ltc
 msgid "Chinese, Late Middle"
-msgstr "Chinees, Laat middel (10e–12e eeuw)"
+msgstr "Chinees, laat middel (10e–12e eeuw)"
 
 #. name for ltg
 msgid "Latgalian"
@@ -14844,7 +14844,7 @@ msgstr ""
 
 #. name for ltz
 msgid "Luxembourgish"
-msgstr ""
+msgstr "Luxemburgs"
 
 #. name for lua
 msgid "Luba-Lulua"
@@ -14932,7 +14932,7 @@ msgstr ""
 
 #. name for luw
 msgid "Luo (Cameroon)"
-msgstr ""
+msgstr "Luo (Kameroen)"
 
 #. name for luy
 msgid "Luyia"
@@ -14952,7 +14952,7 @@ msgstr ""
 
 #. name for lvs
 msgid "Latvian, Standard"
-msgstr ""
+msgstr "Lets, standaard"
 
 #. name for lvu
 msgid "Levuka"
@@ -15164,7 +15164,7 @@ msgstr ""
 
 #. name for mbo
 msgid "Mbo (Cameroon)"
-msgstr ""
+msgstr "Mbo (Kameroen)"
 
 #. name for mbp
 msgid "Malayo"
@@ -15260,7 +15260,7 @@ msgstr ""
 
 #. name for mcm
 msgid "Creole Portuguese, Malaccan"
-msgstr ""
+msgstr "Creools Portugees, Malaccaans"
 
 #. name for mcn
 msgid "Masana"
@@ -15324,7 +15324,7 @@ msgstr ""
 
 #. name for mdc
 msgid "Male (Papua New Guinea)"
-msgstr ""
+msgstr "Male (Papua Nieuw-Guinea)"
 
 #. name for mdd
 msgid "Mbum"
@@ -15384,7 +15384,7 @@ msgstr "Mandars"
 
 #. name for mds
 msgid "Maria (Papua New Guinea)"
-msgstr ""
+msgstr "Maria (Papua Nieuw-Guinea)"
 
 #. name for mdt
 msgid "Mbere"
@@ -15620,7 +15620,7 @@ msgstr ""
 
 #. name for mga
 msgid "Irish, Middle (900-1200)"
-msgstr "Iers, Middel (900-1200)"
+msgstr "Iers, middel (900-1200)"
 
 #. name for mgb
 msgid "Mararit"
@@ -15964,7 +15964,7 @@ msgstr ""
 
 #. name for mjn
 msgid "Ma (Papua New Guinea)"
-msgstr ""
+msgstr "Ma (Papua Nieuw-Guinea)"
 
 #. name for mjo
 msgid "Malankuravan"
@@ -16788,7 +16788,7 @@ msgstr ""
 
 #. name for mru
 msgid "Mono (Cameroon)"
-msgstr ""
+msgstr "Mono (Kameroen)"
 
 #. name for mrv
 msgid "Mangareva"
@@ -16932,7 +16932,7 @@ msgstr ""
 
 #. name for mtf
 msgid "Murik (Papua New Guinea)"
-msgstr ""
+msgstr "Murik (Papua Nieuw-Guinea)"
 
 #. name for mtg
 msgid "Una"
@@ -16944,7 +16944,7 @@ msgstr ""
 
 #. name for mti
 msgid "Maiwa (Papua New Guinea)"
-msgstr ""
+msgstr "Maiwa (Papua Nieuw-Guinea)"
 
 #. name for mtj
 msgid "Moskona"
@@ -17384,7 +17384,7 @@ msgstr ""
 
 #. name for mxu
 msgid "Mada (Cameroon)"
-msgstr ""
+msgstr "Mada (Kameroen)"
 
 #. name for mxv
 msgid "Mixtec, Metlatónoc"
@@ -17956,7 +17956,7 @@ msgstr ""
 
 #. name for nds
 msgid "Saxon, Low"
-msgstr ""
+msgstr "Saksisch, laag"
 
 #. name for ndt
 msgid "Ndunga"
@@ -18712,7 +18712,7 @@ msgstr ""
 
 #. name for nmx
 msgid "Nama (Papua New Guinea)"
-msgstr ""
+msgstr "Nama (Papua Nieuw-Guinea)"
 
 #. name for nmy
 msgid "Namuyi"
@@ -18780,7 +18780,7 @@ msgstr ""
 
 #. name for nno
 msgid "Norwegian Nynorsk"
-msgstr "Noors Nynorsk"
+msgstr "Noors, Nynorsk"
 
 #. name for nnp
 msgid "Naga, Wancho"
@@ -18832,7 +18832,7 @@ msgstr ""
 
 #. name for nob
 msgid "Norwegian Bokmål"
-msgstr ""
+msgstr "Noors, Bokmål"
 
 #. name for noc
 msgid "Nuk"
@@ -18876,7 +18876,7 @@ msgstr ""
 
 #. name for non
 msgid "Norse, Old"
-msgstr "Noors, Oud"
+msgstr "Noors, oud"
 
 #. name for nop
 msgid "Numanggang"
@@ -19516,7 +19516,7 @@ msgstr ""
 
 #. name for oar
 msgid "Aramaic, Old (up to 700 BCE)"
-msgstr ""
+msgstr "Aramees, oud (tot en met 700 B.C.)"
 
 #. name for oav
 msgid "Avar, Old"
@@ -19544,11 +19544,11 @@ msgstr ""
 
 #. name for obr
 msgid "Burmese, Old"
-msgstr ""
+msgstr "Burmees, oud"
 
 #. name for obt
 msgid "Breton, Old"
-msgstr ""
+msgstr "Bretons, oud"
 
 #. name for obu
 msgid "Obulom"
@@ -19560,7 +19560,7 @@ msgstr ""
 
 #. name for och
 msgid "Chinese, Old"
-msgstr "Chinees, Oud"
+msgstr "Chinees, oud"
 
 #. name for oci
 msgid "Occitan (post 1500)"
@@ -19584,7 +19584,7 @@ msgstr ""
 
 #. name for odt
 msgid "Dutch, Old"
-msgstr ""
+msgstr "Nederlands, oud"
 
 #. name for odu
 msgid "Odual"
@@ -19596,7 +19596,7 @@ msgstr ""
 
 #. name for ofs
 msgid "Frisian, Old"
-msgstr "Fries, Oud"
+msgstr "Fries, oud"
 
 #. name for ofu
 msgid "Efutop"
@@ -19612,7 +19612,7 @@ msgstr ""
 
 #. name for oge
 msgid "Georgian, Old"
-msgstr ""
+msgstr "Georgisch, oud"
 
 #. name for ogg
 msgid "Ogbogolo"
@@ -19632,7 +19632,7 @@ msgstr ""
 
 #. name for ohu
 msgid "Hungarian, Old"
-msgstr ""
+msgstr "Hongaars, oud"
 
 #. name for oia
 msgid "Oirata"
@@ -19660,7 +19660,7 @@ msgstr "Ojibwa"
 
 #. name for ojp
 msgid "Japanese, Old"
-msgstr ""
+msgstr "Japans, oud"
 
 #. name for ojs
 msgid "Ojibwa, Severn"
@@ -19708,11 +19708,11 @@ msgstr ""
 
 #. name for okl
 msgid "Kentish Sign Language, Old"
-msgstr "Kentse gebarentaal, Oud"
+msgstr "Kentse gebarentaal, oud"
 
 #. name for okm
 msgid "Korean, Middle (10th-16th cent.)"
-msgstr ""
+msgstr "Koreaans, middel (10e-16e eeuw)"
 
 #. name for okn
 msgid "Oki-No-Erabu"
@@ -19720,7 +19720,7 @@ msgstr ""
 
 #. name for oko
 msgid "Korean, Old (3rd-9th cent.)"
-msgstr ""
+msgstr "Koreaans, oud (3e-9e eeuw)"
 
 #. name for okr
 msgid "Kirike"
@@ -19992,7 +19992,7 @@ msgstr ""
 
 #. name for orv
 msgid "Russian, Old"
-msgstr ""
+msgstr "Russisch, oud"
 
 #. name for orw
 msgid "Oro Win"
@@ -20024,7 +20024,7 @@ msgstr ""
 
 #. name for osp
 msgid "Spanish, Old"
-msgstr ""
+msgstr "Spaans, oud"
 
 #. name for oss
 msgid "Ossetian"
@@ -20044,7 +20044,7 @@ msgstr ""
 
 #. name for ota
 msgid "Turkish, Ottoman (1500-1928)"
-msgstr "Turks, Ottomaans (1500-1928)"
+msgstr "Turks, ottomaans (1500-1928)"
 
 #. name for otb
 msgid "Tibetan, Old"
@@ -20064,7 +20064,7 @@ msgstr ""
 
 #. name for otk
 msgid "Turkish, Old"
-msgstr ""
+msgstr "Turks, oud"
 
 #. name for otl
 msgid "Otomi, Tilapa"
@@ -20440,7 +20440,7 @@ msgstr ""
 
 #. name for ped
 msgid "Mala (Papua New Guinea)"
-msgstr ""
+msgstr "Mala (Papua Nieuw-Guinea)"
 
 #. name for pee
 msgid "Taje"
@@ -20480,7 +20480,7 @@ msgstr ""
 
 #. name for peo
 msgid "Persian, Old (ca. 600-400 B.C.)"
-msgstr "Perzisch, Oud (ca. 600-400 B.C.)"
+msgstr "Perzisch, oud (ca. 600-400 B.C.)"
 
 #. name for pep
 msgid "Kunja"
@@ -20524,7 +20524,7 @@ msgstr ""
 
 #. name for pga
 msgid "Creole Arabic, Sudanese"
-msgstr ""
+msgstr "Creools Arabisch, Sudanees"
 
 #. name for pgg
 msgid "Pangwali"
@@ -20540,7 +20540,7 @@ msgstr ""
 
 #. name for pgl
 msgid "Irish, Primitive"
-msgstr ""
+msgstr "Iers, primitief"
 
 #. name for pgn
 msgid "Paelignian"
@@ -21200,7 +21200,7 @@ msgstr "Paranan"
 
 #. name for prg
 msgid "Prussian"
-msgstr ""
+msgstr "Pruisisch"
 
 #. name for prh
 msgid "Porohanon"
@@ -21228,7 +21228,7 @@ msgstr ""
 
 #. name for pro
 msgid "Provençal, Old (to 1500)"
-msgstr "Provençaals, Oud (tot 1500)"
+msgstr "Provençaals, oud (tot 1500)"
 
 #. name for prp
 msgid "Parsi"
@@ -21712,7 +21712,7 @@ msgstr ""
 
 #. name for qwm
 msgid "Kuman (Russia)"
-msgstr ""
+msgstr "Kuman (Rusland)"
 
 #. name for qws
 msgid "Quechua, Sihuas Ancash"
@@ -21896,7 +21896,7 @@ msgstr ""
 
 #. name for rcf
 msgid "Creole French, Réunion"
-msgstr ""
+msgstr "Creools Frans, Verenigd"
 
 #. name for rdb
 msgid "Rudbari"
@@ -21960,7 +21960,7 @@ msgstr ""
 
 #. name for rge
 msgid "Romano-Greek"
-msgstr ""
+msgstr "Romano-Grieks"
 
 #. name for rgk
 msgid "Rangkas"
@@ -22076,7 +22076,7 @@ msgstr ""
 
 #. name for rmd
 msgid "Danish, Traveller"
-msgstr ""
+msgstr "Deens, reiziger"
 
 #. name for rme
 msgid "Angloromani"
@@ -22088,7 +22088,7 @@ msgstr ""
 
 #. name for rmg
 msgid "Norwegian, Traveller"
-msgstr ""
+msgstr "Noors, reiziger"
 
 #. name for rmh
 msgid "Murkim"
@@ -22104,7 +22104,7 @@ msgstr ""
 
 #. name for rml
 msgid "Romani, Baltic"
-msgstr ""
+msgstr "Romani, Baltisch"
 
 #. name for rmm
 msgid "Roma"
@@ -22212,7 +22212,7 @@ msgstr ""
 
 #. name for roh
 msgid "Romansh"
-msgstr "Romaans"
+msgstr "Reto-Romaans"
 
 #. name for rol
 msgid "Romblomanon"
@@ -22324,15 +22324,15 @@ msgstr "Rundi"
 
 #. name for ruo
 msgid "Romanian, Istro"
-msgstr "Istro-Roemeens"
+msgstr "Roemeens, Istro"
 
 #. name for rup
 msgid "Romanian, Macedo-"
-msgstr "Macedo-Roemeens"
+msgstr "Roemeens, Macedo-"
 
 #. name for ruq
 msgid "Romanian, Megleno"
-msgstr "Megleno-Roemeens"
+msgstr "Roemeens, Menleno"
 
 #. name for rus
 msgid "Russian"
@@ -22492,7 +22492,7 @@ msgstr ""
 
 #. name for sbc
 msgid "Kele (Papua New Guinea)"
-msgstr ""
+msgstr "Kele (Papua Nieuw-Guinea)"
 
 #. name for sbd
 msgid "Samo, Southern"
@@ -22600,7 +22600,7 @@ msgstr ""
 
 #. name for scf
 msgid "Creole French, San Miguel"
-msgstr ""
+msgstr "Creools Frans, San Miguel"
 
 #. name for scg
 msgid "Sanggau"
@@ -22612,7 +22612,7 @@ msgstr ""
 
 #. name for sci
 msgid "Creole Malay, Sri Lankan"
-msgstr ""
+msgstr "Creools Maleisisch, Sri Lankaans"
 
 #. name for sck
 msgid "Sadri"
@@ -22684,7 +22684,7 @@ msgstr ""
 
 #. name for sdh
 msgid "Kurdish, Southern"
-msgstr ""
+msgstr "Koerdisch, zuidelijk"
 
 #. name for sdj
 msgid "Suundi"
@@ -22836,7 +22836,7 @@ msgstr ""
 
 #. name for sfb
 msgid "Langue des signes de Belgique Francophone"
-msgstr "Frans-Belgische gebarentaal"
+msgstr "Franse gebarentaal voor België"
 
 #. name for sfm
 msgid "Miao, Small Flowery"
@@ -22852,7 +22852,7 @@ msgstr ""
 
 #. name for sga
 msgid "Irish, Old (to 900)"
-msgstr "Iers, Oud (tot 900)"
+msgstr "Iers, oud (tot 900)"
 
 #. name for sgb
 msgid "Ayta, Mag-antsi"
@@ -23076,7 +23076,7 @@ msgstr ""
 
 #. name for sim
 msgid "Mende (Papua New Guinea)"
-msgstr ""
+msgstr "Mende (Papua Nieuw-Guinea)"
 
 #. name for sin
 msgid "Sinhala"
@@ -23272,7 +23272,7 @@ msgstr ""
 
 #. name for skw
 msgid "Creole Dutch, Skepi"
-msgstr ""
+msgstr "Creools Nederlands, Skepi"
 
 #. name for skx
 msgid "Seko Padang"
@@ -23320,7 +23320,7 @@ msgstr ""
 
 #. name for slk
 msgid "Slovak"
-msgstr "Slovaaks, Slowaaks"
+msgstr "Slowaaks"
 
 #. name for sll
 msgid "Salt-Yui"
@@ -23648,7 +23648,7 @@ msgstr ""
 
 #. name for sot
 msgid "Sotho, Southern"
-msgstr "Sothaans, Zuidelijk"
+msgstr "Sothaans, zuidelijk"
 
 #. name for sou
 msgid "Thai, Southern"
@@ -23664,7 +23664,7 @@ msgstr ""
 
 #. name for sox
 msgid "So (Cameroon)"
-msgstr ""
+msgstr "So (Kameroen)"
 
 #. name for soy
 msgid "Miyobe"
@@ -23692,7 +23692,7 @@ msgstr ""
 
 #. name for spe
 msgid "Sepa (Papua New Guinea)"
-msgstr ""
+msgstr "Sepa (Papua Nieuw-Guinea)"
 
 #. name for spg
 msgid "Sian"
@@ -23724,7 +23724,7 @@ msgstr ""
 
 #. name for spq
 msgid "Spanish, Loreto-Ucayali"
-msgstr ""
+msgstr "Spaans, Loreto-Ucayali"
 
 #. name for spr
 msgid "Saparua"
@@ -24164,7 +24164,7 @@ msgstr ""
 
 #. name for svc
 msgid "Creole English, Vincentian"
-msgstr ""
+msgstr "Creools Engels, Vincentiaans"
 
 #. name for sve
 msgid "Serili"
@@ -24660,7 +24660,7 @@ msgstr ""
 
 #. name for tch
 msgid "Creole English, Turks And Caicos"
-msgstr ""
+msgstr "Creools Engels, Turks en Caicos"
 
 #. name for tci
 msgid "Wára"
@@ -24696,7 +24696,7 @@ msgstr ""
 
 #. name for tcs
 msgid "Creole, Torres Strait"
-msgstr ""
+msgstr "Creools, Torres Strait"
 
 #. name for tct
 msgid "T'en"
@@ -24956,7 +24956,7 @@ msgstr ""
 
 #. name for tgh
 msgid "Creole English, Tobagonian"
-msgstr ""
+msgstr "Creools Engels, Tobagoniaans"
 
 #. name for tgi
 msgid "Lawunuia"
@@ -25472,7 +25472,7 @@ msgstr ""
 
 #. name for tmr
 msgid "Aramaic, Jewish Babylonian (ca. 200-1200 CE)"
-msgstr "Aramees, Joods Babylonisch (ca. 200-1200 AD)"
+msgstr "Aramees, Joods Babylonisch (ca. 200-1200 A.D.)"
 
 #. name for tms
 msgid "Tima"
@@ -25844,7 +25844,7 @@ msgstr ""
 
 #. name for trf
 msgid "Creole English, Trinidadian"
-msgstr ""
+msgstr "Creools Engels, Trinidadiaans"
 
 #. name for trg
 msgid "Lishán Didán"
@@ -25864,7 +25864,7 @@ msgstr ""
 
 #. name for trl
 msgid "Scottish, Traveller"
-msgstr ""
+msgstr "Schots, reiziger"
 
 #. name for trm
 msgid "Tregami"
@@ -26280,7 +26280,7 @@ msgstr ""
 
 #. name for twd
 msgid "Twents"
-msgstr ""
+msgstr "Twents"
 
 #. name for twe
 msgid "Tewa (Indonesia)"
@@ -26872,7 +26872,7 @@ msgstr ""
 
 #. name for uro
 msgid "Ura (Papua New Guinea)"
-msgstr ""
+msgstr "Ura (Papua Nieuw-Guinea)"
 
 #. name for urp
 msgid "Uru-Pa-In"
@@ -27120,7 +27120,7 @@ msgstr ""
 
 #. name for vic
 msgid "Creole English, Virgin Islands"
-msgstr "Creools Engels, Maagdeneilanden creools"
+msgstr "Creools Engels, Maagdeneilanden"
 
 #. name for vid
 msgid "Vidunda"
@@ -27188,7 +27188,7 @@ msgstr ""
 
 #. name for vkp
 msgid "Creole Portuguese, Korlai"
-msgstr ""
+msgstr "Creools Portugees, Korlai"
 
 #. name for vkt
 msgid "Malay, Tenggarong Kutai"
@@ -27864,7 +27864,7 @@ msgstr ""
 
 #. name for wmo
 msgid "Wom (Papua New Guinea)"
-msgstr ""
+msgstr "Wom (Papua Nieuw-Guinea)"
 
 #. name for wms
 msgid "Wambon"
@@ -28656,7 +28656,7 @@ msgstr ""
 
 #. name for xlg
 msgid "Ligurian (Ancient)"
-msgstr ""
+msgstr "Ligurisch (antiek)"
 
 #. name for xli
 msgid "Liburnian"
@@ -28724,7 +28724,7 @@ msgstr ""
 
 #. name for xmk
 msgid "Macedonian, Ancient"
-msgstr ""
+msgstr "Macedonisch, antiek"
 
 #. name for xml
 msgid "Malaysian Sign Language"
@@ -28788,7 +28788,7 @@ msgstr ""
 
 #. name for xna
 msgid "North Arabian, Ancient"
-msgstr ""
+msgstr "Noord Arabisch, antiek"
 
 #. name for xnb
 msgid "Kanakanabu"
@@ -29324,7 +29324,7 @@ msgstr ""
 
 #. name for yas
 msgid "Nugunu (Cameroon)"
-msgstr ""
+msgstr "Nugunu (Kameroen)"
 
 #. name for yat
 msgid "Yambeta"
@@ -29428,7 +29428,7 @@ msgstr ""
 
 #. name for ydd
 msgid "Yiddish, Eastern"
-msgstr ""
+msgstr "Jiddisch, oostelijk"
 
 #. name for yde
 msgid "Yangum Dey"
@@ -29524,7 +29524,7 @@ msgstr ""
 
 #. name for yhd
 msgid "Arabic, Judeo-Iraqi"
-msgstr ""
+msgstr "Arabisch, Joods-Iraaks"
 
 #. name for yhl
 msgid "Phowa, Hlepho"
@@ -29548,7 +29548,7 @@ msgstr ""
 
 #. name for yih
 msgid "Yiddish, Western"
-msgstr ""
+msgstr "Jiddisch, westelijk"
 
 #. name for yii
 msgid "Yidiny"
@@ -30008,7 +30008,7 @@ msgstr ""
 
 #. name for yud
 msgid "Arabic, Judeo-Tripolitanian"
-msgstr ""
+msgstr "Arabisch, Joods-Tripolitaans"
 
 #. name for yue
 msgid "Chinese, Yue"
@@ -30272,7 +30272,7 @@ msgstr ""
 
 #. name for zea
 msgid "Zeeuws"
-msgstr ""
+msgstr "Zeeuws"
 
 #. name for zeg
 msgid "Zenag"

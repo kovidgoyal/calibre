@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-09 21:09+0000\n"
-"PO-Revision-Date: 2011-09-09 09:06+0000\n"
+"PO-Revision-Date: 2011-09-12 04:48+0000\n"
 "Last-Translator: Sidorychev Alexander <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-09-10 04:54+0000\n"
+"X-Launchpad-Export-Date: 2011-09-12 04:52+0000\n"
 "X-Generator: Launchpad (build 13900)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -976,7 +976,7 @@ msgstr "Соединиться с телефоном S60"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:194
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Соединиться с WebOS планшетом"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -1238,7 +1238,7 @@ msgstr "Ковид Гоял"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Соединиться с BOEYE BEX Serial eBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
@@ -1270,7 +1270,7 @@ msgstr "Связь с PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Соединиться с PocketBook 360+"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
 msgid "Communicate with the PocketBook 701"
@@ -19483,7 +19483,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:317
 msgid "Specify which font to use when generating a default cover"
-msgstr ""
+msgstr "Укажите какой шрифт использовать при генерации обложки по умолчанию"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:318
 msgid ""
@@ -19495,7 +19495,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:324
 msgid "Control behavior of the book list"
-msgstr ""
+msgstr "Управление поведением списка книг"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:325
 msgid ""
@@ -19511,7 +19511,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:336
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Язык, используемый при сортировке."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:337
 msgid ""
@@ -19602,10 +19602,16 @@ msgid ""
 "to '::' to listen to all incoming IPv6 and IPv4 connections (this may not\n"
 "work on all operating systems)"
 msgstr ""
+"По умолчанию сервер calibre прослушивает '0.0.0.0', это означает, что\n"
+"принимаются IPv4 соединения на всех интерфейсах. Вы можете изменить это,\n"
+"например, на '127.0.0.1' на прослушивание только для соединений с локальной "
+"машины, или\n"
+"на '::' чтобы слушать все входящие IPv6 и IPv4 соединений (это может\n"
+"работать не на всех операционных системах)"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:390
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Единая панель инструментов на OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:391
 msgid ""
