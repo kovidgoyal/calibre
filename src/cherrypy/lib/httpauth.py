@@ -75,7 +75,7 @@ MD5_SESS = "MD5-sess"
 AUTH = "auth"
 AUTH_INT = "auth-int"
 
-SUPPORTED_ALGORITHM = ('md5', MD5, MD5_SESS)
+SUPPORTED_ALGORITHM = ('md5', MD5, MD5_SESS) # Changed by Kovid
 SUPPORTED_QOP = (AUTH, AUTH_INT)
 
 ################################################################################
@@ -83,7 +83,7 @@ SUPPORTED_QOP = (AUTH, AUTH_INT)
 #
 DIGEST_AUTH_ENCODERS = {
     MD5: lambda val: md5(val).hexdigest(),
-    'md5': lambda val:md5(val).hexdigest(),
+    'md5': lambda val:md5(val).hexdigest(), # Added by Kovid
     MD5_SESS: lambda val: md5(val).hexdigest(),
 #    SHA: lambda val: sha(val).hexdigest(),
 }
@@ -225,7 +225,7 @@ def _A1(params, password):
     algorithm = params.get ("algorithm", MD5)
     H = DIGEST_AUTH_ENCODERS[algorithm]
 
-    if algorithm in (MD5, 'md5'):
+    if algorithm in (MD5, 'md5'): # Changed by Kovid
         # If the "algorithm" directive's value is "MD5" or is
         # unspecified, then A1 is:
         # A1 = unq(username-value) ":" unq(realm-value) ":" passwd
