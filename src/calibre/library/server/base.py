@@ -146,6 +146,11 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         self.config = {}
         self.is_running = False
         self.exception = None
+        self.config['/'] = {
+            'tools.sessions.on' : True,
+            'tools.sessions.timeout': 60, # Session times out after 60 minutes
+        }
+
         if not wsgi:
             self.setup_loggers()
             cherrypy.engine.bonjour.subscribe()
@@ -154,6 +159,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                 'tools.gzip.mime_types': ['text/html', 'text/plain',
                     'text/xml', 'text/javascript', 'text/css'],
             }
+
             if opts.password:
                 self.config['/'] = {
                         'tools.digest_auth.on'    : True,
