@@ -443,7 +443,13 @@ class Editor(QFrame): # {{{
             return QWidget.keyPressEvent(self, ev)
         button = getattr(self, 'button%d'%which)
         button.setStyleSheet('QPushButton { font-weight: normal}')
-        sequence = QKeySequence(code|(int(ev.modifiers())&~Qt.KeypadModifier))
+        mods = int(ev.modifiers()) & ~Qt.KeypadModifier
+        txt = unicode(ev.text())
+        if txt and txt.lower() == txt.upper():
+            # We have a symbol like ! or > etc. In this case the value of code
+            # already includes Shift, so remove it
+            mods &= ~Qt.ShiftModifier
+        sequence = QKeySequence(code|mods)
         button.setText(sequence.toString(QKeySequence.NativeText))
         self.capture = 0
         dup_desc = self.dup_check(sequence)
