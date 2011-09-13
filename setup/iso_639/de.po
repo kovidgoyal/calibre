@@ -18,23 +18,23 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-02 16:21+0000\n"
-"PO-Revision-Date: 2011-08-27 06:01+0000\n"
-"Last-Translator: Wolfgang Rohdewald <wolfgang@rohdewald.de>\n"
+"PO-Revision-Date: 2011-09-12 15:51+0000\n"
+"Last-Translator: frenkx <Unknown>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-03 05:03+0000\n"
-"X-Generator: Launchpad (build 13830)\n"
+"X-Launchpad-Export-Date: 2011-09-13 04:46+0000\n"
+"X-Generator: Launchpad (build 13910)\n"
 "Language: de\n"
 
 #. name for aaa
 msgid "Ghotuo"
-msgstr ""
+msgstr "Ghotuo"
 
 #. name for aab
 msgid "Alumu-Tesu"
-msgstr ""
+msgstr "Alumu-Tesu"
 
 #. name for aac
 msgid "Ari"
@@ -150,7 +150,7 @@ msgstr ""
 
 #. name for abh
 msgid "Arabic, Tajiki"
-msgstr ""
+msgstr "Arabisch, Tadschikisch"
 
 #. name for abi
 msgid "Abidji"
@@ -5162,7 +5162,7 @@ msgstr ""
 
 #. name for ckb
 msgid "Kurdish, Central"
-msgstr ""
+msgstr "Zentralkurdisch"
 
 #. name for ckh
 msgid "Chak"
@@ -8406,7 +8406,7 @@ msgstr ""
 
 #. name for gkp
 msgid "Kpelle, Guinea"
-msgstr ""
+msgstr "Kpelle, Guinea"
 
 #. name for gla
 msgid "Gaelic, Scottish"
@@ -8482,11 +8482,11 @@ msgstr ""
 
 #. name for gmh
 msgid "German, Middle High (ca. 1050-1500)"
-msgstr ""
+msgstr "Mittelhochdeutsch (ca. 1050-1500)"
 
 #. name for gml
 msgid "German, Middle Low"
-msgstr ""
+msgstr "Mittelniederdeutsch"
 
 #. name for gmm
 msgid "Gbaya-Mbodomo"
@@ -8618,7 +8618,7 @@ msgstr ""
 
 #. name for goh
 msgid "German, Old High (ca. 750-1050)"
-msgstr ""
+msgstr "Althochdeutsch (ca. 750-1050)"
 
 #. name for goi
 msgid "Gobasi"
@@ -8802,7 +8802,7 @@ msgstr ""
 
 #. name for gsg
 msgid "German Sign Language"
-msgstr ""
+msgstr "Deutsche Gebärdensprache"
 
 #. name for gsl
 msgid "Gusilay"
@@ -8830,7 +8830,7 @@ msgstr ""
 
 #. name for gsw
 msgid "German, Swiss"
-msgstr ""
+msgstr "Schweizerdeutsch"
 
 #. name for gta
 msgid "Guató"
@@ -12318,11 +12318,11 @@ msgstr ""
 
 #. name for kmq
 msgid "Kwama"
-msgstr ""
+msgstr "Kwama"
 
 #. name for kmr
 msgid "Kurdish, Northern"
-msgstr ""
+msgstr "Nordkurdisch"
 
 #. name for kms
 msgid "Kamasau"
@@ -22702,7 +22702,7 @@ msgstr ""
 
 #. name for sdh
 msgid "Kurdish, Southern"
-msgstr ""
+msgstr "Südkurdisch"
 
 #. name for sdj
 msgid "Suundi"
@@ -26596,7 +26596,7 @@ msgstr "Udmurt"
 
 #. name for udu
 msgid "Uduk"
-msgstr ""
+msgstr "Uduk"
 
 #. name for ues
 msgid "Kioko"
@@ -28868,7 +28868,7 @@ msgstr ""
 
 #. name for xom
 msgid "Komo (Sudan)"
-msgstr ""
+msgstr "Komo (Sudan)"
 
 #. name for xon
 msgid "Konkomba"
@@ -28896,7 +28896,7 @@ msgstr ""
 
 #. name for xpe
 msgid "Kpelle, Liberia"
-msgstr ""
+msgstr "Kpelle, Liberia"
 
 #. name for xpg
 msgid "Phrygian"
