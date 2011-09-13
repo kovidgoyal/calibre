@@ -142,7 +142,7 @@ def _config(): # {{{
     c.add_opt('upload_news_to_device', default=True,
               help=_('Upload downloaded news to device'))
     c.add_opt('delete_news_from_library_on_upload', default=False,
-              help=_('Delete books from library after uploading to device'))
+              help=_('Delete news books from library after uploading to device'))
     c.add_opt('separate_cover_flow', default=False,
               help=_('Show the cover flow in a separate window instead of in the main calibre window'))
     c.add_opt('disable_tray_notification', default=False,
