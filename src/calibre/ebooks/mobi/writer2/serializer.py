@@ -160,7 +160,9 @@ class Serializer(object):
                 buf.write(b'title="')
                 self.serialize_text(ref.title, quot=True)
                 buf.write(b'" ')
-                if ref.title == 'start' or ref.type in ('start', 'other.start'):
+                if (ref.title.lower() == 'start' or
+                    (ref.type and ref.type.lower() in ('start',
+                        'other.start'))):
                     self._start_href = ref.href
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not
