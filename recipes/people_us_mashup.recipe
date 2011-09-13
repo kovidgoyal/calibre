@@ -14,54 +14,10 @@ class PeopleMag(BasicNewsRecipe):
     use_embedded_content  = False
     oldest_article = 2
     max_articles_per_feed = 50
+    use_embedded_content = False
 
-    extra_css = '''
-        h1{font-family:verdana,arial,helvetica,sans-serif; font-size: large;}
-        h2{font-family:verdana,arial,helvetica,sans-serif; font-size: small;}
-        .body-content{font-family:verdana,arial,helvetica,sans-serif; font-size: small;}
-        .byline {font-size: small; color: #666666; font-style:italic; }
-        .lastline {font-size: small; color: #666666; font-style:italic;}
-        .contact {font-size: small; color: #666666;}
-        .contact p {font-size: small; color: #666666;}
-        .photoCaption { font-family:verdana,arial,helvetica,sans-serif; font-size:x-small;}
-        .photoCredit{ font-family:verdana,arial,helvetica,sans-serif; font-size:x-small; color:#666666;}
-        .article_timestamp{font-size:x-small; color:#666666;}
-        a {font-family:verdana,arial,helvetica,sans-serif; font-size: x-small;}
-                '''
-
-
-    keep_only_tags = [
-              dict(name='div', attrs={'class': 'panel_news_article_main'}), 	
-	        dict(name='div', attrs={'class':'article_content'}),
-              dict(name='div', attrs={'class': 'headline'}),
-              dict(name='div', attrs={'class': 'post'}),
-              dict(name='div', attrs={'class': 'packageheadlines'}),
-              dict(name='div', attrs={'class': 'snap_preview'}),
-              dict(name='div', attrs={'id': 'articlebody'})
-                   ]
-
-    remove_tags = [
-         dict(name='div', attrs={'class':'share_comments'}),
-         dict(name='p', attrs={'class':'twitter_facebook'}),
-         dict(name='div', attrs={'class':'share_comments_bottom'}),
-         dict(name='h2', attrs={'id':'related_content'}),
-   	   dict(name='div', attrs={'class':'next_article'}),
-	   dict(name='div', attrs={'class':'prev_article'}),
-           dict(name='ul', attrs={'id':'sharebar'}),
-         dict(name='div', attrs={'class':'sharelinkcont'}),
-         dict(name='div', attrs={'class':'categories'}),
-         dict(name='ul', attrs={'class':'categories'}),
-         dict(name='div', attrs={'class':'related_content'}),
-         dict(name='div', attrs={'id':'promo'}),
-         dict(name='div', attrs={'class':'linksWrapper'}),
-         dict(name='p', attrs={'class':'tag tvnews'}),
-        dict(name='p', attrs={'class':'tag movienews'}),
-        dict(name='p', attrs={'class':'tag musicnews'}),
-        dict(name='p', attrs={'class':'tag couples'}),
-        dict(name='p', attrs={'class':'tag gooddeeds'}),
-        dict(name='p', attrs={'class':'tag weddings'}),
-        dict(name='p', attrs={'class':'tag health'})
-]
+    no_stylesheets = True
+    auto_cleanup = True
 
 
     feeds = [
@@ -69,26 +25,4 @@ class PeopleMag(BasicNewsRecipe):
         ('US Headlines', 'http://www.usmagazine.com/celebrity_news/rss')
         ]
 
-    def get_article_url(self, article):
-        ans = article.link
 
-        try:
-            self.log('Looking for full story link in', ans)
-            soup = self.index_to_soup(ans)
-            x = soup.find(text="View All")
-
-            if x is not None:
-                ans = ans + '?viewAll=y'
-                self.log('Found full story link', ans)
-        except:
-            pass
-        return ans
-
-    def postprocess_html(self, soup,first):
-
-         for tag in soup.findAll(name='div',attrs={'class':"container_ate_qandatitle"}):
-                tag.extract()
-         for tag in soup.findAll(name='br'):
-                tag.extract()
-
-         return soup
