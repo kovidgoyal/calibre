@@ -394,8 +394,9 @@ OptionRecommendation(name='insert_blank_line_size',
 OptionRecommendation(name='remove_first_image',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Remove the first image from the input ebook. Useful if the '
-        'first image in the source file is a cover and you are specifying '
-        'an external cover.'
+        'input document has a cover image that is not identified as a cover. '
+        'In this case, if you set a cover in calibre, the output document will '
+        'end up with two cover images if you do not specify this option.'
             )
         ),
 
@@ -1024,7 +1025,7 @@ OptionRecommendation(name='sr3_replace',
                 self.output_plugin.file_type not in ('mobi', 'lrf'):
             from calibre.ebooks.oeb.transforms.linearize_tables import LinearizeTables
             LinearizeTables()(self.oeb, self.opts)
-            
+
         if self.opts.unsmarten_punctuation:
             from calibre.ebooks.oeb.transforms.unsmarten import UnsmartenPunctuation
             UnsmartenPunctuation()(self.oeb, self.opts)
