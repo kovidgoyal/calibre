@@ -484,30 +484,29 @@ class HashableElement():
     def __getattr__(self, tag):
         return getattr(self.node, tag)
 
+def option_parser():
+    from calibre.utils.config import OptionParser
+    parser = OptionParser(usage='%prog: [options] file')
+    parser.add_option('-v', '--verbose', default=False, action='store_true',
+                      dest='verbose',
+                      help=_('Show detailed output information. Useful for debugging'))
+
+    return parser
+
 def main():
-    import logging
-    from optparse import OptionParser
-    parser = OptionParser(usage="%prog: [options] [file]")
-    parser.add_option('-v', '--verbose', action='store_true')
-    parser.add_option('-u', '--url', help="use URL instead of a local file")
-    (options, args) = parser.parse_args()
+    from calibre.utils.logging import default_log
+    parser = option_parser()
+    options, args = parser.parse_args()
 
-    if not (len(args) == 1 or options.url):
+    if len(args) != 1:
         parser.print_help()
-        sys.exit(1)
-    logging.basicConfig(level=logging.INFO)
+        raise SystemExit(1)
 
-    file = None
-    if options.url:
-        import urllib
-        file = urllib.urlopen(options.url)
-    else:
-        file = open(args[0], 'rt')
+    with open(args[0], 'rb') as f:
+        raw = f.read()
+
     enc = sys.__stdout__.encoding or 'utf-8'
-    try:
-        print Document(file.read(), debug=options.verbose).summary().encode(enc, 'replace')
-    finally:
-        file.close()
+    print Document(raw, default_log, debug=options.verbose).summary().encode(enc, 'replace')
 
 if __name__ == '__main__':
     main()
