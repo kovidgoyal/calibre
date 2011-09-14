@@ -353,9 +353,7 @@ class MobiWriter(object):
 
         bt = 0x002
         if self.primary_index_record_idx is not None:
-            if self.indexer.is_flat_periodical:
-                bt = 0x102
-            elif self.indexer.is_periodical:
+            if self.indexer.is_periodical:
                 # If you change this, remember to change the cdetype in the EXTH
                 # header as well
                 bt = {'newspaper':0x101}.get(self.publication_type, 0x103)
