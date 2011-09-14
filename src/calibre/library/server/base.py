@@ -146,10 +146,10 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         self.config = {}
         self.is_running = False
         self.exception = None
-        self.config['/'] = {
-            'tools.sessions.on' : True,
-            'tools.sessions.timeout': 60, # Session times out after 60 minutes
-        }
+        #self.config['/'] = {
+        #    'tools.sessions.on' : True,
+        #    'tools.sessions.timeout': 60, # Session times out after 60 minutes
+        #}
 
         if not wsgi:
             self.setup_loggers()
