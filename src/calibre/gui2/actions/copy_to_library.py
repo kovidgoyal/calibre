@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 from threading import Thread
+from contextlib import closing
 
 from PyQt4.Qt import QToolButton
 
@@ -53,6 +54,10 @@ class Worker(Thread): # {{{
     def doit(self):
         from calibre.library.database2 import LibraryDatabase2
         newdb = LibraryDatabase2(self.loc)
+        with closing(newdb):
+            self._doit(newdb)
+
+    def _doit(self, newdb):
         for i, x in enumerate(self.ids):
             mi = self.db.get_metadata(x, index_is_id=True, get_cover=True,
                     cover_as_data=True)
@@ -111,6 +116,7 @@ class Worker(Thread): # {{{
                     os.remove(path)
                 except:
                     pass
+
 # }}}
 
 class CopyToLibraryAction(InterfaceAction):
