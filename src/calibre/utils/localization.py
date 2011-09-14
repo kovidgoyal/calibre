@@ -125,6 +125,7 @@ _extra_lang_codes = {
         'en_HR' : _('English (Croatia)'),
         'en_ID' : _('English (Indonesia)'),
         'en_IL' : _('English (Israel)'),
+        'en_RU' : _('English (Russia)'),
         'en_SG' : _('English (Singapore)'),
         'en_YE' : _('English (Yemen)'),
         'en_IE' : _('English (Ireland)'),

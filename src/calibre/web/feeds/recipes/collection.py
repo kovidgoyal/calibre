@@ -22,7 +22,7 @@ E = ElementMaker(namespace=NS, nsmap={None:NS})
 
 def iterate_over_builtin_recipe_files():
     exclude = ['craigslist', 'iht', 'toronto_sun',
-            'india_today', 'livemint']
+            'livemint']
     d = os.path.dirname
     base = os.path.join(d(d(d(d(d(d(os.path.abspath(__file__))))))), 'recipes')
     for f in os.listdir(base):
