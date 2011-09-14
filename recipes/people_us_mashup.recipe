@@ -18,6 +18,7 @@ class PeopleMag(BasicNewsRecipe):
 
     no_stylesheets = True
     auto_cleanup = True
+    auto_cleanup_keep = '//div[@id="article-image"]'
 
 
     feeds = [
