@@ -370,7 +370,8 @@ OptionRecommendation(name='remove_paragraph_spacing_indent_size',
             'sets a paragraph indent, to ensure that paragraphs can be easily '
             'distinguished. This option controls the width of that indent (in em). '
             'If you set this value to 0, then the indent specified in the input '
-            'document is used.')
+            'document is used, unless you also set the insert line between '
+            'paragraphs option.')
         ),
 
 OptionRecommendation(name='prefer_metadata_cover',
