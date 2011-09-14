@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 Input plugin for HTML or OPF ebooks.
 '''
 
-import os, re, sys, uuid, tempfile, errno
+import os, re, sys, uuid, tempfile
 from urlparse import urlparse, urlunparse
 from urllib import unquote
 from functools import partial
