@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-09 21:09+0000\n"
-"PO-Revision-Date: 2011-09-12 06:58+0000\n"
+"PO-Revision-Date: 2011-09-13 12:32+0000\n"
 "Last-Translator: Sidorychev Alexander <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-09-13 04:46+0000\n"
-"X-Generator: Launchpad (build 13910)\n"
+"X-Launchpad-Export-Date: 2011-09-14 04:39+0000\n"
+"X-Generator: Launchpad (build 13921)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -16727,7 +16727,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1427
 msgid "No books available to catalog"
-msgstr ""
+msgstr "Нет книг, доступных в каталог"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1503
 msgid ""
@@ -16755,7 +16755,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1717
 msgid "No books available to include in catalog"
-msgstr ""
+msgstr "Нет книг, доступных для включения в каталог"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:5059
 msgid ""
@@ -17110,6 +17110,8 @@ msgid ""
 "This column stores tag like data (i.e. multiple comma separated values). "
 "Only applies if datatype is text."
 msgstr ""
+"Этот столбец хранит теги как данные (например, несколько значений, "
+"разделенных запятыми). Применяется только, если тип данных текст."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:569
 msgid ""
@@ -17154,7 +17156,7 @@ msgstr "Показать детальную информацию. Использ
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:681
 msgid "Error: You must specify a catalog output file"
-msgstr ""
+msgstr "Ошибка: Вы должны указать каталог выходного файла"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:728
 msgid ""
@@ -17241,11 +17243,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:850
 msgid "Search string:"
-msgstr ""
+msgstr "Строка поиска:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:856
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Ошибка: Вы должны указать имя и строку поиска"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:859
 msgid "added"
@@ -17253,7 +17255,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:864
 msgid "Error: You must specify a name"
-msgstr ""
+msgstr "Ошибка: Вы должны указать имя"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:867
 msgid "removed"
@@ -17431,7 +17433,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:200
 msgid "creating custom column "
-msgstr ""
+msgstr "создание пользовательских столбцов "
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:32
 msgid "The title"
@@ -17483,7 +17485,7 @@ msgstr "Дата публикации"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
-msgstr ""
+msgstr "Дата последнего изменения метаданных для книги"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
@@ -17504,18 +17506,24 @@ msgid ""
 "Normally, calibre will write the metadata into a separate OPF file along "
 "with the actual e-book files."
 msgstr ""
+"Обычно, calibre будет писать метаданные в отдельный файл OPF рядом с файлом "
+"электронной книги."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:88
 msgid ""
 "Normally, calibre will save the cover in a separate file along with the "
 "actual e-book file(s)."
 msgstr ""
+"Обычно, calibre будет сохранять обложку в отдельном файле рядом с файлом "
+"электронной книги."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:91
 msgid ""
 "Comma separated list of formats to save for each book. By default all "
 "available formats are saved."
 msgstr ""
+"Список форматов, разделенных запятыми, для сохранения для каждой книги. По "
+"умолчанию все доступные форматы сохраняются."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:94
 #, python-format
@@ -17564,7 +17572,7 @@ msgstr "Заменить пробел символом подчеркивани�
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:125
 msgid ""
 "Save into a single directory, ignoring the template directory structure"
-msgstr ""
+msgstr "Сохранить в одном каталоге, игнорируя структуру шаблона каталога"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:303
 #, python-format
@@ -17660,7 +17668,7 @@ msgstr "Загружается, пожалуйста подождите"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:90
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:111
 msgid "Go to"
-msgstr ""
+msgstr "Перейти к"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "First"
@@ -17673,7 +17681,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:109
 #, python-format
 msgid "Browsing %d books"
-msgstr ""
+msgstr "Просмотр %d книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:126
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:256
@@ -17688,7 +17696,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:164
 #, python-format
 msgid "%d stars"
-msgstr ""
+msgstr "%d звезд"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:257
 msgid "Popularity"
@@ -17696,7 +17704,7 @@ msgstr "Популярность"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
 msgid "Sort by"
-msgstr ""
+msgstr "Сортировать по"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:279
 msgid "library"

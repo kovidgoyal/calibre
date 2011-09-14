@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-09 21:09+0000\n"
-"PO-Revision-Date: 2011-09-12 18:01+0000\n"
+"PO-Revision-Date: 2011-09-13 10:30+0000\n"
 "Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-09-13 04:45+0000\n"
-"X-Generator: Launchpad (build 13910)\n"
+"X-Launchpad-Export-Date: 2011-09-14 04:39+0000\n"
+"X-Generator: Launchpad (build 13921)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -8375,7 +8375,7 @@ msgstr "フォーマット"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:50
 msgid "Existing"
-msgstr "存在する"
+msgstr "既存のもの"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_format_device_ui.py:51
 msgid "Convertible"
@@ -8428,7 +8428,7 @@ msgstr "悪い場所"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:101
 #, python-format
 msgid "%s is not an existing folder"
-msgstr "%sは存在しないフォルダーです"
+msgstr "%sは既存のフォルダーではありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:77
 msgid "Choose your calibre library"
