@@ -202,7 +202,7 @@ class ContentServer(object):
                 mode='rb')
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
-        mi = self.db.get_metadata(id, index_is_id=True)
+        mi = newmi = self.db.get_metadata(id, index_is_id=True)
         if format == 'EPUB':
             # Get the original metadata
 
@@ -214,9 +214,8 @@ class ContentServer(object):
                 # Transform the metadata via the plugboard
                 newmi = mi.deepcopy_metadata()
                 newmi.template_to_attribute(mi, cpb)
-            else:
-                newmi = mi
 
+        if format in ('MOBI', 'EPUB'):
             # Write the updated file
             from calibre.ebooks.metadata.meta import set_metadata
             set_metadata(fmt, newmi, 'epub')

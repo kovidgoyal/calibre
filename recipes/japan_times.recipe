@@ -1,7 +1,5 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 japantimes.co.jp
 '''
@@ -9,24 +7,61 @@ japantimes.co.jp
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class JapanTimes(BasicNewsRecipe):
-    title                 = u'The Japan Times'
+    title                 = 'The Japan Times'
     __author__            = 'Darko Miletic'
-    description           = 'News from Japan'
-    language = 'en'
-    
-    oldest_article        = 7
-    max_articles_per_feed = 100
+    description           = "Daily news and features on Japan from the most widely read English-language newspaper in Japan. Coverage includes national news, business news, sports news, commentary and features on living in Japan, entertainment, the arts, education and more."
+    language              = 'en_JP'
+    category              = 'news, politics, japan'
+    publisher             = 'The Japan Times'
+    oldest_article        = 5
+    max_articles_per_feed = 150
     no_stylesheets        = True
     use_embedded_content  = False
+    encoding              = 'utf8'
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://search.japantimes.co.jp/images/header_title.gif'
+    extra_css             = 'body{font-family: Geneva,Arial,Helvetica,sans-serif}'
 
-    keep_only_tags    = [ dict(name='div', attrs={'id':'searchresult'}) ]
-    remove_tags_after = [ dict(name='div', attrs={'id':'mainbody'    }) ]
+    conversion_options = {
+                          'comment'          : description
+                        , 'tags'             : category
+                        , 'publisher'        : publisher
+                        , 'language'         : language
+                        , 'linearize_tables' : True
+                        }
+
+
+    keep_only_tags    = [dict(name='div', attrs={'id':'printresult'})]
     remove_tags       = [
-                           dict(name='div'  , attrs={'id':'ads' })
-                          ,dict(name='table', attrs={'width':470})
+                          dict(name=['iframe','meta','link','embed','object','base'])
+                         ,dict(attrs={'id':'searchfooter'})
                         ]
+    feeds             = [(u'The Japan Times', u'http://feeds.feedburner.com/japantimes')]
+    remove_attributes = ['border']
 
+    def get_article_url(self, article):
+        rurl = BasicNewsRecipe.get_article_url(self, article)
+        return rurl.partition('?')[0]
 
-    feeds          = [
-                        (u'The Japan Times', u'http://feedproxy.google.com/japantimes')
-                     ]
+    def print_version(self, url):
+        return url.replace('/cgi-bin/','/print/')
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        for item in soup.findAll('photo'):
+            item.name = 'div'
+        for item in soup.head.findAll('paragraph'):
+            item.extract()
+        for item in soup.findAll('wwfilename'):
+            item.extract()
+        for item in soup.findAll('jtcategory'):
+            item.extract()
+        for item in soup.findAll('nomooter'):
+            item.extract()
+        for item in soup.body.findAll('paragraph'):
+            item.name = 'p'
+        return soup

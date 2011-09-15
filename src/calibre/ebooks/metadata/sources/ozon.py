@@ -28,7 +28,7 @@ class Ozon(Source):
     touched_fields = frozenset(['title', 'authors', 'identifier:isbn', 'identifier:ozon',
                                'publisher', 'pubdate', 'comments', 'series', 'rating', 'language'])
     # Test purpose only, test function does not like when sometimes some filed are empty
-    #touched_fields = frozenset(['title', 'authors', 'identifier:isbn', 'identifier:ozon',
+    # touched_fields = frozenset(['title', 'authors', 'identifier:isbn', 'identifier:ozon',
     #                          'publisher', 'pubdate', 'comments'])
 
     supports_gzip_transfer_encoding = True
@@ -109,8 +109,16 @@ class Ozon(Source):
     # }}}
 
     def get_metadata(self, log, entries, title, authors, identifiers): # {{{
+        # some book titles have extra charactes like this
+        # TODO: make a twick
+        reRemoveFromTitle = None 
+        #reRemoveFromTitle = re.compile(r'[?!:.,;+-/&%"\'=]')
+        
         title = unicode(title).upper() if title else ''
-        authors = map(unicode.upper, map(unicode, authors)) if authors else None
+        if reRemoveFromTitle:
+            title = reRemoveFromTitle.sub('', title) 
+        authors = map(_normalizeAuthorNameWithInitials, 
+                      map(unicode.upper, map(unicode, authors))) if authors else None
         ozon_id = identifiers.get('ozon', None)
 
         unk = unicode(_('Unknown')).upper()
@@ -124,6 +132,7 @@ class Ozon(Source):
         def in_authors(authors, miauthors):
             for author in authors:
                 for miauthor in miauthors:
+                    #log.debug(u'=> %s <> %s'%(author, miauthor))
                     if author in miauthor: return True
             return None
 
@@ -131,7 +140,10 @@ class Ozon(Source):
             match = True
             if title:
                 mititle = unicode(mi.title).upper() if mi.title else ''
+                if reRemoveFromTitle:
+                    mititle = reRemoveFromTitle.sub('', mititle)
                 match = title in mititle
+                #log.debug(u't=> %s <> %s'%(title, mititle))
             if match and authors:
                 miauthors = map(unicode.upper, map(unicode, mi.authors)) if mi.authors else []
                 match = in_authors(authors, miauthors)
@@ -190,7 +202,8 @@ class Ozon(Source):
 
         title = entry.xpath(xp_template.format('Name'))
         author = entry.xpath(xp_template.format('Author'))
-        mi = Metadata(title, author.split(','))
+        norm_authors = map(_normalizeAuthorNameWithInitials, map(unicode.strip, unicode(author).split(u',')))
+        mi = Metadata(title, norm_authors)
 
         ozon_id = entry.xpath(xp_template.format('ID'))
         mi.identifiers = {'ozon':ozon_id}
@@ -201,6 +214,11 @@ class Ozon(Source):
         cover = entry.xpath(xp_template.format('Picture'))
         if cover:
             mi.ozon_cover_url = _translateToBigCoverUrl(cover)
+
+        pub_year = entry.xpath(xp_template.format('Year'))
+        if pub_year:
+            mi.pubdate = toPubdate(log, pub_year)
+            #log.debug('pubdate %s'%mi.pubdate)
 
         rating = entry.xpath(xp_template.format('ClientRatingValue'))
         if rating:
@@ -269,13 +287,17 @@ class Ozon(Source):
         raw = self.browser.open_novisit(url, timeout=timeout).read()
         doc = html.fromstring(raw)
 
+        xpt_prod_det_at = u'string(//div[contains(@class, "product-detail")]//*[contains(normalize-space(text()), "%s")]/a[1]/@title)'
+        xpt_prod_det_tx = u'substring-after(//div[contains(@class, "product-detail")]//text()[contains(., "%s")], ":")'
+
         # series
-        xpt = u'normalize-space(//div[@class="frame_content"]//div[contains(normalize-space(text()), "Серия:")]//a/@title)'
+        xpt = xpt_prod_det_at % u'Сери'
+        # % u'Серия:'
         series = doc.xpath(xpt)
         if series:
             metadata.series = series
 
-        xpt = u'substring-after(//meta[@name="description"]/@content, "ISBN")'
+        xpt = u'normalize-space(substring-after(//meta[@name="description"]/@content, "ISBN"))'
         isbn_str = doc.xpath(xpt)
         if isbn_str:
             all_isbns = [check_isbn(isbn) for isbn in self.isbnRegex.findall(isbn_str) if check_isbn(isbn)]
@@ -283,38 +305,42 @@ class Ozon(Source):
                 metadata.all_isbns = all_isbns
                 metadata.isbn = all_isbns[0]
 
-        xpt = u'//div[@class="frame_content"]//div[contains(normalize-space(text()), "Издатель")]//a[@title="Издательство"]'
+        xpt = xpt_prod_det_at % u'Издатель'
         publishers = doc.xpath(xpt)
         if publishers:
-            metadata.publisher = publishers[0].text
+            metadata.publisher = publishers
 
-            xpt = u'string(../text()[contains(., "г.")])'
-            yearIn = publishers[0].xpath(xpt)
+        displ_lang = None
+        xpt = xpt_prod_det_tx % u'Язык'
+        langs = doc.xpath(xpt)
+        if langs:
+            lng_splt = langs.split(u',')
+            if lng_splt:
+                displ_lang = lng_splt[0].strip()
+        metadata.language = _translageLanguageToCode(displ_lang)
+        #log.debug(u'language: %s'%displ_lang)
+        
+        # can be set before from xml search responce
+        if not metadata.pubdate:
+            xpt = u'normalize-space(//div[@class="product-misc"]//text()[contains(., "г.")])'
+            yearIn = doc.xpath(xpt)
             if yearIn:
                 matcher = re.search(r'\d{4}', yearIn)
                 if matcher:
-                    year = int(matcher.group(0))
-                    # only year is available, so use 1-st of Jan
-                    metadata.pubdate = datetime.datetime(year, 1, 1) #<- failed comparation in identify.py
-                    #metadata.pubdate = datetime(year, 1, 1)
-            xpt = u'substring-after(string(../text()[contains(., "Язык")]), ": ")'
-            displLang = publishers[0].xpath(xpt)
-            lang_code =_translageLanguageToCode(displLang)
-            if lang_code:
-                metadata.language = lang_code
+                    metadata.pubdate = toPubdate(log, matcher.group(0))
 
         # overwrite comments from HTML if any
-        # tr/td[contains(.//text(), "От издателя")] -> does not work, why?
-        xpt = u'//div[contains(@class, "detail")]//tr/td//text()[contains(., "От издателя")]'\
-              u'/ancestor::tr[1]/following-sibling::tr[1]/td[contains(./@class, "description")][1]'
+        xpt = u'//table[@id="detail_description"]//tr/td'
         comment_elem = doc.xpath(xpt)
         if comment_elem:
             comments = unicode(etree.tostring(comment_elem[0]))
             if comments:
                 # cleanup root tag, TODO: remove tags like object/embeded
-                comments = re.sub(r'^<td.+?>|</td>.+?$', u'', comments).strip()
-                if comments:
+                comments = re.sub(r'\A.*?<td.*?>|</td>.*\Z', u'', comments.strip(), re.MULTILINE).strip()
+                if comments and (not metadata.comments or len(comments) > len(metadata.comments)):
                     metadata.comments = comments
+                else:
+                    log.debug('HTML book description skipped in favour of search service xml responce')
         else:
             log.debug('No book description found in HTML')
     # }}}
@@ -390,9 +416,39 @@ def _translageLanguageToCode(displayLang): # {{{
                 u'Итальянский': 'it',
                 u'Испанский': 'es',
                 u'Китайский': 'zh',
-                u'Японский': 'ja' }
+                u'Японский': 'ja',
+                u'Финский' : 'fi',
+                u'Польский' : 'pl',}
     return langTbl.get(displayLang, None)
 # }}}
+
+# [В.П. Колесников | Колесников В.П.]-> В. П. BКолесников
+def _normalizeAuthorNameWithInitials(name): # {{{
+    res = name
+    if name: 
+        re1 = u'^(?P<lname>\S+)\s+(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?$' 
+        re2 = u'^(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?\s+(?P<lname>\S+)$'
+        matcher = re.match(re1, unicode(name), re.UNICODE)
+        if not matcher:
+            matcher = re.match(re2, unicode(name), re.UNICODE)
+            
+        if matcher:
+            d = matcher.groupdict()
+            res = ' '.join(x for x in (d['fname'], d['mname'], d['lname']) if x)
+    return res
+# }}}
+
+def toPubdate(log, yearAsString):
+    res = None
+    if yearAsString:
+        try:
+            year = int(yearAsString)
+            # only year is available, so use 1-st of Jan
+            res = datetime.datetime(year, 1, 1)
+        except:
+            log.error('cannot parse to date %s'%yearAsString)
+    return res
+
 
 if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/ozon.py
@@ -403,40 +459,45 @@ if __name__ == '__main__': # tests {{{
 
     test_identify_plugin(Ozon.name,
         [
-
-            (
+#            (
+#                {'identifiers':{}, 'title':u'Норвежский язык: Практический курс',
+#                    'authors':[u'Колесников В.П.', u'Г.В. Шатков']},
+#                [title_test(u'Норвежский язык: Практический курс', exact=True),
+#                 authors_test([u'В. П. Колесников', u'Г. В. Шатков'])]
+#            ),
+             (
                 {'identifiers':{'isbn': '9785916572629'} },
                 [title_test(u'На все четыре стороны', exact=True),
                  authors_test([u'А. А. Гилл'])]
-            ),
-            (
+             ),
+             (
                 {'identifiers':{}, 'title':u'Der Himmel Kennt Keine Gunstlinge',
                     'authors':[u'Erich Maria Remarque']},
                 [title_test(u'Der Himmel Kennt Keine Gunstlinge', exact=True),
                  authors_test([u'Erich Maria Remarque'])]
-            ),
-            (
+             ),
+             (
                 {'identifiers':{ }, 'title':u'Метро 2033',
                     'authors':[u'Дмитрий Глуховский']},
                 [title_test(u'Метро 2033', exact=False)]
-            ),
-            (
+             ),
+             (
                 {'identifiers':{'isbn': '9785170727209'}, 'title':u'Метро 2033',
                     'authors':[u'Дмитрий Глуховский']},
                 [title_test(u'Метро 2033', exact=True),
                     authors_test([u'Дмитрий Глуховский']),
                     isbn_test('9785170727209')]
-            ),
-            (
+             ),
+             (
                 {'identifiers':{'isbn': '5-699-13613-4'}, 'title':u'Метро 2033',
                     'authors':[u'Дмитрий Глуховский']},
                 [title_test(u'Метро 2033', exact=True),
                  authors_test([u'Дмитрий Глуховский'])]
-            ),
-            (
+             ),
+             (
                 {'identifiers':{}, 'title':u'Метро',
                     'authors':[u'Глуховский']},
                 [title_test(u'Метро', exact=False)]
-            ),
+             ),
     ])
 # }}}

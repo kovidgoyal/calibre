@@ -75,7 +75,7 @@ class IgnoreFile(Exception):
 
     def __init__(self, msg, errno):
         Exception.__init__(self, msg)
-        self.doesnt_exist = errno == 2
+        self.doesnt_exist = errno == errno.ENOENT
         self.errno = errno
 
 class HTMLFile(object):

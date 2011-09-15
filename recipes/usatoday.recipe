@@ -13,6 +13,7 @@ class USAToday(BasicNewsRecipe):
     title = 'USA Today'
     __author__ = 'Kovid Goyal'
     oldest_article = 1
+    publication_type = 'newspaper'
     timefmt  = ''
     max_articles_per_feed = 20
     language = 'en'

@@ -61,6 +61,13 @@ class MobiWriter(object):
 
     def __call__(self, oeb, path_or_stream):
         self.log = oeb.log
+        pt = None
+        if oeb.metadata.publication_type:
+            x = unicode(oeb.metadata.publication_type[0]).split(':')
+            if len(x) > 1:
+                pt = x[1].lower()
+        self.publication_type = pt
+
         if hasattr(path_or_stream, 'write'):
             return self.dump_stream(oeb, path_or_stream)
         with open(path_or_stream, 'w+b') as stream:
@@ -346,12 +353,14 @@ class MobiWriter(object):
 
         bt = 0x002
         if self.primary_index_record_idx is not None:
-            if self.indexer.is_flat_periodical:
+            if False and self.indexer.is_flat_periodical:
+                # Disabled as setting this to 0x102 causes the Kindle to not
+                # auto archive the issues
                 bt = 0x102
             elif self.indexer.is_periodical:
                 # If you change this, remember to change the cdetype in the EXTH
                 # header as well
-                bt = 0x103
+                bt = {'newspaper':0x101}.get(self.publication_type, 0x103)
 
         record0.write(pack(b'>IIIII',
             0xe8, bt, 65001, uid, 6))
@@ -520,20 +529,22 @@ class MobiWriter(object):
 
         if isinstance(uuid, unicode):
             uuid = uuid.encode('utf-8')
-        exth.write(pack(b'>II', 113, len(uuid) + 8))
-        exth.write(uuid)
-        nrecs += 1
+        if not self.opts.share_not_sync:
+            exth.write(pack(b'>II', 113, len(uuid) + 8))
+            exth.write(uuid)
+            nrecs += 1
 
         # Write cdetype
-        if self.is_periodical:
-            # If you set the book type header field to 0x101 use NWPR here if
-            # you use 0x103 use MAGZ
-            data = b'MAGZ'
+        if not self.is_periodical:
+            exth.write(pack(b'>II', 501, 12))
+            exth.write(b'EBOK')
+            nrecs += 1
         else:
-            data = b'EBOK'
-        exth.write(pack(b'>II', 501, len(data)+8))
-        exth.write(data)
-        nrecs += 1
+            # Should be b'NWPR' for doc type of 0x101 and b'MAGZ' for doctype
+            # of 0x103 but the old writer didn't write them, and I dont know
+            # what it should be for type 0x102 (b'BLOG'?) so write nothing
+            # instead
+            pass
 
         # Add a publication date entry
         if oeb.metadata['date']:

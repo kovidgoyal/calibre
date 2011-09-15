@@ -1,0 +1,64 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+rt.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class RT_eng(BasicNewsRecipe):
+    title                 = 'RT in English'
+    __author__            = 'Darko Miletic'
+    description           = 'RT is the first Russian 24/7 English-language news channel which brings the Russian view on global news.'
+    publisher             = 'Autonomous Nonprofit Organization "TV-Novosti"'
+    category              = 'news, politics, economy, finances, Russia, world'
+    oldest_article        = 2
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    masthead_url          = 'http://rt.com/s/css/img/printlogo.gif'
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+    language              = 'en_RU'
+    publication_type      = 'newsportal'
+    extra_css             = """
+                                body{font-family: Arial,Helvetica,sans-serif}
+                                h1{font-family: Georgia,"Times New Roman",Times,serif}
+                                .grey{color: gray}
+                                .fs12{font-size: small}
+                            """
+
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    keep_only_tags    = [dict(name='div', attrs={'class':'all'})]
+    remove_tags       = [
+                           dict(name=['object','link','embed','iframe','meta','link'])
+                          ,dict(attrs={'class':'crumbs oh'})
+                        ]
+    remove_attributes = ['clear']
+
+    feeds = [
+               (u'Politics'   , u'http://rt.com/politics/rss/'            )
+              ,(u'USA'        , u'http://rt.com/usa/news/rss/'            )
+              ,(u'Business'   , u'http://rt.com/business/news/rss/'       )
+              ,(u'Sport'      , u'http://rt.com/sport/rss/'               )
+              ,(u'Art&Culture', u'http://rt.com/art-and-culture/news/rss/')
+            ]
+
+    def print_version(self, url):
+        return url + 'print/'
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('a'):
+            str = item.string
+            if str is None:
+               str = self.tag_to_string(item)
+            item.replaceWith(str)
+        return soup

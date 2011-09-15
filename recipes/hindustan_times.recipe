@@ -1,0 +1,29 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class HindustanTimes(BasicNewsRecipe):
+    title          = u'Hindustan Times'
+    language       = 'en_IN'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+    feeds          = [
+            ('News',
+            'http://feeds.hindustantimes.com/HT-NewsSectionPage-Topstories'),
+            ('Views',
+            'http://feeds.hindustantimes.com/HT-ViewsSectionpage-Topstories'),
+            ('Cricket',
+            'http://feeds.hindustantimes.com/HT-Cricket-TopStories'),
+            ('Business',
+            'http://feeds.hindustantimes.com/HT-BusinessSectionpage-TopStories'),
+            ('Entertainment',
+            'http://feeds.hindustantimes.com/HT-HomePage-Entertainment'),
+            ('Lifestyle',
+            'http://feeds.hindustantimes.com/HT-Homepage-LifestyleNews'),
+]
+
+

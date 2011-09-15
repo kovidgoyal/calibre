@@ -65,20 +65,27 @@ def author_to_author_sort(author, method=None):
     suffixes = set([x.lower() for x in tweaks['author_name_suffixes']])
     suffixes |= set([x+u'.' for x in suffixes])
 
-    last = tokens[-1].lower()
-    suffix = None
-    if last in suffixes:
-        suffix = tokens[-1]
-        tokens = tokens[:-1]
+    suffix = u''
+    while True:
+        if not tokens:
+            return author
+        last = tokens[-1].lower()
+        if last in suffixes:
+            suffix = tokens[-1] + ' ' + suffix
+            tokens = tokens[:-1]
+        else:
+            break
+    suffix = suffix.strip()
 
     if method == u'comma' and u',' in u''.join(tokens):
         return author
 
     atokens = tokens[-1:] + tokens[:-1]
+    num_toks = len(atokens)
     if suffix:
         atokens.append(suffix)
 
-    if method != u'nocomma' and len(atokens) > 1:
+    if method != u'nocomma' and num_toks > 1:
         atokens[0] += u','
 
     return u' '.join(atokens)

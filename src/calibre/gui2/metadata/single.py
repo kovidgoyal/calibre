@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, errno
 from functools import partial
 
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
@@ -427,7 +427,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh',
                         set([]))
             except IOError as err:
-                if err.errno == 13: # Permission denied
+                if err.errno == errno.EACCES: # Permission denied
                     import traceback
                     fname = err.filename if err.filename else 'file'
                     error_dialog(self, _('Permission denied'),

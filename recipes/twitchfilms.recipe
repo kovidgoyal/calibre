@@ -1,12 +1,9 @@
-#!/usr/bin/env  python
-
 __license__   = 'GPL v3'
-__copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
-twitchfilm.net/site/
+twitchfilm.net/news/
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class Twitchfilm(BasicNewsRecipe):
     title                 = 'Twitch Films'
@@ -15,29 +12,46 @@ class Twitchfilm(BasicNewsRecipe):
     oldest_article        = 30
     max_articles_per_feed = 100
     no_stylesheets        = True
-    use_embedded_content  = True
+    use_embedded_content  = False
     encoding              = 'utf-8'
     publisher             = 'Twitch'
+    masthead_url          = 'http://twitchfilm.com/img/logo.png'
     category              = 'twitch, twitchfilm, movie news, movie reviews, cult cinema, independent cinema, anime, foreign cinema, geek talk'
-    language = 'en'
-
-    lang                  = 'en-US'
+    language              = 'en'
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : lang
-                        , 'pretty_print'     : True
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
                         }
 
-    remove_tags = [dict(name='div', attrs={'class':'feedflare'})]
+    keep_only_tags=[dict(attrs={'class':'asset-header'})]
+    remove_tags_after=dict(attrs={'class':'asset-body'})
+    remove_tags = [  dict(name='div', attrs={'class':['social','categories']})
+                   , dict(attrs={'id':'main-asset'})
+                   , dict(name=['meta','link','iframe','embed','object'])
+                  ]
 
-    feeds = [(u'News', u'http://feedproxy.google.com/TwitchEverything')]
+    feeds = [(u'News', u'http://feeds.twitchfilm.net/TwitchEverything')]
 
     def preprocess_html(self, soup):
-        mtag = Tag(soup,'meta',[('http-equiv','Content-Type'),('context','text/html; charset=utf-8')])
-        soup.head.insert(0,mtag)
-        soup.html['lang'] = self.lang
-        return self.adeify_images(soup)
+        for item in soup.findAll(style=True):
+            del item['style']    
+        for item in soup.findAll('a'):
+            limg = item.find('img')
+            if item.string is not None:
+               str = item.string
+               item.replaceWith(str)
+            else:
+               if limg:
+                  item.name = 'div'
+                  item.attrs = []
+               else:
+                   str = self.tag_to_string(item)
+                   item.replaceWith(str)
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
 
