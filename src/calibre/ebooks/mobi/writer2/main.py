@@ -529,9 +529,10 @@ class MobiWriter(object):
 
         if isinstance(uuid, unicode):
             uuid = uuid.encode('utf-8')
-        exth.write(pack(b'>II', 113, len(uuid) + 8))
-        exth.write(uuid)
-        nrecs += 1
+        if not self.opts.share_not_sync:
+            exth.write(pack(b'>II', 113, len(uuid) + 8))
+            exth.write(uuid)
+            nrecs += 1
 
         # Write cdetype
         if not self.is_periodical:
