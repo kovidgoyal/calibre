@@ -321,7 +321,7 @@ class CSSFlattener(object):
                 cssdict['margin-top'] = cssdict['margin-bottom'] = \
                     '%fem'%self.context.insert_blank_line_size
             indent_size = self.context.remove_paragraph_spacing_indent_size
-            keep_indents = indent_size == 0.0 and not self.context.insert_blank_line
+            keep_indents = indent_size < 0.0
             if (self.context.remove_paragraph_spacing and not keep_indents and
                 cssdict.get('text-align', None) not in ('center', 'right')):
                 cssdict['text-indent'] =  "%1.1fem" % indent_size
