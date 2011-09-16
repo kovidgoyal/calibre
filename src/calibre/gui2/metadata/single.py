@@ -25,6 +25,7 @@ from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.utils.localization import canonicalize_lang
 
 BASE_TITLE = _('Edit Metadata')
 
@@ -376,7 +377,10 @@ class MetadataSingleDialogBase(ResizableDialog):
             if mi.series_index is not None:
                 self.series_index.current_val = float(mi.series_index)
         if not mi.is_null('languages'):
-            self.languages.lang_codes = mi.languages
+            langs = [canonicalize_lang(x) for x in mi.languages]
+            langs = [x for x in langs if x is not None]
+            if langs:
+                self.languages.current_val = langs
         if mi.comments and mi.comments.strip():
             self.comments.current_val = mi.comments
 
