@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-02 16:21+0000\n"
-"PO-Revision-Date: 2011-09-08 10:13+0000\n"
+"PO-Revision-Date: 2011-09-09 13:18+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-09 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-09-10 05:01+0000\n"
 "X-Generator: Launchpad (build 13900)\n"
 
 #. name for aaa
@@ -1615,7 +1615,7 @@ msgstr "Atemble"
 
 #. name for atg
 msgid "Ivbie North-Okpela-Arhe"
-msgstr ""
+msgstr "Ivbie norte-okpela-arhe"
 
 #. name for ati
 msgid "Attié"
@@ -2803,7 +2803,7 @@ msgstr "Bima"
 
 #. name for bhq
 msgid "Tukang Besi South"
-msgstr ""
+msgstr "Tukang besi sur"
 
 #. name for bhr
 msgid "Malagasy, Bara"
@@ -4375,19 +4375,19 @@ msgstr "Barikanchi"
 
 #. name for bxp
 msgid "Bebil"
-msgstr ""
+msgstr "Bebil"
 
 #. name for bxq
 msgid "Beele"
-msgstr ""
+msgstr "Beele"
 
 #. name for bxr
 msgid "Buriat, Russia"
-msgstr ""
+msgstr "Buriat de Rusia"
 
 #. name for bxs
 msgid "Busam"
-msgstr ""
+msgstr "Busam"
 
 #. name for bxu
 msgid "Buriat, China"
@@ -4463,11 +4463,11 @@ msgstr "Bidyara"
 
 #. name for byn
 msgid "Bilin"
-msgstr ""
+msgstr "Bilin"
 
 #. name for byo
 msgid "Biyo"
-msgstr ""
+msgstr "Biyo"
 
 #. name for byp
 msgid "Bumaji"
@@ -4659,19 +4659,19 @@ msgstr "Carolinio"
 
 #. name for cam
 msgid "Cemuhî"
-msgstr ""
+msgstr "Cemuhî"
 
 #. name for can
 msgid "Chambri"
-msgstr ""
+msgstr "Chambri"
 
 #. name for cao
 msgid "Chácobo"
-msgstr ""
+msgstr "Chácobo"
 
 #. name for cap
 msgid "Chipaya"
-msgstr ""
+msgstr "Chipaya"
 
 #. name for caq
 msgid "Nicobarese, Car"
@@ -4679,11 +4679,11 @@ msgstr "Nicobarés de Car"
 
 #. name for car
 msgid "Carib, Galibi"
-msgstr ""
+msgstr "Caribe galibí"
 
 #. name for cas
 msgid "Tsimané"
-msgstr ""
+msgstr "Tsimané"
 
 #. name for cat
 msgid "Catalan"
@@ -4691,175 +4691,175 @@ msgstr "Catalán"
 
 #. name for cav
 msgid "Cavineña"
-msgstr ""
+msgstr "Cavineña"
 
 #. name for caw
 msgid "Callawalla"
-msgstr ""
+msgstr "Callawalla"
 
 #. name for cax
 msgid "Chiquitano"
-msgstr ""
+msgstr "Chiquitano"
 
 #. name for cay
 msgid "Cayuga"
-msgstr ""
+msgstr "Cayuga"
 
 #. name for caz
 msgid "Canichana"
-msgstr ""
+msgstr "Canichana"
 
 #. name for cbb
 msgid "Cabiyarí"
-msgstr ""
+msgstr "Cabiyarí"
 
 #. name for cbc
 msgid "Carapana"
-msgstr ""
+msgstr "Carapana"
 
 #. name for cbd
 msgid "Carijona"
-msgstr ""
+msgstr "Carijona"
 
 #. name for cbe
 msgid "Chipiajes"
-msgstr ""
+msgstr "Chipiajes"
 
 #. name for cbg
 msgid "Chimila"
-msgstr ""
+msgstr "Chimila"
 
 #. name for cbh
 msgid "Cagua"
-msgstr ""
+msgstr "Cagua"
 
 #. name for cbi
 msgid "Chachi"
-msgstr ""
+msgstr "Chachi"
 
 #. name for cbj
 msgid "Ede Cabe"
-msgstr ""
+msgstr "Ede cabe"
 
 #. name for cbk
 msgid "Chavacano"
-msgstr ""
+msgstr "Chabacano"
 
 #. name for cbl
 msgid "Chin, Bualkhaw"
-msgstr ""
+msgstr "Chin bualkhaw"
 
 #. name for cbn
 msgid "Nyahkur"
-msgstr ""
+msgstr "Nyahkur"
 
 #. name for cbo
 msgid "Izora"
-msgstr ""
+msgstr "Izora"
 
 #. name for cbr
 msgid "Cashibo-Cacataibo"
-msgstr ""
+msgstr "Cashibo-cacataibo"
 
 #. name for cbs
 msgid "Cashinahua"
-msgstr ""
+msgstr "Cashinahua"
 
 #. name for cbt
 msgid "Chayahuita"
-msgstr ""
+msgstr "Chayahuita"
 
 #. name for cbu
 msgid "Candoshi-Shapra"
-msgstr ""
+msgstr "Candoshi-Shapra"
 
 #. name for cbv
 msgid "Cacua"
-msgstr ""
+msgstr "Cacua"
 
 #. name for cbw
 msgid "Kinabalian"
-msgstr ""
+msgstr "Kinabalian"
 
 #. name for cby
 msgid "Carabayo"
-msgstr ""
+msgstr "Carabayo"
 
 #. name for cca
 msgid "Cauca"
-msgstr ""
+msgstr "Cauca"
 
 #. name for ccc
 msgid "Chamicuro"
-msgstr ""
+msgstr "Chamicuro"
 
 #. name for ccd
 msgid "Creole, Cafundo"
-msgstr ""
+msgstr "Criollo de Cafundo"
 
 #. name for cce
 msgid "Chopi"
-msgstr ""
+msgstr "Chopi"
 
 #. name for ccg
 msgid "Daka, Samba"
-msgstr ""
+msgstr "Samba daka"
 
 #. name for cch
 msgid "Atsam"
-msgstr ""
+msgstr "Atsam"
 
 #. name for ccj
 msgid "Kasanga"
-msgstr ""
+msgstr "Kasanga"
 
 #. name for ccl
 msgid "Cutchi-Swahili"
-msgstr ""
+msgstr "Cutchi-suajili"
 
 #. name for ccm
 msgid "Creole Malay, Malaccan"
-msgstr ""
+msgstr "Malayo criollo de Malaca"
 
 #. name for cco
 msgid "Chinantec, Comaltepec"
-msgstr ""
+msgstr "Chinanteco de Comaltepec"
 
 #. name for ccp
 msgid "Chakma"
-msgstr ""
+msgstr "Chakma"
 
 #. name for ccq
 msgid "Chaungtha"
-msgstr ""
+msgstr "Chaungtha"
 
 #. name for ccr
 msgid "Cacaopera"
-msgstr ""
+msgstr "Cacaopera"
 
 #. name for cda
 msgid "Choni"
-msgstr ""
+msgstr "Choni"
 
 #. name for cde
 msgid "Chenchu"
-msgstr ""
+msgstr "Chenchu"
 
 #. name for cdf
 msgid "Chiru"
-msgstr ""
+msgstr "Chiru"
 
 #. name for cdg
 msgid "Chamari"
-msgstr ""
+msgstr "Chamari"
 
 #. name for cdh
 msgid "Chambeali"
-msgstr ""
+msgstr "Chambeali"
 
 #. name for cdi
 msgid "Chodri"
-msgstr ""
+msgstr "Chodri"
 
 #. name for cdj
 msgid "Churahi"
@@ -4867,7 +4867,7 @@ msgstr ""
 
 #. name for cdm
 msgid "Chepang"
-msgstr ""
+msgstr "Chepang"
 
 #. name for cdn
 msgid "Chaudangsi"
@@ -11743,7 +11743,7 @@ msgstr ""
 
 #. name for khc
 msgid "Tukang Besi North"
-msgstr ""
+msgstr "Tukang besi norte"
 
 #. name for khd
 msgid "Kanum, Bädi"
@@ -24187,11 +24187,11 @@ msgstr "Suajili (macrolengua)"
 
 #. name for swb
 msgid "Comorian, Maore"
-msgstr ""
+msgstr "Comorense de Mayotte"
 
 #. name for swc
 msgid "Swahili, Congo"
-msgstr ""
+msgstr "Suajili del Congo"
 
 #. name for swe
 msgid "Swedish"
@@ -27759,7 +27759,7 @@ msgstr ""
 
 #. name for wlc
 msgid "Comorian, Mwali"
-msgstr ""
+msgstr "Comorense de Mohéli"
 
 #. name for wle
 msgid "Wolane"
@@ -27899,7 +27899,7 @@ msgstr ""
 
 #. name for wni
 msgid "Comorian, Ndzwani"
-msgstr ""
+msgstr "Comorense de Anjouan"
 
 #. name for wnk
 msgid "Wanukaka"
@@ -30263,7 +30263,7 @@ msgstr ""
 
 #. name for zdj
 msgid "Comorian, Ngazidja"
-msgstr ""
+msgstr "Comorense de Gran Comora"
 
 #. name for zea
 msgid "Zeeuws"
