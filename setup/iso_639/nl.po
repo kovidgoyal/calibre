@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-02 16:21+0000\n"
-"PO-Revision-Date: 2011-09-11 12:48+0000\n"
+"PO-Revision-Date: 2011-09-15 11:31+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-12 04:53+0000\n"
-"X-Generator: Launchpad (build 13900)\n"
+"X-Launchpad-Export-Date: 2011-09-16 04:35+0000\n"
+"X-Generator: Launchpad (build 13955)\n"
 "Language: nl\n"
 
 #. name for aaa
@@ -84,7 +84,7 @@ msgstr "Arára, Pará"
 
 #. name for aaq
 msgid "Abnaki, Eastern"
-msgstr "Abnaki, Oostelijk"
+msgstr "Abnaki, oostelijk"
 
 #. name for aar
 msgid "Afar"
@@ -132,7 +132,7 @@ msgstr "Manide"
 
 #. name for abe
 msgid "Abnaki, Western"
-msgstr "Abnaki, Westelijk"
+msgstr "Abnaki, westelijk"
 
 #. name for abf
 msgid "Abai Sungai"
@@ -236,7 +236,7 @@ msgstr "Achinees"
 
 #. name for acf
 msgid "Creole French, Saint Lucian"
-msgstr "Creools Frans, Saint Lucian"
+msgstr "Creools Frans, Sint Lucian"
 
 #. name for ach
 msgid "Acoli"
@@ -264,7 +264,7 @@ msgstr "Achang"
 
 #. name for acp
 msgid "Acipa, Eastern"
-msgstr "Acipa, Oostelijk"
+msgstr "Acipa, oostelijk"
 
 #. name for acq
 msgid "Arabic, Ta'izzi-Adeni"
@@ -412,7 +412,7 @@ msgstr "Argentijnse gebarentaal"
 
 #. name for aee
 msgid "Pashayi, Northeast"
-msgstr "Pashai, Noordoost"
+msgstr "Pashai, noordoost"
 
 #. name for aek
 msgid "Haeke"
@@ -592,7 +592,7 @@ msgstr ""
 
 #. name for agt
 msgid "Agta, Central Cagayan"
-msgstr "Agta, Centraal Cagayan"
+msgstr "Agta, centraal Cagayan"
 
 #. name for agu
 msgid "Aguacateco"
@@ -612,7 +612,7 @@ msgstr ""
 
 #. name for agy
 msgid "Alta, Southern"
-msgstr "Alta, Zuidelijk"
+msgstr "Alta, zuidelijk"
 
 #. name for agz
 msgid "Agta, Mt. Iriga"
@@ -780,7 +780,7 @@ msgstr ""
 
 #. name for ajp
 msgid "Arabic, South Levantine"
-msgstr "Arabisch, Zuid-Levantijns"
+msgstr "Arabisch, zuid-Levantijns"
 
 #. name for ajt
 msgid "Arabic, Judeo-Tunisian"
@@ -968,7 +968,7 @@ msgstr "Albanees, Toskisch"
 
 #. name for alt
 msgid "Altai, Southern"
-msgstr "Altajs, Zuidelijk"
+msgstr "Altajs, zuidelijk"
 
 #. name for alu
 msgid "'Are'are"
@@ -1060,7 +1060,7 @@ msgstr "Amarakaeri"
 
 #. name for ams
 msgid "Amami-Oshima, Southern"
-msgstr "Amami-Oshima, Zuidelijk"
+msgstr "Amami-Oshima, zuidelijk"
 
 #. name for amt
 msgid "Amto"
@@ -1076,7 +1076,7 @@ msgstr ""
 
 #. name for amw
 msgid "Neo-Aramaic, Western"
-msgstr "Neo-Aramaïsch, Westelijk"
+msgstr "Neo-Aramaïsch, westelijk"
 
 #. name for amx
 msgid "Anmatyerre"
@@ -1276,7 +1276,7 @@ msgstr "Sa'a"
 
 #. name for apc
 msgid "Arabic, North Levantine"
-msgstr "Arabisch, Noord-Levantijns"
+msgstr "Arabisch, noord-Levantijns"
 
 #. name for apd
 msgid "Arabic, Sudanese"
@@ -1356,7 +1356,7 @@ msgstr "Alapmunte"
 
 #. name for apw
 msgid "Apache, Western"
-msgstr "Apache, Westelijk"
+msgstr "Apache, westelijk"
 
 #. name for apx
 msgid "Aputai"
@@ -1388,7 +1388,7 @@ msgstr ""
 
 #. name for aqn
 msgid "Alta, Northern"
-msgstr "Altajs, Noordelijk"
+msgstr "Altajs, noordelijk"
 
 #. name for aqp
 msgid "Atakapa"
@@ -1408,7 +1408,7 @@ msgstr "Arabisch"
 
 #. name for arb
 msgid "Arabic, Standard"
-msgstr ""
+msgstr "Arabisch, standaard"
 
 #. name for arc
 msgid "Aramaic, Official (700-300 BCE)"
@@ -1420,7 +1420,7 @@ msgstr "Arabana"
 
 #. name for are
 msgid "Arrarnta, Western"
-msgstr "Arrarnta, Westelijk"
+msgstr "Arrarnta, westelijk"
 
 #. name for arg
 msgid "Aragonese"
@@ -1488,7 +1488,7 @@ msgstr ""
 
 #. name for ary
 msgid "Arabic, Moroccan"
-msgstr ""
+msgstr "Arabisch, Marrokaans"
 
 #. name for arz
 msgid "Arabic, Egyptian"
@@ -1676,7 +1676,7 @@ msgstr ""
 
 #. name for atv
 msgid "Altai, Northern"
-msgstr "Altajs, Noordelijk"
+msgstr "Altajs, noordelijk"
 
 #. name for atw
 msgid "Atsugewi"
@@ -1812,7 +1812,7 @@ msgstr "Kotava"
 
 #. name for avl
 msgid "Arabic, Eastern Egyptian Bedawi"
-msgstr "Arabisch, Oost-Egyptisch Bedawi"
+msgstr "Arabisch, oost-Egyptisch Bedawi"
 
 #. name for avn
 msgid "Avatime"
@@ -1892,7 +1892,7 @@ msgstr ""
 
 #. name for awu
 msgid "Awyu, Central"
-msgstr ""
+msgstr "Awyu, centraal"
 
 #. name for awv
 msgid "Awyu, Jair"
@@ -1920,7 +1920,7 @@ msgstr ""
 
 #. name for axk
 msgid "Yaka (Central African Republic)"
-msgstr ""
+msgstr "Yaka (Centraal Afrikaanse Republiek)"
 
 #. name for axm
 msgid "Armenian, Middle"
@@ -1940,7 +1940,7 @@ msgstr ""
 
 #. name for ayc
 msgid "Aymara, Southern"
-msgstr "Aymara, Zuidelijk"
+msgstr "Aymara, zuidelijk"
 
 #. name for ayd
 msgid "Ayabadhu"
@@ -1992,7 +1992,7 @@ msgstr "Ayi (Papua Nieuw-Guinea)"
 
 #. name for ayr
 msgid "Aymara, Central"
-msgstr ""
+msgstr "Aymara, centraal"
 
 #. name for ays
 msgid "Ayta, Sorsogon"
@@ -2020,7 +2020,7 @@ msgstr "Azha"
 
 #. name for azb
 msgid "Azerbaijani, South"
-msgstr "Azerbeidzjaans, Zuidelijk"
+msgstr "Azerbeidzjaans, zuidelijk"
 
 #. name for aze
 msgid "Azerbaijani"
@@ -2032,7 +2032,7 @@ msgstr ""
 
 #. name for azj
 msgid "Azerbaijani, North"
-msgstr "Azerbeidzjaans, Noordelijk"
+msgstr "Azerbeidzjaans, noordelijk"
 
 #. name for azm
 msgid "Amuzgo, Ipalapa"
@@ -2200,7 +2200,7 @@ msgstr ""
 
 #. name for bbp
 msgid "Banda, West Central"
-msgstr "Banda, West-Centraal"
+msgstr "Banda, west-centraal"
 
 #. name for bbq
 msgid "Bamali"
@@ -2244,7 +2244,7 @@ msgstr "Creools Arabisch, Babalia"
 
 #. name for bca
 msgid "Bai, Central"
-msgstr "Bai, Centraal"
+msgstr "Bai, centraal"
 
 #. name for bcb
 msgid "Bainouk-Samik"
@@ -2256,7 +2256,7 @@ msgstr "Balochi, zuidelijk"
 
 #. name for bcd
 msgid "Babar, North"
-msgstr "Babar, Noordelijk"
+msgstr "Babar, noordelijk"
 
 #. name for bce
 msgid "Bamenyam"
@@ -2288,7 +2288,7 @@ msgstr "Bunaba"
 
 #. name for bcl
 msgid "Bicolano, Central"
-msgstr "Bicolano, Centraal"
+msgstr "Bicolano, centraal"
 
 #. name for bcm
 msgid "Bannoni"
@@ -2412,7 +2412,7 @@ msgstr "Bahnar"
 
 #. name for bdr
 msgid "Bajau, West Coast"
-msgstr "Bajau, Westkust"
+msgstr "Bajau, westkust"
 
 #. name for bds
 msgid "Burunge"
@@ -2556,7 +2556,7 @@ msgstr ""
 
 #. name for bfc
 msgid "Bai, Northern"
-msgstr "Bai, Noordelijk"
+msgstr "Bai, noordelijk"
 
 #. name for bfd
 msgid "Bafut"
@@ -2696,7 +2696,7 @@ msgstr ""
 
 #. name for bgn
 msgid "Balochi, Western"
-msgstr "Balochi, Westelijk"
+msgstr "Balochi, westelijk"
 
 #. name for bgo
 msgid "Baga Koga"
@@ -2704,7 +2704,7 @@ msgstr "Baga Koga"
 
 #. name for bgp
 msgid "Balochi, Eastern"
-msgstr "Balochi, Oostelijk"
+msgstr "Balochi, oostelijk"
 
 #. name for bgq
 msgid "Bagri"
@@ -2796,7 +2796,7 @@ msgstr "Bathari"
 
 #. name for bhn
 msgid "Neo-Aramaic, Bohtan"
-msgstr ""
+msgstr "Neo-Aramees, Bohtan"
 
 #. name for bho
 msgid "Bhojpuri"
@@ -2924,7 +2924,7 @@ msgstr "Biete"
 
 #. name for biv
 msgid "Birifor, Southern"
-msgstr "Birifor, Zuid"
+msgstr "Birifor, zuid"
 
 #. name for biw
 msgid "Kol (Cameroon)"
@@ -3104,7 +3104,7 @@ msgstr ""
 
 #. name for bks
 msgid "Sorsoganon, Northern"
-msgstr "Sorsoganon, Noordelijk"
+msgstr "Sorsoganon, noordelijk"
 
 #. name for bkt
 msgid "Boloki"
@@ -3372,7 +3372,7 @@ msgstr "Bangi"
 
 #. name for bnj
 msgid "Tawbuid, Eastern"
-msgstr "Tawbuid, Oostelijk"
+msgstr "Tawbuid, oostelijk"
 
 #. name for bnk
 msgid "Bierebo"
@@ -3808,11 +3808,11 @@ msgstr "Bitare"
 
 #. name for bru
 msgid "Bru, Eastern"
-msgstr "Bru, Oostelijk"
+msgstr "Bru, oostelijk"
 
 #. name for brv
 msgid "Bru, Western"
-msgstr "Bru, Westelijk"
+msgstr "Bru, westelijk"
 
 #. name for brw
 msgid "Bellari"
@@ -4284,7 +4284,7 @@ msgstr "Mandobo Bawah"
 
 #. name for bwq
 msgid "Bobo Madaré, Southern"
-msgstr "Bobo Madaré, Zuidelijk"
+msgstr "Bobo Madaré, zuidelijk"
 
 #. name for bwr
 msgid "Bura-Pabir"
@@ -5104,7 +5104,7 @@ msgstr ""
 
 #. name for cja
 msgid "Cham, Western"
-msgstr "Cham, Westelijk"
+msgstr "Cham, westelijk"
 
 #. name for cje
 msgid "Chru"
@@ -5124,7 +5124,7 @@ msgstr ""
 
 #. name for cjm
 msgid "Cham, Eastern"
-msgstr "Cham, Oostelijk"
+msgstr "Cham, oostelijk"
 
 #. name for cjn
 msgid "Chenapian"
@@ -5340,7 +5340,7 @@ msgstr ""
 
 #. name for cns
 msgid "Asmat, Central"
-msgstr ""
+msgstr "Asmat, centraal"
 
 #. name for cnt
 msgid "Chinantec, Tepetotutla"
@@ -5552,7 +5552,7 @@ msgstr "Cree, prairie"
 
 #. name for crl
 msgid "Cree, Northern East"
-msgstr "Cree, Noordelijk Oost"
+msgstr "Cree, noordelijk oost"
 
 #. name for crm
 msgid "Cree, Moose"
@@ -5648,7 +5648,7 @@ msgstr "Chinese gebarentaal"
 
 #. name for csm
 msgid "Miwok, Central Sierra"
-msgstr "Miwok, Centraal Sierra"
+msgstr "Miwok, centraal Sierra"
 
 #. name for csn
 msgid "Colombian Sign Language"
@@ -6072,7 +6072,7 @@ msgstr ""
 
 #. name for ddi
 msgid "Goodenough, West"
-msgstr ""
+msgstr "Goodenough, west"
 
 #. name for ddj
 msgid "Jaru"
@@ -6144,7 +6144,7 @@ msgstr ""
 
 #. name for deq
 msgid "Dendi (Central African Republic)"
-msgstr ""
+msgstr "Dendi (Centraal Afrikaanse Republiek)"
 
 #. name for der
 msgid "Deori"
@@ -6284,7 +6284,7 @@ msgstr ""
 
 #. name for dib
 msgid "Dinka, South Central"
-msgstr ""
+msgstr "Dinka, zuidelijk centraal"
 
 #. name for dic
 msgid "Dida, Lakota"
@@ -6316,7 +6316,7 @@ msgstr ""
 
 #. name for dik
 msgid "Dinka, Southwestern"
-msgstr "Dinka, Zuidwestelijk"
+msgstr "Dinka, zuidwestelijk"
 
 #. name for dil
 msgid "Dilling"
@@ -6336,7 +6336,7 @@ msgstr ""
 
 #. name for dip
 msgid "Dinka, Northeastern"
-msgstr "Dinka, Noordoostelijk"
+msgstr "Dinka, noordoostelijk"
 
 #. name for diq
 msgid "Dimli (individual language)"
@@ -6364,7 +6364,7 @@ msgstr ""
 
 #. name for diw
 msgid "Dinka, Northwestern"
-msgstr "Dinka, Noordwestelijk"
+msgstr "Dinka, noordwestelijk"
 
 #. name for dix
 msgid "Dixon Reef"
@@ -6784,7 +6784,7 @@ msgstr ""
 
 #. name for dtp
 msgid "Dusun, Central"
-msgstr ""
+msgstr "Dusun, centraal"
 
 #. name for dtr
 msgid "Lotud"
@@ -7216,7 +7216,7 @@ msgstr ""
 
 #. name for emy
 msgid "Mayan, Epigraphic"
-msgstr ""
+msgstr "Maya, Epigrafisch"
 
 #. name for ena
 msgid "Apali"
@@ -7544,7 +7544,7 @@ msgstr ""
 
 #. name for faz
 msgid "Fars, Northwestern"
-msgstr "Farsi, Noordwestelijk"
+msgstr "Farsi, noordwestelijk"
 
 #. name for fbl
 msgid "Bikol, West Albay"
@@ -7644,7 +7644,7 @@ msgstr ""
 
 #. name for fmu
 msgid "Muria, Far Western"
-msgstr "Muria (India)"
+msgstr "Muria, ver westelijk (India)"
 
 #. name for fng
 msgid "Fanagalo"
@@ -7768,7 +7768,7 @@ msgstr ""
 
 #. name for fuh
 msgid "Fulfulde, Western Niger"
-msgstr ""
+msgstr "Fulfulde, westelijk Nigeriaans"
 
 #. name for fui
 msgid "Fulfulde, Bagirmi"
@@ -7792,7 +7792,7 @@ msgstr ""
 
 #. name for fuq
 msgid "Fulfulde, Central-Eastern Niger"
-msgstr ""
+msgstr "Fulfulde, centraal-oostelijk Nigeria"
 
 #. name for fur
 msgid "Friulian"
@@ -7924,11 +7924,11 @@ msgstr "Gayo"
 
 #. name for gaz
 msgid "Oromo, West Central"
-msgstr ""
+msgstr "Oromo, westelijk centraal"
 
 #. name for gba
 msgid "Gbaya (Central African Republic)"
-msgstr ""
+msgstr "Gbaya (Centraal Afrikaanse Republiek)"
 
 #. name for gbb
 msgid "Kaytetye"
@@ -8336,7 +8336,7 @@ msgstr ""
 
 #. name for gip
 msgid "Gimi (West New Britain)"
-msgstr "Gimi (west nieuw Brittannië)"
+msgstr "Gimi (west Nieuw Brittannië)"
 
 #. name for giq
 msgid "Gelao, Green"
@@ -8772,7 +8772,7 @@ msgstr ""
 
 #. name for grv
 msgid "Grebo, Central"
-msgstr ""
+msgstr "Grebo, centraal"
 
 #. name for grw
 msgid "Gweda"
@@ -9416,7 +9416,7 @@ msgstr ""
 
 #. name for hlu
 msgid "Luwian, Hieroglyphic"
-msgstr ""
+msgstr "Luwisch, hiërogliefen"
 
 #. name for hma
 msgid "Miao, Southern Mashan"
@@ -9428,31 +9428,31 @@ msgstr ""
 
 #. name for hmc
 msgid "Miao, Central Huishui"
-msgstr ""
+msgstr "Miao, centraal Huishui"
 
 #. name for hmd
 msgid "Miao, Large Flowery"
-msgstr ""
+msgstr "Miao, groot bloemrijk"
 
 #. name for hme
 msgid "Miao, Eastern Huishui"
-msgstr ""
+msgstr "Miao, oostelijk Huishui"
 
 #. name for hmf
 msgid "Hmong Don"
-msgstr ""
+msgstr "Hmong Don"
 
 #. name for hmg
 msgid "Hmong, Southwestern Guiyang"
-msgstr ""
+msgstr "Hmong, zuidwestelijk Guiyang"
 
 #. name for hmh
 msgid "Miao, Southwestern Huishui"
-msgstr ""
+msgstr "Miao, zuidwestelijk Huishui"
 
 #. name for hmi
 msgid "Miao, Northern Huishui"
-msgstr ""
+msgstr "Miao, noordwestelijk Huishui"
 
 #. name for hmj
 msgid "Ge"
@@ -9480,7 +9480,7 @@ msgstr "Hiri Motu"
 
 #. name for hmp
 msgid "Miao, Northern Mashan"
-msgstr ""
+msgstr "Miao, noordelijk Mashan"
 
 #. name for hmq
 msgid "Miao, Eastern Qiandong"
@@ -11060,7 +11060,7 @@ msgstr ""
 
 #. name for kah
 msgid "Kara (Central African Republic)"
-msgstr ""
+msgstr "Kara (Centraal Afrikaanse Republiek)"
 
 #. name for kai
 msgid "Karekare"
@@ -11184,7 +11184,7 @@ msgstr ""
 
 #. name for kbn
 msgid "Kare (Central African Republic)"
-msgstr ""
+msgstr "Kare (Centraal Afrikaanse Republiek)"
 
 #. name for kbo
 msgid "Keliko"
@@ -11284,7 +11284,7 @@ msgstr "Kela (Papua Nieuw-Guinea)"
 
 #. name for kcm
 msgid "Gula (Central African Republic)"
-msgstr ""
+msgstr "Gula (Centraal Afrikaanse Republiek)"
 
 #. name for kcn
 msgid "Nubi"
@@ -12316,7 +12316,7 @@ msgstr ""
 
 #. name for kmr
 msgid "Kurdish, Northern"
-msgstr "Koerdisch, Noordelijk"
+msgstr "Koerdisch, noordelijk"
 
 #. name for kms
 msgid "Kamasau"
@@ -14176,7 +14176,7 @@ msgstr ""
 
 #. name for lia
 msgid "Limba, West-Central"
-msgstr "Limba, West-Centraal"
+msgstr "Limba, west-centraal"
 
 #. name for lib
 msgid "Likum"
@@ -17740,7 +17740,7 @@ msgstr ""
 
 #. name for nbl
 msgid "Ndebele, South"
-msgstr "Ndebele, Zuid"
+msgstr "Ndebele, zuid"
 
 #. name for nbm
 msgid "Ngbaka Ma'bo"
@@ -17900,7 +17900,7 @@ msgstr ""
 
 #. name for nde
 msgid "Ndebele, North"
-msgstr "Ndebele, Noord"
+msgstr "Ndebele, noord"
 
 #. name for ndf
 msgid "Nadruvian"
@@ -18116,7 +18116,7 @@ msgstr ""
 
 #. name for ngd
 msgid "Ngando (Central African Republic)"
-msgstr ""
+msgstr "Ngando (Centraal Afrikaanse Republiek)"
 
 #. name for nge
 msgid "Ngemba"
@@ -18656,7 +18656,7 @@ msgstr ""
 
 #. name for nmj
 msgid "Ngombe (Central African Republic)"
-msgstr ""
+msgstr "Ngombe (Centraal Afrikaanse Republiek)"
 
 #. name for nmk
 msgid "Namakura"
@@ -21028,7 +21028,7 @@ msgstr ""
 
 #. name for pnz
 msgid "Pana (Central African Republic)"
-msgstr ""
+msgstr "Pana (Centraal Afrikaanse Republiek)"
 
 #. name for poc
 msgid "Poqomam"
@@ -21068,7 +21068,7 @@ msgstr "Pools"
 
 #. name for pom
 msgid "Pomo, Southeastern"
-msgstr ""
+msgstr "Pomo, zuidwestelijk"
 
 #. name for pon
 msgid "Pohnpeian"
@@ -21076,7 +21076,7 @@ msgstr "Pohnpeiaans"
 
 #. name for poo
 msgid "Pomo, Central"
-msgstr ""
+msgstr "Pomo, centraal"
 
 #. name for pop
 msgid "Pwapwa"
@@ -21100,7 +21100,7 @@ msgstr ""
 
 #. name for pov
 msgid "Crioulo, Upper Guinea"
-msgstr ""
+msgstr "Creools, hoger Guinea"
 
 #. name for pow
 msgid "Popoloca, San Felipe Otlaltepec"
@@ -22428,7 +22428,7 @@ msgstr ""
 
 #. name for sam
 msgid "Aramaic, Samaritan"
-msgstr ""
+msgstr "Aramees, Samaritaans"
 
 #. name for san
 msgid "Sanskrit"
@@ -23780,7 +23780,7 @@ msgstr ""
 
 #. name for sqr
 msgid "Arabic, Siculo"
-msgstr ""
+msgstr "Arabisch, Siciliaans"
 
 #. name for sqs
 msgid "Sri Lankan Sign Language"
@@ -23920,7 +23920,7 @@ msgstr ""
 
 #. name for ssh
 msgid "Arabic, Shihhi"
-msgstr ""
+msgstr "Arabisch, Shihhi"
 
 #. name for ssi
 msgid "Sansi"
@@ -28212,7 +28212,7 @@ msgstr ""
 
 #. name for xaa
 msgid "Arabic, Andalusian"
-msgstr ""
+msgstr "Arabisch, Andalusisch"
 
 #. name for xab
 msgid "Sambe"
@@ -28400,7 +28400,7 @@ msgstr ""
 
 #. name for xdy
 msgid "Dayak, Malayic"
-msgstr ""
+msgstr "Dayak, Maleis"
 
 #. name for xeb
 msgid "Eblan"

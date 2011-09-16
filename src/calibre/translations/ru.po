@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-09 21:09+0000\n"
-"PO-Revision-Date: 2011-09-14 12:04+0000\n"
-"Last-Translator: Aleksey Kabanov <Unknown>\n"
+"PO-Revision-Date: 2011-09-16 04:30+0000\n"
+"Last-Translator: Sidorychev Alexander <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-09-15 04:47+0000\n"
-"X-Generator: Launchpad (build 13921)\n"
+"X-Launchpad-Export-Date: 2011-09-16 04:35+0000\n"
+"X-Generator: Launchpad (build 13955)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -3365,7 +3365,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:57
 msgid "Value: unknown field "
-msgstr ""
+msgstr "Значение: неизвестное поле "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:161
 msgid "TEMPLATE ERROR"
@@ -4712,6 +4712,9 @@ msgid ""
 "processed and merged into your Calibre database according to your automerge "
 "settings:"
 msgstr ""
+"Следующие дубликаты книг были найдены, их файлы были обработаны и "
+"объединены, в вашей базе calibre в соответствии с вашими настройками авто-"
+"объединения:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:351
 msgid "Failed to read metadata"
@@ -5455,7 +5458,7 @@ msgstr "Ошибка загрузки"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:90
 #, python-format
 msgid "Failed to download metadata or covers for any of the %d book(s)."
-msgstr ""
+msgstr "Не удалось загрузить метаданный или обложки для любой из %d книг(и)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:93
 msgid "Metadata download completed"
@@ -5476,6 +5479,8 @@ msgid ""
 "Could not download metadata and/or covers for %d of the books. Click \"Show "
 "details\" to see which books."
 msgstr ""
+"Не удалось загрузить метаданные и/или обложки для %d книг. Нажмите кнопку "
+"\"Показать подробности\", чтобы увидеть, какие книги."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:109
 msgid "Download complete"
@@ -5497,6 +5502,10 @@ msgid ""
 "Click \"Show details\" to see the list of changed books. Do you want to "
 "proceed?"
 msgstr ""
+"Метаданные для некоторых книг в вашей библиотеке изменились во время "
+"загрузки. Если вы продолжите, некоторые из этих изменений могут быть "
+"перезаписаны. Нажмите кнопку \"Показать подробности\", чтобы увидеть список "
+"измененных книг. Вы хотите продолжить?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:221
@@ -5639,7 +5648,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
-msgstr ""
+msgstr "Обновление плагинов"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -6409,7 +6418,7 @@ msgstr "Настройка кодировки (изменять при нали�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:81
 msgid "BibTeX entry type:"
-msgstr ""
+msgstr "Тип записи BibTeX:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:82
 msgid "Create a citation tag?"
@@ -6451,11 +6460,11 @@ msgstr "Параметры книг"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Sections to include in catalog."
-msgstr ""
+msgstr "Разделы для включения в каталог."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:297
 msgid "Included sections"
-msgstr ""
+msgstr "Включенные разделы"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "Books by &Genre"
@@ -6578,7 +6587,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Merge with Comments"
-msgstr ""
+msgstr "&Объединить с Комментариями"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
 msgid "Additional content merged with Comments during catalog generation"
@@ -16764,6 +16773,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Включить раздел 'Авторы' в каталог\n"
+"По умолчанию: '%default'\n"
+"Применимо к: форматы вывода ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:670
 #, python-format
@@ -16772,6 +16784,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Включить раздел 'Описание' в каталог\n"
+"По умолчанию: '%default'\n"
+"Применимо к: форматы вывода ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:677
 #, python-format
@@ -16780,6 +16795,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Включить раздел 'Жанры' в каталог\n"
+"По умолчанию: '%default'\n"
+"Применимо к: форматы вывода ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:684
 #, python-format
@@ -16788,6 +16806,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Включить раздел 'Заголовок' в каталог\n"
+"По умолчанию: '%default'\n"
+"Применимо к: форматы вывода ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:691
 #, python-format
@@ -16796,6 +16817,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Включить раздел 'Серии' в каталог\n"
+"По умолчанию: '%default'\n"
+"Применимо к: форматы вывода ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:698
 #, python-format
@@ -16804,6 +16828,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Включить раздел 'Недавно добавленные' в каталог\n"
+"По умолчанию: '%default'\n"
+"Применимо к: форматы вывода ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:705
 #, python-format
@@ -16851,6 +16878,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"Размер подсказки (в дюймах) для обложки книг в каталоге.\n"
+"Диапазон: 1.0 - 2.0\n"
+"По умолчанию: '%default'\n"
+"Относится к выходным форматам ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:743
 #, python-format
@@ -16916,7 +16947,7 @@ msgstr "Недопустимые авторы"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:29
 msgid "Extra authors"
-msgstr ""
+msgstr "Дополнительные авторы"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:30
 msgid "Missing book formats"
@@ -16924,7 +16955,7 @@ msgstr "Потеряны форматы книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:31
 msgid "Extra book formats"
-msgstr ""
+msgstr "Дополнительные форматы книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:32
 msgid "Unknown files in books"
@@ -17261,7 +17292,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:583
 msgid "You must specify label, name and datatype"
-msgstr ""
+msgstr "Вы должны указать заголовок, имя и тип данных"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:645
 msgid ""
@@ -17357,7 +17388,7 @@ msgstr "Не запрашивать подтверждения"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:813
 msgid "Error: You must specify a column label"
-msgstr ""
+msgstr "Ошибка: Вы должны указать заголовок столбца"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:824
 msgid ""
@@ -17523,13 +17554,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:610
 msgid "No label was provided"
-msgstr ""
+msgstr "Отсутствует заголовок"
 
 #: /home/kovid/work/calibre/src/calibre/library/custom_columns.py:612
 msgid ""
 "The label must contain only lower case letters, digits and underscores, and "
 "start with a letter"
 msgstr ""
+"Заголовок должен содержать только строчные буквы, цифры, подчеркивания и "
+"начинаться с буквы"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:67
 #, python-format
@@ -17811,11 +17844,11 @@ msgstr "Перейти к"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "First"
-msgstr ""
+msgstr "Первый"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "Last"
-msgstr ""
+msgstr "Последний"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:109
 #, python-format
@@ -17851,7 +17884,7 @@ msgstr "бибилиотека"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:280
 msgid "home"
-msgstr ""
+msgstr "главная"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:387
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:452
@@ -17872,11 +17905,11 @@ msgstr "Вверх"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:654
 msgid "in"
-msgstr ""
+msgstr "в"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:657
 msgid "Books in"
-msgstr ""
+msgstr "Книги в"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:746
 msgid "Other formats"
@@ -17947,16 +17980,20 @@ msgid ""
 "Auto reload server when source code changes. May not work in all "
 "environments."
 msgstr ""
+"Автоматический перезапуск сервера при изменении исходного кода. Может "
+"работать не во всех средах."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:158
 msgid "Switch to the full interface (non-mobile interface)"
-msgstr ""
+msgstr "Переключать в полный интерфейс (не мобильный интерфейс)"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:161
 msgid ""
 "The full interface gives you many more features, but it may not work well on "
 "a small screen"
 msgstr ""
+"Полный интерфейс предоставляет больше возможностей, но может работать "
+"неверно на маленьком экране"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:125
 #, python-format
@@ -18098,19 +18135,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:32
 msgid " near "
-msgstr ""
+msgstr " около "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:38
 msgid "end of program"
-msgstr ""
+msgstr "конец программы"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:75
 msgid "syntax error - program ends before EOF"
-msgstr ""
+msgstr "синтаксическая ошибка - программа закончилась перед EOF"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:103
 msgid "Unknown identifier "
-msgstr ""
+msgstr "Неизвестный идентификатор "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:110
 msgid "unknown function {0}"
@@ -18135,7 +18172,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:299
 #, python-format
 msgid "%s: unknown function"
-msgstr ""
+msgstr "%s: неизвестная функция"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:357
 msgid "No such variable "
@@ -18143,29 +18180,36 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:72
 msgid "No documentation provided"
-msgstr ""
+msgstr "Нет документации"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:105
 msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"strcmp(x, y, lt, eq, gt) -- сравнивает строки x и y без учета регистра. "
+"Возвращает lt если x < y. Возвращает eq если x == y. Иначе возвращает gt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:121
 msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"cmp(x, y, lt, eq, gt) -- конвертирует x и y в числа, затем сравнивает ихs. "
+"Возвращает lt если x < y. Возвращает eq если x == y. Иначе возвращает gt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:137
 msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
 msgstr ""
+"strcat(a, b, ...) -- принимает любое число аргументов. Возвращает строку, "
+"состоящую из объединённых аргументов."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:151
 msgid "strlen(a) -- Returns the length of the string passed as the argument"
 msgstr ""
+"strlen(a) -- Возвращает длину строки, переданной в качестве аргумента"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:164
 msgid ""
@@ -18297,7 +18341,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:383
 msgid "strcat_max requires 2 or more arguments"
-msgstr ""
+msgstr "strcat_max требует 2 или больше агрументов"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:385
 msgid "strcat_max requires an even number of arguments"
@@ -18305,7 +18349,7 @@ msgstr "strcat_max требует четного числа аргументов
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:389
 msgid "first argument to strcat_max must be an integer"
-msgstr ""
+msgstr "первый аргумент strcat_max должен быть целым числом"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:407
 msgid ""
@@ -18493,11 +18537,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:759
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) -- возвращает аргумент в верхнем регистре"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:768
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) -- возвращает аргумент в нижнем регистре"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:777
 msgid "titlecase(val) -- return value of the field in title case"
@@ -18509,7 +18553,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:795
 msgid "booksize() -- return value of the size field"
-msgstr ""
+msgstr "booksize() -- возвращает размер поля"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:809
 msgid ""

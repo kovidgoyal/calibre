@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-09 21:09+0000\n"
-"PO-Revision-Date: 2011-09-14 19:59+0000\n"
+"PO-Revision-Date: 2011-09-15 20:00+0000\n"
 "Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-09-15 04:47+0000\n"
-"X-Generator: Launchpad (build 13921)\n"
+"X-Launchpad-Export-Date: 2011-09-16 04:34+0000\n"
+"X-Generator: Launchpad (build 13955)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -4673,7 +4673,7 @@ msgstr "ライブラリのメンテナンス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:189
 msgid "Library metadata backup status"
-msgstr "ライブラリの書籍情報バックアップ状況"
+msgstr "ライブラリの書籍情報バックアップステータス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:193
 msgid "Start backing up metadata of all books"
@@ -4749,12 +4749,12 @@ msgstr "なし"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 msgid "Backup status"
-msgstr "バックアップ・ステータス"
+msgstr "バックアップステータス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:326
 #, python-format
 msgid "Book metadata files remaining to be written: %s"
-msgstr "書籍情報ファイルの書き出す残りの数： %s"
+msgstr "書誌情報ファイルを書き出す残りの数: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:332
 msgid "Backup metadata"
@@ -5152,15 +5152,15 @@ msgstr "書誌情報・表紙をダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:45
 msgid "Merge into first selected book - delete others"
-msgstr "最初に選択した書籍にマージする - 他は削除"
+msgstr "最初に選択した書籍にマージ - 他は削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:48
 msgid "Merge into first selected book - keep others"
-msgstr "最初に選択した書籍にマージする - 他は残す"
+msgstr "最初に選択した書籍にマージ - 他は残す"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:52
 msgid "Merge only formats into first selected book - delete others"
-msgstr "フォーマットのみを最初に選択した書籍にマージする - 他は削除"
+msgstr "フォーマットのみ最初に選択した書籍にマージ - 他は削除"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:57
 msgid "Merge book records"
@@ -5424,7 +5424,7 @@ msgstr "再起動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
-msgstr "ディスクに単一フォーマットで保存..."
+msgstr "ディスクに指定フォーマットで保存..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:39
 msgid "S"
@@ -5612,7 +5612,7 @@ msgid ""
 "are looking for, at the best price. You also get DRM status and other useful "
 "information."
 msgstr ""
-"統合検索を使うことで、どのストアに探している書籍があり、どこが一番安いかが簡単に分かります。また、DRMのありなしやその他の便利な情報を得ることもできます"
+"統合検索を使うことで、どのストアに探している書籍があり、どこが一番安いかが簡単に分かります。また、DRMステータスやその他の便利な情報を得ることもできます"
 "。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:142
@@ -5739,7 +5739,7 @@ msgstr "この中を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:246
 msgid "Adding..."
-msgstr "追加..."
+msgstr "追加中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:259
 msgid "Searching in all sub-directories..."
@@ -5800,7 +5800,7 @@ msgstr "同じタイトルの書籍がデータベース中にすでに存在し
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:391
 msgid "Adding duplicates..."
-msgstr "重複したものを追加..."
+msgstr "重複するものを追加中..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:460
 msgid "Saving..."
@@ -7152,7 +7152,7 @@ msgstr "Palmデバイス向けに画像サイズを変更(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:74
 msgid "Use author &sort for author"
-msgstr "著者として著者(ソート)を使う(&S)"
+msgstr "著者として著者名ソートを使う(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:75
 msgid "Disable compression of the file contents"
@@ -7405,7 +7405,7 @@ msgid ""
 "wizard buttons below will allow you to test your regular expression against "
 "the current input document."
 msgstr ""
-"<p>検索＆置換では<i>正規表現</i>を使用します。正規表現については<a href=\"http://manual.calibre-"
+"<p>検索と置換では<i>正規表現</i>を使用します。正規表現については<a href=\"http://manual.calibre-"
 "ebook.com/regexp.html\">正規表現チュートリアル</a>を参照してください。以下のウィザードボタンを押すと、現在の入力ドキュメントに"
 "対して実行する正規表現をテストできます。"
 
@@ -7723,11 +7723,11 @@ msgstr "span"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:86
 msgid "Having the &attribute:"
-msgstr "持っているアトリビュート(&A):"
+msgstr "含んでいる属性(&A):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:87
 msgid "With &value:"
-msgstr "アトリビュートの値(&V):"
+msgstr "値(&V):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:88
 msgid "(A regular expression)"
@@ -7742,10 +7742,10 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>."
 msgstr ""
-"<p>例えば、すべてのclass=\"chapter\"を持つh2タグにマッチさせるには、タグを<i>h2</i>に、アトリビュートを<i>class</"
-"i>そしてアトリビュートの値を<i>chapter</i>にしてください。</p><p>アトリビュート欄を空白にすると、すべてのアトリビュートに、アトリビ"
-"ュートの値欄を空白にすると、すべてのアトリビュートの値にマッチします。タグ名を*にするとすべてのタグにマッチします。</p><p>もっと高度なXPathの"
-"使い方については<a href=\"http://manual.calibre-"
+"<p>例えば、class=\"chapter\"を含むすべてのh2タグにマッチさせるには、タグを<i>h2</i>に、属性を<i>class</i>に、値"
+"を<i>chapter</i>に設定してください。</p><p>属性を空白にするとすべての属性にマッチします。また、値を空白にすると値にマッチします。タグ"
+"名を * にするとすべてのタグにマッチします。</p><p>XPathのより高度な使い方については、<a "
+"href=\"http://manual.calibre-"
 "ebook.com/xpath.html\">XPathチュートリアル</a>を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:145
@@ -8710,7 +8710,7 @@ msgstr "頭文字を大文字化"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:270
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:442
 msgid "Capitalize"
-msgstr "先頭を大文字化"
+msgstr "先頭のみ大文字化"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:181
 msgid "Copy to author sort"
@@ -8902,7 +8902,7 @@ msgid ""
 "character matching or regular expressions. "
 msgstr ""
 "<b>この機能を利用すると、ライブラリを破壊してしまう可能性があります。</b>変更は元に戻せません。アンドゥ機能はありません。進める前にライブラリのバッ"
-"クアップを取ることを強くお勧めします。<p>文字検索や正規表現を使ってテキストフィールドの検索＆置換を行ってください。 "
+"クアップを取ることを強くお勧めします。<p>文字検索や正規表現を使ってテキストフィールドの検索と置換を行ってください。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:424
 msgid ""
@@ -8983,7 +8983,7 @@ msgstr "検索/置換を保存"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1003
 msgid "Search/replace name:"
-msgstr "検索/置換 名："
+msgstr "検索/置換名:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1011
 msgid ""
@@ -8997,7 +8997,7 @@ msgstr "メタ情報を編集"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:537
 msgid "A&utomatically set author sort"
-msgstr "自動的に著者名ソートを設定(&U)"
+msgstr "自動的に著者名ソートを設定する(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:538
 msgid "&Swap title and author"
@@ -9005,7 +9005,7 @@ msgstr "タイトルと著者を入れ替える(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:539
 msgid "Author s&ort: "
-msgstr "著者(ソート) (&O) "
+msgstr "著者名ソート(&O): "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:540
 msgid ""
@@ -9110,7 +9110,7 @@ msgstr "日付を適用(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:573
 msgid "&Published:"
-msgstr "発行日(&P)"
+msgstr "発行日(&P):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:575
 msgid "Clear published date"
@@ -9155,7 +9155,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:587
 msgid "Remove &stored conversion settings for the selected books"
-msgstr "選択された書籍から保存された変換設定を取り除く(&S)"
+msgstr "選択した書籍に保存された変換設定を削除する(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:588
 msgid "Change &cover"
@@ -9191,7 +9191,7 @@ msgstr "カスタム書誌情報(&C):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:596
 msgid "Load searc&h/replace:"
-msgstr "検索/置換をロード(&H)"
+msgstr "検索/置換をロード(&H):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:597
 msgid "Select saved search/replace to load."
@@ -9274,7 +9274,7 @@ msgstr "置換文字列。マッチした検索テキストはこの文字列と
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:616
 msgid "&Apply function after replace:"
-msgstr "置換後に変換操作を行う(&A)："
+msgstr "置換後に変換操作を行う(&A):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:617
 msgid ""
@@ -9346,7 +9346,7 @@ msgstr "テスト結果"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:636
 msgid "Your test:"
-msgstr "あなたのテスト"
+msgstr "テスト:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:637
 msgid "&Search and replace"
@@ -10078,7 +10078,7 @@ msgstr "すぐにダウンロード(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:230
 msgid "&Delete downloaded news older than:"
-msgstr "ダウンロードした古いニュースを削除(&D):"
+msgstr "ダウンロード済みの古いニュースを削除(&D):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:231
 msgid ""
@@ -10120,7 +10120,7 @@ msgstr "検索するテキスト。これは正規表現として解釈されま
 msgid ""
 "<p>Negate this match. That is, only return results that <b>do not</b> match "
 "this query."
-msgstr "<p>検索結果を反転。検索結果に<b>マッチしない</b>物を結果とします。"
+msgstr "<p>検索結果を反転します。このクエリに<b>マッチしない</b>結果のみ返します。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:44
 msgid "Negate"
@@ -10138,21 +10138,21 @@ msgstr "高度な検索"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:197
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:169
 msgid "&What kind of match to use:"
-msgstr "検索の方法(&W):"
+msgstr "検索方法(&W):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:170
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
-msgstr "含む：単語や言葉が書誌情報フィールド内のどこかにマッチ"
+msgstr "含む: 単語やフレーズが書誌情報フィールドのどこかにマッチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:209
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:199
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:171
 msgid "Equals: the word or phrase must match the entire metadata field"
-msgstr "すべて：単語や言葉が書誌情報のフィールド内、すべてにマッチ"
+msgstr "完全一致: 単語やフレーズが書誌情報フィールド全体にマッチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:210
@@ -10160,7 +10160,7 @@ msgstr "すべて：単語や言葉が書誌情報のフィールド内、すべ
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:172
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
-msgstr "正規表現：表現が書誌情報フィールド内のどこかにマッチ"
+msgstr "正規表現: 正規表現が書誌情報フィールドのどこかにマッチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:211
@@ -10265,7 +10265,7 @@ msgstr "クリア(&C)"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:185
 msgid "Search only in specific fields:"
-msgstr "特定のフィールドのみを検索："
+msgstr "特定のフィールドのみ検索:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."
@@ -10659,7 +10659,7 @@ msgstr "レシピを削除(&R)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:261
 msgid "&Share recipe"
-msgstr "レシピをメールして共有(&S)"
+msgstr "レシピをメールで共有(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
@@ -10702,7 +10702,7 @@ msgstr "レシピのタイトル(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:271
 msgid "&Oldest article:"
-msgstr "一番古い記事(&O)"
+msgstr "一番古い記事(&O):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:272
 msgid "The oldest article to download"
@@ -10731,7 +10731,7 @@ msgstr "配信元にフィードを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:282
 msgid "&Feed title:"
-msgstr "フィードタイトル(&F)"
+msgstr "フィードタイトル(&F):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:283
 msgid "Feed &URL:"
@@ -10894,7 +10894,7 @@ msgstr "正規表現 (?P&lt;タイトル&gt;)"
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:140
 msgid "No match"
-msgstr "該当するものはありません"
+msgstr "マッチするものはありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:140
 msgid "Authors:"
@@ -11340,7 +11340,7 @@ msgstr " - LRF ビューアー"
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #, python-format
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
-msgstr "検索文字列 <i>%s</i> は<b>見つかりません</b>でした。"
+msgstr "検索文字列 <i>%s</i> に<b>マッチするものはありません</b>。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:128
 msgid "LRF Viewer"
@@ -11824,11 +11824,11 @@ msgstr "ダウンロードが終了した時点で、calibreはダウンロー�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:62
 msgid "Download only &metadata"
-msgstr "書誌情報のみをダウンロード(&M)"
+msgstr "書誌情報のみダウンロード(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:66
 msgid "Download only &covers"
-msgstr "表紙のみをダウンロード(&C)"
+msgstr "表紙のみダウンロード(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:70
 msgid "&Configure download"
@@ -11836,7 +11836,7 @@ msgstr "ダウンロードを設定(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:74
 msgid "Download &both"
-msgstr "両方をダウンロード(&B)"
+msgstr "両方ダウンロード(&B)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:110
 #, python-format
@@ -12039,7 +12039,7 @@ msgstr "お待ちください"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:454
 msgid "Query: "
-msgstr "クエリ： "
+msgstr "クエリ: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:473
 msgid "Failed to download metadata. Click Show Details to see details"
@@ -12389,11 +12389,11 @@ msgstr "等しくない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
-msgstr "パーターンがマッチ"
+msgstr "パターンにマッチ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "does not match pattern"
-msgstr "パーターンがマッチしない"
+msgstr "パターンがマッチしない"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
@@ -13058,7 +13058,7 @@ msgstr "メールアドレス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:32
 msgid "Formats to email. The first matching format will be sent."
-msgstr "メール送信フォーマット。最初に合致したフォーマットが送信されます。"
+msgstr "メール送信フォーマット。最初にマッチしたフォーマットが送信されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:33
 msgid ""
@@ -14526,7 +14526,7 @@ msgstr "（すべての書籍)"
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:21
 msgid ""
 "Books display will be restricted to those matching a selected saved search"
-msgstr "表示される書籍は選択された、保存された検索、にマッチした書籍だけになります。"
+msgstr "選択した\"保存された検索\"にマッチする書籍のみ表示されます"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:53
 msgid " or the search "
@@ -14627,7 +14627,7 @@ msgstr "名前/説明(&E)..."
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
 msgid "Query:"
-msgstr "クエリー:"
+msgstr "クエリ:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
 msgid "Enable"
@@ -14880,7 +14880,7 @@ msgstr "検索を設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:336
 msgid "Couldn't find any books matching your query."
-msgstr "クエリーにマッチした書籍が見つかりませんでした。"
+msgstr "クエリにマッチした書籍が見つかりませんでした。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:350
 msgid "Choose format to download to your library."
@@ -15166,7 +15166,7 @@ msgstr "上のタグブラウザーの項目を右クリックすると、これ
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:407
 #, python-format
 msgid "Rename %s"
-msgstr "名前の変更 %s"
+msgstr "%s の名前を変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:349
 #, python-format
@@ -15206,7 +15206,7 @@ msgstr "%s を検索"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:399
 #, python-format
 msgid "Search for everything but %s"
-msgstr "%s 以外のすべてを検索"
+msgstr "%s 以外のものを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:411
 #, python-format
@@ -15230,12 +15230,12 @@ msgstr "カテゴリ表示"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:434
 #, python-format
 msgid "Search for books in category %s"
-msgstr "カテゴリ %s の中で書籍を検索"
+msgstr "カテゴリ %s で書籍を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:440
 #, python-format
 msgid "Search for books not in category %s"
-msgstr "カテゴリ %s に無い書籍を検索"
+msgstr "カテゴリ %s のない書籍を検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:449
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:454
@@ -15249,7 +15249,7 @@ msgstr "すべてのカテゴリを表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:479
 msgid "Change sub-categorization scheme"
-msgstr "サブカテゴリ化方法を変える"
+msgstr "サブカテゴリ化の方法を変更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:499
 msgid "First letter is usable only when sorting by name"
@@ -16381,7 +16381,7 @@ msgstr "空"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:571
 msgid "Invalid boolean query \"{0}\""
-msgstr "無効なブーリアン・クエリー \"{0}\""
+msgstr "無効なブーリアンクエリ \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:55
 #, python-format
@@ -17697,7 +17697,7 @@ msgstr "表示される表紙の最大サイズ。デフォルトは%default ."
 msgid ""
 "The maximum number of matches to return per OPDS query. This affects Stanza, "
 "WordPlayer, etc. integration."
-msgstr "各OPDSクエリーに返す最大結果数。これはStanzaやWordPlayer等との連携に影響します。"
+msgstr "各OPDSクエリに返す最大結果数。これはStanzaやWordPlayer等との連携に影響します。"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:43
 #, python-format
