@@ -19,6 +19,68 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.19
+  date: 2011-09-16
+
+  new features:
+    - title: "Driver for Sony Ericsson Xperia Arc"
+
+    - title: "MOBI Output: Add option in Preferences->Output Options->MOBI Output to enable the share via Facebook feature for calibre produced MOBI files. Note that enabling this disables the sync last read position across multiple devices feature. Don't ask me why, ask Amazon."
+
+    - title: "Content server: Update metadata when sending MOBI as well as EPUB files"
+
+    - title: "News download: Add an auto_cleanup_keep variable that allows recipe writers to tell the auto cleanup to never remove a specified element"
+
+    - title: "Conversion: Remove paragraph spacing: If you set the indent size negative, calibre will now leave the indents specified in the input document"
+  
+  bug fixes:
+    - title: "Fix regression in 0.8.18 that broke PDF Output"
+
+    - title: "MOBI Output: Revert change in 0.8.18 that marked news downloads with a single section as blogs, as the Kindle does not auto archive them"
+
+    - title: "PDF output on OSX now generates proper non image based documents"
+
+    - title: "RTF Input: Fix handling of internal links and underlined text"
+      tickets: [845328]
+
+    - title: "Fix language sometimes not getting set when downloading metadata in the edit metadata dialog"
+
+    - title: "Fix regression that broke killing of multiple jobs"
+      tickets: [850764]
+
+    - title: "Fix bug processing author names with initials when downloading metadata from ozon.ru."
+      tickets: [845420]
+
+    - title: "Fix a memory leak in the Copy to library operation which also fixes the metadata.db being held open in the destination library"
+      tickets: [849469]
+
+    - title: "Keyboard shortcuts: Allow use of symbol keys like >,*,etc."
+      tickets: [847378]
+
+    - title: "EPUB Output: When splitting be a little cleverer about discarding 'empty' pages"
+
+
+  improved recipes:
+    - Twitch Films
+    - Japan Times
+    - People/US Magazine mashup
+    - Business World India
+    - Inquirer.net
+    - Guardian/Observer
+
+  new recipes:
+    - title: RT
+      author: Darko Miletic
+
+    - title: CIO Magazine
+      author: Julio Map
+
+    - title: India Today and Hindustan Times
+      author: Krittika Goyal
+
+    - title: Pagina 12 Print Edition
+      author: Pablo Marfil
+
 - version: 0.8.18
   date: 2011-09-09
 
@@ -39,6 +101,7 @@
     - title: "TXT Output: Preserve as much formatting as possible when generating Markdown output including various CSS styles"
   
   bug fixes:
+
     - title: "Fix pubdate incorrect when used in save to disk template in timezones ahead of GMT."
       tickets: [844445]
 
