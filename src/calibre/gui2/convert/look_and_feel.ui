@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>642</width>
-    <height>500</height>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -194,13 +194,6 @@
    <item row="8" column="2" colspan="3">
     <widget class="QComboBox" name="opt_change_justification"/>
    </item>
-   <item row="9" column="0">
-    <widget class="QCheckBox" name="opt_linearize_tables">
-     <property name="text">
-      <string>&amp;Linearize tables</string>
-     </property>
-    </widget>
-   </item>
    <item row="9" column="1" colspan="4">
     <widget class="QCheckBox" name="opt_asciiize">
      <property name="text">
@@ -215,7 +208,7 @@
      </property>
     </widget>
    </item>
-   <item row="12" column="0" colspan="5">
+   <item row="13" column="0" colspan="5">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Extra &amp;CSS</string>
@@ -232,18 +225,20 @@
      <property name="toolTip">
       <string>&lt;p&gt;When calibre removes inter paragraph spacing, it automatically sets a paragraph indent, to ensure that paragraphs can be easily distinguished. This option controls the width of that indent.</string>
      </property>
+     <property name="specialValueText">
+      <string>No change</string>
+     </property>
      <property name="suffix">
       <string> em</string>
      </property>
      <property name="decimals">
       <number>1</number>
      </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
-    <widget class="QCheckBox" name="opt_smarten_punctuation">
-     <property name="text">
-      <string>Smarten &amp;punctuation</string>
+     <property name="minimum">
+      <double>-0.100000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
      </property>
     </widget>
    </item>
@@ -270,6 +265,27 @@
      </property>
      <property name="buddy">
       <cstring>opt_insert_blank_line_size</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QCheckBox" name="opt_smarten_punctuation">
+     <property name="text">
+      <string>Smarten &amp;punctuation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QCheckBox" name="opt_unsmarten_punctuation">
+     <property name="text">
+      <string>&amp;UnSmarten punctuation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="3">
+    <widget class="QCheckBox" name="opt_linearize_tables">
+     <property name="text">
+      <string>&amp;Linearize tables</string>
      </property>
     </widget>
    </item>

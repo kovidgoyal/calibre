@@ -125,6 +125,7 @@ _extra_lang_codes = {
         'en_HR' : _('English (Croatia)'),
         'en_ID' : _('English (Indonesia)'),
         'en_IL' : _('English (Israel)'),
+        'en_RU' : _('English (Russia)'),
         'en_SG' : _('English (Singapore)'),
         'en_YE' : _('English (Yemen)'),
         'en_IE' : _('English (Ireland)'),
@@ -191,6 +192,80 @@ def get_language(lang):
         else:
             ans = iso639['by_3t'].get(lang, ans)
     return translate(ans)
+
+def calibre_langcode_to_name(lc, localize=True):
+    iso639 = _load_iso639()
+    translate = _ if localize else lambda x: x
+    try:
+        return translate(iso639['by_3t'][lc])
+    except:
+        pass
+    return lc
+
+def canonicalize_lang(raw):
+    if not raw:
+        return None
+    if not isinstance(raw, unicode):
+        raw = raw.decode('utf-8', 'ignore')
+    raw = raw.lower().strip()
+    if not raw:
+        return None
+    raw = raw.replace('_', '-').partition('-')[0].strip()
+    if not raw:
+        return None
+    iso639 = _load_iso639()
+    m2to3 = iso639['2to3']
+
+    if len(raw) == 2:
+        ans = m2to3.get(raw, None)
+        if ans is not None:
+            return ans
+    elif len(raw) == 3:
+        if raw in iso639['by_3t']:
+            return raw
+        if raw in iso639['3bto3t']:
+            return iso639['3bto3t'][raw]
+
+    return iso639['name_map'].get(raw, None)
+
+_lang_map = None
+
+def lang_map():
+    ' Return mapping of ISO 639 3 letter codes to localized language names '
+    iso639 = _load_iso639()
+    translate = _
+    global _lang_map
+    if _lang_map is None:
+        _lang_map = {k:translate(v) for k, v in iso639['by_3t'].iteritems()}
+    return _lang_map
+
+def langnames_to_langcodes(names):
+    '''
+    Given a list of localized language names return a mapping of the names to 3
+    letter ISO 639 language codes. If a name is not recognized, it is mapped to
+    None.
+    '''
+    iso639 = _load_iso639()
+    translate = _
+    ans = {}
+    names = set(names)
+    for k, v in iso639['by_3t'].iteritems():
+        tv = translate(v)
+        if tv in names:
+            names.remove(tv)
+            ans[tv] = k
+        if not names:
+            break
+    for x in names:
+        ans[x] = None
+
+    return ans
+
+def lang_as_iso639_1(name_or_code):
+    code = canonicalize_lang(name_or_code)
+    if code is not None:
+        iso639 = _load_iso639()
+        return iso639['3to2'].get(code, None)
 
 _udc = None
 

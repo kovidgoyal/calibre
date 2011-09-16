@@ -116,9 +116,22 @@ def sony_metadata(oeb):
     except:
         base_id = str(uuid4())
 
+    toc = oeb.toc
+
+    if False and toc.depth() < 3:
+        # Single section periodical
+        # Disabled since I prefer the current behavior
+        from calibre.ebooks.oeb.base import TOC
+        section = TOC(klass='section', title=_('All articles'),
+                    href=oeb.spine[2].href)
+        for x in toc: section.nodes.append(x)
+        toc = TOC(klass='periodical', href=oeb.spine[2].href,
+                    title=unicode(oeb.metadata.title[0]))
+        toc.nodes.append(section)
+
     entries = []
     seen_titles = set([])
-    for i, section in enumerate(oeb.toc):
+    for i, section in enumerate(toc):
         if not section.href:
             continue
         secid = 'section%d'%i

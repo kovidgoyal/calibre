@@ -15,12 +15,12 @@ class Time(BasicNewsRecipe):
     #        ' publish complete articles on the web.')
     title                 = u'Time'
     __author__            = 'Kovid Goyal'
-    description           = 'Weekly magazine'
+    description           = ('Weekly US magazine.')
     encoding = 'utf-8'
     no_stylesheets        = True
     language = 'en'
     remove_javascript     = True
-
+    #needs_subscription = 'optional'
 
     keep_only_tags = [
             {
@@ -40,6 +40,21 @@ class Time(BasicNewsRecipe):
 
     preprocess_regexps = [(re.compile(
         r'<meta .+/>'), lambda m:'')]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if False and self.username and self.password:
+            # This site uses javascript in its login process
+            res = br.open('http://www.time.com/time/magazine')
+            br.select_form(nr=1)
+            br['username'] = self.username
+            br['password'] = self.password
+            res = br.submit()
+            raw = res.read()
+            if '>Log Out<' not in raw:
+                raise ValueError('Failed to login to time.com, check'
+                        ' your username and password')
+        return br
 
     def parse_index(self):
         raw = self.index_to_soup('http://www.time.com/time/magazine', raw=True)

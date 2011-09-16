@@ -8,11 +8,6 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
 import sys
@@ -100,7 +95,7 @@ class OldRtf:
             1 if file is older RTf
             0 if file is newer RTF
         """
-        
+
         read_obj = open(self.__file, 'r')
         line = 1
         line_num = 0

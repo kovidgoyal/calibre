@@ -4,95 +4,73 @@ __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 www.businessworld.in
 '''
 
-from calibre import strftime
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class BusinessWorldMagazine(BasicNewsRecipe):
     title                = 'Business World Magazine'
-    __author__           = 'Darko Miletic'
+    __author__           = 'Kovid Goyal'
     description          = 'News from India'
     publisher            = 'ABP Pvt Ltd Publication'
     category             = 'news, politics, finances, India, Asia'
     delay                = 1
     no_stylesheets       = True
-    INDEX                = 'http://www.businessworld.in/bw/Magazine_Current_Issue'
+    INDEX                = 'http://www.businessworld.in/businessworld/magazine_latest_issue.php'
     ROOT                 = 'http://www.businessworld.in'
-    use_embedded_content = False
     encoding             = 'utf-8'
     language             = 'en_IN'
-    extra_css            = """
-                              img{display: block; margin-bottom: 0.5em}
-                              body{font-family: Arial,Helvetica,sans-serif}
-                              h2{color: gray; display: block}
-                           """
+    auto_cleanup = True
 
-    conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        }
-
-    def is_in_list(self,linklist,url):
-        for litem in linklist:
-            if litem == url:
-               return True
-        return False
-    
-    
     def parse_index(self):
+        br = self.browser
+        br.open(self.ROOT)
+        raw = br.open(br.click_link(text_regex=re.compile('Current.*Issue',
+            re.I))).read()
+        soup = self.index_to_soup(raw)
+        mc = soup.find(attrs={'class':'mag_cover'})
+        if mc is not None:
+            img = mc.find('img', src=True)
+            if img is not None:
+                self.cover_url = img['src']
+
+        feeds = []
+        current_section = None
         articles = []
-        linklist = []
-        soup = self.index_to_soup(self.INDEX)
-        
-        tough = soup.find('div', attrs={'id':'tough'})
-        if tough:
-           for item in tough.findAll('h1'):
-                description = ''
-                title_prefix = ''
-                feed_link = item.find('a')
-                if feed_link and feed_link.has_key('href'):
-                    url   = self.ROOT + feed_link['href']
-                    if not self.is_in_list(linklist,url):
-                        title = title_prefix + self.tag_to_string(feed_link)
-                        date  = strftime(self.timefmt)
-                        articles.append({
-                                          'title'      :title
-                                         ,'date'       :date
-                                         ,'url'        :url
-                                         ,'description':description
-                                        })
-                        linklist.append(url)
-        
-        for item in soup.findAll('div', attrs={'class':'nametitle'}):
-            description = ''
-            title_prefix = ''
-            feed_link = item.find('a')
-            if feed_link and feed_link.has_key('href'):
-                url   = self.ROOT + feed_link['href']
-                if not self.is_in_list(linklist,url):
-                    title = title_prefix + self.tag_to_string(feed_link)
-                    date  = strftime(self.timefmt)
-                    articles.append({
-                                      'title'      :title
-                                     ,'date'       :date
-                                     ,'url'        :url
-                                     ,'description':description
-                                    })
-                    linklist.append(url)
-        return [(soup.head.title.string, articles)]
+        for tag in soup.findAll(['h3', 'h2']):
+            inner_a = tag.find('a')
+            if tag.name == 'h3' and inner_a is not None:
+                continue
+            if tag.name == 'h2' and (inner_a is None or current_section is
+                    None):
+                continue
 
-    
-    keep_only_tags = [dict(name='div', attrs={'id':'printwrapper'})]
-    remove_tags = [dict(name=['object','link','meta','base','iframe','link','table'])]
+            if tag.name == 'h3':
+                if current_section is not None and articles:
+                    feeds.append((current_section, articles))
+                current_section = self.tag_to_string(tag)
+                self.log('Found section:', current_section)
+                articles = []
+            elif tag.name == 'h2':
+                url = inner_a.get('href', None)
+                if url is None: continue
+                if url.startswith('/'): url = self.ROOT + url
+                title = self.tag_to_string(inner_a)
+                h1 = tag.findPreviousSibling('h1')
+                if h1 is not None:
+                    title = self.tag_to_string(h1) + title
+                self.log('\tFound article:', title)
+                articles.append({'title':title, 'url':url, 'date':'',
+                    'description':''})
 
-    def print_version(self, url):
-        return url.replace('/bw/','/bw/storyContent/')
+        if current_section and articles:
+            feeds.append((current_section, articles))
 
-    def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup(self.INDEX)
-        cover_item = soup.find('img',attrs={'class':'toughbor'})
-        if cover_item:
-           cover_url = self.ROOT + cover_item['src']
-        return cover_url
+        return feeds
+
+
+
+
+
+
+
+

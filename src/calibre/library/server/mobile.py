@@ -277,12 +277,15 @@ class MobileServer(object):
         cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
 
-
         url_base = "/mobile?search=" + search+";order="+order+";sort="+sort+";num="+str(num)
 
-        return html.tostring(build_index(books, num, search, sort, order,
+        raw = html.tostring(build_index(books, num, search, sort, order,
                              start, len(ids), url_base, CKEYS,
                              self.opts.url_prefix),
-                             encoding='utf-8', include_meta_content_type=True,
+                             encoding='utf-8',
                              pretty_print=True)
+        # tostring's include_meta_content_type is broken
+        raw = raw.replace('<head>', '<head>\n'
+                '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">')
+        return raw
 

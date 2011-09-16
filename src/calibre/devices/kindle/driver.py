@@ -64,7 +64,7 @@ class KINDLE(USBMS):
 
     EBOOK_DIR_MAIN = 'documents'
     EBOOK_DIR_CARD_A = 'documents'
-    DELETE_EXTS = ['.mbp','.tan','.pdr']
+    DELETE_EXTS = ['.mbp', '.tan', '.pdr', '.ea', '.apnx', '.phl']
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_ANNOTATIONS = True
 
@@ -170,8 +170,8 @@ class KINDLE2(KINDLE):
     name           = 'Kindle 2/3 Device Interface'
     description    = _('Communicate with the Kindle 2/3 eBook reader.')
 
-    FORMATS        = KINDLE.FORMATS + ['pdf']
-    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.apnx']
+    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4']
+    DELETE_EXTS    = KINDLE.DELETE_EXTS
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]

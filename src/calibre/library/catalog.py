@@ -477,17 +477,17 @@ class BIBTEX(CatalogPlugin): # {{{
             if opts.bibfile_enc in bibfile_enc :
                 bibfile_enc = opts.bibfile_enc
             else :
-                log(" WARNING: incorrect --choose-encoding flag, revert to default")
+                log.warn("Incorrect --choose-encoding flag, revert to default")
                 bibfile_enc = bibfile_enc[0]
             if opts.bibfile_enctag in bibfile_enctag :
                 bibfile_enctag = opts.bibfile_enctag
             else :
-                log(" WARNING: incorrect --choose-encoding-configuration flag, revert to default")
+                log.warn("Incorrect --choose-encoding-configuration flag, revert to default")
                 bibfile_enctag = bibfile_enctag[0]
             if opts.bib_entry in bib_entry :
                 bib_entry = opts.bib_entry
             else :
-                log(" WARNING: incorrect --entry-type flag, revert to default")
+                log.warn("Incorrect --entry-type flag, revert to default")
                 bib_entry = bib_entry[0]
 
         if opts.verbose:
@@ -544,7 +544,7 @@ class BIBTEX(CatalogPlugin): # {{{
             elif opts.impcit == 'True' :
                 citation_bibtex= True
             else :
-                log(" WARNING: incorrect --create-citation, revert to default")
+                log.warn("Incorrect --create-citation, revert to default")
                 citation_bibtex= True
         else :
             citation_bibtex= opts.impcit
@@ -556,7 +556,7 @@ class BIBTEX(CatalogPlugin): # {{{
             elif opts.addfiles == 'True' :
                 addfiles_bibtex = True
             else :
-                log(" WARNING: incorrect --add-files-path, revert to default")
+                log.warn("Incorrect --add-files-path, revert to default")
                 addfiles_bibtex= True
         else :
             addfiles_bibtex = opts.addfiles
@@ -574,7 +574,7 @@ class BIBTEX(CatalogPlugin): # {{{
             if bib_entry == 'book' :
                 nb_books = len(filter(check_entry_book_valid, data))
                 if nb_books < nb_entries :
-                    log(" WARNING: only %d entries in %d are book compatible" % (nb_books, nb_entries))
+                    log.warn("Only %d entries in %d are book compatible" % (nb_books, nb_entries))
                     nb_entries = nb_books
 
             # If connected device, add 'On Device' values to data
@@ -5113,6 +5113,8 @@ Author '{0}':
 
         if catalog_source_built:
             recommendations = []
+            recommendations.append(('remove_fake_margins', False,
+                OptionRecommendation.HIGH))
             if DEBUG:
                 recommendations.append(('comments', '\n'.join(line for line in build_log),
                     OptionRecommendation.HIGH))

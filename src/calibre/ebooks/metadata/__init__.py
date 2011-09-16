@@ -10,11 +10,17 @@ import os, sys, re
 from urllib import unquote, quote
 from urlparse import urlparse
 
-from calibre import relpath, guess_type, remove_bracketed_text
+from calibre import relpath, guess_type, remove_bracketed_text, prints
 
 from calibre.utils.config import tweaks
 
-_author_pat = re.compile(',?\s+(and|with)\s+', re.IGNORECASE)
+try:
+    _author_pat = re.compile(tweaks['authors_split_regex'])
+except:
+    prints ('Author split regexp:', tweaks['authors_split_regex'],
+            'is invalid, using default')
+    _author_pat = re.compile(r'(?i),?\s+(and|with)\s+')
+
 def string_to_authors(raw):
     raw = raw.replace('&&', u'\uffff')
     raw = _author_pat.sub('&', raw)
@@ -36,25 +42,50 @@ def author_to_author_sort(author, method=None):
         return author
     if method is None:
         method = tweaks['author_sort_copy_method']
+
+    ltoks = frozenset(x.lower() for x in tokens)
+    copy_words = frozenset(x.lower() for x in tweaks['author_name_copywords'])
+    if ltoks.intersection(copy_words):
+        method = u'copy'
+
     if method == u'copy':
         return author
+
+    prefixes = set([x.lower() for x in tweaks['author_name_prefixes']])
+    prefixes |= set([x+u'.' for x in prefixes])
+    while True:
+        if not tokens:
+            return author
+        tok = tokens[0].lower()
+        if tok in prefixes:
+            tokens = tokens[1:]
+        else:
+            break
+
     suffixes = set([x.lower() for x in tweaks['author_name_suffixes']])
     suffixes |= set([x+u'.' for x in suffixes])
 
-    last = tokens[-1].lower()
-    suffix = None
-    if last in suffixes:
-        suffix = tokens[-1]
-        tokens = tokens[:-1]
+    suffix = u''
+    while True:
+        if not tokens:
+            return author
+        last = tokens[-1].lower()
+        if last in suffixes:
+            suffix = tokens[-1] + ' ' + suffix
+            tokens = tokens[:-1]
+        else:
+            break
+    suffix = suffix.strip()
 
     if method == u'comma' and u',' in u''.join(tokens):
         return author
 
     atokens = tokens[-1:] + tokens[:-1]
+    num_toks = len(atokens)
     if suffix:
         atokens.append(suffix)
 
-    if method != u'nocomma' and len(atokens) > 1:
+    if method != u'nocomma' and num_toks > 1:
         atokens[0] += u','
 
     return u' '.join(atokens)

@@ -241,10 +241,10 @@ def wait_for_free_port(host, port):
     for trial in xrange(50):
         try:
             # we are expecting a free port, so reduce the timeout
-            check_port(host, port, timeout=0.2)
+            check_port(host, port, timeout=0.2) # Changed by Kovid
         except IOError:
             # Give the old server thread time to free the port.
-            time.sleep(0.2)
+            time.sleep(0.2) # Changed by Kovid
         else:
             return
 

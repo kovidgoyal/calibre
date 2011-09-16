@@ -16,6 +16,7 @@ __UseLife__ = True
 
 '''
 Change Log:
+2011/09/07: disable "column" section as it is no longer offered free.
 2011/06/26: add fetching Vancouver and Toronto versions of the paper, also provide captions for images using life.mingpao fetch source
             provide options to remove all images in the file
 2011/05/12: switch the main parse source to life.mingpao.com, which has more photos on the article pages
@@ -230,8 +231,9 @@ class MPRecipe(BasicNewsRecipe):
                                            (u'\u570b\u969b World', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalta', 'nal'),
                                            (u'\u7d93\u6fdf Finance', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea', 'nal'),
                                            (u'\u9ad4\u80b2 Sport', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalsp', 'nal'),
-                                           (u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal'),
-                                           (u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')]:
+                                           (u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal')
+                                           #(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
+                                          ]:
                     articles = self.parse_section2(url, keystr)
                     if articles:
                         feeds.append((title, articles))
@@ -591,4 +593,3 @@ class MPRecipe(BasicNewsRecipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
-

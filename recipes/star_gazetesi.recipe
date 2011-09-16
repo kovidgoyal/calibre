@@ -1,0 +1,67 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Star (BasicNewsRecipe):
+
+    title               = u'Star Gazetesi'
+    __author__            = u'thomass'
+    description            =  'yeni Türkiye''nin Gazetesi'
+    oldest_article         =2
+    max_articles_per_feed  =100
+    no_stylesheets         = True
+    #delay                  = 1
+    #use_embedded_content   = False
+    encoding               = 'utf-8'
+    publisher              = 'thomass'
+    category               = 'güncel, haber, türkçe'
+    language               = 'tr'
+    publication_type = 'newspaper'
+
+    conversion_options = {
+                            'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                         }
+    extra_css              = '  .font8{font-weight: bold; font-size:20px}.font11{font-weight: normal; font-size:small}#hdetay{ font-family:sans-serif;font-size: 9px }' #.story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    
+   #extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+    keep_only_tags    = [dict(name='div', attrs={'class':['font8']}),dict(name='span', attrs={'class':['font11']}),dict(name='div', attrs={'id':['hdetay']})]#,,dict(name='h6', attrs={'class':['KirmiziText']}) dict(name='div', attrs={'id':['Haber']}),dict(name='div', attrs={'id':['gallery']})]
+    #remove_tags  = [dict(name='img', attrs={'src':[ 'http://medya.aksiyon.com.tr/aksiyon/images/logo/logo.bmp','/aksiyon/images/template/green/baslik0.gif','mobile/home.jpg']}) ],dict(name='h1', attrs={'class':['H1-Haber-DetayBasligi']}),dict(name='h4', attrs={'class':['BrownText']}) ,
+
+    cover_img_url = 'http://www.stargazete.com/starnew/img/starlogo.png'
+    masthead_url = 'http://www.stargazete.com/starnew/img/starlogo.png'
+    remove_empty_feeds= True
+    #remove_attributes = ['width','height']
+
+    feeds          = [
+                     
+                      
+                      ( u'MANSET', u'http://open.dapper.net/services/starmanset'),
+                      ( u'GÜNCEL', u'http://www.stargazete.com/guncel.xml'),
+                      ( u'POLİTİKA', u'http://www.stargazete.com/politika.xml'),
+                      ( u' EKONOMİ', u'http://www.stargazete.com/ekonomi.xml'),
+                      ( u'DÜNYA', u'http://www.stargazete.com/dunya.xml'),
+                      ( u'YAZARLAR', u'http://www.stargazete.com/gazeteyazarlar.xml'),
+                      ( u'SPOR', u'http://www.stargazete.com/spor.xml'),
+                      ( u'SPOR YAZARLARI', u'http://www.stargazete.com/index.php?metot=rss&islem=sporyazarlar'),
+                      ( u'SİNEMA', u'http://www.stargazete.com/sinema.xml'),
+                      ( u'KADIN&SAĞLIK', u'http://www.stargazete.com/kadinsaglik.xml'),
+                      ( u' STARTEK', u'http://www.stargazete.com/startek.xml'),
+                      ( u' AÇIK GÖRÜŞ', u'http://www.stargazete.com/acikgorus.xml'),
+                      ( u'Star PAZAR', u'http://www.stargazete.com/pazar.xml'),
+                      ( u'Star CUMARTESİ', u'http://www.stargazete.com/cumartesi.xml'),
+                  
+
+
+                        ]
+    def preprocess_html(self, soup):#remove links
+         for alink in soup.findAll('a'):
+            if alink.string is not None:
+               tstr = alink.string
+               alink.replaceWith(tstr)
+         return soup
+    #def print_version(self, url):
+     #return url.replace('/', 'http://www.stargazete.com/')
+

@@ -35,7 +35,7 @@ def load_icu():
         if _icu is None:
             print plugins['icu'][1]
         else:
-            if not _icu.ok:
+            if not getattr(_icu, 'ok', False):
                 print 'icu not ok'
                 _icu = None
     return _icu

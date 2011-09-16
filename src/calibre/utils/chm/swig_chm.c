@@ -570,11 +570,6 @@ static swig_type_info *swig_types[6];
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  General Public License for more details.
 
- You should have received a copy of the GNU General Public
- License along with this program; see the file COPYING.  If not,
- write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- Boston, MA 02111-1307, USA
-
  $Id: swig_chm.c,v 1.1.1.1 2003/12/02 12:38:14 rubensr Exp $
 */
 #include "chm_lib.h"

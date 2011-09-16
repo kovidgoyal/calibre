@@ -653,6 +653,15 @@ class KOBO(USBMS):
             debug_print('    Commit: Set FavouritesIndex')
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
+        # Only process categories in this list
+        supportedcategories = {
+            "Im_Reading":1,
+            "Read":2,
+            "Closed":3,
+            "Shortlist":4,
+            # "Preview":99, # Unsupported as we don't want to change it 
+        }
+
         # Define lists for the ReadStatus
         readstatuslist = {
             "Im_Reading":1,
@@ -692,6 +701,7 @@ class KOBO(USBMS):
 
                 # Process any collections that exist
                 for category, books in collections.items():
+                    if category in supportedcategories:
                         debug_print("Category: ", category, " id = ", readstatuslist.get(category))
                         for book in books:
                             debug_print('    Title:', book.title, 'category: ', category)

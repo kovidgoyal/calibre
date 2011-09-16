@@ -17,7 +17,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre.utils.date import parse_date
+from calibre.utils.date import parse_date, as_local_time
 from calibre import strftime, prints, sanitize_file_name_unicode
 
 plugboard_any_device_value = 'any device'
@@ -111,12 +111,12 @@ def config(defaults=None):
                 'to supports unicode.'))
     x('timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', year='%Y', default='%b, %Y'))
+                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
+                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
     x('send_timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', year='%Y', default='%b, %Y'))
+                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
+                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
     x('to_lowercase', default=False,
             help=_('Convert paths to lowercase.'))
     x('replace_whitespace', default=False,
@@ -281,6 +281,11 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         format_map, root, opts, length):
     from calibre.ebooks.metadata.meta import set_metadata
     available_formats = [x.lower().strip() for x in format_map.keys()]
+    if mi.pubdate:
+        mi.pubdate = as_local_time(mi.pubdate)
+    if mi.timestamp:
+        mi.timestamp = as_local_time(mi.timestamp)
+
     if opts.formats == 'all':
         asked_formats = available_formats
     else:

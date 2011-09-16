@@ -63,10 +63,10 @@ class Check(Command):
             for f in x[-1]:
                 y = self.j(x[0], f)
                 mtime = os.stat(y).st_mtime
-                if f.endswith('.py') and f not in ('ptempfile.py', 'feedparser.py',
-                    'pyparsing.py', 'markdown.py') and \
-                    'genshi' not in y and cache.get(y, 0) != mtime and \
-                    'prs500/driver.py' not in y:
+                if (f.endswith('.py') and f not in ('ptempfile.py', 'feedparser.py',
+                    'pyparsing.py', 'markdown.py') and
+                    'genshi' not in y and cache.get(y, 0) != mtime and
+                    'prs500/driver.py' not in y):
                         yield y, mtime
 
         for x in os.walk(self.j(self.d(self.SRC), 'recipes')):

@@ -61,6 +61,13 @@ class MobiWriter(object):
 
     def __call__(self, oeb, path_or_stream):
         self.log = oeb.log
+        pt = None
+        if oeb.metadata.publication_type:
+            x = unicode(oeb.metadata.publication_type[0]).split(':')
+            if len(x) > 1:
+                pt = x[1].lower()
+        self.publication_type = pt
+
         if hasattr(path_or_stream, 'write'):
             return self.dump_stream(oeb, path_or_stream)
         with open(path_or_stream, 'w+b') as stream:
@@ -97,6 +104,9 @@ class MobiWriter(object):
     # Indexing {{{
     def generate_index(self):
         self.primary_index_record_idx = None
+        if self.oeb.toc.count() < 1:
+            self.log.warn('No TOC, MOBI index not generated')
+            return
         try:
             self.indexer = Indexer(self.serializer, self.last_text_record_idx,
                     len(self.records[self.last_text_record_idx]),
@@ -147,15 +157,19 @@ class MobiWriter(object):
         oeb.logger.info('Serializing images...')
         self.image_records = []
         self.image_map = {}
+        self.masthead_offset = 0
+        index = 1
 
-        mh_href = self.masthead_offset = None
+        mh_href = None
         if 'masthead' in oeb.guide:
             mh_href = oeb.guide['masthead'].href
+            self.image_records.append(None)
+            index += 1
         elif self.is_periodical:
             # Generate a default masthead
-            data = generate_masthead(unicode(self.oeb.metadata('title')[0]))
+            data = generate_masthead(unicode(self.oeb.metadata['title'][0]))
             self.image_records.append(data)
-            self.masthead_offset = 0
+            index += 1
 
         cover_href = self.cover_offset = self.thumbnail_offset = None
         if (oeb.metadata.cover and
@@ -172,13 +186,16 @@ class MobiWriter(object):
                 oeb.logger.warn('Bad image file %r' % item.href)
                 continue
             else:
-                self.image_map[item.href] = len(self.image_records)
-                self.image_records.append(data)
+                if mh_href and item.href == mh_href:
+                    self.image_records[0] = data
+                    continue
 
-                if item.href == mh_href:
-                    self.masthead_offset = len(self.image_records) - 1
-                elif item.href == cover_href:
-                    self.cover_offset = len(self.image_records) - 1
+                self.image_records.append(data)
+                self.image_map[item.href] = index
+                index += 1
+
+                if cover_href and item.href == cover_href:
+                    self.cover_offset = self.image_map[item.href] - 1
                     try:
                         data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
                             maxsizeb=MAX_THUMB_SIZE)
@@ -186,9 +203,13 @@ class MobiWriter(object):
                         oeb.logger.warn('Failed to generate thumbnail')
                     else:
                         self.image_records.append(data)
-                        self.thumbnail_offset = len(self.image_records) - 1
+                        self.thumbnail_offset = index - 1
+                        index += 1
             finally:
                 item.unload_data_from_memory()
+
+        if self.image_records and self.image_records[0] is None:
+            raise ValueError('Failed to find masthead image in manifest')
 
     # }}}
 
@@ -197,6 +218,7 @@ class MobiWriter(object):
     def generate_text(self):
         self.oeb.logger.info('Serializing markup content...')
         self.serializer = Serializer(self.oeb, self.image_map,
+                self.is_periodical,
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
         self.text_length = len(text)
@@ -331,12 +353,14 @@ class MobiWriter(object):
 
         bt = 0x002
         if self.primary_index_record_idx is not None:
-            if self.indexer.is_flat_periodical:
+            if False and self.indexer.is_flat_periodical:
+                # Disabled as setting this to 0x102 causes the Kindle to not
+                # auto archive the issues
                 bt = 0x102
             elif self.indexer.is_periodical:
                 # If you change this, remember to change the cdetype in the EXTH
                 # header as well
-                bt = 0x103
+                bt = {'newspaper':0x101}.get(self.publication_type, 0x103)
 
         record0.write(pack(b'>IIIII',
             0xe8, bt, 65001, uid, 6))
@@ -505,20 +529,22 @@ class MobiWriter(object):
 
         if isinstance(uuid, unicode):
             uuid = uuid.encode('utf-8')
-        exth.write(pack(b'>II', 113, len(uuid) + 8))
-        exth.write(uuid)
-        nrecs += 1
+        if not self.opts.share_not_sync:
+            exth.write(pack(b'>II', 113, len(uuid) + 8))
+            exth.write(uuid)
+            nrecs += 1
 
         # Write cdetype
-        if self.is_periodical:
-            # If you set the book type header field to 0x101 use NWPR here if
-            # you use 0x103 use MAGZ
-            data = b'MAGZ'
+        if not self.is_periodical:
+            exth.write(pack(b'>II', 501, 12))
+            exth.write(b'EBOK')
+            nrecs += 1
         else:
-            data = b'EBOK'
-        exth.write(pack(b'>II', 501, len(data)+8))
-        exth.write(data)
-        nrecs += 1
+            # Should be b'NWPR' for doc type of 0x101 and b'MAGZ' for doctype
+            # of 0x103 but the old writer didn't write them, and I dont know
+            # what it should be for type 0x102 (b'BLOG'?) so write nothing
+            # instead
+            pass
 
         # Add a publication date entry
         if oeb.metadata['date']:
@@ -575,7 +601,7 @@ class MobiWriter(object):
         Write the PalmDB header
         '''
         title = ascii_filename(unicode(self.oeb.metadata.title[0])).replace(
-                ' ', '_')
+                ' ', '_')[:32]
         title = title + (b'\0' * (32 - len(title)))
         now = int(time.time())
         nrecords = len(self.records)
