@@ -14,7 +14,7 @@ from calibre import human_readable
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
-
+from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
 class FormatterFunctions(object):
 
@@ -968,7 +968,7 @@ class BuiltinListSort(BuiltinFormatterFunction):
 class BuiltinToday(BuiltinFormatterFunction):
     name = 'today'
     arg_count = 0
-    category = 'Date _functions'
+    category = 'Date functions'
     __doc__ = doc = _('today() -- '
             'return a date string for today. This value is designed for use in '
             'format_date or days_between, but can be manipulated like any '
@@ -979,7 +979,7 @@ class BuiltinToday(BuiltinFormatterFunction):
 class BuiltinDaysBetween(BuiltinFormatterFunction):
     name = 'days_between'
     arg_count = 2
-    category = 'Date _functions'
+    category = 'Date functions'
     __doc__ = doc = _('days_between(date1, date2) -- '
             'return the number of days between date1 and date2. The number is '
             'positive if date1 is greater than date2, otherwise negative. If '
@@ -998,6 +998,45 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         i = d1 - d2
         return str('%d.%d'%(i.days, i.seconds/8640))
 
+class BuiltinLanguageStrings(BuiltinFormatterFunction):
+    name = 'language_strings'
+    arg_count = 2
+    category = 'Get values from metadata'
+    __doc__ = doc = _('language_strings(lang_codes, localize) -- '
+            'return the strings for the language codes passed in lang_codes. '
+            'If localize is zero, return the strings in English. If '
+            'localize is not zero, return the strings in the language of '
+            'the current locale. Lang_codes is a comma-separated list.')
+    def evaluate(self, formatter, kwargs, mi, locals, lang_codes, localize):
+        retval = []
+        for c in [c.strip() for c in lang_codes.split(',') if c.strip()]:
+            try:
+                n = calibre_langcode_to_name(c, localize != '0')
+                if n:
+                    retval.append(n)
+            except:
+                pass
+        return ', '.join(retval)
+
+class BuiltinLanguageCodes(BuiltinFormatterFunction):
+    name = 'language_codes'
+    arg_count = 1
+    category = 'Get values from metadata'
+    __doc__ = doc = _('language_codes(lang_strings) -- '
+            'return the language codes for the strings passed in lang_strings. '
+            'The strings must be in the language of the current locale. '
+            'Lang_strings is a comma-separated list.')
+    def evaluate(self, formatter, kwargs, mi, locals, lang_strings):
+        retval = []
+        for c in [c.strip() for c in lang_strings.split(',') if c.strip()]:
+            try:
+                cv = canonicalize_lang(c)
+                if cv:
+                    retval.append(canonicalize_lang(cv))
+            except:
+                pass
+        return ', '.join(retval)
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
@@ -1005,7 +1044,8 @@ _formatter_builtins = [
     BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
-    BuiltinIfempty(), BuiltinInList(), BuiltinListDifference(),
+    BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
+    BuiltinInList(), BuiltinListDifference(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListSort(),
     BuiltinListUnion(), BuiltinLookup(),
     BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
