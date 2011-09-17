@@ -117,9 +117,9 @@ We just need some information from you:
   * What ebook formats does your device support?
   * Is there a special directory on the device in which all ebook files should be placed?
   * We also need information about your device that |app| will collect automatically. First, if your
-    device supports SD cards, insert them. Then connect your device. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
+    device supports SD cards, insert them. Then connect your device to the computer. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file
-    and repeat the process, this time with your device disconnected.
+    and repeat the process, this time with your device disconnected from your computer.
   * Send both the above outputs to us with the other information and we will write a device driver for your
     device.
 
