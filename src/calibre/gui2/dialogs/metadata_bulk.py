@@ -535,6 +535,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 val = [v.replace('|', ',') for v in val]
         else:
             val = []
+        if not val:
+            val = ['']
         return val
 
     def s_r_display_bounds_changed(self, i):
