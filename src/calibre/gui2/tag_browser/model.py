@@ -1034,10 +1034,19 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def index_for_path(self, path):
         parent = QModelIndex()
-        for i in path:
-            parent = self.index(i, 0, parent)
-            if not parent.isValid():
-                return QModelIndex()
+        for idx,v in enumerate(path):
+            tparent = self.index(v, 0, parent)
+            if not tparent.isValid():
+                if v > 0 and idx == len(path) - 1:
+                    # Probably the last item went away. Use the one before it
+                    tparent = self.index(v-1, 0, parent)
+                    if not tparent.isValid():
+                        # Not valid. Use the last valid index
+                        break
+                else:
+                    # There isn't one before it. Use the last valid index
+                    break
+            parent = tparent
         return parent
 
     def index(self, row, column, parent):

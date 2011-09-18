@@ -55,6 +55,11 @@ class MOBIOutput(OutputFormatPlugin):
                 ' specified directory. If the directory already '
                 'exists, it will be deleted.')
         ),
+        OptionRecommendation(name='share_not_sync', recommended_value=False,
+            help=_('Enable sharing of book content via Facebook etc. '
+                ' on the Kindle. WARNING: Using this feature means that '
+                ' the book will not auto sync its last read position '
+                ' on multiple devices. Complain to Amazon.'))
     ])
 
     def check_for_periodical(self):

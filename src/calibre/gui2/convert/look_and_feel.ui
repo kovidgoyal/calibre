@@ -84,7 +84,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset>
+        <iconset resource="../../../../resources/images.qrc">
          <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
        </property>
        <property name="iconSize">
@@ -225,11 +225,20 @@
      <property name="toolTip">
       <string>&lt;p&gt;When calibre removes inter paragraph spacing, it automatically sets a paragraph indent, to ensure that paragraphs can be easily distinguished. This option controls the width of that indent.</string>
      </property>
+     <property name="specialValueText">
+      <string>No change</string>
+     </property>
      <property name="suffix">
       <string> em</string>
      </property>
      <property name="decimals">
       <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>-0.100000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
      </property>
     </widget>
    </item>

@@ -266,7 +266,7 @@ class JobManager(QAbstractTableModel): # {{{
 
     def kill_multiple_jobs(self, rows, view):
         jobs = [self.jobs[row] for row in rows]
-        devjobs = [j for j in jobs is isinstance(j, DeviceJob)]
+        devjobs = [j for j in jobs if isinstance(j, DeviceJob)]
         if devjobs:
             error_dialog(view, _('Cannot kill job'),
                          _('Cannot kill jobs that communicate with the device')).exec_()
