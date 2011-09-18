@@ -175,6 +175,14 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
 
 class Browser(QObject):
 
+    '''
+    Browser (WebKit with no GUI).
+
+    This browser is NOT thread safe. Use it in a single thread only! If you
+    need to run downloads in parallel threads, use multiple browsers (after
+    copying the cookies).
+    '''
+
     def __init__(self,
             # Logging. If None, uses a default log, which does not output
             # debugging info
@@ -215,7 +223,4 @@ class Browser(QObject):
                 parent=self)
         self.nam = NetworkAccessManager(log, use_disk_cache=use_disk_cache, parent=self)
         self.page.setNetworkAccessManager(self.nam)
-
-    def visit(self, url):
-        pass
 

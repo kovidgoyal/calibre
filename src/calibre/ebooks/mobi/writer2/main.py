@@ -535,7 +535,7 @@ class MobiWriter(object):
             nrecs += 1
 
         # Write cdetype
-        if not self.is_periodical:
+        if not self.is_periodical and not self.opts.share_not_sync:
             exth.write(pack(b'>II', 501, 12))
             exth.write(b'EBOK')
             nrecs += 1
