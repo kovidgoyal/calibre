@@ -10,15 +10,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-16 18:18+0000\n"
-"PO-Revision-Date: 2011-09-10 10:26+0000\n"
+"POT-Creation-Date: 2011-09-17 14:30+0000\n"
+"PO-Revision-Date: 2011-09-17 07:35+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-17 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-09-18 04:52+0000\n"
 "X-Generator: Launchpad (build 13955)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -171,7 +171,7 @@ msgstr "No hace absolutamente nada"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:775
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:777
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:200
@@ -1616,6 +1616,8 @@ msgstr "Comunicarse con todos los lectores Sony."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
 msgstr ""
+"Los comentarios se han eliminado porque el lector SONY tiene problemas con "
+"ellos"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
@@ -2545,6 +2547,11 @@ msgid ""
 "negative, then the indent specified in the input document is used, that is, "
 "calibre does not change the indentation."
 msgstr ""
+"Cuando calibre elimina las líneas en blanco entre párrafos, automáticamente "
+"establece una sangría para que se distingan bien los párrafos. Esta opción "
+"controla la anchura de esta sangría (en unidades em). Si asigna un valor "
+"negativo se usará la sangría especificada en el documento de entrada, es "
+"decir, calibre no cambia la sangría."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:378
 msgid ""
@@ -2578,6 +2585,10 @@ msgid ""
 "set a cover in calibre, the output document will end up with two cover "
 "images if you do not specify this option."
 msgstr ""
+"Eliminar la primera imagen del libro electrónico de entrada. Es útil si el "
+"documento de entrada tiene una imagn de portada no identificada como tal. En "
+"tal caso, si asigna una portada en calibre, el documento de salida acabaría "
+"con dos imágenes de portada si no activa esta opción."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:407
 msgid ""
@@ -3921,6 +3932,10 @@ msgid ""
 "Using this feature means that  the book will not auto sync its last read "
 "position  on multiple devices. Complain to Amazon."
 msgstr ""
+"Activar la compartición del contenido del libro a través de Facebook, etc. "
+"en el Kindle. ADVERTENCIA: El uso de esta opción hace que no se sincronice "
+"automáticamente la última posición en múltiples dispositivos. Quéjese a "
+"Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:274
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4408,13 +4423,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:379
 msgid "File could be older RTF...\n"
-msgstr ""
+msgstr "El fichero podría ser un RTF antiguo...\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:383
 msgid ""
 "File also has newer RTF.\n"
 "Will do the best to convert.\n"
 msgstr ""
+"El fichero también tiene RTF más reciente.\n"
+"Se hará lo posible para convertirlo.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -4688,6 +4705,7 @@ msgstr "Pasar las noticias descargadas al dispositivo"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
 msgid "Delete news books from library after uploading to device"
 msgstr ""
+"Borrar libros nuevos de la biblioteca después de copiarlos al dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
 msgid ""
@@ -5288,7 +5306,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:383
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:745
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:968
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:970
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:337
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:377
@@ -7776,6 +7794,8 @@ msgid ""
 "Enable sharing of book content via Facebook, etc. WARNING: Disables last "
 "read syncing"
 msgstr ""
+"Activar la compartición del contenido del libro a través de Facebook, etc. "
+"ADVERTENCIA: Desactiva la sincronización automática"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Put generated Table of Contents at &start of book instead of end"
@@ -8969,9 +8989,21 @@ msgstr "&Volver a realizar la comprobación"
 msgid "Copy &to clipboard"
 msgstr "Copiar al por&tapapeles"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:232
+msgid "&Done"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:235
+msgid "Delete &marked"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:236
 msgid "Delete marked files (checked subitems)"
 msgstr "Borrar ficheros marcados (subelementos marcados)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:239
+msgid "&Fix marked"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:242
 msgid "Fix marked sections (checked fixable items)"
@@ -9635,24 +9667,24 @@ msgstr ""
 msgid "S/R TEMPLATE ERROR"
 msgstr "ERROR DE PLANTILLA"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:658
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:660
 msgid "You must specify a destination when source is a composite field"
 msgstr "Debe especificar un destino cuando la fuente es un campo compuesto"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:664
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:666
 msgid "You must specify a destination identifier type"
 msgstr "Debe especificar un tipo de identificador de destino"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:899
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:901
 msgid "Search/replace invalid"
 msgstr "Buscar/sustituir no válido"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:900
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:902
 #, python-format
 msgid "Search pattern is invalid: %s"
 msgstr "El patrón de búsqueda no es válido: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:954
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:956
 #, python-format
 msgid ""
 "Applying changes to %d books.\n"
@@ -9661,26 +9693,26 @@ msgstr ""
 "Aplicando cambios a %d libros.\n"
 "Fase {0} {1}%%."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:984
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:986
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 msgid "Delete saved search/replace"
 msgstr "Borrar la búsqueda/sustitución guardada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:985
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:987
 msgid "The selected saved search/replace will be deleted. Are you sure?"
 msgstr ""
 "La búsqueda/sustitución guardada seleccionada se borrará. ¿Está seguro?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1002
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1010
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1004
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1012
 msgid "Save search/replace"
 msgstr "Guardar búsqueda/sustitución"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1003
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1005
 msgid "Search/replace name:"
 msgstr "Nombre de búsqueda/sustitución:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1011
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1013
 msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
@@ -20053,6 +20085,21 @@ msgstr ""
 "contrario es negativo. Si «fecha1» o «fecha2» no son fechas, la función "
 "devuelve un texto vacío."
 
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1005
+msgid ""
+"language_strings(lang_codes, localize) -- return the strings for the "
+"language codes passed in lang_codes. If localize is zero, return the strings "
+"in English. If localize is not zero, return the strings in the language of "
+"the current locale. Lang_codes is a comma-separated list."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1025
+msgid ""
+"language_codes(lang_strings) -- return the language codes for the strings "
+"passed in lang_strings. The strings must be in the language of the current "
+"locale. Lang_strings is a comma-separated list."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
 msgstr "Esperando..."
@@ -20155,7 +20202,7 @@ msgstr "Inglés (Israel)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Russia)"
-msgstr ""
+msgstr "Inglés (Rusia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "English (Singapore)"
@@ -20808,6 +20855,28 @@ msgid ""
 "Acme\n"
 "Inc. will be Acme Inc. instead of Inc., Acme"
 msgstr ""
+"El algoritmo usado para copiar el autor en el orden de autor\n"
+"Los valores posibles son:\n"
+"invert: Transforma «nom ape» en «ape, nom»\n"
+"copy: Copia author en author_sort sin modificaciones\n"
+"comma: Usa «copy» si hay una coma en el nombre, si no, usa «invert»\n"
+"nocomma: «nom ape» -> «ape nom» (sin coma)\n"
+"Al cambiar este ajuste, el orden de autor almacenado para cada autor debe\n"
+"recalcularse pulsando con el botón derecho en un autor del panel de "
+"etiquetas\n"
+"de la izquierda, seleccionando «Administrar autores» y pulsando «Recalcular\n"
+"todos los valores de orden de autor». Los sufijos de nombre de autor son\n"
+"palabras que no se tienen en cuenta cuando aparecen al final de un nombre "
+"de\n"
+"autor. Los sufijos no distinguen mayúsculas y minúsculas, y los puntos al "
+"final se\n"
+"manejan de manera automática. Lo mismo ocurre con los prefijos.\n"
+"Las «palabras copia» de nombre de autor son un conjunto de palabras que, si\n"
+"aparecen en un nombre de autor, hacen que el orden de autor generado de "
+"manera\n"
+"automática sea idéntico al nombre de autor. Esto significa que el orden "
+"para\n"
+"algo como «Acme Inc.» será «Acme Inc.» y no «Inc., Acme»."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"

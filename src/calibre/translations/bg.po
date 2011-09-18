@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-16 18:18+0000\n"
-"PO-Revision-Date: 2011-08-05 17:37+0000\n"
-"Last-Translator: Alex Stanev <alex@stanev.org>\n"
+"POT-Creation-Date: 2011-09-17 14:30+0000\n"
+"PO-Revision-Date: 2011-09-17 19:31+0000\n"
+"Last-Translator: Nelly Hoang <Unknown>\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-17 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-09-18 04:41+0000\n"
 "X-Generator: Launchpad (build 13955)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -152,7 +152,7 @@ msgstr "Не прави абсолютно нищо"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:775
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:777
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:200
@@ -348,7 +348,7 @@ msgstr "Изтрийте книги от calibre библиотеката или
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:752
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Редактира мета данните на книгите във вашата calibre библиотека"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:757
 msgid "Read books in your calibre library"
@@ -360,15 +360,15 @@ msgstr "Заредете новини от Интернет като елект�
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Покажи списък на сродните книги бързо"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:772
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Експортира книги от вашата calibre библиотека на твърдия диск"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:777
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Покажи детайли за книгата в отделен изскачащ прозорец"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:782
 msgid "Restart calibre"
@@ -377,6 +377,7 @@ msgstr "Презареждане на calibre"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:787
 msgid "Open the folder that contains the book files in your calibre library"
 msgstr ""
+"Отвори папката, съдържаща файловете на книгите във calibre библиотеката"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:793
 msgid "Send books to the connected device"
@@ -395,11 +396,11 @@ msgstr "Преглед на ръководството за потребител
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid "Customize calibre"
-msgstr ""
+msgstr "Персонализирай calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Намерете лесно книги, подобни на по настоящем избраната"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:819
 msgid ""
@@ -413,32 +414,35 @@ msgstr "Копирай книги от устройството към calibre �
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Edit the collections in which books are placed on your device"
 msgstr ""
+"Редактирайте колекциите, в които са включени книгите от вашето устройство"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:835
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Копирайте книга от една calibre библиотека в друга"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:840
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "Прави малки корекции по epub файловете във вашата calibre библиотека"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:845
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Намерете следващото или предишното съвпадение при търсене във вашата calibre "
+"библиотека в режим на подчертаване"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Избира произволна книга от вашата calibre библиотека"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:858
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Търсете книги от различни търговци"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Свалете нови плъгини за calibre или обновете съществуващите"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:893
 msgid "Look and Feel"
@@ -649,7 +653,7 @@ msgstr "Фина настройка на действието на Калибъ�
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1100
 msgid "Keyboard"
-msgstr ""
+msgstr "Клавиатура"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
 msgid "Customize the keyboard shortcuts used by calibre"
@@ -675,6 +679,9 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
+"Определете кодирането на входящия документ. Ако е указана, тази опция отменя "
+"кодирането, декларирано в самия документ. Особено полезна за документи, "
+"които не указват кодиране или имат неправилни декларации за кодиране."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:234
 msgid "Conversion Output"
@@ -692,7 +699,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Конвертирай електронните книги в %s формат"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -874,7 +881,7 @@ msgstr "Включени добавки"
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:493
 #, python-format
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr ""
+msgstr "Инициализацията на плъгин %s не беше изпълнена, с проследяване:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:540
 msgid ""
@@ -887,6 +894,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:546
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
+"Добавете плъгин чрез определяне на пътя до zip файла, който го съдържа."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:548
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
@@ -899,6 +907,8 @@ msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
+"Персонализирай плъгин. Определи име за плъгина и персонализираща поредица, "
+"разделена със запетайки."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:552
 msgid "List all installed plugins"
@@ -963,6 +973,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
+"Списък с деректориите за изпращане на електронни книги на устройството, "
+"разделен със запетайки. Ще бъде използван първият съществуващ."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:178
 msgid "Communicate with S60 phones."
@@ -970,7 +982,7 @@ msgstr "Комуникирай със S60 устройства"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:197
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Сподели с WebOS таблети"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -994,11 +1006,12 @@ msgstr "Включване на Apple драйвъра"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Използвай Серии като категория в iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Разрешете използването на името на сериите като iTunes жанр, iBooks категория"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
@@ -1014,6 +1027,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"\"Копирай файлове/те в iTunes Media папка %s\" се разрешава от меню iTunes "
+"PreferencesІAdvanced"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid ""
@@ -1041,11 +1056,14 @@ msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
 msgstr ""
+"Не може да копира книги директно от i-устройство. Издърпайте от iTunes "
+"библиотеката до десктопа, а след това добавете в прозорец Библиотека на "
+"calibre."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:370
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:373
 msgid "Updating device metadata listing..."
-msgstr ""
+msgstr "Обновяване на списъка с метаданни на устройството"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:450
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:489
@@ -1337,7 +1355,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:57
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "Файловете от това устройство не могат да бъдат придобити."
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1357,20 +1375,20 @@ msgstr "Връзка с JetBook eBook електронен четец."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr ""
+msgstr "Свържи се с MiBuk Wolder четеца."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr ""
+msgstr "Свържи се с JetBook Mini четеца."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 #, python-format
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Невалиден MOBI  файл. Докладва идентичността на %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "Не може да се генерира мапинг на страницата."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1378,11 +1396,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:171
 msgid "Communicate with the Kindle 2/3 eBook reader."
-msgstr ""
+msgstr "Свържи се с Kindle 2/3 eBook четеца."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:180
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Изпрати информация за номер на страницата при изпращане на книги"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:182
 msgid ""
@@ -1502,7 +1520,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr ""
+msgstr "Свържи се с Nokia E52"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -1530,15 +1548,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
-msgstr ""
+msgstr "Коментарите са премахнати, тъй като SONY четеца се затруднява с тях"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
-msgstr ""
+msgstr "Всички по заглавие"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid "All by author"
-msgstr ""
+msgstr "Всички по автор"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:69
 msgid ""
@@ -1553,6 +1571,9 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+". Налични са две специални колекции %(abt)s:%(abtv)s и %(aba)s:%(abav)s. "
+"Добавете тези стойности към списъка, за да ги разрешите. На колекциите ще "
+"бъде дадено името, намиращо се след \":\" знака."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:76
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -1566,11 +1587,19 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Обикновено SONY четците вземат изображението на корицата от самият файл на "
+"електронната книга. С настоящата опция, calibre ще изпрати отделно "
+"изображение на корицата към четеца, което е полезно, ако изпращате DRM "
+"(Digital Rights Management) книги, в които не можете да промените корицата. "
+"ВНИМАНИЕ: тази опция трябва да бъде използвана само с по-нови версии на SONY "
+"четците: 350, 650, 950 и по-нови."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:83
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Опреснете отделните корици при използването на автоматично управление (по-"
+"нови четци)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:85
 msgid ""
@@ -4571,7 +4600,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:383
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:745
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:968
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:970
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:337
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:377
@@ -7966,8 +7995,20 @@ msgstr ""
 msgid "Copy &to clipboard"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:232
+msgid "&Done"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:235
+msgid "Delete &marked"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:236
 msgid "Delete marked files (checked subitems)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:239
+msgid "&Fix marked"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:242
@@ -8576,49 +8617,49 @@ msgstr ""
 msgid "S/R TEMPLATE ERROR"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:658
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:660
 msgid "You must specify a destination when source is a composite field"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:664
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:666
 msgid "You must specify a destination identifier type"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:899
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:901
 msgid "Search/replace invalid"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:900
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:902
 #, python-format
 msgid "Search pattern is invalid: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:954
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:956
 #, python-format
 msgid ""
 "Applying changes to %d books.\n"
 "Phase {0} {1}%%."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:984
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:986
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 msgid "Delete saved search/replace"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:985
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:987
 msgid "The selected saved search/replace will be deleted. Are you sure?"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1002
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1010
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1004
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1012
 msgid "Save search/replace"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1003
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1005
 msgid "Search/replace name:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1011
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1013
 msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
@@ -17563,6 +17604,21 @@ msgid ""
 "date2. The number is positive if date1 is greater than date2, otherwise "
 "negative. If either date1 or date2 are not dates, the function returns the "
 "empty string."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1005
+msgid ""
+"language_strings(lang_codes, localize) -- return the strings for the "
+"language codes passed in lang_codes. If localize is zero, return the strings "
+"in English. If localize is not zero, return the strings in the language of "
+"the current locale. Lang_codes is a comma-separated list."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1025
+msgid ""
+"language_codes(lang_strings) -- return the language codes for the strings "
+"passed in lang_strings. The strings must be in the language of the current "
+"locale. Lang_strings is a comma-separated list."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43

@@ -10,15 +10,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-16 18:18+0000\n"
-"PO-Revision-Date: 2011-09-13 21:37+0000\n"
+"POT-Creation-Date: 2011-09-17 14:30+0000\n"
+"PO-Revision-Date: 2011-09-17 18:10+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-17 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-09-18 04:41+0000\n"
 "X-Generator: Launchpad (build 13955)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -155,7 +155,7 @@ msgstr "No fa res"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:128
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:47
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:775
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:777
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:200
@@ -1603,7 +1603,7 @@ msgstr "Comunica't amb tots els lectors Sony."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
-msgstr ""
+msgstr "S'ha suprimit els comentaris perquè el lector SONY hi té problemes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
@@ -2526,6 +2526,11 @@ msgid ""
 "negative, then the indent specified in the input document is used, that is, "
 "calibre does not change the indentation."
 msgstr ""
+"Quan el calibre suprimeix línies en blanc entre paràgrafs estableix "
+"automàticament un sagnat per assegurar-se que es pot distingir bé els "
+"paràgrafs. Aquesta opció controla l'amplada del sagnat (en unitats em). Si "
+"s'estableix un valor negatiu, s'utilitza el sagnat especificat al document "
+"d'entrada, és a dir, el calibre no canvia el sagnat."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:378
 msgid ""
@@ -2559,6 +2564,10 @@ msgid ""
 "set a cover in calibre, the output document will end up with two cover "
 "images if you do not specify this option."
 msgstr ""
+"Suprimeix la primera imatge del llibre d'entrada. És útil si el document "
+"d'entrada té una portada que no s'identifica correctament. Si és així i "
+"s'estableix una portada amb el calibre, el document de sortida acabarà amb "
+"dues imatges de portada si no s'especifica aquesta opció."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:407
 msgid ""
@@ -3900,6 +3909,10 @@ msgid ""
 "Using this feature means that  the book will not auto sync its last read "
 "position  on multiple devices. Complain to Amazon."
 msgstr ""
+"Habilita la compartició del contingut del llibre via Facebook, etc, al "
+"Kindle. AVÍS: L'ús d'aquesta opció comporta que el llibre no sincronitzarà "
+"automàticament la seva darrera posició de lectura a múltiples dispositius. "
+"Queixeu-vos a Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:274
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4382,13 +4395,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:379
 msgid "File could be older RTF...\n"
-msgstr ""
+msgstr "Pot ser que el fitxer sigui un RTF antic...\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:383
 msgid ""
 "File also has newer RTF.\n"
 "Will do the best to convert.\n"
 msgstr ""
+"El fitxer també té un RTF més nou.\n"
+"Es farà el possible per convertir-lo.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -4658,6 +4673,8 @@ msgstr "Carrega al dispositiu les notícies que s'ha baixat"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
 msgid "Delete news books from library after uploading to device"
 msgstr ""
+"Suprimeix els llibres nous de la biblioteca després de carregar-los al "
+"dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
 msgid ""
@@ -5252,7 +5269,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:383
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:745
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:968
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:970
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:337
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:377
@@ -5767,6 +5784,15 @@ msgid ""
 "and subsequently selected books will be permanently <b>deleted</b> from your "
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
+"Els formats dels llibres seleccionats es fusionaran al <b>primer llibre "
+"seleccionat</b> (%s). Les metadades del primer llibre seleccionat no es "
+"canviaran. <i>No</i> es fusionaran l'autor, títol, ISBN i la resta de "
+"metadades.<br><br>Després de la fusió les metadades que tinguin el segon i "
+"els llibres seleccionats següents se <b>suprimiran</b>.<br><br>Tots els "
+"formats del primer llibre seleccionat es conservaran i qualsevol format "
+"duplicat del segon i dels llibres seleccionats següents se <b>suprimiran</b> "
+"permanentment de la biblioteca del calibre.<br><br><b>Segur</b> que voleu "
+"continuar?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:302
 #, python-format
@@ -7731,6 +7757,8 @@ msgid ""
 "Enable sharing of book content via Facebook, etc. WARNING: Disables last "
 "read syncing"
 msgstr ""
+"Activa la compartició del contingut del llibre via Facebook, etc. AVÍS: "
+"Desactiva la sincronització del darrer punt de lectura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Put generated Table of Contents at &start of book instead of end"
@@ -8959,9 +8987,21 @@ msgstr "To&rna a executar la comprobació"
 msgid "Copy &to clipboard"
 msgstr "Copia al por&ta-retalls"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:232
+msgid "&Done"
+msgstr "&Fet"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:235
+msgid "Delete &marked"
+msgstr "Suprimeix &marcats"
+
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:236
 msgid "Delete marked files (checked subitems)"
 msgstr "Suprimeix els fitxers marcats (subelements marcats)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:239
+msgid "&Fix marked"
+msgstr "&Repara els marcarts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:242
 msgid "Fix marked sections (checked fixable items)"
@@ -9626,24 +9666,24 @@ msgstr ""
 msgid "S/R TEMPLATE ERROR"
 msgstr "ERROR DE CERCA/REEMPLAÇA A LA PLANTILLA"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:658
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:660
 msgid "You must specify a destination when source is a composite field"
 msgstr "Heu d'especificar una destinació quant la font és un camp compost"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:664
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:666
 msgid "You must specify a destination identifier type"
 msgstr "Heu d'especificar un tipus d'identificador de destí"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:899
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:901
 msgid "Search/replace invalid"
 msgstr "Cerca/reemplaça no vàlid"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:900
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:902
 #, python-format
 msgid "Search pattern is invalid: %s"
 msgstr "El patró de cerca no és vàlid: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:954
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:956
 #, python-format
 msgid ""
 "Applying changes to %d books.\n"
@@ -9652,25 +9692,25 @@ msgstr ""
 "S'està aplicant els canvis a %d llibres.\n"
 "Fase {0} {1}%%."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:984
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:986
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:600
 msgid "Delete saved search/replace"
 msgstr "Suprimeix el cerca/reemplaça desat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:985
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:987
 msgid "The selected saved search/replace will be deleted. Are you sure?"
 msgstr "Es suprimirà el cerca/reemplaça desat. N'esteu segur?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1002
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1010
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1004
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1012
 msgid "Save search/replace"
 msgstr "Desa el cerca/reemplaça"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1003
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1005
 msgid "Search/replace name:"
 msgstr "Nom del cerca/reemplaça:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1011
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:1013
 msgid ""
 "That saved search/replace already exists and will be overwritten. Are you "
 "sure?"
@@ -9746,7 +9786,7 @@ msgstr "Suprimeix-ho &tot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
 msgid "If checked, the series will be cleared"
-msgstr "Si està activat l'eliminaran les sèries"
+msgstr "Si s'activa se suprimiran les sèries"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:559
 msgid "&Clear series"
@@ -13138,9 +13178,9 @@ msgid ""
 "If checked, Yes/No custom columns values can be Yes, No, or Unknown.\n"
 "If not checked, the values can be Yes or No."
 msgstr ""
-"Si es marca, les columnes personalizades «Sí/No» poden ser«Sí», «No» o "
+"Si s'activa, les columnes personalitzades «Sí/No» poden ser«Sí», «No» o "
 "«Desconegut».\n"
-"Si no es marca els valors poder ser «Sí» o «No»."
+"Si no s'activa els valors poder ser «Sí» o «No»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:150
 msgid "Yes/No columns have three values (Requires restart)"
@@ -13627,6 +13667,15 @@ msgid ""
 "book&lt;/a&gt;</pre> will generate a link to the book on the Beam ebooks "
 "site."
 msgstr ""
+"Si s'activa aquesta columna es mostrarà com a HTML als detalls del llibre i "
+"al servidor de continguts. Es pot utilitzar per construir enllaços amb el "
+"llenguatge de plantilles. Per exemple, la plantilla "
+"<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;{series:| "
+"[|}{series_index:| [|]]}</pre>crea un camp que mostra el títol en caràcters "
+"grans en negreta juntament amb la sèrie, com a <br>«<big><b>La germandat de "
+"l'anell</b></big> [El senyor dels anells [1]]». La plantilla <pre>&lt;a "
+"href=\"http://www.beam-ebooks.de/ebook/{identifiers:select(beam)}\"&gt;Beam "
+"book&lt;/a&gt;</pre> crea un enllaç al llibre a la pàgina de Beam ebooks."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:177
 msgid "My Tags"
@@ -13873,7 +13922,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:252
 msgid "If checked, this column will appear in the tags browser as a category"
 msgstr ""
-"Si es marca, aquesta columna sortirà al navegador d'etiquetes com a categoria"
+"Si s'activa, aquesta columna sortirà al navegador d'etiquetes com a categoria"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:253
 msgid "Show in tags browser"
@@ -14016,7 +14065,7 @@ msgid ""
 "If checked, downloaded news will be automatically mailed <br>to this email "
 "address (provided it is in one of the listed formats)."
 msgstr ""
-"Si es selecciona, les notícies que es baixin s'enviaran automàticament <br>a "
+"Si s'activa, les notícies que es baixin s'enviaran automàticament <br>a "
 "aquesta adreça de correu electrònic (si està en un dels formats de la "
 "llista)."
 
@@ -14155,6 +14204,11 @@ msgid ""
 "Manage Authors. You can use the values {author} and \n"
 "{author_sort}, and any template function."
 msgstr ""
+"<p>Introduïu la plantilla que s'utilitzarà per crear l'enllaç\n"
+"per a l'autor al quadre d'informació dels llibres. Aquesta \n"
+"plantilla s'utilitzarà quan no es doni cap enllaç per a \n"
+"l'autor a «Gestiona els autors». Podeu utilitzar els valors \n"
+"{author} i {author_sort} i qualsevol funció de plantilla."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Use &Roman numerals for series"
@@ -17590,6 +17644,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Els camps que s'obtindran quan es cataloguin llibres a la base de dades. Ha "
+"de ser una llista de camps separada per comes.\n"
+"Camps disponibles: %(fields)s,\n"
+"a més dels camps personalitzats creats per l'usuari.\n"
+"Exemple: %(opt)s=title,authors,tags\n"
+"Per defecte: «%%default»\n"
+"S'aplica als formats de sortida CSV, XML"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:68
 #, python-format
@@ -17615,6 +17676,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Els camps que s'obtindran quan es cataloguin llibres a la base de dades. Ha "
+"de ser una llista de camps separada per comes.\n"
+"Camps disponibles: %(fields)s,\n"
+"a més dels camps personalitzats creats per l'usuari.\n"
+"Exemple: %(opt)s=title,authors,tags\n"
+"Per defecte: «%%default»\n"
+"S'aplica al format de sortida BIBTEX"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:264
 #, python-format
@@ -18871,6 +18939,10 @@ msgid ""
 "subdirectory with filenames containing title and author. Available controls "
 "are: {%(controls)s}"
 msgstr ""
+"Plantilla per controlar el nom del fitxer i l'estructura de les carpetes "
+"dels fitxers desats. Per defecte és «%(templ)s», que desa els libres en una "
+"subcarpeta per autor amb noms de fitxer que contenen el títol i l'autor. Es "
+"disposa dels controls: {%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:100
 #, python-format
@@ -18880,6 +18952,10 @@ msgid ""
 "author directory with filenames containing title and author. Available "
 "controls are: {%(controls)s}"
 msgstr ""
+"Plantilla per controlar el nom del fitxer i l'estructura de les carpetes "
+"dels fitxers desats. Per defecte és «%(templ)s», que desa els libres en una "
+"subcarpeta per autor amb noms de fitxer que contenen el títol i l'autor. Es "
+"disposa dels controls: {%(controls)s}"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:107
 msgid ""
@@ -19580,6 +19656,12 @@ msgid ""
 "string1 is longer than max. You can pass as many `prefix, string` pairs as "
 "you wish."
 msgstr ""
+"strcat_max(max, cadena1, prefix2, cadena2, ...) -- s'obté una cadena formada "
+"per la concatenació dels arguments. El valor que s'obté s'inicia a "
+"«cadena1». Les parelles «prefix, cadena» s'afegeixen al final del valor si "
+"la longitud de la cadena resultant és menys de «max». S'obté «cadena1» "
+"encara que «cadena1» sigui més llarga que «max». Podeu posar tantes parelles "
+"«prefix , cadena» com vulgueu."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:383
 msgid "strcat_max requires 2 or more arguments"
@@ -19654,6 +19736,9 @@ msgid ""
 "B\". This is most useful for converting names in LN, FN format to FN LN. If "
 "there is no comma, the function returns val unchanged"
 msgstr ""
+"swap_around_comma(val) -- si es dóna un valor amb la forma «B, A», s'obté «A "
+"B». És útil per convertir noms en format COGNOM, NOM a NOM COGNOM. Si no hi "
+"ha cap coma, s'obté «val» sense canvis."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:496
 msgid ""
@@ -19720,6 +19805,9 @@ msgid ""
 "with the items being \"id:value\". Find the pair with the id equal to key, "
 "and return the corresponding value."
 msgstr ""
+"select(val, clau) -- interpreta el valor com a una llista d'elements "
+"separats per comes, amb els elements en la forma «id:valor». Troba la "
+"parella amb «id» igual a «clau» i s'obté el «valor» corresponent."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:586
 msgid ""
@@ -19730,6 +19818,12 @@ msgid ""
 "get the mod time for a specific format. Note that format names are always "
 "uppercase, as in EPUB."
 msgstr ""
+"formats_modtimes(format_data) -- s'obté una llista d'elements separats per "
+"dos punts que representen les dates de modificació dels formats d'un llibre. "
+"El paràmetre «format_data» especifica el format de la data. Vegeu la funció "
+"«date_format» per a més detalls. Podeu utilitzar la funció «select» per "
+"obtenir la data de modificació d'un format concret. Els noms del format "
+"estan sempre en majúscula, com a «EPUB»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:605
 msgid ""
@@ -19738,6 +19832,10 @@ msgid ""
 "function to get the size for a specific format. Note that format names are "
 "always uppercase, as in EPUB."
 msgstr ""
+"formats_sizes() -- s'obté una llista d'elements separats per dos punts que "
+"representen les mides en bytes dels formats d'un llibre. Podeu utilitzar la "
+"funció «select» per aconseguir la mida d'un format concret. Els noms del "
+"format estan sempre en majúscula, com a «EPUB»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:621
 msgid ""
@@ -19755,6 +19853,11 @@ msgid ""
 "examples). See the template language and python documentation for more "
 "examples. Returns the empty string if formatting fails."
 msgstr ""
+"format_number(v, plantilla) -- dóna format al nombre «v» amb una plantilla "
+"de format python com «{0:5.2f}» o «{0:,d}» o «{0:5,.2f}». La part del nom de "
+"la plantilla a de ser un «0» (el «{0:» dels exemples anteriors. Vegeu la "
+"documentació del llenguatge de les plantilles i del python per a més "
+"exemples. S'obté un text buit si el format falla."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:660
 msgid ""
@@ -19922,6 +20025,12 @@ msgid ""
 "list1 and list2 are separated by separator, as are the items in the returned "
 "list."
 msgstr ""
+"list_union(llista1, llista2, separador) -- s'obté una llista feta combinant "
+"els elements de «llista1» i «llista2» suprimint els duplicats de «llista2», "
+"sense distingir majúscules de minúscules (si els elements són diferents en "
+"aquest aspecte, s'utilitza el de «llista1»). Els elements de «llista1» i "
+"«llista2» estan separats pel «separador», de la mateixa manera que a la "
+"llista obtinguda."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:921
 msgid ""
@@ -19930,6 +20039,11 @@ msgid ""
 "items in list1 and list2 are separated by separator, as are the items in the "
 "returned list."
 msgstr ""
+"list_difference(llista1, llista2, separador) -- s'obté una llista feta "
+"suprimint de «llista1» qualsevol element que estigui a «llista2», sense "
+"distingir majúscules de minúscules. Els elements de «llista1» i «llista2» "
+"estan separats pel «separador», de la mateixa manera que a la llista "
+"obtinguda."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:940
 msgid ""
@@ -19938,6 +20052,11 @@ msgid ""
 "The items in list1 and list2 are separated by separator, as are the items in "
 "the returned list."
 msgstr ""
+"list_intersection(llista1, llista2, separador) -- s'obté una llista feta "
+"suprimint de «llista1» qualsevol element que no estigui a «llista2», sense "
+"distingir majúscules de minúscules. Els elements de «llista1» i «llista2» "
+"estan separats pel «separador», de la mateixa manera que a la llista "
+"obtinguda."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:959
 msgid ""
@@ -19946,6 +20065,11 @@ msgid ""
 "otherwise descending. The list items are separated by separator, as are the "
 "items in the returned list."
 msgstr ""
+"list_sort(llista, adreça, separador) -- s'obté «llista» ordenada sense "
+"distingir majúscules de minúscules. Si «adreça» és zero, la llista tindrà "
+"ordre ascendent, en cas contrari el tindrà descendent. Els elements de "
+"«llista» estan separats pel «separador», de la mateixa manera que a la "
+"llista obtinguda."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:972
 msgid ""
@@ -19953,6 +20077,9 @@ msgid ""
 "format_date or days_between, but can be manipulated like any other string. "
 "The date is in ISO format."
 msgstr ""
+"today() -- s'obté un text per a avui. Aquest valor està pensat per utilitzar-"
+"lo a «format_date» o «days_between», però es pot manipular com qualsevol "
+"altre text. La data està en format ISO."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:983
 msgid ""
@@ -19961,6 +20088,31 @@ msgid ""
 "negative. If either date1 or date2 are not dates, the function returns the "
 "empty string."
 msgstr ""
+"days_between(data1, data2) -- s'obté el nombre de dies entre «data1» i "
+"«data2». El nombre és positiu si «data1» és posterior a «data2», negativo en "
+"cas contrari. Si «data1» o «data2» no són dates, s'obté una cadena buida."
+
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1005
+msgid ""
+"language_strings(lang_codes, localize) -- return the strings for the "
+"language codes passed in lang_codes. If localize is zero, return the strings "
+"in English. If localize is not zero, return the strings in the language of "
+"the current locale. Lang_codes is a comma-separated list."
+msgstr ""
+"language_strings(lang_codes, localize) -- s'obtenen les cadenes per als "
+"codis de llengua introduïts a «lang_codes». Si «localize» és zero, s'obtenen "
+"les cadenes en anglès. Sí «localize» no és zero, s'obtenen les cadenes en la "
+"llengua local actual. «Lang_codes» és una llista separada per comes."
+
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1025
+msgid ""
+"language_codes(lang_strings) -- return the language codes for the strings "
+"passed in lang_strings. The strings must be in the language of the current "
+"locale. Lang_strings is a comma-separated list."
+msgstr ""
+"language_codes(lang_strings) -- s'obtenen els codis de llengua introduïts a "
+"«lang_strings». Les cadenes han d'estar en la llengua local actual. "
+"«Lang_strings» és una llista separada per comes."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -20064,7 +20216,7 @@ msgstr "Anglès (Israel)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Russia)"
-msgstr ""
+msgstr "Anglès (Rússia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "English (Singapore)"
@@ -20631,6 +20783,46 @@ msgid ""
 "from books and the import plugin produces a value, than that value will\n"
 "be used irrespective of the setting of the tweak."
 msgstr ""
+"L'algoritme que s'utilitza per assignar un nombre de sèrie a un llibre que "
+"s'afegeix\n"
+"a una sèrie existent. Els nous nombres de sèrie assignats amb aquest "
+"ajustament\n"
+"són sempre nombres enters a no ser que s'especifiqui una constant que no "
+"sigui\n"
+"un enter.\n"
+"Els valors possibles són:\n"
+"next - El primer enter disponible després del més gran en ús\n"
+"first_free - El primer enter disponible més gran que 0\n"
+"next_free - El primer enter disponible després del més petit en ús\n"
+"last_free - El primer enter disponible abans del més gran en ús\n"
+"S'obté el més gran + 1 si no hi ha cap nombre lliure\n"
+"const - Assigna sempre el nombre 1\n"
+"un nombre - Assigna sempre aquest nombre. El nombre no està entre cometes. "
+"Es\n"
+"pot utilitzar 0.0.\n"
+"Exemples:\n"
+"series_index_auto_increment = 'next'\n"
+"series_index_auto_increment = 'next_free'\n"
+"series_index_auto_increment = 16.5\n"
+"\n"
+"Utilitzeu l'ajustament «use_series_auto_increment_tweak_when_importing» a "
+"«True»\n"
+"per utilitzar els valors de més amunt en importar o afegir llibres. Si "
+"s'estableix a\n"
+"«False» (per defecte), el nombre dins la sèrie serà 1 si no s'estableix "
+"explícitament\n"
+"durant la importació. Si s'estableix a «True», l'índex de la sèrie "
+"s'establirà d'acord\n"
+"amb l'ajustament «use_series_auto_increment_tweak_when_importing».\n"
+"L'ajustament «use_series_auto_increment_tweak_when_importing» només "
+"s'utilitza\n"
+"quan no es dóna un valor en importar. Si l'expressió regular d'importació "
+"dóna un\n"
+"valor per a «series_index» o esteu llegint metadades de llibres i el "
+"connector\n"
+"d'importació dóna un valor, s'utilitzarà aquest valor, independentment "
+"d'aquest\n"
+"ajustament."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:43
 msgid "Add separator after completing an author name"
@@ -20675,6 +20867,25 @@ msgid ""
 "Acme\n"
 "Inc. will be Acme Inc. instead of Inc., Acme"
 msgstr ""
+"L'algoritme utilitzat per copiar l'autor a l'ordre per autor\n"
+"Els valors possibles són:\n"
+"invert: Transforma «nom cognom» en «cognom, nom»\n"
+"copy: Copia «author» a «author_sort» sense modificacions\n"
+"comma: Utilitza «copy» si hi ha una coma al nom, en cas contrari utiliza "
+"«invert»\n"
+"nocomma: «nom cognom» -> «cognom nom» (sense coma)\n"
+"Si es canvia aquest ajustament els valors d'ordre per autor desats\n"
+"per a cada autor s'han de tornar a calcular fent clic dret a un autor\n"
+"al panell d'etiquetes de l'esquerra, seleccionant «Gestiona els autors»\n"
+"i escollint «Torna a calcular tots els valors d'ordre per autor». Els\n"
+"sufixos del nom de l'autor són paraules que s'ignoren quan estan al\n"
+"final d'un nom d'autor. Als sufixos s'ignora si estan en majúscula o en\n"
+"minúscula i els punts al final es gestionen de forma automàtica. El\n"
+"mateix serveix per als prefixos. Les «paraules còpia» del nom d'autor\n"
+"són un conjunt de paraules que quan apareixen a un nom d'autor fan\n"
+"que la cadena d'ordre d'autor que es genera automàticament sigui\n"
+"idèntica al nom d'autor. Això comporta que l'ordre d'una cadena com\n"
+"«Acme Inc.» serà «Acme Inc.» en lloc d'«Inc., Acme»."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"
@@ -20689,6 +20900,12 @@ msgid ""
 "specified regular expression matches.\n"
 "Default: r'(?i),?\\s+(and|with)\\s+'"
 msgstr ""
+"Per defecte el calibre divideix una cadena que conté múltiples noms d'autor\n"
+"amb el caràcter «&» i les paraules «and» i «with». Podeu personalitzar la\n"
+"divisió canviant l'expressió regular de més avall. Les cadenes es "
+"divideixen\n"
+"sempre que hi hagi una coincidència amb l'expressió regular especificada.\n"
+"Per defecte: r'(?i),?\\s+(and|with)\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:84
 msgid "Use author sort in Tag Browser"
@@ -20993,6 +21210,23 @@ msgid ""
 "in French, use: \"^(A\\s+|The\\s+|An\\s+|L')\" instead.\n"
 "Default: '^(A|The|An)\\s+'"
 msgstr ""
+"Estableix la llista de paraules que es consideraran «articles» en calcular "
+"les\n"
+"cadenes d'ordre per títol. La llista és una expressió regular amb els "
+"articles\n"
+"separats per «or» o barres. Les comparacions no distingeixen majúscules i\n"
+"minúscules i això no es pot canviar. Els canvis en aquest ajustament no "
+"tenen\n"
+"efecte fins que el llibre es modifica d'alguna manera. Si s'introdueix un "
+"patró\n"
+"no vàlid, s'ignora sense cap avís.\n"
+"S'inhabilita amb l'expressió «^$»\n"
+"Aquesta expressió s'ha pensat per articles seguits d'un espai. Si voleu fer\n"
+"coincidir articles seguits d'altres caràcters, com «L'» en català, "
+"utilitzeu\n"
+"«^(Un\\s+|Una\\s+|Uns\\s+|Unes\\s+|El\\s+|La\\s+|Els\\s+|Les\\s+|L')» al seu "
+"lloc.\n"
+"Per defecte: «^(A|The|An)\\s+»"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:202
 msgid "Specify a folder calibre should connect to at startup"
@@ -21355,6 +21589,15 @@ msgid ""
 "You can also control whether the book list scrolls horizontal per column or\n"
 "per pixel. Default is per column."
 msgstr ""
+"Es pot controlar el comportament del doble clic a la llista de llibres.\n"
+"Opcions: open_viewer, do_nothing, edit_cell, edit_metadata. \n"
+"Si se selecciona «edit_metadata» també té com a efecte que\n"
+"s'inhabilita l'edició d'un camp utilitzant un sol clic.\n"
+"Per defectet: open_viewer.\n"
+"Exemple: doubleclick_on_library_view = 'do_nothing'\n"
+"També es pot controlar si la llista de llibres es desplaça\n"
+"horitzontalment per columna o per píxel. Per defecte és per\n"
+"columna."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:336
 msgid "Language to use when sorting."
