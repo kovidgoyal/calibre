@@ -110,9 +110,9 @@
       <string>Some explanation about this template:
  -The fields availables are 'author_sort', 'authors', 'id',
     'isbn', 'pubdate', 'publisher', 'series_index', 'series',
-   'tags', 'timestamp', 'title', 'uuid'
+   'tags', 'timestamp', 'title', 'uuid', 'title_sort'
  -For list types ie authors and tags, only the first element
-   wil be selected.
+   will be selected.
  -For time field, only the date will be used. </string>
      </property>
      <property name="scaledContents">
