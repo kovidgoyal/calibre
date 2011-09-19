@@ -753,15 +753,24 @@ def open_local_file(path):
         url = QUrl.fromLocalFile(path)
         open_url(url)
 
-def is_ok_to_use_qt():
+def must_use_qt():
     global gui_thread, _store_app
     if (islinux or isbsd) and ':' not in os.environ.get('DISPLAY', ''):
-        return False
+        raise RuntimeError('X server required. If you are running on a'
+                ' headless machine, use xvfb')
     if _store_app is None and QApplication.instance() is None:
         _store_app = QApplication([])
     if gui_thread is None:
         gui_thread = QThread.currentThread()
-    return gui_thread is QThread.currentThread()
+    if gui_thread is not QThread.currentThread():
+        raise RuntimeError('Cannot use Qt in non GUI thread')
+
+def is_ok_to_use_qt():
+    try:
+        must_use_qt()
+    except RuntimeError:
+        return False
+    return True
 
 def is_gui_thread():
     global gui_thread

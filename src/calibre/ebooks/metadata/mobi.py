@@ -360,7 +360,7 @@ class MetadataUpdater(object):
 
             if kindle_pdoc and kindle_pdoc in mi.tags:
                 added_501 = True
-                update_exth_record((501, str('PDOC')))
+                update_exth_record((501, b'PDOC'))
 
         if mi.pubdate:
             update_exth_record((106, str(mi.pubdate).encode(self.codec, 'replace')))
