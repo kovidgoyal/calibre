@@ -87,7 +87,7 @@ class DeviceJob(BaseJob): # {{{
             self.failed = True
             ex = as_unicode(err)
             self._details = ex + '\n\n' + \
-                traceback.format_exc()
+                force_unicode(traceback.format_exc())
             self.exception = err
         finally:
             self.job_done()
