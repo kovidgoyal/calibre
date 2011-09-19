@@ -29,7 +29,7 @@ class PluginWidget(QWidget, Ui_Form):
                 QListWidgetItem(x, self.db_fields)
 
         db = db_()
-        for x in  sorted(db.custom_field_keys()):
+        for x in sorted(db.custom_field_keys()):
             self.all_fields.append(x)
             QListWidgetItem(x, self.db_fields)
 
