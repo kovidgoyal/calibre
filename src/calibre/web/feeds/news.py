@@ -147,13 +147,14 @@ class BasicNewsRecipe(Recipe):
     #: Specify elements that the auto cleanup algorithm should never remove
     #: The syntax is a XPath expression. For example::
     #:
-    #: auto_cleanup_keep = '//div[@id="article-image"]' will keep all divs with
+    #:   auto_cleanup_keep = '//div[@id="article-image"]' will keep all divs with
     #:                                                  id="article-image"
-    #: auto_cleanup_keep = '//*[@class="important"]' will keep all elements
+    #:   auto_cleanup_keep = '//*[@class="important"]' will keep all elements
     #:                                               with class="important"
-    #: auto_cleanup_keep = '//div[@id="article-image"]|//span[@class="important"]'
+    #:   auto_cleanup_keep = '//div[@id="article-image"]|//span[@class="important"]'
     #:                     will keep all divs with id="article-image" and spans
     #:                     with class="important"
+    #:
     auto_cleanup_keep = None
 
     #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
