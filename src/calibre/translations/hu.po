@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-09-18 04:17+0000\n"
-"Last-Translator: Incze GASPAR <inczegaspar@yahoo.com>\n"
+"PO-Revision-Date: 2011-09-18 07:19+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-18 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-09-19 04:39+0000\n"
 "X-Generator: Launchpad (build 13955)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2309,7 +2309,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:240
 msgid "Don't add auto-detected chapters to the Table of Contents."
 msgstr ""
-"Ne adja hozzá az automatikusan érzékelt fejezeteket a tartalomjegyzékhez."
+"Ne adja hozzá az automatikusan felismert fejezeteket a tartalomjegyzékhez."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:248
 #, python-format
@@ -2345,6 +2345,8 @@ msgid ""
 "entries, i.e. allow more than one entry with the same text, provided that "
 "they point to a different location."
 msgstr ""
+"Többszörös bejegyzések engedélyezése. Pl. ha egy könyv több azonos "
+"Tartalomjegyzék szöveget tartalmaz, de azok különböző helyre mutatnak"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:281
 msgid ""
@@ -2464,6 +2466,10 @@ msgid ""
 "negative, then the indent specified in the input document is used, that is, "
 "calibre does not change the indentation."
 msgstr ""
+"Amikor a calibre eltávolítja az üres sorokat, automatikusan behúzással látja "
+"a következő bekezdést a könyebb olvashatóság érdekében. Ez az opció ennek a "
+"behúzásnak a beállítására szolgál (em-ben). Ha az értéket negatívra állítja, "
+"akkor a calibre nem módosítja a behúzást."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:378
 msgid ""
@@ -2486,6 +2492,8 @@ msgid ""
 "Set the height of the inserted blank lines (in em). The height of the lines "
 "between paragraphs will be twice the value set here."
 msgstr ""
+"A beszúrandó üres sorok magassága (em-ben). A bekezdések között ennek az "
+"értéknek a kétszerese lesz, mert előttük és utánuk is beszúrásra kerül."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:398
 msgid ""
@@ -2494,6 +2502,10 @@ msgid ""
 "set a cover in calibre, the output document will end up with two cover "
 "images if you do not specify this option."
 msgstr ""
+"A bementi könyvből távolítja el az első képet. Ez akkor hasznos opció, ha ez "
+"a bizonyos első kép felesleges és nem a könyv borítója, mert az igazi borító "
+"beszúrásakor két kép lesz a könyv elején: a borító, majd ezt követően ez a "
+"bizonyos első kép."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:407
 msgid ""
@@ -2514,6 +2526,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:423
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
 msgstr ""
+"A díszes, szebb írásjelek (idézőjel, gondolatjel, stb.) egyszerűbb "
+"megfelelőit használja."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:431
 msgid ""
@@ -2683,18 +2697,24 @@ msgid ""
 "Remove empty paragraphs from the document when they exist between every "
 "other paragraph"
 msgstr ""
+"Üres bekezdések eltávolítása a dokumentumból, ha más, nem üres bekezdések "
+"között vannak"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:569
 msgid ""
 "Left aligned scene break markers are center aligned. Replace soft scene "
 "breaks that use multiple blank lines with horizontal rules."
 msgstr ""
+"A balra rendezett fejezet elválasztók középre rendezettek lesznek. A több "
+"üres sort is tartalmazó fejezet elválasztókat lecseréli vízszintes vonalra."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:575
 msgid ""
 "Replace scene breaks with the specified text. By default, the text from the "
 "input document is used."
 msgstr ""
+"Fejezet elválasztók cseréje a kiválasztott szövegre. Alapértelmezettként a "
+"dokumentumban szereplő kerül alkalmazásra."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:580
 msgid ""
@@ -2702,12 +2722,17 @@ msgid ""
 "used as a dictionary to determine whether hyphens should be retained or "
 "removed."
 msgstr ""
+"Elemzi az elválasztott szavakat a dokumentumban. Maga a dokumentum szolgál "
+"szótárként annak meghatározásához, hogy az elválasztójel szükséges vagy "
+"eltávolítandó."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:586
 msgid ""
 "Looks for occurrences of sequential <h1> or <h2> tags. The tags are "
 "renumbered to prevent splitting in the middle of chapter headings."
 msgstr ""
+"Az egymást követő <h1> és <h2> HTML tag-eket rendezi sorba, hogy a "
+"címsorokban ne legyen törés."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:592
 msgid "Search pattern (regular expression) to be replaced with sr1-replace."
@@ -7054,6 +7079,14 @@ msgid ""
 "the <a href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
 "processing\">User Manual</a>."
 msgstr ""
+"A <b>heurisztikus feldolgozás</b> azt jelenti, hogy a calibre bizonyos "
+"szabályok és minták szerint átnézi a könyvet és módosításokat végez. Ez "
+"sokszor következtetéssel, \"találgatással\" valósul meg, ami azt is jelenti, "
+"hogy esetenként a végeredmény rosszabb is lehet, mintha nem használta volna "
+"a heurisztikus feldolgozást. Ez az oka annak, hogy alapesetben kikapcsolt "
+"állapotban van. Sok esetben azonban mégis hasznos lehet. Bővebben erről a <a "
+"href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
+"processing\">Felhasználói Kézikönyvben</a> olvashat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:114
 msgid "Enable &heuristic processing"
@@ -7069,7 +7102,7 @@ msgstr "Sortörés ki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:117
 msgid "Line &un-wrap factor :"
-msgstr ""
+msgstr "Sorkiegyenesítési érték:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:118
 msgid "Detect and markup unformatted chapter headings and sub headings"
@@ -7077,7 +7110,7 @@ msgstr "Keresse és jelölje meg a formázatlan fejezetcímeket és alfejezeteke
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:119
 msgid "Renumber sequences of <h1> or <h2> tags to prevent splitting"
-msgstr ""
+msgstr "A <h1> és <h2> HTML tag-ek sorbarendezése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:120
 msgid "Delete blank lines between paragraphs"
@@ -7085,15 +7118,15 @@ msgstr "Üres sorok törlése a bekezdések között"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:121
 msgid "Ensure scene breaks are consistently formatted"
-msgstr ""
+msgstr "Fejezet elválasztók egységes formázása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:122
 msgid "Replace soft scene &breaks:"
-msgstr ""
+msgstr "Fejezet elválasztók cseréje erre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:123
 msgid "Remove unnecessary hyphens"
-msgstr "Felesleges kötőjelek eltávolítása"
+msgstr "Felesleges elválasztó jelek eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:124
 msgid "Italicize common words and patterns"
@@ -7101,7 +7134,7 @@ msgstr "Közös szavak és minták dőltté alakítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:125
 msgid "Replace entity indents with CSS indents"
-msgstr ""
+msgstr "Nem-törhető szóköz behúzások cseréje CSS behúzásra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output.py:14
 msgid "HTMLZ Output"
@@ -7169,7 +7202,7 @@ msgstr "Bekezdések közötti térköz eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:97
 msgid "Insert &blank line between paragraphs"
-msgstr ""
+msgstr "Üres sor beszúrása a bekezdések közé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
@@ -7178,7 +7211,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:106
 msgid "Text &justification:"
-msgstr ""
+msgstr "Szöveg igazítás:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:113
 msgid "&Transliterate unicode characters to ASCII"
@@ -7209,11 +7242,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:139
 msgid "&Indent size:"
-msgstr ""
+msgstr "Behúzás nagysága:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:144
 msgid "&Line size:"
-msgstr ""
+msgstr "Sor méret:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:149
 msgid "Smarten &punctuation"
@@ -7221,7 +7254,7 @@ msgstr "&Elegánsabb írásjelek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:153
 msgid "&UnSmarten punctuation"
-msgstr ""
+msgstr "Írásjelek egyszerűsítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:157
 msgid "&Linearize tables"
@@ -7241,7 +7274,7 @@ msgstr "Szavak közötti távolság:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:124
 msgid "Minimum para. &indent:"
-msgstr "Minimum bekezdés behúzás:"
+msgstr "Minimális bekezdés behúzás:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:126
 msgid "Render &tables as images"
@@ -7567,11 +7600,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:144
 msgid "Could not open file"
-msgstr ""
+msgstr "Nem lehet megnyitni a fájlt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:145
 msgid "Could not open the file, do you have it open in another program?"
-msgstr ""
+msgstr "Nem lehet megnyitni a fájlt. Esetleg egy másik program használja."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:175
 msgid "Open book"
@@ -7678,6 +7711,10 @@ msgid ""
 "wizard buttons below will allow you to test your regular expression against "
 "the current input document."
 msgstr ""
+"<p> A 'Keresés és Csere' <i>reguláris kifejezéseket<6i> használ. Bővebben a "
+"<a href=\"http://manual.calibre-ebook.com/regexp.html\">Regular Expressions "
+"Tutorial</a>-ban olvashat erről. A Varázsló gombokra kattintva tesztelheti a "
+"létrehozott kifejezést az aktuális bemeneti dokumentumon."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
 msgid "Convert"
@@ -7777,6 +7814,11 @@ msgid ""
 "to use these options. Leave the replace field blank and enter your "
 "header/footer removal regexps into the search field."
 msgstr ""
+"A fejléc és lábléc eltávolítási opciót a Keresés és Csere opció váltotta "
+"fel. Kattintson a Keresés és Csere kategóriára a bal oldali eszköztáron "
+"ennek használatához. Hagyja üresen a 'Szöveg cseréje' mezőt, a 'kifejezések "
+"keresése' mezőbe pedig írja be a fejléc/lábléc eltávolításához szükséges "
+"reguláris kifejezést."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/structure_detection_ui.py:64
 msgid "Remove &fake margins"
@@ -7826,7 +7868,7 @@ msgstr "Tartalomjegyzék szűrő:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:76
 msgid "Allow &duplicate links when creating the Table of Contents"
-msgstr ""
+msgstr "Azonos Tartalomjegyzék elemek engedélyezése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input.py:12
 msgid "TXT Input"
@@ -7939,7 +7981,7 @@ msgstr "TextLabel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xexp_edit_ui.py:56
 msgid "Use a wizard to help construct the Regular expression"
-msgstr ""
+msgstr "Használja a Varázslót a reguláris kifejezés összeállításához"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:73
 msgid "Match HTML &tags with tag name:"
@@ -7999,7 +8041,7 @@ msgstr "Attribútum:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:87
 msgid "With &value:"
-msgstr "Szélesség:"
+msgstr "Érték:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/xpath_wizard_ui.py:88
 msgid "(A regular expression)"
@@ -8014,6 +8056,14 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>."
 msgstr ""
+"<p>Például ahhoz, hogy keressen meg minden h2 tag-et, amelynek van "
+"class=\"chapter\" tulajdonsága legyen a 'HTML tag keresése' <i>h2</i>, az "
+"'Attribútum' <i>class</i>, az 'Érték' pedig <i>chapter</i></p><p>Ha üresen "
+"hagyja az 'Attribútum' mezőt, akkor bármilyen attribútumra, ha üresen hagyja "
+"az 'Érték' mezőt, akkor bármilyen értékre igaz lesz a keresés. Ha a 'HTML "
+"tag keresése' mező értéke *, akkor bármilyen tag-re igaz lesz a "
+"keresés.</p><p>Az XPath haladó szintű használatát bővebben olvashat az <a "
+"href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>-ban."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:145
 msgid "Browse by covers"
@@ -9301,6 +9351,9 @@ msgid ""
 "for that series. Checking this box will tell calibre to start numbering\n"
 "from the value in the box"
 msgstr ""
+"Normál esetben a sorozatok a az adatbázisban szereplő legmagasabb értéktől\n"
+"kezdve kerülnek számozásra. Ezzel az opcióval a calibre a mezőben lévő "
+"sorszámtól kezdi a számozást"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:568
 msgid "&Force numbers to start with:"
@@ -10643,7 +10696,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:252
 msgid "Set the color of the column:"
-msgstr ""
+msgstr "Az átszínezendő oszlop:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:98
 msgid "Template value:"
@@ -10665,7 +10718,7 @@ msgstr "Dokumentáció:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:102
 msgid "Python &code:"
-msgstr ""
+msgstr "Python kód:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:30
 msgid "Remove any template from the box"
@@ -10673,7 +10726,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:32
 msgid "Open Template Editor"
-msgstr ""
+msgstr "Minta szerkesztő megnyitása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:473
@@ -11754,6 +11807,8 @@ msgid ""
 "Specify how this book should be sorted when by title. For example, The "
 "Exorcist might be sorted as Exorcist, The."
 msgstr ""
+"A könyv címének rendezési formája. Pl. a 'The Exorcist' című könyvet "
+"'Exorcist, The'-ként veszi figyelembe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:140
 msgid "Title &sort:"
@@ -11788,6 +11843,10 @@ msgid ""
 "If the box is colored green, then text matches the individual author's sort "
 "strings. If it is colored red, then the authors and this text do not match."
 msgstr ""
+"A szerző rendezési formájának megadása. Például Charles Dickens-t célszerű "
+"Dickens, Charles-ként rendezni.\n"
+"Ha a mező színe zöld, akkor a beírt adat megfelel a 'Szerző(k)' mezőben lévő "
+"szövegnek, ha piros, akkor valamiben eltér attól."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:308
 msgid "Author s&ort:"
@@ -11828,15 +11887,15 @@ msgstr "Borító beállítása a kiválasztott formátumú könyből"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:668
 msgid "Set metadata for the book from the selected format"
-msgstr ""
+msgstr "Metaadatok beállítása a kiválasztott formátumú könyvből"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:675
 msgid "Add a format to this book"
-msgstr ""
+msgstr "Új formátum hozzáadása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:682
 msgid "Remove the selected format from this book"
-msgstr ""
+msgstr "A kiválasztott formátum eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:749
 msgid "Choose formats for "
@@ -12569,7 +12628,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
-msgstr ""
+msgstr "Ha a(z) ___ oszlop ___ értékű(kel/re..)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:210
 msgid ""
@@ -12604,7 +12663,7 @@ msgstr "Oszlop színezési szabály létrehozása/szerkesztése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:244
 msgid "Create a coloring rule by filling in the boxes below"
-msgstr ""
+msgstr "Készítsen színezési szabályokat az alábbi eszközökkel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:258
 msgid "to"
@@ -12612,15 +12671,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:266
 msgid "Only if the following conditions are all satisfied:"
-msgstr ""
+msgstr "Csak ha minden következő feltétel teljesül:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:276
 msgid "Add another condition"
-msgstr ""
+msgstr "Újabb feltétel hozzáadása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:280
 msgid "You can disable a condition by blanking all of its boxes"
 msgstr ""
+"Egy feltételt úgy kapcsolhat ki, ha a hozzá tartozó értékeket üresre állítja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:352
 msgid "Invalid condition"
@@ -12629,15 +12689,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:353
 #, python-format
 msgid "One of the conditions for this rule is invalid: <b>%s</b>"
-msgstr ""
+msgstr "A szabály egyik feltétele nem megfelelő: <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:358
 msgid "No conditions"
-msgstr ""
+msgstr "Nincs feltétel megadva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:359
 msgid "You must specify at least one non-empty condition for this rule"
-msgstr ""
+msgstr "Legalább egy, nem üres feltételt meg kell adnia a szabályhoz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:447
 #, python-format
@@ -12663,6 +12723,8 @@ msgstr ""
 msgid ""
 "<li>If the <b>%(col)s</b> column <b>%(action)s</b> value: <b>%(val)s</b>"
 msgstr ""
+"<li>Ha a(z) <b>%(col)s</b> oszlop <b>%(action)s</b> értékű(kel/re..): "
+"<b>%(val)s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:483
 msgid ""
@@ -12692,16 +12754,16 @@ msgstr "A kiválasztott szabály mozgatása lefelé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:524
 msgid "Add Advanced Rule"
-msgstr "Bonyolultabb szabály hozzáadása"
+msgstr "Összetettebb szabály hozzáadása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:572
 msgid "No rule selected"
-msgstr ""
+msgstr "Nincs kiválasztott szabály"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:573
 #, python-format
 msgid "No rule selected for %s."
-msgstr ""
+msgstr "Nincs kiválasztott szabály a következő művelethez: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:578
 msgid "removal"
@@ -14969,7 +15031,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:141
 msgid "Open in &external browser"
-msgstr ""
+msgstr "Megnyitás külső böngészőben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/ebooks_com_plugin.py:96
 msgid "Not Available"
@@ -18965,7 +19027,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
-msgstr ""
+msgstr "Megnyit"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.2/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "Cancel"
