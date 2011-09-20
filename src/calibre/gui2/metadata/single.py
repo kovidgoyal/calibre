@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, errno
 from functools import partial
+from datetime import datetime
 
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
@@ -26,6 +27,7 @@ from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
+from calibre.utils.date import local_tz
 
 BASE_TITLE = _('Edit Metadata')
 
@@ -396,6 +398,14 @@ class MetadataSingleDialogBase(ResizableDialog):
                 if ':' not in f:
                     setattr(mi, f, getattr(dummy, f))
             if mi is not None:
+                pd = mi.pubdate
+                if pd is not None:
+                    # Put the downloaded published date into the local timezone
+                    # as we discard time info and the date is timezone
+                    # invariant. This prevents the as_local_timezone() call in
+                    # update_from_mi from changing the pubdate
+                    mi.pubdate = datetime(pd.year, pd.month, pd.day,
+                            tzinfo=local_tz)
                 self.update_from_mi(mi)
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
