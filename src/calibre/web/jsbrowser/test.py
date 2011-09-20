@@ -84,7 +84,7 @@ class Test(unittest.TestCase):
         cls.server_thread = threading.Thread(target=cls.run_server)
         cls.server_thread.daemon = True
         cls.server_thread.start()
-        cls.browser = Browser(verbosity=1)
+        cls.browser = Browser(verbosity=0)
 
     @classmethod
     def tearDownClass(cls):
