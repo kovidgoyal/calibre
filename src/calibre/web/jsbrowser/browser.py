@@ -7,16 +7,20 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, pprint
+import os, pprint, time
 
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
-        QNetworkProxy, QNetworkProxyFactory)
-from PyQt4.QtWebKit import QWebPage
+        QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl,
+        QDialog, QVBoxLayout, QSize)
+from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
 from calibre.constants import ispy3, config_dir
 from calibre.utils.logging import ThreadSafeLog
 from calibre.gui2 import must_use_qt
+
+class Timeout(Exception):
+    pass
 
 class WebPage(QWebPage): # {{{
 
@@ -33,6 +37,11 @@ class WebPage(QWebPage): # {{{
         self.prompt_callback = prompt_callback
         self.setForwardUnsupportedContent(True)
         self.unsupportedContent.connect(self.on_unsupported_content)
+        settings = self.settings()
+        settings.setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
+        QWebSettings.enablePersistentStorage(os.path.join(config_dir, 'caches',
+                'webkit-persistence'))
+        QWebSettings.setMaximumPagesInCache(0)
 
     def userAgentForUrl(self, url):
         return self.user_agent
@@ -173,6 +182,35 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
             self.log.debug('\n'.join(debug))
 # }}}
 
+class LoadWatcher(QObject): # {{{
+
+    def __init__(self, page, parent=None):
+        QObject.__init__(self, parent)
+        self.is_loading = True
+        self.loaded_ok = None
+        page.loadFinished.connect(self)
+        self.page = page
+
+    def __call__(self, ok):
+        self.loaded_ok = ok
+        self.is_loading = False
+        self.page.loadFinished.disconnect(self)
+        self.page = None
+# }}}
+
+class BrowserView(QDialog): # {{{
+
+    def __init__(self, page, parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+        self.webview = QWebView(self)
+        l.addWidget(self.webview)
+        self.resize(QSize(1024, 768))
+        self.webview.setPage(page)
+
+# }}}
+
 class Browser(QObject):
 
     '''
@@ -212,6 +250,7 @@ class Browser(QObject):
             log = ThreadSafeLog()
         if verbosity:
             log.filter_level = log.DEBUG
+        self.log = log
 
         self.jquery_lib = P('content_server/jquery.js', data=True,
                 allow_user_override=False).decode('utf-8')
@@ -223,4 +262,38 @@ class Browser(QObject):
                 parent=self)
         self.nam = NetworkAccessManager(log, use_disk_cache=use_disk_cache, parent=self)
         self.page.setNetworkAccessManager(self.nam)
+
+    def visit(self, url, timeout=30.0):
+        '''
+        Open the page specified in URL and wait for it to complete loading.
+        Note that when this method returns, there may still be javascript
+        that needs to execute (this method returns when the loadFinished()
+        signal is called on QWebPage). This method will raise a Timeout
+        exception if loading takes more than timeout seconds.
+
+        Returns True if loading was successful, False otherwise.
+        '''
+        loop = QEventLoop(self)
+        start_time = time.time()
+        end_time = start_time + timeout
+        lw = LoadWatcher(self.page, parent=self)
+
+        self.page.mainFrame().load(QUrl(url))
+
+        while lw.is_loading and end_time > time.time():
+            if not loop.processEvents():
+                time.sleep(0.01)
+
+        if lw.is_loading:
+            raise Timeout('Loading of %r took longer than %d seconds'%(
+                url, timeout))
+
+        return lw.loaded_ok
+
+    def show_browser(self):
+        '''
+        Show the currently loaded web page in a window. Useful for debugging.
+        '''
+        view = BrowserView(self.page)
+        view.exec_()
 
