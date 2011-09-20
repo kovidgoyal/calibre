@@ -32,7 +32,7 @@ FIELDS = ['all', 'title', 'title_sort', 'author_sort', 'authors', 'comments',
           'rating', 'series_index', 'series', 'size', 'tags', 'timestamp', 'uuid']
 
 #Allowed fields for template
-TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate',
+TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate', 'title_sort',
     'publisher', 'series_index', 'series', 'tags', 'timestamp', 'title', 'uuid' ]
 
 class CSV_XML(CatalogPlugin): # {{{
@@ -324,7 +324,7 @@ class BIBTEX(CatalogPlugin): # {{{
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
 
         def create_bibtex_entry(entry, fields, mode, template_citation,
-            bibtexdict, citation_bibtex=True, calibre_files=True):
+                                    bibtexdict, db, citation_bibtex=True, calibre_files=True):
 
             #Bibtex doesn't like UTF-8 but keep unicode until writing
             #Define starting chain or if book valid strict and not book return a Fail string
@@ -345,7 +345,13 @@ class BIBTEX(CatalogPlugin): # {{{
                 bibtex_entry = [u' '.join(bibtex_entry)]
 
             for field in fields:
-                item = entry[field]
+                if field.startswith('#'):
+                        item = db.get_field(entry['id'],field,index_is_id=True)
+                elif field == 'title_sort':
+                    item = entry['sort']
+                else:
+                    item = entry[field]
+
                 #check if the field should be included (none or empty)
                 if item is None:
                     continue
@@ -357,10 +363,6 @@ class BIBTEX(CatalogPlugin): # {{{
 
                 if field == 'authors' :
                     bibtex_entry.append(u'author = "%s"' % bibtexdict.bibtex_author_format(item))
-
-                elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',
-                        'author_sort', 'series'] :
-                    bibtex_entry.append(u'%s = "%s"' % (field, bibtexdict.utf8ToBibtex(item)))
 
                 elif field == 'id' :
                     bibtex_entry.append(u'calibreid = "%s"' % int(item))
@@ -408,6 +410,14 @@ class BIBTEX(CatalogPlugin): # {{{
                 elif field == 'pubdate' :
                     bibtex_entry.append(u'year = "%s"' % item.year)
                     bibtex_entry.append(u'month = "%s"' % bibtexdict.utf8ToBibtex(strftime("%b", item)))
+
+                elif field.startswith('#') :
+                    bibtex_entry.append(u'%s = "%s"' % (field[1:], bibtexdict.utf8ToBibtex(item)))
+
+                else:
+                    # elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',
+                        # 'author_sort', 'series', 'title_sort'] :
+                    bibtex_entry.append(u'%s = "%s"' % (field, bibtexdict.utf8ToBibtex(item)))
 
             bibtex_entry = u',\n    '.join(bibtex_entry)
             bibtex_entry += u' }\n\n'
@@ -588,7 +598,7 @@ class BIBTEX(CatalogPlugin): # {{{
 
             for entry in data:
                 outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
-                    bibtexc, citation_bibtex, addfiles_bibtex))
+                    bibtexc, db, citation_bibtex, addfiles_bibtex))
 # }}}
 
 class EPUB_MOBI(CatalogPlugin):
