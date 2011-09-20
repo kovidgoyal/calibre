@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-08-05 17:24+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-09-19 11:38+0000\n"
+"Last-Translator: Adamos Daios <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-18 04:44+0000\n"
-"X-Generator: Launchpad (build 13955)\n"
+"X-Launchpad-Export-Date: 2011-09-20 04:53+0000\n"
+"X-Generator: Launchpad (build 13980)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -329,19 +329,19 @@ msgstr "Καθορισμός μεταδεδομένων από αρχεία %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:727
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Προσθήκη βιβλίων στο calibre ή τη συνδεδεμένη συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:732
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Προσκόμισε σχόλια απο ένα συνδεμένο kindle (πειραματικό)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:737
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Δημιουργία καταλόγου των βιβλίων στην βιβλιοθήκη σας"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:742
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Μετατροπή βιβλίων σε διάφορες μορφές ηλεκτρονικών βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:747
 msgid "Delete books from your calibre library or connected device"
@@ -349,15 +349,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:752
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Επεξεργασία των μεταδεδομένων των βιβλίων της βιβλιοθήκης σας"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:757
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Διάβασε βιβλία στη βιβλιοθήκη σου"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:762
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Κατέβασμα ειδήσεων από το διαδίκτυο σε μορφή ηλεκτρονικού βιβλίου"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:767
 msgid "Show a list of related books quickly"
@@ -365,11 +365,11 @@ msgstr "Γρήγορη εμφάνιση συναφών βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:772
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Εξαγωγή βιβλίων από τη βιβλιοθήκη σας στον σκληρό δίσκο"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:777
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Δείξε τις λεπτομέρειες του βιβλίου σε ξεχωριστό παράθυρο"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:782
 msgid "Restart calibre"
@@ -378,34 +378,38 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:787
 msgid "Open the folder that contains the book files in your calibre library"
 msgstr ""
+"Άνοιξε τον φάκελο που περιέχει τα αρχεία των βιβλίων στη βιβλιοθήκη σου"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:793
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Αποστολή βιβλίων στη συνδεδεμένη συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:798
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Αποστολή βιβλίων μέσω email ή του δικτύου και σύνδεση με το iTunes ή τους "
+"φακέλους του υπολογιστή σας, σαν να είναι συσκευές"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "Περιήγηση του εγχειριδίου χρήστη"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid "Customize calibre"
-msgstr ""
+msgstr "Προσαρμογή του calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Εύκολος εντοπισμός βιβλίων παρόμοιων με το επιλεγμένο"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:819
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
+"Άλλαξε μεταξύ διαφορετικών βιβλιοθηκών και εκτέλεσε συντήρηση σε αυτές"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:825
 msgid "Copy books from the devce to your calibre library"
