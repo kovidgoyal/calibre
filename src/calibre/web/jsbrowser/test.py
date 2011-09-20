@@ -76,7 +76,7 @@ class Test(unittest.TestCase):
             'server.socket_host'     : b'127.0.0.1',
             'server.socket_port'     : cls.port,
             'server.socket_timeout'  : 10, #seconds
-            'server.thread_pool'     : 1, # number of threads
+            'server.thread_pool'     : 5, # number of threads setting to 1 causes major slowdown
             'server.shutdown_timeout': 0.1, # minutes
         })
         cherrypy.tree.mount(cls.server, '/', config={'/':{}})
