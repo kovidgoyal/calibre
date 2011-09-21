@@ -144,8 +144,15 @@ class BookHeader(object):
                 self.codec = 'cp1252' if not user_encoding else user_encoding
                 log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
                     self.codec))
+            # There exists some broken DRM removal tool that removes DRM but
+            # leaves the DRM fields in the header yielding a header size of
+            # 0xF8. The actual value of max_header_length should be 0xE8 but
+            # it's changed to accommodate this silly tool. Hopefully that will
+            # not break anything else.
+            max_header_length = 0xF8
+
             if (ident == 'TEXTREAD' or self.length < 0xE4 or
-                    0xF8 < self.length or # 0xF8 is a correct MOBI header with DRM fields
+                    self.length > max_header_length or
                     (try_extra_data_fix and self.length == 0xE4)):
                 self.extra_flags = 0
             else:
