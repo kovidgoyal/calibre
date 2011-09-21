@@ -85,6 +85,15 @@ class SelectControl(RadioControl):
 
 class Form(object):
 
+    '''
+    Provides dictionary like access to all the controls in a form.
+    For example::
+        form['username'] = 'some name'
+        form['password'] = 'password'
+
+    See also the :attr:`controls` property and the :meth:`submit_control` method.
+    '''
+
     def __init__(self, qwe):
         self.qwe = qwe
         self.attributes = {unicode(x):unicode(qwe.attribute(x)) for x in
@@ -97,6 +106,16 @@ class Form(object):
         selects = list(map(SelectControl, qwe.findAll('select')))
         self.select_controls = {x.name:x for x in selects}
 
+    @property
+    def controls(self):
+        for x in self.input_controls:
+            if x.name:
+                yield x.name
+        for x in (self.radio_controls, self.select_controls):
+            for n in x.iterkeys():
+                if n:
+                    yield n
+
     def __getitem__(self, key):
         for x in self.input_controls:
             if key == x.name:
@@ -107,6 +126,21 @@ class Form(object):
             except KeyError:
                 continue
         raise KeyError('No control with the name %s in this form'%key)
+
+    def __setitem__(self, key, val):
+        control = None
+        for x in self.input_controls:
+            if key == x.name:
+                control = x
+                break
+        if control is None:
+            for x in (self.radio_controls, self.select_controls):
+                control = x.get(key, None)
+                if control is not None:
+                    break
+        if control is None:
+            raise KeyError('No control with the name %s in this form'%key)
+        control.value = val
 
     def __repr__(self):
         attrs = ['%s=%s'%(k, v) for k, v in self.attributes.iteritems()]

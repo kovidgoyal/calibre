@@ -106,7 +106,7 @@ class Test(unittest.TestCase):
         }
         f = self.browser.select_form('#controls_test')
         for k, vals in values.iteritems():
-            f[k].value = vals[0]
+            f[k] = vals[0]
         self.browser.submit()
         dat = self.server.form_data
         for k, vals in values.iteritems():
