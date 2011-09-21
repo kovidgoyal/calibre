@@ -117,6 +117,17 @@ class Form(object):
                 if n:
                     yield n
 
+    def control_object(self, name):
+        for x in self.input_controls:
+            if name == x.name:
+                return x
+        for x in (self.radio_controls, self.select_controls):
+            try:
+                return x[name]
+            except KeyError:
+                continue
+        raise KeyError('No control with the name %s in this form'%name)
+
     def __getitem__(self, key):
         for x in self.input_controls:
             if key == x.name:
@@ -203,6 +214,12 @@ class FormsMixin(object):
 
     def submit(self, submit_control_selector=None, wait_for_load=True,
             ajax_replies=0, timeout=30.0):
+        '''
+        Submit the currently selected form. Tries to autodetect the submit
+        control. You can override auto-detection by specifying a CSS2 selector
+        as submit_control_selector. For the rest of the parameters, see the
+        documentation of the click() method.
+        '''
         if self.current_form is None:
             raise ValueError('No form selected, use select_form() first')
         sc = self.current_form.submit_control(submit_control_selector)
