@@ -201,12 +201,14 @@ class FormsMixin(object):
             raise ValueError('No such form found')
         return self.current_form
 
-    def submit(self, submit_control_selector=None, ajax_replies=0, timeout=30.0):
+    def submit(self, submit_control_selector=None, wait_for_load=True,
+            ajax_replies=0, timeout=30.0):
         if self.current_form is None:
             raise ValueError('No form selected, use select_form() first')
         sc = self.current_form.submit_control(submit_control_selector)
         if sc is None:
             raise ValueError('No submit control found in the current form')
         self.current_form = None
-        self.click(sc.qwe, ajax_replies=ajax_replies, timeout=timeout)
+        self.click(sc.qwe, wait_for_load=wait_for_load,
+                ajax_replies=ajax_replies, timeout=timeout)
 
