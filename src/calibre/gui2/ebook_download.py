@@ -44,7 +44,7 @@ class EbookDownload(object):
             return dfilename
 
         if not filename:
-            filename = get_download_filename(url, cookie_file)
+            filename = get_download_filename(url, cookie_file)[:60]
 
         br = browser()
         if cookie_file:
