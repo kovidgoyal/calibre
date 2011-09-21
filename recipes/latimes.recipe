@@ -46,7 +46,9 @@ class LATimes(BasicNewsRecipe):
     remove_tags_after=dict(name='p', attrs={'class':'copyright'})
     remove_tags = [
                      dict(name=['meta','link','iframe','object','embed'])
-                    ,dict(attrs={'class':['toolSet','articlerail','googleAd','entry-footer-left','entry-footer-right','entry-footer-social','google-ad-story-bottom','sphereTools']})
+                    ,dict(attrs={'class':['toolSet','articlerail','googleAd','entry-footer-left',
+                        'entry-footer-right','entry-footer-social','google-ad-story-bottom',
+                        'sphereTools', 'nextgen-share-tools']})
                     ,dict(attrs={'id':['article-promo','googleads','moduleArticleToolsContainer','gallery-subcontent']})
                   ]
     remove_attributes=['lang','xmlns:fb','xmlns:og','border','xtags','i','article_body']

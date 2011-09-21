@@ -7,16 +7,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: iso_639_3\n"
-"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-devel@lists.alioth."
-"debian.org>\n"
-"POT-Creation-Date: 2011-05-27 14:59+0200\n"
-"PO-Revision-Date: 2008-11-10 01:01+0100\n"
-"Last-Translator: Joan Luc Labòrda <laborde@crpp.u-bordeaux.fr>\n"
+"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
+"devel@lists.alioth.debian.org>\n"
+"POT-Creation-Date: 2011-09-02 16:21+0000\n"
+"PO-Revision-Date: 2011-08-27 04:03+0000\n"
+"Last-Translator: Joan Luc Labòrda <Unknown>\n"
 "Language-Team: OCCITAN <laborde@crpp.u-bordeaux.fr>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2011-09-03 05:18+0000\n"
+"X-Generator: Launchpad (build 13830)\n"
+"Language: \n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -123,9 +125,8 @@ msgid "Ayta, Ambala"
 msgstr ""
 
 #. name for abd
-#, fuzzy
 msgid "Manide"
-msgstr "Mali"
+msgstr ""
 
 #. name for abe
 msgid "Abnaki, Western"
@@ -7040,9 +7041,8 @@ msgid "Ega"
 msgstr ""
 
 #. name for egl
-#, fuzzy
 msgid "Emilian"
-msgstr "Sicelian"
+msgstr ""
 
 #. name for ego
 msgid "Eggon"
@@ -7089,9 +7089,8 @@ msgid "Eki"
 msgstr ""
 
 #. name for ekk
-#, fuzzy
 msgid "Estonian, Standard"
-msgstr "Estonian"
+msgstr ""
 
 #. name for ekl
 msgid "Kol"
@@ -7710,9 +7709,8 @@ msgid "French, Old (842-ca. 1400)"
 msgstr ""
 
 #. name for frp
-#, fuzzy
 msgid "Arpitan"
-msgstr "Albanés"
+msgstr ""
 
 #. name for frq
 msgid "Forak"
@@ -9323,9 +9321,8 @@ msgid "Hidatsa"
 msgstr ""
 
 #. name for hif
-#, fuzzy
 msgid "Hindi, Fiji"
-msgstr "Indi"
+msgstr ""
 
 #. name for hig
 msgid "Kamwe"
@@ -11460,9 +11457,8 @@ msgid "Tese"
 msgstr ""
 
 #. name for keh
-#, fuzzy
 msgid "Keak"
-msgstr "Corean"
+msgstr ""
 
 #. name for kei
 msgid "Kei"
@@ -12169,9 +12165,8 @@ msgid "Kendeje"
 msgstr ""
 
 #. name for klg
-#, fuzzy
 msgid "Tagakaulo"
-msgstr "Tagalòc"
+msgstr ""
 
 #. name for klh
 msgid "Weliki"
@@ -14334,9 +14329,8 @@ msgid "Laeko-Libuat"
 msgstr ""
 
 #. name for lkn
-#, fuzzy
 msgid "Lakon"
-msgstr "Latin"
+msgstr ""
 
 #. name for lko
 msgid "Khayo"
@@ -14823,9 +14817,8 @@ msgid "Chinese, Late Middle"
 msgstr ""
 
 #. name for ltg
-#, fuzzy
 msgid "Latgalian"
-msgstr "Italian"
+msgstr ""
 
 #. name for lti
 msgid "Leti (Indonesia)"
@@ -14956,9 +14949,8 @@ msgid "Lavukaleve"
 msgstr ""
 
 #. name for lvs
-#, fuzzy
 msgid "Latvian, Standard"
-msgstr "Estonian"
+msgstr ""
 
 #. name for lvu
 msgid "Levuka"
@@ -16809,9 +16801,8 @@ msgid "Maremgi"
 msgstr ""
 
 #. name for mry
-#, fuzzy
 msgid "Mandaya"
-msgstr "Malaialam"
+msgstr ""
 
 #. name for mrz
 msgid "Marind"
@@ -18094,9 +18085,8 @@ msgid "Dhao"
 msgstr ""
 
 #. name for nfd
-#, fuzzy
 msgid "Ahwai"
-msgstr "Tai"
+msgstr ""
 
 #. name for nfl
 msgid "Ayiwo"
@@ -21975,9 +21965,8 @@ msgid "Rangkas"
 msgstr ""
 
 #. name for rgn
-#, fuzzy
 msgid "Romagnol"
-msgstr "Romanés"
+msgstr ""
 
 #. name for rgr
 msgid "Resígaro"
@@ -23788,9 +23777,8 @@ msgid "Sou"
 msgstr ""
 
 #. name for sqr
-#, fuzzy
 msgid "Arabic, Siculo"
-msgstr "Arabi"
+msgstr ""
 
 #. name for sqs
 msgid "Sri Lankan Sign Language"
@@ -29669,9 +29657,8 @@ msgid "Yaul"
 msgstr ""
 
 #. name for ylb
-#, fuzzy
 msgid "Yaleba"
-msgstr "Ioroba"
+msgstr ""
 
 #. name for yle
 msgid "Yele"
@@ -29854,9 +29841,8 @@ msgid "Yokuts"
 msgstr ""
 
 #. name for yol
-#, fuzzy
 msgid "Yola"
-msgstr "Ioroba"
+msgstr ""
 
 #. name for yom
 msgid "Yombe"

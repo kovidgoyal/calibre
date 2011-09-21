@@ -161,7 +161,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
     def __init__(self, library_path, row_factory=False, default_prefs=None,
-            read_only=False):
+            read_only=False, is_second_db=False):
+        self.is_second_db = is_second_db
         try:
             if isbytestring(library_path):
                 library_path = library_path.decode(filesystem_encoding)
@@ -263,7 +264,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         migrate_preference('user_categories', {})
         migrate_preference('saved_searches', {})
-        set_saved_searches(self, 'saved_searches')
+        if not self.is_second_db:
+            set_saved_searches(self, 'saved_searches')
 
         # migrate grouped_search_terms
         if self.prefs.get('grouped_search_terms', None) is None:
@@ -927,7 +929,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if not formats:
             good_formats = None
         else:
-            formats = formats.split(',')
+            formats = sorted(formats.split(','))
             good_formats = []
             for f in formats:
                 try:

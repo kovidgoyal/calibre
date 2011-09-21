@@ -1,76 +1,25 @@
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class IndiaToday(BasicNewsRecipe):
-
-    title = 'India Today'
-    __author__ = 'Kovid Goyal'
-    language = 'en_IN'
-    timefmt = ' [%d %m, %Y]'
-
-    oldest_article = 700
-    max_articles_per_feed = 10
+    title          = u'India Today'
+    language       = 'en_IN'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 15 #days
+    max_articles_per_feed = 25
 
     no_stylesheets = True
+    auto_cleanup = True
 
-    remove_tags_before = dict(id='content_story_title')
-    remove_tags_after = dict(id='rightblockdiv')
-    remove_tags = [dict(id=['rightblockdiv', 'share_links'])]
+    feeds          = [
+('Latest News', 'http://indiatoday.intoday.in/rss/article.jsp?sid=4'),
+('Cover Story', 'http://indiatoday.intoday.in/rss/article.jsp?sid=30'),
+('Nation', 'http://indiatoday.intoday.in/rss/article.jsp?sid=36'),
+('States', 'http://indiatoday.intoday.in/rss/article.jsp?sid=21'),
+('Economy', 'http://indiatoday.intoday.in/rss/article.jsp?sid=34'),
+('World', 'http://indiatoday.intoday.in/rss/article.jsp?sid=61'),
+('Sport', 'http://indiatoday.intoday.in/rss/article.jsp?sid=41'),
 
-    extra_css = '#content_story_title { font-size: 170%; font-weight: bold;}'
-    conversion_options = { 'linearize_tables': True }
-
-    def it_get_index(self):
-        soup = self.index_to_soup('http://indiatoday.intoday.in/site/archive')
-        a = soup.find('a', href=lambda x: x and 'issueId=' in x)
-        url = 'http://indiatoday.intoday.in/site/'+a.get('href')
-        img = a.find('img')
-        self.cover_url = img.get('src')
-        return self.index_to_soup(url)
-
-    def parse_index(self):
-        soup = self.it_get_index()
-        feeds, current_section, current_articles = [], None, []
-        for x in soup.findAll(name=['h1', 'a']):
-            if x.name == 'h1':
-                if current_section and current_articles:
-                    feeds.append((current_section, current_articles))
-                current_section = self.tag_to_string(x)
-                current_articles = []
-                self.log('\tFound section:', current_section)
-            elif x.name == 'a' and 'Story' in x.get('href', ''):
-                title = self.tag_to_string(x)
-                url = x.get('href')
-                url = url.replace(' ', '%20')
-                if not url.startswith('/'):
-                    url = 'http://indiatoday.intoday.in/site/' + url
-                if title and url:
-                    url += '?complete=1'
-                    self.log('\tFound article:', title)
-                    self.log('\t\t', url)
-                    desc = ''
-                    h3 = x.parent.findNextSibling('h3')
-                    if h3 is not None:
-                        desc = 'By ' + self.tag_to_string(h3)
-                        h4 = h3.findNextSibling('h4')
-                        if h4 is not None:
-                            desc = self.tag_to_string(h4) + ' ' + desc
-                    if desc:
-                        self.log('\t\t', desc)
-                    current_articles.append({'title':title, 'description':desc,
-                        'url':url, 'date':''})
-
-        if current_section and current_articles:
-            feeds.append((current_section, current_articles))
-
-        return feeds
-
-    def postprocess_html(self, soup, first):
-        a = soup.find(text='Print')
-        if a is not None:
-            tr = a.findParent('tr')
-            if tr is not None:
-                tr.extract()
-        return soup
-
+]
 
 

@@ -1,0 +1,38 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Gry_online_pl(BasicNewsRecipe):
+    title          = u'Gry-Online.pl'
+    __author__        = 'fenuks'
+    description   = 'Gry-Online.pl - computer games'
+    category       = 'games'
+    language       = 'pl'
+    oldest_article = 13
+    INDEX= 'http://www.gry-online.pl/'
+    cover_url='http://www.gry-online.pl/img/1st_10/1st-gol-logo.png'
+    max_articles_per_feed = 100
+    no_stylesheets= True
+    extra_css              = 'p.wn1{font-size:22px;}'
+    remove_tags_after= [dict(name='div', attrs={'class':['tresc-newsa']})]
+    keep_only_tags = [dict(name='div', attrs={'class':['txthead']}), dict(name='p', attrs={'class':['wtx1', 'wn1', 'wob']}), dict(name='a', attrs={'class':['num_str_nex']})]
+    #remove_tags= [dict(name='div', attrs={'class':['news_plat']})]
+    feeds          = [(u'Newsy', 'http://www.gry-online.pl/rss/news.xml'), ('Teksty', u'http://www.gry-online.pl/rss/teksty.xml')]
+
+
+    def append_page(self, soup, appendtag):
+        nexturl = soup.find('a', attrs={'class':'num_str_nex'})
+        if appendtag.find('a', attrs={'class':'num_str_nex'}) is not None:
+            appendtag.find('a', attrs={'class':'num_str_nex'}).replaceWith('\n')
+        if nexturl is not None:
+            if 'strona' in nexturl.div.string:
+                nexturl= self.INDEX + nexturl['href']
+                soup2 = self.index_to_soup(nexturl)
+                pagetext = soup2.findAll(name='p', attrs={'class':['wtx1', 'wn1', 'wob']})
+                for tag in pagetext:
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, tag)
+                self.append_page(soup2, appendtag)
+
+
+    def preprocess_html(self, soup):
+         self.append_page(soup, soup.body)
+         return soup

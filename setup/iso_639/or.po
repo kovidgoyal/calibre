@@ -6,19 +6,18 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: iso_639_3\n"
-"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-devel@lists.alioth."
-"debian.org>\n"
-"POT-Creation-Date: 2011-05-27 14:59+0200\n"
-"PO-Revision-Date: 2010-04-07 12:26+0530\n"
-"Last-Translator: Manoj Kumar Giri <giri.manojkr@gmail.com>\n"
+"Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
+"devel@lists.alioth.debian.org>\n"
+"POT-Creation-Date: 2011-09-02 16:21+0000\n"
+"PO-Revision-Date: 2011-08-27 03:32+0000\n"
+"Last-Translator: Manoj Kumar Giri <Unknown>\n"
 "Language-Team: Oriya <translation-team-or@lists.sourceforge.net>\n"
-"Language: or\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
-"Plural-Forms:  nplurals=2; plural=(n!=1);\n"
-"\n"
+"X-Launchpad-Export-Date: 2011-09-03 05:18+0000\n"
+"X-Generator: Launchpad (build 13830)\n"
+"Language: or\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -1321,9 +1320,8 @@ msgid "Apinayé"
 msgstr "ଆପିନାଏ"
 
 #. name for apo
-#, fuzzy
 msgid "Ambul"
-msgstr "ଆମ୍ବୁଲାସ"
+msgstr ""
 
 #. name for app
 msgid "Apma"
@@ -1374,9 +1372,8 @@ msgid "Archi"
 msgstr "ଆରଚି"
 
 #. name for aqd
-#, fuzzy
 msgid "Dogon, Ampari"
-msgstr "ଡଗନ, ଜାମସେ"
+msgstr ""
 
 #. name for aqg
 msgid "Arigidi"
@@ -3119,9 +3116,8 @@ msgid "Bekwarra"
 msgstr "ବେକ୍ୱାରା"
 
 #. name for bkw
-#, fuzzy
 msgid "Bekwel"
-msgstr "ବେକ୍ୱିଲ"
+msgstr ""
 
 #. name for bkx
 msgid "Baikeno"
@@ -4608,9 +4604,8 @@ msgid "Basa (Nigeria)"
 msgstr "ବାସା (ନାଈଜୀରିୟା)"
 
 #. name for bzx
-#, fuzzy
 msgid "Bozo, Kɛlɛngaxo"
-msgstr "ବୋଜୋ, ହାଇନ୍ୟାକ୍ସୋ"
+msgstr ""
 
 #. name for bzy
 msgid "Obanliku"
@@ -6477,9 +6472,8 @@ msgid "Duma"
 msgstr "ଡୁମା"
 
 #. name for dmb
-#, fuzzy
 msgid "Dogon, Mombo"
-msgstr "ଡଗନ, କଲୁମ ସୋ"
+msgstr ""
 
 #. name for dmc
 msgid "Dimir"
@@ -18302,9 +18296,8 @@ msgid "Nias"
 msgstr "ନିୟାସ"
 
 #. name for nib
-#, fuzzy
 msgid "Nakame"
-msgstr "ସାକାମ"
+msgstr ""
 
 #. name for nid
 msgid "Ngandi"
@@ -18628,7 +18621,7 @@ msgstr ""
 
 #. name for nmb
 msgid "Nambas, Big"
-msgstr "ନାମ୍ବାସ, ବଡ "
+msgstr "ନାମ୍ବାସ, ବଡ"
 
 #. name for nmc
 msgid "Ngam"
@@ -19027,9 +19020,8 @@ msgid "Kalapuya, Northern"
 msgstr ""
 
 #. name for nru
-#, fuzzy
 msgid "Narua"
-msgstr "ସାରୁଆ"
+msgstr ""
 
 #. name for nrx
 msgid "Ngurmbur"
@@ -19232,9 +19224,8 @@ msgid "Niuafo'ou"
 msgstr ""
 
 #. name for nun
-#, fuzzy
 msgid "Anong"
-msgstr "ଫିନୋଙ୍ଗାନ"
+msgstr ""
 
 #. name for nuo
 msgid "Nguôn"
@@ -20545,9 +20536,8 @@ msgid "Rerep"
 msgstr ""
 
 #. name for pgl
-#, fuzzy
 msgid "Irish, Primitive"
-msgstr "ତୁର୍କୀ, କ୍ରିମିନ"
+msgstr ""
 
 #. name for pgn
 msgid "Paelignian"
@@ -20791,7 +20781,7 @@ msgstr ""
 
 #. name for ple
 msgid "Palu'e"
-msgstr "ପେଲୁ ଏ "
+msgstr "ପେଲୁ ଏ"
 
 #. name for plg
 msgid "Pilagá"
@@ -22910,9 +22900,8 @@ msgid "Sangisari"
 msgstr "ସାଙ୍ଗିସାରୀ"
 
 #. name for sgs
-#, fuzzy
 msgid "Samogitian"
-msgstr "ସାମୋନ"
+msgstr ""
 
 #. name for sgt
 msgid "Brokpake"
@@ -25263,9 +25252,8 @@ msgid "Tukumanféd"
 msgstr ""
 
 #. name for tkg
-#, fuzzy
 msgid "Malagasy, Tesaka"
-msgstr "ମାଲାଗାସି, ବାରା"
+msgstr ""
 
 #. name for tkl
 msgid "Tokelau"
@@ -28708,9 +28696,8 @@ msgid "Makhuwa-Marrevone"
 msgstr ""
 
 #. name for xmd
-#, fuzzy
 msgid "Mbudum"
-msgstr "ବୁଦୁମା"
+msgstr ""
 
 #. name for xme
 msgid "Median"
@@ -28777,9 +28764,8 @@ msgid "Kamu"
 msgstr ""
 
 #. name for xmv
-#, fuzzy
 msgid "Malagasy, Tankarana"
-msgstr "ମାଲାଗାସି, ଅନ୍ତାକରଣ"
+msgstr ""
 
 #. name for xmw
 msgid "Malagasy, Tsimihety"
@@ -29862,9 +29848,8 @@ msgid "Yombe"
 msgstr ""
 
 #. name for yon
-#, fuzzy
 msgid "Yongkom"
-msgstr "ବୋବୋଙ୍କୋ"
+msgstr ""
 
 #. name for yor
 msgid "Yoruba"

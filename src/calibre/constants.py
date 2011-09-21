@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 16)
+numeric_version = (0, 8, 19)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -33,6 +33,7 @@ islinux   = not(iswindows or isosx or isbsd)
 isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
+ispy3 = sys.version_info.major > 2
 
 try:
     preferred_encoding = locale.getpreferredencoding()

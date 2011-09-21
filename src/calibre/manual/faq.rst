@@ -84,7 +84,9 @@ In order to convert a collection of HTML files in a specific oder, you have to c
       </body>
    </html>
 
-Then just add this HTML file to the GUI and use the convert button to create your ebook.
+Then just add this HTML file to the GUI and use the convert button to create your ebook. 
+
+.. note:: By default, when adding HTML files, |app| follows links in the files in *depth first* order. This means that if file A.html links to B.html and C.html and D.html, but B.html also links to D.html, then the files will be in the order A.html, B.html, D.html, C.html. If instead you want the order to be A.html, B.html, C.html, D.html then you must tell |app| to add your files in *breadth first* order. Do this by going to Preferences->Plugins and customizing the HTML to ZIP plugin.
 
 
 How do I use some of the advanced features of the conversion tools?
@@ -115,9 +117,9 @@ We just need some information from you:
   * What ebook formats does your device support?
   * Is there a special directory on the device in which all ebook files should be placed?
   * We also need information about your device that |app| will collect automatically. First, if your
-    device supports SD cards, insert them. Then connect your device. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
+    device supports SD cards, insert them. Then connect your device to the computer. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file
-    and repeat the process, this time with your device disconnected.
+    and repeat the process, this time with your device disconnected from your computer.
   * Send both the above outputs to us with the other information and we will write a device driver for your
     device.
 
@@ -140,7 +142,7 @@ Follow these steps to find the problem:
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information.
+In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information. Note that if you are using the user defined plugin for a device normally detected by a builtin |app| plugin, you must disable the builtin plugin first, so that your user defined plugin is used instead.
 
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

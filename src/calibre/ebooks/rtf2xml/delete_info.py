@@ -8,11 +8,6 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
 import sys, os, tempfile
@@ -48,6 +43,7 @@ class DeleteInfo:
                             'cw<it<listtable_',
                             'cw<it<revi-table',
                             'cw<ls<list-lev-d',
+                            # Field allowed
                             'cw<fd<field-inst',
                             'cw<an<book-mk-st',
                             'cw<an<book-mk-en',
@@ -86,7 +82,7 @@ class DeleteInfo:
             self.__ob = line
             return False
         else:
-            # write previous bracket, since didn't fine asterisk
+            # write previous bracket, since didn't find asterisk
             if self.__ob:
                 self.__write_obj.write(self.__ob)
                 self.__ob = 0
@@ -109,7 +105,7 @@ class DeleteInfo:
         If you find that you are in a delete group, and the previous
         token in not an open bracket (self.__ob = 0), that means
         that the delete group is nested inside another acceptable
-        detination group. In this case, you have alrady written
+        detination group. In this case, you have already written
         the open bracket, so you will need to write the closed one
         as well.
         """

@@ -7,8 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, errno
 from functools import partial
+from datetime import datetime
 
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
@@ -25,6 +26,8 @@ from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.utils.localization import canonicalize_lang
+from calibre.utils.date import local_tz
 
 BASE_TITLE = _('Edit Metadata')
 
@@ -376,7 +379,10 @@ class MetadataSingleDialogBase(ResizableDialog):
             if mi.series_index is not None:
                 self.series_index.current_val = float(mi.series_index)
         if not mi.is_null('languages'):
-            self.languages.lang_codes = mi.languages
+            langs = [canonicalize_lang(x) for x in mi.languages]
+            langs = [x for x in langs if x is not None]
+            if langs:
+                self.languages.current_val = langs
         if mi.comments and mi.comments.strip():
             self.comments.current_val = mi.comments
 
@@ -392,6 +398,14 @@ class MetadataSingleDialogBase(ResizableDialog):
                 if ':' not in f:
                     setattr(mi, f, getattr(dummy, f))
             if mi is not None:
+                pd = mi.pubdate
+                if pd is not None:
+                    # Put the downloaded published date into the local timezone
+                    # as we discard time info and the date is timezone
+                    # invariant. This prevents the as_local_timezone() call in
+                    # update_from_mi from changing the pubdate
+                    mi.pubdate = datetime(pd.year, pd.month, pd.day,
+                            tzinfo=local_tz)
                 self.update_from_mi(mi)
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
@@ -427,7 +441,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh',
                         set([]))
             except IOError as err:
-                if err.errno == 13: # Permission denied
+                if err.errno == errno.EACCES: # Permission denied
                     import traceback
                     fname = err.filename if err.filename else 'file'
                     error_dialog(self, _('Permission denied'),

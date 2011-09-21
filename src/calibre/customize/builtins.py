@@ -255,7 +255,7 @@ class LRXMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw4'])
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):
@@ -437,7 +437,7 @@ class LRFMetadataWriter(MetadataWriterPlugin):
 class MOBIMetadataWriter(MetadataWriterPlugin):
 
     name        = 'Set MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw4'])
     description = _('Set metadata in %s files')%'MOBI'
     author      = 'Marshall T. Vandegrift'
 
@@ -510,6 +510,7 @@ from calibre.ebooks.lit.input import LITInput
 from calibre.ebooks.mobi.input import MOBIInput
 from calibre.ebooks.odt.input import ODTInput
 from calibre.ebooks.pdb.input import PDBInput
+from calibre.ebooks.azw4.input import AZW4Input
 from calibre.ebooks.pdf.input import PDFInput
 from calibre.ebooks.pml.input import PMLInput
 from calibre.ebooks.rb.input import RBInput
@@ -556,7 +557,7 @@ from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.user_defined.driver import USER_DEFINED
-from calibre.devices.android.driver import ANDROID, S60
+from calibre.devices.android.driver import ANDROID, S60, WEBOS
 from calibre.devices.nokia.driver import N770, N810, E71X, E52
 from calibre.devices.eslick.driver import ESLICK, EBK52
 from calibre.devices.nuut2.driver import NUUT2
@@ -570,7 +571,7 @@ from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
 from calibre.devices.sne.driver import SNE
 from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
         GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
-        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY)
+        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY, EX124G)
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO
 from calibre.devices.bambook.driver import BAMBOOK
@@ -606,6 +607,7 @@ plugins += [
     MOBIInput,
     ODTInput,
     PDBInput,
+    AZW4Input,
     PDFInput,
     PMLInput,
     RBInput,
@@ -656,8 +658,7 @@ plugins += [
     KINDLE_DX,
     NOOK, NOOK_COLOR,
     PRS505,
-    ANDROID,
-    S60,
+    ANDROID, S60, WEBOS,
     N770,
     E71X,
     E52,
@@ -706,7 +707,7 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ADAM,
-    MOOVYBOOK, COBY,
+    MOOVYBOOK, COBY, EX124G,
     ITUNES,
     BOEYE_BEX,
     BOEYE_BDX,
@@ -1277,7 +1278,7 @@ class StoreEKnigiStore(StoreBase):
 
 class StoreEscapeMagazineStore(StoreBase):
     name = 'EscapeMagazine'
-    author = 'Tomasz Długosz'
+    author = u'Tomasz Długosz'
     description = u'Książki elektroniczne w formie pliku komputerowego PDF. Zabezpieczone hasłem.'
     actual_plugin = 'calibre.gui2.store.stores.escapemagazine_plugin:EscapeMagazineStore'
 
@@ -1428,7 +1429,7 @@ class StoreRW2010Store(StoreBase):
     name = 'RW2010'
     description = u'Polski serwis self-publishingowy. Pliki PDF, EPUB i MOBI. Maksymalna cena utworu nie przekracza u nas 10 złotych!'
     actual_plugin = 'calibre.gui2.store.stores.rw2010_plugin:RW2010Store'
-    author = 'Tomasz Długosz'
+    author = u'Tomasz Długosz'
 
     drm_free_only = True
     headquarters = 'PL'
@@ -1502,7 +1503,7 @@ class XinXiiStore(StoreBase):
     name = 'XinXii'
     description = ''
     actual_plugin = 'calibre.gui2.store.stores.xinxii_plugin:XinXiiStore'
-    
+
     headquarters = 'DE'
     formats = ['EPUB', 'PDF']
 

@@ -74,6 +74,20 @@ class Worker(Thread): # Get details {{{
             9: ['sept'],
             12: ['déc'],
             },
+                'jp': {
+            1: [u'1月'],
+            2: [u'2月'],
+            3: [u'3月'],
+            4: [u'4月'],
+            5: [u'5月'],
+            6: [u'6月'],
+            7: [u'7月'],
+            8: [u'8月'],
+            9: [u'9月'],
+            10: [u'10月'],
+            11: [u'11月'],
+            12: [u'12月'],
+            },
 
         }
 
@@ -86,13 +100,15 @@ class Worker(Thread): # Get details {{{
                  text()="Produktinformation" or \
                  text()="Dettagli prodotto" or \
                  text()="Product details" or \
-                 text()="Détails sur le produit"]/../div[@class="content"]
+                 text()="Détails sur le produit" or \
+                 text()="登録情報"]/../div[@class="content"]
             '''
         self.publisher_xpath = '''
             descendant::*[starts-with(text(), "Publisher:") or \
                     starts-with(text(), "Verlag:") or \
                     starts-with(text(), "Editore:") or \
-                    starts-with(text(), "Editeur")]
+                    starts-with(text(), "Editeur") or \
+                    starts-with(text(), "出版社:")]
             '''
         self.language_xpath =    '''
             descendant::*[
@@ -101,10 +117,11 @@ class Worker(Thread): # Get details {{{
                 or text() = "Sprache:" \
                 or text() = "Lingua:" \
                 or starts-with(text(), "Langue") \
+                or starts-with(text(), "言語") \
                 ]
             '''
         self.ratings_pat = re.compile(
-            r'([0-9.]+) (out of|von|su|étoiles sur) (\d+)( (stars|Sternen|stelle)){0,1}')
+            r'([0-9.]+) ?(out of|von|su|étoiles sur|つ星のうち) ([\d\.]+)( (stars|Sternen|stelle)){0,1}')
 
         lm = {
                 'eng': ('English', 'Englisch'),
@@ -112,6 +129,7 @@ class Worker(Thread): # Get details {{{
                 'ita': ('Italian', 'Italiano'),
                 'deu': ('German', 'Deutsch'),
                 'spa': ('Spanish', 'Espa\xf1ol', 'Espaniol'),
+                'jpn': ('Japanese', u'日本語'),
                 }
         self.lang_map = {}
         for code, names in lm.iteritems():
@@ -403,6 +421,7 @@ class Amazon(Source):
             'de' : _('Germany'),
             'uk' : _('UK'),
             'it' : _('Italy'),
+            'jp' : _('Japan'),
     }
 
     options = (
@@ -410,6 +429,22 @@ class Amazon(Source):
                 _('Metadata from Amazon will be fetched using this '
                     'country\'s Amazon website.'), choices=AMAZON_DOMAINS),
             )
+
+    def __init__(self, *args, **kwargs):
+        Source.__init__(self, *args, **kwargs)
+        self.set_amazon_id_touched_fields()
+
+    def save_settings(self, *args, **kwargs):
+        Source.save_settings(self, *args, **kwargs)
+        self.set_amazon_id_touched_fields()
+
+    def set_amazon_id_touched_fields(self):
+        ident_name = "identifier:amazon"
+        if self.domain != 'com':
+            ident_name += '_' + self.domain
+        tf = [x for x in self.touched_fields if not
+                x.startswith('identifier:amazon')] + [ident_name]
+        self.touched_fields = frozenset(tf)
 
     def get_domain_and_asin(self, identifiers):
         for key, val in identifiers.iteritems():
@@ -488,13 +523,23 @@ class Amazon(Source):
             # Insufficient metadata to make an identify query
             return None, None
 
-        latin1q = dict([(x.encode('latin1', 'ignore'), y.encode('latin1',
+        # magic parameter to enable Japanese Shift_JIS encoding.
+        if domain == 'jp':
+            q['__mk_ja_JP'] = u'カタカナ'
+
+        if domain == 'jp':
+            encode_to = 'Shift_JIS'
+        else:
+            encode_to = 'latin1'
+        encoded_q = dict([(x.encode(encode_to, 'ignore'), y.encode(encode_to,
             'ignore')) for x, y in
             q.iteritems()])
         udomain = domain
         if domain == 'uk':
             udomain = 'co.uk'
-        url = 'http://www.amazon.%s/s/?'%udomain + urlencode(latin1q)
+        elif domain == 'jp':
+            udomain = 'co.jp'
+        url = 'http://www.amazon.%s/s/?'%udomain + urlencode(encoded_q)
         return url, domain
 
     # }}}
@@ -663,7 +708,7 @@ if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            title_test, authors_test)
+            isbn_test, title_test, authors_test)
     com_tests = [ # {{{
 
             (  # Description has links
@@ -744,6 +789,21 @@ if __name__ == '__main__': # tests {{{
             ),
     ] # }}}
 
+    jp_tests = [ # {{{
+            ( # isbn -> title, authors
+                {'identifiers':{'isbn': '9784101302720' }},
+                [title_test(u'精霊の守り人',
+                    exact=True), authors_test([u'上橋 菜穂子'])
+                 ]
+            ),
+            ( # title, authors -> isbn (will use Shift_JIS encoding in query.)
+                {'title': u'考えない練習',
+                 'authors': [u'小池 龍之介']},
+                [isbn_test('9784093881067'), ]
+            ),
+    ] # }}}
+
     test_identify_plugin(Amazon.name, com_tests)
+    #test_identify_plugin(Amazon.name, jp_tests)
 # }}}
 

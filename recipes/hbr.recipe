@@ -11,9 +11,14 @@ class HBR(BasicNewsRecipe):
     timefmt                = ' [%B %Y]'
     language = 'en'
     no_stylesheets = True
+    recipe_disabled = ('hbr.org has started requiring the use of javascript'
+            ' to log into their website. This is unsupported in calibre, so'
+            ' this recipe has been disabled. If you would like to see '
+            ' HBR supported in calibre, contact hbr.org and ask them'
+            ' to provide a javascript free login method.')
 
-    LOGIN_URL = 'http://hbr.org/login?request_url=/'
-    LOGOUT_URL = 'http://hbr.org/logout?request_url=/'
+    LOGIN_URL = 'https://hbr.org/login?request_url=/'
+    LOGOUT_URL = 'https://hbr.org/logout?request_url=/'
 
     INDEX = 'http://hbr.org/archive-toc/BR'
 
@@ -44,7 +49,7 @@ class HBR(BasicNewsRecipe):
         br['signin-form:username'] = self.username
         br['signin-form:password'] = self.password
         raw = br.submit().read()
-        if 'My Account' not in raw:
+        if '>Sign out<' not in raw:
             raise Exception('Failed to login, are you sure your username and password are correct?')
         try:
             link = br.find_link(text='Sign out')

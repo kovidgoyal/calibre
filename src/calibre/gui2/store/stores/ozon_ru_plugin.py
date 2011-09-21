@@ -80,13 +80,15 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
             doc = html.fromstring(f.read())
             
             # example where we are going to find formats
-            # <div class="box">
-            # ...
-            #     <b>Доступные&nbsp;форматы:</b>
-            #     <div class="vertpadd">.epub, .fb2, .pdf, .pdf, .txt</div>
-            # ...
+            # <div class="l">
+            #     <p>            
+            #         Доступно:
+            #    </p>
             # </div>
-            xpt = u'normalize-space(//div[@class="box"]//*[contains(normalize-space(text()), "Доступные форматы:")][1]/following-sibling::div[1]/text())'
+            # <div class="l">
+            #     <p>.epub, .fb2.zip, .pdf</p>
+            # </div>
+            xpt = u'normalize-space(//div[contains(@class, "product-detail")]//*[contains(normalize-space(text()), "Доступ")]/ancestor-or-self::div[1]/following-sibling::div[1]/*[1])'
             formats = doc.xpath(xpt)
             if formats:
                 result = True

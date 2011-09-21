@@ -144,6 +144,19 @@ class BasicNewsRecipe(Recipe):
     #: manually (though manual cleanup will always be superior).
     auto_cleanup = False
 
+    #: Specify elements that the auto cleanup algorithm should never remove
+    #: The syntax is a XPath expression. For example::
+    #:
+    #:   auto_cleanup_keep = '//div[@id="article-image"]' will keep all divs with
+    #:                                                  id="article-image"
+    #:   auto_cleanup_keep = '//*[@class="important"]' will keep all elements
+    #:                                               with class="important"
+    #:   auto_cleanup_keep = '//div[@id="article-image"]|//span[@class="important"]'
+    #:                     will keep all divs with id="article-image" and spans
+    #:                     with class="important"
+    #:
+    auto_cleanup_keep = None
+
     #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
     #: `</head>` tag thereby overriding all :term:`CSS` except that which is
@@ -552,7 +565,8 @@ class BasicNewsRecipe(Recipe):
         from lxml.html import (fragment_fromstring, tostring,
                 document_fromstring)
 
-        doc = readability.Document(html, self.log, url=url)
+        doc = readability.Document(html, self.log, url=url,
+                keep_elements=self.auto_cleanup_keep)
         article_html = doc.summary()
         extracted_title = doc.title()
 

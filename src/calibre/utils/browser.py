@@ -28,6 +28,10 @@ class Browser(B):
         B.set_cookiejar(self, *args, **kwargs)
         self._clone_actions['set_cookiejar'] = ('set_cookiejar', args, kwargs)
 
+    @property
+    def cookiejar(self):
+        return self._clone_actions['set_cookiejar'][1][0]
+
     def set_handle_redirect(self, *args, **kwargs):
         B.set_handle_redirect(self, *args, **kwargs)
         self._clone_actions['set_handle_redirect'] = ('set_handle_redirect',

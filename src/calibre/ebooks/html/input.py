@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 Input plugin for HTML or OPF ebooks.
 '''
 
-import os, re, sys, uuid, tempfile
+import os, re, sys, uuid, tempfile, errno as gerrno
 from urlparse import urlparse, urlunparse
 from urllib import unquote
 from functools import partial
@@ -75,7 +75,7 @@ class IgnoreFile(Exception):
 
     def __init__(self, msg, errno):
         Exception.__init__(self, msg)
-        self.doesnt_exist = errno == 2
+        self.doesnt_exist = errno == gerrno.ENOENT
         self.errno = errno
 
 class HTMLFile(object):

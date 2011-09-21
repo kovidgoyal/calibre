@@ -1,0 +1,40 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class CGM(BasicNewsRecipe):
+    title          = u'CGM'
+    oldest_article = 7
+    __author__        = 'fenuks'
+    description   = u'Codzienna Gazeta Muzyczna'
+    cover_url      = 'http://www.krafcy.com/foto/tinymce/Image/cgm%281%29.jpg'
+    category       = 'music'
+    language       = 'pl'
+    use_embedded_content   = False
+    max_articles_per_feed = 100
+    no_stylesheers=True
+    extra_css      = 'div {color:black;} strong {color:black;} span {color:black;} p {color:black;}'
+    remove_tags_before=dict(id='mainContent')
+    remove_tags_after=dict(name='div', attrs={'class':'fbContainer'})
+    remove_tags=[dict(name='div', attrs={'class':'fbContainer'}),
+ 	      dict(name='p', attrs={'class':['tagCloud', 'galleryAuthor']}), 
+	      dict(id=['movieShare', 'container'])]
+    feeds          = [(u'Informacje', u'http://www.cgm.pl/rss.xml'), (u'Polecamy', u'http://www.cgm.pl/rss,4,news.xml'), 
+                          (u'Recenzje', u'http://www.cgm.pl/rss,1,news.xml')]
+
+
+    def preprocess_html(self, soup):
+        ad=soup.findAll('img')
+        for r in ad:
+            if '/_vault/_article_photos/5841.jpg' in r['src'] or '_vault/_article_photos/5807.jpg' in r['src'] or 'article_photos/5841.jpg' in r['src'] or 'article_photos/5825.jpg' in r['src'] or '_article_photos/5920.jpg' in r['src']  or '_article_photos/5919.jpg' in r['src'] or '_article_photos/5918.jpg' in r['src'] or '_article_photos/5914.jpg' in r['src'] or '_article_photos/5911.jpg' in r['src'] or '_article_photos/5923.jpg' in r['src'] or '_article_photos/5921.jpg' in r['src']:                
+                 ad[ad.index(r)].extract()
+        gallery=soup.find('div', attrs={'class':'galleryFlash'})
+        if gallery:
+            img=gallery.find('embed')
+            if img:
+                img=img['src'][35:]
+                img='http://www.cgm.pl/_vault/_gallery/_photo/'+img
+                param=gallery.findAll(name='param')
+                for i in param:
+                    i.extract()
+                gallery.contents[1].name='img'
+                gallery.contents[1]['src']=img
+        return soup

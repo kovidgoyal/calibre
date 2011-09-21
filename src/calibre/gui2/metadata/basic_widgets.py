@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re, os
+import textwrap, re, os, errno
 
 from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
@@ -98,7 +98,7 @@ class TitleEdit(EnLineEdit):
                 getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
                         commit=False)
         except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == 13: # Permission denied
+            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
                 import traceback
                 fname = err.filename if err.filename else 'file'
                 error_dialog(self, _('Permission denied'),
@@ -262,7 +262,7 @@ class AuthorsEdit(MultiCompleteComboBox):
             self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
                 allow_case_change=True)
         except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == 13: # Permission denied
+            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
                 import traceback
                 fname = err.filename if err.filename else 'file'
                 error_dialog(self, _('Permission denied'),
@@ -1227,7 +1227,9 @@ class IdentifiersEdit(QLineEdit): # {{{
                         val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
             txt = ', '.join(['%s:%s'%(k.lower(), v) for k, v in ids])
-            self.setText(txt.strip())
+            # Use clear + insert instead of setText so that undo works
+            self.clear()
+            self.insert(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
@@ -1319,7 +1321,7 @@ class ISBNDialog(QDialog) : # {{{
         self.line_edit.setStyleSheet('QLineEdit { background-color: %s }'%col)
 
     def text(self):
-        return unicode(self.line_edit.text())
+        return check_isbn(unicode(self.line_edit.text()))
 
 # }}}
 

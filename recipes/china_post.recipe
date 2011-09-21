@@ -1,0 +1,29 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class CP(BasicNewsRecipe):
+    title          = u'China Post'
+    language       = 'en_CN'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+    feeds          = [
+('Top Stories',
+ 'http://www.chinapost.com.tw/rss/front.xml'),
+('Taiwan',
+ 'http://www.chinapost.com.tw/rss/taiwan.xml'),
+('China',
+ 'http://www.chinapost.com.tw/rss/china.xml'),
+('Business',
+ 'http://www.chinapost.com.tw/rss/business.xml'),
+('World',
+ 'http://www.chinapost.com.tw/rss/international.xml'),
+('Sports',
+ 'http://www.chinapost.com.tw/rss/sports.xml'),
+]
+
+

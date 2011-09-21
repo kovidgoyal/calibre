@@ -1,0 +1,61 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import re
+
+class SportsIllustratedRecipe(BasicNewsRecipe) :
+    __author__    = 'ape'
+    __copyright__ = 'ape'
+    __license__   = 'GPL v3'
+    language      = 'de'
+    description   = 'Berliner Zeitung'
+    version       = 2
+    title         = u'Berliner Zeitung'
+    timefmt       = ' [%d.%m.%Y]'
+
+    no_stylesheets = True
+    remove_javascript = True
+    use_embedded_content = False
+    publication_type = 'newspaper'
+
+    keep_only_tags = [dict(name='div', attrs={'class':'teaser t_split t_artikel'})]
+
+    INDEX = 'http://www.berlinonline.de/berliner-zeitung/'
+
+    def parse_index(self):
+        base = 'http://www.berlinonline.de'
+        answer = []
+        articles = {}
+        more = 1
+
+        soup = self.index_to_soup(self.INDEX)
+
+        # Get list of links to ressorts from index page
+        ressort_list = soup.findAll('ul', attrs={'class': re.compile('ressortlist')})
+        for ressort in ressort_list[0].findAll('a'):
+            feed_title = ressort.string
+            print 'Analyzing', feed_title
+            if not articles.has_key(feed_title):
+                articles[feed_title] = []
+                answer.append(feed_title)
+            # Load ressort page.
+            feed = self.index_to_soup('http://www.berlinonline.de' + ressort['href'])
+            # find mainbar div which contains the list of all articles
+            for article_container in feed.findAll('div', attrs={'class': re.compile('mainbar')}):
+                # iterate over all articles
+                for article_teaser in article_container.findAll('div', attrs={'class': re.compile('teaser')}):
+                    # extract title of article
+                    if article_teaser.h3 != None:
+                        article = {'title' : article_teaser.h3.a.string, 'date' : u'', 'url'  : base + article_teaser.h3.a['href'], 'description' : u''}
+                        articles[feed_title].append(article)
+                    else:
+                        # Skip teasers for missing photos
+                        if article_teaser.div.p.contents[0].find('Foto:') > -1:
+                            continue
+                        article = {'title': 'Weitere Artikel ' + str(more), 'date': u'', 'url': base + article_teaser.div.p.a['href'], 'description': u''}
+                        articles[feed_title].append(article)
+                        more += 1
+        answer = [[key, articles[key]] for key in answer if articles.has_key(key)]
+        return answer
+
+    def get_masthead_url(self):
+        return 'http://www.berlinonline.de/.img/berliner-zeitung/blz_logo.gif'
+

@@ -167,16 +167,20 @@ class CheckLibrary(object):
 
         if self.is_case_sensitive:
             unknowns = frozenset(filenames-formats-NORMALS)
+            missing = book_formats - formats
             # Check: any books that aren't formats or normally there?
-            for u in unknowns:
+            for fn in unknowns:
+                if fn in missing: # An unknown format correctly registered
+                    continue
                 self.extra_files.append((title_dir,
-                                         os.path.join(db_path, u), book_id))
+                                         os.path.join(db_path, fn), book_id))
 
             # Check: any book formats that should be there?
-            missing = book_formats - formats
-            for m in  missing:
+            for fn in missing:
+                if fn in unknowns: # An unknown format correctly registered
+                    continue
                 self.missing_formats.append((title_dir,
-                                             os.path.join(db_path, m), book_id))
+                                             os.path.join(db_path, fn), book_id))
 
             # Check: any book formats that shouldn't be there?
             extra = formats - book_formats - NORMALS
@@ -185,25 +189,32 @@ class CheckLibrary(object):
                                            os.path.join(db_path, e), book_id))
         else:
             def lc_map(fnames, fset):
-                m = {}
+                fn = {}
                 for f in fnames:
-                    m[f.lower()] = f
-                return [m[f] for f in fset]
+                    ff = f.lower()
+                    if ff in fset:
+                        fn[ff] = f
+                return fn
 
             filenames_lc = frozenset([f.lower() for f in filenames])
             formats_lc = frozenset([f.lower() for f in formats])
             unknowns = frozenset(filenames_lc-formats_lc-NORMALS)
+            book_formats_lc = frozenset([f.lower() for f in book_formats])
+            missing = book_formats_lc - formats_lc
+
             # Check: any books that aren't formats or normally there?
-            for f in lc_map(filenames, unknowns):
-                self.extra_files.append((title_dir, os.path.join(db_path, f),
+            for lcfn,ccfn in lc_map(filenames, unknowns).iteritems():
+                if lcfn in missing: # An unknown format correctly registered
+                    continue
+                self.extra_files.append((title_dir, os.path.join(db_path, ccfn),
                                          book_id))
 
-            book_formats_lc = frozenset([f.lower() for f in book_formats])
             # Check: any book formats that should be there?
-            missing = book_formats_lc - formats_lc
-            for m in lc_map(book_formats, missing):
+            for lcfn,ccfn in lc_map(book_formats, missing).iteritems():
+                if lcfn in unknowns: # An unknown format correctly registered
+                    continue
                 self.missing_formats.append((title_dir,
-                                             os.path.join(db_path, m), book_id))
+                                             os.path.join(db_path, ccfn), book_id))
 
             # Check: any book formats that shouldn't be there?
             extra = formats_lc - book_formats_lc - NORMALS

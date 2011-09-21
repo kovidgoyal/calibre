@@ -12,6 +12,7 @@ import os, re
 
 from calibre import prepare_string_for_xml, isbytestring
 from calibre.ebooks.metadata.opf2 import OPFCreator
+
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
 
@@ -96,9 +97,11 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
 
 def convert_markdown(txt, title='', disable_toc=False):
     from calibre.ebooks.markdown import markdown
+    extensions=['footnotes', 'tables']
+    if not disable_toc:
+        extensions.append('toc')
     md = markdown.Markdown(
-          extensions=['footnotes', 'tables', 'toc'],
-          extension_configs={"toc": {"disable_toc": disable_toc}},
+          extensions,
           safe_mode=False)
     return HTML_TEMPLATE % (title, md.convert(txt))
 

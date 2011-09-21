@@ -971,7 +971,14 @@ class ResultCache(SearchQueryParser): # {{{
     def sort(self, field, ascending, subsort=False):
         self.multisort([(field, ascending)])
 
-    def multisort(self, fields=[], subsort=False):
+    def multisort(self, fields=[], subsort=False, only_ids=None):
+        '''
+        fields is a list of 2-tuple, each tuple is of the form
+        (field_name, is_ascending)
+
+        If only_ids is a list of ids, this function will sort that list instead
+        of the internal mapping of ids.
+        '''
         fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
         keys = self.field_metadata.sortable_field_keys()
         fields = [x for x in fields if x[0] in keys]
@@ -981,13 +988,15 @@ class ResultCache(SearchQueryParser): # {{{
             fields = [('timestamp', False)]
 
         keyg = SortKeyGenerator(fields, self.field_metadata, self._data, self.db_prefs)
-        self._map.sort(key=keyg)
+        if only_ids is None:
+            self._map.sort(key=keyg)
 
-        tmap = list(itertools.repeat(False, len(self._data)))
-        for x in self._map_filtered:
-            tmap[x] = True
-        self._map_filtered = [x for x in self._map if tmap[x]]
-
+            tmap = list(itertools.repeat(False, len(self._data)))
+            for x in self._map_filtered:
+                tmap[x] = True
+            self._map_filtered = [x for x in self._map if tmap[x]]
+        else:
+            only_ids.sort(key=keyg)
 
 class SortKey(object):
 

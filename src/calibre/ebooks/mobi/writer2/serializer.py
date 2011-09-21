@@ -160,7 +160,9 @@ class Serializer(object):
                 buf.write(b'title="')
                 self.serialize_text(ref.title, quot=True)
                 buf.write(b'" ')
-                if ref.title == 'start':
+                if (ref.title.lower() == 'start' or
+                    (ref.type and ref.type.lower() in ('start',
+                        'other.start'))):
                     self._start_href = ref.href
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not
@@ -204,7 +206,7 @@ class Serializer(object):
             # if href is provided add a link ref to the toc level output (e.g. feed_0/index.html)
             if href is not None:
                 # resolve the section url in id_offsets
-                buf.write('<mbp:pagebreak/>')
+                buf.write('<mbp:pagebreak />')
                 self.id_offsets[urlnormalize(href)] = buf.tell()
 
             if tocref.klass == "periodical":
@@ -229,7 +231,7 @@ class Serializer(object):
                 buf.write(tocitem.title)
                 buf.write('</u></b></font></a></li>')
 
-            buf.write('</ul><div height="1em"></div></div>')
+            buf.write('</ul><div height="1em"></div></div><mbp:pagebreak />')
 
         self.anchor_offset = buf.tell()
         buf.write(b'<body>')
@@ -348,8 +350,9 @@ class Serializer(object):
         '''
         buf = self.buf
         id_offsets = self.id_offsets
+        start_href = getattr(self, '_start_href', None)
         for href, hoffs in self.href_offsets.items():
-            is_start = (href and href == getattr(self, '_start_href', None))
+            is_start = (href and href == start_href)
             # Iterate over all filepos items
             if href not in id_offsets:
                 self.logger.warn('Hyperlink target %r not found' % href)

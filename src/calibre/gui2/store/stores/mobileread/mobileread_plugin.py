@@ -44,9 +44,12 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         books = self.get_book_list()
+        
+        if not books:
+            return
 
         sf = SearchFilter(books)
-        matches = sf.parse(query)
+        matches = sf.parse(query.decode('utf-8', 'replace'))
 
         for book in matches:
             book.price = '$0.00'

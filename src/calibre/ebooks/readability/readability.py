@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
 import re, sys
 from collections import defaultdict
 
@@ -72,10 +77,15 @@ class Document:
             self.options[k] = v
         self.html = None
         self.log = log
+        self.keep_elements = set()
 
     def _html(self, force=False):
         if force or self.html is None:
             self.html = self._parse(self.input)
+            path = self.options['keep_elements']
+            if path is not None:
+                self.keep_elements = set(self.html.xpath(path))
+
         return self.html
 
     def _parse(self, input):
@@ -152,8 +162,9 @@ class Document:
             append = False
             if sibling is best_elem:
                 append = True
-            sibling_key = sibling #HashableElement(sibling)
-            if sibling_key in candidates and candidates[sibling_key]['content_score'] >= sibling_score_threshold:
+            if sibling in candidates and candidates[sibling]['content_score'] >= sibling_score_threshold:
+                append = True
+            if sibling in self.keep_elements:
                 append = True
 
             if sibling.tag == "p":
@@ -283,6 +294,8 @@ class Document:
 
     def remove_unlikely_candidates(self):
         for elem in self.html.iter():
+            if elem in self.keep_elements:
+                continue
             s = "%s %s" % (elem.get('class', ''), elem.get('id', ''))
             #self.debug(s)
             if REGEXES['unlikelyCandidatesRe'].search(s) and (not REGEXES['okMaybeItsACandidateRe'].search(s)) and elem.tag != 'body':
@@ -337,7 +350,7 @@ class Document:
         allowed = {}
         # Conditionally clean <table>s, <ul>s, and <div>s
         for el in self.reverse_tags(node, "table", "ul", "div"):
-            if el in allowed:
+            if el in allowed or el in self.keep_elements:
                 continue
             weight = self.class_weight(el)
             if el in candidates:
@@ -450,64 +463,39 @@ class Document:
                     #self.debug("pname %s pweight %.3f" %(pname, pweight))
                     el.drop_tree()
 
-        for el in ([node] + [n for n in node.iter()]):
-            if not (self.options['attributes']):
-                #el.attrib = {} #FIXME:Checkout the effects of disabling this
-                pass
-
         return clean_attributes(tounicode(node))
 
+def option_parser():
+    from calibre.utils.config import OptionParser
+    parser = OptionParser(usage='%prog: [options] file')
+    parser.add_option('-v', '--verbose', default=False, action='store_true',
+            dest='verbose',
+            help='Show detailed output information. Useful for debugging')
+    parser.add_option('-k', '--keep-elements', default=None, action='store',
+            dest='keep_elements',
+            help='XPath specifying elements that should not be removed')
 
-class HashableElement():
-    def __init__(self, node):
-        self.node = node
-        self._path = None
-
-    def _get_path(self):
-        if self._path is None:
-            reverse_path = []
-            node = self.node
-            while node is not None:
-                node_id = (node.tag, tuple(node.attrib.items()), node.text)
-                reverse_path.append(node_id)
-                node = node.getparent()
-            self._path = tuple(reverse_path)
-        return self._path
-    path = property(_get_path)
-
-    def __hash__(self):
-        return hash(self.path)
-
-    def __eq__(self, other):
-        return self.path == other.path
-
-    def __getattr__(self, tag):
-        return getattr(self.node, tag)
+    return parser
 
 def main():
-    import logging
-    from optparse import OptionParser
-    parser = OptionParser(usage="%prog: [options] [file]")
-    parser.add_option('-v', '--verbose', action='store_true')
-    parser.add_option('-u', '--url', help="use URL instead of a local file")
-    (options, args) = parser.parse_args()
+    from calibre.utils.logging import default_log
+    parser = option_parser()
+    options, args = parser.parse_args()
 
-    if not (len(args) == 1 or options.url):
+    if len(args) != 1:
         parser.print_help()
-        sys.exit(1)
-    logging.basicConfig(level=logging.INFO)
+        raise SystemExit(1)
 
-    file = None
-    if options.url:
-        import urllib
-        file = urllib.urlopen(options.url)
-    else:
-        file = open(args[0], 'rt')
+    with open(args[0], 'rb') as f:
+        raw = f.read()
+
     enc = sys.__stdout__.encoding or 'utf-8'
-    try:
-        print Document(file.read(), debug=options.verbose).summary().encode(enc, 'replace')
-    finally:
-        file.close()
+    if options.verbose:
+        default_log.filter_level = default_log.DEBUG
+    print (Document(raw, default_log,
+            debug=options.verbose,
+            keep_elements=options.keep_elements).summary().encode(enc,
+                'replace'))
 
 if __name__ == '__main__':
     main()

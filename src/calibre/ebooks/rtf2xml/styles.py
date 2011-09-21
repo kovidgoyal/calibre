@@ -8,11 +8,6 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
 import sys, os,  tempfile
@@ -107,8 +102,6 @@ class Styles:
         'sect-defin'    :	'section-reset',
         'sect-note_'    :	'endnotes-in-section',
         # list=> ls
-        'list-text_'    :	'list-text',
-        # this line must be wrong because it duplicates an earlier one
         'list-text_'    :	'list-text',
         'list______'    :	'list',
         'list-lev-d'    :	'list-level-definition',
