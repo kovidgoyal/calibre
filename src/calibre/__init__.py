@@ -17,7 +17,6 @@ from calibre.constants import (iswindows, isosx, islinux, isfrozen,
         win32event, win32api, winerror, fcntl,
         filesystem_encoding, plugins, config_dir)
 from calibre.startup import winutil, winutilerror
-from calibre.utils.filenames import ascii_filename
 
 if False and islinux and not getattr(sys, 'frozen', False):
     # Imported before PyQt4 to workaround PyQt4 util-linux conflict discovered on gentoo
@@ -649,10 +648,7 @@ def get_download_filename(url, cookie_file=None):
     if not filename:
         filename = last_part_name
 
-    filename, ext = os.path.splitext(filename)
-    filename = filename[:60] + ext
-
-    return ascii_filename(filename)
+    return filename
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
