@@ -25,7 +25,7 @@ class Control(object):
         def fget(self):
             if self.type in ('checkbox', 'radio'):
                 return unicode(self.qwe.attribute('checked')) == 'checked'
-            if self.type in ('text', 'password'):
+            if self.type in ('text', 'password', 'hidden'):
                 return unicode(self.qwe.attribute('value'))
 
         def fset(self, val):
@@ -34,7 +34,7 @@ class Control(object):
                     self.qwe.setAttribute('checked', 'checked')
                 else:
                     self.qwe.removeAttribute('checked')
-            elif self.type in ('text', 'password'):
+            elif self.type in ('text', 'password', 'hidden'):
                 self.qwe.setAttribute('value', as_unicode(val))
 
         return property(fget=fget, fset=fset)
