@@ -135,7 +135,6 @@ class BookHeader(object):
             self.length, self.type, self.codepage, self.unique_id, \
                 self.version = struct.unpack('>LLLLL', raw[20:40])
 
-
             try:
                 self.codec = {
                     1252: 'cp1252',
@@ -145,8 +144,9 @@ class BookHeader(object):
                 self.codec = 'cp1252' if not user_encoding else user_encoding
                 log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
                     self.codec))
-            if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length \
-                or (try_extra_data_fix and self.length == 0xE4):
+            if (ident == 'TEXTREAD' or self.length < 0xE4 or
+                    0xF8 < self.length or # 0xF8 is a correct MOBI header with DRM fields
+                    (try_extra_data_fix and self.length == 0xE4)):
                 self.extra_flags = 0
             else:
                 self.extra_flags, = struct.unpack('>H', raw[0xF2:0xF4])
