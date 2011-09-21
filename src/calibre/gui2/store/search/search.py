@@ -350,7 +350,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         d = ChooseFormatDialog(self, _('Choose format to download to your library.'), result.downloads.keys())
         if d.exec_() == d.Accepted:
             ext = d.format()
-            fname = result.title + '.' + ext.lower()
+            fname = result.title[:60] + '.' + ext.lower()
             fname = ascii_filename(fname)
             self.gui.download_ebook(result.downloads[ext], filename=fname)
     
