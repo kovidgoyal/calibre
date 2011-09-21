@@ -1,0 +1,11 @@
+class Historia_org_pl(BasicNewsRecipe):
+    title          = u'Historia.org.pl'
+    __author__        = 'fenuks'
+    description   = u'history site'
+    cover_url      = 'http://lh3.googleusercontent.com/_QeRQus12wGg/TOvHsZ2GN7I/AAAAAAAAD_o/LY1JZDnq7ro/logo5.jpg'
+    category       = 'history'
+    language       = 'pl'
+    oldest_article = 8
+    max_articles_per_feed = 100
+
+    feeds          = [(u'Artykuły', u'http://www.historia.org.pl/index.php?format=feed&type=rss')]
