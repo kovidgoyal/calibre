@@ -1,5 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-
+import re
 
 class Dobreprogramy_pl(BasicNewsRecipe):
     title = 'Dobreprogramy.pl'
@@ -15,6 +15,7 @@ class Dobreprogramy_pl(BasicNewsRecipe):
     extra_css      = '.title {font-size:22px;}'
     oldest_article = 8
     max_articles_per_feed = 100
+    preprocess_regexps = [(re.compile(ur'<div id="\S+360pmp4">Twoja przeglądarka nie obsługuje Flasha i HTML5 lub wyłączono obsługę JavaScript...</div>'), lambda match: '') ]
     remove_tags = [dict(name='div', attrs={'class':['komentarze', 'block', 'portalInfo', 'menuBar', 'topBar']})]
     keep_only_tags = [dict(name='div', attrs={'class':['mainBar', 'newsContent', 'postTitle title', 'postInfo', 'contentText', 'content']})]
     feeds = [(u'Aktualności', 'http://feeds.feedburner.com/dobreprogramy/Aktualnosci'),
