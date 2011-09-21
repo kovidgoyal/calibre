@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre import as_unicode
 
+# Forms {{{
 class Control(object):
 
     def __init__(self, qwe):
@@ -119,10 +120,10 @@ class Form(object):
     def __getitem__(self, key):
         for x in self.input_controls:
             if key == x.name:
-                return x
+                return x.value
         for x in (self.radio_controls, self.select_controls):
             try:
-                return x[key]
+                return x[key].value
             except KeyError:
                 continue
         raise KeyError('No control with the name %s in this form'%key)
@@ -158,7 +159,7 @@ class Form(object):
             if c.type == 'image':
                 return c
 
-
+# }}}
 
 class FormsMixin(object):
 
