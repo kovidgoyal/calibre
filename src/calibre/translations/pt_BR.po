@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-09-17 19:24+0000\n"
+"PO-Revision-Date: 2011-09-21 02:40+0000\n"
 "Last-Translator: Nestor Carvalho <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-09-18 04:55+0000\n"
-"X-Generator: Launchpad (build 13955)\n"
+"X-Launchpad-Export-Date: 2011-09-21 04:50+0000\n"
+"X-Generator: Launchpad (build 13996)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -246,7 +246,7 @@ msgstr "Preferências"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "Loja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
@@ -393,7 +393,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "Navegar pelo manual do usuário de calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid "Customize calibre"
@@ -437,15 +437,15 @@ msgstr "Escolhe aleatoriamente um livro em sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:858
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Procurar por livros de diferentes vendedores"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Obter novos plugins calibre ou atualizar os existentes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:893
 msgid "Look and Feel"
-msgstr ""
+msgstr "Aparência e impressões"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:907
@@ -564,7 +564,8 @@ msgstr "Enviando livros para dispositivos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1013
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "Controla como o calibre transfere arquivos do seu leitor de ebook"
+msgstr ""
+"Controlar como o calibre transfere arquivos para o seu leitor de ebook"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Metadata plugboards"
@@ -653,7 +654,7 @@ msgstr "Teclado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Customizar os atalhos de teclado usados por calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1111
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -696,7 +697,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Converter ebooks para o formato %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:49
 msgid "Input profile"
@@ -930,6 +931,7 @@ msgstr "Desabilitar a extensão com nome"
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
+"Caminho à biblioteca longo demais. Deve conter menos de %d caractéres."
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:138
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:647
@@ -944,7 +946,7 @@ msgstr "Sim"
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1101
 msgid "Main"
-msgstr ""
+msgstr "Principal"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
@@ -980,7 +982,7 @@ msgstr "Comunica-se com os telefones S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:197
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Comunicar-se com tablets WebOS"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -1019,6 +1021,7 @@ msgstr "Usar Séries como categorias no iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Permitir o uso do nome da série como gênero do iTunes e categoria do iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
@@ -1034,6 +1037,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"\"Copiar arquivos à pasta de mídia %s do iTunes\" está ativo nas "
+"Preferências|Avançadas do iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid ""
@@ -1042,6 +1047,11 @@ msgid ""
 "your calibre configuration directory.</p><p>Enabling indicates that iTunes "
 "is configured to store copies in your iTunes Media folder.</p>"
 msgstr ""
+"<p>Essa configuração deve ser idêntica à prefênrica do seu iTunes em "
+"<i>Preferências</i>|<i>Avançadas</i>.</p><p>Desabilitá-la vai armazenar as "
+"cópias de livros transferidos ao iTunes no diretório calibre de "
+"configuração.</p><p>Ativá-la indica que o iTunes está configurado para "
+"armazenar as cópias na pasta iTunes de Mídias.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
 msgid "Apple device"
@@ -1254,11 +1264,11 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Comunicar-se com os leitores BOEYE BEX serial."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Comunicar-se com os leitores BOEYE BDX serial."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1286,7 +1296,7 @@ msgstr "Comunicar-se com o PocketBook 602/603/902/903 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Comunicar-se com o leitor PocketBook 360+."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
 msgid "Communicate with the PocketBook 701"
@@ -1348,7 +1358,7 @@ msgstr "Comunica-se com o leitor The Book."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:58
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Comunicar-se com o leitor Libre Air."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:71
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1403,7 +1413,7 @@ msgstr "Comunique-se com o leitor Mini jetBook."
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 #, python-format
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Não é um arquivo MOBI válido. Identidade relatada de %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
@@ -1464,7 +1474,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:55
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "Criar palavras-chave para manejamento automático"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:543
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1485,11 +1495,11 @@ msgstr "Comunica-se com o Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Comunica-se com o Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Comunica-se com Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
@@ -1522,7 +1532,7 @@ msgstr "Comunicar-se com o EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Comunica-se com o tablet Adam"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
@@ -1530,15 +1540,15 @@ msgstr "Comunicar-se com o Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "Comunicar-se com o leitor Moovybook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "Comunica-se com o COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Comunica-se com o Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1562,7 +1572,7 @@ msgstr "Comunica-se com o leitor Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color and TSR eBook readers."
-msgstr ""
+msgstr "Comunicar-se com o Nook Color e os leitores de eBooks TSR"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1579,6 +1589,8 @@ msgstr "Comunica-se com todos os leitores da Sony."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
 msgstr ""
+"Comentários foram removidos devido à incapacidade do leitor SONY de manejá-"
+"los"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
@@ -1688,7 +1700,7 @@ msgstr "Comunica-se com o leitor Newsmy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:48
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Comunicar-se com o leitor Archos"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:58
 msgid "Communicate with the Pico reader."
@@ -1708,11 +1720,11 @@ msgstr "Comunicar-se com o Sunstech EB700 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:100
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Comunicar-se com o leitor Stash W950"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:112
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Comunicar-se com o leitor Wexler"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #, python-format
@@ -1895,7 +1907,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
-msgstr ""
+msgstr "Pasta principal de memória"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:64
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:67
@@ -2023,6 +2035,9 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Especifique a dimensão da imagem com largura X altura em pixels. Normalmente "
+"a dimensão da imagem é calculada automaticamente. Esta opção sobrescreve os "
+"valores automáticos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:325
 msgid ""
@@ -4794,7 +4809,7 @@ msgstr "Escolha a biblioteca do calibre para trabalhar com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "Switch/create library..."
-msgstr "Altenar/criar biblioteca..."
+msgstr "Alternar/criar biblioteca..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:57
@@ -14252,7 +14267,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
-msgstr "Altenar visões entre a biblioteca e o dispositivo"
+msgstr "Alternar visões entre a biblioteca e o dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:41
 msgid "Separator"
@@ -19461,7 +19476,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:336
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Língua à ser utilizada na ordenação."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:337
 msgid ""
@@ -19480,6 +19495,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:348
 msgid "Number of columns for custom metadata in the edit metadata dialog"
 msgstr ""
+"Número de colunas para metadados customizados no diálogo de editar metadados"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:349
 msgid ""
@@ -19504,7 +19520,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:362
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "Remover as fortes linhas amarelas nas bordas da lista de livros"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:363
 msgid ""
@@ -19515,7 +19531,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:368
 msgid "The maximum width and height for covers saved in the calibre library"
-msgstr ""
+msgstr "Largura e altura máxima para as capas salvas na biblioteca calibre"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:369
 msgid ""
@@ -19523,10 +19539,13 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
+"Todas as capas na biblioteca calibre serão redimensionadas, preservando\n"
+"o formato, para caber dentro deste tamanho. Isso previne lentidão\n"
+"causada por capas muito grandes"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:374
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "Onde enviar as notícias baixadas"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:375
 msgid ""
@@ -19540,7 +19559,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:382
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "Em quais interfaces o servidor de conteúdo deveria dar atenção"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:383
 msgid ""
@@ -19555,7 +19574,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:390
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Barra de ferramentas unificada no OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:391
 msgid ""
@@ -19572,6 +19591,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:398
 msgid "Save original file when converting from same format to same format"
 msgstr ""
+"Salvar arquivo original qualquer convertendo de um formato para o mesmo "
+"formato"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:399
 msgid ""

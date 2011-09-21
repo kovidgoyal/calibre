@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-08-05 16:39+0000\n"
+"PO-Revision-Date: 2011-09-20 11:45+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
-"Language-Team: eu@li.org\n"
+"Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-18 04:39+0000\n"
-"X-Generator: Launchpad (build 13955)\n"
+"X-Launchpad-Export-Date: 2011-09-21 04:48+0000\n"
+"X-Generator: Launchpad (build 13996)\n"
 "Language: eu\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3579,7 +3579,7 @@ msgstr[1] "Sailak"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Hizkuntzak"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"
@@ -3731,31 +3731,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:419
 msgid "US"
-msgstr ""
+msgstr "AEB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:420
 msgid "France"
-msgstr ""
+msgstr "Frantzia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:421
 msgid "Germany"
-msgstr ""
+msgstr "Alemania"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:422
 msgid "UK"
-msgstr ""
+msgstr "Erresuma Batua"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:423
 msgid "Italy"
-msgstr ""
+msgstr "italia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:424
 msgid "Japan"
-msgstr ""
+msgstr "Japonia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:428
 msgid "Amazon website to use:"
-msgstr ""
+msgstr "Amazon enpresako ataria erabilgarri:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:429
 msgid ""

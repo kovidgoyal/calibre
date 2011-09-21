@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-09-01 06:35+0000\n"
-"Last-Translator: zeugma <Unknown>\n"
+"PO-Revision-Date: 2011-09-20 19:33+0000\n"
+"Last-Translator: ertankan <tosss.beee@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-09-18 04:53+0000\n"
-"X-Generator: Launchpad (build 13955)\n"
+"X-Launchpad-Export-Date: 2011-09-21 04:50+0000\n"
+"X-Generator: Launchpad (build 13996)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -246,7 +246,7 @@ msgstr "Tercihler"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr "Kaydet"
+msgstr "Sakla"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
@@ -274,7 +274,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
-msgstr "Çizgi roman dosyalarından kapağı da çek"
+msgstr "Çizgi roman dosyalarından kitap kapağını da çek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:164
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:175
@@ -303,11 +303,11 @@ msgstr "%s dosyalarından metadata oku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:323
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "metadataları  RAR arşivleri içindeki ekitaplardan oku"
+msgstr "RAR arşivleri içindeki ekitaplardan metadataları oku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:397
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "metadataları  ZIP arşivleri içindeki ekitaplardan oku"
+msgstr "ZIP arşivleri içindeki ekitaplardanmetadataları  oku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:410
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:431
@@ -2650,6 +2650,7 @@ msgstr ""
 msgid ""
 "Look for common words and patterns that denote italics and italicize them."
 msgstr ""
+"İtalik olacak ortak kelimelere ve modellere bak, ve bunları italikleştir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:547
 msgid ""
@@ -2826,6 +2827,9 @@ msgid ""
 "most EPUB readers cannot handle large file sizes. The default of %defaultKB "
 "is the size required for Adobe Digital Editions."
 msgstr ""
+"Bu boyutttan büyük bütün HTML dosyalarını küçük parçalara böl (KB olarak). "
+"Çoğu EPUB okuyucu büyük boyuttaki dosyaları okuyamadığı için bu gereklidir. "
+"Adobe Digital Edition'lar için gerekli öntanımlı boyut %defaultKB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:80
 msgid ""
@@ -2833,6 +2837,9 @@ msgid ""
 "default cover is generated with the title, authors, etc. This option "
 "disables the generation of this cover."
 msgstr ""
+"Normalde, kitap kapağı yoksa ve sizde bir tane belirtmediyseniz, başlık "
+"yazarlar vb. bilgilerden öntanımlı bir kapak oluşturulur. Bu özellikli kapak "
+"oluşturmayı kapatur."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:86
 msgid ""
@@ -2857,6 +2864,9 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
+"EPUB dosyasını FBReaderJ ile kullanmayı düşünüyorsanız bu özellik "
+"gereklidir. Böylece tüm dosyaları, dosya sisteminin en üst seviyesine "
+"koyarak düz bir dosya sistemi yaratır."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:184
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:206

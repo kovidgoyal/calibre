@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-09-13 16:28+0000\n"
-"Last-Translator: frenkx <Unknown>\n"
+"PO-Revision-Date: 2011-09-20 10:43+0000\n"
+"Last-Translator: Klaus Thenmayer <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-18 04:44+0000\n"
-"X-Generator: Launchpad (build 13955)\n"
+"X-Launchpad-Export-Date: 2011-09-21 04:49+0000\n"
+"X-Generator: Launchpad (build 13996)\n"
 "X-Poedit-Bookmarks: 2616,3601,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1600,7 +1600,7 @@ msgstr "Kommunikation mit allen Sony E-Book-Readern."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
-msgstr ""
+msgstr "Kommentare wurden entfernt, da der SONY reader damit Probleme hat"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
@@ -2572,6 +2572,10 @@ msgid ""
 "set a cover in calibre, the output document will end up with two cover "
 "images if you do not specify this option."
 msgstr ""
+"Entferne das erste Bild vom eingefügten eBook. Hilfreich, wenn das Dokument "
+"ein Coverbild hat, welches nicht als Coverbild erkannt wrude. Sonst würde "
+"durch das Hinzufügen eines Coverbildes in Calibre das eBook dann zwei "
+"Coverbilder haben."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:407
 msgid ""
@@ -4411,7 +4415,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:379
 msgid "File could be older RTF...\n"
-msgstr ""
+msgstr "Datei könnte ein älteres RTF sein...\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:383
 msgid ""
@@ -7779,6 +7783,8 @@ msgid ""
 "Enable sharing of book content via Facebook, etc. WARNING: Disables last "
 "read syncing"
 msgstr ""
+"Aktiviere das Teilen des Buchinhalts per Facebook, etc. ACHTUNG: Deaktiviert "
+"das synchronisieren der letzten gelesen Stelle"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Put generated Table of Contents at &start of book instead of end"
@@ -9011,11 +9017,11 @@ msgstr "In &Zwischenablage kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:232
 msgid "&Done"
-msgstr ""
+msgstr "&Fertig"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:235
 msgid "Delete &marked"
-msgstr ""
+msgstr "Lösche &markierte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:236
 msgid "Delete marked files (checked subitems)"
@@ -9023,7 +9029,7 @@ msgstr "Markierte Dateien löschen (ausgewählte Untereinträge)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:239
 msgid "&Fix marked"
-msgstr ""
+msgstr "Markierte %fixieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:242
 msgid "Fix marked sections (checked fixable items)"
@@ -11331,6 +11337,8 @@ msgstr "Vorlagenwert:"
 msgid ""
 "The value the of the template using the current book in the library view"
 msgstr ""
+"Der Inhalt der Vorlage, die für das aktuelle Buch in der Bibliotheksansicht "
+"verwendet wird"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:100
 msgid "Function &name:"
@@ -13154,6 +13162,8 @@ msgid ""
 "When using the  \"&Copy to library\" action to copy books between libraries, "
 "preserve the date"
 msgstr ""
+"Behalte das Datum, wenn die Funktion \"&Kopiere zur Bibliothek\" verwendet "
+"wird, um Bücher zwischen Bibliotheken zu kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -14799,7 +14809,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:66
 msgid "Constant template"
-msgstr ""
+msgstr "Konstante Vorlage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:67
 msgid ""
@@ -15455,6 +15465,8 @@ msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr ""
+"Da war ein Syntaxfehler in deiner Einstellung. Klicke auf den Button Details "
+"anzeigen um mehr Informationen zu erhalten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:391
 msgid "Invalid tweaks"
@@ -15475,6 +15487,9 @@ msgid ""
 "calibre. Your changes will only take effect <b>after a restart</b> of "
 "calibre."
 msgstr ""
+"Werte für die Einstellungen werden unten gezeigt. Editiere sie um die "
+"Funktionalität von Calibre zu ändern. Dein Einstellungen werden erst nach "
+"einem <b>Neustart</b> von Calibre Wirkung haben."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:56
 msgid "Edit tweaks for any custom plugins you have installed"
@@ -15484,7 +15499,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:57
 msgid "&Plugin tweaks"
-msgstr ""
+msgstr "&Plugin Einstellungen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:77
 msgid "Edit tweak"
@@ -15922,7 +15937,7 @@ msgstr "Die folgendenden Formate können direkt heruntergeladen werden: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:41
 msgid "Download..."
-msgstr ""
+msgstr "Herunterladen..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:45
 msgid "Goto in store..."
@@ -15936,7 +15951,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:276
 msgid "Customize get books search"
-msgstr ""
+msgstr "Büchersuche anpassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:286
 msgid "Configure search"
@@ -15996,7 +16011,7 @@ msgstr "Verarbeite Bücher."
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_update_thread.py:71
 #, python-format
 msgid "%(num)s of %(tot)s books processed."
-msgstr ""
+msgstr "%(num)s von %(tot)s Büchern verarbeitet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/mobileread_plugin.py:62
 msgid "Updating MobileRead book cache..."
@@ -16015,6 +16030,12 @@ msgid ""
 "will be a .epub file. You can add this book to calibre using \"Add Books\" "
 "and selecting the file from the ADE library folder."
 msgstr ""
+"Dieses Buch ist eine DRM geschützte EPUB Datei. Due wirst aufgefordert "
+"werden, es auf deinem Computer zu speichern. Wurde es gespeichert, öffne es "
+"mit <a href=\"http://www.adobe.com/products/digitaleditions/\">Adobe Digital "
+"Editions</a> (ADE).<p>ADE wird dein Buch als .epub Datei herunterladen. Du "
+"kannst dein Buch zu Calibre hinzufügen, in dem du die Datei mit \"Buch "
+"hinzufügen\" in deinem ADE Bibliotheksordner auswählst."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
 msgid "File is not a supported ebook type. Save to disk?"
@@ -16263,7 +16284,7 @@ msgstr "%s zu einer Benutzer-Kategorie hinzufügen"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:372
 #, python-format
 msgid "Children of %s"
-msgstr ""
+msgstr "Kinder von %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:382
 #, python-format
@@ -16349,6 +16370,8 @@ msgid ""
 "Could not convert %(num)d of %(tot)d books, because no suitable source "
 "format was found."
 msgstr ""
+"%(num)d von %(tot)d Büchern konnten nicht konvertiert werden, weil kein "
+"passendes Ausgangsformat erkannt werden konnte."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:133
 msgid "Queueing books for bulk conversion"
@@ -16361,7 +16384,7 @@ msgstr "Sammle "
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:197
 #, python-format
 msgid "Convert book %(num)d of %(tot)d (%(title)s)"
-msgstr ""
+msgstr "Konvertiere Buch %(num)d von %(tot)d (%(title)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:271
 msgid "Fetch news from "
@@ -16460,6 +16483,8 @@ msgid ""
 "%(app)s has been updated to version <b>%(ver)s</b>. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"%(app)s wurde auf Version <b>%(ver)s</b> aktualisiert. <a "
+"href=\"http://calibre-ebook.com/whats-new\">Neue Features anzeigen</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:80
 msgid "Update available!"
@@ -16480,7 +16505,7 @@ msgstr "&Plugins aktualisieren"
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:153
 #, python-format
 msgid " (%d plugin updates)"
-msgstr ""
+msgstr " (%d Plugin Updates)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:156
 msgid "Update found"

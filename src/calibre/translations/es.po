@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-09-18 08:44+0000\n"
+"PO-Revision-Date: 2011-09-20 12:54+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-19 04:40+0000\n"
-"X-Generator: Launchpad (build 13955)\n"
+"X-Launchpad-Export-Date: 2011-09-21 04:49+0000\n"
+"X-Generator: Launchpad (build 13996)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
 msgid ""
@@ -7405,7 +7405,7 @@ msgstr ""
 "ocurre como se espera, activar la heurística puede mejorar el resultado. Lea "
 "más acerca de las distintas opciones de procesado heurístico en el <a "
 "href=\"http://manual.calibre-ebook.com/conversion.html#heuristic-"
-"processing\">Manual del usuario</a>."
+"processing\">Manual de usuario</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:114
 msgid "Enable &heuristic processing"
@@ -10974,7 +10974,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:173
 msgid "Find entries that have..."
-msgstr "Encuentra entradas que tengan..."
+msgstr "Buscar entradas que tengan..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:212
@@ -11018,8 +11018,8 @@ msgid ""
 "See the <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
 msgstr ""
-"Mira en <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
-"interface\">User Manual</a> para más ayuda."
+"Véase el <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
+"interface\">Manual de usuario</a> para más ayuda."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:218
@@ -16058,7 +16058,7 @@ msgid ""
 "interface\">User Manual</a> for more help"
 msgstr ""
 "Véase el <a href=\"http://calibre-ebook.com/user_manual/gui.html#the-search-"
-"interface\">Manual de usario</a> para más ayuda."
+"interface\">Manual de usuario</a> para más ayuda."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/cache_progress_dialog_ui.py:51
 msgid "Updating book cache"
