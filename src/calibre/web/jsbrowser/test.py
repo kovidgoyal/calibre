@@ -32,6 +32,7 @@ class Server(object):
         <div><label>UnChecked Checkbox:</label><input type="checkbox" name="unchecked_checkbox"/></div>
         <div><input type="radio" name="sex" value="male" checked="checked" /> Male</div>
         <div><input type="radio" name="sex" value="female" /> Female</div>
+        <div><label>Color:</label><select name="color"><option value="red" selected="selected" /><option value="green" /></select></div>
         <div><input type="submit" value="Submit" /></div>
     </form>
     <form id="image_test" method="post" action="controls_test">
@@ -101,6 +102,7 @@ class Test(unittest.TestCase):
                 'text': ('some text', 'some text'),
                 'password': ('some password', 'some password'),
                 'sex': ('female', 'female'),
+                'color': ('green', 'green'),
         }
         f = self.browser.select_form('#controls_test')
         for k, vals in values.iteritems():
@@ -110,7 +112,6 @@ class Test(unittest.TestCase):
         for k, vals in values.iteritems():
             self.assertEqual(vals[1], dat.get(k, None),
                     'Field %s: %r != %r'%(k, vals[1], dat.get(k, None)))
-
 
     def test_image_submit(self):
         'Test submitting a form with a image as the submit control'

@@ -41,19 +41,21 @@ class Control(object):
 
 class RadioControl(object):
 
+    ATTR = 'checked'
+
     def __init__(self, name, controls):
         self.name = name
         self.type = 'radio'
         self.values = {unicode(c.attribute('value')):c for c in controls}
 
     def __repr__(self):
-        return 'RadioControl(%s)'%(', '.join(self.values))
+        return '%s(%s)'%(self.__class__.__name__, ', '.join(self.values))
 
     @dynamic_property
     def value(self):
         def fget(self):
             for val, x in self.values.iteritems():
-                if unicode(x.attribute('checked')) == 'checked':
+                if unicode(x.attribute(self.ATTR)) == self.ATTR:
                     return val
 
         def fset(self, val):
@@ -64,10 +66,22 @@ class RadioControl(object):
                     break
             if control is not None:
                 for x in self.values.itervalues():
-                    x.removeAttribute('checked')
-                control.setAttribute('checked', 'checked')
+                    x.removeAttribute(self.ATTR)
+                control.setAttribute(self.ATTR, self.ATTR)
 
         return property(fget=fget, fset=fset)
+
+class SelectControl(RadioControl):
+
+    ATTR = 'selected'
+
+    def __init__(self, qwe):
+        self.qwe = qwe
+        self.name = unicode(qwe.attribute('name'))
+        self.type = 'select'
+        self.values = {unicode(c.attribute('value')):c for c in
+                qwe.findAll('option')}
+
 
 class Form(object):
 
@@ -80,15 +94,18 @@ class Form(object):
         self.input_controls = [x for x in self.input_controls if x.type != 'radio']
         rc_names = {x.name for x in rc}
         self.radio_controls = {name:RadioControl(name, [x.qwe for x in rc if x.name == name]) for name in rc_names}
+        selects = list(map(SelectControl, qwe.findAll('select')))
+        self.select_controls = {x.name:x for x in selects}
 
     def __getitem__(self, key):
         for x in self.input_controls:
             if key == x.name:
                 return x
-        try:
-            return self.radio_controls.get(key)
-        except KeyError:
-            pass
+        for x in (self.radio_controls, self.select_controls):
+            try:
+                return x[key]
+            except KeyError:
+                continue
         raise KeyError('No control with the name %s in this form'%key)
 
     def __repr__(self):
