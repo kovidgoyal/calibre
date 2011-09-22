@@ -8,10 +8,11 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, pprint, time
+from cookielib import Cookie
 
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
         QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl,
-        QDialog, QVBoxLayout, QSize)
+        QDialog, QVBoxLayout, QSize, QNetworkCookieJar)
 from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
@@ -141,6 +142,8 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
         self.pf = ProxyFactory(log)
         self.setProxyFactory(self.pf)
         self.finished.connect(self.on_finished)
+        self.cookie_jar = QNetworkCookieJar()
+        self.setCookieJar(self.cookie_jar)
 
     def on_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors()
@@ -186,6 +189,37 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
                     d = '  %r: %r' % (h, reply.rawHeader(h))
                 debug.append(d)
             self.log.debug('\n'.join(debug))
+
+    def py_cookies(self):
+        for c in self.cookie_jar.allCookies():
+            name, value = map(bytes, (c.name(), c.value()))
+            domain = bytes(c.domain())
+            initial_dot = domain_specified = domain.startswith(b'.')
+            secure = bool(c.isSecure())
+            path = unicode(c.path()).strip().encode('utf-8')
+            expires = c.expirationDate()
+            is_session_cookie = False
+            if expires.isValid():
+                expires = expires.toTime_t()
+            else:
+                expires = None
+                is_session_cookie = True
+            path_specified = True
+            if not path:
+                path = b'/'
+                path_specified = False
+            c = Cookie(0,  # version
+                    name, value,
+                    None,  # port
+                    False, # port specified
+                    domain, domain_specified, initial_dot, path,
+                    path_specified,
+                    secure, expires, is_session_cookie,
+                    None, # Comment
+                    None, # Comment URL
+                    {} # rest
+            )
+            yield c
 # }}}
 
 class LoadWatcher(QObject): # {{{
@@ -342,4 +376,12 @@ class Browser(QObject, FormsMixin):
         '''
         view = BrowserView(self.page)
         view.exec_()
+
+    def cookies(self):
+        '''
+        Return all the cookies set currently as :class:`Cookie` objects.
+        Returns expired cookies as well.
+        '''
+        return list(self.nam.py_cookies())
+
 

@@ -7,11 +7,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, pprint, threading
+import unittest, pprint, threading, time
 
 import cherrypy
 
 from calibre.web.jsbrowser.browser import Browser
+from calibre.library.server.utils import (cookie_max_age_to_expires,
+        cookie_time_fmt)
 
 class Server(object):
 
@@ -84,6 +86,26 @@ class Server(object):
         cherrypy.response.headers['Content-Type'] = 'text/javascript'
         return P('content_server/jquery.js', data=True)
 
+    @cherrypy.expose
+    def cookies(self):
+        try:
+            cookie = cherrypy.response.cookie
+            cookie[b'cookiea'] = 'The first cookie'
+            cookie[b'cookiea']['path'] = '/'
+            cookie[b'cookiea']['max-age'] = 60 # seconds
+            cookie[b'cookiea']['version'] = 1
+            cookie[b'cookieb'] = 'The second cookie'
+            cookie[b'cookieb']['path'] = '/'
+            cookie[b'cookieb']['expires'] = cookie_max_age_to_expires(60) # seconds
+            cookie[b'cookieb']['version'] = 1
+            cookie[b'cookiec'] = 'The third cookie'
+            cookie[b'cookiec']['path'] = '/'
+            self.sent_cookies = {n:('"%s"'%c.value, dict(c)) for n, c in
+                    dict(cookie).iteritems()}
+            return pprint.pformat(self.sent_cookies)
+        except:
+            import traceback
+            traceback.print_exc()
 
 class Test(unittest.TestCase):
 
@@ -159,6 +181,29 @@ class Test(unittest.TestCase):
         f['text'] = 'Changed'
         self.browser.ajax_submit()
         self.assertEqual(self.server.form_data['text'], 'Changed')
+
+    def test_cookies(self):
+        'Test migration of cookies to python objects'
+        self.assertEqual(self.browser.visit('http://127.0.0.1:%d/cookies'%self.port),
+                True)
+        sent_cookies = self.server.sent_cookies
+        cookies = self.browser.cookies()
+        cmap = {c.name:c for c in cookies}
+        for name, vals in sent_cookies.iteritems():
+            c = cmap[name]
+            value, fields = vals
+            self.assertEqual(value, c.value)
+            for field in ('secure', 'path'):
+                cval = getattr(c, field)
+                if cval is False:
+                    cval = b''
+                self.assertEqual(fields[field], cval,
+                        'Field %s in %s: %r != %r'%(field, name, fields[field], cval))
+            cexp = cookie_time_fmt(time.gmtime(c.expires))
+            fexp = fields['expires']
+            if fexp:
+                self.assertEqual(fexp, cexp)
+
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(Test)
