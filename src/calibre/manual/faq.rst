@@ -108,6 +108,8 @@ At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook 
 
 There is also a special ``User Defined`` device plugin that can be used to connect to arbitrary devices that present their memory as disk drives. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscelleaneous -> Get information to setup the user defined device`` for more information.
 
+.. _devsupport:
+
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -219,7 +221,7 @@ How do I use |app| with my iPad/iPhone/iTouch?
 Over the air
 ^^^^^^^^^^^^^^
 
-The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the calibre sontent server, which makes your collection available over the net. First perform the following steps in |app|
+The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the calibre content server, which makes your collection available over the net. First perform the following steps in |app|
 
   * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
   * Set the output profile to iPad (this will work for iPhone/iPods as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
@@ -258,10 +260,31 @@ Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Cal
 
 This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
 
-How do I use |app| with my Android phone?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do I use |app| with my Android phone/tablet?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First install the WordPlayer ebook reading app from the Android Marketplace onto you phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single androind device out there, so if you would like to have support for your device added, follow the instructions above for getting your device supported in |app|.
+There are two ways that you can connect your Android device to calibre. Using a USB cable wirelessly, over the air. The USB cable method only works if your Android device can act as a USB disk, which some Android tablets cannot. 
+
+Using a USB cable
+^^^^^^^^^^^^^^^^^^^^
+
+First install either the WordPlayer or Aldiko ebook reading apps from the Android Marketplace onto your phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single android device out there, so if your device is not automatically detected, follow the instructions at :ref:`devsupport` to get your device supported in |app|.
+
+Over the air
+^^^^^^^^^^^^^^
+
+The easiest way to browse your |app| collection on your Android device is by using the calibre content server, which makes your collection available over the net. First perform the following steps in |app|
+
+  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
+  * Set the output profile to Tablet (this will work for phones as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
+  * Convert the books you want to read on your device to EPUB format by selecting them and clicking the Convert button.
+  * Turn on the Content Server in |app|'s preferences and leave |app| running.
+
+Now on your Android device, open the browser and browse to
+
+    http://192.168.1.2:8080/
+
+Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address. You can now browse your book collection and download books from |app| to your device to open with whatever ebook reading software you have on your android device.
 
 Can I access my |app| books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
