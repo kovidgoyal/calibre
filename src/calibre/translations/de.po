@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-09-20 10:43+0000\n"
+"PO-Revision-Date: 2011-09-21 11:25+0000\n"
 "Last-Translator: Klaus Thenmayer <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-21 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-09-22 04:45+0000\n"
 "X-Generator: Launchpad (build 13996)\n"
 "X-Poedit-Bookmarks: 2616,3601,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -14963,6 +14963,11 @@ msgid ""
 "search not just authors but title/tags/series/comments/etc. Use these "
 "options if you would like to change this behavior."
 msgstr ""
+"Wenn du einen Suchbegriff ohne Präfix eingibst, wird Calibre standardmäßig "
+"alle Metadaten nach Ergebnissen durchsuchen. Zum Beispiel wenn du \"Asimov\" "
+"eingibst, wird nicht nur nach Autoren gesucht, sondern auch nach "
+"Titeln/Tags/Serien/Kommentaren/etc. Nutze diese Einstellung um die Suche zu "
+"ändern."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:114
 msgid "&Limit the searched metadata"
@@ -15311,7 +15316,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"
-msgstr ""
+msgstr "Ausnahmefehler während Kombilierung der Funktion"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:202
 msgid "function source code not available"
@@ -15332,6 +15337,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
 msgstr ""
+"Stelle dies auf -1 falls die Funktion eine variable Anzahl an Argumenten "
+"annimmt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
@@ -16294,7 +16301,7 @@ msgstr "Lösche Suche %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:387
 #, python-format
 msgid "Remove %(item)s from category %(cat)s"
-msgstr ""
+msgstr "Entferne %(item)s von Kategorie %(cat)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:394
 #, python-format
@@ -17894,6 +17901,9 @@ msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
 msgstr ""
+"\n"
+"*** Hinzufügen der \"Von Autoren\" Sektion für die MOBI Ausgabe erforderlich "
+"***"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
@@ -18832,6 +18842,8 @@ msgstr "Leerzeichen mit Unterstrichen ersetzen."
 msgid ""
 "Save into a single directory, ignoring the template directory structure"
 msgstr ""
+"Speichere in ein einzelnes Verzeichnis, die Ordnerstruktur der Vorlage "
+"ignorieren"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:303
 #, python-format
@@ -19142,7 +19154,7 @@ msgstr "Bücher sortiert nach "
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:34
 msgid "Usage"
-msgstr ""
+msgstr "Verbrauch"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:85
 msgid "Created by "
@@ -19199,6 +19211,10 @@ msgid ""
 "and consume more resources. Most tasks like conversion/news download/adding "
 "books/etc. are affected by this setting."
 msgstr ""
+"Die Priorität des Arbeitsprozesses. Eine höhere Priorität bedeutet ein "
+"schnelleres Arbeiten, verbraucht aber mehr Ressourcen. Die meisten Aufgaben "
+"wie Konvertierungen/News herunteraden/Bücher hinzufügen/etc. werden von "
+"dieser Einstellung beeinflusst."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:399
 msgid "Swap author first and last names when reading metadata"
@@ -20649,7 +20665,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:202
 msgid "Specify a folder calibre should connect to at startup"
-msgstr ""
+msgstr "Gib einen Ordner an, zu dem sich Calibre beim Start verbinden soll"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:203
 msgid ""
@@ -20998,6 +21014,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:398
 msgid "Save original file when converting from same format to same format"
 msgstr ""
+"Speichere die Originaldatei wenn vom selben Format in das selbe Format "
+"konvertiert wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:399
 msgid ""
