@@ -90,17 +90,15 @@ class Server(object):
     def cookies(self):
         try:
             cookie = cherrypy.response.cookie
-            cookie[b'cookiea'] = 'The first cookie'
+            cookie[b'cookiea'] = 'The%20first%20cookie'
             cookie[b'cookiea']['path'] = '/'
             cookie[b'cookiea']['max-age'] = 60 # seconds
-            cookie[b'cookiea']['version'] = 1
-            cookie[b'cookieb'] = 'The second cookie'
+            cookie[b'cookieb'] = 'The_second_cookie'
             cookie[b'cookieb']['path'] = '/'
             cookie[b'cookieb']['expires'] = cookie_max_age_to_expires(60) # seconds
-            cookie[b'cookieb']['version'] = 1
-            cookie[b'cookiec'] = 'The third cookie'
+            cookie[b'cookiec'] = 'The_third_cookie'
             cookie[b'cookiec']['path'] = '/'
-            self.sent_cookies = {n:('"%s"'%c.value, dict(c)) for n, c in
+            self.sent_cookies = {n:(c.value, dict(c)) for n, c in
                     dict(cookie).iteritems()}
             return pprint.pformat(self.sent_cookies)
         except:
