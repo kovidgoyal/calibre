@@ -130,6 +130,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
 
     def __init__(self, log, use_disk_cache=True, parent=None):
         QNetworkAccessManager.__init__(self, parent)
+        self.reply_count = 0
         self.log = log
         if use_disk_cache:
             self.cache = QNetworkDiskCache(self)
@@ -170,6 +171,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
 
     def on_finished(self, reply):
         reply_url = unicode(reply.url().toString())
+        self.reply_count += 1
 
         if reply.error():
             self.log.warn("Reply error: %s - %d (%s)" %
@@ -286,6 +288,17 @@ class Browser(QObject, FormsMixin):
 
         return lw.loaded_ok
 
+    def _wait_for_replies(self, reply_count, timeout):
+        final_time = time.time() + timeout
+        loop = QEventLoop(self)
+        while (time.time() < final_time and self.nam.reply_count <
+                reply_count):
+            loop.processEvents()
+            time.sleep(0.1)
+        if self.nam.reply_count < reply_count:
+            raise Timeout('Waiting for replies took longer than %d seconds' %
+                    timeout)
+
     def visit(self, url, timeout=30.0):
         '''
         Open the page specified in URL and wait for it to complete loading.
@@ -310,6 +323,7 @@ class Browser(QObject, FormsMixin):
         :para ajax_replies: Number of replies to wait for after clicking a link
                             that triggers some AJAX interaction
         '''
+        initial_count = self.nam.reply_count
         js = '''
             var e = document.createEvent('MouseEvents');
             e.initEvent( 'click', true, true );
@@ -317,7 +331,8 @@ class Browser(QObject, FormsMixin):
         '''
         qwe.evaluateJavaScript(js)
         if ajax_replies > 0:
-            raise NotImplementedError('AJAX clicking not implemented')
+            reply_count = initial_count + ajax_replies
+            self._wait_for_replies(reply_count, timeout)
         elif wait_for_load and not self._wait_for_load(timeout):
             raise LoadError('Clicking resulted in a failed load')
 

@@ -23,6 +23,24 @@ class Server(object):
         return '''
     <html>
     <head><title>JS Browser test</title></head>
+    <script type="text/javascript" src="jquery"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $('#ajax_test').submit(function() {
+            var val = $('#ajax_test input[name="text"]').val();
+            $.ajax({
+                dataType: "html",
+                url: "/controls_test",
+                data: {"text":val},
+                success: function(data) {
+                     $('#ajax_test input[name="text"]').val(data);
+               }
+            });
+            return false;
+        });
+    });
+    </script>
+
     <body>
     <form id="controls_test" method="post" action="controls_test">
         <h3>Test controls</h3>
@@ -40,6 +58,12 @@ class Server(object):
         <div><label>Simple Text:</label><input type="text" name="text" value="Image Test" /></div>
         <input type="image" src="button_image" alt="Submit" />
     </form>
+    <form id="ajax_test" method="post" action="controls_test">
+        <h3>Test AJAX submit</h3>
+        <div><label>Simple Text:</label><input type="text" name="text" value="AJAX Test" /></div>
+        <input type="submit" />
+    </form>
+
     </body>
     </html>
     '''
@@ -54,6 +78,12 @@ class Server(object):
     def button_image(self):
         cherrypy.response.headers['Content-Type'] = 'image/png'
         return I('next.png', data=True)
+
+    @cherrypy.expose
+    def jquery(self):
+        cherrypy.response.headers['Content-Type'] = 'text/javascript'
+        return P('content_server/jquery.js', data=True)
+
 
 class Test(unittest.TestCase):
 
@@ -120,6 +150,15 @@ class Test(unittest.TestCase):
         self.browser.select_form('#image_test')
         self.browser.submit()
         self.assertEqual(self.server.form_data['text'], 'Image Test')
+
+    def test_ajax_submit(self):
+        'Test AJAX based form submission'
+        self.assertEqual(self.browser.visit('http://127.0.0.1:%d'%self.port),
+                True)
+        f = self.browser.select_form('#ajax_test')
+        f['text'] = 'Changed'
+        self.browser.ajax_submit()
+        self.assertEqual(self.server.form_data['text'], 'Changed')
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(Test)

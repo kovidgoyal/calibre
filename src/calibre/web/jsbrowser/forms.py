@@ -229,3 +229,15 @@ class FormsMixin(object):
         self.click(sc.qwe, wait_for_load=wait_for_load,
                 ajax_replies=ajax_replies, timeout=timeout)
 
+    def ajax_submit(self, submit_control_selector=None,
+            num_of_replies=1, timeout=30.0):
+        '''
+        Submit the current form. This method is meant for those forms that
+        use AJAX rather than a plain submit. It will block until the specified
+        number of responses are returned from the server after the submit
+        button is clicked.
+        '''
+        self.submit(submit_control_selector=submit_control_selector,
+                wait_for_load=False, ajax_replies=num_of_replies,
+                timeout=timeout)
+
