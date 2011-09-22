@@ -263,7 +263,8 @@ This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux
 How do I use |app| with my Android phone/tablet?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are two ways that you can connect your Android device to calibre. Using a USB cable wirelessly, over the air. The USB cable method only works if your Android device can act as a USB disk, which some Android tablets cannot. 
+There are two ways that you can connect your Android device to calibre. Using a USB cable-- or wirelessly, over the air.
+The USB cable method only works if your Android device can act as a USB disk, which some Android tablets cannot. 
 
 Using a USB cable
 ^^^^^^^^^^^^^^^^^^^^
@@ -284,7 +285,11 @@ Now on your Android device, open the browser and browse to
 
     http://192.168.1.2:8080/
 
-Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port. The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address. You can now browse your book collection and download books from |app| to your device to open with whatever ebook reading software you have on your android device.
+Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If your local network supports the use of computer names, you can replace the IP address with the network name of the computer. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port.
+
+The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address. You can now browse your book collection and download books from |app| to your device to open with whatever ebook reading software you have on your android device.
+
+Some reading programs support browsing the Calibre library directly. For example, in Aldiko, click My Catalogs, then + to add a catalog, then give the catalog a title such as "Calibre" and provide the URL listed above. You can now browse the Calibre library and download directly into the reading software.
 
 Can I access my |app| books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
