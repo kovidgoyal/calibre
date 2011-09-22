@@ -26,8 +26,12 @@ class Control(object):
         def fget(self):
             if self.type in ('checkbox', 'radio'):
                 return unicode(self.qwe.attribute('checked')) == 'checked'
-            if self.type in ('text', 'password', 'hidden'):
+            if self.type in ('text', 'password', 'hidden', 'email', 'search'):
                 return unicode(self.qwe.attribute('value'))
+            if self.type in ('number', 'range'):
+                return int(unicode(self.qwe.attribute('value')))
+            # Unknown type just treat as text
+            return unicode(self.qwe.attribute('value'))
 
         def fset(self, val):
             if self.type in ('checkbox', 'radio'):
@@ -35,7 +39,11 @@ class Control(object):
                     self.qwe.setAttribute('checked', 'checked')
                 else:
                     self.qwe.removeAttribute('checked')
-            elif self.type in ('text', 'password', 'hidden'):
+            elif self.type in ('text', 'password', 'hidden', 'email', 'search'):
+                self.qwe.setAttribute('value', as_unicode(val))
+            elif self.type in ('number', 'range'):
+                self.qwe.setAttribute('value', '%d'%int(val))
+            else: # Unknown type treat as text
                 self.qwe.setAttribute('value', as_unicode(val))
 
         return property(fget=fget, fset=fset)
