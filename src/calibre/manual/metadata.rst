@@ -83,6 +83,6 @@ Search and replace is done after all the other metadata changes in the other tab
 Bulk downloading of metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you want to download the metadata for multiple books at once, click the arrow next to the :guilabel:`Edit metadata` button and select :guilabel:`Download metadata and covers`. You can choose to download only metadata, only covers, both or only social metadata (tags/rating/series).
+If you want to download the metadata for multiple books at once, click and hold the :guilabel:`Edit metadata` button and select :guilabel:`Download metadata`. You can choose to download only metadata, only covers, or both.
 
 

@@ -185,7 +185,7 @@ The first, most important step is to run |app| in debug mode. You can do this fr
 
     calibre-debug -g
 
-Or from within calibre by clicking the arrow next to the preferences button or using the `Ctrl+Shift+R` keyboard shortcut.
+Or from within calibre by clicking-and-holding the preferences button or using the `Ctrl+Shift+R` keyboard shortcut.
 
 When running from the command line, debug output will be printed to the console, when running from within |app| the output will go to a txt file.
 
