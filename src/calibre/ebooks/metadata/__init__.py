@@ -116,6 +116,8 @@ def title_sort(title, order=None):
     if match:
         prep = match.group(1)
         title = title[len(prep):] + ', ' + prep
+        if title[0] in _ignore_starts:
+            title = title[1:]
     return title.strip()
 
 coding = zip(

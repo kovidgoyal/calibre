@@ -465,13 +465,12 @@ class BrowseServer(object):
 
         if not cats and len(items) == 1:
             # Only one item in category, go directly to book list
-            prefix = '' if self.is_wsgi else self.opts.url_prefix
             html = get_category_items(category, items,
                     self.search_restriction_name, datatype,
                     self.opts.url_prefix)
             href = re.search(r'<a href="([^"]+)"', html)
             if href is not None:
-                raise cherrypy.HTTPRedirect(prefix+href.group(1))
+                raise cherrypy.HTTPRedirect(href.group(1))
 
         if len(items) <= self.opts.max_opds_ungrouped_items:
             script = 'false'

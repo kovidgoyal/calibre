@@ -19,6 +19,76 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.20
+  date: 2011-09-23
+
+  new features:
+    - title: "MOBI Output: Map a larger set of font names to sans-serif/monospace font in the MOBI file"
+
+    - title: "Get Books: Allow searching on the DRM column in the results."
+      tickets: [852514]
+
+    - title: "Manage tags/series/etc dialog: Add a was column to show the old value when changing values."
+      tickets: [846538]
+
+    - title: "Template language: Add new functions to manipulate language codes"
+      tickets: [832084]
+  
+  bug fixes:
+    - title: "MOBI Output: Don't set cdetype when option to enable sharing instead of syncing is specified. This fixes the option."
+
+    - title: "Conversion pipeline: Fix crash caused by empty <style> elements."
+      tickets: [775277]
+
+    - title: "Get Books: Fix Woblink store"
+
+    - title: "MOBI Input: Correctly handle MOBI files that have been passed through a DRM removal tool that leaves the DRM fields in the header."
+      tickets: [855732]
+
+    - title: "Fix typo preventing the updating of metadata in MOBI files serverd by the content server"
+
+    - title: "Get Books: Handle non ASCII filenames for downloaded books"
+      tickets: [855109] 
+
+    - title: "When generating the title sort string and stripping a leading article, strip leading punctuation that remains after removing the article"
+      tickets: [855070]
+
+    - title: "Fix downloading metadata in the Edit metadata dialog could result in off by one day published dates, in timezones behind GMT"
+      tickets: [855143]
+
+    - title: "Fix handing of title_sort and custom columns when creating a BiBTeX catalog."
+      tickets: [853249]
+
+    - title: "TXT Markdown Input: Change handling of _ to work mid word."
+
+    - title: "Fix Check library reporting unknown files ad both missing an unknown"
+      tickets: [846926]
+
+    - title: "Search/Replace: Permit .* to match empty tag like columns."
+      tickets: [840517]
+
+  improved recipes:
+    - Cicero (DE)
+    - Taz.de
+    - Ming Pao - HK
+    - Macleans Magazine
+    - IDG.se
+    - PC World (eng)
+    - LA Times
+
+  new recipes:
+    - title: Ekantipur (Nepal)
+      author: fab4.ilam
+
+    - title: Various Polish news sources
+      author: fenuks
+
+    - title: Taipei Times and China Post
+      author: Krittika Goyal
+
+    - title: Berliner Zeitung
+      author: ape
+
 - version: 0.8.19
   date: 2011-09-16
 

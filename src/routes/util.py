@@ -389,6 +389,7 @@ class URLGenerator(object):
             anchor = anchor or newargs.pop('_anchor', None)
             host = host or newargs.pop('_host', None)
             protocol = protocol or newargs.pop('_protocol', None)
+            newargs['_environ'] = self.environ
             url = self.mapper.generate(*route_args, **newargs)
         if anchor is not None:
             url += '#' + _url_quote(anchor, encoding)

@@ -717,6 +717,7 @@ class Mapper(SubMapperParent):
             if 'action' not in kargs:
                 kargs['action'] = 'index'
         
+        environ = kargs.pop('_environ', self.environ)
         controller = kargs.get('controller', None)
         action = kargs.get('action', None)
 
@@ -729,7 +730,7 @@ class Mapper(SubMapperParent):
         if self.urlcache is not None:
             if self.environ:
                 cache_key_script_name = '%s:%s' % (
-                    self.environ.get('SCRIPT_NAME', ''), cache_key)
+                    environ.get('SCRIPT_NAME', ''), cache_key)
             else:
                 cache_key_script_name = cache_key
         
@@ -824,9 +825,9 @@ class Mapper(SubMapperParent):
                 if self.prefix:
                     path = self.prefix + path
                 external_static = route.static and route.external
-                if self.environ and self.environ.get('SCRIPT_NAME', '') != ''\
+                if environ and environ.get('SCRIPT_NAME', '') != ''\
                     and not route.absolute and not external_static:
-                    path = self.environ['SCRIPT_NAME'] + path
+                    path = environ['SCRIPT_NAME'] + path
                     key = cache_key_script_name
                 else:
                     key = cache_key

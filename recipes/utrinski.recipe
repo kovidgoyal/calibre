@@ -1,5 +1,6 @@
 #!/usr/bin/env  python
 
+__author__    = 'Darko Spasovski'
 __license__   = 'GPL v3'
 __copyright__ = '2011, Darko Spasovski <darko.spasovski at gmail.com>'
 '''
@@ -9,10 +10,11 @@ utrinski.com.mk
 import re
 import datetime
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre import browser
 
 class UtrinskiVesnik(BasicNewsRecipe):
 
-    __author__            = 'Darko Spasovski'
     INDEX                 = 'http://www.utrinski.com.mk/'
     title                 = 'Utrinski Vesnik'
     description           = 'Daily Macedonian newspaper'
@@ -21,7 +23,6 @@ class UtrinskiVesnik(BasicNewsRecipe):
     remove_javascript     = True
     publication_type      = 'newspaper'
     category              = 'news, Macedonia'
-    oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
@@ -47,24 +48,28 @@ class UtrinskiVesnik(BasicNewsRecipe):
                         }
 
     def parse_index(self):
-        soup = self.index_to_soup(self.INDEX)
         feeds = []
-        for section in soup.findAll('a', attrs={'class':'WB_UTRINSKIVESNIK_TOCTitleBig'}):
+        # open main page
+        soup = self.index_to_soup(self.INDEX)
+        # find all anchors with class attribute equal to 'WB_UTRINSKIVESNIK_MainMenu'
+        for section in soup.findAll('a', attrs={'class':'WB_UTRINSKIVESNIK_MainMenu'}):
             sectionTitle = section.contents[0].string
-            tocItemTable = section.findAllPrevious('table')[1]
-            if tocItemTable is None: continue
+            sectionUrl = self.INDEX + section['href'].strip()
+            # open the anchor link
+            raw = browser().open_novisit(sectionUrl).read()
+            sectionSoup = BeautifulSoup(raw)
+            # find all anchors with class attribute equal to 'WB_UTRINSKIVESNIK_ONLINEArticleTitle'
+            sectionArticles = sectionSoup.findAll('a', attrs={'class':'WB_UTRINSKIVESNIK_ONLINEArticleTitle'})
             articles = []
-            while True:
-                tocItemTable = tocItemTable.nextSibling
-                if tocItemTable is None: break
-                article = tocItemTable.findAll('a', attrs={'class': 'WB_UTRINSKIVESNIK_TocItem'})
-                if len(article)==0: break
-                title = self.tag_to_string(article[0], use_alt=True).strip()
-                articles.append({'title': title, 'url':'http://www.utrinski.com.mk/' + article[0]['href'], 'description':'', 'date':''})
+            for sectionArticle in sectionArticles:
+                # article title = anchor's contents, article url = anchor's href
+                articleTitle = sectionArticle.contents[0].string.strip()
+                articleUrl = self.INDEX + sectionArticle['href'].strip()
+                articleDate = datetime.datetime.today().strftime('%d.%m.%Y')
+                articles.append({'title': articleTitle, 'url':articleUrl, 'description':'', 'date': articleDate})
             if articles:
                 feeds.append((sectionTitle, articles))
         return feeds
-
 
     def get_cover_url(self):
         datum = datetime.datetime.today().strftime('%d_%m_%Y')

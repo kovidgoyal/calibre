@@ -94,3 +94,10 @@ def unquote(s):
         ans = ans.decode('utf-8')
     return ans
 
+def cookie_time_fmt(time_t):
+    return time.strftime('%a, %d-%b-%Y %H:%M:%S GMT', time_t)
+
+def cookie_max_age_to_expires(max_age):
+    gmt_expiration_time = time.gmtime(time.time() + max_age)
+    return cookie_time_fmt(gmt_expiration_time)
+
