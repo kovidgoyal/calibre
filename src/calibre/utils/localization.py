@@ -117,6 +117,7 @@ _extra_lang_codes = {
         'en_CA' : _('English (Canada)'),
         'en_GR' : _('English (Greece)'),
         'en_IN' : _('English (India)'),
+        'en_NP' : _('English (Nepal)'),
         'en_TH' : _('English (Thailand)'),
         'en_TR' : _('English (Turkey)'),
         'en_CY' : _('English (Cyprus)'),
