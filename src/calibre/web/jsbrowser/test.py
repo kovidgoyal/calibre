@@ -185,7 +185,7 @@ class Test(unittest.TestCase):
         self.assertEqual(self.browser.visit('http://127.0.0.1:%d/cookies'%self.port),
                 True)
         sent_cookies = self.server.sent_cookies
-        cookies = self.browser.cookies()
+        cookies = self.browser.cookies
         cmap = {c.name:c for c in cookies}
         for name, vals in sent_cookies.iteritems():
             c = cmap[name]

@@ -13,7 +13,7 @@ from cookielib import Cookie
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
         QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl,
         QDialog, QVBoxLayout, QSize, QNetworkCookieJar)
-from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView
+from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
 from calibre.constants import ispy3, config_dir
@@ -296,11 +296,6 @@ class Browser(QObject, FormsMixin):
             log.filter_level = log.DEBUG
         self.log = log
 
-        self.jquery_lib = P('content_server/jquery.js', data=True,
-                allow_user_override=False).decode('utf-8')
-        self.simulate_lib = P('jquery.simulate.js', data=True,
-                allow_user_override=False).decode('utf-8')
-
         self.page = WebPage(log, confirm_callback=confirm_callback,
                 prompt_callback=prompt_callback, user_agent=user_agent,
                 enable_developer_tools=enable_developer_tools,
@@ -333,6 +328,13 @@ class Browser(QObject, FormsMixin):
             raise Timeout('Waiting for replies took longer than %d seconds' %
                     timeout)
 
+    def run_for_a_time(self, timeout):
+        final_time = time.time() + timeout
+        loop = QEventLoop(self)
+        while (time.time() < final_time):
+            if not loop.processEvents():
+                time.sleep(0.1)
+
     def visit(self, url, timeout=30.0):
         '''
         Open the page specified in URL and wait for it to complete loading.
@@ -347,9 +349,9 @@ class Browser(QObject, FormsMixin):
         self.page.mainFrame().load(QUrl(url))
         return self._wait_for_load(timeout, url)
 
-    def click(self, qwe, wait_for_load=True, ajax_replies=0, timeout=30.0):
+    def click(self, qwe_or_selector, wait_for_load=True, ajax_replies=0, timeout=30.0):
         '''
-        Click the QWebElement pointed to by qwe.
+        Click the :class:`QWebElement` pointed to by qwe_or_selector.
 
         :param wait_for_load: If you know that the click is going to cause a
                               new page to be loaded, set this to True to have
@@ -358,6 +360,12 @@ class Browser(QObject, FormsMixin):
                             that triggers some AJAX interaction
         '''
         initial_count = self.nam.reply_count
+        qwe = qwe_or_selector
+        if not isinstance(qwe, QWebElement):
+            qwe = self.page.mainFrame().findFirstElement(qwe)
+            if qwe.isNull():
+                raise ValueError('Failed to find element with selector: %r'
+                        % qwe_or_selector)
         js = '''
             var e = document.createEvent('MouseEvents');
             e.initEvent( 'click', true, true );
@@ -370,6 +378,24 @@ class Browser(QObject, FormsMixin):
         elif wait_for_load and not self._wait_for_load(timeout):
             raise LoadError('Clicking resulted in a failed load')
 
+    def click_text_link(self, text_or_regex, selector='a[href]',
+            wait_for_load=True, ajax_replies=0, timeout=30.0):
+        target = None
+        for qwe in self.page.mainFrame().findAllElements(selector):
+            src = unicode(qwe.toPlainText())
+            if hasattr(text_or_regex, 'match') and text_or_regex.search(src):
+                target = qwe
+                break
+            if src.lower() == text_or_regex.lower():
+                target = qwe
+                break
+        if target is None:
+            raise ValueError('No element matching %r with text %s found'%(
+                selector, text_or_regex))
+        return self.click(target, wait_for_load=wait_for_load,
+                ajax_replies=ajax_replies, timeout=timeout)
+
+
     def show_browser(self):
         '''
         Show the currently loaded web page in a window. Useful for debugging.
@@ -377,6 +403,7 @@ class Browser(QObject, FormsMixin):
         view = BrowserView(self.page)
         view.exec_()
 
+    @property
     def cookies(self):
         '''
         Return all the cookies set currently as :class:`Cookie` objects.
@@ -384,4 +411,14 @@ class Browser(QObject, FormsMixin):
         '''
         return list(self.nam.py_cookies())
 
+    @property
+    def html(self):
+        return unicode(self.page.mainFrame().toHtml())
+
+    def close(self):
+        try:
+            self.visit('about:blank', timeout=0.01)
+        except Timeout:
+            pass
+        self.nam = self.page = None
 
