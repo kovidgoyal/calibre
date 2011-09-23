@@ -654,17 +654,6 @@ class KindleDXOutput(OutputProfile):
                 'ttt '.join(tags)+'ttt ')
 
 
-class PocketBook900Output(OutputProfile):
-
-	author = 'Chris Lockfort'
-	name = 'PocketBook Pro 900'
-	short_name = 'pocketbook_900'
-	description = _('This profile is intended for the PocketBook Pro 900 series of devices.')
-	
-	screen_size 			= (810, 1180)
-	dpi 					= 150.0
-	comic_screen_size		= screen_size
-
 class IlliadOutput(OutputProfile):
 
     name        = 'Illiad'
@@ -743,12 +732,23 @@ class BambookOutput(OutputProfile):
     fbase                     = 12
     fsizes                    = [10, 12, 14, 16]
 
+class PocketBook900Output(OutputProfile):
+
+    author = 'Chris Lockfort'
+    name = 'PocketBook Pro 900'
+    short_name = 'pocketbook_900'
+    description = _('This profile is intended for the PocketBook Pro 900 series of devices.')
+
+    screen_size               = (810, 1180)
+    dpi                       = 150.0
+    comic_screen_size         = screen_size
+	
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
         iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, NookColorOutput, GenericEink, GenericEinkLarge, PocketBook900Output]
+        BambookOutput, NookColorOutput, PocketBook900Output, GenericEink, GenericEinkLarge]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
