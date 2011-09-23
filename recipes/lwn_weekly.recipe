@@ -95,7 +95,7 @@ class WeeklyLWN(BasicNewsRecipe):
                 break
 
             article = dict(
-                title=tag_title.string,
+                title=self.tag_to_string(tag_title),
                 url= 'http://lwn.net' + tag_url['href'].split('#')[0] + '?format=printable',
                 description='', content='', date='')
             articles[section].append(article)
