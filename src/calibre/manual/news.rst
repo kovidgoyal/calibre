@@ -294,7 +294,7 @@ To learn more about writing advanced recipes using some of the facilities, avail
     `BasicNewsRecipe <http://bazaar.launchpad.net/~kovid/calibre/trunk/annotate/head:/src/calibre/web/feeds/news.py>`_
         The source code of ``BasicNewsRecipe``
 
-    `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/head:/src/calibre/web/feeds/recipes/>`_
+    `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/head:/recipes/>`_
         The source code for the built-in recipes that come with |app|
 
     `The calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_

@@ -218,7 +218,7 @@ class ContentServer(object):
         if format in ('MOBI', 'EPUB'):
             # Write the updated file
             from calibre.ebooks.metadata.meta import set_metadata
-            set_metadata(fmt, newmi, 'epub')
+            set_metadata(fmt, newmi, format.lower())
             fmt.seek(0)
 
         mt = guess_type('dummy.'+format.lower())[0]

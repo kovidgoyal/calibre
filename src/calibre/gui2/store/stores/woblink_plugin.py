@@ -56,7 +56,7 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 cover_url = ''.join(data.xpath('.//td[@class="w10 va-t"]/a[1]/img/@src'))
-                title = ''.join(data.xpath('.//h3[@class="title"]/a[1]/text()'))
+                title = ''.join(data.xpath('.//h2[@class="title"]/a[1]/text()'))
                 author = ', '.join(data.xpath('.//p[@class="author"]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="prices"]/p[1]/span/text()'))
                 price = re.sub('PLN', ' zł', price)

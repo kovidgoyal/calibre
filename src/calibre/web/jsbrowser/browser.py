@@ -7,16 +7,23 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, pprint
+import os, pprint, time
+from cookielib import Cookie
 
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
-        QNetworkProxy, QNetworkProxyFactory)
-from PyQt4.QtWebKit import QWebPage
+        QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl,
+        QDialog, QVBoxLayout, QSize, QNetworkCookieJar)
+from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
 from calibre.constants import ispy3, config_dir
 from calibre.utils.logging import ThreadSafeLog
 from calibre.gui2 import must_use_qt
+from calibre.web.jsbrowser.forms import FormsMixin
+
+class Timeout(Exception): pass
+
+class LoadError(Exception): pass
 
 class WebPage(QWebPage): # {{{
 
@@ -24,6 +31,7 @@ class WebPage(QWebPage): # {{{
             confirm_callback=None,
             prompt_callback=None,
             user_agent=USER_AGENT,
+            enable_developer_tools=False,
             parent=None):
         QWebPage.__init__(self, parent)
 
@@ -33,6 +41,12 @@ class WebPage(QWebPage): # {{{
         self.prompt_callback = prompt_callback
         self.setForwardUnsupportedContent(True)
         self.unsupportedContent.connect(self.on_unsupported_content)
+        settings = self.settings()
+        if enable_developer_tools:
+            settings.setAttribute(QWebSettings.DeveloperExtrasEnabled, True)
+        QWebSettings.enablePersistentStorage(os.path.join(config_dir, 'caches',
+                'webkit-persistence'))
+        QWebSettings.setMaximumPagesInCache(0)
 
     def userAgentForUrl(self, url):
         return self.user_agent
@@ -117,6 +131,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
 
     def __init__(self, log, use_disk_cache=True, parent=None):
         QNetworkAccessManager.__init__(self, parent)
+        self.reply_count = 0
         self.log = log
         if use_disk_cache:
             self.cache = QNetworkDiskCache(self)
@@ -127,6 +142,8 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
         self.pf = ProxyFactory(log)
         self.setProxyFactory(self.pf)
         self.finished.connect(self.on_finished)
+        self.cookie_jar = QNetworkCookieJar()
+        self.setCookieJar(self.cookie_jar)
 
     def on_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors()
@@ -157,6 +174,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
 
     def on_finished(self, reply):
         reply_url = unicode(reply.url().toString())
+        self.reply_count += 1
 
         if reply.error():
             self.log.warn("Reply error: %s - %d (%s)" %
@@ -171,9 +189,69 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
                     d = '  %r: %r' % (h, reply.rawHeader(h))
                 debug.append(d)
             self.log.debug('\n'.join(debug))
+
+    def py_cookies(self):
+        for c in self.cookie_jar.allCookies():
+            name, value = map(bytes, (c.name(), c.value()))
+            domain = bytes(c.domain())
+            initial_dot = domain_specified = domain.startswith(b'.')
+            secure = bool(c.isSecure())
+            path = unicode(c.path()).strip().encode('utf-8')
+            expires = c.expirationDate()
+            is_session_cookie = False
+            if expires.isValid():
+                expires = expires.toTime_t()
+            else:
+                expires = None
+                is_session_cookie = True
+            path_specified = True
+            if not path:
+                path = b'/'
+                path_specified = False
+            c = Cookie(0,  # version
+                    name, value,
+                    None,  # port
+                    False, # port specified
+                    domain, domain_specified, initial_dot, path,
+                    path_specified,
+                    secure, expires, is_session_cookie,
+                    None, # Comment
+                    None, # Comment URL
+                    {} # rest
+            )
+            yield c
 # }}}
 
-class Browser(QObject):
+class LoadWatcher(QObject): # {{{
+
+    def __init__(self, page, parent=None):
+        QObject.__init__(self, parent)
+        self.is_loading = True
+        self.loaded_ok = None
+        page.loadFinished.connect(self)
+        self.page = page
+
+    def __call__(self, ok):
+        self.loaded_ok = ok
+        self.is_loading = False
+        self.page.loadFinished.disconnect(self)
+        self.page = None
+# }}}
+
+class BrowserView(QDialog): # {{{
+
+    def __init__(self, page, parent=None):
+        QDialog.__init__(self, parent)
+        self.l = l = QVBoxLayout(self)
+        self.setLayout(l)
+        self.webview = QWebView(self)
+        l.addWidget(self.webview)
+        self.resize(QSize(1024, 768))
+        self.webview.setPage(page)
+
+# }}}
+
+class Browser(QObject, FormsMixin):
 
     '''
     Browser (WebKit with no GUI).
@@ -202,25 +280,145 @@ class Browser(QObject):
             # If True a disk cache is used
             use_disk_cache=True,
 
+            # Enable Inspect element functionality
+            enable_developer_tools=False,
+
             # Verbosity
             verbosity = 0
         ):
         must_use_qt()
         QObject.__init__(self)
+        FormsMixin.__init__(self)
 
         if log is None:
             log = ThreadSafeLog()
         if verbosity:
             log.filter_level = log.DEBUG
-
-        self.jquery_lib = P('content_server/jquery.js', data=True,
-                allow_user_override=False).decode('utf-8')
-        self.simulate_lib = P('jquery.simulate.js', data=True,
-                allow_user_override=False).decode('utf-8')
+        self.log = log
 
         self.page = WebPage(log, confirm_callback=confirm_callback,
                 prompt_callback=prompt_callback, user_agent=user_agent,
+                enable_developer_tools=enable_developer_tools,
                 parent=self)
         self.nam = NetworkAccessManager(log, use_disk_cache=use_disk_cache, parent=self)
         self.page.setNetworkAccessManager(self.nam)
+
+    def _wait_for_load(self, timeout, url=None):
+        loop = QEventLoop(self)
+        start_time = time.time()
+        end_time = start_time + timeout
+        lw = LoadWatcher(self.page, parent=self)
+        while lw.is_loading and end_time > time.time():
+            if not loop.processEvents():
+                time.sleep(0.01)
+        if lw.is_loading:
+            raise Timeout('Loading of %r took longer than %d seconds'%(
+                url, timeout))
+
+        return lw.loaded_ok
+
+    def _wait_for_replies(self, reply_count, timeout):
+        final_time = time.time() + timeout
+        loop = QEventLoop(self)
+        while (time.time() < final_time and self.nam.reply_count <
+                reply_count):
+            loop.processEvents()
+            time.sleep(0.1)
+        if self.nam.reply_count < reply_count:
+            raise Timeout('Waiting for replies took longer than %d seconds' %
+                    timeout)
+
+    def run_for_a_time(self, timeout):
+        final_time = time.time() + timeout
+        loop = QEventLoop(self)
+        while (time.time() < final_time):
+            if not loop.processEvents():
+                time.sleep(0.1)
+
+    def visit(self, url, timeout=30.0):
+        '''
+        Open the page specified in URL and wait for it to complete loading.
+        Note that when this method returns, there may still be javascript
+        that needs to execute (this method returns when the loadFinished()
+        signal is called on QWebPage). This method will raise a Timeout
+        exception if loading takes more than timeout seconds.
+
+        Returns True if loading was successful, False otherwise.
+        '''
+        self.current_form = None
+        self.page.mainFrame().load(QUrl(url))
+        return self._wait_for_load(timeout, url)
+
+    def click(self, qwe_or_selector, wait_for_load=True, ajax_replies=0, timeout=30.0):
+        '''
+        Click the :class:`QWebElement` pointed to by qwe_or_selector.
+
+        :param wait_for_load: If you know that the click is going to cause a
+                              new page to be loaded, set this to True to have
+                              the method block until the new page is loaded
+        :para ajax_replies: Number of replies to wait for after clicking a link
+                            that triggers some AJAX interaction
+        '''
+        initial_count = self.nam.reply_count
+        qwe = qwe_or_selector
+        if not isinstance(qwe, QWebElement):
+            qwe = self.page.mainFrame().findFirstElement(qwe)
+            if qwe.isNull():
+                raise ValueError('Failed to find element with selector: %r'
+                        % qwe_or_selector)
+        js = '''
+            var e = document.createEvent('MouseEvents');
+            e.initEvent( 'click', true, true );
+            this.dispatchEvent(e);
+        '''
+        qwe.evaluateJavaScript(js)
+        if ajax_replies > 0:
+            reply_count = initial_count + ajax_replies
+            self._wait_for_replies(reply_count, timeout)
+        elif wait_for_load and not self._wait_for_load(timeout):
+            raise LoadError('Clicking resulted in a failed load')
+
+    def click_text_link(self, text_or_regex, selector='a[href]',
+            wait_for_load=True, ajax_replies=0, timeout=30.0):
+        target = None
+        for qwe in self.page.mainFrame().findAllElements(selector):
+            src = unicode(qwe.toPlainText())
+            if hasattr(text_or_regex, 'match') and text_or_regex.search(src):
+                target = qwe
+                break
+            if src.lower() == text_or_regex.lower():
+                target = qwe
+                break
+        if target is None:
+            raise ValueError('No element matching %r with text %s found'%(
+                selector, text_or_regex))
+        return self.click(target, wait_for_load=wait_for_load,
+                ajax_replies=ajax_replies, timeout=timeout)
+
+
+    def show_browser(self):
+        '''
+        Show the currently loaded web page in a window. Useful for debugging.
+        '''
+        view = BrowserView(self.page)
+        view.exec_()
+
+    @property
+    def cookies(self):
+        '''
+        Return all the cookies set currently as :class:`Cookie` objects.
+        Returns expired cookies as well.
+        '''
+        return list(self.nam.py_cookies())
+
+    @property
+    def html(self):
+        return unicode(self.page.mainFrame().toHtml())
+
+    def close(self):
+        try:
+            self.visit('about:blank', timeout=0.01)
+        except Timeout:
+            pass
+        self.nam = self.page = None
 

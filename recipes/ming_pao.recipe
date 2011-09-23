@@ -12,10 +12,14 @@ __UseChineseTitle__ = False
 __KeepImages__ = True
 # (HK only) Turn below to true if you wish to use life.mingpao.com as the main article source
 __UseLife__ = True
+# (HK only) if __UseLife__ is true, turn this on if you want to include the column section
+__InclCols__ = False
 
 
 '''
 Change Log:
+2011/09/21: fetching "column" section is made optional. Default is False
+2011/09/18: parse "column" section stuff from source text file directly.
 2011/09/07: disable "column" section as it is no longer offered free.
 2011/06/26: add fetching Vancouver and Toronto versions of the paper, also provide captions for images using life.mingpao fetch source
             provide options to remove all images in the file
@@ -52,16 +56,19 @@ class MPRecipe(BasicNewsRecipe):
         title       = 'Ming Pao - Hong Kong'
         description = 'Hong Kong Chinese Newspaper (http://news.mingpao.com)'
         category    = 'Chinese, News, Hong Kong'
-        extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} font>b {font-size:200%; font-weight:bold;}'
+        extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} font>b {font-size:200%; font-weight:bold;} div[class=heading] {font-size:200%; font-weight:bold;} div[class=images] {font-size:50%;}'
         masthead_url = 'http://news.mingpao.com/image/portals_top_logo_news.gif'
         keep_only_tags = [dict(name='h1'),
                           dict(name='font', attrs={'style':['font-size:14pt; line-height:160%;']}), # for entertainment page title
                           dict(name='font', attrs={'color':['AA0000']}), # for column articles title
+                          dict(attrs={'class':['heading']}),  # for heading from txt
                           dict(attrs={'id':['newscontent']}), # entertainment and column page content
                           dict(attrs={'id':['newscontent01','newscontent02']}),
+                          dict(attrs={'class':['content']}),  # for content from txt
                           dict(attrs={'class':['photo']}),
                           dict(name='table', attrs={'width':['100%'], 'border':['0'], 'cellspacing':['5'], 'cellpadding':['0']}),  # content in printed version of life.mingpao.com
-                          dict(name='img', attrs={'width':['180'], 'alt':['按圖放大']}) # images for source from life.mingpao.com
+                          dict(name='img', attrs={'width':['180'], 'alt':['按圖放大']}), # images for source from life.mingpao.com
+                          dict(attrs={'class':['images']})   # for images from txt
                           ]
         if __KeepImages__:
             remove_tags = [dict(name='style'),
@@ -232,11 +239,18 @@ class MPRecipe(BasicNewsRecipe):
                                            (u'\u7d93\u6fdf Finance', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea', 'nal'),
                                            (u'\u9ad4\u80b2 Sport', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalsp', 'nal'),
                                            (u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal')
-                                           #(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
                                           ]:
                     articles = self.parse_section2(url, keystr)
                     if articles:
                         feeds.append((title, articles))
+
+                if __InclCols__ == True:
+                    # parse column section articles directly from .txt files
+                    for title, url, keystr in [(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
+                                              ]:
+                        articles = self.parse_section2_txt(url, keystr)
+                        if articles:
+                            feeds.append((title, articles))
 
                 for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
                                    (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
@@ -358,6 +372,24 @@ class MPRecipe(BasicNewsRecipe):
         current_articles.reverse()
         return current_articles
 
+    # parse from text file of life.mingpao.com
+    def parse_section2_txt(self, url, keystr):
+        self.get_fetchdate()
+        soup = self.index_to_soup(url)
+        a = soup.findAll('a', href=True)
+        a.reverse()
+        current_articles = []
+        included_urls = []
+        for i in a:
+            title = self.tag_to_string(i)
+            url = 'http://life.mingpao.com/cfm/' + i.get('href', False)
+            if (url not in included_urls) and (not url.rfind('.txt') == -1) and (not url.rfind(keystr) == -1):
+                url = url.replace('cfm/dailynews3.cfm?File=', 'ftp/Life3/')  # use printed version of the article
+                current_articles.append({'title': title, 'url': url, 'description': ''})
+                included_urls.append(url)
+        current_articles.reverse()
+        return current_articles
+
     # parse from www.mingpaovan.com
     def parse_section3(self, url, baseUrl):
         self.get_fetchdate()
@@ -439,6 +471,39 @@ class MPRecipe(BasicNewsRecipe):
                 included_urls.append(url)
         current_articles.reverse()
         return current_articles
+
+    # preprocess those .txt based files
+    def preprocess_raw_html(self, raw_html, url):
+        if url.rfind('ftp') == -1:
+            return raw_html
+        else:
+            splitter = re.compile(r'\n') # Match non-digits
+            new_raw_html = '<html><head><title>Untitled</title></head><body><div class="images">'
+            next_is_img_txt = False
+            title_started = False
+            met_article_start_char = False
+            for item in splitter.split(raw_html):
+                if item.startswith(u'\u3010'):
+                    met_article_start_char = True
+                    new_raw_html = new_raw_html + '</div><div class="content"><p>' + item + '<p>\n'
+                else:
+                    if next_is_img_txt == False:
+                        if item.startswith('='):
+                            next_is_img_txt = True
+                            new_raw_html += '<img src="' + str(item)[1:].strip() + '.jpg" /><p>\n'
+                        else:
+                            if met_article_start_char == False:
+                                if title_started == False:
+                                    new_raw_html = new_raw_html + '</div><div class="heading">' + item + '\n'
+                                    title_started = True
+                                else:
+                                    new_raw_html = new_raw_html + item + '\n'
+                            else:
+                                new_raw_html = new_raw_html + item + '<p>\n'
+                    else:
+                        next_is_img_txt = False
+                        new_raw_html = new_raw_html + item + '\n'
+            return new_raw_html + '</div></body></html>'
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
