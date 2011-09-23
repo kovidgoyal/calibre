@@ -239,8 +239,8 @@ class WEBOS(USBMS):
             cover.paste(im, ((120-x)/2, (160-y)/2))
 
             draw = ImageDraw.Draw(cover)
-            draw.text((1, 15), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
-            draw.text((1, 115), metadata.get('authors', _('Unknown')).encode('ascii', 'ignore'))
+            draw.text((1, 10), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
+            draw.text((1, 140), metadata.get('authors', _('Unknown'))[0].encode('ascii', 'ignore'))
 
         data = cStringIO.StringIO()
         cover.save(data, 'JPEG')
