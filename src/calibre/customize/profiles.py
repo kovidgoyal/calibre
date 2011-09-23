@@ -653,6 +653,18 @@ class KindleDXOutput(OutputProfile):
         return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
                 'ttt '.join(tags)+'ttt ')
 
+
+class PocketBook900Output(OutputProfile):
+
+	author = 'Chris Lockfort'
+	name = 'PocketBook Pro 900'
+	short_name = 'pocketbook_900'
+	description = _('This profile is intended for the PocketBook Pro 900 series of devices.')
+	
+	screen_size 			= (810, 1180)
+	dpi 					= 150.0
+	comic_screen_size		= screen_size
+
 class IlliadOutput(OutputProfile):
 
     name        = 'Illiad'
@@ -737,6 +749,6 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, NookColorOutput, GenericEink, GenericEinkLarge]
+        BambookOutput, NookColorOutput, GenericEink, GenericEinkLarge, PocketBook900Output]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
