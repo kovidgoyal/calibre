@@ -28,7 +28,7 @@ class Tokenize:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__write_to = tempfile.mktemp()
-        # self.__out_file = out_file
+        # self.__write_to = out_file
         self.__compile_expressions()
         #variables
         self.__uc_char = 0
@@ -41,14 +41,11 @@ class Tokenize:
 
     def __remove_uc_chars(self, startchar, token):
         for i in xrange(startchar, len(token)):
-            #handle the case of an uc char with a terminating blank before ansi char
-            if token[i] == " " and self.__uc_char:
-                continue
-            elif self.__uc_char:
+            if self.__uc_char:
                 self.__uc_char -= 1
             else:
                 return token[i:]
-        #if only " " and char to skip
+        #if only char to skip
         return ''
 
     def __unicode_process(self, token):
@@ -90,7 +87,7 @@ class Tokenize:
             self.__reini_utf8_counters()
             #get value and handle negative case
             uni_char = int(match_obj.group(1))
-            uni_len = len(match_obj.group(1)) + 2
+            uni_len = len(match_obj.group(0))
             if uni_char < 0:
                 uni_char += 65536
             uni_char = unichr(uni_char).encode('ascii', 'xmlcharrefreplace')
@@ -199,7 +196,7 @@ class Tokenize:
 
 # import sys
 # def main(args=sys.argv):
-    # if len(args) < 1:
+    # if len(args) < 2:
         # print 'No file'
         # return
     # file = 'data_tokens.txt'
@@ -211,3 +208,5 @@ class Tokenize:
 
 # if __name__ == '__main__':
     # sys.exit(main())
+    
+# calibre-debug -e src/calibre/ebooks/rtf2xml/tokenize.py
