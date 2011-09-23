@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-09-20 11:45+0000\n"
+"PO-Revision-Date: 2011-09-22 09:02+0000\n"
 "Last-Translator: gorkaazk <gorkaazkarate@euskalerria.org>\n"
 "Language-Team: http://librezale.org/wiki/Calibre\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-21 04:48+0000\n"
-"X-Generator: Launchpad (build 13996)\n"
+"X-Launchpad-Export-Date: 2011-09-23 04:37+0000\n"
+"X-Generator: Launchpad (build 14012)\n"
 "Language: eu\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -393,6 +393,9 @@ msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Bidali liburuak e-postaren bidez edo interneteko beste bideren batetik eta "
+"konektatu iTunes-ekin edo karpetekin zure ordenagailuan irakurgailuak izango "
+"balira bezala"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -443,7 +446,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Hautatu ausaz liburu bat zure calibreko liburutegitik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:858
 msgid "Search for books from different book sellers"
@@ -664,11 +667,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1100
 msgid "Keyboard"
-msgstr ""
+msgstr "Giltzadia (klabierra, teklatua)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Pertsonalizatu giltzadiko lasterbideak calibren erabiltzeko"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1111
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -1005,7 +1008,7 @@ msgstr "S60 telefonoekin komunikatu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:197
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Komunikatu WebOS tablets enpresakoekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -1561,11 +1564,11 @@ msgstr "Komunikatu \"Moovybook Reader\" horrekin."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "Komunikatu COBY delakoarekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Komunikatu Ex124G horrekin"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1608,6 +1611,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
 msgstr ""
+"Iruzkinak ezabatu egin dira SONY reader gailuak horiekin pott egiten duelako"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
@@ -1885,7 +1889,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "USB ekoizlearen IDa (hexadezimaletan)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1894,21 +1898,23 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
+"Lor ezazu IDa honela: Hobespenak -> Denetarik -> Lortu informazioa "
+"irakurgailua erabiltzaileak nahi bezala doitzeko"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "USB produktuaren IDa (hexadezimaletan)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
 msgid "USB Revision ID (in hex)"
-msgstr ""
+msgstr "USB berrikuspenaren IDa (hexadezimala)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Windows-en memoria nagusiarako ekoizlearen testua"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1922,17 +1928,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "Windows-eko memoria nagusiko testu identifikatzailea"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Windows-eko A txarteleko ekoizlearen testua"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "Windows-eko A txarteleko identifikazio testua"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
@@ -1944,6 +1950,8 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
+"Sartu liburuak gordetzeko karpetan. Karpeta hau \"bidali irakurgailura\" "
+"edozein txantiloitara bidaltzeko lehenetsita dago"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
