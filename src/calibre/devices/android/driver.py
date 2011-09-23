@@ -4,6 +4,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+
+import cStringIO
+
 from calibre.devices.usbms.driver import USBMS
 
 class ANDROID(USBMS):
@@ -208,5 +212,63 @@ class WEBOS(USBMS):
     EBOOK_DIR_MAIN = '.palmkindle'
     VENDOR_NAME = 'HP'
     WINDOWS_MAIN_MEM = 'WEBOS-DEVICE'
+    
+    THUMBNAIL_HEIGHT = 160
+    THUMBNAIL_WIDTH = 120
+    
+    def upload_cover(self, path, filename, metadata, filepath):
+        
+        try:
+            from PIL import Image, ImageDraw
+            Image, ImageDraw
+        except ImportError:
+            import Image, ImageDraw
+
+
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if coverdata and coverdata[2]:
+            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+        else:
+            coverdata = open(I('library.png'), 'rb').read()
+
+            cover = Image.new('RGB', (120,160), 'black')
+            im = Image.open(cStringIO.StringIO(coverdata))
+            im.thumbnail((120, 160), Image.ANTIALIAS)
+
+            x, y = im.size
+            cover.paste(im, ((120-x)/2, (160-y)/2))
+
+            draw = ImageDraw.Draw(cover)
+            draw.text((1, 15), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
+            draw.text((1, 115), metadata.get('authors', _('Unknown')).encode('ascii', 'ignore'))
+
+        data = cStringIO.StringIO()
+        cover.save(data, 'JPEG')
+        coverdata = data.getvalue()
+
+        with open('%s.jpg' % os.path.join(path + '/coverCache', filename + '-medium'), 'wb') as coverfile:
+            coverfile.write(coverdata)
+        
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if coverdata and coverdata[2]:
+            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+        else:
+            coverdata = open(I('library.png'), 'rb').read()
+
+            cover = Image.new('RGB', (52,69), 'black')
+            im = Image.open(cStringIO.StringIO(coverdata))
+            im.thumbnail((52, 69), Image.ANTIALIAS)
+
+            x, y = im.size
+            cover.paste(im, ((52-x)/2, (69-y)/2))
+        
+        cover2 = cover.resize((52, 69), Image.ANTIALIAS).convert('RGB')
+            
+        data = cStringIO.StringIO()
+        cover2.save(data, 'JPEG')
+        coverdata = data.getvalue()
+            
+        with open('%s.jpg' % os.path.join(path + '/coverCache', filename + '-small'), 'wb') as coverfile:
+            coverfile.write(coverdata)
 
 
