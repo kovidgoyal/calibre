@@ -10,7 +10,11 @@ class TimesOfIndia(BasicNewsRecipe):
 
     no_stylesheets = True
     remove_attributes = ['style']
-    keep_only_tags = [{'class':re.compile(r'maintable12|prttabl')}]
+    keep_only_tags = [
+            {'class':re.compile(r'maintable12|prttabl')},
+            {'id':['mod-article-header',
+                'mod-a-body-after-first-para', 'mod-a-body-first-para']},
+            ]
     remove_tags = [
             {'class':re.compile('tabsintbgshow|prvnxtbg')},
             {'id':['fbrecommend', 'relmaindiv']}
