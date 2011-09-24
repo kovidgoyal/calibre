@@ -173,6 +173,10 @@ class PDFWriter(QObject): # {{{
                 printer.setOutputFormat(QPrinter.NativeFormat)
             self.view.print_(printer)
             printer.abort()
+        else:
+            # The document is so corrupt that we can't render the page.
+            self.loop.exit(0)
+            raise Exception('Document cannot be rendered.')
         self._render_book()
 
     def _delete_tmpdir(self):
@@ -207,11 +211,14 @@ class PDFWriter(QObject): # {{{
         try:
             outPDF = PdfFileWriter(title=self.metadata.title, author=self.metadata.author)
             for item in self.combine_queue:
-                with open(item, 'rb') as item_stream:
-                    inputPDF = PdfFileReader(item_stream)
-                    for page in inputPDF.pages:
-                        outPDF.addPage(page)
-                        outPDF.write(self.out_stream)
+                # The input PDF stream must remain open until the final PDF
+                # is written to disk. PyPDF references pages added to the
+                # final PDF from the input PDF on disk. It does not store
+                # the pages in memory so we can't close the input PDF.
+                inputPDF = PdfFileReader(open(item, 'rb'))
+                for page in inputPDF.pages:
+                    outPDF.addPage(page)
+            outPDF.write(self.out_stream)
         finally:
             self._delete_tmpdir()
             self.loop.exit(0)
