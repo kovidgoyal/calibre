@@ -170,7 +170,11 @@ class GuiRunner(QObject):
         sys.excepthook = main.unhandled_exception
         if len(self.args) > 1:
             p = os.path.abspath(self.args[1])
-            add_filesystem_book(p)
+            if os.path.isdir(p):
+                prints('Ignoring directory passed as command line argument:',
+                        self.args[1])
+            else:
+                add_filesystem_book(p)
         self.app.file_event_hook = add_filesystem_book
         self.main = main
 
