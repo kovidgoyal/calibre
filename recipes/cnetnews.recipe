@@ -2,6 +2,11 @@
 __license__   = 'GPL v3'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
+Changelog:
+2011-09-24
+Changed cover (drMerry)
+'''
+'''
 news.cnet.com
 '''
 
@@ -9,7 +14,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class CnetNews(BasicNewsRecipe):
     title                 = 'CNET News'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Darko Miletic updated by DrMerry.'
     description           = 'Tech news and business reports by CNET News. Focused on information technology, core topics include computers, hardware, software, networking, and Internet media.'
     publisher             = 'CNET'
     category              = 'news, IT, USA'
