@@ -240,7 +240,7 @@ class LayoutMixin(object): # {{{
         # }}}
 
         self.status_bar = StatusBar(self)
-        for x in ('cb', 'tb', 'bd'):
+        for x in ('tb', 'cb', 'bd'):
             button = getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
             if isosx:
