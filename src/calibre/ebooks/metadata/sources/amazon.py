@@ -74,6 +74,20 @@ class Worker(Thread): # Get details {{{
             9: ['sept'],
             12: ['déc'],
             },
+            'es': {
+                1: ['enero'],
+                2: ['febrero'],
+                3: ['marzo'],
+                4: ['abril'],
+                5: ['mayo'],
+                6: ['junio'],
+                7: ['julio'],
+                8: ['agosto'],
+                9: ['septiembre', 'setiembre'],
+                10: ['octubre'],
+                11: ['noviembre'],
+                12: ['diciembre'],
+            },
                 'jp': {
             1: [u'1月'],
             2: [u'2月'],
@@ -101,13 +115,16 @@ class Worker(Thread): # Get details {{{
                  text()="Dettagli prodotto" or \
                  text()="Product details" or \
                  text()="Détails sur le produit" or \
+                 text()="Detalles del producto" or \
                  text()="登録情報"]/../div[@class="content"]
             '''
+        # Editor: is for Spanish
         self.publisher_xpath = '''
             descendant::*[starts-with(text(), "Publisher:") or \
                     starts-with(text(), "Verlag:") or \
                     starts-with(text(), "Editore:") or \
                     starts-with(text(), "Editeur") or \
+                    starts-with(text(), "Editor:") or \
                     starts-with(text(), "出版社:")]
             '''
         self.language_xpath =    '''
@@ -116,12 +133,14 @@ class Worker(Thread): # Get details {{{
                 or text() = "Language" \
                 or text() = "Sprache:" \
                 or text() = "Lingua:" \
+                or text() = "Idioma:" \
                 or starts-with(text(), "Langue") \
                 or starts-with(text(), "言語") \
                 ]
             '''
+
         self.ratings_pat = re.compile(
-            r'([0-9.]+) ?(out of|von|su|étoiles sur|つ星のうち) ([\d\.]+)( (stars|Sternen|stelle)){0,1}')
+            r'([0-9.]+) ?(out of|von|su|étoiles sur|つ星のうち|de un máximo de) ([\d\.]+)( (stars|Sternen|stelle|estrellas)){0,1}')
 
         lm = {
                 'eng': ('English', 'Englisch'),
@@ -143,6 +162,7 @@ class Worker(Thread): # Get details {{{
         for i, vals in self.months.iteritems():
             for x in vals:
                 ans = ans.replace(x, self.english_months[i])
+        ans = ans.replace(' de ', ' ')
         return ans
 
     def run(self):
@@ -422,6 +442,7 @@ class Amazon(Source):
             'uk' : _('UK'),
             'it' : _('Italy'),
             'jp' : _('Japan'),
+            'es' : _('Spain'),
     }
 
     options = (
@@ -789,6 +810,16 @@ if __name__ == '__main__': # tests {{{
             ),
     ] # }}}
 
+    es_tests = [ # {{{
+            (
+                {'identifiers':{'isbn': '8483460831'}},
+                [title_test('Tiempos Interesantes',
+                    exact=True), authors_test(['Terry Pratchett'])
+                 ]
+
+            ),
+    ] # }}}
+
     jp_tests = [ # {{{
             ( # isbn -> title, authors
                 {'identifiers':{'isbn': '9784101302720' }},
@@ -804,6 +835,6 @@ if __name__ == '__main__': # tests {{{
     ] # }}}
 
     test_identify_plugin(Amazon.name, com_tests)
-    #test_identify_plugin(Amazon.name, jp_tests)
+    #test_identify_plugin(Amazon.name, es_tests)
 # }}}
 
