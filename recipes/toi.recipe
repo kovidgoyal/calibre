@@ -9,11 +9,16 @@ class TimesOfIndia(BasicNewsRecipe):
     max_articles_per_feed = 25
 
     no_stylesheets = True
-    keep_only_tags = [{'class':['maintable12', 'prttabl']}]
+    remove_attributes = ['style']
+    keep_only_tags = [
+            {'class':re.compile(r'maintable12|prttabl')},
+            {'id':['mod-article-header',
+                'mod-a-body-after-first-para', 'mod-a-body-first-para']},
+            ]
     remove_tags = [
-            dict(style=lambda x: x and 'float' in x),
-            {'class':['prvnxtbg', 'footbdrin', 'bcclftr']},
-    ]
+            {'class':re.compile('tabsintbgshow|prvnxtbg')},
+            {'id':['fbrecommend', 'relmaindiv']}
+            ]
 
     feeds          = [
 ('Top Stories',
@@ -41,6 +46,8 @@ class TimesOfIndia(BasicNewsRecipe):
 ]
 
     def get_article_url(self, article):
+        # Times of India sometimes serves an ad page instead of the article,
+        # this code, detects and circumvents that
         url = BasicNewsRecipe.get_article_url(self, article)
         if '/0Ltimesofindia' in url:
             url = url.partition('/0L')[-1]
@@ -61,6 +68,3 @@ class TimesOfIndia(BasicNewsRecipe):
 
         return url
 
-
-    def preprocess_html(self, soup):
-        return soup

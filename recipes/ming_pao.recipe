@@ -12,11 +12,14 @@ __UseChineseTitle__ = False
 __KeepImages__ = True
 # (HK only) Turn below to true if you wish to use life.mingpao.com as the main article source
 __UseLife__ = True
+# (HK only) if __UseLife__ is true, turn this on if you want to include the column section
+__InclCols__ = False
 
 
 '''
 Change Log:
-2011/09/18: parse "column" section stuff from source text files directly.
+2011/09/21: fetching "column" section is made optional. Default is False
+2011/09/18: parse "column" section stuff from source text file directly.
 2011/09/07: disable "column" section as it is no longer offered free.
 2011/06/26: add fetching Vancouver and Toronto versions of the paper, also provide captions for images using life.mingpao fetch source
             provide options to remove all images in the file
@@ -241,12 +244,13 @@ class MPRecipe(BasicNewsRecipe):
                     if articles:
                         feeds.append((title, articles))
 
-                # parse column section articles directly from .txt files
-                for title, url, keystr in [(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
-                                          ]:
-                    articles = self.parse_section2_col(url, keystr)
-                    if articles:
-                        feeds.append((title, articles))
+                if __InclCols__ == True:
+                    # parse column section articles directly from .txt files
+                    for title, url, keystr in [(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
+                                              ]:
+                        articles = self.parse_section2_txt(url, keystr)
+                        if articles:
+                            feeds.append((title, articles))
 
                 for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
                                    (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
@@ -368,8 +372,8 @@ class MPRecipe(BasicNewsRecipe):
         current_articles.reverse()
         return current_articles
 
-    # parse from life.mingpao.com
-    def parse_section2_col(self, url, keystr):
+    # parse from text file of life.mingpao.com
+    def parse_section2_txt(self, url, keystr):
         self.get_fetchdate()
         soup = self.index_to_soup(url)
         a = soup.findAll('a', href=True)
@@ -654,4 +658,3 @@ class MPRecipe(BasicNewsRecipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
-

@@ -8,11 +8,12 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, pprint, time
+from cookielib import Cookie
 
 from PyQt4.Qt import (QObject, QNetworkAccessManager, QNetworkDiskCache,
         QNetworkProxy, QNetworkProxyFactory, QEventLoop, QUrl,
-        QDialog, QVBoxLayout, QSize)
-from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView
+        QDialog, QVBoxLayout, QSize, QNetworkCookieJar)
+from PyQt4.QtWebKit import QWebPage, QWebSettings, QWebView, QWebElement
 
 from calibre import USER_AGENT, prints, get_proxies, get_proxy_info
 from calibre.constants import ispy3, config_dir
@@ -130,6 +131,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
 
     def __init__(self, log, use_disk_cache=True, parent=None):
         QNetworkAccessManager.__init__(self, parent)
+        self.reply_count = 0
         self.log = log
         if use_disk_cache:
             self.cache = QNetworkDiskCache(self)
@@ -140,6 +142,8 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
         self.pf = ProxyFactory(log)
         self.setProxyFactory(self.pf)
         self.finished.connect(self.on_finished)
+        self.cookie_jar = QNetworkCookieJar()
+        self.setCookieJar(self.cookie_jar)
 
     def on_ssl_errors(self, reply, errors):
         reply.ignoreSslErrors()
@@ -170,6 +174,7 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
 
     def on_finished(self, reply):
         reply_url = unicode(reply.url().toString())
+        self.reply_count += 1
 
         if reply.error():
             self.log.warn("Reply error: %s - %d (%s)" %
@@ -184,6 +189,37 @@ class NetworkAccessManager(QNetworkAccessManager): # {{{
                     d = '  %r: %r' % (h, reply.rawHeader(h))
                 debug.append(d)
             self.log.debug('\n'.join(debug))
+
+    def py_cookies(self):
+        for c in self.cookie_jar.allCookies():
+            name, value = map(bytes, (c.name(), c.value()))
+            domain = bytes(c.domain())
+            initial_dot = domain_specified = domain.startswith(b'.')
+            secure = bool(c.isSecure())
+            path = unicode(c.path()).strip().encode('utf-8')
+            expires = c.expirationDate()
+            is_session_cookie = False
+            if expires.isValid():
+                expires = expires.toTime_t()
+            else:
+                expires = None
+                is_session_cookie = True
+            path_specified = True
+            if not path:
+                path = b'/'
+                path_specified = False
+            c = Cookie(0,  # version
+                    name, value,
+                    None,  # port
+                    False, # port specified
+                    domain, domain_specified, initial_dot, path,
+                    path_specified,
+                    secure, expires, is_session_cookie,
+                    None, # Comment
+                    None, # Comment URL
+                    {} # rest
+            )
+            yield c
 # }}}
 
 class LoadWatcher(QObject): # {{{
@@ -260,11 +296,6 @@ class Browser(QObject, FormsMixin):
             log.filter_level = log.DEBUG
         self.log = log
 
-        self.jquery_lib = P('content_server/jquery.js', data=True,
-                allow_user_override=False).decode('utf-8')
-        self.simulate_lib = P('jquery.simulate.js', data=True,
-                allow_user_override=False).decode('utf-8')
-
         self.page = WebPage(log, confirm_callback=confirm_callback,
                 prompt_callback=prompt_callback, user_agent=user_agent,
                 enable_developer_tools=enable_developer_tools,
@@ -286,6 +317,24 @@ class Browser(QObject, FormsMixin):
 
         return lw.loaded_ok
 
+    def _wait_for_replies(self, reply_count, timeout):
+        final_time = time.time() + timeout
+        loop = QEventLoop(self)
+        while (time.time() < final_time and self.nam.reply_count <
+                reply_count):
+            loop.processEvents()
+            time.sleep(0.1)
+        if self.nam.reply_count < reply_count:
+            raise Timeout('Waiting for replies took longer than %d seconds' %
+                    timeout)
+
+    def run_for_a_time(self, timeout):
+        final_time = time.time() + timeout
+        loop = QEventLoop(self)
+        while (time.time() < final_time):
+            if not loop.processEvents():
+                time.sleep(0.1)
+
     def visit(self, url, timeout=30.0):
         '''
         Open the page specified in URL and wait for it to complete loading.
@@ -300,9 +349,9 @@ class Browser(QObject, FormsMixin):
         self.page.mainFrame().load(QUrl(url))
         return self._wait_for_load(timeout, url)
 
-    def click(self, qwe, wait_for_load=True, ajax_replies=0, timeout=30.0):
+    def click(self, qwe_or_selector, wait_for_load=True, ajax_replies=0, timeout=30.0):
         '''
-        Click the QWebElement pointed to by qwe.
+        Click the :class:`QWebElement` pointed to by qwe_or_selector.
 
         :param wait_for_load: If you know that the click is going to cause a
                               new page to be loaded, set this to True to have
@@ -310,6 +359,13 @@ class Browser(QObject, FormsMixin):
         :para ajax_replies: Number of replies to wait for after clicking a link
                             that triggers some AJAX interaction
         '''
+        initial_count = self.nam.reply_count
+        qwe = qwe_or_selector
+        if not isinstance(qwe, QWebElement):
+            qwe = self.page.mainFrame().findFirstElement(qwe)
+            if qwe.isNull():
+                raise ValueError('Failed to find element with selector: %r'
+                        % qwe_or_selector)
         js = '''
             var e = document.createEvent('MouseEvents');
             e.initEvent( 'click', true, true );
@@ -317,9 +373,28 @@ class Browser(QObject, FormsMixin):
         '''
         qwe.evaluateJavaScript(js)
         if ajax_replies > 0:
-            raise NotImplementedError('AJAX clicking not implemented')
+            reply_count = initial_count + ajax_replies
+            self._wait_for_replies(reply_count, timeout)
         elif wait_for_load and not self._wait_for_load(timeout):
             raise LoadError('Clicking resulted in a failed load')
+
+    def click_text_link(self, text_or_regex, selector='a[href]',
+            wait_for_load=True, ajax_replies=0, timeout=30.0):
+        target = None
+        for qwe in self.page.mainFrame().findAllElements(selector):
+            src = unicode(qwe.toPlainText())
+            if hasattr(text_or_regex, 'match') and text_or_regex.search(src):
+                target = qwe
+                break
+            if src.lower() == text_or_regex.lower():
+                target = qwe
+                break
+        if target is None:
+            raise ValueError('No element matching %r with text %s found'%(
+                selector, text_or_regex))
+        return self.click(target, wait_for_load=wait_for_load,
+                ajax_replies=ajax_replies, timeout=timeout)
+
 
     def show_browser(self):
         '''
@@ -327,4 +402,23 @@ class Browser(QObject, FormsMixin):
         '''
         view = BrowserView(self.page)
         view.exec_()
+
+    @property
+    def cookies(self):
+        '''
+        Return all the cookies set currently as :class:`Cookie` objects.
+        Returns expired cookies as well.
+        '''
+        return list(self.nam.py_cookies())
+
+    @property
+    def html(self):
+        return unicode(self.page.mainFrame().toHtml())
+
+    def close(self):
+        try:
+            self.visit('about:blank', timeout=0.01)
+        except Timeout:
+            pass
+        self.nam = self.page = None
 

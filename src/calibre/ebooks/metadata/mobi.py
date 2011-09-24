@@ -78,7 +78,7 @@ class StreamSlicer(object):
         stream = self._stream
         base = self.start
         stream.seek(base)
-        self._stream.truncate(base)
+        stream.truncate()
         for block in data_blocks:
             stream.write(block)
 
