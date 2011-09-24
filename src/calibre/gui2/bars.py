@@ -113,8 +113,6 @@ class ToolBar(QToolBar): # {{{
         ch.setCursor(Qt.PointingHandCursor)
         ch.setAutoRaise(True)
         if ac.menu() is not None and menu_mode is not None:
-            if menu_mode == QToolButton.MenuButtonPopup:
-                menu_mode = QToolButton.DelayedPopup
             ch.setPopupMode(menu_mode)
         return ch
 
