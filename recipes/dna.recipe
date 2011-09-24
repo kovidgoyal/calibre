@@ -1,6 +1,3 @@
-'''
-dnaindia.com
-'''
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -12,6 +9,10 @@ class DNAIndia(BasicNewsRecipe):
     language = 'en_IN'
 
     encoding    = 'cp1252'
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
 
     feeds       = [
                    ('Top News', 'http://www.dnaindia.com/syndication/rss_topnews.xml'),
@@ -22,15 +23,10 @@ class DNAIndia(BasicNewsRecipe):
                    ('World', 'http://www.dnaindia.com/syndication/rss,catid-9.xml'),
                    ('Money', 'http://www.dnaindia.com/syndication/rss,catid-4.xml'),
                    ('Sports', 'http://www.dnaindia.com/syndication/rss,catid-6.xml'),
-                   ('After Hours', 'http://www.dnaindia.com/syndication/rss,catid-7.xml'),
-                   ('Digital Life', 'http://www.dnaindia.com/syndication/rss,catid-1089741.xml'),
+                   ('After Hours', 'http://www.dnaindia.com/syndication/rss,catid-7.xml')
                    ]
-    remove_tags = [{'id':['footer', 'lhs-col']}, {'class':['bottom', 'categoryHead',
-        'article_tools']}]
-    keep_only_tags = dict(id='middle-col')
-    remove_tags_after=[dict(attrs={'id':'story'})]
-    remove_attributes=['style']
-    no_stylesheets = True
+
+    
 
     def print_version(self, url):
         match = re.search(r'newsid=(\d+)', url)
