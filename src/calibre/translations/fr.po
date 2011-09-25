@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-23 18:01+0000\n"
-"PO-Revision-Date: 2011-09-15 11:01+0000\n"
-"Last-Translator: Luc Mazon <Unknown>\n"
+"PO-Revision-Date: 2011-09-24 14:03+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-09-24 04:43+0000\n"
+"X-Launchpad-Export-Date: 2011-09-25 04:39+0000\n"
 "X-Generator: Launchpad (build 14012)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -2230,6 +2230,9 @@ msgid ""
 "List builtin recipe names. You can create an ebook from a builtin recipe "
 "like this: ebook-convert \"Recipe Name.recipe\" output.epub"
 msgstr ""
+"Liste les noms des recettes intégrées. Vous pouvez créer un ebook depuis une "
+"recette intégrée de la manière suivante : ebook-convert \"Recipe "
+"Nom.recipe\" sortie.epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:289
 msgid "Output saved to"
@@ -2616,6 +2619,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:423
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
 msgstr ""
+"Convertit les guillemets, tirets et points de suspension unicode en leurs "
+"équivalents en texte brut."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:431
 msgid ""
@@ -7553,7 +7558,7 @@ msgstr "&Supprimer l'interligne entre les paragraphes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:97
 msgid "Insert &blank line between paragraphs"
-msgstr "Insérer une ligne &balche entre les paragraphes"
+msgstr "Insérer une ligne &blanche entre les paragraphes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
@@ -14395,6 +14400,16 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"Une liste de colonnes séparées par des virgules dans laquelle les objets "
+"contenant\n"
+"des points sont affichés dans les arbres de l'explorateur d'étiquettes. Par "
+"exemple, si\n"
+"cette boîte contient 'tags', alors les étiquettes de la forme "
+"'Mystère.Anglais'\n"
+"et 'Mystère.Thriller' seront affichées avec Anglais et Thriller tous deux en-"
+"dessous de 'Mystère'.\n"
+"Si 'tags' n'est pas dans la boîte, alors les étiquettes seront affichées "
+"chacune sur leur propre ligne."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:218
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -15484,6 +15499,9 @@ msgid ""
 "Argument count should be -1 or greater than zero. Setting it to zero means "
 "that this function cannot be used in single function mode."
 msgstr ""
+"Le nombre d'arguments devrait être -1 ou un nombre supérieur à zéro. Le "
+"mettre à zéro signifie que la fonction ne peut être utilisée dans le mode "
+"fonction seule."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:174
 msgid "Exception while compiling function"

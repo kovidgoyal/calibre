@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-23 18:01+0000\n"
-"PO-Revision-Date: 2011-09-20 12:54+0000\n"
+"PO-Revision-Date: 2011-09-24 06:54+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-24 04:53+0000\n"
+"X-Launchpad-Export-Date: 2011-09-25 04:40+0000\n"
 "X-Generator: Launchpad (build 14012)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
@@ -6742,6 +6742,13 @@ msgid ""
 "   will be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Explicación de esta plantilla:\n"
+" -Los campos disponibles son «author_sort», «authors», «id»,\n"
+"    «isbn», «pubdate», «publisher», «series_index», «series»,\n"
+"    «tags», «timestamp», «title», «uuid», «title_sort»\n"
+" -Para campos de tipo lista, como «authors» y «tags», sólo\n"
+"    se selecciona el primer elemento.\n"
+" -Para campos temporales sólo se usa la fecha "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -7078,7 +7085,7 @@ msgstr "Crear enlace"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:173
 msgid "Enter URL"
-msgstr "Introduzca el URL"
+msgstr "Introduzca la URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:523
 msgid "Normal view"
@@ -11245,7 +11252,7 @@ msgstr "Recuento"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:111
 msgid "Was"
-msgstr ""
+msgstr "Antes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
@@ -15218,6 +15225,13 @@ msgid ""
 "on your iPhone. Here myhostname should be either the fully qualified "
 "hostname or the IP address of the computer calibre is running on."
 msgstr ""
+"<p>Acuérdese de dejar calibre corriendo, pues el servidor sólo funciona "
+"mientras calibre esté corriendo.\n"
+"<p>Para conectar con el servidor de calibre desde su dispositivo debe usar "
+"una URL de la forma <b>http://nombredeequipo:8080</b> como un nuevo catálogo "
+"en el lector Stanza del iPhone. Aquí «nombredeequipo» debe ser un nombre de "
+"equipo totalmente cualificado o bien la dirección IP del equipo donde "
+"calibre está corriendo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
@@ -15506,6 +15520,11 @@ msgid ""
 "well as customizing right click menus, <b>click the dropdown above</b> and "
 "select which toolbar/menu you want to customize."
 msgstr ""
+"<p>La barra de herramientas en calibre varía según haya o no un dispositivo "
+"conectado. Para personalizar la barra de herramientas con un dispositivo "
+"conectado así como para personalizar los menús que aparecen al pulsar el "
+"botón derecho, <b>pulse el menú desplegable de arriba</b> y seleccione qué "
+"barra de herramientas o menú quiere personalizar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:120
 msgid "This tweak has it default value"
@@ -20195,7 +20214,7 @@ msgstr "Inglés (India)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English (Nepal)"
-msgstr ""
+msgstr "Inglés (Nepal)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Thailand)"
