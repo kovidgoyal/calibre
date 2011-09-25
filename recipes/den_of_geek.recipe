@@ -1,0 +1,21 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1316944753(BasicNewsRecipe):
+    title          = u'Den of Geek'
+    __author__            = 'Jaded'
+    language = 'en'
+    description = 'From science fiction enthusiasts through to gaming fanatics, Den of Geek has become the one-stop UK website for people genuinely passionate about their entertainment media. Den of Geek covers popular culture but always with an edgy, UK centric slant that sets it apart from the crowd.'
+    category               = 'Movies, TV, Games, Comics, Cult, News, Reviews'
+    language              = 'en'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    no_stylesheets        = True
+    use_embedded_content  = True
+    publication_type      = 'newsportal'
+    masthead_url ='http://www.denofgeek.com/siteimage/scale/0/0/logo.gif'
+    cover_url ='http://a5.sphotos.ak.fbcdn.net/hphotos-ak-snc6/166479_180131695357862_139191826118516_354818_4993703_n.jpg'
+
+    feeds          = [(u'Movies', u'http://www.denofgeek.com/movies/rss/'), (u'TV', u'http://www.denofgeek.com/television/rss/'), (u'Comics & Books', u'http://www.denofgeek.com/comics/rss/'), (u'Games', u'http://www.denofgeek.com/games/rss/'), (u'DVD/Blu-ray', u'http://www.denofgeek.com/Reviews/rss/')]
