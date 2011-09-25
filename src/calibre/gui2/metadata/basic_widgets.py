@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re, os, errno
+import textwrap, re, os, errno, shutil
 
 from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
@@ -33,8 +33,9 @@ from calibre.gui2.comments_editor import Editor
 from calibre.library.comments import comments_to_html
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.icu import strcmp
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
 from calibre.gui2.languages import LanguagesEdit as LE
+from calibre.db.backend import SPOOL_SIZE
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
@@ -42,8 +43,6 @@ def save_dialog(parent, title, msg, det_msg=''):
     d.setText(msg)
     d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
     return d.exec_()
-
-
 
 '''
 The interface common to all widgets used to set basic metadata
@@ -731,8 +730,12 @@ class FormatsManager(QWidget):
             else:
                 old_extensions.add(ext)
         for ext in new_extensions:
-            db.add_format(id_, ext, open(paths[ext], 'rb'), notify=False,
-                    index_is_id=True)
+            with SpooledTemporaryFile(SPOOL_SIZE) as spool:
+                with open(paths[ext], 'rb') as f:
+                    shutil.copyfileobj(f, spool)
+                spool.seek(0)
+                db.add_format(id_, ext, spool, notify=False,
+                        index_is_id=True)
         dbfmts = db.formats(id_, index_is_id=True)
         db_extensions = set([f.lower() for f in (dbfmts.split(',') if dbfmts
             else [])])
