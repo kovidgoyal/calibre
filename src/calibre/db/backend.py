@@ -17,6 +17,7 @@ from calibre import isbytestring, force_unicode, prints
 from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
+from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
@@ -38,7 +39,7 @@ Differences in semantics from pysqlite:
 
 '''
 
-SPOOL_SIZE = 30*1024*1024
+
 
 class DynamicFilter(object): # {{{
 
