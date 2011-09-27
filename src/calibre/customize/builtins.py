@@ -1236,7 +1236,7 @@ class StoreEbookNLStore(StoreBase):
 
     headquarters = 'NL'
     formats = ['EPUB', 'PDF']
-    affiliate = True
+    affiliate = False
 
 class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
