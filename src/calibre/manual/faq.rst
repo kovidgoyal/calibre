@@ -108,6 +108,8 @@ At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook 
 
 There is also a special ``User Defined`` device plugin that can be used to connect to arbitrary devices that present their memory as disk drives. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscelleaneous -> Get information to setup the user defined device`` for more information.
 
+.. _devsupport:
+
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -219,7 +221,7 @@ How do I use |app| with my iPad/iPhone/iTouch?
 Over the air
 ^^^^^^^^^^^^^^
 
-The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the calibre sontent server, which makes your collection available over the net. First perform the following steps in |app|
+The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the calibre content server, which makes your collection available over the net. First perform the following steps in |app|
 
   * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
   * Set the output profile to iPad (this will work for iPhone/iPods as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
@@ -258,10 +260,36 @@ Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Cal
 
 This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
 
-How do I use |app| with my Android phone?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do I use |app| with my Android phone/tablet?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First install the WordPlayer ebook reading app from the Android Marketplace onto you phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single androind device out there, so if you would like to have support for your device added, follow the instructions above for getting your device supported in |app|.
+There are two ways that you can connect your Android device to calibre. Using a USB cable-- or wirelessly, over the air.
+The USB cable method only works if your Android device can act as a USB disk, which some Android tablets cannot. 
+
+Using a USB cable
+^^^^^^^^^^^^^^^^^^^^
+
+First install either the WordPlayer or Aldiko ebook reading apps from the Android Marketplace onto your phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single android device out there, so if your device is not automatically detected, follow the instructions at :ref:`devsupport` to get your device supported in |app|.
+
+Over the air
+^^^^^^^^^^^^^^
+
+The easiest way to browse your |app| collection on your Android device is by using the calibre content server, which makes your collection available over the net. First perform the following steps in |app|
+
+  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
+  * Set the output profile to Tablet (this will work for phones as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
+  * Convert the books you want to read on your device to EPUB format by selecting them and clicking the Convert button.
+  * Turn on the Content Server in |app|'s preferences and leave |app| running.
+
+Now on your Android device, open the browser and browse to
+
+    http://192.168.1.2:8080/
+
+Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If your local network supports the use of computer names, you can replace the IP address with the network name of the computer. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port.
+
+The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address. You can now browse your book collection and download books from |app| to your device to open with whatever ebook reading software you have on your android device.
+
+Some reading programs support browsing the Calibre library directly. For example, in Aldiko, click My Catalogs, then + to add a catalog, then give the catalog a title such as "Calibre" and provide the URL listed above. You can now browse the Calibre library and download directly into the reading software.
 
 Can I access my |app| books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -438,9 +466,9 @@ How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. If the computer you are transferring to already has a calibre installation, then the Welcome wizard wont run. In that case, click the calibre icon in the tooolbar and point it to the newly copied directory. You will now have two calibre libraries on your computer and you can switch between them by clicking the calibre icon on the toolbar.
 
-Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also click the arrow next to the calibre icon on the tool bar, select Library Maintenance and run the Check Library action. It will warn you about any problems in your library, which you should fix by hand.
+Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also right-click the calibre icon on the tool bar, select Library Maintenance and run the Check Library action. It will warn you about any problems in your library, which you should fix by hand.
 
-.. note:: A |app| library is just a folder which contains all the book files and their metadata. All the metadata is stored in a single file called metadata.db, in the top level folder. If this file gets corrupted, you may see an empty list of books in |app|. In this case you can ask |app| to restore your books by clicking the arrow next to the |app| icon on the toolbar and selecting Library Maintenance->Restore Library.
+.. note:: A |app| library is just a folder which contains all the book files and their metadata. All the metadata is stored in a single file called metadata.db, in the top level folder. If this file gets corrupted, you may see an empty list of books in |app|. In this case you can ask |app| to restore your books by doing a right-click on the |app| icon in the toolbar and selecting Library Maintenance->Restore Library.
 
 The list of books in |app| is blank!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -449,9 +477,9 @@ In order to understand why that happened, you have to understand what a |app| li
 
 There can be two reasons why |app| is showing a empty list of books:
 
-  * Your |app| library folder changed its location. This can happen if it was on an external disk and the drive letter for that disk changed. Or if you accidentally moved the folder. In this case, |app| cannot find its library and so starts up with an empty library instead. To remedy this, simply click the arrow next to the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Switch/create library. Click the little blue icon to select the new location of your |app| library and click OK.
+  * Your |app| library folder changed its location. This can happen if it was on an external disk and the drive letter for that disk changed. Or if you accidentally moved the folder. In this case, |app| cannot find its library and so starts up with an empty library instead. To remedy this, do a right-click on the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Switch/create library. Click the little blue icon to select the new location of your |app| library and click OK.
 
-  * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Click the arrow next to the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
+  * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Click-and-hold the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
 
 
 Content From The Web
@@ -604,7 +632,7 @@ Can I have the comment metadata show up on my reader?
 
 Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the ebook, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure Detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format.
 
-Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click the arrow next to the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
+Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click-and-hold the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
 
 How do I get |app| to use my HTTP proxy?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

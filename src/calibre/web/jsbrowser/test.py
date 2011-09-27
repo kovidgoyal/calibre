@@ -7,11 +7,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, pprint, threading
+import unittest, pprint, threading, time
 
 import cherrypy
 
 from calibre.web.jsbrowser.browser import Browser
+from calibre.library.server.utils import (cookie_max_age_to_expires,
+        cookie_time_fmt)
 
 class Server(object):
 
@@ -23,6 +25,24 @@ class Server(object):
         return '''
     <html>
     <head><title>JS Browser test</title></head>
+    <script type="text/javascript" src="jquery"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $('#ajax_test').submit(function() {
+            var val = $('#ajax_test input[name="text"]').val();
+            $.ajax({
+                dataType: "html",
+                url: "/controls_test",
+                data: {"text":val},
+                success: function(data) {
+                     $('#ajax_test input[name="text"]').val(data);
+               }
+            });
+            return false;
+        });
+    });
+    </script>
+
     <body>
     <form id="controls_test" method="post" action="controls_test">
         <h3>Test controls</h3>
@@ -40,6 +60,12 @@ class Server(object):
         <div><label>Simple Text:</label><input type="text" name="text" value="Image Test" /></div>
         <input type="image" src="button_image" alt="Submit" />
     </form>
+    <form id="ajax_test" method="post" action="controls_test">
+        <h3>Test AJAX submit</h3>
+        <div><label>Simple Text:</label><input type="text" name="text" value="AJAX Test" /></div>
+        <input type="submit" />
+    </form>
+
     </body>
     </html>
     '''
@@ -54,6 +80,30 @@ class Server(object):
     def button_image(self):
         cherrypy.response.headers['Content-Type'] = 'image/png'
         return I('next.png', data=True)
+
+    @cherrypy.expose
+    def jquery(self):
+        cherrypy.response.headers['Content-Type'] = 'text/javascript'
+        return P('content_server/jquery.js', data=True)
+
+    @cherrypy.expose
+    def cookies(self):
+        try:
+            cookie = cherrypy.response.cookie
+            cookie[b'cookiea'] = 'The%20first%20cookie'
+            cookie[b'cookiea']['path'] = '/'
+            cookie[b'cookiea']['max-age'] = 60 # seconds
+            cookie[b'cookieb'] = 'The_second_cookie'
+            cookie[b'cookieb']['path'] = '/'
+            cookie[b'cookieb']['expires'] = cookie_max_age_to_expires(60) # seconds
+            cookie[b'cookiec'] = 'The_third_cookie'
+            cookie[b'cookiec']['path'] = '/'
+            self.sent_cookies = {n:(c.value, dict(c)) for n, c in
+                    dict(cookie).iteritems()}
+            return pprint.pformat(self.sent_cookies)
+        except:
+            import traceback
+            traceback.print_exc()
 
 class Test(unittest.TestCase):
 
@@ -120,6 +170,38 @@ class Test(unittest.TestCase):
         self.browser.select_form('#image_test')
         self.browser.submit()
         self.assertEqual(self.server.form_data['text'], 'Image Test')
+
+    def test_ajax_submit(self):
+        'Test AJAX based form submission'
+        self.assertEqual(self.browser.visit('http://127.0.0.1:%d'%self.port),
+                True)
+        f = self.browser.select_form('#ajax_test')
+        f['text'] = 'Changed'
+        self.browser.ajax_submit()
+        self.assertEqual(self.server.form_data['text'], 'Changed')
+
+    def test_cookies(self):
+        'Test migration of cookies to python objects'
+        self.assertEqual(self.browser.visit('http://127.0.0.1:%d/cookies'%self.port),
+                True)
+        sent_cookies = self.server.sent_cookies
+        cookies = self.browser.cookies
+        cmap = {c.name:c for c in cookies}
+        for name, vals in sent_cookies.iteritems():
+            c = cmap[name]
+            value, fields = vals
+            self.assertEqual(value, c.value)
+            for field in ('secure', 'path'):
+                cval = getattr(c, field)
+                if cval is False:
+                    cval = b''
+                self.assertEqual(fields[field], cval,
+                        'Field %s in %s: %r != %r'%(field, name, fields[field], cval))
+            cexp = cookie_time_fmt(time.gmtime(c.expires))
+            fexp = fields['expires']
+            if fexp:
+                self.assertEqual(fexp, cexp)
+
 
 def tests():
     return unittest.TestLoader().loadTestsFromTestCase(Test)

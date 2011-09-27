@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, tempfile, hashlib, copy
+        json, uuid, hashlib, copy
 from collections import defaultdict
 import threading, random
 from itertools import repeat
@@ -26,7 +26,8 @@ from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
-from calibre.ptempfile import PersistentTemporaryFile, base_dir
+from calibre.ptempfile import (PersistentTemporaryFile,
+        base_dir, SpooledTemporaryFile)
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
@@ -610,7 +611,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
                     f.write(cdata)
             for format in formats:
-                with tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE) as stream:
+                with SpooledTemporaryFile(SPOOL_SIZE) as stream:
                     try:
                         self.copy_format_to(id, format, stream, index_is_id=True)
                         stream.seek(0)
@@ -694,7 +695,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         shutil.copyfileobj(f, pt)
                     return pt.name
                 if as_file:
-                    ret = tempfile.SpooledTemporaryFile(SPOOL_SIZE)
+                    ret = SpooledTemporaryFile(SPOOL_SIZE)
                     shutil.copyfileobj(f, ret)
                     ret.seek(0)
                 else:
@@ -1282,7 +1283,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             shutil.copyfileobj(f, pt)
                             ret = pt.name
                 elif as_file:
-                    ret = tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE)
+                    ret = SpooledTemporaryFile(SPOOL_SIZE)
                     shutil.copyfileobj(f, ret)
                     ret.seek(0)
                     # Various bits of code try to use the name as the default

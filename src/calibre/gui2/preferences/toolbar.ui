@@ -34,7 +34,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item row="2" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>A&amp;vailable actions</string>
@@ -62,7 +62,7 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="2">
+   <item row="2" column="2">
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
       <widget class="QToolButton" name="add_action_button">
@@ -122,7 +122,7 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="3" colspan="2">
+   <item row="2" column="3" colspan="2">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>&amp;Current actions</string>
@@ -208,6 +208,16 @@
        </layout>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="5">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;p&gt;The toolbar in calibre is different depending on whether a device is connected or not. To customize the toolbar when a device is connected as well as customizing right click menus, &lt;b&gt;click the dropdown above&lt;/b&gt; and select which toolbar/menu you want to customize.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
   </layout>

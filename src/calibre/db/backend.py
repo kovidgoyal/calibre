@@ -8,7 +8,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob, time, tempfile
+import os, shutil, uuid, json, glob, time
 from functools import partial
 
 import apsw
@@ -16,7 +16,8 @@ import apsw
 from calibre import isbytestring, force_unicode, prints
 from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
+from calibre.db import SPOOL_SIZE
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.library.field_metadata import FieldMetadata
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
@@ -38,7 +39,7 @@ Differences in semantics from pysqlite:
 
 '''
 
-SPOOL_SIZE = 30*1024*1024
+
 
 class DynamicFilter(object): # {{{
 
@@ -805,7 +806,7 @@ class DB(object):
                         shutil.copyfileobj(f, pt)
                     return pt.name
                 if as_file:
-                    ret = tempfile.SpooledTemporaryFile(SPOOL_SIZE)
+                    ret = SpooledTemporaryFile(SPOOL_SIZE)
                     shutil.copyfileobj(f, ret)
                     ret.seek(0)
                 else:

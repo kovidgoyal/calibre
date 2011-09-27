@@ -29,7 +29,7 @@ class Kurier(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_tags = [dict(attrs={'class':['contenttabs','drucken','versenden','leserbrief','kommentieren','addthis_button']})]
+    remove_tags = [dict(attrs={'class':['functionsleiste','functions','social_positionierung','contenttabs','drucken','versenden','leserbrief','kommentieren','addthis_button']})]
     keep_only_tags    = [dict(attrs={'id':'content'})]
     remove_tags_after = dict(attrs={'id':'author'})
     remove_attributes = ['width','height']

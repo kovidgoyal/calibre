@@ -216,7 +216,7 @@ class Stylizer(object):
                     if t:
                         text += u'\n\n' + force_unicode(t, u'utf-8')
                 if text:
-                    text = XHTML_CSS_NAMESPACE + elem.text
+                    text = XHTML_CSS_NAMESPACE + text
                     text = oeb.css_preprocessor(text)
                     stylesheet = parser.parseString(text, href=cssname)
                     stylesheet.namespaces['h'] = XHTML_NS

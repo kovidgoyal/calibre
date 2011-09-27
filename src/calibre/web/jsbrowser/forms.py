@@ -26,8 +26,12 @@ class Control(object):
         def fget(self):
             if self.type in ('checkbox', 'radio'):
                 return unicode(self.qwe.attribute('checked')) == 'checked'
-            if self.type in ('text', 'password', 'hidden'):
+            if self.type in ('text', 'password', 'hidden', 'email', 'search'):
                 return unicode(self.qwe.attribute('value'))
+            if self.type in ('number', 'range'):
+                return int(unicode(self.qwe.attribute('value')))
+            # Unknown type just treat as text
+            return unicode(self.qwe.attribute('value'))
 
         def fset(self, val):
             if self.type in ('checkbox', 'radio'):
@@ -35,7 +39,11 @@ class Control(object):
                     self.qwe.setAttribute('checked', 'checked')
                 else:
                     self.qwe.removeAttribute('checked')
-            elif self.type in ('text', 'password', 'hidden'):
+            elif self.type in ('text', 'password', 'hidden', 'email', 'search'):
+                self.qwe.setAttribute('value', as_unicode(val))
+            elif self.type in ('number', 'range'):
+                self.qwe.setAttribute('value', '%d'%int(val))
+            else: # Unknown type treat as text
                 self.qwe.setAttribute('value', as_unicode(val))
 
         return property(fget=fget, fset=fset)
@@ -228,4 +236,16 @@ class FormsMixin(object):
         self.current_form = None
         self.click(sc.qwe, wait_for_load=wait_for_load,
                 ajax_replies=ajax_replies, timeout=timeout)
+
+    def ajax_submit(self, submit_control_selector=None,
+            num_of_replies=1, timeout=30.0):
+        '''
+        Submit the current form. This method is meant for those forms that
+        use AJAX rather than a plain submit. It will block until the specified
+        number of responses are returned from the server after the submit
+        button is clicked.
+        '''
+        self.submit(submit_control_selector=submit_control_selector,
+                wait_for_load=False, ajax_replies=num_of_replies,
+                timeout=timeout)
 

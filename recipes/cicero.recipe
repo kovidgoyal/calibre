@@ -1,13 +1,14 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class BasicUserRecipe1316245412(BasicNewsRecipe):
+    #from calibre.utils.magick import Image, PixelWand
     title = u'Cicero Online'
-    description = u'Magazin f\xfcr politische Kultur'
+    description = u'Magazin f\xfcr politische Kultur (RSS Version)'
     publisher = 'Ringier Publishing GmbH'
     category = 'news, politics, Germany'
     language = 'de'
     encoding = 'UTF-8'
-    __author__ = 'Armin Geller' # Upd. 2011-09-19
+    __author__ = 'Armin Geller' # Upd. 2011-09-23
 
     oldest_article        = 7
     max_articles_per_feed = 100
@@ -18,16 +19,20 @@ class BasicUserRecipe1316245412(BasicNewsRecipe):
 
     remove_tags = [
                     dict(name='div', attrs={'id':["header", "navigation", "skip-link", "header-print", "header-print-url", "meta-toolbar", "footer"]}),
-                    dict(name='div', attrs={'class':["region region-sidebar-first column sidebar", "breadcrumb", "breadcrumb-title", "meta", "comment-wrapper",
-                                                        "field field-name-field-show-teaser-right field-type-list-boolean field-label-above"]}),
+                    dict(name='div', attrs={'class':["region region-sidebar-first column sidebar", "breadcrumb",
+                                                      "breadcrumb-title", "meta", "comment-wrapper",
+                                                      "field field-name-field-show-teaser-right field-type-list-boolean field-label-above",
+                                                      "page-header",
+                                                      "view view-alle-karikaturen view-id-alle_karikaturen view-display-id-default view-dom-id-1",
+                                                      "pagination",
+                                                      "view view-letzte-videos view-id-letzte_videos view-display-id-default view-dom-id-1",
+                                                      "view view-letzte-videos view-id-letzte_videos view-display-id-default view-dom-id-2", # 2011-09-23
+                                                      "view view-alle-karikaturen view-id-alle_karikaturen view-display-id-default view-dom-id-2", # 2011-09-23
+                                                      ]}),
                     dict(name='div', attrs={'title':["Dossier Auswahl"]}),
                     dict(name='h2', attrs={'class':["title comment-form"]}),
                     dict(name='form', attrs={'class':["comment-form user-info-from-cookie"]}),
-                    # 2011-09-19 clean-up on first feed historical caricature- and video preview pictures and social icons
-                    dict(name='table', attrs={'class':["mcx-social-horizontal", "page-header"]}),   # 2011-09-19
-                    dict(name='div', attrs={'class':["page-header", "view view-alle-karikaturen view-id-alle_karikaturen view-display-id-default view-dom-id-1",
-                                                      "pagination",
-                                                      "view view-letzte-videos view-id-letzte_videos view-display-id-default view-dom-id-1"]}), # 2011-09-19
+                    dict(name='table', attrs={'class':["mcx-social-horizontal", "page-header"]}),
                    ]
 
     feeds = [
