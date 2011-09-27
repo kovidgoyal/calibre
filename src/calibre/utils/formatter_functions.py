@@ -14,44 +14,57 @@ from calibre import human_readable
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
-
+from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
 class FormatterFunctions(object):
 
     def __init__(self):
-        self.builtins = {}
-        self.functions = {}
+        self._builtins = {}
+        self._functions = {}
 
     def register_builtin(self, func_class):
         if not isinstance(func_class, FormatterFunction):
             raise ValueError('Class %s is not an instance of FormatterFunction'%(
                                     func_class.__class__.__name__))
         name = func_class.name
-        if name in self.functions:
+        if name in self._functions:
             raise ValueError('Name %s already used'%name)
-        self.builtins[name] = func_class
-        self.functions[name] = func_class
+        self._builtins[name] = func_class
+        self._functions[name] = func_class
+        for a in func_class.aliases:
+            self._functions[a] = func_class
 
     def register_function(self, func_class):
         if not isinstance(func_class, FormatterFunction):
             raise ValueError('Class %s is not an instance of FormatterFunction'%(
                                     func_class.__class__.__name__))
         name = func_class.name
-        if name in self.functions:
+        if name in self._functions:
             raise ValueError('Name %s already used'%name)
-        self.functions[name] = func_class
+        self._functions[name] = func_class
 
     def get_builtins(self):
-        return self.builtins
+        return self._builtins
+
+    def get_builtins_and_aliases(self):
+        res = {}
+        for f in self._builtins.itervalues():
+            res[f.name] = f
+            for a in f.aliases:
+                res[a] = f
+        return res
 
     def get_functions(self):
-        return self.functions
+        return self._functions
 
     def reset_to_builtins(self):
-        self.functions = dict([t for t in self.builtins.items()])
+        self._functions = {}
+        for n,c in self._builtins.items():
+            self._functions[n] = c
+            for a in c.aliases:
+                self._functions[a] = c
 
 formatter_functions = FormatterFunctions()
-
 
 
 class FormatterFunction(object):
@@ -60,6 +73,7 @@ class FormatterFunction(object):
     name = 'no name provided'
     category = 'Unknown'
     arg_count = 0
+    aliases = []
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         raise NotImplementedError()
@@ -73,7 +87,6 @@ class FormatterFunction(object):
         if isinstance(ret, list):
             return ','.join(list)
 
-all_builtin_functions = []
 class BuiltinFormatterFunction(FormatterFunction):
     def __init__(self):
         formatter_functions.register_builtin(self)
@@ -84,7 +97,6 @@ class BuiltinFormatterFunction(FormatterFunction):
         except:
             lines = []
         self.program_text = ''.join(lines)
-        all_builtin_functions.append(self)
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
     name = 'strcmp'
@@ -131,6 +143,19 @@ class BuiltinStrcat(BuiltinFormatterFunction):
         for i in range(0, len(args)):
             res += args[i]
         return res
+
+class BuiltinStrlen(BuiltinFormatterFunction):
+    name = 'strlen'
+    arg_count = 1
+    category = 'String Manipulation'
+    __doc__ = doc = _('strlen(a) -- Returns the length of the string passed as '
+            'the argument')
+
+    def evaluate(self, formatter, kwargs, mi, locals, a):
+        try:
+            return len(a)
+        except:
+            return -1
 
 class BuiltinAdd(BuiltinFormatterFunction):
     name = 'add'
@@ -341,6 +366,40 @@ class BuiltinSwitch(BuiltinFormatterFunction):
                 return args[i+1]
             i += 2
 
+class BuiltinStrcatMax(BuiltinFormatterFunction):
+    name = 'strcat_max'
+    arg_count = -1
+    category = 'String Manipulation'
+    __doc__ = doc = _('strcat_max(max, string1, prefix2, string2, ...) -- '
+            'Returns a string formed by concatenating the arguments. The '
+            'returned value is initialized to string1. `Prefix, string` '
+            'pairs are added to the end of the value as long as the '
+            'resulting string length is less than `max`. String1 is returned '
+            'even if string1 is longer than max. You can pass as many '
+            '`prefix, string` pairs as you wish.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        if len(args) < 2:
+            raise ValueError(_('strcat_max requires 2 or more arguments'))
+        if (len(args) % 2) != 0:
+            raise ValueError(_('strcat_max requires an even number of arguments'))
+        try:
+            max = int(args[0])
+        except:
+            raise ValueError(_('first argument to strcat_max must be an integer'))
+
+        i = 2
+        result = args[1]
+        try:
+            while i < len(args):
+                if (len(result) + len(args[i]) + len(args[i+1])) > max:
+                    break
+                result = result + args[i] + args[i+1]
+                i += 2
+        except:
+            pass
+        return result.strip()
+
 class BuiltinInList(BuiltinFormatterFunction):
     name = 'in_list'
     arg_count = 5
@@ -428,7 +487,7 @@ class BuiltinSwapAroundComma(BuiltinFormatterFunction):
             'returns val unchanged')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
-        return re.sub(r'^(.*?),(.*$)', r'\2 \1', val, flags=re.I)
+        return re.sub(r'^(.*?),\s*(.*$)', r'\2 \1', val, flags=re.I).strip()
 
 class BuiltinIfempty(BuiltinFormatterFunction):
     name = 'ifempty'
@@ -498,7 +557,7 @@ class BuiltinListitem(BuiltinFormatterFunction):
         index = int(index)
         val = val.split(sep)
         try:
-            return val[index]
+            return val[index].strip()
         except:
             return ''
 
@@ -507,7 +566,7 @@ class BuiltinSelect(BuiltinFormatterFunction):
     arg_count = 2
     category = 'List Lookup'
     __doc__ = doc = _('select(val, key) -- interpret the value as a comma-separated list '
-            'of items, with the items being "id:value". Find the pair with the'
+            'of items, with the items being "id:value". Find the pair with the '
             'id equal to key, and return the corresponding value.'
             )
 
@@ -616,7 +675,8 @@ class BuiltinSublist(BuiltinFormatterFunction):
             return ''
         si = int(start_index)
         ei = int(end_index)
-        val = val.split(sep)
+        # allow empty list items so counts are what the user expects
+        val = [v.strip() for v in val.split(sep)]
         try:
             if ei == 0:
                 return sep.join(val[si:])
@@ -829,16 +889,17 @@ class BuiltinNot(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return '' if val else '1'
 
-class BuiltinMergeLists(BuiltinFormatterFunction):
-    name = 'merge_lists'
+class BuiltinListUnion(BuiltinFormatterFunction):
+    name = 'list_union'
     arg_count = 3
     category = 'List Manipulation'
-    __doc__ = doc = _('merge_lists(list1, list2, separator) -- '
+    __doc__ = doc = _('list_union(list1, list2, separator) -- '
             'return a list made by merging the items in list1 and list2, '
             'removing duplicate items using a case-insensitive compare. If '
             'items differ in case, the one in list1 is used. '
             'The items in list1 and list2 are separated by separator, as are '
             'the items in the returned list.')
+    aliases = ['merge_lists']
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
@@ -851,7 +912,58 @@ class BuiltinMergeLists(BuiltinFormatterFunction):
         for i in l2:
             if icu_lower(i) not in lcl1:
                 res.append(i)
-        return ', '.join(sorted(res, key=sort_key))
+        return ', '.join(res)
+
+class BuiltinListDifference(BuiltinFormatterFunction):
+    name = 'list_difference'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_difference(list1, list2, separator) -- '
+            'return a list made by removing from list1 any item found in list2, '
+            'using a case-insensitive compare. The items in list1 and list2 '
+            'are separated by separator, as are the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [icu_lower(l.strip()) for l in list2.split(separator) if l.strip()]
+
+        res = []
+        for i in l1:
+            if icu_lower(i) not in l2:
+                res.append(i)
+        return ', '.join(res)
+
+class BuiltinListIntersection(BuiltinFormatterFunction):
+    name = 'list_intersection'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_intersection(list1, list2, separator) -- '
+            'return a list made by removing from list1 any item not found in list2, '
+            'using a case-insensitive compare. The items in list1 and list2 '
+            'are separated by separator, as are the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        l2 = [icu_lower(l.strip()) for l in list2.split(separator) if l.strip()]
+
+        res = []
+        for i in l1:
+            if icu_lower(i) in l2:
+                res.append(i)
+        return ', '.join(res)
+
+class BuiltinListSort(BuiltinFormatterFunction):
+    name = 'list_sort'
+    arg_count = 3
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_sort(list, direction, separator) -- '
+            'return list sorted using a case-insensitive sort. If direction is '
+            'zero, the list is sorted ascending, otherwise descending. The list items '
+            'are separated by separator, as are the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, direction, separator):
+        res = [l.strip() for l in list1.split(separator) if l.strip()]
+        return ', '.join(sorted(res, key=sort_key, reverse=direction != "0"))
 
 class BuiltinToday(BuiltinFormatterFunction):
     name = 'today'
@@ -886,19 +998,62 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         i = d1 - d2
         return str('%d.%d'%(i.days, i.seconds/8640))
 
-formatter_builtins = [
+class BuiltinLanguageStrings(BuiltinFormatterFunction):
+    name = 'language_strings'
+    arg_count = 2
+    category = 'Get values from metadata'
+    __doc__ = doc = _('language_strings(lang_codes, localize) -- '
+            'return the strings for the language codes passed in lang_codes. '
+            'If localize is zero, return the strings in English. If '
+            'localize is not zero, return the strings in the language of '
+            'the current locale. Lang_codes is a comma-separated list.')
+    def evaluate(self, formatter, kwargs, mi, locals, lang_codes, localize):
+        retval = []
+        for c in [c.strip() for c in lang_codes.split(',') if c.strip()]:
+            try:
+                n = calibre_langcode_to_name(c, localize != '0')
+                if n:
+                    retval.append(n)
+            except:
+                pass
+        return ', '.join(retval)
+
+class BuiltinLanguageCodes(BuiltinFormatterFunction):
+    name = 'language_codes'
+    arg_count = 1
+    category = 'Get values from metadata'
+    __doc__ = doc = _('language_codes(lang_strings) -- '
+            'return the language codes for the strings passed in lang_strings. '
+            'The strings must be in the language of the current locale. '
+            'Lang_strings is a comma-separated list.')
+    def evaluate(self, formatter, kwargs, mi, locals, lang_strings):
+        retval = []
+        for c in [c.strip() for c in lang_strings.split(',') if c.strip()]:
+            try:
+                cv = canonicalize_lang(c)
+                if cv:
+                    retval.append(canonicalize_lang(cv))
+            except:
+                pass
+        return ', '.join(retval)
+
+_formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
     BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
-    BuiltinIfempty(), BuiltinInList(), BuiltinListitem(), BuiltinLookup(),
-    BuiltinLowercase(), BuiltinMergeLists(), BuiltinMultiply(), BuiltinNot(),
+    BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
+    BuiltinInList(), BuiltinListDifference(),
+    BuiltinListIntersection(), BuiltinListitem(), BuiltinListSort(),
+    BuiltinListUnion(), BuiltinLookup(),
+    BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
     BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),
-    BuiltinStrcmp(), BuiltinStrInList(), BuiltinSubitems(), BuiltinSublist(),
-    BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
+    BuiltinStrcatMax(),
+    BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
+    BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
     BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
     BuiltinToday(), BuiltinUppercase(),
 ]

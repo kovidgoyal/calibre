@@ -6,7 +6,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time
+import os, time, glob
+
+from lxml import etree
 
 from sphinx.builders.epub import EpubBuilder
 
@@ -55,4 +57,38 @@ class EPUBHelpBuilder(EpubBuilder):
     def build_epub(self, outdir, *args, **kwargs):
         if self.config.epub_cover:
             self.add_cover(outdir, self.config.epub_cover)
+        self.fix_duplication_bugs(outdir)
         EpubBuilder.build_epub(self, outdir, *args, **kwargs)
+
+    def fix_duplication_bugs(self, outdir):
+        opf = glob.glob(outdir+os.sep+'*.opf')[0]
+        root = etree.fromstring(open(opf, 'rb').read())
+        seen = set()
+        for x in root.xpath(
+                '//*[local-name()="spine"]/*[local-name()="itemref"]'):
+            idref = x.get('idref')
+            if idref in seen:
+                x.getparent().remove(x)
+            else:
+                seen.add(idref)
+
+        with open(opf, 'wb') as f:
+            f.write(etree.tostring(root, encoding='utf-8', xml_declaration=True))
+
+
+        ncx = glob.glob(outdir+os.sep+'*.ncx')[0]
+        root = etree.fromstring(open(ncx, 'rb').read())
+        seen = set()
+        for x in root.xpath(
+                '//*[local-name()="navMap"]/*[local-name()="navPoint"]'):
+            text = x.xpath('descendant::*[local-name()="text"]')[0]
+            text = text.text
+            if text in seen:
+                x.getparent().remove(x)
+            else:
+                seen.add(text)
+
+        with open(ncx, 'wb') as f:
+            f.write(etree.tostring(root, encoding='utf-8', xml_declaration=True))
+
+

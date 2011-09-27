@@ -37,24 +37,24 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
         #br.set_debug_responses(True)
 
         if self.username is not None and self.password is not None:
-            print "----------------------------open top page----------------------------------------"
+            print "-------------------------open top page-------------------------------------"
             br.open('http://www.nikkei.com/')
-            print "----------------------------open first login form--------------------------------"
+            print "-------------------------open first login form-----------------------------"
             link = br.links(url_regex="www.nikkei.com/etc/accounts/login").next()
             br.follow_link(link)
             #response = br.response()
             #print response.get_data()
-            print "----------------------------JS redirect(send autoPostForm)-----------------------"
+            print "-------------------------JS redirect(send autoPostForm)--------------------"
             br.select_form(name='autoPostForm')
             br.submit()
             #response = br.response()
-            print "----------------------------got login form---------------------------------------"
+            print "-------------------------got login form------------------------------------"
             br.select_form(name='LA0210Form01')
             br['LA0210Form01:LA0210Email']    = self.username
             br['LA0210Form01:LA0210Password'] = self.password
             br.submit()
             #response = br.response()
-            print "----------------------------JS redirect------------------------------------------"
+            print "-------------------------JS redirect---------------------------------------"
             br.select_form(nr=0)
             br.submit()
 
@@ -64,18 +64,23 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
         return br
 
     def cleanup(self):
-        print "----------------------------logout-----------------------------------------------"
+        print "-------------------------logout--------------------------------------------"
         self.browser.open('https://regist.nikkei.com/ds/etc/accounts/logout')
 
     def parse_index(self):
-        print "----------------------------get index of paper-----------------------------------"
+        print "-------------------------get index of paper--------------------------------"
         result = []
         soup = self.index_to_soup('http://www.nikkei.com/paper/')
         #soup = self.index_to_soup(self.test_data())
-        for sect in soup.findAll('div', 'cmn-section kn-special JSID_baseSection'):
+        sections = soup.findAll('div', 'cmn-section kn-special JSID_baseSection')
+	if len(sections) == 0:
+            sections = soup.findAll('div', 'cmn-section kn-special')
+        for sect in sections:
             sect_title = sect.find('h3', 'cmnc-title').string
             sect_result = []
             for elem in sect.findAll(attrs={'class':['cmn-article_title']}):
+                if elem.span.a == None  or  elem.span.a['href'].startswith('javascript') :
+                    continue
                 url = 'http://www.nikkei.com' + elem.span.a['href']
                 url = re.sub("/article/", "/print-article/", url) # print version.
                 span = elem.span.a.span
@@ -84,5 +89,5 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
                     sect_result.append(dict(title=title, url=url, date='',
                                             description='', content=''))
             result.append([sect_title, sect_result])
-        #pp.pprint(result)
+        return result
 

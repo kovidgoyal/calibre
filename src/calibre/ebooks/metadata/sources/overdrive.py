@@ -35,7 +35,7 @@ class OverDrive(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags', 'pubdate',
         'comments', 'publisher', 'identifier:isbn', 'series', 'series_index',
-        'language', 'identifier:overdrive'])
+        'languages', 'identifier:overdrive'])
     has_html_comments = True
     supports_gzip_transfer_encoding = False
     cached_cover_url_is_reliable = True
@@ -421,8 +421,10 @@ class OverDrive(Source):
                 pass
         if lang:
             lang = lang[0].strip().lower()
-            mi.language = {'english':'en', 'french':'fr', 'german':'de',
-                    'spanish':'es'}.get(lang, None)
+            lang = {'english':'eng', 'french':'fra', 'german':'deu',
+                    'spanish':'spa'}.get(lang, None)
+            if lang:
+                mi.language = lang
 
         if ebook_isbn:
             #print "ebook isbn is "+str(ebook_isbn[0])

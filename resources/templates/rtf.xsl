@@ -98,7 +98,7 @@
                     <xsl:apply-templates/>
                </emph>
             </xsl:when>
-            <xsl:when test = "@underlined">
+            <xsl:when test = "@underlined and @underlined != 'false'">
                <emph rend = "paragraph-emph-underlined">
                     <xsl:apply-templates/>
                </emph>
@@ -220,7 +220,7 @@
     </xsl:template>
 
     <xsl:template name="parse-styles-attrs">
-        <!--<xsl:text>position:relative;</xsl:text>-->
+        <!--<xsl:text>position:relative;</xsl:text>
         <xsl:if test="@space-before">
             <xsl:text>padding-top:</xsl:text>
             <xsl:value-of select="@space-before"/>
@@ -230,7 +230,7 @@
             <xsl:text>padding-bottom:</xsl:text>
             <xsl:value-of select="@space-after"/>
             <xsl:text>pt;</xsl:text>
-        </xsl:if>
+        </xsl:if>-->
         <xsl:if test="@left-indent">
             <xsl:text>padding-left:</xsl:text>
             <xsl:value-of select="@left-indent"/>
@@ -256,15 +256,15 @@
             <xsl:value-of select="'italic'"/>
             <xsl:text>;</xsl:text>
         </xsl:if>
-        <xsl:if test="@underline and @underline != 'false'">
+        <xsl:if test="@underlined and @underlined != 'false'">
             <xsl:text>text-decoration:underline</xsl:text>
             <xsl:text>;</xsl:text>
         </xsl:if>
-        <xsl:if test="@line-spacing">
+        <!--<xsl:if test="@line-spacing">
             <xsl:text>line-height:</xsl:text>
             <xsl:value-of select="@line-spacing"/>
             <xsl:text>pt;</xsl:text>
-        </xsl:if>
+        </xsl:if>-->
         <xsl:if test="(@align = 'just')">
             <xsl:text>text-align: justify;</xsl:text>
         </xsl:if>
@@ -314,7 +314,6 @@
                     </xsl:attribute>
                     <xsl:apply-templates/>
                 </xsl:element>
-
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
@@ -446,8 +445,15 @@
 
     <xsl:template match = "rtf:field[@type='hyperlink']">
         <xsl:element name ="a">
-            <xsl:attribute name = "href">
-               <xsl:value-of select = "@link"/>
+            <xsl:attribute name = "href"><xsl:if test="not(contains(@link, '/'))">#</xsl:if><xsl:value-of select = "@link"/></xsl:attribute>
+            <xsl:apply-templates/>
+        </xsl:element>
+    </xsl:template>
+	
+    <xsl:template match = "rtf:field[@type='bookmark-start']">
+        <xsl:element name ="a">
+            <xsl:attribute name = "id">
+               <xsl:value-of select = "@number"/>
             </xsl:attribute>
             <xsl:apply-templates/>
         </xsl:element>

@@ -1,0 +1,22 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+class Dobreprogramy_pl(BasicNewsRecipe):
+    title = 'Dobreprogramy.pl'
+    __author__  = 'fenuks'
+    __licence__ ='GPL v3'
+    category       = 'IT'
+    language       = 'pl'
+    cover_url = 'http://userlogos.org/files/logos/Karmody/dobreprogramy_01.png'
+    description = u'Aktualności i blogi z dobreprogramy.pl'
+    encoding = 'utf-8'
+    no_stylesheets = True
+    language       = 'pl'
+    extra_css      = '.title {font-size:22px;}'
+    oldest_article = 8
+    max_articles_per_feed = 100
+    preprocess_regexps = [(re.compile(ur'<div id="\S+360pmp4">Twoja przeglądarka nie obsługuje Flasha i HTML5 lub wyłączono obsługę JavaScript...</div>'), lambda match: '') ]
+    remove_tags = [dict(name='div', attrs={'class':['komentarze', 'block', 'portalInfo', 'menuBar', 'topBar']})]
+    keep_only_tags = [dict(name='div', attrs={'class':['mainBar', 'newsContent', 'postTitle title', 'postInfo', 'contentText', 'content']})]
+    feeds = [(u'Aktualności', 'http://feeds.feedburner.com/dobreprogramy/Aktualnosci'),
+                 ('Blogi', 'http://feeds.feedburner.com/dobreprogramy/BlogCzytelnikow')]

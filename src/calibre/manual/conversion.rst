@@ -565,7 +565,9 @@ Convert Microsoft Word documents
 |app| does not directly convert .doc/.docx files from Microsoft Word. However, in Word, you can save the document
 as HTML and then convert the resulting HTML file with |app|. When saving as HTML, be sure to use the
 "Save as Web Page, Filtered" option as this will produce clean HTML that will convert well. Note that Word
-produces really messy HTML, converting it can take a long time, so be patient.
+produces really messy HTML, converting it can take a long time, so be patient. Another alternative is to
+use the free OpenOffice. Open your .doc file in OpenOffice and save it in OpenOffice's format .odt. |app| can
+directly convert .odt files.
 
 There is a Word macro package that can automate the conversion of Word documents using |app|. It also makes
 generating the Table of Contents much simpler. It is called BookCreator and is available for free

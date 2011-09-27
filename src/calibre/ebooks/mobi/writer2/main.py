@@ -11,7 +11,7 @@ import re, random, time
 from cStringIO import StringIO
 from struct import pack
 
-from calibre.ebooks import normalize
+from calibre.ebooks import normalize, generate_masthead
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 from calibre.ebooks.mobi.writer2.serializer import Serializer
 from calibre.ebooks.compression.palmdoc import compress_doc
@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
 from calibre.ebooks.mobi.utils import (rescale_image, encint,
-        encode_trailing_data)
+        encode_trailing_data, align_block, detect_periodical)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
 
 EXTH_CODES = {
@@ -34,6 +34,12 @@ EXTH_CODES = {
     'rights': 109,
     'type': 111,
     'source': 112,
+    'versionnumber': 114,
+    'startreading': 116,
+    'coveroffset': 201,
+    'thumboffset': 202,
+    'hasfakecover': 203,
+    'lastupdatetime': 502,
     'title': 503,
     }
 
@@ -55,6 +61,13 @@ class MobiWriter(object):
 
     def __call__(self, oeb, path_or_stream):
         self.log = oeb.log
+        pt = None
+        if oeb.metadata.publication_type:
+            x = unicode(oeb.metadata.publication_type[0]).split(':')
+            if len(x) > 1:
+                pt = x[1].lower()
+        self.publication_type = pt
+
         if hasattr(path_or_stream, 'write'):
             return self.dump_stream(oeb, path_or_stream)
         with open(path_or_stream, 'w+b') as stream:
@@ -77,35 +90,37 @@ class MobiWriter(object):
         self.write_content()
 
     def generate_content(self):
-        self.map_image_names()
+        self.is_periodical = detect_periodical(self.oeb.toc, self.oeb.log)
+        # Image records are stored in their own list, they are merged into the
+        # main record list at the end
+        self.generate_images()
         self.generate_text()
+        # The uncrossable breaks trailing entries come before the indexing
+        # trailing entries
+        self.write_uncrossable_breaks()
         # Index records come after text records
         self.generate_index()
-        self.write_uncrossable_breaks()
-        # Image records come after index records
-        self.generate_images()
 
     # Indexing {{{
     def generate_index(self):
         self.primary_index_record_idx = None
+        if self.oeb.toc.count() < 1:
+            self.log.warn('No TOC, MOBI index not generated')
+            return
         try:
             self.indexer = Indexer(self.serializer, self.last_text_record_idx,
                     len(self.records[self.last_text_record_idx]),
+                    self.masthead_offset, self.is_periodical,
                     self.opts, self.oeb)
         except:
             self.log.exception('Failed to generate MOBI index:')
         else:
             self.primary_index_record_idx = len(self.records)
-            for i in xrange(len(self.records)):
+            for i in xrange(self.last_text_record_idx + 1):
                 if i == 0: continue
                 tbs = self.indexer.get_trailing_byte_sequence(i)
                 self.records[i] += encode_trailing_data(tbs)
             self.records.extend(self.indexer.records)
-
-    @property
-    def is_periodical(self):
-        return (self.primary_index_record_idx is None or not
-                self.indexer.is_periodical)
 
     # }}}
 
@@ -136,58 +151,65 @@ class MobiWriter(object):
     # }}}
 
     # Images {{{
-    def map_image_names(self):
-        '''
-        Map image names to record indices, ensuring that the masthead image if
-        present has index number 1.
-        '''
-        index = 1
-        self.images = images = {}
-        mh_href = None
-
-        if 'masthead' in self.oeb.guide:
-            mh_href = self.oeb.guide['masthead'].href
-            images[mh_href] = 1
-            index += 1
-
-        for item in self.oeb.manifest.values():
-            if item.media_type in OEB_RASTER_IMAGES:
-                if item.href == mh_href: continue
-                images[item.href] = index
-                index += 1
 
     def generate_images(self):
-        self.oeb.logger.info('Serializing images...')
-        images = [(index, href) for href, index in self.images.iteritems()]
-        images.sort()
-        self.first_image_record = None
-        for _, href in images:
-            item = self.oeb.manifest.hrefs[href]
+        oeb = self.oeb
+        oeb.logger.info('Serializing images...')
+        self.image_records = []
+        self.image_map = {}
+        self.masthead_offset = 0
+        index = 1
+
+        mh_href = None
+        if 'masthead' in oeb.guide:
+            mh_href = oeb.guide['masthead'].href
+            self.image_records.append(None)
+            index += 1
+        elif self.is_periodical:
+            # Generate a default masthead
+            data = generate_masthead(unicode(self.oeb.metadata['title'][0]))
+            self.image_records.append(data)
+            index += 1
+
+        cover_href = self.cover_offset = self.thumbnail_offset = None
+        if (oeb.metadata.cover and
+                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
+            cover_id = unicode(oeb.metadata.cover[0])
+            item = oeb.manifest.ids[cover_id]
+            cover_href = item.href
+
+        for item in self.oeb.manifest.values():
+            if item.media_type not in OEB_RASTER_IMAGES: continue
             try:
                 data = rescale_image(item.data)
             except:
-                self.oeb.logger.warn('Bad image file %r' % item.href)
+                oeb.logger.warn('Bad image file %r' % item.href)
                 continue
+            else:
+                if mh_href and item.href == mh_href:
+                    self.image_records[0] = data
+                    continue
+
+                self.image_records.append(data)
+                self.image_map[item.href] = index
+                index += 1
+
+                if cover_href and item.href == cover_href:
+                    self.cover_offset = self.image_map[item.href] - 1
+                    try:
+                        data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
+                            maxsizeb=MAX_THUMB_SIZE)
+                    except:
+                        oeb.logger.warn('Failed to generate thumbnail')
+                    else:
+                        self.image_records.append(data)
+                        self.thumbnail_offset = index - 1
+                        index += 1
             finally:
                 item.unload_data_from_memory()
-            self.records.append(data)
-            if self.first_image_record is None:
-                self.first_image_record = len(self.records) - 1
 
-    def add_thumbnail(self, item):
-        try:
-            data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
-                    maxsizeb=MAX_THUMB_SIZE)
-        except IOError:
-            self.oeb.logger.warn('Bad image file %r' % item.href)
-            return None
-        manifest = self.oeb.manifest
-        id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
-        manifest.add(id, href, 'image/jpeg', data=data)
-        index = len(self.images) + 1
-        self.images[href] = index
-        self.records.append(data)
-        return index
+        if self.image_records and self.image_records[0] is None:
+            raise ValueError('Failed to find masthead image in manifest')
 
     # }}}
 
@@ -195,12 +217,14 @@ class MobiWriter(object):
 
     def generate_text(self):
         self.oeb.logger.info('Serializing markup content...')
-        self.serializer = Serializer(self.oeb, self.images,
+        self.serializer = Serializer(self.oeb, self.image_map,
+                self.is_periodical,
                 write_page_breaks_after_item=self.write_page_breaks_after_item)
         text = self.serializer()
         self.text_length = len(text)
         text = StringIO(text)
         nrecords = 0
+        records_size = 0
 
         if self.compression != UNCOMPRESSED:
             self.oeb.logger.info('  Compressing markup content...')
@@ -214,9 +238,15 @@ class MobiWriter(object):
             data += pack(b'>B', len(overlap))
 
             self.records.append(data)
+            records_size += len(data)
             nrecords += 1
 
         self.last_text_record_idx = nrecords
+        self.first_non_text_record_idx = nrecords + 1
+        # Pad so that the next records starts at a 4 byte boundary
+        if records_size % 4 != 0:
+            self.records.append(b'\x00'*(records_size % 4))
+            self.first_non_text_record_idx += 1
 
     def read_text_record(self, text):
         '''
@@ -273,9 +303,13 @@ class MobiWriter(object):
     def generate_record0(self): #  MOBI header {{{
         metadata = self.oeb.metadata
         exth = self.build_exth()
+        first_image_record = None
+        if self.image_records:
+            first_image_record  = len(self.records)
+            self.records.extend(self.image_records)
         last_content_record = len(self.records) - 1
 
-        # FCIS/FLIS (Seem to server no purpose)
+        # FCIS/FLIS (Seems to serve no purpose)
         flis_number = len(self.records)
         self.records.append(
             b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+
@@ -319,10 +353,14 @@ class MobiWriter(object):
 
         bt = 0x002
         if self.primary_index_record_idx is not None:
-            if self.indexer.is_flat_periodical:
+            if False and self.indexer.is_flat_periodical:
+                # Disabled as setting this to 0x102 causes the Kindle to not
+                # auto archive the issues
                 bt = 0x102
             elif self.indexer.is_periodical:
-                bt = 0x103
+                # If you change this, remember to change the cdetype in the EXTH
+                # header as well
+                bt = {'newspaper':0x101}.get(self.publication_type, 0x103)
 
         record0.write(pack(b'>IIIII',
             0xe8, bt, 65001, uid, 6))
@@ -331,14 +369,19 @@ class MobiWriter(object):
         record0.write(b'\xff' * 8)
 
         # 0x20 - 0x23 : Secondary index record
-        record0.write(pack(b'>I', 0xffffffff))
+        sir = 0xffffffff
+        if (self.primary_index_record_idx is not None and
+                self.indexer.secondary_record_offset is not None):
+            sir = (self.primary_index_record_idx +
+                    self.indexer.secondary_record_offset)
+        record0.write(pack(b'>I', sir))
 
         # 0x24 - 0x3f : Unknown
         record0.write(b'\xff' * 28)
 
         # 0x40 - 0x43 : Offset of first non-text record
         record0.write(pack(b'>I',
-            self.last_text_record_idx + 1))
+            self.first_non_text_record_idx))
 
         # 0x44 - 0x4b : title offset, title length
         record0.write(pack(b'>II',
@@ -354,8 +397,7 @@ class MobiWriter(object):
         # 0x58 - 0x5b : Format version
         # 0x5c - 0x5f : First image record number
         record0.write(pack(b'>II',
-            6, self.first_image_record if self.first_image_record else
-            len(self.records)-1))
+            6, first_image_record if first_image_record else len(self.records)))
 
         # 0x60 - 0x63 : First HUFF/CDIC record number
         # 0x64 - 0x67 : Number of HUFF/CDIC records
@@ -366,7 +408,7 @@ class MobiWriter(object):
         # 0x70 - 0x73 : EXTH flags
         # Bit 6 (0b1000000) being set indicates the presence of an EXTH header
         # The purpose of the other bits is unknown
-        exth_flags = 0b1011000
+        exth_flags = 0b1010000
         if self.is_periodical:
             exth_flags |= 0b1000
         record0.write(pack(b'>I', exth_flags))
@@ -434,7 +476,7 @@ class MobiWriter(object):
         # Add some buffer so that Amazon can add encryption information if this
         # MOBI is submitted for publication
         record0 += (b'\0' * (1024*8))
-        self.records[0] = record0
+        self.records[0] = align_block(record0)
     # }}}
 
     def build_exth(self): # EXTH Header {{{
@@ -487,16 +529,22 @@ class MobiWriter(object):
 
         if isinstance(uuid, unicode):
             uuid = uuid.encode('utf-8')
-        exth.write(pack(b'>II', 113, len(uuid) + 8))
-        exth.write(uuid)
-        nrecs += 1
+        if not self.opts.share_not_sync:
+            exth.write(pack(b'>II', 113, len(uuid) + 8))
+            exth.write(uuid)
+            nrecs += 1
 
         # Write cdetype
-        if self.is_periodical:
-            data = b'EBOK'
-            exth.write(pack(b'>II', 501, len(data)+8))
-            exth.write(data)
+        if not self.is_periodical and not self.opts.share_not_sync:
+            exth.write(pack(b'>II', 501, 12))
+            exth.write(b'EBOK')
             nrecs += 1
+        else:
+            # Should be b'NWPR' for doc type of 0x101 and b'MAGZ' for doctype
+            # of 0x103 but the old writer didn't write them, and I dont know
+            # what it should be for type 0x102 (b'BLOG'?) so write nothing
+            # instead
+            pass
 
         # Add a publication date entry
         if oeb.metadata['date']:
@@ -504,35 +552,42 @@ class MobiWriter(object):
         elif oeb.metadata['timestamp']:
             datestr = str(oeb.metadata['timestamp'][0])
 
-        if datestr is not None:
-            datestr = bytes(datestr)
-            datestr = datestr.replace(b'+00:00', b'Z')
-            exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
+        if datestr is None:
+            raise ValueError("missing date or timestamp")
+
+        datestr = bytes(datestr)
+        exth.write(pack(b'>II', EXTH_CODES['pubdate'], len(datestr) + 8))
+        exth.write(datestr)
+        nrecs += 1
+        if self.is_periodical:
+            exth.write(pack(b'>II', EXTH_CODES['lastupdatetime'], len(datestr) + 8))
             exth.write(datestr)
             nrecs += 1
-        else:
-            raise NotImplementedError("missing date or timestamp needed for mobi_periodical")
 
-        # Write the same creator info as kindlegen 1.2
-        for code, val in [(204, 202), (205, 1), (206, 2), (207, 33307)]:
-            exth.write(pack(b'>II', code, 12))
-            exth.write(pack(b'>I', val))
+        if self.is_periodical:
+            # Pretend to be amazon's super secret periodical generator
+            vals = {204:201, 205:2, 206:0, 207:101}
+        else:
+            # Pretend to be kindlegen 1.2
+            vals = {204:201, 205:1, 206:2, 207:33307}
+        for code, val in vals.iteritems():
+            exth.write(pack(b'>III', code, 12, val))
             nrecs += 1
 
-        if (oeb.metadata.cover and
-                unicode(oeb.metadata.cover[0]) in oeb.manifest.ids):
-            id = unicode(oeb.metadata.cover[0])
-            item = oeb.manifest.ids[id]
-            href = item.href
-            if href in self.images:
-                index = self.images[href] - 1
-                exth.write(pack(b'>III', 0xc9, 0x0c, index))
-                exth.write(pack(b'>III', 0xcb, 0x0c, 0))
-                nrecs += 2
-                index = self.add_thumbnail(item)
-                if index is not None:
-                    exth.write(pack(b'>III', 0xca, 0x0c, index - 1))
-                    nrecs += 1
+        if self.cover_offset is not None:
+            exth.write(pack(b'>III', EXTH_CODES['coveroffset'], 12,
+                self.cover_offset))
+            exth.write(pack(b'>III', EXTH_CODES['hasfakecover'], 12, 0))
+            nrecs += 2
+        if self.thumbnail_offset is not None:
+            exth.write(pack(b'>III', EXTH_CODES['thumboffset'], 12,
+                self.thumbnail_offset))
+            nrecs += 1
+
+        if self.serializer.start_offset is not None:
+            exth.write(pack(b'>III', EXTH_CODES['startreading'], 12,
+                self.serializer.start_offset))
+            nrecs += 1
 
         exth = exth.getvalue()
         trail = len(exth) % 4
@@ -545,12 +600,13 @@ class MobiWriter(object):
         '''
         Write the PalmDB header
         '''
-        title = ascii_filename(unicode(self.oeb.metadata.title[0]))
+        title = ascii_filename(unicode(self.oeb.metadata.title[0])).replace(
+                ' ', '_')[:32]
         title = title + (b'\0' * (32 - len(title)))
         now = int(time.time())
         nrecords = len(self.records)
         self.write(title, pack(b'>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
-            b'BOOK', b'MOBI', pack(b'>IIH', nrecords, 0, nrecords))
+            b'BOOK', b'MOBI', pack(b'>IIH', (2*nrecords)-1, 0, nrecords))
         offset = self.tell() + (8 * nrecords) + 2
         for i, record in enumerate(self.records):
             self.write(pack(b'>I', offset), b'\0', pack(b'>I', 2*i)[1:])

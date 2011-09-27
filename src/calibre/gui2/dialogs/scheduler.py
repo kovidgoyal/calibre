@@ -193,6 +193,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.recipe_model = recipe_model
         self.recipe_model.do_refresh()
         self.count_label.setText(
+            # NOTE: Number of news sources
             _('%s news sources') %
                 self.recipe_model.showing_count)
 

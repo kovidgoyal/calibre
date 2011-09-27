@@ -23,6 +23,8 @@ from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
         gprefs)
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.date import is_date_undefined
+from calibre.utils.localization import calibre_langcode_to_name
 
 def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     table = render_data(mi, all_fields=all_fields,
@@ -151,6 +153,12 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                     authors.append(aut)
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
                 u' & '.join(authors))))
+        elif field == 'languages':
+            if not mi.languages:
+                continue
+            names = filter(None, map(calibre_langcode_to_name, mi.languages))
+            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
+                u', '.join(names))))
         else:
             val = mi.format_field(field)[-1]
             if val is None:
@@ -163,6 +171,10 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>')%dict(
                         sidx=fmt_sidx(sidx, use_roman=use_roman_numbers),
                         series=prepare_string_for_xml(getattr(mi, field)))
+            elif metadata['datatype'] == 'datetime':
+                aval = getattr(mi, field)
+                if is_date_undefined(aval):
+                    continue
 
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name, val)))
 

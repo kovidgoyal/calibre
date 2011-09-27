@@ -47,7 +47,9 @@ In addition, there is a button to automatically trim borders from the cover, in 
 Editing the metadata of many books at a time
 ---------------------------------------------
 
-First select the books you want to edit by holding Ctrl or Shift and clicking on them. If you select more than one book, clicking the :guilabel:`Edit metadata` button will cause a new *Bulk* metadata edit dialog to open. Using this dialog, you can quickly set the author/publisher/rating/tags/series etc of a bunch of books to the same value. This is particularly useful if you have just imported a number of books that have some metadata in common. You can also click the arrow next to the :guilabel:`Edit metadata` button and select :guilabel:`Edit metadata individually` to use the powerful single book edit dialog from above for all the selected books in succession.
+First select the books you want to edit by holding Ctrl or Shift and clicking on them. If you select more than one book, clicking the :guilabel:`Edit metadata` button will cause a new *Bulk* metadata edit dialog to open. Using this dialog, you can quickly set the author/publisher/rating/tags/series etc of a bunch of books to the same value. This is particularly useful if you have just imported a number of books that have some metadata in common. This dialog is very powerful, for example, it has a Search and Replace tab that you can use to perform bulk operations on metadata and even copy metadata from one column to another.
+
+The normal edit metadata dialog also has Next and Previous buttons that you can use to edit the metadata of several books one after the other. 
 
 Search and replace
 ^^^^^^^^^^^^^^^^^^^^
@@ -72,7 +74,7 @@ Regular expression mode has some differences from character mode, beyond (of cou
 
 The third and most important is that the replace string can make reference to parts of the search string by using backreferences. A backreference is ``\\n`` where n is an integer that refers to the n'th parenthesized group in the search expression. For example, given the same example as above, `a bad cat`, a search expression `a (...) (...)`, and a replace expression `a \\2 \\1`, the result will be `a cat bad`. Please see the :ref:`regexptutorial` for more information on backreferences.
 
-One useful pattern: assume you want to change the case of an entire field. The easiest way to do this is to use character mode, but lets further assume you want to use regular expression mode. The search expression should be `(.*)` the replace expression should be `\1`, and the desired case change function should be selected.
+One useful pattern: assume you want to change the case of an entire field. The easiest way to do this is to use character mode, but lets further assume you want to use regular expression mode. The search expression should be `(.*)` the replace expression should be `\\1`, and the desired case change function should be selected.
 
 Finally, in regular expression mode you can copy values from one field to another. Simply make the source and destination field different. The copy can replace the destination field, prepend to the field (add to the front), or append to the field (add at the end). The 'use comma' checkbox tells |app| to (or not to) add a comma between the text and the destination field in prepend and append modes. If the destination is multiple (e.g., tags), then you cannot uncheck this box.
 
@@ -81,6 +83,6 @@ Search and replace is done after all the other metadata changes in the other tab
 Bulk downloading of metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you want to download the metadata for multiple books at once, click the arrow next to the :guilabel:`Edit metadata` button and select :guilabel:`Download metadata and covers`. You can choose to download only metadata, only covers, both or only social metadata (tags/rating/series).
+If you want to download the metadata for multiple books at once, right-click the :guilabel:`Edit metadata` button and select :guilabel:`Download metadata`. You can choose to download only metadata, only covers, or both.
 
 

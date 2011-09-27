@@ -14,7 +14,7 @@ from calibre.customize.conversion import OptionRecommendation
 class MOBIOutput(OutputFormatPlugin):
 
     name = 'MOBI Output'
-    author = 'Marshall T. Vandegrift'
+    author = 'Kovid Goyal'
     file_type = 'mobi'
 
     options = set([
@@ -50,7 +50,16 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('When adding the Table of Contents to the book, add it at the start of the '
                 'book instead of the end. Not recommended.')
         ),
-
+        OptionRecommendation(name='extract_to', recommended_value=None,
+            help=_('Extract the contents of the MOBI file to the'
+                ' specified directory. If the directory already '
+                'exists, it will be deleted.')
+        ),
+        OptionRecommendation(name='share_not_sync', recommended_value=False,
+            help=_('Enable sharing of book content via Facebook etc. '
+                ' on the Kindle. WARNING: Using this feature means that '
+                ' the book will not auto sync its last read position '
+                ' on multiple devices. Complain to Amazon.'))
     ])
 
     def check_for_periodical(self):
@@ -159,7 +168,7 @@ class MOBIOutput(OutputFormatPlugin):
         self.check_for_periodical()
         write_page_breaks_after_item = input_plugin is not plugin_for_input_format('cbz')
         from calibre.utils.config import tweaks
-        if tweaks.get('new_mobi_writer', False):
+        if tweaks.get('new_mobi_writer', True):
             from calibre.ebooks.mobi.writer2.main import MobiWriter
             MobiWriter
         else:
@@ -167,4 +176,9 @@ class MOBIOutput(OutputFormatPlugin):
         writer = MobiWriter(opts,
                         write_page_breaks_after_item=write_page_breaks_after_item)
         writer(oeb, output_path)
+
+        if opts.extract_to is not None:
+            from calibre.ebooks.mobi.debug import inspect_mobi
+            ddir = opts.extract_to
+            inspect_mobi(output_path, ddir=ddir)
 

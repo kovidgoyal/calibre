@@ -18,21 +18,28 @@ class Liberation(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    
+
     html2lrf_options = ['--base-font-size', '10']
 
     keep_only_tags    = [
                            dict(name='h1')
-                          ,dict(name='div', attrs={'class':'articleContent'})
+                          #,dict(name='div', attrs={'class':'object-content text text-item'})
+                          ,dict(name='div', attrs={'class':'article'})
+                          #,dict(name='div', attrs={'class':'articleContent'})
                           ,dict(name='div', attrs={'class':'entry'})
                         ]
+    remove_tags_after = [ dict(name='div',attrs={'class':'toolbox extra_toolbox'}) ]
     remove_tags    = [
                         dict(name='p', attrs={'class':'clear'})
                        ,dict(name='ul', attrs={'class':'floatLeft clear'})
                        ,dict(name='div', attrs={'class':'clear floatRight'})
                        ,dict(name='object')
+                       ,dict(name='div', attrs={'class':'toolbox'})
+                       ,dict(name='div', attrs={'class':'cartridge cartridge-basic-bubble cat-zoneabo'})
+                       #,dict(name='div', attrs={'class':'clear block block-call-items'})
+                       ,dict(name='div', attrs={'class':'block-content'})
                      ]
-    
+
     feeds          = [
                          (u'La une', u'http://www.liberation.fr/rss/laune')
                         ,(u'Monde' , u'http://www.liberation.fr/rss/monde')

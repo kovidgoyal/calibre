@@ -56,6 +56,8 @@ class PRS505(USBMS):
 
     SUPPORTS_SUB_DIRS = True
     MUST_READ_METADATA = True
+    NUKE_COMMENTS = _('Comments have been removed as the SONY reader'
+            ' chokes on them')
     SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
     SCAN_FROM_ROOT = False
@@ -291,6 +293,8 @@ class PRS505(USBMS):
             thumbnail_dir = os.path.join(thumbnail_dir, relpath)
             if not os.path.exists(thumbnail_dir):
                 os.makedirs(thumbnail_dir)
-            with open(os.path.join(thumbnail_dir, 'main_thumbnail.jpg'), 'wb') as f:
+            cpath = os.path.join(thumbnail_dir, 'main_thumbnail.jpg')
+            with open(cpath, 'wb') as f:
                 f.write(metadata.thumbnail[-1])
+            debug_print('Cover uploaded to: %r'%cpath)
 

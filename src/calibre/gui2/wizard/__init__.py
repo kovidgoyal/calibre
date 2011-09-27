@@ -208,6 +208,12 @@ class PocketBook(CybookG3):
     id = 'pocketbook'
     output_profile = 'cybookg3'
 
+class PocketBook900(PocketBook):
+
+    name = 'PocketBook 900'
+    id = 'pocketbook900'
+    output_profile = 'pocketbook_900'
+
 class iPhone(Device):
 
     name = 'iPad or iPhone/iTouch + Stanza'
@@ -640,6 +646,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             metadata_plugins = {
                     'zh' : ('Douban Books',),
                     'fr' : ('Nicebooks',),
+                    'ru' : ('OZON.ru',),
             }.get(lang, [])
             from calibre.customize.ui import enable_plugin
             for name in metadata_plugins:

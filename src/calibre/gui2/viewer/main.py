@@ -359,7 +359,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         mult = vprefs.get('multiplier', None)
         if mult:
             self.view.multiplier = mult
-
+        # On windows Qt lets the user hide toolbars via a right click in a very
+        # specific location, ensure they are visible.
+        self.tool_bar.setVisible(True)
+        self.tool_bar2.setVisible(True)
 
     def lookup(self, word):
         self.dictionary_view.setHtml('<html><body><p>'+ \
@@ -754,6 +757,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def previous_document(self):
         if self.current_index > 0:
             self.load_path(self.iterator.spine[self.current_index-1], pos=1.0)
+
+    def keyPressEvent(self, event):
+        MainWindow.keyPressEvent(self, event)
+        if not event.isAccepted():
+            if not self.view.handle_key_press(event):
+                event.ignore()
 
     def __enter__(self):
         return self

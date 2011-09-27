@@ -40,7 +40,7 @@ if isosx:
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Fetch News', 'Store', 'Save To Disk', 'Connect Share', None,
         'Remove Books',
         )
 else:
@@ -55,7 +55,7 @@ else:
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Fetch News', 'Save To Disk', 'Store', 'Connect Share', None,
         'Remove Books', None, 'Help', 'Preferences',
         )
 
@@ -94,9 +94,12 @@ gprefs.defaults['book_display_fields'] = [
         ('path', True), ('publisher', False), ('rating', False),
         ('author_sort', False), ('sort', False), ('timestamp', False),
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
-        ('last_modified', False), ('size', False),
+        ('last_modified', False), ('size', False), ('languages', False),
         ]
 gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
+gprefs.defaults['preserve_date_on_ctl'] = True
+gprefs.defaults['cb_fullscreen'] = False
+gprefs.defaults['worker_max_time'] = 0
 
 # }}}
 
@@ -139,7 +142,7 @@ def _config(): # {{{
     c.add_opt('upload_news_to_device', default=True,
               help=_('Upload downloaded news to device'))
     c.add_opt('delete_news_from_library_on_upload', default=False,
-              help=_('Delete books from library after uploading to device'))
+              help=_('Delete news books from library after uploading to device'))
     c.add_opt('separate_cover_flow', default=False,
               help=_('Show the cover flow in a separate window instead of in the main calibre window'))
     c.add_opt('disable_tray_notification', default=False,
@@ -169,7 +172,11 @@ def _config(): # {{{
     c.add_opt('scheduler_search_history', default=[],
         help='Search history for the recipe scheduler')
     c.add_opt('plugin_search_history', default=[],
-        help='Search history for the recipe scheduler')
+        help='Search history for the plugin preferences')
+    c.add_opt('shortcuts_search_history', default=[],
+        help='Search history for the keyboard preferences')
+    c.add_opt('tweaks_search_history', default=[],
+        help='Search history for tweaks')
     c.add_opt('worker_limit', default=6,
             help=_(
         'Maximum number of simultaneous conversion/news download jobs. '
@@ -183,7 +190,9 @@ def _config(): # {{{
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
     c.add_opt('gui_layout', choices=['wide', 'narrow'],
-            help=_('The layout of the user interface'), default='wide')
+            help=_('The layout of the user interface. Wide has the '
+                'book details panel on the right and narrow has '
+                'it at the bottom.'), default='wide')
     c.add_opt('show_avg_rating', default=True,
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,
@@ -416,6 +425,7 @@ class FileIconProvider(QFileIconProvider):
              'mobi'    : 'mobi',
              'mbp'     : 'zero',
              'azw1'    : 'mobi',
+             'azw4'    : 'pdf',
              'tpz'     : 'mobi',
              'tan'     : 'zero',
              'epub'    : 'epub',
@@ -423,6 +433,10 @@ class FileIconProvider(QFileIconProvider):
              'rtf'     : 'rtf',
              'odt'     : 'odt',
              'snb'     : 'snb',
+             'djv'     : 'djvu',
+             'djvu'    : 'djvu',
+             'xps'     : 'xps',
+             'oxps'    : 'xps',
              }
 
     def __init__(self):
@@ -739,15 +753,24 @@ def open_local_file(path):
         url = QUrl.fromLocalFile(path)
         open_url(url)
 
-def is_ok_to_use_qt():
+def must_use_qt():
     global gui_thread, _store_app
     if (islinux or isbsd) and ':' not in os.environ.get('DISPLAY', ''):
-        return False
+        raise RuntimeError('X server required. If you are running on a'
+                ' headless machine, use xvfb')
     if _store_app is None and QApplication.instance() is None:
         _store_app = QApplication([])
     if gui_thread is None:
         gui_thread = QThread.currentThread()
-    return gui_thread is QThread.currentThread()
+    if gui_thread is not QThread.currentThread():
+        raise RuntimeError('Cannot use Qt in non GUI thread')
+
+def is_ok_to_use_qt():
+    try:
+        must_use_qt()
+    except RuntimeError:
+        return False
+    return True
 
 def is_gui_thread():
     global gui_thread

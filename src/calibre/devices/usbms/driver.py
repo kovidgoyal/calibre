@@ -258,10 +258,10 @@ class USBMS(CLI, Device):
         for i, infile in enumerate(files):
             mdata, fname = metadata.next(), names.next()
             filepath = self.normalize_path(self.create_upload_path(path, mdata, fname))
-            paths.append(filepath)
             if not hasattr(infile, 'read'):
                 infile = self.normalize_path(infile)
-            self.put_file(infile, filepath, replace_file=True)
+            filepath = self.put_file(infile, filepath, replace_file=True)
+            paths.append(filepath)
             try:
                 self.upload_cover(os.path.dirname(filepath),
                                   os.path.splitext(os.path.basename(filepath))[0],

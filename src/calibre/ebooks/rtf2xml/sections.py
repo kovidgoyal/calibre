@@ -8,11 +8,6 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
 import sys, os, tempfile
@@ -501,7 +496,7 @@ Instead, ingore all section information in a field-block.
             self.__token_info = line[:16]
             action = self.__state_dict.get(self.__state)
             if action == None:
-                sys.stderr.write('no no matching state in module sections.py\n')
+                sys.stderr.write('no matching state in module sections.py\n')
                 sys.stderr.write(self.__state + '\n')
             action(line)
         read_obj.close()

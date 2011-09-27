@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>521</width>
-    <height>331</height>
+    <height>342</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,16 +62,6 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Periodical masthead font:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="opt_masthead_font"/>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QLabel" name="label_3">
@@ -84,6 +74,13 @@
          <widget class="QLineEdit" name="opt_personal_doc"/>
         </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="opt_share_not_sync">
+        <property name="text">
+         <string>Enable sharing of book content via Facebook, etc. WARNING: Disables last read syncing</string>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="verticalSpacer">

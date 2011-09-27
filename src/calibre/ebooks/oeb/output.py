@@ -43,6 +43,7 @@ class OEBOutput(OutputFormatPlugin):
                         except:
                             self.log.exception('Something went wrong while trying to'
                                     ' workaround Pocketbook cover bug, ignoring')
+                        self.migrate_lang_code(root)
                     raw = etree.tostring(root, pretty_print=True,
                             encoding='utf-8', xml_declaration=True)
                     if key == OPF_MIME:
@@ -104,3 +105,12 @@ class OEBOutput(OutputFormatPlugin):
             p.remove(m)
             p.insert(0, m)
     # }}}
+
+    def migrate_lang_code(self, root): # {{{
+        from calibre.utils.localization import lang_as_iso639_1
+        for lang in root.xpath('//*[local-name() = "language"]'):
+            clc = lang_as_iso639_1(lang.text)
+            if clc:
+                lang.text = clc
+    # }}}
+

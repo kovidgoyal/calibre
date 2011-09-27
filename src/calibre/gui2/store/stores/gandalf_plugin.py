@@ -62,6 +62,7 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
                 price = ''.join(data.xpath('.//h3[@class="promocja"]/text()'))
                 price = re.sub('PLN', 'zł', price)
                 price = re.sub('\.', ',', price)
+                drm = data.xpath('boolean(.//div[@class="info" and contains(., "Zabezpieczenie: DRM")])')
 
                 counter -= 1
 
@@ -71,7 +72,10 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.detail_item = id.strip()
-                s.drm = SearchResult.DRM_UNKNOWN
+                if drm:
+                    s.drm = SearchResult.DRM_LOCKED
+                else:
+                    s.drm = SearchResult.DRM_UNLOCKED
                 s.formats = formats.upper().strip()
 
                 yield s

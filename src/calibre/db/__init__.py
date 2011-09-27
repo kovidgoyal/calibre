@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+SPOOL_SIZE = 30*1024*1024
 
 '''
 Rewrite of the calibre database backend.

@@ -218,12 +218,13 @@ class LayoutMixin(object): # {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'),
                     orientation=Qt.Vertical, parent=self, side_index=1,
-                    shortcut=_('Alt+D'))
+                    shortcut=_('Shift+Alt+D'))
             self.bd_splitter.addWidget(self.stack)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            # }}}
+            button_order = ('tb', 'bd', 'cb')
+        # }}}
         else: # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'), initial_side_size=200,
@@ -237,10 +238,11 @@ class LayoutMixin(object): # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
+            button_order = ('tb', 'cb', 'bd')
         # }}}
 
         self.status_bar = StatusBar(self)
-        for x in ('cb', 'tb', 'bd'):
+        for x in button_order:
             button = getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
             if isosx:

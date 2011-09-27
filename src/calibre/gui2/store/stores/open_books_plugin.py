@@ -28,7 +28,7 @@ class OpenBooksStore(BasicStoreConfig, StorePlugin):
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
-            d = WebStoreDialog(self.gui, self.url, parent, detail_item)
+            d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
@@ -44,7 +44,7 @@ class OpenBooksStore(BasicStoreConfig, StorePlugin):
             for data in doc.xpath('//ul[@id="object_list"]//li'):
                 if counter <= 0:
                     break
-    
+
                 id = ''.join(data.xpath('.//div[@class="links"]/a[1]/@href'))
                 id = id.strip()
                 if not id:

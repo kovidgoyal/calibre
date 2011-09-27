@@ -430,6 +430,7 @@ class MobiWriter(object):
         text.seek(npos)
         return data, overlap
 
+    # TBS {{{
     def _generate_flat_indexed_navpoints(self):
         # Assemble a HTMLRecordData instance for each HTML record
         # Return True if valid, False if invalid
@@ -1174,6 +1175,8 @@ class MobiWriter(object):
 
         self._tbSequence = tbSequence
 
+    # }}}
+
     def _evaluate_periodical_toc(self):
         '''
         Periodical:
@@ -1230,6 +1233,9 @@ class MobiWriter(object):
         if self._compression != UNCOMPRESSED:
             self._oeb.logger.info('  Compressing markup content...')
         data, overlap = self._read_text_record(text)
+
+        if not self.opts.mobi_periodical:
+            self._flatten_toc()
 
         # Evaluate toc for conformance
         if self.opts.mobi_periodical :
@@ -1631,7 +1637,7 @@ class MobiWriter(object):
         now = int(time.time())
         nrecords = len(self._records)
         self._write(title, pack('>HHIIIIII', 0, 0, now, now, 0, 0, 0, 0),
-            'BOOK', 'MOBI', pack('>IIH', nrecords, 0, nrecords))
+            'BOOK', 'MOBI', pack('>IIH', (2*nrecords)-1, 0, nrecords))
         offset = self._tell() + (8 * nrecords) + 2
         for i, record in enumerate(self._records):
             self._write(pack('>I', offset), '\0', pack('>I', 2*i)[1:])
@@ -1696,6 +1702,30 @@ class MobiWriter(object):
         return documentType
 
     # Index {{{
+
+    def _flatten_toc(self):
+        '''
+        Flatten and re-order entries in TOC so that chapter to chapter jumping
+        never fails on the Kindle.
+        '''
+        from calibre.ebooks.oeb.base import TOC
+        items = list(self._oeb.toc.iterdescendants())
+        offsets = {i:self._id_offsets.get(i.href, -1) for i in items if i.href}
+        items = [i for i in items if offsets[i] > -1]
+        items.sort(key=lambda i:offsets[i])
+        filt = []
+        seen = set()
+        for i in items:
+            off = offsets[i]
+            if off in seen: continue
+            seen.add(off)
+            filt.append(i)
+        items = filt
+        newtoc = TOC()
+        for c, i in enumerate(items):
+            newtoc.add(i.title, i.href, play_order=c+1, id=str(c),
+                    klass='chapter')
+        self._oeb.toc = newtoc
 
     def _generate_index(self):
         self._oeb.log('Generating INDX ...')

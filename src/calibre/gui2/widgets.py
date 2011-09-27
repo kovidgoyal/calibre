@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
 '''
-import re, traceback
+import re, traceback, os
 
 from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
                         QListWidgetItem, QTextCharFormat, QApplication,
@@ -15,7 +15,8 @@ from PyQt4.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
                         QMenu, QStringListModel, QCompleter, QStringList,
                         QTimer, QRect, QFontDatabase, QGraphicsView)
 
-from calibre.gui2 import NONE, error_dialog, pixmap_to_data, gprefs
+from calibre.gui2 import (NONE, error_dialog, pixmap_to_data, gprefs,
+        warning_dialog)
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -96,13 +97,21 @@ class FilenamePattern(QWidget, Ui_Form): # {{{
 
     def do_test(self):
         from calibre.ebooks.metadata.meta import metadata_from_filename
+        fname = unicode(self.filename.text())
+        ext = os.path.splitext(fname)[1][1:].lower()
+        if ext not in BOOK_EXTENSIONS:
+            return warning_dialog(self, _('Test name invalid'),
+                    _('The name <b>%r</b> does not appear to end with a'
+                        ' file extension. The name must end with a file '
+                        ' extension like .epub or .mobi')%fname, show=True)
+
         try:
             pat = self.pattern()
         except Exception as err:
             error_dialog(self, _('Invalid regular expression'),
                          _('Invalid regular expression: %s')%err).exec_()
             return
-        mi = metadata_from_filename(unicode(self.filename.text()), pat)
+        mi = metadata_from_filename(fname, pat)
         if mi.title:
             self.title.setText(mi.title)
         else:
@@ -1063,9 +1072,16 @@ class Splitter(QSplitter):
             self.action_toggle = QAction(QIcon(icon), _('Toggle') + ' ' + label,
                     self)
             self.action_toggle.triggered.connect(self.toggle_triggered)
-            self.action_toggle.setShortcut(shortcut)
             if parent is not None:
                 parent.addAction(self.action_toggle)
+                if hasattr(parent, 'keyboard'):
+                    parent.keyboard.register_shortcut('splitter %s %s'%(name,
+                        label), unicode(self.action_toggle.text()),
+                        default_keys=(shortcut,), action=self.action_toggle)
+                else:
+                    self.action_toggle.setShortcut(shortcut)
+            else:
+                self.action_toggle.setShortcut(shortcut)
 
     def toggle_triggered(self, *args):
         self.toggle_side_pane()

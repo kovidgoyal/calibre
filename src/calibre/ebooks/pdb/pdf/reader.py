@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from calibre.ebooks.pdb.formatreader import FormatReader
-from calibre.ptempfile import TemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile
 
 class Reader(FormatReader):
 
@@ -23,10 +23,12 @@ class Reader(FormatReader):
     def extract_content(self, output_dir):
         self.log.info('Extracting PDF...')
 
-        with TemporaryFile() as pdf_n:
-            pdf = open(pdf_n, 'rwb')
-            for x in xrange(self.header.section_count()):
-                pdf.write(self.header.section_data(x))
+        pdf = PersistentTemporaryFile('.pdf')
+        pdf.close()
+        pdf = open(pdf, 'wb')
+        for x in xrange(self.header.section_count()):
+            pdf.write(self.header.section_data(x))
+        pdf.close()
 
         from calibre.customize.ui import plugin_for_input_format
 
@@ -35,5 +37,4 @@ class Reader(FormatReader):
             if not hasattr(self.options, opt.option.name):
                 setattr(self.options, opt.option.name, opt.recommended_value)
 
-        pdf.seek(0)
-        return pdf_plugin.convert(pdf, self.options, 'pdf', self.log, {})
+        return pdf_plugin.convert(open(pdf, 'rb'), self.options, 'pdf', self.log, {})

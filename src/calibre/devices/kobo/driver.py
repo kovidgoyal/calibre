@@ -51,11 +51,11 @@ class KOBO(USBMS):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
             _('The Kobo supports several collections including ')+\
-                    'Read, Closed, Im_Reading ' +\
+                    'Read, Closed, Im_Reading. ' +\
             _('Create tags for automatic management'),
     ]
 
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['tags'])
+    EXTRA_CUSTOMIZATION_DEFAULT = [', '.join(['tags'])]
 
     OPT_COLLECTIONS = 0
 
@@ -333,8 +333,14 @@ class KOBO(USBMS):
             except Exception as e:
                 if 'no such column' not in str(e):
                     raise
-                cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
-                    'where BookID is Null and ContentID =?',t)
+                try:
+                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                        'where BookID is Null and ContentID =?',t)
+                except Exception as e:
+                    if 'no such column' not in str(e):
+                        raise
+                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' ' \
+                        'where BookID is Null and ContentID =?',t)
 
 
             connection.commit()
@@ -647,6 +653,15 @@ class KOBO(USBMS):
             debug_print('    Commit: Set FavouritesIndex')
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
+        # Only process categories in this list
+        supportedcategories = {
+            "Im_Reading":1,
+            "Read":2,
+            "Closed":3,
+            "Shortlist":4,
+            # "Preview":99, # Unsupported as we don't want to change it
+        }
+
         # Define lists for the ReadStatus
         readstatuslist = {
             "Im_Reading":1,
@@ -686,6 +701,7 @@ class KOBO(USBMS):
 
                 # Process any collections that exist
                 for category, books in collections.items():
+                    if category in supportedcategories:
                         debug_print("Category: ", category, " id = ", readstatuslist.get(category))
                         for book in books:
                             debug_print('    Title:', book.title, 'category: ', category)

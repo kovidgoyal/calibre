@@ -65,6 +65,8 @@ to the latest code, use the command::
 
     bzr merge
 
+You can also download the source code as a tarball (archive) from `here <http://status.calibre-ebook.com/dist/src>`_.
+
 Submitting your changes to be included
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

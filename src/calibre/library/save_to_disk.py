@@ -17,7 +17,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata import title_sort
-from calibre.utils.date import parse_date
+from calibre.utils.date import parse_date, as_local_time
 from calibre import strftime, prints, sanitize_file_name_unicode
 
 plugboard_any_device_value = 'any device'
@@ -111,16 +111,19 @@ def config(defaults=None):
                 'to supports unicode.'))
     x('timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', year='%Y', default='%b, %Y'))
+                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
+                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
     x('send_timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', year='%Y', default='%b, %Y'))
+                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
+                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
     x('to_lowercase', default=False,
             help=_('Convert paths to lowercase.'))
     x('replace_whitespace', default=False,
             help=_('Replace whitespace with underscores.'))
+    x('single_dir', default=False,
+            help=_('Save into a single directory, ignoring the template'
+                ' directory structure'))
     return c
 
 def preprocess_template(template):
@@ -131,7 +134,7 @@ def preprocess_template(template):
         template = template.decode(preferred_encoding, 'replace')
     return template
 
-class SafeFormat(TemplateFormatter):
+class Formatter(TemplateFormatter):
     '''
     Provides a format function that substitutes '' for any missing value
     '''
@@ -147,12 +150,21 @@ class SafeFormat(TemplateFormatter):
                 traceback.print_exc()
                 b = None
             if b is not None and b['datatype'] == 'composite':
+                val = b.get('#value#', None)
+                if val is not None:
+                    return val.replace('/', '_').replace('\\', '_')
                 if key in self.composite_values:
+                    self.composite_values[key] = val
                     return self.composite_values[key]
-                self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
-                self.composite_values[key] = \
-                    self.vformat(b['display']['composite_template'], [], kwargs)
-                return self.composite_values[key]
+                try:
+                    # We really should not get here, but it is safer to try
+                    self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
+                    self.composite_values[key] = \
+                        self.vformat(b['display']['composite_template'],
+                                     [], kwargs).replace('/', '_').replace('\\', '_')
+                    return self.composite_values[key]
+                except Exception, e:
+                    return unicode(e)
             if key in kwargs:
                 val = kwargs[key]
                 if isinstance(val, list):
@@ -165,7 +177,14 @@ class SafeFormat(TemplateFormatter):
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
-        to_lowercase=False):
+        to_lowercase=False, safe_format=True):
+
+    # Note: the mi argument is assumed to be an instance of Metadata returned
+    # by db.get_metadata(). Reason: the composite columns should have already
+    # been evaluated, which get_metadata does. If the mi is something else and
+    # if the template uses composite columns, then a best-efforts attempt is
+    # made to evaluate them. This will fail if the template uses a user-defined
+    # template function.
 
     tsorder = tweaks['save_template_title_series_sorting']
     format_args = FORMAT_ARGS.copy()
@@ -225,8 +244,11 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
                     format_args[key] = unicode(format_args[key])
                 else:
                     format_args[key] = ''
-    components = SafeFormat().safe_format(template, format_args,
+    if safe_format:
+        components = Formatter().safe_format(template, format_args,
                                             'G_C-EXCEPTION!', mi)
+    else:
+        components = Formatter().unsafe_format(template, format_args, mi)
     components = [x.strip() for x in components.split('/')]
     components = [sanitize_func(x) for x in components if x]
     if not components:
@@ -275,6 +297,11 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
         format_map, root, opts, length):
     from calibre.ebooks.metadata.meta import set_metadata
     available_formats = [x.lower().strip() for x in format_map.keys()]
+    if mi.pubdate:
+        mi.pubdate = as_local_time(mi.pubdate)
+    if mi.timestamp:
+        mi.timestamp = as_local_time(mi.timestamp)
+
     if opts.formats == 'all':
         asked_formats = available_formats
     else:
@@ -283,10 +310,20 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
     if not formats:
         return True, id_, mi.title
 
-    components = get_components(opts.template, mi, id_, opts.timefmt, length,
+    try:
+        components = get_components(opts.template, mi, id_, opts.timefmt, length,
             ascii_filename if opts.asciiize else sanitize_file_name_unicode,
             to_lowercase=opts.to_lowercase,
-            replace_whitespace=opts.replace_whitespace)
+            replace_whitespace=opts.replace_whitespace, safe_format=False)
+    except Exception, e:
+        raise ValueError(_('Failed to calculate path for '
+            'save to disk. Template: %(templ)s\n'
+            'Error: %(err)s')%dict(templ=opts.template, err=e))
+    if opts.single_dir:
+        components = components[-1:]
+    if not components:
+        raise ValueError(_('Template evaluation resulted in no'
+            ' path components. Template: %s')%opts.template)
     base_path = os.path.join(root, *components)
     base_name = os.path.basename(base_path)
     dirpath = os.path.dirname(base_path)

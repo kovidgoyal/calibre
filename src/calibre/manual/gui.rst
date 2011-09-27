@@ -30,7 +30,8 @@ Actions
     :alt: The Actions Toolbar
     :align: center
 
-The actions toolbar provides convenient shortcuts to commonly used actions. Most of the action buttons have little arrows next to them. By clicking the arrows, you can perform variations on the default action. Please note that the actions toolbar will look slightly different depending on whether you have an ebook reader attached to your computer.
+The actions toolbar provides convenient shortcuts to commonly used actions. If you right-click the buttons, you can perform variations on the default action.
+Please note that the actions toolbar will look slightly different depending on whether you have an ebook reader attached to your computer.
 
 .. contents::
     :depth: 1
@@ -43,7 +44,7 @@ Add books
 .. |adbi| image:: images/add_books.png
     :class: float-right-img
 
-|adbi| The :guilabel:`Add books` action has six variations accessed by the clicking the down arrow on the right side of the button.
+|adbi| The :guilabel:`Add books` action has six variations accessed by doing a right-click on the button.
 
 
     1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the ebook reader device, the books will be uploaded to the device, and so on.
@@ -70,7 +71,7 @@ Edit metadata
 .. |emii| image:: images/edit_meta_information.png
     :class: float-right-img
 
-|emii| The :guilabel:`Edit metadata` action has four variations which can be accessed by clicking the down arrow on the right side of the button.
+|emii| The :guilabel:`Edit metadata` action has four variations which can be accessed by doing a right-click on the button.
 
     1. **Edit metadata individually**: Allows you to edit the metadata of books one-by-one with the option of fetching metadata, including covers, from the Internet. It also allows you to add or remove particular ebook formats from a book. 
     2. **Edit metadata in bulk**: Allows you to edit common metadata fields for large numbers of books simulataneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
@@ -93,7 +94,7 @@ you will have to find tools to liberate your books yourself and then use |app| t
 
 For most people, conversion should be a simple one-click affair. If you want to learn more about the conversion process, see :ref:`conversion`.
 
-The :guilabel:`Convert books` action has three variations, accessed by the arrow next to the button.
+The :guilabel:`Convert books` action has three variations, accessed by doing a right-click on the button.
 
     1. **Convert individually**: Allows you to specify conversion options to customize the conversion of each selected ebook.
 
@@ -116,8 +117,7 @@ View
 
 |vi| The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a built-in viewer for many ebook formats.
 For other formats it uses the default operating system application. You can configure which formats should open with the internal viewer via
-Preferences->Behavior. If a book has more than one format, you can view a particular format by clicking the down arrow
-on the right of the :guilabel:`View` button.
+Preferences->Behavior. If a book has more than one format, you can view a particular format by doing a right-click on the button. 
 
 
 .. _send_to_device:
@@ -127,7 +127,7 @@ Send to device
 .. |stdi| image:: images/send_to_device.png
     :class: float-right-img
 
-|stdi| The :guilabel:`Send to device` action has eight variations, accessed by clicking the down arrow on the right of the button.
+|stdi| The :guilabel:`Send to device` action has eight variations, accessed by doing a right-click on the button.
 
     1. **Send to main memory**: The selected books are transferred to the main memory of the ebook reader.
     2. **Send to card (A)**: The selected books are transferred to the storage card (A) on the ebook reader.
@@ -152,7 +152,7 @@ Fetch news
 
 The :guilabel:`Fetch news` action uses simple recipes (10-15 lines of code) for each news site. To learn how to create recipes for your own news sources, see :ref:`news`.
 
-The :guilabel:`Fetch news` action has three variations, accessed by clicking the down arrow on the right of the button.
+The :guilabel:`Fetch news` action has three variations, accessed by doing a right-click on the button.
 
     1. **Schedule news download**: Allows you to schedule the download of of your selected news sources from a list of hundreds available.  Scheduling can be set individually for each news source you select and the scheduling is flexible allowing you to select specific days of the week or a frequency of days between downloads.
     2. **Add a custom news source**: Allows you to create a simple recipe for downloading news from a custom news site that you wish to access.  Creating the recipe can be as simple as specifying an RSS news feed URL, or you can be more prescriptive by creating Python-based code for the task. For more information see :ref:`news`.
@@ -197,7 +197,7 @@ Save to disk
 .. |svdi| image:: images/save_to_disk.png
     :class: float-right-img
 
-|svdi| The :guilabel:`Save to disk` action has five variations, accessed by the arrow next to the button.
+|svdi| The :guilabel:`Save to disk` action has five variations, accessed by doing a right-click on the button.
 
 .. _save_to_disk_multiple:
 
@@ -231,7 +231,7 @@ Connect/Share
 
 |csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer. It also allows you to set up you |app| library for access via a web browser or email.
 
-    The :guilabel:`Connect/Share` action has four variations, accessed by clicking the down arrow on the right of the button.
+    The :guilabel:`Connect/Share` action has four variations, accessed by doing a right-click on the button.
 
     1. **Connect to folder**: Allows you to connect to any folder on your computer as though it were a device and use all the facilities |app| has for devices with that folder. Useful if your device cannot be supported by |app| but is available as a USB disk.
 
@@ -248,7 +248,7 @@ Remove books
 .. |rbi| image:: images/remove_books.png
     :class: float-right-img
 
-|rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by clicking the down arrow on the right side of the button.
+|rbi| The :guilabel:`Remove books` action **deletes books permanently**, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.  Remove books also has five variations which can be accessed by doing a right-click on the button.
 
     1. **Remove selected books**: Allows you to **permanently** remove all books that are selected in the book list.
 
@@ -272,7 +272,7 @@ Preferences
 .. |cbi| image:: images/preferences.png
     :class: float-right-img
 
-|cbi| The :guilabel:`Preferences` action allows you to change the way various aspects of |app| work. It has four variations, accessed by clicking the down arrow on the right of the button.
+|cbi| The :guilabel:`Preferences` action allows you to change the way various aspects of |app| work. It has four variations, accessed by doing a right-click on the button.
 
     1. **Preferences**: Allows you to change the way various aspects of |app| work. Clicking the button also performs this action.
     2. **Run welcome wizard**: Allows you to start the Welcome Wizard which appeared the first time you started |app|.
@@ -527,6 +527,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Remove selected Books
     * - :kbd:`E`
       - Edit metadata of selected books
+    * - :kbd:`G`
+      - Get Books
     * - :kbd:`I`
       - Show book details
     * - :kbd:`M`
@@ -545,6 +547,8 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Toggle jobs list
     * - :kbd:`Alt+Shift+B`
       - Toggle Cover Browser
+    * - :kbd:`Alt+Shift+B`
+      - Toggle Book Details panel
     * - :kbd:`Alt+Shift+T`
       - Toggle Tag Browser
     * - :kbd:`Alt+A`

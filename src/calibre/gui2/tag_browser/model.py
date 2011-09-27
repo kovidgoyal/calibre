@@ -500,6 +500,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             if i < len(components)-1:
                                 t = copy.copy(tag)
                                 t.original_name = '.'.join(components[:i+1])
+                                t.count = 0
                                 if key != 'search':
                                     # This 'manufactured' intermediate node can
                                     # be searched, but cannot be edited.
@@ -523,6 +524,12 @@ class TagsModel(QAbstractItemModel): # {{{
 
         for category in self.category_nodes:
             process_one_node(category, state_map.get(category.category_key, {}))
+
+    def get_category_editor_data(self, category):
+        for cat in self.root_item.children:
+            if cat.category_key == category:
+                return [(t.tag.id, t.tag.original_name, t.tag.count)
+                        for t in cat.child_tags() if t.tag.count > 0]
 
     # Drag'n Drop {{{
     def mimeTypes(self):
@@ -1027,10 +1034,19 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def index_for_path(self, path):
         parent = QModelIndex()
-        for i in path:
-            parent = self.index(i, 0, parent)
-            if not parent.isValid():
-                return QModelIndex()
+        for idx,v in enumerate(path):
+            tparent = self.index(v, 0, parent)
+            if not tparent.isValid():
+                if v > 0 and idx == len(path) - 1:
+                    # Probably the last item went away. Use the one before it
+                    tparent = self.index(v-1, 0, parent)
+                    if not tparent.isValid():
+                        # Not valid. Use the last valid index
+                        break
+                else:
+                    # There isn't one before it. Use the last valid index
+                    break
+            parent = tparent
         return parent
 
     def index(self, row, column, parent):

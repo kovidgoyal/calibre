@@ -84,7 +84,9 @@ In order to convert a collection of HTML files in a specific oder, you have to c
       </body>
    </html>
 
-Then just add this HTML file to the GUI and use the convert button to create your ebook.
+Then just add this HTML file to the GUI and use the convert button to create your ebook. 
+
+.. note:: By default, when adding HTML files, |app| follows links in the files in *depth first* order. This means that if file A.html links to B.html and C.html and D.html, but B.html also links to D.html, then the files will be in the order A.html, B.html, D.html, C.html. If instead you want the order to be A.html, B.html, C.html, D.html then you must tell |app| to add your files in *breadth first* order. Do this by going to Preferences->Plugins and customizing the HTML to ZIP plugin.
 
 
 How do I use some of the advanced features of the conversion tools?
@@ -106,6 +108,8 @@ At the moment |app| has full support for the SONY PRS line, Barnes & Noble Nook 
 
 There is also a special ``User Defined`` device plugin that can be used to connect to arbitrary devices that present their memory as disk drives. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscelleaneous -> Get information to setup the user defined device`` for more information.
 
+.. _devsupport:
+
 How can I help get my device supported in |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -115,9 +119,9 @@ We just need some information from you:
   * What ebook formats does your device support?
   * Is there a special directory on the device in which all ebook files should be placed?
   * We also need information about your device that |app| will collect automatically. First, if your
-    device supports SD cards, insert them. Then connect your device. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
+    device supports SD cards, insert them. Then connect your device to the computer. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file
-    and repeat the process, this time with your device disconnected.
+    and repeat the process, this time with your device disconnected from your computer.
   * Send both the above outputs to us with the other information and we will write a device driver for your
     device.
 
@@ -140,7 +144,7 @@ Follow these steps to find the problem:
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information.
+In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, |app| provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information. Note that if you are using the user defined plugin for a device normally detected by a builtin |app| plugin, you must disable the builtin plugin first, so that your user defined plugin is used instead.
 
 How does |app| manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -217,7 +221,7 @@ How do I use |app| with my iPad/iPhone/iTouch?
 Over the air
 ^^^^^^^^^^^^^^
 
-The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the calibre sontent server, which makes your collection available over the net. First perform the following steps in |app|
+The easiest way to browse your |app| collection on your Apple device (iPad/iPhone/iPod) is by using the calibre content server, which makes your collection available over the net. First perform the following steps in |app|
 
   * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
   * Set the output profile to iPad (this will work for iPhone/iPods as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
@@ -256,10 +260,36 @@ Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Cal
 
 This method only works on Windows XP and higher, and OS X 10.5 and higher. Linux is not supported (iTunes is not available in linux) and OS X 10.4 is not supported.
 
-How do I use |app| with my Android phone?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How do I use |app| with my Android phone/tablet?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First install the WordPlayer ebook reading app from the Android Marketplace onto you phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single androind device out there, so if you would like to have support for your device added, follow the instructions above for getting your device supported in |app|.
+There are two ways that you can connect your Android device to calibre. Using a USB cable-- or wirelessly, over the air.
+The USB cable method only works if your Android device can act as a USB disk, which some Android tablets cannot. 
+
+Using a USB cable
+^^^^^^^^^^^^^^^^^^^^
+
+First install either the WordPlayer or Aldiko ebook reading apps from the Android Marketplace onto your phone. Then simply plug your phone into the computer with a USB cable. |app| should automatically detect the phone and then you can transfer books to it by clicking the Send to Device button. |app| does not have support for every single android device out there, so if your device is not automatically detected, follow the instructions at :ref:`devsupport` to get your device supported in |app|.
+
+Over the air
+^^^^^^^^^^^^^^
+
+The easiest way to browse your |app| collection on your Android device is by using the calibre content server, which makes your collection available over the net. First perform the following steps in |app|
+
+  * Set the Preferred Output Format in |app| to EPUB (The output format can be set under :guilabel:`Preferences->Interface->Behavior`)
+  * Set the output profile to Tablet (this will work for phones as well), under :guilabel:`Preferences->Conversion->Common Options->Page Setup`
+  * Convert the books you want to read on your device to EPUB format by selecting them and clicking the Convert button.
+  * Turn on the Content Server in |app|'s preferences and leave |app| running.
+
+Now on your Android device, open the browser and browse to
+
+    http://192.168.1.2:8080/
+
+Replace ``192.168.1.2`` with the local IP address of the computer running |app|. If your local network supports the use of computer names, you can replace the IP address with the network name of the computer. If you have changed the port the |app| content server is running on, you will have to change ``8080`` as well to the new port.
+
+The local IP address is the IP address you computer is assigned on your home network. A quick Google search will tell you how to find out your local IP address. You can now browse your book collection and download books from |app| to your device to open with whatever ebook reading software you have on your android device.
+
+Some reading programs support browsing the Calibre library directly. For example, in Aldiko, click My Catalogs, then + to add a catalog, then give the catalog a title such as "Calibre" and provide the URL listed above. You can now browse the Calibre library and download directly into the reading software.
 
 Can I access my |app| books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -284,11 +314,22 @@ The most likely cause of this is your antivirus program. Try temporarily disabli
 I cannot send emails using |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Because of the large amount of spam in email, sending email can be tricky as different servers use different strategies to block email spam. 
+Because of the large amount of spam in email, sending email can be tricky, as different mail servers use different strategies to block email. 
 The most common problem is if you are sending email directly (without a mail relay) in |app|. Many servers (for example, Amazon) block email
-that does not come from a well known relay. The easiest way around this is to setup a free GMail account and then goto Preferences->Email in |app| and
-click the "Use Gmail" button. |app| will then use Gmail to send the mail. Remember to update the email preferences in on your Amazon Kindle page to
-allow email sent from your Gmail email address.
+that does not come from a well known relay. The most robust way to setup email sending in |app| is to do the following:
+
+  * Create a free GMail account at `Google <http://www.gmail.com>`_. 
+  * Goto Preferences->Email in |app| and click the "Use Gmail" button and fill in the information asked for.
+  * |app| will then use GMail to send the mail.
+  * If you are sending to your Kindle, remember to update the email preferences on your Amazon Kindle page to allow email sent from your GMail email address.
+
+Even after doing this, you may have problems. One common source of problems is that some poorly designed antivirus
+programs block |app| from opening a connection to send email. Try adding an exclusion for |app| in your
+antivirus program.
+
+.. note:: Google can disable your account if you use it to send large amounts of email. So, when using GMail to send mail |app| automatically restricts
+          itself to sending one book every five minutes. If you don't mind risking your account being blocked you can reduce this wait interval by
+          going to Preferences->Tweaks in |app|.
 
 Why is my device not detected in linux?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -307,7 +348,7 @@ must return ``CONFIG_SCSI_MULTI_LUN=y``. If you don't see either, you have to re
 My device is getting mounted read-only in linux, so |app| cannot connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-linux kernels mount devices read-only when their filesystems have errors. You can repair the filesystem with::
+Linux kernels mount devices read-only when their filesystems have errors. You can repair the filesystem with::
 
     sudo fsck.vfat -y /dev/sdc
 
@@ -349,7 +390,7 @@ When you first run |app|, it will ask you for a folder in which to store your bo
 
 Metadata about the books is stored in the file ``metadata.db`` at the top level of the library folder This file is is a sqlite database. When backing up your library make sure you copy the entire folder and all its sub-folders.
 
-The library folder and all it's contents make up what is called a *|app| library*. You can have multiple such libraries. To manage the libraries, click the |app| icon on the toolbar. You can create new libraries, remove/rename existing ones and switch between libraries easily.
+The library folder and all it's contents make up what is called a |app| library. You can have multiple such libraries. To manage the libraries, click the |app| icon on the toolbar. You can create new libraries, remove/rename existing ones and switch between libraries easily.
 
 You can copy or move books between different libraries (once you have more than one library setup) by right clicking on a book and selecting the :guilabel:`Copy to library` action. 
 
@@ -425,15 +466,28 @@ How do I move my |app| library from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Simply copy the |app| library folder from the old to the new computer. You can find out what the library folder is by clicking the calibre icon in the toolbar. The very first item is the path to the library folder. Now on the new computer, start |app| for the first time. It will run the Welcome Wizard asking you for the location of the |app| library. Point it to the previously copied folder. If the computer you are transferring to already has a calibre installation, then the Welcome wizard wont run. In that case, click the calibre icon in the tooolbar and point it to the newly copied directory. You will now have two calibre libraries on your computer and you can switch between them by clicking the calibre icon on the toolbar.
 
-Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also click the arrow next to the calibre icon on the tool bar, select Library Maintenance and run the Check Library action. It will warn you about any problems in your library, which you should fix by hand.
+Note that if you are transferring between different types of computers (for example Windows to OS X) then after doing the above you should also right-click the calibre icon on the tool bar, select Library Maintenance and run the Check Library action. It will warn you about any problems in your library, which you should fix by hand.
 
-.. note:: A |app| library is just a folder which contains all the book files and their metadata. All the emtadata is stored in a single file called metadata.db, in the top level folder. If this file gets corrupted, you may see an empty list of books in |app|. In this case you can ask |app| to restore your books by clicking the arrow next to the |app| icon on the toolbar and selecting Library Maintenance->Restore Library.
+.. note:: A |app| library is just a folder which contains all the book files and their metadata. All the metadata is stored in a single file called metadata.db, in the top level folder. If this file gets corrupted, you may see an empty list of books in |app|. In this case you can ask |app| to restore your books by doing a right-click on the |app| icon in the toolbar and selecting Library Maintenance->Restore Library.
+
+The list of books in |app| is blank!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to understand why that happened, you have to understand what a |app| library is. At the most basic level, a |app| library is just a folder. Whenever you add a book to |app|, that book's files are copied into this folder (arranged into sub folders by author and title). Inside the |app| library folder, at the top level, you will see a file called metadata.db. This file is where |app| stores the metadata like title/author/rating/tags etc. for *every* book in your |app| library. The list of books that |app| displays is created by reading the contents of this metadata.db file.
+
+There can be two reasons why |app| is showing a empty list of books:
+
+  * Your |app| library folder changed its location. This can happen if it was on an external disk and the drive letter for that disk changed. Or if you accidentally moved the folder. In this case, |app| cannot find its library and so starts up with an empty library instead. To remedy this, do a right-click on the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Switch/create library. Click the little blue icon to select the new location of your |app| library and click OK.
+
+  * Your metadata.db file was deleted/corrupted. In this case, you can ask |app| to rebuild the metadata.db from its backups. Click-and-hold the |app| icon in the |app| toolbar (it will say 0 books underneath it) and select Library maintenance->Restore database. |app| will automatically rebuild metadata.db.
+
 
 Content From The Web
 ---------------------
 .. contents:: Contents
   :depth: 1
   :local:
+
 
 I obtained a recipe for a news site as a .py file from somewhere, how do I use it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -508,7 +562,7 @@ There are three possible things I know of, that can cause this:
 
     * You are using a Wacom branded mouse. There is an incompatibility between Wacom mice and the graphics toolkit |app| uses. Try using a non-Wacom mouse.
 
-    * You have invalid files in your fonts folder. If this is the case, start |app| in debug mode as desribed in the previous answer and you will get messages about invalid files in :file:`C:\\Windows\\fonts`. Delete these files and you will be fine.
+    * Sometimes if some software has installed lots of new files in your fonts folder, |app| can crash until it finishes indexing them. Just start |app|, then leave it alone for about 20 minutes, without clicking on anything. After that you should be able to use |app| as normal.
 
 
 |app| is not starting on OS X?
@@ -544,7 +598,7 @@ If you still cannot get the installer to work and you are on windows, you can us
 My antivirus program claims |app| is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Your antivirus program is wrong. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
+Your antivirus program is wrong. Antivirus programs use heuristics, patterns of code that "looks suspicuous" to detect viruses. It's rather like racial profiling. |app| is a completely open source product. You can actually browse the source code yourself (or hire someone to do it for you) to verify that it is not a virus. Please report the false identification to whatever company you buy your antivirus software from. If the antivirus program is preventing you from downloading/installing |app|, disable it temporarily, install |app| and then re-enable it.
 
 How do I backup |app|?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -578,7 +632,7 @@ Can I have the comment metadata show up on my reader?
 
 Most readers do not support this. You should complain to the manufacturer about it and hopefully if enough people complain, things will change. In the meantime, you can insert the metadata, including comments into a "Jacket page" at the start of the ebook, by using the option to "Insert metadata as page at start of book" during conversion. The option is found in the :guilabel:`Structure Detection` section of the conversion settings. Note that for this to have effect you have to *convert* the book. If your book is already in a format that does not need conversion, you can convert from that format to the same format.
 
-Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click the arrow next to the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
+Another alternative is to create a catalog in ebook form containing a listing of all the books in your calibre library, with their metadata. Click-and-hold the convert button to access the catalog creation tool. And before you ask, no you cannot have the catalog "link directly to" books on your reader.
 
 How do I get |app| to use my HTTP proxy?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
