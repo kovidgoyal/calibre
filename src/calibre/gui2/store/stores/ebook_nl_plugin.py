@@ -23,9 +23,8 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class EBookNLStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://ad.zanox.com/ppc/?19015168C29310186T'
-        url_details = ('http://ad.zanox.com/ppc/?19016028C1098154549T&ULP=[['
-                       'http://www.ebook.nl/store/{0}]]')
+        url = 'http://www.ebook.nl/'
+        url_details = ('http://www.ebook.nl/store/{0}')
 
         if external or self.config.get('open_external', False):
             if detail_item:
