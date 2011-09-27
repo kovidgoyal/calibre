@@ -51,11 +51,11 @@ class KOBO(USBMS):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
             _('The Kobo supports several collections including ')+\
-                    'Read, Closed, Im_Reading ' +\
+                    'Read, Closed, Im_Reading. ' +\
             _('Create tags for automatic management'),
     ]
 
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['tags'])
+    EXTRA_CUSTOMIZATION_DEFAULT = [', '.join(['tags'])]
 
     OPT_COLLECTIONS = 0
 
@@ -659,7 +659,7 @@ class KOBO(USBMS):
             "Read":2,
             "Closed":3,
             "Shortlist":4,
-            # "Preview":99, # Unsupported as we don't want to change it 
+            # "Preview":99, # Unsupported as we don't want to change it
         }
 
         # Define lists for the ReadStatus
