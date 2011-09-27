@@ -873,7 +873,7 @@ class BrowseServer(object):
                 suffix=_('in search')+': '+xml(query))
         return self.browse_template(sort, category=False, initial_search=query).format(
                 title=_('Matching books'),
-                script='booklist();', main=html)
+                script='search_result();', main=html)
 
     # }}}
 
