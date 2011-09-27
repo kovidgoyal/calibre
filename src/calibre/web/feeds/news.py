@@ -13,7 +13,7 @@ from functools import partial
 from contextlib import nested, closing
 
 
-from calibre import (browser, __appname__, iswindows,
+from calibre import (browser, __appname__, iswindows, force_unicode,
                     strftime, preferred_encoding, as_unicode)
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
@@ -49,7 +49,7 @@ class BasicNewsRecipe(Recipe):
 
     #: A couple of lines that describe the content this recipe downloads.
     #: This will be used primarily in a GUI that presents a list of recipes.
-    description = ''
+    description = u''
 
     #: The author of this recipe
     __author__             = __appname__
@@ -111,8 +111,6 @@ class BasicNewsRecipe(Recipe):
     #: to use while downloading
     #: If set to "optional" the use of a username and password becomes optional
     needs_subscription     = False
-
-    #:
 
     #: If True the navigation bar is center aligned, otherwise it is left aligned
     center_navbar = True
@@ -1205,12 +1203,22 @@ class BasicNewsRecipe(Recipe):
         mi.author_sort = __appname__
         mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
         mi.timestamp = nowf()
+        article_titles, aseen = [], set()
+        for f in feeds:
+            for a in f:
+                if a.title and a.title not in aseen:
+                    aseen.add(a.title)
+                    article_titles.append(force_unicode(a.title, 'utf-8'))
+
         mi.comments = self.description
+        if not isinstance(mi.comments, unicode):
+            mi.comments = mi.comments.decode('utf-8', 'replace')
+        mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
+                '\n\n'.join(article_titles))
+
         language = canonicalize_lang(self.language)
         if language is not None:
             mi.language = language
-        if not isinstance(mi.comments, unicode):
-            mi.comments = mi.comments.decode('utf-8', 'replace')
         mi.pubdate = nowf()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
@@ -1255,6 +1263,7 @@ class BasicNewsRecipe(Recipe):
         toc = TOC(base_path=dir)
         self.play_order_counter = 0
         self.play_order_map = {}
+
 
         def feed_index(num, parent):
             f = feeds[num]

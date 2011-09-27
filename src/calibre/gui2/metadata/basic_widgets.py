@@ -35,7 +35,7 @@ from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.icu import strcmp
 from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
 from calibre.gui2.languages import LanguagesEdit as LE
-from calibre.db.backend import SPOOL_SIZE
+from calibre.db import SPOOL_SIZE
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
