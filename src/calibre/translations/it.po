@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-23 18:01+0000\n"
-"PO-Revision-Date: 2011-09-23 05:53+0000\n"
+"PO-Revision-Date: 2011-09-26 06:15+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-24 04:46+0000\n"
-"X-Generator: Launchpad (build 14012)\n"
+"X-Launchpad-Export-Date: 2011-09-27 04:46+0000\n"
+"X-Generator: Launchpad (build 14028)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -2580,12 +2580,15 @@ msgid ""
 "Convert plain quotes, dashes and ellipsis to their typographically correct "
 "equivalents. For details, see http://daringfireball.net/projects/smartypants"
 msgstr ""
-"Converte quote piane, tratti ed ellissi nel loro equivalente tipografico "
-"corretto. Per dettagli vedere http://daringfireball.net/projects/smartypants"
+"Converti virgolette semplici, trattini e punti di sospensione nel loro "
+"equivalente tipografico corretto. Per dettagli, vedere "
+"http://daringfireball.net/projects/smartypants"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:423
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
 msgstr ""
+"Converti virgolette eleganti, trattini e punti di sospensione nel loro "
+"equivalente semplice."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:431
 msgid ""
@@ -4393,7 +4396,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:379
 msgid "File could be older RTF...\n"
-msgstr ""
+msgstr "Il file potrebbe essere un RTF datato...\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:383
 msgid ""
@@ -7508,7 +7511,7 @@ msgstr "Ottimizzazione &punteggiatura"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:153
 msgid "&UnSmarten punctuation"
-msgstr ""
+msgstr "P&unteggiatura semplice"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:157
 msgid "&Linearize tables"
@@ -15161,6 +15164,11 @@ msgid ""
 "well as customizing right click menus, <b>click the dropdown above</b> and "
 "select which toolbar/menu you want to customize."
 msgstr ""
+"<p>La barra degli strumenti di calibre è diversa a seconda che un "
+"dispositivo sia connesso o meno. Per personalizzare la barra quando un "
+"dispositivo è connesso, così come personalizzare il menu che si apre con il "
+"tasto destro del mouse, <b>fai clic sul menu a tendina</b> e seleziona quale "
+"barra/menu vuoi personalizzare."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:120
 msgid "This tweak has it default value"

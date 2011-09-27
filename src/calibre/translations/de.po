@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-23 18:01+0000\n"
-"PO-Revision-Date: 2011-09-24 19:39+0000\n"
+"PO-Revision-Date: 2011-09-26 09:06+0000\n"
 "Last-Translator: frenkx <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-25 04:39+0000\n"
-"X-Generator: Launchpad (build 14012)\n"
-"X-Poedit-Bookmarks: 3619,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
+"X-Launchpad-Export-Date: 2011-09-27 04:45+0000\n"
+"X-Generator: Launchpad (build 14028)\n"
+"X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4540,6 +4540,15 @@ msgid ""
 "* markdown: Processing using markdown formatting. To learn more about "
 "markdown see"
 msgstr ""
+"Formatierung, die im Dokument genutzt wird.* auto: Automatische Automatische "
+"Auswahl des Formatierungsprozessors.\n"
+"* plain: Keine Prozessierung des Dokuments: Alles ist ein Absatz und keine "
+"Formatierung wird angewendet.\n"
+"* heuristic: Heuristische Prozessierung wird angewendet um Formatierungen "
+"wie Kapitelüberschriften und Kursivschrift zu erkennen.\n"
+"* textile: Prozessierung mittels textile-Formatierung.\n"
+"* markdown: Prozessierung mittels markdown-Formatierung. Erfahren Sie mehr "
+"über markdown:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:53
 msgid ""
@@ -6747,6 +6756,13 @@ msgid ""
 "   will be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Einige Erklärungen zu dieser Vorlage:\n"
+" - Die verfügbaren Felder sind 'author_sort', 'authors', 'id',\n"
+"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
+"    'tags', 'timestamp', 'title', 'uuid', 'title_sort'\n"
+" - Für Listeneinträge (z.B. authors und tags) wird nur das\n"
+"     jeweils erste Element gewählt.\n"
+" - Für Zeiteinträge wird nur das Datum verwendet. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -14645,6 +14661,8 @@ msgid ""
 "More specific format and device plugboards already exist. Are you sure you "
 "want to add the new plugboard?"
 msgstr ""
+"Spezifischere Formate und Geräteschalttafeln existeiren bereits. Sind Sie "
+"sicher, dass Sie die neue Schalttafel hinzufügen möchten?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:248
 msgid "The {0} device does not support the {1} format."
@@ -15217,6 +15235,13 @@ msgid ""
 "on your iPhone. Here myhostname should be either the fully qualified "
 "hostname or the IP address of the computer calibre is running on."
 msgstr ""
+"<p>Denken Sie daran, Calibre laufen zu lassen, da der Server nur so lange "
+"funktioniert, wie Calibre selbst läuft.\n"
+"<p>Um von Ihrem Gerät aus eine Verbindung zum Calibre-Server aufzubauen, "
+"sollten Sie eine URL in der Form <b>http://meinhostname:8080</b> als neuen "
+"Katalog im Stanza-Reader auf Ihrem iPhone nutzen. Dabei sollte meinhostname "
+"entweder der vollständige Hostname oder die IP-Adresse des Computers sein, "
+"auf dem Calibre läuft."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
@@ -15455,6 +15480,10 @@ msgid ""
 "well as customizing right click menus, <b>click the dropdown above</b> and "
 "select which toolbar/menu you want to customize."
 msgstr ""
+"<p>Die Werkzeugleiste in Calibre unterscheidet sich je nachdem, ob ein Gerät "
+"angeschlossen ist oder nicht. Um due Werkzeugleiste und die Kontextmenüs der "
+"rechten Maustaste anzupassen, <b>klicken Sie das obige Aufklappmenü</b> und "
+"wählen Sie, welches Werkzeug/Menü Sie anpassen möchten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:120
 msgid "This tweak has it default value"
@@ -19136,13 +19165,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:158
 msgid "Switch to the full interface (non-mobile interface)"
-msgstr ""
+msgstr "Zum vollständigen Anzeigemodus wechseln (nicht-mobiler Anzeigemodus)"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:161
 msgid ""
 "The full interface gives you many more features, but it may not work well on "
 "a small screen"
 msgstr ""
+"Der vollständige Anzeigemodus hat mehr Funktionen, wird jedoch auf kleinen "
+"Bildschirmauflösungen nicht gut funktionieren."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:125
 #, python-format
@@ -19342,46 +19373,65 @@ msgid ""
 "strcmp(x, y, lt, eq, gt) -- does a case-insensitive comparison of x and y as "
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"strcmp(x, y, lt, eq, gt) -- führt einen Case-insensitiven Vergleich der "
+"Zeichenketten x und y durch. Der Rückgabewert ist lt wenn x < y, eq wenn x "
+"== y und andernfalls gt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:121
 msgid ""
 "cmp(x, y, lt, eq, gt) -- compares x and y after converting both to numbers. "
 "Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
+"cmp(x, y, lt, eq, gt) -- Vergleich von x und y nachdem diese zu Zahlenwerten "
+"konvertiert wurden. Der Rückgabewert ist lt wenn x < y, eq wenn x == y und "
+"andernfalls gt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:137
 msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
 msgstr ""
+"strcat(a, b, ...) -- kann eine beliebige Anzahl von Argumenten verarbeiten. "
+"Der Rückgabewert ist eine Zeichenkette, die eine Verkettung aller Argumente "
+"darstellt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:151
 msgid "strlen(a) -- Returns the length of the string passed as the argument"
 msgstr ""
+"strlen(a) -- Rückgabewert ist die Länge der Zeichenkette die als Argument "
+"übergeben wurde."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:164
 msgid ""
 "add(x, y) -- returns x + y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"add(x, y) -- Rückgabewert ist x + y. Eine Exception wird ausgelöst, wenn x "
+"und/oder y keine Zahl ist."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:175
 msgid ""
 "subtract(x, y) -- returns x - y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"subtract(x, y) -- Rückgabwert ist x - y. Eine Exception wird ausgelöst, wenn "
+"x und/oder y keine Zahl ist."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:186
 msgid ""
 "multiply(x, y) -- returns x * y. Throws an exception if either x or y are "
 "not numbers."
 msgstr ""
+"multiply(x, y) -- Rückgabewert ist x * y. Eine Exception wird ausgelöst, "
+"wenn x und/oder y keine Zahl ist."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:197
 msgid ""
 "divide(x, y) -- returns x / y. Throws an exception if either x or y are not "
 "numbers."
 msgstr ""
+"divide(x, y) -- Rückgabewert ist x / y. Eine Exception wird ausgelöst, wenn "
+"x und/oder y keine Zahl ist."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:209
 msgid ""

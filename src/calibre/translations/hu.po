@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-23 18:01+0000\n"
-"PO-Revision-Date: 2011-09-25 19:00+0000\n"
+"PO-Revision-Date: 2011-09-26 16:35+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-26 04:43+0000\n"
-"X-Generator: Launchpad (build 14012)\n"
+"X-Launchpad-Export-Date: 2011-09-27 04:46+0000\n"
+"X-Generator: Launchpad (build 14028)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -573,7 +573,7 @@ msgstr "E-book olvasóra küldött fájlok beállításai"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Metadata plugboards"
-msgstr "Metaadat vezérlőpult"
+msgstr "Metaadat kapcsolatok"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1025
 msgid "Change metadata fields before saving/sending"
@@ -9026,7 +9026,8 @@ msgid ""
 "user categories, and other information from the old to the new library"
 msgstr ""
 "Az egyedi oszlopok, mentett keresések, oszlopszélességek, felhasználói\n"
-"kategóriák és más információk másolása a régiből az új könyvtárba"
+"kategóriák, metaadat kapcsolatok és más információk másolása a régiből\n"
+"az új könyvtárba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:85
 msgid "&Move current library to new location"
@@ -11063,7 +11064,7 @@ msgstr "Sablonnyelv oktató"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:261
 msgid "Template function reference"
-msgstr ""
+msgstr "Sablon függvény referencia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:274
 msgid "EXCEPTION: "
@@ -11101,7 +11102,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:100
 msgid "Function &name:"
-msgstr "Funkció neve:"
+msgstr "Függvény neve:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:100
@@ -11114,7 +11115,7 @@ msgstr "Python kód:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:30
 msgid "Remove any template from the box"
-msgstr ""
+msgstr "Minden sablon eltávolítása a szövegdobozból"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:32
 msgid "Open Template Editor"
@@ -14286,7 +14287,7 @@ msgstr "Nincs csatlakoztatott eszköz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:189
 msgid "That format and device already has a plugboard."
-msgstr ""
+msgstr "Ehhez az eszköz-formátum párosításhoz már létezik egy kapcsolat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:201
 msgid "Possibly override plugboard?"
@@ -14297,6 +14298,8 @@ msgid ""
 "A more general plugboard already exists for that format and device. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
+"Egy sokkal általánosabb metaadat kapcsolat már létezik ehhez az eszköz-"
+"formátum párosításhoz. Biztos, hogy új kapcsolatot akar létrehozni?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:236
@@ -14308,6 +14311,8 @@ msgid ""
 "More specific device plugboards exist for that format. Are you sure you want "
 "to add the new plugboard?"
 msgstr ""
+"Egy szűkebb körű metaadat kapcsolat már létezik ehhez formátumhoz. Biztos, "
+"hogy új kapcsolatot akar létrehozni?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:226
 msgid "Really add plugboard?"
@@ -14318,12 +14323,16 @@ msgid ""
 "A different plugboard matches that format and device combination. Are you "
 "sure you want to add the new plugboard?"
 msgstr ""
+"Egy másik metaadat kapcsolat már létezik ehhez az eszköz-formátum "
+"párosításhoz. Biztos, hogy új kapcsolatot akar létrehozni?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:237
 msgid ""
 "More specific format and device plugboards already exist. Are you sure you "
 "want to add the new plugboard?"
 msgstr ""
+"Egy szűkebb körű metaadat kapcsolat már létezik ehhez eszköz-formátum "
+"párosításhoz. Biztos, hogy új kapcsolatot akar létrehozni?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:248
 msgid "The {0} device does not support the {1} format."
@@ -14356,6 +14365,23 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Itt megváltoztathatja, hogy a calibre milyen metaadatokat és hogyan "
+"használjon a lemezre mentéskor és az eszközre küldéskor.\n"
+"\n"
+"Használja ezt a párbeszédablakot egy kapcsolat létrehozásához egy formátum "
+"(vagy az összes formátum) és egy eszköz (vagy az összes eszköz) között. A "
+"kapcsolaton belül határozza meg, hogy melyik sablon melyik mezőhöz "
+"kapcsolódjon. A sablon eredménye egy érték, ami a kapcsolódó mezőhöz lesz "
+"rendelve.\n"
+"\n"
+"Gyakran a sablonok egyszerű utalásokat tartalmaznak, melyek összetett "
+"oszlopokra vonatkoznak, de ez nem szükségszerű. A calibre-n belül használt "
+"bármelyik sablont használhatja itt.\n"
+"\n"
+"Egyik lehetséges alkalmazása a metaadat kapcsolatoknak, hogy a cím "
+"tartalmazza a sorozat információt is. Másik jellemző alkalmazás a szerző "
+"rendezési forma megváltoztatása úgy, hogy a „;”-t használja, ami Kindle "
+"követelmény. További alkalmazási lehetőség lehet a nyelv megadása."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"
@@ -14367,15 +14393,15 @@ msgstr "Eszköz (válassza másodszor)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:123
 msgid "Add new plugboard"
-msgstr ""
+msgstr "Új kapcsolat hozzáadása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:124
 msgid "Edit existing plugboard"
-msgstr ""
+msgstr "Meglévő kapcsolat szerkesztése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:125
 msgid "Existing plugboards"
-msgstr ""
+msgstr "Meglévő kapcsolatok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:126
 msgid "Source template"
@@ -14387,11 +14413,11 @@ msgstr "Célkönyvtár"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:128
 msgid "Save plugboard"
-msgstr ""
+msgstr "Kapcsolat mentése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:129
 msgid "Delete plugboard"
-msgstr ""
+msgstr "Kapcsolat törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:182
 #, python-format
@@ -14886,6 +14912,11 @@ msgid ""
 "on your iPhone. Here myhostname should be either the fully qualified "
 "hostname or the IP address of the computer calibre is running on."
 msgstr ""
+"<p>Ne feledje, hogy a kiszolgáló csak akkor fut, ha a calibre is fut.\n"
+"<p>Ha az eszközéről kíván a calibre kiszolgálóhoz kapcsolódni, akkor adjon "
+"meg a <b>http://myhostname:8080</b> formában egy URL-t új katalógusként az "
+"iPhone Stanza olvasóprogramjában. A „myhostname” helyére a calibre-t futtató "
+"számítógép teljes neve, vagy IP címe kerüljön."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
