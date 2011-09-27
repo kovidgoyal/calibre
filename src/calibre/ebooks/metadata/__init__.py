@@ -22,6 +22,8 @@ except:
     _author_pat = re.compile(r'(?i),?\s+(and|with)\s+')
 
 def string_to_authors(raw):
+    if not raw:
+        return []
     raw = raw.replace('&&', u'\uffff')
     raw = _author_pat.sub('&', raw)
     authors = [a.strip().replace(u'\uffff', '&') for a in raw.split('&')]
