@@ -1,19 +1,21 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+import re
+
 class FSP(BasicNewsRecipe):
 
-    title      = u'Folha de S\xE3o Paulo - Jornal'
+    title      = u'Folha de S\xE3o Paulo'
     __author__ = 'fluzao'
     description = u'Printed edition contents. UOL subscription required (Folha subscription currently not supported).' + \
                   u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes UOL.]'
     INDEX = 'http://www1.folha.uol.com.br/fsp/indices/'
     language = 'pt'
     no_stylesheets = True
-    max_articles_per_feed  = 30
+    max_articles_per_feed  = 40
     remove_javascript     = True
     needs_subscription = True
     remove_tags_before = dict(name='b')
-    remove_tags_after  = dict(name='!--/NOTICIA--')
+    remove_tags  = [dict(name='td', attrs={'align':'center'})]
     remove_attributes = ['height','width']
     masthead_url = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
 
@@ -25,6 +27,13 @@ class FSP(BasicNewsRecipe):
 
     # this solves the problem with truncated content in Kindle
     conversion_options = {'linearize_tables' : True}
+
+    # this bit removes the footer where there are links for Proximo Texto, Texto Anterior,
+    #    Indice e Comunicar Erros
+    preprocess_regexps = [(re.compile(r'<BR><BR>Texto Anterior:.*<!--/NOTICIA-->',
+                                      re.DOTALL|re.IGNORECASE), lambda match: r''),
+                          (re.compile(r'<BR><BR>Pr&oacute;ximo Texto:.*<!--/NOTICIA-->',
+                                      re.DOTALL|re.IGNORECASE), lambda match: r'')]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
