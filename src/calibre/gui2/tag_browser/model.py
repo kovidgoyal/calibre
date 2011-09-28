@@ -63,9 +63,9 @@ class TagTreeItem(object): # {{{
             self.category_key = category_key
             self.temporary = temporary
             self.tag = Tag(data, category=category_key,
-                   is_editable=category_key not in ['news', 'search', 'identifiers'],
+                   is_editable=category_key not in
+                            ['news', 'search', 'identifiers', 'languages'],
                    is_searchable=category_key not in ['search'])
-
         elif self.type == self.TAG:
             self.icon_state_map[0] = QVariant(data.icon)
             self.tag = data
