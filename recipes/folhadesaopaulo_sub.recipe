@@ -1,0 +1,87 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class FSP(BasicNewsRecipe):
+
+    title      = u'Folha de S\xE3o Paulo - Jornal'
+    __author__ = 'fluzao'
+    description = u'Printed edition contents. UOL subscription required (Folha subscription currently not supported).' + \
+                  u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes UOL.]'
+    INDEX = 'http://www1.folha.uol.com.br/fsp/indices/'
+    language = 'pt'
+    no_stylesheets = True
+    max_articles_per_feed  = 30
+    remove_javascript     = True
+    needs_subscription = True
+    remove_tags_before = dict(name='b')
+    remove_tags_after  = dict(name='!--/NOTICIA--')
+    remove_attributes = ['height','width']
+    masthead_url = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
+
+    # fixes the problem with the section names
+    section_dict = {'cotidian' : 'cotidiano', 'ilustrad': 'ilustrada', \
+                    'quadrin': 'quadrinhos' , 'opiniao' : u'opini\xE3o', \
+                    'ciencia' : u'ci\xeancia' , 'saude' : u'sa\xfade', \
+                    'ribeirao' : u'ribeir\xE3o' , 'equilibrio' : u'equil\xedbrio'}
+
+    # this solves the problem with truncated content in Kindle
+    conversion_options = {'linearize_tables' : True}
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('https://acesso.uol.com.br/login.html')
+            br.form = br.forms().next()
+            br['user']   = self.username
+            br['pass'] = self.password
+            br.submit().read()
+##            if 'Please try again' in raw:
+##                raise Exception('Your username and password are incorrect')
+        return br
+
+
+    def parse_index(self):
+        soup = self.index_to_soup(self.INDEX)
+        feeds = []
+        articles = []
+        section_title = "Preambulo"
+        for post in soup.findAll('a'):
+            # if name=True => new section
+            strpost = str(post)
+            if strpost.startswith('<a name'):
+                if articles:
+                    feeds.append((section_title, articles))
+                    self.log()
+                    self.log('--> new section found, creating old section feed: ', section_title)
+                section_title = post['name']
+                if section_title in self.section_dict:
+                    section_title = self.section_dict[section_title]
+                articles = []
+                self.log('--> new section title:   ', section_title)
+            if strpost.startswith('<a href'):
+                url = post['href']
+                if url.startswith('/fsp'):
+                    url = 'http://www1.folha.uol.com.br'+url
+                    title = self.tag_to_string(post)
+                    self.log()
+                    self.log('--> post:  ', post)
+                    self.log('--> url:   ', url)
+                    self.log('--> title: ', title)
+                    articles.append({'title':title, 'url':url})
+        if articles:
+            feeds.append((section_title, articles))
+
+        # keeping the front page url
+        minha_capa = feeds[0][1][1]['url']
+
+        # removing the 'Preambulo' section
+        del feeds[0]
+
+        # creating the url for the cover image
+        coverurl = feeds[0][1][0]['url']
+        coverurl = coverurl.replace('/opiniao/fz', '/images/cp')
+        coverurl = coverurl.replace('01.htm', '.jpg')
+        self.cover_url = coverurl
+
+        # inserting the cover page as the first article (nicer for kindle users)
+        feeds.insert(0,(u'primeira p\xe1gina', [{'title':u'Primeira p\xe1gina' , 'url':minha_capa}]))
+        return feeds
