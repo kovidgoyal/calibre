@@ -315,7 +315,7 @@ class HeuristicProcessor(object):
         supports a range of html markup and text files
         '''
         # define the pieces of the regex
-                      
+
         lookahead = "(?<=.{"+str(length)+u"}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:“”)\IA\u00DF]|(?<!\&\w{4});))" # (?<!\&\w{4});) is a semicolon not part of an entity
         em_en_lookahead = "(?<=.{"+str(length)+u"}[\u2013\u2014])"
         soft_hyphen = u"\xad"
@@ -770,6 +770,7 @@ class HeuristicProcessor(object):
         # Multiple sequential blank paragraphs are merged with appropriate margins
         # If non-blank scene breaks exist they are center aligned and styled with appropriate margins.
         if getattr(self.extra_opts, 'format_scene_breaks', False):
+            self.log.debug('Formatting scene breaks')
             html = re.sub('(?i)<div[^>]*>\s*<br(\s?/)?>\s*</div>', '<p></p>', html)
             html = self.detect_whitespace(html)
             html = self.detect_soft_breaks(html)
