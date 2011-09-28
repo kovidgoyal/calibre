@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-23 18:01+0000\n"
-"PO-Revision-Date: 2011-09-18 06:12+0000\n"
-"Last-Translator: Sergey <Unknown>\n"
+"PO-Revision-Date: 2011-09-27 11:28+0000\n"
+"Last-Translator: Sidorychev Alexander <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-09-24 04:51+0000\n"
-"X-Generator: Launchpad (build 14012)\n"
+"X-Launchpad-Export-Date: 2011-09-28 04:35+0000\n"
+"X-Generator: Launchpad (build 14049)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -4487,7 +4487,7 @@ msgstr "Выгрузить скачанные новости в устройст
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
 msgid "Delete news books from library after uploading to device"
-msgstr ""
+msgstr "Удалить новости книг из библиотеки после загрузки на устройство"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
 msgid ""
@@ -5113,6 +5113,8 @@ msgid ""
 "You cannot change libraries while using the environment variable "
 "CALIBRE_OVERRIDE_DATABASE_PATH."
 msgstr ""
+"Вы не можете изменить библиотеки при использовании "
+"CALIBRE_OVERRIDE_DATABASE_PATH переменной окружения."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:472
 msgid "You cannot change libraries while jobs are running."
@@ -5197,6 +5199,8 @@ msgid ""
 "You cannot use other libraries while using the environment variable "
 "CALIBRE_OVERRIDE_DATABASE_PATH."
 msgstr ""
+"Вы не можете использовать другие библиотеки при использовании "
+"CALIBRE_OVERRIDE_DATABASE_PATH переменной окружения."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:53
@@ -6532,6 +6536,7 @@ msgstr "Тэги для &исключения"
 msgid ""
 "Books matching either pattern will not be included in generated catalog. "
 msgstr ""
+"Книги, соответствующие шаблону, не будут включены в генерируемый каталог. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:311
 msgid "Excluded books"
@@ -6560,7 +6565,7 @@ msgstr "Шаблон исключения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
-msgstr ""
+msgstr "Соответствующие книги будут отображаться с галочкой"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:319
 msgid "Read books"
@@ -8600,7 +8605,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:235
 msgid "Delete &marked"
-msgstr ""
+msgstr "Удалить &отмеченные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:236
 msgid "Delete marked files (checked subitems)"
@@ -8910,7 +8915,7 @@ msgstr "Нет выбранных объектов"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:213
 msgid "You must select at least one item from the list."
-msgstr ""
+msgstr "Вы должны выбрать хотя бы один пункт из списка."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:217
@@ -19977,7 +19982,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:382
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "Какие интерфейся должны прослушиваться сервером"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:383
 msgid ""

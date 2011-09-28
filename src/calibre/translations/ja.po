@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-23 18:01+0000\n"
-"PO-Revision-Date: 2011-09-27 02:05+0000\n"
+"PO-Revision-Date: 2011-09-28 04:22+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-09-27 04:46+0000\n"
-"X-Generator: Launchpad (build 14028)\n"
+"X-Launchpad-Export-Date: 2011-09-28 04:34+0000\n"
+"X-Generator: Launchpad (build 14049)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -2356,6 +2356,8 @@ msgid ""
 "set a cover in calibre, the output document will end up with two cover "
 "images if you do not specify this option."
 msgstr ""
+"入力のEBookから最初のイメージを取り除く。入力ドキュメントに表紙として認識されない表紙がある場合に有用です。その際、calibreで表紙を指定すると表"
+"紙が2つになってしまうのを、このオプションを指定することで避けることができます。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:407
 msgid ""
@@ -3564,6 +3566,8 @@ msgid ""
 "Using this feature means that  the book will not auto sync its last read "
 "position  on multiple devices. Complain to Amazon."
 msgstr ""
+"Facebook等で書籍の内容をシェアする事を許可する。注意：この機能を使用すると、複数のデバイスで最後に読んだ場所を同期する事ができなくなります。（Am"
+"azon側の仕様）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:281
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4016,13 +4020,15 @@ msgstr "このRTFファイルはcalibreがサポートしていない機能を�
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:379
 msgid "File could be older RTF...\n"
-msgstr ""
+msgstr "ファイルは古い RTF の可能性があります...\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:383
 msgid ""
 "File also has newer RTF.\n"
 "Will do the best to convert.\n"
 msgstr ""
+"ファイルに新しい RTF もあります。\n"
+"変換に良い方を使います。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -6182,6 +6188,12 @@ msgid ""
 "   will be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"このテンプレートに対するいくつかの説明:\n"
+" -使用できるフィールドは 'author_sort', 'authors', 'id',\n"
+"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
+"   'tags', 'timestamp', 'title', 'uuid', 'title_sort'\n"
+" -著者やタグのようなリスト型は、最初のエレメントのみが選択されます。\n"
+" -時間フィールドは日付のみが使われます。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -7196,7 +7208,7 @@ msgstr "私的なドキュメントのタグ："
 msgid ""
 "Enable sharing of book content via Facebook, etc. WARNING: Disables last "
 "read syncing"
-msgstr ""
+msgstr "Facebook等で内容のシェアをする事を許可します。注意：最後に呼んだ場所の同期が失われます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Put generated Table of Contents at &start of book instead of end"
@@ -10462,7 +10474,7 @@ msgstr "カウント"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:111
 msgid "Was"
-msgstr ""
+msgstr "以前"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
@@ -14118,11 +14130,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:95
 msgid "&Start Server"
-msgstr "サーバーの開始(&S)"
+msgstr "サーバーを開始(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:99
 msgid "St&op Server"
-msgstr "サーバーの停止(&O)"
+msgstr "サーバーを停止(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:105
 msgid "&Test Server"
@@ -14154,6 +14166,10 @@ msgid ""
 "on your iPhone. Here myhostname should be either the fully qualified "
 "hostname or the IP address of the computer calibre is running on."
 msgstr ""
+"<p>calibreの実行中にのみサーバーとして機能するので、Calibreを走らせ続けておいてください。\\n\n"
+"<p>calibreサーバーへデバイスから接続するにはURLとして http://myhostname:8080 "
+"を、例えばiPhoneのStanzaリーダーの新しいカタログとして使ってください。\n"
+"myhostname はcalibreが稼働しているコンピュータのホスト名、もしくはIPアドレスです"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
@@ -14431,6 +14447,8 @@ msgid ""
 "well as customizing right click menus, <b>click the dropdown above</b> and "
 "select which toolbar/menu you want to customize."
 msgstr ""
+"<p>Calibreのツールバーはデバイスが繋がっている時とそうでないときで違います。デバイスが繋がった時のツールバーと右クリックのメニューを設定するには"
+"、<b>上のドロップダウンをクリックして</b> どのツールバー／メニューを設定するか選択してください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:120
 msgid "This tweak has it default value"
@@ -18706,6 +18724,9 @@ msgid ""
 "in English. If localize is not zero, return the strings in the language of "
 "the current locale. Lang_codes is a comma-separated list."
 msgstr ""
+"language_strings(lang_codes, localize) -- "
+"lang_codesで渡される言語コードに対応する文字列を返します。もし localize がゼロならば、文字列を英語で返します。もし localize "
+"がゼロでなければ、現在のローケールに従った言語の文字列で返します。Lang_codes はコンマ区切りのリストです。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1025
 msgid ""
@@ -18713,6 +18734,9 @@ msgid ""
 "passed in lang_strings. The strings must be in the language of the current "
 "locale. Lang_strings is a comma-separated list."
 msgstr ""
+"language_codes(lang_strings) -- "
+"lang_stringsで渡された文字列に対応する言語コードを返します。文字列は現在のロケールの言語の物でなければなりません。Lang_strings "
+"はコンマ区切りのリストです。"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -18772,7 +18796,7 @@ msgstr "英語 (ニュージーランド)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Canada)"
-msgstr "英語(カナダ)"
+msgstr "英語（カナダ）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (Greece)"
@@ -18780,7 +18804,7 @@ msgstr "英語（ギリシャ）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "English (India)"
-msgstr "英語(インド)"
+msgstr "英語（インド）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English (Nepal)"
@@ -18788,7 +18812,7 @@ msgstr "英語（ネパール）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Thailand)"
-msgstr "英語(タイ）"
+msgstr "英語（タイ）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Turkey)"
@@ -18812,7 +18836,7 @@ msgstr "英語（クロアチア）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "English (Indonesia)"
-msgstr "英語(インドネシア)"
+msgstr "英語（インドネシア）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Israel)"
@@ -18828,7 +18852,7 @@ msgstr "英語 (シンガポール)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "English (Yemen)"
-msgstr "英語(イエメン）"
+msgstr "英語（イエメン）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "English (Ireland)"
@@ -18844,7 +18868,7 @@ msgstr "英語 (南アフリカ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
 msgid "Spanish (Paraguay)"
-msgstr "スペイン語(パラグアイ)"
+msgstr "スペイン語 (パラグアイ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "Spanish (Uruguay)"
@@ -18900,7 +18924,7 @@ msgstr "フランス語(ベラルーシ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "Dutch (NL)"
-msgstr "ドイツ語(オランダ)"
+msgstr "ドイツ語（オランダ）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
 msgid "Dutch (BE)"
@@ -19080,7 +19104,7 @@ msgstr "表紙をダウンロードしようとしています..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:977
 msgid "Generating masthead..."
-msgstr "発行人欄を生成中..."
+msgstr "ロゴイメージを生成中..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1057
 #, python-format
@@ -19424,6 +19448,19 @@ msgid ""
 "Acme\n"
 "Inc. will be Acme Inc. instead of Inc., Acme"
 msgstr ""
+"著者名を著者名ソートへコピーする時に使うアルゴリズム。\n"
+"使用できる値は：\n"
+"invert: ”fn ln” を ”ln, fn”にする。\n"
+"copy  : 変更なしに著者から著者ソートへコピー\n"
+"comma : もし名前に','が使われていれば、'copy'、それ以外の場合には 'invert'\n"
+"nocomma : ”fn ln” から ”ln fn” にする。(コンマ無し)\n"
+"このtweakが変更された時には、著者と一緒に保存されているauthor_sort \n"
+"の値を再計算する必要があります。左側のタグの部分で著者の部分を右クリックして、'著者を管理'を選択肢し、'全ての著者名（ソート）の値を再計算する'を選んで"
+"ください。\n"
+"著者名の接尾辞は著者名の最後にある言葉で、無視されます。 その際、接尾辞の大小文字は無視され最後のピリオドは自動的に処理されます。接頭辞も同様です。\n"
+"「著者名コピー語」はいくつかの単語で、著者ソートにコピーする時に、これらが著者名にあった場合、自動的に著者ソートが著者の内容と同一になることを保証します。"
+"\n"
+"つまり”Acme Inc.”はそのままコピーされ、”Inc., Acme”にはなりません。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"
