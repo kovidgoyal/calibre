@@ -5,12 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt4.Qt import QDialog, QLabel, QVBoxLayout, QDialogButtonBox, \
-        QProgressBar, QSize, QTimer, pyqtSignal, Qt
+from PyQt4.Qt import (QDialog, QLabel, QVBoxLayout, QDialogButtonBox,
+        QProgressBar, QSize, QTimer, pyqtSignal, Qt)
 
 from calibre.library.restore import Restore
-from calibre.gui2 import error_dialog, question_dialog, warning_dialog, \
-    info_dialog
+from calibre.gui2 import (error_dialog, question_dialog, warning_dialog,
+    info_dialog)
+from calibre import force_unicode
+from calibre.constants import filesystem_encoding
 
 class DBRestore(QDialog):
 
@@ -73,6 +75,19 @@ class DBRestore(QDialog):
             self.msg.setText(msg)
             self.pb.setValue(step)
 
+def _show_success_msg(restorer, parent=None):
+    r = restorer
+    olddb = _('The old database was saved as: %s')%force_unicode(r.olddb,
+            filesystem_encoding)
+    if r.errors_occurred:
+        warning_dialog(parent, _('Success'),
+                _('Restoring the database succeeded with some warnings'
+                    ' click Show details to see the details. %s')%olddb,
+                det_msg=r.report, show=True)
+    else:
+        info_dialog(parent, _('Success'),
+                _('Restoring database was successful. %s')%olddb, show=True,
+                show_copy_button=False)
 
 def restore_database(db, parent=None):
     if not question_dialog(parent, _('Are you sure?'), '<p>'+
@@ -102,14 +117,21 @@ def restore_database(db, parent=None):
         _('Restoring database failed, click Show details to see details'),
         det_msg=r.tb, show=True)
     else:
-        if r.errors_occurred:
-            warning_dialog(parent, _('Success'),
-                    _('Restoring the database succeeded with some warnings'
-                        ' click Show details to see the details.'),
-                    det_msg=r.report, show=True)
-        else:
-            info_dialog(parent, _('Success'),
-                    _('Restoring database was successful'), show=True,
-                    show_copy_button=False)
+        _show_success_msg(r, parent=parent)
     return True
+
+def repair_library_at(library_path, parent=None):
+    d = DBRestore(parent, library_path)
+    d.exec_()
+    if d.rejected:
+        return False
+    r = d.restorer
+    if r.tb is not None:
+        error_dialog(parent, _('Failed'),
+        _('Restoring database failed, click Show details to see details'),
+        det_msg=r.tb, show=True)
+        return False
+    _show_success_msg(r, parent=parent)
+    return True
+
 
