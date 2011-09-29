@@ -120,18 +120,18 @@ def restore_database(db, parent=None):
         _show_success_msg(r, parent=parent)
     return True
 
-def repair_library_at(library_path):
-    d = DBRestore(None, library_path)
+def repair_library_at(library_path, parent=None):
+    d = DBRestore(parent, library_path)
     d.exec_()
     if d.rejected:
         return False
     r = d.restorer
     if r.tb is not None:
-        error_dialog(None, _('Failed'),
+        error_dialog(parent, _('Failed'),
         _('Restoring database failed, click Show details to see details'),
         det_msg=r.tb, show=True)
         return False
-    _show_success_msg(r)
+    _show_success_msg(r, parent=parent)
     return True
 
 
