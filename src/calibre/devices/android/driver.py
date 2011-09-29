@@ -77,8 +77,12 @@ class ANDROID(USBMS):
                        0xdeed : [0x0222],
                      },
 
-            # Viewsonic
-            0x0489 : { 0xc001 : [0x0226], 0xc004 : [0x0226], },
+            # Viewsonic/Vizio
+            0x0489 : {
+                    0xc001 : [0x0226],
+                    0xc004 : [0x0226],
+                    0x8801 : [0x0226, 0x0227],
+            },
 
             # Acer
             0x502 : { 0x3203 : [0x0100, 0x224]},
@@ -134,7 +138,7 @@ class ANDROID(USBMS):
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
-            'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON']
+            'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON', 'VIZIO']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -145,7 +149,7 @@ class ANDROID(USBMS):
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
             'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
             'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
-            'ALPANDIGITAL', 'ANDROID_MID']
+            'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
