@@ -7,7 +7,7 @@ from functools import partial
 from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
         QPixmap, QSplashScreen, QApplication)
 
-from calibre import prints, plugins
+from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG,
         filesystem_encoding)
 from calibre.utils.ipc import ADDRESS, RC
@@ -188,10 +188,11 @@ class GuiRunner(QObject):
             db = LibraryDatabase2(self.library_path)
         except (sqlite.Error, DatabaseException):
             repair = question_dialog(self.splash_screen, _('Corrupted database'),
-                    _('Your calibre library database appears to be corrupted. Do '
+                    _('The library database at %s appears to be corrupted. Do '
                     'you want calibre to try and rebuild it automatically? '
                     'The rebuild may not be completely successful. '
-                    'If you say No, a new empty calibre library will be created.'),
+                    'If you say No, a new empty calibre library will be created.')
+                    % force_unicode(self.library_path, filesystem_encoding),
                     det_msg=traceback.format_exc()
                     )
             if repair:
