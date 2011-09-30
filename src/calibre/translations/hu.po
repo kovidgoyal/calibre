@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-30 04:35+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
+"X-Launchpad-Export-Date: 2011-09-30 04:35+0000\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -18008,7 +18008,7 @@ msgstr "Részletek mutatása minden oszlopnál."
 #, python-format
 msgid "You will lose all data in the column: %r. Are you sure (y/n)? "
 msgstr ""
-"A következő oszlop összes adatát el fogja veszíteni: %s. Biztosan folytatja "
+"A következő oszlop összes adatát el fogja veszíteni: %r. Biztosan folytatja "
 "(i/n)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:789

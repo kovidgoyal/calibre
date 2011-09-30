@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-09-30 04:35+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
+"X-Launchpad-Export-Date: 2011-09-30 04:35+0000\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -14166,10 +14166,10 @@ msgid ""
 "on your iPhone. Here myhostname should be either the fully qualified "
 "hostname or the IP address of the computer calibre is running on."
 msgstr ""
-"<p>calibreの実行中にのみサーバーとして機能するので、Calibreを走らせ続けておいてください。\\n\n"
+"<p>calibreの実行中にのみサーバーとして機能するので、Calibreを走らせ続けておいてください。\n"
 "<p>calibreサーバーへデバイスから接続するにはURLとして http://myhostname:8080 "
-"を、例えばiPhoneのStanzaリーダーの新しいカタログとして使ってください。\n"
-"myhostname はcalibreが稼働しているコンピュータのホスト名、もしくはIPアドレスです"
+"を、例えばiPhoneのStanzaリーダーの新しいカタログとして使ってください。myhostname "
+"はcalibreが稼働しているコンピュータのホスト名、もしくはIPアドレスです"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""

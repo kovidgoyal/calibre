@@ -18,8 +18,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-24 04:41+0000\n"
 "X-Generator: Launchpad (build 14012)\n"
+"X-Launchpad-Export-Date: 2011-09-24 04:41+0000\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -21263,8 +21263,7 @@ msgstr ""
 "S'inhabilita amb l'expressió '^$'\n"
 "Aquesta expressió s'ha pensat per articles seguits d'un espai. Si voleu fer\n"
 "coincidir articles seguits d'altres caràcters, com L' en català, utilitzeu\n"
-"\"^(Un\\s+|Una\\s+|Uns\\s+|Unes\\s+|El\\s+|La\\s+|Els\\s+|Les\\s+|L')\" al "
-"seu lloc.\n"
+"\"^(Un\\s+|Una\\s+|Uns\\s+|Unes\\s+|El\\s+|La\\s+|Els\\s+|Les\\s+|L')\" al seu lloc.\n"
 "Per defecte: '^(A|The|An)\\s+'"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:202
