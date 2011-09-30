@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-23 18:01+0000\n"
-"PO-Revision-Date: 2011-08-09 08:23+0000\n"
-"Last-Translator: keski <Unknown>\n"
+"PO-Revision-Date: 2011-09-29 22:31+0000\n"
+"Last-Translator: viki <viki@kodune.net>\n"
 "Language-Team: Estonian <et@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-09-24 04:43+0000\n"
-"X-Generator: Launchpad (build 14012)\n"
+"X-Launchpad-Export-Date: 2011-09-30 04:34+0000\n"
+"X-Generator: Launchpad (build 14071)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -377,7 +377,7 @@ msgstr "Taaskäivita calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:787
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr "Ava kaust, kus asuvad raamatu failid calibre kogus"
+msgstr "Ava calibre kogus olevaid raamatuid sisaldav kaust"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:793
 msgid "Send books to the connected device"
@@ -388,54 +388,58 @@ msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Saada raamatud e-kirja või veebi vahendusel, ühendu iTunes-iga või vastava "
+"kaustaga kui seade on kaustana arvuti külge haagitud"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr "Loe calibre kasutusjuhendit"
+msgstr "Sirvi calibre kasutusjuhendit"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid "Customize calibre"
-msgstr "Kohanda calibret"
+msgstr "Seadista calibret"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:814
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Leia hetkel valituga sarnased raamatuid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:819
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr "Vaheta erinevate calibre raamatukogude vahel ja tee neis hooldust"
+msgstr "Lülitu erinevate calibre raamatukogude vahel ja halda neid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:825
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Kopeeri raamatuid oma seadmest calibre kogusse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:830
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Halda neid kogusid, millistest on raamatud pandud sinu seadmesse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:835
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Kopeeri raamat ühest calibre kogust teise"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:840
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "Tee calibre kogus olevate raamatute juures väikeseid parandusi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:845
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Leia eelmine või järgmine tulemus, kui teed calibre kogus valikrežiimis "
+"otsingut"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:851
 msgid "Choose a random book from your calibre library"
-msgstr "Vali suvaline raamat calibre kogust"
+msgstr "Võta calibre kogust juhuslik raamat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:858
 msgid "Search for books from different book sellers"
-msgstr "Otsi raamatuid erinevatelt raamatumüüjatelt"
+msgstr "Otsi raamatuid erinevatelt müüjatelt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:874
 msgid "Get new calibre plugins or update your existing ones"
@@ -443,7 +447,7 @@ msgstr "Hangi uusi calibre pluginaid või uuenda olemasolevaid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:893
 msgid "Look and Feel"
-msgstr "Välimus ja tunnetus"
+msgstr "Välimus ja mulje"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:907
@@ -455,7 +459,7 @@ msgstr "Kasutajaliides"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:899
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Kohanda calibre liidese välimust ja tunnetust oma maitse järgi"
+msgstr "Kohanda calibre liidese välimust oma maitse järgi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:905
 msgid "Behavior"
@@ -463,7 +467,7 @@ msgstr "Käitumine"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:911
 msgid "Change the way calibre behaves"
-msgstr "Kohanda calibre käitumist"
+msgstr "Muuda calibre käitumist"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:916
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:233
@@ -483,6 +487,8 @@ msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
+"Kohanda tööriistaribasid ja nendega seonduvaid menüüsid valides neisse "
+"võimalikke tegevusi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:939
 msgid "Searching"
@@ -494,7 +500,7 @@ msgstr "Kohanda viisi, kuidas raamatute otsimine calibres toimub"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:950
 msgid "Input Options"
-msgstr "Sisendisuvand"
+msgstr "Sisendisuvandid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:952
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:963
@@ -512,7 +518,7 @@ msgstr "Üldine häälestus"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:967
 msgid "Set conversion options common to all formats"
-msgstr ""
+msgstr "Seadista kõigile formaatidele ühiseid teisendussuvandeid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:972
 msgid "Output Options"
@@ -520,11 +526,11 @@ msgstr "Väljundi sätted"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:978
 msgid "Set conversion options specific to each output format"
-msgstr ""
+msgstr "Seadista igale fomaadile eriomaseid  teisendussuvandeid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:983
 msgid "Adding books"
-msgstr "Lisan raamatuid"
+msgstr "Raamatute lisamine"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:985
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:997
@@ -536,24 +542,27 @@ msgstr "Import/eksport"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:989
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
+"Kontrolli kuidas calibre käsitleb raamatute lisamisel failide meta-andmeid"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:995
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Raamatute salvestamine kettale"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1001
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
+"Kontrolli kuidas calibre ekspordib faile andmebaasist kettale, kui "
+"kasutatakse \"Salvesta kettale\""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1007
 msgid "Sending books to devices"
-msgstr "Saadan raamatuid seadmetele"
+msgstr "Raamatute saatmine seadmesse"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1013
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr ""
+msgstr "Kontrolli kuidas calibre edastab faile sinu e-lugerile"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Metadata plugboards"
@@ -561,7 +570,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1025
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "Muuda meta-andme välju enne salvestamist/edastamist"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1030
 msgid "Template Functions"
@@ -632,11 +641,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1100
 msgid "Keyboard"
-msgstr ""
+msgstr "Klaviatuur"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1106
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Seadista calibres kasutatavaid kiirvaliku klahve"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1111
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
