@@ -31,13 +31,14 @@ class PRS505(USBMS):
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
     VENDOR_ID    = [0x054c]   #: SONY Vendor Id
-    PRODUCT_ID   = [0x031e]
-    BCD          = [0x229, 0x1000, 0x22a, 0x31a]
+    PRODUCT_ID   = [0x031e, 0x05c2]
+    BCD          = [0x229, 0x1000, 0x22a, 0x31a, 0x226]
 
     VENDOR_NAME        = 'SONY'
     WINDOWS_MAIN_MEM   = re.compile(
             r'(PRS-(505|500|300))|'
-            r'(PRS-((700[#/])|((6|9|3)(0|5)0&)))'
+            r'(PRS-((700[#/])|((6|9|3)(0|5)0&)))|'
+            r'(PRS-T1&)'
             )
     WINDOWS_CARD_A_MEM = re.compile(
             r'(PRS-(505|500)[#/]\S+:MS)|'
