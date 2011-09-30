@@ -22,10 +22,10 @@ class Smh_au(BasicNewsRecipe):
     remove_empty_feeds    = True
     masthead_url          = 'http://images.smh.com.au/2010/02/02/1087188/smh-620.jpg'
     publication_type      = 'newspaper'
-    extra_css             = """ 
-                                h1{font-family: Georgia,"Times New Roman",Times,serif } 
-                                body{font-family: Arial,Helvetica,sans-serif} 
-                                .cT-imageLandscape,.cT-imagePortrait{font-size: x-small} 
+    extra_css             = """
+                                h1{font-family: Georgia,"Times New Roman",Times,serif }
+                                body{font-family: Arial,Helvetica,sans-serif}
+                                .cT-imageLandscape,.cT-imagePortrait{font-size: x-small}
                             """
 
     conversion_options = {
@@ -35,16 +35,16 @@ class Smh_au(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_tags = [
-                     dict(name='div', attrs={'id':['googleAds','moreGoogleAds','comments']})
-                    ,dict(name='div', attrs={'class':'cT-imageMultimedia'})
-                    ,dict(name=['object','embed','iframe'])
-                  ]
     remove_tags_after = [dict(name='div',attrs={'class':'articleBody'})]
     keep_only_tags    = [dict(name='div',attrs={'id':'content'})]
-    remove_tags       = [ 
-                          dict(attrs={'class':'hidden'}), 
-                          dict(name=['link','meta','base','embed','object','iframe'])
+    remove_tags       = [
+                        dict(name='div',
+                            attrs={'id':['googleAds','moreGoogleAds','comments',
+                                'video-player-content']}),
+                        dict(name='div', attrs={'class':'cT-imageMultimedia'}),
+                        dict(name=['object','embed','iframe']),
+                        dict(attrs={'class':'hidden'}),
+                        dict(name=['link','meta','base','embed','object','iframe'])
                         ]
     remove_attributes = ['width','height','lang']
 
@@ -84,4 +84,4 @@ class Smh_au(BasicNewsRecipe):
             if not item.has_key('alt'):
                item['alt'] = 'image'
         return soup
-        
+
