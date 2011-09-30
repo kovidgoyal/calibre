@@ -23,6 +23,8 @@
   date: 2011-09-30
 
   new features:
+    - title: "A Tips and Tricks blog at http://blog.calibre-ebook.com to introduce less well known calibre features in a simple way"
+
     - title: "News download: Add list of articles in the downloaded issue to the comments metadata of the generated ebook. Makes it possible to search for a particular article in the calibre library."
       ticket: [851717]
 
