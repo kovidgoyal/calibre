@@ -624,7 +624,7 @@ class BuiltinHumanReadable(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         try:
-            return human_readable(long(val))
+            return human_readable(round(float(val)))
         except:
             return ''
 
