@@ -1040,7 +1040,7 @@ information is the equivalent of what is shown in the tags pane.
     parser.add_option('-r', '--categories', default='', dest='report',
                       help=_("Comma-separated list of category lookup names.\n"
                              "Default: all"))
-    parser.add_option('-w', '--idth', default=-1, type=int,
+    parser.add_option('-w', '--width', default=-1, type=int,
                       help=_('The maximum width of a single line in the output. '
                              'Defaults to detecting screen size.'))
     parser.add_option('-s', '--separator', default=',',
@@ -1097,7 +1097,7 @@ def command_list_categories(args, dbpath):
             for j, field in enumerate(fields):
                 widths[j] = max(widths[j], max(len(field), len(unicode(i[field]))))
 
-        screen_width = terminal_controller.COLS if opts.line_width < 0 else opts.line_width
+        screen_width = terminal_controller.COLS if opts.width < 0 else opts.width
         if not screen_width:
             screen_width = 80
         field_width = screen_width//len(fields)

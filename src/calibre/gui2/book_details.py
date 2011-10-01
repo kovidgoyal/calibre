@@ -85,6 +85,8 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
 
     for field, display in get_field_list(fm):
         metadata = fm.get(field, None)
+        if field == 'sort':
+            field = 'title_sort'
         if all_fields:
             display = True
         if (not display or not metadata or mi.is_null(field) or

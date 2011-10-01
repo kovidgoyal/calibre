@@ -624,7 +624,7 @@ class BuiltinHumanReadable(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         try:
-            return human_readable(long(val))
+            return human_readable(round(float(val)))
         except:
             return ''
 
@@ -971,7 +971,7 @@ class BuiltinListEquals(BuiltinFormatterFunction):
     category = 'List Manipulation'
     __doc__ = doc = _('list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- '
             'return yes_val if list1 and list2 contain the same items, '
-            'otherwise return `no_val. The items are determined by splitting '
+            'otherwise return no_val. The items are determined by splitting '
             'each list using the appropriate separator character (sep1 or '
             'sep2). The order of items in the lists is not relevant. '
             'The compare is case insensitive.')

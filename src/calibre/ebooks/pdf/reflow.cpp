@@ -625,11 +625,7 @@ static string get_link_dest(LinkAction *link, PDFDoc *doc) {
   return oss.str();
 }
 
-#if (POPPLER_MAJOR_VERSION == 0) && (POPPLER_MINOR_VERSION < 17)
-void XMLOutputDev::process_link(Link* link){
-#else
 void XMLOutputDev::process_link(AnnotLink* link){
-#endif
 
   double _x1, _y1, _x2, _y2;
   int x1, y1, x2, y2;
