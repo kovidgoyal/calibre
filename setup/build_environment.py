@@ -177,6 +177,7 @@ fc_error = None if os.path.exists(os.path.join(fc_inc, 'fontconfig.h')) else \
 
 
 poppler_error = None
+poppler_cflags = ['-DPNG_SKIP_SETJMP_CHECK'] if islinux else []
 if not poppler_inc_dirs or not os.path.exists(
         os.path.join(poppler_inc_dirs[0], 'OutputDev.h')):
     poppler_error = \
@@ -186,6 +187,10 @@ if not poppler_inc_dirs or not os.path.exists(
     ' the poppler XPDF headers. If your distro does not '
     ' include them you will have to re-compile poppler '
     ' by hand with --enable-xpdf-headers')
+else:
+    lh = os.path.join(poppler_inc_dirs[0], 'Link.h')
+    if 'class AnnotLink' not in open(lh, 'rb').read():
+        poppler_cflags.append('-DPOPPLER_OLD_LINK_TYPE')
 
 magick_error = None
 if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],

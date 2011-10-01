@@ -41,7 +41,7 @@ using namespace std;
 
 namespace calibre_reflow {
 
-#ifndef AnnotLink
+#ifdef POPPLER_OLD_LINK_TYPE
 #define AnnotLink Link
 #endif
 
