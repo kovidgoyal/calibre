@@ -285,6 +285,15 @@ function booklist(hide_sort) {
     first_page(); 
 }
 
+function search_result() {
+    var test = $("#booklist #page0").html();
+    if (!test) {
+        $("#booklist").html("No books found matching this query");
+        return;
+    }
+    booklist();
+}
+
 function show_details(a_dom) {
     var book = $(a_dom).closest('div.summary');
     var bd = $('#book_details_dialog');
