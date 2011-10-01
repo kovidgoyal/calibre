@@ -41,6 +41,9 @@ using namespace std;
 
 namespace calibre_reflow {
 
+#ifndef AnnotLink
+#define AnnotLink Link
+#endif
 
 enum UnicodeTextDirection {
   text_dir_unknown,
@@ -244,11 +247,7 @@ class XMLOutputDev : public OutputDev {
     XMLImages *images;
     PDFDoc *doc;
 
-#if (POPPLER_MAJOR_VERSION == 0) && (POPPLER_MINOR_VERSION < 17)
-    void process_link(Link* link);
-#else
     void process_link(AnnotLink* link);
-#endif
 
 };
 }
