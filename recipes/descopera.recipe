@@ -22,6 +22,10 @@ class Descopera(BasicNewsRecipe):
     category                  = 'Ziare,Reviste,Descopera'
     encoding                = 'utf-8'
     cover_url     = 'http://www.descopera.ro/images/header_images/logo.gif'
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
 
     conversion_options = {
                              'comments'  : description
@@ -30,28 +34,6 @@ class Descopera(BasicNewsRecipe):
                 ,'publisher'   : publisher
                          }
 
-
-    keep_only_tags = [
-        dict(name='h1', attrs={'style':'font-family: Arial,Helvetica,sans-serif; font-size: 18px; color: rgb(51, 51, 51); font-weight: bold; margin: 10px 0pt; clear: both; float: left;width: 610px;'})
-        ,dict(name='div', attrs={'style':'margin-right: 15px; margin-bottom: 15px; float: left;'})
-        , dict(name='p', attrs={'id':'itemDescription'})
-        ,dict(name='div', attrs={'id':'itemBody'})
-                 ]
-
-    remove_tags = [
-             dict(name='div', attrs={'class':['tools']})
-           , dict(name='div', attrs={'class':['share']})
-           , dict(name='div', attrs={'class':['category']})
-           , dict(name='div', attrs={'id':['comments']})
-                          ]
-
-    remove_tags_after = [
-               dict(name='div', attrs={'id':'comments'})
-           ]
-
     feeds          = [
         (u'Feeds', u'http://www.descopera.ro/rss')
                      ]
-
-    def preprocess_html(self, soup):
-        return self.adeify_images(soup)
