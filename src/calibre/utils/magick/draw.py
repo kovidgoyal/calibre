@@ -47,7 +47,7 @@ def normalize_format_name(fmt):
     return fmt
 
 def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
-        return_data=False, compression_quality=90, minify_to=None):
+        return_data=False, compression_quality=90, minify_to=None, grayscale=False):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
@@ -70,6 +70,9 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     orig_fmt = normalize_format_name(img.format)
     fmt = os.path.splitext(path)[1]
     fmt = normalize_format_name(fmt[1:])
+
+    if grayscale == True:
+       img.type = "GrayscaleType"
 
     if resize_to is not None:
         img.size = (resize_to[0], resize_to[1])
