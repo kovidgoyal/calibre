@@ -624,7 +624,7 @@ class BuiltinHumanReadable(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         try:
-            return human_readable(long(val))
+            return human_readable(round(float(val)))
         except:
             return ''
 
@@ -965,6 +965,24 @@ class BuiltinListSort(BuiltinFormatterFunction):
         res = [l.strip() for l in list1.split(separator) if l.strip()]
         return ', '.join(sorted(res, key=sort_key, reverse=direction != "0"))
 
+class BuiltinListEquals(BuiltinFormatterFunction):
+    name = 'list_equals'
+    arg_count = 6
+    category = 'List Manipulation'
+    __doc__ = doc = _('list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- '
+            'return yes_val if list1 and list2 contain the same items, '
+            'otherwise return no_val. The items are determined by splitting '
+            'each list using the appropriate separator character (sep1 or '
+            'sep2). The order of items in the lists is not relevant. '
+            'The compare is case insensitive.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, sep1, list2, sep2, yes_val, no_val):
+        s1 = set([icu_lower(l.strip()) for l in list1.split(sep1) if l.strip()])
+        s2 = set([icu_lower(l.strip()) for l in list2.split(sep2) if l.strip()])
+        if s1 == s2:
+            return yes_val
+        return no_val
+
 class BuiltinToday(BuiltinFormatterFunction):
     name = 'today'
     arg_count = 0
@@ -1045,7 +1063,7 @@ _formatter_builtins = [
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
-    BuiltinInList(), BuiltinListDifference(),
+    BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListSort(),
     BuiltinListUnion(), BuiltinLookup(),
     BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),

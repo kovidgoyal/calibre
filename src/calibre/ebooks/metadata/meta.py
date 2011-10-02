@@ -149,19 +149,20 @@ def metadata_from_filename(name, pat=None):
         try:
             au = match.group('author')
             aus = string_to_authors(au)
-            mi.authors = aus
-            if prefs['swap_author_names'] and mi.authors:
-                def swap(a):
-                    if ',' in a:
-                        parts = a.split(',', 1)
-                    else:
-                        parts = a.split(None, 1)
-                    if len(parts) > 1:
-                        t = parts[-1]
-                        parts = parts[:-1]
-                        parts.insert(0, t)
-                    return ' '.join(parts)
-                mi.authors = [swap(x) for x in mi.authors]
+            if aus:
+                mi.authors = aus
+                if prefs['swap_author_names'] and mi.authors:
+                    def swap(a):
+                        if ',' in a:
+                            parts = a.split(',', 1)
+                        else:
+                            parts = a.split(None, 1)
+                        if len(parts) > 1:
+                            t = parts[-1]
+                            parts = parts[:-1]
+                            parts.insert(0, t)
+                        return ' '.join(parts)
+                    mi.authors = [swap(x) for x in mi.authors]
         except (IndexError, ValueError):
             pass
         try:

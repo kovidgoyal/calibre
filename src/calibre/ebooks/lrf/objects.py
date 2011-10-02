@@ -452,24 +452,26 @@ class BlockAttr(StyleObject, LRFObject):
     @classmethod
     def to_css(cls, obj, inline=False):
         ans = ''
+
         def item(line):
-            ans += '' if inline else '\t'
+            ans = '' if inline else '\t'
             ans += line
             ans += ' ' if inline else '\n'
+            return ans
 
         if hasattr(obj, 'sidemargin'):
             margin = str(obj.sidemargin) + 'px'
-            item('margin-left: %(m)s; margin-right: %(m)s;'%dict(m=margin))
+            ans += item('margin-left: %(m)s; margin-right: %(m)s;'%dict(m=margin))
         if hasattr(obj, 'topskip'):
-            item('margin-top: %dpx;'%obj.topskip)
+            ans += item('margin-top: %dpx;'%obj.topskip)
         if hasattr(obj, 'footskip'):
-            item('margin-bottom: %dpx;'%obj.footskip)
+            ans += item('margin-bottom: %dpx;'%obj.footskip)
         if hasattr(obj, 'framewidth'):
-            item('border: solid %dpx'%obj.framewidth)
+            ans += item('border: solid %dpx'%obj.framewidth)
         if hasattr(obj, 'framecolor') and obj.framecolor.a < 255:
-            item('border-color: %s;'%obj.framecolor.to_html())
+            ans += item('border-color: %s;'%obj.framecolor.to_html())
         if hasattr(obj, 'bgcolor') and obj.bgcolor.a < 255:
-            item('background-color: %s;'%obj.bgcolor.to_html())
+            ans += item('background-color: %s;'%obj.bgcolor.to_html())
 
         return ans
 
@@ -480,39 +482,41 @@ class TextCSS(object):
     @classmethod
     def to_css(cls, obj, inline=False):
         ans = ''
+
         def item(line):
-            ans += '' if inline else '\t'
+            ans = '' if inline else '\t'
             ans += line
             ans += ' ' if inline else '\n'
+            return ans
 
         fs = getattr(obj, 'fontsize', None)
         if fs is not None:
-            item('font-size: %fpt;'%(int(fs)/10.))
+            ans += item('font-size: %fpt;'%(int(fs)/10.))
         fw = getattr(obj, 'fontweight', None)
         if fw is not None:
-            item('font-weight: %s;'%('bold' if int(fw) >= 700 else 'normal'))
+            ans += item('font-weight: %s;'%('bold' if int(fw) >= 700 else 'normal'))
         fn = getattr(obj, 'fontfacename', None)
         if fn is not None:
             fn = cls.FONT_MAP[fn]
-            item('font-family: %s;'%fn)
+            ans += item('font-family: %s;'%fn)
         fg = getattr(obj, 'textcolor', None)
         if fg is not None:
             fg = fg.to_html()
-            item('color: %s;'%fg)
+            ans += item('color: %s;'%fg)
         bg = getattr(obj, 'textbgcolor', None)
         if bg is not None:
             bg = bg.to_html()
-            item('background-color: %s;'%bg)
+            ans += item('background-color: %s;'%bg)
         al = getattr(obj, 'align', None)
         if al is not None:
             al = dict(head='left', center='center', foot='right')
-            item('text-align: %s;'%al)
+            ans += item('text-align: %s;'%al)
         lh = getattr(obj, 'linespace', None)
         if lh is not None:
-            item('text-align: %fpt;'%(int(lh)/10.))
+            ans += item('text-align: %fpt;'%(int(lh)/10.))
         pi = getattr(obj, 'parindent', None)
         if pi is not None:
-            item('text-indent: %fpt;'%(int(pi)/10.))
+            ans += item('text-indent: %fpt;'%(int(pi)/10.))
 
         return ans
 

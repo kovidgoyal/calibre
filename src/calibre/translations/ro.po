@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-17 14:30+0000\n"
-"PO-Revision-Date: 2011-09-16 14:16+0000\n"
-"Last-Translator: Lucian Martin <Unknown>\n"
+"POT-Creation-Date: 2011-09-23 18:01+0000\n"
+"PO-Revision-Date: 2011-09-29 05:52+0000\n"
+"Last-Translator: Constantin Segarceanu <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-09-18 04:50+0000\n"
-"X-Generator: Launchpad (build 13955)\n"
+"X-Launchpad-Export-Date: 2011-09-30 04:36+0000\n"
+"X-Generator: Launchpad (build 14071)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -27,6 +27,8 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:104
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:107
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:118
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:242
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:243
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -50,7 +52,7 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1898
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1900
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:284
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:286
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:34
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:98
@@ -94,11 +96,11 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:69
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:82
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:125
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:159
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:734
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:988
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:990
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:992
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:166
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:741
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:995
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:997
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:999
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:299
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:496
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:99
@@ -167,7 +169,7 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:234
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:253
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:394
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:396
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:170
@@ -189,7 +191,7 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:156
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:159
 #: /home/kovid/work/calibre/src/calibre/library/server/xml.py:79
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:151
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:66
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:88
@@ -979,11 +981,11 @@ msgstr "Card B"
 msgid "Debug log"
 msgstr "Registrul pentru depanare"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:13
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:17
 msgid "Communicate with Android phones."
 msgstr "Comunică cu telefoane Android."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:125
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:129
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -991,11 +993,11 @@ msgstr ""
 "Lista separată prin virgule a directoarelor ce vor fi trimise către "
 "dispozitiv. Va fi folosit primul dispozitiv identificat."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:178
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:182
 msgid "Communicate with S60 phones."
 msgstr "Comunică cu telefoanele S60."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:197
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:201
 msgid "Communicate with WebOS tablets."
 msgstr "Comunică cu tabletele WebOS."
 
@@ -1105,7 +1107,7 @@ msgstr "%(num)d din %(tot)d"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:497
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1130
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3162
-#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:106
+#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:110
 msgid "finished"
 msgstr "finalizat"
 
@@ -1136,8 +1138,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1114
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1139
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1141
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1148
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1150
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:334
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:347
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3103
@@ -1147,7 +1149,7 @@ msgstr "Știri"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2685
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:652
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:662
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3062
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3080
 msgid "Catalog"
@@ -1601,6 +1603,8 @@ msgstr "Comunică cu toate dispozitivele eBook Sony."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
 msgstr ""
+"Comentariile au fost eliminate pentru ca ebook readearele de la SONY se "
+"blocheaza din cauza lor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
@@ -3543,7 +3547,7 @@ msgid "Producer"
 msgstr "Producător"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:752
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:922
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:932
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:157
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:245
 msgid "Comments"
@@ -3556,7 +3560,7 @@ msgstr "Comentarii"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:161
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:201
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:767
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:766
 msgid "Tags"
 msgstr "Etichete"
 
@@ -3729,7 +3733,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1417
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1499
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:934
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:944
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Cover"
 msgstr "Copertă"
@@ -3920,7 +3924,7 @@ msgid ""
 "position  on multiple devices. Complain to Amazon."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:274
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:281
 msgid "This is an Amazon Topaz book. It cannot be processed."
 msgstr "Aceasta este o carte Amazon Topaz. Nu poate fi procesată."
 
@@ -4015,7 +4019,7 @@ msgstr "Generator de optiuni HTML TOC"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:71
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:160
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:765
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:764
 msgid "Rating"
 msgstr "Cotare"
 
@@ -4405,7 +4409,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:379
 msgid "File could be older RTF...\n"
-msgstr ""
+msgstr "Este posibil ca fişierul să fie o versiune RTF mai veche...\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf2xml/ParseRtf.py:383
 msgid ""
@@ -4685,7 +4689,7 @@ msgstr "Încarcă ştirile descărcate pe aparat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
 msgid "Delete news books from library after uploading to device"
-msgstr ""
+msgstr "Şterge cărţile noi din bibliotecă după încărcarea pe dispozitiv"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
 msgid ""
@@ -5412,7 +5416,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:674
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:78
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:216
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:371
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:503
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:513
@@ -6016,7 +6020,7 @@ msgid "Click the show details button to see which ones."
 msgstr "Faceţi clic pe butonul arată detalii pentru a vedea care dintre ele."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:772
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:771
 msgid "Show book details"
 msgstr "Arată detaliile cărţii"
 
@@ -6492,10 +6496,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:127
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:104
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:106
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:109
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:111
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:52
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:63
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:87
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:79
@@ -6618,7 +6622,7 @@ msgstr "Opţiuni specifice"
 msgid "output"
 msgstr "ieşire"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:295
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:32
@@ -6666,9 +6670,9 @@ msgstr "ieşire"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:68
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:123
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:95
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:100
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/store/basic_config_widget_ui.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:77
@@ -6678,52 +6682,45 @@ msgstr "ieşire"
 msgid "Form"
 msgstr "Formular"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:78
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:25
 msgid "Bib file encoding:"
 msgstr "Codificarea fişierului Bib:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:79
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:43
 msgid "Fields to include in output:"
 msgstr "Câmpuri incluse la ieşire:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:80
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:46
 msgid "Encoding configuration (change if you have errors) :"
 msgstr "Configurare codificare (modificaţi dacă întâlniţi erori):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:81
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:55
 msgid "BibTeX entry type:"
 msgstr "Tipul de intrare BibTeX:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:82
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:62
 msgid "Create a citation tag?"
 msgstr "Creaţi o etichetă de citare?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:83
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:66
 msgid "Add files path with formats?"
 msgstr "Adăugaţi calea fişierelor cu formate?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:70
 msgid "Expression to form the BibTeX citation tag:"
 msgstr "Expresie pentru formarea etichetei de citare BibTeX:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:85
+#: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:77
 msgid ""
 "Some explanation about this template:\n"
 " -The fields availables are 'author_sort', 'authors', 'id',\n"
 "    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
-"   'tags', 'timestamp', 'title', 'uuid'\n"
+"   'tags', 'timestamp', 'title', 'uuid', 'title_sort'\n"
 " -For list types ie authors and tags, only the first element\n"
-"   wil be selected.\n"
+"   will be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
-"Explicaţii despre acest şablon:\n"
-" - Câmpurile disponibile sunt 'author_sort', 'authors', 'id',\n"
-"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
-"   'tags', 'timestamp', 'title', 'uuid'\n"
-" - Pentru liste de tipuri ex.: autori şi etichete, doar primul element\n"
-"   va fi selectat.\n"
-" - Pentru câmpul timp, doar data va fi folosită. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -7826,7 +7823,7 @@ msgstr "Ieşire PDB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdb_output_ui.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:225
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:215
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:186
 msgid "&Format:"
 msgstr "&Format:"
@@ -8981,11 +8978,11 @@ msgstr "Copiază în clip&board"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:232
 msgid "&Done"
-msgstr ""
+msgstr "&Gata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:235
 msgid "Delete &marked"
-msgstr ""
+msgstr "Şterge elementele &marcate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:236
 msgid "Delete marked files (checked subitems)"
@@ -8993,7 +8990,7 @@ msgstr "Şterge fişierele marcate (subitemii marcaţi)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:239
 msgid "&Fix marked"
-msgstr ""
+msgstr "Re&pară elementele marcate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:242
 msgid "Fix marked sections (checked fixable items)"
@@ -9183,7 +9180,7 @@ msgstr "Setează opţiunile pentru convertirea %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:97
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:211
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:76
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:209
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:181
 msgid "&Title:"
 msgstr "&Titlu:"
@@ -9270,45 +9267,44 @@ msgid "Delete from device"
 msgstr "Șterge de pe dispozitiv"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:21
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:22
 #, python-format
 msgid "%(curr)s (was %(initial)s)"
 msgstr "%(curr)s (a fost %(initial)s)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:86
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:183
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:186
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:882
 msgid "Item is blank"
 msgstr "Elementul este gol"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:87
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:883
 msgid "An item cannot be set to nothing. Delete it instead."
 msgstr "Un element nu poate să fie setat ca nul. Ştergeţi-l"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:100
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:204
 msgid "No item selected"
 msgstr "Nici un element selectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:101
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:198
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:205
 msgid "You must select one item from the list of Available items."
 msgstr "Trebuie să selectaţi un element din lista Elemente disponibile."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:108
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:212
 msgid "No items selected"
 msgstr "Nici un element selectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:109
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:213
 msgid "You must select at least one item from the list."
 msgstr "Trebuie să selectaţi cel puţin un element din listă."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:217
 msgid "Are you sure you want to delete the following items?"
 msgstr "Sigur doriţi să ştergeţi următoarele elemente?"
 
@@ -9337,7 +9333,7 @@ msgstr "Redenumeşte elementul în fiecare carte în care este folosit."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:75
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:103
 msgid "Ctrl+S"
 msgstr "Ctrl+S"
 
@@ -9429,7 +9425,7 @@ msgid "Author names cannot contain & characters."
 msgstr "Numele autorului nu poate conţine caracterul &"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:88
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:135
 msgid "Manage authors"
 msgstr "Gestionează autori"
 
@@ -9542,7 +9538,7 @@ msgid "Standard metadata"
 msgstr "Metadate standard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:903
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:913
 msgid "Custom metadata"
 msgstr "Metadate personalizate"
 
@@ -9753,7 +9749,7 @@ msgstr "Adaugă &etichete: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:549
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:550
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:186
 msgid "Open Tag Editor"
 msgstr "Deschide editorul de etichete"
 
@@ -9904,13 +9900,13 @@ msgid "&Languages:"
 msgstr "&Limbi:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:594
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:542
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:708
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:718
 msgid "&Basic metadata"
 msgstr "&Metadate de bază"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:595
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:549
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:559
 msgid "&Custom metadata"
 msgstr "&Metadate personalizate"
 
@@ -10099,21 +10095,21 @@ msgstr "Parola este necesară"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:214
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:36
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:133
 msgid "&Username:"
 msgstr "Nume &utilizator:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:215
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:126
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:135
 msgid "&Password:"
 msgstr "&Parola:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:216
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:130
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:81
 msgid "&Show password"
 msgstr "&Arată parola"
@@ -10916,28 +10912,28 @@ msgstr "Neagă"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:206
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:168
 msgid "Advanced Search"
 msgstr "Căutare Avansată"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:199
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:207
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:169
 msgid "&What kind of match to use:"
 msgstr "Ce fel de &potrivire să se folosească:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:208
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:198
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:170
 msgid "Contains: the word or phrase matches anywhere in the metadata field"
 msgstr "Conţine: cuvântul sau fraza potrivită oriunde în câmpul de metadate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:209
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:36
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:171
 msgid "Equals: the word or phrase must match the entire metadata field"
 msgstr ""
@@ -10946,7 +10942,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:210
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:200
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:172
 msgid ""
 "Regular expression: the expression must match anywhere in the metadata field"
@@ -10956,49 +10952,49 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:203
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:211
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:173
 msgid "Find entries that have..."
 msgstr "Caută înregistrările care au..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:212
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:174
 msgid "&All these words:"
 msgstr "To&ate aceste cuvinte:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:205
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:213
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:175
 msgid "This exact &phrase:"
 msgstr "Această &frază:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:206
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:214
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:204
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:176
 msgid "&One or more of these words:"
 msgstr "&Unul sau mai multe din cuvintele:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:215
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:177
 msgid "But dont show entries that have..."
 msgstr "Nu arăta înregistrările care au..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:208
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:216
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:178
 msgid "Any of these &unwanted words:"
 msgstr "Oricare dintre cuvintele &nedorite:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:209
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:217
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:99
 msgid ""
 "See the <a href=\"http://manual.calibre-ebook.com/gui.html#the-search-"
 "interface\">User Manual</a> for more help"
@@ -11008,20 +11004,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:210
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:218
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:234
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:180
 msgid "A&dvanced Search"
 msgstr "Căutare Ava&nsată"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:220
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:182
 msgid "Enter the title."
 msgstr "Introduceţi titlul."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:213
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:183
 msgid "&Author:"
 msgstr "&Autor:"
@@ -11050,14 +11046,14 @@ msgstr "Introduceţi etichete separate prin spaţii"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:223
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:213
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:184
 msgid "&Clear"
 msgstr "&Curăță"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:224
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:185
 msgid "Search only in specific fields:"
 msgstr "Caută doar în câmpurile specificate:"
@@ -11224,13 +11220,17 @@ msgstr ""
 msgid "Add tag to available tags and apply it to current book"
 msgstr "Adaugă eticheta la etichetele disponibile şi aplic-o cărţii curente"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:109
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:105
 msgid "Tag"
 msgstr "Etichetă"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:112
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:108
 msgid "Count"
 msgstr "Contor"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:111
+msgid "Was"
+msgstr "A fost"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:257
 msgid "Template language tutorial"
@@ -11584,24 +11584,24 @@ msgstr "Se descarcă <b>%(fname)s</b> de la %(url)s"
 msgid "Failed to download from %(url)r with error: %(err)s"
 msgstr "Descărcarea de la %(url)r a eşuat cu eroarea %(err)s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:42
 msgid "No file specified to download."
 msgstr "Nici un fişier specificat pentru descărcat."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:66
+#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:70
 msgid "Not a support ebook format."
 msgstr "Nu este un format e-carte compatibil."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:87
+#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:91
 #, python-format
 msgid "Downloading %s"
 msgstr "Se descarcă %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:99
+#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:103
 msgid "Downloading"
 msgstr "Se descarcă"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:103
+#: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:107
 msgid "Failed to download ebook"
 msgstr "Descărcarea e-cărţii a eşuat"
 
@@ -12391,13 +12391,13 @@ msgstr "Excepţie netratată"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:104
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:268
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:437
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:447
 msgid "Permission denied"
 msgstr "Permisiune refuzată"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:105
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:269
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:438
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:448
 #, python-format
 msgid "Could not open %s. Is it being used by another program?"
 msgstr "Nu s-a putut deschide %s. Este folosit cumva de un alt program?"
@@ -12740,11 +12740,11 @@ msgstr "S-au descărcat %(num)d din %(tot)d"
 msgid "Downloaded metadata fields"
 msgstr "Descarcă câmpuri de metadate"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:30
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:32
 msgid "Edit Metadata"
 msgstr "Editează metadatele"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:64
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:828
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:107
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:211
@@ -12752,14 +12752,14 @@ msgstr "Editează metadatele"
 msgid "Next"
 msgstr "Înainte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:70
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:221
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:384
 msgid "Previous"
 msgstr "Înapoi"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:114
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:116
 msgid ""
 "Automatically create the title sort entry based on the current title entry.\n"
 "Using this button to create title sort will change title sort from red to "
@@ -12770,7 +12770,7 @@ msgstr ""
 "Folosind acest buton pentru a crea sortarea titlului, aceasta se va modifica "
 "din roşu în verde."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:127
 msgid ""
 "Automatically create the author sort entry based on the current author "
 "entry. Using this button to create author sort will change author sort from "
@@ -12782,27 +12782,27 @@ msgstr ""
 "modifica din roşu în verde. Pentru acest buton există un mediu de "
 "funcţionalităţi. Ţineţi apăsat click pe buton pentru a vedea acest meniu."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:133
 msgid "Set author sort from author"
 msgstr "Setează sortarea autorului din autor"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:134
 msgid "Set author from author sort"
 msgstr "Setează autorul din sortare autor"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:137
 msgid "Copy author to author sort"
 msgstr "Copiază autor în sortare autor"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:139
 msgid "Copy author sort to author"
 msgstr "Copiază sortare autor în autor"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:148
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:150
 msgid "Swap the author and title"
 msgstr "Interschimbă autorul cu titlul"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:154
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:156
 msgid ""
 "Manage authors. Use to rename authors and correct individual author's sort "
 "values"
@@ -12810,11 +12810,11 @@ msgstr ""
 "Gestionează autorii. Folosit pentru redenumirea autorilor şi corectarea "
 "valorilor individuale de sortare a autorilor"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:163
 msgid "Remove unused series (Series that have no books)"
 msgstr "Şterge seriile nefolosite (Seriile care nu conţin cărţi)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:198
 msgid ""
 "Paste the contents of the clipboard into the identifiers box prefixed with "
 "isbn:"
@@ -12822,71 +12822,71 @@ msgstr ""
 "Copiază conţinutul clipboard-ului în caseta identificatorilor prefixat de "
 "ISBN:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:214
 msgid "&Download metadata"
 msgstr "&Descarcă metadatele"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:226
 msgid "Configure download metadata"
 msgstr "Configurează metadatele descărcate"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:228
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:230
 msgid "Change how calibre downloads metadata"
 msgstr "Schimbă modul în care calibre descarcă metadatele"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:291
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:293
 #, python-format
 msgid " [%(num)d of %(tot)d]"
 msgstr " [%(num)d din %(tot)d]"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:333
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:340
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:335
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:342
 msgid "Could not read cover"
 msgstr "Nu s-a putut citi coperta"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:334
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:336
 #, python-format
 msgid "Could not read cover from %s format"
 msgstr "Nu s-a putut citi coperta din formatul %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:343
 #, python-format
 msgid "The cover in the %s format is invalid"
 msgstr "Coperta din formatul %s este invalidă"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:490
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:495
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:505
 #, python-format
 msgid "Save changes and edit the metadata of %s"
 msgstr "Salvează modificările şi editează metadatele din %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:592
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:797
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:602
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:807
 msgid "Change cover"
 msgstr "Modifică coperta"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:651
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:661
 msgid "Co&mments"
 msgstr "Co&mentarii"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:691
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:838
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:701
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:848
 msgid "&Metadata"
 msgstr "&Metadate"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:696
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:706
 msgid "&Cover and formats"
 msgstr "&Copertă şi formate"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:766
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:776
 msgid "C&ustom metadata"
 msgstr "&Editează metadate"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:778
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:788
 msgid "&Comments"
 msgstr "&Comentarii"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:844
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:854
 msgid "Basic metadata"
 msgstr "Metadate de bază"
 
@@ -15111,11 +15111,11 @@ msgstr "Jurnal de accesări:"
 msgid "You need to restart the server for changes to take effect"
 msgstr "Trebuie să reporniţi serverul pentru ca modificările să aibă efect"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:124
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:27
 msgid "Server &port:"
 msgstr "&Port server:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:47
 msgid ""
 "If you leave the password blank, anyone will be able to access your book "
 "collection using the web interface."
@@ -15123,7 +15123,7 @@ msgstr ""
 "Dacă lăsaţi parola necompletată, oricine va avea acces la colecţia "
 "dumneavoastră de cărţi prin interfaţa web."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:128
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:51
 msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
@@ -15131,23 +15131,23 @@ msgstr ""
 "Mărimea maximă (lăţime x înălţime) pentru coperţile afişate. Coperţile mari "
 "vor fi redimensionate. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:56
 msgid "Max. &cover size:"
 msgstr "Mărime maximă &copertă:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:64
 msgid "Max. &OPDS items per query:"
 msgstr "Nr. max. de elem. &OPDS per interogare:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:78
 msgid "Max. OPDS &ungrouped items:"
 msgstr "Nr. max. de elem. OPDS negr&upate:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:82
 msgid "Restriction (saved search) to apply:"
 msgstr "Restricţie (căutare salvată) de aplicat:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:86
 msgid ""
 "This restriction (based on a saved search) will restrict the books the "
 "content server makes available to those matching the search. This setting is "
@@ -15158,19 +15158,19 @@ msgstr ""
 "Această setare este per bibliotecă (de ex. puteţi avea câte o restricţie "
 "diferită pentru fiecare bibliotecă)."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:95
 msgid "&Start Server"
 msgstr "Porneşte &Server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:99
 msgid "St&op Server"
 msgstr "&Opreşte Server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:105
 msgid "&Test Server"
 msgstr "&Testează Server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:110
 msgid ""
 "calibre contains a network server that allows you to access your book "
 "collection using a browser from anywhere in the world. Any changes to the "
@@ -15180,30 +15180,23 @@ msgstr ""
 "de cărţi de oriunde din lume, folosind un browser. Orice modificări pe care "
 "le efectuaţi la setări vor avea efect doar după repornirea serverului."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:139
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically on startup"
 msgstr "Rulează serverul &automat la pornire"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:119
 msgid "View &server logs"
 msgstr "Vizualizează jurnalele &serverului"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:141
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:51
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:125
 msgid ""
 "<p>Remember to leave calibre running as the server only runs as long as "
 "calibre is running.\n"
-"<p>Stanza should see your calibre collection automatically. If not, try "
-"adding the URL http://myhostname:8080 as a new catalog in the Stanza reader "
-"on your iPhone. Here myhostname should be the fully qualified hostname or "
-"the IP address of the computer calibre is running on."
+"<p>To connect to the calibre server from your device you should use a URL of "
+"the form <b>http://myhostname:8080</b> as a new catalog in the Stanza reader "
+"on your iPhone. Here myhostname should be either the fully qualified "
+"hostname or the IP address of the computer calibre is running on."
 msgstr ""
-"<p>Nu uitaţi că lăsând calibre pornit ca şi server va rula atât timp cât "
-"calibre este pornit.\n"
-"<p>Stanza ar trebui să detecteze automat colecţia dumneavoastră calibre. "
-"Dacă nu, încercaţi să adăugaţi URL-ul http://myhostname:8080 ca şi un "
-"catalog nou în Stanza de pe iPhone. Aici myhostname ar trebui să fie un "
-"hostname calificat sau adresa IP a computerului de pe care rulează calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
@@ -15472,33 +15465,41 @@ msgstr "Nu se poate îndepărta"
 msgid "Cannot remove the actions %s from this location"
 msgstr "Nu se pot îndepărta acţiunile %s din această locaţie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:101
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
 msgstr "Alegeţi bara de unelte de personalizat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:102
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:36
 msgid "A&vailable actions"
 msgstr "Acţiuni &disponibile"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:103
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:51
 msgid "Add selected actions to toolbar"
 msgstr "Adaugă acţiunile selectate la bara de unelte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:105
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:62
 msgid "Remove selected actions from toolbar"
 msgstr "Şterge acţiunile selectate din bara de unelte"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:107
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:72
 msgid "&Current actions"
 msgstr "Acţiuni &curente"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:108
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:86
 msgid "Move selected action up"
 msgstr "Mută acţiunea selectată mai sus"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:110
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:97
 msgid "Move selected action down"
 msgstr "Mută acţiunea selectată mai jos"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:109
+msgid ""
+"<p>The toolbar in calibre is different depending on whether a device is "
+"connected or not. To customize the toolbar when a device is connected as "
+"well as customizing right click menus, <b>click the dropdown above</b> and "
+"select which toolbar/menu you want to customize."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:120
 msgid "This tweak has it default value"
@@ -15722,27 +15723,30 @@ msgid "Enabled:"
 msgstr "Activat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:227
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:189
 msgid "DRM:"
 msgstr "DRM:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:228
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:233
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:217
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:220
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:171
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:197
 msgid "true"
 msgstr "adevărat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:229
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:231
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:234
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:218
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:199
 msgid "false"
 msgstr "fals"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:216
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:163
 msgid "Affiliate:"
 msgstr "Afiliat:"
 
@@ -15925,15 +15929,15 @@ msgstr "Cărţi:"
 msgid "Close"
 msgstr "Închide"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:129
 msgid "&Price:"
 msgstr "&Preţ:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:219
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:176
 msgid "Download:"
 msgstr "Descarcă:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:187
 msgid "Titl&e/Author/Price ..."
 msgstr "Titl&u/Autor/Preţ ..."
@@ -16074,7 +16078,7 @@ msgstr "Se procesează cărţile."
 msgid "%(num)s of %(tot)s books processed."
 msgstr "%(num)s din %(tot)s cărţi procesate."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/mobileread_plugin.py:62
+#: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/mobileread_plugin.py:65
 msgid "Updating MobileRead book cache..."
 msgstr "Se actualizează cacheul cărţii MobileRead..."
 
@@ -16082,7 +16086,7 @@ msgstr "Se actualizează cacheul cărţii MobileRead..."
 msgid "&Query:"
 msgstr "&Interogare:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:73
+#: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:75
 msgid ""
 "This ebook is a DRMed EPUB file.  You will be prompted to save this file to "
 "your computer. Once it is saved, open it with <a "
@@ -16099,7 +16103,7 @@ msgstr ""
 "fi un fişier .epub. Puteţi adăuga cartea în bibliotecă folosind butonul "
 "\"Adaugă Cărţi\" şi selectând fişierul din directorul bibliotecii ADE."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:86
+#: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:88
 msgid "File is not a supported ebook type. Save to disk?"
 msgstr "Fişierul nu este un tip compatibil. Salvaţi pe disc?"
 
@@ -17539,6 +17543,22 @@ msgstr ""
 msgid "Turn on the &content server"
 msgstr "Porneşte serverul de &conţinut"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:51
+msgid ""
+"<p>Remember to leave calibre running as the server only runs as long as "
+"calibre is running.\n"
+"<p>Stanza should see your calibre collection automatically. If not, try "
+"adding the URL http://myhostname:8080 as a new catalog in the Stanza reader "
+"on your iPhone. Here myhostname should be the fully qualified hostname or "
+"the IP address of the computer calibre is running on."
+msgstr ""
+"<p>Nu uitaţi că lăsând calibre pornit ca şi server va rula atât timp cât "
+"calibre este pornit.\n"
+"<p>Stanza ar trebui să detecteze automat colecţia dumneavoastră calibre. "
+"Dacă nu, încercaţi să adăugaţi URL-ul http://myhostname:8080 ca şi un "
+"catalog nou în Stanza de pe iPhone. Aici myhostname ar trebui să fie un "
+"hostname calificat sau adresa IP a computerului de pe care rulează calibre."
+
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:162
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:569
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:583
@@ -17745,7 +17765,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire BIBTEX"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:625
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:635
 #, python-format
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
@@ -17756,7 +17776,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:632
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:642
 #, python-format
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
@@ -17771,7 +17791,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:642
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:652
 #, python-format
 msgid ""
 "field:pattern specifying custom field/contents indicating book should be "
@@ -17784,7 +17804,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:649
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:659
 #, python-format
 msgid ""
 "Regex describing tags to exclude as genres.\n"
@@ -17795,7 +17815,7 @@ msgstr ""
 "Implicit: '%default' exclude etichetele din paranteze, ex. '[<tag>]'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:655
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:665
 #, python-format
 msgid ""
 "Comma-separated list of tag words indicating book should be excluded from "
@@ -17810,7 +17830,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:663
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:673
 #, python-format
 msgid ""
 "Include 'Authors' section in catalog.\n"
@@ -17821,7 +17841,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:670
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:680
 #, python-format
 msgid ""
 "Include 'Descriptions' section in catalog.\n"
@@ -17832,7 +17852,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:677
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:687
 #, python-format
 msgid ""
 "Include 'Genres' section in catalog.\n"
@@ -17843,7 +17863,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:684
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:694
 #, python-format
 msgid ""
 "Include 'Titles' section in catalog.\n"
@@ -17854,7 +17874,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:691
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:701
 #, python-format
 msgid ""
 "Include 'Series' section in catalog.\n"
@@ -17865,7 +17885,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:698
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:708
 #, python-format
 msgid ""
 "Include 'Recently Added' section in catalog.\n"
@@ -17876,7 +17896,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:705
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:715
 #, python-format
 msgid ""
 "Custom field containing note text to insert in Description header.\n"
@@ -17887,7 +17907,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:712
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:722
 #, python-format
 msgid ""
 "<custom field>:[before|after]:[True|False] specifying:\n"
@@ -17905,7 +17925,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:722
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:732
 #, python-format
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
@@ -17922,7 +17942,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:729
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:739
 #, python-format
 msgid ""
 "field:pattern indicating book has been read.\n"
@@ -17933,7 +17953,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:735
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:745
 #, python-format
 msgid ""
 "Size hint (in inches) for book covers in catalog.\n"
@@ -17946,7 +17966,7 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:743
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:753
 #, python-format
 msgid ""
 "Tag indicating book to be displayed as wishlist item.\n"
@@ -17957,15 +17977,15 @@ msgstr ""
 "Implicit: '%default'\n"
 "Se aplică la: formate de ieşire ePub, MOBI"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1423
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1433
 msgid "No enabled genres found to catalog.\n"
 msgstr "Nici un gen activat nu a fost găsit în catalog.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1427
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1437
 msgid "No books available to catalog"
 msgstr "Nici o carte disponibilă de catalogat"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1503
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1513
 msgid ""
 "Inconsistent Author Sort values for\n"
 "Author '{0}':\n"
@@ -17983,7 +18003,7 @@ msgstr ""
 "Selectaţi toate cărţile scrise de '{0}', aplicaţi valoarea corectă Sortare "
 "Autor în dialogul Editează Metadate, pe urmă reconstruiţi catalogul.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1520
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1530
 msgid ""
 "Warning: inconsistent Author Sort values for\n"
 "Author '{0}':\n"
@@ -17993,7 +18013,7 @@ msgstr ""
 "Autor '{0}':\n"
 "'{1}' <> '{2}'\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1715
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1725
 msgid ""
 "No books found to catalog.\n"
 "Check 'Excluded books' criteria in E-book options.\n"
@@ -18001,11 +18021,11 @@ msgstr ""
 "Nu s-au găsit cărţi de catalogat.\n"
 "Verificaţi criteriile \"Cărţi excluse\" din opţiunile cărţii.\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1717
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1727
 msgid "No books available to include in catalog"
 msgstr "Nici o carte disponibilă pentru includerea în catalog"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:5059
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:5069
 msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
@@ -19044,19 +19064,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:294
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:342
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:619
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:618
 msgid "All books"
 msgstr "Toate cărțile"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:295
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:618
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:617
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:577
 msgid "Newest"
 msgstr "Cele mai noi"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:64
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:499
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:498
 msgid "Loading, please wait"
 msgstr "Se încarcă, vă rugăm aşteptaţi"
 
@@ -19118,56 +19138,56 @@ msgstr "Caută cărţi după"
 msgid "Choose a category to browse by:"
 msgstr "Alegeţi categoria după care se realizează căutarea:"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:523
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:522
 msgid "Browsing by"
 msgstr "Se caută după"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:524
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:523
 msgid "Up"
 msgstr "Sus"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:654
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:653
 msgid "in"
 msgstr "în"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:657
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:656
 msgid "Books in"
 msgstr "Cărţi în"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:746
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:745
 msgid "Other formats"
 msgstr "Alte formate"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:753
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:752
 #, python-format
 msgid "Read %(title)s in the %(fmt)s format"
 msgstr "Citeşte %(title)s în formatul %(fmt)s."
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:758
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:757
 msgid "Get"
 msgstr "Obţine"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:771
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:770
 msgid "Details"
 msgstr "Detalii"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:773
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:772
 msgid "Permalink"
 msgstr "Permalink"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:774
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:773
 msgid "A permanent link to this book"
 msgstr "Un link permanent către această carte."
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:786
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:785
 msgid "This book has been deleted"
 msgstr "Această carte a fost ştearsă"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:874
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:873
 msgid "in search"
 msgstr "în căutarea"
 
-#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:876
+#: /home/kovid/work/calibre/src/calibre/library/server/browse.py:875
 msgid "Matching books"
 msgstr "Cărţi potrivite"
 
@@ -20083,142 +20103,146 @@ msgid "English (India)"
 msgstr "Engleză (India)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
+msgid "English (Nepal)"
+msgstr "Engleză (Nepal)"
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Thailand)"
 msgstr "Engleză (Tailanda)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Turkey)"
 msgstr "Engleză (Turcia)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Cyprus)"
 msgstr "Engleză (Cipru)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Czechoslovakia)"
 msgstr "Engleză (Cehoslovacia)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Pakistan)"
 msgstr "Engleză (Pakistan)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (Croatia)"
 msgstr "Engleză (Croaţia)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "English (Indonesia)"
 msgstr "Engleză (Indonezia)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Israel)"
 msgstr "Engleză (Israel)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
-msgid "English (Russia)"
-msgstr ""
-
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
+msgid "English (Russia)"
+msgstr "Engleză (Rusia)"
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "English (Singapore)"
 msgstr "Engleză (Singapore)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "English (Yemen)"
 msgstr "Engleză (Yemen)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "English (Ireland)"
 msgstr "Engleză (Irlanda)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "English (China)"
 msgstr "Engleză (China)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
 msgid "English (South Africa)"
 msgstr "Engleză (Africa de Sud)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
 msgid "Spanish (Paraguay)"
 msgstr "Spaniolă (Paraguay)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "Spanish (Uruguay)"
 msgstr "Spaniolă (Uruguay)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "Spanish (Argentina)"
 msgstr "Spaniolă (Argentina)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "Spanish (Mexico)"
 msgstr "Spaniolă (Mexic)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "Spanish (Cuba)"
 msgstr "Spaniolă (Cuba)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
 msgid "Spanish (Chile)"
 msgstr "Spaniolă (Chile)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
 msgid "Spanish (Ecuador)"
 msgstr "Spaniolă (Ecuador)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
 msgid "Spanish (Honduras)"
 msgstr "Spaniolă (Honduras)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "Spanish (Venezuela)"
 msgstr "Spaniolă (Venezuela)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "Spanish (Bolivia)"
 msgstr "Spaniolă (Bolivia)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "Spanish (Nicaragua)"
 msgstr "Spaniolă (Nicaragua)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "Spanish (Colombia)"
 msgstr "Spaniolă (Columbia)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "German (AT)"
 msgstr "Germană (AT)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
 msgid "French (BE)"
 msgstr "Franceză (BE)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "Dutch (NL)"
 msgstr "Olandeză (NL)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
 msgid "Dutch (BE)"
 msgstr "Olandeză (BE)"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:157
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
 msgid "AM"
 msgstr "AM"
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:159
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
 msgid "PM"
 msgstr "PM"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:161
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:162
 msgid "am"
 msgstr "am"
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:163
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:164
 msgid "pm"
 msgstr "pm"
 
@@ -20334,102 +20358,102 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr "Sursă de ştiri necunoscută"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:719
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:720
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
 msgstr "Reţeta \"%s\" necesită nume de utilizator şi parolă."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:826
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:827
 msgid "Download finished"
 msgstr "Descărcare finalizată"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:828
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:829
 msgid "Failed to download the following articles:"
 msgstr "Descărcarea următoarelor articole a eşuat:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:834
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
 msgid "Failed to download parts of the following articles:"
 msgstr "Descărcarea părţilor din următoarele articole a eşuat:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:836
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:837
 msgid " from "
 msgstr " de la "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:838
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:839
 msgid "\tFailed links:"
 msgstr "\tLink-uri greşite:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:933
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:934
 msgid "Could not fetch article."
 msgstr "Nu s-a putut obţine articolul."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:935
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:936
 msgid "The debug traceback is available earlier in this log"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:937
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:938
 msgid "Run with -vv to see the reason"
 msgstr "Rulează cu -vv pentru a vedea motivul"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:960
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:961
 msgid "Fetching feeds..."
 msgstr "Se aduc fluxuri..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:965
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:966
 msgid "Got feeds from index page"
 msgstr "Fluxurile s-au obţinut din pagina de index"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:974
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:975
 msgid "Trying to download cover..."
 msgstr "Se încearcă descărcarea coperţii..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:976
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:977
 msgid "Generating masthead..."
 msgstr "Se generează detaliile editorului..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1056
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1057
 #, python-format
 msgid "Starting download [%d thread(s)]..."
 msgstr "Se porneşte descărcarea [%d thread(s)]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1072
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1073
 #, python-format
 msgid "Feeds downloaded to %s"
 msgstr "Fluxurile au fost descărcate în %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1081
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1082
 #, python-format
 msgid "Could not download cover: %s"
 msgstr "Coperta nu a putut fi descărcată: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1090
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1091
 #, python-format
 msgid "Downloading cover from %s"
 msgstr "Se descarcă coperta de la %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1136
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1137
 msgid "Masthead image downloaded"
 msgstr "Imaginea cu detaliile editorului a fost descărcată"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1276
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1277
 msgid "Untitled Article"
 msgstr "Articol fără titlu"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1347
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1348
 #, python-format
 msgid "Article downloaded: %s"
 msgstr "Articolul a fost descărcat: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1358
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1359
 #, python-format
 msgid "Article download failed: %s"
 msgstr "Descărcarea articolului a eşuat: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1375
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1376
 msgid "Fetching feed"
 msgstr "Se obţine fluxul"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1517
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1518
 msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
@@ -20437,7 +20461,7 @@ msgstr ""
 "Conectare nereuşităi, verificaţi numele de utilizator şi parola pentru "
 "serviciul Calibre Periodica."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1532
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1533
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."

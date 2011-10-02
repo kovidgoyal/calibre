@@ -13,7 +13,6 @@ from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
 from calibre.gui2 import error_dialog, choose_dir
 from calibre.constants import filesystem_encoding, iswindows
 from calibre import isbytestring, patheq
-from calibre.utils.config import prefs
 from calibre.gui2.wizard import move_library
 from calibre.library.database2 import LibraryDatabase2
 
@@ -77,7 +76,6 @@ class ChooseLibrary(QDialog, Ui_Dialog):
 
     def perform_action(self, ac, loc):
         if ac in ('new', 'existing'):
-            prefs['library_path'] = loc
             self.callback(loc, copy_structure=self.copy_structure.isChecked())
         else:
             self.db.prefs.disable_setting = True
