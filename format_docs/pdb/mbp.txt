@@ -118,7 +118,7 @@ EBVS
 <0x 00 00 00 00>
 <0x 00 00 00 10>
 ...(rest of size of DATA block)
-<0x FD EA = PAD? (ύκ)>
+<0x FD EA = PAD? (Γ½Γͺ)>
 DATA
 <0x 4 bytes = size of <marked text (see 3rd note)> >
 <marked text (see 3rd note)>
@@ -155,7 +155,7 @@ EBVS
 <0x 00 00 00 00>
 <0x 00 00 00 10>
 ...(rest of size of DATA block)
-<0x FD EA = PAD? (ύκ)>
+<0x FD EA = PAD? (Γ½Γͺ)>
 [fi MARK || BOOKMARK]
 //-------------------------------
 [if CORRECTION]
@@ -174,7 +174,7 @@ EBVS
 <0x 00 00 00 00>
 <0x 00 00 00 10>
 ...(rest of size of DATA block)
-<0x FD EA = PAD? (ύκ)>
+<0x FD EA = PAD? (Γ½Γͺ)>
 DATA
 <0x 4 bytes = size of <marked text (see 3rd note)> >
 <marked text (see 3rd note)>
@@ -246,7 +246,7 @@ EBVS
 <0x 00 00 00 00>
 <0x 00 00 00 10>
 ...(size of DATA block - 30)
-<0x FD EA = PAD? (ύκ)>
+<0x FD EA = PAD? (Γ½Γͺ)>
 [fi DRAWING]
 //-------------------------------
 [next {NOTE,MARK,CORRECTION,DRAWING}]
@@ -308,7 +308,7 @@ EBVS
 	...4
 	...4
 	...4
-<0x FD EA = PAD? (ύκ)>
+<0x FD EA = PAD? (Γ½Γͺ)>
 //--------------------------------------------------------------------
 
 // CATEGORY (if any)
