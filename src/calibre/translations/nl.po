@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-09-24 00:33+0000\n"
+"PO-Revision-Date: 2011-10-01 14:03+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-01 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-10-02 04:48+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -909,6 +909,7 @@ msgstr "Dit profiel is bedoeld voor het Sanda Bambook."
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
 msgstr ""
+"Dit profiel is bedoeld voor de PocketBook Pro 900-serie of apparaten."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -3806,7 +3807,7 @@ msgstr "Japan"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:445
 msgid "Spain"
-msgstr ""
+msgstr "Spanje"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:449
 msgid "Amazon website to use:"
@@ -10566,7 +10567,7 @@ msgstr "Database herstellen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:80
 #, python-format
 msgid "The old database was saved as: %s"
-msgstr ""
+msgstr "De oude database is opgeslagen als: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:84
 #, python-format
@@ -10574,11 +10575,13 @@ msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details. %s"
 msgstr ""
+"Herstel van de database is gelukt met enkele waarschuwingen. Klik Toon "
+"details voor meer informatie. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
 msgid "Restoring database was successful. %s"
-msgstr ""
+msgstr "Herstellen van de database gelukt. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:94
 msgid ""
@@ -11318,11 +11321,11 @@ msgstr "Geef kolom-kleur:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:39
 msgid "Copy a color name to the clipboard:"
-msgstr ""
+msgstr "Kopieer een kleur-naam naar het klembord:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:49
 msgid "Copy the selected color name to the clipboard"
-msgstr ""
+msgstr "Kopieer de geselecteerde kleur-naam naar het klembord"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:59
 msgid "Template value:"
@@ -12374,6 +12377,9 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful. If you say No, a new empty calibre library will be created."
 msgstr ""
+"De bibliotheek in %s lijkt beschadigd te zijn. Wilt u dat calibre probeert "
+"deze automatisch te herstellen? Het herstellen lukt mogelijk niet volledig. "
+"Als u nee zegt, zal een lege calibre bibliotheek worden gemaakt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:203
 #, python-format
@@ -16540,6 +16546,9 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful."
 msgstr ""
+"De bibliotheek database in %s lijkt beschadigd te zijn. Wilt u dat calibre "
+"probeert deze automatisch te herstellen? Het herstellen lukt mogelijk niet "
+"volledig."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:578
 msgid "Conversion Error"
@@ -20109,6 +20118,12 @@ msgid ""
 "character (sep1 or sep2). The order of items in the lists is not relevant. "
 "The compare is case insensitive."
 msgstr ""
+"list_equals(lijst1, sch1, lijst2, sch2, ja_waarde, nee_waarde) -- geeft "
+"ja_waarde terug als lijst1 en lijst2 dezelfde items bevatten, anders wordt "
+"nee_waarde geretourneerd. De items worden herkend door de lijst te scheiden "
+"gebruik makend van de het bijbehorende scheidingsteken (sch1 of sch2). De "
+"volgorde van de items in de lijst is niet van belang. Vergelijkingen zijn "
+"niet-hoofdletter-gevoelig."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:990
 msgid ""
@@ -20554,7 +20569,7 @@ msgstr "Colofonafbeelding gedownload"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1216
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Artikelen in deze editie: "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1286
 msgid "Untitled Article"

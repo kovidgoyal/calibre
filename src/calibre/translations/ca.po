@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-09-23 20:56+0000\n"
+"PO-Revision-Date: 2011-10-01 20:44+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-01 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-10-02 04:48+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -871,6 +871,7 @@ msgstr "Aquest perfil és adient per al Sanda Bambook."
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
 msgstr ""
+"Aquest perfil és adient per als dispositius de la sèrie PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -3760,7 +3761,7 @@ msgstr "Japó"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:445
 msgid "Spain"
-msgstr ""
+msgstr "Espanya"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:449
 msgid "Amazon website to use:"
@@ -10544,7 +10545,7 @@ msgstr "S'està restaurant la base de dades"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:80
 #, python-format
 msgid "The old database was saved as: %s"
-msgstr ""
+msgstr "S'ha desat la base de dades antiga com a: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:84
 #, python-format
@@ -10552,11 +10553,13 @@ msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details. %s"
 msgstr ""
+"S'ha restaurat correctament la base de dades amb alguns avisos. Feu clic a "
+"«Mostra detalls» per als detalls. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
 msgid "Restoring database was successful. %s"
-msgstr ""
+msgstr "S'ha restaurat la base de dades correctament. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:94
 msgid ""
@@ -11306,11 +11309,11 @@ msgstr "Estableix el color de la columna:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:39
 msgid "Copy a color name to the clipboard:"
-msgstr ""
+msgstr "Copia un nom de color al porta-retalls:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:49
 msgid "Copy the selected color name to the clipboard"
-msgstr ""
+msgstr "Copia el nom de color seleccionat al porta-retalls"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:59
 msgid "Template value:"
@@ -12360,6 +12363,10 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful. If you say No, a new empty calibre library will be created."
 msgstr ""
+"Sembla que la base de dades de la biblioteca de %s està malmesa. Voleu que "
+"el calibre intenti reconstruir-la automàticament? Pot ser que no es pugui "
+"reconstruir totalment. Si escolliu «No» es crearà una biblioteca nova del "
+"calibre buida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:203
 #, python-format
@@ -16567,6 +16574,9 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful."
 msgstr ""
+"Sembla que la base de dades de la biblioteca de %s està malmesa. Voleu que "
+"el calibre intenti reconstruir-la automàticament? Pot ser que no es pugui "
+"reconstruir totalment."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:578
 msgid "Conversion Error"
@@ -20139,6 +20149,11 @@ msgid ""
 "character (sep1 or sep2). The order of items in the lists is not relevant. "
 "The compare is case insensitive."
 msgstr ""
+"list_equals(llista1, sep1, llista2, sep2, valor_sí, valor_no) -- s'obté "
+"«valor_sí» si «llista1» i «llista2» contenen els mateixos elements, en cas "
+"contrari s'obté «valor_no». Els elements es determinen dividint cada llista "
+"amb el separador adequat («sep1» o «sep2»). L'ordre dels elements no és "
+"rellevant. La comparació no distingeix majúscules i minúscules."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:990
 msgid ""
@@ -20587,7 +20602,7 @@ msgstr "S'ha baixat la imatge de capçalera"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1216
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Articles en aquest exemplar: "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1286
 msgid "Untitled Article"

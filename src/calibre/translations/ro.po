@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-09-29 05:52+0000\n"
-"Last-Translator: Constantin Segarceanu <Unknown>\n"
+"PO-Revision-Date: 2011-10-01 10:40+0000\n"
+"Last-Translator: Lucian Martin <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-10-01 04:53+0000\n"
+"X-Launchpad-Export-Date: 2011-10-02 04:50+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -873,6 +873,7 @@ msgstr "Acest profil este destinat pentru Sanda Bambook."
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
 msgstr ""
+"Acest profil este destinat pentru seria de dispozitive PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1608,8 +1609,8 @@ msgstr "Comunică cu toate dispozitivele eBook Sony."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
 msgstr ""
-"Comentariile au fost eliminate pentru ca ebook readearele de la SONY se "
-"blocheaza din cauza lor"
+"Comentariile au fost eliminate deoarece cititoarele SONY se blochează din "
+"cauza lor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
@@ -2549,6 +2550,11 @@ msgid ""
 "negative, then the indent specified in the input document is used, that is, "
 "calibre does not change the indentation."
 msgstr ""
+"Atunci când calibre elimină liniile goale dintre paragrafe, setează automat "
+"un alineat la paragraf pentru a asigura o distincţie cât mai uşoară între "
+"paragrafe. Această opţiune controlează mărimea alineatului. Dacă setaţi "
+"aceasta ca şi valoare negativă, atunci alineatul din documentul de intrare "
+"este folosit, ceea ce înseamnă că nu se schimbă alineatul."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:378
 msgid ""
@@ -2581,6 +2587,11 @@ msgid ""
 "set a cover in calibre, the output document will end up with two cover "
 "images if you do not specify this option."
 msgstr ""
+"Şterge prima imagine din intrarea cărţii. Această opţiune este folositoare "
+"atunci când documentul de intrare are o imagine copertă care nu a fost "
+"identificată ca şi copertă. În acest caz, dacă setaţi o copertă în calibre, "
+"documentul de ieşire va avea două imagini copertă dacă nu specificaţi "
+"această opţiune."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:407
 msgid ""
@@ -2602,6 +2613,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:423
 msgid "Convert fancy quotes, dashes and ellipsis to their plain equivalents."
 msgstr ""
+"Converteşte ghilimelele extravagante, liniile de pauză şi elipsele în "
+"echivalentul lor simplu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:431
 msgid ""
@@ -3773,7 +3786,7 @@ msgstr "Japonia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:445
 msgid "Spain"
-msgstr ""
+msgstr "Spania"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:449
 msgid "Amazon website to use:"
@@ -3932,6 +3945,9 @@ msgid ""
 "Using this feature means that  the book will not auto sync its last read "
 "position  on multiple devices. Complain to Amazon."
 msgstr ""
+"Activează partajarea de cărţi via Facebook etc. de pe Kindle. ATENŢIE: "
+"Folosind această opţiune înseamnă că ultima pagină citită nu se va "
+"sincroniza automat pe mai multe dispozitive."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:281
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4425,6 +4441,8 @@ msgid ""
 "File also has newer RTF.\n"
 "Will do the best to convert.\n"
 msgstr ""
+"Fişierul are de asemenea un RTF mai nou.\n"
+"Se va încerca o convertire cât mai bună.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -6731,6 +6749,13 @@ msgid ""
 "   will be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Câteva explicaţii despre acest şablon:\n"
+" - Câmpurile disponibile sunt \"author_sort\", \"authors\", \"id\",\n"
+"   \"isbn\", \"pubdate\", \"publisher\", \"series_index\", \"series\",\n"
+"   \"tags\", \"timestamp\", \"title\", \"uuid\", \"title_sort\"\n"
+" - Pentru tipurile de liste de ex. autori şi etichete, numai\n"
+"   primul element va fi selectat.\n"
+" - Pentru câmpul \"timp\", numai data va fi folosită. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -7773,6 +7798,8 @@ msgid ""
 "Enable sharing of book content via Facebook, etc. WARNING: Disables last "
 "read syncing"
 msgstr ""
+"Activează partajarea de cărţi via Facebook etc. ATENŢIE: Dezactivează "
+"sincronizarea ultimei pagini citite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Put generated Table of Contents at &start of book instead of end"
@@ -10529,7 +10556,7 @@ msgstr "Se restaurează baza de date"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:80
 #, python-format
 msgid "The old database was saved as: %s"
-msgstr ""
+msgstr "Baza de date veche a fost salvată ca şi: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:84
 #, python-format
@@ -10537,11 +10564,13 @@ msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details. %s"
 msgstr ""
+"Restaurarea bazei de date a reuşit dar cu nişte avertizări. Apăsaţi \"Arată "
+"detalii\" pentru mai multe informaţii. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
 msgid "Restoring database was successful. %s"
-msgstr ""
+msgstr "Restaurarea bazei de date a reuşit. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:94
 msgid ""
@@ -12336,6 +12365,10 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful. If you say No, a new empty calibre library will be created."
 msgstr ""
+"Baza de date a bibliotecii de la %s pare să fie coruptă. Doriţi ca şi "
+"calibre să încerce reconstruirea acesteia în mod automat? Reconstruirea "
+"poate să eşueze. Dacă răspundeţi cu \"Nu\", o nouă bibliotecă goală va fi "
+"creată."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:203
 #, python-format
@@ -16524,6 +16557,9 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful."
 msgstr ""
+"Baza de date a bibliotecii de la %s pare să fie coruptă. Doriţi ca şi "
+"calibre să încerce reconstruirea acesteia în mod automat? Reconstruirea "
+"poate să eşueze."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:578
 msgid "Conversion Error"

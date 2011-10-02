@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-09-30 17:36+0000\n"
+"PO-Revision-Date: 2011-10-01 06:41+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-10-01 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-10-02 04:48+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -880,7 +880,7 @@ msgstr "Ce profil est prévu pour le Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:740
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Ce profil est prévu pour la gamme des appareils PocketBook Pro 900"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -3814,7 +3814,7 @@ msgstr "Japon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:445
 msgid "Spain"
-msgstr ""
+msgstr "Espagne"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:449
 msgid "Amazon website to use:"
@@ -3979,6 +3979,10 @@ msgid ""
 "Using this feature means that  the book will not auto sync its last read "
 "position  on multiple devices. Complain to Amazon."
 msgstr ""
+"Activer le partage de contenu de livres via Facebook etc. sur le Kindle. "
+"ATTENTION : L'utilisation de cette option entraine l'impossibilité "
+"d'utiliser l'option de synchronisation automatique de la dernière position "
+"de lecture sur plusieurs appareils. Ceci est un problème du à Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:281
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -10645,7 +10649,7 @@ msgstr "Restaurer la base de données"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:80
 #, python-format
 msgid "The old database was saved as: %s"
-msgstr ""
+msgstr "La vieille base de données a été sauvegardée sous : %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:84
 #, python-format
@@ -10653,11 +10657,13 @@ msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details. %s"
 msgstr ""
+"La restauration de la base de données a réussi avec quelques avertissements. "
+"Cliquer sur détails pour afficher les détails. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
 msgid "Restoring database was successful. %s"
-msgstr ""
+msgstr "La restauration de la base de données a réussi. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:94
 msgid ""
@@ -11411,11 +11417,11 @@ msgstr "Indiquer la couleur de la colonne:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:39
 msgid "Copy a color name to the clipboard:"
-msgstr ""
+msgstr "Copier un nom de couleur dans le presse-papier :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:49
 msgid "Copy the selected color name to the clipboard"
-msgstr ""
+msgstr "Copier le nom de la couleur sélectionnée dans le presse-papier :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:59
 msgid "Template value:"

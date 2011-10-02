@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-09-26 06:15+0000\n"
+"PO-Revision-Date: 2011-10-02 01:22+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-01 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-10-02 04:49+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -3759,7 +3759,7 @@ msgstr "Giappone"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:445
 msgid "Spain"
-msgstr ""
+msgstr "Spagna"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:449
 msgid "Amazon website to use:"
@@ -10481,7 +10481,7 @@ msgstr "Ripristino del database"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:80
 #, python-format
 msgid "The old database was saved as: %s"
-msgstr ""
+msgstr "Il vecchio database è stato salvato come: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:84
 #, python-format
@@ -10493,7 +10493,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
 msgid "Restoring database was successful. %s"
-msgstr ""
+msgstr "Il database è stato ripristinato correttamente. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:94
 msgid ""
@@ -11177,7 +11177,7 @@ msgstr "Conteggio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:111
 msgid "Was"
-msgstr ""
+msgstr "Era"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:263
 msgid "Template language tutorial"
@@ -11214,11 +11214,11 @@ msgstr "Imposta il colore della colonna:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:39
 msgid "Copy a color name to the clipboard:"
-msgstr ""
+msgstr "Copia il  nome di un colore negli appunti:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:49
 msgid "Copy the selected color name to the clipboard"
-msgstr ""
+msgstr "Copia il nome del colore selezionato negli appunti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:59
 msgid "Template value:"
@@ -12698,7 +12698,7 @@ msgstr "Imposta ordinamento autore da autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:134
 msgid "Set author from author sort"
-msgstr ""
+msgstr "Imposta autore da ordinamento autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:137
 msgid "Copy author to author sort"
@@ -13158,11 +13158,11 @@ msgstr "non ha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:47
 msgid "has pattern"
-msgstr ""
+msgstr "ha uno schema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "does not have pattern"
-msgstr ""
+msgstr "non ha uno schema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
@@ -13184,11 +13184,11 @@ msgstr "non è"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
-msgstr ""
+msgstr "corrisponde a uno schema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "does not match pattern"
-msgstr ""
+msgstr "non corrisponde a uno schema"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
