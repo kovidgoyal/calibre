@@ -12,6 +12,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
 from calibre.gui2.preferences.saving_ui import Ui_Form
 from calibre.utils.config import ConfigProxy
 from calibre.library.save_to_disk import config
+from calibre.gui2 import gprefs
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -24,6 +25,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for x in ('asciiize', 'update_metadata', 'save_cover', 'write_opf',
                 'replace_whitespace', 'to_lowercase', 'formats', 'timefmt'):
             r(x, self.proxy)
+        r('show_files_after_save', gprefs)
 
         self.save_template.changed_signal.connect(self.changed_signal.emit)
 
