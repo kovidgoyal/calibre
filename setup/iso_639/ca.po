@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-27 14:31+0000\n"
-"PO-Revision-Date: 2011-10-01 21:59+0000\n"
+"PO-Revision-Date: 2011-10-02 18:56+0000\n"
 "Last-Translator: FerranRius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-10-02 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-10-03 04:39+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
 "Language: ca\n"
 
@@ -6212,131 +6212,131 @@ msgstr "Dogri (llengua individual)"
 
 #. name for dgr
 msgid "Dogrib"
-msgstr ""
+msgstr "Dogrib"
 
 #. name for dgs
 msgid "Dogoso"
-msgstr ""
+msgstr "Dogoso"
 
 #. name for dgu
 msgid "Degaru"
-msgstr ""
+msgstr "Degaru"
 
 #. name for dgx
 msgid "Doghoro"
-msgstr ""
+msgstr "Doghoro"
 
 #. name for dgz
 msgid "Daga"
-msgstr ""
+msgstr "Daga"
 
 #. name for dhd
 msgid "Dhundari"
-msgstr ""
+msgstr "Dhundari"
 
 #. name for dhg
 msgid "Dhangu"
-msgstr ""
+msgstr "Dhangu"
 
 #. name for dhi
 msgid "Dhimal"
-msgstr ""
+msgstr "Dhimal"
 
 #. name for dhl
 msgid "Dhalandji"
-msgstr ""
+msgstr "Dhalandji"
 
 #. name for dhm
 msgid "Zemba"
-msgstr ""
+msgstr "Zemba"
 
 #. name for dhn
 msgid "Dhanki"
-msgstr ""
+msgstr "Dhanki"
 
 #. name for dho
 msgid "Dhodia"
-msgstr ""
+msgstr "Dhodia"
 
 #. name for dhr
 msgid "Dhargari"
-msgstr ""
+msgstr "Dhargari"
 
 #. name for dhs
 msgid "Dhaiso"
-msgstr ""
+msgstr "Dhaiso"
 
 #. name for dhu
 msgid "Dhurga"
-msgstr ""
+msgstr "Dhurga"
 
 #. name for dhv
 msgid "Dehu"
-msgstr ""
+msgstr "Dehu"
 
 #. name for dhw
 msgid "Dhanwar (Nepal)"
-msgstr ""
+msgstr "Dhanwar; Nepal"
 
 #. name for dia
 msgid "Dia"
-msgstr ""
+msgstr "Dia"
 
 #. name for dib
 msgid "Dinka; South Central"
-msgstr ""
+msgstr "Dinka; sudcentral"
 
 #. name for dic
 msgid "Dida; Lakota"
-msgstr ""
+msgstr "Dida; Lakota"
 
 #. name for did
 msgid "Didinga"
-msgstr ""
+msgstr "Didinga"
 
 #. name for dif
 msgid "Dieri"
-msgstr ""
+msgstr "Dieri"
 
 #. name for dig
 msgid "Digo"
-msgstr ""
+msgstr "Digo"
 
 #. name for dih
 msgid "Kumiai"
-msgstr ""
+msgstr "Kumiai"
 
 #. name for dii
 msgid "Dimbong"
-msgstr ""
+msgstr "Dimbong"
 
 #. name for dij
 msgid "Dai"
-msgstr ""
+msgstr "Dai"
 
 #. name for dik
 msgid "Dinka; Southwestern"
-msgstr ""
+msgstr "Dinka; sudoccidental"
 
 #. name for dil
 msgid "Dilling"
-msgstr ""
+msgstr "Deleny"
 
 #. name for dim
 msgid "Dime"
-msgstr ""
+msgstr "Dime"
 
 #. name for din
 msgid "Dinka"
-msgstr ""
+msgstr "Dinka"
 
 #. name for dio
 msgid "Dibo"
-msgstr ""
+msgstr "Dibo"
 
 #. name for dip
 msgid "Dinka; Northeastern"
-msgstr ""
+msgstr "Dinka; nordoriental"
 
 #. name for diq
 msgid "Dimli (individual language)"
@@ -6344,43 +6344,43 @@ msgstr "Dimli (llengua individual)"
 
 #. name for dir
 msgid "Dirim"
-msgstr ""
+msgstr "Dirim"
 
 #. name for dis
 msgid "Dimasa"
-msgstr ""
+msgstr "Dimasa Kachari"
 
 #. name for dit
 msgid "Dirari"
-msgstr ""
+msgstr "Dirari"
 
 #. name for diu
 msgid "Diriku"
-msgstr ""
+msgstr "Diriku"
 
 #. name for div
 msgid "Dhivehi"
-msgstr ""
+msgstr "Diveí"
 
 #. name for diw
 msgid "Dinka; Northwestern"
-msgstr ""
+msgstr "Dinka; noroccidental"
 
 #. name for dix
 msgid "Dixon Reef"
-msgstr ""
+msgstr "Dixon Reef"
 
 #. name for diy
 msgid "Diuwe"
-msgstr ""
+msgstr "Diuwe"
 
 #. name for diz
 msgid "Ding"
-msgstr ""
+msgstr "Ding"
 
 #. name for djb
 msgid "Djinba"
-msgstr ""
+msgstr "Djinba"
 
 #. name for djc
 msgid "Daju; Dar Daju"
@@ -6388,11 +6388,11 @@ msgstr "Daju; Dar Daju"
 
 #. name for djd
 msgid "Djamindjung"
-msgstr ""
+msgstr "Djamindjung"
 
 #. name for dje
 msgid "Zarma"
-msgstr ""
+msgstr "Zarma"
 
 #. name for djf
 msgid "Djangun"
@@ -6452,7 +6452,7 @@ msgstr ""
 
 #. name for dks
 msgid "Dinka; Southeastern"
-msgstr ""
+msgstr "Dinka; sudoriental"
 
 #. name for dkx
 msgid "Mazagway"
@@ -8848,7 +8848,7 @@ msgstr ""
 
 #. name for gud
 msgid "Dida; Yocoboué"
-msgstr ""
+msgstr "Dida; Yocoboué"
 
 #. name for gue
 msgid "Gurinji"

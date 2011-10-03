@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-10-01 18:16+0000\n"
+"PO-Revision-Date: 2011-10-02 18:43+0000\n"
 "Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-10-02 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-10-03 04:39+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1744,7 +1744,7 @@ msgstr "デバイス上のファイルの書誌情報を読み込む"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:63
 msgid "Use author sort instead of author"
-msgstr "著者のかわりに著者名ソートを使う"
+msgstr "著者のかわりに著者ソートを使う"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:65
 msgid "Template to control how books are saved"
@@ -3897,7 +3897,7 @@ msgid ""
 msgstr ""
 "[options] file1.pdf file2.pdf ...\n"
 "\n"
-"本情報は最初に指定したPDFから取られます。\n"
+"書誌情報は最初に指定したPDFから取られます。\n"
 "\n"
 "各PDFをマージします。\n"
 
@@ -4310,7 +4310,7 @@ msgstr "同時変換を行ったりニュースをダウンロードする最大
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:185
 msgid "Download social metadata (tags/rating/etc.)"
-msgstr "ソーシャルな本情報をダウンロードする。(タグ/評価/等）"
+msgstr "ソーシャルな書誌情報をダウンロードする。(タグ/評価/等）"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:187
 msgid "Overwrite author and title with new metadata"
@@ -4437,7 +4437,7 @@ msgstr "ISBNから追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:71
 msgid "Add files to selected book records"
-msgstr "ファイルを選択された本の別フォーマットとして追加"
+msgstr "選択された本レコードにファイルを追加"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:72
 msgid "Shift+A"
@@ -4481,7 +4481,7 @@ msgstr "追加中"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:171
 msgid "Creating book records from ISBNs"
-msgstr "ISBNから本情報を作成しています"
+msgstr "ISBNから本レコードを作成しています"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:270
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:319
@@ -4711,7 +4711,7 @@ msgstr "ライブラリのメンテナンス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:189
 msgid "Library metadata backup status"
-msgstr "ライブラリの本情報バックアップステータス"
+msgstr "ライブラリの書誌情報バックアップステータス"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:193
 msgid "Start backing up metadata of all books"
@@ -4796,13 +4796,13 @@ msgstr "書誌情報ファイルを書き出す残りの数: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:332
 msgid "Backup metadata"
-msgstr "本情報バックアップ"
+msgstr "書誌情報バックアップ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:333
 msgid ""
 "Metadata will be backed up while calibre is running, at the rate of "
 "approximately 1 book every three seconds."
-msgstr "本情報は、calibreの実行中におよそ3秒あたり1本の速度でバックアップされます。"
+msgstr "書誌情報は、calibreの実行中におよそ3秒あたり1本の速度でバックアップされます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:342
 #, python-format
@@ -5203,7 +5203,7 @@ msgstr "フォーマットのみ最初に選択した本にマージ - 他は削
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:57
 msgid "Merge book records"
-msgstr "本情報をマージ"
+msgstr "本レコードをマージ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:58
 msgid "M"
@@ -5215,7 +5215,7 @@ msgstr "書誌情報をダウンロードできません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:83
 msgid "Failed to download metadata"
-msgstr "本情報のダウンロードに失敗しました。"
+msgstr "書誌情報のダウンロードに失敗しました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
@@ -5227,25 +5227,25 @@ msgstr "ダウンロード失敗"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:90
 #, python-format
 msgid "Failed to download metadata or covers for any of the %d book(s)."
-msgstr "いくつかの %d 本の本情報や表紙のダウンロードに失敗しました。"
+msgstr "いくつかの %d 本の書誌情報や表紙のダウンロードに失敗しました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:93
 msgid "Metadata download completed"
-msgstr "本情報のダウンロード終了"
+msgstr "書誌情報のダウンロード終了"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:95
 #, python-format
 msgid ""
 "Finished downloading metadata for <b>%d book(s)</b>. Proceed with updating "
 "the metadata in your library?"
-msgstr "<b>%d 本</b>の本情報ダウンロードが終わりました。ライブラリの本情報をアップデートしますか？"
+msgstr "<b>%d 本</b>の書誌情報ダウンロードが終わりました。ライブラリの書誌情報をアップデートしますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 #, python-format
 msgid ""
 "Could not download metadata and/or covers for %d of the books. Click \"Show "
 "details\" to see which books."
-msgstr "%d の本の本情報や表紙のダウンロードができませんでした。「詳細を表示」をクリックするとどの本か分かります。"
+msgstr "%d の本の書誌情報や表紙のダウンロードができませんでした。「詳細を表示」をクリックするとどの本か分かります。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:109
 msgid "Download complete"
@@ -5267,8 +5267,8 @@ msgid ""
 "Click \"Show details\" to see the list of changed books. Do you want to "
 "proceed?"
 msgstr ""
-"ダウンロードはじめてから、ライブラリ内のいくつかの本の本情報が変更されました。続行するとこれらの変更が上書きされます。「詳細を表示」をクリックすると変更さ"
-"れた本のリストが表示されます。続行しますか？"
+"ダウンロードはじめてから、ライブラリ内のいくつかの本の書誌情報が変更されました。続行するとこれらの変更が上書きされます。「詳細を表示」をクリックすると変更"
+"された本のリストが表示されます。続行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:221
@@ -5298,7 +5298,7 @@ msgid ""
 "second and subsequently selected books will not be deleted or "
 "changed.<br><br>Please confirm you want to proceed."
 msgstr ""
-"選択された本のフォーマットと本情報は<b>最初の選択された本</b> "
+"選択された本のフォーマットと書誌情報は<b>最初の選択された本</b> "
 "(%s)に追加されます。ISBNはマージ<i>されません</i>。<br><br>選択された2つ目以降の本は削除や変更はされません。<br><br>実行し"
 "ますか？"
 
@@ -5314,11 +5314,10 @@ msgid ""
 "and subsequently selected books will be permanently <b>deleted</b> from your "
 "calibre library.<br><br>  Are you <b>sure</b> you want to proceed?"
 msgstr ""
-"選択された本のフォーマットと本情報は<b>最初の選択された本</b> (%s)に追加されます。最初の選択された本の本情報は変更されません。著者, "
-"タイトル, "
-"ISBN等のすべての本情報はマージ<i>されません</i>。<br><br>マージ後、２つ目以降の選択された本は、本情報とも<b>削除されます</b>。<"
-"br><br>最初の選択された本のすべてのフォーマットはそのままで、2つ目以降の本のフォーマットで前と同じものはcalibreライブラリから<b>削除され"
-"ます</b>。<br><br><b>本当に</b>実行しますか？"
+"選択された本のフォーマットは<b>最初の選択された本</b> (%s)にマージされます。最初の選択された本の本情報は変更されません。著者, タイトル, "
+"ISBN等のすべての書誌情報はマージ<i>されません</i>。<br><br>マージ後、２つ目以降の選択された本は、書誌情報とも<b>削除されます</b>"
+"。<br><br>最初の選択された本のすべてのフォーマットはそのままで、2つ目以降の本のフォーマットで前と同じものはcalibreライブラリから<b>削除"
+"されます</b>。<br><br><b>本当に</b>実行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:302
 #, python-format
@@ -5331,14 +5330,14 @@ msgid ""
 "books will be permanently <b>deleted</b> from your calibre library.<br><br>  "
 "Are you <b>sure</b> you want to proceed?"
 msgstr ""
-"選択された本のフォーマットと本情報は<b>最初の選択された本</b> "
+"選択された本のフォーマットと書誌情報は<b>最初の選択された本</b> "
 "(%s)に追加されます。ISBNはマージ<i>されません</i>。<br><br>マージ後、２つ目以降の選択された本は<b>削除されます</b>。<br>"
 "<br>最初の選択された本のすべてのフォーマットはそのままで、2つ目以降の本のフォーマットで前と同じものはcalibreライブラリから<b>削除されます<"
 "/b>。<br><br><b>本当に</b>実行しますか？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:472
 msgid "Applying changed metadata"
-msgstr "本情報の変更を適用"
+msgstr "書誌情報の変更を適用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:545
 msgid "Some failures"
@@ -5348,7 +5347,7 @@ msgstr "失敗しました"
 msgid ""
 "Failed to apply updated metadata for some books in your library. Click "
 "\"Show Details\" to see details."
-msgstr "ライブラリにある一部の本の本情報更新に失敗しました。詳細を見るには「詳細を表示」をクリックしてください。"
+msgstr "ライブラリにある一部の本の書誌情報の更新に失敗しました。詳細を見るには「詳細を表示」をクリックしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "F"
@@ -5421,7 +5420,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
-msgstr "プラグイン・アップデーター"
+msgstr "プラグインアップデーター"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -6582,7 +6581,7 @@ msgstr "標準化しない(&N)"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:102
 msgid "Keep &aspect ratio"
-msgstr "縦横比を固定(&A)"
+msgstr "縦横比を固定する(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:107
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:103
@@ -6772,7 +6771,7 @@ msgstr "基本フォントサイズ(&B):"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:42
 msgid "Font size &key:"
-msgstr "フォントサイズの鍵(&K):"
+msgstr "フォントサイズのキー(&K):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:115
@@ -6916,7 +6915,7 @@ msgstr "左寄せ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:37
 msgid "Justify text"
-msgstr "テキストをジャスティファイ"
+msgstr "テキストを揃える"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:25
 msgid "&Disable font size rescaling"
@@ -7071,7 +7070,7 @@ msgstr "書誌情報"
 msgid ""
 "Set the metadata. The output file will contain as much of this metadata as "
 "possible."
-msgstr "本情報を編集。出力ファイルにはできる限り、この本情報が付加されます。"
+msgstr "書誌情報を編集。出力ファイルにはできる限り、この書誌情報が付加されます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:180
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:901
@@ -8164,8 +8163,8 @@ msgid ""
 "enter the full path to the file after a <code>>></code>.  For example:</p>\n"
 "<p><code>9788842915232 >> %s</code></p>"
 msgstr ""
-"<p>左のボックスに、ISBNのリストを1行に1つずつ入力してください。calibreはISBNから自動的に本のエントリを作成し、本情報と表紙をダウンロー"
-"ドします。</p>\n"
+"<p>左のボックスに、ISBNのリストを1行に1つずつ入力してください。calibreはISBNから自動的に本のエントリを作成し、書誌情報と表紙をダウンロ"
+"ードします。</p>\n"
 "<p>リスト中の無効なISBNは無視されます。</p>\n"
 "<p>ISBNごとに追加するファイルを指定することもできます。これを行うには、<code>>></code>の後にファイルのフルパスを入力してください。例"
 ": </p>\n"
@@ -8810,7 +8809,7 @@ msgstr "著者名で検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:92
 msgid "Sort by author sort"
-msgstr "著者名ソートでソート"
+msgstr "著者ソートでソート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:93
 msgid ""
@@ -8897,12 +8896,12 @@ msgstr "タイトル/著者"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:59
 msgid "Standard metadata"
-msgstr "標準本情報"
+msgstr "標準の書誌情報"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:913
 msgid "Custom metadata"
-msgstr "カスタム本情報"
+msgstr "カスタムの書誌情報"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:61
 msgid "Search/Replace"
@@ -10934,11 +10933,11 @@ msgid ""
 "tooltips.</p></div>"
 msgstr ""
 "<div style=\"font-size:10pt;\">\n"
-"<p>ファイル名から電子書籍の本情報を類推する時に使う正規表現を設定します。</p>\n"
+"<p>ファイル名から電子書籍の書誌情報を類推する時に使う正規表現を設定します。</p>\n"
 "<p>正規表現の使い方については、<a href=\"http://manual.calibre-"
 "ebook.com/regexp.html\">チュートリアル</a>があります。</p>\n"
-"<p>下にある<b>テスト</b>を利用して、サンプルファイル名に対して正規表現を試してみてください。(ファイルの拡張子を含めてください)。色々な本情報エ"
-"ントリーのグループ名は、ツールチップで解説されています。</p></div>"
+"<p>下にある<b>テスト</b>を利用して、サンプルファイル名に対して正規表現を試してみてください。(ファイルの拡張子を含めてください)。色々な書誌情報"
+"エントリーのグループ名は、ツールチップで解説されています。</p></div>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:133
 msgid "Regular &expression"
@@ -11380,7 +11379,7 @@ msgstr "列を表示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:223
 msgid "Shrink column if it is too wide to fit"
-msgstr "列が広すぎて入りきらない場合にシュリンクする。"
+msgstr "列が広すぎる場合は縮める"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:226
 msgid "Restore default layout"
@@ -11678,13 +11677,13 @@ msgstr "著者ソート(&O):"
 msgid ""
 " The green color indicates that the current author sort matches the current "
 "author"
-msgstr " 緑色は現在の著者名ソートが現在の著者にマッチしていることを表しています。"
+msgstr " 緑色は現在の著者ソートが現在の著者にマッチしていることを表しています。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:320
 msgid ""
 " The red color indicates that the current author sort does not match the "
 "current author. No action is required if this is what you want."
-msgstr " 赤色は現在の著者名ソートが現在の著者にマッチしていない事を表しています。それが意図した場合には、このままで問題ありません。"
+msgstr " 赤色は現在の著者ソートが現在の著者にマッチしていない事を表しています。それが意図した場合には、このままで問題ありません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:506
 msgid "&Number:"
@@ -11985,11 +11984,11 @@ msgstr "著者名ソートから著者を設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:137
 msgid "Copy author to author sort"
-msgstr "著者を著者名ソートへコピー"
+msgstr "著者を著者ソートへコピー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:139
 msgid "Copy author sort to author"
-msgstr "著者名ソートを著者へコピー"
+msgstr "著者ソートを著者へコピー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:150
 msgid "Swap the author and title"
@@ -13282,8 +13281,8 @@ msgid ""
 "Manage Authors. You can use the values {author} and \n"
 "{author_sort}, and any template function."
 msgstr ""
-"<p>本情報ダイアログ内の著者リンクを作成するのに使われるテンプレートを入力。このテンプレートは「著者を管理」で著者のリンクが与えられなかったときに使われ"
-"ます。ここでは{author} と {author_sort} そして任意のテンプレート関数が使用できます。"
+"<p>書誌情報ダイアログ内の著者リンクを作成するのに使われるテンプレートを入力。このテンプレートは「著者を管理」で著者のリンクが与えられなかったときに使わ"
+"れます。ここでは{author} と {author_sort} そして任意のテンプレート関数が使用できます。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Use &Roman numerals for series"
@@ -13575,7 +13574,7 @@ msgstr "同時実行される変換/ニュースダウンロードの最大ジ�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:33
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
-msgstr "最大の同時実行されるジョブ数を、CPUやコア数に応じて制限する(&C)"
+msgstr "同時実行される最大のジョブ数を、CPUやコア数に応じて制限する(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:39
 msgid "Debug &device detection"
@@ -15750,11 +15749,11 @@ msgstr "等幅フォントファミリー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:73
 msgid "The standard font size in px"
-msgstr "標準フォントサイズ・ピクセル"
+msgstr "標準フォントサイズ (ピクセル)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:74
 msgid "The monospaced font size in px"
-msgstr "等幅フォントサイズ・ピクセル"
+msgstr "等幅フォントサイズ (ピクセル)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:75
 msgid "The standard font type"
@@ -16857,7 +16856,7 @@ msgid ""
 "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
 "dialog, then rebuild the catalog.\n"
 msgstr ""
-"著者名ソートの値が矛盾しています：\n"
+"著者ソートの値が矛盾しています：\n"
 "著者 '{0}':\n"
 "'{1}' <> '{2}'\n"
 "MOBI カタログが作成できません。\n"
@@ -16870,7 +16869,7 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
-"注意: 矛盾する著者名ソートの値:\n"
+"注意: 矛盾する著者ソートの値:\n"
 "著者 '{0}':\n"
 "'{1}' <> '{2}'\n"
 
@@ -17594,7 +17593,7 @@ msgstr "識別子"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:223
 msgid "Author Sort"
-msgstr "著者名ソート"
+msgstr "著者ソート"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:335
 msgid "Title Sort"
@@ -17660,7 +17659,7 @@ msgstr "出版年月日"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
-msgstr "この本の書誌情報が最後に変更された日付"
+msgstr "この本レコードの書誌情報が最後に変更された日付"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
@@ -19391,7 +19390,7 @@ msgstr "デフォルトに戻す"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
-msgstr "シリーズ番号を自動更新する"
+msgstr "シリーズ番号を自動更新"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:13
 msgid ""
@@ -19457,7 +19456,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:43
 msgid "Add separator after completing an author name"
-msgstr "著者名を補足した後にセパレータを追加する"
+msgstr "著者名を補足した後にセパレータを追加"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:44
 msgid ""
@@ -19494,7 +19493,7 @@ msgid ""
 "Acme\n"
 "Inc. will be Acme Inc. instead of Inc., Acme"
 msgstr ""
-"著者名を著者名ソートへコピーする時に使うアルゴリズム。\n"
+"著者を著者ソートへコピーする時に使うアルゴリズム。\n"
 "使用できる値は：\n"
 "invert: ”fn ln” を ”ln, fn”にする。\n"
 "copy  : 変更なしに著者から著者ソートへコピー\n"
@@ -19527,7 +19526,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:84
 msgid "Use author sort in Tag Browser"
-msgstr "タグブラウザーで著者名ソートを使う"
+msgstr "タグブラウザーで著者ソートを使用する"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:85
 msgid ""
@@ -19584,7 +19583,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:108
 msgid "Control partitioning of Tag Browser"
-msgstr "タグブラウザーのパーティショニングを設定する"
+msgstr "タグブラウザーのパーティショニングを設定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:109
 msgid ""
@@ -19633,7 +19632,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:130
 msgid "Specify columns to sort the booklist by on startup"
-msgstr "起動時に本リストをソートする列を指定する"
+msgstr "起動時に本リストをソートする列を指定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:131
 msgid ""
@@ -19652,7 +19651,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:140
 msgid "Control how dates are displayed"
-msgstr "どのように日付を表示するか設定する"
+msgstr "日付を表示方法を設定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:141
 msgid ""
@@ -19726,7 +19725,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:176
 msgid "Control formatting of title and series when used in templates"
-msgstr "テンプレートで使用された時のタイトルとシリーズのフォーマットを設定"
+msgstr "テンプレート使用時のタイトルとシリーズのフォーマットを設定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:177
 msgid ""
@@ -19754,7 +19753,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:189
 msgid "Set the list of words considered to be \"articles\" for sort strings"
-msgstr "文字列ソート時に「冠詞」として扱われるワードのリスト。"
+msgstr "文字列ソート時に「冠詞」として扱われるワードのリスト"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:190
 msgid ""
@@ -19966,7 +19965,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:283
 msgid "Control how tags are applied when copying books to another library"
-msgstr "他のライブラリに本をコピーする場合にどのようにタグを扱うかを制御する"
+msgstr "他のライブラリに本をコピーする際のタグの取り扱い方法を設定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:284
 msgid ""
@@ -19981,7 +19980,7 @@ msgstr "コンテンツサーバーで本ごとに表示する最大のタグ数
 #: /home/kovid/work/calibre/resources/default_tweaks.py:291
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
-msgstr "カスタム書誌情報フィールドをコンテンツサーバーが表示するかしないか設定します。"
+msgstr "カスタム書誌情報フィールドをコンテンツサーバーが表示するかどうか設定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:292
 msgid ""
@@ -20037,7 +20036,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:317
 msgid "Specify which font to use when generating a default cover"
-msgstr "デフォルトの表紙を生成する時に使うフォントを指定する"
+msgstr "デフォルトの表紙を生成する際に使用するフォントを指定"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:318
 msgid ""
@@ -20156,7 +20155,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:374
 msgid "Where to send downloaded news"
-msgstr "ダウンロードしたニュースをどこに送るか"
+msgstr "ダウンロードしたニュースの送り先"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:375
 msgid ""

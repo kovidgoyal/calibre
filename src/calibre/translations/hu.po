@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-10-01 20:59+0000\n"
+"PO-Revision-Date: 2011-10-02 12:41+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-02 04:49+0000\n"
+"X-Launchpad-Export-Date: 2011-10-03 04:38+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -978,7 +978,7 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
-"Vesszővel tagolt mappa-lista az e-könyveknek az olvasóra való küldéséhez. Az "
+"Vesszővel tagolt mappa-lista az e-bookok az olvasóra való küldéséhez. Az "
 "első létező mappába kerülnek a könyvek."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:187
@@ -2684,8 +2684,8 @@ msgid ""
 "with structure detection to create one."
 msgstr ""
 "Ismerje fel a formázatlan fejezet címeket és alcímeket. Változtassa őket h2 "
-"és h3 tagokká. Ez a beállítás nem hoz létre tartalomjegyzéket, de később "
-"használható a felépítés felfedezés módban egy létrehozásához."
+"és h3 tag-ekké. Ez a beállítás nem hoz létre Tartalomjegyzéket, de később "
+"használható a „Struktúra felismerés” módban egy létrehozásához."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:542
 msgid ""
@@ -2991,7 +2991,7 @@ msgstr ""
 "Tartalomjegyzéknek megfelelően darabolja részekre; ha így nem sikerül a "
 "kívánt végeredményt elérni, akkor módosítsa a Struktúra felismerés és a "
 "Tartalomjegyzék beállításait(pl. kapcsolja be a „Mindenképpen az "
-"automatikusan generált Tartalomjegyzék használatát”)."
+"automatikusan generált Tartalomjegyzék használatá”-t)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:158
 #, python-format
@@ -3170,7 +3170,7 @@ msgstr "\tKonvertálás BBeB formátumba..."
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:552
 #, python-format
 msgid "Could not parse file: %s"
-msgstr "Nem tudtam feldolgozni a fájlt: %s"
+msgstr "Nem sikerült értelmezni a következő fájlt: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:544
 #, python-format
@@ -3195,15 +3195,15 @@ msgstr "A következő képet nem sikerült feldolgozni: %(path)s. Hiba: %(err)s"
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1006
 #, python-format
 msgid "Unable to process interlaced PNG %s"
-msgstr "Nem tudtam feldolgozni a PNG képet: %s"
+msgstr "Nem sikerült feldolgozni a következő PNG képet: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1776
 #, python-format
 msgid ""
 "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
-"Hiba történt a táblázat feldolgozása közben: %s. A táblázat formázást "
-"figyelmen kívül hagyom."
+"Hiba történt a táblázat feldolgozása közben: %s. A táblázat formázása "
+"figyelmen kívül lesz hagyva."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1778
 #, python-format
@@ -3738,7 +3738,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:163
 msgid "Downloads metadata and covers from Google Books"
-msgstr "A metaadatokat és a borítót aGoogle Books-ról tölti le."
+msgstr "Metaadatok és borítók letöltése a Google Books-ról"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:27
 msgid "Downloads metadata from isbndb.com"
@@ -3905,7 +3905,7 @@ msgstr "Köszönetnyilvánítás"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1505
 msgid "Bibliography"
-msgstr "Irodalomjegyzék"
+msgstr "Bibliográfia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1506
 msgid "Colophon"
@@ -4574,7 +4574,7 @@ msgstr "Címkelista rendezése név, gyakoriság vagy értékelés alapján"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 msgid "Match tags by any or all."
-msgstr ""
+msgstr "Bármelyik vagy mindegyik címke egyezése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
 msgid "Number of covers to show in the cover browsing mode"
@@ -4630,7 +4630,7 @@ msgstr "A tálcaikon értesítéseinek tiltása"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:151
 msgid "Default action to perform when send to device button is clicked"
 msgstr ""
-"Az alapértelmezett művelet a 'Küldés eszközre' gombra való kattintáskor"
+"Az alapértelmezett művelet a „Küldés eszközre” gombra való kattintáskor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:156
 msgid ""
@@ -4686,7 +4686,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:197
 msgid "Show the average rating per item indication in the tag browser"
-msgstr "Mutatssa az átlagos értékeléseket tételenként a címke tallózóban"
+msgstr "Mutassa az átlagos értékeléseket tételenként a címke böngészőben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:199
 msgid "Disable UI animations"
@@ -4901,7 +4901,7 @@ msgstr "Nincs könyv kiválasztva"
 msgid ""
 "The following books are virtual and cannot be added to the calibre library:"
 msgstr ""
-"Az alábbi könyvek csak látszólagosak és nem adhatóak a calibre könyvtárhoz."
+"Az következő könyvek csak virtuálisak és nem adhatóak a calibre könyvtárhoz:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:397
 msgid "No book files found"
@@ -5936,7 +5936,7 @@ msgstr "Néhány könyvet nem sikerült menteni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:142
 msgid "Click the show details button to see which ones."
-msgstr "Kattintson a 'Részletek megjelenítése' gombra"
+msgstr "Kattintson a „Részletek megjelenítése” gombra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_book_details.py:16
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:771
@@ -5957,7 +5957,7 @@ msgstr "A könyvekhez nincsenek részletes információk az eszközön."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Q"
-msgstr ""
+msgstr "Q"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Show quickview"
@@ -6009,7 +6009,7 @@ msgstr "Könyvek ugyanilyen címkékkel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
@@ -6494,7 +6494,7 @@ msgstr "Borító méret: %(width)d x %(height)d"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:16
 msgid "BibTeX Options"
-msgstr "BibTEX beállítások"
+msgstr "BibTeX beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:17
@@ -6598,7 +6598,7 @@ msgstr "Űrlap"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:25
 msgid "Bib file encoding:"
-msgstr "Bib fájl kódolása"
+msgstr "Bib fájl karakterkódolása:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml_ui.py:43
@@ -6607,7 +6607,7 @@ msgstr "A kimenő adatban szerepeltetendő mezők:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:46
 msgid "Encoding configuration (change if you have errors) :"
-msgstr "Kódolás beállítása (változtassa meg, ha hibát tapasztal) :"
+msgstr "Kódolás típusa (változtassa meg, ha hibát tapasztal):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:55
 msgid "BibTeX entry type:"
@@ -6615,7 +6615,7 @@ msgstr "BibTeX bejegyzés típusa:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:62
 msgid "Create a citation tag?"
-msgstr "Létrehozzunk idézet tag-et?"
+msgstr "Idézet címke létrehozása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:66
 msgid "Add files path with formats?"
@@ -6623,7 +6623,7 @@ msgstr "Fájlok útvonalának hozzáadása formátummal?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:70
 msgid "Expression to form the BibTeX citation tag:"
-msgstr "Kifejezés a BibTeX idézet címke létrehozásához:"
+msgstr "Kifejezés a BibTeX idézet-címke létrehozásához:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_bibtex_ui.py:77
 msgid ""
@@ -6649,7 +6649,7 @@ msgstr "CSV/XML Opciók"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:18
 msgid "E-book options"
-msgstr "E-könyv opciók"
+msgstr "Ebook beállítások"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:296
 msgid "Sections to include in catalog."
@@ -6733,7 +6733,7 @@ msgstr "Az oszlop további kizárási kritériumokat tartalmaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:317
 msgid "Exclusion pattern"
-msgstr "Kizárási mód"
+msgstr "Kizárás mintája"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:318
 msgid "Matching books will be displayed with a check mark"
@@ -6745,7 +6745,7 @@ msgstr "Olvasott könyvek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:321
 msgid "Column containing 'read' status"
-msgstr "Az oszlop 'olvasott' státuszt tartalmaz"
+msgstr "Az „Olvasott” állapotot tartalmazó oszlop"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:322
 msgid "'read book' pattern"
@@ -6786,15 +6786,15 @@ msgstr "A Leírás fejléc területhez hozzáadandó egyedi oszlop forrása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Merge with Comments"
-msgstr "&Hozzászolásokkal egybevon"
+msgstr "&Megjegyzésekkel egybevon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:332
 msgid "Additional content merged with Comments during catalog generation"
-msgstr ""
+msgstr "A katalógus generálás során a Megjegyzésekhez hozzáfűzött tartalom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:333
 msgid "Merge additional content before Comments"
-msgstr "Egyéb tartalmak egybevonása a Hozzászolások előtt"
+msgstr "A Megjegyzések elé beillesztett egyéb tartalom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:334
 msgid "&Before"
@@ -6802,7 +6802,7 @@ msgstr "&Előtte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:335
 msgid "Merge additional content after Comments"
-msgstr "Egyéb tartalmak egybevonása a Hozzászolások után"
+msgstr "A Megjegyzések mögé beillesztett egyéb tartalmak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:336
 msgid "&After"
@@ -6810,8 +6810,7 @@ msgstr "&Utána"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:337
 msgid "Separate Comments and additional content with horizontal rule"
-msgstr ""
-"Hozzászólások és egyéb tartalmak elválasztása egy vízszintes vonallal"
+msgstr "Megjegyzések és egyéb tartalmak elválasztása egy vízszintes vonallal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:338
 msgid "&Separator"
@@ -6819,7 +6818,7 @@ msgstr "&Elválasztó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_tab_template_ui.py:33
 msgid "Tab template for catalog.ui"
-msgstr ""
+msgstr "Fül sablon a catalog.ui-hoz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:69
 msgid "Bold"
@@ -6917,11 +6916,11 @@ msgstr "Háttérszín"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:118
 msgid "Style text block"
-msgstr "Szövegmező stílusa"
+msgstr "Szöveg blokk stílusa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:120
 msgid "Style the selected text block"
-msgstr "A kiválasztott szövegmező stílusa"
+msgstr "A kiválasztott szöveg blokk stílusa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
@@ -7684,8 +7683,8 @@ msgid ""
 msgstr ""
 "A könyv tartalom megosztásának engedélyezése Facebook-on stb. Kindle "
 "eszközön.\r\n"
-"FIGYELEM: ennek az opciónak használata letiltja az 'Utolsó olvasási pozíció "
-"szinkronizálását'."
+"FIGYELEM: ennek az opciónak használata letiltja az „Utolsó olvasási pozíció "
+"szinkronizálásá”-t."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Put generated Table of Contents at &start of book instead of end"
@@ -7924,7 +7923,7 @@ msgid ""
 "wizard buttons below will allow you to test your regular expression against "
 "the current input document."
 msgstr ""
-"<p> A „Keresés és Csere” <i>reguláris kifejezéseket<6i> használ. Bővebben a "
+"<p> A „Keresés és Csere” <i>reguláris kifejezéseket</i> használ. Bővebben a "
 "<a href=\"http://manual.calibre-ebook.com/regexp.html\">Reguláris "
 "kifejezések dokumentumban</a>-ban olvashat erről. A Varázsló gombokra "
 "kattintva tesztelheti a létrehozott kifejezést az aktuális bemeneti "
@@ -8170,7 +8169,7 @@ msgstr "Markdown, Textile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:97
 msgid "Do not remove links (<a> tags) before processing"
-msgstr "Ne távolítsa el a hivatkozásokat (<a> tagokat) a folyamat előtt"
+msgstr "Ne távolítsa el a hivatkozásokat (<a> tag-eket) a feldolgozás előtt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_output_ui.py:98
 msgid "Do not remove image references before processing"
@@ -9199,7 +9198,7 @@ msgstr "Az elem üres"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:187
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:883
 msgid "An item cannot be set to nothing. Delete it instead."
-msgstr "Egy elem nem állítható semmire. Törölje, ha úgy gondolja."
+msgstr "Egy elem nem állítható „semmi”-re. Törölje, ha úgy gondolja."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:204
@@ -9572,11 +9571,11 @@ msgstr "S/R SABLON HIBA"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:660
 msgid "You must specify a destination when source is a composite field"
-msgstr ""
+msgstr "Ha a forrás összetett mező, pontosan meg kell adnia a célt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:666
 msgid "You must specify a destination identifier type"
-msgstr ""
+msgstr "Meg kell adnia a cél azonosító típust"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:901
 msgid "Search/replace invalid"
@@ -10381,6 +10380,8 @@ msgstr "**Nem találhatóak elemek**"
 msgid ""
 "Click in a column  in the library view to see the information for that book"
 msgstr ""
+"A fő könyvlistában kattintson egy oszlop tartalmára az információk "
+"megjelenítéséhez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:205
 msgid "Books with selected item \"{0}\": {1}"
@@ -10535,6 +10536,12 @@ msgid ""
 "                soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                A hírösszeállítás letöltése minden héten a megadott napokon "
+"a\n"
+"                meghatározott időpont után. Például, ha kiválasztja, hogy\n"
+"                „Hétfő 9:00 AM”, akkor a calibre letölti a hírösszeállítást\n"
+"                minden hétfőn 9 óra után, a lehető leghamarabb.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:61
 msgid "&Download after:"
@@ -10552,6 +10559,17 @@ msgid ""
 "                month, as soon after 9:00 AM as possible.\n"
 "            "
 msgstr ""
+"                A hírösszeállítás letöltése a hónap megadott napjain. A "
+"letöltés\n"
+"                a megadott időpont után a lehető leghamarabb meg fog "
+"történni a\n"
+"                lenti mezőbe beírt napokon. Például ha a lanet mezőbe "
+"beírja,\n"
+"                hogy „1,15”, alá pedig „9:00 AM”, akkor a letöltés minden "
+"hónap\n"
+"                1.-én és 15.-én 9 óra után a leghamarabbi időpontban fog "
+"megtörténni.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:103
 msgid "&Days of the month:"
@@ -10574,6 +10592,15 @@ msgid ""
 "                0.1 days to download a periodical more than once a day.\n"
 "            "
 msgstr ""
+"                A hírösszeállítás letöltése minden x. napon. Például, ha a\n"
+"                lenti mező értéke „30,00 nap”, akkor a letöltés a "
+"változtatástól\n"
+"                számítva minden 30. napon meg fog történni. Az egynél kisebb "
+"értékek\n"
+"                azt jelentik, hogy a letöltés naponta többször is meg fog "
+"történni.\n"
+"                Például „00,10 nap” napi tíz letöltést eredményez.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
 msgid "&Download every:"
@@ -10664,11 +10691,11 @@ msgstr "Nem tölthetőek le a hírek, nincs aktív internetkapcsolat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Go"
-msgstr "Ugrás"
+msgstr "Keres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:208
 msgid "blurb"
-msgstr ""
+msgstr "összefoglaló"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:209
 msgid "&Schedule for download:"
@@ -10676,11 +10703,11 @@ msgstr "Ütemezés:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:210
 msgid "Days of  week"
-msgstr "Hét napjai"
+msgstr "Hét napjain"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
 msgid "Days of month"
-msgstr "Hónap napjai"
+msgstr "Hónap napjain"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
 msgid "Every x days"
@@ -10980,6 +11007,8 @@ msgid ""
 "That name contains leading or trailing periods, multiple periods in a row or "
 "spaces before or after periods."
 msgstr ""
+"A név ponttal kezdődik vagy pontra végződik, több egymást követő pontot "
+"tartalmaz, vagy szóközt a pontok előtt vagy után"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:200
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:230
@@ -11151,7 +11180,7 @@ msgstr "A sablondoboz nem lehet üres"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:32
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:252
 msgid "Set the color of the column:"
-msgstr "Az átszínezendő oszlop:"
+msgstr "Az átszínezendő &oszlop:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:39
 msgid "Copy a color name to the clipboard:"
@@ -11368,7 +11397,7 @@ msgstr "Hírösszeállítás eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:261
 msgid "&Share recipe"
-msgstr "Hírösszeállítás megosztása"
+msgstr "Hírö&sszeállítás megosztása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:262
 msgid "S&how recipe files"
@@ -11376,11 +11405,11 @@ msgstr "&Receptfájlok megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:263
 msgid "Customize &builtin recipe"
-msgstr "Beépített hírösszeállítás testreszabása"
+msgstr "&Beépített hírösszeállítás testreszabása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:264
 msgid "&Load recipe from file"
-msgstr "Hírösszeállítás betöltése fájlból"
+msgstr "Hírösszeá&llítás betöltése fájlból"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:266
 msgid ""
@@ -11408,11 +11437,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:270
 msgid "Recipe &title:"
-msgstr "A hírösszeállítás címe:"
+msgstr "A hírösszeállí&tás címe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:271
 msgid "&Oldest article:"
-msgstr "Legrégebbi cikk:"
+msgstr "Leg&régebbi cikk:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:272
 msgid "The oldest article to download"
@@ -11420,7 +11449,7 @@ msgstr "A legrégebbi letöltendő cikk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:274
 msgid "&Max. number of articles per feed:"
-msgstr "A hírforrásban szereplő cikkek maximális száma:"
+msgstr "A hírforrásban szereplő cikkek &maximális száma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:275
 msgid "Maximum number of articles to download per feed."
@@ -11441,7 +11470,7 @@ msgstr "Hírforrás hozzáadása a hírösszeállításhoz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:282
 msgid "&Feed title:"
-msgstr "Hírforrás címe:"
+msgstr "Hírcforrás címe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:283
 msgid "Feed &URL:"
@@ -11449,7 +11478,7 @@ msgstr "Hírforrás URL-je:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:285
 msgid "&Add feed"
-msgstr "Hírcsatorna hozzáadása"
+msgstr "Hírforrás hozzácadása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:286
 msgid ""
@@ -11513,7 +11542,7 @@ msgstr "Hírek:"
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:144
 #, python-format
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr ""
+msgstr "A calibre által letöltött %s hírösszeállítás csatolva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:193
 msgid "E-book:"
@@ -11591,7 +11620,7 @@ msgstr "Reguláris &kifejezés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:135
 msgid "File &name:"
-msgstr "Fájlnév:"
+msgstr "Fájl&név:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:137
 msgid "Title:"
@@ -11948,12 +11977,12 @@ msgstr "Az aktuális keresésszöveg másolása (a keresés név helyett)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:437
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:58
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:285
 msgid "On Device"
-msgstr "Az eszközön"
+msgstr "Eszközön"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:60
 msgid "Size (MB)"
@@ -12209,9 +12238,9 @@ msgid ""
 "successful. If you say No, a new empty calibre library will be created."
 msgstr ""
 "A következő helyen lévő adatbázis sérültnek tűnik: %s. Kívánja, hogy a "
-"calibre megkísérelje annak helyreállítását? Az adatbázis újraépítése, nem "
-"biztos, hogy sikerülni fog. Ha a „Nem”-et választja, akkor egy üres "
-"adatbázis lesz létrehozva."
+"calibre megkísérelje annak automatikus helyreállítását? Az adatbázis "
+"újraépítése nem biztos, hogy sikerülni fog. Ha a „Nem”-et választja, akkor "
+"egy üres adatbázis lesz létrehozva."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:203
 #, python-format
@@ -12340,7 +12369,7 @@ msgid ""
 msgstr ""
 "A szerző rendezési formájának megadása. Például Charles Dickens-t célszerű "
 "Dickens, Charles-ként rendezni.\n"
-"Ha a mező színe zöld, akkor a beírt adat megfelel a 'Szerző(k)' mezőben lévő "
+"Ha a mező színe zöld, akkor a beírt adat megfelel a „Szerző(k)” mezőben lévő "
 "szövegnek, ha piros, akkor valamiben eltér attól."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:307
@@ -12375,7 +12404,7 @@ msgid ""
 msgstr ""
 "Utoljára módosítva: %s\n"
 "\n"
-"Dupla kattintás a megjelenítéshez"
+"Dupla kattintással olvashatja a könyvet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:613
 #, python-format
@@ -12770,7 +12799,7 @@ msgstr "&Egyéni metaadat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:788
 msgid "&Comments"
-msgstr "Megjegyzések"
+msgstr "&Megjegyzések"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:854
 msgid "Basic metadata"
@@ -13119,7 +13148,7 @@ msgstr "&Bemeneti formátumok előnyberészesítési sorrendje:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:168
 msgid "Use internal &viewer for:"
-msgstr "A beépített nézőke használata a következőkhöz:"
+msgstr "A beépített ol&vasó program használata a következőkhöz:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:169
 msgid "Reset all disabled &confirmation dialogs"
@@ -13187,29 +13216,31 @@ msgstr "nincs beállítva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
 msgid "is"
-msgstr ""
+msgstr "egyenlő"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:54
 msgid "is not"
-msgstr ""
+msgstr "nem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
-msgstr "egyező minta"
+msgstr "találatot ad a mintára"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "does not match pattern"
-msgstr "nem egyező minta"
+msgstr "nem ad találatot a mintára"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
-msgstr "Ha a(z) ___ oszlop ___ értékű(kel/re..)"
+msgstr "Ha a(z) ___ oszlop ___ , érték:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:210
 msgid ""
 "Enter either an identifier type or an identifier type and value of the form "
 "identifier:value"
 msgstr ""
+"Adjon meg egy azonosítót, vagy egy azonosítót és értéket az azonosító:érték "
+"formában"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:213
 msgid "Enter a number"
@@ -13242,11 +13273,11 @@ msgstr "Készítsen színezési szabályokat az alábbi eszközökkel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:258
 msgid "to"
-msgstr ""
+msgstr "erre:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:266
 msgid "Only if the following conditions are all satisfied:"
-msgstr "Csak ha minden következő feltétel teljesül:"
+msgstr "Csak ha minden alábbi feltétel teljesül:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:276
 msgid "Add another condition"
@@ -13255,16 +13286,17 @@ msgstr "Újabb feltétel hozzáadása"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:280
 msgid "You can disable a condition by blanking all of its boxes"
 msgstr ""
-"Egy feltételt úgy kapcsolhat ki, ha a hozzá tartozó értékeket üresre állítja"
+"Egy feltételt úgy kapcsolhat ki, hogy a hozzá tartozó értékeket üresre "
+"állítja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:352
 msgid "Invalid condition"
-msgstr "Érvénytelen állapot"
+msgstr "Érvénytelen feltétel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:353
 #, python-format
 msgid "One of the conditions for this rule is invalid: <b>%s</b>"
-msgstr "A szabály egyik feltétele nem megfelelő: <b>%s</b>"
+msgstr "A következő szabály egyik feltétele nem megfelelő: <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:358
 msgid "No conditions"
@@ -13282,6 +13314,10 @@ msgid ""
 "            <pre>%(rule)s</pre>\n"
 "            "
 msgstr ""
+"\n"
+"            Összetett szabály a(z) <b>%(col)s</b> oszlophoz:\n"
+"            <pre>%(rule)s</pre>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:452
 #, python-format
@@ -13292,6 +13328,11 @@ msgid ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 msgstr ""
+"            <p>A(z) <b>%(col)s</b> színének beállítása a következőre: "
+"<b>%(color)s</b>\n"
+"            ha az alábbi feltételek teljesülnek:</p>\n"
+"            <ul>%(rule)s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:467
 #, python-format
@@ -13313,11 +13354,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:491
 msgid "Add Rule"
-msgstr "Szabály hozzáadása"
+msgstr "Sz&abály hozzáadása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:494
 msgid "Remove Rule"
-msgstr "Szabály eltávolítása"
+msgstr "Szabály &eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:511
 msgid "Move the selected rule up"
@@ -13329,7 +13370,7 @@ msgstr "A kiválasztott szabály mozgatása lefelé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:524
 msgid "Add Advanced Rule"
-msgstr "Összetettebb szabály hozzáadása"
+msgstr "Össze&tett szabály hozzáadása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:572
 msgid "No rule selected"
@@ -13338,7 +13379,7 @@ msgstr "Nincs kiválasztott szabály"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:573
 #, python-format
 msgid "No rule selected for %s."
-msgstr "Nincs kiválasztott szabály a következő művelethez: %s."
+msgstr "Nincs kiválasztott szabály a következőhöz: %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:578
 msgid "removal"
@@ -13423,7 +13464,7 @@ msgstr "Szöveg oszlop, mely sorozatszerű információkat tartalmaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 msgid "Text, but with a fixed set of permitted values"
-msgstr ""
+msgstr "Szöveg, kötött értékekkel"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:37
 msgid "Floating point numbers"
@@ -13586,10 +13627,11 @@ msgstr "A(z) %s oszlopcím már foglalt"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:271
 msgid "You must enter a template for composite columns"
 msgstr ""
+"Más oszlopokból készített saját oszlop esetén meg kell adnia egy sablont"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:281
 msgid "You must enter at least one value for enumeration columns"
-msgstr ""
+msgstr "Legalább egy értéket meg kell adnia felsorolási oszlopokhoz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:285
 msgid "You cannot provide the empty value, as it is included by default"
@@ -13708,6 +13750,9 @@ msgid ""
 "href=\"http://docs.python.org/library/string.html#format-string-syntax\">the "
 "python documentation</a>"
 msgstr ""
+"<p>Alapértelmezett: nem formázott. A formázási nyelvről bővebben a <a "
+"href=\"http://docs.python.org/library/string.html#format-string-"
+"syntax\">Python Dokumentációban</a> olvashat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:244
 msgid "Format for &dates"
@@ -13723,11 +13768,11 @@ msgstr "&Sablon"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:247
 msgid "Field template. Uses the same syntax as save templates."
-msgstr ""
+msgstr "Mező sablon. Ugyanolyan formátumú, mint a mentési sablonok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:248
 msgid "Similar to save templates. For example, {title} {isbn}"
-msgstr ""
+msgstr "A mentési sablonokhoz hasonló. Például  {title} {isbn}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:249
 msgid "Default: (nothing)"
@@ -13775,6 +13820,8 @@ msgid ""
 "A list of color names to use when displaying an item. The\n"
 "list must be empty or contain a color for each value."
 msgstr ""
+"Színnevek listája. Vagy üresnek kell lennie, vagy pedig a fenti\n"
+"értékek mindegyikéhez meg kell adni egy színt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:263
 msgid "Colors"
@@ -14084,6 +14131,15 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"Az oszlopok vesszővel tagolt listája, melyekben az elemek pontokkal\n"
+"elválasztva tartalmazzák az alkategóriákat. Például, a ez a mező a „tags”\n"
+"(címkék) oszlopot tartalmazza, akkor a „Mytery.English” és a "
+"„Mytery.Thriller”\n"
+"címkék „English”-ként és „Thriller”-ként is megjelennek a „Mytery” "
+"kategóriában.\n"
+"Egyébként pedig normál módon „Mytery.English”-ként és „Mytery.Thriller”-"
+"ként\n"
+"önállóan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:218
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -14619,9 +14675,9 @@ msgid ""
 "by the empty string."
 msgstr ""
 "A lenti mintát pontosítva be tudja állítani a lemezre történő mentés mappa "
-"és fájlneveit. A '/' karakter jeleni az almappákat. A használható metaadat-"
+"és fájlneveit. A „/” karakter jeleni az almappákat. A használható metaadat-"
 "változókat a listamezőben láthatja. Ha az adott könyv nem tartalmazza a "
-"megadott metaadatot, akkor az egy üres karakterrel lesz helyettesítve."
+"megadott metaadatot, akkor az egy üres karakterlánccal lesz helyettesítve."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:59
 msgid "Available variables:"
@@ -14839,6 +14895,11 @@ msgid ""
 "changing the name then pressing Save. You can change the value\n"
 "of a search term by changing the value box then pressing Save."
 msgstr ""
+"Kereső feltétel mentése. A keresést át is nevezheti úgy, hogy "
+"megváltoztatja\n"
+"a nevet, majd megnyomja a „Mentés”-t. Magát a feltételt is "
+"megváltoztathatja,\n"
+"majd ezt mentheti ugyanezzel a névvel."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:652
@@ -15085,7 +15146,7 @@ msgstr ""
 "        készíthet, illetve törölhet.\n"
 "        A sablonfüggvény programozási nyelve a python. A könyvből\n"
 "        kinyer bizonyos információkat, azokat feldolgozza, majd\n"
-"        eredményül egy sztringet ad.\n"
+"        eredményül egy karakterláncot ad.\n"
 "        Az itt készített függyvények ugyanúgy használhatóak a\n"
 "        sablonokban, mint a beépítettek.\n"
 "        A függvény nevének mindig <b>evaluate</b>-nek kell lennie\n"
@@ -15093,7 +15154,7 @@ msgstr ""
 "        </p>\n"
 "        <p><code>evaluate(self, formatter, kwargs, mi, locals, "
 "saját_paraméterek)\n"
-"        &rarr; eredményül egy unicode sztringet ad vissza</code></p>\n"
+"        &rarr; eredményül egy unicode karakterláncot ad vissza</code></p>\n"
 "        <p>Az evaluate függvény paraméterei a következők:\n"
 "        <ul>\n"
 "        <li><b>formatter</b>: formázó; annak a formázónak a példánya, amely "
@@ -15127,13 +15188,13 @@ msgstr ""
 "        <p>\n"
 "        A következő példa függvény egy mező értékét ellenőrzi. Ha a mező nem "
 "üres,\n"
-"        akkor a mező értékét, ha pedig üres, akkor az EMPTY sztringet adja "
-"vissza eredményül.\n"
+"        akkor a mező értékét, ha pedig üres, akkor az EMPTY karakterláncot "
+"adja vissza eredményül.\n"
 "        <pre>\n"
 "        name: my_ifempty\n"
 "        arg count: 1\n"
 "        doc: my_ifempty(val) -- val értéket, ha nem üres, illetve 'EMPTY' "
-"sztringet, ha üres, ad vissza\n"
+"karakterláncot, ha üres, ad vissza\n"
 "        program code:\n"
 "        def evaluate(self, formatter, kwargs, mi, locals, val):\n"
 "            if val:\n"
@@ -15268,7 +15329,7 @@ msgstr "Nem adható hozzá"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:263
 #, python-format
 msgid "Cannot add the actions %s to this location"
-msgstr ""
+msgstr "A(z) %s nem adható hozzá ehhez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:281
 msgid "Cannot remove"
@@ -15277,7 +15338,7 @@ msgstr "Nem távolítható el"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:282
 #, python-format
 msgid "Cannot remove the actions %s from this location"
-msgstr ""
+msgstr "A(z) %s nem távolítható el innen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
@@ -15320,11 +15381,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:120
 msgid "This tweak has it default value"
-msgstr "Ez az opció az alapbeállítás szerint működik"
+msgstr "Ez a finomhangolás az alapértékekre van állítva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:122
 msgid "This tweak has been customized"
-msgstr "Ez az opció módosítva lett"
+msgstr "A finomhangolás alapértékei meg lettek változtatva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:291
 msgid ""
@@ -15779,6 +15840,9 @@ msgid ""
 "what you can do with this book. Check with the store before making any "
 "purchases to ensure you can actually read this book."
 msgstr ""
+"Ez a könyv DRM védett. Előfordulhat, hogy nem tudja olvasni az eszközén és "
+"más korlátozások is vonatkozhatnak a könyvre. Vásárlás előtt ellenőrizze a "
+"boltban, hogy megfelelő-e a könyv az Ön számára."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:205
 msgid ""
@@ -15787,12 +15851,18 @@ msgid ""
 "conversion. However, before making a purchase double check the DRM status "
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
+"Ez a könyv DRM nélküli. Elméletileg minden olvasó eszközön használhatja "
+"ebben a formátumban, vagy eszköznek megfelelően átkonvertálva a calibre-rel. "
+"Mindenesetre a vásárlás előtt még egyszer ellenőrizze a könyv DRM "
+"védettségét a boltban, mert a boltok fenntarthatják a változtatás jogát."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:207
 msgid ""
 "The DRM status of this book could not be determined. There is a very high "
 "likelihood that this book is actually DRM restricted."
 msgstr ""
+"Nem lehet megállapítani, hogy ez a könyv DRM védett-e vagy sem, bár az "
+"előbbinek nagy a valószínűsége."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:212
 #, python-format
@@ -15815,7 +15885,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:276
 msgid "Customize get books search"
-msgstr ""
+msgstr "Könyvletöltés keresésének testreszabása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:286
 msgid "Configure search"
@@ -15893,6 +15963,11 @@ msgid ""
 "will be a .epub file. You can add this book to calibre using \"Add Books\" "
 "and selecting the file from the ADE library folder."
 msgstr ""
+"Ez egy DRM védett EPUB könyv. A fájlt mentse el a számítógépére, majd nyissa "
+"meg az <a href=\"http://www.adobe.com/products/digitaleditions/\">Adobe "
+"Digital Editions</a> programmal. Magát az .epub könyvet az ADE fogja "
+"letölteni. Ezt már hozzáadhatja a calibre könyvtárához a „Könyv hozzáadása” "
+"opcióval, megkeresve a könyvet az ADE mappájában."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:88
 msgid "File is not a supported ebook type. Save to disk?"
@@ -15912,12 +15987,13 @@ msgstr "%p%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:307
 msgid "The grouped search term name is \"{0}\""
-msgstr ""
+msgstr "A csoportosított keresési feltétel neve: {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:731
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr ""
+"Sok könyv szerzőjének megváltoztatása eltarthat egy ideig. Folytatja?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:736
 msgid ""
@@ -15939,6 +16015,7 @@ msgstr "Felhasználói kategória átnevezése"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:889
 msgid "You cannot use periods in the name when renaming user categories"
 msgstr ""
+"Felhasználói kategória átnevezésénél az új névben nem használhat pontot."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:909
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:918
@@ -16062,8 +16139,8 @@ msgstr "A kategóriák összecsukása"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:346
 msgid "No More Matches.</b><p> Click Find again to go to first match"
 msgstr ""
-"Nincs több találat.</b><p> Kattintson a keresésre újra az első találathoz "
-"ugráshoz"
+"Nincs több találat.</b><p> Kattintson a „Keresés”-re megint az első "
+"találathoz ugráshoz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:359
 msgid "Sort by name"
@@ -16118,17 +16195,17 @@ msgstr "%s átnevezése"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:349
 #, python-format
 msgid "Edit sort for %s"
-msgstr ""
+msgstr "%s rendezési forma szerkesztése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:352
 #, python-format
 msgid "Edit link for %s"
-msgstr ""
+msgstr "%s linkjének szerkesztése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:359
 #, python-format
 msgid "Add %s to user category"
-msgstr ""
+msgstr "%s hozzáadása felhasználói kategóriához"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:372
 #, python-format
@@ -16143,7 +16220,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:387
 #, python-format
 msgid "Remove %(item)s from category %(cat)s"
-msgstr ""
+msgstr "%(item)s eltávolítása a %(cat)s kategóriából"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:394
 #, python-format
@@ -16158,12 +16235,12 @@ msgstr "A(z) %s kivételével mindent keressen"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:411
 #, python-format
 msgid "Add sub-category to %s"
-msgstr ""
+msgstr "Alkategória hozzáadása a következőhöz: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:415
 #, python-format
 msgid "Delete user category %s"
-msgstr ""
+msgstr "%s felhasználói kategória törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:420
 #, python-format
@@ -16294,6 +16371,9 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful."
 msgstr ""
+"A következő helyen lévő adatbázis sérültnek tűnik: %s. Kívánja, hogy a "
+"calibre megkísérelje annak automatikus helyreállítását? Az adatbázis "
+"újraépítése nem biztos, hogy sikerülni fog."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:578
 msgid "Conversion Error"
@@ -16301,7 +16381,7 @@ msgstr "Konvertálási hiba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:601
 msgid "Recipe Disabled"
-msgstr "Címzett tiltása"
+msgstr "Hírösszeállítás letiltva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:617
 msgid "<b>Failed</b>"
@@ -17432,6 +17512,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"A kimeneti mezők katalóguskészítés esetén. A mezők vesszővel tagolt "
+"listájának kell lennie.\n"
+"Elérhető mezők: %(fields)s.\n"
+"Továbbá az egyedi mezők.\n"
+"Példa: %(opt)s=title,authors,tag\n"
+"Alapértelmezett: '%%default'\n"
+"BIBTEX kimeneti formátum esetén használható"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:264
 #, python-format
@@ -17441,6 +17528,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"A kimeneti mező, ami alapján rendez.\n"
+"Érvényes mezők: author_sort, id, rating, size, timestamp, title.\n"
+"Alapértelmezett: '%default'\n"
+"BIBTEX kimeneti formátum esetén használható"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:273
 #, python-format
@@ -17450,6 +17541,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Idézetek készítése BibTeX bejegyzésekhez.\n"
+"Boolean érték: True, False\n"
+"Alapértelmezett: '%default'\n"
+"BIBTEX kimeneti formátum esetén használható"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:282
 #, python-format
@@ -17469,6 +17564,11 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"Az idézet adatbázismezőkből készítésének sablonja.\n"
+"A { és } jelek közötti sablonnak kell lennie.\n"
+"Elérhető mezők: %s.\n"
+"Alapértelmezett:  '%%default'\n"
+"BIBTEX kimeneti formátum esetén használható"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:301
 #, python-format
@@ -17478,6 +17578,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"BibTeX fájl kimeneti kódolása.\n"
+"Érvényes értékek:  utf8, cp1252, ascii.\n"
+"Alapértelmezett: '%default'\n"
+"BIBTEX kimeneti formátum esetén használható"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:310
 #, python-format
@@ -17487,6 +17591,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"BibTeX fájl kódolási jelölő.\n"
+"Érvényes értékek: strict, replace, ignore, backslashreplace.\n"
+"Alapértelmezett: '%default'\n"
+"BIBTEX kimeneti formátum esetén használható"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:319
 #, python-format
@@ -17496,6 +17604,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: BIBTEX output format"
 msgstr ""
+"BibTeX bejegyzés típusa a katalógusban.\n"
+"Érvényes értékek:  book, misc, mixed.\n"
+"Alapértelmezett: '%default'\n"
+"BIBTEX kimeneti formátum esetén használható"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:635
 #, python-format
@@ -17610,6 +17722,13 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"<custom field>:[before|after]:[True|False] az alábbiak szerint:\n"
+" <custom field> Egyedi mező, mely a Megjegyzésekkel lesz összefűzve\n"
+" [before|after] (előtte|utána) a Megjegyzésekhez viszonyított helye\n"
+" [True|False] - (igen|nem) vízszintes vonal beszúrása a jegyzetek és a "
+"Megjegyzések közé\n"
+"Alapértelmezett: '%default'\n"
+"Az ePub és a MOBI kimeneti formátumoknál alkalmazható"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:732
 #, python-format
@@ -17657,7 +17776,7 @@ msgstr "Nem található engedélyezett műfaj a katalógusban.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1437
 msgid "No books available to catalog"
-msgstr "Nincs elérhető könyv kategorizáláshoz"
+msgstr "Nincs elérhető könyv a katalógus készítéséhez"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1513
 msgid ""
@@ -17669,6 +17788,14 @@ msgid ""
 "Select all books by '{0}', apply correct Author Sort value in Edit Metadata "
 "dialog, then rebuild the catalog.\n"
 msgstr ""
+"Nem megfelelő szerző rendezési forma\n"
+"„{0}” szerző(k)nél:\n"
+"„{1}” <> „{2}”\n"
+"A MOBI katalógus létrehozása nem sikerült.\n"
+"\n"
+"Válassza ki „{0}” minden könyvét, majd adja meg a helyes „Szerző rendezési "
+"formá”-t a „Metaadatok szerkesztése” párbeszédablakban és készítse el újra a "
+"katalógust.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1530
 msgid ""
@@ -17676,16 +17803,21 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
+"Figyelem: nem megfelelő szerző rendezési forma\n"
+"„{0}” szerző(k)nél:\n"
+"„{1}” <> „{2}”\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1725
 msgid ""
 "No books found to catalog.\n"
 "Check 'Excluded books' criteria in E-book options.\n"
 msgstr ""
+"Nincs katalogizálandó könyv.\n"
+"Ellenőrizze a „Kizárt könyvek” beállítást.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1727
 msgid "No books available to include in catalog"
-msgstr ""
+msgstr "Nincs elérhető könyv a katalógusba illesztéshez"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:5069
 msgid ""
@@ -18015,6 +18147,8 @@ msgid ""
 "This column stores tag like data (i.e. multiple comma separated values). "
 "Only applies if datatype is text."
 msgstr ""
+"Az oszlop címke-szerű (több elem, vesszővel tagolva) adatokat tárol. Csak "
+"szöveg adattípusnál használható."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:569
 msgid ""
@@ -18022,6 +18156,10 @@ msgid ""
 "interpreted. This is a JSON  string. For enumeration columns, use --"
 "display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 msgstr ""
+"Egy olyan beállításokat tartalmazó „dictionary” (szótár), amellyel testre "
+"szabhatja, hogy az oszlopban lévő adat hogyan legyen értelmezve. Ez egy JSON "
+"karakterlánc. Felsorolási oszlopokhoz használja a következőt: "
+"display='{\"felsorolási_oszlopok\":[\"érték1\", \"érték2\"]}'"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:583
 msgid "You must specify label, name and datatype"
@@ -18180,6 +18318,8 @@ msgstr "eltávolítva"
 #, python-format
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
 msgstr ""
+"Hiba: ismeretlen művelet: %s. A következők egyike kell, hogy legyen: "
+"(add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:879
 msgid ""
@@ -18192,7 +18332,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:886
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1036
 msgid "Output in CSV"
-msgstr ""
+msgstr "CSV kimenet"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:889
 msgid ""
@@ -18246,7 +18386,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:988
 #, python-format
 msgid "You must provide the %s option to do a recovery"
-msgstr ""
+msgstr "A következő opciót kell megadnia a helyreállításhoz: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1025
 msgid ""
@@ -18261,18 +18401,24 @@ msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
 msgstr ""
+"Csak a kategórián belüli elemek számát adja meg az egyes elemekhez tartozó "
+"darabszámok helyett"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1038
 msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"A kategóriák e jel közé lesznek zárva CSV módban. Alapértelmezett az "
+"idézőjel (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1041
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
-msgstr "A kategória keresőneveinek vesszővel elválasztott listája"
+msgstr ""
+"A kategória keresőneveinek vesszővel elválasztott listája.\n"
+"Alapértelmezett: all (mind)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
 msgid "The string used to separate fields in CSV mode. Default is a comma."
@@ -18964,7 +19110,7 @@ msgid ""
 "strings. Returns lt if x < y. Returns eq if x == y. Otherwise returns gt."
 msgstr ""
 "strcmp(x, y, ha_x_kisebb, ha_egyenlő, ha_x_nagyobb) – kis- és nagybetűket "
-"nem megkülönböztető összehasonlítást végez x és y sztringek között.\r\n"
+"nem megkülönböztető összehasonlítást végez x és y karakterláncok között.\r\n"
 "Visszatérési értékek:\r\n"
 "ha_x_kisebb – ha x<y\r\n"
 "ha_egyenlő – ha x==y\r\n"
@@ -18988,11 +19134,12 @@ msgid ""
 "formed by concatenating all the arguments"
 msgstr ""
 "strcat(a, b, …) – bármennyi argumentuma lehet. Visszatérési értéke az "
-"argumentumokból összefűzött sztring."
+"argumentumokból összefűzött karakterlánc."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:151
 msgid "strlen(a) -- Returns the length of the string passed as the argument"
-msgstr "strlen(a) – Az argumentumként megadott sztring hosszát adja vissza."
+msgstr ""
+"strlen(a) – Az argumentumként megadott karakterlánc hosszát adja vissza."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:164
 msgid ""
@@ -19161,7 +19308,7 @@ msgid ""
 "you wish."
 msgstr ""
 "strcat_max(max, string1, prefix2, string2, …) – visszatérési értéke az "
-"argumentumokból összefűzött sztring, mely a „string1”-gyel kezdődik. A "
+"argumentumokból összefűzött karakterlánc, mely a „string1”-gyel kezdődik. A "
 "„prefix,string” párok hozzá lesznek adva a kiinduló „string1”-hez, amíg "
 "annak hossza kisebb a „max” értéknél. Ha a „string1” hossza nagyobb, mint a "
 "„max”, akkor is a „string1” lesz a visszatérési érték. Bármennyi "
@@ -19200,12 +19347,12 @@ msgid ""
 "otherwise return not_found_val. If the string contains separators, then it "
 "is also treated as a list and each value is checked."
 msgstr ""
-"str_in_list(lista, elválasztó, sztring, érték_ha_van, érték_ha_nincs) –  a "
-"„listá”-ban az elemek az „elválasztó”-val vannak elválasztva. A függvény a "
-"listában lévő elemeket vizsgálja, hogy azok megegyeznek-e a „sztring”-gel. "
-"Ha van találat akkor a visszatérési érték „érték_ha_van”, egyébként "
-"„érték_ha_nincs”. Ha a „sztring” is tartalmaz „elválasztó”-t, akkor az is "
-"listaként lesz kezelve és minden értéke ellenőrizve."
+"str_in_list(lista, elválasztó, karakterlánc, érték_ha_van, érték_ha_nincs) – "
+" a „listá”-ban az elemek az „elválasztó”-val vannak elválasztva. A függvény "
+"a listában lévő elemeket vizsgálja, hogy azok megegyeznek-e a „karakterlánc”-"
+"gel. Ha van találat akkor a visszatérési érték „érték_ha_van”, egyébként "
+"„érték_ha_nincs”. Ha a „karakterlánc” is tartalmaz „elválasztó”-t, akkor az "
+"is listaként lesz kezelve és minden értéke ellenőrizve."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:446
 msgid ""
@@ -19368,7 +19515,8 @@ msgstr ""
 "például „{0:5.2f}”, „{0:,d}” vagy „${0:5,.2f}” – szerint. A „sablon” "
 "mező_név része mindig 0 (ez a fenti példában a „{0:” rész). A python sablon "
 "nyelvről további információkat és ahhoz példákat a python nyelv "
-"dokumentációjában talál. Üres sztringet ad vissza, ha a formázás sikertelen."
+"dokumentációjában talál. Üres karakterláncot ad vissza, ha a formázás "
+"sikertelen."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:660
 msgid ""
@@ -19441,9 +19589,9 @@ msgid ""
 "year as two digit number (00 to 99). yyyy : the year as four digit number. "
 "iso  : the date with time and timezone. Must be the only format present"
 msgstr ""
-"format_date(dátum, formátum_sztring) – a „dátum”-ot a „formátum_sztring”-nek "
-"megfelelően formázza.\r\n"
-"A „formátum_sztring”-ben használható jelölések:\r\n"
+"format_date(dátum, formátum_karakterlánc) – a „dátum”-ot a "
+"„formátum_karakterlánc”-nek megfelelően formázza.\r\n"
+"A „formátum_karakterlánc”-ben használható jelölések:\r\n"
 "d – hónap napja kezdő 0 nélkül (1-től 31-ig)\r\n"
 "dd – a hónap napja kezdő nullával (01-től 31-ig)\r\n"
 "ddd – a nap rövid, beállított nyelvnek megfelelő neve (pl.: „Hét”, „Vas”)\r\n"
@@ -19488,7 +19636,7 @@ msgid ""
 "string"
 msgstr ""
 "ondevice() – visszatérési értéke „Yes”, ha az „ondevice” („Eszközön”) mező "
-"„True” (igaz) értékű, egyébként üres sztring"
+"„True” (igaz) értékű, egyébként üres karakterlánc"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:821
 msgid ""
@@ -19496,7 +19644,7 @@ msgid ""
 "empty string"
 msgstr ""
 "has_cover() – visszatérési értéke „Yes”, ha a könyvnek van borítója, "
-"egyébként üres sztring."
+"egyébként üres karakterlánc."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:833
 msgid ""
@@ -19513,9 +19661,9 @@ msgid ""
 "empty, otherwise returns the empty string. This function works well with "
 "test or first_non_empty. You can have as many values as you want."
 msgstr ""
-"and(érték, érték, …) – visszatérési értéke az „1” sztring, ha az „érték”-ek "
-"nem üresek, egyébként üres sztring. Jól használható együtt a „test” és a "
-"„first_non_empty” függvényekkel. Bármennyi argumentuma lehet."
+"and(érték, érték, …) – visszatérési értéke az „1” karakterlánc, ha az "
+"„érték”-ek nem üresek, egyébként üres karakterlánc. Jól használható együtt a "
+"„test” és a „first_non_empty” függvényekkel. Bármennyi argumentuma lehet."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:867
 msgid ""
@@ -19523,9 +19671,9 @@ msgid ""
 "otherwise returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
-"or(érték, érték, …) – visszatérési értéke az „1” sztring, ha bármelyik "
-"„érték” nem üres, egyébként üres sztring. Jól használható együtt a „test” és "
-"a „first_non_empty” függvényekkel. Bármennyi argumentuma lehet."
+"or(érték, érték, …) – visszatérési értéke az „1” karakterlánc, ha bármelyik "
+"„érték” nem üres, egyébként üres karakterlánc. Jól használható együtt a "
+"„test” és a „first_non_empty” függvényekkel. Bármennyi argumentuma lehet."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:884
 msgid ""
@@ -19533,9 +19681,9 @@ msgid ""
 "returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
-"not(érték, érték, …) – visszatérési értéke az „1” sztring, ha az összes "
-"„érték” üres, egyébként üres sztring. Jól használható együtt a „test” és a "
-"„first_non_empty” függvényekkel. Bármennyi argumentuma lehet."
+"not(érték, érték, …) – visszatérési értéke az „1” karakterlánc, ha az összes "
+"„érték” üres, egyébként üres karakterlánc. Jól használható együtt a „test” "
+"és a „first_non_empty” függvényekkel. Bármennyi argumentuma lehet."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:896
 msgid ""
@@ -19612,9 +19760,9 @@ msgid ""
 "format_date or days_between, but can be manipulated like any other string. "
 "The date is in ISO format."
 msgstr ""
-"today() – visszatérési értéke a mai nap dátum sztringje. Alapvetően a "
+"today() – visszatérési értéke a mai nap dátum karakterlánca. Alapvetően a "
 "„format_date” és a „days_between” függvényekben használatos, de ugyanúgy "
-"manipulálható mint más normál sztring. A dátum ISO formátumú."
+"manipulálható mint más normál karakterlánc. A dátum ISO formátumú."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1001
 msgid ""
@@ -19626,7 +19774,7 @@ msgstr ""
 "days_between(dátum1, dátum2) – visszatérési értéke a két dátum között lévő "
 "napok száma. Ha a „dátum1” nagyobb, mint a „dátum2”, akkor a visszatérési "
 "érték pozitív, egyébként negatív szám. Ha a „dátum1” vagy a „dátum2” nem "
-"dátum érték, akkor a visszatérési érték üres sztring."
+"dátum érték, akkor a visszatérési érték üres karakterlánc."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1023
 msgid ""
@@ -19636,7 +19784,7 @@ msgid ""
 "the current locale. Lang_codes is a comma-separated list."
 msgstr ""
 "language_strings(nyelv_kódok, lefordít) – a „nyelv_kódok” vesszővel tagolt "
-"listában szereplő sztringeket adja vissza a „lefordít” értékének "
+"listában szereplő karakterláncokat adja vissza a „lefordít” értékének "
 "megfelelően. Ha a „lefordít” értéke 0, akkor a visszatérési lista angol "
 "nyelvű, egyébként az aktuálisan beállított nyelv."
 
@@ -19646,10 +19794,10 @@ msgid ""
 "passed in lang_strings. The strings must be in the language of the current "
 "locale. Lang_strings is a comma-separated list."
 msgstr ""
-"language_codes(nyelvi_sztringek) – visszatérési értéke egy olyan vesszővel "
-"tagolt lista, amely a „nyelvi_sztringek” listában szereplő elemeknek "
-"megfelelő nyelvi kódokat tartalmazza. A „nyelvi_sztringek” lista elemeinek "
-"az aktuálisan beállított nyelvűnek kell lenniük."
+"language_codes(nyelvi_karakterláncok) – visszatérési értéke egy olyan "
+"vesszővel tagolt lista, amely a „nyelvi_karakterláncok” listában szereplő "
+"elemeknek megfelelő nyelvi kódokat tartalmazza. A „nyelvi_karakterláncok” "
+"lista elemeinek az aktuálisan beállított nyelvűnek kell lenniük."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -19677,7 +19825,7 @@ msgstr "brazil portugál"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (UK)"
-msgstr "angol (brit)"
+msgstr "Angol (Brit)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Simplified Chinese"
@@ -19693,7 +19841,7 @@ msgstr "Kínai (hagyományos)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English"
-msgstr "angol"
+msgstr "Angol"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
 msgid "English (Australia)"
@@ -19713,7 +19861,7 @@ msgstr "Angol (Kanada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (Greece)"
-msgstr "Angol (Görög)"
+msgstr "Angol (Görögország)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "English (India)"
@@ -20052,7 +20200,7 @@ msgstr "Fejléc kép letöltve"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1216
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Cikkek ebben a számban: "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1286
 msgid "Untitled Article"
@@ -20256,7 +20404,7 @@ msgstr "&Nem"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:690
 msgid "N&o to All"
-msgstr ""
+msgstr "Egyik &sem"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:693
 msgid "Save All"
