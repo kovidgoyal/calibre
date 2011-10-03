@@ -47,7 +47,8 @@ def normalize_format_name(fmt):
     return fmt
 
 def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
-        return_data=False, compression_quality=90, minify_to=None):
+        return_data=False, compression_quality=90, minify_to=None,
+        grayscale=False):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
@@ -60,7 +61,8 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
         compression (lossless).
     :param bgcolor: The color for transparent pixels. Must be specified in hex.
     :param resize_to: A tuple (width, height) or None for no resizing
-    :param minify_to: A tuple (width, height) to specify target size. The image
+    :param minify_to: A tuple (width, height) to specify maximum target size.
+    :param grayscale: If True, the image is grayscaled
     will be resized to fit into this target size. If None the value from the
     tweak is used.
 
@@ -70,6 +72,10 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     orig_fmt = normalize_format_name(img.format)
     fmt = os.path.splitext(path)[1]
     fmt = normalize_format_name(fmt[1:])
+
+    if grayscale:
+       img.type = "GrayscaleType"
+       changed = True
 
     if resize_to is not None:
         img.size = (resize_to[0], resize_to[1])
