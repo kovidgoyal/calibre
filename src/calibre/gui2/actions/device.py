@@ -24,7 +24,7 @@ class ShareConnMenu(QMenu): # {{{
 
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
-    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
