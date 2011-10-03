@@ -24,7 +24,7 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://ad.zanox.com/ppc/?18817073C15644254T'
-        url_details = ('http://ad.zanox.com/ppc/?18848208C1197627693T&ULP=[['
+        url_details = ('http://ad.zanox.com/ppc/?18817073C15644254T&ULP=[['
                        'http://www.libri.de/shop/action/productDetails?artiId={0}]]')
 
         if external or self.config.get('open_external', False):

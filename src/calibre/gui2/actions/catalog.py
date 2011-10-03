@@ -18,10 +18,14 @@ class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
     action_spec = (_('Create catalog'), 'catalog.png', 'Catalog builder', ())
-    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
 
     def genesis(self):
         self.qaction.triggered.connect(self.generate_catalog)
+
+    def location_selected(self, loc):
+        enabled = loc == 'library'
+        self.qaction.setEnabled(enabled)
 
     def generate_catalog(self):
         rows = self.gui.library_view.selectionModel().selectedRows()

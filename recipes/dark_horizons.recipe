@@ -1,0 +1,15 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1317580312(BasicNewsRecipe):
+    title          = u'Dark Horizons'
+    language = 'en'
+    __author__            = 'Jaded'
+    description ='News, images, video clips and reviews of current and upcoming blockbuster films. '
+    category               = 'movies, tv, news'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    cover_url          = 'http://a4.sphotos.ak.fbcdn.net/hphotos-ak-ash2/164168_148419801879765_148410081880737_225532_464073_n.jpg'
+    masthead_url          = 'http://www.darkhorizons.com/graphics/2/logo_print.png'
+    auto_cleanup = True
+
+    feeds          = [(u'News', u'http://www.darkhorizons.com/feeds/news.atom'), (u'Features', u'http://www.darkhorizons.com/feeds/features.atom'), (u'Reviews', u'http://www.darkhorizons.com/feeds/reviews.atom')]

@@ -100,7 +100,7 @@ gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?se
 gprefs.defaults['preserve_date_on_ctl'] = True
 gprefs.defaults['cb_fullscreen'] = False
 gprefs.defaults['worker_max_time'] = 0
-
+gprefs.defaults['show_files_after_save'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
