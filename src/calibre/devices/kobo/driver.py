@@ -852,7 +852,6 @@ class KOBO(USBMS):
                         if os.path.exists(fpath):
                             with open(cover, 'rb') as f:
                                 data = f.read()
-                            f.close()
 
                             # Return the data resized and in Grayscale if
                             # required
