@@ -9,285 +9,79 @@ calibre recipe for slate.com
 
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Comment, Tag
 
 class Slate(BasicNewsRecipe):
-    # Method variables for customizing downloads
     description             = 'A general-interest publication offering analysis and commentary about politics, news and culture.'
-    __author__              = 'GRiker, Sujata Raman and Nick Redding'
-    max_articles_per_feed   = 100
-    oldest_article          = 14
-    recursions              = 0
-    delay                   = 0
-    simultaneous_downloads  = 5
-    timeout                 = 120.0
+    __author__              = 'Kovid Goyal'
     timefmt                 = ''
-    feeds                   = None
     no_stylesheets          = True
-    encoding                = None
     language = 'en'
+    title = 'Slate'
+    INDEX = 'http://slate.com'
+    encoding = 'utf-8'
+    preprocess_regexps = [
+            (re.compile(r'<!--.*?-->', re.DOTALL), lambda x: ''),
+            (re.compile(r'^.*?<html', re.DOTALL), lambda x:'<html'),
+            (re.compile(r'<meta[^>]+?/>', re.DOTALL), lambda x:''),
+            ]
+    remove_tags = [
+            {'name':['link', 'script']},
+            {'class':['share-box-flank', 'sl-crumbs', 'sl-tbar',
+                'sl-chunky-tbar']},
+            ]
+    remove_tags_after = [{'class':'sl-art-creds-cntr'}]
+    keep_only_tags = {'class':'sl-body-wrapper'}
+    remove_attributes = ['style']
 
-    slate_complete = True
-    if slate_complete:
-        title = 'Slate (complete)'
-    else:
-        title = 'Slate (weekly)'
+    def print_version(self, url):
+        return url.replace('.html', '.single.html')
 
-    # Method variables for customizing feed parsing
-    summary_length          = 250
-    use_embedded_content    = None
-
-    # Method variables for pre/post processing of HTML
-    preprocess_regexps = [ (re.compile(r'<p><em>Disclosure: <strong>Slate</strong> is owned by the Washington Post.*</p>',
-                                        re.DOTALL|re.IGNORECASE),
-                                        lambda match: ''),
-                           (re.compile(r'<p><strong><em>Join the discussion about this story on.*</p>',
-                                        re.DOTALL|re.IGNORECASE),
-                                        lambda match: '')   ]
-
-    match_regexps           = []
-
-    # The second entry is for 'Big Money', which comes from a different site, uses different markup
-    keep_only_tags          = [dict(attrs={   'id':['article_top', 'article_body']}),
-                               dict(attrs={   'id':['content']})  ]
-
-    # The second entry is for 'Big Money', which comes from a different site, uses different markup
-    remove_tags             = [dict(attrs={   'id':['toolbox','recommend_tab','insider_ad_wrapper',
-                                                    'article_bottom_tools_cntr','fray_article_discussion','fray_article_links','bottom_sponsored_links','author_bio',
-                                                    'bizbox_links_bottom','ris_links_wrapper','BOXXLE',
-                                                    'comments_button','add_comments_button','comments-to-fray','marriott_ad',
-                                                    'article_bottom_tools','recommend_tab2','fbog_article_bottom_cntr']}),
-                               dict(attrs={    'id':['content-top','service-links-bottom','hed']})   ]
-
-    excludedDescriptionKeywords =   ['Slate V','Twitter feed','podcast']
-    excludedTitleKeywords =         ['Gabfest','Slate V','on Twitter']
-    excludedAuthorKeywords =        []
-    excludedContentKeywords =       ['http://twitter.com/Slate']
-
-    extra_css = '''
-                  .h1_subhead{font-family:Arial; font-size:small; }
-                   h1{font-family:Verdana; font-size:large; }
-                 .byline        {font-family:Georgia;   margin-bottom: 0px; }
-                 .dateline      {font-family:Arial;  font-size: smaller; height: 0pt;}
-                 .imagewrapper  {font-family:Verdana;font-size:x-small; }
-                 .source        {font-family:Verdana; font-size:x-small;}
-                 .credit        {font-family:Verdana; font-size:     smaller;}
-                 #article_body  {font-family:Verdana; }
-                 #content  {font-family:Arial; }
-                 .caption{font-family:Verdana;font-style:italic; font-size:x-small;}
-                 h3{font-family:Arial; font-size:small}
-                  '''
-
-    # Local variables to extend class
-    baseURL = 'http://slate.com'
-    section_dates = []
-
-    # class extension methods
-    def tag_to_strings(self, tag):
-        if not tag:
-            return ''
-        if isinstance(tag, basestring):
-            return tag
-        strings = []
-        for item in tag.contents:
-            if isinstance(item, (NavigableString, CData)):
-                strings.append(item.string)
-            elif isinstance(item, Tag):
-                res = self.tag_to_string(item,use_alt=False)
-                if res:
-                    strings.append(res)
-        return strings
-
-    def extract_named_sections(self):
-        soup = self.index_to_soup( self.baseURL )
-        soup_nav_bar = soup.find(True, attrs={'id':'nav'})
-        briefing_nav = soup.find('li')
-        briefing_url = briefing_nav.a['href']
-        for section_nav in soup_nav_bar.findAll('li'):
-            section_name = self.tag_to_string(section_nav,use_alt=False)
-            self.section_dates.append(section_name)
-
-        soup = self.index_to_soup(briefing_url)
-
-        self.log("Briefing url = %s " % briefing_url)
-        section_lists = soup.findAll('ul','view_links_list')
-
-        sections = []
-        for section in section_lists :
-            sections.append(section)
-        return sections
-
-
-    def extract_dated_sections(self):
-        soup = self.index_to_soup( self.baseURL )
-        soup_top_stories = soup.find(True, attrs={'id':'tap3_cntr'})
-        if soup_top_stories:
-            self.section_dates.append("Top Stories")
-            self.log("SELECTION TOP STORIES %s" % "Top Stories")
-
-        soup = soup.find(True, attrs={'id':'toc_links_container'})
-
-        todays_section = soup.find(True, attrs={'class':'todaydateline'})
-        self.section_dates.append(self.tag_to_string(todays_section,use_alt=False))
-        self.log("SELECTION DATE %s" % self.tag_to_string(todays_section,use_alt=False))
-
-        older_section_dates = soup.findAll(True, attrs={'class':'maindateline'})
-        for older_section in older_section_dates :
-            self.section_dates.append(self.tag_to_string(older_section,use_alt=False))
-            self.log("SELECTION DATE %s" % self.tag_to_string(older_section,use_alt=False))
-
-        if soup_top_stories:
-            headline_stories = soup_top_stories
-            self.log("HAVE top_stories")
-        else:
-            headline_stories = None
-            self.log("NO top_stories")
-        section_lists = soup.findAll('ul')
-        # Prepend the headlines to the first section
-        if headline_stories:
-            section_lists.insert(0,headline_stories)
-
-        sections = []
-        for section in section_lists :
-            sections.append(section)
-        return sections
-
-
-    def extract_section_articles(self, sections_html) :
-        # Find the containers with section content
-        sections = sections_html
-
-        articles = {}
-        key = None
+    def parse_index(self) :
         ans = []
-
-        for (i,section) in enumerate(sections) :
-
-            # Get the section name
-            if section.has_key('id') :
-                self.log("PROCESSING SECTION id = %s" % section['id'])
-                key = self.section_dates[i]
-                if key.startswith("Pod"):
-                    continue
-                if key.startswith("Blog"):
-                    continue
-                articles[key] = []
-                ans.append(key)
-            elif self.slate_complete:
-                key = self.section_dates[i]
-                if key.startswith("Pod"):
-                    continue
-                if key.startswith("Blog"):
-                    continue
-                self.log("PROCESSING SECTION name = %s" % key)
-                articles[key] = []
-                ans.append(key)
-            else :
-                self.log("SECTION %d HAS NO id" % i);
-                continue
-
-            # Get the section article_list
-            article_list = section.findAll('li')
-
-            # Extract the article attributes
-            for article in article_list :
-                bylines = self.tag_to_strings(article)
-                url = article.a['href']
-                title = bylines[0]
-                full_title = self.tag_to_string(article,use_alt=False)
-                #self.log("ARTICLE TITLE%s" % title)
-                #self.log("ARTICLE FULL_TITLE%s" % full_title)
-                #self.log("URL %s" % url)
-                author = None
-                description = None
-                pubdate = None
-
-                if len(bylines) == 2 and self.tag_to_string(article).find("Today's Papers") > 0 :
-                    description = "A summary of what's in the major U.S. newspapers."
-
-                if len(bylines) == 3 :
-                    author = bylines[2].strip()
-                    author = re.sub('[\r][\n][\t][\t\t]','', author)
-                    author = re.sub(',','', author)
-                    if bylines[1] is not None :
-                        description = bylines[1]
-                        full_byline = self.tag_to_string(article)
-                        if full_byline.find('major U.S. newspapers') > 0 :
-                            description = "A summary of what's in the major U.S. newspapers."
-
-                if len(bylines) > 3  and author is not None:
-                    author += " | "
-                    for (i,substring) in enumerate(bylines[3:]) :
-                        #print "substring: %s" % substring.encode('cp1252')
-                        author += substring.strip()
-                        if i < len(bylines[3:]) :
-                            author += " | "
-
-                # Skip articles whose descriptions contain excluded keywords
-                if description is not None and len(self.excludedDescriptionKeywords):
-                    excluded = re.compile('|'.join(self.excludedDescriptionKeywords))
-                    found_excluded = excluded.search(description)
-                    if found_excluded :
-                        self.log("  >>> skipping %s (description keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
-                        continue
-
-                # Skip articles whose title contain excluded keywords
-                if full_title is not None and len(self.excludedTitleKeywords):
-                    excluded = re.compile('|'.join(self.excludedTitleKeywords))
-                    #self.log("evaluating full_title: %s" % full_title)
-                    found_excluded = excluded.search(full_title)
-                    if found_excluded :
-                        self.log("  >>> skipping %s (title keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
-                        continue
-
-                # Skip articles whose author contain excluded keywords
-                if author is not None and len(self.excludedAuthorKeywords):
-                    excluded = re.compile('|'.join(self.excludedAuthorKeywords))
-                    found_excluded = excluded.search(author)
-                    if found_excluded :
-                        self.log("  >>> skipping %s (author keyword exclusion: %s) <<<\n" % (title, found_excluded.group(0)))
-                        continue
-
-                skip_this_article = False
-                # Check to make sure we're not adding a duplicate
-                for article in articles[key] :
-                    if article['url'] == url :
-                        skip_this_article = True
-                        self.log("SKIPPING DUP %s" % url)
-                        break
-
-                if skip_this_article :
-                    continue
-
-                # Build the dictionary entry for this article
-                feed = key
-                if not articles.has_key(feed) :
-                    articles[feed] = []
-                articles[feed].append(dict(title=title, url=url, date=pubdate, description=description,
-                                           author=author, content=''))
-                #self.log("KEY %s" % feed)
-                #self.log("APPENDED %s" % url)
-            # Promote 'newspapers' to top
-            for (i,article) in enumerate(articles[feed]) :
-                if article['description'] is not None :
-                    if article['description'].find('newspapers') > 0 :
-                        articles[feed].insert(0,articles[feed].pop(i))
-
-
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+        for sectitle, url in (
+                ('News & Politics', '/articles/news_and_politics.html'),
+                ('Technology', '/articles/technology.html'),
+                ('Business', '/articles/business.html'),
+                ('Arts', '/articles/arts.html'),
+                ('Life', '/articles/life.html'),
+                ('Health & Science', '/articles/health_and_science.html'),
+                ('Sports', '/articles/sports.html'),
+                ('Double X', '/articles/double_x.html'),
+                ):
+            url = self.INDEX + url
+            self.log('Found section:', sectitle)
+            articles = self.slate_section_articles(self.index_to_soup(url))
+            if articles:
+                ans.append((sectitle, articles))
         return ans
 
-    def print_version(self, url) :
-        return url + 'pagenum/all/'
-
-    # Class methods
-    def parse_index(self) :
-        if self.slate_complete:
-            sections = self.extract_named_sections()
-        else:
-            sections = self.extract_dated_sections()
-        section_list = self.extract_section_articles(sections)
-        return section_list
+    def slate_section_articles(self, soup):
+        cont = soup.find('div', id='most_read')
+        seen = set()
+        ans = []
+        for h4 in cont.findAll('h4'):
+            a = h4.find('a', href=True)
+            if a is None: continue
+            url = a['href']
+            if url.startswith('/'):
+                url = self.INDEX + url
+            if url in seen: continue
+            seen.add(url)
+            title = self.tag_to_string(a)
+            parent = h4.parent
+            h3 = parent.find('h3')
+            desc = ''
+            if h3 is not None:
+                desc = self.tag_to_string(h3)
+            a = parent.find('a', rel='author')
+            if a is not None:
+                a = self.tag_to_string(a)
+            art = {'title':title, 'description':desc, 'date':'', 'url':url}
+            if a:
+                art['author'] = a
+            self.log('\tFound article:', title, ' by ', a)
+            ans.append(art)
+        return ans
 
     def get_masthead_url(self):
         masthead = 'http://img.slate.com/images/redesign2008/slate_logo.gif'
@@ -299,153 +93,4 @@ class Slate(BasicNewsRecipe):
             masthead = None
         return masthead
 
-    def stripAnchors(self,soup):
-        body = soup.find('div',attrs={'id':['article_body','content']})
-        if body is not None:
-            paras = body.findAll('p')
-            if paras is not None:
-                for para in paras:
-                    aTags = para.findAll('a')
-                    if aTags is not None:
-                        for a in aTags:
-                            if a.img is None:
-                                #print repr(a.renderContents())
-                                a.replaceWith(a.renderContents().decode('utf-8','replace'))
-        return soup
-
-    def preprocess_html(self, soup) :
-
-        # Remove 'grayPlus4.png' images
-        imgs = soup.findAll('img')
-        if imgs is not None:
-            for img in imgs:
-                if re.search("grayPlus4.png",str(img)):
-                    img.extract()
-
-        # Delete article based upon content keywords
-        if len(self.excludedDescriptionKeywords):
-            excluded = re.compile('|'.join(self.excludedContentKeywords))
-            found_excluded = excluded.search(str(soup))
-            if found_excluded :
-                print "No allowed content found, removing article"
-                raise Exception('Rejected article')
-
-        # Articles from www.thebigmoney.com use different tagging for byline, dateline and body
-        head = soup.find('head')
-        if head.link is not None and re.search('www\.thebigmoney\.com', str(head)):
-            byline = soup.find('div',attrs={'id':'byline'})
-            if byline is not None:
-                byline['class'] = byline['id']
-
-            dateline = soup.find('div',attrs={'id':'dateline'})
-            if dateline is not None:
-                dateline['class'] = dateline['id']
-
-            body = soup.find('div',attrs={'id':'content'})
-            if body is not None:
-                body['class'] = 'article_body'
-
-            # Synthesize a department kicker
-            h3Tag = Tag(soup,'h3')
-            emTag = Tag(soup,'em')
-            emTag.insert(0,NavigableString("the big money: Today's business press"))
-            h3Tag.insert(0,emTag)
-            soup.body.insert(0,h3Tag)
-
-        # Strip anchors from HTML
-        return self.stripAnchors(soup)
-
-    def postprocess_html(self, soup, first_fetch) :
-
-        # Fix up dept_kicker as <h3><em>
-        dept_kicker = soup.find('div', attrs={'class':'department_kicker'})
-        if dept_kicker is not None :
-            kicker_strings = self.tag_to_strings(dept_kicker)
-            kicker = ''.join(kicker_strings[2:])
-            kicker = re.sub('\.','',kicker)
-            h3Tag = Tag(soup, "h3")
-            emTag = Tag(soup, "em")
-            emTag.insert(0,NavigableString(kicker))
-            h3Tag.insert(0, emTag)
-            dept_kicker.replaceWith(h3Tag)
-        else:
-            self.log("No kicker--return null")
-            return None
-
-       # Fix up the concatenated byline and dateline
-        byline = soup.find(True,attrs={'class':'byline'})
-        if byline is not None :
-            bylineTag = Tag(soup,'div')
-            bylineTag['class'] = 'byline'
-            #bylineTag['height'] = '0em'
-            bylineTag.insert(0,self.tag_to_string(byline))
-            byline.replaceWith(bylineTag)
-
-        dateline = soup.find(True, attrs={'class':'dateline'})
-        if dateline is not None :
-            datelineTag = Tag(soup, 'div')
-            datelineTag['class'] = 'dateline'
-            #datelineTag['margin-top'] = '0em'
-            datelineTag.insert(0,self.tag_to_string(dateline))
-            dateline.replaceWith(datelineTag)
-
-        # Change captions to italic, add <hr>
-        for caption in soup.findAll(True, {'class':'caption'}) :
-            if caption is not None:
-                emTag = Tag(soup, "em")
-                emTag.insert(0, '<br />' + self.tag_to_string(caption))
-                hrTag = Tag(soup, 'hr')
-                emTag.insert(1, hrTag)
-                caption.replaceWith(emTag)
-
-        # Fix photos
-        for photo in soup.findAll('span',attrs={'class':'imagewrapper'}):
-            if photo.a is not None and photo.a.img is not None:
-                divTag = Tag(soup,'div')
-                divTag['class'] ='imagewrapper'
-                divTag.insert(0,photo.a.img)
-                photo.replaceWith(divTag)
-
-        return soup
-
-    def postprocess_book(self, oeb, opts, log) :
-
-        def extract_byline(href) :
-            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
-            byline = soup.find(True,attrs={'class':'byline'})
-            if byline is not None:
-                return self.tag_to_string(byline,use_alt=False)
-            else :
-                return None
-
-        def extract_description(href) :
-            soup = BeautifulSoup(str(oeb.manifest.hrefs[href]))
-            paragraphs = soup.findAll('p')
-            for p in paragraphs :
-                if self.tag_to_string(p,use_alt=False).startswith('By ') or \
-                   self.tag_to_string(p,use_alt=False).startswith('Posted '):
-                    continue
-                comment = p.find(text=lambda text:isinstance(text, Comment))
-                if comment is not None:
-                    continue
-                else:
-                    return self.tag_to_string(p,use_alt=False)[:self.summary_length] + '...'
-
-            return None
-
-        # Method entry point here
-        # Single section toc looks different than multi-section tocs
-        if oeb.toc.depth() == 2 :
-            for article in oeb.toc :
-                if article.author is None :
-                    article.author = extract_byline(article.href)
-                if article.description is None :
-                    article.description = extract_description(article.href)
-        elif oeb.toc.depth() == 3 :
-            for section in oeb.toc :
-                for article in section :
-                    if article.author is None :
-                        article.author = extract_byline(article.href)
-                    if article.description is None :
-                        article.description = extract_description(article.href)
 
