@@ -414,7 +414,8 @@ class DevicePlugin(Plugin):
     @classmethod
     def config_widget(cls):
         '''
-        Should return a QWidget. The QWidget contains the settings for the device interface
+        Should return a QWidget. The QWidget contains the settings for the
+        device interface
         '''
         raise NotImplementedError()
 
@@ -429,8 +430,9 @@ class DevicePlugin(Plugin):
     @classmethod
     def settings(cls):
         '''
-        Should return an opts object. The opts object should have at least one attribute
-        `format_map` which is an ordered list of formats for the device.
+        Should return an opts object. The opts object should have at least one
+        attribute `format_map` which is an ordered list of formats for the
+        device.
         '''
         raise NotImplementedError()
 
