@@ -19,8 +19,8 @@ class FazNet(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf-8'
     remove_javascript     = True
-    auto_cleanup = True
-    auto_cleanup_keep_tags = '//div[@class="FAZArtikelEinleitung"]'
+    keep_only_tags = [{'class':'FAZArtikelEinleitung'},
+            {'id':'ArtikelTabContent_0'}]
 
     feeds = [
               ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
