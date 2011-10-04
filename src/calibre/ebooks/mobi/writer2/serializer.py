@@ -7,6 +7,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
+
 from calibre.ebooks.oeb.base import (OEB_DOCS, XHTML, XHTML_NS, XML_NS,
         namespace, prefixname, urlnormalize)
 from calibre.ebooks.mobi.mobiml import MBP_NS
@@ -19,7 +21,7 @@ from cStringIO import StringIO
 class Serializer(object):
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
 
-    def __init__(self, oeb, images, write_page_breaks_after_item=True):
+    def __init__(self, oeb, images, is_periodical, write_page_breaks_after_item=True):
         '''
         Write all the HTML markup in oeb into a single in memory buffer
         containing a single html document with links replaced by offsets into
@@ -35,8 +37,10 @@ class Serializer(object):
         is written after every element of the spine in ``oeb``.
         '''
         self.oeb = oeb
+        # Map of image hrefs to image index in the MOBI file
         self.images = images
         self.logger = oeb.logger
+        self.is_periodical = is_periodical
         self.write_page_breaks_after_item = write_page_breaks_after_item
 
         # If not None, this is a number pointing to the location at which to
@@ -81,7 +85,8 @@ class Serializer(object):
                 spine_item(item).is_section_start = True
                 for i, article in enumerate(articles):
                     si = spine_item(article)
-                    si.is_article_start = True
+                    if si is not None:
+                        si.is_article_start = True
 
         items = list(self.oeb.spine)
         in_sec = in_art = False
@@ -112,6 +117,12 @@ class Serializer(object):
         buf.write(b'</html>')
         self.end_offset = buf.tell()
         self.fixup_links()
+        if self.start_offset is None and not self.is_periodical:
+            # If we don't set a start offset, the stupid Kindle will
+            # open the book at the location of the first IndexEntry, which
+            # could be anywhere. So ensure the book is always opened at the
+            # beginning, instead.
+            self.start_offset = self.body_start_offset
         return buf.getvalue()
 
     def serialize_head(self):
@@ -149,7 +160,9 @@ class Serializer(object):
                 buf.write(b'title="')
                 self.serialize_text(ref.title, quot=True)
                 buf.write(b'" ')
-                if ref.title == 'start':
+                if (ref.title.lower() == 'start' or
+                    (ref.type and ref.type.lower() in ('start',
+                        'other.start'))):
                     self._start_href = ref.href
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not
@@ -187,13 +200,63 @@ class Serializer(object):
         moved to the end.
         '''
         buf = self.buf
+
+        def serialize_toc_level(tocref, href=None):
+            # add the provided toc level to the output stream
+            # if href is provided add a link ref to the toc level output (e.g. feed_0/index.html)
+            if href is not None:
+                # resolve the section url in id_offsets
+                buf.write('<mbp:pagebreak />')
+                self.id_offsets[urlnormalize(href)] = buf.tell()
+
+            if tocref.klass == "periodical":
+                buf.write('<div> <div height="1em"></div>')
+            else:
+                buf.write('<div></div> <div> <h2 height="1em"><font size="+2"><b>'+tocref.title+'</b></font></h2> <div height="1em"></div>')
+
+            buf.write('<ul>')
+
+            for tocitem in tocref.nodes:
+                buf.write('<li><a filepos=')
+                itemhref = tocitem.href
+                if tocref.klass == 'periodical':
+                    # This is a section node.
+                    # For periodical toca, the section urls are like r'feed_\d+/index.html'
+                    # We dont want to point to the start of the first article
+                    # so we change the href.
+                    itemhref = re.sub(r'article_\d+/', '', itemhref)
+                self.href_offsets[itemhref].append(buf.tell())
+                buf.write('0000000000')
+                buf.write(' ><font size="+1" color="blue"><b><u>')
+                buf.write(tocitem.title)
+                buf.write('</u></b></font></a></li>')
+
+            buf.write('</ul><div height="1em"></div></div><mbp:pagebreak />')
+
         self.anchor_offset = buf.tell()
         buf.write(b'<body>')
         self.body_start_offset = buf.tell()
+
+        if self.is_periodical:
+            top_toc = self.oeb.toc.nodes[0]
+            serialize_toc_level(top_toc)
+
         spine = [item for item in self.oeb.spine if item.linear]
         spine.extend([item for item in self.oeb.spine if not item.linear])
+
         for item in spine:
+
+            if self.is_periodical and item.is_section_start:
+                for section_toc in top_toc.nodes:
+                    if urlnormalize(item.href) == section_toc.href:
+                        # create section url of the form r'feed_\d+/index.html'
+                        section_url = re.sub(r'article_\d+/', '', section_toc.href)
+                        serialize_toc_level(section_toc, section_url)
+                        section_toc.href = section_url
+                        break
+
             self.serialize_item(item)
+
         self.body_end_offset = buf.tell()
         buf.write(b'</body>')
 
@@ -287,8 +350,9 @@ class Serializer(object):
         '''
         buf = self.buf
         id_offsets = self.id_offsets
+        start_href = getattr(self, '_start_href', None)
         for href, hoffs in self.href_offsets.items():
-            is_start = (href and href == getattr(self, '_start_href', None))
+            is_start = (href and href == start_href)
             # Iterate over all filepos items
             if href not in id_offsets:
                 self.logger.warn('Hyperlink target %r not found' % href)

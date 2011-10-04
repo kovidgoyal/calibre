@@ -290,7 +290,7 @@ class LinuxFreeze(Command):
 
                 launcher = textwrap.dedent('''\
                 #!/bin/sh
-                path=`readlink -e $0`
+                path=`readlink -f $0`
                 base=`dirname $path`
                 lib=$base/lib
                 export LD_LIBRARY_PATH=$lib:$LD_LIBRARY_PATH

@@ -8,11 +8,6 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
 import os, re, tempfile
@@ -33,7 +28,7 @@ class Tokenize:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__write_to = tempfile.mktemp()
-        # self.__out_file = out_file
+        # self.__write_to = out_file
         self.__compile_expressions()
         #variables
         self.__uc_char = 0
@@ -46,14 +41,11 @@ class Tokenize:
 
     def __remove_uc_chars(self, startchar, token):
         for i in xrange(startchar, len(token)):
-            #handle the case of an uc char with a terminating blank before ansi char
-            if token[i] == " " and self.__uc_char:
-                continue
-            elif self.__uc_char:
+            if self.__uc_char:
                 self.__uc_char -= 1
             else:
                 return token[i:]
-        #if only " " and char to skip
+        #if only char to skip
         return ''
 
     def __unicode_process(self, token):
@@ -95,7 +87,7 @@ class Tokenize:
             self.__reini_utf8_counters()
             #get value and handle negative case
             uni_char = int(match_obj.group(1))
-            uni_len = len(match_obj.group(1)) + 2
+            uni_len = len(match_obj.group(0))
             if uni_char < 0:
                 uni_char += 65536
             uni_char = unichr(uni_char).encode('ascii', 'xmlcharrefreplace')
@@ -119,6 +111,7 @@ class Tokenize:
         # this is for older RTF
         input_file = self.__par_exp.sub('\n\\par \n', input_file)
         input_file = self.__cwdigit_exp.sub("\g<1>\n\g<2>", input_file)
+        input_file = self.__cs_ast.sub("\g<1>", input_file)
         input_file = self.__ms_hex_exp.sub("\\mshex0\g<1> ", input_file)
         input_file = self.__utf_ud.sub("\\{\\uc0 \g<1>\\}", input_file)
         #remove \n in bin data
@@ -168,6 +161,8 @@ class Tokenize:
         self.__splitexp = re.compile(r"(\\[{}]|\n|\\[^\s\\{}&]+(?:[ \t\r\f\v])?)")
         #this is for old RTF
         self.__par_exp = re.compile(r'(\\\n+|\\ )')
+        #handle improper cs char-style with \* before without {
+        self.__cs_ast = re.compile(r'\\\*([\n ]*\\cs\d+[\n \\]+)')
         #handle cw using a digit as argument and without space as delimiter
         self.__cwdigit_exp = re.compile(r"(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)")
 
@@ -201,7 +196,7 @@ class Tokenize:
 
 # import sys
 # def main(args=sys.argv):
-    # if len(args) < 1:
+    # if len(args) < 2:
         # print 'No file'
         # return
     # file = 'data_tokens.txt'
@@ -213,3 +208,5 @@ class Tokenize:
 
 # if __name__ == '__main__':
     # sys.exit(main())
+    
+# calibre-debug -e src/calibre/ebooks/rtf2xml/tokenize.py

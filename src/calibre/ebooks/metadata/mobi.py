@@ -78,7 +78,7 @@ class StreamSlicer(object):
         stream = self._stream
         base = self.start
         stream.seek(base)
-        self._stream.truncate(base)
+        stream.truncate()
         for block in data_blocks:
             stream.write(block)
 
@@ -330,9 +330,11 @@ class MetadataUpdater(object):
             prefs = load_defaults('mobi_output')
             pas = prefs.get('prefer_author_sort', False)
             kindle_pdoc = prefs.get('personal_doc', None)
+            share_not_sync = prefs.get('share_not_sync', False)
         except:
             pas = False
             kindle_pdoc = None
+            share_not_sync = False
         if mi.author_sort and pas:
             authors = mi.author_sort
             update_exth_record((100, normalize(authors).encode(self.codec, 'replace')))
@@ -358,7 +360,7 @@ class MetadataUpdater(object):
 
             if kindle_pdoc and kindle_pdoc in mi.tags:
                 added_501 = True
-                update_exth_record((501, str('PDOC')))
+                update_exth_record((501, b'PDOC'))
 
         if mi.pubdate:
             update_exth_record((106, str(mi.pubdate).encode(self.codec, 'replace')))
@@ -376,7 +378,7 @@ class MetadataUpdater(object):
         # Add a 113 record if not present to allow Amazon syncing
         if (113 not in self.original_exth_records and
                 self.original_exth_records.get(501, None) == 'EBOK' and
-                not added_501):
+                not added_501 and not share_not_sync):
             from uuid import uuid4
             update_exth_record((113, str(uuid4())))
         if 503 in self.original_exth_records:

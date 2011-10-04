@@ -80,10 +80,13 @@ class BeWriteStore(BasicStoreConfig, StorePlugin):
             price = '$' + price.split('$')[-1]
             search_result.price = price.strip()
             
-            cover_img = idata.xpath('//div[@id="content"]//img[1]/@src')
+            cover_img = idata.xpath('//div[@id="content"]//img/@src')
             if cover_img:
-                cover_url = 'http://www.bewrite.net/mm5/' + cover_img[0]
-                search_result.cover_url = cover_url.strip()
+                for i in cover_img:
+                    if '00001' in i:
+                        cover_url = 'http://www.bewrite.net/mm5/' + i
+                        search_result.cover_url = cover_url.strip()
+                        break
             
             formats = set([])
             if idata.xpath('boolean(//div[@id="content"]//td[contains(text(), "ePub")])'):

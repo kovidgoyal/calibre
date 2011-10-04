@@ -1,1914 +1,612 @@
-#!/usr/bin/env python
-
-version = "1.7"
-version_info = (1,7,0,"rc-2")
-__revision__ = "$Rev: 72 $"
-
 """
-Python-Markdown
+Python Markdown
 ===============
 
-Converts Markdown to HTML.  Basic usage as a module:
+Python Markdown converts Markdown to HTML and can be used as a library or
+called from the command line.
+
+## Basic usage as a module:
 
     import markdown
     md = Markdown()
     html = md.convert(your_text_string)
 
-See http://www.freewisdom.org/projects/python-markdown/ for more
-information and instructions on how to extend the functionality of the
-script.  (You might want to read that before you try modifying this
-file.)
+## Basic use from the command line:
+
+    python markdown.py source.txt > destination.html
+
+Run "python markdown.py --help" to see more options.
+
+## Extensions
+
+See <http://www.freewisdom.org/projects/python-markdown/> for more
+information and instructions on how to extend the functionality of
+Python Markdown.  Read that before you try modifying this file.
+
+## Authors and License
 
 Started by [Manfred Stienstra](http://www.dwerg.net/).  Continued and
-maintained  by [Yuri Takhteyev](http://www.freewisdom.org) and [Waylan
-Limberg](http://achinghead.com/).
+maintained  by [Yuri Takhteyev](http://www.freewisdom.org), [Waylan
+Limberg](http://achinghead.com/) and [Artem Yunusov](http://blog.splyer.com).
 
-Contact: yuri [at] freewisdom.org
-         waylan [at] gmail.com
+Contact: markdown@freewisdom.org
 
-License: GPL 2 (http://www.gnu.org/copyleft/gpl.html) or BSD
+Copyright 2007, 2008 The Python Markdown Project (v. 1.7 and later)
+Copyright 200? Django Software Foundation (OrderedDict implementation)
+Copyright 2004, 2005, 2006 Yuri Takhteyev (v. 0.2-1.6b)
+Copyright 2004 Manfred Stienstra (the original version)
+
+License: BSD (see docs/LICENSE for details).
+"""
+from calibre.ebooks.markdown.commandline import parse_options
+
+version = "2.0"
+version_info = (2,0,0, "Final")
+
+import re
+import codecs
+import sys
+import warnings
+import logging
+from logging import DEBUG, INFO, WARN, ERROR, CRITICAL
+
 
 """
+CONSTANTS
+=============================================================================
+"""
+
+"""
+Constants you might want to modify
+-----------------------------------------------------------------------------
+"""
+
+# default logging level for command-line use
+COMMAND_LINE_LOGGING_LEVEL = CRITICAL
+TAB_LENGTH = 4               # expand tabs to this many spaces
+ENABLE_ATTRIBUTES = True     # @id = xyz -> <... id="xyz">
+#SMART_EMPHASIS = True        # this_or_that does not become this<i>or</i>that
+SMART_EMPHASIS = False      # this_or_that needs to have _ escaped as \_.
+DEFAULT_OUTPUT_FORMAT = 'xhtml1'     # xhtml or html4 output
+HTML_REMOVED_TEXT = "[HTML_REMOVED]" # text used instead of HTML in safe mode
+BLOCK_LEVEL_ELEMENTS = re.compile("p|div|h[1-6]|blockquote|pre|table|dl|ol|ul"
+                                  "|script|noscript|form|fieldset|iframe|math"
+                                  "|ins|del|hr|hr/|style|li|dt|dd|thead|tbody"
+                                  "|tr|th|td")
+DOC_TAG = "div"     # Element used to wrap document - later removed
+
+# Placeholders
+STX = u'\u0002'  # Use STX ("Start of text") for start-of-placeholder
+ETX = u'\u0003'  # Use ETX ("End of text") for end-of-placeholder
+INLINE_PLACEHOLDER_PREFIX = STX+"klzzwxh:"
+INLINE_PLACEHOLDER = INLINE_PLACEHOLDER_PREFIX + "%s" + ETX
+AMP_SUBSTITUTE = STX+"amp"+ETX
 
 
-import re, sys, codecs
+"""
+Constants you probably do not need to change
+-----------------------------------------------------------------------------
+"""
 
-from logging import getLogger, StreamHandler, Formatter, \
-                    DEBUG, INFO, WARN, CRITICAL
+RTL_BIDI_RANGES = ( (u'\u0590', u'\u07FF'),
+                     # Hebrew (0590-05FF), Arabic (0600-06FF),
+                     # Syriac (0700-074F), Arabic supplement (0750-077F),
+                     # Thaana (0780-07BF), Nko (07C0-07FF).
+                    (u'\u2D30', u'\u2D7F'), # Tifinagh
+                    )
 
 
-MESSAGE_THRESHOLD = CRITICAL
-
-
-# Configure debug message logger (the hard way - to support python 2.3)
-logger = getLogger('MARKDOWN')
-logger.setLevel(DEBUG) # This is restricted by handlers later
-console_hndlr = StreamHandler()
-formatter = Formatter('%(name)s-%(levelname)s: "%(message)s"')
-console_hndlr.setFormatter(formatter)
-console_hndlr.setLevel(MESSAGE_THRESHOLD)
-logger.addHandler(console_hndlr)
+"""
+AUXILIARY GLOBAL FUNCTIONS
+=============================================================================
+"""
 
 
 def message(level, text):
-    ''' A wrapper method for logging debug messages. '''
-    logger.log(level, text)
-
-
-# --------------- CONSTANTS YOU MIGHT WANT TO MODIFY -----------------
-
-TAB_LENGTH = 4            # expand tabs to this many spaces
-ENABLE_ATTRIBUTES = True  # @id = xyz -> <... id="xyz">
-SMART_EMPHASIS = 1        # this_or_that does not become this<i>or</i>that
-HTML_REMOVED_TEXT = "[HTML_REMOVED]" # text used instead of HTML in safe mode
-
-RTL_BIDI_RANGES = ( (u'\u0590', u'\u07FF'),
-                    # from Hebrew to Nko (includes Arabic, Syriac and Thaana)
-                    (u'\u2D30', u'\u2D7F'),
-                    # Tifinagh
-                    )
-
-# Unicode Reference Table:
-# 0590-05FF - Hebrew
-# 0600-06FF - Arabic
-# 0700-074F - Syriac
-# 0750-077F - Arabic Supplement
-# 0780-07BF - Thaana
-# 07C0-07FF - Nko
-
-BOMS = { 'utf-8': (codecs.BOM_UTF8, ),
-         'utf-16': (codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE),
-         #'utf-32': (codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE)
-         }
-
-def removeBOM(text, encoding):
-    convert = isinstance(text, unicode)
-    for bom in BOMS[encoding]:
-        bom = convert and bom.decode(encoding) or bom
-        if text.startswith(bom):
-            return text.lstrip(bom)
-    return text
-
-# The following constant specifies the name used in the usage
-# statement displayed for python versions lower than 2.3.  (With
-# python2.3 and higher the usage statement is generated by optparse
-# and uses the actual name of the executable called.)
-
-EXECUTABLE_NAME_FOR_USAGE = "python markdown.py"
-
-
-# --------------- CONSTANTS YOU _SHOULD NOT_ HAVE TO CHANGE ----------
-
-# a template for html placeholders
-HTML_PLACEHOLDER_PREFIX = "qaodmasdkwaspemas"
-HTML_PLACEHOLDER = HTML_PLACEHOLDER_PREFIX + "%dajkqlsmdqpakldnzsdfls"
-
-BLOCK_LEVEL_ELEMENTS = ['p', 'div', 'blockquote', 'pre', 'table',
-                        'dl', 'ol', 'ul', 'script', 'noscript',
-                        'form', 'fieldset', 'iframe', 'math', 'ins',
-                        'del', 'hr', 'hr/', 'style']
-
-def isBlockLevel (tag):
-    return ( (tag in BLOCK_LEVEL_ELEMENTS) or
-             (tag[0] == 'h' and tag[1] in "0123456789") )
-
-"""
-======================================================================
-========================== NANODOM ===================================
-======================================================================
-
-The three classes below implement some of the most basic DOM
-methods.  I use this instead of minidom because I need a simpler
-functionality and do not want to require additional libraries.
-
-Importantly, NanoDom does not do normalization, which is what we
-want. It also adds extra white space when converting DOM to string
-"""
-
-ENTITY_NORMALIZATION_EXPRESSIONS = [ (re.compile("&"), "&amp;"),
-                                     (re.compile("<"), "&lt;"),
-                                     (re.compile(">"), "&gt;")]
-
-ENTITY_NORMALIZATION_EXPRESSIONS_SOFT = [ (re.compile("&(?!\#)"), "&amp;"),
-                                     (re.compile("<"), "&lt;"),
-                                     (re.compile(">"), "&gt;"),
-                                     (re.compile("\""), "&quot;")]
-
-
-def getBidiType(text):
-
-    if not text: return None
-
-    ch = text[0]
-
-    if not isinstance(ch, unicode) or not ch.isalpha():
-        return None
-
+    """ A wrapper method for logging debug messages. """
+    logger =  logging.getLogger('MARKDOWN')
+    if logger.handlers:
+        # The logger is configured
+        logger.log(level, text)
+        if level > WARN:
+            sys.exit(0)
+    elif level > WARN:
+        raise MarkdownException, text
     else:
+        warnings.warn(text, MarkdownWarning)
 
-        for min, max in RTL_BIDI_RANGES:
-            if ( ch >= min and ch <= max ):
-                return "rtl"
-        else:
-            return "ltr"
 
+def isBlockLevel(tag):
+    """Check if the tag is a block level HTML tag."""
+    return BLOCK_LEVEL_ELEMENTS.match(tag)
 
-class Document:
+"""
+MISC AUXILIARY CLASSES
+=============================================================================
+"""
 
-    def __init__ (self):
-        self.bidi = "ltr"
+class AtomicString(unicode):
+    """A string which should not be further processed."""
+    pass
 
-    def appendChild(self, child):
-        self.documentElement = child
-        child.isDocumentElement = True
-        child.parent = self
-        self.entities = {}
 
-    def setBidi(self, bidi):
-        if bidi:
-            self.bidi = bidi
+class MarkdownException(Exception):
+    """ A Markdown Exception. """
+    pass
 
-    def createElement(self, tag, textNode=None):
-        el = Element(tag)
-        el.doc = self
-        if textNode:
-            el.appendChild(self.createTextNode(textNode))
-        return el
 
-    def createTextNode(self, text):
-        node = TextNode(text)
-        node.doc = self
-        return node
-
-    def createEntityReference(self, entity):
-        if entity not in self.entities:
-            self.entities[entity] = EntityReference(entity)
-        return self.entities[entity]
-
-    def createCDATA(self, text):
-        node = CDATA(text)
-        node.doc = self
-        return node
-
-    def toxml (self):
-        return self.documentElement.toxml()
-
-    def normalizeEntities(self, text, avoidDoubleNormalizing=False):
-
-        if avoidDoubleNormalizing:
-            regexps = ENTITY_NORMALIZATION_EXPRESSIONS_SOFT
-        else:
-            regexps = ENTITY_NORMALIZATION_EXPRESSIONS
-
-        for regexp, substitution in regexps:
-            text = regexp.sub(substitution, text)
-        return text
-
-    def find(self, test):
-        return self.documentElement.find(test)
-
-    def unlink(self):
-        self.documentElement.unlink()
-        self.documentElement = None
-
-
-class CDATA:
-
-    type = "cdata"
-
-    def __init__ (self, text):
-        self.text = text
-
-    def handleAttributes(self):
-        pass
-
-    def toxml (self):
-        return "<![CDATA[" + self.text + "]]>"
-
-class Element:
-
-    type = "element"
-
-    def __init__ (self, tag):
-
-        self.nodeName = tag
-        self.attributes = []
-        self.attribute_values = {}
-        self.childNodes = []
-        self.bidi = None
-        self.isDocumentElement = False
-
-    def setBidi(self, bidi):
-
-        if bidi:
-
-            if not self.bidi or self.isDocumentElement:
-                # Once the bidi is set don't change it (except for doc element)
-                self.bidi = bidi
-                self.parent.setBidi(bidi)
-
-
-    def unlink(self):
-        for child in self.childNodes:
-            if child.type == "element":
-                child.unlink()
-        self.childNodes = None
-
-    def setAttribute(self, attr, value):
-        if not attr in self.attributes:
-            self.attributes.append(attr)
-
-        self.attribute_values[attr] = value
-
-    def insertChild(self, position, child):
-        self.childNodes.insert(position, child)
-        child.parent = self
-
-    def removeChild(self, child):
-        self.childNodes.remove(child)
-
-    def replaceChild(self, oldChild, newChild):
-        position = self.childNodes.index(oldChild)
-        self.removeChild(oldChild)
-        self.insertChild(position, newChild)
-
-    def appendChild(self, child):
-        self.childNodes.append(child)
-        child.parent = self
-
-    def handleAttributes(self):
-        pass
-
-    def find(self, test, depth=0):
-        """ Returns a list of descendants that pass the test function """
-        matched_nodes = []
-        for child in self.childNodes:
-            if test(child):
-                matched_nodes.append(child)
-            if child.type == "element":
-                matched_nodes += child.find(test, depth+1)
-        return matched_nodes
-
-    def toxml(self):
-        if ENABLE_ATTRIBUTES:
-            for child in self.childNodes:
-                child.handleAttributes()
-
-        buffer = ""
-        if self.nodeName in ['h1', 'h2', 'h3', 'h4']:
-            buffer += "\n"
-        elif self.nodeName in ['li']:
-            buffer += "\n "
-
-        # Process children FIRST, then do the attributes
-
-        childBuffer = ""
-
-        if self.childNodes or self.nodeName in ['blockquote']:
-            childBuffer += ">"
-            for child in self.childNodes:
-                childBuffer += child.toxml()
-            if self.nodeName == 'p':
-                childBuffer += "\n"
-            elif self.nodeName == 'li':
-                childBuffer += "\n "
-            childBuffer += "</%s>" % self.nodeName
-        else:
-            childBuffer += "/>"
-
-
-
-        buffer += "<" + self.nodeName
-
-        if self.nodeName in ['p', 'li', 'ul', 'ol',
-                             'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-
-            if not self.attribute_values.has_key("dir"):
-                if self.bidi:
-                    bidi = self.bidi
-                else:
-                    bidi = self.doc.bidi
-
-                if bidi=="rtl":
-                    self.setAttribute("dir", "rtl")
-
-        for attr in self.attributes:
-            value = self.attribute_values[attr]
-            value = self.doc.normalizeEntities(value,
-                                               avoidDoubleNormalizing=True)
-            buffer += ' %s="%s"' % (attr, value)
-
-
-        # Now let's actually append the children
-
-        buffer += childBuffer
-
-        if self.nodeName in ['p', 'br ', 'li', 'ul', 'ol',
-                             'h1', 'h2', 'h3', 'h4'] :
-            buffer += "\n"
-
-        return buffer
-
-
-class TextNode:
-
-    type = "text"
-    attrRegExp = re.compile(r'\{@([^\}]*)=([^\}]*)}') # {@id=123}
-
-    def __init__ (self, text):
-        self.value = text
-
-    def attributeCallback(self, match):
-
-        self.parent.setAttribute(match.group(1), match.group(2))
-
-    def handleAttributes(self):
-        self.value = self.attrRegExp.sub(self.attributeCallback, self.value)
-
-    def toxml(self):
-
-        text = self.value
-
-        self.parent.setBidi(getBidiType(text))
-
-        if not text.startswith(HTML_PLACEHOLDER_PREFIX):
-            if self.parent.nodeName == "p":
-                text = text.replace("\n", "\n   ")
-            elif (self.parent.nodeName == "li"
-                  and self.parent.childNodes[0]==self):
-                text = "\n     " + text.replace("\n", "\n     ")
-        text = self.doc.normalizeEntities(text)
-        return text
-
-
-class EntityReference:
-
-    type = "entity_ref"
-
-    def __init__(self, entity):
-        self.entity = entity
-
-    def handleAttributes(self):
-        pass
-
-    def toxml(self):
-        return "&" + self.entity + ";"
+class MarkdownWarning(Warning):
+    """ A Markdown Warning. """
+    pass
 
 
 """
-======================================================================
-========================== PRE-PROCESSORS ============================
-======================================================================
+OVERALL DESIGN
+=============================================================================
 
-Preprocessors munge source text before we start doing anything too
-complicated.
+Markdown processing takes place in four steps:
 
-There are two types of preprocessors: TextPreprocessor and Preprocessor.
+1. A bunch of "preprocessors" munge the input text.
+2. BlockParser() parses the high-level structural elements of the
+   pre-processed text into an ElementTree.
+3. A bunch of "treeprocessors" are run against the ElementTree. One such
+   treeprocessor runs InlinePatterns against the ElementTree, detecting inline
+   markup.
+4. Some post-processors are run against the text after the ElementTree has
+   been serialized into text.
+5. The output is written to a string.
 
-"""
-
-
-class TextPreprocessor:
-    '''
-    TextPreprocessors are run before the text is broken into lines.
-
-    Each TextPreprocessor implements a "run" method that takes a pointer to a
-    text string of the document, modifies it as necessary and returns
-    either the same pointer or a pointer to a new string.
-
-    TextPreprocessors must extend markdown.TextPreprocessor.
-    '''
-
-    def run(self, text):
-        pass
-
-
-class Preprocessor:
-    '''
-    Preprocessors are run after the text is broken into lines.
-
-    Each preprocessor implements a "run" method that takes a pointer to a
-    list of lines of the document, modifies it as necessary and returns
-    either the same pointer or a pointer to a new list.
-
-    Preprocessors must extend markdown.Preprocessor.
-    '''
-
-    def run(self, lines):
-        pass
-
-
-class HtmlBlockPreprocessor(TextPreprocessor):
-    """Removes html blocks from the source text and stores it."""
-
-    def _get_left_tag(self, block):
-        return block[1:].replace(">", " ", 1).split()[0].lower()
-
-
-    def _get_right_tag(self, left_tag, block):
-        return block.rstrip()[-len(left_tag)-2:-1].lower()
-
-    def _equal_tags(self, left_tag, right_tag):
-
-        if left_tag == 'div' or left_tag[0] in ['?', '@', '%']: # handle PHP, etc.
-            return True
-        if ("/" + left_tag) == right_tag:
-            return True
-        if (right_tag == "--" and left_tag == "--"):
-            return True
-        elif left_tag == right_tag[1:] \
-            and right_tag[0] != "<":
-            return True
-        else:
-            return False
-
-    def _is_oneliner(self, tag):
-        return (tag in ['hr', 'hr/'])
-
-
-    def run(self, text):
-
-        new_blocks = []
-        text = text.split("\n\n")
-
-        items = []
-        left_tag = ''
-        right_tag = ''
-        in_tag = False # flag
-
-        for block in text:
-            if block.startswith("\n"):
-                block = block[1:]
-
-            if not in_tag:
-
-                if block.startswith("<"):
-
-                    left_tag = self._get_left_tag(block)
-                    right_tag = self._get_right_tag(left_tag, block)
-
-                    if not (isBlockLevel(left_tag) \
-                        or block[1] in ["!", "?", "@", "%"]):
-                        new_blocks.append(block)
-                        continue
-
-                    if self._is_oneliner(left_tag):
-                        new_blocks.append(block.strip())
-                        continue
-
-                    if block[1] == "!":
-                        # is a comment block
-                        left_tag = "--"
-                        right_tag = self._get_right_tag(left_tag, block)
-                        # keep checking conditions below and maybe just append
-
-                    if block.rstrip().endswith(">") \
-                        and self._equal_tags(left_tag, right_tag):
-                        new_blocks.append(
-                            self.stash.store(block.strip()))
-                        continue
-                    else: #if not block[1] == "!":
-                        # if is block level tag and is not complete
-                        items.append(block.strip())
-                        in_tag = True
-                        continue
-
-                new_blocks.append(block)
-
-            else:
-                items.append(block.strip())
-
-                right_tag = self._get_right_tag(left_tag, block)
-
-                if self._equal_tags(left_tag, right_tag):
-                    # if find closing tag
-                    in_tag = False
-                    new_blocks.append(
-                        self.stash.store('\n\n'.join(items)))
-                    items = []
-
-        if items:
-            new_blocks.append(self.stash.store('\n\n'.join(items)))
-            new_blocks.append('\n')
-
-        return "\n\n".join(new_blocks)
-
-HTML_BLOCK_PREPROCESSOR = HtmlBlockPreprocessor()
-
-
-class HeaderPreprocessor(Preprocessor):
-
-    """
-       Replaces underlined headers with hashed headers to avoid
-       the nead for lookahead later.
-    """
-
-    def run (self, lines):
-
-        i = -1
-        while i+1 < len(lines):
-            i = i+1
-            if not lines[i].strip():
-                continue
-
-            if lines[i].startswith("#"):
-                lines.insert(i+1, "\n")
-
-            if (i+1 <= len(lines)
-                  and lines[i+1]
-                  and lines[i+1][0] in ['-', '=']):
-
-                underline = lines[i+1].strip()
-
-                if underline == "="*len(underline):
-                    lines[i] = "# " + lines[i].strip()
-                    lines[i+1] = ""
-                elif underline == "-"*len(underline):
-                    lines[i] = "## " + lines[i].strip()
-                    lines[i+1] = ""
-
-        return lines
-
-HEADER_PREPROCESSOR = HeaderPreprocessor()
-
-
-class LinePreprocessor(Preprocessor):
-    """Deals with HR lines (needs to be done before processing lists)"""
-
-    blockquote_re = re.compile(r'^(> )+')
-
-    def run (self, lines):
-        for i in range(len(lines)):
-            prefix = ''
-            m = self.blockquote_re.search(lines[i])
-            if m : prefix = m.group(0)
-            if self._isLine(lines[i][len(prefix):]):
-                lines[i] = prefix + self.stash.store("<hr />", safe=True)
-        return lines
-
-    def _isLine(self, block):
-        """Determines if a block should be replaced with an <HR>"""
-        if block.startswith("    "): return 0  # a code block
-        text = "".join([x for x in block if not x.isspace()])
-        if len(text) <= 2:
-            return 0
-        for pattern in ['isline1', 'isline2', 'isline3']:
-            m = RE.regExp[pattern].match(text)
-            if (m and m.group(1)):
-                return 1
-        else:
-            return 0
-
-LINE_PREPROCESSOR = LinePreprocessor()
-
-
-class ReferencePreprocessor(Preprocessor):
-    '''
-    Removes reference definitions from the text and stores them for later use.
-    '''
-
-    def run (self, lines):
-
-        new_text = [];
-        for line in lines:
-            m = RE.regExp['reference-def'].match(line)
-            if m:
-                id = m.group(2).strip().lower()
-                t = m.group(4).strip()  # potential title
-                if not t:
-                    self.references[id] = (m.group(3), t)
-                elif (len(t) >= 2
-                      and (t[0] == t[-1] == "\""
-                           or t[0] == t[-1] == "\'"
-                           or (t[0] == "(" and t[-1] == ")") ) ):
-                    self.references[id] = (m.group(3), t[1:-1])
-                else:
-                    new_text.append(line)
-            else:
-                new_text.append(line)
-
-        return new_text #+ "\n"
-
-REFERENCE_PREPROCESSOR = ReferencePreprocessor()
+Those steps are put together by the Markdown() class.
 
 """
-======================================================================
-========================== INLINE PATTERNS ===========================
-======================================================================
 
-Inline patterns such as *emphasis* are handled by means of auxiliary
-objects, one per pattern.  Pattern objects must be instances of classes
-that extend markdown.Pattern.  Each pattern object uses a single regular
-expression and needs support the following methods:
-
-  pattern.getCompiledRegExp() - returns a regular expression
-
-  pattern.handleMatch(m, doc) - takes a match object and returns
-                                a NanoDom node (as a part of the provided
-                                doc) or None
-
-All of python markdown's built-in patterns subclass from Patter,
-but you can add additional patterns that don't.
-
-Also note that all the regular expressions used by inline must
-capture the whole block.  For this reason, they all start with
-'^(.*)' and end with '(.*)!'.  In case with built-in expression
-Pattern takes care of adding the "^(.*)" and "(.*)!".
-
-Finally, the order in which regular expressions are applied is very
-important - e.g. if we first replace http://.../ links with <a> tags
-and _then_ try to replace inline html, we would end up with a mess.
-So, we apply the expressions in the following order:
-
-       * escape and backticks have to go before everything else, so
-         that we can preempt any markdown patterns by escaping them.
-
-       * then we handle auto-links (must be done before inline html)
-
-       * then we handle inline HTML.  At this point we will simply
-         replace all inline HTML strings with a placeholder and add
-         the actual HTML to a hash.
-
-       * then inline images (must be done before links)
-
-       * then bracketed links, first regular then reference-style
-
-       * finally we apply strong and emphasis
-"""
-
-NOBRACKET = r'[^\]\[]*'
-BRK = ( r'\[('
-        + (NOBRACKET + r'(\[')*6
-        + (NOBRACKET+ r'\])*')*6
-        + NOBRACKET + r')\]' )
-NOIMG = r'(?<!\!)'
-
-BACKTICK_RE = r'\`([^\`]*)\`'                    # `e= m*c^2`
-DOUBLE_BACKTICK_RE =  r'\`\`(.*)\`\`'            # ``e=f("`")``
-ESCAPE_RE = r'\\(.)'                             # \<
-EMPHASIS_RE = r'\*([^\*]*)\*'                    # *emphasis*
-STRONG_RE = r'\*\*(.*)\*\*'                      # **strong**
-STRONG_EM_RE = r'\*\*\*([^_]*)\*\*\*'            # ***strong***
-
-if SMART_EMPHASIS:
-    EMPHASIS_2_RE = r'(?<!\S)_(\S[^_]*)_'        # _emphasis_
-else:
-    EMPHASIS_2_RE = r'_([^_]*)_'                 # _emphasis_
-
-STRONG_2_RE = r'__([^_]*)__'                     # __strong__
-STRONG_EM_2_RE = r'___([^_]*)___'                # ___strong___
-
-LINK_RE = NOIMG + BRK + r'\s*\(([^\)]*)\)'               # [text](url)
-LINK_ANGLED_RE = NOIMG + BRK + r'\s*\(<([^\)]*)>\)'      # [text](<url>)
-IMAGE_LINK_RE = r'\!' + BRK + r'\s*\(([^\)]*)\)' # ![alttxt](http://x.com/)
-REFERENCE_RE = NOIMG + BRK+ r'\s*\[([^\]]*)\]'           # [Google][3]
-IMAGE_REFERENCE_RE = r'\!' + BRK + '\s*\[([^\]]*)\]' # ![alt text][2]
-NOT_STRONG_RE = r'( \* )'                        # stand-alone * or _
-AUTOLINK_RE = r'<(http://[^>]*)>'                # <http://www.123.com>
-AUTOMAIL_RE = r'<([^> \!]*@[^> ]*)>'               # <me@example.com>
-#HTML_RE = r'(\<[^\>]*\>)'                        # <...>
-HTML_RE = r'(\<[a-zA-Z/][^\>]*\>)'               # <...>
-ENTITY_RE = r'(&[\#a-zA-Z0-9]*;)'                # &amp;
-LINE_BREAK_RE = r'  \n'                     # two spaces at end of line
-LINE_BREAK_2_RE = r'  $'                    # two spaces at end of text
-
-class Pattern:
-
-    def __init__ (self, pattern):
-        self.pattern = pattern
-        self.compiled_re = re.compile("^(.*)%s(.*)$" % pattern, re.DOTALL)
-
-    def getCompiledRegExp (self):
-        return self.compiled_re
-
-BasePattern = Pattern # for backward compatibility
-
-class SimpleTextPattern (Pattern):
-
-    def handleMatch(self, m, doc):
-        return doc.createTextNode(m.group(2))
-
-class SimpleTagPattern (Pattern):
-
-    def __init__ (self, pattern, tag):
-        Pattern.__init__(self, pattern)
-        self.tag = tag
-
-    def handleMatch(self, m, doc):
-        el = doc.createElement(self.tag)
-        el.appendChild(doc.createTextNode(m.group(2)))
-        return el
-
-class SubstituteTagPattern (SimpleTagPattern):
-
-    def handleMatch (self, m, doc):
-        return doc.createElement(self.tag)
-
-class BacktickPattern (Pattern):
-
-    def __init__ (self, pattern):
-        Pattern.__init__(self, pattern)
-        self.tag = "code"
-
-    def handleMatch(self, m, doc):
-        el = doc.createElement(self.tag)
-        text = m.group(2).strip()
-        #text = text.replace("&", "&amp;")
-        el.appendChild(doc.createTextNode(text))
-        return el
-
-
-class DoubleTagPattern (SimpleTagPattern):
-
-    def handleMatch(self, m, doc):
-        tag1, tag2 = self.tag.split(",")
-        el1 = doc.createElement(tag1)
-        el2 = doc.createElement(tag2)
-        el1.appendChild(el2)
-        el2.appendChild(doc.createTextNode(m.group(2)))
-        return el1
-
-
-class HtmlPattern (Pattern):
-
-    def handleMatch (self, m, doc):
-        rawhtml = m.group(2)
-        place_holder = self.stash.store(rawhtml)
-        return doc.createTextNode(place_holder)
-
-
-class LinkPattern (Pattern):
-
-    def handleMatch(self, m, doc):
-        el = doc.createElement('a')
-        el.appendChild(doc.createTextNode(m.group(2)))
-        parts = m.group(9).split('"')
-        # We should now have [], [href], or [href, title]
-        if parts:
-            el.setAttribute('href', parts[0].strip())
-        else:
-            el.setAttribute('href', "")
-        if len(parts) > 1:
-            # we also got a title
-            title = '"' + '"'.join(parts[1:]).strip()
-            title = dequote(title) #.replace('"', "&quot;")
-            el.setAttribute('title', title)
-        return el
-
-
-class ImagePattern (Pattern):
-
-    def handleMatch(self, m, doc):
-        el = doc.createElement('img')
-        src_parts = m.group(9).split()
-        if src_parts:
-            el.setAttribute('src', src_parts[0])
-        else:
-            el.setAttribute('src', "")
-        if len(src_parts) > 1:
-            el.setAttribute('title', dequote(" ".join(src_parts[1:])))
-        if ENABLE_ATTRIBUTES:
-            text = doc.createTextNode(m.group(2))
-            el.appendChild(text)
-            text.handleAttributes()
-            truealt = text.value
-            el.childNodes.remove(text)
-        else:
-            truealt = m.group(2)
-        el.setAttribute('alt', truealt)
-        return el
-
-class ReferencePattern (Pattern):
-
-    def handleMatch(self, m, doc):
-
-        if m.group(9):
-            id = m.group(9).lower()
-        else:
-            # if we got something like "[Google][]"
-            # we'll use "google" as the id
-            id = m.group(2).lower()
-
-        if not self.references.has_key(id): # ignore undefined refs
-            return None
-        href, title = self.references[id]
-        text = m.group(2)
-        return self.makeTag(href, title, text, doc)
-
-    def makeTag(self, href, title, text, doc):
-        el = doc.createElement('a')
-        el.setAttribute('href', href)
-        if title:
-            el.setAttribute('title', title)
-        el.appendChild(doc.createTextNode(text))
-        return el
-
-
-class ImageReferencePattern (ReferencePattern):
-
-    def makeTag(self, href, title, text, doc):
-        el = doc.createElement('img')
-        el.setAttribute('src', href)
-        if title:
-            el.setAttribute('title', title)
-        el.setAttribute('alt', text)
-        return el
-
-
-class AutolinkPattern (Pattern):
-
-    def handleMatch(self, m, doc):
-        el = doc.createElement('a')
-        el.setAttribute('href', m.group(2))
-        el.appendChild(doc.createTextNode(m.group(2)))
-        return el
-
-class AutomailPattern (Pattern):
-
-    def handleMatch(self, m, doc):
-        el = doc.createElement('a')
-        email = m.group(2)
-        if email.startswith("mailto:"):
-            email = email[len("mailto:"):]
-        for letter in email:
-            entity = doc.createEntityReference("#%d" % ord(letter))
-            el.appendChild(entity)
-        mailto = "mailto:" + email
-        mailto = "".join(['&#%d;' % ord(letter) for letter in mailto])
-        el.setAttribute('href', mailto)
-        return el
-
-ESCAPE_PATTERN          = SimpleTextPattern(ESCAPE_RE)
-NOT_STRONG_PATTERN      = SimpleTextPattern(NOT_STRONG_RE)
-
-BACKTICK_PATTERN        = BacktickPattern(BACKTICK_RE)
-DOUBLE_BACKTICK_PATTERN = BacktickPattern(DOUBLE_BACKTICK_RE)
-STRONG_PATTERN          = SimpleTagPattern(STRONG_RE, 'strong')
-STRONG_PATTERN_2        = SimpleTagPattern(STRONG_2_RE, 'strong')
-EMPHASIS_PATTERN        = SimpleTagPattern(EMPHASIS_RE, 'em')
-EMPHASIS_PATTERN_2      = SimpleTagPattern(EMPHASIS_2_RE, 'em')
-
-STRONG_EM_PATTERN       = DoubleTagPattern(STRONG_EM_RE, 'strong,em')
-STRONG_EM_PATTERN_2     = DoubleTagPattern(STRONG_EM_2_RE, 'strong,em')
-
-LINE_BREAK_PATTERN      = SubstituteTagPattern(LINE_BREAK_RE, 'br ')
-LINE_BREAK_PATTERN_2    = SubstituteTagPattern(LINE_BREAK_2_RE, 'br ')
-
-LINK_PATTERN            = LinkPattern(LINK_RE)
-LINK_ANGLED_PATTERN     = LinkPattern(LINK_ANGLED_RE)
-IMAGE_LINK_PATTERN      = ImagePattern(IMAGE_LINK_RE)
-IMAGE_REFERENCE_PATTERN = ImageReferencePattern(IMAGE_REFERENCE_RE)
-REFERENCE_PATTERN       = ReferencePattern(REFERENCE_RE)
-
-HTML_PATTERN            = HtmlPattern(HTML_RE)
-ENTITY_PATTERN          = HtmlPattern(ENTITY_RE)
-
-AUTOLINK_PATTERN        = AutolinkPattern(AUTOLINK_RE)
-AUTOMAIL_PATTERN        = AutomailPattern(AUTOMAIL_RE)
-
-
-"""
-======================================================================
-========================== POST-PROCESSORS ===========================
-======================================================================
-
-Markdown also allows post-processors, which are similar to
-preprocessors in that they need to implement a "run" method. However,
-they are run after core processing.
-
-There are two types of post-processors: Postprocessor and TextPostprocessor
-"""
-
-
-class Postprocessor:
-    '''
-    Postprocessors are run before the dom it converted back into text.
-
-    Each Postprocessor implements a "run" method that takes a pointer to a
-    NanoDom document, modifies it as necessary and returns a NanoDom
-    document.
-
-    Postprocessors must extend markdown.Postprocessor.
-
-    There are currently no standard post-processors, but the footnote
-    extension uses one.
-    '''
-
-    def run(self, dom):
-        pass
-
-
-
-class TextPostprocessor:
-    '''
-    TextPostprocessors are run after the dom it converted back into text.
-
-    Each TextPostprocessor implements a "run" method that takes a pointer to a
-    text string, modifies it as necessary and returns a text string.
-
-    TextPostprocessors must extend markdown.TextPostprocessor.
-    '''
-
-    def run(self, text):
-        pass
-
-
-class RawHtmlTextPostprocessor(TextPostprocessor):
-
-    def __init__(self):
-        pass
-
-    def run(self, text):
-        for i in range(self.stash.html_counter):
-            html, safe  = self.stash.rawHtmlBlocks[i]
-            if self.safeMode and not safe:
-                if str(self.safeMode).lower() == 'escape':
-                    html = self.escape(html)
-                elif str(self.safeMode).lower() == 'remove':
-                    html = ''
-                else:
-                    html = HTML_REMOVED_TEXT
-
-            text = text.replace("<p>%s\n</p>" % (HTML_PLACEHOLDER % i),
-                              html + "\n")
-            text =  text.replace(HTML_PLACEHOLDER % i, html)
-        return text
-
-    def escape(self, html):
-        ''' Basic html escaping '''
-        html = html.replace('&', '&amp;')
-        html = html.replace('<', '&lt;')
-        html = html.replace('>', '&gt;')
-        return html.replace('"', '&quot;')
-
-RAWHTMLTEXTPOSTPROCESSOR = RawHtmlTextPostprocessor()
-
-"""
-======================================================================
-========================== MISC AUXILIARY CLASSES ====================
-======================================================================
-"""
-
-class HtmlStash:
-    """This class is used for stashing HTML objects that we extract
-        in the beginning and replace with place-holders."""
-
-    def __init__ (self):
-        self.html_counter = 0 # for counting inline html segments
-        self.rawHtmlBlocks=[]
-
-    def store(self, html, safe=False):
-        """Saves an HTML segment for later reinsertion.  Returns a
-           placeholder string that needs to be inserted into the
-           document.
-
-           @param html: an html segment
-           @param safe: label an html segment as safe for safemode
-           @param inline: label a segmant as inline html
-           @returns : a placeholder string """
-        self.rawHtmlBlocks.append((html, safe))
-        placeholder = HTML_PLACEHOLDER % self.html_counter
-        self.html_counter += 1
-        return placeholder
-
-
-class BlockGuru:
-
-    def _findHead(self, lines, fn, allowBlank=0):
-
-        """Functional magic to help determine boundaries of indented
-           blocks.
-
-           @param lines: an array of strings
-           @param fn: a function that returns a substring of a string
-                      if the string matches the necessary criteria
-           @param allowBlank: specifies whether it's ok to have blank
-                      lines between matching functions
-           @returns: a list of post processes items and the unused
-                      remainder of the original list"""
-
-        items = []
-
-        i = 0 # to keep track of where we are
-
-        for line in lines:
-
-            if not line.strip() and not allowBlank:
-                return items, lines[i:]
-
-            if not line.strip() and allowBlank:
-                # If we see a blank line, this _might_ be the end
-                i += 1
-
-                # Find the next non-blank line
-                for j in range(i, len(lines)):
-                    if lines[j].strip():
-                        next = lines[j]
-                        break
-                else:
-                    # There is no more text => this is the end
-                    break
-
-                # Check if the next non-blank line is still a part of the list
-
-                part = fn(next)
-
-                if part:
-                    items.append("")
-                    continue
-                else:
-                    break # found end of the list
-
-            part = fn(line)
-
-            if part:
-                items.append(part)
-                i += 1
-                continue
-            else:
-                return items, lines[i:]
-        else:
-            i += 1
-
-        return items, lines[i:]
-
-
-    def detabbed_fn(self, line):
-        """ An auxiliary method to be passed to _findHead """
-        m = RE.regExp['tabbed'].match(line)
-        if m:
-            return m.group(4)
-        else:
-            return None
-
-
-    def detectTabbed(self, lines):
-
-        return self._findHead(lines, self.detabbed_fn,
-                              allowBlank = 1)
-
-
-def print_error(string):
-    """Print an error string to stderr"""
-    sys.stderr.write(string +'\n')
-
-
-def dequote(string):
-    """ Removes quotes from around a string """
-    if ( ( string.startswith('"') and string.endswith('"'))
-         or (string.startswith("'") and string.endswith("'")) ):
-        return string[1:-1]
-    else:
-        return string
-
-"""
-======================================================================
-========================== CORE MARKDOWN =============================
-======================================================================
-
-This stuff is ugly, so if you are thinking of extending the syntax,
-see first if you can do it via pre-processors, post-processors,
-inline patterns or a combination of the three.
-"""
-
-class CorePatterns:
-    """This class is scheduled for removal as part of a refactoring
-        effort."""
-
-    patterns = {
-        'header':          r'(#*)([^#]*)(#*)', # # A title
-        'reference-def':   r'(\ ?\ ?\ ?)\[([^\]]*)\]:\s*([^ ]*)(.*)',
-                           # [Google]: http://www.google.com/
-        'containsline':    r'([-]*)$|^([=]*)', # -----, =====, etc.
-        'ol':              r'[ ]{0,3}[\d]*\.\s+(.*)', # 1. text
-        'ul':              r'[ ]{0,3}[*+-]\s+(.*)', # "* text"
-        'isline1':         r'(\**)', # ***
-        'isline2':         r'(\-*)', # ---
-        'isline3':         r'(\_*)', # ___
-        'tabbed':          r'((\t)|(    ))(.*)', # an indented line
-        'quoted':          r'> ?(.*)', # a quoted block ("> ...")
-    }
-
-    def __init__ (self):
-
-        self.regExp = {}
-        for key in self.patterns.keys():
-            self.regExp[key] = re.compile("^%s$" % self.patterns[key],
-                                          re.DOTALL)
-
-        self.regExp['containsline'] = re.compile(r'^([-]*)$|^([=]*)$', re.M)
-
-RE = CorePatterns()
+import preprocessors
+import blockprocessors
+import treeprocessors
+import inlinepatterns
+import postprocessors
+import blockparser
+import etree_loader
+import odict
+
+# Extensions should use "markdown.etree" instead of "etree" (or do `from
+# markdown import etree`).  Do not import it by yourself.
+
+etree = etree_loader.importETree()
+
+# Adds the ability to output html4
+import html4
 
 
 class Markdown:
-    """ Markdown formatter class for creating an html document from
-        Markdown text """
+    """Convert Markdown to HTML."""
 
-
-    def __init__(self, source=None,  # depreciated
+    def __init__(self,
                  extensions=[],
-                 extension_configs=None,
-                 safe_mode = False):
-        """Creates a new Markdown instance.
+                 extension_configs={},
+                 safe_mode = False, 
+                 output_format=DEFAULT_OUTPUT_FORMAT):
+        """
+        Creates a new Markdown instance.
 
-           @param source: The text in Markdown format. Depreciated!
-           @param extensions: A list if extensions.
-           @param extension-configs: Configuration setting for extensions.
-           @param safe_mode: Disallow raw html. """
+        Keyword arguments:
 
-        self.source = source
-        if source is not None:
-            message(WARN, "The `source` arg of Markdown.__init__() is depreciated and will be removed in the future. Use `instance.convert(source)` instead.")
+        * extensions: A list of extensions.
+           If they are of type string, the module mdx_name.py will be loaded.
+           If they are a subclass of markdown.Extension, they will be used
+           as-is.
+        * extension-configs: Configuration setting for extensions.
+        * safe_mode: Disallow raw html. One of "remove", "replace" or "escape".
+        * output_format: Format of output. Supported formats are:
+            * "xhtml1": Outputs XHTML 1.x. Default.
+            * "xhtml": Outputs latest supported version of XHTML (currently XHTML 1.1).
+            * "html4": Outputs HTML 4
+            * "html": Outputs latest supported version of HTML (currently HTML 4).
+            Note that it is suggested that the more specific formats ("xhtml1" 
+            and "html4") be used as "xhtml" or "html" may change in the future
+            if it makes sense at that time. 
+
+        """
+        
         self.safeMode = safe_mode
-        self.blockGuru = BlockGuru()
         self.registeredExtensions = []
-        self.stripTopLevelTags = 1
         self.docType = ""
+        self.stripTopLevelTags = True
 
-        self.textPreprocessors = [HTML_BLOCK_PREPROCESSOR]
+        # Preprocessors
+        self.preprocessors = odict.OrderedDict()
+        self.preprocessors["html_block"] = \
+                preprocessors.HtmlBlockPreprocessor(self)
+        self.preprocessors["reference"] = \
+                preprocessors.ReferencePreprocessor(self)
+        # footnote preprocessor will be inserted with "<reference"
 
-        self.preprocessors = [HEADER_PREPROCESSOR,
-                              LINE_PREPROCESSOR,
-                              # A footnote preprocessor will
-                              # get inserted here
-                              REFERENCE_PREPROCESSOR]
+        # Block processors - ran by the parser
+        self.parser = blockparser.BlockParser()
+        self.parser.blockprocessors['empty'] = \
+                blockprocessors.EmptyBlockProcessor(self.parser)
+        self.parser.blockprocessors['indent'] = \
+                blockprocessors.ListIndentProcessor(self.parser)
+        self.parser.blockprocessors['code'] = \
+                blockprocessors.CodeBlockProcessor(self.parser)
+        self.parser.blockprocessors['hashheader'] = \
+                blockprocessors.HashHeaderProcessor(self.parser)
+        self.parser.blockprocessors['setextheader'] = \
+                blockprocessors.SetextHeaderProcessor(self.parser)
+        self.parser.blockprocessors['hr'] = \
+                blockprocessors.HRProcessor(self.parser)
+        self.parser.blockprocessors['olist'] = \
+                blockprocessors.OListProcessor(self.parser)
+        self.parser.blockprocessors['ulist'] = \
+                blockprocessors.UListProcessor(self.parser)
+        self.parser.blockprocessors['quote'] = \
+                blockprocessors.BlockQuoteProcessor(self.parser)
+        self.parser.blockprocessors['paragraph'] = \
+                blockprocessors.ParagraphProcessor(self.parser)
 
 
-        self.postprocessors = [] # a footnote postprocessor will get
-                                 # inserted later
+        #self.prePatterns = []
 
-        self.textPostprocessors = [# a footnote postprocessor will get
-                                   # inserted here
-                                   RAWHTMLTEXTPOSTPROCESSOR]
+        # Inline patterns - Run on the tree
+        self.inlinePatterns = odict.OrderedDict()
+        self.inlinePatterns["backtick"] = \
+                inlinepatterns.BacktickPattern(inlinepatterns.BACKTICK_RE)
+        self.inlinePatterns["escape"] = \
+                inlinepatterns.SimpleTextPattern(inlinepatterns.ESCAPE_RE)
+        self.inlinePatterns["reference"] = \
+            inlinepatterns.ReferencePattern(inlinepatterns.REFERENCE_RE, self)
+        self.inlinePatterns["link"] = \
+                inlinepatterns.LinkPattern(inlinepatterns.LINK_RE, self)
+        self.inlinePatterns["image_link"] = \
+                inlinepatterns.ImagePattern(inlinepatterns.IMAGE_LINK_RE, self)
+        self.inlinePatterns["image_reference"] = \
+            inlinepatterns.ImageReferencePattern(inlinepatterns.IMAGE_REFERENCE_RE, self)
+        self.inlinePatterns["autolink"] = \
+            inlinepatterns.AutolinkPattern(inlinepatterns.AUTOLINK_RE, self)
+        self.inlinePatterns["automail"] = \
+            inlinepatterns.AutomailPattern(inlinepatterns.AUTOMAIL_RE, self)
+        self.inlinePatterns["linebreak2"] = \
+            inlinepatterns.SubstituteTagPattern(inlinepatterns.LINE_BREAK_2_RE, 'br')
+        self.inlinePatterns["linebreak"] = \
+            inlinepatterns.SubstituteTagPattern(inlinepatterns.LINE_BREAK_RE, 'br')
+        self.inlinePatterns["html"] = \
+                inlinepatterns.HtmlPattern(inlinepatterns.HTML_RE, self)
+        self.inlinePatterns["entity"] = \
+                inlinepatterns.HtmlPattern(inlinepatterns.ENTITY_RE, self)
+        self.inlinePatterns["not_strong"] = \
+                inlinepatterns.SimpleTextPattern(inlinepatterns.NOT_STRONG_RE)
+        self.inlinePatterns["strong_em"] = \
+            inlinepatterns.DoubleTagPattern(inlinepatterns.STRONG_EM_RE, 'strong,em')
+        self.inlinePatterns["strong"] = \
+            inlinepatterns.SimpleTagPattern(inlinepatterns.STRONG_RE, 'strong')
+        self.inlinePatterns["emphasis"] = \
+            inlinepatterns.SimpleTagPattern(inlinepatterns.EMPHASIS_RE, 'em')
+        self.inlinePatterns["emphasis2"] = \
+            inlinepatterns.SimpleTagPattern(inlinepatterns.EMPHASIS_2_RE, 'em')
+        # The order of the handlers matters!!!
 
-        self.prePatterns = []
 
+        # Tree processors - run once we have a basic parse.
+        self.treeprocessors = odict.OrderedDict()
+        self.treeprocessors["inline"] = treeprocessors.InlineProcessor(self)
+        self.treeprocessors["prettify"] = \
+                treeprocessors.PrettifyTreeprocessor(self)
 
-        self.inlinePatterns = [DOUBLE_BACKTICK_PATTERN,
-                               BACKTICK_PATTERN,
-                               ESCAPE_PATTERN,
-                               REFERENCE_PATTERN,
-                               LINK_ANGLED_PATTERN,
-                               LINK_PATTERN,
-                               IMAGE_LINK_PATTERN,
-			                   IMAGE_REFERENCE_PATTERN,
-			                   AUTOLINK_PATTERN,
-                               AUTOMAIL_PATTERN,
-                               #LINE_BREAK_PATTERN_2, Removed by Kovid as causes problems with mdx_tables
-                               LINE_BREAK_PATTERN,
-                               HTML_PATTERN,
-                               ENTITY_PATTERN,
-                               NOT_STRONG_PATTERN,
-                               STRONG_EM_PATTERN,
-                               STRONG_EM_PATTERN_2,
-                               STRONG_PATTERN,
-                               STRONG_PATTERN_2,
-                               EMPHASIS_PATTERN,
-                               EMPHASIS_PATTERN_2
-                               # The order of the handlers matters!!!
-                               ]
+        # Postprocessors - finishing touches.
+        self.postprocessors = odict.OrderedDict()
+        self.postprocessors["raw_html"] = \
+                postprocessors.RawHtmlPostprocessor(self)
+        self.postprocessors["amp_substitute"] = \
+                postprocessors.AndSubstitutePostprocessor()
+        # footnote postprocessor will be inserted with ">amp_substitute"
 
+        # Map format keys to serializers
+        self.output_formats = {
+            'html'  : html4.to_html_string, 
+            'html4' : html4.to_html_string,
+            'xhtml' : etree.tostring, 
+            'xhtml1': etree.tostring,
+        }
+
+        self.references = {}
+        self.htmlStash = preprocessors.HtmlStash()
         self.registerExtensions(extensions = extensions,
                                 configs = extension_configs)
-
+        self.set_output_format(output_format)
         self.reset()
 
-
     def registerExtensions(self, extensions, configs):
+        """
+        Register extensions with this instance of Markdown.
 
-        if not configs:
-            configs = {}
+        Keyword aurguments:
 
+        * extensions: A list of extensions, which can either
+           be strings or objects.  See the docstring on Markdown.
+        * configs: A dictionary mapping module names to config options.
+
+        """
         for ext in extensions:
-
-            extension_module_name = "calibre.ebooks.markdown.mdx_" + ext
-
+            if isinstance(ext, basestring):
+                ext = load_extension(ext, configs.get(ext, []))
             try:
-                module = sys.modules[extension_module_name]
-
-            except:
-                message(CRITICAL,
-                        "couldn't load extension %s (looking for %s module)"
-                        % (ext, extension_module_name) )
-            else:
-
-                if configs.has_key(ext):
-                    configs_for_ext = configs[ext]
-                else:
-                    configs_for_ext = []
-                extension = module.makeExtension(configs_for_ext)
-                extension.extendMarkdown(self, globals())
-
-
-
+                ext.extendMarkdown(self, globals())
+            except AttributeError:
+                message(ERROR, "Incorrect type! Extension '%s' is "
+                               "neither a string or an Extension." %(repr(ext)))
+            
 
     def registerExtension(self, extension):
         """ This gets called by the extension """
         self.registeredExtensions.append(extension)
 
     def reset(self):
-        """Resets all state variables so that we can start
-            with a new text."""
-        self.references={}
-        self.htmlStash = HtmlStash()
-
-        HTML_BLOCK_PREPROCESSOR.stash = self.htmlStash
-        LINE_PREPROCESSOR.stash = self.htmlStash
-        REFERENCE_PREPROCESSOR.references = self.references
-        HTML_PATTERN.stash = self.htmlStash
-        ENTITY_PATTERN.stash = self.htmlStash
-        REFERENCE_PATTERN.references = self.references
-        IMAGE_REFERENCE_PATTERN.references = self.references
-        RAWHTMLTEXTPOSTPROCESSOR.stash = self.htmlStash
-        RAWHTMLTEXTPOSTPROCESSOR.safeMode = self.safeMode
+        """
+        Resets all state variables so that we can start with a new text.
+        """
+        self.htmlStash.reset()
+        self.references.clear()
 
         for extension in self.registeredExtensions:
             extension.reset()
 
+    def set_output_format(self, format):
+        """ Set the output format for the class instance. """
+        try:
+            self.serializer = self.output_formats[format.lower()]
+        except KeyError:
+            message(CRITICAL, 'Invalid Output Format: "%s". Use one of %s.' \
+                               % (format, self.output_formats.keys()))
 
-    def _transform(self):
-        """Transforms the Markdown text into a XHTML body document
+    def convert(self, source):
+        """
+        Convert markdown to serialized XHTML or HTML.
 
-           @returns: A NanoDom Document """
+        Keyword arguments:
 
-        # Setup the document
+        * source: Source text as a Unicode string.
 
-        self.doc = Document()
-        self.top_element = self.doc.createElement("span")
-        self.top_element.appendChild(self.doc.createTextNode('\n'))
-        self.top_element.setAttribute('class', 'markdown')
-        self.doc.appendChild(self.top_element)
-
-        # Fixup the source text
-        text = self.source
-        text = text.replace("\r\n", "\n").replace("\r", "\n")
-        text += "\n\n"
-        text = text.expandtabs(TAB_LENGTH)
-
-        # Split into lines and run the preprocessors that will work with
-        # self.lines
-
-        self.lines = text.split("\n")
-
-        # Run the pre-processors on the lines
-        for prep in self.preprocessors :
-            self.lines = prep.run(self.lines)
-
-        # Create a NanoDom tree from the lines and attach it to Document
-
-
-        buffer = []
-        for line in self.lines:
-            if line.startswith("#"):
-                self._processSection(self.top_element, buffer)
-                buffer = [line]
-            else:
-                buffer.append(line)
-        self._processSection(self.top_element, buffer)
-
-        #self._processSection(self.top_element, self.lines)
-
-        # Not sure why I put this in but let's leave it for now.
-        self.top_element.appendChild(self.doc.createTextNode('\n'))
-
-        # Run the post-processors
-        for postprocessor in self.postprocessors:
-            postprocessor.run(self.doc)
-
-        return self.doc
-
-
-    def _processSection(self, parent_elem, lines,
-                        inList = 0, looseList = 0):
-
-        """Process a section of a source document, looking for high
-           level structural elements like lists, block quotes, code
-           segments, html blocks, etc.  Some those then get stripped
-           of their high level markup (e.g. get unindented) and the
-           lower-level markup is processed recursively.
-
-           @param parent_elem: A NanoDom element to which the content
-                               will be added
-           @param lines: a list of lines
-           @param inList: a level
-           @returns: None"""
-
-        # Loop through lines until none left.
-        while lines:
-
-            # Check if this section starts with a list, a blockquote or
-            # a code block
-
-            processFn = { 'ul':     self._processUList,
-                          'ol':     self._processOList,
-                          'quoted': self._processQuote,
-                          'tabbed': self._processCodeBlock}
-
-            for regexp in ['ul', 'ol', 'quoted', 'tabbed']:
-                m = RE.regExp[regexp].match(lines[0])
-                if m:
-                    processFn[regexp](parent_elem, lines, inList)
-                    return
-
-            # We are NOT looking at one of the high-level structures like
-            # lists or blockquotes.  So, it's just a regular paragraph
-            # (though perhaps nested inside a list or something else).  If
-            # we are NOT inside a list, we just need to look for a blank
-            # line to find the end of the block.  If we ARE inside a
-            # list, however, we need to consider that a sublist does not
-            # need to be separated by a blank line.  Rather, the following
-            # markup is legal:
-            #
-            # * The top level list item
-            #
-            #     Another paragraph of the list.  This is where we are now.
-            #     * Underneath we might have a sublist.
-            #
-
-            if inList:
-
-                start, lines  = self._linesUntil(lines, (lambda line:
-                                 RE.regExp['ul'].match(line)
-                                 or RE.regExp['ol'].match(line)
-                                                  or not line.strip()))
-
-                self._processSection(parent_elem, start,
-                                     inList - 1, looseList = looseList)
-                inList = inList-1
-
-            else: # Ok, so it's just a simple block
-
-                paragraph, lines = self._linesUntil(lines, lambda line:
-                                                     not line.strip())
-
-                if len(paragraph) and paragraph[0].startswith('#'):
-                    self._processHeader(parent_elem, paragraph)
-
-                elif paragraph:
-                    self._processParagraph(parent_elem, paragraph,
-                                          inList, looseList)
-
-            if lines and not lines[0].strip():
-                lines = lines[1:]  # skip the first (blank) line
-
-
-    def _processHeader(self, parent_elem, paragraph):
-        m = RE.regExp['header'].match(paragraph[0])
-        if m:
-            level = len(m.group(1))
-            h = self.doc.createElement("h%d" % level)
-            parent_elem.appendChild(h)
-            for item in self._handleInline(m.group(2).strip()):
-                h.appendChild(item)
-        else:
-            message(CRITICAL, "We've got a problem header!")
-
-
-    def _processParagraph(self, parent_elem, paragraph, inList, looseList):
-        list = self._handleInline("\n".join(paragraph))
-
-        if ( parent_elem.nodeName == 'li'
-                and not (looseList or parent_elem.childNodes)):
-
-            # If this is the first paragraph inside "li", don't
-            # put <p> around it - append the paragraph bits directly
-            # onto parent_elem
-            el = parent_elem
-        else:
-            # Otherwise make a "p" element
-            el = self.doc.createElement("p")
-            parent_elem.appendChild(el)
-
-        for item in list:
-            el.appendChild(item)
-
-
-    def _processUList(self, parent_elem, lines, inList):
-        self._processList(parent_elem, lines, inList,
-                         listexpr='ul', tag = 'ul')
-
-    def _processOList(self, parent_elem, lines, inList):
-        self._processList(parent_elem, lines, inList,
-                         listexpr='ol', tag = 'ol')
-
-
-    def _processList(self, parent_elem, lines, inList, listexpr, tag):
-        """Given a list of document lines starting with a list item,
-           finds the end of the list, breaks it up, and recursively
-           processes each list item and the remainder of the text file.
-
-           @param parent_elem: A dom element to which the content will be added
-           @param lines: a list of lines
-           @param inList: a level
-           @returns: None"""
-
-        ul = self.doc.createElement(tag)  # ul might actually be '<ol>'
-        parent_elem.appendChild(ul)
-
-        looseList = 0
-
-        # Make a list of list items
-        items = []
-        item = -1
-
-        i = 0  # a counter to keep track of where we are
-
-        for line in lines:
-
-            loose = 0
-            if not line.strip():
-                # If we see a blank line, this _might_ be the end of the list
-                i += 1
-                loose = 1
-
-                # Find the next non-blank line
-                for j in range(i, len(lines)):
-                    if lines[j].strip():
-                        next = lines[j]
-                        break
-                else:
-                    # There is no more text => end of the list
-                    break
-
-                # Check if the next non-blank line is still a part of the list
-                if ( RE.regExp['ul'].match(next) or
-                     RE.regExp['ol'].match(next) or
-                     RE.regExp['tabbed'].match(next) ):
-                    # get rid of any white space in the line
-                    items[item].append(line.strip())
-                    looseList = loose or looseList
-                    continue
-                else:
-                    break # found end of the list
-
-            # Now we need to detect list items (at the current level)
-            # while also detabing child elements if necessary
-
-            for expr in ['ul', 'ol', 'tabbed']:
-
-                m = RE.regExp[expr].match(line)
-                if m:
-                    if expr in ['ul', 'ol']:  # We are looking at a new item
-                        #if m.group(1) :
-                        # Removed the check to allow for a blank line
-                        # at the beginning of the list item
-                        items.append([m.group(1)])
-                        item += 1
-                    elif expr == 'tabbed':  # This line needs to be detabbed
-                        items[item].append(m.group(4)) #after the 'tab'
-
-                    i += 1
-                    break
-            else:
-                items[item].append(line)  # Just regular continuation
-                i += 1 # added on 2006.02.25
-        else:
-            i += 1
-
-        # Add the dom elements
-        for item in items:
-            li = self.doc.createElement("li")
-            ul.appendChild(li)
-
-            self._processSection(li, item, inList + 1, looseList = looseList)
-
-        # Process the remaining part of the section
-
-        self._processSection(parent_elem, lines[i:], inList)
-
-
-    def _linesUntil(self, lines, condition):
-        """ A utility function to break a list of lines upon the
-            first line that satisfied a condition.  The condition
-            argument should be a predicate function.
-            """
-
-        i = -1
-        for line in lines:
-            i += 1
-            if condition(line): break
-        else:
-            i += 1
-        return lines[:i], lines[i:]
-
-    def _processQuote(self, parent_elem, lines, inList):
-        """Given a list of document lines starting with a quote finds
-           the end of the quote, unindents it and recursively
-           processes the body of the quote and the remainder of the
-           text file.
-
-           @param parent_elem: DOM element to which the content will be added
-           @param lines: a list of lines
-           @param inList: a level
-           @returns: None """
-
-        dequoted = []
-        i = 0
-        blank_line = False # allow one blank line between paragraphs
-        for line in lines:
-            m = RE.regExp['quoted'].match(line)
-            if m:
-                dequoted.append(m.group(1))
-                i += 1
-                blank_line = False
-            elif not blank_line and line.strip() != '':
-                dequoted.append(line)
-                i += 1
-            elif not blank_line and line.strip() == '':
-                dequoted.append(line)
-                i += 1
-                blank_line = True
-            else:
-                break
-
-        blockquote = self.doc.createElement('blockquote')
-        parent_elem.appendChild(blockquote)
-
-        self._processSection(blockquote, dequoted, inList)
-        self._processSection(parent_elem, lines[i:], inList)
-
-
-
-
-    def _processCodeBlock(self, parent_elem, lines, inList):
-        """Given a list of document lines starting with a code block
-           finds the end of the block, puts it into the dom verbatim
-           wrapped in ("<pre><code>") and recursively processes the
-           the remainder of the text file.
-
-           @param parent_elem: DOM element to which the content will be added
-           @param lines: a list of lines
-           @param inList: a level
-           @returns: None"""
-
-        detabbed, theRest = self.blockGuru.detectTabbed(lines)
-
-        pre = self.doc.createElement('pre')
-        code = self.doc.createElement('code')
-        parent_elem.appendChild(pre)
-        pre.appendChild(code)
-        text = "\n".join(detabbed).rstrip()+"\n"
-        #text = text.replace("&", "&amp;")
-        code.appendChild(self.doc.createTextNode(text))
-        self._processSection(parent_elem, theRest, inList)
-
-
-
-    def _handleInline (self, line, patternIndex=0):
-        """Transform a Markdown line with inline elements to an XHTML
-        fragment.
-
-        This function uses auxiliary objects called inline patterns.
-        See notes on inline patterns above.
-
-        @param line: A line of Markdown text
-        @param patternIndex: The index of the inlinePattern to start with
-        @return: A list of NanoDom nodes """
-
-
-        parts = [line]
-
-        while patternIndex < len(self.inlinePatterns):
-
-            i = 0
-
-            while i < len(parts):
-
-                x = parts[i]
-
-                if isinstance(x, (str, unicode)):
-                    result = self._applyPattern(x, \
-                                self.inlinePatterns[patternIndex], \
-                                patternIndex)
-
-                    if result:
-                        i -= 1
-                        parts.remove(x)
-                        for y in result:
-                            parts.insert(i+1,y)
-
-                i += 1
-            patternIndex += 1
-
-        for i in range(len(parts)):
-            x = parts[i]
-            if isinstance(x, (str, unicode)):
-                parts[i] = self.doc.createTextNode(x)
-
-        return parts
-
-
-    def _applyPattern(self, line, pattern, patternIndex):
-
-        """ Given a pattern name, this function checks if the line
-        fits the pattern, creates the necessary elements, and returns
-        back a list consisting of NanoDom elements and/or strings.
-
-        @param line: the text to be processed
-        @param pattern: the pattern to be checked
-
-        @returns: the appropriate newly created NanoDom element if the
-                  pattern matches, None otherwise.
         """
 
-        # match the line to pattern's pre-compiled reg exp.
-        # if no match, move on.
-
-
-
-        m = pattern.getCompiledRegExp().match(line)
-        if not m:
-            return None
-
-        # if we got a match let the pattern make us a NanoDom node
-        # if it doesn't, move on
-        node = pattern.handleMatch(m, self.doc)
-
-        # check if any of this nodes have children that need processing
-
-        if isinstance(node, Element):
-
-            if not node.nodeName in ["code", "pre"]:
-                for child in node.childNodes:
-                    if isinstance(child, TextNode):
-
-                        result = self._handleInline(child.value, patternIndex+1)
-
-                        if result:
-
-                            if result == [child]:
-                                continue
-
-                            result.reverse()
-                            #to make insertion easier
-
-                            position = node.childNodes.index(child)
-
-                            node.removeChild(child)
-
-                            for item in result:
-
-                                if isinstance(item, (str, unicode)):
-                                    if len(item) > 0:
-                                        node.insertChild(position,
-                                             self.doc.createTextNode(item))
-                                else:
-                                    node.insertChild(position, item)
-
-
-
-
-        if node:
-            # Those are in the reverse order!
-            return ( m.groups()[-1], # the string to the left
-                     node,           # the new node
-                     m.group(1))     # the string to the right of the match
-
-        else:
-            return None
-
-    def convert (self, source = None):
-        """Return the document in XHTML format.
-
-        @returns: A serialized XHTML body."""
-
-        if source is not None: #Allow blank string
-            self.source = source
-
-        if not self.source:
-            return u""
-
+        # Fixup the source text
+        if not source.strip():
+            return u""  # a blank unicode string
         try:
-            self.source = unicode(self.source)
+            source = unicode(source)
         except UnicodeDecodeError:
-            message(CRITICAL, 'UnicodeDecodeError: Markdown only accepts unicode or ascii  input.')
+            message(CRITICAL, 'UnicodeDecodeError: Markdown only accepts unicode or ascii input.')
             return u""
 
-        for pp in self.textPreprocessors:
-            self.source = pp.run(self.source)
+        source = source.replace(STX, "").replace(ETX, "")
+        source = source.replace("\r\n", "\n").replace("\r", "\n") + "\n\n"
+        source = re.sub(r'\n\s+\n', '\n\n', source)
+        source = source.expandtabs(TAB_LENGTH)
 
-        doc = self._transform()
-        xml = doc.toxml()
+        # Split into lines and run the line preprocessors.
+        self.lines = source.split("\n")
+        for prep in self.preprocessors.values():
+            self.lines = prep.run(self.lines)
 
+        # Parse the high-level elements.
+        root = self.parser.parseDocument(self.lines).getroot()
 
-        # Return everything but the top level tag
+        # Run the tree-processors
+        for treeprocessor in self.treeprocessors.values():
+            newRoot = treeprocessor.run(root)
+            if newRoot:
+                root = newRoot
 
+        # Serialize _properly_.  Strip top-level tags.
+        output, length = codecs.utf_8_decode(self.serializer(root, encoding="utf8"))
         if self.stripTopLevelTags:
-            xml = xml.strip()[23:-7] + "\n"
+            start = output.index('<%s>'%DOC_TAG)+len(DOC_TAG)+2
+            end = output.rindex('</%s>'%DOC_TAG)
+            output = output[start:end].strip()
 
-        for pp in self.textPostprocessors:
-            xml = pp.run(xml)
+        # Run the text post-processors
+        for pp in self.postprocessors.values():
+            output = pp.run(output)
 
-        return (self.docType + xml).strip()
+        return output.strip()
 
+    def convertFile(self, input=None, output=None, encoding=None):
+        """Converts a markdown file and returns the HTML as a unicode string.
 
-    def __str__(self):
-        ''' Report info about instance. Markdown always returns unicode. '''
-        if self.source is None:
-            status = 'in which no source text has been assinged.'
+        Decodes the file using the provided encoding (defaults to utf-8),
+        passes the file content to markdown, and outputs the html to either
+        the provided stream or the file with provided name, using the same
+        encoding as the source file.
+
+        **Note:** This is the only place that decoding and encoding of unicode
+        takes place in Python-Markdown.  (All other code is unicode-in /
+        unicode-out.)
+
+        Keyword arguments:
+
+        * input: Name of source text file.
+        * output: Name of output file. Writes to stdout if `None`.
+        * encoding: Encoding of input and output files. Defaults to utf-8.
+
+        """
+
+        encoding = encoding or "utf-8"
+
+        # Read the source
+        input_file = codecs.open(input, mode="r", encoding=encoding)
+        text = input_file.read()
+        input_file.close()
+        text = text.lstrip(u'\ufeff') # remove the byte-order mark
+
+        # Convert
+        html = self.convert(text)
+
+        # Write to file or stdout
+        if isinstance(output, (str, unicode)):
+            output_file = codecs.open(output, "w", encoding=encoding)
+            output_file.write(html)
+            output_file.close()
         else:
-            status = 'which contains %d chars and %d line(s) of source.'%\
-                     (len(self.source), self.source.count('\n')+1)
-        return 'An instance of "%s" %s'% (self.__class__, status)
-
-    __unicode__ = convert # markdown should always return a unicode string
+            output.write(html.encode(encoding))
 
 
-
-
-
-# ====================================================================
-
-def markdownFromFile(input = None,
-                     output = None,
-                     extensions = [],
-                     encoding = None,
-                     message_threshold = CRITICAL,
-                     safe = False):
-
-    global console_hndlr
-    console_hndlr.setLevel(message_threshold)
-
-    message(DEBUG, "input file: %s" % input)
-
-    if not encoding:
-        encoding = "utf-8"
-
-    input_file = codecs.open(input, mode="r", encoding=encoding)
-    text = input_file.read()
-    input_file.close()
-
-    text = removeBOM(text, encoding)
-
-    new_text = markdown(text, extensions, safe_mode = safe)
-
-    if output:
-        output_file = codecs.open(output, "w", encoding=encoding)
-        output_file.write(new_text)
-        output_file.close()
-
-    else:
-        sys.stdout.write(new_text.encode(encoding))
-
-def markdown(text,
-             extensions = [],
-             safe_mode = False):
-
-    message(DEBUG, "in markdown.markdown(), received text:\n%s" % text)
-
-    extension_names = []
-    extension_configs = {}
-
-    for ext in extensions:
-        pos = ext.find("(")
-        if pos == -1:
-            extension_names.append(ext)
-        else:
-            name = ext[:pos]
-            extension_names.append(name)
-            pairs = [x.split("=") for x in ext[pos+1:-1].split(",")]
-            configs = [(x.strip(), y.strip()) for (x, y) in pairs]
-            extension_configs[name] = configs
-
-    md = Markdown(extensions=extension_names,
-                  extension_configs=extension_configs,
-                  safe_mode = safe_mode)
-
-    return md.convert(text)
-
+"""
+Extensions
+-----------------------------------------------------------------------------
+"""
 
 class Extension:
-
+    """ Base class for extensions to subclass. """
     def __init__(self, configs = {}):
+        """Create an instance of an Extention.
+
+        Keyword arguments:
+
+        * configs: A dict of configuration setting used by an Extension.
+        """
         self.config = configs
 
     def getConfig(self, key):
-        if self.config.has_key(key):
+        """ Return a setting for the given key or an empty string. """
+        if key in self.config:
             return self.config[key][0]
         else:
             return ""
 
     def getConfigInfo(self):
+        """ Return all config settings as a list of tuples. """
         return [(key, self.config[key][1]) for key in self.config.keys()]
 
     def setConfig(self, key, value):
+        """ Set a config setting for `key` with the given `value`. """
         self.config[key][0] = value
 
+    def extendMarkdown(self, md, md_globals):
+        """
+        Add the various proccesors and patterns to the Markdown Instance.
 
-OPTPARSE_WARNING = """
-Python 2.3 or higher required for advanced command line options.
-For lower versions of Python use:
+        This method must be overriden by every extension.
 
-      %s INPUT_FILE > OUTPUT_FILE
+        Keyword arguments:
 
-""" % EXECUTABLE_NAME_FOR_USAGE
+        * md: The Markdown instance.
 
-def parse_options():
-    import optparse
-    parser = optparse.OptionParser(usage="%prog INPUTFILE [options]")
+        * md_globals: Global variables in the markdown module namespace.
 
-    parser.add_option("-f", "--file", dest="filename",
-                      help="write output to OUTPUT_FILE",
-                      metavar="OUTPUT_FILE")
-    parser.add_option("-e", "--encoding", dest="encoding",
-                      help="encoding for input and output files",)
-    parser.add_option("-q", "--quiet", default = CRITICAL,
-                      action="store_const", const=60, dest="verbose",
-                      help="suppress all messages")
-    parser.add_option("-v", "--verbose",
-                      action="store_const", const=INFO, dest="verbose",
-                      help="print info messages")
-    parser.add_option("-s", "--safe", dest="safe", default=False,
-                      metavar="SAFE_MODE",
-                      help="same mode ('replace', 'remove' or 'escape'  user's HTML tag)")
+        """
+        pass
 
-    parser.add_option("--noisy",
-                      action="store_const", const=DEBUG, dest="verbose",
-                      help="print debug messages")
-    parser.add_option("-x", "--extension", action="append", dest="extensions",
-                      help = "load extension EXTENSION", metavar="EXTENSION")
 
-    (options, args) = parser.parse_args()
+def load_extension(ext_name, configs = []):
+    """Load extension by name, then return the module.
 
-    if not len(args) == 1:
-        parser.print_help()
-        return None
-    else:
-        input_file = args[0]
+    The extension name may contain arguments as part of the string in the
+    following format: "extname(key1=value1,key2=value2)"
 
-    if not options.extensions:
-        options.extensions = []
+    """
 
-    return {'input': input_file,
-            'output': options.filename,
-            'message_threshold': options.verbose,
-            'safe': options.safe,
-            'extensions': options.extensions,
-            'encoding': options.encoding }
+    # Parse extensions config params (ignore the order)
+    configs = dict(configs)
+    pos = ext_name.find("(") # find the first "("
+    if pos > 0:
+        ext_args = ext_name[pos+1:-1]
+        ext_name = ext_name[:pos]
+        pairs = [x.split("=") for x in ext_args.split(",")]
+        configs.update([(x.strip(), y.strip()) for (x, y) in pairs])
+
+    # Setup the module names
+    ext_module = 'calibre.ebooks.markdown.extensions'
+    module_name_new_style = '.'.join([ext_module, ext_name])
+    module_name_old_style = '_'.join(['mdx', ext_name])
+
+    # Try loading the extention first from one place, then another
+    try: # New style (markdown.extensons.<extension>)
+        module = __import__(module_name_new_style, {}, {}, [ext_module])
+    except ImportError:
+        try: # Old style (mdx.<extension>)
+            module = __import__(module_name_old_style)
+        except ImportError:
+            message(WARN, "Failed loading extension '%s' from '%s' or '%s'"
+                % (ext_name, module_name_new_style, module_name_old_style))
+            # Return None so we don't try to initiate none-existant extension
+            return None
+
+    # If the module is loaded successfully, we expect it to define a
+    # function called makeExtension()
+    try:
+        return module.makeExtension(configs.items())
+    except AttributeError:
+        message(CRITICAL, "Failed to initiate extension '%s'" % ext_name)
+
+
+def load_extensions(ext_names):
+    """Loads multiple extensions"""
+    extensions = []
+    for ext_name in ext_names:
+        extension = load_extension(ext_name)
+        if extension:
+            extensions.append(extension)
+    return extensions
+
+
+"""
+EXPORTED FUNCTIONS
+=============================================================================
+
+Those are the two functions we really mean to export: markdown() and
+markdownFromFile().
+"""
+
+def markdown(text,
+             extensions = [],
+             safe_mode = False,
+             output_format = DEFAULT_OUTPUT_FORMAT):
+    """Convert a markdown string to HTML and return HTML as a unicode string.
+
+    This is a shortcut function for `Markdown` class to cover the most
+    basic use case.  It initializes an instance of Markdown, loads the
+    necessary extensions and runs the parser on the given text.
+
+    Keyword arguments:
+
+    * text: Markdown formatted text as Unicode or ASCII string.
+    * extensions: A list of extensions or extension names (may contain config args).
+    * safe_mode: Disallow raw html.  One of "remove", "replace" or "escape".
+    * output_format: Format of output. Supported formats are:
+        * "xhtml1": Outputs XHTML 1.x. Default.
+        * "xhtml": Outputs latest supported version of XHTML (currently XHTML 1.1).
+        * "html4": Outputs HTML 4
+        * "html": Outputs latest supported version of HTML (currently HTML 4).
+        Note that it is suggested that the more specific formats ("xhtml1" 
+        and "html4") be used as "xhtml" or "html" may change in the future
+        if it makes sense at that time. 
+
+    Returns: An HTML document as a string.
+
+    """
+    md = Markdown(extensions=load_extensions(extensions),
+                  safe_mode=safe_mode, 
+                  output_format=output_format)
+    return md.convert(text)
+
+
+def markdownFromFile(input = None,
+                     output = None,
+                     extensions = [],
+                     encoding = None,
+                     safe_mode = False,
+                     output_format = DEFAULT_OUTPUT_FORMAT):
+    """Read markdown code from a file and write it to a file or a stream."""
+    md = Markdown(extensions=load_extensions(extensions), 
+                  safe_mode=safe_mode,
+                  output_format=output_format)
+    md.convertFile(input, output, encoding)
 
 
 def main():
-    options = parse_options()
+    from commandline import run
+    run()
 
-    #if os.access(inFile, os.R_OK):
-
-    if not options:
-        sys.exit(0)
-
-    markdownFromFile(**options)
 
 if __name__ == '__main__':
     sys.exit(main())
-    """ Run Markdown from the command line. """
-
-
-
-
-
-
-
-
-
-
-
+    ''' Run Markdown from the command line. '''

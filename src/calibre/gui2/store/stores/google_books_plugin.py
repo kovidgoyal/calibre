@@ -68,8 +68,8 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 title = ''.join(data.xpath('.//h3/a//text()'))
-                authors = data.xpath('.//span[@class="gl"]//a//text()')
-                if authors[-1].strip().lower() in ('preview', 'read'):
+                authors = data.xpath('.//span[@class="f"]//a//text()')
+                if authors and authors[-1].strip().lower() in ('preview', 'read'):
                     authors = authors[:-1]
                 else:
                     continue
@@ -98,6 +98,8 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
             if not price.strip():
                 price = ''.join(doc.xpath('//div[@class="buy-container"]/a/text()'))
                 price = price.split('-')[-1]
+            if 'view' in price.lower():
+                price = 'Unknown'
             # No price set for this book.
             if not price.strip():
                 price = '$0.00'

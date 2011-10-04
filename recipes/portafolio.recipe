@@ -4,13 +4,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1311799898(BasicNewsRecipe):
     title          = u'Periódico Portafolio Colombia'
-    language = 'es_CO'
     __author__  = 'BIGO-CAVA'
+    language = 'es_CO'
     cover_url     = 'http://www.portafolio.co/sites/portafolio.co/themes/portafolio_2011/logo.png'
     remove_tags_before = dict(id='contenidoArt')
     remove_tags_after  = [dict(name='div', attrs={'class':'articulo-mas'})]
     keep_only_tags = [dict(name='div', id='contenidoArt')]
-    oldest_article = 1
+    oldest_article = 2
     max_articles_per_feed = 100
     remove_javascript = True
     no_stylesheets        = True

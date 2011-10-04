@@ -7,8 +7,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, errno
 from functools import partial
+from datetime import datetime
 
 from PyQt4.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
@@ -25,6 +26,8 @@ from calibre.gui2.metadata.single_download import FullFetch
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.utils.localization import canonicalize_lang
+from calibre.utils.date import local_tz
 
 BASE_TITLE = _('Edit Metadata')
 
@@ -130,10 +133,15 @@ class MetadataSingleDialogBase(ResizableDialog):
         ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
         ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
         ac3 = m.addAction(QIcon(I('user_profile.png')), _('Manage authors'))
+        ac4 = m.addAction(QIcon(I('next.png')),
+                _('Copy author to author sort'))
+        ac5 = m.addAction(QIcon(I('previous.png')),
+                _('Copy author sort to author'))
+
         b.setMenu(m)
         self.authors = AuthorsEdit(self, ac3)
         self.author_sort = AuthorSortEdit(self, self.authors, b, self.db, ac,
-                ac2)
+                ac2, ac4, ac5)
         self.basic_metadata_widgets.extend([self.authors, self.author_sort])
 
         self.swap_title_author_button = QToolButton(self)
@@ -371,7 +379,10 @@ class MetadataSingleDialogBase(ResizableDialog):
             if mi.series_index is not None:
                 self.series_index.current_val = float(mi.series_index)
         if not mi.is_null('languages'):
-            self.languages.lang_codes = mi.languages
+            langs = [canonicalize_lang(x) for x in mi.languages]
+            langs = [x for x in langs if x is not None]
+            if langs:
+                self.languages.current_val = langs
         if mi.comments and mi.comments.strip():
             self.comments.current_val = mi.comments
 
@@ -387,6 +398,14 @@ class MetadataSingleDialogBase(ResizableDialog):
                 if ':' not in f:
                     setattr(mi, f, getattr(dummy, f))
             if mi is not None:
+                pd = mi.pubdate
+                if pd is not None:
+                    # Put the downloaded published date into the local timezone
+                    # as we discard time info and the date is timezone
+                    # invariant. This prevents the as_local_timezone() call in
+                    # update_from_mi from changing the pubdate
+                    mi.pubdate = datetime(pd.year, pd.month, pd.day,
+                            tzinfo=local_tz)
                 self.update_from_mi(mi)
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
@@ -422,7 +441,7 @@ class MetadataSingleDialogBase(ResizableDialog):
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh',
                         set([]))
             except IOError as err:
-                if err.errno == 13: # Permission denied
+                if err.errno == errno.EACCES: # Permission denied
                     import traceback
                     fname = err.filename if err.filename else 'file'
                     error_dialog(self, _('Permission denied'),
@@ -723,7 +742,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase): # {{{
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 1, 1)
-        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,
@@ -859,7 +878,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase): # {{{
 
         tl.addWidget(self.swap_title_author_button, 0, 0, 2, 1)
         tl.addWidget(self.manage_authors_button, 2, 0, 2, 1)
-        tl.addWidget(self.paste_isbn_button, 11, 0, 1, 1)
+        tl.addWidget(self.paste_isbn_button, 12, 0, 1, 1)
 
         create_row(0, self.title, self.title_sort,
                    button=self.deduce_title_sort_button, span=2,

@@ -47,7 +47,9 @@ In addition, there is a button to automatically trim borders from the cover, in 
 Editing the metadata of many books at a time
 ---------------------------------------------
 
-First select the books you want to edit by holding Ctrl or Shift and clicking on them. If you select more than one book, clicking the :guilabel:`Edit metadata` button will cause a new *Bulk* metadata edit dialog to open. Using this dialog, you can quickly set the author/publisher/rating/tags/series etc of a bunch of books to the same value. This is particularly useful if you have just imported a number of books that have some metadata in common. You can also click the arrow next to the :guilabel:`Edit metadata` button and select :guilabel:`Edit metadata individually` to use the powerful single book edit dialog from above for all the selected books in succession.
+First select the books you want to edit by holding Ctrl or Shift and clicking on them. If you select more than one book, clicking the :guilabel:`Edit metadata` button will cause a new *Bulk* metadata edit dialog to open. Using this dialog, you can quickly set the author/publisher/rating/tags/series etc of a bunch of books to the same value. This is particularly useful if you have just imported a number of books that have some metadata in common. This dialog is very powerful, for example, it has a Search and Replace tab that you can use to perform bulk operations on metadata and even copy metadata from one column to another.
+
+The normal edit metadata dialog also has Next and Previous buttons that you can use to edit the metadata of several books one after the other. 
 
 Search and replace
 ^^^^^^^^^^^^^^^^^^^^
@@ -81,6 +83,6 @@ Search and replace is done after all the other metadata changes in the other tab
 Bulk downloading of metadata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you want to download the metadata for multiple books at once, click the arrow next to the :guilabel:`Edit metadata` button and select :guilabel:`Download metadata and covers`. You can choose to download only metadata, only covers, both or only social metadata (tags/rating/series).
+If you want to download the metadata for multiple books at once, right-click the :guilabel:`Edit metadata` button and select :guilabel:`Download metadata`. You can choose to download only metadata, only covers, or both.
 
 

@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re, os
+import textwrap, re, os, errno, shutil
 
 from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
@@ -33,8 +33,9 @@ from calibre.gui2.comments_editor import Editor
 from calibre.library.comments import comments_to_html
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.icu import strcmp
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
 from calibre.gui2.languages import LanguagesEdit as LE
+from calibre.db import SPOOL_SIZE
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
@@ -42,8 +43,6 @@ def save_dialog(parent, title, msg, det_msg=''):
     d.setText(msg)
     d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
     return d.exec_()
-
-
 
 '''
 The interface common to all widgets used to set basic metadata
@@ -98,7 +97,7 @@ class TitleEdit(EnLineEdit):
                 getattr(db, 'set_'+ self.TITLE_ATTR)(id_, title, notify=False,
                         commit=False)
         except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == 13: # Permission denied
+            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
                 import traceback
                 fname = err.filename if err.filename else 'file'
                 error_dialog(self, _('Permission denied'),
@@ -262,7 +261,7 @@ class AuthorsEdit(MultiCompleteComboBox):
             self.books_to_refresh |= db.set_authors(id_, authors, notify=False,
                 allow_case_change=True)
         except (IOError, OSError) as err:
-            if getattr(err, 'errno', -1) == 13: # Permission denied
+            if getattr(err, 'errno', -1) == errno.EACCES: # Permission denied
                 import traceback
                 fname = err.filename if err.filename else 'file'
                 error_dialog(self, _('Permission denied'),
@@ -308,7 +307,7 @@ class AuthorSortEdit(EnLineEdit):
     LABEL = _('Author s&ort:')
 
     def __init__(self, parent, authors_edit, autogen_button, db,
-            copy_a_to_as_action, copy_as_to_a_action):
+            copy_a_to_as_action, copy_as_to_a_action, a_to_as, as_to_a):
         EnLineEdit.__init__(self, parent)
         self.authors_edit = authors_edit
         self.db = db
@@ -333,6 +332,8 @@ class AuthorSortEdit(EnLineEdit):
         autogen_button.clicked.connect(self.auto_generate)
         copy_a_to_as_action.triggered.connect(self.auto_generate)
         copy_as_to_a_action.triggered.connect(self.copy_to_authors)
+        a_to_as.triggered.connect(self.author_to_sort)
+        as_to_a.triggered.connect(self.sort_to_author)
         self.update_state()
 
     @dynamic_property
@@ -389,9 +390,20 @@ class AuthorSortEdit(EnLineEdit):
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
-        au = re.sub(r'\s+et al\.$', '', au)
+        au = re.sub(r'\s+et al\.$', '', au).strip()
         authors = string_to_authors(au)
         self.current_val = self.db.author_sort_from_authors(authors)
+
+    def author_to_sort(self, *args):
+        au = unicode(self.authors_edit.text())
+        au = re.sub(r'\s+et al\.$', '', au).strip()
+        if au:
+            self.current_val = au
+
+    def sort_to_author(self, *args):
+        aus = self.current_val
+        if aus:
+            self.authors_edit.current_val = [aus]
 
     def initialize(self, db, id_):
         self.current_val = db.author_sort(id_, index_is_id=True)
@@ -718,8 +730,12 @@ class FormatsManager(QWidget):
             else:
                 old_extensions.add(ext)
         for ext in new_extensions:
-            db.add_format(id_, ext, open(paths[ext], 'rb'), notify=False,
-                    index_is_id=True)
+            with SpooledTemporaryFile(SPOOL_SIZE) as spool:
+                with open(paths[ext], 'rb') as f:
+                    shutil.copyfileobj(f, spool)
+                spool.seek(0)
+                db.add_format(id_, ext, spool, notify=False,
+                        index_is_id=True)
         dbfmts = db.formats(id_, index_is_id=True)
         db_extensions = set([f.lower() for f in (dbfmts.split(',') if dbfmts
             else [])])
@@ -1150,6 +1166,7 @@ class LanguagesEdit(LE): # {{{
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
+        self.init_langs(db)
         lc = []
         langs = db.languages(id_, index_is_id=True)
         if langs:
@@ -1213,7 +1230,9 @@ class IdentifiersEdit(QLineEdit): # {{{
                         val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
             txt = ', '.join(['%s:%s'%(k.lower(), v) for k, v in ids])
-            self.setText(txt.strip())
+            # Use clear + insert instead of setText so that undo works
+            self.clear()
+            self.insert(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
 
@@ -1305,7 +1324,7 @@ class ISBNDialog(QDialog) : # {{{
         self.line_edit.setStyleSheet('QLineEdit { background-color: %s }'%col)
 
     def text(self):
-        return unicode(self.line_edit.text())
+        return check_isbn(unicode(self.line_edit.text()))
 
 # }}}
 

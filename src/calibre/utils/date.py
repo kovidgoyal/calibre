@@ -170,32 +170,40 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
     if format == 'iso':
         return isoformat(dt, assume_utc=assume_utc, as_utc=as_utc)
 
+    if dt == UNDEFINED_DATE:
+        return ''
+
     strf = partial(strftime, t=dt.timetuple())
 
-    def format_day(mo):
-        l = len(mo.group(0))
+    def format_day(dy):
+        l = len(dy)
         if l == 1: return '%d'%dt.day
         if l == 2: return '%02d'%dt.day
         if l == 3: return strf('%a')
         return strf('%A')
 
     def format_month(mo):
-        l = len(mo.group(0))
+        l = len(mo)
         if l == 1: return '%d'%dt.month
         if l == 2: return '%02d'%dt.month
         if l == 3: return strf('%b')
         return strf('%B')
 
-    def format_year(mo):
-        if len(mo.group(0)) == 2: return '%02d'%(dt.year % 100)
+    def format_year(yr):
+        if len(yr) == 2: return '%02d'%(dt.year % 100)
         return '%04d'%dt.year
 
-    if dt == UNDEFINED_DATE:
-        return ''
+    def repl_func(mo):
+        s = mo.group(0)
+        if s is None:
+            return ''
+        if s[0] == 'd':
+            return format_day(s)
+        if s[0] == 'M':
+            return format_month(s)
+        return format_year(s)
 
-    format = re.sub('d{1,4}', format_day, format)
-    format = re.sub('M{1,4}', format_month, format)
-    return re.sub('yyyy|yy', format_year, format)
+    return re.sub('(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, format)
 
 def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date

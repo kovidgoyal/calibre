@@ -233,7 +233,8 @@ class CompleteDelegate(QStyledItemDelegate): # {{{
 class LanguagesDelegate(QStyledItemDelegate): # {{{
 
     def createEditor(self, parent, option, index):
-        editor = LanguagesEdit(parent)
+        editor = LanguagesEdit(parent=parent)
+        editor.init_langs(index.model().db)
         ct = index.data(Qt.DisplayRole).toString()
         editor.setEditText(ct)
         editor.lineEdit().selectAll()

@@ -21,7 +21,7 @@ from calibre.utils.ipc.job import ParallelJob
 from calibre.gui2 import Dispatcher, error_dialog, question_dialog, NONE, config, gprefs
 from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
-from calibre import __appname__
+from calibre import __appname__, as_unicode
 from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
@@ -181,6 +181,20 @@ class JobManager(QAbstractTableModel): # {{{
                     self.dataChanged.emit(
                         self.index(idx, 0), self.index(idx, 3))
 
+        # Kill parallel jobs that have gone on too long
+        try:
+            wmax_time = gprefs['worker_max_time'] * 60
+        except:
+            wmax_time = 0
+
+        if wmax_time > 0:
+            for job in self.jobs:
+                if isinstance(job, ParallelJob):
+                    rtime = job.running_time
+                    if (rtime is not None and rtime > wmax_time and
+                            job.duration is None):
+                        job.timed_out = True
+                        self.server.kill_job(job)
 
     def _add_job(self, job):
         self.layoutAboutToBeChanged.emit()
@@ -249,6 +263,26 @@ class JobManager(QAbstractTableModel): # {{{
             return error_dialog(view, _('Cannot kill job'),
                     _('This job cannot be stopped'), show=True)
         self._kill_job(job)
+
+    def kill_multiple_jobs(self, rows, view):
+        jobs = [self.jobs[row] for row in rows]
+        devjobs = [j for j in jobs if isinstance(j, DeviceJob)]
+        if devjobs:
+            error_dialog(view, _('Cannot kill job'),
+                         _('Cannot kill jobs that communicate with the device')).exec_()
+            jobs = [j for j in jobs if not isinstance(j, DeviceJob)]
+        jobs = [j for j in jobs if j.duration is None]
+        unkillable = [j for j in jobs if not getattr(j, 'killable', True)]
+        if unkillable:
+            names = u'\n'.join(as_unicode(j.description) for j in unkillable)
+            error_dialog(view, _('Cannot kill job'),
+                    _('Some of the jobs cannot be stopped. Click Show details'
+                        ' to see the list of unstoppable jobs.'), det_msg=names,
+                    show=True)
+            jobs = [j for j in jobs if getattr(j, 'killable', True)]
+        jobs = [j for j in jobs if j.duration is None]
+        for j in jobs:
+            self._kill_job(j)
 
     def kill_all_jobs(self):
         for job in self.jobs:
@@ -466,12 +500,16 @@ class JobsDialog(QDialog, Ui_JobsDialog):
     def kill_job(self, *args):
         rows = [index.row() for index in
                 self.jobs_view.selectionModel().selectedRows()]
+        return error_dialog(self, _('No job'),
+                _('No job selected'), show=True)
         if question_dialog(self, _('Are you sure?'),
                 ngettext('Do you really want to stop the selected job?',
                     'Do you really want to stop all the selected jobs?',
                     len(rows))):
-            for row in rows:
-                self.model.kill_job(row, self)
+            if len(rows) > 1:
+                self.model.kill_multiple_jobs(rows, self)
+            else:
+                self.model.kill_job(rows[0], self)
 
     def kill_all_jobs(self, *args):
         if question_dialog(self, _('Are you sure?'),

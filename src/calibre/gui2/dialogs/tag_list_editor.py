@@ -18,11 +18,7 @@ class NameTableWidgetItem(QTableWidgetItem):
 
     def data(self, role):
         if role == Qt.DisplayRole:
-            if self.initial_value != self.current_value:
-                return _('%(curr)s (was %(initial)s)')%dict(
-                        curr=self.current_value, initial=self.initial_value)
-            else:
-                return self.current_value
+            return self.current_value
         elif role == Qt.EditRole:
             return self.current_value
         else:
@@ -105,12 +101,15 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.up_arrow_icon = QIcon(I('arrow-up.png'))
         self.blank_icon = QIcon(I('blank.png'))
 
-        self.table.setColumnCount(2)
+        self.table.setColumnCount(3)
         self.name_col = QTableWidgetItem(_('Tag'))
         self.table.setHorizontalHeaderItem(0, self.name_col)
         self.name_col.setIcon(self.up_arrow_icon)
         self.count_col = QTableWidgetItem(_('Count'))
         self.table.setHorizontalHeaderItem(1, self.count_col)
+        self.count_col.setIcon(self.blank_icon)
+        self.was_col = QTableWidgetItem(_('Was'))
+        self.table.setHorizontalHeaderItem(2, self.was_col)
         self.count_col.setIcon(self.blank_icon)
 
         # Capture clicks on the horizontal header to sort the table columns
@@ -120,6 +119,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         hh.sectionResized.connect(self.table_column_resized)
         self.name_order = 0
         self.count_order = 1
+        self.was_order = 1
 
         # Add the data
         select_item = None
@@ -135,6 +135,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             # only the name column can be selected
             item.setFlags (item.flags() & ~Qt.ItemIsSelectable)
             self.table.setItem(row, 1, item)
+            item = QTableWidgetItem('')
+            item.setFlags (item.flags() & ~Qt.ItemIsSelectable)
+            self.table.setItem(row, 2, item)
 
         # Scroll to the selected item if there is one
         if select_item is not None:
@@ -187,6 +190,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if item.text() != item.initial_text():
             id_ = item.data(Qt.UserRole).toInt()[0]
             self.to_rename[id_] = unicode(item.text())
+            orig = self.table.item(item.row(), 2)
+            self.table.blockSignals(True)
+            orig.setData(Qt.DisplayRole, item.initial_text())
+            self.table.blockSignals(False)
 
     def rename_tag(self):
         item = self.table.item(self.table.currentRow(), 0)
@@ -223,8 +230,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def header_clicked(self, idx):
         if idx == 0:
             self.do_sort_by_name()
-        else:
+        elif idx == 1:
             self.do_sort_by_count()
+        else:
+            self.do_sort_by_was()
 
     def do_sort_by_name(self):
         self.name_order = 1 if self.name_order == 0 else 0
@@ -232,6 +241,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.name_col.setIcon(self.down_arrow_icon if self.name_order
                                                     else self.up_arrow_icon)
         self.count_col.setIcon(self.blank_icon)
+        self.was_col.setIcon(self.blank_icon)
 
     def do_sort_by_count (self):
         self.count_order = 1 if self.count_order == 0 else 0
@@ -239,6 +249,15 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.count_col.setIcon(self.down_arrow_icon if self.count_order
                                                     else self.up_arrow_icon)
         self.name_col.setIcon(self.blank_icon)
+        self.was_col.setIcon(self.blank_icon)
+
+    def do_sort_by_was(self):
+        self.was_order = 1 if self.was_order == 0 else 0
+        self.table.sortByColumn(2, self.was_order)
+        self.was_col.setIcon(self.down_arrow_icon if self.was_order
+                                                    else self.up_arrow_icon)
+        self.name_col.setIcon(self.blank_icon)
+        self.count_col.setIcon(self.blank_icon)
 
     def accepted(self):
         self.save_geometry()

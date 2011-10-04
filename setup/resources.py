@@ -219,12 +219,17 @@ class Resources(Command):
         json.dump(function_dict, open(dest, 'wb'), indent=4)
 
     def clean(self):
-        for x in ('scripts', 'recipes', 'ebook-convert-complete'):
+        for x in ('scripts', 'ebook-convert-complete'):
             x = self.j(self.RESOURCES, x+'.pickle')
             if os.path.exists(x):
                 os.remove(x)
         from setup.commands import kakasi
         kakasi.clean()
+        for x in ('builtin_recipes.xml', 'builtin_recipes.zip',
+                'template-functions.json'):
+            x = self.j(self.RESOURCES, x)
+            if os.path.exists(x):
+                os.remove(x)
 
 
 

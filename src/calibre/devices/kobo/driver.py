@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import os
 import sqlite3 as sqlite
 from contextlib import closing
-
 from calibre.devices.usbms.books import BookList
 from calibre.devices.kobo.books import Book
 from calibre.devices.kobo.books import ImageWrapper
@@ -16,6 +15,7 @@ from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.devices.usbms.books import CollectionsBookList
+from calibre.utils.magick.draw import save_cover_data_to
 
 class KOBO(USBMS):
 
@@ -51,13 +51,25 @@ class KOBO(USBMS):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
             _('The Kobo supports several collections including ')+\
-                    'Read, Closed, Im_Reading ' +\
+                    'Read, Closed, Im_Reading. ' +\
             _('Create tags for automatic management'),
-    ]
+            _('Upload covers for books (newer readers)') +
+            ':::'+_('Normally, the KOBO readers get the cover image from the'
+                ' ebook file itself. With this option, calibre will send a '
+                'separate cover image to the reader, useful if you '
+                'have modified the cover.'),
+            _('Upload Black and White Covers')
+            ]
 
-    EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(['tags'])
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+            ', '.join(['tags']),
+            True,
+            True
+            ]
 
-    OPT_COLLECTIONS = 0
+    OPT_COLLECTIONS    = 0
+    OPT_UPLOAD_COVERS  = 1
+    OPT_UPLOAD_GRAYSCALE_COVERS  = 2
 
     def initialize(self):
         USBMS.initialize(self)
@@ -593,7 +605,7 @@ class KOBO(USBMS):
             raise
         else:
             connection.commit()
-            debug_print('    Commit: Reset ReadStatus list')
+            # debug_print('    Commit: Reset ReadStatus list')
 
         cursor.close()
 
@@ -616,7 +628,7 @@ class KOBO(USBMS):
             raise
         else:
             connection.commit()
-            debug_print('    Commit: Setting ReadStatus List')
+            # debug_print('    Commit: Setting ReadStatus List')
         cursor.close()
 
     def reset_favouritesindex(self, connection, oncard):
@@ -635,7 +647,7 @@ class KOBO(USBMS):
                 raise
         else:
             connection.commit()
-            debug_print('    Commit: Reset FavouritesIndex list')
+            # debug_print('    Commit: Reset FavouritesIndex list')
 
     def set_favouritesindex(self, connection, ContentID):
         cursor = connection.cursor()
@@ -650,9 +662,18 @@ class KOBO(USBMS):
                 raise
         else:
             connection.commit()
-            debug_print('    Commit: Set FavouritesIndex')
+            # debug_print('    Commit: Set FavouritesIndex')
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
+        # Only process categories in this list
+        supportedcategories = {
+            "Im_Reading":1,
+            "Read":2,
+            "Closed":3,
+            "Shortlist":4,
+            # "Preview":99, # Unsupported as we don't want to change it
+        }
+
         # Define lists for the ReadStatus
         readstatuslist = {
             "Im_Reading":1,
@@ -692,9 +713,10 @@ class KOBO(USBMS):
 
                 # Process any collections that exist
                 for category, books in collections.items():
-                        debug_print("Category: ", category, " id = ", readstatuslist.get(category))
+                    if category in supportedcategories:
+                        # debug_print("Category: ", category, " id = ", readstatuslist.get(category))
                         for book in books:
-                            debug_print('    Title:', book.title, 'category: ', category)
+                            # debug_print('    Title:', book.title, 'category: ', category)
                             if category not in book.device_collections:
                                 book.device_collections.append(category)
 
@@ -752,4 +774,94 @@ class KOBO(USBMS):
     def rebuild_collections(self, booklist, oncard):
         collections_attributes = []
         self.update_device_database_collections(booklist, collections_attributes, oncard)
+
+    def upload_cover(self, path, filename, metadata, filepath):
+        '''
+        Upload book cover to the device. Default implementation does nothing.
+
+        :param path: The full path to the directory where the associated book is located.
+        :param filename: The name of the book file without the extension.
+        :param metadata: metadata belonging to the book. Use metadata.thumbnail
+                         for cover
+        :param filepath: The full path to the ebook file
+
+        '''
+
+        opts = self.settings()
+        if not opts.extra_customization[self.OPT_UPLOAD_COVERS]:
+            # Building thumbnails disabled
+            debug_print('KOBO: not uploading cover')
+            return
+
+        if not opts.extra_customization[self.OPT_UPLOAD_GRAYSCALE_COVERS]:
+            uploadgrayscale = False
+        else:
+            uploadgrayscale = True
+
+        debug_print('KOBO: uploading cover')
+        try:
+            self._upload_cover(path, filename, metadata, filepath, uploadgrayscale)
+        except:
+            debug_print('FAILED to upload cover', filepath)
+
+    def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale):
+        if metadata.cover:
+            cover = self.normalize_path(metadata.cover.replace('/', os.sep))
+
+            if os.path.exists(cover):
+                # Get ContentID for Selected Book
+                extension =  os.path.splitext(filepath)[1]
+                ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(filepath)
+                ContentID = self.contentid_from_path(filepath, ContentType)
+
+                with closing(sqlite.connect(self.normalize_path(self._main_prefix +
+                    '.kobo/KoboReader.sqlite'))) as connection:
+
+                    # return bytestrings if the content cannot the decoded as unicode
+                    connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+
+                    cursor = connection.cursor()
+                    t = (ContentID,)
+                    cursor.execute('select ImageId from Content where BookID is Null and ContentID = ?', t)
+                    result = cursor.fetchone()
+                    if result is None:
+                        debug_print("No rows exist in the database - cannot upload")
+                        return
+                    else:
+                        ImageID = result[0]
+#                        debug_print("ImageId: ", result[0])
+
+                    cursor.close()
+
+                if ImageID != None:
+                    path_prefix = '.kobo/images/'
+                    path = self._main_prefix + path_prefix + ImageID
+
+                    file_endings = {' - iPhoneThumbnail.parsed':(103,150),
+                            ' - bbMediumGridList.parsed':(93,135),
+                            ' - NickelBookCover.parsed':(500,725),
+                            ' - N3_LIBRARY_FULL.parsed':(355,530),
+                            ' - N3_LIBRARY_GRID.parsed':(149,233),
+                            ' - N3_LIBRARY_LIST.parsed':(60,90),
+                            ' - N3_SOCIAL_CURRENTREAD.parsed':(120,186)}
+
+                    for ending, resize in file_endings.items():
+                        fpath = path + ending
+                        fpath = self.normalize_path(fpath.replace('/', os.sep))
+
+                        if os.path.exists(fpath):
+                            with open(cover, 'rb') as f:
+                                data = f.read()
+
+                            # Return the data resized and in Grayscale if
+                            # required
+                            data = save_cover_data_to(data, 'dummy.jpg',
+                                    grayscale=uploadgrayscale,
+                                    resize_to=resize, return_data=True)
+
+                            with open(fpath, 'wb') as f:
+                                f.write(data)
+
+                else:
+                    debug_print("ImageID could not be retreived from the database")
 

@@ -1,0 +1,21 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1312886443(BasicNewsRecipe):
+    title          = u'WNP'
+    cover_url= 'http://k.wnp.pl/images/wnpLogo.gif'
+    __author__        = 'fenuks'
+    description   = u'Wirtualny Nowy Przemysł'
+    category       = 'economy'
+    language       = 'pl'
+    oldest_article = 8
+    max_articles_per_feed = 100
+    no_stylesheets= True
+    keep_only_tags = dict(name='div', attrs={'id':'contentText'})
+    feeds          = [(u'Wiadomości gospodarcze', u'http://www.wnp.pl/rss/serwis_rss.xml'),
+                          (u'Serwis Energetyka - Gaz', u'http://www.wnp.pl/rss/serwis_rss_1.xml'),
+          (u'Serwis Nafta - Chemia', u'http://www.wnp.pl/rss/serwis_rss_2.xml'),
+          (u'Serwis Hutnictwo', u'http://www.wnp.pl/rss/serwis_rss_3.xml'),
+          (u'Serwis Górnictwo', u'http://www.wnp.pl/rss/serwis_rss_4.xml'),
+          (u'Serwis Logistyka', u'http://www.wnp.pl/rss/serwis_rss_5.xml'),
+          (u'Serwis IT', u'http://www.wnp.pl/rss/serwis_rss_6.xml')]

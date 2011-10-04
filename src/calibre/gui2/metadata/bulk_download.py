@@ -89,6 +89,15 @@ class ConfirmDialog(QDialog):
         self.identify = False
         self.accept()
 
+def split_jobs(ids, batch_size=100):
+    ans = []
+    ids = list(ids)
+    while ids:
+        jids = ids[:batch_size]
+        ans.append(jids)
+        ids = ids[batch_size:]
+    return ans
+
 def start_download(gui, ids, callback):
     d = ConfirmDialog(ids, gui)
     ret = d.exec_()
@@ -96,11 +105,13 @@ def start_download(gui, ids, callback):
     if ret != d.Accepted:
         return
 
-    job = ThreadedJob('metadata bulk download',
-            _('Download metadata for %d books')%len(ids),
-            download, (ids, gui.current_db, d.identify, d.covers), {}, callback)
-    gui.job_manager.run_threaded_job(job)
+    for batch in split_jobs(ids):
+        job = ThreadedJob('metadata bulk download',
+            _('Download metadata for %d books')%len(batch),
+            download, (batch, gui.current_db, d.identify, d.covers), {}, callback)
+        gui.job_manager.run_threaded_job(job)
     gui.status_bar.show_message(_('Metadata download started'), 3000)
+
 # }}}
 
 def get_job_details(job):

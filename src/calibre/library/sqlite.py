@@ -290,7 +290,10 @@ class DatabaseException(Exception):
 
     def __init__(self, err, tb):
         tb = '\n\t'.join(('\tRemote'+tb).splitlines())
-        msg = unicode(err) +'\n' + tb
+        try:
+            msg = unicode(err) +'\n' + tb
+        except:
+            msg = repr(err) + '\n' + tb
         Exception.__init__(self, msg)
         self.orig_err = err
         self.orig_tb  = tb

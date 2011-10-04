@@ -13,7 +13,7 @@ from functools import partial
 from contextlib import nested, closing
 
 
-from calibre import (browser, __appname__, iswindows,
+from calibre import (browser, __appname__, iswindows, force_unicode,
                     strftime, preferred_encoding, as_unicode)
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf2 import OPFCreator
@@ -28,6 +28,7 @@ from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 from calibre.utils.magick.draw import save_cover_data_to, add_borders_to_image
+from calibre.utils.localization import canonicalize_lang
 
 class LoginFailed(ValueError):
     pass
@@ -48,7 +49,7 @@ class BasicNewsRecipe(Recipe):
 
     #: A couple of lines that describe the content this recipe downloads.
     #: This will be used primarily in a GUI that presents a list of recipes.
-    description = ''
+    description = u''
 
     #: The author of this recipe
     __author__             = __appname__
@@ -111,8 +112,6 @@ class BasicNewsRecipe(Recipe):
     #: If set to "optional" the use of a username and password becomes optional
     needs_subscription     = False
 
-    #:
-
     #: If True the navigation bar is center aligned, otherwise it is left aligned
     center_navbar = True
 
@@ -136,6 +135,25 @@ class BasicNewsRecipe(Recipe):
 
     #: Reverse the order of articles in each feed
     reverse_article_order = False
+
+    #: Automatically extract all the text from downloaded article pages. Uses
+    #: the algorithms from the readability project. Setting this to True, means
+    #: that you do not have to worry about cleaning up the downloaded HTML
+    #: manually (though manual cleanup will always be superior).
+    auto_cleanup = False
+
+    #: Specify elements that the auto cleanup algorithm should never remove
+    #: The syntax is a XPath expression. For example::
+    #:
+    #:   auto_cleanup_keep = '//div[@id="article-image"]' will keep all divs with
+    #:                                                  id="article-image"
+    #:   auto_cleanup_keep = '//*[@class="important"]' will keep all elements
+    #:                                               with class="important"
+    #:   auto_cleanup_keep = '//div[@id="article-image"]|//span[@class="important"]'
+    #:                     will keep all divs with id="article-image" and spans
+    #:                     with class="important"
+    #:
+    auto_cleanup_keep = None
 
     #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
@@ -451,6 +469,28 @@ class BasicNewsRecipe(Recipe):
         '''
         return None
 
+    def preprocess_raw_html(self, raw_html, url):
+        '''
+        This method is called with the source of each downloaded :term:`HTML` file, before
+        it is parsed into an object tree. raw_html is a unicode string
+        representing the raw HTML downloaded from the web. url is the URL from
+        which the HTML was downloaded.
+
+        Note that this method acts *before* preprocess_regexps.
+
+        This method must return the processed raw_html as a unicode object.
+        '''
+        return raw_html
+
+    def preprocess_raw_html_(self, raw_html, url):
+        raw_html = self.preprocess_raw_html(raw_html, url)
+        if self.auto_cleanup:
+            try:
+                raw_html = self.extract_readable_article(raw_html, url)
+            except:
+                self.log.exception('Auto cleanup of URL: %r failed'%url)
+
+        return raw_html
 
     def preprocess_html(self, soup):
         '''
@@ -514,6 +554,52 @@ class BasicNewsRecipe(Recipe):
             entity_to_unicode(match, encoding=enc)))
         return BeautifulSoup(_raw, markupMassage=massage)
 
+    def extract_readable_article(self, html, url):
+        '''
+        Extracts main article content from 'html', cleans up and returns as a (article_html, extracted_title) tuple.
+        Based on the original readability algorithm by Arc90.
+        '''
+        from calibre.ebooks.readability import readability
+        from lxml.html import (fragment_fromstring, tostring,
+                document_fromstring)
+
+        doc = readability.Document(html, self.log, url=url,
+                keep_elements=self.auto_cleanup_keep)
+        article_html = doc.summary()
+        extracted_title = doc.title()
+
+        try:
+            frag = fragment_fromstring(article_html)
+        except:
+            doc = document_fromstring(article_html)
+            frag = doc.xpath('//body')[-1]
+        if frag.tag == 'html':
+            root = frag
+        elif frag.tag == 'body':
+            root = document_fromstring(
+                u'<html><head><title>%s</title></head></html>' %
+                extracted_title)
+            root.append(frag)
+        else:
+            root = document_fromstring(
+                u'<html><head><title>%s</title></head><body/></html>' %
+                extracted_title)
+            root.xpath('//body')[0].append(frag)
+
+        body = root.xpath('//body')[0]
+        has_title = False
+        for x in body.iterdescendants():
+            if x.text == extracted_title:
+                has_title = True
+        inline_titles = body.xpath('//h1|//h2')
+        if not has_title and not inline_titles:
+            heading = body.makeelement('h2')
+            heading.text = extracted_title
+            body.insert(0, heading)
+
+        raw_html = tostring(root, encoding=unicode)
+
+        return raw_html
 
     def sort_index_by(self, index, weights):
         '''
@@ -660,6 +746,7 @@ class BasicNewsRecipe(Recipe):
             setattr(self.web2disk_options, extra, getattr(self, extra))
         self.web2disk_options.postprocess_html = self._postprocess_html
         self.web2disk_options.encoding = self.encoding
+        self.web2disk_options.preprocess_raw_html = self.preprocess_raw_html_
 
         if self.delay > 0:
             self.simultaneous_downloads = 1
@@ -1116,9 +1203,22 @@ class BasicNewsRecipe(Recipe):
         mi.author_sort = __appname__
         mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
         mi.timestamp = nowf()
+        article_titles, aseen = [], set()
+        for f in feeds:
+            for a in f:
+                if a.title and a.title not in aseen:
+                    aseen.add(a.title)
+                    article_titles.append(force_unicode(a.title, 'utf-8'))
+
         mi.comments = self.description
         if not isinstance(mi.comments, unicode):
             mi.comments = mi.comments.decode('utf-8', 'replace')
+        mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
+                '\n\n'.join(article_titles))
+
+        language = canonicalize_lang(self.language)
+        if language is not None:
+            mi.language = language
         mi.pubdate = nowf()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
@@ -1163,6 +1263,7 @@ class BasicNewsRecipe(Recipe):
         toc = TOC(base_path=dir)
         self.play_order_counter = 0
         self.play_order_map = {}
+
 
         def feed_index(num, parent):
             f = feeds[num]
@@ -1403,12 +1504,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
 
 class AutomaticNewsRecipe(BasicNewsRecipe):
 
-    keep_only_tags = [dict(name=['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'])]
-
-    def fetch_embedded_article(self, article, dir, f, a, num_of_feeds):
-        if self.use_embedded_content:
-            self.web2disk_options.keep_only_tags = []
-        return BasicNewsRecipe.fetch_embedded_article(self, article, dir, f, a, num_of_feeds)
+    auto_cleanup = True
 
 class CalibrePeriodical(BasicNewsRecipe):
 

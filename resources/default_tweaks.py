@@ -61,11 +61,26 @@ authors_completer_append_separator = False
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
 # The author name suffixes are words that are ignored when they occur at the
 # end of an author name. The case of the suffix is ignored and trailing
-# periods are automatically handled.
+# periods are automatically handled. The same is true for prefixes.
+# The author name copy words are a set of words which if they occur in an
+# author name cause the automatically generated author sort string to be
+# identical to the author name. This means that the sort for a string like Acme
+# Inc. will be Acme Inc. instead of Inc., Acme
 author_sort_copy_method = 'comma'
 author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
                         'MD', 'M.D', 'I', 'II', 'III', 'IV',
                         'Junior', 'Senior')
+author_name_prefixes = ('Mr', 'Mrs', 'Ms', 'Dr', 'Prof')
+author_name_copywords = ('Corporation', 'Company', 'Co.', 'Agency', 'Council',
+        'Committee', 'Inc.', 'Institute', 'Society', 'Club', 'Team')
+
+#: Splitting multiple author names
+# By default, calibre splits a string containing multiple author names on
+# ampersands and the words "and" and "with". You can customize the splitting
+# by changing the regular expression below. Strings are split on whatever the
+# specified regular expression matches.
+# Default: r'(?i),?\s+(and|with)\s+'
+authors_split_regex = r'(?i),?\s+(and|with)\s+'
 
 #: Use author sort in Tag Browser
 # Set which author field to display in the tags pane (the list of authors,
@@ -181,7 +196,7 @@ save_template_title_series_sorting = 'library_order'
 # To disable use the expression: '^$'
 # This expression is designed for articles that are followed by spaces. If you
 # also need to match articles that are followed by other characters, for example L'
-# in French, use: r"^(A\s+|The\s+|An\s+|L')" instead.
+# in French, use: "^(A\s+|The\s+|An\s+|L')" instead.
 # Default: '^(A|The|An)\s+'
 title_sort_articles=r'^(A|The|An)\s+'
 

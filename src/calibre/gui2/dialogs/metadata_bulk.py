@@ -335,6 +335,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        self.languages.init_langs(self.db)
         self.languages.setEditText('')
         self.exec_()
 
@@ -534,6 +535,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 val = [v.replace('|', ',') for v in val]
         else:
             val = []
+        if not val:
+            val = ['']
         return val
 
     def s_r_display_bounds_changed(self, i):

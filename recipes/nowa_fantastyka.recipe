@@ -1,0 +1,47 @@
+# -*- coding: utf-8 -*-
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Nowa_Fantastyka(BasicNewsRecipe):
+    title          = u'Nowa Fantastyka'
+    oldest_article = 7
+    __author__        = 'fenuks'
+    language       = 'pl'
+    description ='site for fantasy readers'
+    category='fantasy'
+    max_articles_per_feed = 100
+    INDEX='http://www.fantastyka.pl/'
+    remove_tags_before=dict(attrs={'class':'belka1-tlo-md'})
+    #remove_tags_after=dict(name='span', attrs={'class':'naglowek-oceny'})
+    remove_tags_after=dict(name='td', attrs={'class':'belka1-bot'})
+    remove_tags=[dict(attrs={'class':'avatar2'})]
+    feeds          = []
+
+    def find_articles(self, url):
+        articles = []
+        soup=self.index_to_soup(url)
+        tag=soup.find(attrs={'class':'belka1-tlo-m'})
+        art=tag.findAll(name='a', attrs={'class':'a-box'})
+        for i in art:
+            title=i.string
+            url=self.INDEX+i['href']
+            #date=soup.find(id='footer').ul.li.string[41:-1]
+            articles.append({'title' : title,
+                   'url'   : url,
+                   'date'  : '',
+                   'description' : ''
+                    })
+        return articles
+
+    def parse_index(self):
+         feeds = []
+         feeds.append((u"Opowiadania", self.find_articles('http://www.fantastyka.pl/3.html')))
+         feeds.append((u"Publicystyka", self.find_articles('http://www.fantastyka.pl/6.html')))
+         feeds.append((u"Hype Park", self.find_articles('http://www.fantastyka.pl/9.html')))
+
+         return feeds
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.fantastyka.pl/1.html')
+        cover=soup.find(name='img', attrs={'class':'okladka'})
+        self.cover_url=self.INDEX+ cover['src']
+        return getattr(self, 'cover_url', self.cover_url)

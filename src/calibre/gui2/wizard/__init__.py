@@ -80,7 +80,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle 1, 2 or 3'
+    name = 'Kindle 1, 2, 3 or 4'
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -207,6 +207,12 @@ class PocketBook(CybookG3):
     name = 'PocketBook 301/302'
     id = 'pocketbook'
     output_profile = 'cybookg3'
+
+class PocketBook900(PocketBook):
+
+    name = 'PocketBook 900'
+    id = 'pocketbook900'
+    output_profile = 'pocketbook_900'
 
 class iPhone(Device):
 
@@ -640,6 +646,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             metadata_plugins = {
                     'zh' : ('Douban Books',),
                     'fr' : ('Nicebooks',),
+                    'ru' : ('OZON.ru',),
             }.get(lang, [])
             from calibre.customize.ui import enable_plugin
             for name in metadata_plugins:

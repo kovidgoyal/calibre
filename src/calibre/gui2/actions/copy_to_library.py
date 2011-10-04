@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 from threading import Thread
+from contextlib import closing
 
 from PyQt4.Qt import QToolButton
 
@@ -52,7 +53,13 @@ class Worker(Thread): # {{{
 
     def doit(self):
         from calibre.library.database2 import LibraryDatabase2
-        newdb = LibraryDatabase2(self.loc)
+        newdb = LibraryDatabase2(self.loc, is_second_db=True)
+        with closing(newdb):
+            self._doit(newdb)
+        newdb.break_cycles()
+        del newdb
+
+    def _doit(self, newdb):
         for i, x in enumerate(self.ids):
             mi = self.db.get_metadata(x, index_is_id=True, get_cover=True,
                     cover_as_data=True)
@@ -111,6 +118,7 @@ class Worker(Thread): # {{{
                     os.remove(path)
                 except:
                     pass
+
 # }}}
 
 class CopyToLibraryAction(InterfaceAction):
@@ -119,7 +127,7 @@ class CopyToLibraryAction(InterfaceAction):
     action_spec = (_('Copy to library'), 'lt.png',
             _('Copy selected books to the specified library'), None)
     popup_type = QToolButton.InstantPopup
-    dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
     action_add_menu = True
 

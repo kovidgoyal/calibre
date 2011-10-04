@@ -8,11 +8,6 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
 # $Revision: 1.41 $
@@ -377,17 +372,17 @@ class ParseRtf:
         old_rtf = old_rtf_obj.check_if_old_rtf()
         if old_rtf:
             if self.__run_level > 5:
-                msg = 'older RTF\n'
+                msg = 'Older RTF\n'
                 msg += 'self.__run_level is "%s"\n' % self.__run_level
                 raise RtfInvalidCodeException, msg
             if self.__run_level > 1:
-                sys.stderr.write('File could be older RTF...\n')
+                sys.stderr.write(_('File could be older RTF...\n'))
             if found_destination:
                 if self.__run_level > 1:
-                    sys.stderr.write(
+                    sys.stderr.write(_(
                         'File also has newer RTF.\n'
                         'Will do the best to convert.\n'
-                    )
+                    ))
             add_brackets_obj = add_brackets.AddBrackets(
                     in_file = self.__temp_file,
                     bug_handler = RtfInvalidCodeException,

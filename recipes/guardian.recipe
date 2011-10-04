@@ -15,8 +15,10 @@ class Guardian(BasicNewsRecipe):
     title = u'The Guardian and The Observer'
     if date.today().weekday() == 6:
         base_url = "http://www.guardian.co.uk/theobserver"
+        cover_pic = 'Observer digital edition'
     else:
         base_url = "http://www.guardian.co.uk/theguardian"
+        cover_pic = 'Guardian digital edition'
 
     __author__ = 'Seabound and Sujata Raman'
     language = 'en_GB'
@@ -79,7 +81,7 @@ class Guardian(BasicNewsRecipe):
         # soup = self.index_to_soup("http://www.guardian.co.uk/theobserver")
         soup = self.index_to_soup(self.base_url)
         # find cover pic
-        img = soup.find( 'img',attrs ={'alt':'Guardian digital edition'})
+        img = soup.find( 'img',attrs ={'alt':self.cover_pic})
         if img is not None:
             self.cover_url = img['src']
         # end find cover pic

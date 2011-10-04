@@ -16,11 +16,11 @@ methods :method:`SearchQueryParser.universal_set` and
 If this module is run, it will perform a series of unit tests.
 '''
 
-import sys, operator
+import sys, operator, weakref
 
-from calibre.utils.pyparsing import CaselessKeyword, Group, Forward, \
-        CharsNotIn, Suppress, OneOrMore, MatchFirst, CaselessLiteral, \
-        Optional, NoMatch, ParseException, QuotedString
+from calibre.utils.pyparsing import (CaselessKeyword, Group, Forward,
+        CharsNotIn, Suppress, OneOrMore, MatchFirst, CaselessLiteral,
+        Optional, NoMatch, ParseException, QuotedString)
 from calibre.constants import preferred_encoding
 from calibre.utils.icu import sort_key
 from calibre import prints
@@ -37,11 +37,19 @@ class SavedSearchQueries(object):
 
     def __init__(self, db, _opt_name):
         self.opt_name = _opt_name;
-        self.db = db
         if db is not None:
             self.queries = db.prefs.get(self.opt_name, {})
         else:
             self.queries = {}
+        try:
+            self._db = weakref.ref(db)
+        except:
+            # db could be None
+            self._db = lambda : None
+
+    @property
+    def db(self):
+        return self._db()
 
     def force_unicode(self, x):
         if not isinstance(x, unicode):
@@ -49,21 +57,27 @@ class SavedSearchQueries(object):
         return x
 
     def add(self, name, value):
-        self.queries[self.force_unicode(name)] = self.force_unicode(value).strip()
-        self.db.prefs[self.opt_name] = self.queries
+        db = self.db
+        if db is not None:
+            self.queries[self.force_unicode(name)] = self.force_unicode(value).strip()
+            db.prefs[self.opt_name] = self.queries
 
     def lookup(self, name):
         return self.queries.get(self.force_unicode(name), None)
 
     def delete(self, name):
-        self.queries.pop(self.force_unicode(name), False)
-        self.db.prefs[self.opt_name] = self.queries
+        db = self.db
+        if db is not None:
+            self.queries.pop(self.force_unicode(name), False)
+            db.prefs[self.opt_name] = self.queries
 
     def rename(self, old_name, new_name):
-        self.queries[self.force_unicode(new_name)] = \
-                    self.queries.get(self.force_unicode(old_name), None)
-        self.queries.pop(self.force_unicode(old_name), False)
-        self.db.prefs[self.opt_name] = self.queries
+        db = self.db
+        if db is not None:
+            self.queries[self.force_unicode(new_name)] = \
+                        self.queries.get(self.force_unicode(old_name), None)
+            self.queries.pop(self.force_unicode(old_name), False)
+            db.prefs[self.opt_name] = self.queries
 
     def names(self):
         return sorted(self.queries.keys(),key=sort_key)

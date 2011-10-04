@@ -87,7 +87,7 @@ class DeviceJob(BaseJob): # {{{
             self.failed = True
             ex = as_unicode(err)
             self._details = ex + '\n\n' + \
-                traceback.format_exc()
+                force_unicode(traceback.format_exc())
             self.exception = err
         finally:
             self.job_done()
@@ -391,6 +391,10 @@ class DeviceManager(Thread): # {{{
                                     newmi.template_to_attribute(mi, cpb)
                                 else:
                                     newmi = mi
+                                nuke_comments = getattr(self.connected_device,
+                                        'NUKE_COMMENTS', None)
+                                if nuke_comments is not None:
+                                    mi.comments = nuke_comments
                                 set_metadata(stream, newmi, stream_type=ext)
                         except:
                             if DEBUG:

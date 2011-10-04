@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, tempfile, hashlib, copy
+        json, uuid, hashlib, copy
 from collections import defaultdict
 import threading, random
 from itertools import repeat
@@ -26,7 +26,8 @@ from calibre.library.sqlite import connect, IntegrityError
 from calibre.library.prefs import DBPrefs
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.constants import preferred_encoding, iswindows, filesystem_encoding
-from calibre.ptempfile import PersistentTemporaryFile, base_dir
+from calibre.ptempfile import (PersistentTemporaryFile,
+        base_dir, SpooledTemporaryFile)
 from calibre.customize.ui import run_plugins_on_import
 from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
@@ -161,7 +162,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return path and os.path.exists(os.path.join(path, 'metadata.db'))
 
     def __init__(self, library_path, row_factory=False, default_prefs=None,
-            read_only=False):
+            read_only=False, is_second_db=False):
+        self.is_second_db = is_second_db
         try:
             if isbytestring(library_path):
                 library_path = library_path.decode(filesystem_encoding)
@@ -263,7 +265,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         migrate_preference('user_categories', {})
         migrate_preference('saved_searches', {})
-        set_saved_searches(self, 'saved_searches')
+        if not self.is_second_db:
+            set_saved_searches(self, 'saved_searches')
 
         # migrate grouped_search_terms
         if self.prefs.get('grouped_search_terms', None) is None:
@@ -608,7 +611,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 with lopen(os.path.join(tpath, 'cover.jpg'), 'wb') as f:
                     f.write(cdata)
             for format in formats:
-                with tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE) as stream:
+                with SpooledTemporaryFile(SPOOL_SIZE) as stream:
                     try:
                         self.copy_format_to(id, format, stream, index_is_id=True)
                         stream.seek(0)
@@ -692,7 +695,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         shutil.copyfileobj(f, pt)
                     return pt.name
                 if as_file:
-                    ret = tempfile.SpooledTemporaryFile(SPOOL_SIZE)
+                    ret = SpooledTemporaryFile(SPOOL_SIZE)
                     shutil.copyfileobj(f, ret)
                     ret.seek(0)
                 else:
@@ -925,12 +928,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         formats = row[fm['formats']]
         mi.format_metadata = {}
         if not formats:
-            formats = None
+            good_formats = None
         else:
-            formats = formats.split(',')
+            formats = sorted(formats.split(','))
+            good_formats = []
             for f in formats:
-                mi.format_metadata[f] = self.format_metadata(id, f)
-        mi.formats = formats
+                try:
+                    mi.format_metadata[f] = self.format_metadata(id, f)
+                except:
+                    pass
+                else:
+                    good_formats.append(f)
+        mi.formats = good_formats
         tags = row[fm['tags']]
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -1213,7 +1222,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             except: # If path contains strange characters this throws an exc
                 candidates = []
             if format and candidates and os.path.exists(candidates[0]):
-                shutil.copyfile(candidates[0], fmt_path)
+                try:
+                    shutil.copyfile(candidates[0], fmt_path)
+                except:
+                    # This can happen if candidates[0] or fmt_path is too long,
+                    # which can happen if the user copied the library from a
+                    # non windows machine to a windows machine.
+                    return None
                 return fmt_path
 
     def copy_format_to(self, index, fmt, dest, index_is_id=False):
@@ -1268,7 +1283,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             shutil.copyfileobj(f, pt)
                             ret = pt.name
                 elif as_file:
-                    ret = tempfile.SpooledTemporaryFile(max_size=SPOOL_SIZE)
+                    ret = SpooledTemporaryFile(SPOOL_SIZE)
                     shutil.copyfileobj(f, ret)
                     ret.seek(0)
                     # Various bits of code try to use the name as the default
@@ -1633,7 +1648,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                 item.rt += rating
                                 item.rc += 1
                         except:
-                            prints(tid_cat, val)
                             prints('get_categories: item', val, 'is not in', cat, 'list!')
 
         #print 'end phase "books":', time.clock() - last, 'seconds'
@@ -1726,7 +1740,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 use_sort_as_name = True
             else:
                 use_sort_as_name = False
-            is_editable = category not in ['news', 'rating']
+            is_editable = category not in ['news', 'rating', 'languages']
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
                                         avg=avgr(r), sort=r.s, icon=icon,
                                         tooltip=tooltip, category=category,
@@ -2291,7 +2305,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             'DELETE FROM books_languages_link WHERE book=?', (book_id,))
         self.conn.execute('''DELETE FROM languages WHERE (SELECT COUNT(id)
                                  FROM books_languages_link WHERE
-                                 lang_code=languages.id) < 1''')
+                                 books_languages_link.lang_code=languages.id) < 1''')
 
         books_to_refresh = set([book_id])
         final_languages = []

@@ -1027,7 +1027,7 @@ class OPF(object): # {{{
             if self.guide is not None:
                 for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
                     for item in self.guide:
-                        if item.type.lower() == t:
+                        if item.type and item.type.lower() == t:
                             return item.path
             try:
                 return self.guess_cover()
@@ -1312,7 +1312,7 @@ class OPFCreator(Metadata):
             ncx_stream.flush()
 
 
-def metadata_to_opf(mi, as_string=True):
+def metadata_to_opf(mi, as_string=True, default_lang=None):
     from lxml import etree
     import textwrap
     from calibre.ebooks.oeb.base import OPF, DC
@@ -1328,7 +1328,8 @@ def metadata_to_opf(mi, as_string=True):
             '[http://calibre-ebook.com]'
 
     if not mi.languages:
-        lang = get_lang().replace('_', '-').partition('-')[0]
+        lang = (get_lang().replace('_', '-').partition('-')[0] if default_lang
+                is None else default_lang)
         mi.languages = [lang]
 
     root = etree.fromstring(textwrap.dedent(

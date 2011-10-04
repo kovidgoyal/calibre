@@ -11,6 +11,7 @@ Write content to PDF.
 import os
 import shutil
 
+from calibre import isosx
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.pdf.pageoptions import unit, paper_size, \
     orientation
@@ -164,8 +165,18 @@ class PDFWriter(QObject): # {{{
             self.logger.debug('\tRendering item %s as %i.pdf' % (os.path.basename(str(self.view.url().toLocalFile())), len(self.combine_queue)))
             printer = get_pdf_printer(self.opts)
             printer.setOutputFileName(item_path)
+            # We have to set the engine to Native on OS X after the call to set
+            # filename. Setting a filename with .pdf as the extension causes
+            # Qt to set the format to use Qt's PDF engine even if native was
+            # previously set on the printer.
+            if isosx:
+                printer.setOutputFormat(QPrinter.NativeFormat)
             self.view.print_(printer)
             printer.abort()
+        else:
+            # The document is so corrupt that we can't render the page.
+            self.loop.exit(0)
+            raise Exception('Document cannot be rendered.')
         self._render_book()
 
     def _delete_tmpdir(self):
@@ -179,6 +190,8 @@ class PDFWriter(QObject): # {{{
         item_path = os.path.join(self.tmp_path, 'cover.pdf')
         printer = get_pdf_printer(self.opts)
         printer.setOutputFileName(item_path)
+        if isosx:
+            printer.setOutputFormat(QPrinter.NativeFormat)
         self.combine_queue.insert(0, item_path)
         p = QPixmap()
         p.loadFromData(self.cover_data)
@@ -198,6 +211,10 @@ class PDFWriter(QObject): # {{{
         try:
             outPDF = PdfFileWriter(title=self.metadata.title, author=self.metadata.author)
             for item in self.combine_queue:
+                # The input PDF stream must remain open until the final PDF
+                # is written to disk. PyPDF references pages added to the
+                # final PDF from the input PDF on disk. It does not store
+                # the pages in memory so we can't close the input PDF.
                 inputPDF = PdfFileReader(open(item, 'rb'))
                 for page in inputPDF.pages:
                     outPDF.addPage(page)
@@ -228,6 +245,8 @@ class ImagePDFWriter(object):
     def render_images(self, outpath, mi, items):
         printer = get_pdf_printer(self.opts, for_comic=True)
         printer.setOutputFileName(outpath)
+        if isosx:
+            printer.setOutputFormat(QPrinter.NativeFormat)
         printer.setDocName(mi.title)
         printer.setCreator(u'%s [%s]'%(__appname__, __version__))
         # Seems to be no way to set author

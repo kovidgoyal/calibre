@@ -1,0 +1,43 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class CGM(BasicNewsRecipe):
+    title          = u'CGM'
+    oldest_article = 7
+    __author__        = 'fenuks'
+    description   = u'Codzienna Gazeta Muzyczna'
+    cover_url      = 'http://www.krafcy.com/foto/tinymce/Image/cgm%281%29.jpg'
+    category       = 'music'
+    language       = 'pl'
+    use_embedded_content   = False
+    remove_empty_feeds= True
+    max_articles_per_feed = 100
+    no_stylesheers=True
+    extra_css      = 'div {color:black;} strong {color:black;} span {color:black;} p {color:black;} h2 {color:black;}'
+    remove_tags_before=dict(id='mainContent')
+    remove_tags_after=dict(name='div', attrs={'class':'fbContainer'})
+    remove_tags=[dict(name='div', attrs={'class':'fbContainer'}),
+ 	      dict(name='p', attrs={'class':['tagCloud', 'galleryAuthor']}), 
+	      dict(id=['movieShare', 'container'])]
+    feeds          = [(u'Informacje', u'http://www.cgm.pl/rss.xml'), (u'Polecamy', u'http://www.cgm.pl/rss,4,news.xml'), 
+                          (u'Recenzje', u'http://www.cgm.pl/rss,1,news.xml')]
+
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        ad=soup.findAll('a')
+        for r in ad:
+            if 'http://www.hustla.pl' in r['href']:                
+                 r.extract()
+        gallery=soup.find('div', attrs={'class':'galleryFlash'})
+        if gallery:
+            img=gallery.find('embed')
+            if img:
+                img=img['src'][35:]
+                img='http://www.cgm.pl/_vault/_gallery/_photo/'+img
+                param=gallery.findAll(name='param')
+                for i in param:
+                    i.extract()
+                gallery.contents[1].name='img'
+                gallery.contents[1]['src']=img
+        return soup

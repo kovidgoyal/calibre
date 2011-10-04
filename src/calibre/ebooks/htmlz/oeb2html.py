@@ -126,6 +126,14 @@ class OEB2HTML(object):
                 css = item.data.cssText
                 break
         return css
+    
+    def prepare_string_for_html(self, raw):
+        raw = prepare_string_for_xml(raw)
+        raw = raw.replace(u'\u00ad', '&shy;')
+        raw = raw.replace(u'\u2014', '&mdash;')
+        raw = raw.replace(u'\u2013', '&ndash;')
+        raw = raw.replace(u'\u00a0', '&nbsp;')
+        return raw
 
 
 class OEB2HTMLNoCSSizer(OEB2HTML):
@@ -194,7 +202,7 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
-            text.append(elem.text)
+            text.append(self.prepare_string_for_html(elem.text))
 
         # Recurse down into tags within the tag we are in.
         for item in elem:
@@ -207,7 +215,7 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:
-            text.append(elem.tail)
+            text.append(self.prepare_string_for_html(elem.tail))
 
         return text
 
@@ -267,7 +275,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
-            text.append(elem.text)
+            text.append(self.prepare_string_for_html(elem.text))
 
         # Recurse down into tags within the tag we are in.
         for item in elem:
@@ -280,7 +288,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:
-            text.append(elem.tail)
+            text.append(self.prepare_string_for_html(elem.tail))
 
         return text
 
@@ -347,7 +355,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
-            text.append(elem.text)
+            text.append(self.prepare_string_for_html(elem.text))
 
         # Recurse down into tags within the tag we are in.
         for item in elem:
@@ -360,7 +368,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:
-            text.append(elem.tail)
+            text.append(self.prepare_string_for_html(elem.tail))
 
         return text
 

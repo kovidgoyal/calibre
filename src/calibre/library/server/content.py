@@ -92,6 +92,8 @@ class ContentServer(object):
             return self.get_cover(id)
         if what == 'opf':
             return self.get_metadata_as_opf(id)
+        if what == 'json':
+            raise cherrypy.InternalRedirect('/ajax/book/%d'%id)
         return self.get_format(id, what)
 
     def static(self, name):
@@ -193,13 +195,14 @@ class ContentServer(object):
 
         return data
 
+
     def get_format(self, id, format):
         format = format.upper()
         fmt = self.db.format(id, format, index_is_id=True, as_file=True,
                 mode='rb')
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
-        mi = self.db.get_metadata(id, index_is_id=True)
+        mi = newmi = self.db.get_metadata(id, index_is_id=True)
         if format == 'EPUB':
             # Get the original metadata
 
@@ -211,12 +214,11 @@ class ContentServer(object):
                 # Transform the metadata via the plugboard
                 newmi = mi.deepcopy_metadata()
                 newmi.template_to_attribute(mi, cpb)
-            else:
-                newmi = mi
 
+        if format in ('MOBI', 'EPUB'):
             # Write the updated file
             from calibre.ebooks.metadata.meta import set_metadata
-            set_metadata(fmt, newmi, 'epub')
+            set_metadata(fmt, newmi, format.lower())
             fmt.seek(0)
 
         mt = guess_type('dummy.'+format.lower())[0]

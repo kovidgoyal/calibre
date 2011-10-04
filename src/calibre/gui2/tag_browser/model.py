@@ -63,9 +63,9 @@ class TagTreeItem(object): # {{{
             self.category_key = category_key
             self.temporary = temporary
             self.tag = Tag(data, category=category_key,
-                   is_editable=category_key not in ['news', 'search', 'identifiers'],
+                   is_editable=category_key not in
+                            ['news', 'search', 'identifiers', 'languages'],
                    is_searchable=category_key not in ['search'])
-
         elif self.type == self.TAG:
             self.icon_state_map[0] = QVariant(data.icon)
             self.tag = data
@@ -1034,10 +1034,19 @@ class TagsModel(QAbstractItemModel): # {{{
 
     def index_for_path(self, path):
         parent = QModelIndex()
-        for i in path:
-            parent = self.index(i, 0, parent)
-            if not parent.isValid():
-                return QModelIndex()
+        for idx,v in enumerate(path):
+            tparent = self.index(v, 0, parent)
+            if not tparent.isValid():
+                if v > 0 and idx == len(path) - 1:
+                    # Probably the last item went away. Use the one before it
+                    tparent = self.index(v-1, 0, parent)
+                    if not tparent.isValid():
+                        # Not valid. Use the last valid index
+                        break
+                else:
+                    # There isn't one before it. Use the last valid index
+                    break
+            parent = tparent
         return parent
 
     def index(self, row, column, parent):
@@ -1154,7 +1163,7 @@ class TagsModel(QAbstractItemModel): # {{{
                             letters_seen[subnode.tag.sort[0]] = True
                         charclass = ''.join(letters_seen)
                         if k == 'author_sort':
-                            expr = r'%s:"~(^[%s])|(&\\s*[%s])"'%(k, charclass, charclass)
+                            expr = r'%s:"~(^[%s])|(&\s*[%s])"'%(k, charclass, charclass)
                         else:
                             expr = r'%s:"~^[%s]"'%(k, charclass)
                         if node_searches[tag_item.tag.state] == 'true':

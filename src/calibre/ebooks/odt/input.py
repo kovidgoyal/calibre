@@ -25,8 +25,50 @@ class Extract(ODF2XHTML):
                 with open(name, 'wb') as f:
                     f.write(data)
 
-    def filter_css(self, html, log):
+    def fix_markup(self, html, log):
         root = etree.fromstring(html)
+        self.epubify_markup(root, log)
+        self.filter_css(root, log)
+        html = etree.tostring(root, encoding='utf-8',
+                xml_declaration=True)
+        return html
+
+    def epubify_markup(self, root, log):
+        # Fix <p><div> constructs as the asinine epubchecker complains
+        # about them
+        from calibre.ebooks.oeb.base import XPath, XHTML
+        pdiv = XPath('//h:p/h:div')
+        for div in pdiv(root):
+            div.getparent().tag = XHTML('div')
+
+        # Remove the position:relative as it causes problems with some epub
+        # renderers. Remove display: block on an image inside a div as it is
+        # redundant and prevents text-align:center from working in ADE
+        imgpath = XPath('//h:div/h:img[@style]')
+        for img in imgpath(root):
+            div = img.getparent()
+            if len(div) == 1:
+                style = div.attrib['style'].replace('position:relative', '')
+                if style.startswith(';'): style = style[1:]
+                div.attrib['style'] = style
+                if img.attrib.get('style', '') == 'display: block;':
+                    del img.attrib['style']
+
+        # A div/div/img construct causes text-align:center to not work in ADE
+        # so set the display of the second div to inline. This should have no
+        # effect (apart from minor vspace issues) in a compliant HTML renderer
+        # but it fixes the centering of the image via a text-align:center on
+        # the first div in ADE
+        imgpath = XPath('descendant::h:div/h:div/h:img')
+        for img in imgpath(root):
+            div2 = img.getparent()
+            div1 = div2.getparent()
+            if len(div1) == len(div2) == 1:
+                style = div2.attrib['style']
+                div2.attrib['style'] = 'display:inline;'+style
+
+
+    def filter_css(self, root, log):
         style = root.xpath('//*[local-name() = "style" and @type="text/css"]')
         if style:
             style = style[0]
@@ -40,9 +82,6 @@ class Extract(ODF2XHTML):
                         extra.extend(sel_map.get(cls, []))
                     if extra:
                         x.set('class', orig + ' ' + ' '.join(extra))
-                html = etree.tostring(root, encoding='utf-8',
-                        xml_declaration=True)
-        return html
 
     def do_filter_css(self, css):
         from cssutils import parseString
@@ -86,7 +125,7 @@ class Extract(ODF2XHTML):
             # the available screen real estate
             html = html.replace('img { width: 100%; height: 100%; }', '')
             try:
-                html = self.filter_css(html, log)
+                html = self.fix_markup(html, log)
             except:
                 log.exception('Failed to filter CSS, conversion may be slow')
             with open('index.xhtml', 'wb') as f:
@@ -118,24 +157,5 @@ class ODTInput(InputFormatPlugin):
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         return Extract()(stream, '.', log)
-
-    def postprocess_book(self, oeb, opts, log):
-        # Fix <p><div> constructs as the asinine epubchecker complains
-        # about them
-        from calibre.ebooks.oeb.base import XPath, XHTML
-        path = XPath('//h:p/h:div')
-        path2 = XPath('//h:div[@style]/h:img[@style]')
-        for item in oeb.spine:
-            root = item.data
-            if not hasattr(root, 'xpath'): continue
-            for div in path(root):
-                div.getparent().tag = XHTML('div')
-
-            # This construct doesn't render well in HTML
-            for img in path2(root):
-                div = img.getparent()
-                if 'position:relative' in div.attrib['style'] and len(div) == 1 \
-                    and 'img' in div[0].tag:
-                    del div.attrib['style']
 
 

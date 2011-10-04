@@ -18,25 +18,16 @@ class TheAmericanSpectator(BasicNewsRecipe):
     use_embedded_content  = False
     language              = 'en'
     INDEX                 = 'http://spectator.org'
-      
-    conversion_options = {  
+    auto_cleanup = True
+    encoding = 'utf-8'
+
+    conversion_options = {
                              'comments'        : description
                             ,'tags'            : category
                             ,'language'        : language
                             ,'publisher'       : publisher
                          }
 
-    keep_only_tags   = [
-                             dict(name='div', attrs={'class':'post inner'})
-                            ,dict(name='div', attrs={'class':'author-bio'})
-                         ]
-
-    remove_tags     = [
-                             dict(name='object')
-                            ,dict(name='div', attrs={'class':['col3','post-options','social']})
-                            ,dict(name='p'  , attrs={'class':['letter-editor','meta']})
-                        ]
-                         
     feeds = [ (u'Articles', u'http://feeds.feedburner.com/amspecarticles')]
 
     def get_cover_url(self):
@@ -48,10 +39,10 @@ class TheAmericanSpectator(BasicNewsRecipe):
             link_item2 = soup2.find('div',attrs={'class':'post inner issues'})
             cover_url = self.INDEX + link_item2.img['src']
         return cover_url
-          
+
     def print_version(self, url):
         return url + '/print'
-        
+
     def get_article_url(self, article):
         return article.get('guid', None)
-        
+

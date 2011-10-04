@@ -308,6 +308,11 @@ class MobiMLizer(object):
         istate = copy.copy(istates[-1])
         istate.rendered = False
         istate.list_num = 0
+        if tag == 'ol' and 'start' in elem.attrib:
+            try:
+                istate.list_num = int(elem.attrib['start'])-1
+            except:
+                pass
         istates.append(istate)
         left = 0
         display = style['display']
@@ -362,9 +367,11 @@ class MobiMLizer(object):
         istate.fgcolor  = style['color']
         istate.strikethrough = style['text-decoration'] == 'line-through'
         istate.underline = style['text-decoration'] == 'underline'
-        if 'monospace' in style['font-family']:
+        ff = style['font-family'].lower() if style['font-family'] else ''
+        if 'monospace' in ff or 'courier' in ff or ff.endswith(' mono'):
             istate.family = 'monospace'
-        elif 'sans-serif' in style['font-family']:
+        elif ('sans-serif' in ff or 'sansserif' in ff or 'verdana' in ff or
+                'arial' in ff or 'helvetica' in ff):
             istate.family = 'sans-serif'
         else:
             istate.family = 'serif'

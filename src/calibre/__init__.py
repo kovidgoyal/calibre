@@ -320,6 +320,28 @@ def get_parsed_proxy(typ='http', debug=True):
                     prints('Using http proxy', str(ans))
                 return ans
 
+def get_proxy_info(proxy_scheme, proxy_string):
+    '''
+    Parse all proxy information from a proxy string (as returned by
+    get_proxies). The returned dict will have members set to None when the info
+    is not available in the string. If an exception occurs parsing the string
+    this method returns None.
+    '''
+    import urlparse
+    try:
+        proxy_url = u'%s://%s'%(proxy_scheme, proxy_string)
+        urlinfo = urlparse.urlparse(proxy_url)
+        ans = {
+            u'scheme': urlinfo.scheme,
+            u'hostname': urlinfo.hostname,
+            u'port': urlinfo.port,
+            u'username': urlinfo.username,
+            u'password': urlinfo.password,
+        }
+    except:
+        return None
+    return ans
+
 USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
 USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
 

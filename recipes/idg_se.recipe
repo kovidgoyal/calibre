@@ -4,19 +4,19 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class IDGse(BasicNewsRecipe):
     title               = 'IDG'
-    description = 'IDG.se'
-    language = 'se'
     __author__ = 'zapt0'
+    language = 'sv'
+    description = 'IDG.se'
     oldest_article = 1
-    max_articles_per_feed = 40
+    max_articles_per_feed = 256
     no_stylesheets = True
     encoding = 'ISO-8859-1'
     remove_javascript = True
 
-    feeds          = [(u'Senaste nytt',u'http://feeds.idg.se/idg/vzzs')]
+    feeds          = [(u'Dagens IDG-nyheter',u'http://feeds.idg.se/idg/ETkj?format=xml')]
 
     def print_version(self,url):
-            return url + '?articleRenderMode=print&m=print'
+        return url + '?articleRenderMode=print&m=print'
 
     def get_cover_url(this):
         return 'http://idgmedia.idg.se/polopoly_fs/2.3275!images/idgmedia_logo_75.jpg'
@@ -30,4 +30,3 @@ class IDGse(BasicNewsRecipe):
                                     dict(name='div', attrs={'id':['preamble_ad']}),
                                     dict(name='ul', attrs={'class':['share']})
                                 ]
-
