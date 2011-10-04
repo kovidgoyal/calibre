@@ -57,13 +57,11 @@ class DjvuChunk(object):
             if verbose > 0:
                 print '                  end of chunk %d (%x)' % (pos, pos)
 
-    def dump(self, verbose=0, indent=1, out=None):
-        if out is None:
-            out = sys.stdout
-        if verbose > 0:
+    def dump(self, verbose=0, indent=1, out=None, txtout=None, maxlevel=100):
+        if out:
             out.write('  ' * indent)
             out.write('%s%s [%d]\n' % (self.type, ':' + self.subtype if self.subtype else '', self.size))
-        if self.type == 'TXTz':
+        if txtout and self.type == 'TXTz':
             inbuf = StringIO(self.buf[self.datastart: self.dataend])
             outbuf = StringIO()
             decoder = BZZDecoder(inbuf, outbuf)
@@ -76,33 +74,38 @@ class DjvuChunk(object):
             for x in res[:3]:
                 l <<= 8
                 l += ord(x)
-            if verbose > 0:
+            if verbose > 0 and out:
                 print >> out, l
-            out.write(res[3:3+l])
-            out.write('\n\f')
-        if self.type == 'TXTa':
+            txtout.write(res[3:3+l])
+            txtout.write('\n\f')
+        if txtout and self.type == 'TXTa':
             res = self.buf[self.datastart: self.dataend]
             l = 0
             for x in res[:3]:
                 l <<= 8
                 l += ord(x)
-            if verbose > 0:
+            if verbose > 0 and out:
                 print >> out, l
-            out.write(res[3:3+l])
-            out.write('\n\f')
+            txtout.write(res[3:3+l])
+            txtout.write('\n\f')
+        if indent >= maxlevel:
+            return
         for schunk in self._subchunks:
-            schunk.dump(verbose=verbose, indent=indent+1, out=out)
+            schunk.dump(verbose=verbose, indent=indent+1, out=out, txtout=txtout)
 
 class DJVUFile(object):
-    def __init__(self, instream):
+    def __init__(self, instream, verbose=0):
         self.instream = instream
         buf = self.instream.read(4)
         assert(buf == 'AT&T')
         buf = self.instream.read()
-        self.dc = DjvuChunk(buf, 0, len(buf))
+        self.dc = DjvuChunk(buf, 0, len(buf), verbose=verbose)
 
     def get_text(self, outfile=None):
-        self.dc.dump(out=outfile)
+        self.dc.dump(txtout=outfile)
+
+    def dump(self, outfile=None, maxlevel=0):
+        self.dc.dump(out=outfile, maxlevel=maxlevel)
 
 def main():
     from ruamel.util.program import Program, CountAction
@@ -117,13 +120,18 @@ def main():
             #self._argparser.add_argument('--segments', '-s', action='append', nargs='+')
             #self._argparser.add_argument('--force', '-f', action='store_true')
             #self._argparser.add_argument('classname')
+            self._argparser.add_argument('--text', '-t', action='store_true')
+            self._argparser.add_argument('--dump', type=int, default=0)
             self._argparser.add_argument('file', nargs='+')
 
         def run(self):
             if self._args.verbose > 1: # can be negative with --quiet
                 print self._args.file
-            x = DJVUFile(file(self._args.file[0], 'rb'))
-            x.get_text()
+            x = DJVUFile(file(self._args.file[0], 'rb'), verbose=self._args.verbose)
+            if self._args.text:
+                print x.get_text(sys.stdout)
+            if self._args.dump:
+                x.dump(sys.stdout, maxlevel=self._args.dump)
             return 0
 
     tt = DJVUDecoder()
