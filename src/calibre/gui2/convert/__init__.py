@@ -56,6 +56,7 @@ class Widget(QWidget):
         self._icon = QIcon(self.ICON)
         for name in self._options:
             if not hasattr(self, 'opt_'+name):
+                print dir(self)
                 raise Exception('Option %s missing in %s'%(name,
                     self.__class__.__name__))
             self.connect_gui_obj(getattr(self, 'opt_'+name))

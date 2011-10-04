@@ -18,18 +18,24 @@ class DJVUInput(InputFormatPlugin):
     author      = 'Anthon van der Neut'
     description = 'Convert OCR-ed DJVU files (.djvu) to HTML'
     file_types  = set(['djvu'])
-    output_encoding = None
+    #output_encoding = None
 
-    recommendations = set(
-    #    [('page_breaks_before', '/', OptionRecommendation.MED)]
-    )
+    options = set([
+        OptionRecommendation(name='use_djvutxt', recommended_value=True,
+            help=_('try to use the djvutxt program and fall back to pure python implementation if it fails or is not available')),
+    ])
+
+    #recommendations = set(
+     #   [('try djvutxt', '/', OptionRecommendation.MED)]
+    #)
 
 
     def convert(self, stream, options, file_ext, log, accelerators):
         stdout = StringIO()
         ppdjvu = True
+        log.debug('options: %d' % (options.use_djvutxt))
         # using djvutxt is MUCH faster, should make it an option
-        if False and os.path.exists('/usr/bin/djvutxt'):
+        if options.use_djvutxt and os.path.exists('/usr/bin/djvutxt'):
             from calibre.ptempfile import PersistentTemporaryFile
             try:
                 fp = PersistentTemporaryFile(suffix='.djvu', prefix='calibre')
