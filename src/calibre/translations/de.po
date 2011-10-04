@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-09-26 09:06+0000\n"
-"Last-Translator: frenkx <Unknown>\n"
+"PO-Revision-Date: 2011-10-03 11:13+0000\n"
+"Last-Translator: Klaus Thenmayer <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-01 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-10-04 05:01+0000\n"
 "X-Generator: Launchpad (build 14071)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -10611,11 +10611,13 @@ msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details. %s"
 msgstr ""
+"Wiederherstellung der Datenbank war erfolgreich mit einigen Warnungen. "
+"Klicke auf Zeige Details um weitere Details anzusehen. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
 msgid "Restoring database was successful. %s"
-msgstr ""
+msgstr "Wiederherstellung der Datenbank war erfolgreich. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:94
 msgid ""
@@ -11335,7 +11337,7 @@ msgstr "Zähler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:111
 msgid "Was"
-msgstr ""
+msgstr "War"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:263
 msgid "Template language tutorial"
@@ -11372,7 +11374,7 @@ msgstr "Spaltenfarbe setzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:39
 msgid "Copy a color name to the clipboard:"
-msgstr ""
+msgstr "Kopiere einen Farbennamen in die Zwischenablage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:49
 msgid "Copy the selected color name to the clipboard"
