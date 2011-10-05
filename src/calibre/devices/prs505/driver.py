@@ -319,7 +319,7 @@ class PRST1(USBMS):
     THUMBNAIL_HEIGHT = 217
     SCAN_FROM_ROOT = True
     EBOOK_DIR_MAIN = __appname__
-
+    SUPPORTS_SUB_DIRS = True
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id or '_SETTING' in pnp_id
