@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-27 14:31+0000\n"
-"PO-Revision-Date: 2011-10-02 18:56+0000\n"
-"Last-Translator: FerranRius <frius64@hotmail.com>\n"
+"PO-Revision-Date: 2011-10-04 14:43+0000\n"
+"Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-10-03 04:39+0000\n"
-"X-Generator: Launchpad (build 14071)\n"
+"X-Launchpad-Export-Date: 2011-10-05 04:44+0000\n"
+"X-Generator: Launchpad (build 14085)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -6396,15 +6396,15 @@ msgstr "Zarma"
 
 #. name for djf
 msgid "Djangun"
-msgstr ""
+msgstr "Djangun"
 
 #. name for dji
 msgid "Djinang"
-msgstr ""
+msgstr "Djinang"
 
 #. name for djj
 msgid "Djeebbana"
-msgstr ""
+msgstr "Djeebbana"
 
 #. name for djk
 msgid "Eastern Maroon Creole"
@@ -6412,7 +6412,7 @@ msgstr "Crioll Maroon, oriental"
 
 #. name for djl
 msgid "Djiwarli"
-msgstr ""
+msgstr "Djiwarli"
 
 #. name for djm
 msgid "Dogon; Jamsay"
@@ -6420,23 +6420,23 @@ msgstr "Dogon; Jamsay"
 
 #. name for djn
 msgid "Djauan"
-msgstr ""
+msgstr "Djauan"
 
 #. name for djo
 msgid "Jangkang"
-msgstr ""
+msgstr "Jangkang"
 
 #. name for djr
 msgid "Djambarrpuyngu"
-msgstr ""
+msgstr "Djambarrpuyngu"
 
 #. name for dju
 msgid "Kapriman"
-msgstr ""
+msgstr "Kapriman"
 
 #. name for djw
 msgid "Djawi"
-msgstr ""
+msgstr "Djawi"
 
 #. name for dka
 msgid "Dakpakha"
