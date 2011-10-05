@@ -329,4 +329,10 @@ class PRST1(USBMS):
             return __appname__
         return self.EBOOK_DIR_CARD_A
 
+    def get_main_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return __appname__
+        return ''
+
+
 
