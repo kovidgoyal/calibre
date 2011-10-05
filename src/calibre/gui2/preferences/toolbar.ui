@@ -13,16 +13,19 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="5">
-    <widget class="QComboBox" name="what">
-     <property name="font">
-      <font>
-       <pointsize>20</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;p&gt;The toolbar in calibre is different depending on whether a device is connected or not. Choose &lt;b&gt;which toolbar&lt;/b&gt; you would like to customize:</string>
      </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="what">
      <property name="toolTip">
       <string>Choose the toolbar to customize</string>
      </property>
@@ -34,132 +37,59 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>A&amp;vailable actions</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QWidget" name="actions_widget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="margin">
+       <number>0</number>
+      </property>
       <item>
-       <widget class="QListView" name="all_actions">
-        <property name="selectionMode">
-         <enum>QAbstractItemView::MultiSelection</enum>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>A&amp;vailable actions</string>
         </property>
-        <property name="iconSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="spacing">
-         <number>10</number>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <layout class="QVBoxLayout" name="verticalLayout_3">
-     <item>
-      <widget class="QToolButton" name="add_action_button">
-       <property name="toolTip">
-        <string>Add selected actions to toolbar</string>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/forward.png</normaloff>:/images/forward.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>24</width>
-         <height>24</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QToolButton" name="remove_action_button">
-       <property name="toolTip">
-        <string>Remove selected actions from toolbar</string>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>24</width>
-         <height>24</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="2" column="3" colspan="2">
-    <widget class="QGroupBox" name="groupBox_2">
-     <property name="title">
-      <string>&amp;Current actions</string>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QListView" name="current_actions">
-        <property name="selectionMode">
-         <enum>QAbstractItemView::MultiSelection</enum>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="spacing">
-         <number>10</number>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QListView" name="all_actions">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>100</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::MultiSelection</enum>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="spacing">
+            <number>10</number>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_4">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QToolButton" name="action_up_button">
+         <widget class="QToolButton" name="add_action_button">
           <property name="toolTip">
-           <string>Move selected action up</string>
+           <string>Add selected actions to toolbar</string>
           </property>
           <property name="text">
            <string>...</string>
           </property>
           <property name="icon">
            <iconset resource="../../../../resources/images.qrc">
-            <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+            <normaloff>:/images/forward.png</normaloff>:/images/forward.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -170,9 +100,12 @@
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_2">
+         <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -183,16 +116,16 @@
          </spacer>
         </item>
         <item>
-         <widget class="QToolButton" name="action_down_button">
+         <widget class="QToolButton" name="remove_action_button">
           <property name="toolTip">
-           <string>Move selected action down</string>
+           <string>Remove selected actions from toolbar</string>
           </property>
           <property name="text">
            <string>...</string>
           </property>
           <property name="icon">
            <iconset resource="../../../../resources/images.qrc">
-            <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+            <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -200,24 +133,124 @@
             <height>24</height>
            </size>
           </property>
-          <property name="shortcut">
-           <string>Ctrl+S</string>
-          </property>
          </widget>
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>&amp;Current actions</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QListView" name="current_actions">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>100</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::MultiSelection</enum>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="spacing">
+            <number>10</number>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QToolButton" name="action_up_button">
+             <property name="toolTip">
+              <string>Move selected action up</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../../resources/images.qrc">
+               <normaloff>:/images/arrow-up.png</normaloff>:/images/arrow-up.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QToolButton" name="action_down_button">
+             <property name="toolTip">
+              <string>Move selected action down</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../../resources/images.qrc">
+               <normaloff>:/images/arrow-down.png</normaloff>:/images/arrow-down.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="shortcut">
+              <string>Ctrl+S</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="0" colspan="5">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>&lt;p&gt;The toolbar in calibre is different depending on whether a device is connected or not. To customize the toolbar when a device is connected as well as customizing right click menus, &lt;b&gt;click the dropdown above&lt;/b&gt; and select which toolbar/menu you want to customize.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
+   <item>
+    <widget class="QWidget" name="spacer_widget" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>224</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

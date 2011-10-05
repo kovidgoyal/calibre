@@ -20,7 +20,7 @@ class ConvertAction(InterfaceAction):
 
     name = 'Convert Books'
     action_spec = (_('Convert books'), 'convert.png', None, _('C'))
-    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
     action_add_menu = True
 

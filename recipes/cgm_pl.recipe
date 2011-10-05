@@ -9,9 +9,10 @@ class CGM(BasicNewsRecipe):
     category       = 'music'
     language       = 'pl'
     use_embedded_content   = False
+    remove_empty_feeds= True
     max_articles_per_feed = 100
     no_stylesheers=True
-    extra_css      = 'div {color:black;} strong {color:black;} span {color:black;} p {color:black;}'
+    extra_css      = 'div {color:black;} strong {color:black;} span {color:black;} p {color:black;} h2 {color:black;}'
     remove_tags_before=dict(id='mainContent')
     remove_tags_after=dict(name='div', attrs={'class':'fbContainer'})
     remove_tags=[dict(name='div', attrs={'class':'fbContainer'}),
@@ -22,10 +23,12 @@ class CGM(BasicNewsRecipe):
 
 
     def preprocess_html(self, soup):
-        ad=soup.findAll('img')
+        for item in soup.findAll(style=True):
+            del item['style']
+        ad=soup.findAll('a')
         for r in ad:
-            if '/_vault/_article_photos/5841.jpg' in r['src'] or '_vault/_article_photos/5807.jpg' in r['src'] or 'article_photos/5841.jpg' in r['src'] or 'article_photos/5825.jpg' in r['src'] or '_article_photos/5920.jpg' in r['src']  or '_article_photos/5919.jpg' in r['src'] or '_article_photos/5918.jpg' in r['src'] or '_article_photos/5914.jpg' in r['src'] or '_article_photos/5911.jpg' in r['src'] or '_article_photos/5923.jpg' in r['src'] or '_article_photos/5921.jpg' in r['src']:                
-                 ad[ad.index(r)].extract()
+            if 'http://www.hustla.pl' in r['href']:                
+                 r.extract()
         gallery=soup.find('div', attrs={'class':'galleryFlash'})
         if gallery:
             img=gallery.find('embed')

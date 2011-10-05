@@ -9,4 +9,6 @@ class Tablety_pl(BasicNewsRecipe):
     language       = 'pl'
     oldest_article = 8
     max_articles_per_feed = 100
+    keep_only_tags=[dict(name='header', attrs={'class':'entry-header'}), dict(name='div', attrs={'class':'entry-content clearfix'})]
+    remove_tags=[dict(name='div', attrs={'class':'snap_nopreview sharing robots-nocontent'}), dict(name='span', attrs={'class':'dsq-postid'})]
     feeds          = [(u'Najnowsze posty', u'http://www.tablety.pl/feed/')]

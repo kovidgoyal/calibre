@@ -500,6 +500,8 @@ class JobsDialog(QDialog, Ui_JobsDialog):
     def kill_job(self, *args):
         rows = [index.row() for index in
                 self.jobs_view.selectionModel().selectedRows()]
+        return error_dialog(self, _('No job'),
+                _('No job selected'), show=True)
         if question_dialog(self, _('Are you sure?'),
                 ngettext('Do you really want to stop the selected job?',
                     'Do you really want to stop all the selected jobs?',

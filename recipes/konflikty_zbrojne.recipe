@@ -1,0 +1,15 @@
+# -*- coding: utf-8 -*-
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Konflikty(BasicNewsRecipe):
+    title          = u'Konflikty Zbrojne'
+    __author__        = 'fenuks'
+    cover_url      = 'http://www.konflikty.pl/images/tapety_logo.jpg'
+    language       = 'pl'
+    description ='military news'
+    category='military, history'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds          = [(u'Aktualności', u'http://www.konflikty.pl/rss_aktualnosci_10.xml'), (u'Artyku\u0142y', u'http://www.konflikty.pl/rss_artykuly_10.xml'), (u'Relacje', u'http://www.konflikty.pl/rss_relacje_10.xml'), (u'Recenzje', u'http://www.konflikty.pl/rss_recenzje_10.xml')]
