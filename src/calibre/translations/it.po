@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-10-04 10:57+0000\n"
-"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
+"PO-Revision-Date: 2011-10-05 19:30+0000\n"
+"Last-Translator: Hans Baas <Unknown>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-05 04:43+0000\n"
+"X-Launchpad-Export-Date: 2011-10-06 04:34+0000\n"
 "X-Generator: Launchpad (build 14085)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -871,7 +871,7 @@ msgstr "Questo profilo è pensato per il Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:740
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Questo profilo è per i dispositivi della serie PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1608,6 +1608,8 @@ msgstr "Comunica con tutti i lettori Sony."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
 msgstr ""
+"I commenti sono stati cancellati perché l'ebook della SONY non riesce a "
+"gestirli."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
@@ -4412,6 +4414,8 @@ msgid ""
 "File also has newer RTF.\n"
 "Will do the best to convert.\n"
 msgstr ""
+"Il documento anche ha un RTF più recente.\n"
+"Proverò di convertirlo.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -10626,6 +10630,12 @@ msgid ""
 "                0.1 days to download a periodical more than once a day.\n"
 "            "
 msgstr ""
+"                Scarica questo periodico ogni x giorni. Se scegli 30 "
+"giorni,\n"
+"ogni 30 giorni sarà scaricato. Nota bene che puoi scegliere\n"
+"anche periodi di meno di un giorno, per esempio ogni\n"
+"0,1 giorni, per scaricarlo più volte al giorno.\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:151
 msgid "&Download every:"
@@ -10765,6 +10775,7 @@ msgid ""
 "Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep "
 "all (disable)."
 msgstr ""
+"Numero massimo di uscite da tenere. 0 per tenere tutte (disattivare)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 msgid "&Keep at most:"
@@ -11181,11 +11192,11 @@ msgstr "Era"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:263
 msgid "Template language tutorial"
-msgstr ""
+msgstr "Modello di manuale di traduzione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:267
 msgid "Template function reference"
-msgstr ""
+msgstr "Modello di riferenza funzioni."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:285
 msgid "EXCEPTION: "
@@ -11227,7 +11238,7 @@ msgstr "Valore del modello:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:60
 msgid ""
 "The value the of the template using the current book in the library view"
-msgstr ""
+msgstr "Il valore del modello basato sul libro attuale in libreria."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:73
 msgid "Function &name:"
@@ -12415,6 +12426,9 @@ msgid ""
 "\n"
 "Double click to view"
 msgstr ""
+"Ultima modifica: %s\n"
+"\n"
+"Doppia clicca per visualizzare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:613
 #, python-format
@@ -12550,6 +12564,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Modifica gli identificatori per il libro. Per esempio:\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1257
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1319

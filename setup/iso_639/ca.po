@@ -12,13 +12,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-27 14:31+0000\n"
-"PO-Revision-Date: 2011-10-04 14:43+0000\n"
+"PO-Revision-Date: 2011-10-05 20:40+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-10-05 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-10-06 04:35+0000\n"
 "X-Generator: Launchpad (build 14085)\n"
 "Language: ca\n"
 
@@ -6440,15 +6440,15 @@ msgstr "Djawi"
 
 #. name for dka
 msgid "Dakpakha"
-msgstr ""
+msgstr "Dakpakha"
 
 #. name for dkk
 msgid "Dakka"
-msgstr ""
+msgstr "Dakka"
 
 #. name for dkr
 msgid "Kuijau"
-msgstr ""
+msgstr "Kuijau"
 
 #. name for dks
 msgid "Dinka; Southeastern"
@@ -6456,23 +6456,23 @@ msgstr "Dinka; sudoriental"
 
 #. name for dkx
 msgid "Mazagway"
-msgstr ""
+msgstr "Mazagway"
 
 #. name for dlg
 msgid "Dolgan"
-msgstr ""
+msgstr "Dolgan"
 
 #. name for dlm
 msgid "Dalmatian"
-msgstr ""
+msgstr "Dàlmata"
 
 #. name for dln
 msgid "Darlong"
-msgstr ""
+msgstr "Darlong"
 
 #. name for dma
 msgid "Duma"
-msgstr ""
+msgstr "Duma"
 
 #. name for dmb
 msgid "Dogon; Mombo"
@@ -6480,127 +6480,127 @@ msgstr "Dogon; Mombo"
 
 #. name for dmc
 msgid "Dimir"
-msgstr ""
+msgstr "Dimir"
 
 #. name for dme
 msgid "Dugwor"
-msgstr ""
+msgstr "Dugwor"
 
 #. name for dmg
 msgid "Kinabatangan; Upper"
-msgstr ""
+msgstr "Kinabatangan"
 
 #. name for dmk
 msgid "Domaaki"
-msgstr ""
+msgstr "Domaaki"
 
 #. name for dml
 msgid "Dameli"
-msgstr ""
+msgstr "Dameli"
 
 #. name for dmm
 msgid "Dama"
-msgstr ""
+msgstr "Dama"
 
 #. name for dmo
 msgid "Kemezung"
-msgstr ""
+msgstr "Kemezung"
 
 #. name for dmr
 msgid "Damar; East"
-msgstr ""
+msgstr "Damar; oriental"
 
 #. name for dms
 msgid "Dampelas"
-msgstr ""
+msgstr "Dampelasa"
 
 #. name for dmu
 msgid "Dubu"
-msgstr ""
+msgstr "Dubu"
 
 #. name for dmv
 msgid "Dumpas"
-msgstr ""
+msgstr "Dumpas"
 
 #. name for dmx
 msgid "Dema"
-msgstr ""
+msgstr "Dema"
 
 #. name for dmy
 msgid "Demta"
-msgstr ""
+msgstr "Demta"
 
 #. name for dna
 msgid "Dani; Upper Grand Valley"
-msgstr ""
+msgstr "Dani; alt"
 
 #. name for dnd
 msgid "Daonda"
-msgstr ""
+msgstr "Daonda"
 
 #. name for dne
 msgid "Ndendeule"
-msgstr ""
+msgstr "Ndendeule"
 
 #. name for dng
 msgid "Dungan"
-msgstr ""
+msgstr "Dungan"
 
 #. name for dni
 msgid "Dani; Lower Grand Valley"
-msgstr ""
+msgstr "Dani; baix"
 
 #. name for dnk
 msgid "Dengka"
-msgstr ""
+msgstr "Dengka"
 
 #. name for dnn
 msgid "Dzùùngoo"
-msgstr ""
+msgstr "Dzuungoo"
 
 #. name for dnr
 msgid "Danaru"
-msgstr ""
+msgstr "Danaru"
 
 #. name for dnt
 msgid "Dani; Mid Grand Valley"
-msgstr ""
+msgstr "Dani; central"
 
 #. name for dnu
 msgid "Danau"
-msgstr ""
+msgstr "Danau"
 
 #. name for dnw
 msgid "Dani; Western"
-msgstr ""
+msgstr "Dani; occidental"
 
 #. name for dny
 msgid "Dení"
-msgstr ""
+msgstr "Deni"
 
 #. name for doa
 msgid "Dom"
-msgstr ""
+msgstr "Dom"
 
 #. name for dob
 msgid "Dobu"
-msgstr ""
+msgstr "Dobu"
 
 #. name for doc
 msgid "Dong; Northern"
-msgstr ""
+msgstr "Dong; septentrional"
 
 #. name for doe
 msgid "Doe"
-msgstr ""
+msgstr "Doe"
 
 #. name for dof
 msgid "Domu"
-msgstr ""
+msgstr "Domu"
 
 #. name for doh
 msgid "Dong"
-msgstr ""
+msgstr "Dong"
 
 #. name for doi
 msgid "Dogri (macrolanguage)"
@@ -6608,23 +6608,23 @@ msgstr "Dogri (macrollengua)"
 
 #. name for dok
 msgid "Dondo"
-msgstr ""
+msgstr "Dondo"
 
 #. name for dol
 msgid "Doso"
-msgstr ""
+msgstr "Doso"
 
 #. name for don
 msgid "Toura (Papua New Guinea)"
-msgstr ""
+msgstr "Toura (Papua Nova Guinea)"
 
 #. name for doo
 msgid "Dongo"
-msgstr ""
+msgstr "Dongo"
 
 #. name for dop
 msgid "Lukpa"
-msgstr ""
+msgstr "Lukpa"
 
 #. name for doq
 msgid "Dominican Sign Language"
@@ -6632,103 +6632,103 @@ msgstr "Llenguatge de signes dominicà"
 
 #. name for dor
 msgid "Dori'o"
-msgstr ""
+msgstr "Dori'o"
 
 #. name for dos
 msgid "Dogosé"
-msgstr ""
+msgstr "Doghosie"
 
 #. name for dot
 msgid "Dass"
-msgstr ""
+msgstr "Dass"
 
 #. name for dov
 msgid "Dombe"
-msgstr ""
+msgstr "Dombe"
 
 #. name for dow
 msgid "Doyayo"
-msgstr ""
+msgstr "Doyayo"
 
 #. name for dox
 msgid "Bussa"
-msgstr ""
+msgstr "Bussa"
 
 #. name for doy
 msgid "Dompo"
-msgstr ""
+msgstr "Dompo"
 
 #. name for doz
 msgid "Dorze"
-msgstr ""
+msgstr "Dorze"
 
 #. name for dpp
 msgid "Papar"
-msgstr ""
+msgstr "Papar"
 
 #. name for drb
 msgid "Dair"
-msgstr ""
+msgstr "Dair"
 
 #. name for drc
 msgid "Minderico"
-msgstr ""
+msgstr "Minderico"
 
 #. name for drd
 msgid "Darmiya"
-msgstr ""
+msgstr "Darmiya"
 
 #. name for dre
 msgid "Dolpo"
-msgstr ""
+msgstr "Dolpo"
 
 #. name for drg
 msgid "Rungus"
-msgstr ""
+msgstr "Rungus"
 
 #. name for dri
 msgid "C'lela"
-msgstr ""
+msgstr "C'lela"
 
 #. name for drl
 msgid "Darling"
-msgstr ""
+msgstr "Darling"
 
 #. name for drn
 msgid "Damar; West"
-msgstr ""
+msgstr "Damar; occidental"
 
 #. name for dro
 msgid "Melanau; Daro-Matu"
-msgstr ""
+msgstr "Melanau; Daro-Matu"
 
 #. name for drq
 msgid "Dura"
-msgstr ""
+msgstr "Dura"
 
 #. name for drr
 msgid "Dororo"
-msgstr ""
+msgstr "Dororo"
 
 #. name for drs
 msgid "Gedeo"
-msgstr ""
+msgstr "Gedeo"
 
 #. name for drt
 msgid "Drents"
-msgstr ""
+msgstr "Drents"
 
 #. name for dru
 msgid "Rukai"
-msgstr ""
+msgstr "Rukai"
 
 #. name for dry
 msgid "Darai"
-msgstr ""
+msgstr "Darai"
 
 #. name for dsb
 msgid "Sorbian; Lower"
-msgstr ""
+msgstr "Sòrab; baix"
 
 #. name for dse
 msgid "Dutch Sign Language"
@@ -6736,11 +6736,11 @@ msgstr "Llenguatge de signes holandès"
 
 #. name for dsh
 msgid "Daasanach"
-msgstr ""
+msgstr "Daassanach"
 
 #. name for dsi
 msgid "Disa"
-msgstr ""
+msgstr "Disa"
 
 #. name for dsl
 msgid "Danish Sign Language"
@@ -6748,7 +6748,7 @@ msgstr "Llenguatge de signes danès"
 
 #. name for dsn
 msgid "Dusner"
-msgstr ""
+msgstr "Dusner"
 
 #. name for dso
 msgid "Desiya"
@@ -9688,7 +9688,7 @@ msgstr ""
 
 #. name for hsb
 msgid "Sorbian; Upper"
-msgstr ""
+msgstr "Sòrab; alt"
 
 #. name for hsh
 msgid "Hungarian Sign Language"
@@ -12256,7 +12256,7 @@ msgstr ""
 
 #. name for kmc
 msgid "Dong; Southern"
-msgstr ""
+msgstr "Dong; meridional"
 
 #. name for kmd
 msgid "Kalinga; Majukayang"
@@ -13420,7 +13420,7 @@ msgstr ""
 
 #. name for kxn
 msgid "Melanau; Kanowit-Tanjong"
-msgstr ""
+msgstr "Melanau; Kanowit-Tanjong"
 
 #. name for kxo
 msgid "Kanoé"
@@ -15460,7 +15460,7 @@ msgstr ""
 
 #. name for mel
 msgid "Melanau; Central"
-msgstr ""
+msgstr "Melanau; central"
 
 #. name for mem
 msgid "Mangala"
@@ -17992,7 +17992,7 @@ msgstr ""
 
 #. name for neb
 msgid "Toura (Côte d'Ivoire)"
-msgstr ""
+msgstr "Toura (Costa d'Ivori)"
 
 #. name for nec
 msgid "Nedebang"
@@ -22732,7 +22732,7 @@ msgstr ""
 
 #. name for sdx
 msgid "Melanau; Sibu"
-msgstr ""
+msgstr "Melanau; Sibu"
 
 #. name for sdz
 msgid "Sallands"
