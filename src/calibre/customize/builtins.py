@@ -555,7 +555,8 @@ from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
 from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
-from calibre.devices.prs505.driver import PRS505, PRST1
+from calibre.devices.prs505.driver import PRS505
+from calibre.devices.prst1.driver import PRST1
 from calibre.devices.user_defined.driver import USER_DEFINED
 from calibre.devices.android.driver import ANDROID, S60, WEBOS
 from calibre.devices.nokia.driver import N770, N810, E71X, E52
