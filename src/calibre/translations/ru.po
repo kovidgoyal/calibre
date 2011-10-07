@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-09-30 12:17+0000\n"
-"Last-Translator: Alexandr Belugin <Unknown>\n"
+"PO-Revision-Date: 2011-10-06 11:47+0000\n"
+"Last-Translator: Sidorychev Alexander <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-10-01 04:54+0000\n"
-"X-Generator: Launchpad (build 14071)\n"
+"X-Launchpad-Export-Date: 2011-10-07 04:35+0000\n"
+"X-Generator: Launchpad (build 14085)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -633,7 +633,7 @@ msgstr "Загрузка метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1072
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr "Изменить настройки для скачки метадаты с интернета"
+msgstr "Изменить параметры загрузки метаданных из интернета"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1077
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
@@ -1573,7 +1573,7 @@ msgstr "Установить связь с Nook Color и TSR eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr "Установить с Nuut2 eBook reader."
+msgstr "Установить связь с Nuut2."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
@@ -4559,8 +4559,7 @@ msgstr "Автоматическая загрузка обложки, если �
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:191
 msgid "Limit max simultaneous jobs to number of CPUs"
 msgstr ""
-"Ограничить максимальное количество одновременных задач количеством "
-"процессоров CPU"
+"Ограничить максимальное количество одновременных заданий количеством ядер ЦП"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:193
 msgid ""
@@ -4671,7 +4670,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:67
 msgid "Add Empty book. (Book entry with no formats)"
-msgstr "Добавить пустую книгу (книгу без каких-либо форматов)."
+msgstr "Добавить пустую книгу (книгу без каких-либо форматов)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:68
 msgid "Shift+Ctrl+E"
@@ -5953,7 +5952,7 @@ msgstr "О 'Загрузить книги'"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 msgid "Tweak ePub"
-msgstr "Tweak EPUB"
+msgstr "Изменить ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Make small changes to ePub format books"
@@ -5966,7 +5965,7 @@ msgstr "T"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:41
 msgid "Cannot tweak ePub"
-msgstr "Не могу настроить EPUB"
+msgstr "Не могу изменить ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:42
 msgid "No ePub available. First convert the book to ePub."
@@ -7046,7 +7045,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Output document"
-msgstr "&Выходной докумен"
+msgstr "&Выходной документ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
@@ -7341,7 +7340,7 @@ msgstr "Семейство шрифтов S&ans-serif:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:135
 msgid "&Monospaced font family:"
-msgstr "Семейство шрифтов &Monospaced:"
+msgstr "Cемейство &Моноширинных шрифтов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:117
@@ -7394,11 +7393,11 @@ msgstr "Обложка книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:160
 msgid "Change &cover image:"
-msgstr "Заменено изображение &обложки:"
+msgstr "Изменить изображение &обложки"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:161
 msgid "Browse for an image to use as the cover of this book."
-msgstr "Просмотреть изображения для обложки этой книги."
+msgstr "Выбрать изображение для обложки этой книги."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:163
 msgid "Use cover from &source file"
@@ -8438,7 +8437,7 @@ msgstr "Для новых книг установить автора:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:45
 msgid "Reset author to Unknown"
-msgstr "Изменить автора на Неизвестный"
+msgstr "Изменить автора на 'Неизвестно'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:63
 msgid "Add books by ISBN"
@@ -8496,8 +8495,8 @@ msgstr "Формат &каталога:"
 msgid ""
 "Catalog &title (existing catalog with the same title will be replaced):"
 msgstr ""
-"Заголовок каталога (уже существующий каталог с таким же заголовком будет "
-"заменен)"
+"Название файла каталога (уже существующий файл каталога с таким же "
+"заголовком будет заменен)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/catalog_ui.py:96
 msgid "&Send catalog to device automatically"
@@ -10831,7 +10830,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:59
 msgid "Template value:"
-msgstr ""
+msgstr "Значение шаблона:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:60
 msgid ""
@@ -10914,11 +10913,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:67
 msgid "&Rebuild ePub"
-msgstr ""
+msgstr "&Запаковать ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 msgid "&Preview ePub"
-msgstr ""
+msgstr "&Просмотреть ePub"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
@@ -12238,7 +12237,7 @@ msgstr "Загружено %(num)d из %(tot)d"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/config.py:61
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:61
 msgid "Downloaded metadata fields"
-msgstr ""
+msgstr "Загружаемые поля метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:32
 msgid "Edit Metadata"
@@ -12511,7 +12510,7 @@ msgid ""
 "Swap the firstname and lastname of the author. This affects only metadata "
 "read from file names."
 msgstr ""
-"Поменять местами имя и фамилию автора. Влияет только на метаданные читаетмые "
+"Поменять местами имя и фамилию автора. Влияет только на метаданные читаемые "
 "из имени файла."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:71
@@ -13671,7 +13670,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:231
 msgid "When showing cover browser in separate window, show it &fullscreen"
-msgstr ""
+msgstr "При просмотре обложки в отдельном окне, показывать &полноэкранно"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
 #, python-format
@@ -13697,7 +13696,7 @@ msgstr "Сохранить изменения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:239
 msgid "Cancel and return to overview"
-msgstr ""
+msgstr "Отменить и вернуться к окну параметров"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:295
 msgid "Restoring to defaults not supported for"
@@ -14812,7 +14811,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:402
 msgid "Enable or disable search highlighting."
-msgstr ""
+msgstr "Включить или отключить подсветку результатов поиска"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:457
 msgid "Saved Searches"
@@ -14850,7 +14849,7 @@ msgstr "*Текущий поиск"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:12
 msgid "Restrict to"
-msgstr ""
+msgstr "Ограничения для"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:19
 #: /home/kovid/work/calibre/src/calibre/gui2/search_restriction_mixin.py:92
@@ -15817,7 +15816,7 @@ msgstr "Настройка просмоторщика Ebook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:179
 msgid "&Font options"
-msgstr "&Опции шрифта"
+msgstr "Параметры &шрифта"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:180
 msgid "Se&rif family:"
@@ -15829,7 +15828,7 @@ msgstr "Cемейство &Sans:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:182
 msgid "&Monospace family:"
-msgstr "Cемейство &Monospace:"
+msgstr "Cемейство &Моноширинных шрифтов:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:183
 msgid "&Default font size:"
@@ -15843,7 +15842,7 @@ msgstr " пикс."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:185
 msgid "Monospace &font size:"
-msgstr "Monospace &размер шрифта:"
+msgstr "&Размер моноширинного шрифта :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:187
 msgid "S&tandard font:"
@@ -15859,7 +15858,7 @@ msgstr "Sans-serif"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:190
 msgid "Monospace"
-msgstr "Моноширный"
+msgstr "Моноширинный"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:191
 msgid "Remember last used &window size"
@@ -16290,7 +16289,7 @@ msgstr "Печать книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:103
 msgid "Test name invalid"
-msgstr ""
+msgstr "Неправильно тестовое имя файла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:104
 #, python-format
@@ -18250,7 +18249,7 @@ msgstr "Разработанные пользователем тэги брау�
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:410
 msgid "How and when calibre updates metadata on the device."
-msgstr "Как и когда calibre обновляет метаданные на устройстве"
+msgstr "Как и когда calibre обновляет метаданные на устройстве."
 
 #: /home/kovid/work/calibre/src/calibre/utils/config_base.py:412
 msgid ""
