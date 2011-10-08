@@ -42,8 +42,8 @@ class PRST1(USBMS):
             )
 
     THUMBNAIL_HEIGHT = 144
-    SCAN_FROM_ROOT   = True
-    SUPPORT_SUB_DIRS = True
+    SUPPORTS_SUB_DIRS = True
+    MUST_READ_METADATA = True
     EBOOK_DIR_MAIN   = 'Sony_Reader/media/books'
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
