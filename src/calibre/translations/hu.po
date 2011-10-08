@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-10-02 12:41+0000\n"
+"PO-Revision-Date: 2011-10-07 13:15+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-03 04:38+0000\n"
-"X-Generator: Launchpad (build 14071)\n"
+"X-Launchpad-Export-Date: 2011-10-08 05:16+0000\n"
+"X-Generator: Launchpad (build 14110)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -951,7 +951,7 @@ msgstr "Igen"
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1102
 msgid "Main"
-msgstr "Főmenü"
+msgstr "Fő memória"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
@@ -8625,7 +8625,7 @@ msgstr "A rendezési forma használata szerzői névként"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:85
 msgid "Save &template:"
-msgstr "Sa&blon mentése"
+msgstr "Men&tés sablonja:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_empty_book.py:20
 msgid "How many empty books?"
@@ -11924,7 +11924,7 @@ msgstr "Calibre könyvtár könyveinek megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:71
 msgid "Show books in the main memory of the device"
-msgstr "Mutasd az eszköz belső memóriájban tárolt könyveket"
+msgstr "Az eszköz fő memóriájában lévő könyvek megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:73
 msgid "Show books in storage card A"
@@ -17474,7 +17474,7 @@ msgstr "üres"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:571
 msgid "Invalid boolean query \"{0}\""
-msgstr ""
+msgstr "Érvénytelen boolean lekérdezés „{0}”"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:55
 #, python-format
