@@ -44,7 +44,18 @@ class PRST1(USBMS):
     THUMBNAIL_HEIGHT = 144
     SCAN_FROM_ROOT   = True
     SUPPORT_SUB_DIRS = True
-	EBOOK_DIR_MAIN   = 'Sony_Reader/media/books'
+    EBOOK_DIR_MAIN   = 'Sony_Reader/media/books'
+
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+        _('Comma separated list of metadata fields '
+            'to turn into collections on the device. Possibilities include: ')+\
+                    'series, tags, authors',
+    ]
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+                ', '.join(['series', 'tags']),
+    ]
+
+    OPT_COLLECTIONS    = 0
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id or '_SETTING' in pnp_id
@@ -143,85 +154,169 @@ class PRST1(USBMS):
 	def sync_booklists(self, booklists, end_session=True):
 		debug_print('PRST1: starting sync_booklists')
 		
+		opts = self.settings()
+        if opts.extra_customization:
+            collections = [x.strip() for x in
+                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+        else:
+            collections = []
+        debug_print('PRST1: collection fields:', collections)
+		
 		if booklists[0] is not None:
-			booklists[0].rebuild_collections(booklists[0], None)
+			self.update_device_database(booklists[0], collections, None)
 		if booklists[1] is not None:
-			booklists[1].rebuild_collections(booklists[1], 'carda')
+			self.update_device_database(booklists[1], collections, 'carda')
 		
 		USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PRST1: finished sync_booklists')
 	
-	def rebuild_collections(self, booklist, oncard):
-	    collections_attributes = ['tags']
-		debug_print('PRS-T1: starting rebuild_collections')
-	
-	    prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
+	def update_device_database(self, booklist, collections_attributes, oncard):
+		debug_print('PRST1: starting update_device_database')
+		
+		prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
 		source_id = 1 if oncard == 'carda' else 0
 		debug_print("SQLite DB Path: " + self.normalize_path(prefix + 'Sony_Reader/database/books.db'))
-
+		
 		collections = booklist.get_collections(collections_attributes)
-        #debug_print('Collections', collections)
-
+		
 		with closing(sqlite.connect(self.normalize_path(prefix + 'Sony_Reader/database/books.db'))) as connection:
-			cursor = connection.cursor()
-						
-			if collections:
-				# Get existing collections
-				query = 'select _id, title ' \
-				 		'from collection'
-				cursor.execute(query)
-				debug_print('Got Existing Collections')
-				
-				categories = {}
-				for i, row in enumerate(cursor):
-					categories[row[1]] = row[0]
+			self.update_device_books(connection, booklist, source_id)
+			self.update_device_collections(connection, booklist, collections, source_id)
+		
+		debug_print('PRST1: finished update_device_database')
+
+	def update_device_books(self, connection, booklist, source_id):
+		cursor = connection.cursor()
+		
+		# Get existing books
+		query = 'select file_path, _id ' \
+				'from books'
+		cursor.execute(query)
+		
+		dbBooks = {}
+		for i, row in enumerate(cursor):
+			lpath = row[0].replace('\\', '/')
+			dbBooks[lpath] = row[1]
+		
+		for book in booklist:
+			lpath = book.lpath
+			if lpath not in dbBooks:
+				query = 'insert into books ' \
+						'(title, author, source_id, added_date, modified_date, file_path, file_name, file_size, mime_type, corrupted, prevent_delete) ' \
+						'values (?,?,?,?,?,?,?,?,?,0,0)'
+				t = (book.title, book.authors[0], source_id, time.time() * 1000, calendar.timegm(book.datetime), lpath, os.path.basename(book.lpath), book.size, book.mime )
+				cursor.execute(query, t)
+				book.bookId = cursor.lastrowid
+				debug_print('Inserted New Book: ' + book.title)
+			else:
+				query = 'update books ' \
+						'set title = ?, author = ?, modified_date = ?, file_size = ? ' \
+						'where file_path = ?'
+				t = (book.title, book.authors[0], calendar.timegm(book.datetime), book.size, lpath)
+				cursor.execute(query, t)
+				book.bookId = dbBooks[lpath]
+				dbBooks[lpath] = None
+			
+		for book, bookId in dbBooks.items():
+			if bookId is not None:
+				# Remove From Collections
+				query = 'delete from collections ' \
+						'where content_id = ?'
+				t = (bookId,)
+				cursor.execute(query, t)
+				# Remove from Books
+				query = 'delete from books ' \
+						'where _id = ?'
+				t = (bookId,)
+				cursor.execute(query, t)
+				debug_print('Deleted Book:' + book)
+		
+		connection.commit()
+		cursor.close()
+		
+	def update_device_collections(self, connection, booklist, collections, source_id):
+		cursor = connection.cursor()
+		
+		if collections:
+			# Get existing collections
+			query = 'select _id, title ' \
+			 		'from collection'
+			cursor.execute(query)
+			
+			dbCollections = {}
+			for i, row in enumerate(cursor):
+				dbCollections[row[1]] = row[0]
+			
+			for collection, books in collections.items():
+				if collection not in dbCollections:
+					query = 'insert into collection (title, source_id) values (?,?)'
+					t = (collection, source_id)
+					cursor.execute(query, t)
+					dbCollections[collection] = cursor.lastrowid
+					debug_print('Inserted New Collection: ' + collection)
 					
-				# Get existing books
-				query = 'select file_path, _id ' \
-						'from books'
-				cursor.execute(query)
-				debug_print('Got Existing Books')
-				
+				# Get existing books in collection
+				query = 'select books.file_path, content_id ' \
+				 		'from collections ' \
+						'left outer join books ' \
+						'where collection_id = ? and books._id = collections.content_id'
+				t = (dbCollections[collection],)
+				cursor.execute(query, t)
+
 				dbBooks = {}
 				for i, row in enumerate(cursor):
-					dbBooks[self.normalize_path(row[0])] = row[1]
-				
-                # Process any collections that exist
-                for category, books in collections.items():
-					if categories.get(category, None) is not None:
-						query = 'delete from collections where collection_id = ?'
-						t = (categories[category],)
-						debug_print('Query: ' + query + ' ... ' + str(t))
-						cursor.execute(query, t)
-	
-					for book in books:
-                        # debug_print('    Title:', book.title, 'category: ', category)
-                        if category not in book.device_collections:
-                            book.device_collections.append(category)
-							
-						if self.normalize_path(book.lpath) not in dbBooks:
-							query = 'insert into books ' \
-									'(title, author, source_id, added_date, modified_date, file_path, file_name, file_size, mime_type, corrupted, prevent_delete) ' \
-									'values (?,?,?,?,?,?,?,?,?,0,0)'
-							t = (book.title, book.authors[0], source_id, time.time() * 1000, calendar.timegm(book.datetime), book.lpath, os.path.basename(book.lpath), book.size, book.mime )
-							cursor.execute(query, t)
-							dbBooks[book.lpath] = cursor.lastrowid
-							debug_print('Inserted Unknown Book: ' + book.title)
-							
-						if category not in categories:
-							query = 'insert into collection (title, source_id) values (?,?)'
-							t = (category, source_id)
-							cursor.execute(query, t)
-							categories[category] = cursor.lastrowid
-							debug_print('Inserted Unknown Collection: ' + category)
-								
+					dbBooks[row[0]] = row[1]
+					
+				for book in books:
+					if dbBooks.get(book.lpath, None) is None:
+						book.device_collections.append(collection)
 						query = 'insert into collections (collection_id, content_id) values (?,?)'
-						t = (categories[category], dbBooks[book.lpath])
+						t = (dbCollections[collection], book.bookId)
 						cursor.execute(query, t)
-						debug_print('Inserted Book Into Collection: ' + book.title + ' -> ' + category)
-			
-			connection.commit()
-			cursor.close()
+						debug_print('Inserted Book Into Collection: ' + book.title + ' -> ' + collection)
+					
+					dbBooks[book.lpath] = None
+					
+				for bookPath, bookId in dbBooks.items():	
+					if bookId is not None:
+						query = 'delete from collections ' \
+								'where content_id = ? and collection_id = ? '
+						t = (bookId,dbCollections[collection],)
+						cursor.execute(query, t)
+						debug_print('Deleted Book From Collection: ' + bookPath + ' -> ' + collection)
+					
+				dbCollections[collection] = None
+				
+			for collection, collectionId in dbCollections.items():
+				if collectionId is not None:
+					# Remove Books from Collection
+					query = 'delete from collections ' \
+							'where collection_id = ?'
+					t = (collectionId,)
+					cursor.execute(query, t)
+					# Remove Collection
+					query = 'delete from collection ' \
+							'where _id = ?'
+					t = (collectionId,)
+					cursor.execute(query, t)
+					debug_print('Deleted Collection: ' + collection)
+				
 		
+		connection.commit()
+		cursor.close()
+	
+	def rebuild_collections(self, booklist, oncard):
+		debug_print('PRST1: starting rebuild_collections')
+		
+		opts = self.settings()
+        if opts.extra_customization:
+            collections = [x.strip() for x in
+                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+        else:
+            collections = []
+        debug_print('PRST1: collection fields:', collections)
+		
+		self.update_device_database(booklist, collections, oncard)
+	
 		debug_print('PRS-T1: finished rebuild_collections')
 		

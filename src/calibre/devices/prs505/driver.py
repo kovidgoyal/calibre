@@ -299,4 +299,3 @@ class PRS505(USBMS):
                 f.write(metadata.thumbnail[-1])
             debug_print('Cover uploaded to: %r'%cpath)
 
-
