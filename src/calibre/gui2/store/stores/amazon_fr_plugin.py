@@ -65,7 +65,8 @@ class AmazonFRKindleStore(StorePlugin):
                 title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
                 author = unicode(''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()')))
-                author = author.split('et ')[-1]
+                if author.startswith('de '):
+                    author = author[3:]
 
                 counter -= 1
 
@@ -77,5 +78,5 @@ class AmazonFRKindleStore(StorePlugin):
                 s.detail_item = asin.strip()
                 s.formats = 'Kindle'
                 s.drm = SearchResult.DRM_UNKNOWN
-                
+
                 yield s
