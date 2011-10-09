@@ -84,10 +84,9 @@ class PRST1(USBMS):
 	
 		prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
 
-		# get the metadata cache
+		# Let parent driver get the books
 	    self.booklist_class.rebuild_collections = self.rebuild_collections
-		bl = self.booklist_class(oncard, prefix, self.settings)
-		need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
+		bl = USBMS.books(self, oncard=oncard, end_session=end_session)
 		
 		debug_print("SQLite DB Path: " + self.normalize_path(prefix + 'Sony_Reader/database/books.db'))
 		
@@ -108,46 +107,16 @@ class PRST1(USBMS):
 			for i, row in enumerate(cursor):
 				bl_collections.setdefault(row[0], [])
 				bl_collections[row[0]].append(row[1])
-
-			# Query books themselves
-			query = 'select _id, file_path, title, author, mime_type, modified_date, thumbnail, file_size ' \
-					'from books'
-			cursor.execute (query)
-		    
-			# make a dict cache of paths so the lookup in the loop below is faster.
-	        bl_cache = {}
-	        for idx,b in enumerate(bl):
-            	bl_cache[b.lpath] = idx
-		
-		    changed = False
-		    for i, row in enumerate(cursor):
-				#Book(prefix, bookId, lpath, title, author, mime, date, thumbnail_name, size=None, other=None)
-				thumbnail = row[6]
-				if thumbnail is not None:
-					thumbnail = self.normalize_path(prefix + row[6])
+		 
+			for idx,book in enumerate(bl):
+	           	query = 'select _id from books where file_path = ?'
+				t = (book.lpath,)
+				cursor.execute (query, t)
 				
-				book = Book(row[0], prefix, row[1], row[2], row[3], row[4], row[5], thumbnail, row[7])
-				book.device_collections = bl_collections.get(row[0], None)
-				debug_print('Collections for ' + row[2] + ': ' + str(book.device_collections))
-				bl_cache[row[1]] = None
-				if bl.add_book(book, replace_metadata=True):
-                    changed = True
-						
-			# Remove books that are no longer in the filesystem. Cache contains
-			# indices into the booklist if book not in filesystem, None otherwise
-			# Do the operation in reverse order so indices remain valid
-			for idx in sorted(bl_cache.itervalues(), reverse=True):
-				if idx is not None:
-			    	changed = True
-			        del bl[idx]			
+				for i, row in enumerate(cursor):
+					book.device_collections = bl_collections.get(row[0], None)		
 			
 			cursor.close()
-
-			if changed:
-	            if oncard == 'carda':
-		   	        self.sync_booklists((None, bl, None))
-				else:
-				    self.sync_booklists((bl, None, None))
 
 		return bl
 		
@@ -269,7 +238,8 @@ class PRST1(USBMS):
 					
 				for book in books:
 					if dbBooks.get(book.lpath, None) is None:
-						book.device_collections.append(collection)
+						if collection not in book.device_collections:
+							book.device_collections.append(collection)
 						query = 'insert into collections (collection_id, content_id) values (?,?)'
 						t = (dbCollections[collection], book.bookId)
 						cursor.execute(query, t)
