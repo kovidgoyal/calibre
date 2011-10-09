@@ -18,7 +18,7 @@ from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import __appname__, prints
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.books import BookList
-from calibre.devices.prst1.books import Book
+from calibre.devices.prst1.books import ImageWrapper
 
 class PRST1(USBMS):
     name           = 'SONY PRST1 and newer Device Interface'
@@ -50,12 +50,41 @@ class PRST1(USBMS):
         _('Comma separated list of metadata fields '
             'to turn into collections on the device. Possibilities include: ')+\
                     'series, tags, authors',
+		_('Upload separate cover thumbnails for books') +
+		     ':::'+_('Normally, the SONY readers get the cover image from the'
+		     ' ebook file itself. With this option, calibre will send a '
+		     'separate cover image to the reader, useful if you are '
+		     'sending DRMed books in which you cannot change the cover.'),
+		_('Refresh separate covers when using automatic management') +
+		     ':::' +
+		      _('Set this option to have separate book covers uploaded '
+		        'every time you connect your device. Unset this option if '
+		        'you have so many books on the reader that performance is '
+		        'unacceptable.'),
+		_('Preserve cover aspect ratio when building thumbnails') +
+		      ':::' +
+		      _('Set this option if you want the cover thumbnails to have '
+		        'the same aspect ratio (width to height) as the cover. '
+		        'Unset it if you want the thumbnail to be the maximum size, '
+		        'ignoring aspect ratio.'),
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 ', '.join(['series', 'tags']),
+				False,
+				False,
+				True,
     ]
 
     OPT_COLLECTIONS    = 0
+    OPT_UPLOAD_COVERS  = 1
+    OPT_REFRESH_COVERS = 2
+    OPT_PRESERVE_ASPECT_RATIO = 3
+
+    def post_open_callback(self):
+        # Set the thumbnail width to the theoretical max if the user has asked
+        # that we do not preserve aspect ratio
+        if not self.settings().extra_customization[self.OPT_PRESERVE_ASPECT_RATIO]:
+            self.THUMBNAIL_WIDTH = 108
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id or '_SETTING' in pnp_id
@@ -109,12 +138,17 @@ class PRST1(USBMS):
 				bl_collections[row[0]].append(row[1])
 		 
 			for idx,book in enumerate(bl):
-	           	query = 'select _id from books where file_path = ?'
+                query = 'select _id, thumbnail from books where file_path = ?'
 				t = (book.lpath,)
 				cursor.execute (query, t)
 				
 				for i, row in enumerate(cursor):
-					book.device_collections = bl_collections.get(row[0], None)		
+					book.device_collections = bl_collections.get(row[0], None)	
+					thumbnail = row[1]
+					if thumbnail is not None:
+					    thumbnail = self.normalize_path(prefix + thumbnail)
+						book.thumbnail = ImageWrapper(thumbnail)
+						debug_print('Got thumnail for :' + book.title)
 			
 			cursor.close()
 
@@ -155,6 +189,10 @@ class PRST1(USBMS):
 		debug_print('PRST1: finished update_device_database')
 
 	def update_device_books(self, connection, booklist, source_id):
+		opts = self.settings()
+		upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS];
+		refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
+				
 		cursor = connection.cursor()
 		
 		# Get existing books
@@ -173,9 +211,11 @@ class PRST1(USBMS):
 				query = 'insert into books ' \
 						'(title, author, source_id, added_date, modified_date, file_path, file_name, file_size, mime_type, corrupted, prevent_delete) ' \
 						'values (?,?,?,?,?,?,?,?,?,0,0)'
-				t = (book.title, book.authors[0], source_id, time.time() * 1000, calendar.timegm(book.datetime), lpath, os.path.basename(book.lpath), book.size, book.mime )
+				t = (book.title, book.authors[0], source_id, int(time.time() * 1000), calendar.timegm(book.datetime), lpath, os.path.basename(book.lpath), book.size, book.mime )
 				cursor.execute(query, t)
 				book.bookId = cursor.lastrowid
+				if upload_covers:
+					self.upload_book_cover(connection, book, source_id)
 				debug_print('Inserted New Book: ' + book.title)
 			else:
 				query = 'update books ' \
@@ -184,6 +224,8 @@ class PRST1(USBMS):
 				t = (book.title, book.authors[0], calendar.timegm(book.datetime), book.size, lpath)
 				cursor.execute(query, t)
 				book.bookId = dbBooks[lpath]
+				if refresh_covers:
+					self.upload_book_cover(connection, book, source_id)
 				dbBooks[lpath] = None
 			
 		for book, bookId in dbBooks.items():
@@ -289,4 +331,27 @@ class PRST1(USBMS):
 		self.update_device_database(booklist, collections, oncard)
 	
 		debug_print('PRS-T1: finished rebuild_collections')
+	
+	def upload_book_cover(self, connection, book, source_id):
+		debug_print('PRST1: Uploading/Refreshing Cover for ' + book.title)
+		cursor = connection.cursor()
 		
+		if book.thumbnail and book.thumbnail[-1]:
+			thumbnailPath = 'Sony_Reader/database/cache/books/' + str(book.bookId) +'/thumbnail/main_thumbnail.jpg'
+			
+			prefix = self._main_prefix if source_id is 0 else self._card_a_prefix
+			thumbnailFilePath = os.path.join(prefix, *thumbnailPath.split('/'))
+			thumbnailDirPath = os.path.dirname(thumbnailFilePath)
+			if not os.path.exists(thumbnailDirPath):
+                os.makedirs(thumbnailDirPath)
+
+			with open(thumbnailFilePath, 'wb') as f:
+	            f.write(book.thumbnail[-1])
+			
+			query = 'update books ' \
+					'set thumbnail = ?' \
+					'where _id = ? '
+			t = (thumbnailPath,book.bookId,)
+			cursor.execute(query, t)
+		
+		cursor.close()
