@@ -133,7 +133,7 @@ class Rule(object): # {{{
                 'lt': ('1', '', ''),
                 'gt': ('', '', '1')
         }[action]
-        return "cmp(format_date(raw_field('%s'), 'yyyy-MM-dd'), %s, '%s', '%s', '%s')" % (col,
+        return "strcmp(format_date(raw_field('%s'), 'yyyy-MM-dd'), '%s', '%s', '%s', '%s')" % (col,
                 val, lt, eq, gt)
 
     def multiple_condition(self, col, action, val, sep):
