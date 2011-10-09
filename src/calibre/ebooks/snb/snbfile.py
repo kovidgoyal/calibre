@@ -156,6 +156,8 @@ class SNBFile:
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
+        if isinstance(f.fileName, unicode):
+            f.fileName = f.fileName.encode("ascii", "ignore");
         self.files.append(f)
 
     def AppendBinary(self, fileName, tdir):
@@ -164,6 +166,8 @@ class SNBFile:
         f.fileSize = os.path.getsize(os.path.join(tdir,fileName))
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
+        if isinstance(f.fileName, unicode):
+            f.fileName = f.fileName.encode("ascii", "ignore");
         self.files.append(f)
 
     def GetFileStream(self, fileName):

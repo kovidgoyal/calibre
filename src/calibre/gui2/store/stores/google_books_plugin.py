@@ -6,6 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+import random
 import urllib
 from contextlib import closing
 
@@ -23,7 +24,24 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://books.google.com/'
+        aff_id = {
+            'lid': '41000000033185143',
+            'pubid': '21000000000352219',
+            'ganpub': 'k352219',
+            'ganclk': 'GOOG_1335334761',
+        }
+        # Use Kovid's affiliate id 30% of the time.
+        if random.randint(1, 10) in (1, 2, 3):
+            aff_id = {
+                'lid': '41000000031855266',
+                'pubid': '21000000000352583',
+                'ganpub': 'k352583',
+                'ganclk': 'GOOG_1335335464',
+            }
+            
+        url = 'http://gan.doubleclick.net/gan_click?lid=%(lid)s&pubid=%(pubid)s' % aff_id
+        if detail_item:
+            detail_item += '&ganpub=%(ganpub)s&ganclk=%(ganclk)s' % aff_id
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
@@ -50,8 +68,8 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 title = ''.join(data.xpath('.//h3/a//text()'))
-                authors = data.xpath('.//span[@class="gl"]//a//text()')
-                if authors[-1].strip().lower() in ('preview', 'read'):
+                authors = data.xpath('.//span[@class="f"]//a//text()')
+                if authors and authors[-1].strip().lower() in ('preview', 'read'):
                     authors = authors[:-1]
                 else:
                     continue
@@ -80,6 +98,8 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
             if not price.strip():
                 price = ''.join(doc.xpath('//div[@class="buy-container"]/a/text()'))
                 price = price.split('-')[-1]
+            if 'view' in price.lower():
+                price = 'Unknown'
             # No price set for this book.
             if not price.strip():
                 price = '$0.00'

@@ -7,8 +7,9 @@ latercera.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LaTercera(BasicNewsRecipe):
+    news                  = True
     title                 = 'La Tercera'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Darko Miletic and Alex Mitrani'
     description           = 'El sitio de noticias online de Chile'
     publisher             = 'La Tercera'
     category              = 'news, politics, Chile'
@@ -18,8 +19,8 @@ class LaTercera(BasicNewsRecipe):
     encoding              = 'cp1252'
     use_embedded_content  = False
     remove_empty_feeds    = True
-    language              = 'es'
- 
+    language              = 'es_CL'
+
     conversion_options = {
                           'comment'          : description
                         , 'tags'             : category
@@ -28,28 +29,33 @@ class LaTercera(BasicNewsRecipe):
 						, 'linearize_tables' : True
                         }
 
-    keep_only_tags = [dict(name='div', attrs={'class':['span-16 articulo border','span-16 border','span-16']}) ]
+    keep_only_tags = [
+                    dict(name='h1', attrs={'class':['titularArticulo']})
+	,dict(name='h4', attrs={'class':['bajadaArt']})
+	,dict(name='h5', attrs={'class':['autorArt']})
+                    ,dict(name='div', attrs={'class':['articleContent']})
+                  ]
 
     remove_tags = [
-                     dict(name=['ul','input','base'])
-                    ,dict(name='div', attrs={'id':['boxComentarios','shim','enviarAmigo']})
-                    ,dict(name='div', attrs={'class':['ad640','span-10 imgSet A','infoRelCol']})
-                    ,dict(name='p', attrs={'id':['mensajeError','mensajeEnviandoNoticia','mensajeExito']})
+                    dict(name='div', attrs={'class':['boxCompartir','keywords']})
+                  ]
+
+    remove_tags_after = [
+                    dict(name='div', attrs={'class':['keywords']})
                   ]
 
 
-    feeds = [
-               (u'Noticias de ultima hora', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&ul=1')
+    feeds = [(u'La Tercera', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&ul=1')
+              ,(u'Politica', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=674')
               ,(u'Nacional', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=680')
-              ,(u'Politica', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=674')              
               ,(u'Mundo', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=678')
-              ,(u'Deportes', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=656')
               ,(u'Negocios', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=655')
-              ,(u'Entretenimiento', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=661')
-              ,(u'Motores', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=665')
+              ,(u'Santiago', u'http://www.latercera.com/feed/manager?type=rss&sc=TEFURVJDRVJB&citId=9&categoryId=1731')
               ,(u'Tendencias', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=659')
-              ,(u'Estilo', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=660')
               ,(u'Educacion', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=657')
+              ,(u'Cultura', u'http://www.latercera.com/feed/manager?type=rss&sc=TEFURVJDRVJB&citId=9&categoryId=1453')
+              ,(u'Entretención', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=661')
+              ,(u'Deportes', u'http://www.latercera.com/app/rss?sc=TEFURVJDRVJB&category=656')
             ]
 
     def preprocess_html(self, soup):

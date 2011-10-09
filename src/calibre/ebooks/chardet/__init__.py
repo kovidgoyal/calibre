@@ -32,14 +32,18 @@ def detect(aBuf):
 ENCODING_PATS = [
                  re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>',
                             re.IGNORECASE),
-                 re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-a-z0-9]+)[^'"]*?['"][^<>]*>''',
-                            re.IGNORECASE)
+                 re.compile(r'''<meta\s+?[^<>]*?content\s*=\s*['"][^'"]*?charset=([-_a-z0-9]+)[^'"]*?['"][^<>]*>''',
+                            re.IGNORECASE),
                  ]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
 def strip_encoding_declarations(raw):
+    limit = 50*1024
     for pat in ENCODING_PATS:
-        raw = pat.sub('', raw)
+        prefix = raw[:limit]
+        suffix = raw[limit:]
+        prefix = pat.sub('', prefix)
+        raw = prefix + suffix
     return raw
 
 def substitute_entites(raw):

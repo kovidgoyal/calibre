@@ -38,6 +38,7 @@ class WallStreetJournal(BasicNewsRecipe):
                     dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive","articleTabs_tab_video","articleTabs_tab_map","articleTabs_tab_slideshow","articleTabs_tab_quotes","articleTabs_tab_document"]),
                     {'class':['footer_columns','network','insetCol3wide','interactive','video','slideshow','map','insettip','insetClose','more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
                     dict(rel='shortcut icon'),
+                    {'class':lambda x: x and 'sTools' in x},
                     ]
     remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
 
@@ -93,9 +94,11 @@ class WallStreetJournal(BasicNewsRecipe):
         if date is not None:
             self.timefmt = ' [%s]'%self.tag_to_string(date)
 
-        cov = soup.find('a', attrs={'class':'icon pdf'}, href=True)
+        cov = soup.find('div', attrs={'class':'itpSectionHeaderPdf'})
         if cov is not None:
-            self.cover_url = cov['href']
+            a = cov.find('a', href=True)
+            if a is not None:
+                self.cover_url = a['href']
 
         feeds = []
         div = soup.find('div', attrs={'class':'itpHeader'})

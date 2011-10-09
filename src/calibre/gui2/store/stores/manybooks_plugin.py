@@ -49,7 +49,9 @@ class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
         counter = max_results
         br = browser()
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = etree.fromstring(f.read())
+            raw_data = f.read()
+            raw_data = raw_data.decode('utf-8', 'replace')
+            doc = etree.fromstring(raw_data)
             for data in doc.xpath('//*[local-name() = "entry"]'):
                 if counter <= 0:
                     break

@@ -47,19 +47,25 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
         m.add('series', mi.series)
     elif override_input_metadata:
         m.clear('series')
-    if not mi.is_null('isbn'):
+    identifiers = mi.get_identifiers()
+    set_isbn = False
+    for typ, val in identifiers.iteritems():
         has = False
+        if typ.lower() == 'isbn':
+            set_isbn = True
         for x in m.identifier:
-            if x.scheme.lower() == 'isbn':
-                x.content = mi.isbn
+            if x.scheme.lower() == typ.lower():
+                x.content = val
                 has = True
         if not has:
-            m.add('identifier', mi.isbn, scheme='ISBN')
-    elif override_input_metadata:
+            m.add('identifier', val, scheme=typ.upper())
+    if override_input_metadata and not set_isbn:
         m.filter('identifier', lambda x: x.scheme.lower() == 'isbn')
-    if not mi.is_null('language'):
+    if not mi.is_null('languages'):
         m.clear('language')
-        m.add('language', mi.language)
+        for lang in mi.languages:
+            if lang and lang.lower() not in ('und', ''):
+                m.add('language', lang)
     if not mi.is_null('series_index'):
         m.clear('series_index')
         m.add('series_index', mi.format_series_index())

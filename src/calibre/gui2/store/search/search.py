@@ -22,6 +22,7 @@ from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import SearchThreadPool, \
     CacheUpdateThreadPool
 from calibre.gui2.store.search.search_ui import Ui_Dialog
+from calibre.utils.filenames import ascii_filename
 
 class SearchDialog(QDialog, Ui_Dialog):
 
@@ -349,7 +350,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         d = ChooseFormatDialog(self, _('Choose format to download to your library.'), result.downloads.keys())
         if d.exec_() == d.Accepted:
             ext = d.format()
-            fname = result.title + '.' + ext.lower()
+            fname = result.title[:60] + '.' + ext.lower()
+            fname = ascii_filename(fname)
             self.gui.download_ebook(result.downloads[ext], filename=fname)
     
     def open_store(self, result):

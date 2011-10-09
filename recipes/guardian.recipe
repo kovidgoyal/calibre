@@ -12,11 +12,13 @@ from datetime import date
 
 class Guardian(BasicNewsRecipe):
 
-    title = u'The Guardian / The Observer'
+    title = u'The Guardian and The Observer'
     if date.today().weekday() == 6:
         base_url = "http://www.guardian.co.uk/theobserver"
+        cover_pic = 'Observer digital edition'
     else:
         base_url = "http://www.guardian.co.uk/theguardian"
+        cover_pic = 'Guardian digital edition'
 
     __author__ = 'Seabound and Sujata Raman'
     language = 'en_GB'
@@ -28,7 +30,7 @@ class Guardian(BasicNewsRecipe):
     # List of section titles to ignore
     # For example: ['Sport']
     ignore_sections = []
-    
+
     timefmt = ' [%a, %d %b %Y]'
     keep_only_tags = [
                       dict(name='div', attrs={'id':["content","article_header","main-article-info",]}),
@@ -79,7 +81,7 @@ class Guardian(BasicNewsRecipe):
         # soup = self.index_to_soup("http://www.guardian.co.uk/theobserver")
         soup = self.index_to_soup(self.base_url)
         # find cover pic
-        img = soup.find( 'img',attrs ={'alt':'Guardian digital edition'})
+        img = soup.find( 'img',attrs ={'alt':self.cover_pic})
         if img is not None:
             self.cover_url = img['src']
         # end find cover pic
@@ -94,7 +96,7 @@ class Guardian(BasicNewsRecipe):
                     prefix = section_title + ': '
                 for subsection in s.parent.findAll('a', attrs={'class':'book-section'}):
                     yield (prefix + self.tag_to_string(subsection), subsection['href'])
-    
+
     def find_articles(self, url):
         soup = self.index_to_soup(url)
         div = soup.find('div', attrs={'class':'book-index'})
@@ -115,7 +117,7 @@ class Guardian(BasicNewsRecipe):
                         'title': title, 'url':url, 'description':desc,
                         'date' : strftime('%a, %d %b'),
                         }
-    
+
     def parse_index(self):
         try:
             feeds = []

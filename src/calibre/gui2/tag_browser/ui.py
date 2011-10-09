@@ -196,29 +196,23 @@ class TagBrowserMixin(object): # {{{
         Open the 'manage_X' dialog where X == category. If tag is not None, the
         dialog will position the editor on that item.
         '''
-        db=self.library_view.model().db
-        if category == 'tags':
-            result = db.get_tags_with_ids()
-            key = sort_key
-        elif category == 'series':
-            result = db.get_series_with_ids()
+
+        tags_model = self.tags_view.model()
+        result = tags_model.get_category_editor_data(category)
+        if result is None:
+            return
+
+        if category == 'series':
             key = lambda x:sort_key(title_sort(x))
-        elif category == 'publisher':
-            result = db.get_publishers_with_ids()
-            key = sort_key
-        else: # should be a custom field
-            cc_label = None
-            if category in db.field_metadata:
-                cc_label = db.field_metadata[category]['label']
-                result = db.get_custom_items_with_ids(label=cc_label)
-            else:
-                result = []
+        else:
             key = sort_key
 
-        d = TagListEditor(self, tag_to_match=tag, data=result, key=key)
+        db=self.library_view.model().db
+        d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
+                          tag_to_match=tag, data=result, sorter=key)
         d.exec_()
         if d.result() == d.Accepted:
-            to_rename = d.to_rename # dict of new text to old id
+            to_rename = d.to_rename # dict of old id to new name
             to_delete = d.to_delete # list of ids
             orig_name = d.original_names # dict of id: name
 
@@ -232,7 +226,8 @@ class TagBrowserMixin(object): # {{{
             elif category == 'publisher':
                 rename_func = db.rename_publisher
                 delete_func = db.delete_publisher_using_id
-            else:
+            else: # must be custom
+                cc_label = db.field_metadata[category]['label']
                 rename_func = partial(db.rename_custom_item, label=cc_label)
                 delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
             m = self.tags_view.model()

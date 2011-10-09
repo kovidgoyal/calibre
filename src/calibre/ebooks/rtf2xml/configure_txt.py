@@ -25,7 +25,7 @@ class Configure:
         if self.__show_config_file and self.__configuration_file:
             sys.stderr.write('configuration file is "%s"\n' % self.__configuration_file)
         if self.__show_config_file and not self.__configuration_file:
-            sys.stderr.write('No configuraiton file found; using default vaules\n')
+            sys.stderr.write('No configuraiton file found; using default values\n')
         if self.__configuration_file:
             read_obj = open(self.__configuration_file, 'r')
             line_to_read = 1

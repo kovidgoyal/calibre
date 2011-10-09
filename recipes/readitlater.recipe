@@ -1,5 +1,8 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '''
+2010, Darko Miletic <darko.miletic at gmail.com>
+2011, Przemyslaw Kryger <pkryger at gmail.com>
+'''
 '''
 readitlaterlist.com
 '''
@@ -9,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Readitlater(BasicNewsRecipe):
     title                 = 'Read It Later'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Darko Miletic, Przemyslaw Kryger'
     description           = '''Personalized news feeds. Go to readitlaterlist.com to
                                setup up your news. Fill in your account
                                username, and optionally you can add password.'''
@@ -23,9 +26,6 @@ class Readitlater(BasicNewsRecipe):
     INDEX                 = u'http://readitlaterlist.com'
     LOGIN                 = INDEX + u'/l'
 
-
-    feeds = [(u'Unread articles' , INDEX + u'/unread')]
-
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         if self.username is not None:
@@ -37,12 +37,31 @@ class Readitlater(BasicNewsRecipe):
             br.submit()
         return br
 
+    def get_feeds(self):
+        self.report_progress(0, ('Fetching list of feeds...'))
+        lfeeds = []
+        i = 1
+        feedurl = self.INDEX + u'/unread/1'
+        while True:
+            title = u'Unread articles, page ' + str(i)
+            lfeeds.append((title, feedurl))
+            self.report_progress(0, ('Got ') + str(i) + (' feeds'))
+            i += 1
+            soup = self.index_to_soup(feedurl)
+            ritem = soup.find('a',attrs={'id':'next', 'class':'active'})
+            if ritem is None:
+                break
+            feedurl = self.INDEX + ritem['href']
+        if self.test:
+            return lfeeds[:2]
+        return lfeeds
+
     def parse_index(self):
         totalfeeds = []
         lfeeds = self.get_feeds()
         for feedobj in lfeeds:
             feedtitle, feedurl = feedobj
-            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
+            self.report_progress(0, ('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
             articles = []
             soup = self.index_to_soup(feedurl)
             ritem = soup.find('ul',attrs={'id':'list'})

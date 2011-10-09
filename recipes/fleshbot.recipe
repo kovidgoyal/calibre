@@ -16,13 +16,13 @@ class Fleshbot(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     encoding              = 'utf-8'
-    use_embedded_content  = False
+    use_embedded_content  = True
     language              = 'en'
-    masthead_url          = 'http://cache.fleshbot.com/assets/base/img/thumbs140x140/fleshbot.com.png'
+    masthead_url          = 'http://cache.gawkerassets.com/assets/kotaku.com/img/logo.png'
     extra_css             = '''
 	body{font-family: "Lucida Grande",Helvetica,Arial,sans-serif}
 	img{margin-bottom: 1em}
-	h1{font-family :Arial,Helvetica,sans-serif; font-size:x-large}
+	h1{font-family :Arial,Helvetica,sans-serif; font-size:large}
 	              '''
     conversion_options = {
                           'comment'   : description
@@ -31,13 +31,12 @@ class Fleshbot(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_attributes  = ['width','height']
-    keep_only_tags     = [dict(attrs={'class':'content permalink'})]
-    remove_tags_before = dict(name='h1')
-    remove_tags        = [dict(attrs={'class':'contactinfo'})]
-    remove_tags_after  = dict(attrs={'class':'contactinfo'})
+    feeds = [(u'Articles', u'http://feeds.gawker.com/fleshbot/vip?format=xml')]
 
-    feeds = [(u'Articles', u'http://feeds.gawker.com/fleshbot/full')]
+    remove_tags = [
+            {'class': 'feedflare'},
+    ]
+
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

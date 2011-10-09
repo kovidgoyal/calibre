@@ -31,7 +31,7 @@ class CustomHelpFormatter(IndentedHelpFormatter):
 
     def format_usage(self, usage):
         tc = terminal_controller()
-        return _("%sUsage%s: %s\n") % (tc.BLUE, tc.NORMAL, usage)
+        return "%s%s%s: %s\n" % (tc.BLUE, _('Usage'), tc.NORMAL, usage)
 
     def format_heading(self, heading):
         tc = terminal_controller()

@@ -225,10 +225,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 'calibre library')),
             ('context-menu-device', _('The context menu for the books on '
                 'the device')),
+            ('context-menu-cover-browser', _('The context menu for the cover '
+                'browser')),
             ]
 
     def genesis(self, gui):
         self.models = {}
+        self.what.addItem(_('Click to choose toolbar or menu to customize'),
+                'blank')
         for key, text in self.LOCATIONS:
             self.what.addItem(text, key)
             all_model = AllModel(key, gui)
@@ -245,8 +249,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def what_changed(self, idx):
         key = unicode(self.what.itemData(idx).toString())
-        self.all_actions.setModel(self.models[key][0])
-        self.current_actions.setModel(self.models[key][1])
+        if key == 'blank':
+            self.actions_widget.setVisible(False)
+            self.spacer_widget.setVisible(True)
+        else:
+            self.actions_widget.setVisible(True)
+            self.spacer_widget.setVisible(False)
+            self.all_actions.setModel(self.models[key][0])
+            self.current_actions.setModel(self.models[key][1])
 
     def add_action(self, *args):
         x = self.all_actions.selectionModel().selectedIndexes()

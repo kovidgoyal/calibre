@@ -11,10 +11,10 @@ PREAMBLE = '''\
 
 .. _templaterefcalibre:
 
-Reference for all builtin template language functions
+Reference for all built-in template language functions
 ========================================================
 
-Here, we document all the builtin functions available in the |app| template language. Every function is implemented as a class in python and you can click the source links to see the source code, in case the documentation is insufficient. The functions are arranged in logical groups by type.
+Here, we document all the built-in functions available in the |app| template language. Every function is implemented as a class in python and you can click the source links to see the source code, in case the documentation is insufficient. The functions are arranged in logical groups by type.
 
 .. contents::
     :depth: 2
@@ -61,11 +61,11 @@ The python implementation of the template functions is passed in a Metadata obje
 
 
 def generate_template_language_help():
-    from calibre.utils.formatter_functions import all_builtin_functions
+    from calibre.utils.formatter_functions import formatter_functions
 
     funcs = defaultdict(dict)
 
-    for func in all_builtin_functions:
+    for func in formatter_functions.get_builtins().values():
         class_name = func.__class__.__name__
         func_sig = getattr(func, 'doc')
         x = func_sig.find(' -- ')

@@ -162,7 +162,7 @@ def set_metadata(stream, options):
         index = src.rindex('}')
         return src[:index] + r'{\ '[:-1] + name + ' ' + val + '}}'
     src, pos = get_document_info(stream)
-    if not src:
+    if src is not None:
         create_metadata(stream, options)
     else:
         olen = len(src)

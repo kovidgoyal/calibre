@@ -31,7 +31,7 @@ def metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     try:
         return _metadata_from_formats(formats, force_read_metadata, pattern)
     except:
-        mi = metadata_from_filename(list(iter(formats), pattern)[0])
+        mi = metadata_from_filename(list(iter(formats))[0], pat=pattern)
         if not mi.authors:
             mi.authors = [_('Unknown')]
         return mi
@@ -66,10 +66,6 @@ def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
         mi.authors = [_('Unknown')]
 
     return mi
-
-def is_recipe(filename):
-    return filename.startswith('calibre') and \
-        filename.rpartition('.')[0].endswith('_recipe_out')
 
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False,
                  force_read_metadata=False, pattern=None):
@@ -106,7 +102,7 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
     mi = MetaInformation(None, None)
     name = os.path.basename(getattr(stream, 'name', ''))
     base = metadata_from_filename(name, pat=pattern)
-    if force_read_metadata or is_recipe(name) or prefs['read_file_metadata']:
+    if force_read_metadata or prefs['read_file_metadata']:
         mi = get_file_type_metadata(stream, stream_type)
     if base.title == os.path.splitext(name)[0] and \
             base.is_null('authors') and base.is_null('isbn'):
@@ -153,19 +149,20 @@ def metadata_from_filename(name, pat=None):
         try:
             au = match.group('author')
             aus = string_to_authors(au)
-            mi.authors = aus
-            if prefs['swap_author_names'] and mi.authors:
-                def swap(a):
-                    if ',' in a:
-                        parts = a.split(',', 1)
-                    else:
-                        parts = a.split(None, 1)
-                    if len(parts) > 1:
-                        t = parts[-1]
-                        parts = parts[:-1]
-                        parts.insert(0, t)
-                    return ' '.join(parts)
-                mi.authors = [swap(x) for x in mi.authors]
+            if aus:
+                mi.authors = aus
+                if prefs['swap_author_names'] and mi.authors:
+                    def swap(a):
+                        if ',' in a:
+                            parts = a.split(',', 1)
+                        else:
+                            parts = a.split(None, 1)
+                        if len(parts) > 1:
+                            t = parts[-1]
+                            parts = parts[:-1]
+                            parts.insert(0, t)
+                        return ' '.join(parts)
+                    mi.authors = [swap(x) for x in mi.authors]
         except (IndexError, ValueError):
             pass
         try:

@@ -8,15 +8,12 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU    #
 #   General Public License for more details.                            #
 #                                                                       #
-#   You should have received a copy of the GNU General Public License   #
-#   along with this program; if not, write to the Free Software         #
-#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA            #
-#   02111-1307 USA                                                      #
-#                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile,   re
+import sys, os, tempfile, re
+
 from calibre.ebooks.rtf2xml import field_strings, copy
+
 class FieldsSmall:
     """
 =================
@@ -24,7 +21,7 @@ Purpose
 =================
 Write tags for bookmarks, index and toc entry fields in a tokenized file.
 This module does not handle toc or index tables.  (This module won't be any
-use to use to you unless you use it as part of the other modules.)
+use to you unless you use it as part of the other modules.)
 -----------
 Method
 -----------
@@ -55,6 +52,7 @@ file.
         self.__copy = copy
         self.__write_to = tempfile.mktemp()
         self.__run_level = run_level
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -81,6 +79,7 @@ file.
         tx = 'tx<nu<__________<(.*?)'
         reg_st = ob + bk_st + tx + cb
         self.__book_start = re.compile(r'%s' % reg_st)
+
     def __before_body_func(self, line):
         """
         Requires:
@@ -94,6 +93,7 @@ file.
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'body'
         self.__write_obj.write(line)
+
     def __body_func(self, line):
         """
         Requires:
@@ -110,6 +110,7 @@ file.
             action(line, tag)
         else:
             self.__write_obj.write(line)
+
     def __found_bookmark_func(self, line, tag):
         """
         Requires:
@@ -125,6 +126,7 @@ file.
         self.__cb_count = 0
         self.__state = 'bookmark'
         self.__type_of_bookmark = tag
+
     def __bookmark_func(self, line):
         """
         Requires:
@@ -153,6 +155,7 @@ file.
             self.__write_obj.write(line)
         elif line[0:2] == 'tx':
             self.__text_string += line[17:-1]
+
     def __parse_index_func(self, my_string):
         """
         Requires:
@@ -201,6 +204,7 @@ file.
             my_changed_string += '<sub-entry>%s' % sub_entry
         my_changed_string += '\n'
         return my_changed_string
+
     def __index_see_func(self, my_string):
         in_see = 0
         bracket_count = 0
@@ -226,6 +230,7 @@ file.
                     in_see = 1
                 changed_string += '%s\n' % line
         return changed_string, see_string
+
     def __index_bookmark_func(self, my_string):
         """
         Requries:
@@ -262,6 +267,7 @@ file.
                     in_bookmark = 1
                 index_string += '%s\n' % line
         return index_string, bookmark_string
+
     def __index__format_func(self, my_string):
         italics = 0
         bold =0
@@ -273,6 +279,7 @@ file.
             if token_info == 'cw<in<index-ital':
                 italics = 1
         return italics, bold
+
     def __parse_toc_func(self, my_string):
         """
         Requires:
@@ -308,6 +315,7 @@ file.
         my_changed_string += '<main-entry>%s' % main_entry
         my_changed_string += '\n'
         return my_changed_string
+
     def __parse_bookmark_for_toc(self, my_string):
         """
         Requires:
@@ -353,6 +361,7 @@ file.
                     in_bookmark = 1
                 toc_string += '%s\n' % line
         return toc_string, book_start_string, book_end_string
+
     def __parse_bookmark_func(self, my_string, type):
         """
         Requires:
@@ -367,6 +376,7 @@ file.
         my_changed_string = ('mi<tg<empty-att_<field<type>%s'
         '<number>%s<update>none\n' % (type, my_string))
         return my_changed_string
+
     def __found_toc_index_func(self, line, tag):
         """
         Requires:
@@ -382,6 +392,7 @@ file.
         self.__cb_count = 0
         self.__state = 'toc_index'
         self.__tag = tag
+
     def __toc_index_func(self, line):
         """
         Requires:
@@ -409,6 +420,7 @@ file.
             self.__write_obj.write(line)
         else:
             self.__text_string += line
+
     def fix_fields(self):
         """
         Requires:
@@ -423,24 +435,19 @@ file.
            bookmark.
         """
         self.__initiate_values()
-        read_obj = open(self.__file)
-        self.__write_obj = open(self.__write_to, 'w')
-        line_to_read = '1'
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            if self.__token_info == 'ob<nu<open-brack':
-                self.__ob_count = line[-5:-1]
-            if self.__token_info == 'cb<nu<clos-brack':
-                self.__cb_count = line[-5:-1]
-            action = self.__state_dict.get(self.__state)
-            if action == None:
-                sys.stderr.write('no no matching state in module fields_small.py\n')
-                sys.stderr.write(self.__state + '\n')
-            action(line)
-        read_obj.close()
-        self.__write_obj.close()
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    self.__token_info = line[:16]
+                    if self.__token_info == 'ob<nu<open-brack':
+                        self.__ob_count = line[-5:-1]
+                    if self.__token_info == 'cb<nu<clos-brack':
+                        self.__cb_count = line[-5:-1]
+                    action = self.__state_dict.get(self.__state)
+                    if action is None:
+                        sys.stderr.write('No matching state in module fields_small.py\n')
+                        sys.stderr.write(self.__state + '\n')
+                    action(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "fields_small.data")

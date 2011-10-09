@@ -252,8 +252,8 @@ class EEEREADER(USBMS):
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Book'
 
-    VENDOR_NAME = 'LINUX'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
+    VENDOR_NAME = ['LINUX', 'ASUS']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['FILE-STOR_GADGET', 'EEE_NOTE']
 
 class ADAM(USBMS):
 
@@ -350,4 +350,58 @@ class MOOVYBOOK(USBMS):
 
     def get_main_ebook_dir(self, for_upload=False):
         return 'Books' if for_upload else self.EBOOK_DIR_MAIN
+
+class COBY(USBMS):
+
+    name           = 'COBY MP977 device interface'
+    gui_name       = 'COBY'
+    description    = _('Communicate with the COBY')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'pdf']
+
+    VENDOR_ID   = [0x1e74]
+    PRODUCT_ID  = [0x7121]
+    BCD         = [0x02]
+    VENDOR_NAME = 'USB_2.0'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'MP977_DRIVER'
+
+    EBOOK_DIR_MAIN = ''
+
+    SUPPORTS_SUB_DIRS = False
+
+    def get_carda_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return 'eBooks'
+        return self.EBOOK_DIR_CARD_A
+
+class EX124G(USBMS):
+
+    name = 'Motorola Ex124G device interface'
+    gui_name = 'Ex124G'
+    description = _('Communicate with the Ex124G')
+
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['mobi', 'prc', 'azw']
+
+    VENDOR_ID   = [0x0e8d]
+    PRODUCT_ID  = [0x0002]
+    BCD         = [0x0100]
+    VENDOR_NAME = 'MOTOROLA'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '_PHONE'
+
+    EBOOK_DIR_MAIN = 'eBooks'
+
+    SUPPORTS_SUB_DIRS = False
+
+    def get_carda_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return 'eBooks'
+        return self.EBOOK_DIR_CARD_A
+
 

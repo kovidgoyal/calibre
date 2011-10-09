@@ -87,7 +87,7 @@ class DeviceJob(BaseJob): # {{{
             self.failed = True
             ex = as_unicode(err)
             self._details = ex + '\n\n' + \
-                traceback.format_exc()
+                force_unicode(traceback.format_exc())
             self.exception = err
         finally:
             self.job_done()
@@ -391,6 +391,10 @@ class DeviceManager(Thread): # {{{
                                     newmi.template_to_attribute(mi, cpb)
                                 else:
                                     newmi = mi
+                                nuke_comments = getattr(self.connected_device,
+                                        'NUKE_COMMENTS', None)
+                                if nuke_comments is not None:
+                                    mi.comments = nuke_comments
                                 set_metadata(stream, newmi, stream_type=ext)
                         except:
                             if DEBUG:
@@ -912,8 +916,9 @@ class DeviceMixin(object): # {{{
                             format_count[f] = 1
             for f in self.device_manager.device.settings().format_map:
                 if f in format_count.keys():
-                    formats.append((f, _('%i of %i Books') % (format_count[f],
-                        len(rows)), True if f in aval_out_formats else False))
+                    formats.append((f, _('%(num)i of %(total)i Books') % dict(
+                        num=format_count[f], total=len(rows)),
+                        True if f in aval_out_formats else False))
                 elif f in aval_out_formats:
                     formats.append((f, _('0 of %i Books') % len(rows), True))
             d = ChooseFormatDeviceDialog(self, _('Choose format to send to device'), formats)

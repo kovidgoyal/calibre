@@ -4,6 +4,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+
+import cStringIO
+
 from calibre.devices.usbms.driver import USBMS
 
 class ANDROID(USBMS):
@@ -19,17 +23,20 @@ class ANDROID(USBMS):
 
     VENDOR_ID   = {
             # HTC
-            0x0bb4 : { 0xc02 : [0x100, 0x0227, 0x0226, 0x222],
-                       0xc01 : [0x100, 0x0227, 0x0226],
-                       0xff9 : [0x0100, 0x0227, 0x0226],
-                       0xc87 : [0x0100, 0x0227, 0x0226],
-                       0xc91 : [0x0100, 0x0227, 0x0226],
-                       0xc92  : [0x100],
-                       0xc97  : [0x226],
-                       0xc99  : [0x0100],
-                       0xca2  : [0x226],
-                       0xca3  : [0x100],
-                       0xca4  : [0x226],
+            0x0bb4 : { 0xc02  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc01  : [0x100, 0x0227, 0x0226],
+                       0xff9  : [0x0100, 0x0227, 0x0226],
+                       0xc86  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc87  : [0x0100, 0x0227, 0x0226],
+                       0xc8d  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc91  : [0x0100, 0x0227, 0x0226],
+                       0xc92  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc97  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xc99  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xca2  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xca3  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xca4  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xca9  : [0x100, 0x0227, 0x0226, 0x222]
             },
 
             # Eken
@@ -39,18 +46,24 @@ class ANDROID(USBMS):
             0x22b8 : { 0x41d9 : [0x216], 0x2d61 : [0x100], 0x2d67 : [0x100],
                        0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216],
                        0x4286 : [0x216], 0x42b3 : [0x216], 0x42b4 : [0x216],
-                       0x7086 : [0x0226], 0x70a8: [0x9999],
+                       0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
+                       0x70c6 : [0x226]
                      },
 
             # Sony Ericsson
-            0xfce : { 0xd12e : [0x0100]},
+            0xfce : {
+                0xd12e : [0x0100],
+                0xe14f : [0x0226],
+                },
 
             # Google
             0x18d1 : {
+                0x0001 : [0x0223, 0x9999],
                 0x4e11 : [0x0100, 0x226, 0x227],
-                0x4e12: [0x0100, 0x226, 0x227],
-                0x4e21: [0x0100, 0x226, 0x227],
-                0xb058: [0x0222, 0x226, 0x227]},
+                0x4e12 : [0x0100, 0x226, 0x227],
+                0x4e21 : [0x0100, 0x226, 0x227],
+                0xb058 : [0x0222, 0x226, 0x227]
+            },
 
             # Samsung
             0x04e8 : { 0x681d : [0x0222, 0x0223, 0x0224, 0x0400],
@@ -60,10 +73,16 @@ class ANDROID(USBMS):
                        0x685e : [0x0400],
                        0x6860 : [0x0400],
                        0x6877 : [0x0400],
+                       0x689e : [0x0400],
+                       0xdeed : [0x0222],
                      },
 
-            # Viewsonic
-            0x0489 : { 0xc001 : [0x0226], 0xc004 : [0x0226], },
+            # Viewsonic/Vizio
+            0x0489 : {
+                    0xc001 : [0x0226],
+                    0xc004 : [0x0226],
+                    0x8801 : [0x0226, 0x0227],
+            },
 
             # Acer
             0x502 : { 0x3203 : [0x0100, 0x224]},
@@ -72,7 +91,12 @@ class ANDROID(USBMS):
             0x413c : { 0xb007 : [0x0100, 0x0224, 0x0226]},
 
             # LG
-            0x1004 : { 0x61cc : [0x100], 0x61ce : [0x100], 0x618e : [0x226] },
+            0x1004 : {
+                    0x61c5 : [0x100, 0x226, 0x9999],
+                    0x61cc : [0x100],
+                    0x61ce : [0x100],
+                    0x618e : [0x226, 0x9999, 0x100]
+                    },
 
             # Archos
             0x0e79 : {
@@ -114,7 +138,7 @@ class ANDROID(USBMS):
     VENDOR_NAME      = ['HTC', 'MOTOROLA', 'GOOGLE_', 'ANDROID', 'ACER',
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
-            'GENERIC-', 'ZTE', 'MID']
+            'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON', 'VIZIO']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -123,11 +147,13 @@ class ANDROID(USBMS):
             'IDEOS_TABLET', 'MYTOUCH_4G', 'UMS_COMPOSITE', 'SCH-I800_CARD',
             '7', 'A956', 'A955', 'A43', 'ANDROID_PLATFORM', 'TEGRA_2',
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
-            'MB525', 'ANDROID2.3']
+            'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
+            'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
+            'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
-            '__UMS_COMPOSITE']
+            '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL', 'ANDROID_MID']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
@@ -172,3 +198,83 @@ class S60(USBMS):
 
     VENDOR_NAME = 'NOKIA'
     WINDOWS_MAIN_MEM = 'S60'
+
+class WEBOS(USBMS):
+
+    name           = 'WebOS driver'
+    gui_name       = 'WebOS Tablet'
+    description    = _('Communicate with WebOS tablets.')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    # Ordered list of supported formats
+    FORMATS     = ['mobi', 'azw', 'prc']
+
+    VENDOR_ID   = [0x0830]
+    PRODUCT_ID  = [0x8074, 0x8072]
+    BCD         = [0x0327]
+
+    EBOOK_DIR_MAIN = '.palmkindle'
+    VENDOR_NAME = 'HP'
+    WINDOWS_MAIN_MEM = 'WEBOS-DEVICE'
+
+    THUMBNAIL_HEIGHT = 160
+    THUMBNAIL_WIDTH = 120
+
+    def upload_cover(self, path, filename, metadata, filepath):
+
+        try:
+            from PIL import Image, ImageDraw
+            Image, ImageDraw
+        except ImportError:
+            import Image, ImageDraw
+
+
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if coverdata and coverdata[2]:
+            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+        else:
+            coverdata = open(I('library.png'), 'rb').read()
+
+            cover = Image.new('RGB', (120,160), 'black')
+            im = Image.open(cStringIO.StringIO(coverdata))
+            im.thumbnail((120, 160), Image.ANTIALIAS)
+
+            x, y = im.size
+            cover.paste(im, ((120-x)/2, (160-y)/2))
+
+            draw = ImageDraw.Draw(cover)
+            draw.text((1, 10), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
+            draw.text((1, 140), metadata.get('authors', _('Unknown'))[0].encode('ascii', 'ignore'))
+
+        data = cStringIO.StringIO()
+        cover.save(data, 'JPEG')
+        coverdata = data.getvalue()
+
+        with open(os.path.join(path, 'coverCache', filename + '-medium.jpg'), 'wb') as coverfile:
+            coverfile.write(coverdata)
+
+        coverdata = getattr(metadata, 'thumbnail', None)
+        if coverdata and coverdata[2]:
+            cover = Image.open(cStringIO.StringIO(coverdata[2]))
+        else:
+            coverdata = open(I('library.png'), 'rb').read()
+
+            cover = Image.new('RGB', (52,69), 'black')
+            im = Image.open(cStringIO.StringIO(coverdata))
+            im.thumbnail((52, 69), Image.ANTIALIAS)
+
+            x, y = im.size
+            cover.paste(im, ((52-x)/2, (69-y)/2))
+
+        cover2 = cover.resize((52, 69), Image.ANTIALIAS).convert('RGB')
+
+        data = cStringIO.StringIO()
+        cover2.save(data, 'JPEG')
+        coverdata = data.getvalue()
+
+        with open(os.path.join(path, 'coverCache', filename +
+            '-small.jpg'), 'wb') as coverfile:
+            coverfile.write(coverdata)
+
+

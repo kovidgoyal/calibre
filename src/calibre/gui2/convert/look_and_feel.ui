@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>500</height>
+    <width>642</width>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="2">
+   <item row="1" column="1">
     <widget class="QDoubleSpinBox" name="opt_base_font_size">
      <property name="suffix">
       <string> pt</string>
@@ -97,6 +97,29 @@
      </item>
     </layout>
    </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Minimum &amp;line height:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_minimum_line_height</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QDoubleSpinBox" name="opt_minimum_line_height">
+     <property name="suffix">
+      <string> %</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <double>900.000000000000000</double>
+     </property>
+    </widget>
+   </item>
    <item row="4" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
@@ -107,7 +130,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1" colspan="2">
+   <item row="4" column="1">
     <widget class="QDoubleSpinBox" name="opt_line_height">
      <property name="suffix">
       <string> pt</string>
@@ -127,6 +150,13 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="1" colspan="2">
+    <widget class="EncodingComboBox" name="opt_input_encoding">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="6" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_remove_paragraph_spacing">
      <property name="text">
@@ -134,48 +164,51 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="2" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>Indent size:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDoubleSpinBox" name="opt_remove_paragraph_spacing_indent_size">
-       <property name="toolTip">
-        <string>&lt;p&gt;When calibre removes inter paragraph spacing, it automatically sets a paragraph indent, to ensure that paragraphs can be easily distinguished. This option controls the width of that indent.</string>
-       </property>
-       <property name="suffix">
-        <string> em</string>
-       </property>
-       <property name="decimals">
-        <number>1</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label_5">
+   <item row="7" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_insert_blank_line">
      <property name="text">
-      <string>Text justification:</string>
+      <string>Insert &amp;blank line between paragraphs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="4">
+    <widget class="QDoubleSpinBox" name="opt_insert_blank_line_size">
+     <property name="suffix">
+      <string> em</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
      </property>
     </widget>
    </item>
    <item row="8" column="0">
-    <widget class="QCheckBox" name="opt_linearize_tables">
+    <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>&amp;Linearize tables</string>
+      <string>Text &amp;justification:</string>
+     </property>
+     <property name="buddy">
+      <cstring>opt_change_justification</cstring>
      </property>
     </widget>
    </item>
-   <item row="11" column="0" colspan="4">
+   <item row="8" column="2" colspan="3">
+    <widget class="QComboBox" name="opt_change_justification"/>
+   </item>
+   <item row="9" column="1" colspan="4">
+    <widget class="QCheckBox" name="opt_asciiize">
+     <property name="text">
+      <string>&amp;Transliterate unicode characters to ASCII</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1" colspan="2">
+    <widget class="QCheckBox" name="opt_keep_ligatures">
+     <property name="text">
+      <string>Keep &amp;ligatures</string>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="0" colspan="5">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Extra &amp;CSS</string>
@@ -187,64 +220,72 @@
      </layout>
     </widget>
    </item>
-   <item row="7" column="2" colspan="2">
-    <widget class="QComboBox" name="opt_change_justification"/>
+   <item row="6" column="4">
+    <widget class="QDoubleSpinBox" name="opt_remove_paragraph_spacing_indent_size">
+     <property name="toolTip">
+      <string>&lt;p&gt;When calibre removes inter paragraph spacing, it automatically sets a paragraph indent, to ensure that paragraphs can be easily distinguished. This option controls the width of that indent.</string>
+     </property>
+     <property name="specialValueText">
+      <string>No change</string>
+     </property>
+     <property name="suffix">
+      <string> em</string>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>-0.100000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
    </item>
-   <item row="8" column="1" colspan="3">
-    <widget class="QCheckBox" name="opt_asciiize">
+   <item row="6" column="3">
+    <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>&amp;Transliterate unicode characters to ASCII</string>
+      <string>&amp;Indent size:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>opt_remove_paragraph_spacing_indent_size</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>&amp;Line size:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>opt_insert_blank_line_size</cstring>
      </property>
     </widget>
    </item>
    <item row="9" column="0">
-    <widget class="QCheckBox" name="opt_insert_blank_line">
-     <property name="text">
-      <string>Insert &amp;blank line</string>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="1" colspan="2">
-    <widget class="QCheckBox" name="opt_keep_ligatures">
-     <property name="text">
-      <string>Keep &amp;ligatures</string>
-     </property>
-    </widget>
-   </item>
-   <item row="10" column="0">
     <widget class="QCheckBox" name="opt_smarten_punctuation">
      <property name="text">
       <string>Smarten &amp;punctuation</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_6">
+   <item row="10" column="0">
+    <widget class="QCheckBox" name="opt_unsmarten_punctuation">
      <property name="text">
-      <string>Minimum &amp;line height:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_minimum_line_height</cstring>
+      <string>&amp;UnSmarten punctuation</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1" colspan="2">
-    <widget class="QDoubleSpinBox" name="opt_minimum_line_height">
-     <property name="suffix">
-      <string> %</string>
-     </property>
-     <property name="decimals">
-      <number>1</number>
-     </property>
-     <property name="maximum">
-      <double>900.000000000000000</double>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="1" colspan="3">
-    <widget class="EncodingComboBox" name="opt_input_encoding">
-     <property name="editable">
-      <bool>true</bool>
+   <item row="10" column="3">
+    <widget class="QCheckBox" name="opt_linearize_tables">
+     <property name="text">
+      <string>&amp;Linearize tables</string>
      </property>
     </widget>
    </item>

@@ -45,20 +45,20 @@ class OReillyStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@id="results"]/div[@class="result"]'):
+            for data in doc.xpath('//div[@class="result"]'):
                 if counter <= 0:
                     break
 
-                full_id = ''.join(data.xpath('.//div[@class="title"]/a/@href'))
+                full_id = ''.join(data.xpath('./div[@class="book_text"]//p[@class="title"]/a/@href'))
                 mo = re.search('\d+', full_id)
                 if not mo:
                     continue
                 id = mo.group()
 
-                cover_url = ''.join(data.xpath('.//div[@class="bigCover"]//img/@src'))
+                cover_url = ''.join(data.xpath('./a/img[1]/@src'))
 
-                title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
-                author = ''.join(data.xpath('.//div[@class="author"]/text()'))
+                title = ''.join(data.xpath('./div[@class="book_text"]/p[@class="title"]/a/text()'))
+                author = ''.join(data.xpath('./div[@class="book_text"]/p[@class="note"][1]/text()'))
                 author = author.split('By ')[-1].strip()
 
                 # Get the detail here because we need to get the ebook id for the detail_item.

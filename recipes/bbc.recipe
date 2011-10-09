@@ -36,8 +36,9 @@ class BBC(BasicNewsRecipe):
                         ]
 
     remove_tags = [
-                       dict(name='div', attrs={'class':['story-feature related narrow', 'share-help', 'embedded-hyper', \
-                       'story-feature wide ', 'story-feature narrow']})
+                       dict(name='div', attrs={'class':['story-feature related narrow', 'share-help', 'embedded-hyper',
+                                                    'story-feature wide ', 'story-feature narrow']}),
+                       dict(id=['hypertab', 'comment-form']),
                         ]
 
     remove_attributes = ['width','height']

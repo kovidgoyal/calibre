@@ -87,7 +87,7 @@ class Int(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QSpinBox(parent)]
         w = self.widgets[1]
-        w.setRange(-100, 100000000)
+        w.setRange(-1000000, 100000000)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
 
@@ -110,7 +110,7 @@ class Float(Int):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 QDoubleSpinBox(parent)]
         w = self.widgets[1]
-        w.setRange(-100., float(100000000))
+        w.setRange(-1000000., float(100000000))
         w.setDecimals(2)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
@@ -300,7 +300,6 @@ class Series(Base):
         w = QDoubleSpinBox(parent)
         w.setRange(-100., float(100000000))
         w.setDecimals(2)
-        w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
         self.idx_widget=w
         self.widgets.append(w)
@@ -605,7 +604,7 @@ class BulkInt(BulkBase):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, QSpinBox)
-        self.main_widget.setRange(-100, 100000000)
+        self.main_widget.setRange(-1000000, 100000000)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
 
@@ -627,7 +626,7 @@ class BulkFloat(BulkInt):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, QDoubleSpinBox)
-        self.main_widget.setRange(-100., float(100000000))
+        self.main_widget.setRange(-1000000., float(100000000))
         self.main_widget.setDecimals(2)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
@@ -723,6 +722,7 @@ class BulkSeries(BulkBase):
         layout.addWidget(self.force_number)
         self.series_start_number = QSpinBox(parent)
         self.series_start_number.setMinimum(1)
+        self.series_start_number.setMaximum(9999999)
         self.series_start_number.setProperty("value", 1)
         layout.addWidget(self.series_start_number)
         layout.addItem(QSpacerItem(20, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))

@@ -23,6 +23,8 @@ from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
         gprefs)
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.date import is_date_undefined
+from calibre.utils.localization import calibre_langcode_to_name
 
 def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     table = render_data(mi, all_fields=all_fields,
@@ -83,6 +85,8 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
 
     for field, display in get_field_list(fm):
         metadata = fm.get(field, None)
+        if field == 'sort':
+            field = 'title_sort'
         if all_fields:
             display = True
         if (not display or not metadata or mi.is_null(field) or
@@ -133,6 +137,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
             authors = []
             formatter = EvalFormatter()
             for aut in mi.authors:
+                link = ''
                 if mi.author_link_map[aut]:
                     link = mi.author_link_map[aut]
                 elif gprefs.get('default_author_link'):
@@ -150,6 +155,12 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                     authors.append(aut)
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
                 u' & '.join(authors))))
+        elif field == 'languages':
+            if not mi.languages:
+                continue
+            names = filter(None, map(calibre_langcode_to_name, mi.languages))
+            ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name,
+                u', '.join(names))))
         else:
             val = mi.format_field(field)[-1]
             if val is None:
@@ -159,9 +170,13 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 sidx = mi.get(field+'_index')
                 if sidx is None:
                     sidx = 1.0
-                val = _('Book %s of <span class="series_name">%s</span>')%(fmt_sidx(sidx,
-                    use_roman=use_roman_numbers),
-                    prepare_string_for_xml(getattr(mi, field)))
+                val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>')%dict(
+                        sidx=fmt_sidx(sidx, use_roman=use_roman_numbers),
+                        series=prepare_string_for_xml(getattr(mi, field)))
+            elif metadata['datatype'] == 'datetime':
+                aval = getattr(mi, field)
+                if is_date_undefined(aval):
+                    continue
 
             ans.append((field, u'<td class="title">%s</td><td>%s</td>'%(name, val)))
 
@@ -541,7 +556,8 @@ class BookDetails(QWidget): # {{{
         self.setToolTip(
             '<p>'+_('Double-click to open Book Details window') +
             '<br><br>' + _('Path') + ': ' + self.current_path +
-            '<br><br>' + _('Cover size: %dx%d')%(sz.width(), sz.height())
+            '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
+                width=sz.width(), height=sz.height())
         )
 
     def reset_info(self):

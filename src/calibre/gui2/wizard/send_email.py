@@ -31,9 +31,9 @@ class TestEmail(QDialog, TE_Dialog):
         if pa:
             self.to.setText(pa)
         if opts.relay_host:
-            self.label.setText(_('Using: %s:%s@%s:%s and %s encryption')%
-                    (opts.relay_username, unhexlify(opts.relay_password),
-                        opts.relay_host, opts.relay_port, opts.encryption))
+            self.label.setText(_('Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption')%
+                    dict(un=opts.relay_username, pw=unhexlify(opts.relay_password),
+                        host=opts.relay_host, port=opts.relay_port, enc=opts.encryption))
 
     def test(self, *args):
         self.log.setPlainText(_('Sending...'))

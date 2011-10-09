@@ -18,7 +18,6 @@ class ToolBar(QToolBar): # {{{
 
     def __init__(self, donate, location_manager, parent):
         QToolBar.__init__(self, parent)
-        self.setContextMenuPolicy(Qt.PreventContextMenu)
         self.setMovable(False)
         self.setFloatable(False)
         self.setOrientation(Qt.Horizontal)
@@ -53,8 +52,14 @@ class ToolBar(QToolBar): # {{{
                 style = Qt.ToolButtonIconOnly
         return style
 
-    def contextMenuEvent(self, *args):
-        pass
+    def contextMenuEvent(self, ev):
+        ac = self.actionAt(ev.pos())
+        if ac is None: return
+        ch = self.widgetForAction(ac)
+        sm = getattr(ch, 'showMenu', None)
+        if callable(sm):
+            ev.accept()
+            sm()
 
     def update_lm_actions(self):
         for ac in self.added_actions:

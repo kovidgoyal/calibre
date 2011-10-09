@@ -6,7 +6,7 @@
 Writing your own plugins to extend |app|'s functionality
 ====================================================================
 
-|app| has a very modular design. Almost all functionality in |app| comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to |app| and so on. You can get a complete list of all the builtin plugins in |app| by going to :guilabel:`Preferences->Plugins`.
+|app| has a very modular design. Almost all functionality in |app| comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to |app| and so on. You can get a complete list of all the built-in plugins in |app| by going to :guilabel:`Preferences->Plugins`.
 
 Here, we will teach you how to create your own plugins to add new features to |app|.
 
@@ -127,7 +127,7 @@ The actual logic to implement the Interface Plugin Demo dialog.
 Getting resources from the plugin zip file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-|app|'s plugin loading system defines a couple of builtin functions that allow you to conveniently get files from the plugin zip file.
+|app|'s plugin loading system defines a couple of built-in functions that allow you to conveniently get files from the plugin zip file.
 
     **get_resources(name_or_list_of_names)**
         This function should be called with a list of paths to files inside the zip file. For example to access the file icon.png in
@@ -185,7 +185,7 @@ The first, most important step is to run |app| in debug mode. You can do this fr
 
     calibre-debug -g
 
-Or from within calibre by clicking the arrow next to the preferences button or using the `Ctrl+Shift+R` keyboard shortcut.
+Or from within calibre by right-clicking the preferences button or using the `Ctrl+Shift+R` keyboard shortcut.
 
 When running from the command line, debug output will be printed to the console, when running from within |app| the output will go to a txt file.
 

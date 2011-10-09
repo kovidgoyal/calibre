@@ -153,7 +153,8 @@ class Douban(Source):
     author = 'Li Fanxi'
     version = (2, 0, 0)
 
-    description = _('Downloads metadata and covers from Douban.com')
+    description = _('Downloads metadata and covers from Douban.com. '
+            'Useful only for chinese language books.')
 
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'tags',

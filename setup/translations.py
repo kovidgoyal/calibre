@@ -6,14 +6,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cStringIO, tempfile, shutil, atexit, subprocess, glob, re
-from distutils import sysconfig
+import os, tempfile, shutil, subprocess, glob, re, time, textwrap
+from functools import partial
 
-from setup import Command, __appname__
-from setup.pygettext import main as pygettext
-from setup.build_environment import pyqt
+from setup import Command, __appname__, __version__
 
-class POT(Command):
+def qt_sources():
+    qtdir = glob.glob('/usr/src/qt-*')[-1]
+    j = partial(os.path.join, qtdir)
+    return list(map(j, [
+            'src/gui/widgets/qdialogbuttonbox.cpp',
+    ]))
+
+class POT(Command): # {{{
 
     description = 'Update the .pot translation template'
     PATH = os.path.join(Command.SRC, __appname__, 'translations')
@@ -60,22 +65,63 @@ class POT(Command):
 
 
     def run(self, opts):
+        pot_header = textwrap.dedent('''\
+        # Translation template file..
+        # Copyright (C) %(year)s Kovid Goyal
+        # Kovid Goyal <kovid@kovidgoyal.net>, %(year)s.
+        #
+        msgid ""
+        msgstr ""
+        "Project-Id-Version: %(appname)s %(version)s\\n"
+        "POT-Creation-Date: %(time)s\\n"
+        "PO-Revision-Date: %(time)s\\n"
+        "Last-Translator: Automatically generated\\n"
+        "Language-Team: LANGUAGE\\n"
+        "MIME-Version: 1.0\\n"
+        "Report-Msgid-Bugs-To: https://bugs.launchpad.net/calibre\\n"
+        "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\\n"
+        "Content-Type: text/plain; charset=UTF-8\\n"
+        "Content-Transfer-Encoding: 8bit\\n"
+
+        ''')%dict(appname=__appname__, version=__version__,
+                year=time.strftime('%Y'),
+                time=time.strftime('%Y-%m-%d %H:%M+%Z'))
+
         files = self.source_files()
-        buf = cStringIO.StringIO()
-        self.info('Creating translations template...')
-        tempdir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, tempdir)
-        pygettext(buf, ['-k', '__', '-p', tempdir]+files)
-        src = buf.getvalue()
-        src += '\n\n' + self.get_tweaks_docs()
-        pot = os.path.join(self.PATH, __appname__+'.pot')
-        with open(pot, 'wb') as f:
-            f.write(src)
-        self.info('Translations template:', os.path.abspath(pot))
+        qt_inputs = qt_sources()
+
+        with tempfile.NamedTemporaryFile() as fl:
+            fl.write('\n'.join(files))
+            fl.flush()
+            out = tempfile.NamedTemporaryFile(suffix='.pot', delete=False)
+            out.close()
+            self.info('Creating translations template...')
+            subprocess.check_call(['xgettext', '-f', fl.name,
+                '--default-domain=calibre', '-o', out.name, '-L', 'Python',
+                '--from-code=UTF-8', '--sort-by-file', '--omit-header',
+                '--no-wrap', '-k__', '--add-comments=NOTE:',
+                ])
+            subprocess.check_call(['xgettext', '-j',
+                '--default-domain=calibre', '-o', out.name,
+                '--from-code=UTF-8', '--sort-by-file', '--omit-header',
+                '--no-wrap', '-kQT_TRANSLATE_NOOP:2',
+                ] + qt_inputs)
+
+            with open(out.name, 'rb') as f:
+                src = f.read()
+            os.remove(out.name)
+            src = pot_header + '\n' + src
+            src += '\n\n' + self.get_tweaks_docs()
+            pot = os.path.join(self.PATH, __appname__+'.pot')
+            with open(pot, 'wb') as f:
+                f.write(src)
+            self.info('Translations template:', os.path.abspath(pot))
+
+
         return pot
+# }}}
 
-
-class Translations(POT):
+class Translations(POT): # {{{
     description='''Compile the translations'''
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
             'locales')
@@ -87,7 +133,6 @@ class Translations(POT):
         locale = os.path.splitext(os.path.basename(po_file))[0]
         return locale, os.path.join(self.DEST, locale, 'messages.mo')
 
-
     def run(self, opts):
         for f in self.po_files():
             locale, dest = self.mo_file(f)
@@ -96,30 +141,18 @@ class Translations(POT):
                 os.makedirs(base)
             self.info('\tCompiling translations for', locale)
             subprocess.check_call(['msgfmt', '-o', dest, f])
-            if locale in ('en_GB', 'nds', 'te', 'yi'):
-                continue
-            pycountry = self.j(sysconfig.get_python_lib(), 'pycountry',
-                    'locales', locale, 'LC_MESSAGES')
-            if os.path.exists(pycountry):
-                iso639 = self.j(pycountry, 'iso639.mo')
-                dest = self.j(self.d(dest), self.b(iso639))
-                if self.newer(dest, iso639) and os.path.exists(iso639):
-                    self.info('\tCopying ISO 639 translations')
-                    shutil.copy2(iso639, dest)
-            else:
-                self.warn('No ISO 639 translations for locale:', locale,
-                '\nDo you have pycountry installed?')
+            iscpo = {'bn':'bn_IN', 'zh_HK':'zh_CN'}.get(locale, locale)
+            iso639 = self.j(self.d(self.SRC), 'setup', 'iso_639',
+                    '%s.po'%iscpo)
 
-        base = os.path.join(pyqt.qt_data_dir, 'translations')
-        qt_translations = glob.glob(os.path.join(base, 'qt_*.qm'))
-        if not qt_translations:
-            raise Exception('Could not find qt translations')
-        for f in qt_translations:
-            locale = self.s(self.b(f))[0][3:]
-            dest = self.j(self.DEST, locale, 'LC_MESSAGES', 'qt.qm')
-            if self.e(self.d(dest)) and self.newer(dest, f):
-                self.info('\tCopying Qt translation for locale:', locale)
-                shutil.copy2(f, dest)
+            if os.path.exists(iso639):
+                dest = self.j(self.d(dest), 'iso639.mo')
+                if self.newer(dest, iso639):
+                    self.info('\tCopying ISO 639 translations')
+                    subprocess.check_call(['msgfmt', '-o', dest, iso639])
+            elif locale not in ('en_GB', 'en_CA', 'en_AU', 'si', 'ur', 'sc',
+                    'ltg', 'nds', 'te', 'yi', 'fo', 'sq', 'ast', 'ml'):
+                self.warn('No ISO 639 translations for locale:', locale)
 
         self.write_stats()
         self.freeze_locales()
@@ -171,9 +204,13 @@ class Translations(POT):
             for x in (i, j, d):
                 if os.path.exists(x):
                     os.remove(x)
+        zf = self.DEST + '.zip'
+        if os.path.exists(zf):
+            os.remove(zf)
 
+# }}}
 
-class GetTranslations(Translations):
+class GetTranslations(Translations): # {{{
 
     description = 'Get updated translations from Launchpad'
     BRANCH = 'lp:~kovid/calibre/translations'
@@ -234,41 +271,65 @@ class GetTranslations(Translations):
                 subprocess.check_call(['bzr', 'commit', '-m',
                     'IGN:Translation corrections', cls.PATH])
 
+# }}}
 
-class ISO639(Command):
+class ISO639(Command): # {{{
 
     description = 'Compile translations for ISO 639 codes'
-    XML = '/usr/lib/python2.7/site-packages/pycountry/databases/iso639.xml'
+    DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
+            'iso639.pickle')
 
     def run(self, opts):
-        src = self.XML
+        src = self.j(self.d(self.SRC), 'setup', 'iso_639')
         if not os.path.exists(src):
             raise Exception(src + ' does not exist')
-        dest = self.j(self.d(self.SRC), 'resources', 'localization',
-                'iso639.pickle')
-        if not self.newer(dest, src):
+        dest = self.DEST
+        if not self.newer(dest, [src, __file__]):
             self.info('Pickled code is up to date')
             return
         self.info('Pickling ISO-639 codes to', dest)
         from lxml import etree
-        root = etree.fromstring(open(src, 'rb').read())
+        root = etree.fromstring(open(self.j(src, 'iso_639_3.xml'), 'rb').read())
         by_2 = {}
         by_3b = {}
         by_3t = {}
-        codes2, codes3t, codes3b = set([]), set([]), set([])
-        for x in root.xpath('//iso_639_entry'):
+        m2to3 = {}
+        m3to2 = {}
+        m3bto3t = {}
+        nm = {}
+        codes2, codes3t, codes3b = set(), set(), set()
+        for x in root.xpath('//iso_639_3_entry'):
+            two = x.get('part1_code', None)
+            threet = x.get('id')
+            threeb = x.get('part2_code', None)
+            if threeb is None:
+                # Only recognize langauges in ISO-639-2
+                continue
             name = x.get('name')
-            two = x.get('iso_639_1_code', None)
+
             if two is not None:
                 by_2[two] = name
                 codes2.add(two)
-            by_3b[x.get('iso_639_2B_code')] = name
-            by_3t[x.get('iso_639_2T_code')] = name
-            codes3b.add(x.get('iso_639_2B_code'))
-            codes3t.add(x.get('iso_639_2T_code'))
+                m2to3[two] = threet
+                m3to2[threeb] = m3to2[threet] = two
+            by_3b[threeb] = name
+            by_3t[threet] = name
+            if threeb != threet:
+                m3bto3t[threeb] = threet
+            codes3b.add(threeb)
+            codes3t.add(threet)
+            base_name = name.lower()
+            nm[base_name] = threet
 
         from cPickle import dump
         x = {'by_2':by_2, 'by_3b':by_3b, 'by_3t':by_3t, 'codes2':codes2,
-                'codes3b':codes3b, 'codes3t':codes3t}
+                'codes3b':codes3b, 'codes3t':codes3t, '2to3':m2to3,
+                '3to2':m3to2, '3bto3t':m3bto3t, 'name_map':nm}
         dump(x, open(dest, 'wb'), -1)
+
+    def clean(self):
+        if os.path.exists(self.DEST):
+            os.remove(self.DEST)
+
+# }}}
 

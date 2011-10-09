@@ -9,14 +9,19 @@ import textwrap
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 from calibre.gui2.preferences.tweaks_ui import Ui_Form
-from calibre.gui2 import error_dialog, NONE
+from calibre.gui2 import error_dialog, NONE, info_dialog
 from calibre.utils.config import read_raw_tweaks, write_tweaks
 from calibre.gui2.widgets import PythonHighlighter
 from calibre import isbytestring
+from calibre.utils.icu import lower
+from calibre.utils.search_query_parser import (ParseException,
+        SearchQueryParser)
 
 from PyQt4.Qt import (QAbstractListModel, Qt, QStyledItemDelegate, QStyle,
     QStyleOptionViewItem, QFont, QDialogButtonBox, QDialog,
-    QVBoxLayout, QPlainTextEdit, QLabel)
+    QVBoxLayout, QPlainTextEdit, QLabel, QModelIndex)
+
+ROOT = QModelIndex()
 
 class Delegate(QStyledItemDelegate): # {{{
     def __init__(self, view):
@@ -35,7 +40,7 @@ class Delegate(QStyledItemDelegate): # {{{
 class Tweak(object): # {{{
 
     def __init__(self, name, doc, var_names, defaults, custom):
-        translate = __builtins__['_']
+        translate = _
         self.name = translate(name)
         self.doc = translate(doc.strip())
         self.var_names = var_names
@@ -87,10 +92,11 @@ class Tweak(object): # {{{
 
 # }}}
 
-class Tweaks(QAbstractListModel): # {{{
+class Tweaks(QAbstractListModel, SearchQueryParser): # {{{
 
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)
+        SearchQueryParser.__init__(self, ['all'])
         raw_defaults, raw_custom = read_raw_tweaks()
 
         self.parse_tweaks(raw_defaults, raw_custom)
@@ -223,6 +229,54 @@ class Tweaks(QAbstractListModel): # {{{
     def set_plugin_tweaks(self, d):
         self.plugin_tweaks = d
 
+    def universal_set(self):
+        return set(xrange(self.rowCount()))
+
+    def get_matches(self, location, query, candidates=None):
+        if candidates is None:
+            candidates = self.universal_set()
+        ans = set()
+        if not query:
+            return ans
+        query = lower(query)
+        for r in candidates:
+            dat = self.data(self.index(r), Qt.UserRole)
+            if query in lower(dat.name):# or query in lower(dat.doc):
+                ans.add(r)
+        return ans
+
+    def find(self, query):
+        query = query.strip()
+        if not query:
+            return ROOT
+        matches = self.parse(query)
+        if not matches:
+            return ROOT
+        matches = list(sorted(matches))
+        return self.index(matches[0])
+
+    def find_next(self, idx, query, backwards=False):
+        query = query.strip()
+        if not query:
+            return idx
+        matches = self.parse(query)
+        if not matches:
+            return idx
+        loc = idx.row()
+        if loc not in matches:
+            return self.find(query)
+        if len(matches) == 1:
+            return ROOT
+        matches = list(sorted(matches))
+        i = matches.index(loc)
+        if backwards:
+            ans = i - 1 if i - 1 >= 0 else len(matches)-1
+        else:
+            ans = i + 1 if i + 1 < len(matches) else 0
+
+        ans = matches[ans]
+        return self.index(ans)
+
 # }}}
 
 class PluginTweaks(QDialog): # {{{
@@ -257,12 +311,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.delegate = Delegate(self.tweaks_view)
         self.tweaks_view.setItemDelegate(self.delegate)
         self.tweaks_view.currentChanged = self.current_changed
+        self.view = self.tweaks_view
         self.highlighter = PythonHighlighter(self.edit_tweak.document())
         self.restore_default_button.clicked.connect(self.restore_to_default)
         self.apply_button.clicked.connect(self.apply_tweak)
         self.plugin_tweaks_button.clicked.connect(self.plugin_tweaks)
         self.splitter.setStretchFactor(0, 1)
         self.splitter.setStretchFactor(1, 100)
+        self.next_button.clicked.connect(self.find_next)
+        self.previous_button.clicked.connect(self.find_previous)
+        self.search.initialize('tweaks_search_history', help_text=
+                _('Search for tweak'))
+        self.search.search.connect(self.find)
 
 
     def plugin_tweaks(self):
@@ -290,7 +350,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
 
     def initialize(self):
-        self.tweaks = Tweaks()
+        self.tweaks = self._model = Tweaks()
         self.tweaks_view.setModel(self.tweaks)
 
     def restore_to_default(self, *args):
@@ -337,6 +397,45 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         write_tweaks(raw)
         ConfigWidgetBase.commit(self)
         return True
+
+    def find(self, query):
+        if not query:
+            return
+        try:
+            idx = self._model.find(query)
+        except ParseException:
+            self.search.search_done(False)
+            return
+        self.search.search_done(True)
+        if not idx.isValid():
+            info_dialog(self, _('No matches'),
+                    _('Could not find any shortcuts matching %s')%query,
+                    show=True, show_copy_button=False)
+            return
+        self.highlight_index(idx)
+
+    def highlight_index(self, idx):
+        if not idx.isValid(): return
+        self.view.scrollTo(idx)
+        self.view.selectionModel().select(idx,
+                self.view.selectionModel().ClearAndSelect)
+        self.view.setCurrentIndex(idx)
+
+    def find_next(self, *args):
+        idx = self.view.currentIndex()
+        if not idx.isValid():
+            idx = self._model.index(0)
+        idx = self._model.find_next(idx,
+                unicode(self.search.currentText()))
+        self.highlight_index(idx)
+
+    def find_previous(self, *args):
+        idx = self.view.currentIndex()
+        if not idx.isValid():
+            idx = self._model.index(0)
+        idx = self._model.find_next(idx,
+            unicode(self.search.currentText()), backwards=True)
+        self.highlight_index(idx)
 
 
 if __name__ == '__main__':

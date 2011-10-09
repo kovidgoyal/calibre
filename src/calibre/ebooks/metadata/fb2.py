@@ -11,7 +11,7 @@ from functools import partial
 from base64 import b64decode
 from lxml import etree
 from calibre.utils.date import parse_date
-from calibre import guess_all_extensions, prints, force_unicode
+from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.chardet import xml_to_unicode
 
@@ -24,10 +24,9 @@ XPath = partial(etree.XPath, namespaces=NAMESPACES)
 tostring = partial(etree.tostring, method='text', encoding=unicode)
 
 def get_metadata(stream):
-    """ Return fb2 metadata as a L{MetaInformation} object """
+    ''' Return fb2 metadata as a L{MetaInformation} object '''
 
     root = _get_fbroot(stream)
-
     book_title = _parse_book_title(root)
     authors = _parse_authors(root)
 
@@ -148,6 +147,12 @@ def _parse_cover_data(root, imgid, mi):
     if elm_binary:
         mimetype = elm_binary[0].get('content-type', 'image/jpeg')
         mime_extensions = guess_all_extensions(mimetype)
+
+        if not mime_extensions and mimetype.startswith('image/'):
+            mimetype_fromid = guess_type(imgid)[0]
+            if mimetype_fromid and mimetype_fromid.startswith('image/'):
+                mime_extensions = guess_all_extensions(mimetype_fromid)
+
         if mime_extensions:
             pic_data = elm_binary[0].text
             if pic_data:
@@ -166,7 +171,7 @@ def _parse_tags(root, mi):
             break
 
 def _parse_series(root, mi):
-    #calibri supports only 1 series: use the 1-st one
+    # calibri supports only 1 series: use the 1-st one
     # pick up sequence but only from 1 secrion in prefered order
     # except <src-title-info>
     xp_ti = '//fb2:title-info/fb2:sequence[1]'
@@ -181,11 +186,12 @@ def _parse_series(root, mi):
 def _parse_isbn(root, mi):
     # some people try to put several isbn in this field, but it is not allowed.  try to stick to the 1-st one in this case
     isbn = XPath('normalize-space(//fb2:publish-info/fb2:isbn/text())')(root)
-    # some people try to put several isbn in this field, but it is not allowed.  try to stick to the 1-st one in this case
-    if ',' in isbn:
-        isbn = isbn[:isbn.index(',')]
-    if check_isbn(isbn):
-        mi.isbn = isbn
+    if isbn:
+        # some people try to put several isbn in this field, but it is not allowed.  try to stick to the 1-st one in this case
+        if ',' in isbn:
+            isbn = isbn[:isbn.index(',')]
+        if check_isbn(isbn):
+            mi.isbn = isbn
 
 def _parse_comments(root, mi):
     # pick up annotation but only from 1 secrion <title-info>;  fallback: <src-title-info>
@@ -232,4 +238,3 @@ def _get_fbroot(stream):
     raw = xml_to_unicode(raw, strip_encoding_pats=True)[0]
     root = etree.fromstring(raw, parser=parser)
     return root
-

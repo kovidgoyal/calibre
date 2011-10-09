@@ -1,0 +1,36 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1311799898(BasicNewsRecipe):
+    title          = u'Periódico Portafolio Colombia'
+    __author__  = 'BIGO-CAVA'
+    language = 'es_CO'
+    cover_url     = 'http://www.portafolio.co/sites/portafolio.co/themes/portafolio_2011/logo.png'
+    remove_tags_before = dict(id='contenidoArt')
+    remove_tags_after  = [dict(name='div', attrs={'class':'articulo-mas'})]
+    keep_only_tags = [dict(name='div', id='contenidoArt')]
+    oldest_article = 2
+    max_articles_per_feed = 100
+    remove_javascript = True
+    no_stylesheets        = True
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.portafolio.co/sites/portafolio.co/themes/portafolio_2011/logo.png'
+    publication_type      = 'newspaper'
+
+    extra_css             = """
+                               p{text-align: justify; font-size: 100%}
+                               body{ text-align: left; font-size:100% }
+                               h1{font-family: sans-serif; font-size:150%; font-weight:bold; text-align: justify; }
+                               h3{font-family: sans-serif; font-size:100%; font-style: italic; text-align: justify; }
+                                 """
+
+
+    feeds          = [(u'Negocios', u'http://www.portafolio.co/negocios/feed'),
+              (u'Economia', u'http://www.portafolio.co/economia/feed'),
+              (u'Internacional', u'http://www.portafolio.co/internacional/feed'),
+              (u'Indicadores', u'http://www.portafolio.co/indicadores/feed'),
+              (u'Opinion', u'http://www.portafolio.co/opinion/feed'),
+              (u'Finanzas Personales', u'http://www.portafolio.co/finanzas-personales/feed'),
+              (u'Herramientas', u'http://www.portafolio.co/herramientas/feed')]

@@ -1,0 +1,76 @@
+#!/usr/bin/env  python
+
+__author__    = 'Darko Spasovski'
+__license__   = 'GPL v3'
+__copyright__ = '2011, Darko Spasovski <darko.spasovski at gmail.com>'
+'''
+utrinski.com.mk
+'''
+
+import re
+import datetime
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre import browser
+
+class UtrinskiVesnik(BasicNewsRecipe):
+
+    INDEX                 = 'http://www.utrinski.com.mk/'
+    title                 = 'Utrinski Vesnik'
+    description           = 'Daily Macedonian newspaper'
+    masthead_url          = 'http://www.utrinski.com.mk/images/LogoTop.jpg'
+    language              = 'mk'
+    remove_javascript     = True
+    publication_type      = 'newspaper'
+    category              = 'news, Macedonia'
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    preprocess_regexps    = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+    [
+        ## Remove anything before the start of the article.
+        (r'<body.*?Article start-->', lambda match: '<body>'),
+
+        ## Remove anything after the end of the article.
+        (r'<!--Article end.*?</body>', lambda match : '</body>'),
+        ]
+    ]
+    extra_css             = """
+                                body{font-family: Arial,Helvetica,sans-serif}
+                                .WB_UTRINSKIVESNIK_Naslov{FONT-WEIGHT: bold; FONT-SIZE: 18px; FONT-FAMILY: Arial, Verdana, Tahoma; TEXT-DECORATION: none}
+                            """
+
+    conversion_options = {
+                          'comment'  : description,
+                          'tags'     : category,
+                          'language' : language,
+                          'linearize_tables' : True
+                        }
+
+    def parse_index(self):
+        feeds = []
+        # open main page
+        soup = self.index_to_soup(self.INDEX)
+        # find all anchors with class attribute equal to 'WB_UTRINSKIVESNIK_MainMenu'
+        for section in soup.findAll('a', attrs={'class':'WB_UTRINSKIVESNIK_MainMenu'}):
+            sectionTitle = section.contents[0].string
+            sectionUrl = self.INDEX + section['href'].strip()
+            # open the anchor link
+            raw = browser().open_novisit(sectionUrl).read()
+            sectionSoup = BeautifulSoup(raw)
+            # find all anchors with class attribute equal to 'WB_UTRINSKIVESNIK_ONLINEArticleTitle'
+            sectionArticles = sectionSoup.findAll('a', attrs={'class':'WB_UTRINSKIVESNIK_ONLINEArticleTitle'})
+            articles = []
+            for sectionArticle in sectionArticles:
+                # article title = anchor's contents, article url = anchor's href
+                articleTitle = sectionArticle.contents[0].string.strip()
+                articleUrl = self.INDEX + sectionArticle['href'].strip()
+                articleDate = datetime.datetime.today().strftime('%d.%m.%Y')
+                articles.append({'title': articleTitle, 'url':articleUrl, 'description':'', 'date': articleDate})
+            if articles:
+                feeds.append((sectionTitle, articles))
+        return feeds
+
+    def get_cover_url(self):
+        datum = datetime.datetime.today().strftime('%d_%m_%Y')
+        return 'http://www.utrinski.com.mk/WBStorage/Files/' + datum + '.jpg'

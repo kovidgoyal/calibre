@@ -135,7 +135,6 @@ class BookHeader(object):
             self.length, self.type, self.codepage, self.unique_id, \
                 self.version = struct.unpack('>LLLLL', raw[20:40])
 
-
             try:
                 self.codec = {
                     1252: 'cp1252',
@@ -145,8 +144,16 @@ class BookHeader(object):
                 self.codec = 'cp1252' if not user_encoding else user_encoding
                 log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
                     self.codec))
-            if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length \
-                or (try_extra_data_fix and self.length == 0xE4):
+            # There exists some broken DRM removal tool that removes DRM but
+            # leaves the DRM fields in the header yielding a header size of
+            # 0xF8. The actual value of max_header_length should be 0xE8 but
+            # it's changed to accommodate this silly tool. Hopefully that will
+            # not break anything else.
+            max_header_length = 0xF8
+
+            if (ident == 'TEXTREAD' or self.length < 0xE4 or
+                    self.length > max_header_length or
+                    (try_extra_data_fix and self.length == 0xE4)):
                 self.extra_flags = 0
             else:
                 self.extra_flags, = struct.unpack('>H', raw[0xF2:0xF4])
@@ -523,6 +530,7 @@ class MobiReader(object):
         for x in root.xpath('//ncx'):
             x.getparent().remove(x)
         svg_tags = []
+        forwardable_anchors = []
         for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
             for x in tag.attrib:
@@ -651,6 +659,15 @@ class MobiReader(object):
                     attrib['href'] = "#filepos%d" % int(filepos)
                 except ValueError:
                     pass
+            if (tag.tag == 'a' and attrib.get('id', '').startswith('filepos')
+                    and not tag.text and (tag.tail is None or not
+                        tag.tail.strip()) and getattr(tag.getnext(), 'tag',
+                            None) in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                                'div', 'p')):
+                # This is an empty anchor immediately before a block tag, move
+                # the id onto the block tag instead
+                forwardable_anchors.append(tag)
+
             if styles:
                 ncls = None
                 rule = '; '.join(styles)
@@ -678,6 +695,17 @@ class MobiReader(object):
 
             if hasattr(parent, 'remove'):
                 parent.remove(tag)
+
+        for tag in forwardable_anchors:
+            block = tag.getnext()
+            tag.getparent().remove(tag)
+
+            if 'id' in block.attrib:
+                tag.tail = block.text
+                block.text = None
+                block.insert(0, tag)
+            else:
+                block.attrib['id'] = tag.attrib['id']
 
     def get_left_whitespace(self, tag):
 
@@ -859,16 +887,19 @@ class MobiReader(object):
             processed_records += list(range(self.book_header.huff_offset,
                 self.book_header.huff_offset + self.book_header.huff_number))
             huff = HuffReader(huffs)
-            self.mobi_html = huff.decompress(text_sections)
+            unpack = huff.unpack
 
         elif self.book_header.compression_type == '\x00\x02':
-            for section in text_sections:
-                self.mobi_html += decompress_doc(section)
+            unpack = decompress_doc
 
         elif self.book_header.compression_type == '\x00\x01':
-            self.mobi_html = ''.join(text_sections)
+            unpack = lambda x: x
         else:
             raise MobiError('Unknown compression algorithm: %s' % repr(self.book_header.compression_type))
+        self.mobi_html = b''.join(map(unpack, text_sections))
+        if self.mobi_html.endswith(b'#'):
+            self.mobi_html = self.mobi_html[:-1]
+
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
         self.mobi_html = self.mobi_html.replace('\0', '')
@@ -933,6 +964,9 @@ class MobiReader(object):
                 continue
             processed_records.append(i)
             data  = self.sections[i][0]
+            if data[:4] in (b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n'):
+                # A FLIS, FCIS, SRCS or EOF record, ignore
+                continue
             buf = cStringIO.StringIO(data)
             image_index += 1
             try:

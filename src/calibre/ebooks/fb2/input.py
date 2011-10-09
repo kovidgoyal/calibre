@@ -100,23 +100,28 @@ class FB2Input(InputFormatPlugin):
             mi.title = _('Unknown')
         if not mi.authors:
             mi.authors = [_('Unknown')]
-        opf = OPFCreator(os.getcwdu(), mi)
-        entries = [(f, guess_type(f)[0]) for f in os.listdir('.')]
-        opf.create_manifest(entries)
-        opf.create_spine(['index.xhtml'])
+        cpath = None
         if mi.cover_data and mi.cover_data[1]:
             with open('fb2_cover_calibre_mi.jpg', 'wb') as f:
                 f.write(mi.cover_data[1])
-            opf.guide.set_cover(os.path.abspath('fb2_cover_calibre_mi.jpg'))
+            cpath = os.path.abspath('fb2_cover_calibre_mi.jpg')
         else:
             for img in doc.xpath('//f:coverpage/f:image', namespaces=NAMESPACES):
                 href = img.get('{%s}href'%XLINK_NS, img.get('href', None))
                 if href is not None:
                     if href.startswith('#'):
                         href = href[1:]
-                    opf.guide.set_cover(os.path.abspath(href))
+                    cpath = os.path.abspath(href)
+                    break
 
-        opf.render(open('metadata.opf', 'wb'))
+        opf = OPFCreator(os.getcwdu(), mi)
+        entries = [(f, guess_type(f)[0]) for f in os.listdir('.')]
+        opf.create_manifest(entries)
+        opf.create_spine(['index.xhtml'])
+        if cpath:
+            opf.guide.set_cover(cpath)
+        with open('metadata.opf', 'wb') as f:
+            opf.render(f)
         return os.path.join(os.getcwd(), 'metadata.opf')
 
     def extract_embedded_content(self, doc):

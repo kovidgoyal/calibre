@@ -1,39 +1,34 @@
+# -*- coding: utf-8 -*-
+
+__license__	= 'GPLv3'
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class AdvancedUserRecipe1255797795(BasicNewsRecipe):
-    title          = u'Corren'
-    language = 'sv'
-    __author__ = 'Jonas Svensson'
-    simultaneous_downloads = 1
-    no_stylesheets = True
-    oldest_article = 7
+class AdvancedUserRecipe1311446032(BasicNewsRecipe):
+    title                 = 'Corren'
+    __author__            = 'Jonas Svensson'
+    description           = 'News from Sweden'
+    publisher             = 'Corren'
+    category              = 'news, politics, Sweden'
+    oldest_article        = 2
+    delay                 = 1
     max_articles_per_feed = 100
-    remove_attributes = ['onload']
-    timefmt = ''
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'iso-8859-1'
+    language              = 'sv'
 
-    feeds          = [
-                   (u'Toppnyheter (alla kategorier)', u'http://www.corren.se/inc/RssHandler.ashx?id=4122151&ripurl=http://www.corren.se/nyheter/'),
-                   (u'Bostad', u'http://www.corren.se/inc/RssHandler.ashx?id=4122174&ripurl=http://www.corren.se/bostad/'),
-                   (u'Ekonomi & Jobb', u'http://www.corren.se/inc/RssHandler.ashx?id=4122176&ripurl=http://www.corren.se/ekonomi/'),
-                   (u'Kultur & Nöje', u'http://www.corren.se/inc/RssHandler.ashx?id=4122192&ripurl=http://www.corren.se/kultur/'),
-                   (u'Mat & dryck', u'http://www.corren.se/inc/RssHandler.ashx?id=4122201&ripurl=http://www.corren.se/mat-dryck/'),
-                   (u'Motor', u'http://www.corren.se/inc/RssHandler.ashx?id=4122203&ripurl=http://www.corren.se/motor/'),
-                   (u'Sport', u'http://www.corren.se/inc/RssHandler.ashx?id=4122206&ripurl=http://www.corren.se/sport/'),
-                   (u'Åsikter', u'http://www.corren.se/inc/RssHandler.ashx?id=4122223&ripurl=http://www.corren.se/asikter/'),
-                   (u'Mjölby', u'http://www.corren.se/inc/RssHandler.ashx?id=4122235&ripurl=http://www.corren.se/ostergotland/mjolby/'),
-                   (u'Motala', u'http://www.corren.se/inc/RssHandler.ashx?id=4122236&ripurl=http://www.corren.se/ostergotland/motala/')
-                     ]
+    feeds = [
+              (u'Toppnyheter', u'http://www.corren.se/inc/RssHandler.ashx?id=4122151&ripurl=http://www.corren.se/nyheter/')
+              ,(u'Ekonomi', u'http://www.corren.se/inc/RssHandler.ashx?id=4122176&ripurl=http://www.corren.se/ekonomi/')
+              ,(u'Link\xf6ping', u'http://www.corren.se/inc/RssHandler.ashx?id=4122234')
+              ,(u'Åsikter', u'http://www.corren.se/inc/RssHandler.ashx?id=4122223,4122224,4122226,4122227,4122228,4122229,4122230')
+            ]
 
-    def print_version(self, url):
-        url = url.replace("ekonomi/artikel.aspx", "Print.aspx")
-        url = url.replace("bostad/artikel.aspx", "Print.aspx")
-        url = url.replace("kultur/artikel.aspx", "Print.aspx")
-        url = url.replace("motor/artikel.aspx", "Print.aspx")
-        url = url.replace("mat-dryck/artikel.aspx", "Print.aspx")
-        url = url.replace("sport/artikel.aspx", "Print.aspx")
-        url = url.replace("asikter/artikel.aspx", "Print.aspx")
-        url = url.replace("mat-dryck/artikel.aspx", "Print.aspx")
-        url = url.replace("ostergotland/mjolby/artikel.aspx", "Print.aspx")
-        url = url.replace("ostergotland/motala/artikel.aspx", "Print.aspx")
-        return url.replace("nyheter/artikel.aspx", "Print.aspx")
-
+    keep_only_tags = [dict(name='div', attrs={'id':'article'}),dict(name='div', attrs={'class':'body'})]
+    remove_tags = [
+                     dict(name='ul',attrs={'class':'functions'})
+                     ,dict(name='a',attrs={'href':'javascript*'})
+                     ,dict(name='div',attrs={'class':'box'})
+                     ,dict(name='div',attrs={'class':'functionsbottom'})
+                  ]

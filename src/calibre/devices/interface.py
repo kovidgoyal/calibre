@@ -49,6 +49,9 @@ class DevicePlugin(Plugin):
     #: Whether the metadata on books can be set via the GUI.
     CAN_SET_METADATA = ['title', 'authors', 'collections']
 
+    #: Whether the device can handle device_db metadata plugboards
+    CAN_DO_DEVICE_DB_PLUGBOARD = False
+
     # Set this to None if the books on the device are files that the GUI can
     # access in order to add the books from the device to the library
     BACKLOADING_ERROR_MESSAGE = _('Cannot get files from this device')
@@ -70,6 +73,12 @@ class DevicePlugin(Plugin):
     #: and therefore cannot be viewed/saved/added to library
     #: For example: ``frozenset(['kobo'])``
     VIRTUAL_BOOK_EXTENSIONS = frozenset([])
+
+    #: Whether to nuke comments in the copy of the book sent to the device. If
+    #: not None this should be short string that the comments will be replaced
+    #: by.
+    NUKE_COMMENTS = None
+
 
     @classmethod
     def get_gui_name(cls):
@@ -405,7 +414,8 @@ class DevicePlugin(Plugin):
     @classmethod
     def config_widget(cls):
         '''
-        Should return a QWidget. The QWidget contains the settings for the device interface
+        Should return a QWidget. The QWidget contains the settings for the
+        device interface
         '''
         raise NotImplementedError()
 
@@ -420,8 +430,9 @@ class DevicePlugin(Plugin):
     @classmethod
     def settings(cls):
         '''
-        Should return an opts object. The opts object should have at least one attribute
-        `format_map` which is an ordered list of formats for the device.
+        Should return an opts object. The opts object should have at least one
+        attribute `format_map` which is an ordered list of formats for the
+        device.
         '''
         raise NotImplementedError()
 

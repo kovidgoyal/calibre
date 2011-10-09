@@ -235,10 +235,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.highlight_index(idx)
 
     def highlight_index(self, idx):
-        self.plugin_view.scrollTo(idx)
         self.plugin_view.selectionModel().select(idx,
                 self.plugin_view.selectionModel().ClearAndSelect)
         self.plugin_view.setCurrentIndex(idx)
+        self.plugin_view.setFocus(Qt.OtherFocusReason)
+        self.plugin_view.scrollTo(idx, self.plugin_view.EnsureVisible)
 
     def find_next(self, *args):
         idx = self.plugin_view.currentIndex()

@@ -2,15 +2,21 @@
 #define UNICODE
 #endif 
 
+#ifndef _UNICODE
+#define _UNICODE
+#endif 
+
+
 #include <windows.h>
 #include <tchar.h>
+#include <wchar.h>
 #include <stdio.h>
 
 #define BUFSIZE 4096
 
 void show_error(LPCTSTR msg) {
     MessageBeep(MB_ICONERROR);
-    MessageBox(NULL, msg, TEXT("Error"), MB_OK|MB_ICONERROR);
+    MessageBox(NULL, msg, _T("Error"), MB_OK|MB_ICONERROR);
 }
 
 void show_detailed_error(LPCTSTR preamble, LPCTSTR msg, int code) {
@@ -20,7 +26,7 @@ void show_detailed_error(LPCTSTR preamble, LPCTSTR msg, int code) {
 
     _sntprintf_s(buf, 
         LocalSize(buf) / sizeof(TCHAR), _TRUNCATE,
-        TEXT("%s\r\n  %s (Error Code: %d)\r\n"), 
+        _T("%s\r\n  %s (Error Code: %d)\r\n"), 
         preamble, msg, code);
 
     show_error(buf);
@@ -32,7 +38,7 @@ void show_last_error_crt(LPCTSTR preamble) {
     int err = 0;
 
     _get_errno(&err);
-    _wcserror_s(buf, BUFSIZE, err);
+    _tcserror_s(buf, BUFSIZE, err);
     show_detailed_error(preamble, buf, err);
 }
 
@@ -57,7 +63,7 @@ void show_last_error(LPCTSTR preamble) {
 LPTSTR get_app_dir() {
     LPTSTR buf, buf2, buf3;
     DWORD sz;
-    TCHAR drive[4] = TEXT("\0\0\0");
+    TCHAR drive[4] = _T("\0\0\0");
     errno_t err;
 
     buf = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
@@ -67,18 +73,18 @@ LPTSTR get_app_dir() {
     sz = GetModuleFileName(NULL, buf, BUFSIZE);
 
     if (sz == 0 || sz > BUFSIZE-1) {
-        show_error(TEXT("Failed to get path to calibre-portable.exe"));
+        show_error(_T("Failed to get path to calibre-portable.exe"));
         ExitProcess(1);
     }
 
     err = _tsplitpath_s(buf, drive, 4, buf2, BUFSIZE, NULL, 0, NULL, 0);
 
     if (err != 0) {
-        show_last_error_crt(TEXT("Failed to split path to calibre-portable.exe"));
+        show_last_error_crt(_T("Failed to split path to calibre-portable.exe"));
         ExitProcess(1);
     }
 
-    _sntprintf_s(buf3, BUFSIZE-1, _TRUNCATE, TEXT("%s%s"), drive, buf2);
+    _sntprintf_s(buf3, BUFSIZE-1, _TRUNCATE, _T("%s%s"), drive, buf2);
     free(buf); free(buf2);
     return buf3;
 }
@@ -90,18 +96,18 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
     BOOL fSuccess; 
     TCHAR cmdline[BUFSIZE];
 
-    if (! SetEnvironmentVariable(TEXT("CALIBRE_CONFIG_DIRECTORY"), config_dir)) {
-        show_last_error(TEXT("Failed to set environment variables"));
+    if (! SetEnvironmentVariable(_T("CALIBRE_CONFIG_DIRECTORY"), config_dir)) {
+        show_last_error(_T("Failed to set environment variables"));
         ExitProcess(1);
     }
 
-    if (! SetEnvironmentVariable(TEXT("CALIBRE_PORTABLE_BUILD"), exe)) {
-        show_last_error(TEXT("Failed to set environment variables"));
+    if (! SetEnvironmentVariable(_T("CALIBRE_PORTABLE_BUILD"), exe)) {
+        show_last_error(_T("Failed to set environment variables"));
         ExitProcess(1);
     }
 
     dwFlags = CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_PROCESS_GROUP;
-    _sntprintf_s(cmdline, BUFSIZE, _TRUNCATE, TEXT(" \"--with-library=%s\""), library_dir);
+    _sntprintf_s(cmdline, BUFSIZE, _TRUNCATE, _T(" \"--with-library=%s\""), library_dir);
 
     ZeroMemory( &si, sizeof(si) );
     si.cb = sizeof(si);
@@ -119,7 +125,7 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
     );
 
     if (fSuccess == 0) {
-        show_last_error(TEXT("Failed to launch the calibre program"));
+        show_last_error(_T("Failed to launch the calibre program"));
     }
 
     // Close process and thread handles.
@@ -137,9 +143,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     library_dir = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
     exe = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
 
-    _sntprintf_s(config_dir, BUFSIZE, _TRUNCATE, TEXT("%sCalibre Settings"), app_dir);
-    _sntprintf_s(exe, BUFSIZE, _TRUNCATE, TEXT("%sCalibre\\calibre.exe"), app_dir);
-    _sntprintf_s(library_dir, BUFSIZE, _TRUNCATE, TEXT("%sCalibre Library"), app_dir);
+    _sntprintf_s(config_dir, BUFSIZE, _TRUNCATE, _T("%sCalibre Settings"), app_dir);
+    _sntprintf_s(exe, BUFSIZE, _TRUNCATE, _T("%sCalibre\\calibre.exe"), app_dir);
+    _sntprintf_s(library_dir, BUFSIZE, _TRUNCATE, _T("%sCalibre Library"), app_dir);
 
     launch_calibre(exe, config_dir, library_dir);
 

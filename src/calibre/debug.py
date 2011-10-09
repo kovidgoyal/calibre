@@ -180,6 +180,7 @@ def main(args=sys.argv):
         sys.path.insert(0, base)
         g = globals()
         g['__name__'] = '__main__'
+        g['__file__'] = ef
         execfile(ef, g)
         return
 

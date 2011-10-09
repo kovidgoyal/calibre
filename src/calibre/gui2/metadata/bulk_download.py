@@ -20,6 +20,7 @@ from calibre.ebooks.metadata.sources.covers import download_cover
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.customize.ui import metadata_plugins
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.date import as_utc
 
 # Start download {{{
 def show_config(gui, parent):
@@ -88,6 +89,15 @@ class ConfirmDialog(QDialog):
         self.identify = False
         self.accept()
 
+def split_jobs(ids, batch_size=100):
+    ans = []
+    ids = list(ids)
+    while ids:
+        jids = ids[:batch_size]
+        ans.append(jids)
+        ids = ids[batch_size:]
+    return ans
+
 def start_download(gui, ids, callback):
     d = ConfirmDialog(ids, gui)
     ret = d.exec_()
@@ -95,11 +105,13 @@ def start_download(gui, ids, callback):
     if ret != d.Accepted:
         return
 
-    job = ThreadedJob('metadata bulk download',
-            _('Download metadata for %d books')%len(ids),
-            download, (ids, gui.current_db, d.identify, d.covers), {}, callback)
-    gui.job_manager.run_threaded_job(job)
+    for batch in split_jobs(ids):
+        job = ThreadedJob('metadata bulk download',
+            _('Download metadata for %d books')%len(batch),
+            download, (batch, gui.current_db, d.identify, d.covers), {}, callback)
+        gui.job_manager.run_threaded_job(job)
     gui.status_bar.show_message(_('Metadata download started'), 3000)
+
 # }}}
 
 def get_job_details(job):
@@ -124,10 +136,18 @@ def merge_result(oldmi, newmi):
     for plugin in metadata_plugins(['identify']):
         fields |= plugin.touched_fields
 
+    def is_equal(x, y):
+        if hasattr(x, 'tzinfo'):
+            x = as_utc(x)
+        if hasattr(y, 'tzinfo'):
+            y = as_utc(y)
+        return x == y
+
     for f in fields:
         # Optimize so that set_metadata does not have to do extra work later
         if not f.startswith('identifier:'):
-            if (not newmi.is_null(f) and getattr(newmi, f) == getattr(oldmi, f)):
+            if (not newmi.is_null(f) and is_equal(getattr(newmi, f),
+                    getattr(oldmi, f))):
                 setattr(newmi, f, getattr(dummy, f))
 
     newmi.last_modified = oldmi.last_modified
@@ -187,7 +207,7 @@ def download(ids, db, do_identify, covers,
         ans[i] = mi
         count += 1
         notifications.put((count/len(ids),
-            _('Downloaded %d of %d')%(count, len(ids))))
+            _('Downloaded %(num)d of %(tot)d')%dict(num=count, tot=len(ids))))
     log('Download complete, with %d failures'%len(failed_ids))
     return (ans, failed_ids, failed_covers, title_map, all_failed)
 

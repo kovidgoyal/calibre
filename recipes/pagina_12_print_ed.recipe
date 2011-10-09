@@ -1,0 +1,95 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+'''
+pagina12.com.ar
+'''
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+
+class Pagina12(BasicNewsRecipe):
+
+    title      = 'Pagina/12 - Edicion Impresa'
+    __author__ = 'Pablo Marfil'
+    description = 'Diario argentino'
+    INDEX = 'http://www.pagina12.com.ar/diario/secciones/index.html'
+    language = 'es'
+    encoding              = 'cp1252'
+    remove_tags_before = dict(id='fecha')
+    remove_tags_after  = dict(id='fin')
+    remove_tags        = [dict(id=['fecha', 'fin', 'pageControls','logo','logo_suple','fecha_suple','volver'])]
+    masthead_url          = 'http://www.pagina12.com.ar/commons/imgs/logo-home.gif'
+    no_stylesheets = True
+
+    preprocess_regexps= [(re.compile(r'<!DOCTYPE[^>]+>', re.I), lambda m:'')]
+
+
+
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.pagina12.com.ar/diario/principal/diario/index.html')
+        for image in soup.findAll('img',alt=True):
+           if image['alt'].startswith('Tapa de la fecha'):
+              return image['src']
+              print image
+        return None
+
+
+    def parse_index(self):
+        articles = []
+        numero = 1
+        raw = self.index_to_soup('http://www.pagina12.com.ar/diario/secciones/index.html', raw=True)
+        raw = re.sub(r'(?i)<!DOCTYPE[^>]+>', '', raw)
+        soup = self.index_to_soup(raw)
+
+        feeds = []
+
+        seen_titles = set([])
+        for section in soup.findAll('div','seccionx'):
+            numero+=1
+            print (numero)
+            section_title = self.tag_to_string(section.find('div','desplegable_titulo on_principal right'))
+            self.log('Found section:', section_title)
+            articles = []
+            for post in section.findAll('h2'):
+                h = post.find('a', href=True)
+                title = self.tag_to_string(h)
+                if title in seen_titles:
+                    continue
+                seen_titles.add(title)
+                a = post.find('a', href=True)
+                url = a['href']
+                if url.startswith('/'):
+                    url = 'http://pagina12.com.ar/imprimir'+url
+                p = post.find('div', attrs={'h2'})
+                desc = None
+                self.log('\tFound article:', title, 'at', url)
+                if p is not None:
+                    desc = self.tag_to_string(p)
+                    self.log('\t\t', desc)
+                articles.append({'title':title, 'url':url, 'description':desc,
+                    'date':''})
+            if articles:
+                feeds.append((section_title, articles))
+        return feeds
+
+
+    def postprocess_html(self, soup, first):
+        for table in soup.findAll('table', align='right'):
+            img = table.find('img')
+            if img is not None:
+                img.extract()
+                caption = self.tag_to_string(table).strip()
+                div = Tag(soup, 'div')
+                div['style'] = 'text-align:center'
+                div.insert(0, img)
+                div.insert(1, Tag(soup, 'br'))
+                if caption:
+                    div.insert(2, NavigableString(caption))
+                table.replaceWith(div)
+
+        return soup
+

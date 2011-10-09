@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+SPOOL_SIZE = 30*1024*1024
 
 '''
 Rewrite of the calibre database backend.
@@ -63,4 +64,6 @@ Various things that require other things before they can be migrated:
                     columns/categories/searches info into
                     self.field_metadata. Finally, implement metadata dirtied
                     functionality.
+    2. Catching DatabaseException and sqlite.Error when creating new
+    libraries/switching/on calibre startup.
 '''

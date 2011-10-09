@@ -1,0 +1,56 @@
+# -*- coding: utf-8 -*-
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1311790237(BasicNewsRecipe):
+    title          = u'Periódico El Colombiano'
+    __author__  = 'BIGO-CAVA'
+    language = 'es_CO'
+    cover_url     = 'http://www.elcolombiano.com/images/logoElColombiano348x46.gif'
+    remove_tags_before = dict(id='contenidoArt')
+    remove_tags_after  = dict(id='enviaTips')
+    remove_tags_after  = dict(id='zonaPata')
+    oldest_article = 1
+    max_articles_per_feed = 100
+    remove_javascript = True
+    no_stylesheets        = True
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.elcolombiano.com/images/logoElColombiano348x46.gif'
+    publication_type      = 'newspaper'
+
+    extra_css             = """
+                               p{text-align: justify; font-size: 100%}
+                               body{ text-align: left; font-size:100% }
+                               h1{font-family: sans-serif; font-size:150%; font-weight:bold; text-align: justify; }
+                               h3{font-family: sans-serif; font-size:100%; font-style: italic; text-align: justify; }
+                                 """
+
+
+    feeds          = [(u'Portada', u'http://www.elcolombiano.com/rss/portada.xml'),
+              (u'Antioquia', u'http://www.elcolombiano.com/rss/Antioquia.xml'),
+              (u'Colombia', u'http://www.elcolombiano.com/rss/Colombia.xml'),
+              (u'Economia', u'http://www.elcolombiano.com/rss/Economia.xml'),
+              (u'Internacional', u'http://www.elcolombiano.com/rss/Internacional.xml'),
+              (u'Politica', u'http://www.elcolombiano.com/rss/Politica.xml'),
+              (u'Cultura', u'http://www.elcolombiano.com/rss/Cultura.xml'),
+              (u'Entretenimiento', u'http://www.elcolombiano.com/rss/Farandula.xml'),
+              (u'Tecnologia', u'http://www.elcolombiano.com/rss/Tecnologia.xml'),
+              (u'Television', u'http://www.elcolombiano.com/rss/Television.xml'),
+              (u'Vida y Sociedad', u'http://www.elcolombiano.com/rss/Vida.xml'),
+              (u'Turismo', u'http://www.elcolombiano.com/rss/Turismo.xm'),
+              (u'Salud', u'http://www.elcolombiano.com/rss/Salud.xml'),
+              (u'Ciencia', u'http://www.elcolombiano.com/rss/Ciencia.xml')]
+
+    remove_tags = [dict(name='div', attrs={'class':'objetosRelacionados'}),
+dict(name='div', attrs={'class':'notasRelacionadas contenedor'}),
+dict(name='div', attrs={'class':'comentarios'}),
+dict(name='div', attrs={'class':'mapaDelSitio'}),
+dict(name='div', attrs={'class':'creditos'}),
+dict(name='div', attrs={'class':'votos'}),
+dict(name='div', attrs={'class':'divopt2'}),
+dict(name='div', attrs={'class':'comentarios'}),
+dict(name='div', attrs={'class':'pestanasLateral'}),
+dict(name='div', attrs={'class':'resumenSeccion'}),
+dict(name='div', attrs={'class':'zonaComercial'}),
+dict(name='div', attrs={'id':'zonaPata'})]

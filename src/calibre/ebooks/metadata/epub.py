@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory, PersistentTemporaryFile
 from calibre import CurrentDir, walk
 from calibre.constants import isosx
+from calibre.utils.localization import lang_as_iso639_1
 
 class EPubException(Exception):
     pass
@@ -231,6 +232,15 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
 
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
+    if mi.languages:
+        langs = []
+        for lc in mi.languages:
+            lc2 = lang_as_iso639_1(lc)
+            if lc2: lc = lc2
+            langs.append(lc)
+        mi.languages = langs
+
+
     reader.opf.smart_update(mi)
     if apply_null:
         if not getattr(mi, 'series', None):

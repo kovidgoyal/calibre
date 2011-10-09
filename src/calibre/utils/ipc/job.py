@@ -43,13 +43,17 @@ class BaseJob(object):
         self._status_text  = _('Waiting...')
         self._done_called  = False
         self.core_usage    = 1
+        self.timed_out     = False
 
     def update(self, consume_notifications=True):
         if self.duration is not None:
             self._run_state   = self.FINISHED
             self.percent = 100
             if self.killed:
-                self._status_text = _('Stopped')
+                if self.timed_out:
+                    self._status_text = _('Aborted, taking too long')
+                else:
+                    self._status_text = _('Stopped')
             else:
                 self._status_text = _('Error') if self.failed else _('Finished')
             if DEBUG:
@@ -141,7 +145,8 @@ class BaseJob(object):
     def log_file(self):
         if self.log_path:
             return open(self.log_path, 'rb')
-        return cStringIO.StringIO(_('No details available.'))
+        return cStringIO.StringIO(_('No details available.').encode('utf-8',
+            'replace'))
 
     @property
     def details(self):

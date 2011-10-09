@@ -143,7 +143,9 @@ class UserProfiles(ResizableDialog, Ui_Dialog):
         pt = PersistentTemporaryFile(suffix='.recipe')
         pt.write(src.encode('utf-8'))
         pt.close()
-        body = _('The attached file: %s is a recipe to download %s.')%(os.path.basename(pt.name), title)
+        body = _('The attached file: %(fname)s is a '
+                'recipe to download %(title)s.')%dict(
+                    fname=os.path.basename(pt.name), title=title)
         subject = _('Recipe for ')+title
         url = QUrl('mailto:')
         url.addQueryItem('subject', subject)
@@ -217,6 +219,7 @@ class %(classname)s(%(base_class)s):
     title          = %(title)s
     oldest_article = %(oldest_article)d
     max_articles_per_feed = %(max_articles)d
+    auto_cleanup = True
 
     feeds          = %(feeds)s
 '''%dict(classname=classname, title=repr(title),

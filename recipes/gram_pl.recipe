@@ -1,0 +1,25 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Gram_pl(BasicNewsRecipe):
+    title          = u'Gram.pl'
+    __author__        = 'fenuks'
+    description   = 'Gram.pl - site about computer games'
+    category       = 'games'
+    language       = 'pl'
+    oldest_article = 8
+    max_articles_per_feed = 100
+    no_stylesheets= True
+    extra_css = 'h2 {font-style: italic;  font-size:20px;}'
+    cover_url=u'http://www.gram.pl/www/01/img/grampl_zima.png'
+    remove_tags= [dict(name='p', attrs={'class':['extraText', 'must-log-in']}), dict(attrs={'class':['el', 'headline', 'post-info']}), dict(name='div', attrs={'class':['twojaOcena', 'comment-body', 'comment-author vcard', 'comment-meta commentmetadata', 'tw_button']}), dict(id=['igit_rpwt_css', 'comments', 'reply-title', 'igit_title'])]
+    keep_only_tags= [dict(name='div', attrs={'class':['main', 'arkh-postmetadataheader', 'arkh-postcontent', 'post', 'content', 'news_header', 'news_subheader', 'news_text']}), dict(attrs={'class':['contentheading', 'contentpaneopen']})]
+    feeds          = [(u'gram.pl - informacje', u'http://www.gram.pl/feed_news.asp'),
+	      (u'gram.pl - publikacje', u'http://www.gram.pl/feed_news.asp?type=articles')]
+
+    def parse_feeds (self): 
+      feeds = BasicNewsRecipe.parse_feeds(self) 
+      for feed in feeds:
+        for article in feed.articles[:]:
+          if 'REKLAMA SKLEP' in article.title.upper() or u'ARTYKUŁ:' in article.title.upper():
+            feed.articles.remove(article)
+      return feeds

@@ -19,7 +19,7 @@ class Marca(BasicNewsRecipe):
     use_embedded_content  = False
     delay                 = 1
     encoding              = 'iso-8859-15'
-    language              = 'es_ES'
+    language              = 'es'
     publication_type      = 'newsportal'
     masthead_url          = 'http://estaticos.marca.com/deporte/img/v3.0/img_marca-com.png'
     extra_css             = """

@@ -5,7 +5,6 @@ class PolitiFactCom(BasicNewsRecipe):
     __author__     = u'Michael Heinz'
     oldest_article = 21
     max_articles_per_feed = 100
-    recursion = 0
     language = 'en'
 
     no_stylesheets = True
@@ -27,4 +26,7 @@ class PolitiFactCom(BasicNewsRecipe):
                      (u'Statements', u'http://www.politifact.com/feeds/statements/truth-o-meter/')
                      ]
 
-
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.set_handle_gzip(True)
+        return br

@@ -62,7 +62,6 @@ class LibraryViewMixin(object): # {{{
             view = getattr(self, view+'_view')
             view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
-        self.build_context_menus()
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def build_context_menus(self):
@@ -81,6 +80,11 @@ class LibraryViewMixin(object): # {{{
         for v in (self.memory_view, self.card_a_view, self.card_b_view):
             v.set_context_menu(dm, ec)
 
+        if self.cover_flow is not None:
+            cm = QMenu(self.cover_flow)
+            populate_menu(cm,
+                    gprefs['action-layout-context-menu-cover-browser'])
+            self.cover_flow.set_context_menu(cm)
 
     def search_done(self, view, ok):
         if view is self.current_view():
@@ -214,12 +218,13 @@ class LayoutMixin(object): # {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'),
                     orientation=Qt.Vertical, parent=self, side_index=1,
-                    shortcut=_('Alt+D'))
+                    shortcut=_('Shift+Alt+D'))
             self.bd_splitter.addWidget(self.stack)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            # }}}
+            button_order = ('tb', 'bd', 'cb')
+        # }}}
         else: # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'), initial_side_size=200,
@@ -233,10 +238,11 @@ class LayoutMixin(object): # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
+            button_order = ('tb', 'cb', 'bd')
         # }}}
 
         self.status_bar = StatusBar(self)
-        for x in ('cb', 'tb', 'bd'):
+        for x in button_order:
             button = getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
             if isosx:

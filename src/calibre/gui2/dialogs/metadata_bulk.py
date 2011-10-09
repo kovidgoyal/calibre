@@ -134,7 +134,7 @@ class MyBlockingBusy(QDialog): # {{{
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
             series_start_value, do_title_case, cover_action, clear_series, \
-            pubdate, adddate, do_title_sort = self.args
+            pubdate, adddate, do_title_sort, languages, clear_languages = self.args
 
 
         # first loop: do author and title. These will commit at the end of each
@@ -173,10 +173,10 @@ class MyBlockingBusy(QDialog): # {{{
                 mi = self.db.get_metadata(id, index_is_id=True)
                 series_string = None
                 if mi.series:
-                    series_string = _('Book %s of %s')%(
-                        fmt_sidx(mi.series_index,
+                    series_string = _('Book %(sidx)s of %(series)s')%dict(
+                        sidx=fmt_sidx(mi.series_index,
                         use_roman=config['use_roman_numerals_for_series_number']),
-                        mi.series)
+                        series=mi.series)
 
                 cdata = calibre_cover(mi.title, mi.format_field('authors')[-1],
                         series_string=series_string)
@@ -238,6 +238,12 @@ class MyBlockingBusy(QDialog): # {{{
 
             if do_remove_conv:
                 self.db.delete_conversion_options(id, 'PIPE', commit=False)
+
+            if clear_languages:
+                self.db.set_languages(id, [], notify=False, commit=False)
+            elif languages:
+                self.db.set_languages(id, languages, notify=False, commit=False)
+
         elif self.current_phase == 3:
             # both of these are fast enough to just do them all
             for w in self.cc_widgets:
@@ -329,6 +335,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        self.languages.init_langs(self.db)
+        self.languages.setEditText('')
         self.exec_()
 
     def save_state(self, *args):
@@ -352,6 +360,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.do_again = True
             self.accept()
 
+    # S&R {{{
     def prepare_search_and_replace(self):
         self.search_for.initialize('bulk_edit_search_for')
         self.replace_with.initialize('bulk_edit_replace_with')
@@ -526,6 +535,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 val = [v.replace('|', ',') for v in val]
         else:
             val = []
+        if not val:
+            val = ['']
         return val
 
     def s_r_display_bounds_changed(self, i):
@@ -749,15 +760,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         val = self.s_r_do_regexp(mi)
         val = self.s_r_do_destination(mi, val)
         if dfm['is_multiple']:
-            if dest == 'authors' and len(val) == 0:
-                error_dialog(self, _('Search/replace invalid'),
-                             _('Authors cannot be set to the empty string. '
-                               'Book title %s not processed')%mi.title,
-                             show=True)
-                return
-            # convert the colon-separated pair strings back into a dict, which
-            # is what set_identifiers wants
             if dfm['is_csp']:
+                # convert the colon-separated pair strings back into a dict,
+                # which is what set_identifiers wants
                 dst_id_type = unicode(self.s_r_dst_ident.text())
                 if dst_id_type:
                     v = ''.join(val)
@@ -769,11 +774,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         else:
             val = self.s_r_replace_mode_separator().join(val)
             if dest == 'title' and len(val) == 0:
-                error_dialog(self, _('Search/replace invalid'),
-                             _('Title cannot be set to the empty string. '
-                               'Book title %s not processed')%mi.title,
-                             show=True)
-                return
+                val = _('Unknown')
 
         if dfm['is_custom']:
             extra = self.db.get_custom_extra(id, label=dfm['label'], index_is_id=True)
@@ -806,6 +807,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             # permanent. Make sure it really is.
             self.db.commit()
             self.model.refresh_ids(list(books_to_refresh))
+    # }}}
 
     def create_custom_column_editors(self):
         w = self.central_widget.widget(1)
@@ -929,6 +931,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
         do_title_sort = self.update_title_sort.isChecked()
+        clear_languages = self.clear_languages.isChecked()
+        languages = self.languages.lang_codes
         pubdate = adddate = None
         if self.apply_pubdate.isChecked():
             pubdate = qt_to_dt(self.pubdate.date())
@@ -947,7 +951,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, cover_action, clear_series,
-                pubdate, adddate, do_title_sort)
+                pubdate, adddate, do_title_sort, languages, clear_languages)
 
         bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,

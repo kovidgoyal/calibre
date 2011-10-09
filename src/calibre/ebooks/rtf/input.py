@@ -41,7 +41,7 @@ border_style_map = {
 
 class InlineClass(etree.XSLTExtension):
 
-    FMTS = ('italics', 'bold', 'underlined', 'strike-through', 'small-caps')
+    FMTS = ('italics', 'bold', 'strike-through', 'small-caps')
 
     def __init__(self, log):
         etree.XSLTExtension.__init__(self)
@@ -54,6 +54,9 @@ class InlineClass(etree.XSLTExtension):
         for x in self.FMTS:
             if input_node.get(x, None) == 'true':
                 classes.append(x)
+        #underlined is special
+        if input_node.get('underlined', 'false') != 'false':
+                classes.append('underlined')
         fs = input_node.get('font-size', False)
         if fs:
             if fs not in self.font_sizes:
@@ -78,12 +81,13 @@ class RTFInput(InputFormatPlugin):
     def generate_xml(self, stream):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
         ofile = 'dataxml.xml'
-        run_lev, debug_dir = 1, None
+        run_lev, debug_dir, indent_out = 1, None, 0
         if getattr(self.opts, 'debug_pipeline', None) is not None:
             try:
-                os.mkdir(debug_dir)
+                os.mkdir('rtfdebug')
                 debug_dir = 'rtfdebug'
                 run_lev = 4
+                indent_out = 1
                 self.log('Running RTFParser in debug mode')
             except:
                 self.log.warn('Impossible to run RTFParser in debug mode')
@@ -108,7 +112,7 @@ class RTFInput(InputFormatPlugin):
 
             # Indent resulting XML.
             # Default is 0 (no indent).
-            indent = 1,
+            indent = indent_out,
 
             # Form lists from RTF. Default is 1.
             form_lists = 1,
@@ -157,7 +161,8 @@ class RTFInput(InputFormatPlugin):
             with open(name, 'wb') as f:
                 f.write(data)
             imap[count] = name
-            #open(name+'.hex', 'wb').write(enc)
+            # with open(name+'.hex', 'wb') as f:
+                # f.write(enc)
         return self.convert_images(imap)
 
     def convert_images(self, imap):
@@ -319,4 +324,6 @@ class RTFInput(InputFormatPlugin):
         opf.render(open('metadata.opf', 'wb'))
         return os.path.abspath('metadata.opf')
 
-
+#ebook-convert "bad.rtf" test.epub -v -d "E:\Mes eBooks\Developpement\debug"
+# os.makedirs("E:\\Mes eBooks\\Developpement\\rtfdebug")
+# debug_dir = "E:\\Mes eBooks\\Developpement\\rtfdebug"

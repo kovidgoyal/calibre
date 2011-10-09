@@ -22,11 +22,16 @@ from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 
 def comparable_price(text):
-    if len(text) < 3 or text[-3] not in ('.', ','):
-        text += '00'
-    text = re.sub(r'\D', '', text)
-    text = text.rjust(6, '0')
-    return text
+    # this keep thousand and fraction separators
+    match = re.search(r'(?:\d|[,.](?=\d))(?:\d*(?:[,.\' ](?=\d))?)+', text)
+    if match:
+        # replace all separators with '.'
+        m = re.sub(r'[.,\' ]', '.', match.group())
+        # remove all separators accept fraction, 
+        # leave only 2 digits in fraction
+        m = re.sub(r'\.(?!\d*$)', r'', m)
+        text = '{0:0>8.0f}'.format(float(m) * 100.)
+    return text  
 
 
 class Matches(QAbstractItemModel):
@@ -293,6 +298,7 @@ class SearchFilter(SearchQueryParser):
         return self.srs
 
     def get_matches(self, location, query):
+        query = query.strip()
         location = location.lower().strip()
         if location == 'authors':
             location = 'author'
@@ -332,6 +338,11 @@ class SearchFilter(SearchQueryParser):
         }
         for x in ('author', 'download', 'format'):
             q[x+'s'] = q[x]
+        
+        # make the price in query the same format as result
+        if location == 'price':
+            query = comparable_price(query)
+        
         for sr in self.srs:
             for locvalue in locations:
                 accessor = q[locvalue]

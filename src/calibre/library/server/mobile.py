@@ -153,12 +153,22 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         bookt.append(TR(thumbnail, data))
     # }}}
 
+    body.append(HR())
+    body.append(DIV(
+        A(_('Switch to the full interface (non-mobile interface)'),
+            href="/browse",
+            style="text-decoration: none; color: blue",
+            title=_('The full interface gives you many more features, '
+                'but it may not work well on a small screen')),
+        style="text-align:center"))
     return HTML(
         HEAD(
             TITLE(__appname__ + ' Library'),
             LINK(rel='icon', href='http://calibre-ebook.com/favicon.ico',
                 type='image/x-icon'),
-            LINK(rel='stylesheet', type='text/css', href=prefix+'/mobile/style.css')
+            LINK(rel='stylesheet', type='text/css',
+                href=prefix+'/mobile/style.css'),
+            LINK(rel='apple-touch-icon', href="/static/calibre.png")
         ), # End head
         body
     ) # End html
@@ -267,12 +277,15 @@ class MobileServer(object):
         cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
 
-
         url_base = "/mobile?search=" + search+";order="+order+";sort="+sort+";num="+str(num)
 
-        return html.tostring(build_index(books, num, search, sort, order,
+        raw = html.tostring(build_index(books, num, search, sort, order,
                              start, len(ids), url_base, CKEYS,
                              self.opts.url_prefix),
-                             encoding='utf-8', include_meta_content_type=True,
+                             encoding='utf-8',
                              pretty_print=True)
+        # tostring's include_meta_content_type is broken
+        raw = raw.replace('<head>', '<head>\n'
+                '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">')
+        return raw
 

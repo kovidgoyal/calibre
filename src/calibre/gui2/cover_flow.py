@@ -9,8 +9,8 @@ Module to implement the Cover Flow feature
 
 import sys, os, time
 
-from PyQt4.Qt import QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, \
-        QStackedLayout, QLabel, QByteArray, pyqtSignal
+from PyQt4.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
+        QStackedLayout, QLabel, QByteArray, pyqtSignal, QKeySequence)
 
 from calibre import plugins
 from calibre.gui2 import config, available_height, available_width, gprefs
@@ -29,12 +29,14 @@ if pictureflow is not None:
             pictureflow.FlowImages.__init__(self)
             self.images = []
             self.captions = []
+            self.subtitles = []
             for f in os.listdir(dirpath):
                 f = os.path.join(dirpath, f)
                 img = QImage(f)
                 if not img.isNull():
                     self.images.append(img)
                     self.captions.append(os.path.basename(f))
+                    self.subtitles.append('%d bytes'%os.stat(f).st_size)
 
         def count(self):
             return len(self.images)
@@ -44,6 +46,9 @@ if pictureflow is not None:
 
         def caption(self, index):
             return self.captions[index]
+
+        def subtitle(self, index):
+            return self.subtitles[index]
 
         def currentChanged(self, index):
             print 'current changed:', index
@@ -84,6 +89,7 @@ if pictureflow is not None:
     class CoverFlow(pictureflow.PictureFlow):
 
         dc_signal = pyqtSignal()
+        context_menu_requested = pyqtSignal()
 
         def __init__(self, parent=None):
             pictureflow.PictureFlow.__init__(self, parent,
@@ -94,6 +100,17 @@ if pictureflow is not None:
                 QSizePolicy.Expanding))
             self.dc_signal.connect(self._data_changed,
                     type=Qt.QueuedConnection)
+            self.context_menu = None
+            self.setContextMenuPolicy(Qt.DefaultContextMenu)
+
+        def set_context_menu(self, cm):
+            self.context_menu = cm
+
+        def contextMenuEvent(self, event):
+            if self.context_menu is not None:
+                self.context_menu_requested.emit()
+                self.context_menu.popup(event.globalPos())
+                event.accept()
 
         def sizeHint(self):
             return self.minimumSize()
@@ -133,11 +150,52 @@ class CBDialog(QDialog):
         if not self.restoreGeometry(geom):
             h, w = available_height()-60, int(available_width()/1.5)
             self.resize(w, h)
+        self.action_fs_toggle = a = QAction(self)
+        self.addAction(a)
+        a.setShortcuts([QKeySequence('F11', QKeySequence.PortableText),
+            QKeySequence('Ctrl+Shift+F', QKeySequence.PortableText)])
+        a.triggered.connect(self.toggle_fullscreen)
+        self.action_esc_fs = a = QAction(self)
+        a.triggered.connect(self.show_normal)
+        self.addAction(a)
+        a.setShortcuts([QKeySequence('Esc', QKeySequence.PortableText)])
+
+        self.pre_fs_geom = None
+        cover_flow.setFocus(Qt.OtherFocusReason)
+        self.view_action = a = QAction(self)
+        iactions = parent.iactions
+        self.addAction(a)
+        a.setShortcuts(list(iactions['View'].menuless_qaction.shortcuts())+
+                [QKeySequence(Qt.Key_Space)])
+        a.triggered.connect(iactions['View'].menuless_qaction.trigger)
+        self.sd_action = a = QAction(self)
+        self.addAction(a)
+        a.setShortcuts(list(iactions['Send To Device'].
+            menuless_qaction.shortcuts()))
+        a.triggered.connect(iactions['Send To Device'].menuless_qaction.trigger)
 
     def closeEvent(self, *args):
-        geom = bytearray(self.saveGeometry())
-        gprefs['cover_browser_dialog_geometry'] = geom
+        if not self.isFullScreen():
+            geom = bytearray(self.saveGeometry())
+            gprefs['cover_browser_dialog_geometry'] = geom
         self.closed.emit()
+
+    def show_normal(self):
+        self.showNormal()
+        if self.pre_fs_geom is not None:
+            self.restoreGeometry(self.pre_fs_geom)
+            self.pre_fs_geom = None
+
+    def show_fullscreen(self):
+        self.pre_fs_geom = bytearray(self.saveGeometry())
+        self.showFullScreen()
+
+    def toggle_fullscreen(self, *args):
+        if self.isFullScreen():
+            self.show_normal()
+        else:
+            self.show_fullscreen()
+
 
 class CoverFlowMixin(object):
 
@@ -149,6 +207,7 @@ class CoverFlowMixin(object):
             self.cover_flow_sync_flag = True
             self.cover_flow = CoverFlow(parent=self)
             self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
+            self.cover_flow.context_menu_requested.connect(self.cf_context_menu_requested)
             self.library_view.selectionModel().currentRowChanged.connect(
                     self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
@@ -210,7 +269,7 @@ class CoverFlowMixin(object):
         d.addAction(self.cb_splitter.action_toggle)
         self.cover_flow.setVisible(True)
         self.cover_flow.setFocus(Qt.OtherFocusReason)
-        d.show()
+        d.show_fullscreen() if gprefs['cb_fullscreen'] else d.show()
         self.cb_splitter.button.set_state_to_hide()
         d.closed.connect(self.cover_browser_closed)
         self.cb_dialog = d
@@ -233,6 +292,14 @@ class CoverFlowMixin(object):
                 self.cover_flow.currentSlide() != current.row():
             self.cover_flow.setCurrentSlide(current.row())
         self.cover_flow_sync_flag = True
+
+    def cf_context_menu_requested(self):
+        row = self.cover_flow.currentSlide()
+        m = self.library_view.model()
+        index = m.index(row, 0)
+        sm = self.library_view.selectionModel()
+        sm.select(index, sm.ClearAndSelect|sm.Rows)
+        self.library_view.setCurrentIndex(index)
 
     def cover_flow_do_sync(self):
         self.cover_flow_sync_flag = True

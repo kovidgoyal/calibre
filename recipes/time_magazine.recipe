@@ -8,58 +8,60 @@ time.com
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from lxml import html
 
 class Time(BasicNewsRecipe):
     #recipe_disabled = ('This recipe has been disabled as TIME no longer'
     #        ' publish complete articles on the web.')
     title                 = u'Time'
-    __author__            = 'Kovid Goyal and Sujata Raman'
-    description           = 'Weekly magazine'
+    __author__            = 'Kovid Goyal'
+    description           = ('Weekly US magazine.')
     encoding = 'utf-8'
     no_stylesheets        = True
     language = 'en'
     remove_javascript     = True
+    #needs_subscription = 'optional'
 
-    extra_css      = ''' h1 {font-family:georgia,serif;color:#000000;}
-                        .mainHd{font-family:georgia,serif;color:#000000;}
-                         h2 {font-family:Arial,Sans-serif;}
-                        .name{font-family:Arial,Sans-serif; font-size:x-small;font-weight:bold; }
-                        .date{font-family:Arial,Sans-serif; font-size:x-small ;color:#999999;}
-                        .byline{font-family:Arial,Sans-serif; font-size:x-small ;}
-                        .photoBkt{ font-size:x-small ;}
-                        .vertPhoto{font-size:x-small ;}
-                        .credits{font-family:Arial,Sans-serif; font-size:x-small ;color:gray;}
-                        .credit{font-family:Arial,Sans-serif; font-size:x-small ;color:gray;}
-                        .artTxt{font-family:georgia,serif;}
-                        #content{font-family:georgia,serif;}
-                        .caption{font-family:georgia,serif; font-size:x-small;color:#333333;}
-                        .credit{font-family:georgia,serif; font-size:x-small;color:#999999;}
-                        a:link{color:#CC0000;}
-                        .breadcrumb{font-family:Arial,Sans-serif;font-size:x-small;}
-                        '''
+    keep_only_tags = [
+            {
+                'class':['artHd', 'articleContent',
+                            'entry-title','entry-meta', 'entry-content', 'thumbnail']
+            },
+        ]
+    remove_tags = [
+            {'class':['content-tools', 'quigo', 'see',
+                'first-tier-social-tools', 'navigation', 'enlarge lightbox']},
+            {'id':['share-tools']},
+            {'rel':'lightbox'},
+            ]
 
-
-    keep_only_tags = [ dict(name ="div",attrs = {"id" :["content"]}) ,
-                        dict(name ="div",attrs = {"class" :["artHd","artTxt","photoBkt","vertPhoto","image","copy"]}) ,]
-    remove_tags    = [           dict(name ="div",attrs =  {'class':['articleFooterNav','listsByTopic','articleTools2','relatedContent','sideContent','topBannerWrap','articlePagination','nextUp',"rtCol","pagination","enlarge","contentTools2",]}),
-                                  dict(name ="span",attrs =  {'class':['see']}),
-                                 dict(name ="div",attrs =  {'id':['header','articleSideBar',"articleTools","articleFooter","cmBotLt","quigoPackage"]}),
-                                  dict(name ="a",attrs =  {'class':['listLink']}),
-                                 dict(name ="ul",attrs =  {'id':['shareSocial','tabs']}),
-                                 dict(name ="li",attrs =  {'class':['back']}),
-                                 dict(name ="ul",attrs =  {'class':['navCount']}),
-                     ]
     recursions = 10
     match_regexps = [r'/[0-9,]+-(2|3|4|5|6|7|8|9)(,\d+){0,1}.html',r'http://www.time.com/time/specials/packages/article/.*']
 
     preprocess_regexps = [(re.compile(
         r'<meta .+/>'), lambda m:'')]
 
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if False and self.username and self.password:
+            # This site uses javascript in its login process
+            res = br.open('http://www.time.com/time/magazine')
+            br.select_form(nr=1)
+            br['username'] = self.username
+            br['password'] = self.password
+            res = br.submit()
+            raw = res.read()
+            if '>Log Out<' not in raw:
+                raise ValueError('Failed to login to time.com, check'
+                        ' your username and password')
+        return br
+
     def parse_index(self):
-        soup = self.index_to_soup('http://www.time.com/time/magazine')
-        img = soup.find('a', title="View Large Cover", href=True)
-        if img is not None:
-            cover_url = 'http://www.time.com'+img['href']
+        raw = self.index_to_soup('http://www.time.com/time/magazine', raw=True)
+        root = html.fromstring(raw)
+        img = root.xpath('//a[.="View Large Cover" and @href]')
+        if img:
+            cover_url = 'http://www.time.com' + img[0].get('href')
             try:
                 nsoup = self.index_to_soup(cover_url)
                 img = nsoup.find('img', src=re.compile('archive/covers'))
@@ -70,46 +72,48 @@ class Time(BasicNewsRecipe):
 
 
         feeds = []
-        parent = soup.find(id='tocGuts')
-        for seched in parent.findAll(attrs={'class':'toc_seched'}):
-            section = self.tag_to_string(seched).capitalize()
-            articles = list(self.find_articles(seched))
-            feeds.append((section, articles))
+        parent = root.xpath('//div[@class="content-main-aside"]')[0]
+        for sec in parent.xpath(
+                'descendant::section[contains(@class, "sec-mag-section")]'):
+            h3 = sec.xpath('./h3')
+            if h3:
+                section = html.tostring(h3[0], encoding=unicode,
+                        method='text').strip().capitalize()
+                self.log('Found section', section)
+                articles = list(self.find_articles(sec))
+                if articles:
+                    feeds.append((section, articles))
 
         return feeds
 
-    def find_articles(self, seched):
-            for a in seched.findNextSiblings( attrs={'class':['toc_hed','rule2']}):
-              if a.name in "div":
-                  break
-              else:
-                  yield {
-                           'title' : self.tag_to_string(a),
-                           'url'   : 'http://www.time.com'+a['href'],
-                           'date'  : '',
-                           'description' : self.article_description(a)
-                            }
+    def find_articles(self, sec):
 
-
-
-    def article_description(self, a):
-        ans = []
-        while True:
-            t = a.nextSibling
-            if t is None:
-                break
-            a = t
-            if getattr(t, 'name', False):
-                if t.get('class', '') == 'toc_parens' or t.name == 'br':
-                    continue
-                if t.name in ('div', 'a'):
-                    break
-                ans.append(self.tag_to_string(t))
-            else:
-                ans.append(unicode(t))
-        return u' '.join(ans).replace(u'\xa0', u'').strip()
+        for article in sec.xpath('./article'):
+            h2 = article.xpath('./*[@class="entry-title"]')
+            if not h2: continue
+            a = h2[0].xpath('./a[@href]')
+            if not a: continue
+            title = html.tostring(a[0], encoding=unicode,
+                        method='text').strip()
+            if not title: continue
+            url =  a[0].get('href')
+            if url.startswith('/'):
+                url = 'http://www.time.com'+url
+            desc = ''
+            p = article.xpath('./*[@class="entry-content"]')
+            if p:
+                desc = html.tostring(p[0], encoding=unicode,
+                        method='text')
+            self.log('\t', title, ':\n\t\t', desc)
+            yield {
+                    'title' : title,
+                    'url'   : url,
+                    'date'  : '',
+                    'description' : desc
+                    }
 
     def postprocess_html(self,soup,first):
         for tag in soup.findAll(attrs ={'class':['artPag','pagination']}):
             tag.extract()
         return soup
+

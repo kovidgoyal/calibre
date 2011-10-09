@@ -6,10 +6,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 economist.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+from collections import OrderedDict
 
-import string, time, re
+import re
 
 class Economist(BasicNewsRecipe):
 
@@ -22,97 +22,90 @@ class Economist(BasicNewsRecipe):
             ' perspective. Best downloaded on Friday mornings (GMT)')
     extra_css      = '.headline {font-size: x-large;} \n h2 { font-size: small;  } \n h1 { font-size: medium;  }'
     oldest_article = 7.0
-    cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
+    cover_url = 'http://media.economist.com/sites/default/files/imagecache/print-cover-thumbnail/print-covers/currentcoverus_large.jpg'
+    #cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
-            dict(attrs={'class':['dblClkTrk', 'ec-article-info', 'share_inline_header']}),
+            dict(attrs={'class':['dblClkTrk', 'ec-article-info',
+                'share_inline_header', 'related-items']}),
             {'class': lambda x: x and 'share-links-header' in x},
     ]
     keep_only_tags = [dict(id='ec-article-body')]
-    needs_subscription = False
     no_stylesheets = True
     preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
         lambda x:'</html>')]
 
+    # economist.com has started throttling after about 60% of the total has
+    # downloaded with connection reset by peer (104) errors.
+    delay = 1
+
+    needs_subscription = False
     '''
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
-        br.open('http://www.economist.com')
-        req = mechanize.Request(
-                'http://www.economist.com/members/members.cfm?act=exec_login',
-                headers = {
-                    'Referer':'http://www.economist.com/',
-                    },
-                data=urllib.urlencode({
-                    'logging_in' : 'Y',
-                    'returnURL'  : '/',
-                    'email_address': self.username,
-                    'fakepword' : 'Password',
-                    'pword'     : self.password,
-                    'x'         : '0',
-                    'y'         : '0',
-                    }))
-        br.open(req).read()
+        if self.username and self.password:
+            br.open('http://www.economist.com/user/login')
+            br.select_form(nr=1)
+            br['name'] = self.username
+            br['pass'] = self.password
+            res = br.submit()
+            raw = res.read()
+            if '>Log out<' not in raw:
+                raise ValueError('Failed to login to economist.com. '
+                        'Check your username and password.')
         return br
     '''
 
     def parse_index(self):
-        try:
-            return self.economist_parse_index()
-        except:
-            raise
-            self.log.warn(
-                'Initial attempt to parse index failed, retrying in 30 seconds')
-            time.sleep(30)
-            return self.economist_parse_index()
+        return self.economist_parse_index()
 
     def economist_parse_index(self):
-        soup = BeautifulSoup(self.browser.open(self.INDEX).read(),
-                             convertEntities=BeautifulSoup.HTML_ENTITIES)
-        index_started = False
-        feeds = {}
-        ans = []
-        key = None
-        for tag in soup.findAll(['h1', 'h2']):
-            text = ''.join(tag.findAll(text=True))
-            if tag.name in ('h1', 'h2') and 'Classified ads' in text:
-                break
-            if tag.name == 'h1':
-                if 'The world this week' in text or 'The world this year' in text:
-                    index_started = True
-                if not index_started:
-                    continue
-                text = string.capwords(text)
-                if text not in feeds.keys():
-                    feeds[text] = []
-                if text not in ans:
-                    ans.append(text)
-                key = text
+        soup = self.index_to_soup(self.INDEX)
+        div = soup.find('div', attrs={'class':'issue-image'})
+        if div is not None:
+            img = div.find('img', src=True)
+            if img is not None:
+                self.cover_url = img['src']
+        feeds = OrderedDict()
+        for section in soup.findAll(attrs={'class':lambda x: x and 'section' in
+            x}):
+            h4 = section.find('h4')
+            if h4 is None:
                 continue
-            if key is None:
+            section_title = self.tag_to_string(h4).strip()
+            if not section_title:
                 continue
-            a = tag.find('a', href=True)
-            if a is not None:
-                url=a['href']
-                id_ = re.search(r'story_id=(\d+)', url).group(1)
-                url = 'http://www.economist.com/node/%s/print'%id_
-                if url.startswith('Printer'):
-                    url = '/'+url
-                if url.startswith('/'):
-                    url = 'http://www.economist.com' + url
-                try:
-                   subtitle = tag.previousSibling.contents[0].contents[0]
-                   text = subtitle + ': ' + text
-                except:
-                   pass
-                article = dict(title=text,
-                    url = url,
-                    description='', content='', date='')
-                feeds[key].append(article)
+            self.log('Found section: %s'%section_title)
+            articles = []
+            subsection = ''
+            for node in section.findAll(attrs={'class':'article'}):
+                subsec = node.findPreviousSibling('h5')
+                if subsec is not None:
+                    subsection = self.tag_to_string(subsec)
+                prefix = (subsection+': ') if subsection else ''
+                a = node.find('a', href=True)
+                if a is not None:
+                    url = a['href']
+                    if url.startswith('/'): url = 'http://www.economist.com'+url
+                    url += '/print'
+                    title = self.tag_to_string(a)
+                    if title:
+                        title = prefix + title
+                        self.log('\tFound article:', title)
+                        articles.append({'title':title, 'url':url,
+                        'description':'', 'date':''})
 
-        ans = [(key, feeds[key]) for key in ans if feeds.has_key(key)]
+            if articles:
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
+
+        ans = [(key, val) for key, val in feeds.iteritems()]
         if not ans:
-            raise Exception('Could not find any articles. Has your subscription expired?')
+            raise Exception('Could not find any articles, either the '
+                    'economist.com server is having trouble and you should '
+                    'try later or the website format has changed and the '
+                    'recipe needs to be updated.')
         return ans
 
     def eco_find_image_tables(self, soup):

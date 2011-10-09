@@ -19,7 +19,8 @@ class PRS505(USBMS):
 
     name           = 'SONY Device Interface'
     gui_name       = 'SONY Reader'
-    description    = _('Communicate with all the Sony eBook readers.')
+    description    = _('Communicate with Sony eBook readers older than the'
+            ' PRST1.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
@@ -28,6 +29,7 @@ class PRS505(USBMS):
 
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
     CAN_SET_METADATA = ['title', 'authors', 'collections']
+    CAN_DO_DEVICE_DB_PLUGBOARD = True
 
     VENDOR_ID    = [0x054c]   #: SONY Vendor Id
     PRODUCT_ID   = [0x031e]
@@ -55,6 +57,8 @@ class PRS505(USBMS):
 
     SUPPORTS_SUB_DIRS = True
     MUST_READ_METADATA = True
+    NUKE_COMMENTS = _('Comments have been removed as the SONY reader'
+            ' chokes on them')
     SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
     SCAN_FROM_ROOT = False
@@ -66,10 +70,10 @@ class PRS505(USBMS):
         _('Comma separated list of metadata fields '
             'to turn into collections on the device. Possibilities include: ')+\
                     'series, tags, authors' +\
-            _('. Two special collections are available: %s:%s and %s:%s. Add  '
+            _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
             'these values to the list to enable them. The collections will be '
-            'given the name provided after the ":" character.')%(
-                                    'abt', ALL_BY_TITLE, 'aba', ALL_BY_AUTHOR),
+            'given the name provided after the ":" character.')%dict(
+                            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR),
             _('Upload separate cover thumbnails for books (newer readers)') +
             ':::'+_('Normally, the SONY readers get the cover image from the'
                 ' ebook file itself. With this option, calibre will send a '
@@ -290,6 +294,45 @@ class PRS505(USBMS):
             thumbnail_dir = os.path.join(thumbnail_dir, relpath)
             if not os.path.exists(thumbnail_dir):
                 os.makedirs(thumbnail_dir)
-            with open(os.path.join(thumbnail_dir, 'main_thumbnail.jpg'), 'wb') as f:
+            cpath = os.path.join(thumbnail_dir, 'main_thumbnail.jpg')
+            with open(cpath, 'wb') as f:
                 f.write(metadata.thumbnail[-1])
+            debug_print('Cover uploaded to: %r'%cpath)
+
+class PRST1(USBMS):
+    name           = 'SONY PRST1 and newer Device Interface'
+    gui_name       = 'SONY Reader'
+    description    = _('Communicate with Sony PRST1 and newer eBook readers')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+
+    FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
+    VENDOR_ID    = [0x054c]   #: SONY Vendor Id
+    PRODUCT_ID   = [0x05c2]
+    BCD          = [0x226]
+
+    VENDOR_NAME        = 'SONY'
+    WINDOWS_MAIN_MEM   = re.compile(
+            r'(PRS-T1&)'
+            )
+
+    THUMBNAIL_HEIGHT = 217
+    SCAN_FROM_ROOT = True
+    EBOOK_DIR_MAIN = __appname__
+    SUPPORTS_SUB_DIRS = True
+
+    def windows_filter_pnp_id(self, pnp_id):
+        return '_LAUNCHER' in pnp_id or '_SETTING' in pnp_id
+
+    def get_carda_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return __appname__
+        return self.EBOOK_DIR_CARD_A
+
+    def get_main_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return __appname__
+        return ''
+
+
 
