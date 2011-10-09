@@ -40,20 +40,9 @@ class AmazonUKKindleStore(StorePlugin):
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read().decode('latin-1', 'replace'))
 
-            # Amazon has two results pages.
-            # 20110725: seems that is_shot is gone.
-#            is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')
-#            # Horizontal grid of books.
-#            if is_shot:
-#                data_xpath = '//div[contains(@class, "result")]'
-#                format_xpath = './/div[@class="productTitle"]/text()'
-#                cover_xpath = './/div[@class="productTitle"]//img/@src'
-#            # Vertical list of books.
-#            else:
             data_xpath = '//div[contains(@class, "result") and contains(@class, "product")]'
             format_xpath = './/span[@class="format"]/text()'
             cover_xpath = './/img[@class="productImage"]/@src'
-# end is_shot else
 
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
@@ -76,11 +65,9 @@ class AmazonUKKindleStore(StorePlugin):
                 title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
 
-#                if is_shot:
-#                    author = format.split(' von ')[-1]
-#                else:
                 author = ''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()'))
-                author = author.split('by ')[-1]
+                if author.startswith('by '):
+                    author = author[3:]
 
                 counter -= 1
 
