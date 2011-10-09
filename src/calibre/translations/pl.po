@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-09-24 08:06+0000\n"
+"PO-Revision-Date: 2011-10-08 14:15+0000\n"
 "Last-Translator: koliberek <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-10-01 04:53+0000\n"
-"X-Generator: Launchpad (build 14071)\n"
+"X-Launchpad-Export-Date: 2011-10-09 05:16+0000\n"
+"X-Generator: Launchpad (build 14110)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -859,7 +859,7 @@ msgstr "Ten profil przeznaczony jest dla urządzenia Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:740
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Profil jest przeznaczony dla urządzeń z serii PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1886,7 +1886,7 @@ msgstr "USB Revision ID (hex)"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Windows main memory vendor string"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -1899,20 +1899,23 @@ msgstr ""
 "To pole jest używane tylko przez Windows. Użyj Preferencje -> Różne -> "
 "Informacje aby skonfigurować własne urządzenie"
 
+# Nie tłumaczone - termin techniczny
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "Windows main memory ID string"
 
+# Nie tłumaczone - termin techniczny
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Windows card A vendor string"
 
+# Nie tłumaczone - termin techniczny
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "Windows card A ID string"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
@@ -3716,7 +3719,7 @@ msgstr "japoński"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:445
 msgid "Spain"
-msgstr ""
+msgstr "hiszpański"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:449
 msgid "Amazon website to use:"
@@ -10424,7 +10427,7 @@ msgstr "Odzyskuję bazę danych"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:80
 #, python-format
 msgid "The old database was saved as: %s"
-msgstr ""
+msgstr "Stara wersja bazy danych została zapisana jako %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:84
 #, python-format
@@ -10432,11 +10435,13 @@ msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details. %s"
 msgstr ""
+"Przywracanie bazy danych udało się, ale zostało wygenerowanych kilka "
+"komunikatów. Aby uzyskać więcej informacji kliknij Pokaż szczegóły. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
 msgid "Restoring database was successful. %s"
-msgstr ""
+msgstr "Przywracanie bazy danych zostało pomyślnie zakończone. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:94
 msgid ""
@@ -11175,11 +11180,11 @@ msgstr "Ustaw kolor kolumny:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:39
 msgid "Copy a color name to the clipboard:"
-msgstr ""
+msgstr "Skopiuj nazwę koloru do schowka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:49
 msgid "Copy the selected color name to the clipboard"
-msgstr ""
+msgstr "Skopiuj zaznaczoną nazwę koloru do schowka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:59
 msgid "Template value:"
@@ -12227,6 +12232,9 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful. If you say No, a new empty calibre library will be created."
 msgstr ""
+"Wygląda na to, że biblioteka znajdująca się w %s jest uszkodzona. Czy "
+"chcesz, żeby calibre automatycznie odbudował bazę? Niektóre dane mogą zostać "
+"utracone. Jeśli klikniesz Nie zostanie utworzona nowa, pusta biblioteka."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:203
 #, python-format
@@ -16375,6 +16383,9 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful."
 msgstr ""
+"Wygląda na to, że biblioteka, znajdująca się w %s jest uszkodzona. Czy "
+"chcesz, żeby calibre automatycznie przebudował bazę? Niektóre dane mogą "
+"zostać utracone."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:578
 msgid "Conversion Error"
@@ -18938,11 +18949,11 @@ msgstr "Idź do"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "First"
-msgstr "Pierwsze"
+msgstr "Pierwsza"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "Last"
-msgstr "Ostatnie"
+msgstr "Ostatnia"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:109
 #, python-format
@@ -19016,7 +19027,7 @@ msgstr "Czytaj %(title)s w formacie %(fmt)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:757
 msgid "Get"
-msgstr "Uzyskaj"
+msgstr "Pobierz"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:770
 msgid "Details"
@@ -19926,6 +19937,11 @@ msgid ""
 "character (sep1 or sep2). The order of items in the lists is not relevant. "
 "The compare is case insensitive."
 msgstr ""
+"list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- zwraca wartość "
+"yes_val jeśli listy list1 i list2 zawierają te same elementy, w przeciwnym "
+"przypadku zwracana jest wartość no_val. Listy są dzielone na elemeny przy "
+"użyciu separatorów odpowiednio sep1 i sep2. Kolejność elementów listy nie "
+"jest znacząca, wielkość liter również."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:990
 msgid ""
@@ -20371,7 +20387,7 @@ msgstr "Obrazek nagłówka pobrany"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1216
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Artykuły w tym wydaniu: "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1286
 msgid "Untitled Article"
