@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
 
 from lxml import html
@@ -34,12 +33,12 @@ class AmazonUKKindleStore(StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         search_url = 'http://www.amazon.co.uk/s/?url=search-alias%3Ddigital-text&field-keywords='
-        url =  search_url + urllib.quote_plus(query)
+        url = search_url + query.encode('ascii', 'backslashreplace').replace('%', '%25').replace('\\x', '%').replace(' ', '+')
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            doc = html.fromstring(f.read().decode('latin-1', 'replace'))
 
             # Amazon has two results pages.
             # 20110725: seems that is_shot is gone.

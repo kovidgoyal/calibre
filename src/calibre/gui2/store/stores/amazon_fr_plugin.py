@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
 
 from lxml import html
@@ -34,12 +33,12 @@ class AmazonFRKindleStore(StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         search_url = 'http://www.amazon.fr/s/?url=search-alias%3Ddigital-text&field-keywords='
-        url =  search_url + urllib.quote_plus(query)
+        url = search_url + query.encode('ascii', 'backslashreplace').replace('%', '%25').replace('\\x', '%').replace(' ', '+')
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            doc = html.fromstring(f.read().decode('latin-1', 'replace'))
 
             data_xpath = '//div[contains(@class, "result") and contains(@class, "product")]'
             format_xpath = './/span[@class="format"]/text()'
@@ -66,9 +65,7 @@ class AmazonFRKindleStore(StorePlugin):
                 title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
                 author = unicode(''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()')))
-                author = author.split('de ')[-1]
-
-#                print (author, asin, cover_url, title, price)
+                author = author.split('et ')[-1]
 
                 counter -= 1
 
@@ -79,36 +76,6 @@ class AmazonFRKindleStore(StorePlugin):
                 s.price = price.strip()
                 s.detail_item = asin.strip()
                 s.formats = 'Kindle'
-                s.DRM = SearchResult.DRM_UNKNOWN
+                s.drm = SearchResult.DRM_UNKNOWN
+                
                 yield s
-
-    def get_details(self, search_result, timeout):
-        # We might already have been called.
-        if search_result.drm:
-            return
-
-        url = 'http://amazon.fr/dp/'
-        drm_search_text = u'Simultaneous Device Usage'
-        drm_free_text = u'Unlimited'
-
-        br = browser()
-        with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
-            idata = html.fromstring(nf.read())
-            if not search_result.author:
-                search_result.author = ''.join(idata.xpath('//div[@class="buying" and contains(., "Author")]/a/text()'))
-                is_kindle = idata.xpath('boolean(//div[@class="buying"]/h1/span/span[contains(text(), "Kindle Edition")])')
-                if is_kindle:
-                    search_result.formats = 'Kindle'
-            if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
-                           drm_search_text + '")])'):
-                if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
-                               drm_free_text + '") and contains(b, "' +
-                               drm_search_text + '")])'):
-                    search_result.drm = SearchResult.DRM_UNLOCKED
-                else:
-                    search_result.drm = SearchResult.DRM_UNKNOWN
-            else:
-                search_result.drm = SearchResult.DRM_LOCKED
-        return True
-
-
