@@ -14,7 +14,7 @@ class ShowQuickviewAction(InterfaceAction):
 
     name = 'Show quickview'
     action_spec = (_('Show quickview'), 'search.png', None, _('Q'))
-    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
     current_instance = None

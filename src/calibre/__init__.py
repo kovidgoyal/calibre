@@ -278,6 +278,8 @@ def get_proxies(debug=True):
             continue
         if proxy.startswith(key+'://'):
             proxy = proxy[len(key)+3:]
+        if key == 'https' and proxy.startswith('http://'):
+            proxy = proxy[7:]
         if proxy.endswith('/'):
             proxy = proxy[:-1]
         if len(proxy) > 4:

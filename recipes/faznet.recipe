@@ -19,45 +19,20 @@ class FazNet(BasicNewsRecipe):
     no_stylesheets        = True
     encoding              = 'utf-8'
     remove_javascript     = True
-
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
-
-    keep_only_tags = [dict(name='div', attrs={'class':'Article'})]
-
-    remove_tags = [
-                     dict(name=['object','link','embed','base'])
-                    ,dict(name='div',
-                        attrs={'class':['LinkBoxModulSmall','ModulVerlagsInfo',
-                            'ArtikelServices', 'ModulLesermeinungenFooter',
-                            'ModulArtikelServices', 'BoxTool Aufklappen_Grau',
-                            'SocialMediaUnten', ]}),
-                    dict(id=['KurzLinkMenu', 'ArtikelServicesMenu']),
-                  ]
+    keep_only_tags = [{'class':'FAZArtikelEinleitung'},
+            {'id':'ArtikelTabContent_0'}]
 
     feeds = [
-              ('FAZ.NET Aktuell', 'http://www.faz.net/s/RubF3CE08B362D244869BE7984590CB6AC1/Tpl~Epartner~SRss_.xml'),
-              ('Politik', 'http://www.faz.net/s/RubA24ECD630CAE40E483841DB7D16F4211/Tpl~Epartner~SRss_.xml'),
-              ('Wirtschaft', 'http://www.faz.net/s/RubC9401175958F4DE28E143E68888825F6/Tpl~Epartner~SRss_.xml'),
-              ('Feuilleton', 'http://www.faz.net/s/RubCC21B04EE95145B3AC877C874FB1B611/Tpl~Epartner~SRss_.xml'),
-              ('Sport', 'http://www.faz.net/s/Rub9F27A221597D4C39A82856B0FE79F051/Tpl~Epartner~SRss_.xml'),
-              ('Gesellschaft', 'http://www.faz.net/s/Rub02DBAA63F9EB43CEB421272A670A685C/Tpl~Epartner~SRss_.xml'),
-              ('Finanzen', 'http://www.faz.net/s/Rub4B891837ECD14082816D9E088A2D7CB4/Tpl~Epartner~SRss_.xml'),
-              ('Wissen', 'http://www.faz.net/s/Rub7F4BEE0E0C39429A8565089709B70C44/Tpl~Epartner~SRss_.xml'),
-              ('Reise', 'http://www.faz.net/s/RubE2FB5CA667054BDEA70FB3BC45F8D91C/Tpl~Epartner~SRss_.xml'),
-              ('Technik & Motor', 'http://www.faz.net/s/Rub01E4D53776494844A85FDF23F5707AD8/Tpl~Epartner~SRss_.xml'),
-              ('Beruf & Chance', 'http://www.faz.net/s/RubB1E10A8367E8446897468EDAA6EA0504/Tpl~Epartner~SRss_.xml')
+              ('FAZ.NET Aktuell', 'http://www.faz.net/aktuell/?rssview=1'),
+              ('Politik', 'http://www.faz.net/aktuell/politik/?rssview=1'),
+              ('Wirtschaft', 'http://www.faz.net/aktuell/wirtschaft/?rssview=1'),
+              ('Feuilleton', 'http://www.faz.net/aktuell/feuilleton/?rssview=1'),
+              ('Sport', 'http://www.faz.net/aktuell/sport/?rssview=1'),
+              ('Gesellschaft', 'http://www.faz.net/aktuell/gesellschaft/?rssview=1'),
+              ('Finanzen', 'http://www.faz.net/aktuell/finanzen/?rssview=1'),
+              ('Technik & Motor', 'http://www.faz.net/aktuell/technik-motor/?rssview=1'),
+              ('Wissen', 'http://www.faz.net/aktuell/wissen/?rssview=1'),
+              ('Reise', 'http://www.faz.net/aktuell/reise/?rssview=1'),
+              ('Beruf & Chance', 'http://www.faz.net/aktuell/beruf-chance/?rssview=1')
             ]
 
-    def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
-        soup.head.insert(0,mtag)
-        del soup.body['onload']
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
