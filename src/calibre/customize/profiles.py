@@ -437,8 +437,8 @@ class TabletOutput(iPadOutput):
     short_name = 'tablet'
     description = _('Intended for generic tablet devices, does no resizing of images')
 
-    screen_size = (sys.maxint, sys.maxint)
-    comic_screen_size = (sys.maxint, sys.maxint)
+    screen_size = (10000, 10000)
+    comic_screen_size = (10000, 10000)
 
 class SamsungGalaxy(TabletOutput):
     name = 'Samsung Galaxy'
