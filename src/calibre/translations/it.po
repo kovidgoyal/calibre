@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-10-05 19:30+0000\n"
-"Last-Translator: Hans Baas <Unknown>\n"
+"PO-Revision-Date: 2011-10-09 08:22+0000\n"
+"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-06 04:34+0000\n"
-"X-Generator: Launchpad (build 14085)\n"
+"X-Launchpad-Export-Date: 2011-10-10 05:11+0000\n"
+"X-Generator: Launchpad (build 14123)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -402,7 +402,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:804
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr "Consulta il manuale utente di calibre"
+msgstr "Sfoglia il manuale utente di calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:809
 msgid "Customize calibre"
@@ -718,79 +718,79 @@ msgid ""
 "nothing about the input document."
 msgstr ""
 "Questo profilo imposta valori predefiniti adeguati ed è utile quando non si "
-"sa nulla sul documento di origine."
+"hanno informazioni sul documento di origine."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:61
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:454
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
-"Questo profilo è adatto per la linea SONY PRS. Ad esempio: 500/505/600/700 "
+"Questo profilo è adatto alla linea SONY PRS. Ad esempio, 500/505/600/700. "
 "ecc."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:73
 msgid "This profile is intended for the SONY PRS 300."
-msgstr "Questo profilo è adatto per il Sony PRS 300."
+msgstr "Questo profilo è adatto al Sony PRS 300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:82
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:494
 msgid "This profile is intended for the SONY PRS-900."
-msgstr "Questo profilo è adatto per il Sony PRS-900."
+msgstr "Questo profilo è adatto al Sony PRS-900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:90
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:539
 msgid "This profile is intended for the Microsoft Reader."
-msgstr "Questo profilo è adatto per il Microsoft Reader."
+msgstr "Questo profilo è adatto al Microsoft Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:101
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:550
 msgid "This profile is intended for the Mobipocket books."
-msgstr "Questo profilo è adatto per i libri in formato Mobipocket."
+msgstr "Questo profilo è adatto ai libri in formato Mobipocket."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:114
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:563
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr "Questo profilo è adatto per l'Hanlin V3 ed i suoi cloni."
+msgstr "Questo profilo è adatto all'Hanlin V3 e ai suoi cloni."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:126
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:575
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr "Questo profilo è adatto per Hanlin V5 e i suoi cloni."
+msgstr "Questo profilo è adatto all'Hanlin V5 e ai suoi cloni."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:136
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:583
 msgid "This profile is intended for the Cybook G3."
-msgstr "Questo profilo è adatto per il Cybook G3."
+msgstr "Questo profilo è adatto al Cybook G3."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:149
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:597
 msgid "This profile is intended for the Cybook Opus."
-msgstr "Questo profilo è adatto per il Cybook Opus."
+msgstr "Questo profilo è adatto al Cybook Opus."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:161
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:610
 msgid "This profile is intended for the Amazon Kindle."
-msgstr "Questo profilo è adatto per il Kindle di Amazon."
+msgstr "Questo profilo è adatto al Kindle di Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:173
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:661
 msgid "This profile is intended for the Irex Illiad."
-msgstr "Questo profilo è adatto per l'Irex di Illiad."
+msgstr "Questo profilo è adatto all'Irex di Illiad."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:185
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:674
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr "Questo profilo è adatto per l'IRex Digital Reader 1000."
+msgstr "Questo profilo è adatto all'IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:198
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:688
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr "Questo profilo adatto per l'IRex Digital Reader 800."
+msgstr "Questo profilo è adatto all'IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:210
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:702
 msgid "This profile is intended for the B&N Nook."
-msgstr "Questo profilo è adatto per il Nook B&N."
+msgstr "Questo profilo è adatto al Nook B&N."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:232
 msgid "Output profile"
@@ -802,15 +802,15 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Questo profilo cerca di fornire adeguate impostazioni ed è utile per "
-"produrre un documento da poter leggere tramite computer o su vari "
+"Questo profilo cerca di fornire impostazioni predefinite adeguate ed è utile "
+"per produrre un documento da poter leggere tramite computer o su vari "
 "dispositivi."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:278
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
 msgstr ""
-"Questo profilo è adatto per l'iPad e dispositivi simili con una risoluzione "
+"Questo profilo è adatto all'iPad e a dispositivi simili con una risoluzione "
 "di 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:438
@@ -828,11 +828,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:472
 msgid "This profile is intended for the Kobo Reader."
-msgstr "Questo profilo è adatto per il Kobo Reader."
+msgstr "Questo profilo è adatto al Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:485
 msgid "This profile is intended for the SONY PRS-300."
-msgstr "Questo profilo è adatto per il Sony PRS-300."
+msgstr "Questo profilo è adatto al Sony PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:503
 msgid "Suitable for use with any e-ink device"
@@ -846,32 +846,33 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:519
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr "Questo profilo è adatto per il JetBook da 5 pollici."
+msgstr "Questo profilo è adatto al JetBook da 5 pollici."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:528
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Questo profilo è adatto per la linea SONY PRS. Il 500/505/700 ecc, in "
-"modalità panoramica. Utile principalmente per i fumetti."
+"Questo profilo è adatto alla linea SONY PRS. Il 500/505/700 ecc, in modalità "
+"panoramica. Utile principalmente per i fumetti."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:636
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr "Questo profilo è adatto per il Kindle DX di Amazon."
+msgstr "Questo profilo è adatto al Kindle DX di Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:714
 msgid "This profile is intended for the B&N Nook Color."
-msgstr "Questo profilo è pensato per il B&N Nook Color."
+msgstr "Questo profilo è adatto al B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:725
 msgid "This profile is intended for the Sanda Bambook."
-msgstr "Questo profilo è pensato per il Sanda Bambook."
+msgstr "Questo profilo è adatto al Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:740
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr "Questo profilo è per i dispositivi della serie PocketBook Pro 900."
+msgstr ""
+"Questo profilo è adatto ai dispositivi della serie PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1608,8 +1609,7 @@ msgstr "Comunica con tutti i lettori Sony."
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:59
 msgid "Comments have been removed as the SONY reader chokes on them"
 msgstr ""
-"I commenti sono stati cancellati perché l'ebook della SONY non riesce a "
-"gestirli."
+"I commenti sono stati rimossi perché l'ebook di SONY non riesce a gestirli."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:65
 msgid "All by title"
@@ -4415,7 +4415,7 @@ msgid ""
 "Will do the best to convert.\n"
 msgstr ""
 "Il documento anche ha un RTF più recente.\n"
-"Proverò di convertirlo.\n"
+"Proverò a convertirlo.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:25
 #: /home/kovid/work/calibre/src/calibre/ebooks/tcr/output.py:23
@@ -10632,8 +10632,8 @@ msgid ""
 msgstr ""
 "                Scarica questo periodico ogni x giorni. Se scegli 30 "
 "giorni,\n"
-"ogni 30 giorni sarà scaricato. Nota bene che puoi scegliere\n"
-"anche periodi di meno di un giorno, per esempio ogni\n"
+"ogni 30 giorni sarà scaricato. Nota che puoi scegliere\n"
+"anche periodi minori di un giorno, adesempio ogni\n"
 "0,1 giorni, per scaricarlo più volte al giorno.\n"
 "            "
 
@@ -10775,7 +10775,7 @@ msgid ""
 "Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep "
 "all (disable)."
 msgstr ""
-"Numero massimo di uscite da tenere. 0 per tenere tutte (disattivare)."
+"Numero massimo di uscite da conservare. 0 per conservarle tutte (disabilita)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:222
 msgid "&Keep at most:"
@@ -11192,11 +11192,11 @@ msgstr "Era"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:263
 msgid "Template language tutorial"
-msgstr "Modello di manuale di traduzione."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:267
 msgid "Template function reference"
-msgstr "Modello di riferenza funzioni."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:285
 msgid "EXCEPTION: "
@@ -11238,7 +11238,7 @@ msgstr "Valore del modello:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:60
 msgid ""
 "The value the of the template using the current book in the library view"
-msgstr "Il valore del modello basato sul libro attuale in libreria."
+msgstr "Il valore del modello basato sul libro attuale nella biblioteca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:73
 msgid "Function &name:"
@@ -12428,7 +12428,7 @@ msgid ""
 msgstr ""
 "Ultima modifica: %s\n"
 "\n"
-"Doppia clicca per visualizzare"
+"Doppio clic per visualizzare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:613
 #, python-format
@@ -12564,7 +12564,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Modifica gli identificatori per il libro. Per esempio:\n"
+"Modifica gli identificatori per il libro. Ad esempio:\n"
 "\n"
 "%s"
 
