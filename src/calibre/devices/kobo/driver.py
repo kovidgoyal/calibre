@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Timothy Legge <timlegge at gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, shutil
 import sqlite3 as sqlite
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
@@ -16,6 +16,7 @@ from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.utils.magick.draw import save_cover_data_to
+from calibre.ptempfile import PersistentTemporaryFile
 
 class KOBO(USBMS):
 
@@ -865,3 +866,21 @@ class KOBO(USBMS):
                 else:
                     debug_print("ImageID could not be retreived from the database")
 
+    def prepare_addable_books(self, paths):
+        ''' 
+        The Kobo supports an encrypted epub refered to as a kepub
+        Unfortunately Kobo decided to put the files on the device
+        with no file extension.  I just hope that decision causes 
+        them as much grief as it does me :-)
+
+        This has to make a temporary copy of the book files with a
+        epub extension to allow Calibre's normal processing to 
+        deal with the file appropriately
+        '''
+        for idx, path in enumerate(paths):
+            if path.find('kepub') >= 0:
+                with closing(open(path)) as r:
+                    tf = PersistentTemporaryFile(suffix='.epub')
+                    tf.write(r.read())
+                    paths[idx] = tf.name
+        return paths
