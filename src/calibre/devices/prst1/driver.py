@@ -265,7 +265,7 @@ class PRST1(USBMS):
                 values (?,?,?,?,?,?,?,?,?,0,0)
                 '''
                 t = (title, author, source_id, int(time.time() * 1000),
-                        calendar.timegm(book.datetime), lpath,
+                        int(calendar.timegm(book.datetime) * 1000), lpath,
                         os.path.basename(book.lpath), book.size, book.mime)
                 cursor.execute(query, t)
                 book.bookId = cursor.lastrowid
@@ -278,7 +278,7 @@ class PRST1(USBMS):
                 SET title = ?, author = ?, modified_date = ?, file_size = ?
                 WHERE file_path = ?
                 '''
-                t = (title, author, calendar.timegm(book.datetime), book.size,
+                t = (title, author, int(calendar.timegm(book.datetime) * 1000), book.size,
                         lpath)
                 cursor.execute(query, t)
                 book.bookId = db_books[lpath]
@@ -337,9 +337,9 @@ class PRST1(USBMS):
                     db_books[row[0]] = row[1]
 
                 for idx, book in enumerate(books):
+                    if collection not in book.device_collections:
+                        book.device_collections.append(collection)
                     if db_books.get(book.lpath, None) is None:
-                        if collection not in book.device_collections:
-                            book.device_collections.append(collection)
                         query = '''
                         INSERT INTO collections (collection_id, content_id,
                         added_order) values (?,?,?)
@@ -424,4 +424,5 @@ class PRST1(USBMS):
         t = (thumbnail_path, book.bookId,)
         cursor.execute(query, t)
 
+        connection.commit()
         cursor.close()
