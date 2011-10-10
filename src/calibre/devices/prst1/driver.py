@@ -403,6 +403,38 @@ class PRST1(USBMS):
 
         debug_print('PRS-T1: finished rebuild_collections')
 
+    def upload_cover(self, path, filename, metadata, filepath):
+        debug_print('PRS-T1: uploading cover')
+    
+        if filepath.startswith(self._main_prefix):
+            prefix = self._main_prefix
+            source_id = 0
+        else:
+            prefix = self._card_a_prefix
+            source_id = 1
+        
+        metadata.lpath = filepath.partition(prefix)[2]
+        dbpath = self.normalize_path(prefix + DBPATH)
+        debug_print("SQLite DB Path: " + dbpath)
+
+        with closing(sqlite.connect(dbpath)) as connection: 
+            cursor = connection.cursor()
+        
+            query = 'SELECT _id FROM books WHERE file_path = ?'
+            t = (metadata.lpath,)
+            cursor.execute(query, t)
+            
+            for i, row in enumerate(cursor):
+                metadata.bookId = row[0]
+            
+            cursor.close()
+            
+            if metadata.bookId is not None:
+                debug_print('PRS-T1: refreshing cover for book being sent')
+                self.upload_book_cover(connection, metadata, source_id)
+                
+        debug_print('PRS-T1: done uploading cover')
+
     def upload_book_cover(self, connection, book, source_id):
         debug_print('PRST1: Uploading/Refreshing Cover for ' + book.title)
         if not book.thumbnail and book.thumbnail[-1]:
