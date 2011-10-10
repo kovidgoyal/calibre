@@ -1,0 +1,64 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.defensenews.com
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class DefenseNews(BasicNewsRecipe):
+    title                 = 'Defense News'
+    __author__            = 'Darko Miletic'
+    description           = 'Find late-breaking defense news from the leading defense news weekly'
+    publisher             = 'Gannett Government Media Corporation'
+    category              = 'defense news, defence news, defense, defence, defence budget, defence policy'
+    oldest_article        = 31
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'en'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://www.defensenews.com/images/logo_defensenews2.jpg'
+    extra_css             = """
+                               body{font-family: Arial,Helvetica,sans-serif }
+                               img{margin-bottom: 0.4em; display:block}
+                               .info{font-size: small; color: gray}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    remove_tags = [
+                     dict(name=['meta','link'])
+                    ,dict(attrs={'class':['toolbar','related','left','right']})
+                  ]
+    remove_tags_before = attrs={'class':'storyWrp'}
+    remove_tags_after = attrs={'class':'middle'}
+    
+    remove_attributes=['lang']
+
+    feeds = [
+              (u'Europe'  , u'http://www.defensenews.com/rss/eur/'            )
+             ,(u'Americas', u'http://www.defensenews.com/rss/ame/'            )
+             ,(u'Asia & Pacific rim', u'http://www.defensenews.com/rss/asi/'  )
+             ,(u'Middle east & Africa', u'http://www.defensenews.com/rss/mid/')
+             ,(u'Air', u'http://www.defensenews.com/rss/air/'                 )
+             ,(u'Land', u'http://www.defensenews.com/rss/lan/'                )
+             ,(u'Naval', u'http://www.defensenews.com/rss/sea/'               )
+            ]
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
