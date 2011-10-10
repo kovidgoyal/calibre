@@ -30,7 +30,7 @@ class PRST1(USBMS):
     booklist_class = CollectionsBookList
 
     FORMATS      = ['epub', 'pdf', 'txt']
-    CAN_SET_METADATA = ['title', 'authors', 'collections']
+    CAN_SET_METADATA = ['collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
     VENDOR_ID    = [0x054c]   #: SONY Vendor Id
