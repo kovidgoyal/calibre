@@ -217,7 +217,7 @@ class DevicePlugin(Plugin):
         '''
         Unix version of :meth:`can_handle_windows`
 
-        :param device_info: Is a tupe of (vid, pid, bcd, manufacturer, product,
+        :param device_info: Is a tuple of (vid, pid, bcd, manufacturer, product,
                             serial number)
 
         '''
