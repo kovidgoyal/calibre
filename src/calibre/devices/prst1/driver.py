@@ -31,6 +31,7 @@ class PRST1(USBMS):
 
     FORMATS      = ['epub', 'pdf', 'txt']
     CAN_SET_METADATA = ['title', 'authors', 'collections']
+    CAN_DO_DEVICE_DB_PLUGBOARD = True
 
     VENDOR_ID    = [0x054c]   #: SONY Vendor Id
     PRODUCT_ID   = [0x05c2]
@@ -79,6 +80,9 @@ class PRST1(USBMS):
     OPT_UPLOAD_COVERS  = 1
     OPT_REFRESH_COVERS = 2
     OPT_PRESERVE_ASPECT_RATIO = 3
+
+    plugboards = None
+    plugboard_func = None
 
     def post_open_callback(self):
         # Set the thumbnail width to the theoretical max if the user has asked
@@ -148,12 +152,15 @@ class PRST1(USBMS):
 					if thumbnail is not None:
 					    thumbnail = self.normalize_path(prefix + thumbnail)
 						book.thumbnail = ImageWrapper(thumbnail)
-						debug_print('Got thumnail for :' + book.title)
 			
 			cursor.close()
 
 		return bl
 		
+	def set_plugboards(self, plugboards, pb_func):
+	    self.plugboards = plugboards
+	    self.plugboard_func = pb_func	
+	
 	def sync_booklists(self, booklists, end_session=True):
 		debug_print('PRST1: starting sync_booklists')
 		
@@ -176,6 +183,11 @@ class PRST1(USBMS):
 	def update_device_database(self, booklist, collections_attributes, oncard):
 		debug_print('PRST1: starting update_device_database')
 		
+		plugboard = None
+		if self.plugboard_func:
+            plugboard = self.plugboard_func(self.__class__.__name__, 'device_db', self.plugboards)
+			debug_print("PRST1: Using Plugboard", plugboard)
+		
 		prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
 		source_id = 1 if oncard == 'carda' else 0
 		debug_print("SQLite DB Path: " + self.normalize_path(prefix + 'Sony_Reader/database/books.db'))
@@ -183,14 +195,14 @@ class PRST1(USBMS):
 		collections = booklist.get_collections(collections_attributes)
 		
 		with closing(sqlite.connect(self.normalize_path(prefix + 'Sony_Reader/database/books.db'))) as connection:
-			self.update_device_books(connection, booklist, source_id)
+			self.update_device_books(connection, booklist, source_id, plugboard)
 			self.update_device_collections(connection, booklist, collections, source_id)
 		
 		debug_print('PRST1: finished update_device_database')
 
-	def update_device_books(self, connection, booklist, source_id):
+	def update_device_books(self, connection, booklist, source_id, plugboard):
 		opts = self.settings()
-		upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS];
+		upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
 		refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
 				
 		cursor = connection.cursor()
@@ -205,13 +217,24 @@ class PRST1(USBMS):
 			lpath = row[0].replace('\\', '/')
 			dbBooks[lpath] = row[1]
 		
-		for book in booklist:
+		for book in booklist:	
+			# Run through plugboard if needed		
+			if plugboard is not None:
+                newmi = book.deepcopy_metadata()
+                newmi.template_to_attribute(book, plugboard)
+            else:
+                newmi = book
+			
+			# Get Metadata We Want
 			lpath = book.lpath
+			author = newmi.authors[0]
+			title = newmi.title			
+
 			if lpath not in dbBooks:
 				query = 'insert into books ' \
 						'(title, author, source_id, added_date, modified_date, file_path, file_name, file_size, mime_type, corrupted, prevent_delete) ' \
 						'values (?,?,?,?,?,?,?,?,?,0,0)'
-				t = (book.title, book.authors[0], source_id, int(time.time() * 1000), calendar.timegm(book.datetime), lpath, os.path.basename(book.lpath), book.size, book.mime )
+				t = (title, author, source_id, int(time.time() * 1000), calendar.timegm(book.datetime), lpath, os.path.basename(book.lpath), book.size, book.mime )
 				cursor.execute(query, t)
 				book.bookId = cursor.lastrowid
 				if upload_covers:
@@ -221,7 +244,7 @@ class PRST1(USBMS):
 				query = 'update books ' \
 						'set title = ?, author = ?, modified_date = ?, file_size = ? ' \
 						'where file_path = ?'
-				t = (book.title, book.authors[0], calendar.timegm(book.datetime), book.size, lpath)
+				t = (title, author, calendar.timegm(book.datetime), book.size, lpath)
 				cursor.execute(query, t)
 				book.bookId = dbBooks[lpath]
 				if refresh_covers:
@@ -278,14 +301,20 @@ class PRST1(USBMS):
 				for i, row in enumerate(cursor):
 					dbBooks[row[0]] = row[1]
 					
-				for book in books:
+				for idx, book in enumerate(books):
 					if dbBooks.get(book.lpath, None) is None:
 						if collection not in book.device_collections:
 							book.device_collections.append(collection)
-						query = 'insert into collections (collection_id, content_id) values (?,?)'
-						t = (dbCollections[collection], book.bookId)
+						query = 'insert into collections (collection_id, content_id, added_order) values (?,?,?)'
+						t = (dbCollections[collection], book.bookId, idx)
 						cursor.execute(query, t)
 						debug_print('Inserted Book Into Collection: ' + book.title + ' -> ' + collection)
+					else:
+						query = 'update collections ' \
+						        'set added_order = ? ' \
+						        'where content_id = ? and collection_id = ? '
+						t = (idx, book.bookId, dbCollections[collection])
+						cursor.execute(query, t)
 					
 					dbBooks[book.lpath] = None
 					
