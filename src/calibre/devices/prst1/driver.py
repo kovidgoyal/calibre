@@ -47,6 +47,9 @@ class PRST1(USBMS):
     WINDOWS_MAIN_MEM   = re.compile(
             r'(PRS-T1&)'
             )
+    WINDOWS_CARD_A_MEM = re.compile(
+            r'(PRS-T1__SD&)'
+            )
     MAIN_MEMORY_VOLUME_LABEL = 'SONY Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'SONY Reader Storage Card'
 
