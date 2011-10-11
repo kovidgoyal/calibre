@@ -1144,6 +1144,16 @@ class StoreAmazonDEKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+class StoreAmazonFRKindleStore(StoreBase):
+    name = 'Amazon FR Kindle'
+    author = 'Charles Haley'
+    description = u'Tous les ebooks Kindle'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_fr_plugin:AmazonFRKindleStore'
+
+    headquarters = 'DE'
+    formats = ['KINDLE']
+    affiliate = True
+
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
     author = 'Charles Haley'
@@ -1521,6 +1531,7 @@ plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
     StoreAmazonDEKindleStore,
+    StoreAmazonFRKindleStore,
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
     StoreBNStore,

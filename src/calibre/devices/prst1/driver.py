@@ -47,6 +47,9 @@ class PRST1(USBMS):
     WINDOWS_MAIN_MEM   = re.compile(
             r'(PRS-T1&)'
             )
+    WINDOWS_CARD_A_MEM = re.compile(
+            r'(PRS-T1__SD&)'
+            )
     MAIN_MEMORY_VOLUME_LABEL = 'SONY Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'SONY Reader Storage Card'
 
@@ -253,8 +256,11 @@ class PRST1(USBMS):
 
             # Get Metadata We Want
             lpath = book.lpath
-            author = newmi.authors[0]
-            title = newmi.title
+            try:
+                author = newmi.authors[0]
+            except:
+                author = _('Unknown')
+            title = newmi.title or _('Unknown')
 
             if lpath not in db_books:
                 query = '''
@@ -405,34 +411,34 @@ class PRST1(USBMS):
 
     def upload_cover(self, path, filename, metadata, filepath):
         debug_print('PRS-T1: uploading cover')
-    
+
         if filepath.startswith(self._main_prefix):
             prefix = self._main_prefix
             source_id = 0
         else:
             prefix = self._card_a_prefix
             source_id = 1
-        
+
         metadata.lpath = filepath.partition(prefix)[2]
         dbpath = self.normalize_path(prefix + DBPATH)
         debug_print("SQLite DB Path: " + dbpath)
 
-        with closing(sqlite.connect(dbpath)) as connection: 
+        with closing(sqlite.connect(dbpath)) as connection:
             cursor = connection.cursor()
-        
+
             query = 'SELECT _id FROM books WHERE file_path = ?'
             t = (metadata.lpath,)
             cursor.execute(query, t)
-            
+
             for i, row in enumerate(cursor):
                 metadata.bookId = row[0]
-            
+
             cursor.close()
-            
+
             if metadata.bookId is not None:
                 debug_print('PRS-T1: refreshing cover for book being sent')
                 self.upload_book_cover(connection, metadata, source_id)
-                
+
         debug_print('PRS-T1: done uploading cover')
 
     def upload_book_cover(self, connection, book, source_id):

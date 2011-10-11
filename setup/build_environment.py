@@ -225,7 +225,10 @@ except:
     try:
         HOST=get_ip_address('wlan0')
     except:
-        HOST='192.168.1.2'
+        try:
+            HOST=get_ip_address('ppp0')
+        except:
+            HOST='192.168.1.2'
 
 PROJECT=os.path.basename(os.path.abspath('.'))
 
