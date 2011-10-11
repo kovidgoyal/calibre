@@ -119,10 +119,8 @@ class Guardian(BasicNewsRecipe):
                         }
 
     def parse_index(self):
-        try:
-            feeds = []
-            for title, href in self.find_sections():
-                feeds.append((title, list(self.find_articles(href))))
-            return feeds
-        except:
-            raise NotImplementedError
+        feeds = []
+        for title, href in self.find_sections():
+            feeds.append((title, list(self.find_articles(href))))
+        return feeds
+
