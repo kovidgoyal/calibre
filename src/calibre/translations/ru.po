@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-09-30 20:39+0000\n"
-"PO-Revision-Date: 2011-10-06 11:47+0000\n"
+"PO-Revision-Date: 2011-10-11 08:34+0000\n"
 "Last-Translator: Sidorychev Alexander <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-10-07 04:35+0000\n"
-"X-Generator: Launchpad (build 14085)\n"
+"X-Launchpad-Export-Date: 2011-10-12 04:39+0000\n"
+"X-Generator: Launchpad (build 14124)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -6687,7 +6687,7 @@ msgstr "Нижний индекс"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:81
 msgid "Ordered list"
-msgstr "Нуменованные список"
+msgstr "Нумерованный список"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:83
 msgid "Unordered list"
@@ -9315,7 +9315,7 @@ msgstr "Автоматически выставить сортировку по 
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:538
 msgid "&Swap title and author"
-msgstr ""
+msgstr "&Поменять местами Автора и Название"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:539
 msgid "Author s&ort: "
@@ -9477,7 +9477,7 @@ msgstr "&Убрать обложку"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:591
 msgid "Set from &ebook file(s)"
-msgstr ""
+msgstr "Поставить обложку из &книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:592
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1155
@@ -12291,7 +12291,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:150
 msgid "Swap the author and title"
-msgstr "Заменить Автора и Заглавие"
+msgstr "Поменять местами Автора и Название"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:156
 msgid ""
