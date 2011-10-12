@@ -269,7 +269,11 @@ class PRST1(USBMS):
             except:
                 author = _('Unknown')
             title = newmi.title or _('Unknown')
-            modified_date = os.path.getmtime(book.path) * 1000
+
+            # Get modified date
+            modified_date = os.path.getmtime(book.path)
+            time_offset = time.altzone if time.daylight else time.timezone
+            modified_date = (modified_date - time_offset) * 1000
 
             if lpath not in db_books:
                 query = '''
