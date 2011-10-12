@@ -4,7 +4,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
 from itertools import izip
 from xml.sax.saxutils import escape
 
@@ -742,7 +741,7 @@ class PocketBook900Output(OutputProfile):
     screen_size               = (810, 1180)
     dpi                       = 150.0
     comic_screen_size         = screen_size
-	
+
 output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         SonyReader900Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
         HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,

@@ -1,35 +1,71 @@
-#!/usr/bin/python
-
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
+from calibre.utils.magick import Image
 
 class AdvancedUserRecipe1307556816(BasicNewsRecipe):
     title          = u'Geek and Poke'
     __author__     = u'DrMerry'
     description    = u'Geek and Poke Cartoons'
+    publisher      = u'Oliver Widder'
+    author         = u'Oliver Widder, DrMerry (calibre-code), calibre'
     oldest_article = 31
     max_articles_per_feed = 100
     language       = u'en'
     simultaneous_downloads = 5
     #delay          = 1
-    timefmt        = ' [%A, %d %B, %Y]'
+    timefmt        = ' [%a, %d %B, %Y]'
     summary_length = -1
     no_stylesheets = True
+    category = 'News.IT, Cartoon, Humor, Geek'
+    use_embedded_content = False
     cover_url = 'http://geekandpoke.typepad.com/aboutcoders.jpeg'
     remove_javascript = True
     remove_empty_feeds = True
     publication_type = 'blog'
+    conversion_options = {
+                            'comments'         : ''
+                            ,'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'author'          : author
+                         }
 
-    preprocess_regexps = [ (re.compile(r'(<p>&nbsp;</p>|<iframe.*</iframe>|<a[^>]*>Tweet</a>|<a[^>]*>|</a>)', re.DOTALL|re.IGNORECASE),lambda match: ''),
-                                          (re.compile(r'(&nbsp;|  )', re.DOTALL|re.IGNORECASE),lambda match: ' '),
-                                          (re.compile(r'<br( /)?>(<br( /)?>)+', re.DOTALL|re.IGNORECASE),lambda match: '<br>')
-                                         ]
+    remove_tags_before = dict(name='p', attrs={'class':'content-nav'})
+    remove_tags_after = dict(name='div', attrs={'class':'entry-content'})
+    remove_tags = [dict(name='div', attrs={'class':'entry-footer'}),
+                        dict(name='div', attrs={'id':'alpha'}),
+                        dict(name='div', attrs={'id':'gamma'}),
+                        dict(name='iframe'),
+                        dict(name='p', attrs={'class':'content-nav'})]
 
-    extra_css = 'body, h3, p, h2, h1, div, span{margin:0px} h2.date-header {font-size: 0.7em; color:#eee;} h3.entry-header{font-size: 1.0em} div.entry-body{font-size: 0.9em}'
+    filter_regexps = [(r'feedburner\.com'),
+                        (r'pixel.quantserve\.com'),
+                        (r'googlesyndication\.com'),
+                        (r'yimg\.com'),
+                        (r'scorecardresearch\.com')]
 
+    preprocess_regexps = [(re.compile(r'(<p>(&nbsp;|\s)*</p>|<a[^>]*>Tweet</a>|<a[^>]*>|</a>)', re.DOTALL|re.IGNORECASE),lambda match: ''),
+                        (re.compile(r'(&nbsp;|\s\s)+\s*', re.DOTALL|re.IGNORECASE),lambda match: ' '),
+                        (re.compile(r'<h2[^>]*>([^<]*)</h2>[^>]*(<div[^>]*>)', re.DOTALL|re.IGNORECASE), lambda match: match.group(2) + '<div id="MERRYdate">' + match.group(1) + '</div>'),
+                        (re.compile(r'(<h3[^>]*>)<a[^>]>((?!</a)*)</a></h3>', re.DOTALL|re.IGNORECASE),lambda match: match.group(1) + match.group(2) + '</h3>'),
+                        (re.compile(r'(<img[^>]*alt="([^"]*)"[^>]*>)', re.DOTALL|re.IGNORECASE),lambda match: match.group(1) + '<br><cite>' + match.group(2) + '</cite>'),
+                        (re.compile(r'<br( /)?>(<br( /)?>)+', re.DOTALL|re.IGNORECASE),lambda match: '<br>'),
+                        (re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')
+                        ]
 
-    remove_tags_before = dict(name='h2', attrs={'class':'date-header'})
-    remove_tags_after = dict(name='div', attrs={'class':'entry-body'})
+    extra_css = 'body, h3, p, #MERRYdate, h1, div, span{margin:0px; padding:0px} h3.entry-header{font-size: 0.8em} div.entry-body{font-size: 0.7em} #MERRYdate {font-size: 0.5em}'
 
+    def postprocess_html(self, soup, first):
+        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+            iurl = tag['src']
+            img = Image()
+            img.open(iurl)
+            width, height = img.size
+            #print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
+            img.trim(0)
+            img.save(iurl)
+            width, height = img.size
+            #print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
+        return soup
 
-    feeds          = [(u'Geek and Poke', u'http://feeds.feedburner.com/GeekAndPoke?format=xml')]
+    feeds          = ['http://feeds.feedburner.com/GeekAndPoke?format=xml']

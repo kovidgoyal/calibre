@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 Device driver for the SONY T1 devices
 '''
 
-import os, time, calendar, re
+import os, time, re
 import sqlite3 as sqlite
 from contextlib import closing
 
@@ -17,6 +19,7 @@ from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.books import BookList
+from calibre.ebooks.metadata import authors_to_sort_string
 from calibre.constants import islinux
 
 DBPATH = 'Sony_Reader/database/books.db'
@@ -47,11 +50,15 @@ class PRST1(USBMS):
     WINDOWS_MAIN_MEM   = re.compile(
             r'(PRS-T1&)'
             )
+    WINDOWS_CARD_A_MEM = re.compile(
+            r'(PRS-T1__SD&)'
+            )
     MAIN_MEMORY_VOLUME_LABEL = 'SONY Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'SONY Reader Storage Card'
 
     THUMBNAIL_HEIGHT = 144
     SUPPORTS_SUB_DIRS = True
+    SUPPORTS_USE_AUTHOR_SORT = True
     MUST_READ_METADATA = True
     EBOOK_DIR_MAIN   = 'Sony_Reader/media/books'
 
@@ -253,8 +260,22 @@ class PRST1(USBMS):
 
             # Get Metadata We Want
             lpath = book.lpath
-            author = newmi.authors[0]
-            title = newmi.title
+            try:
+                if opts.use_author_sort:
+                    if newmi.author_sort:
+                        author = newmi.author_sort
+                    else:
+                        author = authors_to_sort_string(newmi.authors)
+                else:
+                    author = newmi.authors[0]
+            except:
+                author = _('Unknown')
+            title = newmi.title or _('Unknown')
+
+            # Get modified date
+            modified_date = os.path.getmtime(book.path)
+            time_offset = time.altzone if time.daylight else time.timezone
+            modified_date = (modified_date - time_offset) * 1000
 
             if lpath not in db_books:
                 query = '''
@@ -265,8 +286,8 @@ class PRST1(USBMS):
                 values (?,?,?,?,?,?,?,?,?,0,0)
                 '''
                 t = (title, author, source_id, int(time.time() * 1000),
-                        int(calendar.timegm(book.datetime) * 1000), lpath,
-                        os.path.basename(book.lpath), book.size, book.mime)
+                        modified_date, lpath,
+                        os.path.basename(lpath), book.size, book.mime)
                 cursor.execute(query, t)
                 book.bookId = cursor.lastrowid
                 if upload_covers:
@@ -278,8 +299,7 @@ class PRST1(USBMS):
                 SET title = ?, author = ?, modified_date = ?, file_size = ?
                 WHERE file_path = ?
                 '''
-                t = (title, author, int(calendar.timegm(book.datetime) * 1000), book.size,
-                        lpath)
+                t = (title, author, modified_date, book.size, lpath)
                 cursor.execute(query, t)
                 book.bookId = db_books[lpath]
                 if refresh_covers:
@@ -405,39 +425,40 @@ class PRST1(USBMS):
 
     def upload_cover(self, path, filename, metadata, filepath):
         debug_print('PRS-T1: uploading cover')
-    
+
         if filepath.startswith(self._main_prefix):
             prefix = self._main_prefix
             source_id = 0
         else:
             prefix = self._card_a_prefix
             source_id = 1
-        
+
         metadata.lpath = filepath.partition(prefix)[2]
+        metadata.lpath = metadata.lpath.replace('\\', '/')
         dbpath = self.normalize_path(prefix + DBPATH)
         debug_print("SQLite DB Path: " + dbpath)
 
-        with closing(sqlite.connect(dbpath)) as connection: 
+        with closing(sqlite.connect(dbpath)) as connection:
             cursor = connection.cursor()
-        
+
             query = 'SELECT _id FROM books WHERE file_path = ?'
             t = (metadata.lpath,)
             cursor.execute(query, t)
-            
+
             for i, row in enumerate(cursor):
                 metadata.bookId = row[0]
-            
+
             cursor.close()
-            
-            if metadata.bookId is not None:
+
+            if getattr(metadata, 'bookId', None) is not None:
                 debug_print('PRS-T1: refreshing cover for book being sent')
                 self.upload_book_cover(connection, metadata, source_id)
-                
+
         debug_print('PRS-T1: done uploading cover')
 
     def upload_book_cover(self, connection, book, source_id):
         debug_print('PRST1: Uploading/Refreshing Cover for ' + book.title)
-        if not book.thumbnail and book.thumbnail[-1]:
+        if not book.thumbnail or not book.thumbnail[-1]:
             return
         cursor = connection.cursor()
 
