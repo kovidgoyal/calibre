@@ -256,7 +256,7 @@ class PRST1(USBMS):
                 newmi = book
 
             # Get Metadata We Want
-			# Make sure lpath uses Unix-style strings
+            # Make sure lpath uses Unix-style strings
             lpath = book.lpath.replace('\\', '/')
             try:
                 if opts.use_author_sort:
