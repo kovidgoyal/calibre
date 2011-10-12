@@ -246,6 +246,7 @@ class CSSFlattener(object):
                     cssdict['font-size'] = '%.1fpt'%font_size
                 del node.attrib['size']
             if 'face' in node.attrib:
+                cssdict['font-family'] = node.attrib['face']
                 del node.attrib['face']
         if 'color' in node.attrib:
             cssdict['color'] = node.attrib['color']

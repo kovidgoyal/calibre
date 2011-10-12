@@ -217,7 +217,7 @@ class DevicePlugin(Plugin):
         '''
         Unix version of :meth:`can_handle_windows`
 
-        :param device_info: Is a tupe of (vid, pid, bcd, manufacturer, product,
+        :param device_info: Is a tuple of (vid, pid, bcd, manufacturer, product,
                             serial number)
 
         '''
@@ -414,7 +414,8 @@ class DevicePlugin(Plugin):
     @classmethod
     def config_widget(cls):
         '''
-        Should return a QWidget. The QWidget contains the settings for the device interface
+        Should return a QWidget. The QWidget contains the settings for the
+        device interface
         '''
         raise NotImplementedError()
 
@@ -429,8 +430,9 @@ class DevicePlugin(Plugin):
     @classmethod
     def settings(cls):
         '''
-        Should return an opts object. The opts object should have at least one attribute
-        `format_map` which is an ordered list of formats for the device.
+        Should return an opts object. The opts object should have at least one
+        attribute `format_map` which is an ordered list of formats for the
+        device.
         '''
         raise NotImplementedError()
 
@@ -516,3 +518,9 @@ class BookList(list):
         '''
         raise NotImplementedError()
 
+    def prepare_addable_books(self, paths):
+        '''
+        Given a list of paths, returns another list of paths. These paths
+        point to addable versions of the books.
+        '''
+        return paths

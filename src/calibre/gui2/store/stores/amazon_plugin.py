@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-import urllib
 from contextlib import closing
 
 from lxml import html
@@ -122,12 +121,12 @@ class AmazonKindleStore(StorePlugin):
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
-        url =  self.search_url + urllib.quote_plus(query)
+        url = self.search_url + query.encode('ascii', 'backslashreplace').replace('%', '%25').replace('\\x', '%').replace(' ', '+')
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            doc = html.fromstring(f.read().decode('latin-1', 'replace'))
             
             # Amazon has two results pages.
             is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')

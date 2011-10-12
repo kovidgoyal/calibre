@@ -17,25 +17,22 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
-class AmazonDEKindleStore(StorePlugin):
+class AmazonFRKindleStore(StorePlugin):
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
 
     def open(self, parent=None, detail_item=None, external=False):
-        aff_id = {'tag': 'charhale0a-21'}
-        store_link = ('http://www.amazon.de/gp/redirect.html?ie=UTF8&site-redirect=de'
-                     '&tag=%(tag)s&linkCode=ur2&camp=1638&creative=19454'
-                     '&location=http://www.amazon.de/ebooks-kindle/b?node=530886031') % aff_id
+        aff_id = {'tag': 'charhale-21'}
+        store_link = 'http://www.amazon.fr/livres-kindle/b?ie=UTF8&node=695398031&ref_=sa_menu_kbo1&_encoding=UTF8&tag=%(tag)s&linkCode=ur2&camp=1642&creative=19458' % aff_id
+
         if detail_item:
             aff_id['asin'] = detail_item
-            store_link = ('http://www.amazon.de/gp/redirect.html?ie=UTF8'
-                          '&location=http://www.amazon.de/dp/%(asin)s&site-redirect=de'
-                          '&tag=%(tag)s&linkCode=ur2&camp=1638&creative=6742') % aff_id
+            store_link = 'http://www.amazon.fr/gp/redirect.html?ie=UTF8&location=http://www.amazon.fr/dp/%(asin)s&tag=%(tag)s&linkCode=ur2&camp=1634&creative=6738' % aff_id
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
-        search_url = 'http://www.amazon.de/s/?url=search-alias%3Ddigital-text&field-keywords='
+        search_url = 'http://www.amazon.fr/s/?url=search-alias%3Ddigital-text&field-keywords='
         url = search_url + query.encode('ascii', 'backslashreplace').replace('%', '%25').replace('\\x', '%').replace(' ', '+')
         br = browser()
 
@@ -67,10 +64,9 @@ class AmazonDEKindleStore(StorePlugin):
 
                 title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
-
-                author = ''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()'))
-                if author.startswith('von '):
-                    author = author[4:]
+                author = unicode(''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()')))
+                if author.startswith('de '):
+                    author = author[3:]
 
                 counter -= 1
 
@@ -81,25 +77,6 @@ class AmazonDEKindleStore(StorePlugin):
                 s.price = price.strip()
                 s.detail_item = asin.strip()
                 s.formats = 'Kindle'
+                s.drm = SearchResult.DRM_UNKNOWN
 
                 yield s
-
-    def get_details(self, search_result, timeout):
-        drm_search_text = u'Gleichzeitige Verwendung von Geräten'
-        drm_free_text = u'Keine Einschränkung'
-        url = 'http://amazon.de/dp/'
-
-        br = browser()
-        with closing(br.open(url + search_result.detail_item, timeout=timeout)) as nf:
-            idata = html.fromstring(nf.read())
-            if idata.xpath('boolean(//div[@class="content"]//li/b[contains(text(), "' +
-                           drm_search_text + '")])'):
-                if idata.xpath('boolean(//div[@class="content"]//li[contains(., "' +
-                               drm_free_text + '") and contains(b, "' +
-                               drm_search_text + '")])'):
-                    search_result.drm = SearchResult.DRM_UNLOCKED
-                else:
-                    search_result.drm = SearchResult.DRM_UNKNOWN
-            else:
-                search_result.drm = SearchResult.DRM_LOCKED
-        return True
