@@ -258,8 +258,7 @@ class PRST1(USBMS):
                 newmi = book
 
             # Get Metadata We Want
-            # Make sure lpath uses Unix-style strings
-            lpath = book.lpath.replace('\\', '/')
+            lpath = book.lpath
             try:
                 if opts.use_author_sort:
                     if newmi.author_sort :
@@ -434,6 +433,7 @@ class PRST1(USBMS):
             source_id = 1
 
         metadata.lpath = filepath.partition(prefix)[2]
+        metadata.lpath = metadata.lpath.replace('\\', '/')
         dbpath = self.normalize_path(prefix + DBPATH)
         debug_print("SQLite DB Path: " + dbpath)
 
