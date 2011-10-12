@@ -57,6 +57,7 @@ class PRST1(USBMS):
 
     THUMBNAIL_HEIGHT = 144
     SUPPORTS_SUB_DIRS = True
+    SUPPORTS_USE_AUTHOR_SORT = True
     MUST_READ_METADATA = True
     EBOOK_DIR_MAIN   = 'Sony_Reader/media/books'
 
@@ -257,12 +258,24 @@ class PRST1(USBMS):
                 newmi = book
 
             # Get Metadata We Want
-            lpath = book.lpath
+            # Make sure lpath uses Unix-style strings
+            lpath = book.lpath.replace('\\', '/')
             try:
-                author = newmi.authors[0]
+                if opts.use_author_sort:
+                    if newmi.author_sort :
+                        author = newmi.author_sort
+                    else:
+                        author = authors_to_sort_string(newmi.authors)
+                else:
+                    author = newmi.authors[0]
             except:
                 author = _('Unknown')
             title = newmi.title or _('Unknown')
+
+            # Get modified date
+            modified_date = os.path.getmtime(book.path)
+            time_offset = time.altzone if time.daylight else time.timezone
+            modified_date = (modified_date - time_offset) * 1000
 
             if lpath not in db_books:
                 query = '''
@@ -273,8 +286,8 @@ class PRST1(USBMS):
                 values (?,?,?,?,?,?,?,?,?,0,0)
                 '''
                 t = (title, author, source_id, int(time.time() * 1000),
-                        int(calendar.timegm(book.datetime) * 1000), lpath,
-                        os.path.basename(book.lpath), book.size, book.mime)
+                        modified_date, lpath,
+                        os.path.basename(lpath), book.size, book.mime)
                 cursor.execute(query, t)
                 book.bookId = cursor.lastrowid
                 if upload_covers:
@@ -286,8 +299,7 @@ class PRST1(USBMS):
                 SET title = ?, author = ?, modified_date = ?, file_size = ?
                 WHERE file_path = ?
                 '''
-                t = (title, author, int(calendar.timegm(book.datetime) * 1000), book.size,
-                        lpath)
+                t = (title, author, modified_date, book.size, lpath)
                 cursor.execute(query, t)
                 book.bookId = db_books[lpath]
                 if refresh_covers:
