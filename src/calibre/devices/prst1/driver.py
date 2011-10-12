@@ -293,8 +293,7 @@ class PRST1(USBMS):
                 SET title = ?, author = ?, modified_date = ?, file_size = ?
                 WHERE file_path = ?
                 '''
-                t = (title, author, modified_date, book.size,
-                        lpath)
+                t = (title, author, modified_date, book.size, lpath)
                 cursor.execute(query, t)
                 book.bookId = db_books[lpath]
                 if refresh_covers:
