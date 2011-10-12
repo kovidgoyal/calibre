@@ -502,6 +502,7 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
 # }}}
 
 from calibre.ebooks.comic.input import ComicInput
+from calibre.ebooks.djvu.input import DJVUInput
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.fb2.input import FB2Input
 from calibre.ebooks.html.input import HTMLInput
@@ -600,6 +601,7 @@ plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
 
 plugins += [
     ComicInput,
+    DJVUInput,
     EPUBInput,
     FB2Input,
     HTMLInput,
