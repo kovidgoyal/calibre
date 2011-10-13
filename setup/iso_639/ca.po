@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-27 14:31+0000\n"
-"PO-Revision-Date: 2011-10-09 20:31+0000\n"
+"PO-Revision-Date: 2011-10-12 14:25+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-10-10 05:12+0000\n"
-"X-Generator: Launchpad (build 14123)\n"
+"X-Launchpad-Export-Date: 2011-10-13 04:37+0000\n"
+"X-Generator: Launchpad (build 14124)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -436,7 +436,7 @@ msgstr "Aer"
 
 #. name for aer
 msgid "Arrernte; Eastern"
-msgstr "Arrernte; oriental"
+msgstr "Arrente; oriental"
 
 #. name for aes
 msgid "Alsea"
@@ -448,7 +448,7 @@ msgstr "Akeu"
 
 #. name for aew
 msgid "Ambakich"
-msgstr "Ambakich"
+msgstr "Aion"
 
 #. name for aey
 msgid "Amele"
@@ -464,7 +464,7 @@ msgstr "Àrab; Golf"
 
 #. name for afd
 msgid "Andai"
-msgstr "Andai"
+msgstr "Meakambut"
 
 #. name for afe
 msgid "Putukwam"
@@ -568,7 +568,7 @@ msgstr "Fembe"
 
 #. name for agm
 msgid "Angaataha"
-msgstr "Angaataha"
+msgstr "Angataha"
 
 #. name for agn
 msgid "Agutaynen"
@@ -596,7 +596,7 @@ msgstr "Agta; Cagayan"
 
 #. name for agu
 msgid "Aguacateco"
-msgstr "Aguacateco"
+msgstr "Aguacatec"
 
 #. name for agv
 msgid "Dumagat; Remontado"
@@ -608,7 +608,7 @@ msgstr "Kahua"
 
 #. name for agx
 msgid "Aghul"
-msgstr "Aghul"
+msgstr "Agul"
 
 #. name for agy
 msgid "Alta; Southern"
@@ -628,7 +628,7 @@ msgstr "Axamb"
 
 #. name for ahg
 msgid "Qimant"
-msgstr "Qimant"
+msgstr "Agau"
 
 #. name for ahh
 msgid "Aghu"
@@ -644,7 +644,7 @@ msgstr "Akha"
 
 #. name for ahl
 msgid "Igo"
-msgstr "Igo"
+msgstr "Ahlo"
 
 #. name for ahm
 msgid "Aizi; Mobumrin"
@@ -652,7 +652,7 @@ msgstr "Aizi; Mobumrin"
 
 #. name for ahn
 msgid "Àhàn"
-msgstr "Àhàn"
+msgstr "Ahan"
 
 #. name for aho
 msgid "Ahom"
@@ -672,7 +672,7 @@ msgstr "Ashe"
 
 #. name for aht
 msgid "Ahtena"
-msgstr "Ahtena"
+msgstr "Ahtna"
 
 #. name for aia
 msgid "Arosi"
@@ -680,7 +680,7 @@ msgstr "Arosi"
 
 #. name for aib
 msgid "Ainu (China)"
-msgstr "Ainu (Xina)"
+msgstr "Aini"
 
 #. name for aic
 msgid "Ainbai"
@@ -688,7 +688,7 @@ msgstr "Ainbai"
 
 #. name for aid
 msgid "Alngith"
-msgstr "Alngith"
+msgstr "Alngiht"
 
 #. name for aie
 msgid "Amara"
@@ -708,11 +708,11 @@ msgstr "Ai-Cham"
 
 #. name for aii
 msgid "Neo-Aramaic; Assyrian"
-msgstr "Neoarameu; Assiri"
+msgstr "Arameu; assiri"
 
 #. name for aij
 msgid "Lishanid Noshan"
-msgstr "Lishanid Noshan"
+msgstr "Arameu; Lishanid Noshan"
 
 #. name for aik
 msgid "Ake"
@@ -728,7 +728,7 @@ msgstr "Aimol"
 
 #. name for ain
 msgid "Ainu (Japan)"
-msgstr "Ainu (Japó)"
+msgstr "Ainu"
 
 #. name for aio
 msgid "Aiton"
@@ -756,11 +756,11 @@ msgstr "Arikem"
 
 #. name for aiw
 msgid "Aari"
-msgstr "Aari"
+msgstr "Arí"
 
 #. name for aix
 msgid "Aighon"
-msgstr "Aighon"
+msgstr "Psohoh"
 
 #. name for aiy
 msgid "Ali"
@@ -776,7 +776,7 @@ msgstr "Aja (Benin)"
 
 #. name for aji
 msgid "Ajië"
-msgstr "Ajië"
+msgstr "Ajie"
 
 #. name for ajp
 msgid "Arabic; South Levantine"
@@ -804,7 +804,7 @@ msgstr "Àkan"
 
 #. name for akb
 msgid "Batak Angkola"
-msgstr "Batak Angkola"
+msgstr "Batak; Angkola"
 
 #. name for akc
 msgid "Mpur"
@@ -2148,7 +2148,7 @@ msgstr "Barai"
 
 #. name for bbc
 msgid "Batak Toba"
-msgstr "Batak Toba"
+msgstr "Batak; Toba"
 
 #. name for bbd
 msgid "Bau"
@@ -2796,7 +2796,7 @@ msgstr "Bathari"
 
 #. name for bhn
 msgid "Neo-Aramaic; Bohtan"
-msgstr "Neoarameu; Bohtan"
+msgstr "Arameu; Bohtan"
 
 #. name for bho
 msgid "Bhojpuri"
@@ -2964,7 +2964,7 @@ msgstr "Mien; Biao-Jiao"
 
 #. name for bjf
 msgid "Neo-Aramaic; Barzani Jewish"
-msgstr "Neoarameu; Barzani Jewish"
+msgstr "Arameu; Barzani"
 
 #. name for bjg
 msgid "Bidyogo"
@@ -3936,7 +3936,7 @@ msgstr "Bati (Camerun)"
 
 #. name for btd
 msgid "Batak Dairi"
-msgstr "Batak Dairi"
+msgstr "Batak; Dairi"
 
 #. name for bte
 msgid "Gamo-Ningi"
@@ -3968,7 +3968,7 @@ msgstr "Bhatola"
 
 #. name for btm
 msgid "Batak Mandailing"
-msgstr "Batak Mandailing"
+msgstr "Batak; Mandailing"
 
 #. name for btn
 msgid "Ratagnon"
@@ -3992,7 +3992,7 @@ msgstr "Baetora"
 
 #. name for bts
 msgid "Batak Simalungun"
-msgstr "Batak Simalungun"
+msgstr "Batak; Simalungun"
 
 #. name for btt
 msgid "Bete-Bendi"
@@ -4012,7 +4012,7 @@ msgstr "Butuanon"
 
 #. name for btx
 msgid "Batak Karo"
-msgstr "Batak Karo"
+msgstr "Batak; Karo"
 
 #. name for bty
 msgid "Bobot"
@@ -4020,7 +4020,7 @@ msgstr "Bobot"
 
 #. name for btz
 msgid "Batak Alas-Kluet"
-msgstr "Batak Alas-Kluet"
+msgstr "Batak; Alas-Kluet"
 
 #. name for bua
 msgid "Buriat"
@@ -5216,7 +5216,7 @@ msgstr "Txilcotí"
 
 #. name for cld
 msgid "Neo-Aramaic; Chaldean"
-msgstr "Neoarameu; caldeu"
+msgstr "Arameu; caldeu"
 
 #. name for cle
 msgid "Chinantec; Lealao"
@@ -10900,7 +10900,7 @@ msgstr ""
 
 #. name for jpa
 msgid "Aramaic; Jewish Palestinian"
-msgstr "Aremau; judaic de Palestina"
+msgstr "Arameu; Judeopalestí"
 
 #. name for jpn
 msgid "Japanese"
@@ -16000,7 +16000,7 @@ msgstr ""
 
 #. name for mjw
 msgid "Karbi"
-msgstr ""
+msgstr "Karbi"
 
 #. name for mjx
 msgid "Mahali"
@@ -22428,7 +22428,7 @@ msgstr ""
 
 #. name for sam
 msgid "Aramaic; Samaritan"
-msgstr "Arameu; Samària"
+msgstr "Arameu; samarità arameu"
 
 #. name for san
 msgid "Sanskrit"
@@ -25472,7 +25472,7 @@ msgstr ""
 
 #. name for tmr
 msgid "Aramaic; Jewish Babylonian (ca. 200-1200 CE)"
-msgstr "Arameu; judaic babiloni (cap a 200-1200 DC)"
+msgstr "Arameu; babiloni talmúdic (cap a 200-1200 DC)"
 
 #. name for tms
 msgid "Tima"
