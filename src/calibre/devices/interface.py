@@ -464,6 +464,13 @@ class DevicePlugin(Plugin):
         '''
         pass
 
+    def prepare_addable_books(self, paths):
+        '''
+        Given a list of paths, returns another list of paths. These paths
+        point to addable versions of the books.
+        '''
+        return paths
+
 class BookList(list):
     '''
     A list of books. Each Book object must have the fields
@@ -518,9 +525,3 @@ class BookList(list):
         '''
         raise NotImplementedError()
 
-    def prepare_addable_books(self, paths):
-        '''
-        Given a list of paths, returns another list of paths. These paths
-        point to addable versions of the books.
-        '''
-        return paths
