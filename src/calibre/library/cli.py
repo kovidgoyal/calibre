@@ -368,6 +368,7 @@ def command_remove(args, dbpath):
 
 def do_add_format(db, id, fmt, path):
     db.add_format_with_hooks(id, fmt.upper(), path, index_is_id=True)
+    send_message()
 
 def add_format_option_parser():
     return get_parser(_(
