@@ -10,17 +10,17 @@ import re
 
 class GN(BasicNewsRecipe):
         EDITION = 0
-        
+
         __author__ = 'Piotr Kontek'
-        title = unicode('Gość niedzielny')
+        title = u'Gość niedzielny'
         description = 'Weekly magazine'
         encoding = 'utf-8'
         no_stylesheets = True
         language = 'pl'
         remove_javascript = True
-        temp_files = [] 
+        temp_files = []
         simultaneous_downloads = 1
-        
+
         articles_are_obfuscated = True
 
         def get_obfuscated_article(self, url):
@@ -28,9 +28,9 @@ class GN(BasicNewsRecipe):
             br.open(url)
             source = br.response().read()
             page = self.index_to_soup(source)
-            
+
             main_section = page.find('div',attrs={'class':'txt doc_prnt_prv'})
-            
+
             title = main_section.find('h2')
             info = main_section.find('div', attrs={'class' : 'cf doc_info'})
             authors = info.find(attrs={'class':'l'})
@@ -42,17 +42,17 @@ class GN(BasicNewsRecipe):
                     article = article + str(p.find('img')).replace('src="/files/','src="http://www.gosc.pl/files/')
                     article = article + '<font size="-2">'
                     for s in p.findAll('span'):
-                        article = article + self.tag_to_string(s) 
+                        article = article + self.tag_to_string(s)
                     article = article + '</font></p>'
                 else:
                     article = article + str(p).replace('src="/files/','src="http://www.gosc.pl/files/')
                 first = False
-                
+
             html =  unicode(title) + unicode(authors) + unicode(article)
-            
-            self.temp_files.append(PersistentTemporaryFile('_temparse.html')) 
-            self.temp_files[-1].write(html) 
-            self.temp_files[-1].close() 
+
+            self.temp_files.append(PersistentTemporaryFile('_temparse.html'))
+            self.temp_files[-1].write(html)
+            self.temp_files[-1].close()
             return self.temp_files[-1].name
 
         def find_last_issue(self):
@@ -69,7 +69,7 @@ class GN(BasicNewsRecipe):
                         if not first:
                             break
                         first = False
-                
+
         def parse_index(self):
                 self.find_last_issue()
                 soup = self.index_to_soup('http://www.gosc.pl' + self.EDITION)
