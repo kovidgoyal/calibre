@@ -5,8 +5,8 @@ __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 Changelog:
 2011-09-24
 Changed cover (drMerry)
-'''
-'''
+2011-10-13
+Updated Cover (drMerry)
 news.cnet.com
 '''
 
@@ -24,7 +24,7 @@ class CnetNews(BasicNewsRecipe):
     encoding              = 'cp1252'
     use_embedded_content  = False
     language              = 'en'
-
+    cover_url = 'http://reviews.cnet.com/i/ff/wp/logo_cnet.gif'
     conversion_options = {
                           'comment'   : description
                         , 'tags'      : category

@@ -397,6 +397,7 @@ def command_add_format(args, dbpath):
 
 def do_remove_format(db, id, fmt):
     db.remove_format(id, fmt, index_is_id=True)
+    send_message()
 
 def remove_format_option_parser():
     return get_parser(_(
