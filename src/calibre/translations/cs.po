@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-10-14 05:17+0000\n"
+"X-Launchpad-Export-Date: 2011-10-15 04:39+0000\n"
 "X-Generator: Launchpad (build 14124)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -20055,9 +20055,3 @@ msgstr ""
 "že převod je špatný, můžete upravit nastavení a zkusit to znovu.\n"
 "Když je nastaveno na \"Ne\" můžete zabránit aby calibre ukládalo\n"
 "původní soubor."
-
-#~ msgid "Run server &automatically on startup"
-#~ msgstr "&Automaticky spustit server při startu"
-
-#~ msgid "Communicate with all the Sony eBook readers."
-#~ msgstr "Komunikace se všemi čtečkami Sony."

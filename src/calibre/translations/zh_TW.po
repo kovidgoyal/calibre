@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-10-14 05:33+0000\n"
+"X-Launchpad-Export-Date: 2011-10-15 04:55+0000\n"
 "X-Generator: Launchpad (build 14124)\n"
 "Language: zh_TW\n"
 
@@ -19238,9 +19238,3 @@ msgid ""
 "conversion is poor, you can tweak the settings and run it again. By setting\n"
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
-
-#~ msgid "Run server &automatically on startup"
-#~ msgstr "啟動時自動執行伺服器(&A)"
-
-#~ msgid "Communicate with all the Sony eBook readers."
-#~ msgstr "與所有的 Sony eBook 閱讀器連接。"

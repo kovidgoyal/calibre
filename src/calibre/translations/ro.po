@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-10-14 05:26+0000\n"
+"X-Launchpad-Export-Date: 2011-10-15 04:48+0000\n"
 "X-Generator: Launchpad (build 14124)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -21552,9 +21552,3 @@ msgstr ""
 "este slabă, puteţi ajusta setările şi să încercaţi din nou. Setând această "
 "opţiune\n"
 "pe Fals, puteţi preveni calibre de la salvarea fişierului original."
-
-#~ msgid "Communicate with all the Sony eBook readers."
-#~ msgstr "Comunică cu toate dispozitivele eBook Sony."
-
-#~ msgid "Run server &automatically on startup"
-#~ msgstr "Rulează serverul &automat la pornire"

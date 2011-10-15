@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-10-07 06:17+0000\n"
-"Last-Translator: Rafael Augusto Maguiña Yrivarren <Unknown>\n"
+"PO-Revision-Date: 2011-10-14 19:09+0000\n"
+"Last-Translator: frenkx <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-14 05:19+0000\n"
+"X-Launchpad-Export-Date: 2011-10-15 04:41+0000\n"
 "X-Generator: Launchpad (build 14124)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -869,7 +869,7 @@ msgstr "Dieses Profil ist geeignet für den Sanda Bambook"
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:739
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Dieses Profil ist für die Geräteserie PocketBook Pro 900 gedacht."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -11436,7 +11436,7 @@ msgstr "Kopiere einen Farbennamen in die Zwischenablage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:49
 msgid "Copy the selected color name to the clipboard"
-msgstr ""
+msgstr "Kopiere den gewählten Farbnamen in die Zwischenablage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:59
 msgid "Template value:"
@@ -12488,6 +12488,10 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful. If you say No, a new empty calibre library will be created."
 msgstr ""
+"Die Bibliotheksdatenbank (%s) scheint fehlerhaft zu sein. Möchten Sie, dass "
+"Calibre versucht diese automatisch wieder herzustellen? Die "
+"Wiederherstellung wird unter Umständen nicht erfolgreich sein. Wenn Sie Nein "
+"wählen, wird Calibre eine neue, leere Bibliothek anlegen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:203
 #, python-format
@@ -21006,6 +21010,8 @@ msgstr ""
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
 msgstr ""
+"Auswahl von Metadatenfeldern, die der Content Server anzeigt oder nicht "
+"anzeigt."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:292
 msgid ""
@@ -21245,20 +21251,3 @@ msgstr ""
 "Konvertierung, die Einstellungen optimiert und Konvertierung erneut \n"
 "durchgeführt werden können. Wird diese Option abgewählt, speichert Calibre\n"
 "die Originaldatei nicht."
-
-#~ msgid "Run server &automatically on startup"
-#~ msgstr "Server &automatisch beim Starten hochfahren"
-
-#~ msgid "Communicate with all the Sony eBook readers."
-#~ msgstr "Kommunikation mit allen Sony E-Book-Readern."
-
-#~ msgid ""
-#~ "<p>The toolbar in calibre is different depending on whether a device is "
-#~ "connected or not. To customize the toolbar when a device is connected as "
-#~ "well as customizing right click menus, <b>click the dropdown above</b> and "
-#~ "select which toolbar/menu you want to customize."
-#~ msgstr ""
-#~ "<p>Die Werkzeugleiste in Calibre unterscheidet sich je nachdem, ob ein Gerät "
-#~ "angeschlossen ist oder nicht. Um due Werkzeugleiste und die Kontextmenüs der "
-#~ "rechten Maustaste anzupassen, <b>klicken Sie das obige Aufklappmenü</b> und "
-#~ "wählen Sie, welches Werkzeug/Menü Sie anpassen möchten."

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-09-19 11:38+0000\n"
-"Last-Translator: Adamos Daios <Unknown>\n"
+"PO-Revision-Date: 2011-10-14 22:05+0000\n"
+"Last-Translator: Dimitris Kanas <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-14 05:20+0000\n"
+"X-Launchpad-Export-Date: 2011-10-15 04:42+0000\n"
 "X-Generator: Launchpad (build 14124)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -350,6 +350,7 @@ msgstr "Μετατροπή βιβλίων σε διάφορες μορφές η�
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Delete books from your calibre library or connected device"
 msgstr ""
+"Διαγραφή βιβλίων από τη βιβλιοθήκη του calibre ή της συνδεδεμένης συσκευής"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Edit the metadata of books in your calibre library"
@@ -377,7 +378,7 @@ msgstr "Δείξε τις λεπτομέρειες του βιβλίου σε ξ
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Restart calibre"
-msgstr ""
+msgstr "Επανεκκίνηση"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Open the folder that contains the book files in your calibre library"
@@ -417,7 +418,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Αντιγραφή βιβλίων από την συσκευή στην βιβλιοθήκη σας"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Edit the collections in which books are placed on your device"
@@ -425,7 +426,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Αντιγραφή ενός βιβλίου από τη βιβλιοθήκη του Calibre σε άλλη"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Make small tweaks to epub files in your calibre library"
@@ -19073,6 +19074,3 @@ msgid ""
 "conversion is poor, you can tweak the settings and run it again. By setting\n"
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
-
-#~ msgid "Communicate with all the Sony eBook readers."
-#~ msgstr "Επικοινωνία με όλα τα Sony eBook reader"

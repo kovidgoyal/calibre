@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-10-01 14:03+0000\n"
+"PO-Revision-Date: 2011-10-14 13:03+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-14 05:17+0000\n"
+"X-Launchpad-Export-Date: 2011-10-15 04:40+0000\n"
 "X-Generator: Launchpad (build 14124)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -1537,7 +1537,7 @@ msgstr "Maak tags voor automatisch beheer"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Upload boek omslag (nieuwere readers)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid ""
@@ -1545,10 +1545,13 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Normaal gesproken halen KOBO readers de omslag uit de E-boek bestand zelf. "
+"Met deze optie zal calibre een aparte omslag naar de de reader sturen. Dit "
+"is handig als u de omslag hebt gewijzigd."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:61
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Upload zwart/wit omslag"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1659,7 +1662,7 @@ msgstr "Communiceer met de Sony PRS-500 e-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Communiceer met Sony eBook readers die ouder zijn dan de PRS-T1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1770,11 +1773,11 @@ msgstr "Naamloos"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:35
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Communiceer met de SONY PRS-T1 en nieuwere readers"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:69
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Upload aparte omslag thumbnails voor boeken"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:70
 msgid ""
@@ -1782,10 +1785,14 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Normaal gesproken halen SONY readers de omslag uit de E-boek bestand zelf. "
+"Met deze optie zal calibre een aparte omslag naar de de reader sturen. Dit "
+"is handig als u boeken met DRM beveiliging verstuurt. In zulke boeken kan u "
+"de omslag niet wijzigen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:74
 msgid "Refresh separate covers when using automatic management"
-msgstr ""
+msgstr "Hernieuw individuele omslagen bij automatisch management"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2943,6 +2950,8 @@ msgid ""
 "Try to use the djvutxt program and fall back to pure python implementation "
 "if it fails or is not available"
 msgstr ""
+"Probeer \" djvutxt\"  te gebruiken en val terug op pure python implementatie "
+"als djvutxt faalt of niet beschikbaar is"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
@@ -7305,11 +7314,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "DJVU invoer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
-msgstr ""
+msgstr "Gebruik &djvutxt voor snellere processing als deze beschikbaar is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
@@ -12014,11 +12023,11 @@ msgstr " - Taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:503
 msgid "No job"
-msgstr ""
+msgstr "Geen taak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:504
 msgid "No job selected"
-msgstr ""
+msgstr "Geen taak geselecteerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:506
 msgid "Do you really want to stop the selected job?"
@@ -14960,7 +14969,7 @@ msgstr "Metadata in &OPF-bestand opslaan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "&Show files in file browser after saving to disk"
-msgstr ""
+msgstr "&Toon bestanden in bestandsbrowser na opslaan naar disk"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:34
 msgid ""
@@ -15278,7 +15287,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically when calibre starts"
-msgstr ""
+msgstr "Start server &automatisch wanneer calibre start"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:119
 msgid "View &server logs"
@@ -15556,7 +15565,7 @@ msgstr "Het contekstmenu voor de omslagbrowser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:234
 msgid "Click to choose toolbar or menu to customize"
-msgstr ""
+msgstr "Klik om de toolbar of het menu aan te passen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:270
 msgid "Cannot add"
@@ -15581,6 +15590,8 @@ msgid ""
 "<p>The toolbar in calibre is different depending on whether a device is "
 "connected or not. Choose <b>which toolbar</b> you would like to customize:"
 msgstr ""
+"<p>De werkbalk in calibre is anders afhankelijk van het feit of een reader "
+"al dan niet gekoppeld is. Kies <b>welke werkbalk</b> u wilt aanpassen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
@@ -20187,6 +20198,12 @@ msgid ""
 "character (sep1 or sep2). The order of items in the lists is not relevant. "
 "The compare is case insensitive."
 msgstr ""
+"list_equals(lijst1, scheiding1, lijst2, scheiding2, ja_waarde, nee_waarde) --"
+" geeft ja_waarde als antwoord wanneer lijst1 en lijst2 het zelfde items "
+"bevatten, zo niet, dan wordt het antwoord nee_waarde. De items worden "
+"bepaald door iedere lijst te splitsen door het juiste scheidingsteken te "
+"gebruiken (scheiding1 of scheiding2). De volgorde van items in de lijst is "
+"niet relevant. De vergelijking is ongevoelig voor hoofd- en kleine letters."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1001
 msgid ""
@@ -20196,6 +20213,12 @@ msgid ""
 "the list to be returned. If opt_replace is not the empty string, then apply "
 "the replacement before adding the item to the returned list."
 msgstr ""
+"list_re(bron_lijst, scheidingsteken, zoek_re, opt_vervang) -- maakt een "
+"lijst door de bon_lijst te scheiden in items, gebruikmakend van het "
+"schiedingsteken. Voor ietder item in de lijst wordt gecontroleerd of het "
+"overeenkomst met zoek_re. Als dat zo is, wordt het toegevoerd aan de terug "
+"te geven lijst. Als opt_vervang geen lege string is, wordt deze vervanging "
+"toegepast voor het item wordt toegevoegd aan de teruggegeven lijst."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1024
 msgid ""
@@ -21899,34 +21922,3 @@ msgstr ""
 "naar EPUB, wordt het oorspronkelijk bestand opgeslagen, zodat u nog\n"
 "aanpassingen kunt doen als de conversie niet succesvol verloopt. Als u\n"
 "dit op False instelt zal calibre het originele bestand niet behouden."
-
-#~ msgid "Run server &automatically on startup"
-#~ msgstr "Server tijdens het opstarten &automatisch starten"
-
-#~ msgid "Communicate with all the Sony eBook readers."
-#~ msgstr "Communiceer met alle Sony e-readers."
-
-#~ msgid ""
-#~ "<p>The toolbar in calibre is different depending on whether a device is "
-#~ "connected or not. To customize the toolbar when a device is connected as "
-#~ "well as customizing right click menus, <b>click the dropdown above</b> and "
-#~ "select which toolbar/menu you want to customize."
-#~ msgstr ""
-#~ "<p>De werkbalk in calibre is verschillend afhankelijk of en apparaat is "
-#~ "verbonden of niet. Om de werkbalk aan te passen als een apparaat is "
-#~ "verbonden, evenals de rechtsklik menu's, <b>klik op het uitklapmenu "
-#~ "hierboven</b> en selecteer welke werkbalk/menu u wilt aanpassen."
-
-#~ msgid ""
-#~ "list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- return yes_val if "
-#~ "list1 and list2 contain the same items, otherwise return `no_val. The items "
-#~ "are determined by splitting each list using the appropriate separator "
-#~ "character (sep1 or sep2). The order of items in the lists is not relevant. "
-#~ "The compare is case insensitive."
-#~ msgstr ""
-#~ "list_equals(lijst1, sch1, lijst2, sch2, ja_waarde, nee_waarde) -- geeft "
-#~ "ja_waarde terug als lijst1 en lijst2 dezelfde items bevatten, anders wordt "
-#~ "nee_waarde geretourneerd. De items worden herkend door de lijst te scheiden "
-#~ "gebruik makend van de het bijbehorende scheidingsteken (sch1 of sch2). De "
-#~ "volgorde van de items in de lijst is niet van belang. Vergelijkingen zijn "
-#~ "niet-hoofdletter-gevoelig."
