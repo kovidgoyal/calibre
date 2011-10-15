@@ -110,8 +110,10 @@ class BrandEins(BasicNewsRecipe):
     selected_issue = issue_map[selected_issue_key]
     url = selected_issue.get('href', False)
     # Get the title for the magazin - build it out of the title of the cover - take the issue and year;
-    self.title = "brand eins " + selected_issue_key[4:] + "/" + selected_issue_key[0:4]
+    # self.title = "brand eins " + selected_issue_key[4:] + "/" + selected_issue_key[0:4]
+    # Get the alternative title for the magazin - build it out of the title of the cover - without the issue and year;
     url = 'http://brandeins.de/'+url
+    self.timefmt = ' ' + selected_issue_key[4:] + '/' + selected_issue_key[:4]
 
     # url = "http://www.brandeins.de/archiv/magazin/tierisch.html"
     titles_and_articles = self.brand_eins_parse_issue(url)
@@ -163,4 +165,3 @@ class BrandEins(BasicNewsRecipe):
           current_articles.append({'title': title, 'url': url, 'description': description, 'date':''})
     titles_and_articles.append([chapter_title, current_articles])
     return titles_and_articles
-
