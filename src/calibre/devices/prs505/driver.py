@@ -19,7 +19,8 @@ class PRS505(USBMS):
 
     name           = 'SONY Device Interface'
     gui_name       = 'SONY Reader'
-    description    = _('Communicate with all the Sony eBook readers.')
+    description    = _('Communicate with Sony eBook readers older than the'
+            ' PRST1.')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'

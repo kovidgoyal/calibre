@@ -223,7 +223,8 @@ class LayoutMixin(object): # {{{
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
             self.centralwidget.layout().addWidget(self.bd_splitter)
-            # }}}
+            button_order = ('tb', 'bd', 'cb')
+        # }}}
         else: # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'), initial_side_size=200,
@@ -237,10 +238,11 @@ class LayoutMixin(object): # {{{
             self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
                 QSizePolicy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
+            button_order = ('tb', 'cb', 'bd')
         # }}}
 
         self.status_bar = StatusBar(self)
-        for x in ('cb', 'tb', 'bd'):
+        for x in button_order:
             button = getattr(self, x+'_splitter').button
             button.setIconSize(QSize(24, 24))
             if isosx:
@@ -259,6 +261,8 @@ class LayoutMixin(object): # {{{
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
         self.book_details.cover_changed.connect(self.bd_cover_changed,
                 type=Qt.QueuedConnection)
+        self.book_details.cover_removed.connect(self.bd_cover_removed,
+                type=Qt.QueuedConnection)
         self.book_details.remote_file_dropped.connect(
                 self.iactions['Add Books'].remote_file_dropped_on_book,
                 type=Qt.QueuedConnection)
@@ -274,6 +278,12 @@ class LayoutMixin(object): # {{{
 
     def bd_cover_changed(self, id_, cdata):
         self.library_view.model().db.set_cover(id_, cdata)
+        if self.cover_flow:
+            self.cover_flow.dataChanged()
+
+    def bd_cover_removed(self, id_):
+        self.library_view.model().db.remove_cover(id_, commit=True,
+                notify=False)
         if self.cover_flow:
             self.cover_flow.dataChanged()
 

@@ -310,7 +310,7 @@ class CheckLibraryDialog(QDialog):
 
             tl = Item()
             tl.setText(0, h)
-            if fixable:
+            if fixable and list:
                 tl.setText(1, _('(fixable)'))
                 tl.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
                 tl.setCheckState(1, False)

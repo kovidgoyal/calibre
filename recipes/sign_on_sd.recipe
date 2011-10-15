@@ -1,0 +1,53 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1315899507(BasicNewsRecipe):
+    title          = u'Sign On San Diego'
+    __author__ = 'Jay Kindle'
+    description           = 'Local news stories from The San Diego Union-Tribune; breaking news, business and technology, local and national sports coverage, entertainment news and reviews.'
+    publisher             = 'Tribune Company'
+    category              = 'news, politics, USA, San Diego, California, world'
+    oldest_article = 2
+    max_articles_per_feed = 200
+    timefmt = ' [%b %d, %Y]'
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'en'
+    auto_cleanup 	= True
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    masthead_url          = 'http://media.signonsandiego.com/e2/sosd/images/sosd_logo.png'
+
+    feeds = [
+	(u'Latest News', u'http://www.signonsandiego.com/rss/headlines/'),
+	(u'Local News', u'http://www.signonsandiego.com/rss/headlines/metro/'),
+	(u'Business', u'http://www.signonsandiego.com/rss/headlines/business/'),
+	(u'Politics', u'http://www.signonsandiego.com/rss/headlines/local/politics/'),
+	(u'Border & Immigration', u'http://www.signonsandiego.com/rss/headlines/border/'),
+	(u'Courts', u'http://www.signonsandiego.com/rss/headlines/courts/'),
+	(u'Education', u'http://www.signonsandiego.com/news/education/'),
+	(u'Sports', u'http://www.signonsandiego.com/rss/headlines/sports/'),
+	(u'Chargers', u'http://www.signonsandiego.com/rss/headlines/sports/chargers/'),
+	(u'Padres', u'http://www.signonsandiego.com/rss/headlines/sports/padres/'),
+	(u'NFL', u'http://www.signonsandiego.com/rss/headlines/sports/nfl/'),
+	(u'NBA', u'http://www.signonsandiego.com/rss/headlines/sports/nba/'),
+	(u'Nick Canepa', u'http://www.signonsandiego.com/rss/authors/nick-canepa/'),
+	(u'Tim Sullivan', u'http://www.signonsandiego.com/rss/authors/tim-sullivan/'),
+	(u'Ruben Navarrette', u'http://www.signonsandiego.com/rss/authors/ruben-navarrette/'),
+	(u'Diane Bell', u'http://www.signonsandiego.com/rss/authors/diane-bell/'),
+	(u'Smart Living', u'http://www.signonsandiego.com/rss/headlines/smart-living/'),
+	(u'Photos', u'http://www.signonsandiego.com/rss/photos/'),
+	(u'Arts', u'http://www.signonsandiego.com/rss/headlines/night-and-day/theater-arts/'),
+	(u'Books', u'http://www.signonsandiego.com/rss/headlines/lifestyle/books/'),
+	(u'Currents-Passages', u'http://www.signonsandiego.com/rss/headlines/lifestyle/currents/passages/'),
+	(u'Currents-Weekend', u'http://www.signonsandiego.com/news/rss2/daily/currentsweekend.xml'),
+	(u'Dialog', u'http://www.signonsandiego.com/news/rss2/daily/dialog.xml'),
+	(u'Home', u'http://www.signonsandiego.com/rss/headlines/home/'),
+	(u'Homescape', u'http://www.signonsandiego.com/rss/headlines/lifestyle/homescape/'),
+	(u'Night & Day', u'http://www.signonsandiego.com/news/rss2/daily/nightday.xml'),
+	(u'Opinion', u'http://www.signonsandiego.com/rss/headlines/opinion/'),
+	(u'Quest', u'http://www.signonsandiego.com/news/rss2/daily/quest.xml'),
+	(u'Travel', u'http://www.signonsandiego.com/news/rss2/daily/travel.xml'),
+	(u'Wheels', u'http://www.signonsandiego.com/news/rss2/daily/wheels.xml')
+	]
+

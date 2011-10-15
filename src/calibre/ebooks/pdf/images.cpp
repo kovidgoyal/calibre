@@ -126,7 +126,7 @@ void XMLImages::add(GfxState *state, Object *ref, Stream *str,
 
     if (img->type == jpeg) {
         int c;
-        str = ((DCTStream *)str)->getRawStream();
+        str = str->getNextStream();
         str->reset();
 
         // copy the stream

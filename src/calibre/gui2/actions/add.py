@@ -397,6 +397,7 @@ class AddAction(InterfaceAction):
             d = error_dialog(self.gui, _('Add to library'), _('No book files found'))
             d.exec_()
             return
+        paths = self.gui.device_manager.device.prepare_addable_books(paths)
         from calibre.gui2.add import Adder
         self.__adder_func = partial(self._add_from_device_adder, on_card=None,
                                                     model=view.model())

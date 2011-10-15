@@ -11,8 +11,8 @@ from functools import partial
 from PyQt4.Qt import QMenu, pyqtSignal
 
 from calibre.utils.config import prefs
-from calibre.gui2 import error_dialog, Dispatcher, \
-    choose_dir, warning_dialog, open_local_file
+from calibre.gui2 import (error_dialog, Dispatcher, gprefs,
+    choose_dir, warning_dialog, open_local_file)
 from calibre.gui2.actions import InterfaceAction
 from calibre.ebooks import BOOK_EXTENSIONS
 
@@ -141,7 +141,8 @@ class SaveToDiskAction(InterfaceAction):
             _('Could not save some books') + ', ' +
             _('Click the show details button to see which ones.'),
             u'\n\n'.join(failures), show=True)
-        open_local_file(path)
+        if gprefs['show_files_after_save']:
+            open_local_file(path)
 
     def books_saved(self, job):
         if job.failed:

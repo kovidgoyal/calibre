@@ -18,8 +18,8 @@ from PyQt4.Qt import (Qt, SIGNAL, QTimer, QHelpEvent, QAction,
                      QMenu, QIcon, pyqtSignal, QUrl,
                      QDialog, QSystemTrayIcon, QApplication)
 
-from calibre import  prints
-from calibre.constants import __appname__, isosx
+from calibre import prints, force_unicode
+from calibre.constants import __appname__, isosx, filesystem_encoding
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.server import Server
 from calibre.library.database2 import LibraryDatabase2
@@ -41,7 +41,7 @@ from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.keyboard import Manager
-
+from calibre.library.sqlite import sqlite, DatabaseException
 
 class Listener(Thread): # {{{
 
@@ -475,7 +475,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 
-    def library_moved(self, newloc, copy_structure=False, call_close=True):
+    def library_moved(self, newloc, copy_structure=False, call_close=True,
+            allow_rebuild=False):
         if newloc is None: return
         default_prefs = None
         try:
@@ -484,7 +485,26 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 default_prefs = olddb.prefs
         except:
             olddb = None
-        db = LibraryDatabase2(newloc, default_prefs=default_prefs)
+        try:
+            db = LibraryDatabase2(newloc, default_prefs=default_prefs)
+        except (DatabaseException, sqlite.Error):
+            if not allow_rebuild: raise
+            import traceback
+            repair = question_dialog(self, _('Corrupted database'),
+                    _('The library database at %s appears to be corrupted. Do '
+                    'you want calibre to try and rebuild it automatically? '
+                    'The rebuild may not be completely successful.')
+                    % force_unicode(newloc, filesystem_encoding),
+                    det_msg=traceback.format_exc()
+                    )
+            if repair:
+                from calibre.gui2.dialogs.restore_library import repair_library_at
+                if repair_library_at(newloc, parent=self):
+                    db = LibraryDatabase2(newloc, default_prefs=default_prefs)
+                else:
+                    return
+            else:
+                return
         if self.content_server is not None:
             self.content_server.set_database(db)
         self.library_path = newloc

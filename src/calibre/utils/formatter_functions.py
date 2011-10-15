@@ -133,7 +133,7 @@ class BuiltinCmp(BuiltinFormatterFunction):
 class BuiltinStrcat(BuiltinFormatterFunction):
     name = 'strcat'
     arg_count = -1
-    category = 'String Manipulation'
+    category = 'String manipulation'
     __doc__ = doc = _('strcat(a, b, ...) -- can take any number of arguments. Returns a '
             'string formed by concatenating all the arguments')
 
@@ -147,7 +147,7 @@ class BuiltinStrcat(BuiltinFormatterFunction):
 class BuiltinStrlen(BuiltinFormatterFunction):
     name = 'strlen'
     arg_count = 1
-    category = 'String Manipulation'
+    category = 'String manipulation'
     __doc__ = doc = _('strlen(a) -- Returns the length of the string passed as '
             'the argument')
 
@@ -277,7 +277,7 @@ class BuiltinRawField(BuiltinFormatterFunction):
 class BuiltinSubstr(BuiltinFormatterFunction):
     name = 'substr'
     arg_count = 3
-    category = 'String Manipulation'
+    category = 'String manipulation'
     __doc__ = doc = _('substr(str, start, end) -- returns the start\'th through the end\'th '
             'characters of str. The first character in str is the zero\'th '
             'character. If end is negative, then it indicates that many '
@@ -369,7 +369,7 @@ class BuiltinSwitch(BuiltinFormatterFunction):
 class BuiltinStrcatMax(BuiltinFormatterFunction):
     name = 'strcat_max'
     arg_count = -1
-    category = 'String Manipulation'
+    category = 'String manipulation'
     __doc__ = doc = _('strcat_max(max, string1, prefix2, string2, ...) -- '
             'Returns a string formed by concatenating the arguments. The '
             'returned value is initialized to string1. `Prefix, string` '
@@ -403,7 +403,7 @@ class BuiltinStrcatMax(BuiltinFormatterFunction):
 class BuiltinInList(BuiltinFormatterFunction):
     name = 'in_list'
     arg_count = 5
-    category = 'List Lookup'
+    category = 'List lookup'
     __doc__ = doc = _('in_list(val, separator, pattern, found_val, not_found_val) -- '
             'treat val as a list of items separated by separator, '
             'comparing the pattern against each value in the list. If the '
@@ -468,7 +468,7 @@ class BuiltinIdentifierInList(BuiltinFormatterFunction):
 class BuiltinRe(BuiltinFormatterFunction):
     name = 're'
     arg_count = 3
-    category = 'String Manipulation'
+    category = 'String manipulation'
     __doc__ = doc = _('re(val, pattern, replacement) -- return the field after applying '
             'the regular expression. All instances of `pattern` are replaced '
             'with `replacement`. As in all of calibre, these are '
@@ -480,7 +480,7 @@ class BuiltinRe(BuiltinFormatterFunction):
 class BuiltinSwapAroundComma(BuiltinFormatterFunction):
     name = 'swap_around_comma'
     arg_count = 1
-    category = 'String Manipulation'
+    category = 'String manipulation'
     __doc__ = doc = _('swap_around_comma(val) -- given a value of the form '
             '"B, A", return "A B". This is most useful for converting names '
             'in LN, FN format to FN LN. If there is no comma, the function '
@@ -505,7 +505,7 @@ class BuiltinIfempty(BuiltinFormatterFunction):
 class BuiltinShorten(BuiltinFormatterFunction):
     name = 'shorten'
     arg_count = 4
-    category = 'String Manipulation'
+    category = 'String manipulation'
     __doc__ = doc = _('shorten(val, left chars, middle text, right chars) -- Return a '
             'shortened version of the field, consisting of `left chars` '
             'characters from the beginning of the field, followed by '
@@ -531,7 +531,7 @@ class BuiltinShorten(BuiltinFormatterFunction):
 class BuiltinCount(BuiltinFormatterFunction):
     name = 'count'
     arg_count = 2
-    category = 'List Manipulation'
+    category = 'List manipulation'
     __doc__ = doc = _('count(val, separator) -- interprets the value as a list of items '
             'separated by `separator`, returning the number of items in the '
             'list. Most lists use a comma as the separator, but authors '
@@ -543,7 +543,7 @@ class BuiltinCount(BuiltinFormatterFunction):
 class BuiltinListitem(BuiltinFormatterFunction):
     name = 'list_item'
     arg_count = 3
-    category = 'List Lookup'
+    category = 'List lookup'
     __doc__ = doc = _('list_item(val, index, separator) -- interpret the value as a list of '
             'items separated by `separator`, returning the `index`th item. '
             'The first item is number zero. The last item can be returned '
@@ -564,7 +564,7 @@ class BuiltinListitem(BuiltinFormatterFunction):
 class BuiltinSelect(BuiltinFormatterFunction):
     name = 'select'
     arg_count = 2
-    category = 'List Lookup'
+    category = 'List lookup'
     __doc__ = doc = _('select(val, key) -- interpret the value as a comma-separated list '
             'of items, with the items being "id:value". Find the pair with the '
             'id equal to key, and return the corresponding value.'
@@ -624,7 +624,7 @@ class BuiltinHumanReadable(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         try:
-            return human_readable(long(val))
+            return human_readable(round(float(val)))
         except:
             return ''
 
@@ -656,7 +656,7 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
 class BuiltinSublist(BuiltinFormatterFunction):
     name = 'sublist'
     arg_count = 4
-    category = 'List Manipulation'
+    category = 'List manipulation'
     __doc__ = doc = _('sublist(val, start_index, end_index, separator) -- interpret the '
             'value as a list of items separated by `separator`, returning a '
             'new list made from the `start_index` to the `end_index` item. '
@@ -677,6 +677,9 @@ class BuiltinSublist(BuiltinFormatterFunction):
         ei = int(end_index)
         # allow empty list items so counts are what the user expects
         val = [v.strip() for v in val.split(sep)]
+
+        if sep == ',':
+            sep = ', '
         try:
             if ei == 0:
                 return sep.join(val[si:])
@@ -688,7 +691,7 @@ class BuiltinSublist(BuiltinFormatterFunction):
 class BuiltinSubitems(BuiltinFormatterFunction):
     name = 'subitems'
     arg_count = 3
-    category = 'List Manipulation'
+    category = 'List manipulation'
     __doc__ = doc = _('subitems(val, start_index, end_index) -- This function is used to '
             'break apart lists of items such as genres. It interprets the value '
             'as a comma-separated list of items, where each item is a period-'
@@ -892,7 +895,7 @@ class BuiltinNot(BuiltinFormatterFunction):
 class BuiltinListUnion(BuiltinFormatterFunction):
     name = 'list_union'
     arg_count = 3
-    category = 'List Manipulation'
+    category = 'List manipulation'
     __doc__ = doc = _('list_union(list1, list2, separator) -- '
             'return a list made by merging the items in list1 and list2, '
             'removing duplicate items using a case-insensitive compare. If '
@@ -912,12 +915,14 @@ class BuiltinListUnion(BuiltinFormatterFunction):
         for i in l2:
             if icu_lower(i) not in lcl1:
                 res.append(i)
-        return ', '.join(res)
+        if separator == ',':
+            return ', '.join(res)
+        return separator.join(res)
 
 class BuiltinListDifference(BuiltinFormatterFunction):
     name = 'list_difference'
     arg_count = 3
-    category = 'List Manipulation'
+    category = 'List manipulation'
     __doc__ = doc = _('list_difference(list1, list2, separator) -- '
             'return a list made by removing from list1 any item found in list2, '
             'using a case-insensitive compare. The items in list1 and list2 '
@@ -931,12 +936,14 @@ class BuiltinListDifference(BuiltinFormatterFunction):
         for i in l1:
             if icu_lower(i) not in l2:
                 res.append(i)
-        return ', '.join(res)
+        if separator == ',':
+            return ', '.join(res)
+        return separator.join(res)
 
 class BuiltinListIntersection(BuiltinFormatterFunction):
     name = 'list_intersection'
     arg_count = 3
-    category = 'List Manipulation'
+    category = 'List manipulation'
     __doc__ = doc = _('list_intersection(list1, list2, separator) -- '
             'return a list made by removing from list1 any item not found in list2, '
             'using a case-insensitive compare. The items in list1 and list2 '
@@ -950,12 +957,14 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
         for i in l1:
             if icu_lower(i) in l2:
                 res.append(i)
-        return ', '.join(res)
+        if separator == ',':
+            return ', '.join(res)
+        return separator.join(res)
 
 class BuiltinListSort(BuiltinFormatterFunction):
     name = 'list_sort'
     arg_count = 3
-    category = 'List Manipulation'
+    category = 'List manipulation'
     __doc__ = doc = _('list_sort(list, direction, separator) -- '
             'return list sorted using a case-insensitive sort. If direction is '
             'zero, the list is sorted ascending, otherwise descending. The list items '
@@ -963,7 +972,50 @@ class BuiltinListSort(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, direction, separator):
         res = [l.strip() for l in list1.split(separator) if l.strip()]
-        return ', '.join(sorted(res, key=sort_key, reverse=direction != "0"))
+        if separator == ',':
+            return ', '.join(sorted(res, key=sort_key, reverse=direction != "0"))
+        return separator.join(sorted(res, key=sort_key, reverse=direction != "0"))
+
+class BuiltinListEquals(BuiltinFormatterFunction):
+    name = 'list_equals'
+    arg_count = 6
+    category = 'List manipulation'
+    __doc__ = doc = _('list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- '
+            'return yes_val if list1 and list2 contain the same items, '
+            'otherwise return no_val. The items are determined by splitting '
+            'each list using the appropriate separator character (sep1 or '
+            'sep2). The order of items in the lists is not relevant. '
+            'The compare is case insensitive.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list1, sep1, list2, sep2, yes_val, no_val):
+        s1 = set([icu_lower(l.strip()) for l in list1.split(sep1) if l.strip()])
+        s2 = set([icu_lower(l.strip()) for l in list2.split(sep2) if l.strip()])
+        if s1 == s2:
+            return yes_val
+        return no_val
+
+class BuiltinListRe(BuiltinFormatterFunction):
+    name = 'list_re'
+    arg_count = 4
+    category = 'List manipulation'
+    __doc__ = doc = _('list_re(src_list, separator, search_re, opt_replace) -- '
+            'Construct a list by first separating src_list into items using '
+            'the separator character. For each item in the list, check if it '
+            'matches search_re. If it does, then add it to the list to be '
+            'returned. If opt_replace is not the empty string, then apply the '
+            'replacement before adding the item to the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, src_list, separator, search_re, opt_replace):
+        l = [l.strip() for l in src_list.split(separator) if l.strip()]
+        res = []
+        for item in l:
+            if re.search(search_re, item, flags=re.I) is not None:
+                if opt_replace:
+                    item = re.sub(search_re, opt_replace, item)
+                res.append(item)
+        if separator == ',':
+            return ', '.join(res)
+        return separator.join(res)
 
 class BuiltinToday(BuiltinFormatterFunction):
     name = 'today'
@@ -1045,9 +1097,9 @@ _formatter_builtins = [
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
-    BuiltinInList(), BuiltinListDifference(),
-    BuiltinListIntersection(), BuiltinListitem(), BuiltinListSort(),
-    BuiltinListUnion(), BuiltinLookup(),
+    BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
+    BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
+    BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
     BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(),
     BuiltinOndevice(), BuiltinOr(), BuiltinPrint(), BuiltinRawField(),
     BuiltinRe(), BuiltinSelect(), BuiltinShorten(), BuiltinStrcat(),

@@ -138,7 +138,7 @@ class ChooseLibraryAction(InterfaceAction):
     name = 'Choose Library'
     action_spec = (_('Choose Library'), 'lt.png',
             _('Choose calibre library to work with'), None)
-    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
     action_add_menu = True
     action_menu_clone_qaction = _('Switch/create library...')
 
@@ -405,13 +405,12 @@ class ChooseLibraryAction(InterfaceAction):
             else:
                 return
 
-        prefs['library_path'] = loc
         #from calibre.utils.mem import memory
         #import weakref
         #from PyQt4.Qt import QTimer
         #self.dbref = weakref.ref(self.gui.library_view.model().db)
         #self.before_mem = memory()/1024**2
-        self.gui.library_moved(loc)
+        self.gui.library_moved(loc, allow_rebuild=True)
         #QTimer.singleShot(5000, self.debug_leak)
 
     def debug_leak(self):
@@ -455,7 +454,8 @@ class ChooseLibraryAction(InterfaceAction):
         self.choose_dialog_library_renamed = getattr(c, 'library_renamed', False)
 
     def choose_library_callback(self, newloc, copy_structure=False):
-        self.gui.library_moved(newloc, copy_structure=copy_structure)
+        self.gui.library_moved(newloc, copy_structure=copy_structure,
+                allow_rebuild=True)
         if getattr(self, 'choose_dialog_library_renamed', False):
             self.stats.rename(self.pre_choose_dialog_location, prefs['library_path'])
         self.build_menus()

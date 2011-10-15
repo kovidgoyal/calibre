@@ -1,0 +1,27 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MercoPress(BasicNewsRecipe):
+    title = u'Merco Press'
+    description = u"Read News, Stories and Insight Analysis from Latin America and Mercosur. Politics, Economy, Business and Investments in South America."
+    cover_url = 'http://en.mercopress.com/web/img/en/mercopress-logo.gif'
+
+    __author__ = 'Russell Phillips'
+    language = 'en'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    extra_css = 'img{padding-bottom:1ex; display:block; text-align: center;}'
+    remove_tags = [dict(name='a')]
+
+    feeds = [('Antarctica', 'http://en.mercopress.com/rss/antarctica'),
+        ('Argentina', 'http://en.mercopress.com/rss/argentina'),
+        ('Brazil', 'http://en.mercopress.com/rss/brazil'),
+        ('Falkland Islands', 'http://en.mercopress.com/rss/falkland-islands'),
+        ('International News', 'http://en.mercopress.com/rss/international'),
+        ('Latin America', 'http://en.mercopress.com/rss/latin-america'),
+        ('Mercosur', 'http://en.mercopress.com/rss/mercosur'),
+        ('Paraguay', 'http://en.mercopress.com/rss/paraguay'),
+        ('United States', 'http://en.mercopress.com/rss/united-states'),
+        ('Uruguay://en.mercopress.com/rss/uruguay')]

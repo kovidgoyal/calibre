@@ -6,7 +6,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
+import urllib2, re
 from contextlib import closing
 
 from lxml import html
@@ -67,7 +67,10 @@ class FoylesUKStore(BasicStoreConfig, StorePlugin):
                 title = ''.join(data.xpath('.//a[@class="Title"]/text()'))
                 author = ', '.join(data.xpath('.//span[@class="Author"]/text()'))
                 price = ''.join(data.xpath('./ul/li[@class="Strong"]/text()'))
-                price = price[price.rfind(' '):]
+                mo = re.search('£[\d\.]+', price)
+                if mo is None:
+                    continue
+                price = mo.group(0)
 
                 counter -= 1
 

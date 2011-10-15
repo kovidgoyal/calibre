@@ -18,11 +18,13 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     assert text or attachment_data
 
     from email.mime.multipart import MIMEMultipart
+    from email.utils import formatdate
 
     outer = MIMEMultipart()
     outer['Subject'] = subject
     outer['To'] = to
     outer['From'] = from_
+    outer['Date'] = formatdate(localtime=True)
     outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
 
     if text is not None:

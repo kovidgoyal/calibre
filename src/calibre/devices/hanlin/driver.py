@@ -116,6 +116,7 @@ class BOOX(HANLINV3):
     supported_platforms = ['windows', 'osx', 'linux']
     METADATA_CACHE = '.metadata.calibre'
     DRIVEINFO = '.driveinfo.calibre'
+    icon           = I('devices/boox.jpg')
 
     # Ordered list of supported formats
     FORMATS     = ['epub', 'fb2', 'djvu', 'pdf', 'html', 'txt', 'rtf', 'mobi',
@@ -123,7 +124,7 @@ class BOOX(HANLINV3):
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x322]
+    BCD         = [0x322, 0x323]
 
     MAIN_MEMORY_VOLUME_LABEL  = 'BOOX Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'BOOX Storage Card'

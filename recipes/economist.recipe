@@ -22,8 +22,6 @@ class Economist(BasicNewsRecipe):
             ' perspective. Best downloaded on Friday mornings (GMT)')
     extra_css      = '.headline {font-size: x-large;} \n h2 { font-size: small;  } \n h1 { font-size: medium;  }'
     oldest_article = 7.0
-    cover_url = 'http://media.economist.com/sites/default/files/imagecache/print-cover-thumbnail/print-covers/currentcoverus_large.jpg'
-    #cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk', 'ec-article-info',
@@ -55,6 +53,14 @@ class Economist(BasicNewsRecipe):
                         'Check your username and password.')
         return br
     '''
+
+    def get_cover_url(self):
+        br = self.browser
+        br.open(self.INDEX)
+        issue = br.geturl().split('/')[4]
+        self.log('Fetching cover for issue: %s'%issue)
+        cover_url = "http://media.economist.com/sites/default/files/imagecache/print-cover-full/print-covers/%s_CNA400.jpg" %(issue.translate(None,'-'))
+        return cover_url
 
     def parse_index(self):
         return self.economist_parse_index()

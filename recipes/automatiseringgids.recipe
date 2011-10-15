@@ -10,27 +10,15 @@ class autogids(BasicNewsRecipe):
     publisher              = 'AutomatiseringGids'
     category               = 'Nieuws, IT, Nederlandstalig'
     simultaneous_downloads = 5
-    #delay          = 1
-    timefmt        = ' [%A, %d %B, %Y]'
-    #timefmt        = ''
+    timefmt        = ' [%a, %d %B, %Y]'
     no_stylesheets = True
     remove_javascript = True
     remove_empty_feeds = True
     publication_type = 'newspaper'
     encoding              = 'utf-8'
-    cover_url    = 'http://www.automatiseringgids.nl/siteimg/header_logo.gif'
-    keep_only_tags = [dict(id=['content'])]
-    extra_css = '.artikelheader {font-size:0.8em; color: #666;} .artikelintro {font-weight:bold} div.imgArticle {float: right; margin: 0 0em 1em 1em; display: block; position: relative; } \
-        h2 { margin: 0 0 0.5em; min-height: 30px; font-size: 1.5em; letter-spacing: -0.2px; margin: 0 0 0.5em; color: black; font-weight: bold; line-height: 1.2em; padding: 4px 3px 0; }'
+    cover_url    = 'http://www.automatiseringgids.nl/binaries/content/gallery/ag/marketing/ag-avatar-100x50.jpg'
+    keep_only_tags = [dict(name='div', attrs={'class':['content']})]
 
-
-
-    remove_tags = [dict(name='div', attrs={'id':['loginbox','reactiecollapsible','reactiebox']}),
-        dict(name='div', attrs={'class':['column_a','column_c','bannerfullsize','reactieheader','reactiecollapsible','formulier','artikel_headeroptions']}),
-        dict(name='ul', attrs={'class':['highlightlist']}),
-        dict(name='input', attrs={'type':['button']}),
-        dict(name='div', attrs={'style':['display:block; width:428px; height:30px; float:left;']}),
-    ]
     preprocess_regexps = [
         (re.compile(r'(<h3>Reacties</h3>|<h2>Zie ook:</h2>|<div style=".*</div>|<a[^>]*>|</a>)', re.DOTALL|re.IGNORECASE),
         lambda match: ''),

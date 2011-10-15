@@ -3,7 +3,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TelepolisNews(BasicNewsRecipe):
-    title          = u'Telepolis (News+Artikel)'
+    title          = u'Telepolis'
     __author__ = 'syntaxis'
     publisher = 'Heise Zeitschriften Verlag GmbH & Co KG'
     description = 'News from Telepolis'
@@ -15,10 +15,7 @@ class TelepolisNews(BasicNewsRecipe):
     encoding = "utf-8"
     language = 'de'
 
-
     remove_empty_feeds = True
-
-
 
     keep_only_tags = [dict(name = 'div',attrs={'class':'head'}),dict(name = 'div',attrs={'class':'leftbox'}),dict(name='td',attrs={'class':'strict'})]
     remove_tags = [ dict(name='td',attrs={'class':'blogbottom'}),
@@ -27,7 +24,6 @@ class TelepolisNews(BasicNewsRecipe):
             ,dict(attrs={'class':'tp-url'}),dict(attrs={'class':'blog-name entry_'}) ]
 
     remove_tags_after  = [dict(name='span', attrs={'class':['breadcrumb']})]
-
 
     feeds          = [(u'News', u'http://www.heise.de/tp/news-atom.xml')]
 
@@ -38,7 +34,6 @@ class TelepolisNews(BasicNewsRecipe):
     ]
 
     html2epub_options  = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
-
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '">'

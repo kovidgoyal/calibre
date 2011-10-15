@@ -1,0 +1,113 @@
+# -*- coding: utf-8 -*-
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2011, Piotr Kontek, piotr.kontek@gmail.com'
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+import re
+
+class GN(BasicNewsRecipe):
+        EDITION = 0
+
+        __author__ = 'Piotr Kontek'
+        title = u'Gość niedzielny'
+        description = 'Weekly magazine'
+        encoding = 'utf-8'
+        no_stylesheets = True
+        language = 'pl'
+        remove_javascript = True
+        temp_files = []
+        simultaneous_downloads = 1
+
+        articles_are_obfuscated = True
+
+        def get_obfuscated_article(self, url):
+            br = self.get_browser()
+            br.open(url)
+            source = br.response().read()
+            page = self.index_to_soup(source)
+
+            main_section = page.find('div',attrs={'class':'txt doc_prnt_prv'})
+
+            title = main_section.find('h2')
+            info = main_section.find('div', attrs={'class' : 'cf doc_info'})
+            authors = info.find(attrs={'class':'l'})
+            article = str(main_section.find('p', attrs={'class' : 'doc_lead'}))
+            first = True
+            for p in main_section.findAll('p', attrs={'class':None}, recursive=False):
+                if first and p.find('img') != None:
+                    article = article + '<p>'
+                    article = article + str(p.find('img')).replace('src="/files/','src="http://www.gosc.pl/files/')
+                    article = article + '<font size="-2">'
+                    for s in p.findAll('span'):
+                        article = article + self.tag_to_string(s)
+                    article = article + '</font></p>'
+                else:
+                    article = article + str(p).replace('src="/files/','src="http://www.gosc.pl/files/')
+                first = False
+
+            html =  unicode(title) + unicode(authors) + unicode(article)
+
+            self.temp_files.append(PersistentTemporaryFile('_temparse.html'))
+            self.temp_files[-1].write(html)
+            self.temp_files[-1].close()
+            return self.temp_files[-1].name
+
+        def find_last_issue(self):
+                soup = self.index_to_soup('http://gosc.pl/wyszukaj/wydania/3.Gosc-Niedzielny')
+                #szukam zdjęcia i linka do porzedniego pełnego numeru
+                first = True
+                for d in soup.findAll('div', attrs={'class':'l release_preview_l'}):
+                    img = d.find('img')
+                    if img != None:
+                        a = img.parent
+                        self.EDITION = a['href']
+                        self.title = img['alt']
+                        self.cover_url = 'http://www.gosc.pl' + img['src']
+                        if not first:
+                            break
+                        first = False
+
+        def parse_index(self):
+                self.find_last_issue()
+                soup = self.index_to_soup('http://www.gosc.pl' + self.EDITION)
+                feeds = []
+                #wstepniak
+                a = soup.find('div',attrs={'class':'release-wp-b'}).find('a')
+                articles = [
+                            {'title' : self.tag_to_string(a),
+                             'url'   : 'http://www.gosc.pl' + a['href'].replace('/doc/','/doc_pr/'),
+                             'date'  : '',
+                             'description' : ''}
+                            ]
+                feeds.append((u'Wstępniak',articles))
+                #kategorie
+                for addr in soup.findAll('a',attrs={'href':re.compile('kategoria')}):
+                        if addr.string != u'wszystkie artyku\u0142y z tej kategorii \xbb':
+                            main_block = self.index_to_soup('http://www.gosc.pl' + addr['href'])
+                            articles = list(self.find_articles(main_block))
+                            if len(articles) > 0:
+                                section = addr.string
+                                feeds.append((section, articles))
+                return feeds
+
+        def find_articles(self, main_block):
+                for a in main_block.findAll('div', attrs={'class':'prev_doc2'}):
+						art = a.find('a')
+						yield {
+                                'title' : self.tag_to_string(art),
+                                'url'   : 'http://www.gosc.pl' + art['href'].replace('/doc/','/doc_pr/'),
+                                'date'  : '',
+                                'description' : ''
+                                }
+                for a in main_block.findAll('div', attrs={'class':'sr-document'}):
+						art = a.find('a')
+						yield {
+                                'title' : self.tag_to_string(art),
+                                'url'   : 'http://www.gosc.pl' + art['href'].replace('/doc/','/doc_pr/'),
+                                'date'  : '',
+                                'description' : ''
+                                }
+

@@ -181,4 +181,17 @@ class TemporaryFile(object):
 
 
 
+class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
+
+    def __init__(self, max_size=0, suffix="", prefix="", dir=None, mode='w+b',
+            bufsize=-1):
+        if prefix == None:
+            prefix = ''
+        if suffix is None:
+            suffix = ''
+        if dir is None:
+            dir = base_dir()
+        tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size, suffix=suffix,
+                prefix=prefix, dir=dir, mode=mode, bufsize=bufsize)
+
 

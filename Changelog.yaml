@@ -19,6 +19,185 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.22
+  date: 2011-10-14
+
+  new features:
+    - title: "Input plugin for OCR-ed DJVU files (i.e. .djvu files that contain text. Only the text is converted)"
+      type: major
+
+    - title: "Driver for the SONY PRS T1"
+
+    - title: "Add a 'Back' button to the metadata download dialog while downloading covers, so that you can go back and select a different match if you dont lke the covers, instead of having to re-do the entire download."
+      tickets: [855055]
+
+    - title: "Add an option in Preferences->Saving to disk to not show files in file browser after saving to disk"
+
+    - title: "Get Books: Add the amazon.fr store. Remove leading 'by' from author names. Fix encoding issues with non English titles/names"
+
+    - title: "Driver for Onyx BOOX A61S/X61S"
+      tickets: [872741] 
+
+    - title: "Kobo: Add support for uploading new covers to the device without converting the ePub. You can just resend the book to have the cover updated"
+
+    - title: "Make it a little harder to ignore the fact that there are multiple toolbars when customizing toolbars"
+      tickets: [864589]
+  
+  bug fixes:
+    - title:   "MOBI Input: Remove invalid tags of the form <xyz: >"
+      tickets: [872883]
+
+    - title: "calibredb add_format does not refresh running calibre instance"
+      tickets: [872961] 
+
+    - title: "Conversion pipeline: Translate <font face> to CSS font-family"
+      tickets: [871388]
+
+    - title: "When sending email add a Date: header so that amavis does not consider the emails to be spam"
+
+    - title: "Fix for the problem where setting the restriction to an empty current search clears the restriction box but does not clear the restriction." 
+      tickets: [871921]
+
+    - title: "Fix generation of column coloring rules for date/time columns"
+    
+    - title: "Fix plugboard problem where customizations to formats accepted by a device were ignored."
+    
+    - title: "Enable adding of various actions to the toolbar when device is connected (they had been erroneously marked as being non-addable)"
+
+    - title: "Fixable content in library check is not hidden after repair"
+      tickets: [864096]
+
+    - title: "Catalog generation: Handle a corrupted thumbnail cache."
+
+    - title: "Do not error out when user clicks stop selected job with no job selected."
+      tickets: [863766]
+
+  improved recipes:
+    - automatiseringgids 
+    - CNET
+    - Geek and Poke
+    - Gosc Niedzielny
+    - Dilbert
+    - Economist
+    - Ming Pao
+    - Metro UK
+    - Heise Online
+    - FAZ.net
+    - Houston Chronicle
+    - Slate
+    - Descopera
+
+  new recipes:
+    - title: WoW Insider 
+      author: Krittika Goyal
+
+    - title: Merco Press and Penguin news
+      author: Russell Phillips
+
+    - title: Defense News
+      author: Darko Miletic
+
+    - title: Revista Piaui 
+      author: Eduardo Simoes
+
+    - title: Dark Horizons
+      author: Jaded
+
+    - title: Various polish news sources
+      author: fenuks
+
+
+- version: 0.8.21
+  date: 2011-09-30
+
+  new features:
+    - title: "A Tips and Tricks blog at http://blog.calibre-ebook.com to introduce less well known calibre features in a simple way"
+
+    - title: "News download: Add list of articles in the downloaded issue to the comments metadata of the generated ebook. Makes it possible to search for a particular article in the calibre library."
+      ticket: [851717]
+
+    - title: "Toolbar buttons: You can now also right click the buttons to bring the popup of extra actions, in addition to clicking the small arrow next to the button." 
+
+    - title: "Amazon metadata download plugin: Add option to download metadata from amazon.es"
+
+    - title: Driver for Vizio and iRobot A9 Android tablets
+      tickets: [854408,862175] 
+
+    - title: "When switching to/starting with a library with a corrupted database, offer the user the option of rebuilding the database instead of erroring out."
+
+    - title: "Template language: Add list_equals function"
+
+    - title: "Add a special output profile for the PocketBook 900 as it does not resize images correctly by itself"
+  
+  bug fixes:
+    - title: "Fix regression that cause PDF Output to generate very large files"
+
+    - title: Fix Title Sort field not being displayed in Book details panel
+
+    - title: Prevent renaming of languages in the Tag browser
+      tickets: [860943]
+
+    - title: "Get books: Fix getting price from Foyles"
+
+    - title: "Content server: When a search matches no queries, do not show an error message"
+
+    - title: "ODT Input: Add workaround for ADE to fix centering of block level images when converting to EPUB"
+      tickets: [859343]
+
+    - title: "Content server: When WSGI embedding fix handling of empty URL"
+
+    - title: "RTF Input: Fix spurious spaces inserted after some unicode characters"
+      tickets: [851215]
+
+    - title: "Fix regression that broke clicking on the first letter of author names in the Tag Browser when grouped"
+      tickets: [860615]
+
+    - title: "Fix reading metadata from filenames when the author regexp does not match anything"
+
+    - title: "Fix incorrect display of the month September in Finnish calibre"
+      tickets: [858737]
+
+    - title: "Do not delete the file when the user tries to add a format to a book from a file already in the books directory"
+      tickets: [856158]
+
+    - title: "Fix regression that broke customization of Kobo device plugin"
+
+    - title: "Allow user defined templates to be used in save to disk"
+
+  improved recipes:
+    - Read It Later
+    - American Spectator
+    - Sydney Morning Herald
+    - Chicago Tribune
+    - American Prospect
+    - DNA India
+    - Times of India
+    - Kurier
+    - xkcd
+    - Cnet
+
+  new recipes:
+    - title: Various Colombian news sources
+      author: BIGO-CAVA
+
+    - title: Gosc Niedzielny
+      author: Piotr Kontek
+
+    - title: Leipzer Volkszeitung 
+      author: a.peter
+
+    - title: Folha de Sao Paulo (full edition)
+      author: fluzao
+
+    - title: Den of Geek
+      author: Jaded
+
+    - title: Republica
+      author: Manish Bhattarai
+
+    - title: Sign on San Diego
+      author: Jay Kindle
+
 - version: 0.8.20
   date: 2011-09-23
 

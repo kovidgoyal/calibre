@@ -2,12 +2,10 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
-
 class AdvancedUserRecipe1311790237(BasicNewsRecipe):
     title          = u'Periódico El Colombiano'
-    language = 'es_CO'
     __author__  = 'BIGO-CAVA'
+    language = 'es_CO'
     cover_url     = 'http://www.elcolombiano.com/images/logoElColombiano348x46.gif'
     remove_tags_before = dict(id='contenidoArt')
     remove_tags_after  = dict(id='enviaTips')

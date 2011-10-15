@@ -16,10 +16,14 @@ class PickRandomAction(InterfaceAction):
     name = 'Pick Random Book'
     action_spec = (_('Pick a random book'), 'random.png',
             'Select a random book from your calibre library', ())
-    dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
+    dont_add_to = frozenset(['context-menu-device'])
 
     def genesis(self):
         self.qaction.triggered.connect(self.pick_random)
+
+    def location_selected(self, loc):
+        enabled = loc == 'library'
+        self.qaction.setEnabled(enabled)
 
     def pick_random(self):
         pick = random.randint(0, self.gui.library_view.model().rowCount(None))

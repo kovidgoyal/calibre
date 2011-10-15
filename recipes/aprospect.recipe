@@ -1,26 +1,18 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AmericanProspect(BasicNewsRecipe):
     title          = u'American Prospect'
-    __author__     = u'Michael Heinz'
-    oldest_article = 30
-    language = 'en'
-    max_articles_per_feed = 100
-    recursions = 0
-    no_stylesheets = True
-    remove_javascript = True
+    __author__     = u'Michael Heinz, a.peter'
+    version        = 2
 
-    preprocess_regexps = [
-        (re.compile(r'<body.*?<div class="pad_10L10R">', re.DOTALL|re.IGNORECASE), lambda match: '<body><div>'),
-        (re.compile(r'</div>.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</div></body>'),
-        (re.compile('\r'),lambda match: ''),
-        (re.compile(r'<!-- .+? -->', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        (re.compile(r'<link .+?>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        (re.compile(r'<script.*?</script>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        (re.compile(r'<noscript.*?</noscript>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        (re.compile(r'<meta .*?/>', re.DOTALL|re.IGNORECASE), lambda match: ''),
-    ]
+    oldest_article        = 30
+    language              = 'en'
+    max_articles_per_feed = 100
+    recursions            = 0
+    no_stylesheets        = True
+    remove_javascript     = True
+
+    keep_only_tags = [dict(name='div', attrs={'class':'pad_10L10R'})]
+    remove_tags    = [dict(name='form'), dict(name='div', attrs={'class':['bkt_caption','sharebox noprint','badgebox']})]
 
     feeds       = [(u'Articles', u'feed://www.prospect.org/articles_rss.jsp')]
-
