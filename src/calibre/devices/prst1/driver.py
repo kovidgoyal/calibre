@@ -556,8 +556,6 @@ class PRST1(USBMS):
         except:
             pass
     
-        description = ''
-    
         cursor = connection.cursor()
     
         query = '''
@@ -568,7 +566,7 @@ class PRST1(USBMS):
             publication_date = ? 
         WHERE _id = ?
         '''
-        t = (name, description, pubdate, book.bookId,)
+        t = (name, None, pubdate, book.bookId,)
         cursor.execute(query, t)
         
         connection.commit()
