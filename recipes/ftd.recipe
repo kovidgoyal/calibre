@@ -16,7 +16,7 @@ class FTDe(BasicNewsRecipe):
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
     language = 'de'
-    max_articles_per_feed = 40
+    max_articles_per_feed = 30
     no_stylesheets = True
 
     remove_tags = [dict(id='navi_top'),
@@ -84,18 +84,18 @@ class FTDe(BasicNewsRecipe):
 		   dict(name='div', attrs={'class':'artikelsplitfaq'})]
     #remove_tags_after = [dict(name='a', attrs={'class':'more'})]
 
-    feeds =  [ ('Finanzen', 'http://www.ftd.de/rss2/finanzen/maerkte'),
-	       ('Meinungshungrige', 'http://www.ftd.de/rss2/meinungshungrige'),
-	       ('Unternehmen', 'http://www.ftd.de/rss2/unternehmen'),
-	       ('Politik', 'http://www.ftd.de/rss2/politik'),
-	       ('Karriere_Management', 'http://www.ftd.de/rss2/karriere-management'),
-	       ('IT_Medien', 'http://www.ftd.de/rss2/it-medien'),
-	       ('Wissen', 'http://www.ftd.de/rss2/wissen'),
-	       ('Sport', 'http://www.ftd.de/rss2/sport'),
-	       ('Auto', 'http://www.ftd.de/rss2/auto'),
-	       ('Lifestyle', 'http://www.ftd.de/rss2/lifestyle')
-
-	     ]
+    feeds =  [
+	         ('Unternehmen', 'http://www.ftd.de/rss2/unternehmen'),
+	         ('Finanzen', 'http://www.ftd.de/rss2/finanzen/maerkte'),
+	         ('Meinungen', 'http://www.ftd.de/rss2/meinungshungrige'),
+	         ('Politik', 'http://www.ftd.de/rss2/politik'),
+	         ('Management & Karriere', 'http://www.ftd.de/rss2/karriere-management'),
+	         ('IT & Medien', 'http://www.ftd.de/rss2/it-medien'),
+	         ('Wissen', 'http://www.ftd.de/rss2/wissen'),
+	         ('Sport', 'http://www.ftd.de/rss2/sport'),
+	         ('Auto', 'http://www.ftd.de/rss2/auto'),
+	         ('Lifestyle', 'http://www.ftd.de/rss2/lifestyle')
+	       ]
 
 
     def print_version(self, url):
