@@ -14,6 +14,7 @@ Device driver for the SONY T1 devices
 import os, time, re
 import sqlite3 as sqlite
 from contextlib import closing
+from datetime import date
 
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
@@ -345,6 +346,9 @@ class PRST1(USBMS):
                     self.upload_book_cover(connection, book, source_id)
                 db_books[lpath] = None
 
+            if self.is_sony_periodical(book):
+                self.periodicalize_book(connection, book)
+            
         for book, bookId in db_books.items():
             if bookId is not None:
                 # Remove From Collections
@@ -516,5 +520,56 @@ class PRST1(USBMS):
         t = (thumbnail_path, book.bookId,)
         cursor.execute(query, t)
 
+        connection.commit()
+        cursor.close()
+
+    def is_sony_periodical(self, book):
+        if _('News') not in book.tags:
+            return False
+        if not book.lpath.lower().endswith('.epub'):
+            return False
+        if book.pubdate.date() < date(2010, 10, 17):
+            return False
+        return True
+    
+    def periodicalize_book(self, connection, book):
+        if not self.is_sony_periodical(book):
+            return
+
+        name = None
+        if '[' in book.title:
+            name = book.title.split('[')[0].strip()
+            if len(name) < 4:
+                name = None
+        if not name:
+            try:
+                name = [t for t in book.tags if t != _('News')][0]
+            except:
+                name = None
+
+        if not name:
+            name = book.title
+
+        pubdate = None
+        try:
+            pubdate = int(time.mktime(book.pubdate.timetuple()) * 1000)
+        except:
+            pass
+    
+        description = ''
+    
+        cursor = connection.cursor()
+    
+        query = '''
+        UPDATE books
+        SET conforms_to = 'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0',
+            periodical_name = ?,
+            description = ?,
+            publication_date = ? 
+        WHERE _id = ?
+        '''
+        t = (name, description, pubdate, book.bookId,)
+        cursor.execute(query, t)
+        
         connection.commit()
         cursor.close()
