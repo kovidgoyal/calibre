@@ -8,11 +8,7 @@ class DallasNews(BasicNewsRecipe):
 
     no_stylesheets = True
     use_embedded_content = False
-    remove_tags_before = dict(name='h1')
-    keep_only_tags = {'class':lambda x: x and 'article' in x}
-    remove_tags = [
-            {'class':['DMNSocialTools', 'article ', 'article first ', 'article premium']},
-    ]
+    auto_cleanup = True
 
     feeds          = [
                       ('Local News',

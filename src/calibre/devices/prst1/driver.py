@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 Device driver for the SONY T1 devices
 '''
 
-import os, time, calendar, re
+import os, time, re
 import sqlite3 as sqlite
 from contextlib import closing
 
@@ -19,6 +19,7 @@ from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.books import BookList
+from calibre.ebooks.metadata import authors_to_sort_string
 from calibre.constants import islinux
 from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string
 
@@ -488,7 +489,7 @@ class PRST1(USBMS):
 
             cursor.close()
 
-            if metadata.bookId is not None:
+            if getattr(metadata, 'bookId', None) is not None:
                 debug_print('PRS-T1: refreshing cover for book being sent')
                 self.upload_book_cover(connection, metadata, source_id)
 
