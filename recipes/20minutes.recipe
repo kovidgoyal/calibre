@@ -1,0 +1,70 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011 Aurélien Chabot <contact@aurelienchabot.fr>'
+'''
+20minutes.fr
+'''
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Minutes(BasicNewsRecipe):
+
+    title                  = '20 minutes'
+    __author__             = 'calibre'
+    description            = 'Actualités'
+    encoding               = 'cp1252'
+    publisher              = '20minutes.fr'
+    category               = 'Actualités, France, Monde'
+    language               = 'fr'
+
+    use_embedded_content   = False
+    timefmt                = ' [%d %b %Y]'
+    max_articles_per_feed  = 15
+    no_stylesheets         = True
+    remove_empty_feeds     = True
+    filterDuplicates       = True
+
+    extra_css = '''
+                    h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
+                    .mna-details {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .mna-image {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .mna-body {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
+                '''
+
+    remove_tags = [
+            dict(name='iframe'),
+            dict(name='div', attrs={'class':['mn-section-heading']}),
+            dict(name='a', attrs={'href':['#commentaires']}),
+            dict(name='div', attrs={'class':['mn-right']}),
+            dict(name='div', attrs={'class':['mna-box']}),
+            dict(name='div', attrs={'class':['mna-comment-call']}),
+            dict(name='div', attrs={'class':['mna-tools']}),
+            dict(name='div', attrs={'class':['mn-trilist']})
+    ]
+
+    keep_only_tags    = [dict(id='mn-article')]
+
+    remove_tags_after  = dict(name='div', attrs={'class':['mna-body','mna-signature']})
+
+
+    feeds = [
+        ('France', 'http://www.20minutes.fr/rss/actu-france.xml'),
+        ('International', 'http://www.20minutes.fr/rss/monde.xml'),
+        ('Tech/Web', 'http://www.20minutes.fr/rss/hightech.xml'),
+        ('Sciences', 'http://www.20minutes.fr/rss/sciences.xml'),
+        ('Economie', 'http://www.20minutes.fr/rss/economie.xml'),
+        ('Politique', 'http://www.20minutes.fr/rss/politique.xml'),
+        (u'Médias', 'http://www.20minutes.fr/rss/media.xml'),
+        ('Cinema', 'http://www.20minutes.fr/rss/cinema.xml'),
+        ('People', 'http://www.20minutes.fr/rss/people.xml'),
+        ('Culture', 'http://www.20minutes.fr/rss/culture.xml'),
+        ('Sport', 'http://www.20minutes.fr/rss/sport.xml'),
+        ('Paris', 'http://www.20minutes.fr/rss/paris.xml'),
+        ('Lyon', 'http://www.20minutes.fr/rss/lyon.xml'),
+        ('Toulouse', 'http://www.20minutes.fr/rss/toulouse.xml')
+    ]
+
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
