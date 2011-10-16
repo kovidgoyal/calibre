@@ -11,11 +11,11 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os,  tempfile
+import sys, os, tempfile
+
 from calibre.ebooks.rtf2xml import copy, check_brackets
 # note to self. This is the first module in which I use tempfile. A good idea?
-"""
-"""
+
 class AddBrackets:
     """
     Add brackets for old RTF.
@@ -41,6 +41,7 @@ class AddBrackets:
         self.__copy = copy
         self.__write_to = tempfile.mktemp()
         self.__run_level = run_level
+
     def __initiate_values(self):
         """
         """
@@ -82,14 +83,16 @@ class AddBrackets:
         'cw<ci<subscript_' ,
         'cw<ci<superscrip',
         'cw<ci<underlined' ,
-        'cw<ul<underlined' ,
+        # 'cw<ul<underlined' ,
         ]
+
     def __before_body_func(self, line):
         """
         """
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'in_body'
         self.__write_obj.write(line)
+
     def __in_body_func(self, line):
         """
         """
@@ -108,6 +111,7 @@ class AddBrackets:
             self.__state = 'after_control_word'
         else:
             self.__write_obj.write(line)
+
     def __after_control_word_func(self, line):
         """
         """
@@ -122,6 +126,7 @@ class AddBrackets:
                 self.__ignore_count = self.__ob_count
             else:
                 self.__state = 'in_body'
+
     def __write_group(self):
         """
         """
@@ -141,6 +146,7 @@ class AddBrackets:
             self.__write_obj.write(inline_string)
             self.__open_bracket = 1
         self.__temp_group = []
+
     def __change_permanent_group(self):
         """
         use temp group to change permanent group
@@ -150,6 +156,7 @@ class AddBrackets:
             if token_info in self.__accept:
                 att = line[20:-1]
                 self.__inline[token_info] = att
+
     def __ignore_func(self, line):
         """
         Don't add any brackets while inside of brackets RTF has already
@@ -159,12 +166,14 @@ class AddBrackets:
         if self.__token_info == 'cb<nu<clos-brack'and\
             self.__cb_count == self.__ignore_count:
             self.__state = 'in_body'
+
     def __check_brackets(self, in_file):
         self.__check_brack_obj = check_brackets.CheckBrackets\
             (file = in_file)
         good_br =  self.__check_brack_obj.check_brackets()[0]
         if not good_br:
             return 1
+
     def add_brackets(self):
         """
         """
