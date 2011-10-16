@@ -1,0 +1,46 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011 Aurélien Chabot <contact@aurelienchabot.fr>'
+
+'''
+Fetch phoronix.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class cdnet(BasicNewsRecipe):
+
+    title                  = 'Phoronix'
+    __author__             = 'calibre'
+    description            = 'Actualités Phoronix'
+    encoding               = 'utf-8'
+    publisher              = 'Phoronix.com'
+    category               = 'news, IT, linux'
+    language               = 'en'
+
+    use_embedded_content   = False
+    timefmt                = ' [%d %b %Y]'
+    max_articles_per_feed  = 25
+    no_stylesheets         = True
+    remove_empty_feeds     = True
+    filterDuplicates       = True
+
+    extra_css = '''
+                    h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
+                    h2 {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .KonaBody {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
+                '''
+
+    remove_tags = []
+
+    remove_tags_before = dict(id='phxcms_content_phx')
+    remove_tags_after  = dict(name='div', attrs={'class':'KonaBody'})
+
+    feeds =  [('Phoronix', 'http://feeds.feedburner.com/Phoronix')]
+
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
