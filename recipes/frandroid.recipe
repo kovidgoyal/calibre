@@ -1,0 +1,7 @@
+class BasicUserRecipe1318572550(AutomaticNewsRecipe):
+    title          = u'FrAndroid'
+    oldest_article = 2
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds          = [(u'FrAndroid', u'http://feeds.feedburner.com/Frandroid')]
