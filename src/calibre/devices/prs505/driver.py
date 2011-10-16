@@ -207,8 +207,11 @@ class PRS505(USBMS):
         c = self.initialize_XML_cache()
         blists = {}
         for i in c.paths:
-            if booklists[i] is not None:
-                blists[i] = booklists[i]
+            try:
+                if booklists[i] is not None:
+                    blists[i] = booklists[i]
+            except IndexError:
+                pass
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.strip() for x in

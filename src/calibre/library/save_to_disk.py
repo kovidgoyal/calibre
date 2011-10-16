@@ -374,6 +374,8 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
                     newmi.template_to_attribute(mi, cpb)
                 else:
                     newmi = mi
+                if cover:
+                    newmi.cover_data = ('jpg', cover)
                 set_metadata(stream, newmi, fmt)
             except:
                 if DEBUG:

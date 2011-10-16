@@ -14,6 +14,7 @@ Device driver for the SONY T1 devices
 import os, time, re
 import sqlite3 as sqlite
 from contextlib import closing
+from datetime import date
 
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
@@ -21,6 +22,7 @@ from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.books import BookList
 from calibre.ebooks.metadata import authors_to_sort_string
 from calibre.constants import islinux
+from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string
 
 DBPATH = 'Sony_Reader/database/books.db'
 THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'
@@ -83,18 +85,26 @@ class PRST1(USBMS):
                 'the same aspect ratio (width to height) as the cover. '
                 'Unset it if you want the thumbnail to be the maximum size, '
                 'ignoring aspect ratio.'),
+        _('Use SONY Author Format (First Author Only)') +
+              ':::' +
+              _('Set this option if you want the author on the Sony to '
+                'appear the same way the T1 sets it. This means it will '
+                'only show the first author for books with multiple authors. '
+                'Leave this disabled if you use Metadata Plugboards.')
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 ', '.join(['series', 'tags']),
                 True,
                 False,
                 True,
+                False,
     ]
 
     OPT_COLLECTIONS    = 0
     OPT_UPLOAD_COVERS  = 1
     OPT_REFRESH_COVERS = 2
     OPT_PRESERVE_ASPECT_RATIO = 3
+    OPT_USE_SONY_AUTHORS = 4
 
     plugboards = None
     plugboard_func = None
@@ -104,6 +114,8 @@ class PRST1(USBMS):
         # that we do not preserve aspect ratio
         if not self.settings().extra_customization[self.OPT_PRESERVE_ASPECT_RATIO]:
             self.THUMBNAIL_WIDTH = 108
+        # Make sure the date offset is set to none, we'll calculate it in books.
+        self.device_offset = None
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id or '_SETTING' in pnp_id
@@ -168,6 +180,27 @@ class PRST1(USBMS):
             for i, row in enumerate(cursor):
                 bl_collections.setdefault(row[0], [])
                 bl_collections[row[0]].append(row[1])
+
+            # collect information on offsets, but assume any
+            # offset we already calculated is correct
+            if self.device_offset is None:
+                query = 'SELECT file_path, modified_date FROM books'
+                cursor.execute(query)
+            
+                time_offsets = {}
+                for i, row in enumerate(cursor):
+                    comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000);
+                    device_date = int(row[1]);
+                    offset = device_date - comp_date
+                    time_offsets.setdefault(offset, 0)
+                    time_offsets[offset] = time_offsets[offset] + 1
+                
+                try:
+                    device_offset = max(time_offsets,key = lambda a: time_offsets.get(a))
+                    debug_print("Device Offset: %d ms"%device_offset)
+                    self.device_offset = device_offset
+                except ValueError:
+                    debug_print("No Books To Detect Device Offset.")
 
             for idx, book in enumerate(bl):
                 query = 'SELECT _id, thumbnail FROM books WHERE file_path = ?'
@@ -238,6 +271,7 @@ class PRST1(USBMS):
         opts = self.settings()
         upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
+        use_sony_authors = opts.extra_customization[self.OPT_USE_SONY_AUTHORS]
 
         cursor = connection.cursor()
 
@@ -267,15 +301,21 @@ class PRST1(USBMS):
                     else:
                         author = authors_to_sort_string(newmi.authors)
                 else:
-                    author = newmi.authors[0]
+                    if use_sony_authors:
+                        author = newmi.authors[0]
+                    else:
+                        author = authors_to_string(newmi.authors)                        
             except:
                 author = _('Unknown')
             title = newmi.title or _('Unknown')
 
             # Get modified date
-            modified_date = os.path.getmtime(book.path)
-            time_offset = time.altzone if time.daylight else time.timezone
-            modified_date = (modified_date - time_offset) * 1000
+            modified_date = os.path.getmtime(book.path) * 1000
+            if self.device_offset is not None:
+                modified_date = modified_date + self.device_offset
+            else:
+                time_offset = -time.altzone if time.daylight else -time.timezone
+                modified_date = modified_date + (time_offset * 1000)
 
             if lpath not in db_books:
                 query = '''
@@ -306,6 +346,9 @@ class PRST1(USBMS):
                     self.upload_book_cover(connection, book, source_id)
                 db_books[lpath] = None
 
+            if self.is_sony_periodical(book):
+                self.periodicalize_book(connection, book)
+            
         for book, bookId in db_books.items():
             if bookId is not None:
                 # Remove From Collections
@@ -477,5 +520,54 @@ class PRST1(USBMS):
         t = (thumbnail_path, book.bookId,)
         cursor.execute(query, t)
 
+        connection.commit()
+        cursor.close()
+
+    def is_sony_periodical(self, book):
+        if _('News') not in book.tags:
+            return False
+        if not book.lpath.lower().endswith('.epub'):
+            return False
+        if book.pubdate.date() < date(2010, 10, 17):
+            return False
+        return True
+    
+    def periodicalize_book(self, connection, book):
+        if not self.is_sony_periodical(book):
+            return
+
+        name = None
+        if '[' in book.title:
+            name = book.title.split('[')[0].strip()
+            if len(name) < 4:
+                name = None
+        if not name:
+            try:
+                name = [t for t in book.tags if t != _('News')][0]
+            except:
+                name = None
+
+        if not name:
+            name = book.title
+
+        pubdate = None
+        try:
+            pubdate = int(time.mktime(book.pubdate.timetuple()) * 1000)
+        except:
+            pass
+    
+        cursor = connection.cursor()
+    
+        query = '''
+        UPDATE books
+        SET conforms_to = 'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0',
+            periodical_name = ?,
+            description = ?,
+            publication_date = ? 
+        WHERE _id = ?
+        '''
+        t = (name, None, pubdate, book.bookId,)
+        cursor.execute(query, t)
+        
         connection.commit()
         cursor.close()
