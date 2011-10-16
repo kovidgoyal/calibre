@@ -49,6 +49,10 @@ class ANDROID(USBMS):
                        0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
                        0x70c6 : [0x226]
                      },
+            # Freescale
+            0x15a2 : {
+                0x0c01 : [0x226]
+            },
 
             # Sony Ericsson
             0xfce : {
