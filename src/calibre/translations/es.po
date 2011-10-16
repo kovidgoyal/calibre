@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-10-01 09:09+0000\n"
+"PO-Revision-Date: 2011-10-15 07:19+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-15 04:50+0000\n"
+"X-Launchpad-Export-Date: 2011-10-16 05:13+0000\n"
 "X-Generator: Launchpad (build 14124)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -1516,7 +1516,7 @@ msgstr "Crear etiquetas para gestión automática"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Enviar portadas para los libros (lectores más recientes)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid ""
@@ -1524,10 +1524,13 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Normalmente los lectores KOBO obtienen la imagen de portada a partir del "
+"fichero del libro. Con esta opción calibre enviará una imagen de portada "
+"aparte, lo que resulta útil si ha modificado la portada."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:61
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Enviar portadas en blanco y negro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1638,7 +1641,7 @@ msgstr "Comunicar con el lector Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Comunicar con lectores Sony anteriores al PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1749,11 +1752,11 @@ msgstr "Sin nombre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:35
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Comunicar con los lectores Sony PRST1 y más recientes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:69
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Enviar miniaturas de portadas para los libros"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:70
 msgid ""
@@ -1761,10 +1764,14 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Normalmente los lectores SONY obtienen la imagen de portada a partir del "
+"fichero del libro. Con esta opción calibre enviará una imagen de portada "
+"aparte, lo que resulta útil para libros con DRM, a los que no se le puede "
+"cambiar la portada."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:74
 msgid "Refresh separate covers when using automatic management"
-msgstr ""
+msgstr "Actualizar las portadas por separado al usar la gestión automática"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2930,6 +2937,8 @@ msgid ""
 "Try to use the djvutxt program and fall back to pure python implementation "
 "if it fails or is not available"
 msgstr ""
+"Intentar usar el programa djvutxt y usar las funciones python si falla o no "
+"está disponible"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
@@ -7304,11 +7313,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "Entrada DJVU"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
-msgstr ""
+msgstr "Usar &djvutxt, si está disponible, para procesar más rápidamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
@@ -11998,11 +12007,11 @@ msgstr " - tareas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:503
 msgid "No job"
-msgstr ""
+msgstr "No hay tarea"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:504
 msgid "No job selected"
-msgstr ""
+msgstr "No hay ninguna tarea seleccionada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:506
 msgid "Do you really want to stop the selected job?"
@@ -14973,6 +14982,7 @@ msgstr "Guardar los metadatos en un fichero &OPF"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "&Show files in file browser after saving to disk"
 msgstr ""
+"&Mostrar ficheros en el explorador de ficheros después de guardar en disco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:34
 msgid ""
@@ -15305,7 +15315,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically when calibre starts"
-msgstr ""
+msgstr "Ejecutar el servidor &automáticamente al iniciar calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:119
 msgid "View &server logs"
@@ -15564,7 +15574,7 @@ msgstr "El menu contextual para el navegador de portadas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:234
 msgid "Click to choose toolbar or menu to customize"
-msgstr ""
+msgstr "Pulse para elegir la barra de herramientas o menú para personalizar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:270
 msgid "Cannot add"
@@ -15589,6 +15599,9 @@ msgid ""
 "<p>The toolbar in calibre is different depending on whether a device is "
 "connected or not. Choose <b>which toolbar</b> you would like to customize:"
 msgstr ""
+"<p>La barra de herramientas de calibre es diferente según haya o no un "
+"dispositivo conectado. Elija <b>qué barra de herramientas</b> quiere "
+"personalizar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
@@ -20211,6 +20224,12 @@ msgid ""
 "character (sep1 or sep2). The order of items in the lists is not relevant. "
 "The compare is case insensitive."
 msgstr ""
+"list_equals(lista1, sep1, lista2, sep2, val_sí, val_no) -- devuelve «val_sí» "
+"si «lista1» y «lista2» contienen los mismos elementos, en caso contrario "
+"devuelve  «val_no». Los elementos se determinan dividiendo cada lista por el "
+"correspondiente carácter separador («sep1» o «sep2»). El orden de los "
+"elementos no es relevante. La comparación no diferencia mayúsculas y "
+"minúsculas."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1001
 msgid ""
@@ -20220,6 +20239,12 @@ msgid ""
 "the list to be returned. If opt_replace is not the empty string, then apply "
 "the replacement before adding the item to the returned list."
 msgstr ""
+"list_re(list_orig, separador, búsqueda, sust_opt) -- construye una lista "
+"separando primero «list_orig» en elementos usando el carácter «separador». "
+"Para cada elemento en la lista, comprueba si coincide con la expresión "
+"regular «búsqueda». Si coincide, se añade a la lista final. Si «sust_opt» no "
+"es un texto vacío, se aplica la sustitución antes de añadir el elemento a la "
+"lista final."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1024
 msgid ""

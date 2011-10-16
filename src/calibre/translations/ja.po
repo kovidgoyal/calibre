@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-10-15 01:56+0000\n"
-"Last-Translator: Ado Nishimura <Unknown>\n"
+"PO-Revision-Date: 2011-10-15 22:08+0000\n"
+"Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-10-15 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-10-16 05:13+0000\n"
 "X-Generator: Launchpad (build 14124)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1426,7 +1426,7 @@ msgstr "自動管理用のタグを作成"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "本の表紙をアップロード (新しいリーダー)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid ""
@@ -1437,7 +1437,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:61
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "白黒の表紙をアップロード"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1546,7 +1546,7 @@ msgstr "Sony PRS-500 電子書籍リーダ─と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "PRST1より古いSony eBook リーダーと通信する。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1643,7 +1643,7 @@ msgstr "名前なし"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:35
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "PRST1やより新しいSony eBook リーダーと通信する"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:69
 msgid "Upload separate cover thumbnails for books"
@@ -6730,7 +6730,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "DJVU 入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
@@ -11197,11 +11197,11 @@ msgstr " - ジョブ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:503
 msgid "No job"
-msgstr ""
+msgstr "ジョブなし"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:504
 msgid "No job selected"
-msgstr ""
+msgstr "選択されたジョブはありません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:506
 msgid "Do you really want to stop the selected job?"
@@ -14242,7 +14242,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically when calibre starts"
-msgstr ""
+msgstr "calibreの起動時に自動でサーバーを起動"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:119
 msgid "View &server logs"
@@ -14487,7 +14487,7 @@ msgstr "表紙ブラウザーのコンテキストメニュー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:234
 msgid "Click to choose toolbar or menu to customize"
-msgstr ""
+msgstr "カスタマイズするツールバーまたはメニューをクリックして選択"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:270
 msgid "Cannot add"
