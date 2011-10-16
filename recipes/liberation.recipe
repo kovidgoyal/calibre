@@ -9,39 +9,72 @@ liberation.fr
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Liberation(BasicNewsRecipe):
+
     title                 = u'Liberation'
-    __author__            = 'Darko Miletic'
-    description           = 'News from France'
-    language = 'fr'
+    __author__            = 'calibre'
+    description           = 'Actualités'
+    category               = 'Actualités, France, Monde'
+    language              = 'fr'
 
-    oldest_article        = 7
-    max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
+    use_embedded_content   = False
+    timefmt                = ' [%d %b %Y]'
+    max_articles_per_feed  = 15
+    no_stylesheets         = True
+    remove_empty_feeds     = True
+    filterDuplicates       = True
 
-    html2lrf_options = ['--base-font-size', '10']
+    extra_css = '''
+                    h1, h2, h3 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
+                    p.subtitle {font-size:xx-small; font-family:Arial,Helvetica,sans-serif;}
+                    h4, h5, h2.rubrique,  {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .ref, .date, .author, .legende {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    .mna-body, entry-body  {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
+                '''
 
     keep_only_tags    = [
-                           dict(name='h1')
-                          #,dict(name='div', attrs={'class':'object-content text text-item'})
-                          ,dict(name='div', attrs={'class':'article'})
-                          #,dict(name='div', attrs={'class':'articleContent'})
-                          ,dict(name='div', attrs={'class':'entry'})
-                        ]
-    remove_tags_after = [ dict(name='div',attrs={'class':'toolbox extra_toolbox'}) ]
+                  dict(name='div', attrs={'class':'article'})
+                  ,dict(name='div', attrs={'class':'text-article m-bot-s1'})
+                  ,dict(name='div', attrs={'class':'entry'})
+                  ,dict(name='div', attrs={'class':'col_contenu'})
+    ]
+
+    remove_tags_after = [
+        dict(name='div',attrs={'class':['object-content text text-item', 'object-content', 'entry-content', 'col01', 'bloc_article_01']})
+        ,dict(name='p',attrs={'class':['chapo']})
+        ,dict(id='_twitter_facebook')
+    ]
+
     remove_tags    = [
-                        dict(name='p', attrs={'class':'clear'})
-                       ,dict(name='ul', attrs={'class':'floatLeft clear'})
-                       ,dict(name='div', attrs={'class':'clear floatRight'})
-                       ,dict(name='object')
-                       ,dict(name='div', attrs={'class':'toolbox'})
-                       ,dict(name='div', attrs={'class':'cartridge cartridge-basic-bubble cat-zoneabo'})
-                       #,dict(name='div', attrs={'class':'clear block block-call-items'})
-                       ,dict(name='div', attrs={'class':'block-content'})
+                        dict(name='iframe')
+                        ,dict(name='a', attrs={'class':'lnk-comments'})
+                        ,dict(name='div', attrs={'class':'toolbox'})
+                        ,dict(name='ul', attrs={'class':'share-box'})
+                        ,dict(name='ul', attrs={'class':'tool-box'})
+                        ,dict(name='ul', attrs={'class':'rub'})
+                        ,dict(name='p',attrs={'class':['chapo']})
+                        ,dict(name='p',attrs={'class':['tag']})
+                        ,dict(name='div',attrs={'class':['blokLies']})
+                        ,dict(name='div',attrs={'class':['alire']})
+                        ,dict(id='_twitter_facebook')
                      ]
 
     feeds          = [
-                         (u'La une', u'http://www.liberation.fr/rss/laune')
-                        ,(u'Monde' , u'http://www.liberation.fr/rss/monde')
-                        ,(u'Sports', u'http://www.liberation.fr/rss/sports')
+                         (u'La une', u'http://rss.liberation.fr/rss/9/')
+                        ,(u'Monde' , u'http://www.liberation.fr/rss/10/')
+                        ,(u'Économie', u'http://www.liberation.fr/rss/13/')
+                        ,(u'Politiques', u'http://www.liberation.fr/rss/11/')
+                        ,(u'Société', u'http://www.liberation.fr/rss/12/')
+                        ,(u'Cinéma', u'http://www.liberation.fr/rss/58/')
+                        ,(u'Écran', u'http://www.liberation.fr/rss/53/')
+                        ,(u'Sports', u'http://www.liberation.fr/rss/12/')
                      ]
+
+    def get_masthead_url(self):
+        masthead = 'http://s0.libe.com/libe/img/common/logo-liberation-150.png'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(masthead)
+        except:
+            self.log("\nCover unavailable")
+            masthead = None
+        return masthead
