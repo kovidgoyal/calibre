@@ -1,0 +1,67 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011 Aurélien Chabot <contact@aurelienchabot.fr>'
+
+'''
+Fetch zdnet.fr
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class zdnet(BasicNewsRecipe):
+
+    title                  = 'ZDNet.fr'
+    __author__             = 'calibre'
+    description            = 'Actualités'
+    encoding               = 'utf-8'
+    publisher              = 'ZDNet.fr'
+    category               = 'Actualité, Informatique, IT'
+    language               = 'fr'
+
+    use_embedded_content   = False
+    timefmt                = ' [%d %b %Y]'
+    max_articles_per_feed  = 15
+    no_stylesheets         = True
+    remove_empty_feeds     = True
+    filterDuplicates       = True
+
+    extra_css = '''
+                    h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
+                    .contentmetadata p {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
+                    #content {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
+                '''
+
+    remove_tags = [
+        dict(name='iframe'),
+        dict(name='div', attrs={'class':['toolbox']}),
+        dict(name='div', attrs={'class':['clear clearfix']}),
+        dict(id='emailtoafriend'),
+        dict(id='storyaudio'),
+        dict(id='fbtwContainer'),
+        dict(name='h5')
+    ]
+
+    remove_tags_before = dict(id='leftcol')
+    remove_tags_after  = dict(id='content')
+
+    feeds =  [
+            ('Informatique', 'http://www.zdnet.fr/feeds/rss/actualites/informatique/'),
+            ('Internet', 'http://www.zdnet.fr/feeds/rss/actualites/internet/'),
+            ('Telecom', 'http://www.zdnet.fr/feeds/rss/actualites/telecoms/')
+    ]
+
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
+
+    def get_masthead_url(self):
+        masthead = 'http://www.zdnet.fr/images/base/logo.png'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(masthead)
+        except:
+            self.log("\nCover unavailable")
+            masthead = None
+        return masthead
