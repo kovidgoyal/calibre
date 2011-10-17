@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, datetime
+import datetime
 
 from PyQt4.Qt import pyqtSignal, QModelIndex, QThread, Qt
 
@@ -41,13 +41,21 @@ class FetchAnnotationsAction(InterfaceAction):
                     fmts.append(format.lower())
             return fmts
 
+        def get_device_path_from_id(id_):
+            paths = []
+            for x in ('memory', 'card_a', 'card_b'):
+                x = getattr(self.gui, x+'_view').model()
+                paths += x.paths_for_db_ids(set([id_]), as_map=True)[id_]
+            return paths[0].path if paths else None
+
         def generate_annotation_paths(ids, db, device):
             # Generate path templates
             # Individual storage mount points scanned/resolved in driver.get_annotations()
             path_map = {}
             for id in ids:
+                path = get_device_path_from_id(id)
                 mi = db.get_metadata(id, index_is_id=True)
-                a_path = device.create_upload_path(os.path.abspath('/<storage>'), mi, 'x.bookmark', create_dirs=False)
+                a_path = device.create_annotations_path(mi, device_path=path)
                 path_map[id] = dict(path=a_path, fmts=get_formats(id))
             return path_map
 
