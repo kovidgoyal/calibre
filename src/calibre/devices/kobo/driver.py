@@ -77,6 +77,11 @@ class KOBO(USBMS):
         self.book_class = Book
         self.dbversion = 7
 
+    def create_annotations_path(self, mdata, device_path=None):
+        if device_path:
+            return device_path
+        return USBMS.create_annotations_path(self, mdata)
+
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
 

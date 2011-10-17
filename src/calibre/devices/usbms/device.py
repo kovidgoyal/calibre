@@ -1147,3 +1147,6 @@ class Device(DeviceConfig, DevicePlugin):
             os.makedirs(filedir)
 
         return filepath
+
+    def create_annotations_path(self, mdata, device_path=None):
+         return self.create_upload_path(os.path.abspath('/<storage>'), mdata, 'x.bookmark', create_dirs=False)
