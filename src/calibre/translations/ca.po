@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-10-01 20:44+0000\n"
+"PO-Revision-Date: 2011-10-16 11:14+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-15 04:38+0000\n"
-"X-Generator: Launchpad (build 14124)\n"
+"X-Launchpad-Export-Date: 2011-10-17 04:42+0000\n"
+"X-Generator: Launchpad (build 14155)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1504,7 +1504,7 @@ msgstr "Crea etiquetes per a la gestió automàtica"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Carrega portades per als llibres (lectors nous)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid ""
@@ -1512,10 +1512,13 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Normalment els lectors KOBO aconsegueixen la imatge de portada del fitxer "
+"del llibre. Amb aquesta opció el calibre envia al lector una imatge de "
+"portada separada. Útil si heu modificat la portada."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:61
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Carrega portades en blanc i negre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1625,7 +1628,7 @@ msgstr "Comunica't amb un lector Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Comunica't amb lectors Sony anteriors al PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1662,7 +1665,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
 msgstr ""
-"Carrega miniatures de les portades per als llibres per separat (lectors nous)"
+"Carrega per separat miniatures de les portades per als llibres (lectors nous)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:78
 msgid ""
@@ -1734,11 +1737,11 @@ msgstr "Sense nom"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:35
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Comunica't amb lectors Sony PRST1 i posteriors."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:69
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Carrega per separat miniatures de les portades per als llibres."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:70
 msgid ""
@@ -1746,10 +1749,15 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Normalment els lectors SONY aconsegueixen la imatge de portada del fitxer "
+"del llibre. Amb aquesta opció el calibre envia al lector una imatge de "
+"portada separada. Útil si envieu llibres amb DRM, que no se'ls pot canviar "
+"la portada."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:74
 msgid "Refresh separate covers when using automatic management"
 msgstr ""
+"Actualitza les portades per separat en utilitzar la gestió automàtica"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2910,6 +2918,8 @@ msgid ""
 "Try to use the djvutxt program and fall back to pure python implementation "
 "if it fails or is not available"
 msgstr ""
+"No hi ha la possibilitat d'intentar utilitzar el programa djvutxt i si falla "
+"passar a una implementació python pura"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
@@ -7267,11 +7277,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "Entrada DJVU"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
 msgstr ""
+"Si està disponible utilitza el &djvutxt per a un processament més ràpid"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
@@ -11995,11 +12006,11 @@ msgstr " - Tasques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:503
 msgid "No job"
-msgstr ""
+msgstr "No hi ha cap tasca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:504
 msgid "No job selected"
-msgstr ""
+msgstr "No s'ha seleccionat cap tasca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:506
 msgid "Do you really want to stop the selected job?"
@@ -14973,6 +14984,7 @@ msgstr "Desa les metadades a un fitxer &OPF"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "&Show files in file browser after saving to disk"
 msgstr ""
+"&Mostra els fitxers al gestor de fitxers després de desar-los al disc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:34
 msgid ""
@@ -15301,7 +15313,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically when calibre starts"
-msgstr ""
+msgstr "Engega &automàticament el servidor en iniciar el calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:119
 msgid "View &server logs"
@@ -15580,7 +15592,7 @@ msgstr "Menú contextual del navegador de portades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:234
 msgid "Click to choose toolbar or menu to customize"
-msgstr ""
+msgstr "Feu clic per triar la barra d'eines o el menú per personalitzar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:270
 msgid "Cannot add"
@@ -15605,6 +15617,8 @@ msgid ""
 "<p>The toolbar in calibre is different depending on whether a device is "
 "connected or not. Choose <b>which toolbar</b> you would like to customize:"
 msgstr ""
+"<p>La barra d'eines del calibre canvia si hi ha o no un dispositiu "
+"connectat. Trieu <b>quina barra d'eines</b> voleu personalitzar:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
@@ -20218,6 +20232,12 @@ msgid ""
 "character (sep1 or sep2). The order of items in the lists is not relevant. "
 "The compare is case insensitive."
 msgstr ""
+"list_equals(llista1, sep1, llista2, sep2, val_sí, val_no) -- s'obté «val_sí» "
+"si «llista1» i «llista2» contenen els mateixos elements, en cas contrari "
+"s'obté «val_no». Els elements es determinen dividint cada llista pel "
+"caràcter separador corresponent («sep1» o «sep2»): L'ordre dels elements a "
+"les llistes no és rellevant. La comparació no diferencia majúscules i "
+"minúscules."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1001
 msgid ""
@@ -20227,6 +20247,11 @@ msgid ""
 "the list to be returned. If opt_replace is not the empty string, then apply "
 "the replacement before adding the item to the returned list."
 msgstr ""
+"list_re(llist_orig, separador, cerca, subst_opt) -- construeix una llista "
+"separant «llist_orig» en elements uttilitzant «separador». Per a cada "
+"element de la llista comprova si coincideix amb «cerca». Si és així, "
+"l'afegeix a la llista que s'obtindrà. Si «subst_opt» no és una cadena buida "
+"s'aplica la substitució abans d'afegir l'element a la llista obtinguda."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1024
 msgid ""

@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-10-09 13:40+0000\n"
-"Last-Translator: Mori <Unknown>\n"
+"PO-Revision-Date: 2011-10-16 21:30+0000\n"
+"Last-Translator: koliberek <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-10-15 04:47+0000\n"
-"X-Generator: Launchpad (build 14124)\n"
+"X-Launchpad-Export-Date: 2011-10-17 04:42+0000\n"
+"X-Generator: Launchpad (build 14155)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1474,7 +1474,7 @@ msgstr "Utwórz etykiety do automatycznego zarządzania"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Wyślij okładki z książkami (nowsze czytniki)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid ""
@@ -1482,10 +1482,13 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Zazwyczaj czytniki KOBO pobierają okładkę z książki. Jeśli zaznaczysz tę "
+"opcję calibre wyśle do czytnika okładkę oddzielnie. Opcja jest przydatna "
+"jeśli okładka została zmodyfikowana."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:61
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Wyślij czarno-białe okładki"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1596,7 +1599,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikami Sony starszymi niż PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1704,11 +1707,11 @@ msgstr "Nienazwany"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:35
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Umożliwia komunikację z PRST1 oraz nowszymi czytnikami Sony"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:69
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Wyślij oddzielnie miniaturki okładek"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:70
 msgid ""
@@ -1716,10 +1719,14 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Zazwyczaj czytniki SONY pobierają okładkę z książki. Jeśli zaznaczysz tę "
+"opcję calibre wyśle do czytnika okładkę oddzielnie. Opcja jest przydatna "
+"jeśli wysyłasz do czytnika książki zabezpieczone DRM, których okładki nie "
+"mogą być zmodyfikowane (a z jakiegoś względu chcesz mieć własne)."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:74
 msgid "Refresh separate covers when using automatic management"
-msgstr ""
+msgstr "Odśwież wysłane oddzielnie okładki przy automatycznym zarządzaniu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2871,6 +2878,8 @@ msgid ""
 "Try to use the djvutxt program and fall back to pure python implementation "
 "if it fails or is not available"
 msgstr ""
+"Spróbuj użyć programu djvutxt i wróć do pythona jeśli nie działa on "
+"prawidłowo lub nie jest dostępny."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
@@ -6686,6 +6695,13 @@ msgid ""
 "   will be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Kilka słów na temat tego szablonu:\n"
+" -Dostępne pola: 'author_sort', 'authors', 'id',\n"
+"    'isbn', 'pubdate', 'publisher', 'series_index', 'series',\n"
+"   'tags', 'timestamp', 'title', 'uuid', 'title_sort'\n"
+" -Dla pól typu lista np. autorzy czy etykiety tylko pierwszy\n"
+"  element jest brany pod uwagę.\n"
+" -Dla pól zawierających czas brana jest pod uwagę jedynie data. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -7178,11 +7194,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "Wejściowy DJVU"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
-msgstr ""
+msgstr "Użyj &djvutxt jeśli jest dostępny aby przyspieszyć przetwarzanie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
@@ -11866,11 +11882,11 @@ msgstr " - Zadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:503
 msgid "No job"
-msgstr ""
+msgstr "Brak zadań"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:504
 msgid "No job selected"
-msgstr ""
+msgstr "Nie wybrano zadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:506
 msgid "Do you really want to stop the selected job?"
@@ -14236,7 +14252,7 @@ msgstr ""
 msgid "When showing cover browser in separate window, show it &fullscreen"
 msgstr ""
 "Jeśli przeglądarka etykiet uruchamiana jest w oddzielnym oknie, pokaż ją w "
-"trybie pełnoekranowym."
+"trybie &pełnoekranowym."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
 #, python-format
@@ -14815,7 +14831,7 @@ msgstr "Zapisz metadane w pliku &OPF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "&Show files in file browser after saving to disk"
-msgstr ""
+msgstr "Po zapisaniu na dysk otwórz folder z plikami"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:34
 msgid ""
@@ -15142,7 +15158,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically when calibre starts"
-msgstr ""
+msgstr "Przy starcie calibre automatycznie uruchomm serwer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:119
 msgid "View &server logs"
@@ -15157,6 +15173,12 @@ msgid ""
 "on your iPhone. Here myhostname should be either the fully qualified "
 "hostname or the IP address of the computer calibre is running on."
 msgstr ""
+"<p>Pamiętaj, że serwer działa tak długo jak długo działa calibre, jeśli "
+"chcesz korzystać z serwera musisz zostawić działający program.\n"
+"<p>Aby połączyć się z serwerem calibre z czytnika użyj adresu w postaci "
+"<b>http://mojserwer:8080</b> jako katalogu w Stanza na iPhonie. mojserwer "
+"musi być albo prawidłową nazwą serwera albo adresem IP komputera, na której "
+"został uruchomiony serwer."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
@@ -15406,6 +15428,7 @@ msgstr "Menu kontekstowe przeglądarki okładek"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:234
 msgid "Click to choose toolbar or menu to customize"
 msgstr ""
+"Kliknij aby wybrać menu lub pasek narzędzi, który chcesz zmodyfikować"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:270
 msgid "Cannot add"
@@ -15430,6 +15453,8 @@ msgid ""
 "<p>The toolbar in calibre is different depending on whether a device is "
 "connected or not. Choose <b>which toolbar</b> you would like to customize:"
 msgstr ""
+"<p>Pasek narzędzi jest inny przy podłączonym urządzeniu, a inny, gdy nie "
+"jest ono podłączone. Wybierz <b>który pasek</b> chcesz zmodfikować:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
@@ -18929,7 +18954,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:325
 #, python-format
 msgid "Template evaluation resulted in no path components. Template: %s"
-msgstr ""
+msgstr "Przetwarzanie szablonu dało w wyniku błąd. Szablon: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:419
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:452
@@ -20010,6 +20035,11 @@ msgid ""
 "character (sep1 or sep2). The order of items in the lists is not relevant. "
 "The compare is case insensitive."
 msgstr ""
+"list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- zwraca wartość "
+"yes_val jeśli listy list1 i list2 zawierają te same elementy, w przeciwnym "
+"przypadku zwracana jest wartość no_val. Listy są dzielone na elemeny przy "
+"użyciu separatorów (sep1 i sep2). Kolejność elementów listy nie jest "
+"znacząca, wielkość liter również."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1001
 msgid ""
@@ -20019,6 +20049,11 @@ msgid ""
 "the list to be returned. If opt_replace is not the empty string, then apply "
 "the replacement before adding the item to the returned list."
 msgstr ""
+"list_re(src_list, separator, search_re, opt_replace) -- Potraktuj src_list "
+"jako listę rozdzielaną separatorem i dla każdego elementu sprawdź czy pasuje "
+"on do wzorca search_re. Jeśli pasuje dodaj element do listy, która zostanie "
+"zwrócona. Jeśli parametr opt_replace nie jest pusty dokonaj zamiany przed "
+"dodaniem elementu do listy wynikowej."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1024
 msgid ""
