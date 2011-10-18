@@ -1,32 +1,37 @@
 __license__   = 'GPL v3'
 __author__    = 'Lorenzo Vigentini, based on Darko Miletic, Gabriele Marini'
 __copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>, Lorenzo Vigentini <l.vigentini at gmail.com>'
-description   = 'Italian daily newspaper - v1.01 (04, January 2010); 16.05.2010 new version'
+description   = 'Italian daily newspaper - v1.01 (04, January 2010); 16.05.2010 new version; 17.10.2011 new version'
 
 '''
 http://www.repubblica.it/
 '''
 
 import re
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LaRepubblica(BasicNewsRecipe):
-    title                = 'La Repubblica'
-    __author__           = 'Lorenzo Vigentini, Gabriele Marini, Darko Miletic'
-    description          = 'il quotidiano online con tutte le notizie in tempo reale. News e ultime notizie. Tutti i settori: politica, cronaca, economia, sport, esteri, scienza, tecnologia, internet, spettacoli, musica, cultura, arte, mostre, libri, dvd, vhs, concerti, cinema, attori, attrici, recensioni, chat, cucina, mappe. Le citta di Repubblica: Roma, Milano, Bologna, Firenze, Palermo, Napoli, Bari, Torino.'
-    masthead_url         = 'http://www.repubblica.it/static/images/homepage/2010/la-repubblica-logo-home-payoff.png'
-    publisher            = 'Gruppo editoriale L\'Espresso'
-    category             = 'News, politics, culture, economy, general interest'
-    language             = 'it'
-    timefmt              = '[%a, %d %b, %Y]'
-    oldest_article       = 5
-    encoding             = 'utf8'
-    use_embedded_content = False
-    #recursion           = 10
-    no_stylesheets       = True
-    extra_css            = """
-                              img{display: block}
-                           """
+    title                   = 'La Repubblica'
+    __author__              = 'Lorenzo Vigentini, Gabriele Marini, Darko Miletic'
+    description             = 'il quotidiano online con tutte le notizie in tempo reale. News e ultime notizie. Tutti i settori: politica, cronaca, economia, sport, esteri, scienza, tecnologia, internet, spettacoli, musica, cultura, arte, mostre, libri, dvd, vhs, concerti, cinema, attori, attrici, recensioni, chat, cucina, mappe. Le citta di Repubblica: Roma, Milano, Bologna, Firenze, Palermo, Napoli, Bari, Torino.'
+    masthead_url            = 'http://www.repubblica.it/static/images/homepage/2010/la-repubblica-logo-home-payoff.png'
+    publisher               = 'Gruppo editoriale L\'Espresso'
+    category                = 'News, politics, culture, economy, general interest'
+    language                = 'it'
+    timefmt                 = '[%a, %d %b, %Y]'
+    oldest_article          = 5
+    encoding                = 'utf8'
+    use_embedded_content    = False
+    no_stylesheets          = True
+    publication_type        = 'newspaper'
+    articles_are_obfuscated = True    
+    temp_files              = []    
+    extra_css               = """
+                               img{display: block}
+                              """
+                           
+    remove_attributes = ['width','height','lang','xmlns:og','xmlns:fb']
 
     preprocess_regexps = [
         (re.compile(r'.*?<head>', re.DOTALL|re.IGNORECASE), lambda match: '<head>'),
@@ -35,11 +40,28 @@ class LaRepubblica(BasicNewsRecipe):
     ]
     
     def get_article_url(self, article):
-        link = article.get('id', article.get('guid', None))
-        if link is None:
-            return article
-        return link
-    
+        link = BasicNewsRecipe.get_article_url(self, article)
+        if link and not '.repubblica.it/' in link:
+            link2 = article.get('id', article.get('guid', None))
+            if link2:
+                link = link2
+        return link.rpartition('?')[0]        
+
+    def get_obfuscated_article(self, url):
+        count = 0
+        while (count < 10):
+            try:
+                response = self.browser.open(url)
+                html = response.read()
+                count = 10
+            except:
+                print "Retrying download..."
+            count += 1        
+        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
+        self.temp_files[-1].write(html)
+        self.temp_files[-1].close()
+        return self.temp_files[-1].name
+        
     keep_only_tags     = [
                           dict(attrs={'class':'articolo'}),
                           dict(attrs={'class':'body-text'}),
@@ -49,7 +71,7 @@ class LaRepubblica(BasicNewsRecipe):
 
 
     remove_tags        = [
-                            dict(name=['object','link','meta']),
+                            dict(name=['object','link','meta','iframe','embed']),
                             dict(name='span',attrs={'class':'linkindice'}),
                             dict(name='div', attrs={'class':'bottom-mobile'}),
                             dict(name='div', attrs={'id':['rssdiv','blocco']}),
@@ -80,3 +102,11 @@ class LaRepubblica(BasicNewsRecipe):
                        (u'Edizione Palermo', u'feed://palermo.repubblica.it/rss/rss2.0.xml')
                       ]
 
+    def preprocess_html(self, soup):
+        for item in soup.findAll(['hgroup','deresponsabilizzazione','per']):
+            item.name = 'div'
+            item.attrs = []            
+        for item in soup.findAll(style=True):
+            del item['style']           
+        return soup
+                      
