@@ -2103,7 +2103,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         user_mi = mi.get_all_user_metadata(make_copy=False)
         for key in user_mi.iterkeys():
             if key in self.field_metadata and \
-                    user_mi[key]['datatype'] == self.field_metadata[key]['datatype']:
+                    user_mi[key]['datatype'] == self.field_metadata[key]['datatype'] and \
+                    (user_mi[key]['datatype'] != 'text' or
+                     user_mi[key]['is_multiple'] == self.field_metadata[key]['is_multiple']):
                 val = mi.get(key, None)
                 if force_changes or val is not None:
                     doit(self.set_custom, id, val=val, extra=mi.get_extra(key),

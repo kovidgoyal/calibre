@@ -1,4 +1,5 @@
 import os, tempfile, sys
+from codecs import EncodedFile
 
 from calibre.ebooks.rtf2xml import copy, check_encoding
 
@@ -40,6 +41,7 @@ class ConvertToTags:
         self.__run_level = run_level
         self.__write_to = tempfile.mktemp()
         self.__convert_utf = False
+        self.__bad_encoding = False
 
     def __initiate_values(self):
         """
@@ -219,6 +221,7 @@ class ConvertToTags:
             self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
             sys.stderr.write('Bad RTF encoding, revert to US-ASCII chars and'
                     ' hope for the best')
+            self.__bad_encoding = True
         self.__new_line = 0
         self.__write_new_line()
         if self.__no_dtd:
@@ -246,7 +249,7 @@ class ConvertToTags:
         the appropriate function.
         The functions that are called:
             a text function for text
-            an open funciton for open tags
+            an open function for open tags
             an open with attribute function for tags with attributes
             an empty with attribute function for tags that are empty but have
             attribtes.
@@ -262,20 +265,28 @@ class ConvertToTags:
                     action = self.__state_dict.get(self.__token_info)
                     if action is not None:
                         action(line)
-        self.__write_obj.close()
-        #convert all encodings to UTF8 to avoid unsupported encodings in lxml
-        if self.__convert_utf:
+        #convert all encodings to UTF8 or ASCII to avoid unsupported encodings in lxml
+        if self.__convert_utf or self.__bad_encoding:
             copy_obj = copy.Copy(bug_handler = self.__bug_handler)
             copy_obj.rename(self.__write_to, self.__file)
+            file_encoding = "utf-8"
+            if self.__bad_encoding:
+                file_encoding = "us-ascii"
             with open(self.__file, 'r') as read_obj:
                 with open(self.__write_to, 'w') as write_obj:
-                    file = read_obj.read()
                     try:
-                        file = file.decode(self.__encoding)
-                        write_obj.write(file.encode('utf-8'))
+                        write_objenc = EncodedFile(write_obj, self.__encoding,
+                                        file_encoding, 'strict')
+                        for line in read_obj:
+                            write_objenc.write(line)
                     except:
-                        sys.stderr.write('Conversion to UTF-8 is not possible,'
-                        ' encoding should be very carefully checked')
+                        if self.__convert_utf:
+                            sys.stderr.write('Conversion to UTF-8 is problematic,'
+                            ' encoding should be very carefully checked')
+                        write_objenc = EncodedFile(write_obj, self.__encoding,
+                                        file_encoding, 'replace')
+                        for line in read_obj:
+                            write_objenc.write(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "convert_to_tags.data")
