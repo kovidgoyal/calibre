@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-10-16 03:32+0000\n"
+"PO-Revision-Date: 2011-10-18 04:49+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-10-17 04:43+0000\n"
-"X-Generator: Launchpad (build 14155)\n"
+"X-Launchpad-Export-Date: 2011-10-18 04:51+0000\n"
+"X-Generator: Launchpad (build 14157)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1619,7 +1619,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:69
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "上傳書籍個別的封面縮圖"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:70
 msgid ""
@@ -2730,10 +2730,13 @@ msgid ""
 "\n"
 " See: "
 msgstr ""
+"書籍的分類。選項有： %s\n"
+"\n"
+" 請查閱： "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:159
 msgid "for a complete list with descriptions."
-msgstr ""
+msgstr "用於有描述的完整清單。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
 msgid ""
@@ -3410,7 +3413,7 @@ msgstr "IsbnDB 鍵："
 msgid ""
 "To use isbndb.com you have to sign up for a free account at isbndb.com and "
 "get an access key."
-msgstr ""
+msgstr "要使用 isbndb.com 您必須在 isbndb.com 註冊一個免費帳號並取得存取金鑰。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:42
 msgid ""
@@ -3418,6 +3421,8 @@ msgid ""
 "an isbndb key and enter it below. Instructions to get the key are <a "
 "href=\"http://isbndb.com/docs/api/30-keys.html\">here</a>."
 msgstr ""
+"要使用 isbndb.com 的元數據您必須註冊一個免費帳號後取得 isbndb 金鑰並將它輸入下面。取得金鑰的指引在<a "
+"href=\"http://isbndb.com/docs/api/30-keys.html\">這裡</a>。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
@@ -3493,7 +3498,7 @@ msgstr "要在書籍中加入目錄頁時，加在書籍開頭而不要加在結
 msgid ""
 "Extract the contents of the MOBI file to the specified directory. If the "
 "directory already exists, it will be deleted."
-msgstr ""
+msgstr "將 MOBI 檔案的內容解壓縮到指定的目錄。如果目錄已經存在，它會被刪除。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:59
 msgid ""
@@ -3501,6 +3506,7 @@ msgid ""
 "Using this feature means that  the book will not auto sync its last read "
 "position  on multiple devices. Complain to Amazon."
 msgstr ""
+"啟用透過 Facebook 等分享 Kindle 書籍的內容。警告：使用這個功能代表書籍不會自動同步在多個裝置上前次閱讀的位置。請向 Amazon 抱怨。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:281
 msgid "This is an Amazon Topaz book. It cannot be processed."
@@ -4554,7 +4560,7 @@ msgstr "找不到書庫"
 msgid ""
 "No existing calibre library was found at %s. If the library was moved, "
 "select its new location below. Otherwise calibre will forget this library."
-msgstr ""
+msgstr "在 %s 找不到現有的 calibre 書庫。如果書庫已移除，請在下面選擇它的新位置。否則 calibre 會忘掉這個書庫。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:96
 msgid "New location of this library:"
@@ -4688,7 +4694,7 @@ msgstr "書庫已移動"
 msgid ""
 "The library %s has been removed from calibre. The files remain on your "
 "computer, if you want to delete them, you will have to do so manually."
-msgstr ""
+msgstr "書庫 %s 已從 calibre 移除。檔案仍保留在電腦中，如果您想要刪除它們，您必須手動進行這件事。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "none"
@@ -4720,6 +4726,7 @@ msgid ""
 "to a location with a shorter path using Windows Explorer, then point calibre "
 "to the new location and try again."
 msgstr ""
+"書庫的路徑太長。必須少於 %d 字元。請使用 Windows 檔案總管將書庫移到路徑少一點的位置，然後將 calibre 指向新的位置後再試一次。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:377
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:733
@@ -4879,6 +4886,8 @@ msgid ""
 "<b>can be slow</b>. Should calibre skip the Recycle Bin? If you click Yes "
 "the files will be <b>permanently deleted</b>."
 msgstr ""
+"您嘗試刪除 %d 本書。將這麼多檔案送到資源回收筒<b>會花很久的時間</b>。calibre "
+"是否要略過資源回收筒？如果您選擇是，則檔案會<b>永久刪除</b>。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:42
 msgid "Deleting..."
@@ -4937,13 +4946,13 @@ msgstr "選擇要刪除的格式"
 msgid ""
 "Choose formats <b>not</b> to be deleted.<p>Note that this will never remove "
 "all formats from a book."
-msgstr ""
+msgstr "選擇 <b>不要</b> 刪除的格式。<p>注意這不會移除書籍全部的格式。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:188
 msgid ""
 "<b>All formats</b> for the selected books will be <b>deleted</b> from your "
 "library.<br>The book metadata will be kept. Are you sure?"
-msgstr ""
+msgstr "選取書籍的<b>全部格式</b>都會被從書庫中<b>刪除</b>。<br>書籍的元數據會被保留。您確定嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:208
 msgid "Cannot delete books"
@@ -5078,7 +5087,7 @@ msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:25
 msgid "Edit metadata"
-msgstr ""
+msgstr "編輯元數據"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:32
 msgid "Edit metadata individually"
@@ -5130,7 +5139,7 @@ msgstr "下載失敗"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:90
 #, python-format
 msgid "Failed to download metadata or covers for any of the %d book(s)."
-msgstr ""
+msgstr "無法下載 %d 本書中任何的元數據或封面。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:93
 msgid "Metadata download completed"
@@ -5141,7 +5150,7 @@ msgstr "元數據下載已完成"
 msgid ""
 "Finished downloading metadata for <b>%d book(s)</b>. Proceed with updating "
 "the metadata in your library?"
-msgstr ""
+msgstr "已完成 <b>%d 本書</b>的元數據下載。要接著更新您書庫中的元數據嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 #, python-format
@@ -5242,7 +5251,7 @@ msgstr "某些錯誤"
 msgid ""
 "Failed to apply updated metadata for some books in your library. Click "
 "\"Show Details\" to see details."
-msgstr ""
+msgstr "無法將某些書籍的元數據更新套用到書庫中。點選「顯示詳細資料」以查看詳情。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "F"
@@ -5535,7 +5544,7 @@ msgstr "不能搜尋"
 msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
-msgstr ""
+msgstr "Calibre 可以協助您尋要電子書，它會為您搜尋網站上各種商業或公眾領域的書籍來源。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:138
 msgid ""
@@ -6102,7 +6111,7 @@ msgstr "包含節"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:298
 msgid "Books by &Genre"
-msgstr ""
+msgstr "書籍依分類(&G)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:299
 msgid "Recently &Added"
@@ -6138,7 +6147,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:308
 msgid "Excluded genres"
-msgstr ""
+msgstr "排除的分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:312
@@ -6562,7 +6571,7 @@ msgstr "除錯程序會輸出在轉換過程中各個階段產生的中間 HTML 
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "DJVU 輸入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
@@ -8488,7 +8497,7 @@ msgstr "尚未選取項目"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:213
 msgid "You must select at least one item from the list."
-msgstr ""
+msgstr "您必須至少從清單中選擇一個項目。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:217
@@ -10333,7 +10342,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:32
 msgid "Open Template Editor"
-msgstr ""
+msgstr "開啟範本編輯器"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:41
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:473
@@ -10361,7 +10370,7 @@ msgstr "不能預覽"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:101
 msgid "You must first explode the epub before previewing."
-msgstr ""
+msgstr "在預覽之前您必須先探索 epub。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -10371,6 +10380,9 @@ msgid ""
 "windows you used to edit files in the epub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>探索 ePub "
+"以便在檔案瀏覽視窗顯示內容。要調整個別檔案，請按右鍵，然後「以此開啟...」您選擇的編輯器。當調整完成後，關閉瀏覽器視窗<b>和您用來在 epub "
+"中編輯檔案的編輯器</b>。</p><p>重新建立 ePub，並更新您的 calibre 書庫。</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 msgid "Display contents of exploded ePub"
@@ -10403,7 +10415,7 @@ msgstr "尚未選取食譜"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:146
 #, python-format
 msgid "The attached file: %(fname)s is a recipe to download %(title)s."
-msgstr ""
+msgstr "附加的檔案：%(fname)s 是用來下載 %(title)s 的食譜。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:149
 msgid "Recipe for "
@@ -10902,11 +10914,11 @@ msgstr " - 工作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:503
 msgid "No job"
-msgstr ""
+msgstr "沒有工作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:504
 msgid "No job selected"
-msgstr ""
+msgstr "沒有選取工作"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:506
 msgid "Do you really want to stop the selected job?"
@@ -10985,7 +10997,7 @@ msgstr "捷徑鍵"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:592
 msgid ""
 "Double click on any entry to change the keyboard shortcuts associated with it"
-msgstr ""
+msgstr "雙擊任何項目以改變與它相關的鍵盤捷徑鍵"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:607
 msgid "Search for a shortcut by name"
@@ -11260,7 +11272,7 @@ msgstr "忽略自訂的外掛程式，當您安裝了讓 calibre 無法啟動的
 msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
-msgstr ""
+msgstr "原因是有執行中的 calibre 實體，如果有，應該將它關閉，注意如果有任何執行中的工作，它們會被直接中止，因此請小心使用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:697
@@ -11426,7 +11438,7 @@ msgstr "作者變更"
 msgid ""
 "You have changed the authors for this book. You must save these changes "
 "before you can use Manage authors. Do you want to save these changes?"
-msgstr ""
+msgstr "您已經改變這本書的作者。在使用管理作者之前您必須儲存這些變更。是否要儲存這些變更？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:302
 msgid ""
@@ -11478,7 +11490,7 @@ msgstr "以選取的格式設定書籍封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:667
 msgid "Set metadata for the book from the selected format"
-msgstr ""
+msgstr "設定選取格式中書籍的元數據"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:674
 msgid "Add a format to this book"
@@ -11486,7 +11498,7 @@ msgstr "加入格式到這本書"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:681
 msgid "Remove the selected format from this book"
-msgstr ""
+msgstr "移除這本書中選取的格式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:752
 msgid "Choose formats for "
@@ -11646,19 +11658,19 @@ msgstr "是否排程下載？"
 msgid ""
 "The download of metadata for the <b>%d selected book(s)</b> will run in the "
 "background. Proceed?"
-msgstr ""
+msgstr "下載 <b>%d 本選取的書籍</b>會在背景中執行。要繼續嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:48
 msgid ""
 "You can monitor the progress of the download by clicking the rotating "
 "spinner in the bottom right corner."
-msgstr ""
+msgstr "您可以點選右下角的在旋轉的轉輪來查看下載的程序。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:51
 msgid ""
 "When the download completes you will be asked for confirmation before "
 "calibre applies the downloaded metadata."
-msgstr ""
+msgstr "下載完成後會先詢問您的確認才會讓 calibre 套用下載的元數據。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/bulk_download.py:62
 msgid "Download only &metadata"
@@ -11861,11 +11873,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:268
 msgid "See at"
-msgstr ""
+msgstr "查看："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:403
 msgid "calibre is downloading metadata from: "
-msgstr ""
+msgstr "calibre 正下載元數據於： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:425
 msgid "Please wait"
@@ -11877,7 +11889,7 @@ msgstr "查詢： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:473
 msgid "Failed to download metadata. Click Show Details to see details"
-msgstr ""
+msgstr "無法下載元數據。點選顯示詳細資料來查看詳細資料"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:482
 msgid ""
@@ -11886,10 +11898,11 @@ msgid ""
 "single distinctive word from the title.<p>To see the full log, click Show "
 "Details."
 msgstr ""
+"找不到任何符合您的搜尋的書籍。試著把搜尋條件<b>放寬</b>。例如，只使用作者的姓氐和書名中的單一個字詞。<p>要查看完整紀錄，請選點顯示詳細資料。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:545
 msgid "Current cover"
-msgstr ""
+msgstr "目前的封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:548
 msgid "Searching..."
@@ -11898,25 +11911,25 @@ msgstr "搜尋中…"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:706
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
-msgstr ""
+msgstr "正在下載 <b>%s</b> 的封面，請稍候..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:736
 msgid "Failed to download any covers, click \"Show details\" for details."
-msgstr ""
+msgstr "無法下載任何封面，點選「顯示詳細資料」以查看詳細資料。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:742
 #, python-format
 msgid "Could not find any covers for <b>%s</b>"
-msgstr ""
+msgstr "找不任何 <b>%s</b> 的封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:744
 #, python-format
 msgid "Found <b>%(num)d</b> covers of %(title)s. Pick the one you like best."
-msgstr ""
+msgstr "找到 %(title)s 的 <b>%(num)d</b> 個封面。請挑一個您最喜歡的。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:833
 msgid "Downloading metadata..."
-msgstr ""
+msgstr "下載元數據..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:939
 msgid "Downloading cover..."
@@ -11930,7 +11943,7 @@ msgstr "將設定值復原為預設數值。您必須點選套用才能確實儲
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/__init__.py:328
 msgid "Configure "
-msgstr ""
+msgstr "設定 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:29
 msgid "Ignore duplicate incoming formats"
@@ -11953,7 +11966,7 @@ msgstr "您可以在這裡控制 calibre 如何從加入的檔案中讀取元數
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:69
 msgid "Read &metadata from file contents rather than file name"
-msgstr ""
+msgstr "從檔案內容而非檔案名稱讀取元數據(&M)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:70
 msgid ""
@@ -12020,7 +12033,7 @@ msgstr "從檔案名稱設定元數據(&C)"
 msgid ""
 "When using the  \"&Copy to library\" action to copy books between libraries, "
 "preserve the date"
-msgstr ""
+msgstr "當使用「複製到書庫(&C)」動作來在書庫之間複製書籍時，保留書的日期"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -12035,11 +12048,11 @@ msgstr "低"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:36
 msgid "Very low"
-msgstr ""
+msgstr "非常低"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:64
 msgid "Compact Metadata"
-msgstr ""
+msgstr "精簡元數據"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:64
 msgid "Default"
@@ -12047,7 +12060,7 @@ msgstr "預設值"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:65
 msgid "All on 1 tab"
-msgstr ""
+msgstr "全部於 1 個分頁"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:166
 msgid "Confirmation dialogs have all been reset"
@@ -12062,6 +12075,8 @@ msgid ""
 "If checked, Yes/No custom columns values can be Yes, No, or Unknown.\n"
 "If not checked, the values can be Yes or No."
 msgstr ""
+"如果核取，是/否自訂欄位數值可以為是，否或不明。\n"
+"如果沒有核取，數值只能為是或否。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:150
 msgid "Yes/No columns have three values (Requires restart)"
@@ -12133,78 +12148,78 @@ msgstr "重設所有停用與確認的對話盒(&C)"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:32
 msgid "is true"
-msgstr ""
+msgstr "為是(true)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:33
 msgid "is false"
-msgstr ""
+msgstr "為否(false)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:29
 msgid "is undefined"
-msgstr ""
+msgstr "為未定義"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:36
 msgid "has id"
-msgstr ""
+msgstr "具有 id"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:37
 msgid "does not have id"
-msgstr ""
+msgstr "沒有 id"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:40
 msgid "is equal to"
-msgstr ""
+msgstr "等於"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:41
 msgid "is less than"
-msgstr ""
+msgstr "小於"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:42
 msgid "is greater than"
-msgstr ""
+msgstr "大於"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
 msgid "has"
-msgstr ""
+msgstr "有"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:46
 msgid "does not have"
-msgstr ""
+msgstr "沒有"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:47
 msgid "has pattern"
-msgstr ""
+msgstr "具有模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:48
 msgid "does not have pattern"
-msgstr ""
+msgstr "沒有模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
 msgid "is set"
-msgstr ""
+msgstr "已設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:58
 msgid "is not set"
-msgstr ""
+msgstr "未設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
 msgid "is"
-msgstr ""
+msgstr "是"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:54
 msgid "is not"
-msgstr ""
+msgstr "不是"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
-msgstr ""
+msgstr "符合模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:56
 msgid "does not match pattern"
-msgstr ""
+msgstr "不符合模式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
@@ -13482,7 +13497,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Check for &updated plugins"
-msgstr ""
+msgstr "檢查外掛程式的更新(&U)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:114
 msgid "&Load plugin from file"
@@ -14432,7 +14447,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:107
 msgid "Number of cache update threads to use"
-msgstr ""
+msgstr "要使用的快取更新執行緒的數量"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:108
 msgid "Number of conver download threads to use"
@@ -14452,7 +14467,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:107
 msgid "Number of simultaneous cache updates"
-msgstr ""
+msgstr "同步快取更新的數量"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:108
 msgid "Number of simultaneous cover downloads"
@@ -15063,6 +15078,8 @@ msgid ""
 "%(app)s has been updated to version <b>%(ver)s</b>. See the <a "
 "href=\"http://calibre-ebook.com/whats-new\">new features</a>."
 msgstr ""
+"%(app)s 已更新到版本 <b>%(ver)s</b>。請查閱 <a href=\"http://calibre-ebook.com/whats-"
+"new\">了解新的功能</a>。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:80
 msgid "Update available!"
@@ -15078,12 +15095,12 @@ msgstr "取得更新(&G)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:94
 msgid "Update &plugins"
-msgstr ""
+msgstr "更新外掛程式(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:153
 #, python-format
 msgid " (%d plugin updates)"
-msgstr ""
+msgstr " (%d 個外掛程式更新)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:156
 msgid "Update found"
@@ -15091,17 +15108,17 @@ msgstr "找到更新"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:159
 msgid "updated plugins"
-msgstr ""
+msgstr "更新的外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:190
 msgid "Plugin Updates"
-msgstr ""
+msgstr "外掛程式更新"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:188
 #, python-format
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "有 %d 個外掛程式更新可用"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:192
 msgid "Install and configure user plugins"

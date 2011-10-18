@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-10-16 11:29+0000\n"
-"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
+"PO-Revision-Date: 2011-10-17 18:09+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-17 04:42+0000\n"
-"X-Generator: Launchpad (build 14155)\n"
+"X-Launchpad-Export-Date: 2011-10-18 04:51+0000\n"
+"X-Generator: Launchpad (build 14157)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -978,8 +978,8 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
-"Vesszővel tagolt mappa-lista az e-bookok az olvasóra való küldéséhez. Az "
-"első létező mappába kerülnek a könyvek."
+"Vesszővel tagolt mappa-lista az e-bookok olvasóra küldéséhez. Az első létező "
+"mappába kerülnek a könyvek."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:188
 msgid "Communicate with S60 phones."
@@ -1810,7 +1810,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:650
 #, python-format
 msgid "Unable to mount main memory (Error code: %d)"
-msgstr "A belső memória nem felismerhető. (Hiba kód: %d)"
+msgstr "A fő memória nem csatolható. (Hiba kód: %d)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:701
 #, python-format
@@ -1921,8 +1921,8 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
-"Az ID meghatározása: Beállítások -> Egyéb -> Információ a felhasználó által "
-"definiált eszköz beállításához"
+"Az ID meghatározása: „Beállítások->Egyéb->Információk lekérése egyedi eBook "
+"olvasó beállításához”"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
@@ -3781,7 +3781,7 @@ msgstr "Az Amazon időtúllépés miatt kiléptette. Próbálja később!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:161
 msgid "Metadata source"
-msgstr "Metaadatok forrása"
+msgstr "Metaadatforrás"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:156
 msgid ""
@@ -4605,7 +4605,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:115
 msgid "Send file to storage card instead of main memory by default"
-msgstr "Alapbeállításként a memóriakártyára küldje a belső memória helyett"
+msgstr "Alapesetben a memóriakártyára küldje a fő memória helyett"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:117
 msgid "Confirm before deleting"
@@ -8495,7 +8495,7 @@ msgstr "Alapértelmezett eszközre küldési művelet beállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:509
 msgid "Send to main memory"
-msgstr "Küldés a belső memóriába"
+msgstr "Küldés a fő memóriába"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:511
 msgid "Send to storage card A"
@@ -11324,12 +11324,13 @@ msgid ""
 "windows you used to edit files in the epub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
-"<p>Megjeleníti az ePub tartalmát egy külön ablakban. Ez egyes fájlok "
-"szerkesztéséhez a jobb egérgomb helyi menüjéből a Nyitás, mint... (Társítás-"
-">ideiglenes társítás) menüponttal szerkesszük meg az editorunkban (Pl "
-"jegyzettömb) a tartalmat. Ha kész vagyunk, zárjuk be a mappa ablakát <b>és a "
-"szerkesztő ablakát is.</b></p><p>Kattintsunk az ePub újraépítése gombra, "
-"hogy frissítsük a könyv tartalmát.</p>"
+"<p>Megjeleníti az ePub tartalmát egy külön ablakban. Ez egyes fájlokat a "
+"jobb egérgomb helyi menüjéből a „Megnyitás” (operációs rendszertől függően "
+"ez más is lehet) menüpontot kiválasztva szerkesztheti a kiválasztott "
+"szerkesztő programmal. Ha minden változtatást elvégzett, akkor zárja be a "
+"fájlokat tartalmazó mappa ablakát <b>és a szerkesztő program ablakát "
+"is.</b></p><p>Kattintson az ePub újraépítése gombra, hogy frissítse a könyv "
+"tartalmát.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 msgid "Display contents of exploded ePub"
