@@ -302,7 +302,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if cats_changed:
             self.prefs.set('user_categories', user_cats)
 
-        load_user_template_functions(self.prefs.get('user_template_functions', []))
+        if not self.is_second_db:
+            load_user_template_functions(self.prefs.get('user_template_functions', []))
 
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
