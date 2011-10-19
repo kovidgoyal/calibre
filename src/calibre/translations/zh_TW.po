@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-10-18 04:49+0000\n"
+"PO-Revision-Date: 2011-10-19 02:04+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-10-18 04:51+0000\n"
+"X-Launchpad-Export-Date: 2011-10-19 04:38+0000\n"
 "X-Generator: Launchpad (build 14157)\n"
 "Language: zh_TW\n"
 
@@ -8502,7 +8502,7 @@ msgstr "您必須至少從清單中選擇一個項目。"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:217
 msgid "Are you sure you want to delete the following items?"
-msgstr ""
+msgstr "您確定要刪除下列項目？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor_ui.py:70
@@ -8826,7 +8826,7 @@ msgstr "無效的搜尋/取代"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:902
 #, python-format
 msgid "Search pattern is invalid: %s"
-msgstr ""
+msgstr "搜尋模式無效：%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:956
 #, python-format
@@ -8998,7 +8998,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:581
 msgid "Change title to title &case"
-msgstr ""
+msgstr "將書名改變為大寫(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
 msgid ""
@@ -9313,6 +9313,10 @@ msgid ""
 "\n"
 "Right-click and choose Donate to reward: "
 msgstr ""
+"這個外掛程式是免費的，但是您可以透過 PayPal 的捐款\n"
+"獎勵開發者。\n"
+"\n"
+"您可以按右鍵並選擇要捐助多少錢： "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:387
 msgid "Platform unavailable"
@@ -9336,7 +9340,7 @@ msgstr "上次安裝的版本"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:427
 msgid "This plugin has been deprecated and should be uninstalled"
-msgstr ""
+msgstr "這個外掛程式已廢棄並且應解除安裝"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:428
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:432
@@ -9387,7 +9391,7 @@ msgstr "使用者外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:494
 msgid "Filter list of plugins"
-msgstr ""
+msgstr "過濾外掛程式清單"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:512
 msgid "Description"
@@ -9422,7 +9426,7 @@ msgstr "顯示這個外掛程式的歷史變更"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:545
 msgid "Plugin &Forum Thread"
-msgstr ""
+msgstr "外掛程式討論區主題(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:109
@@ -9524,7 +9528,7 @@ msgstr "缺少版本歷史"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:773
 #, python-format
 msgid "Unable to find the version history for %s"
-msgstr ""
+msgstr "找不到 %s 的版本歷史"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:780
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:334
@@ -9578,17 +9582,17 @@ msgstr "**找不到項目**"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:189
 msgid ""
 "Click in a column  in the library view to see the information for that book"
-msgstr ""
+msgstr "請在書庫檢視中點選欄位以查看書籍的資訊"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:205
 msgid "Books with selected item \"{0}\": {1}"
-msgstr ""
+msgstr "具有選取項目「{0}」的書籍： {1}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview.py:211
 msgid ""
 "Double-click on a book to change the selection in the library view. Shift- "
 "or control-double-click to edit the metadata of a book"
-msgstr ""
+msgstr "雙擊書籍可以改變書庫檢視的選擇範圍。Shift- 或 control-雙擊可以編輯書籍的元數據"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:73
 msgid "Quickview"
@@ -9612,7 +9616,7 @@ msgstr "搜尋"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/quickview_ui.py:76
 msgid "Search in the library view for the selected item"
-msgstr ""
+msgstr "在書庫檢視中搜尋選取的項目"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:25
 msgid ""
@@ -12540,15 +12544,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:178
 msgid "My Series"
-msgstr ""
+msgstr "我的系列"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:179
 msgid "My Rating"
-msgstr ""
+msgstr "我的評等"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:180
 msgid "People"
-msgstr ""
+msgstr "群眾"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:207
 msgid ""
@@ -12556,6 +12560,8 @@ msgid ""
 "leading zeros. The format <code>{0:d}&nbsp;days</code> prints the number "
 "then the word \"days\""
 msgstr ""
+"範例：格式 <code>{0:0>4d}</code> 會給予一個以0開頭的4位數字。格式 <code>{0:d}&nbsp;days</code> "
+"則會顯示數字再加上單字 \"days\""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:212
 msgid ""
@@ -12620,7 +12626,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:302
 msgid "The color {0} is unknown"
-msgstr ""
+msgstr "顏色 {0} 是不明的"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:220
 msgid "&Lookup name"
@@ -12643,7 +12649,7 @@ msgstr "書庫檢視中的欄標題和標籤瀏覽器中的分類名稱"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:224
 msgid "&Column type"
-msgstr ""
+msgstr "欄位類型(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:225
 msgid "What kind of information will be kept in the column."
@@ -12659,16 +12665,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:229
 msgid "Show checkmarks"
-msgstr ""
+msgstr "顯示核取標記"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:230
 msgid ""
 "Check this box if this column contains names, like the authors column."
-msgstr ""
+msgstr "如果這個欄位包含名稱，像是作者欄，請核取這個方塊。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:231
 msgid "Contains names"
-msgstr ""
+msgstr "包含名稱"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:232
 msgid ""
@@ -12716,7 +12722,7 @@ msgstr "日期格式(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:245
 msgid "Format for &numbers"
-msgstr ""
+msgstr "數字格式(&N)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:246
 msgid "&Template"
@@ -12736,23 +12742,23 @@ msgstr "預設值：(不做任何事)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:250
 msgid "&Sort/search column by"
-msgstr ""
+msgstr "排序/搜尋欄位依(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:251
 msgid "How this column should handled in the GUI when sorting and searching"
-msgstr ""
+msgstr "當排序與搜尋時這個欄位在 GUI 中要如何處理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:252
 msgid "If checked, this column will appear in the tags browser as a category"
-msgstr ""
+msgstr "如果核取，這個欄位會出現在標籤瀏覽器中做為分類"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:253
 msgid "Show in tags browser"
-msgstr ""
+msgstr "在標籤瀏覽器中顯示"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:254
 msgid "Show as HTML in book details"
-msgstr ""
+msgstr "在書籍詳細資料中顯示 HTML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:260
@@ -12778,7 +12784,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:263
 msgid "Colors"
-msgstr ""
+msgstr "顏色"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -12795,24 +12801,24 @@ msgstr "裝置偵測除錯"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
-msgstr ""
+msgstr "取得裝置資訊"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:34
 msgid "User-defined device information"
-msgstr ""
+msgstr "使用者定義的裝置資訊"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:57
 msgid "Device Detection"
-msgstr ""
+msgstr "裝置偵測"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:52
 msgid "Ensure your device is disconnected, then press OK"
-msgstr ""
+msgstr "確認您的裝置已拔除，然後按確定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:58
 msgid "Ensure your device is connected, then press OK"
-msgstr ""
+msgstr "確認您的裝置已連接，然後按確定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:89
 msgid ""
@@ -12884,7 +12890,7 @@ msgstr "寬"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:134
 msgid "Off"
-msgstr ""
+msgstr "關閉"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:134
 msgid "Small"
@@ -12904,7 +12910,7 @@ msgstr "永遠"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:138
 msgid "If there is enough room"
-msgstr ""
+msgstr "如果沒有足夠空間"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:139
 msgid "Never"
@@ -12982,19 +12988,19 @@ msgstr "改變字型（需要重新啟動）(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:111
 msgid "Select displayed metadata"
-msgstr ""
+msgstr "選擇要顯示的元數據"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:120
 msgid "Move up"
-msgstr ""
+msgstr "上移"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:127
 msgid "Move down"
-msgstr ""
+msgstr "下移"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:139
 msgid "Default author link template:"
-msgstr ""
+msgstr "預設作者連結範本："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:143
 msgid ""
