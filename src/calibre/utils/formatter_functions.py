@@ -64,8 +64,11 @@ class FormatterFunctions(object):
             for a in c.aliases:
                 self._functions[a] = c
 
-formatter_functions = FormatterFunctions()
+_ff = FormatterFunctions()
 
+def formatter_functions():
+    global _ff
+    return _ff
 
 class FormatterFunction(object):
 
@@ -89,7 +92,7 @@ class FormatterFunction(object):
 
 class BuiltinFormatterFunction(FormatterFunction):
     def __init__(self):
-        formatter_functions.register_builtin(self)
+        formatter_functions().register_builtin(self)
         eval_func = inspect.getmembers(self.__class__,
                         lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
         try:
@@ -1133,10 +1136,10 @@ class UserFunction(FormatterUserFunction):
     return cls
 
 def load_user_template_functions(funcs):
-    formatter_functions.reset_to_builtins()
+    formatter_functions().reset_to_builtins()
     for func in funcs:
         try:
             cls = compile_user_function(*func)
-            formatter_functions.register_function(cls)
+            formatter_functions().register_function(cls)
         except:
             traceback.print_exc()
