@@ -1239,11 +1239,14 @@ class DeviceBooksModel(BooksModel): # {{{
     def paths(self, rows):
         return [self.db[self.map[r.row()]].path for r in rows ]
 
-    def paths_for_db_ids(self, db_ids):
-        res = []
+    def paths_for_db_ids(self, db_ids, as_map=False):
+        res = defaultdict(list) if as_map else []
         for r,b in enumerate(self.db):
             if b.application_id in db_ids:
-                res.append((r,b))
+                if as_map:
+                    res[b.application_id].append(b)
+                else:
+                    res.append((r,b))
         return res
 
     def get_collections_with_ids(self):

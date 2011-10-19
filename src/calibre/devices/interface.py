@@ -62,7 +62,7 @@ class DevicePlugin(Plugin):
     #: Icon for this device
     icon = I('reader.png')
 
-    # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
+    # Encapsulates an annotation fetched from the device
     UserAnnotation = namedtuple('Annotation','type, value')
 
     #: GUI displays this as a message if not None. Useful if opening can take a
@@ -217,7 +217,7 @@ class DevicePlugin(Plugin):
         '''
         Unix version of :meth:`can_handle_windows`
 
-        :param device_info: Is a tupe of (vid, pid, bcd, manufacturer, product,
+        :param device_info: Is a tuple of (vid, pid, bcd, manufacturer, product,
                             serial number)
 
         '''
@@ -463,6 +463,13 @@ class DevicePlugin(Plugin):
         Non-disk devices will ignore this request.
         '''
         pass
+
+    def prepare_addable_books(self, paths):
+        '''
+        Given a list of paths, returns another list of paths. These paths
+        point to addable versions of the books.
+        '''
+        return paths
 
 class BookList(list):
     '''

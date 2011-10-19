@@ -84,7 +84,7 @@ class PDNOVEL(USBMS):
     FORMATS = ['epub', 'pdf']
 
     VENDOR_ID   = [0x18d1]
-    PRODUCT_ID  = [0xb004]
+    PRODUCT_ID  = [0xb004, 0xa004]
     BCD         = [0x224]
 
     VENDOR_NAME = 'ANDROID'

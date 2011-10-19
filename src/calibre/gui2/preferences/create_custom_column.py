@@ -127,7 +127,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.composite_sort_by.setCurrentIndex(sb)
             self.composite_make_category.setChecked(
                                 c['display'].get('make_category', False))
-            self.composite_make_category.setChecked(
+            self.composite_contains_html.setChecked(
                                 c['display'].get('contains_html', False))
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))

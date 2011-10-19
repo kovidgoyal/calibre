@@ -204,6 +204,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
 class CoverView(QWidget): # {{{
 
     cover_changed = pyqtSignal(object, object)
+    cover_removed = pyqtSignal(object)
 
     def __init__(self, vertical, parent=None):
         QWidget.__init__(self, parent)
@@ -289,10 +290,12 @@ class CoverView(QWidget): # {{{
         cm = QMenu(self)
         paste = cm.addAction(_('Paste Cover'))
         copy = cm.addAction(_('Copy Cover'))
+        remove = cm.addAction(_('Remove Cover'))
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
+        remove.triggered.connect(self.remove_cover)
         cm.exec_(ev.globalPos())
 
     def copy_to_clipboard(self):
@@ -315,6 +318,13 @@ class CoverView(QWidget): # {{{
                 self.cover_changed.emit(id_,
                     pixmap_to_data(pmap))
 
+    def remove_cover(self):
+        id_ = self.data.get('id', None)
+        self.pixmap = self.default_pixmap
+        self.do_layout()
+        self.update()
+        if id_ is not None:
+            self.cover_removed.emit(id_)
 
     # }}}
 
@@ -457,6 +467,7 @@ class BookDetails(QWidget): # {{{
     remote_file_dropped = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object, object)
     cover_changed = pyqtSignal(object, object)
+    cover_removed = pyqtSignal(object)
 
     # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
@@ -514,6 +525,7 @@ class BookDetails(QWidget): # {{{
 
         self.cover_view = CoverView(vertical, self)
         self.cover_view.cover_changed.connect(self.cover_changed.emit)
+        self.cover_view.cover_removed.connect(self.cover_removed.emit)
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
         self._layout.addWidget(self.book_info)

@@ -88,7 +88,7 @@ class _Parser(object):
 
     def expr(self):
         if self.token_is_id():
-            funcs = formatter_functions.get_functions()
+            funcs = formatter_functions().get_functions()
             # We have an identifier. Determine if it is a function
             id = self.token()
             if not self.token_op_is_a('('):
@@ -276,7 +276,7 @@ class TemplateFormatter(string.Formatter):
                     dispfmt = fmt[0:colon]
                     colon += 1
 
-                funcs = formatter_functions.get_functions()
+                funcs = formatter_functions().get_functions()
                 fname = fmt[colon:p]
                 if fname in funcs:
                     func = funcs[fname]

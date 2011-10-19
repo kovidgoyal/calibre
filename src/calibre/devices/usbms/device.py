@@ -483,7 +483,7 @@ class Device(DeviceConfig, DevicePlugin):
         self._card_a_prefix = get_card_prefix('carda')
         self._card_b_prefix = get_card_prefix('cardb')
 
-    def find_device_nodes(self):
+    def find_device_nodes(self, detected_device=None):
 
         def walk(base):
             base = os.path.abspath(os.path.realpath(base))
@@ -507,8 +507,11 @@ class Device(DeviceConfig, DevicePlugin):
         d, j = os.path.dirname, os.path.join
         usb_dir = None
 
+        if detected_device is None:
+            detected_device = self.detected_device
+
         def test(val, attr):
-            q = getattr(self.detected_device, attr)
+            q = getattr(detected_device, attr)
             return q == val
 
         for x, isfile in walk('/sys/devices'):
@@ -596,6 +599,8 @@ class Device(DeviceConfig, DevicePlugin):
                 label = self.STORAGE_CARD2_VOLUME_LABEL
                 if not label:
                     label = self.STORAGE_CARD_VOLUME_LABEL + ' 2'
+            if not label:
+                label = 'E-book Reader (%s)'%type
             extra = 0
             while True:
                 q = ' (%d)'%extra if extra else ''
@@ -1063,6 +1068,12 @@ class Device(DeviceConfig, DevicePlugin):
         '''
         return {}
 
+    def add_annotation_to_library(self, db, db_id, annotation):
+        '''
+        Add an annotation to the calibre library
+        '''
+        pass
+
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         path = os.path.abspath(path)
         maxlen = self.MAX_PATH_LEN
@@ -1142,3 +1153,6 @@ class Device(DeviceConfig, DevicePlugin):
             os.makedirs(filedir)
 
         return filepath
+
+    def create_annotations_path(self, mdata, device_path=None):
+         return self.create_upload_path(os.path.abspath('/<storage>'), mdata, 'x.bookmark', create_dirs=False)

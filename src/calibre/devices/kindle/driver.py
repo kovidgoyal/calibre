@@ -13,6 +13,8 @@ import datetime, os, re, sys, json, hashlib
 from calibre.devices.kindle.apnx import APNXBuilder
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
+from calibre.ebooks.metadata import MetaInformation
+from calibre import strftime
 
 '''
 Notes on collections:
@@ -164,6 +166,121 @@ class KINDLE(USBMS):
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books
 
+    def generate_annotation_html(self, bookmark):
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
+        # Returns <div class="user_annotations"> ... </div>
+        last_read_location = bookmark.last_read_location
+        timestamp = datetime.datetime.utcfromtimestamp(bookmark.timestamp)
+        percent_read = bookmark.percent_read
+
+        ka_soup = BeautifulSoup()
+        dtc = 0
+        divTag = Tag(ka_soup,'div')
+        divTag['class'] = 'user_annotations'
+
+        # Add the last-read location
+        spanTag = Tag(ka_soup, 'span')
+        spanTag['style'] = 'font-weight:bold'
+        if bookmark.book_format == 'pdf':
+            spanTag.insert(0,NavigableString(
+                _("%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)") % \
+                            dict(time=strftime(u'%x', timestamp.timetuple()),
+                            loc=last_read_location,
+                            pr=percent_read)))
+        else:
+            spanTag.insert(0,NavigableString(
+                _("%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)") % \
+                            dict(time=strftime(u'%x', timestamp.timetuple()),
+                            loc=last_read_location,
+                            pr=percent_read)))
+
+        divTag.insert(dtc, spanTag)
+        dtc += 1
+        divTag.insert(dtc, Tag(ka_soup,'br'))
+        dtc += 1
+
+        if bookmark.user_notes:
+            user_notes = bookmark.user_notes
+            annotations = []
+
+            # Add the annotations sorted by location
+            # Italicize highlighted text
+            for location in sorted(user_notes):
+                if user_notes[location]['text']:
+                    annotations.append(
+                            _('<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />') % \
+                                        dict(dl=user_notes[location]['displayed_location'],
+                                            typ=user_notes[location]['type'],
+                                            text=(user_notes[location]['text'] if \
+                                            user_notes[location]['type'] == 'Note' else \
+                                            '<i>%s</i>' % user_notes[location]['text'])))
+                else:
+                    if bookmark.book_format == 'pdf':
+                        annotations.append(
+                                _('<b>Page %(dl)d &bull; %(typ)s</b><br />') % \
+                                    dict(dl=user_notes[location]['displayed_location'],
+                                        typ=user_notes[location]['type']))
+                    else:
+                        annotations.append(
+                                _('<b>Location %(dl)d &bull; %(typ)s</b><br />') % \
+                                    dict(dl=user_notes[location]['displayed_location'],
+                                        typ=user_notes[location]['type']))
+
+            for annotation in annotations:
+                divTag.insert(dtc, annotation)
+                dtc += 1
+
+        ka_soup.insert(0,divTag)
+        return ka_soup
+
+
+    def add_annotation_to_library(self, db, db_id, annotation):
+        from calibre.ebooks.BeautifulSoup import Tag
+        bm = annotation
+        ignore_tags = set(['Catalog', 'Clippings'])
+
+        if bm.type == 'kindle_bookmark':
+            mi = db.get_metadata(db_id, index_is_id=True)
+            user_notes_soup = self.generate_annotation_html(bm.value)
+            if mi.comments:
+                a_offset = mi.comments.find('<div class="user_annotations">')
+                ad_offset = mi.comments.find('<hr class="annotations_divider" />')
+
+                if a_offset >= 0:
+                    mi.comments = mi.comments[:a_offset]
+                if ad_offset >= 0:
+                    mi.comments = mi.comments[:ad_offset]
+                if set(mi.tags).intersection(ignore_tags):
+                    return
+                if mi.comments:
+                    hrTag = Tag(user_notes_soup,'hr')
+                    hrTag['class'] = 'annotations_divider'
+                    user_notes_soup.insert(0, hrTag)
+
+                mi.comments += unicode(user_notes_soup.prettify())
+            else:
+                mi.comments = unicode(user_notes_soup.prettify())
+            # Update library comments
+            db.set_comment(db_id, mi.comments)
+
+            # Add bookmark file to db_id
+            db.add_format_with_hooks(db_id, bm.value.bookmark_extension,
+                                            bm.value.path, index_is_id=True)
+        elif bm.type == 'kindle_clippings':
+            # Find 'My Clippings' author=Kindle in database, or add
+            last_update = 'Last modified %s' % strftime(u'%x %X',bm.value['timestamp'].timetuple())
+            mc_id = list(db.data.search_getting_ids('title:"My Clippings"', ''))
+            if mc_id:
+                db.add_format_with_hooks(mc_id[0], 'TXT', bm.value['path'],
+                        index_is_id=True)
+                mi = db.get_metadata(mc_id[0], index_is_id=True)
+                mi.comments = last_update
+                db.set_metadata(mc_id[0], mi)
+            else:
+                mi = MetaInformation('My Clippings', authors = ['Kindle'])
+                mi.tags = ['Clippings']
+                mi.comments = last_update
+                db.add_books([bm.value['path']], ['txt'], [mi])
 
 class KINDLE2(KINDLE):
 

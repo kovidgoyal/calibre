@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Sueddeutsche(BasicNewsRecipe):
 
-    title = u'Süddeutsche'
+    title = u'sueddeutsche.de'
     description = 'News from Germany'
     __author__ = 'Oliver Niesner and Armin Geller'
     use_embedded_content   = False
@@ -62,7 +62,7 @@ class Sueddeutsche(BasicNewsRecipe):
               (u'Sport', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ESport%24?output=rss'),
               (u'Leben', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ELeben%24?output=rss'),
               (u'Karriere', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EKarriere%24?output=rss'),
-              (u'München&Region', u'http://www.sueddeutsche.de/app/service/rss/ressort/muenchen/rss.xml'),
+              (u'M&uuml;nchen & Region', u'http://www.sueddeutsche.de/app/service/rss/ressort/muenchen/rss.xml'),
               (u'Bayern', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EBayern%24?output=rss'),
               (u'Medien', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EMedien%24?output=rss'),
               (u'Digital', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EDigital%24?output=rss'),
@@ -75,7 +75,7 @@ class Sueddeutsche(BasicNewsRecipe):
               (u'Job', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EJob%24?output=rss'),         # sometimes only
               (u'Service', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EService%24?output=rss'), # sometimes only
               (u'Verlag', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EVerlag%24?output=rss'),   # sometimes only
-             ]
+            ]
 
     def print_version(self, url):
         main, sep, id = url.rpartition('/')

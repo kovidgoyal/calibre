@@ -206,7 +206,7 @@
    <item>
     <widget class="QCheckBox" name="opt_autolaunch_server">
      <property name="text">
-      <string>Run server &amp;automatically on startup</string>
+      <string>Run server &amp;automatically when calibre starts</string>
      </property>
     </widget>
    </item>

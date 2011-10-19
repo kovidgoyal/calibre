@@ -1,7 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
-    title = 'Kansascity Star'
+    title = 'Kansas City Star'
     language = 'en'
     __author__ = 'TonytheBookworm'
     description = 'www.kansascity.com feed'

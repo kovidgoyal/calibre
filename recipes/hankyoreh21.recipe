@@ -1,0 +1,26 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Seongkyoun Yoo <seongkyoun.yoo at gmail.com>'
+'''
+Profile to download The Hankyoreh
+'''
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Hankyoreh21(BasicNewsRecipe):
+    title          = u'Hankyoreh21'
+    language = 'ko'
+    description = u'The Hankyoreh21 Magazine articles'
+    __author__	= 'Seongkyoun Yoo'
+    oldest_article = 20
+    recursions = 1
+    max_articles_per_feed = 120
+    no_stylesheets         = True
+    remove_javascript     = True
+    keep_only_tags    = [
+						dict(name='font', attrs={'class':'t18bk'}),
+						dict(id=['fontSzArea'])
+                        ]
+
+    feeds = [
+	('Hani21','http://h21.hani.co.kr/rss/ '),
+           ]
