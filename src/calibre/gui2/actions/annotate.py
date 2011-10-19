@@ -5,14 +5,57 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import datetime
 
 from PyQt4.Qt import pyqtSignal, QModelIndex, QThread, Qt
 
 from calibre.gui2 import error_dialog
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
-from calibre import strftime
 from calibre.gui2.actions import InterfaceAction
+from calibre.devices.usbms.device import Device
+from calibre.gui2.dialogs.progress import ProgressDialog
+
+class Updater(QThread): # {{{
+
+    update_progress = pyqtSignal(int)
+    update_done     = pyqtSignal()
+
+    def __init__(self, parent, db, device, annotation_map, done_callback):
+        QThread.__init__(self, parent)
+        self.errors = {}
+        self.db = db
+        self.keep_going = True
+        self.pd = ProgressDialog(_('Merging user annotations into database'), '',
+                0, len(annotation_map), parent=parent)
+
+        self.device = device
+        self.annotation_map = annotation_map
+        self.done_callback = done_callback
+        self.pd.canceled_signal.connect(self.canceled)
+        self.pd.setModal(True)
+        self.pd.show()
+        self.update_progress.connect(self.pd.set_value,
+                type=Qt.QueuedConnection)
+        self.update_done.connect(self.pd.hide, type=Qt.QueuedConnection)
+
+    def canceled(self):
+        self.keep_going = False
+        self.pd.hide()
+
+    def run(self):
+        for i, id_ in enumerate(self.annotation_map):
+            if not self.keep_going:
+                break
+            bm = Device.UserAnnotation(self.annotation_map[id_][0],
+                    self.annotation_map[id_][1])
+            try:
+                self.device.add_annotation_to_library(self.db, id_, bm)
+            except:
+                import traceback
+                self.errors[id_] = traceback.format_exc()
+            self.update_progress.emit(i)
+        self.update_done.emit()
+        self.done_callback(self.annotation_map.keys(), self.errors)
+
+# }}}
 
 class FetchAnnotationsAction(InterfaceAction):
 
@@ -86,166 +129,6 @@ class FetchAnnotationsAction(InterfaceAction):
                 path_map)
 
     def annotations_fetched(self, job):
-        from calibre.devices.usbms.device import Device
-        from calibre.ebooks.metadata import MetaInformation
-        from calibre.gui2.dialogs.progress import ProgressDialog
-        from calibre.library.cli import do_add_format
-
-        class Updater(QThread): # {{{
-
-            update_progress = pyqtSignal(int)
-            update_done     = pyqtSignal()
-            FINISHED_READING_PCT_THRESHOLD = 96
-
-            def __init__(self, parent, db, annotation_map, done_callback):
-                QThread.__init__(self, parent)
-                self.db = db
-                self.pd = ProgressDialog(_('Merging user annotations into database'), '',
-                        0, len(job.result), parent=parent)
-
-                self.am = annotation_map
-                self.done_callback = done_callback
-                self.pd.canceled_signal.connect(self.canceled)
-                self.pd.setModal(True)
-                self.pd.show()
-                self.update_progress.connect(self.pd.set_value,
-                        type=Qt.QueuedConnection)
-                self.update_done.connect(self.pd.hide, type=Qt.QueuedConnection)
-
-            def generate_annotation_html(self, bookmark):
-                # Returns <div class="user_annotations"> ... </div>
-                last_read_location = bookmark.last_read_location
-                timestamp = datetime.datetime.utcfromtimestamp(bookmark.timestamp)
-                percent_read = bookmark.percent_read
-
-                ka_soup = BeautifulSoup()
-                dtc = 0
-                divTag = Tag(ka_soup,'div')
-                divTag['class'] = 'user_annotations'
-
-                # Add the last-read location
-                spanTag = Tag(ka_soup, 'span')
-                spanTag['style'] = 'font-weight:bold'
-                if bookmark.book_format == 'pdf':
-                    spanTag.insert(0,NavigableString(
-                        _("%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)") % \
-                                    dict(time=strftime(u'%x', timestamp.timetuple()),
-                                    loc=last_read_location,
-                                    pr=percent_read)))
-                else:
-                    spanTag.insert(0,NavigableString(
-                        _("%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)") % \
-                                    dict(time=strftime(u'%x', timestamp.timetuple()),
-                                    loc=last_read_location,
-                                    pr=percent_read)))
-
-                divTag.insert(dtc, spanTag)
-                dtc += 1
-                divTag.insert(dtc, Tag(ka_soup,'br'))
-                dtc += 1
-
-                if bookmark.user_notes:
-                    user_notes = bookmark.user_notes
-                    annotations = []
-
-                    # Add the annotations sorted by location
-                    # Italicize highlighted text
-                    for location in sorted(user_notes):
-                        if user_notes[location]['text']:
-                            annotations.append(
-                                    _('<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />') % \
-                                                dict(dl=user_notes[location]['displayed_location'],
-                                                    typ=user_notes[location]['type'],
-                                                    text=(user_notes[location]['text'] if \
-                                                    user_notes[location]['type'] == 'Note' else \
-                                                    '<i>%s</i>' % user_notes[location]['text'])))
-                        else:
-                            if bookmark.book_format == 'pdf':
-                                annotations.append(
-                                        _('<b>Page %(dl)d &bull; %(typ)s</b><br />') % \
-                                            dict(dl=user_notes[location]['displayed_location'],
-                                                typ=user_notes[location]['type']))
-                            else:
-                                annotations.append(
-                                        _('<b>Location %(dl)d &bull; %(typ)s</b><br />') % \
-                                            dict(dl=user_notes[location]['displayed_location'],
-                                                typ=user_notes[location]['type']))
-
-                    for annotation in annotations:
-                        divTag.insert(dtc, annotation)
-                        dtc += 1
-
-                ka_soup.insert(0,divTag)
-                return ka_soup
-
-            '''
-            def mark_book_as_read(self,id):
-                read_tag = gprefs.get('catalog_epub_mobi_read_tag')
-                if read_tag:
-                    self.db.set_tags(id, [read_tag], append=True)
-            '''
-
-            def canceled(self):
-                self.pd.hide()
-
-            def run(self):
-                ignore_tags = set(['Catalog','Clippings'])
-                for (i, id) in enumerate(self.am):
-                    bm = Device.UserAnnotation(self.am[id][0],self.am[id][1])
-                    if bm.type == 'kindle_bookmark':
-                        mi = self.db.get_metadata(id, index_is_id=True)
-                        user_notes_soup = self.generate_annotation_html(bm.value)
-                        if mi.comments:
-                            a_offset = mi.comments.find('<div class="user_annotations">')
-                            ad_offset = mi.comments.find('<hr class="annotations_divider" />')
-
-                            if a_offset >= 0:
-                                mi.comments = mi.comments[:a_offset]
-                            if ad_offset >= 0:
-                                mi.comments = mi.comments[:ad_offset]
-                            if set(mi.tags).intersection(ignore_tags):
-                                continue
-                            if mi.comments:
-                                hrTag = Tag(user_notes_soup,'hr')
-                                hrTag['class'] = 'annotations_divider'
-                                user_notes_soup.insert(0,hrTag)
-
-                            mi.comments += user_notes_soup.prettify()
-                        else:
-                            mi.comments = unicode(user_notes_soup.prettify())
-                        # Update library comments
-                        self.db.set_comment(id, mi.comments)
-
-                        '''
-                        # Update 'read' tag except for Catalogs/Clippings
-                        if bm.value.percent_read >= self.FINISHED_READING_PCT_THRESHOLD:
-                            if not set(mi.tags).intersection(ignore_tags):
-                                self.mark_book_as_read(id)
-                        '''
-
-                        # Add bookmark file to id
-                        self.db.add_format_with_hooks(id, bm.value.bookmark_extension,
-                                                      bm.value.path, index_is_id=True)
-                        self.update_progress.emit(i)
-                    elif bm.type == 'kindle_clippings':
-                        # Find 'My Clippings' author=Kindle in database, or add
-                        last_update = 'Last modified %s' % strftime(u'%x %X',bm.value['timestamp'].timetuple())
-                        mc_id = list(db.data.parse('title:"My Clippings"'))
-                        if mc_id:
-                            do_add_format(self.db, mc_id[0], 'TXT', bm.value['path'])
-                            mi = self.db.get_metadata(mc_id[0], index_is_id=True)
-                            mi.comments = last_update
-                            self.db.set_metadata(mc_id[0], mi)
-                        else:
-                            mi = MetaInformation('My Clippings', authors = ['Kindle'])
-                            mi.tags = ['Clippings']
-                            mi.comments = last_update
-                            self.db.add_books([bm.value['path']], ['txt'], [mi])
-
-                self.update_done.emit()
-                self.done_callback(self.am.keys())
-
-        # }}}
 
         if not job.result: return
 
@@ -254,9 +137,25 @@ class FetchAnnotationsAction(InterfaceAction):
                     _('User annotations generated from main library only'),
                     show=True)
         db = self.gui.library_view.model().db
+        device = self.gui.device_manager.device
 
-        self.__annotation_updater = Updater(self.gui, db, job.result,
-                self.Dispatcher(self.gui.library_view.model().refresh_ids))
+        self.__annotation_updater = Updater(self.gui, db, device, job.result,
+                self.Dispatcher(self.annotations_updated))
         self.__annotation_updater.start()
+
+    def annotations_updated(self, ids, errors):
+        self.gui.library_view.model().refresh_ids(ids)
+        if errors:
+            db = self.gui.library_view.model().db
+            entries = []
+            for id_, tb in errors.iteritems():
+                title = id_
+                if isinstance(id_, type(1)):
+                    title = db.title(id_, index_is_id=True)
+                entries.extend([title, tb, ''])
+            error_dialog(self.gui, _('Some errors'),
+                    _('Could not fetch annotations for some books. Click '
+                        'show details to see which ones.'),
+                    det_msg='\n'.join(entries), show=True)
 
 
