@@ -1,0 +1,18 @@
+# -*- coding: utf-8 -*-
+class BasicUserRecipe1318619728(AutomaticNewsRecipe):
+    title          = u'Korben'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds          = [(u'Korben', u'http://feeds2.feedburner.com/KorbensBlog-UpgradeYourMind')]
+
+    def get_masthead_url(self):
+        masthead = 'http://korben.info/wp-content/themes/korben-steaw/hab/logo.png'
+        br = BasicNewsRecipe.get_browser()
+        try:
+            br.open(masthead)
+        except:
+            self.log("\nCover unavailable")
+            masthead = None
+        return masthead
