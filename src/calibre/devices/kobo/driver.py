@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Timothy Legge <timlegge at gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, shutil
+import os
 import sqlite3 as sqlite
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
@@ -756,9 +756,12 @@ class KOBO(USBMS):
 
         blists = {}
         for i in paths:
-            if booklists[i] is not None:
-               #debug_print('Booklist: ', i)
-               blists[i] = booklists[i]
+            try:
+                if booklists[i] is not None:
+                    #debug_print('Booklist: ', i)
+                    blists[i] = booklists[i]
+            except IndexError:
+                pass
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.lower().strip() for x in
@@ -872,14 +875,14 @@ class KOBO(USBMS):
                     debug_print("ImageID could not be retreived from the database")
 
     def prepare_addable_books(self, paths):
-        ''' 
+        '''
         The Kobo supports an encrypted epub refered to as a kepub
         Unfortunately Kobo decided to put the files on the device
-        with no file extension.  I just hope that decision causes 
+        with no file extension.  I just hope that decision causes
         them as much grief as it does me :-)
 
         This has to make a temporary copy of the book files with a
-        epub extension to allow Calibre's normal processing to 
+        epub extension to allow Calibre's normal processing to
         deal with the file appropriately
         '''
         for idx, path in enumerate(paths):
