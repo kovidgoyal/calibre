@@ -150,21 +150,12 @@ class Formatter(TemplateFormatter):
                 traceback.print_exc()
                 b = None
             if b is not None and b['datatype'] == 'composite':
-                val = b.get('#value#', None)
-                if val is not None:
-                    return val.replace('/', '_').replace('\\', '_')
                 if key in self.composite_values:
-                    self.composite_values[key] = val
                     return self.composite_values[key]
-                try:
-                    # We really should not get here, but it is safer to try
-                    self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
-                    self.composite_values[key] = \
-                        self.vformat(b['display']['composite_template'],
-                                     [], kwargs).replace('/', '_').replace('\\', '_')
-                    return self.composite_values[key]
-                except Exception, e:
-                    return unicode(e)
+                self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
+                self.composite_values[key] = \
+                    self.vformat(b['display']['composite_template'], [], kwargs)
+                return self.composite_values[key]
             if key in kwargs:
                 val = kwargs[key]
                 if isinstance(val, list):
@@ -178,13 +169,6 @@ class Formatter(TemplateFormatter):
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
         to_lowercase=False, safe_format=True):
-
-    # Note: the mi argument is assumed to be an instance of Metadata returned
-    # by db.get_metadata(). Reason: the composite columns should have already
-    # been evaluated, which get_metadata does. If the mi is something else and
-    # if the template uses composite columns, then a best-efforts attempt is
-    # made to evaluate them. This will fail if the template uses a user-defined
-    # template function.
 
     tsorder = tweaks['save_template_title_series_sorting']
     format_args = FORMAT_ARGS.copy()
