@@ -18,10 +18,13 @@ __InclPremium__ = False
 __ParsePFF__ = True
 # (HK only) Turn below to True if you wish hi-res images (Default: False)
 __HiResImg__ = False
+# Override the date returned by the program if specifying a YYYYMMDD below
+__Date__ = ''
 
 
 '''
 Change Log:
+2011/10/19: fix a bug in txt source parsing
 2011/10/17: disable fetching of premium content, also improved txt source parsing
 2011/10/04: option to get hi-res photos for the articles
 2011/09/21: fetching "column" section is made optional. 
@@ -170,13 +173,22 @@ class MPRecipe(BasicNewsRecipe):
         return dt_local
 
     def get_fetchdate(self):
-        return self.get_dtlocal().strftime("%Y%m%d")
+        if __Date__ <> '':
+            return __Date__
+        else:
+            return self.get_dtlocal().strftime("%Y%m%d")
 
     def get_fetchformatteddate(self):
-        return self.get_dtlocal().strftime("%Y-%m-%d")
+        if __Date__ <> '':
+            return __Date__[0:4]+'-'+__Date__[4:6]+'-'+__Date__[6:8]
+        else:
+            return self.get_dtlocal().strftime("%Y-%m-%d")
 
     def get_fetchday(self):
-        return self.get_dtlocal().strftime("%d")
+        if __Date__ <> '':
+            return __Date__[6:8]
+        else:
+            return self.get_dtlocal().strftime("%d")
 
     def get_cover_url(self):
         if __Region__ == 'Hong Kong':
@@ -563,42 +575,41 @@ class MPRecipe(BasicNewsRecipe):
                 # .txt based file
                 splitter = re.compile(r'\n') # Match non-digits
                 new_raw_html = '<html><head><title>Untitled</title></head><body><div class="images">'
-                next_is_mov_link = False
                 next_is_img_txt = False
                 title_started = False
                 met_article_start_char = False
                 for item in splitter.split(raw_html):
+                    item = item.strip()
                     if item.startswith(u'\u3010'):
                         met_article_start_char = True
                         new_raw_html = new_raw_html + '</div><div class="content"><p>' + item + '<p>\n'
                     else:
-                        if next_is_img_txt == False and next_is_mov_link == False:
-                            item = item.strip()
+                        if next_is_img_txt == False:
                             if item.startswith("=@"):
-                                next_is_mov_link = True
+                                print 'skip movie link'
                             elif item.startswith("=?"):
                                 next_is_img_txt = True
                                 new_raw_html += '<img src="' + str(item)[2:].strip() + '.gif" /><p>\n'
+                            elif item.startswith('=='):
+                                next_is_img_txt = True
+                                new_raw_html += '<img src="' + str(item)[2:].strip() + '.jpg" /><p>\n'
                             elif item.startswith('='):
                                 next_is_img_txt = True
                                 new_raw_html += '<img src="' + str(item)[1:].strip() + '.jpg" /><p>\n'
                             else:
-                                if item <> '': 
-                                    if next_is_img_txt == False and met_article_start_char == False:
+                                if next_is_img_txt == False and met_article_start_char == False:
+                                    if item <> '':
                                         if title_started == False:
                                             #print 'Title started at ', item
                                             new_raw_html = new_raw_html + '</div><div class="heading">' + item + '\n'
                                             title_started = True
                                         else:
                                             new_raw_html = new_raw_html + item + '\n'
-                                    else:
-                                        new_raw_html = new_raw_html + item + '<p>\n'
+                                else:
+                                    new_raw_html = new_raw_html + item + '<p>\n'
                         else:
-                            if next_is_mov_link == True:
-                                next_is_mov_link = False
-                            else: 
-                                next_is_img_txt = False
-                                new_raw_html = new_raw_html + item + '\n'
+                            next_is_img_txt = False
+                            new_raw_html = new_raw_html + item + '\n'
                 return new_raw_html + '</div></body></html>'
             
     def preprocess_html(self, soup):
