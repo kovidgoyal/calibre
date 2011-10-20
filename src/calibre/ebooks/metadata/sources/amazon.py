@@ -781,7 +781,7 @@ if __name__ == '__main__': # tests {{{
     de_tests = [ # {{{
             (
                 {'identifiers':{'isbn': '3548283519'}},
-                [title_test('Wer Wind sät',
+                [title_test('Wer Wind Sät: Der Fünfte Fall Für Bodenstein Und Kirchhoff',
                     exact=True), authors_test(['Nele Neuhaus'])
                  ]
 
@@ -833,6 +833,6 @@ if __name__ == '__main__': # tests {{{
     ] # }}}
 
     test_identify_plugin(Amazon.name, com_tests)
-    #test_identify_plugin(Amazon.name, es_tests)
+    #test_identify_plugin(Amazon.name, de_tests)
 # }}}
 
