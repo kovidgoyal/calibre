@@ -4,7 +4,6 @@ __copyright__ = '2011 Aurélien Chabot <contact@aurelienchabot.fr>'
 '''
 Lexpress.fr
 '''
-import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class lepoint(BasicNewsRecipe):
