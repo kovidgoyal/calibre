@@ -14,67 +14,24 @@ class ColumbusDispatchRecipe(BasicNewsRecipe):
     use_embedded_content = False
     remove_empty_feeds = True
     oldest_article = 1.2
-    max_articles_per_feed = 100
+    use_embedded_content = False
 
     no_stylesheets = True
-    remove_javascript = True
-    encoding = 'utf-8'
-    # Seems to work best, but YMMV
-    simultaneous_downloads = 2
-
+    auto_cleanup = True
     # Feeds from http://www.dispatch.com/live/content/rss/index.html
-    feeds = []
-    feeds.append((u'News: Local and state news', u'http://www.dispatch.com/live/static/crt/2_rss_localnews.xml'))
-    feeds.append((u'News: National news', u'http://www.dispatch.com/live/static/crt/2_rss_nationalnews.xml'))
-    feeds.append((u'News: Editorials', u'http://www.dispatch.com/live/static/crt/2_rss_editorials.xml'))
-    feeds.append((u'News: Columnists', u'http://www.dispatch.com/live/static/crt/2_rss_columnists.xml'))
-    feeds.append((u'News: Health news', u'http://www.dispatch.com/live/static/crt/2_rss_health.xml'))
-    feeds.append((u'News: Science news', u'http://www.dispatch.com/live/static/crt/2_rss_science.xml'))
-    feeds.append((u'Sports: OSU football', u'http://www.dispatch.com/live/static/crt/2_rss_osufootball.xml'))
-    feeds.append((u'Sports: OSU men\'s basketball', u'http://www.dispatch.com/live/static/crt/2_rss_osumensbball.xml'))
-    feeds.append((u'Sports: OSU women\'s basketball', u'http://www.dispatch.com/live/static/crt/2_rss_osuwomensbball.xml'))
-    feeds.append((u'Sports: OSU sports', u'http://www.dispatch.com/live/static/crt/2_rss_osusports.xml'))
-    feeds.append((u'Sports: Blue Jackets', u'http://www.dispatch.com/live/static/crt/2_rss_bluejackets.xml'))
-    feeds.append((u'Sports: Crew', u'http://www.dispatch.com/live/static/crt/2_rss_crew.xml'))
-    feeds.append((u'Sports: Clippers', u'http://www.dispatch.com/live/static/crt/2_rss_clippers.xml'))
-    feeds.append((u'Sports: Indians', u'http://www.dispatch.com/live/static/crt/2_rss_indians.xml'))
-    feeds.append((u'Sports: Reds', u'http://www.dispatch.com/live/static/crt/2_rss_reds.xml'))
-    feeds.append((u'Sports: Golf', u'http://www.dispatch.com/live/static/crt/2_rss_golf.xml'))
-    feeds.append((u'Sports: Outdoors', u'http://www.dispatch.com/live/static/crt/2_rss_outdoors.xml'))
-    feeds.append((u'Sports: Cavs/NBA', u'http://www.dispatch.com/live/static/crt/2_rss_cavaliers.xml'))
-    feeds.append((u'Sports: High Schools', u'http://www.dispatch.com/live/static/crt/2_rss_highschools.xml'))
-    feeds.append((u'Sports: Browns', u'http://www.dispatch.com/live/static/crt/2_rss_browns.xml'))
-    feeds.append((u'Sports: Bengals', u'http://www.dispatch.com/live/static/crt/2_rss_bengals.xml'))
-    feeds.append((u'Sports: Auto Racing', u'http://www.dispatch.com/live/static/crt/2_rss_autoracing.xml'))
-    feeds.append((u'Business News', u'http://www.dispatch.com/live/static/crt/2_rss_business.xml'))
-    feeds.append((u'Features: Weekender', u'http://www.dispatch.com/live/static/crt/2_rss_weekender.xml'))
-    feeds.append((u'Features: Life and Arts', u'http://www.dispatch.com/live/static/crt/2_rss_lifearts.xml'))
-    feeds.append((u'Features: Food', u'http://www.dispatch.com/live/static/crt/2_rss_food.xml'))
-    feeds.append((u'Features: NOW! for kids', u'http://www.dispatch.com/live/static/crt/2_rss_now.xml'))
-    feeds.append((u'Features: Travel', u'http://www.dispatch.com/live/static/crt/2_rss_travel.xml'))
-    feeds.append((u'Features: Home and Garden', u'http://www.dispatch.com/live/static/crt/2_rss_homegarden.xml'))
-    feeds.append((u'Features: Faith and Values', u'http://www.dispatch.com/live/static/crt/2_rss_faithvalues.xml'))
-    #feeds.append((u'', u''))
+    feeds          = [
+('Local', 
+ 'http://www.dispatch.com/content/syndication/news_local-state.xml'),
+('National', 
+ 'http://www.dispatch.com/content/syndication/news_national.xml'),
+('Business', 
+ 'http://www.dispatch.com/content/syndication/news_business.xml'),
+('Editorials', 
+ 'http://www.dispatch.com/content/syndication/opinion_editorials.xml'),
+('Columnists', 
+ 'http://www.dispatch.com/content/syndication/opinion_columns.xml'),
+('Life and Arts', 
+ 'http://www.dispatch.com/content/syndication/lae_life-and-arts.xml'),
+]
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'colhed'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'hed'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'subhed'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'date'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'byline'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'srcline'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'body'}))
-
-    remove_tags = []
-    remove_tags.append(dict(name = 'div', attrs = {'id': 'middle-story-ad-container'}))
-
-    extra_css = '''
-                body {font-family:verdana,arial,helvetica,geneva,sans-serif ;}
-                a {text-decoration: none; color: blue;}
-                div.colhed {font-weight: bold;}
-                div.hed {font-size: xx-large; font-weight: bold; margin-bottom: 0.2em;}
-                div.subhed {font-size: large;}
-                div.date {font-size: x-small; font-style: italic; color: #666666; margin-top: 0.4em; margin-bottom: 0.4em;}
-                div.byline, div.srcline {font-size: small; color: #696969;}
-                '''
 
