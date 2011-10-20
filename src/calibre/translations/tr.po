@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-14 03:51+0000\n"
-"PO-Revision-Date: 2011-09-20 19:33+0000\n"
-"Last-Translator: ertankan <tosss.beee@gmail.com>\n"
+"PO-Revision-Date: 2011-10-19 06:57+0000\n"
+"Last-Translator: ismail yenigul <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-10-15 04:52+0000\n"
-"X-Generator: Launchpad (build 14124)\n"
+"X-Launchpad-Export-Date: 2011-10-20 04:41+0000\n"
+"X-Generator: Launchpad (build 14165)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -853,7 +853,7 @@ msgstr "Bu profil Sandra Barnbook'u hedefler"
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:739
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Bu profil PocketBook Pro 900 serisi cihazlar için tasarlanmıştır."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -983,7 +983,7 @@ msgstr "S60 telefonlar ile haberleş."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:207
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "WebOS tablet ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -1476,7 +1476,7 @@ msgstr "Otomatik yönetim için etiket oluştur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Kitaplar için kapak yüke(yeni okuyucular için)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid ""
@@ -1484,10 +1484,13 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Normalde KOBO okuyucuları kitap kapaklarını e-kitap dosyasından alır. Bu "
+"seçenek ile calibre okuyucuya ayrı bir kapak resmi gönderecektir. "
+"Değiştirilmiş bir kapağınız varsa işe yarar."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:61
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Siyah ve beytaz kapaklar yükle"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1562,7 +1565,7 @@ msgstr "COBY ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Ex124G ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1711,7 +1714,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:69
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Kitaplar için ayrı kapak minyatür çizimlerini yükle"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:70
 msgid ""
