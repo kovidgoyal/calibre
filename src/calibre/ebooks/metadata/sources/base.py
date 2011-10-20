@@ -196,6 +196,7 @@ class Source(Plugin):
 
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
+        self.running_a_test = False # Set to True when using identify_test()
         self._isbn_to_identifier_cache = {}
         self._identifier_to_cover_url_cache = {}
         self.cache_lock = threading.RLock()
