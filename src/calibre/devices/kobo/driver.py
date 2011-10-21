@@ -376,7 +376,7 @@ class KOBO(USBMS):
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
-            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed',)
+            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed', ' - N3_FULL.parsed',)
 
             for ending in file_endings:
                 fpath = path + ending
@@ -852,6 +852,7 @@ class KOBO(USBMS):
                             ' - N3_LIBRARY_FULL.parsed':(355,530),
                             ' - N3_LIBRARY_GRID.parsed':(149,233),
                             ' - N3_LIBRARY_LIST.parsed':(60,90),
+                            ' - N3_FULL.parsed':(600,800),
                             ' - N3_SOCIAL_CURRENTREAD.parsed':(120,186)}
 
                     for ending, resize in file_endings.items():
