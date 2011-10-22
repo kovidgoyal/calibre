@@ -24,6 +24,7 @@ __Date__ = ''
 
 '''
 Change Log:
+2011/10/21: fix a bug that hi-res img is unavailable in pages parsed from source txt
 2011/10/19: fix a bug in txt source parsing
 2011/10/17: disable fetching of premium content, also improved txt source parsing
 2011/10/04: option to get hi-res photos for the articles
@@ -489,53 +490,8 @@ class MPRecipe(BasicNewsRecipe):
 
     # preprocess those .txt and javascript based files
     def preprocess_raw_html(self, raw_html, url):
-        #raw_html = raw_html.replace(u'<p>\u3010', u'\u3010')
-        if __HiResImg__ == True:
-            # TODO: add a _ in front of an image url
-            if url.rfind('news.mingpao.com') > -1: 
-                imglist =  re.findall('src="?.*?jpg"', raw_html)
-                br = mechanize.Browser()
-                br.set_handle_redirect(False)
-                for img in imglist:
-                    gifimg = img.replace('jpg"', 'gif"')
-                    try: 
-                        br.open_novisit(url + "/../" + gifimg[5:len(gifimg)-1])
-                        raw_html = raw_html.replace(img, gifimg)
-                    except: 
-                        # find the location of the first _
-                        pos = img.find('_')
-                        if pos > -1:
-                            # if found, insert _ after the first _
-                            newimg = img[0:pos] + '_' + img[pos:]
-                            raw_html = raw_html.replace(img, newimg)
-                        else: 
-                            # if not found, insert _ after "
-                            raw_html = raw_html.replace(img[1:], '"_' + img[1:])
-            elif url.rfind('life.mingpao.com') > -1:
-                imglist = re.findall('src=\'?.*?jpg\'', raw_html)
-                br = mechanize.Browser()
-                br.set_handle_redirect(False)
-                #print 'Img list: ', imglist, '\n'
-                for img in imglist:
-                    gifimg = img.replace('jpg\'', 'gif\'')
-                    try:
-                        #print 'Original: ', url
-                        #print 'To append: ', "/../" + gifimg[5:len(gifimg)-1]
-                        gifurl = re.sub(r'dailynews.*txt', '', url)
-                        #print 'newurl: ', gifurl + gifimg[5:len(gifimg)-1]
-                        br.open_novisit(gifurl + gifimg[5:len(gifimg)-1])
-                        #print 'URL: ', url + "/../" + gifimg[5:len(gifimg)-1]
-                        #br.open_novisit(url + "/../" + gifimg[5:len(gifimg)-1])
-                        raw_html = raw_html.replace(img, gifimg)
-                    except:
-                        #print 'GIF not found'
-                        pos = img.rfind('/')
-                        newimg = img[0:pos+1] + '_' + img[pos+1:]
-                        #print 'newimg: ', newimg
-                        raw_html = raw_html.replace(img, newimg) 
-        if url.rfind('ftp') == -1 and url.rfind('_print.htm') == -1:
-            return raw_html
-        else:
+        new_html = raw_html
+        if url.rfind('ftp') <> -1 or url.rfind('_print.htm') <> -1:
             if url.rfind('_print.htm') <> -1:
                 # javascript based file
                 splitter = re.compile(r'\n')
@@ -570,7 +526,7 @@ class MPRecipe(BasicNewsRecipe):
                         photo = photo.replace('</td>', '<br>')
                         photo = photo.replace('class="photo"', '')
                         new_raw_html = new_raw_html + '<div class="images">' + photo + '</div>'
-                return new_raw_html + '</body></html>'
+                new_html = new_raw_html + '</body></html>'
             else: 
                 # .txt based file
                 splitter = re.compile(r'\n') # Match non-digits
@@ -592,10 +548,20 @@ class MPRecipe(BasicNewsRecipe):
                                 new_raw_html += '<img src="' + str(item)[2:].strip() + '.gif" /><p>\n'
                             elif item.startswith('=='):
                                 next_is_img_txt = True
-                                new_raw_html += '<img src="' + str(item)[2:].strip() + '.jpg" /><p>\n'
+                                if False:
+                                    # TODO: check existence of .gif first
+                                    newimg = '_' + item[2:].strip() + '.jpg'
+                                    new_raw_html += '<img src="' + newimg + '" /><p>\n'
+                                else:
+                                    new_raw_html += '<img src="' + str(item)[2:].strip() + '.jpg" /><p>\n'
                             elif item.startswith('='):
                                 next_is_img_txt = True
-                                new_raw_html += '<img src="' + str(item)[1:].strip() + '.jpg" /><p>\n'
+                                if False:
+                                    # TODO: check existence of .gif first
+                                    newimg = '_' + item[1:].strip() + '.jpg'
+                                    new_raw_html += '<img src="' + newimg + '" /><p>\n'
+                                else:
+                                    new_raw_html += '<img src="' + str(item)[1:].strip() + '.jpg" /><p>\n'
                             else:
                                 if next_is_img_txt == False and met_article_start_char == False:
                                     if item <> '':
@@ -610,8 +576,64 @@ class MPRecipe(BasicNewsRecipe):
                         else:
                             next_is_img_txt = False
                             new_raw_html = new_raw_html + item + '\n'
-                return new_raw_html + '</div></body></html>'
-            
+                new_html = new_raw_html + '</div></body></html>'
+        #raw_html = raw_html.replace(u'<p>\u3010', u'\u3010')
+        if __HiResImg__ == True:
+            # TODO: add a _ in front of an image url
+            if url.rfind('news.mingpao.com') > -1: 
+                imglist =  re.findall('src="?.*?jpg"', new_html)
+                br = mechanize.Browser()
+                br.set_handle_redirect(False)
+                for img in imglist:
+                    gifimg = img.replace('jpg"', 'gif"')
+                    try: 
+                        br.open_novisit(url + "/../" + gifimg[5:len(gifimg)-1])
+                        new_html = new_html.replace(img, gifimg)
+                    except: 
+                        # find the location of the first _
+                        pos = img.find('_')
+                        if pos > -1:
+                            # if found, insert _ after the first _
+                            newimg = img[0:pos] + '_' + img[pos:]
+                            new_html = new_html.replace(img, newimg)
+                        else: 
+                            # if not found, insert _ after "
+                            new_html = new_html.replace(img[1:], '"_' + img[1:])
+            elif url.rfind('life.mingpao.com') > -1:
+                imglist = re.findall('src=\'?.*?jpg\'', new_html)
+                br = mechanize.Browser()
+                br.set_handle_redirect(False)
+                #print 'Img list: ', imglist, '\n'
+                for img in imglist:
+                    #print 'Found img: ', img
+                    gifimg = img.replace('jpg\'', 'gif\'')
+                    try:
+                        gifurl = re.sub(r'dailynews.*txt', '', url)
+                        br.open_novisit(gifurl + gifimg[5:len(gifimg)-1])
+                        new_html = new_html.replace(img, gifimg)
+                    except:
+                        pos = img.rfind('/')
+                        newimg = img[0:pos+1] + '_' + img[pos+1:]
+                        new_html = new_html.replace(img, newimg)
+                # repeat with src quoted by double quotes, for text parsed from src txt
+                imglist = re.findall('src="?.*?jpg"', new_html)
+                for img in imglist:
+                    #print 'Found img: ', img
+                    gifimg = img.replace('jpg"', 'gif"')
+                    try:
+                        #print 'url', url
+                        pos = url.rfind('/')
+                        gifurl = url[:pos+1]
+                        #print 'try it:', gifurl + gifimg[5:len(gifimg)-1]
+                        br.open_novisit(gifurl + gifimg[5:len(gifimg)-1])
+                        new_html = new_html.replace(img, gifimg)
+                    except:
+                        pos = img.find('"')
+                        newimg = img[0:pos+1] + '_' + img[pos+1:]
+                        #print 'Use hi-res img', newimg
+                        new_html = new_html.replace(img, newimg)
+        return new_html
+        
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
