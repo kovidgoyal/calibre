@@ -285,14 +285,15 @@ class Source(Plugin):
 
         if authors:
             # Leave ' in there for Irish names
-            remove_pat = re.compile(r'[,!@#$%^&*(){}`~"\s\[\]/]')
-            replace_pat = re.compile(r'[-+.:;]')
+            remove_pat = re.compile(r'[!@#$%^&*(){}`~"\s\[\]/]')
+            replace_pat = re.compile(r'[-+.:;,]')
             if only_first_author:
                 authors = authors[:1]
             for au in authors:
+                has_comma = ',' in au
                 au = replace_pat.sub(' ', au)
                 parts = au.split()
-                if ',' in au:
+                if has_comma:
                     # au probably in ln, fn form
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
