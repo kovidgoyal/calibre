@@ -39,7 +39,8 @@ class PRST1(USBMS):
     path_sep = '/'
     booklist_class = CollectionsBookList
 
-    FORMATS      = ['epub', 'pdf', 'txt']
+    FORMATS      = ['epub', 'pdf', 'txt', 'book', 'zbf'] # The last two are
+                                                         # used in japan
     CAN_SET_METADATA = ['collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
