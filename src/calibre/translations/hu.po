@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-20 05:47+0000\n"
+"PO-Revision-Date: 2011-10-21 16:48+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-21 04:43+0000\n"
-"X-Generator: Launchpad (build 14165)\n"
+"X-Launchpad-Export-Date: 2011-10-22 04:47+0000\n"
+"X-Generator: Launchpad (build 14170)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1761,7 +1761,7 @@ msgstr "Automatikus kezelésko&r frissüljenek a különálló borítók"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:87
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Sony szerzőformátum használata (Csak az első szerző)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:89
 msgid ""
@@ -1769,6 +1769,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Jelölje be, ha a Sony olvasó beállításai szerint kívánja használni a "
+"szerzőt. Ez azt jelenti, hogy több szerző esetén csak az első szerző jelenik "
+"meg. Ne jelölje be, ha a „Beállítások->Metaadat kapcsolatok” menüben más "
+"beállítást használ az eszközhöz."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -5029,13 +5033,16 @@ msgstr "Nincs könyv kiválasztva a felhasználói jegyzetek kiolvasásához"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Néhány hiba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
 "Could not fetch annotations for some books. Click show details to see which "
 "ones."
 msgstr ""
+"Néhány könyvhöz nem sikerült letölteni az eszközről az olvasói jegyzeteket. "
+"Kattintson a Részletek megjelenítésére, ahol megnézheti, melyik könyvről van "
+"szó."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
@@ -5506,19 +5513,19 @@ msgstr "Nincs csatlakoztatott eszköz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:219
 msgid "Main memory"
-msgstr "Belső memória"
+msgstr "Fő memória"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:220
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:520
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:529
 msgid "Storage Card A"
-msgstr "Memóriakártya A"
+msgstr "„A” memóriakártya"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:522
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:531
 msgid "Storage Card B"
-msgstr "Memóriakártya B"
+msgstr "„B” memóriakártya"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:226
 msgid "No books to delete"
@@ -6192,7 +6199,7 @@ msgstr "Olvasás"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:48
 msgid "View specific format"
-msgstr "Meghatározott formátum olvasása"
+msgstr "Formátum kiválasztása olvasásra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:50
 msgid "Read a random book"
@@ -6220,7 +6227,7 @@ msgstr "A kiválasztott könyvnek nincs formátuma"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:128
 msgid "Choose the format to view"
-msgstr "Válassza ki a kívánt formátumot olvasásra"
+msgstr "Válassza ki az olvasni kívánt formátumot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:165
 #, python-format
@@ -6242,9 +6249,9 @@ msgid ""
 "started the process cannot be stopped until complete. Do you wish to "
 "continue?"
 msgstr ""
-"Egyszerre %d könyvet akar megnyitni. Túl sok könyv megnyitása nagyon "
-"lelassíthatja a gépedet. Ha a művelet elindult, már nem lehet leállítani. "
-"Biztosan folytatja?"
+"Egyszerre %d könyvet kíván megnyitni. Túl sok könyv megnyitása nagyon "
+"lelassíthatja a számítógépet. Ha a művelet elindult, már nem lehet "
+"leállítani. Biztosan folytatja?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:182
 msgid "Cannot open folder"
@@ -6277,7 +6284,7 @@ msgstr "Elérési útvonal hiba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:271
 msgid "The specified directory could not be processed."
-msgstr "A megadott könyvtárt nem lehet használni."
+msgstr "A megadott mappát nem lehet használni."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:899
@@ -6315,7 +6322,8 @@ msgid ""
 "the books in smaller increments, until you find the problem book."
 msgstr ""
 "Probléma történt a könyvek hozzáadása közben. Indítsa újra a calibre-t és "
-"válasszon ki kevesebbet, amíg meg nem találja a problémát okozó könyvet."
+"kisebb részletekben adja hozzá a könyveket, amíg meg nem találja a problémát "
+"okozót."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Duplicates found!"
@@ -6367,7 +6375,7 @@ msgstr "Érvénytelen gyökérkönyvtár"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:136
 msgid "is not a valid root folder"
-msgstr "nem egy érvényes gyökérkönyvtár"
+msgstr "nem érvényes gyökérkönyvtár"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:146
 msgid "Add books to calibre"
@@ -6384,7 +6392,7 @@ msgstr "Varázsló"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:27
 msgid "Scanning root folder for books"
-msgstr "Gyökérkönyvtár átvizsgálása könyvek után"
+msgstr "Könyvek keresése a gyökérkönyvtárban"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:28
 msgid "This may take a few minutes"
@@ -6396,7 +6404,7 @@ msgstr "Válassz egy helyet, amiből könyvet adhatsz hozzá"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:64
 msgid "Select a folder on your hard disk"
-msgstr "Válassz egy mappát a merevlemezeden"
+msgstr "Válasszon ki egy mappát a merevlemezén"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:65
 msgid ""
@@ -6420,7 +6428,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid "&Root folder:"
-msgstr "&Gyökérkönyvtár"
+msgstr "Gyöké&rkönyvtár:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:69
 msgid ""
@@ -6489,7 +6497,7 @@ msgstr "…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:72
 msgid "Handle multiple files per book"
-msgstr "Többféle fájl kezelése könyvenként"
+msgstr "Könyvenként több fájl kezelése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:73
 msgid ""
@@ -6542,7 +6550,7 @@ msgstr "Borító másolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
 msgid "Remove Cover"
-msgstr ""
+msgstr "Borító eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:569
 msgid "Double-click to open Book Details window"
@@ -8521,7 +8529,7 @@ msgstr "Küldés a „B” memóriakártyára"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:518
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:527
 msgid "Main Memory"
-msgstr "Belső memória"
+msgstr "Fő memória"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:539
 msgid "Send specific format to"
@@ -11807,7 +11815,7 @@ msgstr "készítette Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:179
 msgid "Connected "
-msgstr "Csatlakozva: "
+msgstr "Csatlakoztatva: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:230
@@ -12023,7 +12031,7 @@ msgstr "Az „A” memóriakártyán lévő könyvek megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:75
 msgid "Show books in storage card B"
-msgstr "A 'B' memóriakártyán lévő könyvek megjelenítése"
+msgstr "A „B” memóriakártyán lévő könyvek megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:89
 msgid "Delete library"
@@ -21798,13 +21806,3 @@ msgstr ""
 "állapotot.\n"
 "Ha a save_original_format értéke False, akkor a calibre nem menti az eredeti "
 "fájlt."
-
-#~ msgid "File could be older RTF...\n"
-#~ msgstr "A fájl egy régebbi RTF lehet…\n"
-
-#~ msgid ""
-#~ "File also has newer RTF.\n"
-#~ "Will do the best to convert.\n"
-#~ msgstr ""
-#~ "A fájl újabb RTF formátumú.\n"
-#~ "A program megpróbálja konvertálni XML-be.\n"

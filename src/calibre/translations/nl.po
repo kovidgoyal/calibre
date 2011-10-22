@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-14 13:03+0000\n"
+"PO-Revision-Date: 2011-10-21 22:48+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-21 04:40+0000\n"
-"X-Generator: Launchpad (build 14165)\n"
+"X-Launchpad-Export-Date: 2011-10-22 04:43+0000\n"
+"X-Generator: Launchpad (build 14170)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -1822,7 +1822,7 @@ msgstr "Hernieuw individuele omslagen bij automatisch management"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:87
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Gebruik SONY auteur formaat (alleen eerste auteur)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:89
 msgid ""
@@ -1830,6 +1830,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Vink deze optie aan als u wilt dat de auteur op de Sony wordt weergegeven op "
+"dezelfde manier als de T1 zou doen. Dit betekend dat het alleen de eerste "
+"auteur toont voor boeken met meerdere auteurs. Laat dit uitgeschakeld als u "
+"Metadata plugboards gebruikt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -5144,13 +5148,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Enkele fouten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
 "Could not fetch annotations for some books. Click show details to see which "
 "ones."
 msgstr ""
+"Voor enkele boeken konden geen annotaties worden opgehaald. Klik Toon "
+"details om te zien welke."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
@@ -6666,7 +6672,7 @@ msgstr "Omslag kopiëren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
 msgid "Remove Cover"
-msgstr ""
+msgstr "Verwijder omslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:569
 msgid "Double-click to open Book Details window"
@@ -21936,13 +21942,3 @@ msgstr ""
 "naar EPUB, wordt het oorspronkelijk bestand opgeslagen, zodat u nog\n"
 "aanpassingen kunt doen als de conversie niet succesvol verloopt. Als u\n"
 "dit op False instelt zal calibre het originele bestand niet behouden."
-
-#~ msgid "File could be older RTF...\n"
-#~ msgstr "Bestand mogelijk oudere RTF...\n"
-
-#~ msgid ""
-#~ "File also has newer RTF.\n"
-#~ "Will do the best to convert.\n"
-#~ msgstr ""
-#~ "Bestand heeft ook een nieuwere RTF.\n"
-#~ "Probeer de beste om te zetten.\n"

@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-15 07:19+0000\n"
+"PO-Revision-Date: 2011-10-21 17:20+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-21 04:50+0000\n"
-"X-Generator: Launchpad (build 14165)\n"
+"X-Launchpad-Export-Date: 2011-10-22 04:54+0000\n"
+"X-Generator: Launchpad (build 14170)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
 msgid ""
@@ -1801,7 +1801,7 @@ msgstr "Actualizar las portadas por separado al usar la gestión automática"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:87
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Usar el formato de autor de SONY (sólo el primer autor)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:89
 msgid ""
@@ -1809,6 +1809,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Active esta opción si quiere que el autor aparezca en el lector Sony de la "
+"misma manera que en el T1. Esto significa que sólo se mostrará el primer "
+"autor si el libro tiene varios autores. Deje la opción desactivada si usa "
+"los Controles de metadatos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -5138,13 +5142,15 @@ msgstr "No se han seleccionado libros desde los que obtener anotaciones"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Algunos errores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
 "Could not fetch annotations for some books. Click show details to see which "
 "ones."
 msgstr ""
+"No se pudieron obtener las anotaciones de algunos libros. Pulse «Mostrar "
+"detalles» para ver cuáles."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
@@ -6663,7 +6669,7 @@ msgstr "Copiar portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
 msgid "Remove Cover"
-msgstr ""
+msgstr "Eliminar portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:569
 msgid "Double-click to open Book Details window"
@@ -21945,13 +21951,3 @@ msgstr ""
 "conversión no es buena, pueda ajustar las opciones y convertirlo otra\n"
 "vez. Poniendo «False» en esta opción se evita que calibre guarde el fichero\n"
 "original."
-
-#~ msgid ""
-#~ "File also has newer RTF.\n"
-#~ "Will do the best to convert.\n"
-#~ msgstr ""
-#~ "El fichero también tiene RTF más reciente.\n"
-#~ "Se hará lo posible para convertirlo.\n"
-
-#~ msgid "File could be older RTF...\n"
-#~ msgstr "El fichero podría ser un RTF antiguo...\n"
