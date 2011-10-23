@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-22 01:54+0000\n"
-"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
+"PO-Revision-Date: 2011-10-22 21:11+0000\n"
+"Last-Translator: MeltingShell <Unknown>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-22 04:47+0000\n"
+"X-Launchpad-Export-Date: 2011-10-23 05:12+0000\n"
 "X-Generator: Launchpad (build 14170)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -202,7 +202,7 @@ msgstr "Non fa assolutamente niente"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "Sconosciuta"
+msgstr "Sconosciuto"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -2841,7 +2841,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:560
 msgid "Unwrap lines using punctuation and other formatting clues."
 msgstr ""
-"Troncare le linee usando la punteggiatura o altri metodi di formattazione"
+"Unisci le righe utilizzando la punteggiatura o altri metodi di formattazione."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:564
 msgid ""
@@ -4168,9 +4168,9 @@ msgid ""
 "Valid values are a decimal between 0 and 1. The default is 0.45, just below "
 "the median line length."
 msgstr ""
-"Rapporto usato per determinare la lunghezza alla quale una riga deve essere "
-"tagliata. I valori validi sono i decimali tra 0 e 1. Il valore predefinito è "
-"0.45, appena sotto la lunghezza di riga media."
+"Scala usata per determinare la lunghezza alla quale una riga deve essere "
+"interrotta. I valori validi sono i decimali tra 0 e 1. Il valore predefinito "
+"è 0.45, appena sotto la lunghezza di riga media."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:30
 msgid "Use the new PDF conversion engine."
@@ -5706,7 +5706,7 @@ msgstr "E"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:25
 msgid "Edit metadata"
-msgstr "Modifica i metadati"
+msgstr "Modifica metadati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:32
 msgid "Edit metadata individually"
@@ -7443,11 +7443,11 @@ msgstr "Elaborazione euristica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:116
 msgid "Unwrap lines"
-msgstr "Rimuovi le interruzioni di riga"
+msgstr "Unisci le righe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:117
 msgid "Line &un-wrap factor :"
-msgstr ""
+msgstr "Fattore di &unione delle righe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:118
 msgid "Detect and markup unformatted chapter headings and sub headings"
@@ -7469,7 +7469,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:122
 msgid "Replace soft scene &breaks:"
-msgstr ""
+msgstr "Sostituisci i sa&lti di scena:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/heuristics_ui.py:123
 msgid "Remove unnecessary hyphens"
@@ -7909,7 +7909,7 @@ msgstr "Input PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:44
 msgid "Line &Un-Wrapping Factor:"
-msgstr "Fattore di &suddivisione delle linee:"
+msgstr "Fattore di &unione delle righe:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_input_ui.py:45
 msgid "No &Images"
@@ -9900,7 +9900,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:581
 msgid "Change title to title &case"
-msgstr ""
+msgstr "Cambia il titolo con le iniziale maius&cole"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:582
 msgid ""
@@ -11985,7 +11985,7 @@ msgstr "Completato"
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:411
 #, python-format
 msgid "Default: %(deflt)s [Currently not conflicting: %(curr)s]"
-msgstr ""
+msgstr "Predefinito: %(deflt)s [Attualmente non in conflitto: %(curr)s]"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:430
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
@@ -14538,6 +14538,23 @@ msgid ""
 "users might do to force it to use the ';' that the kindle requires. A third "
 "would be to specify the language."
 msgstr ""
+"Qui puoi cambiare i metadati che calibre usa per aggiornare un libro in caso "
+"di salvataggio su disco o invio a un dispositivo.\n"
+"\n"
+"Utilizza questa finestra per definire un 'controllo' per un formato (o tutti "
+"i formati) e un dispositivo (o tutti i dispositivi). Il controllo specifica "
+"quale modello è collegato a quale campo. Il modello è utilizzato per "
+"calcolare un valore, e tale valore è assegnato al campo collegato.\n"
+"\n"
+"Spesso i modelli contengono semplici riferimenti a colonne composte, ma non "
+"è necessario. Puoi utilizzare qualsiasi modello in un riquadro sorgente che "
+"puoi impiegare altrove in calibre.\n"
+"\n"
+"Un possibile utilizzo di un controllo è l'alterazione del titolo per "
+"contenere informazioni sulla serie. Un altro potrebbe essere la modifica "
+"dell'ordinamento autore, cosa che gli utenti di mobi potrebbero fare per "
+"forzare l'uso di ';' che il kindle richiede. Un terzo potrebbe essere la "
+"specifica di una lingua."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:121
 msgid "Format (choose first)"

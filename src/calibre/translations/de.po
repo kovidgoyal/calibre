@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-14 19:09+0000\n"
-"Last-Translator: frenkx <Unknown>\n"
+"PO-Revision-Date: 2011-10-22 12:20+0000\n"
+"Last-Translator: Patrick Haake <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-22 04:45+0000\n"
+"X-Launchpad-Export-Date: 2011-10-23 05:11+0000\n"
 "X-Generator: Launchpad (build 14170)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1525,7 +1525,7 @@ msgstr "Etiketten für automatische Verwaltung erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Bücherumschläge hochladen (neuere Reader)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
 msgid ""
@@ -1533,10 +1533,13 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Normalerweise holen sich die KOBO-Reader die Bücherumschläge von der E-Book-"
+"Datei selbst. Mit dieser Option sendet calibre einen seperaten Buchumschlag "
+"zu dem Reader, das ist nützlich, wenn du das Cover verändert hast."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:62
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Schwarz-Weiß Umschläge hochladen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1647,7 +1650,7 @@ msgstr "Kommunikation mit dem Sony PRS-500 E-Book-Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Kommuniziert mit Sony eBook-Readern, die älter als PRST1 sind."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1757,11 +1760,11 @@ msgstr "Unbenannt"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:36
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Kommuniziert mit PRST1 und neueren Sony eBook-Readern"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:70
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Andere Umschlagvorschau für Bücher hochladen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid ""
@@ -1769,14 +1772,20 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Normalerweise holen sich die SONY Reader die Buchumschläge von der E-Book "
+"Datei selbst. Mit dieser Option sendet calibre ein anderen Umschlag zum "
+"Reader, das ist nützlich, wenn du DRM-Bücher hochlädst, bei denen du den "
+"Umschlag nicht ändern kannst."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:75
 msgid "Refresh separate covers when using automatic management"
 msgstr ""
+"Erneuere verschiedene Umschläge, wenn das automatische Management genutzt "
+"wird"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:87
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Benutze SONY Autor Format (Nur Erster Autor)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:89
 msgid ""
@@ -1784,6 +1793,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Setze diese Option, wenn du möchtest, dass der Autor auf dem Sony im "
+"gleichen Stil erscheint, wie der T1 es setzen würde. Das bedeutet, es wird "
+"nur der erste Autor für Bücher von mehreren Autoren angezeigt. Lass diese "
+"Option ausgeschaltet, wenn du Metadata Plugboards benutzt."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -2959,6 +2972,8 @@ msgid ""
 "Try to use the djvutxt program and fall back to pure python implementation "
 "if it fails or is not available"
 msgstr ""
+"Versuche das djvutxt-Programm zu benutzen und gehe zurücke zu reiner Python "
+"Implementation, wenn es fehlschlägt oder nicht verfügbar ist"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:20
 #, python-format
@@ -5132,13 +5147,15 @@ msgstr "Es sind keine Bücher zum Abrufen von Anmerkungen ausgewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Einige Fehler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
 "Could not fetch annotations for some books. Click show details to see which "
 "ones."
 msgstr ""
+"Konnte keine Anmerkungen für einige Bücher holen. Klicke \"Zeige Details\", "
+"um zu sehen, welche Bücher betroffen sind."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
@@ -6666,7 +6683,7 @@ msgstr "Umschlag kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
 msgid "Remove Cover"
-msgstr ""
+msgstr "Cover entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:569
 msgid "Double-click to open Book Details window"
@@ -7332,7 +7349,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "DJVU Eingabe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
@@ -12071,11 +12088,11 @@ msgstr " - Aufträge"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:504
 msgid "No job"
-msgstr ""
+msgstr "Kein Auftrag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:505
 msgid "No job selected"
-msgstr ""
+msgstr "Kein Auftrag ausgewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:507
 msgid "Do you really want to stop the selected job?"
@@ -14520,7 +14537,7 @@ msgstr "Veröffentlichungs Datum"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:265
 #, python-format
 msgid "<b>Configure %(name)s</b><br>%(desc)s"
-msgstr ""
+msgstr "<b>Konfiguriere %(name)s</b><br>%(desc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:322
 msgid "No source selected"
@@ -14936,6 +14953,8 @@ msgstr "Beliebiges benutzerdefiniertes Feld"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:35
 msgid "The lookup name of any custom field (these names begin with \"#\")."
 msgstr ""
+"Der Nachschlagename eines beliebigen benutzerdefinierten Feldes (Diese Namen "
+"beginnen mit \"#\")."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:66
 msgid "Constant template"
@@ -15019,7 +15038,7 @@ msgstr "Metadaten in &OPF Datei speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "&Show files in file browser after saving to disk"
-msgstr ""
+msgstr "&Zeige Dateien im Explorer nach dem Speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:34
 msgid ""
@@ -15327,7 +15346,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically when calibre starts"
-msgstr ""
+msgstr "Starte den Server &automatisch, wenn  calibre startet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:119
 msgid "View &server logs"
@@ -15465,7 +15484,7 @@ msgstr "Geben Sie den Namen der Funktion ein die erstellt werden soll"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:98
 msgid "Arg &count:"
-msgstr ""
+msgstr "Argument &count:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
@@ -15537,6 +15556,7 @@ msgstr "Das Kontextmenü für den Umschlagsbild Browser"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:234
 msgid "Click to choose toolbar or menu to customize"
 msgstr ""
+"Klicke, um die Toolbar oder das Menü, das angepasst werden soll, auszuwählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:270
 msgid "Cannot add"
@@ -15561,6 +15581,9 @@ msgid ""
 "<p>The toolbar in calibre is different depending on whether a device is "
 "connected or not. Choose <b>which toolbar</b> you would like to customize:"
 msgstr ""
+"<p>Die Toolbar in calibre ist verschieden, je nachdem, ob ein Gerät "
+"angeschlossen ist oder nicht. Wähle <b>welche Toolbar</b> du anpassen "
+"möchtest:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
@@ -16597,6 +16620,9 @@ msgid ""
 "try and rebuild it automatically? The rebuild may not be completely "
 "successful."
 msgstr ""
+"Die Bibliothek Datenbank bei %s scheint beschädigt zu sein. Möchtest du, "
+"dass calibre versucht diese automatisch wiederherzustellen? Die "
+"Wiederherstellung könnte nicht komplett erfolgreich sein."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:578
 msgid "Conversion Error"
@@ -17283,6 +17309,9 @@ msgid ""
 "<p>An invalid library already exists at %(loc)s, delete it before trying to "
 "move the existing library.<br>Error: %(err)s"
 msgstr ""
+"<p>Eine ungültige Bibliothek existiert beireits bei %(loc)s, lösche sie, "
+"bevor du versuchst, die existierende Bibliothek zu verschieben.<br>Fehler: "
+"%(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:588
 msgid "Could not move library"
@@ -17404,7 +17433,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:34
 #, python-format
 msgid "Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption"
-msgstr ""
+msgstr "Benutze: %(un)s:%(pw)s@%(host)s:%(port)s und %(enc)s Verschlüsselung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:39
 msgid "Sending..."
@@ -17728,6 +17757,13 @@ msgid ""
 "Default: '%%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Die Felder, die ausgegeben werden, wenn Bücher in dieser Datenbank "
+"katalogisiert werden. Sollte eine kommagetrennte Liste von Feldern sein.\n"
+"Verfügbare Felder: %(fields)s,\n"
+"und vom Benutzer erstellte eigene Felder.\n"
+"Beispiel: %(opt)s=title,authors,tags\n"
+"Standard: '%%default'\n"
+"Wird angewendet bei: CSV, XML Ausgabeformaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:68
 #, python-format
@@ -17911,6 +17947,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"'Autoren' Sektion in den Katalog einfügen.\n"
+"Standard: '%default'\n"
+"Wird angewendet bei: ePub, MOBI Ausgabeformaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:680
 #, python-format
@@ -17919,6 +17958,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"'Beschreibungen' Sektion in den Katalog einfügen.\n"
+"Standard: '%default'\n"
+"Wird angewendet bei: ePub, MOBI Ausgabeformaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:687
 #, python-format
@@ -17927,6 +17969,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"'Genre' Sektion in den Katalog einfügen.\n"
+"Standard: '%default'\n"
+"Wird angewendet bei: ePub, MOBI Ausgabeformaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:694
 #, python-format
@@ -17968,6 +18013,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Benutzerdefiniertes Feld mit Notizen für den Beschreibungskopf.\n"
+"Standard: '%default'\n"
+"Wird angewendet bei: ePub, MOBI Ausgabeformaten"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:722
 #, python-format
@@ -19000,6 +19048,8 @@ msgid ""
 "The format in which to display dates. %(day)s - day, %(month)s - month, "
 "%(mn)s - month number, %(year)s - year. Default is: %(default)s"
 msgstr ""
+"Das Format, in dem das Datum angezeigt wird. %(day)s - Tag, %(month)s - "
+"Monat, %(mn)s - Monatsnummer, %(year)s - Jahr. Standard ist: %(default)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:121
 msgid "Convert paths to lowercase."
@@ -19022,6 +19072,8 @@ msgid ""
 "Failed to calculate path for save to disk. Template: %(templ)s\n"
 "Error: %(err)s"
 msgstr ""
+"Pfadberechnung zum Speichern fehlgeschlagen. Vorlage: %(templ)s\n"
+"Fehler: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:309
 #, python-format
@@ -19430,7 +19482,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:27
 msgid "failed to scan program. Invalid input {0}"
-msgstr ""
+msgstr "Programm-Scan fehlgeschlagen. Ungültige Eingabe {0}"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:32
 msgid " near "

@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-16 11:14+0000\n"
+"PO-Revision-Date: 2011-10-22 16:49+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-22 04:42+0000\n"
+"X-Launchpad-Export-Date: 2011-10-23 05:11+0000\n"
 "X-Generator: Launchpad (build 14170)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -580,7 +580,7 @@ msgstr "Controla com el calibre envia fitxers al lector de llibres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1022
 msgid "Metadata plugboards"
-msgstr "Metadades dels quadres de connexions"
+msgstr "Quadres de connexions de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1028
 msgid "Change metadata fields before saving/sending"
@@ -1788,7 +1788,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:87
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Utilitza el format d'autor de SONY (només el primer autor)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:89
 msgid ""
@@ -1796,6 +1796,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Activeu aquesta opció si voleu que es vegi l'autor al lector SONY com "
+"l'estableix T1. Això implica que només es mostra el primer autor en llibres "
+"amb múltiples autors. Deixeu-la inhabilitada si utilitzeu quadres de "
+"connexions de metadades."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -5103,13 +5107,15 @@ msgstr "No s'ha seleccionat cap llibre del qual obtenir-ne anotacions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Alguns errors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
 "Could not fetch annotations for some books. Click show details to see which "
 "ones."
 msgstr ""
+"No s'ha pogut aconseguir les anotacions d'alguns llibres. Feu clic a «mostra "
+"detalls» per veure quins són."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
@@ -6626,7 +6632,7 @@ msgstr "Copia la portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
 msgid "Remove Cover"
-msgstr ""
+msgstr "Suprimeix la portada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:569
 msgid "Double-click to open Book Details window"
