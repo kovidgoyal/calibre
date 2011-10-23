@@ -66,12 +66,15 @@ class EXTHHeader(object):
                 # last update time
                 pass
             elif id == 503: # Long title
-                if not title or title == _('Unknown') or \
-                        'USER_CONTENT' in title or title.startswith('dtp_'):
-                    try:
-                        title = content.decode(codec)
-                    except:
-                        pass
+                # Amazon seems to regard this as the definitive book title
+                # rather than the title from the PDB header. In fact when
+                # sending MOBI files through Amazon's email service if the
+                # title contains non ASCII chars or non filename safe chars
+                # they are messed up in the PDB header
+                try:
+                    title = content.decode(codec)
+                except:
+                    pass
             #else:
             #    print 'unknown record', id, repr(content)
         if title:

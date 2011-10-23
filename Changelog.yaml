@@ -19,6 +19,65 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.23
+  date: 2011-10-21
+
+  new features:
+    - title: "Drivers for T-Mobile Move, new Pandigital Novel, New Onyx Boox and Freescale MX 515"
+
+    - title: "SONY T1 driver: Support for periodicals and better timezone detection"
+
+    - title: "Add a remove cover entry to the right click menu of the cover display in the right panel"
+      tickets: [874689]
+ 
+  bug fixes:
+    - title: "Amazon metadata download: Fix for change in Amazon website that broke downloading metadata."
+      tickets: [878395]
+
+    - title: "MOBI metadata: When reading titles from MOBI files only use the title in the PDB header if there is no long title in the EXTH header"
+      tickets: [ 875243 ]
+
+    - title: "Fix regression that broke use of complex custom columns in save to disk templates."
+      tickets: [877366] 
+
+    - title: "Fix regression that broke reading metadata from CHM files"
+    
+    - title: "Fix a bug that broke conversion of some zipped up HTML files with non ascii filenames on certain windows installs."
+      tickets: [873288] 
+
+    - title: "RTF Input: Fix bug in handling of paragraph separators."
+      tickets: [863735]
+
+    - title: "Fix a regression that broke downloading certain periodicals for the Kindle."
+      tickets: [875595]
+
+    - title: "Fix regression that broke updating of covers inside ebook files when saving to disk"
+
+    - title: "Fix regression breaking editing the 'show in tag browser' checkbox in custom column setup editing"
+
+    - title: "Fix typo that broke stopping selected jobs in 0.8.22"
+
+  improved recipes:
+    - Columbus Dispatch
+    - Ming Pao
+    - La Republica
+    - Korea Times
+    - USA Today
+    - CNN
+    - Liberation
+    - El Pais
+    - Helsingin Sanomat
+
+  new recipes:
+    - title: Kyugyhang, Hankyoreh and Hankyoreh21
+      author: Seongkyoun Yoo.
+
+    - title: English Katherimini 
+      author: Thomas Scholl
+
+    - title: Various French news sources
+      author: Aurelien Chabot.
+
 - version: 0.8.22
   date: 2011-10-14
 
