@@ -127,7 +127,7 @@ class FB2Input(InputFormatPlugin):
     def extract_embedded_content(self, doc):
         self.binary_map = {}
         for elem in doc.xpath('./*'):
-            if 'binary' in elem.tag and elem.attrib.has_key('id'):
+            if elem.text and 'binary' in elem.tag and elem.attrib.has_key('id'):
                 ct = elem.get('content-type', '')
                 fname = elem.attrib['id']
                 ext = ct.rpartition('/')[-1].lower()
