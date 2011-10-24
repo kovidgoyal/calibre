@@ -1,37 +1,64 @@
-#!/usr/bin/env  python
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008 - 2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
-thescotsman.scotsman.com
+www.scotsman.com/the-scotsman
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheScotsman(BasicNewsRecipe):
-    title                 = u'The Scotsman'
+    title                 = 'The Scotsman'
     __author__            = 'Darko Miletic'
     description           = 'News from Scotland'
-    oldest_article        = 7
+    publisher             = 'Johnston Publishing Ltd.'
+    category              = 'news, politics, Scotland, UK'    
+    oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    language = 'en_GB'
-
-    simultaneous_downloads = 1
-
-    keep_only_tags = [dict(name='div', attrs={'id':'viewarticle'})]
-    remove_tags = [
-                     dict(name='div'  , attrs={'class':'viewarticlepanel' })
-                  ]
-
+    language              = 'en_GB'
+    encoding              = 'utf-8'
+    publication_type      = 'newspaper'
+    remove_empty_feeds    = True    
+    masthead_url          = 'http://www.scotsman.com/webimage/swts_thescotsman_image_e_7_25526!image/3142543874.png_gen/derivatives/default/3142543874.png'
+    extra_css             = 'body{font-family: Arial,Helvetica,sans-serif}'
+    
+    
+    keep_only_tags    = [dict(attrs={'class':'editorialSection'})]
+    remove_tags_after = dict(attrs={'class':'socialBookmarkPanel'})
+    remove_tags       = [
+                           dict(name=['meta','iframe','object','embed','link']),
+                           dict(attrs={'class':['secondaryArticlesNav','socialBookmarkPanel']}),
+                           dict(attrs={'id':'relatedArticles'})
+                        ]
+    remove_attributes = ['lang']
+    
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+    
     feeds          = [
-                        (u'Latest National News', u'http://thescotsman.scotsman.com/getFeed.aspx?Format=rss&sectionid=4068'),
-                        ('UK', 'http://thescotsman.scotsman.com/getfeed.aspx?sectionid=7071&format=rss'),
-                        ('Scotland', 'http://thescotsman.scotsman.com/getfeed.aspx?sectionid=7042&format=rss'),
-                        ('International', 'http://thescotsman.scotsman.com/getfeed.aspx?sectionid=7000&format=rss'),
-                        ('Politics', 'http://thescotsman.scotsman.com/getfeed.aspx?sectionid=6990&format=rss'),
-                        ('Entertainment', 'http://thescotsman.scotsman.com/getfeed.aspx?sectionid=7010&format=rss'),
-                        ('Features', 'http://thescotsman.scotsman.com/getfeed.aspx?sectionid=6996&format=rss'),
-                        ('Opinion', 'http://thescotsman.scotsman.com/getfeed.aspx?sectionid=7074&format=rss'),
+                        ('Latest News'  , 'http://www.scotsman.com/cmlink/1.957140' ),
+                        ('UK'           , 'http://www.scotsman.com/cmlink/1.957142' ),
+                        ('Scotland'     , 'http://www.scotsman.com/cmlink/1.957141' ),
+                        ('International', 'http://www.scotsman.com/cmlink/1.957143' ),
+                        ('Politics'     , 'http://www.scotsman.com/cmlink/1.957044' ),
+                        ('Arts'         , 'http://www.scotsman.com/cmlink/1.1804825'),
+                        ('Entertainment', 'http://www.scotsman.com/cmlink/1.957053' ),
+                        ('Sports'       , 'http://www.scotsman.com/cmlink/1.957151' ),
+                        ('Business'     , 'http://www.scotsman.com/cmlink/1.957156' ),                        
+                        ('Features'     , 'http://www.scotsman.com/cmlink/1.957149' ),
+                        ('Opinion'      , 'http://www.scotsman.com/cmlink/1.957054' )
                      ]
+                     
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        for item in soup.findAll('img'):
+            if not item.has_key('alt'):
+               item['alt'] = 'image'
+        return soup
