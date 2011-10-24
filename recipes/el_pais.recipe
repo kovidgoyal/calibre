@@ -33,7 +33,7 @@ class ElPais(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
 
-    keep_only_tags = [ dict(name='div', attrs={'class':['cabecera_noticia_reportaje estirar','cabecera_noticia_opinion estirar','cabecera_noticia estirar','contenido_noticia','caja_despiece']})]
+    keep_only_tags = [ dict(name='div', attrs={'class':['cabecera_noticia_reportaje estirar','cabecera_noticia_opinion estirar','cabecera_noticia estirar','contenido_noticia','cuerpo_noticia','caja_despiece']})]
 
     extra_css             = ' p{text-align: justify; font-size: 100%} body{ text-align: left; font-family: serif; font-size: 100% } h1{ font-family: sans-serif; font-size:200%; font-weight: bolder; text-align: justify; } h2{ font-family: sans-serif; font-size:150%; font-weight: 500; text-align: justify } h3{ font-family: sans-serif; font-size:125%; font-weight: 500; text-align: justify } img{margin-bottom: 0.4em} '
 

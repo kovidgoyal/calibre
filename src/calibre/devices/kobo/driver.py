@@ -16,6 +16,7 @@ from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.utils.magick.draw import save_cover_data_to
+from calibre.ptempfile import PersistentTemporaryFile
 
 class KOBO(USBMS):
 
@@ -75,6 +76,11 @@ class KOBO(USBMS):
         USBMS.initialize(self)
         self.book_class = Book
         self.dbversion = 7
+
+    def create_annotations_path(self, mdata, device_path=None):
+        if device_path:
+            return device_path
+        return USBMS.create_annotations_path(self, mdata)
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -370,7 +376,7 @@ class KOBO(USBMS):
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
-            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed',)
+            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed', ' - N3_FULL.parsed',)
 
             for ending in file_endings:
                 fpath = path + ending
@@ -750,9 +756,12 @@ class KOBO(USBMS):
 
         blists = {}
         for i in paths:
-            if booklists[i] is not None:
-               #debug_print('Booklist: ', i)
-               blists[i] = booklists[i]
+            try:
+                if booklists[i] is not None:
+                    #debug_print('Booklist: ', i)
+                    blists[i] = booklists[i]
+            except IndexError:
+                pass
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.lower().strip() for x in
@@ -843,6 +852,7 @@ class KOBO(USBMS):
                             ' - N3_LIBRARY_FULL.parsed':(355,530),
                             ' - N3_LIBRARY_GRID.parsed':(149,233),
                             ' - N3_LIBRARY_LIST.parsed':(60,90),
+                            ' - N3_FULL.parsed':(600,800),
                             ' - N3_SOCIAL_CURRENTREAD.parsed':(120,186)}
 
                     for ending, resize in file_endings.items():
@@ -865,3 +875,21 @@ class KOBO(USBMS):
                 else:
                     debug_print("ImageID could not be retreived from the database")
 
+    def prepare_addable_books(self, paths):
+        '''
+        The Kobo supports an encrypted epub refered to as a kepub
+        Unfortunately Kobo decided to put the files on the device
+        with no file extension.  I just hope that decision causes
+        them as much grief as it does me :-)
+
+        This has to make a temporary copy of the book files with a
+        epub extension to allow Calibre's normal processing to
+        deal with the file appropriately
+        '''
+        for idx, path in enumerate(paths):
+            if path.find('kepub') >= 0:
+                with closing(open(path)) as r:
+                    tf = PersistentTemporaryFile(suffix='.epub')
+                    tf.write(r.read())
+                    paths[idx] = tf.name
+        return paths

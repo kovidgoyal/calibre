@@ -1068,6 +1068,12 @@ class Device(DeviceConfig, DevicePlugin):
         '''
         return {}
 
+    def add_annotation_to_library(self, db, db_id, annotation):
+        '''
+        Add an annotation to the calibre library
+        '''
+        pass
+
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         path = os.path.abspath(path)
         maxlen = self.MAX_PATH_LEN
@@ -1147,3 +1153,6 @@ class Device(DeviceConfig, DevicePlugin):
             os.makedirs(filedir)
 
         return filepath
+
+    def create_annotations_path(self, mdata, device_path=None):
+         return self.create_upload_path(os.path.abspath('/<storage>'), mdata, 'x.bookmark', create_dirs=False)
