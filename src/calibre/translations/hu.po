@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-22 09:31+0000\n"
+"PO-Revision-Date: 2011-10-23 12:07+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-23 05:12+0000\n"
-"X-Generator: Launchpad (build 14170)\n"
+"X-Launchpad-Export-Date: 2011-10-24 05:13+0000\n"
+"X-Generator: Launchpad (build 14185)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -6259,7 +6259,7 @@ msgstr "A mappát nem lehet megnyitni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:218
 msgid "This book no longer exists in your library"
-msgstr "Ez a könyv nem érhető el többet a könyvtárból"
+msgstr "Ez a könyv már nincs a könyvtárában"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:225
 #, python-format
@@ -9890,7 +9890,7 @@ msgstr "Alapértelmezett borító &generálása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:590
 msgid "&Remove cover"
-msgstr "Bo&rító átnevezése"
+msgstr "Bo&rító törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:591
 msgid "Set from &ebook file(s)"
@@ -19980,7 +19980,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:801
 msgid "booksize() -- return value of the size field"
-msgstr "booksize() -- a méretmező értékével tér vissza"
+msgstr "booksize() – a méretmező értékével tér vissza"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:815
 msgid ""
