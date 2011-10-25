@@ -967,11 +967,15 @@ class KOBO(USBMS):
         timestamp = bookmark.timestamp
         percent_read = bookmark.percent_read
         debug_print("Date: ",  bookmark.last_read)
-        try:
-            last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S"))))
-        except:
-            last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
-        
+        if bookmark.last_read is not None:
+            try:
+                last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S"))))
+            except:
+                last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
+        else:
+            #self.datetime = time.gmtime()
+            last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+
         # debug_print("Percent read: ", percent_read)
         ka_soup = BeautifulSoup()
         dtc = 0

@@ -55,6 +55,7 @@ class Bookmark(): # {{{
                                 'bm.volumeid = ? order by bm.volumeid, bm.chapterprogress', t)
 
             previous_chapter = 0
+            bm_count = 0
             for row in cursor:
                 current_chapter = row[10]
                 if previous_chapter == current_chapter:
@@ -70,7 +71,7 @@ class Bookmark(): # {{{
                     e_type = 'Bookmark'
                     text = row[9]
                 # highlight is text with no annotation
-                elif text is not None and annotation is None:
+                elif text is not None and (annotation is None or annotation == ""):
                     e_type = 'Highlight'
                 elif text and annotation:
                     e_type = 'Annotation'
