@@ -29,10 +29,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 (_('Only on send'), 'on_send'),
                 (_('Automatic management'), 'on_connect')]
         r('manage_device_metadata', prefs, choices=choices)
+
         if gui.device_manager.is_device_connected:
             self.opt_manage_device_metadata.setEnabled(False)
             self.opt_manage_device_metadata.setToolTip(
                 _('Cannot change metadata management while a device is connected'))
+            self.mm_label.setText('Metadata management (disabled while '
+                    'device connected)')
 
         self.send_template.changed_signal.connect(self.changed_signal.emit)
 
