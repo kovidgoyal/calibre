@@ -138,6 +138,7 @@ class MobiMLizer(object):
             self.mobimlize_elem(body, stylizer, BlockState(nbody),
                                 [FormatState()])
             item.data = nroot
+            #print etree.tostring(nroot)
 
     def mobimlize_font(self, ptsize):
         return self.fnums[self.fmap[ptsize]]
@@ -233,9 +234,19 @@ class MobiMLizer(object):
         elif tag in TABLE_TAGS:
             para.attrib['valign'] = 'top'
         if istate.ids:
-            last = bstate.body[-1]
-            for id in istate.ids:
-                last.addprevious(etree.Element(XHTML('a'), attrib={'id': id}))
+            for id_ in istate.ids:
+                anchor = etree.Element(XHTML('a'), attrib={'id': id_})
+                if tag == 'li':
+                    try:
+                        last = bstate.body[-1][-1]
+                    except:
+                        break
+                    last.insert(0, anchor)
+                    anchor.tail = last.text
+                    last.text = None
+                else:
+                    last = bstate.body[-1]
+                    last.addprevious(anchor)
             istate.ids.clear()
         if not text:
             return
