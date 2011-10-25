@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-14 22:05+0000\n"
-"Last-Translator: Dimitris Kanas <Unknown>\n"
+"PO-Revision-Date: 2011-10-24 21:46+0000\n"
+"Last-Translator: Jim_daskalos <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-22 04:45+0000\n"
-"X-Generator: Launchpad (build 14170)\n"
+"X-Launchpad-Export-Date: 2011-10-25 04:49+0000\n"
+"X-Generator: Launchpad (build 14185)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -422,6 +422,8 @@ msgstr "Αντιγραφή βιβλίων από την συσκευή στην 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Edit the collections in which books are placed on your device"
 msgstr ""
+"Επεξεργασία συλλογών βιβλίων που είναι τοποθετημένα στην προσωπική σας "
+"συσκευή."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Copy a book from one calibre library to another"
@@ -439,11 +441,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:854
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Επιλογή ενός τυχαίου βιβλίου από τη βιβλιοθήκη του calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:861
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Αναζήτηση για βιβλία διαφορετικών εκδοτών"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:877
 msgid "Get new calibre plugins or update your existing ones"
@@ -612,6 +614,8 @@ msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
+"Ρύθμιση διαμοιρασμού βιβλίων μέσω ηλεκτρονικού ταχυδρομείου. Μπορεί να "
+"χρησιμοποιηθεί για αυτόματη αποστολή κατεβασμένων νέων στις συσκευές σας."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1056
 msgid "Sharing over the net"
