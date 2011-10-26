@@ -23,27 +23,6 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 
-class PreserveSelection(object): # {{{
-
-    '''
-    Save the set of selected books at enter time. If at exit time there are no
-    selected books, restore the previous selection.
-    '''
-
-    def __init__(self, view):
-        self.view = view
-        self.selected_ids = []
-
-    def __enter__(self):
-        self.selected_ids = self.view.get_selected_ids()
-
-    def __exit__(self, *args):
-        current = self.view.get_selected_ids()
-        if not current:
-            self.view.select_rows(self.selected_ids, using_ids=True,
-                    change_current=False, scroll=False)
-# }}}
-
 class PreserveViewState(object): # {{{
 
     '''
@@ -139,7 +118,6 @@ class BooksView(QTableView): # {{{
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
-        self.preserve_selected_books = PreserveSelection(self)
         self.preserve_state = partial(PreserveViewState, self)
 
         # {{{ Column Header setup
