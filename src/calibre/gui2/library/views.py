@@ -37,12 +37,17 @@ class PreserveViewState(object): # {{{
         self.current_id = None
         self.preserve_hpos = preserve_hpos
         self.preserve_vpos = preserve_vpos
+        self.vscroll = self.hscroll = 0
 
     def __enter__(self):
-        self.selected_ids = self.view.get_selected_ids()
-        self.current_id = self.view.current_id
-        self.vscroll = self.verticalScrollBar().value()
-        self.hscroll = self.horizontalScrollBar().value()
+        try:
+            self.selected_ids = self.view.get_selected_ids()
+            self.current_id = self.view.current_id
+            self.vscroll = self.view.verticalScrollBar().value()
+            self.hscroll = self.view.horizontalScrollBar().value()
+        except:
+            import traceback
+            traceback.print_exc()
 
     def __exit__(self, *args):
         current = self.view.get_selected_ids()
