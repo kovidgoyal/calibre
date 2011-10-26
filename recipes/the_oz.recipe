@@ -12,7 +12,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class DailyTelegraph(BasicNewsRecipe):
     title          = u'The Australian'
     __author__     = u'Matthew Briggs and Sujata Raman'
-    description    = u'National broadsheet newspaper from down under - colloquially known as The Oz'
+    description    = (u'National broadsheet newspaper from down under - colloquially known as The Oz'
+            '. You will need to have a subscription to '
+            'http://www.theaustralian.com.au to get full articles.')
     language = 'en_AU'
 
     oldest_article = 2
