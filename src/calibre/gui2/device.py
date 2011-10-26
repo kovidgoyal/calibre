@@ -855,7 +855,7 @@ class DeviceMixin(object): # {{{
         Force the library view to refresh, taking into consideration new
         device books information
         '''
-        with self.library_view.preserve_selected_books:
+        with self.library_view.preserve_state():
             self.book_on_device(None, reset=True)
             if reset_only:
                 return
@@ -1320,7 +1320,7 @@ class DeviceMixin(object): # {{{
         # If it does not, then do it here.
         if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
             self.upload_booklists(job)
-        with self.library_view.preserve_selected_books:
+        with self.library_view.preserve_state():
             self.book_on_device(None, reset=True)
             self.refresh_ondevice()
 
