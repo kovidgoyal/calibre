@@ -850,15 +850,16 @@ class DeviceMixin(object): # {{{
         self.refresh_ondevice()
         device_signals.device_metadata_available.emit()
 
-    def refresh_ondevice(self, reset_only = False):
+    def refresh_ondevice(self, reset_only=False):
         '''
         Force the library view to refresh, taking into consideration new
         device books information
         '''
-        self.book_on_device(None, reset=True)
-        if reset_only:
-            return
-        self.library_view.model().refresh_ondevice()
+        with self.library_view.preserve_selected_books:
+            self.book_on_device(None, reset=True)
+            if reset_only:
+                return
+            self.library_view.model().refresh_ondevice()
 
     # }}}
 
