@@ -57,9 +57,9 @@ class PreserveViewState(object): # {{{
             self.view.select_rows(self.selected_ids, using_ids=True,
                     scroll=False, change_current=self.current_id is None)
             if self.preserve_vpos:
-                self.verticalScrollBar().setValue(self.vscroll)
+                self.view.verticalScrollBar().setValue(self.vscroll)
             if self.preserve_hpos:
-                self.horizontalScrollBar().setValue(self.hscroll)
+                self.view.horizontalScrollBar().setValue(self.hscroll)
 # }}}
 
 class BooksView(QTableView): # {{{
