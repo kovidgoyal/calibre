@@ -889,7 +889,6 @@ class DeviceMixin(object): # {{{
         # if set_books_in_library did not.
         if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
             self.upload_booklists(job)
-        self.book_on_device(None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
         self.refresh_ondevice(reset_only=False)
@@ -1321,7 +1320,6 @@ class DeviceMixin(object): # {{{
         if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
             self.upload_booklists(job)
         with self.library_view.preserve_state():
-            self.book_on_device(None, reset=True)
             self.refresh_ondevice()
 
         view = self.card_a_view if on_card == 'carda' else \
