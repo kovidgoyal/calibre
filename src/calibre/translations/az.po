@@ -8,19 +8,19 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-06-03 05:54+0000\n"
+"PO-Revision-Date: 2011-10-25 12:22+0000\n"
 "Last-Translator: Farid Zarbaliyev <faridz13@gmail.com>\n"
 "Language-Team: Azerbaijani <az@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-22 04:40+0000\n"
-"X-Generator: Launchpad (build 14170)\n"
+"X-Launchpad-Export-Date: 2011-10-26 05:12+0000\n"
+"X-Generator: Launchpad (build 14189)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr ""
+msgstr "Heç bir şey etmir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:104
@@ -214,11 +214,11 @@ msgstr "Fərdiləşdir"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:57
 msgid "Cannot configure"
-msgstr ""
+msgstr "Konfiqurasiya etmək mümkün deyil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr ""
+msgstr "Fayl Tipi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
@@ -230,11 +230,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr ""
+msgstr "Kataloq generatoru"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
-msgstr ""
+msgstr "İstifadəçi interfeysinin əməliyyatı"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:557
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -244,16 +244,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr ""
+msgstr "Seçimlər"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "Mağaza"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "Elektron kitab mağazası"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -296,15 +296,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:386
 #, python-format
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "Metaverilənləri %s faylından oxu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:323
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "Metaverilənləri RAR arxivindəki elektron kitablardan oxu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:397
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr ""
+msgstr "Metaverilənləri ZİP arxivindəki elektron kitablardan oxu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:410
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:431
@@ -314,50 +314,50 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:484
 #, python-format
 msgid "Set metadata in %s files"
-msgstr ""
+msgstr "Metaverilənləri %s faylında təyin et"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:420
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:452
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:495
 #, python-format
 msgid "Set metadata from %s files"
-msgstr ""
+msgstr "Metaverilənləri %s fayllaından təyin et"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:730
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Kitabları Calibre-yə və ya bağlanmış qurğuya əlavə et"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Annotasiyaları bağlanmış Kindle-dan əldə et"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Calibre kitabxanasındakı kitablardan kataloq generasiya et"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Kitabları müxtəlif elektron kitab formatlarına çevir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Kitabları Calibre və ya bağlanmış qurğulardan sil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Calibre kitabxananızdakı kitabların metaverilənlərini redaktə et"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Calibre kitabxananızdakı kitabları oxu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Xəbərləri internetdən elektron kitab formasında endir"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Əlaqəli kitablar siyahısını cəld göstər"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Export books from your calibre library to the hard disk"
@@ -369,7 +369,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Restart calibre"
-msgstr ""
+msgstr "Calibre-ni yenidən başlat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Open the folder that contains the book files in your calibre library"

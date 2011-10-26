@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-09-03 16:16+0000\n"
-"Last-Translator: Jan Kubík <Unknown>\n"
+"PO-Revision-Date: 2011-10-25 20:43+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-10-22 04:42+0000\n"
-"X-Generator: Launchpad (build 14170)\n"
+"X-Launchpad-Export-Date: 2011-10-26 05:12+0000\n"
+"X-Generator: Launchpad (build 14189)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1482,7 +1482,7 @@ msgstr "Vytvořte tagy pro automatickou správu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Nahrát obaly pro knihy (novější čtečky)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
 msgid ""
@@ -1493,7 +1493,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:62
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Nahrát černobílé obálky"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1567,7 +1567,7 @@ msgstr "Spojeno s COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Komunikace s Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1603,7 +1603,7 @@ msgstr "Komunikace se čtečkou Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Komunikace se Sony eBook čtečkou starší než PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1952,17 +1952,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "ID řetězce v hlavní paměti Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Karta Windows - Řetězec výrobce"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "Karta Windows - Řetězec ID"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
@@ -3708,11 +3708,11 @@ msgstr "Itálie"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:451
 msgid "Japan"
-msgstr ""
+msgstr "Japonsko"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:452
 msgid "Spain"
-msgstr ""
+msgstr "Španělsko"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:456
 msgid "Amazon website to use:"
@@ -4525,7 +4525,7 @@ msgstr "Seřadit tagy podle jména, popularity, nebo hodnocení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
 msgid "Match tags by any or all."
-msgstr ""
+msgstr "Shoda s tagy ve všem, nebo ničem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
 msgid "Number of covers to show in the cover browsing mode"
@@ -4901,7 +4901,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
-msgstr ""
+msgstr "Vytvořit katalog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:38
 msgid "No books selected for catalog generation"
@@ -4941,19 +4941,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:96
 msgid "New location of this library:"
-msgstr ""
+msgstr "Nové umístění knihovny:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:105
 msgid "Library moved"
-msgstr ""
+msgstr "Knihovna přesunuta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:107
 msgid "Forget library"
-msgstr ""
+msgstr "Zapomenout knihovnu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:116
 msgid "New library location"
-msgstr ""
+msgstr "Nové umístění knihovny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
 #, python-format
@@ -4992,7 +4992,7 @@ msgstr "Přejmenuj knihovnu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:165
 msgid "Remove library"
-msgstr ""
+msgstr "Odebrat knihovnu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/random.py:17
@@ -5049,7 +5049,7 @@ msgstr "Složka %s již existuje. Nejdříve ji smažte."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:673
 msgid "Too long"
-msgstr ""
+msgstr "Moc dlouhé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:295
 msgid "Rename failed"
@@ -5066,7 +5066,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:310
 msgid "Library removed"
-msgstr ""
+msgstr "Knihovna odebrána"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:311
 #, python-format
@@ -5321,7 +5321,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:101
 msgid "Remove all formats from selected books"
-msgstr ""
+msgstr "Odebrat všechny formáty z označených knih"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:104
 msgid "Remove covers from selected books"
@@ -5433,7 +5433,7 @@ msgstr "Spustit server s obsahem"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:73
 msgid "Start/stop content server"
-msgstr ""
+msgstr "Start/stop content server"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:79
 msgid "Stop Content Server"
@@ -5548,7 +5548,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:93
 msgid "Metadata download completed"
-msgstr ""
+msgstr "Stažení metadat dokončeno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:95
 #, python-format
@@ -5571,11 +5571,11 @@ msgstr "Stahování dokončeno"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:797
 msgid "Download log"
-msgstr ""
+msgstr "Download log"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:138
 msgid "Some books changed"
-msgstr ""
+msgstr "Některé knihy se změnily"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:139
 msgid ""
@@ -5663,7 +5663,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:545
 msgid "Some failures"
-msgstr ""
+msgstr "Vyskytly se chyby"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:546
 msgid ""
@@ -5742,7 +5742,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
-msgstr ""
+msgstr "Plugin Updater"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -5780,7 +5780,7 @@ msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Restart"
-msgstr ""
+msgstr "Restartovat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -5864,15 +5864,15 @@ msgstr "Bližší informace o knihách v tomto zařízení nejsou dostupné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Q"
-msgstr ""
+msgstr "Q"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Show quickview"
-msgstr ""
+msgstr "Ukaž náhled"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:31
 msgid "No quickview available"
-msgstr ""
+msgstr "Náhled není dostupný"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:32
 msgid "Quickview is not available for books on the device."
@@ -5916,7 +5916,7 @@ msgstr "Knihy se stejnými tagy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
@@ -5928,15 +5928,15 @@ msgstr "Hledat knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "author"
-msgstr ""
+msgstr "autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "title"
-msgstr ""
+msgstr "nadpis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "book"
-msgstr ""
+msgstr "kniha"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
@@ -5994,11 +5994,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:152
 msgid "Show this message again"
-msgstr ""
+msgstr "Ukaž tuto zprávu znovu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:153
 msgid "About Get Books"
-msgstr ""
+msgstr "O funkci získat knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:17
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
@@ -6093,7 +6093,7 @@ msgstr "Nemohu otevřít adresář"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:218
 msgid "This book no longer exists in your library"
-msgstr ""
+msgstr "Tato kniha již není ve Vaší knihovně"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:225
 #, python-format
@@ -6179,7 +6179,7 @@ msgstr "Ukládám..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:467
 msgid "Collecting data, please wait..."
-msgstr ""
+msgstr "Sbírám data, čekejte prosím..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:539
 msgid "Saved"
@@ -6355,7 +6355,7 @@ msgstr "Klikněte pro otevření"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:135
 msgid "Ids"
-msgstr ""
+msgstr "Ids"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:173
 #, python-format
@@ -6379,7 +6379,7 @@ msgstr "Kopírovat obálku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
 msgid "Remove Cover"
-msgstr ""
+msgstr "Odebrat obal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:569
 msgid "Double-click to open Book Details window"
@@ -6836,7 +6836,7 @@ msgstr "Předformátováno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:133
 msgid "Blockquote"
-msgstr ""
+msgstr "Blok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:134
 msgid "Address"
@@ -7023,7 +7023,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "DJVU vstup"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
@@ -7232,7 +7232,7 @@ msgstr "Jak zpracovávat CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/htmlz_output_ui.py:46
 msgid "How to handle class based CSS"
-msgstr ""
+msgstr "Jak se chovat ke class based CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel.py:16
 msgid "Look & Feel"
@@ -7288,7 +7288,7 @@ msgstr "Odstranit &mezery mezi odstavci"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:97
 msgid "Insert &blank line between paragraphs"
-msgstr ""
+msgstr "Vložit prázdné řádky mezi odstavce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:132
@@ -7297,7 +7297,7 @@ msgstr " em"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:106
 msgid "Text &justification:"
-msgstr ""
+msgstr "Zarovnání textu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:113
 msgid "&Transliterate unicode characters to ASCII"
@@ -7684,7 +7684,7 @@ msgstr "Nemohu vytvořit regex pomocí GUI buildera bez knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:144
 msgid "Could not open file"
-msgstr ""
+msgstr "Nemohu otevřít soubor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:145
 msgid "Could not open the file, do you have it open in another program?"
@@ -7982,7 +7982,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:98
 msgid "Markdown"
-msgstr ""
+msgstr "Markdown"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/txt_input_ui.py:99
 msgid ""
@@ -8750,7 +8750,7 @@ msgstr "Kopírovat do schránky"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:232
 msgid "&Done"
-msgstr ""
+msgstr "&Hotovo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:235
 msgid "Delete &marked"
@@ -9127,7 +9127,7 @@ msgstr "Třídění podle autora"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:55
 msgid "Link"
-msgstr ""
+msgstr "Odkaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
