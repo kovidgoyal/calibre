@@ -16,16 +16,11 @@ class DailyTelegraph(BasicNewsRecipe):
     language = 'en_AU'
 
     oldest_article = 2
+    needs_subscription = 'optional'
     max_articles_per_feed = 30
     remove_javascript      = True
     no_stylesheets         = True
     encoding               = 'utf8'
-
-    html2lrf_options = [
-                          '--comment'       , description
-                        , '--category'      , 'news, Australia'
-                        , '--publisher'     , title
-                        ]
 
     keep_only_tags = [dict(name='div', attrs={'id': 'story'})]
 
@@ -67,6 +62,19 @@ class DailyTelegraph(BasicNewsRecipe):
                     (u'Commercial Property', u'http://feeds.news.com.au/public/rss/2.0/aus_business_commercial_property_708.xml'),
                     (u'Mining', u'http://feeds.news.com.au/public/rss/2.0/aus_business_mining_704.xml')]
 
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username and self.password:
+            br.open('http://www.theaustralian.com.au')
+            br.select_form(nr=0)
+            br['username'] = self.username
+            br['password'] = self.password
+            raw = br.submit().read()
+            if '>log out' not in raw.lower():
+                raise ValueError('Failed to log in to www.theaustralian.com.au'
+                        ' are your username and password correct?')
+        return br
+
     def get_article_url(self, article):
         return article.id
 
@@ -76,14 +84,4 @@ class DailyTelegraph(BasicNewsRecipe):
 
         #return br.geturl()
 
-    def get_cover_url(self):
 
-        href =  'http://www.theaustralian.news.com.au/'
-
-        soup = self.index_to_soup(href)
-        img = soup.find('img',alt ="AUS HP promo digital2")
-        print img
-        if img :
-           cover_url = img['src']
-
-        return cover_url
