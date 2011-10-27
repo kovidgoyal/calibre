@@ -850,15 +850,16 @@ class DeviceMixin(object): # {{{
         self.refresh_ondevice()
         device_signals.device_metadata_available.emit()
 
-    def refresh_ondevice(self, reset_only = False):
+    def refresh_ondevice(self, reset_only=False):
         '''
         Force the library view to refresh, taking into consideration new
         device books information
         '''
-        self.book_on_device(None, reset=True)
-        if reset_only:
-            return
-        self.library_view.model().refresh_ondevice()
+        with self.library_view.preserve_state():
+            self.book_on_device(None, reset=True)
+            if reset_only:
+                return
+            self.library_view.model().refresh_ondevice()
 
     # }}}
 
@@ -888,7 +889,6 @@ class DeviceMixin(object): # {{{
         # if set_books_in_library did not.
         if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
             self.upload_booklists(job)
-        self.book_on_device(None, reset=True)
         # We need to reset the ondevice flags in the library. Use a big hammer,
         # so we don't need to worry about whether some succeeded or not.
         self.refresh_ondevice(reset_only=False)
@@ -1319,9 +1319,7 @@ class DeviceMixin(object): # {{{
         # If it does not, then do it here.
         if not self.set_books_in_library(self.booklists(), reset=True, add_as_step_to_job=job):
             self.upload_booklists(job)
-        with self.library_view.preserve_selected_books:
-            self.book_on_device(None, reset=True)
-            self.refresh_ondevice()
+        self.refresh_ondevice()
 
         view = self.card_a_view if on_card == 'carda' else \
             self.card_b_view if on_card == 'cardb' else self.memory_view

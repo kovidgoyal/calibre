@@ -19,6 +19,8 @@ from calibre.ebooks.textile.unsmarten import unsmarten
 
 class TextileMLizer(OEB2HTML):
 
+    MAX_EM = 10
+
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to Textile formatted TXT...')
         self.opts = opts
@@ -176,7 +178,7 @@ class TextileMLizer(OEB2HTML):
         if 'margin-left' in style.cssdict() and style['margin-left'] != 'auto':
             left_margin_pts = unit_convert(style['margin-left'], style.width, style.fontSize, stylizer.profile.dpi)
         left = left_margin_pts + left_padding_pts
-        emleft = int(round(left / stylizer.profile.fbase))
+        emleft = min(int(round(left / stylizer.profile.fbase)), self.MAX_EM)
         if emleft >= 1:
             txt += '(' * emleft
         right_padding_pts = 0
@@ -186,7 +188,7 @@ class TextileMLizer(OEB2HTML):
         if 'margin-right' in style.cssdict() and style['margin-right'] != 'auto':
             right_margin_pts = unit_convert(style['margin-right'], style.width, style.fontSize, stylizer.profile.dpi)
         right = right_margin_pts + right_padding_pts
-        emright = int(round(right / stylizer.profile.fbase))
+        emright = min(int(round(right / stylizer.profile.fbase)), self.MAX_EM)
         if emright >= 1:
             txt += ')' * emright
 
@@ -243,7 +245,7 @@ class TextileMLizer(OEB2HTML):
 
         # Soft scene breaks.
         if 'margin-top' in style.cssdict() and style['margin-top'] != 'auto':
-            ems = int(round(float(style.marginTop) / style.fontSize) - 1)
+            ems = min(int(round(float(style.marginTop) / style.fontSize) - 1), self.MAX_EM)
             if ems >= 1:
                 text.append(u'\n\n\xa0' * ems)
 
@@ -476,7 +478,7 @@ class TextileMLizer(OEB2HTML):
 
         # Soft scene breaks.
         if 'margin-bottom' in style.cssdict() and style['margin-bottom'] != 'auto':
-            ems = int(round((float(style.marginBottom) / style.fontSize) - 1))
+            ems = min(int(round((float(style.marginBottom) / style.fontSize) - 1)), self.MAX_EM)
             if ems >= 1:
                 text.append(u'\n\n\xa0' * ems)
 
