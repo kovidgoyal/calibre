@@ -326,6 +326,18 @@ class CoverView(QWidget): # {{{
         if id_ is not None:
             self.cover_removed.emit(id_)
 
+    def update_tooltip(self, current_path):
+        try:
+            sz = self.pixmap.size()
+        except:
+            sz = QSize(0, 0)
+        self.setToolTip(
+            '<p>'+_('Double-click to open Book Details window') +
+            '<br><br>' + _('Path') + ': ' + current_path +
+            '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
+                width=sz.width(), height=sz.height())
+        )
+
     # }}}
 
 # Book Info {{{
@@ -561,16 +573,7 @@ class BookDetails(QWidget): # {{{
 
     def update_layout(self):
         self._layout.do_layout(self.rect())
-        try:
-            sz = self.cover_view.pixmap.size()
-        except:
-            sz = QSize(0, 0)
-        self.setToolTip(
-            '<p>'+_('Double-click to open Book Details window') +
-            '<br><br>' + _('Path') + ': ' + self.current_path +
-            '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
-                width=sz.width(), height=sz.height())
-        )
+        self.cover_view.update_tooltip(self.current_path)
 
     def reset_info(self):
         self.show_data(Metadata(_('Unknown')))
