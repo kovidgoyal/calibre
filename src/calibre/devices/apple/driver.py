@@ -1305,6 +1305,8 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info(" ITUNES._add_new_copy()")
 
+        self._update_epub_metadata(fpath, metadata)
+
         db_added = None
         lb_added = None
 
@@ -2663,6 +2665,7 @@ class ITUNES(DriverBase):
                     metadata.timestamp = now()
                     if DEBUG:
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
+
             else:
                 metadata.timestamp = now()
                 if DEBUG:
@@ -2699,7 +2702,7 @@ class ITUNES(DriverBase):
             if iswindows and metadata.series:
                 metadata.tags = None
 
-            set_metadata(zfo, metadata, update_timestamp=True)
+            set_metadata(zfo, metadata, apply_null=True, update_timestamp=True)
 
     def _update_device(self, msg='', wait=True):
         '''
