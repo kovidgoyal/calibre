@@ -598,8 +598,9 @@ class BuiltinFormatsModtimes(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, fmt):
         fmt_data = mi.get('format_metadata', {})
+        data = sorted(fmt_data.items(), key=lambda x:x[1]['mtime'], reverse=True)
         return ','.join(k.upper()+':'+format_date(v['mtime'], fmt)
-                        for k,v in fmt_data.iteritems())
+                        for k,v in data)
 
 class BuiltinFormatsSizes(BuiltinFormatterFunction):
     name = 'formats_sizes'
