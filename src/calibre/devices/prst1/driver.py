@@ -112,9 +112,11 @@ class PRST1(USBMS):
     def post_open_callback(self):
         # Set the thumbnail width to the theoretical max if the user has asked
         # that we do not preserve aspect ratio
-        if not self.settings().extra_customization[self.OPT_PRESERVE_ASPECT_RATIO]:
+        ec = self.settings().extra_customization
+        if not ec[self.OPT_PRESERVE_ASPECT_RATIO]:
             self.THUMBNAIL_WIDTH = 108
         # Make sure the date offset is set to none, we'll calculate it in books.
+        self.WANTS_UPDATED_THUMBNAILS = ec[self.OPT_REFRESH_COVERS]
         self.device_offset = None
 
     def windows_filter_pnp_id(self, pnp_id):
