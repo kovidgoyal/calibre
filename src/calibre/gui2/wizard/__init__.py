@@ -16,7 +16,7 @@ from PyQt4.Qt import QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel, \
 from calibre import __appname__, patheq
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
-from calibre.constants import filesystem_encoding
+from calibre.constants import filesystem_encoding, iswindows
 from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.device_ui import Ui_WizardPage as DeviceUI
 from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
@@ -164,7 +164,7 @@ class Sony900(Sony505):
 
 class Nook(Sony505):
     id = 'nook'
-    name = 'Nook'
+    name = 'Nook and Nook Simple Reader'
     manufacturer = 'Barnes & Noble'
     output_profile = 'nook'
 
@@ -569,9 +569,9 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
             det = traceback.format_exc()
             error_dialog(parent, _('Invalid database'),
                 _('<p>An invalid library already exists at '
-                    '%s, delete it before trying to move the '
-                    'existing library.<br>Error: %s')%(newloc,
-                        str(err)), det, show=True)
+                    '%(loc)s, delete it before trying to move the '
+                    'existing library.<br>Error: %(err)s')%dict(loc=newloc,
+                        err=str(err)), det, show=True)
             callback(None)
             return
         else:
@@ -604,16 +604,21 @@ class LibraryPage(QWizardPage, LibraryUI):
     def init_languages(self):
         self.language.blockSignals(True)
         self.language.clear()
-        from calibre.utils.localization import available_translations, \
-            get_language, get_lang
+        from calibre.utils.localization import (available_translations,
+            get_language, get_lang)
         lang = get_lang()
         if lang is None or lang not in available_translations():
             lang = 'en'
-        self.language.addItem(get_language(lang), QVariant(lang))
-        items = [(l, get_language(l)) for l in available_translations() \
+        def get_esc_lang(l):
+            if l == 'en':
+                return 'English'
+            return get_language(l)
+
+        self.language.addItem(get_esc_lang(lang), QVariant(lang))
+        items = [(l, get_esc_lang(l)) for l in available_translations()
                  if l != lang]
         if lang != 'en':
-            items.append(('en', get_language('en')))
+            items.append(('en', get_esc_lang('en')))
         items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
         for item in items:
             self.language.addItem(item[1], QVariant(item[0]))
@@ -635,6 +640,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             metadata_plugins = {
                     'zh' : ('Douban Books',),
                     'fr' : ('Nicebooks',),
+                    'ru' : ('OZON.ru',),
             }.get(lang, [])
             from calibre.customize.ui import enable_plugin
             for name in metadata_plugins:
@@ -656,6 +662,13 @@ class LibraryPage(QWizardPage, LibraryUI):
         x = choose_dir(self, 'database location dialog',
                          _('Select location for books'))
         if x:
+            if (iswindows and len(x) >
+                    LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT):
+                return error_dialog(self, _('Too long'),
+                    _('Path to library too long. Must be less than'
+                    ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
+                    show=True)
+
             if self.is_library_dir_suitable(x):
                 self.location.setText(x)
             else:

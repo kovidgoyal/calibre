@@ -45,7 +45,7 @@ static void sort_concat_step(sqlite3_context *context, int argc, sqlite3_value *
     }
 
     if (list->count == list->length) {
-        list->vals = (SortConcatItem**)realloc(list->vals, list->length + 100);
+        list->vals = (SortConcatItem**)realloc(list->vals, sizeof(SortConcatItem*)*(list->length + 100));
         if (list->vals == NULL) return;
         list->length = list->length + 100;
     }
@@ -122,7 +122,6 @@ static void sort_concat_finalize(sqlite3_context *context) {
         free(ans);
         sort_concat_free(list);
     }
-
 }
 
 static void sort_concat_finalize2(sqlite3_context *context) {
@@ -134,6 +133,22 @@ static void sort_concat_finalize2(sqlite3_context *context) {
     if (list != NULL && list->vals != NULL && list->count > 0) {
         qsort(list->vals, list->count, sizeof(list->vals[0]), sort_concat_cmp);
         ans = sort_concat_do_finalize(list, '|');
+        if (ans != NULL) sqlite3_result_text(context, (char*)ans, -1, SQLITE_TRANSIENT);
+        free(ans);
+        sort_concat_free(list);
+    }
+
+}
+
+static void sort_concat_finalize3(sqlite3_context *context) {
+    SortConcatList *list;
+    unsigned char *ans;
+
+    list = (SortConcatList*) sqlite3_aggregate_context(context, sizeof(*list));
+
+    if (list != NULL && list->vals != NULL && list->count > 0) {
+        qsort(list->vals, list->count, sizeof(list->vals[0]), sort_concat_cmp);
+        ans = sort_concat_do_finalize(list, '&');
         if (ans != NULL) sqlite3_result_text(context, (char*)ans, -1, SQLITE_TRANSIENT);
         free(ans);
         sort_concat_free(list);
@@ -174,7 +189,7 @@ static void identifiers_concat_step(sqlite3_context *context, int argc, sqlite3_
     }
 
     if (list->count == list->length) {
-        list->vals = (IdentifiersConcatItem**)realloc(list->vals, list->length + 100);
+        list->vals = (IdentifiersConcatItem**)realloc(list->vals, sizeof(IdentifiersConcatItem*)*(list->length + 100));
         if (list->vals == NULL) return;
         list->length = list->length + 100;
     }
@@ -237,7 +252,8 @@ MYEXPORT int sqlite3_extension_init(
     sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi){
   SQLITE_EXTENSION_INIT2(pApi);
   sqlite3_create_function(db, "sortconcat", 2, SQLITE_UTF8, NULL, NULL, sort_concat_step, sort_concat_finalize);
-  sqlite3_create_function(db, "sort_concat", 2, SQLITE_UTF8, NULL, NULL, sort_concat_step, sort_concat_finalize2);
+  sqlite3_create_function(db, "sortconcat_bar", 2, SQLITE_UTF8, NULL, NULL, sort_concat_step, sort_concat_finalize2);
+  sqlite3_create_function(db, "sortconcat_amper", 2, SQLITE_UTF8, NULL, NULL, sort_concat_step, sort_concat_finalize3);
   sqlite3_create_function(db, "identifiers_concat", 2, SQLITE_UTF8, NULL, NULL, identifiers_concat_step, identifiers_concat_finalize);
   return 0;
 }

@@ -1,91 +1,135 @@
+# -*- coding: utf-8 -*-
 #!/usr/bin/env  python
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, matek09, matek09@gmail.com'
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+import datetime
+
 
 class Newsweek(BasicNewsRecipe):
-	FIND_LAST_FULL_ISSUE = True
 	EDITION = '0'
-	EXCLUDE_LOCKED = True
-	LOCKED_ICO = 'http://www.newsweek.pl/bins/media/static/newsweek/img/ico_locked.gif'
+	DATE = None
+	YEAR = datetime.datetime.now().year
 
 	title = u'Newsweek Polska'
 	__author__ = 'matek09'
 	description = 'Weekly magazine'
 	encoding = 'utf-8'
-	no_stylesheets = True
 	language = 'pl'
 	remove_javascript = True
 
-	keep_only_tags =[]
-	keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'article'}))
+	temp_files = [] 
+	articles_are_obfuscated = True 
 
-	remove_tags =[]
-	remove_tags.append(dict(name = 'div', attrs = {'class' : 'copy'}))
-	remove_tags.append(dict(name = 'div', attrs = {'class' : 'url'}))
 
-	extra_css = '''
-					.body {font-size: small}
-					.author {font-size: x-small}
-					.lead {font-size: x-small}
-					.title{font-size: x-large; font-weight: bold}
-					'''
+	def get_obfuscated_article(self, url):
+		br = self.get_browser()
+		br.open(url)
+		source = br.response().read()
+		page = self.index_to_soup(source)
 
-	def print_version(self, url):
-		return url.replace("http://www.newsweek.pl/artykuly/wydanie/" + str(self.EDITION), "http://www.newsweek.pl/artykuly") + '/print'
-
-	def is_locked(self, a):
-		if a.findNext('img')['src'] == 'http://www.newsweek.pl/bins/media/static/newsweek/img/ico_locked.gif':
-			return True
-		else:
-			return False
-
+		main_section = page.find(id='mainSection')
+		
+		title = main_section.find('h1')
+		info = main_section.find('ul', attrs={'class' : 'articleInfo'})
+		authors = info.find('li').find('h4')
+		article = main_section.find('div', attrs={'id' : 'article'})
+		html =  unicode(title) + unicode(authors) + unicode(article)
+		next = main_section.find('li', attrs={'class' : 'next'})
+		
+		while next:
+			url = next.find('a')['href']
+			br.open(url)
+			source = br.response().read()
+			page = self.index_to_soup(source)
+			main_section = page.find(id='mainSection')
+			article = main_section.find('div', attrs={'id' : 'article'})
+			aside = article.find(id='articleAside')
+			if aside is not None:
+				aside.extract()
+			html = html + unicode(article)
+			next = main_section.find('li', attrs={'class' : 'next'})
+		
+		
+		self.temp_files.append(PersistentTemporaryFile('_temparse.html')) 
+		self.temp_files[-1].write(html) 
+		self.temp_files[-1].close() 
+		return self.temp_files[-1].name
+		
 	def is_full(self, issue_soup):
-		if len(issue_soup.findAll('img', attrs={'src' : 'http://www.newsweek.pl/bins/media/static/newsweek/img/ico_locked.gif'})) > 1:
-			return False
-		else:
-			return True
-
-	def find_last_full_issue(self):
-		frame_url = 'http://www.newsweek.pl/Frames/IssueCover.aspx'
 		while True:
-			frame_soup = self.index_to_soup(frame_url)
-			self.EDITION = frame_soup.find('a', attrs={'target' : '_parent'})['href'].replace('/wydania/','')
+			main_section = issue_soup.find(id='mainSection')
+			next = main_section.find('li', attrs={'class' : 'next'})
+			if len(main_section.findAll(attrs={'class' : 'locked'})) > 1:
+				return False
+			elif next is None:
+				return True
+			else:
+				issue_soup = self.index_to_soup(next.find('a')['href'])
+
+	def find_last_full_issue(self, archive_url):
+		archive_soup = self.index_to_soup(archive_url)
+		select = archive_soup.find('select', attrs={'id' : 'paper_issue_select'})
+		for option in select.findAll(lambda tag: tag.name == 'option' and tag.has_key('value')):
+			self.EDITION = option['value'].replace('http://www.newsweek.pl/wydania/','')
 			issue_soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
 			if self.is_full(issue_soup):
-				break
-			frame_url = 'http://www.newsweek.pl/Frames/' + frame_soup.find(lambda tag: tag.name == 'span' and not tag.attrs).a['href']
-
-
-
+				return
+				
+		self.YEAR = self.YEAR - 1
+		self.find_last_full_issue(archive_url + ',' + str(self.YEAR))
+		
 	def parse_index(self):
-		if self.FIND_LAST_FULL_ISSUE:
-			self.find_last_full_issue()
+		archive_url = 'http://www.newsweek.pl/wydania/archiwum'
+		self.find_last_full_issue(archive_url)
 		soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
-		img = soup.find('img', id="ctl00_C1_PaperIsssueView_IssueImage", src=True)
+		self.DATE = self.tag_to_string(soup.find('span', attrs={'class' : 'data'}))
+		main_section = soup.find(id='mainSection')
+		img = main_section.find(lambda tag: tag.name == 'img' and tag.has_key('alt') and tag.has_key('title'))
 		self.cover_url = img['src']
 		feeds = []
-		parent = soup.find(id='content-left-big')
-		for txt in parent.findAll(attrs={'class':'txt_normal_red strong'}):
-			articles = list(self.find_articles(txt))
-			if len(articles) > 0:
-				section = self.tag_to_string(txt).capitalize()
-				feeds.append((section, articles))
+		articles = {}
+		sections = []
+		while True:
+			news_list = main_section.find('ul', attrs={'class' : 'newsList'})
+			for h2 in news_list.findAll('h2'):
+				
+				article = self.create_article(h2)
+				category_div = h2.findNext('div', attrs={'class' : 'kategorie'})
+				section = self.tag_to_string(category_div)
+				if articles.has_key(section):
+					articles[section].append(article)
+				else:
+					articles[section] = [article]
+					sections.append(section)
+				
+			next = main_section.find('li', attrs={'class' : 'next'})
+			if next is None:
+				break
+			soup = self.index_to_soup(next.find('a')['href'])
+			main_section = soup.find(id='mainSection')
+			
+		for section in sections:
+			feeds.append((section, articles[section]))
 		return feeds
 
-	def find_articles(self, txt):
-		for a in txt.findAllNext( attrs={'class':['strong','hr']}):
-			if a.name in "div":
-				break
-			if (not self.FIND_LAST_FULL_ISSUE) & self.EXCLUDE_LOCKED & self.is_locked(a):
-				continue
-			yield {
-				'title' : self.tag_to_string(a),
-				'url'   : 'http://www.newsweek.pl' + a['href'],
-				'date'  : '',
-				'description' : ''
-				}
+	def create_article(self, h2):
+		article = {}
+		a = h2.find('a')
+		article['title'] = self.tag_to_string(a)
+		article['url'] = a['href']
+		article['date'] = self.DATE
+		desc = h2.findNext('p')
+
+		if desc is not None:
+			article['description'] = self.tag_to_string(desc)
+		else:
+			article['description'] = ''
+		return article
+		
+
 
 

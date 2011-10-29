@@ -13,9 +13,11 @@ from calibre import fit_image, guess_type
 from calibre.utils.date import fromtimestamp
 from calibre.library.caches import SortKeyGenerator
 from calibre.library.save_to_disk import find_plugboard
-
-from calibre.utils.magick.draw import save_cover_data_to, Image, \
-        thumbnail as generate_thumbnail
+from calibre.ebooks.metadata import authors_to_string
+from calibre.utils.magick.draw import (save_cover_data_to, Image,
+        thumbnail as generate_thumbnail)
+from calibre.utils.filenames import ascii_filename
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub']
@@ -31,7 +33,7 @@ class CSSortKeyGenerator(SortKeyGenerator):
 class ContentServer(object):
 
     '''
-    Handles actually serving content files/covers. Also has
+    Handles actually serving content files/covers/metadata. Also has
     a few utility methods.
     '''
 
@@ -46,7 +48,7 @@ class ContentServer(object):
     # Utility methods {{{
     def last_modified(self, updated):
         '''
-        Generates a local independent, english timestamp from a datetime
+        Generates a locale independent, english timestamp from a datetime
         object
         '''
         lm = updated.strftime('day, %d month %Y %H:%M:%S GMT')
@@ -67,9 +69,8 @@ class ContentServer(object):
 
     # }}}
 
-
     def get(self, what, id):
-        'Serves files, covers, thumbnails from the calibre database'
+        'Serves files, covers, thumbnails, metadata from the calibre database'
         try:
             id = int(id)
         except ValueError:
@@ -89,6 +90,8 @@ class ContentServer(object):
                     thumb_height=height)
         if what == 'cover':
             return self.get_cover(id)
+        if what == 'opf':
+            return self.get_metadata_as_opf(id)
         return self.get_format(id, what)
 
     def static(self, name):
@@ -151,14 +154,12 @@ class ContentServer(object):
         try:
             cherrypy.response.headers['Content-Type'] = 'image/jpeg'
             cherrypy.response.timeout = 3600
-            cover = self.db.cover(id, index_is_id=True, as_file=True)
+            cover = self.db.cover(id, index_is_id=True)
             if cover is None:
                 cover = self.default_cover
                 updated = self.build_time
             else:
-                with cover as f:
-                    updated = fromtimestamp(os.fstat(f.fileno()).st_mtime)
-                    cover = f.read()
+                updated = self.db.cover_last_modified(id, index_is_id=True)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
 
             if thumbnail:
@@ -181,15 +182,26 @@ class ContentServer(object):
             cherrypy.log.error(traceback.print_exc())
             raise cherrypy.HTTPError(404, 'Failed to generate cover: %r'%err)
 
+    def get_metadata_as_opf(self, id_):
+        cherrypy.response.headers['Content-Type'] = \
+                'application/oebps-package+xml; charset=UTF-8'
+        mi = self.db.get_metadata(id_, index_is_id=True)
+        data = metadata_to_opf(mi)
+        cherrypy.response.timeout = 3600
+        cherrypy.response.headers['Last-Modified'] = \
+                self.last_modified(mi.last_modified)
+
+        return data
+
     def get_format(self, id, format):
         format = format.upper()
         fmt = self.db.format(id, format, index_is_id=True, as_file=True,
                 mode='rb')
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
+        mi = self.db.get_metadata(id, index_is_id=True)
         if format == 'EPUB':
             # Get the original metadata
-            mi = self.db.get_metadata(id, index_is_id=True)
 
             # Get any EPUB plugboards for the content server
             plugboards = self.db.prefs.get('plugboards', {})
@@ -203,24 +215,23 @@ class ContentServer(object):
                 newmi = mi
 
             # Write the updated file
-            from tempfile import TemporaryFile
             from calibre.ebooks.metadata.meta import set_metadata
-            raw = fmt.read()
-            fmt = TemporaryFile()
-            fmt.write(raw)
-            fmt.seek(0)
             set_metadata(fmt, newmi, 'epub')
             fmt.seek(0)
 
         mt = guess_type('dummy.'+format.lower())[0]
         if mt is None:
             mt = 'application/octet-stream'
+        au = authors_to_string(mi.authors if mi.authors else [_('Unknown')])
+        title = mi.title if mi.title else _('Unknown')
+        fname = u'%s - %s_%s.%s'%(title[:30], au[:30], id, format.lower())
+        fname = ascii_filename(fname).replace('"', '_')
         cherrypy.response.headers['Content-Type'] = mt
+        cherrypy.response.headers['Content-Disposition'] = \
+                b'attachment; filename="%s"'%fname
         cherrypy.response.timeout = 3600
-        path = getattr(fmt, 'name', None)
-        if path and os.path.exists(path):
-            updated = fromtimestamp(os.stat(path).st_mtime)
-            cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+        cherrypy.response.headers['Last-Modified'] = \
+            self.last_modified(self.db.format_last_modified(id, format))
         return fmt
     # }}}
 

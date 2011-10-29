@@ -32,16 +32,11 @@
                     <xsl:value-of select="fb:description/fb:title-info/fb:book-title"/>
                 </title>
                 <style type="text/css">
-                    a { color : #0002CC }
-
-                    a:hover { color : #BF0000 }
-                    
-                    body { background-color : #FEFEFE; color : #000000; font-family : Verdana, Geneva, Arial, Helvetica, sans-serif; text-align : justify }
+                    body { text-align : justify }
                     
                     h1{ font-size : 160%; font-style : normal; font-weight : bold; text-align : left; border : 1px solid Black;  background-color : #E7E7E7; margin-left : 0px;  page-break-before : always; }
                     
                     h2{ font-size : 130%; font-style : normal; font-weight : bold; text-align : left; background-color : #EEEEEE;  border : 1px solid Gray;  page-break-before : always; }
-                    
                     h3{ font-size : 110%; font-style : normal; font-weight : bold; text-align : left;  background-color : #F1F1F1;  border : 1px solid Silver;}
                     
                     h4{ font-size : 100%; font-style : normal; font-weight : bold; text-align : left; border : 1px solid Gray;  background-color : #F4F4F4;}
@@ -56,13 +51,11 @@
                     
                     hr { color : Black }
                     
-                    div {font-family : "Times New Roman", Times, serif; text-align : justify}
-                    
                     ul {margin-left: 0}
                     
                     .epigraph{width:50%; margin-left : 35%;}
                     
-                    div.paragraph { text-align: justify; text-indent: 2em; }
+                    div.paragraph { text-indent: 2em; }
                 </style>
                 <link rel="stylesheet" type="text/css" href="inline-styles.css" />
             </head>
@@ -386,7 +379,8 @@
     <!-- image -->
     <xsl:template match="fb:image">
         <div align="center">
-            <img border="1">
+            <xsl:element name="img">
+                <xsl:attribute name="border">1</xsl:attribute>
                 <xsl:choose>
                     <xsl:when test="starts-with(@xlink:href,'#')">
                         <xsl:attribute name="src"><xsl:value-of select="substring-after(@xlink:href,'#')"/></xsl:attribute>
@@ -395,7 +389,10 @@
                         <xsl:attribute name="src"><xsl:value-of select="@xlink:href"/></xsl:attribute>
                     </xsl:otherwise>
                 </xsl:choose>
-            </img>
+                <xsl:if test="@title">
+                    <xsl:attribute name="title"><xsl:value-of select="@title"/></xsl:attribute>
+                </xsl:if>
+            </xsl:element>
         </div>
     </xsl:template>
 </xsl:stylesheet>

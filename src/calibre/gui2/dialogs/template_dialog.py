@@ -5,12 +5,15 @@ __license__   = 'GPL v3'
 
 import json
 
-from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter,
-                      QRegExp, QApplication,
-                      QTextCharFormat, QFont, QColor, QCursor)
+from PyQt4.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
+                      QRegExp, QApplication, QTextCharFormat, QColor, QCursor)
 
+from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.utils.formatter_functions import formatter_functions
+from calibre.ebooks.metadata.book.base import SafeFormat, Metadata
+from calibre.library.coloring import (displayable_columns)
+
 
 class ParenPosition:
 
@@ -194,10 +197,25 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 
-    def __init__(self, parent, text):
+    def __init__(self, parent, text, mi=None, fm=None, color_field=None):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
+
+        self.coloring = color_field is not None
+        if self.coloring:
+            cols = sorted([k for k in displayable_columns(fm)])
+            self.colored_field.addItems(cols)
+            self.colored_field.setCurrentIndex(self.colored_field.findText(color_field))
+        else:
+            self.colored_field.setVisible(False)
+            self.colored_field_label.setVisible(False)
+
+        if mi:
+            self.mi = mi
+        else:
+            self.mi = Metadata(None, None)
+
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
@@ -233,21 +251,36 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.function.addItems(func_names)
         self.function.setCurrentIndex(0)
         self.function.currentIndexChanged[str].connect(self.function_changed)
+        self.textbox_changed()
+        self.rule = (None, '')
+
+        tt = _('Template language tutorial')
+        self.template_tutorial.setText(
+                '<a href="http://manual.calibre-ebook.com/template_lang.html">'
+                '%s</a>'%tt)
+        tt = _('Template function reference')
+        self.template_func_reference.setText(
+                '<a href="http://manual.calibre-ebook.com/template_ref.html">'
+                '%s</a>'%tt)
 
     def textbox_changed(self):
         cur_text = unicode(self.textbox.toPlainText())
         if self.last_text != cur_text:
             self.last_text = cur_text
             self.highlighter.regenerate_paren_positions()
+            self.text_cursor_changed()
+            self.template_value.setText(
+                SafeFormat().safe_format(cur_text, self.mi,
+                                                _('EXCEPTION: '), self.mi))
 
     def text_cursor_changed(self):
         cursor = self.textbox.textCursor()
-        block_number = cursor.blockNumber()
-        pos_in_block = cursor.positionInBlock()
         position = cursor.position()
         t = unicode(self.textbox.toPlainText())
-        if position < len(t):
-            self.highlighter.check_cursor_pos(t[position], block_number,
+        if position > 0 and position <= len(t):
+            block_number = cursor.blockNumber()
+            pos_in_block = cursor.positionInBlock() - 1
+            self.highlighter.check_cursor_pos(t[position-1], block_number,
                                               pos_in_block)
 
     def function_changed(self, toWhat):
@@ -256,9 +289,22 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.documentation.clear()
         if name in self.funcs:
             self.documentation.setPlainText(self.funcs[name].doc)
-            if name in self.builtins:
-                if name in self.builtin_source_dict:
-                    self.source_code.setPlainText(self.builtin_source_dict[name])
+            if name in self.builtins and name in self.builtin_source_dict:
+                self.source_code.setPlainText(self.builtin_source_dict[name])
             else:
                 self.source_code.setPlainText(self.funcs[name].program_text)
 
+    def accept(self):
+        txt = unicode(self.textbox.toPlainText()).rstrip()
+        if self.coloring:
+            if self.colored_field.currentIndex() == -1:
+                error_dialog(self, _('No column chosen'),
+                    _('You must specify a column to be colored'), show=True)
+                return
+            if not txt:
+                error_dialog(self, _('No template provided'),
+                    _('The template box cannot be empty'), show=True)
+                return
+
+        self.rule = (unicode(self.colored_field.currentText()), txt)
+        QDialog.accept(self)

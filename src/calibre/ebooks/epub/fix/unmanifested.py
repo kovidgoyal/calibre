@@ -23,6 +23,10 @@ class Unmanifested(ePubFixer):
         'delete unmanifested option.')
 
     @property
+    def description(self):
+        return self.long_description
+
+    @property
     def fix_name(self):
         return 'unmanifested'
 

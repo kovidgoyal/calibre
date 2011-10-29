@@ -4,11 +4,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, os
 
 from PyQt4.QtCore import SIGNAL, Qt, pyqtSignal
-from PyQt4.QtGui import QDialog, QWidget, QDialogButtonBox, \
-                        QBrush, QTextCursor, QTextEdit
+from PyQt4.QtGui import (QDialog, QWidget, QDialogButtonBox,
+        QBrush, QTextCursor, QTextEdit)
 
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
@@ -16,6 +16,7 @@ from calibre.gui2 import error_dialog, choose_files
 from calibre.ebooks.oeb.iterator import EbookIterator
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+from calibre.constants import iswindows
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
 
@@ -134,7 +135,27 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                          _('Cannot build regex using the GUI builder without a book.'),
                          show=True)
             return False
-        self.open_book(db.format_abspath(book_id, format, index_is_id=True))
+        try:
+            fpath = db.format(book_id, format, index_is_id=True,
+                as_path=True)
+        except OSError:
+            if iswindows:
+                import traceback
+                error_dialog(self, _('Could not open file'),
+                    _('Could not open the file, do you have it open in'
+                        ' another program?'), show=True,
+                    det_msg=traceback.format_exc())
+                return False
+            raise
+        try:
+            self.open_book(fpath)
+        finally:
+            try:
+                os.remove(fpath)
+            except:
+                # Fails on windows if the input plugin for this format keeps the file open
+                # Happens for LIT files
+                pass
         return True
 
     def open_book(self, pathtoebook):
@@ -143,7 +164,8 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         text = [u'']
         preprocessor = HTMLPreProcessor(None, False)
         for path in self.iterator.spine:
-            html = open(path, 'rb').read().decode('utf-8', 'replace')
+            with open(path, 'rb') as f:
+                html = f.read().decode('utf-8', 'replace')
             html = preprocessor(html, get_preprocess_html=True)
             text.append(html)
         self.preview.setPlainText('\n---\n'.join(text))

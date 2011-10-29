@@ -172,8 +172,9 @@ class JobManager(QAbstractTableModel): # {{{
                     if job.is_finished:
                         self.job_done.emit(len(self.unfinished_jobs()))
             if needs_reset:
+                self.layoutAboutToBeChanged.emit()
                 self.jobs.sort()
-                self.reset()
+                self.layoutChanged.emit()
             else:
                 for job in jobs:
                     idx = self.jobs.index(job)
@@ -197,10 +198,12 @@ class JobManager(QAbstractTableModel): # {{{
     def row_to_job(self, row):
         return self.jobs[row]
 
-    def has_device_jobs(self):
+    def has_device_jobs(self, queued_also=False):
         for job in self.jobs:
-            if job.is_running and isinstance(job, DeviceJob):
-                return True
+            if isinstance(job, DeviceJob):
+                if job.duration is None: # Running or waiting
+                    if (job.is_running or queued_also):
+                        return True
         return False
 
     def has_jobs(self):
@@ -265,7 +268,8 @@ class JobManager(QAbstractTableModel): # {{{
 # }}}
 
 # Jobs UI {{{
-class ProgressBarDelegate(QAbstractItemDelegate):
+
+class ProgressBarDelegate(QAbstractItemDelegate): # {{{
 
     def sizeHint(self, option, index):
         return QSize(120, 30)
@@ -282,8 +286,9 @@ class ProgressBarDelegate(QAbstractItemDelegate):
         opts.progress = percent
         opts.text = QString(_('Unavailable') if percent == 0 else '%d%%'%percent)
         QApplication.style().drawControl(QStyle.CE_ProgressBar, opts, painter)
+# }}}
 
-class DetailView(QDialog, Ui_Dialog):
+class DetailView(QDialog, Ui_Dialog): # {{{
 
     def __init__(self, parent, job):
         QDialog.__init__(self, parent)
@@ -316,8 +321,9 @@ class DetailView(QDialog, Ui_Dialog):
             self.next_pos = f.tell()
             if more:
                 self.log.appendPlainText(more.decode('utf-8', 'replace'))
+# }}}
 
-class JobsButton(QFrame):
+class JobsButton(QFrame): # {{{
 
     def __init__(self, horizontal=False, size=48, parent=None):
         QFrame.__init__(self, parent)
@@ -402,6 +408,7 @@ class JobsButton(QFrame):
             self.stop()
             QCoreApplication.instance().alert(self, 5000)
 
+# }}}
 
 class JobsDialog(QDialog, Ui_JobsDialog):
 
@@ -430,6 +437,10 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             self.jobs_view.horizontalHeader().restoreState(QByteArray(state))
         except:
             pass
+        idx = self.jobs_view.model().index(0, 0)
+        if idx.isValid():
+            sm = self.jobs_view.selectionModel()
+            sm.select(idx, sm.ClearAndSelect|sm.Rows)
 
     def save_state(self):
         try:
@@ -440,7 +451,6 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         except:
             pass
 
-
     def show_job_details(self, index):
         row = index.row()
         job = self.jobs_view.model().row_to_job(row)
@@ -449,18 +459,23 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         d.timer.stop()
 
     def show_details(self, *args):
-        for index in self.jobs_view.selectedIndexes():
+        index = self.jobs_view.currentIndex()
+        if index.isValid():
             self.show_job_details(index)
-            return
 
     def kill_job(self, *args):
-        if question_dialog(self, _('Are you sure?'), _('Do you really want to stop the selected job?')):
-            for index in self.jobs_view.selectedIndexes():
-                row = index.row()
+        rows = [index.row() for index in
+                self.jobs_view.selectionModel().selectedRows()]
+        if question_dialog(self, _('Are you sure?'),
+                ngettext('Do you really want to stop the selected job?',
+                    'Do you really want to stop all the selected jobs?',
+                    len(rows))):
+            for row in rows:
                 self.model.kill_job(row, self)
 
     def kill_all_jobs(self, *args):
-        if question_dialog(self, _('Are you sure?'), _('Do you really want to stop all non-device jobs?')):
+        if question_dialog(self, _('Are you sure?'),
+                _('Do you really want to stop all non-device jobs?')):
             self.model.kill_all_jobs()
 
     def closeEvent(self, e):

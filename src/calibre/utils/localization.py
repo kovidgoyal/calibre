@@ -1,20 +1,21 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import absolute_import
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, locale, re, cStringIO, cPickle
-from gettext import GNUTranslations
+from gettext import GNUTranslations, NullTranslations
+from zipfile import ZipFile
 
 _available_translations = None
 
 def available_translations():
     global _available_translations
     if _available_translations is None:
-        stats = P('localization/stats.pickle')
+        stats = P('localization/stats.pickle', allow_user_override=False)
         if os.path.exists(stats):
             stats = cPickle.load(open(stats, 'rb'))
         else:
@@ -29,8 +30,11 @@ def get_lang():
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
     if lang is not None:
         return lang
-    lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
+    try:
+        lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
                                     'LC_MESSAGES', 'LANG'])[0]
+    except:
+        pass # This happens on Ubuntu apparently
     if lang is None and os.environ.has_key('LANG'): # Needed for OS X
         try:
             lang = os.environ['LANG']
@@ -46,21 +50,20 @@ def get_lang():
         lang = 'en'
     return lang
 
-def messages_path(lang):
-    return P('localization/locales/%s/LC_MESSAGES'%lang)
-
 def get_lc_messages_path(lang):
     hlang = None
-    if lang in available_translations():
-        hlang = lang
-    else:
-        xlang = lang.split('_')[0]
-        if xlang in available_translations():
-            hlang = xlang
-    if hlang is not None:
-        return messages_path(hlang)
-    return None
+    if zf_exists():
+        if lang in available_translations():
+            hlang = lang
+        else:
+            xlang = lang.split('_')[0]
+            if xlang in available_translations():
+                hlang = xlang
+    return hlang
 
+def zf_exists():
+    return os.path.exists(P('localization/locales.zip',
+                allow_user_override=False))
 
 def set_translators():
     # To test different translations invoke as
@@ -68,27 +71,37 @@ def set_translators():
     lang = get_lang()
     if lang:
         buf = iso639 = None
-        if os.access(lang+'.po', os.R_OK):
+        mpath = get_lc_messages_path(lang)
+        if mpath and os.access(mpath+'.po', os.R_OK):
             from calibre.translations.msgfmt import make
             buf = cStringIO.StringIO()
-            make(lang+'.po', buf)
+            make(mpath+'.po', buf)
             buf = cStringIO.StringIO(buf.getvalue())
 
-        mpath = get_lc_messages_path(lang)
         if mpath is not None:
-            if buf is None:
-                buf = open(os.path.join(mpath, 'messages.mo'), 'rb')
-            mpath = mpath.replace(os.sep+'nds'+os.sep, os.sep+'de'+os.sep)
-            isof = os.path.join(mpath, 'iso639.mo')
-            if os.path.exists(isof):
-                iso639 = open(isof, 'rb')
+            with ZipFile(P('localization/locales.zip',
+                allow_user_override=False), 'r') as zf:
+                if buf is None:
+                    buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+                if mpath == 'nds':
+                    mpath = 'de'
+                isof = mpath + '/iso639.mo'
+                try:
+                    iso639 = cStringIO.StringIO(zf.read(isof))
+                except:
+                    pass # No iso639 translations for this lang
 
+        t = None
         if buf is not None:
             t = GNUTranslations(buf)
             if iso639 is not None:
                 iso639 = GNUTranslations(iso639)
                 t.add_fallback(iso639)
-            t.install(unicode=True)
+
+        if t is None:
+            t = NullTranslations()
+
+        t.install(unicode=True, names=('ngettext',))
 
 _iso639 = None
 _extra_lang_codes = {
@@ -99,10 +112,13 @@ _extra_lang_codes = {
         'zh_TW' : _('Traditional Chinese'),
         'en'    : _('English'),
         'en_AU' : _('English (Australia)'),
+        'en_BG' : _('English (Bulgaria)'),
         'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
+        'en_GR' : _('English (Greece)'),
         'en_IN' : _('English (India)'),
         'en_TH' : _('English (Thailand)'),
+        'en_TR' : _('English (Turkey)'),
         'en_CY' : _('English (Cyprus)'),
         'en_CZ' : _('English (Czechoslovakia)'),
         'en_PK' : _('English (Pakistan)'),
@@ -113,6 +129,7 @@ _extra_lang_codes = {
         'en_YE' : _('English (Yemen)'),
         'en_IE' : _('English (Ireland)'),
         'en_CN' : _('English (China)'),
+        'en_ZA' : _('English (South Africa)'),
         'es_PY' : _('Spanish (Paraguay)'),
         'es_UY' : _('Spanish (Uruguay)'),
         'es_AR' : _('Spanish (Argentina)'),
@@ -124,6 +141,7 @@ _extra_lang_codes = {
         'es_VE' : _('Spanish (Venezuela)'),
         'es_BO' : _('Spanish (Bolivia)'),
         'es_NI' : _('Spanish (Nicaragua)'),
+        'es_CO' : _('Spanish (Colombia)'),
         'de_AT' : _('German (AT)'),
         'fr_BE' : _('French (BE)'),
         'nl'    : _('Dutch (NL)'),
@@ -131,43 +149,122 @@ _extra_lang_codes = {
         'und'   : _('Unknown')
         }
 
+if False:
+    # Extra strings needed for Qt
+
+    # NOTE: Ante Meridian (i.e. like 10:00 AM)
+    _('AM')
+    # NOTE: Post Meridian (i.e. like 10:00 PM)
+    _('PM')
+    # NOTE: Ante Meridian (i.e. like 10:00 am)
+    _('am')
+    # NOTE: Post Meridian (i.e. like 10:00 pm)
+    _('pm')
+
 _lcase_map = {}
 for k in _extra_lang_codes:
     _lcase_map[k.lower()] = k
 
-def get_language(lang):
+def _load_iso639():
     global _iso639
+    if _iso639 is None:
+        ip = P('localization/iso639.pickle', allow_user_override=False)
+        with open(ip, 'rb') as f:
+            _iso639 = cPickle.load(f)
+    return _iso639
+
+def get_language(lang):
+    translate = _
     lang = _lcase_map.get(lang, lang)
     if lang in _extra_lang_codes:
-        return _extra_lang_codes[lang]
-    ip = P('localization/iso639.pickle')
-    if not os.path.exists(ip):
-        return lang
-    if _iso639 is None:
-        _iso639 = cPickle.load(open(ip, 'rb'))
+        # The translator was not active when _extra_lang_codes was defined, so
+        # re-translate
+        return translate(_extra_lang_codes[lang])
+    iso639 = _load_iso639()
     ans = lang
     lang = lang.split('_')[0].lower()
     if len(lang) == 2:
-        ans = _iso639['by_2'].get(lang, ans)
+        ans = iso639['by_2'].get(lang, ans)
     elif len(lang) == 3:
-        if lang in _iso639['by_3b']:
-            ans = _iso639['by_3b'][lang]
+        if lang in iso639['by_3b']:
+            ans = iso639['by_3b'][lang]
         else:
-            ans = _iso639['by_3t'].get(lang, ans)
-    return _(ans)
+            ans = iso639['by_3t'].get(lang, ans)
+    return translate(ans)
 
+def calibre_langcode_to_name(lc, localize=True):
+    iso639 = _load_iso639()
+    translate = _ if localize else lambda x: x
+    try:
+        return translate(iso639['by_3t'][lc])
+    except:
+        pass
+    return lc
 
-def set_qt_translator(translator):
-    lang = get_lang()
-    if lang is not None:
-        if lang == 'nds':
-            lang = 'de'
-        mpath = get_lc_messages_path(lang)
-        if mpath is not None:
-            p = os.path.join(mpath, 'qt.qm')
-            if os.path.exists(p):
-                return translator.load(p)
-    return False
+def canonicalize_lang(raw):
+    if not raw:
+        return None
+    if not isinstance(raw, unicode):
+        raw = raw.decode('utf-8', 'ignore')
+    raw = raw.lower().strip()
+    if not raw:
+        return None
+    raw = raw.replace('_', '-').partition('-')[0].strip()
+    if not raw:
+        return None
+    iso639 = _load_iso639()
+    m2to3 = iso639['2to3']
+
+    if len(raw) == 2:
+        ans = m2to3.get(raw, None)
+        if ans is not None:
+            return ans
+    elif len(raw) == 3:
+        if raw in iso639['by_3t']:
+            return raw
+        if raw in iso639['3bto3t']:
+            return iso639['3bto3t'][raw]
+
+    return iso639['name_map'].get(raw, None)
+
+_lang_map = None
+
+def lang_map():
+    ' Return mapping of ISO 639 3 letter codes to localized language names '
+    iso639 = _load_iso639()
+    translate = _
+    global _lang_map
+    if _lang_map is None:
+        _lang_map = {k:translate(v) for k, v in iso639['by_3t'].iteritems()}
+    return _lang_map
+
+def langnames_to_langcodes(names):
+    '''
+    Given a list of localized language names return a mapping of the names to 3
+    letter ISO 639 language codes. If a name is not recognized, it is mapped to
+    None.
+    '''
+    iso639 = _load_iso639()
+    translate = _
+    ans = {}
+    names = set(names)
+    for k, v in iso639['by_3t'].iteritems():
+        tv = translate(v)
+        if tv in names:
+            names.remove(tv)
+            ans[tv] = k
+        if not names:
+            break
+    for x in names:
+        ans[x] = None
+
+    return ans
+
+def lang_as_iso639_1(name_or_code):
+    code = canonicalize_lang(name_or_code)
+    if code is not None:
+        iso639 = _load_iso639()
+        return iso639['3to2'].get(code, None)
 
 _udc = None
 

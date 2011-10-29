@@ -1,0 +1,37 @@
+#created by sexymax15 ....sexymax15@gmail.com
+#christian post recipe
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class ChristianPost(BasicNewsRecipe):
+
+    title = 'The Christian Post'
+    __author__ = 'sexymax15'
+    description = 'Homepage'
+    language = 'en'
+    no_stylesheets = True
+    use_embedded_content	= False
+    oldest_article	= 30
+    max_articles_per_feed = 15
+
+    remove_empty_feeds = True
+    no_stylesheets = True
+    remove_javascript = True
+
+    extra_css = '''
+              h1 {color:#008852;font-family:Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:18px;}
+              h2 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:16px; } '''
+
+
+    feeds =  [
+             ('Homepage', 'http://www.christianpost.com/services/rss/feed/'),
+             ('Most Popular', 'http://www.christianpost.com/services/rss/feed/most-popular'),
+             ('Entertainment', 'http://www.christianpost.com/services/rss/feed/entertainment/'),
+             ('Politics', 'http://www.christianpost.com/services/rss/feed/politics/'),
+             ('Living', 'http://www.christianpost.com/services/rss/feed/living/'),
+             ('Business', 'http://www.christianpost.com/services/rss/feed/business/'),
+             ('Opinion', 'http://www.christianpost.com/services/rss/feed/opinion/')
+             ]
+
+    def print_version(self, url):
+        return url +'print.html'
+

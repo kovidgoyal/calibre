@@ -140,7 +140,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
         self.builtin_recipe_collection = get_builtin_recipe_collection()
         self.scheduler_config = SchedulerConfig()
         try:
-            with zipfile.ZipFile(P('builtin_recipes.zip'), 'r') as zf:
+            with zipfile.ZipFile(P('builtin_recipes.zip',
+                    allow_user_override=False), 'r') as zf:
                 self.favicons = dict([(x.filename, x) for x in zf.infolist() if
                     x.filename.endswith('.png')])
         except:
@@ -181,7 +182,7 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
 
     def do_refresh(self, restrict_to_urns=set([])):
         self.custom_recipe_collection = get_custom_recipe_collection()
-        zf = P('builtin_recipes.zip')
+        zf = P('builtin_recipes.zip', allow_user_override=False)
 
         def factory(cls, parent, *args):
             args = list(args)
@@ -216,6 +217,8 @@ class RecipeModel(QAbstractItemModel, SearchQueryParser):
             self.all_urns.add(urn)
             if ok(urn):
                 lang = x.get('language', 'und')
+                if lang:
+                    lang = lang.replace('-', '_')
                 if lang not in lang_map:
                     lang_map[lang] = factory(NewsCategory, new_root, lang)
                 factory(NewsItem, lang_map[lang], urn, x.get('title'))

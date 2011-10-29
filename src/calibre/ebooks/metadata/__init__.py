@@ -36,8 +36,15 @@ def author_to_author_sort(author, method=None):
         return author
     if method is None:
         method = tweaks['author_sort_copy_method']
+
+    ltoks = frozenset(x.lower() for x in tokens)
+    copy_words = frozenset(x.lower() for x in tweaks['author_name_copywords'])
+    if ltoks.intersection(copy_words):
+        method = u'copy'
+
     if method == u'copy':
         return author
+
     suffixes = set([x.lower() for x in tweaks['author_name_suffixes']])
     suffixes |= set([x+u'.' for x in suffixes])
 

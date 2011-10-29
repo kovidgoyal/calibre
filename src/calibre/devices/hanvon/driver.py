@@ -52,6 +52,18 @@ class THEBOOK(N516):
     EBOOK_DIR_MAIN = 'My books'
     WINDOWS_CARD_A_MEM = '_FILE-STOR_GADGE'
 
+class LIBREAIR(N516):
+    name = 'Libre Air Driver'
+    gui_name = 'Libre Air'
+    description    = _('Communicate with the Libre Air reader.')
+    author         = 'Kovid Goyal'
+    FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf']
+
+    BCD = [0x399]
+    VENDOR_NAME      = 'ALURATEK'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
+    EBOOK_DIR_MAIN = 'Books'
+
 class ALEX(N516):
 
     name = 'Alex driver'
@@ -119,7 +131,7 @@ class AZBOOKA(ALEX):
     description = _('Communicate with the Azbooka')
 
     VENDOR_NAME      = 'LINUX'
-    WINDOWS_MAIN_MEM = 'FILE-STOR_GADGET'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
     MAIN_MEMORY_VOLUME_LABEL  = 'Azbooka Internal Memory'
 

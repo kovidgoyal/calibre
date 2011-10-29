@@ -5,8 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, functools, re, os, traceback
-from contextlib import closing
+import functools, re, os, traceback
+from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDate, QColor)
@@ -14,7 +14,7 @@ from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
 from calibre.gui2 import NONE, UNDEFINED_QDATE
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
-from calibre.ebooks.metadata.book.base import composite_formatter
+from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import dt_factory, qt_to_dt
@@ -25,6 +25,7 @@ from calibre.library.caches import (_match, CONTAINS_MATCH, EQUALS_MATCH,
 from calibre import strftime, isbytestring
 from calibre.constants import filesystem_encoding, DEBUG
 from calibre.gui2.library import DEFAULT_SORT
+from calibre.utils.localization import calibre_langcode_to_name
 
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
@@ -34,14 +35,6 @@ TIME_FMT = '%d %b %Y'
 
 ALIGNMENT_MAP = {'left': Qt.AlignLeft, 'right': Qt.AlignRight, 'center':
         Qt.AlignHCenter}
-
-class FormatPath(unicode):
-
-    def __new__(cls, path, orig_file_path):
-        ans = unicode.__new__(cls, path)
-        ans.orig_file_path = orig_file_path
-        ans.deleted_after_upload = False
-        return ans
 
 _default_image = None
 
@@ -70,8 +63,9 @@ class BooksModel(QAbstractTableModel): # {{{
                         'rating'    : _('Rating'),
                         'publisher' : _("Publisher"),
                         'tags'      : _("Tags"),
-                        'series'    : _("Series"),
+                        'series'    : ngettext("Series", 'Series', 1),
                         'last_modified' : _('Modified'),
+                        'languages' : _('Languages'),
     }
 
     def __init__(self, parent=None, buffer=40):
@@ -79,7 +73,8 @@ class BooksModel(QAbstractTableModel): # {{{
         self.db = None
         self.book_on_device = None
         self.editable_cols = ['title', 'authors', 'rating', 'publisher',
-                              'tags', 'series', 'timestamp', 'pubdate']
+                              'tags', 'series', 'timestamp', 'pubdate',
+                              'languages']
         self.default_image = default_image()
         self.sorted_on = DEFAULT_SORT
         self.sort_history = [self.sorted_on]
@@ -87,6 +82,7 @@ class BooksModel(QAbstractTableModel): # {{{
         self.column_map = []
         self.headers = {}
         self.alignment_map = {}
+        self.color_cache = defaultdict(dict)
         self.buffer_size = buffer
         self.metadata_backup = None
         self.bool_yes_icon = QIcon(I('ok.png'))
@@ -97,8 +93,8 @@ class BooksModel(QAbstractTableModel): # {{{
         self.ids_to_highlight_set = set()
         self.current_highlighted_idx = None
         self.highlight_only = False
-        self.column_color_map = {}
-        self.colors = [unicode(c) for c in QColor.colorNames()]
+        self.colors = frozenset([unicode(c) for c in QColor.colorNames()])
+        self.formatter = SafeFormat()
         self.read_config()
 
     def change_alignment(self, colname, alignment):
@@ -154,7 +150,6 @@ class BooksModel(QAbstractTableModel): # {{{
                 self.headers[col] = self.custom_columns[col]['name']
 
         self.build_data_convertors()
-        self.set_color_templates(reset=False)
         self.reset()
         self.database_changed.emit(db)
         self.stop_metadata_backup()
@@ -172,11 +167,13 @@ class BooksModel(QAbstractTableModel): # {{{
 
 
     def refresh_ids(self, ids, current_row=-1):
+        self.color_cache = defaultdict(dict)
         rows = self.db.refresh_ids(ids)
         if rows:
             self.refresh_rows(rows, current_row=current_row)
 
     def refresh_rows(self, rows, current_row=-1):
+        self.color_cache = defaultdict(dict)
         for row in rows:
             if row == current_row:
                 self.new_bookdisplay_data.emit(
@@ -206,6 +203,7 @@ class BooksModel(QAbstractTableModel): # {{{
         return ret
 
     def count_changed(self, *args):
+        self.color_cache = defaultdict(dict)
         self.count_changed_signal.emit(self.db.count())
 
     def row_indices(self, index):
@@ -336,6 +334,10 @@ class BooksModel(QAbstractTableModel): # {{{
         self.db.refresh(field=None)
         self.resort(reset=reset)
 
+    def reset(self):
+        self.color_cache = defaultdict(dict)
+        QAbstractTableModel.reset(self)
+
     def resort(self, reset=True):
         if not self.db:
             return
@@ -384,10 +386,14 @@ class BooksModel(QAbstractTableModel): # {{{
         data = self.current_changed(index, None, False)
         return data
 
-    def metadata_for(self, ids):
+    def metadata_for(self, ids, get_cover=True):
+        '''
+        WARNING: if get_cover=True temp files are created for mi.cover.
+        Remember to delete them once you are done with them.
+        '''
         ans = []
         for id in ids:
-            mi = self.db.get_metadata(id, index_is_id=True, get_cover=True)
+            mi = self.db.get_metadata(id, index_is_id=True, get_cover=get_cover)
             ans.append(mi)
         return ans
 
@@ -442,18 +448,14 @@ class BooksModel(QAbstractTableModel): # {{{
                     format = f
                     break
             if format is not None:
-                pt = PersistentTemporaryFile(suffix='.'+format)
-                with closing(self.db.format(id, format, index_is_id=True,
-                    as_file=True)) as src:
-                    shutil.copyfileobj(src, pt)
-                    pt.flush()
-                    if getattr(src, 'name', None):
-                        pt.orig_file_path = os.path.abspath(src.name)
+                pt = PersistentTemporaryFile(suffix='caltmpfmt.'+format)
+                self.db.copy_format_to(id, format, pt, index_is_id=True)
                 pt.seek(0)
                 if set_metadata:
                     try:
-                        _set_metadata(pt, self.db.get_metadata(id, get_cover=True, index_is_id=True),
-                                  format)
+                        _set_metadata(pt, self.db.get_metadata(
+                            id, get_cover=True, index_is_id=True,
+                            cover_as_data=True), format)
                     except:
                         traceback.print_exc()
                 pt.close()
@@ -461,9 +463,7 @@ class BooksModel(QAbstractTableModel): # {{{
                     if isbytestring(x):
                         x = x.decode(filesystem_encoding)
                     return x
-                name, op = map(to_uni, map(os.path.abspath, (pt.name,
-                    pt.orig_file_path)))
-                ans.append(FormatPath(name, op))
+                ans.append(to_uni(os.path.abspath(pt.name)))
             else:
                 need_auto.append(id)
                 if not exclude_auto:
@@ -492,13 +492,11 @@ class BooksModel(QAbstractTableModel): # {{{
                     break
             if format is not None:
                 pt = PersistentTemporaryFile(suffix='.'+format)
-                with closing(self.db.format(row, format, as_file=True)) as src:
-                    shutil.copyfileobj(src, pt)
-                    pt.flush()
+                self.db.copy_format_to(id, format, pt, index_is_id=True)
                 pt.seek(0)
                 if set_metadata:
-                    _set_metadata(pt, self.db.get_metadata(row, get_cover=True),
-                                  format)
+                    _set_metadata(pt, self.db.get_metadata(row, get_cover=True,
+                        cover_as_data=True), format)
                 pt.close() if paths else pt.seek(0)
                 ans.append(pt)
             else:
@@ -536,16 +534,6 @@ class BooksModel(QAbstractTableModel): # {{{
             img = self.default_image
         return img
 
-    def set_color_templates(self, reset=True):
-        self.column_color_map = {}
-        for i in range(1,self.db.column_color_count+1):
-            name = self.db.prefs.get('column_color_name_'+str(i))
-            if name:
-                self.column_color_map[name] = \
-                        self.db.prefs.get('column_color_template_'+str(i))
-        if reset:
-            self.reset()
-
     def build_data_convertors(self):
         def authors(r, idx=-1):
             au = self.db.data[r][idx]
@@ -554,6 +542,13 @@ class BooksModel(QAbstractTableModel): # {{{
                 return QVariant(' & '.join(au))
             else:
                 return None
+
+        def languages(r, idx=-1):
+            lc = self.db.data[r][idx]
+            if lc:
+                langs = [calibre_langcode_to_name(l.strip()) for l in lc.split(',')]
+                return QVariant(', '.join(langs))
+            return None
 
         def tags(r, idx=-1):
             tags = self.db.data[r][idx]
@@ -611,10 +606,11 @@ class BooksModel(QAbstractTableModel): # {{{
 
         def text_type(r, mult=None, idx=-1):
             text = self.db.data[r][idx]
-            if text and mult is not None:
-                if mult:
-                    return QVariant(u' & '.join(text.split('|')))
-                return QVariant(u', '.join(sorted(text.split('|'),key=sort_key)))
+            if text and mult:
+                jv = mult['list_to_ui']
+                sv = mult['cache_to_list']
+                return QVariant(jv.join(
+                    sorted([t.strip() for t in text.split(sv)], key=sort_key)))
             return QVariant(text)
 
         def decorated_text_type(r, idx=-1):
@@ -623,7 +619,12 @@ class BooksModel(QAbstractTableModel): # {{{
                 return None
             return QVariant(text)
 
-        def number_type(r, idx=-1):
+        def number_type(r, idx=-1, fmt=None):
+            if fmt is not None:
+                try:
+                    return QVariant(fmt.format(self.db.data[r][idx]))
+                except:
+                    pass
             return QVariant(self.db.data[r][idx])
 
         self.dc = {
@@ -650,6 +651,8 @@ class BooksModel(QAbstractTableModel): # {{{
                                 siix=self.db.field_metadata['series_index']['rec_index']),
                    'ondevice' : functools.partial(text_type,
                                 idx=self.db.field_metadata['ondevice']['rec_index'], mult=None),
+                   'languages': functools.partial(languages,
+                                idx=self.db.field_metadata['languages']['rec_index']),
                    }
 
         self.dc_decorator = {
@@ -663,8 +666,6 @@ class BooksModel(QAbstractTableModel): # {{{
             datatype = self.custom_columns[col]['datatype']
             if datatype in ('text', 'comments', 'composite', 'enumeration'):
                 mult=self.custom_columns[col]['is_multiple']
-                if mult is not None:
-                    mult = self.custom_columns[col]['display'].get('is_names', False)
                 self.dc[col] = functools.partial(text_type, idx=idx, mult=mult)
                 if datatype in ['text', 'composite', 'enumeration'] and not mult:
                     if self.custom_columns[col]['display'].get('use_decorations', False):
@@ -674,7 +675,8 @@ class BooksModel(QAbstractTableModel): # {{{
                             bool_cols_are_tristate=
                                 self.db.prefs.get('bools_are_tristate'))
             elif datatype in ('int', 'float'):
-                self.dc[col] = functools.partial(number_type, idx=idx)
+                fmt = self.custom_columns[col]['display'].get('number_format', None)
+                self.dc[col] = functools.partial(number_type, idx=idx, fmt=fmt)
             elif datatype == 'datetime':
                 self.dc[col] = functools.partial(datetime_type, idx=idx)
             elif datatype == 'bool':
@@ -704,25 +706,34 @@ class BooksModel(QAbstractTableModel): # {{{
         # we will get asked to display columns we don't know about. Must test for this.
         if col >= len(self.column_to_dc_map):
             return NONE
-        if role in (Qt.DisplayRole, Qt.EditRole):
+        if role in (Qt.DisplayRole, Qt.EditRole, Qt.ToolTipRole):
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
                 return QVariant(QColor('lightgreen'))
         elif role == Qt.ForegroundRole:
             key = self.column_map[col]
-            if key in self.column_color_map:
-                mi = self.db.get_metadata(self.id(index), index_is_id=True)
-                fmt = self.column_color_map[key]
+            mi = None
+            for k, fmt in self.db.prefs['column_color_rules']:
+                if k != key:
+                    continue
+                id_ = self.id(index)
+                if id_ in self.color_cache:
+                    if key in self.color_cache[id_]:
+                        return self.color_cache[id_][key]
                 try:
-                    color = composite_formatter.safe_format(fmt, mi, '', mi)
+                    if mi is None:
+                        mi = self.db.get_metadata(id_, index_is_id=True)
+                    color = self.formatter.safe_format(fmt, mi, '', mi)
                     if color in self.colors:
                         color = QColor(color)
                         if color.isValid():
-                            return QVariant(color)
+                            color = QVariant(color)
+                            self.color_cache[id_][key] = color
+                            return color
                 except:
-                    return NONE
-            elif self.is_custom_column(key) and \
+                    continue
+            if self.is_custom_column(key) and \
                         self.custom_columns[key]['datatype'] == 'enumeration':
                 cc = self.custom_columns[self.column_map[col]]['display']
                 colors = cc.get('enum_colors', [])
@@ -885,6 +896,9 @@ class BooksModel(QAbstractTableModel): # {{{
                     if val.isNull() or not val.isValid():
                         return False
                     self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
+                elif column == 'languages':
+                    val = val.split(',')
+                    self.db.set_languages(id, val)
                 else:
                     books_to_refresh |= self.db.set(row, column, val,
                                                     allow_case_change=True)
@@ -951,11 +965,11 @@ class OnDeviceSearch(SearchQueryParser): # {{{
             for locvalue in locations:
                 accessor = q[locvalue]
                 if query == 'true':
-                    if accessor(row) is not None:
+                    if accessor(row):
                         matches.add(index)
                     continue
                 if query == 'false':
-                    if accessor(row) is None:
+                    if not accessor(row):
                         matches.add(index)
                     continue
                 if locvalue == 'inlibrary':
@@ -1099,6 +1113,8 @@ class DeviceBooksModel(BooksModel): # {{{
         if self.last_search:
             self.searched.emit(True)
 
+    def research(self, reset=True):
+        self.search(self.last_search, reset)
 
     def sort(self, col, order, reset=True):
         descending = order != Qt.AscendingOrder
@@ -1160,6 +1176,8 @@ class DeviceBooksModel(BooksModel): # {{{
         self.custom_columns = {}
         self.db = db
         self.map = list(range(0, len(db)))
+        self.research(reset=False)
+        self.resort()
 
     def cover(self, row):
         item = self.db[self.map[row]]
@@ -1308,8 +1326,6 @@ class DeviceBooksModel(BooksModel): # {{{
             ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
             return QVariant(ans)
-
-
         return NONE
 
     def headerData(self, section, orientation, role):

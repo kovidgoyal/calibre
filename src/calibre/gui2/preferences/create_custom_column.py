@@ -13,6 +13,9 @@ from calibre.gui2 import error_dialog
 
 class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
+    # Note: in this class, we are treating is_multiple as the boolean that
+    # custom_columns expects to find in its structure. It does not use the dict
+
     column_types = {
                     0:{'datatype':'text',
                         'text':_('Text, column shown in the tag browser'),
@@ -124,9 +127,14 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.composite_sort_by.setCurrentIndex(sb)
             self.composite_make_category.setChecked(
                                 c['display'].get('make_category', False))
+            self.composite_make_category.setChecked(
+                                c['display'].get('contains_html', False))
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
             self.enum_colors.setText(','.join(c['display'].get('enum_colors', [])))
+        elif ct in ['int', 'float']:
+            if c['display'].get('number_format', None):
+                self.number_format_box.setText(c['display'].get('number_format', ''))
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
@@ -135,6 +143,21 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
         all_colors = [unicode(s) for s in list(QColor.colorNames())]
         self.enum_colors_label.setToolTip('<p>' + ', '.join(all_colors) + '</p>')
+
+        self.composite_contains_html.setToolTip('<p>' +
+                _('If checked, this column will be displayed as HTML in '
+                  'book details and the content server. This can be used to '
+                  'construct links with the template language. For example, '
+                  'the template '
+                  '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
+                  '{series:| [|}{series_index:| [|]]}</pre>'
+                  'will create a field displaying the title in bold large '
+                  'characters, along with the series, for example <br>"<big><b>'
+                  'An Oblique Approach</b></big> [Belisarius [1]]". The template '
+                  '<pre>&lt;a href="http://www.beam-ebooks.de/ebook/{identifiers'
+                  ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
+                  'will generate a link to the book on the Beam ebooks site.')
+                        + '</p>')
         self.exec_()
 
     def shortcut_activated(self, url):
@@ -171,13 +194,26 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             col_type = None
         for x in ('box', 'default_label', 'label'):
             getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
+            getattr(self, 'number_format_'+x).setVisible(col_type in ['int', 'float'])
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
-                  'make_category'):
+                  'make_category', 'contains_html'):
             getattr(self, 'composite_'+x).setVisible(col_type in ['composite', '*composite'])
         for x in ('box', 'default_label', 'label', 'colors', 'colors_label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
+        if col_type == 'int':
+            self.number_format_box.setToolTip('<p>' +
+                _('Examples: The format <code>{0:0>4d}</code> '
+                  'gives a 4-digit number with leading zeros. The format '
+                  '<code>{0:d}&nbsp;days</code> prints the number then the word "days"')+ '</p>')
+        elif col_type == 'float':
+            self.number_format_box.setToolTip('<p>' +
+                _('Examples: The format <code>{0:.1f}</code> gives a floating '
+                  'point number with 1 digit after the decimal point. The format '
+                  '<code>Price:&nbsp;$&nbsp;{0:,.2f}</code> prints '
+                  '"Price&nbsp;$&nbsp;" then displays the number with 2 digits '
+                  'after the decimal point and thousands separated by commas.') + '</p>')
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -238,6 +274,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                             'composite_sort': ['text', 'number', 'date', 'bool']
                                         [self.composite_sort_by.currentIndex()],
                             'make_category': self.composite_make_category.isChecked(),
+                            'contains_html': self.composite_contains_html.isChecked(),
                         }
         elif col_type == 'enumeration':
             if not unicode(self.enum_box.text()).strip():
@@ -267,6 +304,11 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             display_dict = {'enum_values': l, 'enum_colors': c}
         elif col_type == 'text' and is_multiple:
             display_dict = {'is_names': self.is_names.isChecked()}
+        elif col_type in ['int', 'float']:
+            if unicode(self.number_format_box.text()).strip():
+                display_dict = {'number_format':unicode(self.number_format_box.text()).strip()}
+            else:
+                display_dict = {'number_format': None}
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()

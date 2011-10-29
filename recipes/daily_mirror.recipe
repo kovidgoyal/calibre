@@ -1,0 +1,52 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1306061239(BasicNewsRecipe):
+    title          = u'The Daily Mirror'
+    description = 'News as provide by The Daily Mirror -UK'
+
+    __author__ = 'Dave Asbury'
+    language = 'en_GB'
+
+    cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
+
+    masthead_url = 'http://www.nmauk.co.uk/nma/images/daily_mirror.gif'
+
+
+    oldest_article = 1
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    remove_javascript     = True
+    no_stylesheets = True
+
+    keep_only_tags = [
+    dict(name='h1'),
+    dict(attrs={'class':['article-attr']}),
+    dict(name='div', attrs={'class' : [ 'article-body', 'crosshead']})
+
+
+    ]
+
+    remove_tags = [
+           dict(name='div', attrs={'class' : ['caption', 'article-resize']}),
+           dict( attrs={'class':'append-html'})
+           ]
+
+
+
+
+    feeds          = [
+
+        (u'News', u'http://www.mirror.co.uk/news/rss.xml')
+        ,(u'Tech News', u'http://www.mirror.co.uk/news/technology/rss.xml')
+        ,(u'Weird World','http://www.mirror.co.uk/news/weird-world/rss.xml')
+        ,(u'Film Gossip','http://www.mirror.co.uk/celebs/film/rss.xml')
+        ,(u'Music News','http://www.mirror.co.uk/celebs/music/rss.xml')
+        ,(u'Celebs and Tv Gossip','http://www.mirror.co.uk/celebs/tv/rss.xml')
+        ,(u'Sport','http://www.mirror.co.uk/sport/rss.xml')
+         ,(u'Life Style','http://www.mirror.co.uk/life-style/rss.xml')
+         ,(u'Advice','http://www.mirror.co.uk/advice/rss.xml')
+             ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
+
+           # example of commented out feed not needed ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
+  ]
+

@@ -17,7 +17,7 @@ from datetime import datetime
 from functools import partial
 
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
-from calibre.utils.date import parse_date, isoformat, local_tz
+from calibre.utils.date import parse_date, isoformat, local_tz, UNDEFINED_DATE
 from calibre import isbytestring, force_unicode
 from calibre.constants import iswindows, DEBUG, plugins
 from calibre.utils.icu import strcmp
@@ -39,8 +39,11 @@ def _c_convert_timestamp(val):
     if ret is None:
         return parse_date(val, as_utc=False)
     year, month, day, hour, minutes, seconds, tzsecs = ret
-    return datetime(year, month, day, hour, minutes, seconds,
+    try:
+        return datetime(year, month, day, hour, minutes, seconds,
                 tzinfo=tzoffset(None, tzsecs)).astimezone(local_tz)
+    except OverflowError:
+        return UNDEFINED_DATE.astimezone(local_tz)
 
 def _py_convert_timestamp(val):
     if val:
@@ -121,8 +124,11 @@ class SortedConcatenate(object):
             return None
         return self.sep.join(map(self.ans.get, sorted(self.ans.keys())))
 
-class SafeSortedConcatenate(SortedConcatenate):
+class SortedConcatenateBar(SortedConcatenate):
     sep = '|'
+
+class SortedConcatenateAmper(SortedConcatenate):
+    sep = '&'
 
 class IdentifiersConcat(object):
     '''String concatenation aggregator for the identifiers map'''
@@ -141,9 +147,9 @@ class AumSortedConcatenate(object):
     def __init__(self):
         self.ans = {}
 
-    def step(self, ndx, author, sort):
+    def step(self, ndx, author, sort, link):
         if author is not None:
-            self.ans[ndx] = author + ':::' + sort
+            self.ans[ndx] = ':::'.join((author, sort, link))
 
     def finalize(self):
         keys = self.ans.keys()
@@ -220,12 +226,13 @@ class DBThread(Thread):
         self.conn.execute('pragma cache_size=5000')
         encoding = self.conn.execute('pragma encoding').fetchone()[0]
         self.conn.create_aggregate('sortconcat', 2, SortedConcatenate)
-        self.conn.create_aggregate('sort_concat', 2, SafeSortedConcatenate)
+        self.conn.create_aggregate('sortconcat_bar', 2, SortedConcatenateBar)
+        self.conn.create_aggregate('sortconcat_amper', 2, SortedConcatenateAmper)
         self.conn.create_aggregate('identifiers_concat', 2, IdentifiersConcat)
         load_c_extensions(self.conn)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
-        self.conn.create_aggregate('aum_sortconcat', 3, AumSortedConcatenate)
+        self.conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)
         self.conn.create_collation('PYNOCASE', partial(pynocase,
             encoding=encoding))
         self.conn.create_function('title_sort', 1, title_sort)
@@ -283,7 +290,10 @@ class DatabaseException(Exception):
 
     def __init__(self, err, tb):
         tb = '\n\t'.join(('\tRemote'+tb).splitlines())
-        msg = unicode(err) +'\n' + tb
+        try:
+            msg = unicode(err) +'\n' + tb
+        except:
+            msg = repr(err) + '\n' + tb
         Exception.__init__(self, msg)
         self.orig_err = err
         self.orig_tb  = tb

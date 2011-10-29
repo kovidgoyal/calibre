@@ -94,11 +94,29 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Get device information...'))
         self.driveinfo = {}
         if self._main_prefix is not None:
-            self.driveinfo['main'] = self._update_driveinfo_file(self._main_prefix, 'main')
-        if self._card_a_prefix is not None:
-            self.driveinfo['A'] = self._update_driveinfo_file(self._card_a_prefix, 'A')
-        if self._card_b_prefix is not None:
-            self.driveinfo['B'] = self._update_driveinfo_file(self._card_b_prefix, 'B')
+            try:
+                self.driveinfo['main'] = self._update_driveinfo_file(self._main_prefix, 'main')
+            except (IOError, OSError) as e:
+                raise IOError(_('Failed to access files in the main memory of'
+                        ' your device. You should contact the device'
+                        ' manufacturer for support. Common fixes are:'
+                        ' try a different USB cable/USB port on your computer.'
+                        ' If you device has a "Reset to factory defaults" type'
+                        ' of setting somewhere, use it. Underlying error: %s')
+                        % e)
+        try:
+            if self._card_a_prefix is not None:
+                self.driveinfo['A'] = self._update_driveinfo_file(self._card_a_prefix, 'A')
+            if self._card_b_prefix is not None:
+                self.driveinfo['B'] = self._update_driveinfo_file(self._card_b_prefix, 'B')
+        except (IOError, OSError) as e:
+            raise IOError(_('Failed to access files on the SD card in your'
+                ' device. This can happen for many reasons. The SD card may be'
+                ' corrupted, it may be too large for your device, it may be'
+                ' write-protected, etc. Try a different SD card, or reformat'
+                ' your SD card using the FAT32 filesystem. Also make sure'
+                ' there are not too many files in the root of your SD card.'
+                ' Underlying error: %s') % e)
         return (self.get_gui_name(), '', '', '', self.driveinfo)
 
     def set_driveinfo_name(self, location_code, name):
@@ -132,7 +150,7 @@ class USBMS(CLI, Device):
                                      self._card_b_prefix if oncard == 'cardb' \
                                                          else self._main_prefix
 
-        ebook_dirs = self.EBOOK_DIR_CARD_A if oncard == 'carda' else \
+        ebook_dirs = self.get_carda_ebook_dir() if oncard == 'carda' else \
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
             self.get_main_ebook_dir()
 
@@ -240,10 +258,10 @@ class USBMS(CLI, Device):
         for i, infile in enumerate(files):
             mdata, fname = metadata.next(), names.next()
             filepath = self.normalize_path(self.create_upload_path(path, mdata, fname))
-            paths.append(filepath)
             if not hasattr(infile, 'read'):
                 infile = self.normalize_path(infile)
-            self.put_file(infile, filepath, replace_file=True)
+            filepath = self.put_file(infile, filepath, replace_file=True)
+            paths.append(filepath)
             try:
                 self.upload_cover(os.path.dirname(filepath),
                                   os.path.splitext(os.path.basename(filepath))[0],

@@ -53,15 +53,15 @@ from the calibre website it will be :file:`/opt/calibre/resources`. These paths 
 
 You should not change the files in this resources folder, as your changes will get overwritten the next time you update |app|. Instead, go to
 :guilabel:`Preferences->Advanced->Miscellaneous` and click :guilabel:`Open calibre configuration directory`. In this configuration directory, create a sub-folder called resources and place the files you want to override in it. Place the files in the appropriate sub folders, for example place images in :file:`resources/images`, etc. 
-|app| will automatically use your custom file in preference to the builtin one the next time it is started.
+|app| will automatically use your custom file in preference to the built-in one the next time it is started.
 
-For example, if you wanted to change the icon for the :guilabel:`Remove books` action, you would first look in the builtin resources folder and see that the relevant file is
-:file:`resources/images/trash.svg`. Assuming you have an alternate icon in svg format called :file:`mytrash.svg` you would save it in the configuration directory as :file:`resources/images/trash.svg`. All the icons used by the calibre user interface are in :file:`resources/images` and its sub-folders.
+For example, if you wanted to change the icon for the :guilabel:`Remove books` action, you would first look in the built-in resources folder and see that the relevant file is
+:file:`resources/images/trash.png`. Assuming you have an alternate icon in PNG format called :file:`mytrash.png` you would save it in the configuration directory as :file:`resources/images/trash.png`. All the icons used by the calibre user interface are in :file:`resources/images` and its sub-folders.
 
 Customizing |app| with plugins
 --------------------------------
 
-|app| has a very modular design. Almost all functionality in |app| comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to |app| and so on. You can get a complete list of all the builtin plugins in |app| by going to :guilabel:`Preferences->Plugins`.
+|app| has a very modular design. Almost all functionality in |app| comes in the form of plugins. Plugins are used for conversion, for downloading news (though these are called recipes), for various components of the user interface, to connect to different devices, to process files when adding them to |app| and so on. You can get a complete list of all the built-in plugins in |app| by going to :guilabel:`Preferences->Plugins`.
 
 You can write your own plugins to customize and extend the behavior of |app|. The plugin architecture in |app| is very simple, see the tutorial :ref:`pluginstutorial`.
 

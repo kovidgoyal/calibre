@@ -8,10 +8,11 @@ import os, math, re, glob, sys
 from base64 import b64encode
 from functools import partial
 
-from PyQt4.Qt import QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
-                     QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
-                     QColor, QPoint, QImage, QRegion, QVariant, QIcon, \
-                     QFont, pyqtSignature, QAction, QByteArray, QMenu
+from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer,
+                     QPainter, QPalette, QBrush, QFontDatabase, QDialog,
+                     QColor, QPoint, QImage, QRegion, QVariant, QIcon,
+                     QFont, pyqtSignature, QAction, QByteArray, QMenu,
+                     pyqtSignal)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
@@ -496,6 +497,7 @@ class EntityDeclarationProcessor(object): # {{{
 
 class DocumentView(QWebView): # {{{
 
+    magnification_changed = pyqtSignal(object)
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
 
     def __init__(self, *args):
@@ -908,15 +910,22 @@ class DocumentView(QWebView): # {{{
         if notify and self.manager is not None and self.document.ypos != old_pos:
             self.manager.scrolled(self.scroll_fraction)
 
+    @dynamic_property
     def multiplier(self):
-        return self.document.mainFrame().textSizeMultiplier()
+        def fget(self):
+            return self.document.mainFrame().textSizeMultiplier()
+        def fset(self, val):
+            self.document.mainFrame().setTextSizeMultiplier(val)
+            self.magnification_changed.emit(val)
+        return property(fget=fget, fset=fset)
 
     def magnify_fonts(self):
-        self.document.mainFrame().setTextSizeMultiplier(self.multiplier()+0.2)
+        self.multiplier += 0.2
         return self.document.scroll_fraction
 
     def shrink_fonts(self):
-        self.document.mainFrame().setTextSizeMultiplier(max(self.multiplier()-0.2, 0))
+        if self.multiplier >= 0.2:
+            self.multiplier -= 0.2
         return self.document.scroll_fraction
 
     def changeEvent(self, event):
@@ -970,6 +979,11 @@ class DocumentView(QWebView): # {{{
         return ret
 
     def keyPressEvent(self, event):
+        if not self.handle_key_press(event):
+            return QWebView.keyPressEvent(self, event)
+
+    def handle_key_press(self, event):
+        handled = True
         key = self.shortcuts.get_match(event)
         func = self.goto_location_actions.get(key, None)
         if func is not None:
@@ -987,7 +1001,8 @@ class DocumentView(QWebView): # {{{
         elif key == 'Right':
             self.scroll_by(x=15)
         else:
-            return QWebView.keyPressEvent(self, event)
+            handled = False
+        return handled
 
     def resizeEvent(self, event):
         ret = QWebView.resizeEvent(self, event)

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, uuid, glob, cStringIO, json
+import re, sys, unittest, functools, os, uuid, glob, cStringIO, json, copy
 from urllib import unquote
 from urlparse import urlparse
 
@@ -19,9 +19,10 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
-from calibre.utils.localization import get_lang
+from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.config import tweaks
 
 class Resource(object): # {{{
     '''
@@ -453,10 +454,13 @@ class TitleSortField(MetadataField):
 
 def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8)):
     from calibre.utils.config import to_json
-    from calibre.ebooks.metadata.book.json_codec import object_to_unicode
+    from calibre.ebooks.metadata.book.json_codec import (object_to_unicode,
+                                                         encode_is_multiple)
 
     for name, fm in all_user_metadata.items():
         try:
+            fm = copy.copy(fm)
+            encode_is_multiple(fm)
             fm = object_to_unicode(fm)
             fm = json.dumps(fm, default=to_json, ensure_ascii=False)
         except:
@@ -471,7 +475,7 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
         metadata_elem.append(meta)
 
 
-def dump_user_categories(cats):
+def dump_dict(cats):
     if not cats:
         cats = {}
     from calibre.ebooks.metadata.book.json_codec import object_to_unicode
@@ -511,6 +515,7 @@ class OPF(object): # {{{
                             '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
     uuid_id_path    = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@opf:scheme, "uuid", "i") or re:match(@scheme, "uuid", "i"))]')
+    languages_path  = XPath('descendant::*[local-name()="language"]')
 
     manifest_path   = XPath('descendant::*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]')
     manifest_ppath  = XPath('descendant::*[re:match(name(), "manifest", "i")]')
@@ -519,12 +524,16 @@ class OPF(object): # {{{
 
     title           = MetadataField('title', formatter=lambda x: re.sub(r'\s+', ' ', x))
     publisher       = MetadataField('publisher')
-    language        = MetadataField('language')
     comments        = MetadataField('description')
     category        = MetadataField('type')
     rights          = MetadataField('rights')
     series          = MetadataField('series', is_dc=False)
-    series_index    = MetadataField('series_index', is_dc=False, formatter=float, none_is=1)
+    if tweaks['use_series_auto_increment_tweak_when_importing']:
+        series_index    = MetadataField('series_index', is_dc=False,
+                                        formatter=float, none_is=None)
+    else:
+        series_index    = MetadataField('series_index', is_dc=False,
+                                        formatter=float, none_is=1)
     title_sort      = TitleSortField('title_sort', is_dc=False)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
     pubdate         = MetadataField('date', formatter=parse_date,
@@ -534,8 +543,9 @@ class OPF(object): # {{{
                                     formatter=parse_date, renderer=isoformat)
     user_categories = MetadataField('user_categories', is_dc=False,
                                     formatter=json.loads,
-                                    renderer=dump_user_categories)
-
+                                    renderer=dump_dict)
+    author_link_map = MetadataField('author_link_map', is_dc=False,
+                                formatter=json.loads, renderer=dump_dict)
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
             populate_spine=True):
@@ -575,6 +585,7 @@ class OPF(object): # {{{
         self._user_metadata_ = {}
         temp = Metadata('x', ['x'])
         from calibre.utils.config import from_json
+        from calibre.ebooks.metadata.book.json_codec import decode_is_multiple
         elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
                 '"calibre:user_metadata:") and @content]')
         for elem in elems:
@@ -585,6 +596,7 @@ class OPF(object): # {{{
             fm = elem.get('content')
             try:
                 fm = json.loads(fm, object_hook=from_json)
+                decode_is_multiple(fm)
                 temp.set_user_metadata(name, fm)
             except:
                 prints('Failed to read user metadata:', name)
@@ -918,6 +930,44 @@ class OPF(object): # {{{
         return property(fget=fget, fset=fset)
 
 
+    @dynamic_property
+    def language(self):
+
+        def fget(self):
+            ans = self.languages
+            if ans:
+                return ans[0]
+
+        def fset(self, val):
+            self.languages = [val]
+
+        return property(fget=fget, fset=fset)
+
+
+    @dynamic_property
+    def languages(self):
+
+        def fget(self):
+            ans = []
+            for match in self.languages_path(self.metadata):
+                t = self.get_text(match)
+                if t and t.strip():
+                    l = canonicalize_lang(t.strip())
+                    if l:
+                        ans.append(l)
+            return ans
+
+        def fset(self, val):
+            matches = self.languages_path(self.metadata)
+            for x in matches:
+                x.getparent().remove(x)
+
+            for lang in val:
+                l = self.create_metadata_element('language')
+                self.set_text(l, unicode(lang))
+
+        return property(fget=fget, fset=fset)
+
 
     @dynamic_property
     def book_producer(self):
@@ -977,7 +1027,7 @@ class OPF(object): # {{{
             if self.guide is not None:
                 for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
                     for item in self.guide:
-                        if item.type.lower() == t:
+                        if item.type and item.type.lower() == t:
                             return item.path
             try:
                 return self.guess_cover()
@@ -1018,8 +1068,10 @@ class OPF(object): # {{{
             attrib = attrib or {}
             attrib['name'] = 'calibre:' + name
             name = '{%s}%s' % (self.NAMESPACES['opf'], 'meta')
+        nsmap = dict(self.NAMESPACES)
+        del nsmap['opf']
         elem = etree.SubElement(self.metadata, name, attrib=attrib,
-                                nsmap=self.NAMESPACES)
+                                nsmap=nsmap)
         elem.tail = '\n'
         return elem
 
@@ -1034,13 +1086,13 @@ class OPF(object): # {{{
         for attr in ('title', 'authors', 'author_sort', 'title_sort',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'category', 'comments',
-                     'pubdate', 'user_categories'):
+                     'pubdate', 'user_categories', 'author_link_map'):
             val = getattr(mi, attr, None)
             if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
-        lang = getattr(mi, 'language', None)
-        if lang and lang != 'und':
-            self.language = lang
+        langs = getattr(mi, 'languages', [])
+        if langs and langs != ['und']:
+            self.languages = langs
         temp = self.to_book_metadata()
         temp.smart_update(mi, replace_metadata=replace_metadata)
         self._user_metadata_ = temp.get_all_user_metadata(True)
@@ -1188,10 +1240,11 @@ class OPFCreator(Metadata):
             dc_attrs={'id':__appname__+'_id'}))
         if getattr(self, 'pubdate', None) is not None:
             a(DC_ELEM('date', self.pubdate.isoformat()))
-        lang = self.language
-        if not lang or lang.lower() == 'und':
-            lang = get_lang().replace('_', '-')
-        a(DC_ELEM('language', lang))
+        langs = self.languages
+        if not langs or langs == ['und']:
+            langs = [get_lang().replace('_', '-').partition('-')[0]]
+        for lang in langs:
+            a(DC_ELEM('language', lang))
         if self.comments:
             a(DC_ELEM('description', self.comments))
         if self.publisher:
@@ -1259,7 +1312,7 @@ class OPFCreator(Metadata):
             ncx_stream.flush()
 
 
-def metadata_to_opf(mi, as_string=True):
+def metadata_to_opf(mi, as_string=True, default_lang=None):
     from lxml import etree
     import textwrap
     from calibre.ebooks.oeb.base import OPF, DC
@@ -1274,8 +1327,10 @@ def metadata_to_opf(mi, as_string=True):
         mi.book_producer = __appname__ + ' (%s) '%__version__ + \
             '[http://calibre-ebook.com]'
 
-    if not mi.language:
-        mi.language = 'UND'
+    if not mi.languages:
+        lang = (get_lang().replace('_', '-').partition('-')[0] if default_lang
+                is None else default_lang)
+        mi.languages = [lang]
 
     root = etree.fromstring(textwrap.dedent(
     '''
@@ -1325,12 +1380,16 @@ def metadata_to_opf(mi, as_string=True):
         factory(DC('identifier'), val, scheme=icu_upper(key))
     if mi.rights:
         factory(DC('rights'), mi.rights)
-    factory(DC('language'), mi.language if mi.language and mi.language.lower()
-            != 'und' else get_lang().replace('_', '-'))
+    for lang in mi.languages:
+        if not lang or lang.lower() == 'und':
+            continue
+        factory(DC('language'), lang)
     if mi.tags:
         for tag in mi.tags:
             factory(DC('subject'), tag)
     meta = lambda n, c: factory('meta', name='calibre:'+n, content=c)
+    if getattr(mi, 'author_link_map', None) is not None:
+        meta('author_link_map', dump_dict(mi.author_link_map))
     if mi.series:
         meta('series', mi.series)
     if mi.series_index is not None:
@@ -1344,7 +1403,7 @@ def metadata_to_opf(mi, as_string=True):
     if mi.title_sort:
         meta('title_sort', mi.title_sort)
     if mi.user_categories:
-        meta('user_categories', dump_user_categories(mi.user_categories))
+        meta('user_categories', dump_dict(mi.user_categories))
 
     serialize_user_metadata(metadata, mi.get_all_user_metadata(False))
 

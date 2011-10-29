@@ -1,3 +1,140 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+'''
+economist.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+from collections import OrderedDict
+
+import time, re
+
+class Economist(BasicNewsRecipe):
+
+    title = 'The Economist'
+    language = 'en'
+
+    __author__ = "Kovid Goyal"
+    INDEX = 'http://www.economist.com/printedition'
+    description = ('Global news and current affairs from a European'
+            ' perspective. Best downloaded on Friday mornings (GMT)')
+    extra_css      = '.headline {font-size: x-large;} \n h2 { font-size: small;  } \n h1 { font-size: medium;  }'
+    oldest_article = 7.0
+    cover_url = 'http://media.economist.com/sites/default/files/imagecache/print-cover-thumbnail/print-covers/currentcoverus_large.jpg'
+    #cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
+    remove_tags = [
+            dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
+            dict(attrs={'class':['dblClkTrk', 'ec-article-info',
+                'share_inline_header', 'related-items']}),
+            {'class': lambda x: x and 'share-links-header' in x},
+    ]
+    keep_only_tags = [dict(id='ec-article-body')]
+    needs_subscription = False
+    no_stylesheets = True
+    preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
+        lambda x:'</html>')]
+
+    # economist.com has started throttling after about 60% of the total has
+    # downloaded with connection reset by peer (104) errors.
+    delay = 1
+
+
+    def parse_index(self):
+        try:
+            return self.economist_parse_index()
+        except:
+            raise
+            self.log.warn(
+                'Initial attempt to parse index failed, retrying in 30 seconds')
+            time.sleep(30)
+            return self.economist_parse_index()
+
+    def economist_parse_index(self):
+        soup = self.index_to_soup(self.INDEX)
+        div = soup.find('div', attrs={'class':'issue-image'})
+        if div is not None:
+            img = div.find('img', src=True)
+            if img is not None:
+                self.cover_url = img['src']
+        feeds = OrderedDict()
+        for section in soup.findAll(attrs={'class':lambda x: x and 'section' in
+            x}):
+            h4 = section.find('h4')
+            if h4 is None:
+                continue
+            section_title = self.tag_to_string(h4).strip()
+            if not section_title:
+                continue
+            self.log('Found section: %s'%section_title)
+            articles = []
+            for h5 in section.findAll('h5'):
+                article_title = self.tag_to_string(h5).strip()
+                if not article_title:
+                    continue
+                data = h5.findNextSibling(attrs={'class':'article'})
+                if data is None: continue
+                a = data.find('a', href=True)
+                if a is None: continue
+                url = a['href']
+                if url.startswith('/'): url = 'http://www.economist.com'+url
+                url += '/print'
+                article_title += ': %s'%self.tag_to_string(a).strip()
+                articles.append({'title':article_title, 'url':url,
+                    'description':'', 'date':''})
+            if not articles:
+                # We have last or first section
+                for art in section.findAll(attrs={'class':'article'}):
+                    a = art.find('a', href=True)
+                    if a is not None:
+                        url = a['href']
+                        if url.startswith('/'): url = 'http://www.economist.com'+url
+                        url += '/print'
+                        title = self.tag_to_string(a)
+                        if title:
+                            articles.append({'title':title, 'url':url,
+                            'description':'', 'date':''})
+
+            if articles:
+                if section_title not in feeds:
+                    feeds[section_title] = []
+                feeds[section_title] += articles
+
+        ans = [(key, val) for key, val in feeds.iteritems()]
+        if not ans:
+            raise Exception('Could not find any articles, either the '
+                    'economist.com server is having trouble and you should '
+                    'try later or the website format has changed and the '
+                    'recipe needs to be updated.')
+        return ans
+
+    def eco_find_image_tables(self, soup):
+        for x in soup.findAll('table', align=['right', 'center']):
+            if len(x.findAll('font')) in (1,2) and len(x.findAll('img')) == 1:
+                yield x
+
+    def postprocess_html(self, soup, first):
+        body = soup.find('body')
+        for name, val in body.attrs:
+            del body[name]
+
+        for table in list(self.eco_find_image_tables(soup)):
+            caption = table.find('font')
+            img = table.find('img')
+            div = Tag(soup, 'div')
+            div['style'] = 'text-align:left;font-size:70%'
+            ns = NavigableString(self.tag_to_string(caption))
+            div.insert(0, ns)
+            div.insert(1, Tag(soup, 'br'))
+            del img['width']
+            del img['height']
+            img.extract()
+            div.insert(2, img)
+            table.replaceWith(div)
+        return soup
+
+'''
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.threadpool import ThreadPool, makeRequests
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
@@ -16,11 +153,12 @@ class Economist(BasicNewsRecipe):
             ' Much slower than the print edition based version.')
     extra_css      = '.headline {font-size: x-large;} \n h2 { font-size: small;  } \n h1 { font-size: medium;  }'
     oldest_article = 7.0
-    cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
+    cover_url = 'http://media.economist.com/sites/default/files/imagecache/print-cover-thumbnail/print-covers/currentcoverus_large.jpg'
+    #cover_url = 'http://www.economist.com/images/covers/currentcoverus_large.jpg'
     remove_tags = [
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk', 'ec-article-info',
-                'share_inline_header']}),
+                'share_inline_header', 'related-items']}),
             {'class': lambda x: x and 'share-links-header' in x},
     ]
     keep_only_tags = [dict(id='ec-article-body')]
@@ -144,3 +282,5 @@ class Economist(BasicNewsRecipe):
             div.insert(2, img)
             table.replaceWith(div)
         return soup
+'''
+

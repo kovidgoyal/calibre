@@ -7,7 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import json, traceback
 
-from calibre.gui2 import error_dialog
+from PyQt4.Qt import QDialogButtonBox
+
+from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
 from calibre.gui2.widgets import PythonHighlighter
@@ -81,7 +83,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.builtin_source_dict = {}
 
         self.funcs = formatter_functions.get_functions()
-        self.builtins = formatter_functions.get_builtins()
+        self.builtins = formatter_functions.get_builtins_and_aliases()
 
         self.build_function_names_box()
         self.function_name.currentIndexChanged[str].connect(self.function_index_changed)
@@ -149,13 +151,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         name = unicode(self.function_name.currentText())
         if name in self.funcs:
             error_dialog(self.gui, _('Template functions'),
-                         _('Name already used'), show=True)
+                         _('Name %s already used')%(name,), show=True)
             return
         if self.argument_count.value() == 0:
-            error_dialog(self.gui, _('Template functions'),
-                         _('Argument count must be -1 or greater than zero'),
-                         show=True)
-            return
+            box = warning_dialog(self.gui, _('Template functions'),
+                         _('Argument count should be -1 or greater than zero. '
+                           'Setting it to zero means that this function cannot '
+                           'be used in single function mode.'), det_msg = '',
+                         show=False)
+            box.bb.setStandardButtons(box.bb.standardButtons() | QDialogButtonBox.Cancel)
+            box.det_msg_toggle.setVisible(False)
+            if not box.exec_():
+                return
         try:
             prog = unicode(self.program.toPlainText())
             cls = compile_user_function(name, unicode(self.documentation.toPlainText()),

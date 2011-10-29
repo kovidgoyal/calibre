@@ -45,6 +45,8 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.author_box.setText('')
         self.price_box.setText('')
         self.format_box.setText('')
+        self.download_combo.setCurrentIndex(0)
+        self.affiliate_combo.setCurrentIndex(0)
 
     def tokens(self, raw):
         phrases = re.findall(r'\s*".*?"\s*', raw)
@@ -117,7 +119,13 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
             ans.append('price:"' + self.mc + price + '"')
         format = unicode(self.format_box.text()).strip()
         if format:
-            ans.append('format:"' + self.mc + format + '"')            
+            ans.append('format:"' + self.mc + format + '"')
+        download = unicode(self.download_combo.currentText()).strip()
+        if download:
+            ans.append('download:' + download)
+        affiliate = unicode(self.affiliate_combo.currentText()).strip()
+        if affiliate:
+            ans.append('affiliate:' + affiliate)  
         if ans:
             return ' and '.join(ans)
         return ''

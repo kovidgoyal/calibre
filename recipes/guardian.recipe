@@ -12,7 +12,7 @@ from datetime import date
 
 class Guardian(BasicNewsRecipe):
 
-    title = u'The Guardian / The Observer'
+    title = u'The Guardian and The Observer'
     if date.today().weekday() == 6:
         base_url = "http://www.guardian.co.uk/theobserver"
     else:
@@ -87,7 +87,13 @@ class Guardian(BasicNewsRecipe):
         idx = soup.find('div', id='book-index')
         for s in idx.findAll('strong', attrs={'class':'book'}):
             a = s.find('a', href=True)
-            yield (self.tag_to_string(a), a['href'])
+            section_title = self.tag_to_string(a)
+            if not section_title in self.ignore_sections:
+                prefix = ''
+                if section_title != 'Main section':
+                    prefix = section_title + ': '
+                for subsection in s.parent.findAll('a', attrs={'class':'book-section'}):
+                    yield (prefix + self.tag_to_string(subsection), subsection['href'])
 
     def find_articles(self, url):
         soup = self.index_to_soup(url)
@@ -114,10 +120,7 @@ class Guardian(BasicNewsRecipe):
         try:
             feeds = []
             for title, href in self.find_sections():
-                if not title in self.ignore_sections:
-                    feeds.append((title, list(self.find_articles(href))))
+                feeds.append((title, list(self.find_articles(href))))
             return feeds
         except:
             raise NotImplementedError
-
-

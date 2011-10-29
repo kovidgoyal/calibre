@@ -1,0 +1,47 @@
+# -*- coding: utf-8 -*-
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds import Feed
+
+class GC_gl(BasicNewsRecipe):
+    title                 = u'Galicia Confidencial (RSS)'
+    __author__            = u'Susana Sotelo Docío'
+    description           = u'Unha fiestra de información aberta a todos'
+    publisher             = u'Galicia Confidencial'
+    category              = u'news, society, politics, Galicia'
+    encoding              = 'utf-8'
+    language              = 'gl'
+    direction             = 'ltr'
+    cover_url             = 'http://galiciaconfidencial.com/imagenes/header/logo_gc.gif'
+    oldest_article        = 5
+    max_articles_per_feed = 100
+    center_navbar         = False
+
+    feeds                 = [(u'Novas no RSS', u'http://galiciaconfidencial.com/rss2/xeral.rss')]
+
+    extra_css             = u' p{text-align:left} '
+
+    def print_version(self, url):
+        return url.replace('http://galiciaconfidencial.com/nova/', 'http://galiciaconfidencial.com/imprimir/')
+
+    def parse_index(self):
+        feeds = []
+        self.gc_parse_feeds(feeds)
+        return feeds
+
+    def gc_parse_feeds(self, feeds):
+        rssFeeds = Feed()
+        rssFeeds = BasicNewsRecipe.parse_feeds(self)
+        self.feed_to_index_append(rssFeeds[:], feeds)
+
+
+    def feed_to_index_append(self, feedObject, masterFeed):
+	for feed in feedObject:
+		newArticles = []
+		for article in feed.articles:
+			newArt = {
+	                          'title' : article.title,
+      	                          'url'   : article.url,
+            	                  'date'  : article.date
+				}
+			newArticles.append(newArt)
+		masterFeed.append((feed.title,newArticles))

@@ -3,14 +3,14 @@
 __license__   = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 
-import codecs, datetime, htmlentitydefs, os, re, shutil, time, zlib
+import codecs, datetime, htmlentitydefs, os, re, shutil, zlib
 from collections import namedtuple
 from copy import deepcopy
 from xml.sax.saxutils import escape
 from lxml import etree
 from types import StringType, UnicodeType
 
-from calibre import prints, prepare_string_for_xml, strftime
+from calibre import (prints, prepare_string_for_xml, strftime, force_unicode)
 from calibre.constants import preferred_encoding, DEBUG
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
@@ -25,7 +25,7 @@ from calibre.utils.html2text import html2text
 from calibre.utils.icu import capitalize
 from calibre.utils.logging import default_log as log
 from calibre.utils.magick.draw import thumbnail
-from calibre.utils.zipfile import ZipFile, ZipInfo
+from calibre.utils.zipfile import ZipFile
 
 FIELDS = ['all', 'title', 'title_sort', 'author_sort', 'authors', 'comments',
           'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
@@ -54,12 +54,12 @@ class CSV_XML(CatalogPlugin): # {{{
                 action = None,
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: %s,\n'
+                    'Available fields: %(fields)s,\n'
                     'plus user-created custom fields.\n'
-                    'Example: %s=title,authors,tags\n'
+                    'Example: %(opt)s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: CSV, XML output formats")%(', '.join(FIELDS),
-                        '--fields')),
+                    "Applies to: CSV, XML output formats")%dict(
+                        fields=', '.join(FIELDS), opt='--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -149,6 +149,15 @@ class CSV_XML(CatalogPlugin): # {{{
                     elif field == 'comments':
                         item = item.replace(u'\r\n',u' ')
                         item = item.replace(u'\n',u' ')
+
+                    # Convert HTML to markdown text
+                    if type(item) is unicode:
+                        opening_tag = re.search('<(\w+)(\x20|>)',item)
+                        if opening_tag:
+                            closing_tag = re.search('<\/%s>$' % opening_tag.group(1), item)
+                            if closing_tag:
+                                item = html2text(item)
+
                     outstr.append(u'"%s"' % unicode(item).replace('"','""'))
 
                 outfile.write(u','.join(outstr) + u'\n')
@@ -241,12 +250,12 @@ class BIBTEX(CatalogPlugin): # {{{
                 action = None,
                 help = _('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: %s.\n'
+                    'Available fields: %(fields)s.\n'
                     'plus user-created custom fields.\n'
-                    'Example: %s=title,authors,tags\n'
+                    'Example: %(opt)s=title,authors,tags\n'
                     "Default: '%%default'\n"
-                    "Applies to: BIBTEX output format")%(', '.join(FIELDS),
-                        '--fields')),
+                    "Applies to: BIBTEX output format")%dict(
+                        fields=', '.join(FIELDS), opt='--fields')),
 
             Option('--sort-by',
                 default = 'id',
@@ -1074,15 +1083,11 @@ class EPUB_MOBI(CatalogPlugin):
             self.__totalSteps += incremental_jobs
 
             # Load section list templates
-            templates = []
-            with open(P('catalog/section_list_templates.py'), 'r') as f:
-                for line in f:
-                    t = re.match("(by_.+_template)",line)
-                    if t:
-                        templates.append(t.group(1))
-            execfile(P('catalog/section_list_templates.py'), locals())
-            for t in templates:
-                setattr(self,t,eval(t))
+            templates = {}
+            execfile(P('catalog/section_list_templates.py'), templates)
+            for name, template in templates.iteritems():
+                if name.startswith('by_') and name.endswith('_template'):
+                    setattr(self, name, force_unicode(template, 'utf-8'))
 
         # Accessors
         if True:
@@ -4695,24 +4700,33 @@ Author '{0}':
             to be replaced.
             '''
 
+            def open_archive(mode='r'):
+                try:
+                    return ZipFile(self.__archive_path, mode=mode)
+                except:
+                    # Happens on windows if the file is opened by another
+                    # process
+                    pass
+
             # Generate crc for current cover
             #self.opts.log.info(" generateThumbnail():")
-            data = open(title['cover'], 'rb').read()
+            with open(title['cover'], 'rb') as f:
+                data = f.read()
             cover_crc = hex(zlib.crc32(data))
 
             # Test cache for uuid
-            with ZipFile(self.__archive_path, mode='r') as zfr:
-                try:
-                    t_info = zfr.getinfo(title['uuid'])
-                except:
-                    pass
-                else:
-                    if t_info.comment == cover_crc:
+            zf = open_archive()
+            if zf is not None:
+                with zf:
+                    try:
+                        zf.getinfo(title['uuid']+cover_crc)
+                    except:
+                        pass
+                    else:
                         # uuid found in cache with matching crc
-                        thumb_data = zfr.read(title['uuid'])
-                        zfr.extract(title['uuid'],image_dir)
-                        os.rename(os.path.join(image_dir,title['uuid']),
-                                    os.path.join(image_dir,thumb_file))
+                        thumb_data = zf.read(title['uuid']+cover_crc)
+                        with open(os.path.join(image_dir, thumb_file), 'wb') as f:
+                            f.write(thumb_data)
                         return
 
 
@@ -4723,10 +4737,13 @@ Author '{0}':
                 f.write(thumb_data)
 
             # Save thumb to archive
-            t_info = ZipInfo(title['uuid'],time.localtime()[0:6])
-            t_info.comment = cover_crc
-            with ZipFile(self.__archive_path, mode='a') as zfw:
-                zfw.writestr(t_info, thumb_data)
+            if zf is not None: # Ensure that the read succeeded
+                # If we failed to open the zip file for reading,
+                # we dont know if it contained the thumb or not
+                zf = open_archive('a')
+                if zf is not None:
+                    with zf:
+                        zf.writestr(title['uuid']+cover_crc, thumb_data)
 
         def getFriendlyGenreTag(self, genre):
             # Find the first instance of friendly_tag matching genre
@@ -5116,6 +5133,7 @@ Author '{0}':
                     OptionRecommendation.HIGH))
 
             # If cover exists, use it
+            cpath = None
             try:
                 search_text = 'title:"%s" author:%s' % (
                         opts.catalog_title.replace('"', '\\"'), 'calibre')
@@ -5135,6 +5153,11 @@ Author '{0}':
                             abort_after_input_dump=False)
             plumber.merge_ui_recommendations(recommendations)
             plumber.run()
+
+            try:
+                os.remove(cpath)
+            except:
+                pass
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error

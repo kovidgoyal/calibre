@@ -47,7 +47,10 @@ class ManifestTrimmer(object):
                    item.data is not None:
                     hrefs = [r[2] for r in iterlinks(item.data)]
                     for href in hrefs:
-                        href = item.abshref(urlnormalize(href))
+                        try:
+                            href = item.abshref(urlnormalize(href))
+                        except:
+                            continue
                         if href in oeb.manifest.hrefs:
                             found = oeb.manifest.hrefs[href]
                             if found not in used:

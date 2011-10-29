@@ -47,8 +47,7 @@ PUBLICATION_METADATA_FIELDS = frozenset([
     # If None, means book
     'publication_type',
     'uuid',             # A UUID usually of type 4
-    'language',         # the primary language of this book
-    'languages',        # ordered list
+    'languages',        # ordered list of languages in this publication
     'publisher',        # Simple string, no special semantics
     # Absolute path to image file encoded in filesystem_encoding
     'cover',
@@ -86,6 +85,8 @@ CALIBRE_METADATA_FIELDS = frozenset([
     # a dict of user category names, where the value is a list of item names
     # from the book that are in that category
     'user_categories',
+    # a dict of author to an associated hyperlink
+    'author_link_map',
 
     ]
 )
@@ -107,7 +108,7 @@ STANDARD_METADATA_FIELDS = SOCIAL_METADATA_FIELDS.union(
 # Metadata fields that smart update must do special processing to copy.
 SC_FIELDS_NOT_COPIED =     frozenset(['title', 'title_sort', 'authors',
                                       'author_sort', 'author_sort_map',
-                                      'cover_data', 'tags', 'language',
+                                      'cover_data', 'tags', 'languages',
                                       'identifiers'])
 
 # Metadata fields that smart update should copy only if the source is not None

@@ -92,7 +92,7 @@ def restore_plugin_state_to_default(plugin_or_name):
     config['enabled_plugins'] = ep
 
 default_disabled_plugins = set([
-    'Overdrive', 'Douban Books',
+    'Overdrive', 'Douban Books', 'OZON.ru',
 ])
 
 def is_disabled(plugin):
@@ -355,11 +355,17 @@ def remove_plugin(plugin_or_name):
     name = getattr(plugin_or_name, 'name', plugin_or_name)
     plugins = config['plugins']
     removed = False
-    if name in plugins.keys():
+    if name in plugins:
         removed = True
-        zfp = plugins[name]
-        if os.path.exists(zfp):
-            os.remove(zfp)
+        try:
+            zfp = os.path.join(plugin_dir, name+'.zip')
+            if os.path.exists(zfp):
+                os.remove(zfp)
+            zfp = plugins[name]
+            if os.path.exists(zfp):
+                os.remove(zfp)
+        except:
+            pass
         plugins.pop(name)
     config['plugins'] = plugins
     initialize_plugins()
@@ -487,6 +493,8 @@ def initialize_plugin(plugin, path_to_zip_file):
         raise InvalidPlugin((_('Initialization of plugin %s failed with traceback:')
                             %tb) + '\n'+tb)
 
+def has_external_plugins():
+    return bool(config['plugins'])
 
 def initialize_plugins():
     global _initialized_plugins
@@ -495,8 +503,15 @@ def initialize_plugins():
             builtin_names]
     for p in conflicts:
         remove_plugin(p)
-    for zfp in list(config['plugins'].itervalues()) + builtin_plugins:
+    external_plugins = config['plugins']
+    for zfp in list(external_plugins) + builtin_plugins:
         try:
+            if not isinstance(zfp, type):
+                # We have a plugin name
+                pname = zfp
+                zfp = os.path.join(plugin_dir, zfp+'.zip')
+                if not os.path.exists(zfp):
+                    zfp = external_plugins[pname]
             try:
                 plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
             except PluginNotFound:

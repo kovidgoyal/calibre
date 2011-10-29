@@ -455,13 +455,16 @@ class HTMLInput(InputFormatPlugin):
             bhref = os.path.basename(link)
             id, href = self.oeb.manifest.generate(id='added',
                     href=bhref)
+            guessed = self.guess_type(href)[0]
+            media_type = guessed or self.BINARY_MIME
+            if media_type == 'text/plain':
+                self.log.warn('Ignoring link to text file %r'%link_)
+                return None
+
             self.oeb.log.debug('Added', link)
             self.oeb.container = self.DirContainer(os.path.dirname(link),
                     self.oeb.log, ignore_opf=True)
             # Load into memory
-            guessed = self.guess_type(href)[0]
-            media_type = guessed or self.BINARY_MIME
-
             item = self.oeb.manifest.add(id, href, media_type)
             item.html_input_href = bhref
             if guessed in self.OEB_STYLES:

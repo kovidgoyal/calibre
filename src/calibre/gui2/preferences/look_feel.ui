@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>717</width>
+    <width>820</width>
     <height>519</height>
    </rect>
   </property>
@@ -192,7 +192,7 @@
        <string>Book Details</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_12">
-       <item row="0" column="0" rowspan="2">
+       <item row="1" column="0" rowspan="2">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Select displayed metadata</string>
@@ -242,6 +242,31 @@
           </item>
          </layout>
         </widget>
+       </item>
+       <item row="0" column="0">
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Default author link template:</string>
+           </property>
+           <property name="buddy">
+            <cstring>opt_default_author_link</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="opt_default_author_link">
+           <property name="toolTip">
+            <string>&lt;p&gt;Enter a template to be used to create a link for
+an author in the books information dialog. This template will 
+be used when no link has been provided for the author using 
+Manage Authors. You can use the values {author} and 
+{author_sort}, and any template function.</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item row="0" column="1">
         <widget class="QCheckBox" name="opt_use_roman_numerals_for_series_number">
@@ -392,7 +417,7 @@ then the tags will be displayed each on their own line.</string>
        <item row="1" column="1">
         <widget class="QSpinBox" name="opt_cover_flow_queue_length"/>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="4" column="0" colspan="2">
         <spacer name="verticalSpacer_4">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -405,191 +430,24 @@ then the tags will be displayed each on their own line.</string>
          </property>
         </spacer>
        </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_5">
-      <attribute name="icon">
-       <iconset resource="../../../../resources/images.qrc">
-        <normaloff>:/images/format-fill-color.png</normaloff>:/images/format-fill-color.png</iconset>
-      </attribute>
-      <attribute name="title">
-       <string>Column Coloring</string>
-      </attribute>
-      <layout class="QGridLayout" name="column_color_layout">
-       <item row="1" column="0">
-        <widget class="QLabel" name="label">
+       <item row="2" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_cb_fullscreen">
          <property name="text">
-          <string>Column to color</string>
+          <string>When showing cover browser in separate window, show it &amp;fullscreen</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="label">
+       <item row="3" column="0" colspan="2">
+        <widget class="QLabel" name="fs_help_msg">
+         <property name="styleSheet">
+          <string notr="true">margin-left: 1.5em</string>
+         </property>
          <property name="text">
-          <string>Color selection template</string>
+          <string>You can press the %s keys to toggle full screen mode.</string>
          </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QComboBox" name="opt_column_color_name_1"/>
-       </item>
-       <item row="2" column="1">
-        <widget class="TemplateLineEditor" name="opt_column_color_template_1"/>
-       </item>
-       <item row="2" column="2">
-        <widget class="QToolButton" name="opt_column_color_wizard_1">
-         <property name="icon">
-          <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
-         </property>
-         <property name="toolTip">
-          <string>Open the tags wizard.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QComboBox" name="opt_column_color_name_2"/>
-       </item>
-       <item row="3" column="1">
-        <widget class="TemplateLineEditor" name="opt_column_color_template_2"/>
-       </item>
-       <item row="3" column="2">
-        <widget class="QToolButton" name="opt_column_color_wizard_2">
-         <property name="icon">
-          <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
-         </property>
-         <property name="toolTip">
-          <string>Open the tags wizard.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QComboBox" name="opt_column_color_name_3"/>
-       </item>
-       <item row="4" column="1">
-        <widget class="TemplateLineEditor" name="opt_column_color_template_3"/>
-       </item>
-       <item row="4" column="2">
-        <widget class="QToolButton" name="opt_column_color_wizard_3">
-         <property name="icon">
-          <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
-         </property>
-         <property name="toolTip">
-          <string>Open the tags wizard.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QComboBox" name="opt_column_color_name_4"/>
-       </item>
-       <item row="5" column="1">
-        <widget class="TemplateLineEditor" name="opt_column_color_template_4"/>
-       </item>
-       <item row="5" column="2">
-        <widget class="QToolButton" name="opt_column_color_wizard_4">
-         <property name="icon">
-          <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
-         </property>
-         <property name="toolTip">
-          <string>Open the tags wizard.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QComboBox" name="opt_column_color_name_5"/>
-       </item>
-       <item row="6" column="1">
-        <widget class="TemplateLineEditor" name="opt_column_color_template_5"/>
-       </item>
-       <item row="6" column="2">
-        <widget class="QToolButton" name="opt_column_color_wizard_5">
-         <property name="icon">
-          <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/wizard.png</normaloff>:/images/wizard.png</iconset>
-         </property>
-         <property name="toolTip">
-          <string>Open the tags wizard.</string>
-         </property>
-        </widget>
-       </item>
-       <item row="20" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Color names</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="3">
-        <widget class="QScrollArea" name="scrollArea">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>200</height>
-          </size>
-         </property>
-         <property name="widgetResizable">
+         <property name="wordWrap">
           <bool>true</bool>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>687</width>
-            <height>194</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout">
-           <item>
-            <widget class="QLabel" name="color_help_text">
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-             <property name="openExternalLinks">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-       <item row="21" column="0" colspan="3">
-        <widget class="QScrollArea" name="scrollArea_2">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>120</height>
-          </size>
-         </property>
-         <property name="widgetResizable">
-          <bool>true</bool>
-         </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents_2">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>687</width>
-            <height>61</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QLabel" name="colors_box">
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
         </widget>
        </item>
       </layout>
@@ -603,11 +461,6 @@ then the tags will be displayed each on their own line.</string>
    <class>MultiCompleteLineEdit</class>
    <extends>QLineEdit</extends>
    <header>calibre/gui2/complete.h</header>
-  </customwidget>
-  <customwidget>
-   <class>TemplateLineEditor</class>
-   <extends>QLineEdit</extends>
-   <header>calibre/gui2/dialogs/template_line_editor.h</header>
   </customwidget>
  </customwidgets>
  <resources>

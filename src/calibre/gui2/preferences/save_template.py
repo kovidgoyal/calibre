@@ -12,6 +12,7 @@ from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.preferences.save_template_ui import Ui_Form
 from calibre.library.save_to_disk import FORMAT_ARG_DESCS, preprocess_template
 from calibre.utils.formatter import validation_formatter
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 
 
 class SaveTemplate(QWidget, Ui_Form):
@@ -31,7 +32,7 @@ class SaveTemplate(QWidget, Ui_Form):
                     (var, FORMAT_ARG_DESCS[var]))
         rows.append(u'<tr><td>%s&nbsp;</td><td>&nbsp;</td><td>%s</td></tr>'%(
             _('Any custom field'),
-            _('The lookup name of any custom field. These names begin with "#")')))
+            _('The lookup name of any custom field (these names begin with "#").')))
         table = u'<table>%s</table>'%(u'\n'.join(rows))
         self.template_variables.setText(table)
 
@@ -40,6 +41,14 @@ class SaveTemplate(QWidget, Ui_Form):
         self.opt_template.editTextChanged.connect(self.changed)
         self.opt_template.currentIndexChanged.connect(self.changed)
         self.option_name = name
+        self.open_editor.clicked.connect(self.do_open_editor)
+
+    def do_open_editor(self):
+        t = TemplateDialog(self, self.opt_template.text())
+        t.setWindowTitle(_('Edit template'))
+        if t.exec_():
+            self.opt_template.set_value(t.rule[1])
+
 
     def changed(self, *args):
         self.changed_signal.emit()

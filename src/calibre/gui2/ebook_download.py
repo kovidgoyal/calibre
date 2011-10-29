@@ -66,8 +66,8 @@ class EbookDownload(object):
             raise Exception(_('Not a support ebook format.'))
 
         from calibre.ebooks.metadata.meta import get_metadata
-        with open(filename) as f:
-            mi = get_metadata(f, ext)
+        with open(filename, 'rb') as f:
+            mi = get_metadata(f, ext, force_read_metadata=True)
         mi.tags.extend(tags)
 
         id = gui.library_view.model().db.create_book_entry(mi)

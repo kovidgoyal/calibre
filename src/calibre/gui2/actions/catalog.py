@@ -17,7 +17,7 @@ from calibre.gui2.actions import InterfaceAction
 class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'
-    action_spec = (_('Create a catalog of the books in your calibre library'), 'catalog.png', 'Catalog builder', None)
+    action_spec = (_('Create catalog'), 'catalog.png', 'Catalog builder', ())
     dont_add_to = frozenset(['menubar-device', 'toolbar-device', 'context-menu-device'])
 
     def genesis(self):
@@ -82,7 +82,8 @@ class GenerateCatalogAction(InterfaceAction):
         self.gui.sync_catalogs()
         if job.fmt not in ['EPUB','MOBI']:
             export_dir = choose_dir(self.gui, _('Export Catalog Directory'),
-                    _('Select destination for %s.%s') % (job.catalog_title, job.fmt.lower()))
+                    _('Select destination for %(title)s.%(fmt)s') % dict(
+                        title=job.catalog_title, fmt=job.fmt.lower()))
             if export_dir:
                 destination = os.path.join(export_dir, '%s.%s' % (job.catalog_title, job.fmt.lower()))
                 shutil.copyfile(job.catalog_file_path, destination)

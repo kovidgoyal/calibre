@@ -153,12 +153,22 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         bookt.append(TR(thumbnail, data))
     # }}}
 
+    body.append(HR())
+    body.append(DIV(
+        A(_('Switch to the full interface (non-mobile interface)'),
+            href="/browse",
+            style="text-decoration: none; color: blue",
+            title=_('The full interface gives you many more features, '
+                'but it may not work well on a small screen')),
+        style="text-align:center"))
     return HTML(
         HEAD(
             TITLE(__appname__ + ' Library'),
             LINK(rel='icon', href='http://calibre-ebook.com/favicon.ico',
                 type='image/x-icon'),
-            LINK(rel='stylesheet', type='text/css', href=prefix+'/mobile/style.css')
+            LINK(rel='stylesheet', type='text/css',
+                href=prefix+'/mobile/style.css'),
+            LINK(rel='apple-touch-icon', href="/static/calibre.png")
         ), # End head
         body
     ) # End html
@@ -231,7 +241,8 @@ class MobileServer(object):
             book['size'] = human_readable(book['size'])
 
             aus = record[FM['authors']] if record[FM['authors']] else __builtin__._('Unknown')
-            authors = '|'.join([i.replace('|', ',') for i in aus.split(',')])
+            aut_is = CFM['authors']['is_multiple']
+            authors = aut_is['list_to_ui'].join([i.replace('|', ',') for i in aus.split(',')])
             book['authors'] = authors
             book['series_index'] = fmt_sidx(float(record[FM['series_index']]))
             book['series'] = record[FM['series']]
@@ -254,8 +265,10 @@ class MobileServer(object):
                     continue
                 if datatype == 'text' and CFM[key]['is_multiple']:
                     book[key] = concat(name,
-                                       format_tag_string(val, ',',
-                                                         no_tag_count=True))
+                                       format_tag_string(val,
+                                           CFM[key]['is_multiple']['ui_to_list'],
+                                           no_tag_count=True,
+                                           joinval=CFM[key]['is_multiple']['list_to_ui']))
                 else:
                     book[key] = concat(name, val)
 

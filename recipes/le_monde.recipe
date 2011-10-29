@@ -99,7 +99,7 @@ class LeMonde(BasicNewsRecipe):
     keep_only_tags    = [
                        dict(name='div', attrs={'class':['contenu']})
                         ]
-
+    remove_tags = [dict(name='div', attrs={'class':['LM_atome']})]
     remove_tags_after = [dict(id='appel_temoignage')]
 
     def get_article_url(self, article):

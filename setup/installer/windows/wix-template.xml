@@ -11,12 +11,17 @@
 						SummaryCodepage='1252' />
 
                 <Media Id="1" Cabinet="{app}.cab" CompressionLevel="{compression}" EmbedCab="yes" />
+                <!-- The following line ensures that DLLs are replaced even if their version is the same as before. This
+                     is necessary because of the manifest nuking that was part of making calibre isolated. But I think it
+                     is more rigorous anyway. -->
+                <Property Id='REINSTALLMODE' Value='emus'/>
 
                 <Upgrade Id="{upgrade_code}">
                     <UpgradeVersion Maximum="{version}"
                        IncludeMaximum="yes"
                        OnlyDetect="no"
                        Language="1033"
+                       MigrateFeatures="yes"
                        Property="OLDPRODUCTFOUND"/>
                     <UpgradeVersion Minimum="{version}"
                        IncludeMinimum="no"
@@ -32,7 +37,6 @@
                </Property>
 
                 <Directory Id='TARGETDIR' Name='SourceDir'>
-                        <Merge Id="VCRedist" SourceFile="{crt_msm}" DiskId="1" Language="0"/>
 						<Directory Id='ProgramFilesFolder' Name='PFiles'>
 								<Directory Id='APPLICATIONFOLDER' Name='{app}' />
 						</Directory>
@@ -69,7 +73,7 @@
                              WorkingDirectory="APPLICATIONROOTDIRECTORY" />
                         <util:InternetShortcut Id="OnlineDocumentationShortcut"
                             Name="User Manual" Type="url"
-                               Target="http://calibre-ebook.com/user_manual"/>
+                               Target="http://manual.calibre-ebook.com"/>
                         <util:InternetShortcut Id="GetInvolvedS"
                             Name="Get Involved" Type="url"
                             Target="http://calibre-ebook.com/get-involved"/>
@@ -97,10 +101,6 @@
 						<Feature Id="MainApplication" Title="Program Files" Level="1"
                             Description="All the files needed to run {app}" Absent="disallow">
                             <ComponentRef Id="RememberInstallDir"/>
-                        </Feature>
-
-                        <Feature Id="VCRedist" Title="Visual C++ 8.0 Runtime" AllowAdvertise="no" Display="hidden" Level="1">
-                            <MergeRef Id="VCRedist"/>
                         </Feature>
 
                         <Feature Id="FSMS" Title="Start menu shortcuts" Level="1"
@@ -148,12 +148,13 @@
                 Set default folder name and allow only per machine installs.
                 For a per-machine installation, the default installation location
                 will be [ProgramFilesFolder][ApplicationFolderName] and the user
-                will be able to change it in the setup UI. This is because the installer
-                has to install the VC90 merge module into the system winsxs folder for python
-                to work, so per user installs are impossible anyway.
+                will be able to change it in the setup UI. This is no longer necessary
+                (i.e. per user installs should work) but left this way as I
+                dont want to deal with the complications 
                 -->
                 <Property Id="ApplicationFolderName" Value="Calibre2" />
                 <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
+                <Property Id="ALLUSERS" Value="1" />
                 <WixVariable Id="WixUISupportPerUser" Value="0" />
 
                 <!-- Add option to launch calibre after install -->
@@ -162,10 +163,6 @@
                 <Property Id="WixShellExecTarget" Value="[#{exe_map[calibre]}]" />
                 <CustomAction Id="LaunchApplication" BinaryKey="WixCA"
                     DllEntry="WixShellExec" Impersonate="yes"/>
-
-                <InstallUISequence>
-                    <FileCost Suppress="yes" />
-                </InstallUISequence>
 
 		</Product>
 </Wix>

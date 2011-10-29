@@ -17,7 +17,7 @@ from calibre.gui2.actions import InterfaceAction
 class FetchAnnotationsAction(InterfaceAction):
 
     name = 'Fetch Annotations'
-    action_spec = (_('Fetch annotations (experimental)'), None, None, None)
+    action_spec = (_('Fetch annotations (experimental)'), None, None, ())
     dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
     action_type = 'current'
 
@@ -120,16 +120,16 @@ class FetchAnnotationsAction(InterfaceAction):
                 spanTag['style'] = 'font-weight:bold'
                 if bookmark.book_format == 'pdf':
                     spanTag.insert(0,NavigableString(
-                        _("%s<br />Last Page Read: %d (%d%%)") % \
-                                    (strftime(u'%x', timestamp.timetuple()),
-                                    last_read_location,
-                                    percent_read)))
+                        _("%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)") % \
+                                    dict(time=strftime(u'%x', timestamp.timetuple()),
+                                    loc=last_read_location,
+                                    pr=percent_read)))
                 else:
                     spanTag.insert(0,NavigableString(
-                        _("%s<br />Last Page Read: Location %d (%d%%)") % \
-                                    (strftime(u'%x', timestamp.timetuple()),
-                                    last_read_location,
-                                    percent_read)))
+                        _("%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)") % \
+                                    dict(time=strftime(u'%x', timestamp.timetuple()),
+                                    loc=last_read_location,
+                                    pr=percent_read)))
 
                 divTag.insert(dtc, spanTag)
                 dtc += 1
@@ -145,23 +145,23 @@ class FetchAnnotationsAction(InterfaceAction):
                     for location in sorted(user_notes):
                         if user_notes[location]['text']:
                             annotations.append(
-                                    _('<b>Location %d &bull; %s</b><br />%s<br />') % \
-                                                (user_notes[location]['displayed_location'],
-                                                    user_notes[location]['type'],
-                                                    user_notes[location]['text'] if \
+                                    _('<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />') % \
+                                                dict(dl=user_notes[location]['displayed_location'],
+                                                    typ=user_notes[location]['type'],
+                                                    text=(user_notes[location]['text'] if \
                                                     user_notes[location]['type'] == 'Note' else \
-                                                    '<i>%s</i>' % user_notes[location]['text']))
+                                                    '<i>%s</i>' % user_notes[location]['text'])))
                         else:
                             if bookmark.book_format == 'pdf':
                                 annotations.append(
-                                        _('<b>Page %d &bull; %s</b><br />') % \
-                                                    (user_notes[location]['displayed_location'],
-                                                     user_notes[location]['type']))
+                                        _('<b>Page %(dl)d &bull; %(typ)s</b><br />') % \
+                                            dict(dl=user_notes[location]['displayed_location'],
+                                                typ=user_notes[location]['type']))
                             else:
                                 annotations.append(
-                                        _('<b>Location %d &bull; %s</b><br />') % \
-                                                    (user_notes[location]['displayed_location'],
-                                                     user_notes[location]['type']))
+                                        _('<b>Location %(dl)d &bull; %(typ)s</b><br />') % \
+                                            dict(dl=user_notes[location]['displayed_location'],
+                                                typ=user_notes[location]['type']))
 
                     for annotation in annotations:
                         divTag.insert(dtc, annotation)

@@ -108,6 +108,12 @@ class SearchBox2(QComboBox): # {{{
         self.colorize = colorize
         self.clear()
 
+    def hide_completer_popup(self):
+        try:
+            self.lineEdit().completer().popup().setVisible(False)
+        except:
+            pass
+
     def normalize_state(self):
         self.setToolTip(self.tool_tip_text)
         self.line_edit.setStyleSheet(
@@ -163,6 +169,8 @@ class SearchBox2(QComboBox): # {{{
     # Comes from the combobox itself
     def keyPressEvent(self, event):
         k = event.key()
+        if k in (Qt.Key_Enter, Qt.Key_Return):
+            return self.do_search()
         if k not in (Qt.Key_Up, Qt.Key_Down):
             QComboBox.keyPressEvent(self, event)
         else:
@@ -183,6 +191,7 @@ class SearchBox2(QComboBox): # {{{
         self.do_search()
 
     def _do_search(self, store_in_history=True):
+        self.hide_completer_popup()
         text = unicode(self.currentText()).strip()
         if not text:
             return self.clear()
@@ -219,15 +228,15 @@ class SearchBox2(QComboBox): # {{{
                 self.clear()
             else:
                 self.normalize_state()
-                self.lineEdit().setCompleter(None)
+                # must turn on case sensitivity here so that tag browser strings
+                # are not case-insensitively replaced from history
+                self.line_edit.completer().setCaseSensitivity(Qt.CaseSensitive)
                 self.setEditText(txt)
                 self.line_edit.end(False)
                 if emit_changed:
                     self.changed.emit()
                 self._do_search(store_in_history=store_in_history)
-                c = QCompleter()
-                self.lineEdit().setCompleter(c)
-                c.setCompletionMode(c.PopupCompletion)
+                self.line_edit.completer().setCaseSensitivity(Qt.CaseInsensitive)
             self.focus_to_library.emit()
         finally:
             if not store_in_history:
@@ -376,9 +385,12 @@ class SearchBoxMixin(object): # {{{
         self.search.clear()
         self.search.setMaximumWidth(self.width()-150)
         self.action_focus_search = QAction(self)
-        shortcuts = QKeySequence.keyBindings(QKeySequence.Find)
-        shortcuts = list(shortcuts) + [QKeySequence('/'), QKeySequence('Alt+S')]
-        self.action_focus_search.setShortcuts(shortcuts)
+        shortcuts = list(
+                map(lambda x:unicode(x.toString()),
+                QKeySequence.keyBindings(QKeySequence.Find)))
+        shortcuts += ['/', 'Alt+S']
+        self.keyboard.register_shortcut('start search', _('Start search'),
+                default_keys=shortcuts, action=self.action_focus_search)
         self.action_focus_search.triggered.connect(self.focus_search_box)
         self.addAction(self.action_focus_search)
         self.search.setStatusTip(re.sub(r'<\w+>', ' ',

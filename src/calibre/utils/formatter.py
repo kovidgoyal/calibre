@@ -98,7 +98,10 @@ class _Parser(object):
                     cls = funcs['assign']
                     return cls.eval_(self.parent, self.parent.kwargs,
                                     self.parent.book, self.parent.locals, id, self.expr())
-                return self.parent.locals.get(id, _('unknown id ') + id)
+                val = self.parent.locals.get(id, None)
+                if val is None:
+                    self.error(_('Unknown identifier ') + id)
+                return val
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
@@ -307,7 +310,16 @@ class TemplateFormatter(string.Formatter):
             ans = string.Formatter.vformat(self, fmt, args, kwargs)
         return self.compress_spaces.sub(' ', ans).strip()
 
-    ########## a formatter guaranteed not to throw and exception ############
+    ########## a formatter that throws exceptions ############
+
+    def unsafe_format(self, fmt, kwargs, book):
+        self.kwargs = kwargs
+        self.book = book
+        self.composite_values = {}
+        self.locals = {}
+        return self.vformat(fmt, [], kwargs).strip()
+
+    ########## a formatter guaranteed not to throw an exception ############
 
     def safe_format(self, fmt, kwargs, error_value, book):
         self.kwargs = kwargs
@@ -317,8 +329,8 @@ class TemplateFormatter(string.Formatter):
         try:
             ans = self.vformat(fmt, [], kwargs).strip()
         except Exception as e:
-            if DEBUG:
-                traceback.print_exc()
+#            if DEBUG:
+#                traceback.print_exc()
             ans = error_value + ' ' + e.message
         return ans
 
@@ -339,8 +351,11 @@ class EvalFormatter(TemplateFormatter):
     A template formatter that uses a simple dict instead of an mi instance
     '''
     def get_value(self, key, args, kwargs):
+        if key == '':
+            return ''
         key = key.lower()
         return kwargs.get(key, _('No such variable ') + key)
 
+# DEPRECATED. This is not thread safe. Do not use.
 eval_formatter = EvalFormatter()
 

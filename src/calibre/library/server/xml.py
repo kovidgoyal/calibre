@@ -121,8 +121,12 @@ class XMLServer(object):
                 name = CFM[key]['name']
                 custcols.append(k)
                 if datatype == 'text' and CFM[key]['is_multiple']:
-                    kwargs[k] = concat('#T#'+name, format_tag_string(val,',',
-                                                            ignore_max=True))
+                    kwargs[k] = \
+                        concat('#T#'+name,
+                               format_tag_string(val,
+                                   CFM[key]['is_multiple']['ui_to_list'],
+                                   ignore_max=True,
+                                   joinval=CFM[key]['is_multiple']['list_to_ui']))
                 else:
                     kwargs[k] = concat(name, val)
             kwargs['custcols'] = ','.join(custcols)

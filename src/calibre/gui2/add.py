@@ -8,7 +8,8 @@ from functools import partial
 from PyQt4.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
 from calibre.gui2.dialogs.progress import ProgressDialog
-from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
+from calibre.gui2 import (question_dialog, error_dialog, info_dialog, gprefs,
+        warning_dialog)
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding, filesystem_encoding, DEBUG
@@ -238,7 +239,7 @@ class DBAdder(QObject): # {{{
 
 class Adder(QObject): # {{{
 
-    ADD_TIMEOUT = 600 # seconds
+    ADD_TIMEOUT = 900 # seconds (15 minutes)
 
     def __init__(self, parent, db, callback, spare_server=None):
         QObject.__init__(self, parent)
@@ -275,6 +276,24 @@ class Adder(QObject): # {{{
                     _('No books found'), show=True)
             return self.canceled()
         books = [[b] if isinstance(b, basestring) else b for b in books]
+        restricted = set()
+        for i in xrange(len(books)):
+            files = books[i]
+            restrictedi = set(f for f in files if not os.access(f, os.R_OK))
+            if restrictedi:
+                files = [f for f in files if os.access(f, os.R_OK)]
+                books[i] = files
+            restricted |= restrictedi
+        if restrictedi:
+            det_msg = u'\n'.join(restrictedi)
+            warning_dialog(self.pd, _('No permission'),
+                    _('Cannot add some files as you do not have '
+                        ' permission to access them. Click Show'
+                        ' Details to see the list of such files.'),
+                    det_msg=det_msg, show=True)
+        books = list(filter(None, books))
+        if not books:
+            return self.canceled()
         self.rfind = None
         from calibre.ebooks.metadata.worker import read_metadata
         self.rq = Queue()
@@ -445,12 +464,14 @@ class Saver(QObject): # {{{
         self.pd.setModal(True)
         self.pd.show()
         self.pd.set_min(0)
+        self.pd.set_msg(_('Collecting data, please wait...'))
         self._parent = parent
         self.callback = callback
         self.callback_called = False
         self.rq = Queue()
         self.ids = [x for x in map(db.id, [r.row() for r in rows]) if x is not None]
-        self.pd.set_max(len(self.ids))
+        self.pd_max = len(self.ids)
+        self.pd.set_max(0)
         self.pd.value = 0
         self.failures = set([])
 
@@ -509,6 +530,8 @@ class Saver(QObject): # {{{
             id, title, ok, tb = self.rq.get_nowait()
         except Empty:
             return
+        if self.pd.max != self.pd_max:
+            self.pd.max = self.pd_max
         self.pd.value += 1
         self.ids.remove(id)
         if not isinstance(title, unicode):

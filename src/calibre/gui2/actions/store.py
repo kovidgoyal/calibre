@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QMenu
+from PyQt4.Qt import QIcon, QSize
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
@@ -17,26 +17,35 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 class StoreAction(InterfaceAction):
 
     name = 'Store'
-    action_spec = (_('Get books'), 'store.png', None, None)
+    action_spec = (_('Get books'), 'store.png', None, _('G'))
+    action_add_menu = True
+    action_menu_clone_qaction = _('Search for ebooks')
 
     def genesis(self):
         self.qaction.triggered.connect(self.do_search)
-        self.store_menu = QMenu()
-        self.load_menu()
-
-    def load_menu(self):
-        self.store_menu.clear()
-        self.store_menu.addAction(_('Search for ebooks'), self.search)
-        self.store_menu.addAction(_('Search for this author'), self.search_author)
-        self.store_menu.addAction(_('Search for this title'), self.search_title)
-        self.store_menu.addAction(_('Search for this book'), self.search_author_title)
+        self.store_menu = self.qaction.menu()
+        cm = partial(self.create_menu_action, self.store_menu)
+        for x, t in [('author', _('author')), ('title', _('title')),
+                ('book', _('book'))]:
+            func = getattr(self, 'search_%s'%('author_title' if x == 'book'
+                else x))
+            ac = cm(x, _('Search for this %s'%t), triggered=func)
+            setattr(self, 'action_search_by_'+x, ac)
         self.store_menu.addSeparator()
         self.store_list_menu = self.store_menu.addMenu(_('Stores'))
-        for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
-            self.store_list_menu.addAction(n, partial(self.open_store, p))
+        self.load_menu()
         self.store_menu.addSeparator()
-        self.store_menu.addAction(_('Choose stores'), self.choose)
-        self.qaction.setMenu(self.store_menu)
+        cm('choose stores', _('Choose stores'), triggered=self.choose)
+
+    def load_menu(self):
+        self.store_list_menu.clear()
+        icon = QIcon()
+        icon.addFile(I('donate.png'), QSize(16, 16))
+        for n, p in sorted(self.gui.istores.items(), key=lambda x: x[0].lower()):
+            if p.base_plugin.affiliate:
+                self.store_list_menu.addAction(icon, n, partial(self.open_store, p))
+            else:
+                self.store_list_menu.addAction(n, partial(self.open_store, p))
 
     def do_search(self):
         return self.search()
@@ -44,7 +53,7 @@ class StoreAction(InterfaceAction):
     def search(self, query=''):
         self.show_disclaimer()
         from calibre.gui2.store.search.search import SearchDialog
-        sd = SearchDialog(self.gui.istores, self.gui, query)
+        sd = SearchDialog(self.gui, self.gui, query)
         sd.exec_()
 
     def _get_selected_row(self):

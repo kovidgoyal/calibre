@@ -35,7 +35,7 @@ class ISBNDB(Source):
 
     options = (
             Option('isbndb_key', 'string', None, _('IsbnDB key:'),
-                _('To use isbndb.com you have to sign up for a free account'
+                _('To use isbndb.com you have to sign up for a free account '
                     'at isbndb.com and get an access key.')),
             )
 
@@ -151,7 +151,7 @@ class ISBNDB(Source):
 
         bl = feed.find('BookList')
         if bl is None:
-            err = tostring(etree.find('errormessage'))
+            err = tostring(feed.find('errormessage'))
             raise ValueError('ISBNDb query failed:' + err)
         total_results = int(bl.get('total_results'))
         shown_results = int(bl.get('shown_results'))

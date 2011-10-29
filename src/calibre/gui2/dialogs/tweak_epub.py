@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, shutil
-from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
+from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
 from PyQt4.Qt import QDialog
 

@@ -17,12 +17,13 @@ from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
 from calibre.ebooks.metadata.sources.base import msprefs
 from calibre.customize.ui import (all_metadata_plugins, is_disabled,
         enable_plugin, disable_plugin, default_disabled_plugins)
-from calibre.gui2 import NONE, error_dialog
+from calibre.gui2 import NONE, error_dialog, question_dialog
 
 class SourcesModel(QAbstractTableModel): # {{{
 
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
+        self.gui_parent = parent
 
         self.plugins = []
         self.enabled_overrides = {}
@@ -87,6 +88,15 @@ class SourcesModel(QAbstractTableModel): # {{{
         if col == 0 and role == Qt.CheckStateRole:
             val, ok = val.toInt()
             if ok:
+                if val == Qt.Checked and 'Douban' in plugin.name:
+                    if not question_dialog(self.gui_parent,
+                        _('Are you sure?'), '<p>'+
+                        _('This plugin is useful only for <b>Chinese</b>'
+                            ' language books. It can return incorrect'
+                            ' results for books in English. Are you'
+                            ' sure you want to enable it?'),
+                        show_copy_button=False):
+                        return ret
                 self.enabled_overrides[plugin] = val
                 ret = True
         if col == 1 and role == Qt.EditRole:
@@ -151,7 +161,7 @@ class FieldsModel(QAbstractListModel): # {{{
                 'tags' : _('Tags'),
                 'title': _('Title'),
                 'series': _('Series'),
-                'language': _('Language'),
+                'languages': _('Languages'),
         }
         self.overrides = {}
         self.exclude = frozenset(['series_index'])
@@ -224,6 +234,20 @@ class FieldsModel(QAbstractListModel): # {{{
             Qt.Unchecked])
         msprefs['ignore_fields'] = list(ignored_fields.union(changed))
 
+    def user_default_state(self, field):
+        return (Qt.Unchecked if field in msprefs.get('user_default_ignore_fields',[])
+                    else Qt.Checked)
+
+    def select_user_defaults(self):
+        self.overrides = dict([(f, self.user_default_state(f)) for f in self.fields])
+        self.reset()
+
+    def commit_user_defaults(self):
+        default_ignored_fields = set([x for x in msprefs['user_default_ignore_fields'] if x not in
+            self.overrides])
+        changed = set([k for k, v in self.overrides.iteritems() if v ==
+            Qt.Unchecked])
+        msprefs['user_default_ignore_fields'] = list(default_ignored_fields.union(changed))
 
 # }}}
 
@@ -238,8 +262,8 @@ class PluginConfig(QWidget): # {{{
 
         self.l = l = QVBoxLayout()
         self.setLayout(l)
-        self.c = c = QLabel(_('<b>Configure %s</b><br>%s') % (plugin.name,
-            plugin.description))
+        self.c = c = QLabel(_('<b>Configure %(name)s</b><br>%(desc)s') % dict(
+            name=plugin.name, desc=plugin.description))
         c.setAlignment(Qt.AlignHCenter)
         l.addWidget(c)
 
@@ -283,7 +307,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fields_model.dataChanged.connect(self.changed_signal)
 
         self.select_all_button.clicked.connect(self.fields_model.select_all)
+        self.select_all_button.clicked.connect(self.changed_signal)
         self.clear_all_button.clicked.connect(self.fields_model.clear_all)
+        self.clear_all_button.clicked.connect(self.changed_signal)
+        self.select_default_button.clicked.connect(self.fields_model.select_user_defaults)
+        self.select_default_button.clicked.connect(self.changed_signal)
+        self.set_as_default_button.clicked.connect(self.fields_model.commit_user_defaults)
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():

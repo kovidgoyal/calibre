@@ -9,12 +9,13 @@ import os
 from functools import partial
 from threading import Thread
 
-from PyQt4.Qt import QMenu, QToolButton
+from PyQt4.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
-from calibre.gui2 import error_dialog, Dispatcher, warning_dialog
+from calibre.gui2 import error_dialog, Dispatcher, warning_dialog, gprefs
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.utils.config import prefs, tweaks
+from calibre.utils.date import now
 
 class Worker(Thread): # {{{
 
@@ -53,21 +54,51 @@ class Worker(Thread): # {{{
         from calibre.library.database2 import LibraryDatabase2
         newdb = LibraryDatabase2(self.loc)
         for i, x in enumerate(self.ids):
-            mi = self.db.get_metadata(x, index_is_id=True, get_cover=True)
+            mi = self.db.get_metadata(x, index_is_id=True, get_cover=True,
+                    cover_as_data=True)
+            if not gprefs['preserve_date_on_ctl']:
+                mi.timestamp = now()
             self.progress(i, mi.title)
             fmts = self.db.formats(x, index_is_id=True)
             if not fmts: fmts = []
             else: fmts = fmts.split(',')
-            paths = [self.db.format_abspath(x, fmt, index_is_id=True) for fmt in
-                    fmts]
-            added = False
+            paths = []
+            for fmt in fmts:
+                p = self.db.format(x, fmt, index_is_id=True,
+                    as_path=True)
+                if p:
+                    paths.append(p)
+            automerged = False
             if prefs['add_formats_to_existing']:
                 identical_book_list = newdb.find_identical_books(mi)
                 if identical_book_list: # books with same author and nearly same title exist in newdb
-                    added = True
+                    automerged = True
+                    seen_fmts = set()
                     for identical_book in identical_book_list:
-                        self.add_formats(identical_book, paths, newdb, replace=False)
-            if not added:
+                        ib_fmts = newdb.formats(identical_book, index_is_id=True)
+                        if ib_fmts:
+                            seen_fmts |= set(ib_fmts.split(','))
+                        replace = gprefs['automerge'] == 'overwrite'
+                        self.add_formats(identical_book, paths, newdb,
+                                replace=replace)
+
+                    if gprefs['automerge'] == 'new record':
+                        incoming_fmts = \
+                            set([os.path.splitext(path)[-1].replace('.',
+                                '').upper() for path in paths])
+
+                        if incoming_fmts.intersection(seen_fmts):
+                            # There was at least one duplicate format
+                            # so create a new record and put the
+                            # incoming formats into it
+                            # We should arguably put only the duplicate
+                            # formats, but no real harm is done by having
+                            # all formats
+                            newdb.import_book(mi, paths, notify=False, import_hooks=False,
+                                apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+                                preserve_uuid=False)
+
+            if not automerged:
                 newdb.import_book(mi, paths, notify=False, import_hooks=False,
                     apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
                     preserve_uuid=self.delete_after)
@@ -75,6 +106,11 @@ class Worker(Thread): # {{{
                 if co is not None:
                     newdb.set_conversion_options(x, 'PIPE', co)
             self.processed.add(x)
+            for path in paths:
+                try:
+                    os.remove(path)
+                except:
+                    pass
 # }}}
 
 class CopyToLibraryAction(InterfaceAction):
@@ -85,10 +121,10 @@ class CopyToLibraryAction(InterfaceAction):
     popup_type = QToolButton.InstantPopup
     dont_add_to = frozenset(['toolbar-device', 'context-menu-device'])
     action_type = 'current'
+    action_add_menu = True
 
     def genesis(self):
-        self.menu = QMenu(self.gui)
-        self.qaction.setMenu(self.menu)
+        self.menu = self.qaction.menu()
 
     @property
     def stats(self):
@@ -150,8 +186,9 @@ class CopyToLibraryAction(InterfaceAction):
             error_dialog(self.gui, _('Failed'), _('Could not copy books: ') + e,
                     det_msg=tb, show=True)
         else:
-            self.gui.status_bar.show_message(_('Copied %d books to %s') %
-                    (len(ids), loc), 2000)
+            self.gui.status_bar.show_message(
+                    _('Copied %(num)d books to %(loc)s') %
+                    dict(num=len(ids), loc=loc), 2000)
             if delete_after and self.worker.processed:
                 v = self.gui.library_view
                 ci = v.currentIndex()

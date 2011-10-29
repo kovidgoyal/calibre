@@ -165,6 +165,7 @@ class PDFWriter(QObject): # {{{
             printer = get_pdf_printer(self.opts)
             printer.setOutputFileName(item_path)
             self.view.print_(printer)
+            printer.abort()
         self._render_book()
 
     def _delete_tmpdir(self):
@@ -186,6 +187,7 @@ class PDFWriter(QObject): # {{{
             draw_image_page(printer, painter, p,
                     preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio)
             painter.end()
+        printer.abort()
 
 
     def _write(self):

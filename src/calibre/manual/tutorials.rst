@@ -6,7 +6,7 @@
 Tutorials
 =======================================================
 
-Here you will find tutorials to get you started using |app|'s more advanced features, like XPath and templates.
+Here you will find tutorials to get you started using |app|'s more advanced features, such as XPath and templates.
 
 .. toctree::
    :maxdepth: 1
@@ -16,7 +16,6 @@ Here you will find tutorials to get you started using |app|'s more advanced feat
    xpath
    template_lang
    regexp
-   portable
    server
    creating_plugins
 

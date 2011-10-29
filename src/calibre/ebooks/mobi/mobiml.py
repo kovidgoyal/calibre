@@ -297,19 +297,27 @@ class MobiMLizer(object):
             if id_:
                 # Keep anchors so people can use display:none
                 # to generate hidden TOCs
+                tail = elem.tail
                 elem.clear()
                 elem.text = None
                 elem.set('id', id_)
+                elem.tail = tail
             else:
                 return
         tag = barename(elem.tag)
         istate = copy.copy(istates[-1])
         istate.rendered = False
         istate.list_num = 0
+        if tag == 'ol' and 'start' in elem.attrib:
+            try:
+                istate.list_num = int(elem.attrib['start'])-1
+            except:
+                pass
         istates.append(istate)
         left = 0
         display = style['display']
-        isblock = not display.startswith('inline')
+        isblock = (not display.startswith('inline') and style['display'] !=
+                'none')
         isblock = isblock and style['float'] == 'none'
         isblock = isblock and tag != 'br'
         if isblock:
@@ -439,9 +447,16 @@ class MobiMLizer(object):
         if tag in TABLE_TAGS and self.ignore_tables:
             tag = 'span' if tag == 'td' else 'div'
 
-        # GR: Added 'width', 'border' and 'scope'
+        if tag == 'table':
+            col = style.backgroundColor
+            if col:
+                elem.set('bgcolor', col)
+            css = style.cssdict()
+            if 'border' in css or 'border-width' in css:
+                elem.set('border', '1')
         if tag in TABLE_TAGS:
-            for attr in ('rowspan', 'colspan','width','border','scope'):
+            for attr in ('rowspan', 'colspan', 'width', 'border', 'scope',
+                    'bgcolor'):
                 if attr in elem.attrib:
                     istate.attrib[attr] = elem.attrib[attr]
         if tag == 'q':
@@ -522,7 +537,7 @@ class MobiMLizer(object):
             bstate.pbreak = True
         if isblock:
             para = bstate.para
-            if para is not None and para.text == u'\xa0':
+            if para is not None and para.text == u'\xa0' and len(para) < 1:
                 para.getparent().replace(para, etree.Element(XHTML('br')))
             bstate.para = None
             bstate.istate = None

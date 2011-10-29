@@ -1,8 +1,7 @@
 This is a list of stores that objected, declined
 or asked not to be included in the store integration.
 
-* Borders (http://www.borders.com/)
-* WH Smith (http://www.whsmith.co.uk/)
-  Refused to permit signing up for the affiliate program
+* Borders (http://www.borders.com/).
+* Indigo (http://www.chapters.indigo.ca/).
 * Libraria Rizzoli (http://libreriarizzoli.corriere.it/).
-  No reply with two attempts over 2 weeks
+* EPubBuy DE: reason: too much traffic for too little sales

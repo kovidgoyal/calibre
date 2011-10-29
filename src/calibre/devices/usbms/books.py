@@ -14,7 +14,7 @@ from calibre.constants import preferred_encoding
 from calibre import isbytestring, force_unicode
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import strcmp
-from calibre.utils.formatter import eval_formatter
+from calibre.utils.formatter import EvalFormatter
 
 class Book(Metadata):
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -116,7 +116,7 @@ class CollectionsBookList(BookList):
                 field_name = field_meta['name']
             else:
                 field_name = ''
-        cat_name = eval_formatter.safe_format(
+        cat_name = EvalFormatter().safe_format(
                         fmt=tweaks['sony_collection_name_template'],
                         kwargs={'category':field_name, 'value':field_value},
                         error_value='GET_CATEGORY', book=None)
@@ -204,7 +204,8 @@ class CollectionsBookList(BookList):
                 elif fm['datatype'] == 'text' and fm['is_multiple']:
                     val = orig_val
                 elif fm['datatype'] == 'composite' and fm['is_multiple']:
-                    val = [v.strip() for v in val.split(fm['is_multiple'])]
+                    val = [v.strip() for v in
+                           val.split(fm['is_multiple']['ui_to_list'])]
                 else:
                     val = [val]
 

@@ -16,7 +16,7 @@ from calibre.constants import isosx, __appname__, preferred_encoding, \
 from calibre.gui2 import config, is_widescreen, gprefs
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
-from calibre.gui2.tag_view import TagBrowserWidget
+from calibre.gui2.tag_browser.ui import TagBrowserWidget
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.notify import get_notifier
 
@@ -26,7 +26,6 @@ def partial(*args, **kwargs):
     ans = functools.partial(*args, **kwargs)
     _keep_refs.append(ans)
     return ans
-
 
 class LibraryViewMixin(object): # {{{
 
@@ -63,7 +62,6 @@ class LibraryViewMixin(object): # {{{
             view = getattr(self, view+'_view')
             view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
-        self.build_context_menus()
         self.library_view.model().set_highlight_only(config['highlight_search_matches'])
 
     def build_context_menus(self):
@@ -82,6 +80,11 @@ class LibraryViewMixin(object): # {{{
         for v in (self.memory_view, self.card_a_view, self.card_b_view):
             v.set_context_menu(dm, ec)
 
+        if self.cover_flow is not None:
+            cm = QMenu(self.cover_flow)
+            populate_menu(cm,
+                    gprefs['action-layout-context-menu-cover-browser'])
+            self.cover_flow.set_context_menu(cm)
 
     def search_done(self, view, ok):
         if view is self.current_view():
@@ -145,6 +148,7 @@ class UpdateLabel(QLabel): # {{{
 
     def __init__(self, *args, **kwargs):
         QLabel.__init__(self, *args, **kwargs)
+        self.setCursor(Qt.PointingHandCursor)
 
     def contextMenuEvent(self, e):
         pass
@@ -182,14 +186,6 @@ class StatusBar(QStatusBar): # {{{
         self.defmsg.setText(self.default_message)
         self.clearMessage()
 
-    def new_version_available(self, ver, url):
-        msg = (u'<span style="color:red; font-weight: bold">%s: <a'
-               ' href="update:%s">%s<a></span>') % (
-                _('Update found'), ver, ver)
-        self.update_label.setText(msg)
-        self.update_label.setCursor(Qt.PointingHandCursor)
-        self.update_label.setVisible(True)
-
     def get_version(self):
         dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
         v = __version__
@@ -222,7 +218,7 @@ class LayoutMixin(object): # {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book Details'), I('book.png'),
                     orientation=Qt.Vertical, parent=self, side_index=1,
-                    shortcut=_('Alt+D'))
+                    shortcut=_('Shift+Alt+D'))
             self.bd_splitter.addWidget(self.stack)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
@@ -256,12 +252,6 @@ class LayoutMixin(object): # {{{
         self.status_bar.addPermanentWidget(self.jobs_button)
         self.setStatusBar(self.status_bar)
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
-
-    def update_link_clicked(self, url):
-        url = unicode(url)
-        if url.startswith('update:'):
-            version = url.partition(':')[-1]
-            self.update_found(version, force=True)
 
     def finalize_layout(self):
         self.status_bar.initialize(self.system_tray_icon)

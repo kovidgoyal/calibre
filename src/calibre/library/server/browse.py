@@ -124,7 +124,8 @@ def render_rating(rating, url_prefix, container='span', prefix=None): # {{{
     added = 0
     if prefix is None:
         prefix = _('Average rating')
-    rstring = xml(_('%s: %.1f stars')% (prefix, rating if rating else 0.0),
+    rstring = xml(_('%(prefix)s: %(rating).1f stars')%dict(
+        prefix=prefix, rating=rating if rating else 0.0),
             True)
     ans = ['<%s class="rating">' % (container)]
     for i in range(5):
@@ -770,7 +771,8 @@ class BrowseServer(object):
             summs.append(self.browse_summary_template.format(**args))
 
 
-        return json.dumps('\n'.join(summs), ensure_ascii=False)
+        raw = json.dumps('\n'.join(summs), ensure_ascii=False)
+        return raw
 
     def browse_render_details(self, id_):
         try:
@@ -794,7 +796,9 @@ class BrowseServer(object):
                     list(mi.get_all_user_metadata(False).items()):
                 if m['is_custom'] and field not in displayed_custom_fields:
                     continue
-                if m['datatype'] == 'comments' or field == 'comments':
+                if m['datatype'] == 'comments' or field == 'comments' or (
+                        m['datatype'] == 'composite' and \
+                            m['display'].get('contains_html', False)):
                     val = mi.get(field, '')
                     if val and val.strip():
                         comments.append((m['name'], comments_to_html(val)))

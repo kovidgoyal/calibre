@@ -11,19 +11,20 @@ import textwrap, re, os
 
 from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
-    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap,
-    QPushButton, QSpinBox, QLineEdit, QSizePolicy)
+    QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
+    QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox, QAction)
 
-from calibre.gui2.widgets import EnLineEdit, FormatList, ImageView
+from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (title_sort, authors_to_string,
         string_to_authors, check_isbn, authors_to_sort_string)
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE, UNDEFINED_DATE,
+from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE,
         choose_files, error_dialog, choose_images)
-from calibre.utils.date import local_tz, qt_to_dt
+from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
+        UNDEFINED_DATE)
 from calibre import strftime
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
@@ -32,6 +33,8 @@ from calibre.gui2.comments_editor import Editor
 from calibre.library.comments import comments_to_html
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.icu import strcmp
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.gui2.languages import LanguagesEdit as LE
 
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
@@ -125,6 +128,9 @@ class TitleEdit(EnLineEdit):
 
         return property(fget=fget, fset=fset)
 
+    def break_cycles(self):
+        self.dialog = None
+
 class TitleSortEdit(TitleEdit):
 
     TITLE_ATTR = 'title_sort'
@@ -150,6 +156,7 @@ class TitleSortEdit(TitleEdit):
         self.title_edit.textChanged.connect(self.update_state)
         self.textChanged.connect(self.update_state)
 
+        self.autogen_button = autogen_button
         autogen_button.clicked.connect(self.auto_generate)
         self.update_state()
 
@@ -169,6 +176,20 @@ class TitleSortEdit(TitleEdit):
     def auto_generate(self, *args):
         self.current_val = title_sort(self.title_edit.current_val)
 
+    def break_cycles(self):
+        try:
+            self.title_edit.textChanged.disconnect()
+        except:
+            pass
+        try:
+            self.textChanged.disconnect()
+        except:
+            pass
+        try:
+            self.autogen_button.clicked.disconnect()
+        except:
+            pass
+
 # }}}
 
 # Authors {{{
@@ -185,6 +206,7 @@ class AuthorsEdit(MultiCompleteComboBox):
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.manage_authors_signal = manage_authors
         manage_authors.triggered.connect(self.manage_authors)
 
     def manage_authors(self):
@@ -269,6 +291,13 @@ class AuthorsEdit(MultiCompleteComboBox):
 
         return property(fget=fget, fset=fset)
 
+    def break_cycles(self):
+        self.db = self.dialog = None
+        try:
+            self.manage_authors_signal.triggered.disconnect()
+        except:
+            pass
+
 class AuthorSortEdit(EnLineEdit):
 
     TOOLTIP = _('Specify how the author(s) of this book should be sorted. '
@@ -279,7 +308,7 @@ class AuthorSortEdit(EnLineEdit):
     LABEL = _('Author s&ort:')
 
     def __init__(self, parent, authors_edit, autogen_button, db,
-            copy_a_to_as_action, copy_as_to_a_action):
+            copy_a_to_as_action, copy_as_to_a_action, a_to_as, as_to_a):
         EnLineEdit.__init__(self, parent)
         self.authors_edit = authors_edit
         self.db = db
@@ -297,9 +326,15 @@ class AuthorSortEdit(EnLineEdit):
         self.authors_edit.editTextChanged.connect(self.update_state_and_val)
         self.textChanged.connect(self.update_state)
 
+        self.autogen_button = autogen_button
+        self.copy_a_to_as_action = copy_a_to_as_action
+        self.copy_as_to_a_action = copy_as_to_a_action
+
         autogen_button.clicked.connect(self.auto_generate)
         copy_a_to_as_action.triggered.connect(self.auto_generate)
         copy_as_to_a_action.triggered.connect(self.copy_to_authors)
+        a_to_as.triggered.connect(self.author_to_sort)
+        as_to_a.triggered.connect(self.sort_to_author)
         self.update_state()
 
     @dynamic_property
@@ -356,9 +391,20 @@ class AuthorSortEdit(EnLineEdit):
 
     def auto_generate(self, *args):
         au = unicode(self.authors_edit.text())
-        au = re.sub(r'\s+et al\.$', '', au)
+        au = re.sub(r'\s+et al\.$', '', au).strip()
         authors = string_to_authors(au)
         self.current_val = self.db.author_sort_from_authors(authors)
+
+    def author_to_sort(self, *args):
+        au = unicode(self.authors_edit.text())
+        au = re.sub(r'\s+et al\.$', '', au).strip()
+        if au:
+            self.current_val = au
+
+    def sort_to_author(self, *args):
+        aus = self.current_val
+        if aus:
+            self.authors_edit.current_val = [aus]
 
     def initialize(self, db, id_):
         self.current_val = db.author_sort(id_, index_is_id=True)
@@ -367,6 +413,30 @@ class AuthorSortEdit(EnLineEdit):
         aus = self.current_val
         db.set_author_sort(id_, aus, notify=False, commit=False)
         return True
+
+    def break_cycles(self):
+        self.db = None
+        try:
+            self.authors_edit.editTextChanged.disconnect()
+        except:
+            pass
+        try:
+            self.textChanged.disconnect()
+        except:
+            pass
+        try:
+            self.autogen_button.clicked.disconnect()
+        except:
+            pass
+        try:
+            self.copy_a_to_as_action.triggered.disconnect()
+        except:
+            pass
+        try:
+            self.copy_as_to_a_action.triggered.disconnect()
+        except:
+            pass
+        self.authors_edit = None
 
 # }}}
 
@@ -426,6 +496,10 @@ class SeriesEdit(MultiCompleteComboBox):
         self.books_to_refresh |= db.set_series(id_, series, notify=False,
                                             commit=True, allow_case_change=True)
         return True
+
+    def break_cycles(self):
+        self.dialog = None
+
 
 class SeriesIndexEdit(QDoubleSpinBox):
 
@@ -488,6 +562,20 @@ class SeriesIndexEdit(QDoubleSpinBox):
                 import traceback
                 traceback.print_exc()
 
+    def break_cycles(self):
+        try:
+            self.series_edit.currentIndexChanged.disconnect()
+        except:
+            pass
+        try:
+            self.series_edit.editTextChanged.disconnect()
+        except:
+            pass
+        try:
+            self.series_edit.lineEdit().editingFinished.disconnect()
+        except:
+            pass
+        self.db = self.series_edit = self.dialog = None
 
 # }}}
 
@@ -499,7 +587,9 @@ class BuddyLabel(QLabel): # {{{
         self.setAlignment(Qt.AlignRight|Qt.AlignVCenter)
 # }}}
 
-class Format(QListWidgetItem): # {{{
+# Formats {{{
+
+class Format(QListWidgetItem):
 
     def __init__(self, parent, ext, size, path=None, timestamp=None):
         self.path = path
@@ -515,13 +605,52 @@ class Format(QListWidgetItem): # {{{
             self.setToolTip(text)
             self.setStatusTip(text)
 
-# }}}
+class OrigAction(QAction):
 
-class FormatsManager(QWidget): # {{{
+    restore_fmt = pyqtSignal(object)
+
+    def __init__(self, fmt, parent):
+        self.fmt = fmt.replace('ORIGINAL_', '')
+        QAction.__init__(self, _('Restore %s from the original')%self.fmt, parent)
+        self.triggered.connect(self._triggered)
+
+    def _triggered(self):
+        self.restore_fmt.emit(self.fmt)
+
+class FormatList(_FormatList):
+
+    restore_fmt = pyqtSignal(object)
 
     def __init__(self, parent):
+        _FormatList.__init__(self, parent)
+        self.setContextMenuPolicy(Qt.DefaultContextMenu)
+
+    def contextMenuEvent(self, event):
+        originals = [self.item(x).ext.upper() for x in range(self.count())]
+        originals = [x for x in originals if x.startswith('ORIGINAL_')]
+        if not originals:
+            return
+        self.cm = cm = QMenu(self)
+        for fmt in originals:
+            action = OrigAction(fmt, cm)
+            action.restore_fmt.connect(self.restore_fmt)
+            cm.addAction(action)
+        cm.popup(event.globalPos())
+        event.accept()
+
+    def remove_format(self, fmt):
+        for i in range(self.count()):
+            f = self.item(i)
+            if f.ext.upper() == fmt.upper():
+                self.takeItem(i)
+                break
+
+class FormatsManager(QWidget):
+
+    def __init__(self, parent, copy_fmt):
         QWidget.__init__(self, parent)
         self.dialog = parent
+        self.copy_fmt = copy_fmt
         self.changed = False
 
         self.l = l = QGridLayout()
@@ -555,6 +684,7 @@ class FormatsManager(QWidget): # {{{
         self.formats = FormatList(self)
         self.formats.setAcceptDrops(True)
         self.formats.formats_dropped.connect(self.formats_dropped)
+        self.formats.restore_fmt.connect(self.restore_fmt)
         self.formats.delete_format.connect(self.remove_format)
         self.formats.itemDoubleClicked.connect(self.show_format)
         self.formats.setDragDropMode(self.formats.DropOnly)
@@ -567,7 +697,7 @@ class FormatsManager(QWidget): # {{{
         l.addWidget(self.remove_format_button,        2, 2, 1, 1)
         l.addWidget(self.formats,                     0, 1, 3, 1)
 
-
+        self.temp_files = []
 
     def initialize(self, db, id_):
         self.changed = False
@@ -620,6 +750,16 @@ class FormatsManager(QWidget): # {{{
                              self.dialog.title.current_val,
                              [(_('Books'), BOOK_EXTENSIONS)])
         self._add_formats(files)
+
+    def restore_fmt(self, fmt):
+        pt = PersistentTemporaryFile(suffix='_restore_fmt.'+fmt.lower())
+        ofmt = 'ORIGINAL_'+fmt
+        with pt:
+            self.copy_fmt(ofmt, pt)
+        self._add_formats((pt.name,))
+        self.temp_files.append(pt.name)
+        self.changed = True
+        self.formats.remove_format(ofmt)
 
     def _add_formats(self, paths):
         added = False
@@ -688,7 +828,8 @@ class FormatsManager(QWidget): # {{{
             else:
                 stream = open(fmt.path, 'r+b')
             try:
-                mi = get_metadata(stream, ext)
+                with stream:
+                    mi = get_metadata(stream, ext)
                 return mi, ext
             except:
                 error_dialog(self, _('Could not read metadata'),
@@ -698,6 +839,15 @@ class FormatsManager(QWidget): # {{{
             if old != prefs['read_file_metadata']:
                 prefs['read_file_metadata'] = old
 
+    def break_cycles(self):
+        self.dialog = None
+        self.copy_fmt = None
+        for name in self.temp_files:
+            try:
+                os.remove(name)
+            except:
+                pass
+        self.temp_files = []
 # }}}
 
 class Cover(ImageView): # {{{
@@ -802,9 +952,10 @@ class Cover(ImageView): # {{{
         series = self.dialog.series.current_val
         series_string = None
         if series:
-            series_string = _('Book %s of %s')%(
-                    fmt_sidx(self.dialog.series_index.current_val,
-                    use_roman=config['use_roman_numerals_for_series_number']), series)
+            series_string = _('Book %(sidx)s of %(series)s')%dict(
+                    sidx=fmt_sidx(self.dialog.series_index.current_val,
+                    use_roman=config['use_roman_numerals_for_series_number']),
+                    series=series)
         self.current_val = calibre_cover(title, author,
                 series_string=series_string)
 
@@ -845,8 +996,8 @@ class Cover(ImageView): # {{{
             self.setPixmap(pm)
             tt = _('This book has no cover')
             if self._cdata:
-                tt = _('Cover size: %dx%d pixels') % \
-                (pm.width(), pm.height())
+                tt = _('Cover size: %(width)d x %(height)d pixels') % \
+                dict(width=pm.width(), height=pm.height())
             self.setToolTip(tt)
 
         return property(fget=fget, fset=fset)
@@ -858,6 +1009,13 @@ class Cover(ImageView): # {{{
             else:
                 db.remove_cover(id_, notify=False, commit=False)
         return True
+
+    def break_cycles(self):
+        try:
+            self.cover_changed.disconnect()
+        except:
+            pass
+        self.dialog = self._cdata = self.current_val = self.original_val = None
 
 # }}}
 
@@ -989,6 +1147,44 @@ class TagsEdit(MultiCompleteLineEdit): # {{{
 
 # }}}
 
+class LanguagesEdit(LE): # {{{
+
+    LABEL = _('&Languages:')
+    TOOLTIP = _('A comma separated list of languages for this book')
+
+    def __init__(self, *args, **kwargs):
+        LE.__init__(self, *args, **kwargs)
+        self.setToolTip(self.TOOLTIP)
+
+    @dynamic_property
+    def current_val(self):
+        def fget(self): return self.lang_codes
+        def fset(self, val): self.lang_codes = val
+        return property(fget=fget, fset=fset)
+
+    def initialize(self, db, id_):
+        self.init_langs(db)
+        lc = []
+        langs = db.languages(id_, index_is_id=True)
+        if langs:
+            lc = [x.strip() for x in langs.split(',')]
+        self.current_val = self.original_val = lc
+
+    def commit(self, db, id_):
+        bad = self.validate()
+        if bad:
+            error_dialog(self, _('Unknown language'),
+                    ngettext('The language %s is not recognized',
+                        'The languages %s are not recognized', len(bad))%(
+                            ', '.join(bad)),
+                    show=True)
+            return False
+        cv = self.current_val
+        if cv != self.original_val:
+            db.set_languages(id_, cv)
+        return True
+# }}}
+
 class IdentifiersEdit(QLineEdit): # {{{
     LABEL = _('I&ds:')
     BASE_TT = _('Edit the identifiers for this book. '
@@ -1009,11 +1205,12 @@ class IdentifiersEdit(QLineEdit): # {{{
             for x in parts:
                 c = x.split(':')
                 if len(c) > 1:
-                    if c[0] == 'isbn':
+                    itype = c[0].lower()
+                    if itype == 'isbn':
                         v = check_isbn(c[1])
                         if v is not None:
                             c[1] = v
-                    ans[c[0]] = c[1]
+                    ans[itype] = c[1]
             return ans
         def fset(self, val):
             if not val:
@@ -1029,7 +1226,7 @@ class IdentifiersEdit(QLineEdit): # {{{
                     if v is not None:
                         val[k] = v
             ids = sorted(val.iteritems(), key=keygen)
-            txt = ', '.join(['%s:%s'%(k, v) for k, v in ids])
+            txt = ', '.join(['%s:%s'%(k.lower(), v) for k, v in ids])
             self.setText(txt.strip())
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
@@ -1061,10 +1258,68 @@ class IdentifiersEdit(QLineEdit): # {{{
 
     def paste_isbn(self):
         text = unicode(QApplication.clipboard().text()).strip()
-        if text:
-            vals = self.current_val
-            vals['isbn'] = text
-            self.current_val = vals
+        if not text or not check_isbn(text):
+            d = ISBNDialog(self, text)
+            if not d.exec_():
+                return
+            text = d.text()
+            if not text:
+                return
+        vals = self.current_val
+        vals['isbn'] = text
+        self.current_val = vals
+
+# }}}
+
+class ISBNDialog(QDialog) : # {{{
+
+    def __init__(self, parent, txt):
+        QDialog.__init__(self, parent)
+        l = QGridLayout()
+        self.setLayout(l)
+        self.setWindowTitle(_('Invalid ISBN'))
+        w = QLabel(_('Enter an ISBN'))
+        l.addWidget(w, 0, 0, 1, 2)
+        w = QLabel(_('ISBN:'))
+        l.addWidget(w, 1, 0, 1, 1)
+        self.line_edit = w = QLineEdit();
+        w.setText(txt)
+        w.selectAll()
+        w.textChanged.connect(self.checkText)
+        l.addWidget(w, 1, 1, 1, 1)
+        w = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        l.addWidget(w, 2, 0, 1, 2)
+        w.accepted.connect(self.accept)
+        w.rejected.connect(self.reject)
+        self.checkText(self.text())
+        sz = self.sizeHint()
+        sz.setWidth(sz.width()+50)
+        self.resize(sz)
+
+    def accept(self):
+        isbn = unicode(self.line_edit.text())
+        if not check_isbn(isbn):
+            return error_dialog(self, _('Invalid ISBN'),
+                    _('The ISBN you entered is not valid. Try again.'),
+                    show=True)
+        QDialog.accept(self)
+
+    def checkText(self, txt):
+        isbn = unicode(txt)
+        if not isbn:
+            col = 'none'
+            extra = ''
+        elif check_isbn(isbn) is not None:
+            col = 'rgba(0,255,0,20%)'
+            extra = _('This ISBN number is valid')
+        else:
+            col = 'rgba(255,0,0,20%)'
+            extra = _('This ISBN number is invalid')
+        self.line_edit.setToolTip(extra)
+        self.line_edit.setStyleSheet('QLineEdit { background-color: %s }'%col)
+
+    def text(self):
+        return unicode(self.line_edit.text())
 
 # }}}
 
@@ -1152,6 +1407,7 @@ class DateEdit(QDateEdit): # {{{
         def fset(self, val):
             if val is None:
                 val = UNDEFINED_DATE
+            val = as_local_time(val)
             self.setDate(QDate(val.year, val.month, val.day))
         return property(fget=fget, fset=fset)
 

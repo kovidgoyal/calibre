@@ -82,7 +82,7 @@ class ZAOBAO(BasicNewsRecipe):
         return soup
 
     def parse_feeds(self):
-        self.log_debug(_('ZAOBAO overrided parse_feeds()'))
+        self.log(_('ZAOBAO overrided parse_feeds()'))
         parsed_feeds = BasicNewsRecipe.parse_feeds(self)
 
         for id, obj in enumerate(self.INDEXES):
@@ -99,7 +99,7 @@ class ZAOBAO(BasicNewsRecipe):
                     a_title = self.tag_to_string(a)
                     date = ''
                     description = ''
-                    self.log_debug(_('adding %s at %s')%(a_title,a_url))
+                    self.log(_('adding %s at %s')%(a_title,a_url))
                     articles.append({
                                     'title':a_title,
                                     'date':date,
@@ -110,23 +110,23 @@ class ZAOBAO(BasicNewsRecipe):
             pfeeds = feeds_from_index([(title, articles)], oldest_article=self.oldest_article,
                                      max_articles_per_feed=self.max_articles_per_feed)
 
-            self.log_debug(_('adding %s to feed')%(title))
+            self.log(_('adding %s to feed')%(title))
             for feed in pfeeds:
-                self.log_debug(_('adding feed: %s')%(feed.title))
+                self.log(_('adding feed: %s')%(feed.title))
                 feed.description = self.DESC_SENSE
                 parsed_feeds.append(feed)
                 for a, article in enumerate(feed):
-                    self.log_debug(_('added article %s from %s')%(article.title, article.url))
-                self.log_debug(_('added feed %s')%(feed.title))
+                    self.log(_('added article %s from %s')%(article.title, article.url))
+                self.log(_('added feed %s')%(feed.title))
 
         for i, feed in enumerate(parsed_feeds):
             # workaorund a strange problem: Somethimes the xml encoding is not apllied correctly by parse()
             weired_encoding_detected = False
             if not isinstance(feed.description, unicode) and self.encoding and feed.description:
-                self.log_debug(_('Feed %s is not encoded correctly, manually replace it')%(feed.title))
+                self.log(_('Feed %s is not encoded correctly, manually replace it')%(feed.title))
                 feed.description = feed.description.decode(self.encoding, 'replace')
             elif feed.description.find(self.DESC_SENSE) == -1 and self.encoding and feed.description:
-                self.log_debug(_('Feed %s is weired encoded, manually redo all')%(feed.title))
+                self.log(_('Feed %s is weired encoded, manually redo all')%(feed.title))
                 feed.description = feed.description.encode('cp1252', 'replace').decode(self.encoding, 'replace')
                 weired_encoding_detected = True
 
@@ -148,7 +148,7 @@ class ZAOBAO(BasicNewsRecipe):
                         article.text_summary = article.text_summary.encode('cp1252', 'replace').decode(self.encoding, 'replace')
 
                 if article.title == "Untitled article":
-                    self.log_debug(_('Removing empty article %s from %s')%(article.title, article.url))
+                    self.log(_('Removing empty article %s from %s')%(article.title, article.url))
                     # remove the article
                     feed.articles[a:a+1] = []
         return parsed_feeds

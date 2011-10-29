@@ -885,7 +885,8 @@ class Manifest(object):
                 try:
                     data = etree.fromstring(data, parser=parser)
                 except etree.XMLSyntaxError as err:
-                    self.oeb.log.exception('Initial parse failed:')
+                    self.oeb.log.debug('Initial parse failed, using more'
+                            ' forgiving parsers')
                     repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
                     data = ENTITY_RE.sub(repl, data)
                     try:
@@ -1055,6 +1056,12 @@ class Manifest(object):
                         and len(a) == 0 and not a.text:
                     remove_elem(a)
 
+            # Convert <br>s with content into paragraphs as ADE can't handle
+            # them
+            for br in xpath(data, '//h:br'):
+                if len(br) > 0 or br.text:
+                    br.tag = XHTML('div')
+
             return data
 
         def _parse_txt(self, data):
@@ -1156,7 +1163,7 @@ class Manifest(object):
                     data = self._parse_xml(data)
                 elif self.media_type.lower() in OEB_STYLES:
                     data = self._parse_css(data)
-                elif 'text' in self.media_type.lower():
+                elif self.media_type.lower() == 'text/plain':
                     self.oeb.log.warn('%s contains data in TXT format'%self.href,
                             'converting to HTML')
                     data = self._parse_txt(data)
@@ -1174,8 +1181,9 @@ class Manifest(object):
                 if memory is None:
                     from calibre.ptempfile import PersistentTemporaryFile
                     pt = PersistentTemporaryFile(suffix='_oeb_base_mem_unloader.img')
-                    pt.write(self._data)
-                    pt.close()
+                    with pt:
+                        pt.write(self._data)
+                    self.oeb._temp_files.append(pt.name)
                     def loader(*args):
                         with open(pt.name, 'rb') as f:
                             ans = f.read()
@@ -1189,8 +1197,6 @@ class Manifest(object):
                         return ans
                     self._loader = loader2
                 self._data = None
-
-
 
         def __str__(self):
             data = self.data
@@ -1675,11 +1681,18 @@ class TOC(object):
                 return True
         return False
 
-    def iterdescendants(self):
+    def iterdescendants(self, breadth_first=False):
         """Iterate over all descendant nodes in depth-first order."""
-        for child in self.nodes:
-            for node in child.iter():
-                yield node
+        if breadth_first:
+            for child in self.nodes:
+                yield child
+            for child in self.nodes:
+                for node in child.iterdescendants(breadth_first=True):
+                    yield node
+        else:
+            for child in self.nodes:
+                for node in child.iter():
+                    yield node
 
     def __iter__(self):
         """Iterate over all immediate child nodes."""
@@ -1907,6 +1920,14 @@ class OEBBook(object):
         self.toc = TOC()
         self.pages = PageList()
         self.auto_generated_toc = True
+        self._temp_files = []
+
+    def clean_temp_files(self):
+        for path in self._temp_files:
+            try:
+                os.remove(path)
+            except:
+                pass
 
     @classmethod
     def generate(cls, opts):

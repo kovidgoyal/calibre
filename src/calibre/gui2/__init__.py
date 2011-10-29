@@ -7,14 +7,14 @@ from urllib import unquote
 from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
                     QEvent, QTimer, pyqtSignal, QDate, QDesktopServices,
-                    QFileDialog, QFileIconProvider,
+                    QFileDialog, QFileIconProvider, QSettings,
                     QIcon, QApplication, QDialog, QUrl, QFont)
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre.constants import islinux, iswindows, isbsd, isfrozen, isosx
+from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
+        config_dir)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
-from calibre.utils.localization import set_qt_translator
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
 
@@ -40,7 +40,7 @@ if isosx:
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Fetch News', 'Store', 'Save To Disk', 'Connect Share', None,
         'Remove Books',
         )
 else:
@@ -48,13 +48,14 @@ else:
     gprefs.defaults['action-layout-menubar-device'] = ()
     gprefs.defaults['action-layout-toolbar'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
-        'Connect Share', None, 'Remove Books', None, 'Help', 'Preferences',
+        'Store', 'Donate', 'Fetch News', 'Help', None,
+        'Remove Books', 'Choose Library', 'Save To Disk',
+        'Connect Share', 'Preferences',
         )
     gprefs.defaults['action-layout-toolbar-device'] = (
         'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
         'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Connect Share', None,
+        'Fetch News', 'Save To Disk', 'Store', 'Connect Share', None,
         'Remove Books', None, 'Help', 'Preferences',
         )
 
@@ -72,22 +73,32 @@ gprefs.defaults['action-layout-context-menu-device'] = (
         'Add To Library', 'Edit Collections',
         )
 
+gprefs.defaults['action-layout-context-menu-cover-browser'] = (
+        'Edit Metadata', 'Send To Device', 'Save To Disk',
+        'Connect Share', 'Copy To Library', None,
+        'Convert Books', 'View', 'Open Folder', 'Show Book Details',
+        'Similar Books', 'Tweak ePub', None, 'Remove Books',
+        )
+
 gprefs.defaults['show_splash_screen'] = True
 gprefs.defaults['toolbar_icon_size'] = 'medium'
 gprefs.defaults['automerge'] = 'ignore'
-gprefs.defaults['toolbar_text'] = 'auto'
+gprefs.defaults['toolbar_text'] = 'always'
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
 gprefs.defaults['book_display_fields'] = [
-        ('title', False), ('authors', False), ('formats', True),
+        ('title', False), ('authors', True), ('formats', True),
         ('series', True), ('identifiers', True), ('tags', True),
         ('path', True), ('publisher', False), ('rating', False),
         ('author_sort', False), ('sort', False), ('timestamp', False),
         ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
-        ('last_modified', False), ('size', False),
+        ('last_modified', False), ('size', False), ('languages', False),
         ]
+gprefs.defaults['default_author_link'] = 'http://en.wikipedia.org/w/index.php?search={author}'
+gprefs.defaults['preserve_date_on_ctl'] = True
+gprefs.defaults['cb_fullscreen'] = False
 
 # }}}
 
@@ -160,7 +171,11 @@ def _config(): # {{{
     c.add_opt('scheduler_search_history', default=[],
         help='Search history for the recipe scheduler')
     c.add_opt('plugin_search_history', default=[],
-        help='Search history for the recipe scheduler')
+        help='Search history for the plugin preferences')
+    c.add_opt('shortcuts_search_history', default=[],
+        help='Search history for the keyboard preferences')
+    c.add_opt('tweaks_search_history', default=[],
+        help='Search history for tweaks')
     c.add_opt('worker_limit', default=6,
             help=_(
         'Maximum number of simultaneous conversion/news download jobs. '
@@ -174,7 +189,9 @@ def _config(): # {{{
     c.add_opt('enforce_cpu_limit', default=True,
             help=_('Limit max simultaneous jobs to number of CPUs'))
     c.add_opt('gui_layout', choices=['wide', 'narrow'],
-            help=_('The layout of the user interface'), default='wide')
+            help=_('The layout of the user interface. Wide has the '
+                'book details panel on the right and narrow has '
+                'it at the bottom.'), default='wide')
     c.add_opt('show_avg_rating', default=True,
             help=_('Show the average rating per item indication in the tag browser'))
     c.add_opt('disable_animations', default=False,
@@ -190,6 +207,11 @@ def _config(): # {{{
 
 config = _config()
 # }}}
+
+QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, config_dir)
+QSettings.setPath(QSettings.IniFormat, QSettings.SystemScope,
+        config_dir)
+QSettings.setDefaultFormat(QSettings.IniFormat)
 
 # Turn off DeprecationWarnings in windows GUI
 if iswindows:
@@ -247,10 +269,11 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
         return d.exec_()
     return d
 
-def question_dialog(parent, title, msg, det_msg='', show_copy_button=False):
+def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
+        default_yes=True):
     from calibre.gui2.dialogs.message_box import MessageBox
     d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
-                    show_copy_button=show_copy_button)
+                    show_copy_button=show_copy_button, default_yes=default_yes)
     return d.exec_() == d.Accepted
 
 def info_dialog(parent, title, msg, det_msg='', show=False,
@@ -270,6 +293,9 @@ class Dispatcher(QObject):
     Convenience class to use Qt signals with arbitrary python callables.
     By default, ensures that a function call always happens in the
     thread this Dispatcher was created in.
+
+    Note that if you create the Dispatcher in a thread without an event loop of
+    its own, the function call will happen in the GUI thread (I think).
     '''
     dispatch_signal = pyqtSignal(object, object)
 
@@ -291,11 +317,20 @@ class FunctionDispatcher(QObject):
     '''
     Convenience class to use Qt signals with arbitrary python functions.
     By default, ensures that a function call always happens in the
-    thread this Dispatcher was created in.
+    thread this FunctionDispatcher was created in.
+
+    Note that you must create FunctionDispatcher objects in the GUI thread.
     '''
     dispatch_signal = pyqtSignal(object, object, object)
 
     def __init__(self, func, queued=True, parent=None):
+        global gui_thread
+        if gui_thread is None:
+            gui_thread = QThread.currentThread()
+        if not is_gui_thread():
+            raise ValueError(
+                'You can only create a FunctionDispatcher in the GUI thread')
+
         QObject.__init__(self, parent)
         self.func = func
         typ = Qt.QueuedConnection
@@ -306,6 +341,8 @@ class FunctionDispatcher(QObject):
         self.lock = threading.Lock()
 
     def __call__(self, *args, **kwargs):
+        if is_gui_thread():
+            return self.func(*args, **kwargs)
         with self.lock:
             self.dispatch_signal.emit(self.q, args, kwargs)
             res = self.q.get()
@@ -394,6 +431,10 @@ class FileIconProvider(QFileIconProvider):
              'rtf'     : 'rtf',
              'odt'     : 'odt',
              'snb'     : 'snb',
+             'djv'     : 'djvu',
+             'djvu'    : 'djvu',
+             'xps'     : 'xps',
+             'oxps'    : 'xps',
              }
 
     def __init__(self):
@@ -601,6 +642,22 @@ class ResizableDialog(QDialog):
         nw = min(self.width(), nw)
         self.resize(nw, nh)
 
+class Translator(QTranslator):
+    '''
+    Translator to load translations for strings in Qt from the calibre
+    translations. Does not support advanced features of Qt like disambiguation
+    and plural forms.
+    '''
+
+    def translate(self, *args, **kwargs):
+        try:
+            src = unicode(args[1])
+        except:
+            return u''
+        t = _
+        return t(src)
+
+
 gui_thread = None
 
 qt_app = None
@@ -647,9 +704,8 @@ class Application(QApplication):
     def load_translations(self):
         if self._translator is not None:
             self.removeTranslator(self._translator)
-        self._translator = QTranslator(self)
-        if set_qt_translator(self._translator):
-            self.installTranslator(self._translator)
+        self._translator = Translator(self)
+        self.installTranslator(self._translator)
 
     def event(self, e):
         if callable(self.file_event_hook) and e.type() == QEvent.FileOpen:

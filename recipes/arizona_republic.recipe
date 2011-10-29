@@ -1,0 +1,68 @@
+__license__   = 'GPL v3'
+__copyright__ = '2010, jolo'
+'''
+azrepublic.com
+'''
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class AdvancedUserRecipe1307301031(BasicNewsRecipe):
+    title          = u'AZRepublic'
+    __author__            = 'Jim Olo'
+    language              = 'en'
+    description           = "The Arizona Republic is Arizona's leading provider of news and information, and has published a daily newspaper in Phoenix for more than 110 years"
+    publisher             = 'AZRepublic/AZCentral'
+    masthead_url           = 'http://freedom2t.com/wp-content/uploads/press_az_republic_v2.gif'
+    cover_url              = 'http://www.valleyleadership.org/Common/Img/2line4c_AZRepublic%20with%20azcentral%20logo.jpg'
+    category              = 'news, politics, USA, AZ, Arizona'
+
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    no_stylesheets         = True
+    remove_javascript      = True
+#    extra_css      = '.headline {font-size: medium;} \n .fact { padding-top: 10pt  }'
+    extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif } .headline {font-size: medium} .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
+
+    remove_attributes = ['width','height','h2','subHeadline','style']
+    remove_tags = [
+                dict(name='div', attrs={'id':['slidingBillboard', 'top728x90', 'subindex-header', 'topSearch']}),
+                dict(name='div', attrs={'id':['simplesearch', 'azcLoginBox', 'azcLoginBoxInner', 'topNav']}),
+                dict(name='div', attrs={'id':['carsDrop', 'homesDrop', 'rentalsDrop', 'classifiedDrop']}),
+                dict(name='div', attrs={'id':['nav', 'mp', 'subnav', 'jobsDrop']}),
+                dict(name='h6', attrs={'class':['section-header']}),
+                dict(name='a', attrs={'href':['#comments']}),
+                dict(name='div', attrs={'class':['articletools clearfix', 'floatRight']}),
+                dict(name='div', attrs={'id':['fbFrame', 'ob', 'storyComments', 'storyGoogleAdBox']}),
+                dict(name='div', attrs={'id':['storyTopHomes', 'openRight', 'footerwrap', 'copyright']}),
+                dict(name='div', attrs={'id':['blogsHed', 'blog_comments', 'blogByline','blogTopics']}),
+                dict(name='div', attrs={'id':['membersRightMain', 'dealsfooter', 'azrTopHed', 'azrRightCol']}),
+                dict(name='div', attrs={'id':['ttdHeader', 'ttdTimeWeather']}),
+                dict(name='div', attrs={'id':['membersRightMain', 'deals-header-wrap']}),
+                dict(name='div', attrs={'id':['todoTopSearchBar', 'byline clearfix', 'subdex-topnav']}),
+                dict(name='h1',  attrs={'id':['SEOtext']}),
+                dict(name='table', attrs={'class':['ap-mediabox-table']}),
+                dict(name='p', attrs={'class':['ap_para']}),
+                dict(name='span', attrs={'class':['source-org vcard', 'org fn']}),
+                dict(name='a', attrs={'href':['http://hosted2.ap.org/APDEFAULT/privacy']}),
+                dict(name='a', attrs={'href':['http://hosted2.ap.org/APDEFAULT/terms']}),
+                dict(name='div', attrs={'id':['onespot_nextclick']}),
+                   ]
+
+    feeds          = [
+                           (u'FrontPage', u'http://www.azcentral.com/rss/feeds/republicfront.xml'),
+                           (u'TopUS-News', u'http://hosted.ap.org/lineups/USHEADS.rss?SITE=AZPHG&SECTION=HOME'),
+                           (u'WorldNews', u'http://hosted.ap.org/lineups/WORLDHEADS.rss?SITE=AZPHG&SECTION=HOME'),
+                           (u'TopBusiness', u'http://hosted.ap.org/lineups/BUSINESSHEADS.rss?SITE=AZPHG&SECTION=HOME'),
+                           (u'Entertainment', u'http://hosted.ap.org/lineups/ENTERTAINMENT.rss?SITE=AZPHG&SECTION=HOME'),
+                           (u'ArizonaNews', u'http://www.azcentral.com/rss/feeds/news.xml'),
+                           (u'Gilbert', u'http://www.azcentral.com/rss/feeds/gilbert.xml'),
+                           (u'Chandler', u'http://www.azcentral.com/rss/feeds/chandler.xml'),
+                           (u'DiningReviews', u'http://www.azcentral.com/rss/feeds/diningreviews.xml'),
+                           (u'AZBusiness', u'http://www.azcentral.com/rss/feeds/business.xml'),
+                           (u'ArizonaDeals', u'http://www.azcentral.com/members/Blog%7E/RealDealsblog'),
+                           (u'GroceryDeals', u'http://www.azcentral.com/members/Blog%7E/RealDealsblog/tag/2646')
+                           ]
+
+
+
+

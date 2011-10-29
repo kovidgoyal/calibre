@@ -106,10 +106,12 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
         name = name.encode(filesystem_encoding, 'ignore')
     one = _filename_sanitize.sub(substitute, name)
     one = re.sub(r'\s', ' ', one).strip()
-    one = re.sub(r'^\.+$', '_', one)
+    bname, ext = os.path.splitext(one)
+    one = re.sub(r'^\.+$', '_', bname)
     if as_unicode:
         one = one.decode(filesystem_encoding)
     one = one.replace('..', substitute)
+    one += ext
     # Windows doesn't like path components that end with a period
     if one and one[-1] in ('.', ' '):
         one = one[:-1]+'_'
@@ -132,8 +134,10 @@ def sanitize_file_name_unicode(name, substitute='_'):
             name]
     one = u''.join(chars)
     one = re.sub(r'\s', ' ', one).strip()
-    one = re.sub(r'^\.+$', '_', one)
+    bname, ext = os.path.splitext(one)
+    one = re.sub(r'^\.+$', '_', bname)
     one = one.replace('..', substitute)
+    one += ext
     # Windows doesn't like path components that end with a period or space
     if one and one[-1] in ('.', ' '):
         one = one[:-1]+'_'
@@ -337,7 +341,7 @@ def random_user_agent():
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     '''
     Create a mechanize browser for web scraping. The browser handles cookies,
-    refresh requests and ignores robots.txt. Also uses proxy if avaialable.
+    refresh requests and ignores robots.txt. Also uses proxy if available.
 
     :param honor_time: If True honors pause time in refresh requests
     :param max_time: Maximum time in seconds to wait during a refresh request
@@ -349,9 +353,14 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     if user_agent is None:
         user_agent = USER_AGENT_MOBILE if mobile_browser else USER_AGENT
     opener.addheaders = [('User-agent', user_agent)]
-    http_proxy = get_proxies().get('http', None)
+    proxies = get_proxies()
+    http_proxy = proxies.get('http', None)
     if http_proxy:
         opener.set_proxies({'http':http_proxy})
+    https_proxy = proxies.get('https', None)
+    if https_proxy:
+        opener.set_proxies({'https':https_proxy})
+
     return opener
 
 def fit_image(width, height, pwidth, pheight):
@@ -470,7 +479,7 @@ def strftime(fmt, t=None):
 def my_unichr(num):
     try:
         return unichr(num)
-    except ValueError:
+    except (ValueError, OverflowError):
         return u'?'
 
 def entity_to_unicode(match, exceptions=[], encoding='cp1252',
@@ -578,6 +587,7 @@ def url_slash_cleaner(url):
 def get_download_filename(url, cookie_file=None):
     '''
     Get a local filename for a URL using the content disposition header
+    Returns empty string if no content disposition header present
     '''
     from contextlib import closing
     from urllib2 import unquote as urllib2_unquote
@@ -591,8 +601,10 @@ def get_download_filename(url, cookie_file=None):
         cj.load(cookie_file)
         br.set_cookiejar(cj)
 
+    last_part_name = ''
     try:
         with closing(br.open(url)) as r:
+            last_part_name = r.geturl().split('/')[-1]
             disposition = r.info().get('Content-disposition', '')
             for p in disposition.split(';'):
                 if 'filename' in p:
@@ -612,7 +624,7 @@ def get_download_filename(url, cookie_file=None):
         traceback.print_exc()
 
     if not filename:
-        filename = r.geturl().split('/')[-1]
+        filename = last_part_name
 
     return filename
 

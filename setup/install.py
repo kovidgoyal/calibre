@@ -8,8 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, textwrap, subprocess, shutil, tempfile, atexit, stat, shlex
 
-from setup import Command, islinux, isfreebsd, isbsd, basenames, modules, functions, \
-        __appname__, __version__
+from setup import (Command, islinux, isbsd, basenames, modules, functions,
+        __appname__, __version__)
 
 HEADER = '''\
 #!/usr/bin/env python2
@@ -55,7 +55,7 @@ class Develop(Command):
     short_description = 'Setup a development environment for calibre'
     MODE = 0755
 
-    sub_commands = ['build', 'resources', 'gui']
+    sub_commands = ['build', 'resources', 'iso639', 'gui',]
 
     def add_postinstall_options(self, parser):
         parser.add_option('--make-errors-fatal', action='store_true', default=False,

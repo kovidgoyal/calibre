@@ -59,6 +59,8 @@ class CompositeProgressReporter(object):
                 (self.global_max - self.global_min)
         self.global_reporter(global_frac, msg)
 
+ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
+
 class Plumber(object):
     '''
     The `Plumber` manages the conversion pipeline. An UI should call the methods
@@ -263,6 +265,14 @@ OptionRecommendation(name='toc_filter',
                 )
         ),
 
+OptionRecommendation(name='duplicate_links_in_toc',
+            recommended_value=False, level=OptionRecommendation.LOW,
+            help=_('When creating a TOC from links in the input document, '
+                'allow duplicate entries, i.e. allow more than one entry '
+                'with the same text, provided that they point to a '
+                'different location.')
+        ),
+
 
 OptionRecommendation(name='chapter',
         recommended_value="//*[((name()='h1' or name()='h2') and "
@@ -356,9 +366,9 @@ OptionRecommendation(name='remove_paragraph_spacing',
 
 OptionRecommendation(name='remove_paragraph_spacing_indent_size',
         recommended_value=1.5, level=OptionRecommendation.LOW,
-        help=_('When calibre removes inter paragraph spacing, it automatically '
+        help=_('When calibre removes blank lines between paragraphs, it automatically '
             'sets a paragraph indent, to ensure that paragraphs can be easily '
-            'distinguished. This option controls the width of that indent.')
+            'distinguished. This option controls the width of that indent (in em).')
         ),
 
 OptionRecommendation(name='prefer_metadata_cover',
@@ -372,6 +382,13 @@ OptionRecommendation(name='insert_blank_line',
         help=_('Insert a blank line between paragraphs. Will not work '
             'if the source file does not use paragraphs (<p> or <div> tags).'
             )
+        ),
+
+OptionRecommendation(name='insert_blank_line_size',
+        recommended_value=0.5, level=OptionRecommendation.LOW,
+        help=_('Set the height of the inserted blank lines (in em).'
+            ' The height of the lines between paragraphs will be twice the value'
+            ' set here.')
         ),
 
 OptionRecommendation(name='remove_first_image',
@@ -540,7 +557,7 @@ OptionRecommendation(name='delete_blank_paragraphs',
 OptionRecommendation(name='format_scene_breaks',
     recommended_value=True, level=OptionRecommendation.LOW,
     help=_('Left aligned scene break markers are center aligned. '
-           'Replace soft scene breaks that use multiple blank lines with'
+           'Replace soft scene breaks that use multiple blank lines with '
            'horizontal rules.')),
 
 OptionRecommendation(name='replace_scene_breaks',
@@ -592,9 +609,9 @@ OptionRecommendation(name='sr3_replace',
         input_fmt = os.path.splitext(self.input)[1]
         if not input_fmt:
             raise ValueError('Input file must have an extension')
-        input_fmt = input_fmt[1:].lower()
+        input_fmt = input_fmt[1:].lower().replace('original_', '')
         self.archive_input_tdir = None
-        if input_fmt in ('zip', 'rar', 'oebzip'):
+        if input_fmt in ARCHIVE_FMTS:
             self.log('Processing archive...')
             tdir = PersistentTemporaryDirectory('_plumber_archive')
             self.input, input_fmt = self.unarchive(self.input, tdir)
@@ -967,7 +984,11 @@ OptionRecommendation(name='sr3_replace',
         if fkey is None:
             fkey = self.opts.dest.fkey
         else:
-            fkey = map(float, fkey.split(','))
+            try:
+                fkey = map(float, fkey.split(','))
+            except:
+                self.log.error('Invalid font size key: %r ignoring'%fkey)
+                fkey = self.opts.dest.fkey
 
         from calibre.ebooks.oeb.transforms.jacket import Jacket
         Jacket()(self.oeb, self.opts, self.user_metadata)
@@ -1038,6 +1059,7 @@ OptionRecommendation(name='sr3_replace',
         with self.output_plugin:
             self.output_plugin.convert(self.oeb, self.output, self.input_plugin,
                 self.opts, self.log)
+        self.oeb.clean_temp_files()
         self.ui_reporter(1.)
         run_plugins_on_postprocess(self.output, self.output_fmt)
 
