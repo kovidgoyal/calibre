@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-10-21 17:20+0000\n"
+"PO-Revision-Date: 2011-10-28 15:22+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-28 05:28+0000\n"
+"X-Launchpad-Export-Date: 2011-10-29 05:15+0000\n"
 "X-Generator: Launchpad (build 14197)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -1579,6 +1579,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Leído por última vez:</b> %(time)s<br /><b>Porcentaje leído:</b> "
+"%(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1013
 #, python-format
@@ -1587,6 +1589,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>Capítulo %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Recorrido del capítulo:</b> %(chapter_progress)s%%<br "
+"/>%(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1022
 #, python-format
@@ -1595,6 +1600,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>Capítulo %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Recorrido del capítulo:</b> %(chapter_progress)s%%<br "
+"/><b>Destacado:</b> %(text)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1031
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1041
@@ -1604,6 +1612,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>Capítulo %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Recorrido del capítulo:</b> %(chapter_progress)s%%<br "
+"/><b>Destacado:</b> %(text)s<br /><b>Notas:</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -15248,6 +15259,7 @@ msgstr "Gestión automática"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
 msgid "Cannot change metadata management while a device is connected"
 msgstr ""
+"No se puede cambiar la gestión de metadatos con un dispositivo conectado."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:30
 msgid "Metadata &management:"

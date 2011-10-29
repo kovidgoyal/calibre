@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-10-05 16:48+0000\n"
+"PO-Revision-Date: 2011-10-28 11:40+0000\n"
 "Last-Translator: Lucian Martin <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-10-28 05:26+0000\n"
+"X-Launchpad-Export-Date: 2011-10-29 05:14+0000\n"
 "X-Generator: Launchpad (build 14197)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1535,6 +1535,9 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"În mod normal, cititoarele KOBO iau imaginea coperţii din fişierul e-carte. "
+"Cu această opţiune calibre va trimite cititorului o imagine separată, "
+"folositoare dacă aţi modificat coperta."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
@@ -1560,6 +1563,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Cartea citită ultima dată:</b> %(time)s<br /><b>Procentajul "
+"citit:</b> %(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1013
 #, python-format
@@ -1568,6 +1573,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>Capitol %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Parcurgere capitol:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
+"/><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1022
 #, python-format
@@ -1576,6 +1584,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>Capitol%(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Parcurgere capitol:</b> %(chapter_progress)s%%<br /><b>Puncte "
+"cheie:</b> %(text)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1031
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1041
@@ -1585,6 +1596,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>Capitol%(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Parcurgere capitol:</b> %(chapter_progress)s%%<br /><b>Puncte "
+"cheie:</b> %(text)s<br /><b>Note:</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1681,7 +1695,7 @@ msgstr "Comunică cu dispozitivul Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Comunică cu dispozitivele Sony mai vechi decât PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1797,7 +1811,7 @@ msgstr "Nedenumit"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:36
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Comunică cu PRST1 şi dispozitivele Sony mai noi."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
@@ -5157,7 +5171,7 @@ msgstr "Nu sunt cărţi selectate la care sa se poata aduce adnotari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Nişte erori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
@@ -7342,11 +7356,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "Intrare DJVU"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
 msgstr ""
+"Foloseşte &djvutxt, dacă este disponibil, pentru o procesare mai rapidă"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
@@ -12051,7 +12066,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:505
 msgid "No job selected"
-msgstr ""
+msgstr "Nicio sarcină selectată"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:507
 msgid "Do you really want to stop the selected job?"
@@ -15019,7 +15034,7 @@ msgstr "Salvează metadatele în fişiere &OPF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "&Show files in file browser after saving to disk"
-msgstr ""
+msgstr "&Afişează fişierele în browser după salvarea pe disc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:34
 msgid ""
@@ -15230,6 +15245,8 @@ msgstr "Gestionare automată"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
 msgid "Cannot change metadata management while a device is connected"
 msgstr ""
+"Nu se poate modifica managementul metadatelor atât timp cât un dispozitiv "
+"este conectat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:30
 msgid "Metadata &management:"
@@ -15353,7 +15370,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically when calibre starts"
-msgstr ""
+msgstr "Rulează serverul &automat atunci când calibre porneşte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:119
 msgid "View &server logs"
@@ -21329,6 +21346,9 @@ msgid ""
 "Set this to True to ensure that tags in 'Tags to add when adding\n"
 "a book' are added when copying books to another library"
 msgstr ""
+"Setează valoarea \"True\" pentru a asigura că etichetele din\n"
+"\"Etichete de adăugat la adăugarea unei cărţi\" sunt adăugate\n"
+"atunci când se copiază cărţile într-o altă bibliotecă"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:288
 msgid "Set the maximum number of tags to show per book in the content server"
@@ -21394,6 +21414,16 @@ msgid ""
 "level sorts, and if you are seeing a slowdown, reduce the value of this "
 "tweak."
 msgstr ""
+"Setează numărul maxim de \"nivele\" de sortare pe care calibre le foloseşte\n"
+"la resortarea bibliotecii după anumite operaţii cum ar fi căutările sau "
+"conectarea\n"
+"dispozitivelor. Fiecare nivel de sortare adaugă o penalizare la performanţe. "
+"Dacă\n"
+"baza de date este mare (mii de cărţi) penalitatea este vizibilă. Dacă nu vă "
+"\n"
+"îngrijorează sortarea pe mai multe nivele şi observaţi încetiniri ale "
+"sistemului,\n"
+"reduceţi valoarea acestei ajustări."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:317
 msgid "Specify which font to use when generating a default cover"
@@ -21406,6 +21436,13 @@ msgid ""
 "(Liberation\n"
 "Serif) does not contain glyphs for the language of the books in your library."
 msgstr ""
+"Calea absolută spre fişierele font .ttf care sunt folosite ca şi fonturi "
+"pentru\n"
+"titluri, autori şi note de subsol la generarea unei coperţi implicite. "
+"Aceasta\n"
+"este folositoare dacă fontul implicit (Liberation Serif) nu conţine "
+"simboluri\n"
+"pentru limba în care sunt scrise cărţile din biblioteca dumneavoastră."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:324
 msgid "Control behavior of the book list"
@@ -21448,6 +21485,19 @@ msgid ""
 "Example: locale_for_sorting = 'fr' -- sort using French rules.\n"
 "Example: locale_for_sorting = 'nb' -- sort using Norwegian rules."
 msgstr ""
+"Setând această ajustare,  forţează sortarea să folosească\n"
+"ordinea specifică limbii. Aceasta poate fi folositoare în cazul\n"
+"în care rulaţi calibre în limba engleză şi doriţi sortarea în limba\n"
+"locală. Setaţi ajustarea la codul de limbă ISO 639-1 dorit, scris\n"
+"cu litere mici. Găsiţi lista cu limbile locale disponibile la\n"
+"http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/nls/rbagsicusorts"
+"equencetables.htm\n"
+"Default: locale_for_sorting = '' -- foloseşte limba în care este calibre "
+"afişat\n"
+"Example: locale_for_sorting = 'fr' -- sortează folosind regulile limbii "
+"franceze.\n"
+"Example: locale_for_sorting = 'nb' -- sortează folosind regulile limbii "
+"norvegiene."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:348
 msgid "Number of columns for custom metadata in the edit metadata dialog"

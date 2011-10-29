@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-10-23 12:07+0000\n"
+"PO-Revision-Date: 2011-10-28 05:49+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-28 05:21+0000\n"
+"X-Launchpad-Export-Date: 2011-10-29 05:14+0000\n"
 "X-Generator: Launchpad (build 14197)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1544,6 +1544,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Utoljára olvasva:</b> %(time)s<br /><b>Elolvasva (százalék):</b> "
+"%(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1013
 #, python-format
@@ -1552,6 +1554,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>%(chapter)d. fejezet:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Fejezeten belüli pozíció:</b> %(chapter_progress)s%%<br "
+"/>%(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1022
 #, python-format
@@ -1560,6 +1565,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>%(chapter)d. fejezet:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Fejezeten belüli pozíció:</b> %(chapter_progress)s%%<br "
+"/><b>Kiemelés:</b> %(text)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1031
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1041
@@ -1569,6 +1577,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>%(chapter)d. fejezet:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Fejezeten belüli pozíció:</b> %(chapter_progress)s%%<br "
+"/><b>Kiemelés:</b> %(text)s<br /><b>Jegyzetek:</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -15111,6 +15122,8 @@ msgstr "Automatikus kezelés"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
 msgid "Cannot change metadata management while a device is connected"
 msgstr ""
+"Nem lehet a metaadatokat megváltoztatni, ha az eszköz kapcsolódik a "
+"számítógéphez."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:30
 msgid "Metadata &management:"
