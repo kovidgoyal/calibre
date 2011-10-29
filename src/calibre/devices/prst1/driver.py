@@ -115,8 +115,8 @@ class PRST1(USBMS):
         ec = self.settings().extra_customization
         if not ec[self.OPT_PRESERVE_ASPECT_RATIO]:
             self.THUMBNAIL_WIDTH = 108
-        # Make sure the date offset is set to none, we'll calculate it in books.
         self.WANTS_UPDATED_THUMBNAILS = ec[self.OPT_REFRESH_COVERS]
+        # Make sure the date offset is set to none, we'll calculate it in books.
         self.device_offset = None
 
     def windows_filter_pnp_id(self, pnp_id):
