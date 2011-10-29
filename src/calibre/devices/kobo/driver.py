@@ -2,15 +2,16 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 __license__   = 'GPL v3'
-__copyright__ = '2010, Timothy Legge <timlegge at gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
+__copyright__ = '2010, Timothy Legge <timlegge@gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, time, calendar
 import sqlite3 as sqlite
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
 from calibre.devices.kobo.books import Book
 from calibre.devices.kobo.books import ImageWrapper
+from calibre.devices.kobo.bookmark import Bookmark
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
@@ -24,7 +25,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge'
-    version = (1, 0, 10)
+    version = (1, 0, 11)
 
     dbversion = 0
     fwversion = 0
@@ -47,6 +48,7 @@ class KOBO(USBMS):
 
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
+    SUPPORTS_ANNOTATIONS = True
 
     VIRTUAL_BOOK_EXTENSIONS = frozenset(['kobo'])
 
@@ -77,11 +79,6 @@ class KOBO(USBMS):
         self.book_class = Book
         self.dbversion = 7
 
-    def create_annotations_path(self, mdata, device_path=None):
-        if device_path:
-            return device_path
-        return USBMS.create_annotations_path(self, mdata)
-
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -111,6 +108,7 @@ class KOBO(USBMS):
 
         if self.fwversion != '1.0' and self.fwversion != '1.4':
             self.has_kepubs = True
+        debug_print('Version of driver: ', self.version, 'Has kepubs:', self.has_kepubs)
         debug_print('Version of firmware: ', self.fwversion, 'Has kepubs:', self.has_kepubs)
 
         self.booklist_class.rebuild_collections = self.rebuild_collections
@@ -376,7 +374,7 @@ class KOBO(USBMS):
             path_prefix = '.kobo/images/'
             path = self._main_prefix + path_prefix + ImageID
 
-            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed',)
+            file_endings = (' - iPhoneThumbnail.parsed', ' - bbMediumGridList.parsed', ' - NickelBookCover.parsed', ' - N3_LIBRARY_FULL.parsed', ' - N3_LIBRARY_GRID.parsed', ' - N3_LIBRARY_LIST.parsed', ' - N3_SOCIAL_CURRENTREAD.parsed', ' - N3_FULL.parsed',)
 
             for ending in file_endings:
                 fpath = path + ending
@@ -852,6 +850,7 @@ class KOBO(USBMS):
                             ' - N3_LIBRARY_FULL.parsed':(355,530),
                             ' - N3_LIBRARY_GRID.parsed':(149,233),
                             ' - N3_LIBRARY_LIST.parsed':(60,90),
+                            ' - N3_FULL.parsed':(600,800),
                             ' - N3_SOCIAL_CURRENTREAD.parsed':(120,186)}
 
                     for ending, resize in file_endings.items():
@@ -892,3 +891,198 @@ class KOBO(USBMS):
                     tf.write(r.read())
                     paths[idx] = tf.name
         return paths
+
+    def create_annotations_path(self, mdata, device_path=None):
+        if device_path:
+            return device_path
+        return USBMS.create_annotations_path(self, mdata)
+
+    def get_annotations(self, path_map):
+        EPUB_FORMATS = [u'epub']
+        epub_formats = set(EPUB_FORMATS)
+
+        def get_storage():
+            storage = []
+            if self._main_prefix:
+                storage.append(os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN))
+            if self._card_a_prefix:
+                storage.append(os.path.join(self._card_a_prefix, self.EBOOK_DIR_CARD_A))
+            if self._card_b_prefix:
+                storage.append(os.path.join(self._card_b_prefix, self.EBOOK_DIR_CARD_B))
+            return storage
+
+        def resolve_bookmark_paths(storage, path_map):
+            pop_list = []
+            book_ext = {}
+            for id in path_map:
+                file_fmts = set()
+                for fmt in path_map[id]['fmts']:
+                    file_fmts.add(fmt)
+                bookmark_extension = None
+                if file_fmts.intersection(epub_formats):
+                    book_extension = list(file_fmts.intersection(epub_formats))[0]
+                    bookmark_extension = 'epub'
+
+                if bookmark_extension:
+                    for vol in storage:
+                        bkmk_path = path_map[id]['path']
+                        bkmk_path = bkmk_path
+                        if os.path.exists(bkmk_path):
+                            path_map[id] = bkmk_path
+                            book_ext[id] = book_extension
+                            break
+                    else:
+                        pop_list.append(id)
+                else:
+                    pop_list.append(id)
+
+            # Remove non-existent bookmark templates
+            for id in pop_list:
+                path_map.pop(id)
+            return path_map, book_ext
+
+        storage = get_storage()
+        path_map, book_ext = resolve_bookmark_paths(storage, path_map)
+
+        bookmarked_books = {}
+        for id in path_map:
+            extension =  os.path.splitext(path_map[id])[1]
+            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path_map[id])
+            ContentID = self.contentid_from_path(path_map[id], ContentType)
+
+            bookmark_ext = extension
+
+            db_path = self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite')
+            myBookmark = Bookmark(db_path, ContentID, path_map[id], id, book_ext[id], bookmark_ext)
+            bookmarked_books[id] = self.UserAnnotation(type='kobo_bookmark', value=myBookmark)
+
+        # This returns as job.result in gui2.ui.annotations_fetched(self,job)
+        return bookmarked_books
+
+    def generate_annotation_html(self, bookmark):
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
+        # Returns <div class="user_annotations"> ... </div>
+        #last_read_location = bookmark.last_read_location
+        #timestamp = bookmark.timestamp
+        percent_read = bookmark.percent_read
+        debug_print("Date: ",  bookmark.last_read)
+        if bookmark.last_read is not None:
+            try:
+                last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S"))))
+            except:
+                last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
+        else:
+            #self.datetime = time.gmtime()
+            last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+
+        # debug_print("Percent read: ", percent_read)
+        ka_soup = BeautifulSoup()
+        dtc = 0
+        divTag = Tag(ka_soup,'div')
+        divTag['class'] = 'user_annotations'
+
+        # Add the last-read location
+        spanTag = Tag(ka_soup, 'span')
+        spanTag['style'] = 'font-weight:normal'
+        if bookmark.book_format == 'epub':
+            spanTag.insert(0,NavigableString(
+                _("<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> %(pr)d%%<hr />") % \
+                            dict(time=last_read,
+                            #loc=last_read_location,
+                            pr=percent_read)))
+        else:
+            spanTag.insert(0,NavigableString(
+                _("<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> %(pr)d%%<hr />") % \
+                            dict(time=last_read,
+                            #loc=last_read_location,
+                            pr=percent_read)))
+
+        divTag.insert(dtc, spanTag)
+        dtc += 1
+        divTag.insert(dtc, Tag(ka_soup,'br'))
+        dtc += 1
+
+        if bookmark.user_notes:
+            user_notes = bookmark.user_notes
+            annotations = []
+
+            # Add the annotations sorted by location
+            for location in sorted(user_notes):
+                if user_notes[location]['type'] == 'Bookmark':
+                    annotations.append(
+                        _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br /><hr />') % \
+                            dict(chapter=user_notes[location]['chapter'],
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type'],
+                                chapter_title=user_notes[location]['chapter_title'],
+                                chapter_progress=user_notes[location]['chapter_progress'],
+                                annotation=user_notes[location]['annotation'] if user_notes[location]['annotation'] is not None else ""))
+                elif user_notes[location]['type'] == 'Highlight':
+                    annotations.append(
+                        _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br /><hr />') % \
+                            dict(chapter=user_notes[location]['chapter'],
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type'],
+                                chapter_title=user_notes[location]['chapter_title'],
+                                chapter_progress=user_notes[location]['chapter_progress'],
+                                text=user_notes[location]['text']))
+                elif user_notes[location]['type'] == 'Annotation':
+                    annotations.append(
+                        _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />') % \
+                            dict(chapter=user_notes[location]['chapter'],
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type'],
+                                chapter_title=user_notes[location]['chapter_title'],
+                                chapter_progress=user_notes[location]['chapter_progress'],
+                                text=user_notes[location]['text'],
+                                annotation=user_notes[location]['annotation']))
+                else:
+                    annotations.append(
+                        _('<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br /><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> %(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />') % \
+                            dict(chapter=user_notes[location]['chapter'],
+                                dl=user_notes[location]['displayed_location'],
+                                typ=user_notes[location]['type'],
+                                chapter_title=user_notes[location]['chapter_title'],
+                                chapter_progress=user_notes[location]['chapter_progress'],
+                                text=user_notes[location]['text'], \
+                                annotation=user_notes[location]['annotation']))
+
+            for annotation in annotations:
+                divTag.insert(dtc, annotation)
+                dtc += 1
+
+        ka_soup.insert(0,divTag)
+        return ka_soup
+
+    def add_annotation_to_library(self, db, db_id, annotation):
+        from calibre.ebooks.BeautifulSoup import Tag
+        bm = annotation
+        ignore_tags = set(['Catalog', 'Clippings'])
+
+        if bm.type == 'kobo_bookmark':
+            mi = db.get_metadata(db_id, index_is_id=True)
+            user_notes_soup = self.generate_annotation_html(bm.value)
+            if mi.comments:
+                a_offset = mi.comments.find('<div class="user_annotations">')
+                ad_offset = mi.comments.find('<hr class="annotations_divider" />')
+
+                if a_offset >= 0:
+                    mi.comments = mi.comments[:a_offset]
+                if ad_offset >= 0:
+                    mi.comments = mi.comments[:ad_offset]
+                if set(mi.tags).intersection(ignore_tags):
+                    return
+                if mi.comments:
+                    hrTag = Tag(user_notes_soup,'hr')
+                    hrTag['class'] = 'annotations_divider'
+                    user_notes_soup.insert(0, hrTag)
+
+                mi.comments += unicode(user_notes_soup.prettify())
+            else:
+                mi.comments = unicode(user_notes_soup.prettify())
+            # Update library comments
+            db.set_comment(db_id, mi.comments)
+
+            # Add bookmark file to db_id
+            db.add_format_with_hooks(db_id, bm.value.bookmark_extension,
+                                            bm.value.path, index_is_id=True)

@@ -9,49 +9,49 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-27 14:31+0000\n"
-"PO-Revision-Date: 2011-09-27 18:23+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-10-15 17:29+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <debian-l10n-hungarian@lists.d.o>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-28 04:50+0000\n"
-"X-Generator: Launchpad (build 14049)\n"
+"X-Launchpad-Export-Date: 2011-10-16 05:14+0000\n"
+"X-Generator: Launchpad (build 14124)\n"
 "X-Poedit-Country: HUNGARY\n"
 "Language: hu\n"
 "X-Poedit-Language: Hungarian\n"
 
 #. name for aaa
 msgid "Ghotuo"
-msgstr ""
+msgstr "Ghotuo"
 
 #. name for aab
 msgid "Alumu-Tesu"
-msgstr ""
+msgstr "Alumu-Tesu"
 
 #. name for aac
 msgid "Ari"
-msgstr ""
+msgstr "Ari"
 
 #. name for aad
 msgid "Amal"
-msgstr ""
+msgstr "Amal"
 
 #. name for aae
 msgid "Albanian; Arbëreshë"
-msgstr ""
+msgstr "Albán;  Arbëreshë"
 
 #. name for aaf
 msgid "Aranadan"
-msgstr ""
+msgstr "Aranadan"
 
 #. name for aag
 msgid "Ambrak"
-msgstr ""
+msgstr "Ambrak"
 
 #. name for aah
 msgid "Arapesh; Abu'"
-msgstr ""
+msgstr "Arapesh; Abu'"
 
 #. name for aai
 msgid "Arifama-Miniafia"
@@ -75,7 +75,7 @@ msgstr ""
 
 #. name for aao
 msgid "Arabic; Algerian Saharan"
-msgstr ""
+msgstr "Arab; Algériai Szaharai"
 
 #. name for aap
 msgid "Arára; Pará"
@@ -87,7 +87,7 @@ msgstr ""
 
 #. name for aar
 msgid "Afar"
-msgstr "afar"
+msgstr "Afar"
 
 #. name for aas
 msgid "Aasáx"
@@ -498,10 +498,9 @@ msgstr ""
 msgid "Tapei"
 msgstr ""
 
-# src/trans.h:281 src/trans.h:318
 #. name for afr
 msgid "Afrikaans"
-msgstr "afrikaans"
+msgstr "Afrikaans"
 
 #. name for afs
 msgid "Creole; Afro-Seminole"
@@ -801,7 +800,7 @@ msgstr ""
 
 #. name for aka
 msgid "Akan"
-msgstr "akan"
+msgstr "Akan"
 
 #. name for akb
 msgid "Batak Angkola"
@@ -1015,10 +1014,9 @@ msgstr ""
 msgid "Amarag"
 msgstr ""
 
-# src/trans.h:283
 #. name for amh
 msgid "Amharic"
-msgstr "amhara"
+msgstr "Amhara"
 
 #. name for ami
 msgid "Amis"
@@ -1425,10 +1423,9 @@ msgstr ""
 msgid "Arrarnta; Western"
 msgstr ""
 
-# src/trans.h:294
 #. name for arg
 msgid "Aragonese"
-msgstr "aragóniai"
+msgstr "Aragóniai"
 
 #. name for arh
 msgid "Arhuaco"
@@ -1548,7 +1545,7 @@ msgstr ""
 
 #. name for asm
 msgid "Assamese"
-msgstr "asszámi"
+msgstr "Asszámi"
 
 #. name for asn
 msgid "Asuriní; Xingú"
@@ -1790,10 +1787,9 @@ msgstr ""
 msgid "Arabic; Uzbeki"
 msgstr ""
 
-# src/trans.h:283
 #. name for ava
 msgid "Avaric"
-msgstr "avar"
+msgstr "Avar"
 
 #. name for avb
 msgid "Avau"
@@ -1805,7 +1801,7 @@ msgstr ""
 
 #. name for ave
 msgid "Avestan"
-msgstr "aveszti"
+msgstr "Avesztai"
 
 #. name for avi
 msgid "Avikam"
@@ -1945,7 +1941,7 @@ msgstr ""
 
 #. name for ayc
 msgid "Aymara; Southern"
-msgstr ""
+msgstr "Ajmara; Déli"
 
 #. name for ayd
 msgid "Ayabadhu"
@@ -1977,7 +1973,7 @@ msgstr ""
 
 #. name for aym
 msgid "Aymara"
-msgstr "aymara"
+msgstr "Ajmara"
 
 #. name for ayn
 msgid "Arabic; Sanaani"
@@ -1997,7 +1993,7 @@ msgstr ""
 
 #. name for ayr
 msgid "Aymara; Central"
-msgstr ""
+msgstr "Ajmara; Közép"
 
 #. name for ays
 msgid "Ayta; Sorsogon"
@@ -2025,12 +2021,11 @@ msgstr ""
 
 #. name for azb
 msgid "Azerbaijani; South"
-msgstr ""
+msgstr "Azeri; Déli"
 
-# src/trans.h:311
 #. name for aze
 msgid "Azerbaijani"
-msgstr "azeri"
+msgstr "Azeri"
 
 #. name for azg
 msgid "Amuzgo; San Pedro Amuzgos"
@@ -2038,7 +2033,7 @@ msgstr ""
 
 #. name for azj
 msgid "Azerbaijani; North"
-msgstr ""
+msgstr "Azeri; Északi"
 
 #. name for azm
 msgid "Amuzgo; Ipalapa"
@@ -2090,7 +2085,7 @@ msgstr ""
 
 #. name for bak
 msgid "Bashkir"
-msgstr "baskír"
+msgstr "Baskír"
 
 #. name for bal
 msgid "Baluchi"
@@ -2115,7 +2110,7 @@ msgstr ""
 
 #. name for bar
 msgid "Bavarian"
-msgstr ""
+msgstr "Bajor"
 
 #. name for bas
 msgid "Basa (Cameroon)"
@@ -2497,10 +2492,9 @@ msgstr "beja"
 msgid "Bebeli"
 msgstr ""
 
-# src/trans.h:286
 #. name for bel
 msgid "Belarusian"
-msgstr "belorusz"
+msgstr "Belarusz"
 
 #. name for bem
 msgid "Bemba (Zambia)"
@@ -2508,7 +2502,7 @@ msgstr ""
 
 #. name for ben
 msgid "Bengali"
-msgstr "bengáli"
+msgstr "Bengáli"
 
 #. name for beo
 msgid "Beami"
@@ -3510,10 +3504,9 @@ msgstr ""
 msgid "Borôro"
 msgstr ""
 
-# src/trans.h:309
 #. name for bos
 msgid "Bosnian"
-msgstr "bosnyák"
+msgstr "Bosnyák"
 
 #. name for bot
 msgid "Bongo"
@@ -3685,7 +3678,7 @@ msgstr ""
 
 #. name for bqn
 msgid "Bulgarian Sign Language"
-msgstr ""
+msgstr "Bolgár jelnyelv"
 
 #. name for bqo
 msgid "Balo"
@@ -4078,10 +4071,9 @@ msgstr ""
 msgid "Bugawac"
 msgstr ""
 
-# src/trans.h:285
 #. name for bul
 msgid "Bulgarian"
-msgstr "bolgár"
+msgstr "Bolgár"
 
 #. name for bum
 msgid "Bulu (Cameroon)"
@@ -7445,10 +7437,9 @@ msgstr ""
 msgid "Semimi"
 msgstr ""
 
-# src/trans.h:284
 #. name for eus
 msgid "Basque"
-msgstr "baszk"
+msgstr "Baszk"
 
 #. name for eve
 msgid "Even"
@@ -7534,10 +7525,9 @@ msgstr ""
 msgid "Fang (Equatorial Guinea)"
 msgstr ""
 
-# src/trans.h:294
 #. name for fao
 msgid "Faroese"
-msgstr "feröi"
+msgstr "Feröeri"
 
 #. name for fap
 msgid "Palor"
@@ -29414,7 +29404,7 @@ msgstr ""
 
 #. name for xzp
 msgid "Zapotec; Ancient"
-msgstr ""
+msgstr "Zapoték; Ősi"
 
 #. name for yaa
 msgid "Yaminahua"
@@ -30326,27 +30316,27 @@ msgstr ""
 
 #. name for zaa
 msgid "Zapotec; Sierra de Juárez"
-msgstr ""
+msgstr "Zapoték; Sierra de Juárezi"
 
 #. name for zab
 msgid "Zapotec; San Juan Guelavía"
-msgstr ""
+msgstr "Zapoték; San Juan Guelavíai"
 
 #. name for zac
 msgid "Zapotec; Ocotlán"
-msgstr ""
+msgstr "Zapoték; Ocotláni"
 
 #. name for zad
 msgid "Zapotec; Cajonos"
-msgstr "zapoték; Cajonos"
+msgstr "Zapoték; Cajonesi"
 
 #. name for zae
 msgid "Zapotec; Yareni"
-msgstr "zapoték; Yareni"
+msgstr "Zapoték; Yareni"
 
 #. name for zaf
 msgid "Zapotec; Ayoquesco"
-msgstr ""
+msgstr "Zapoték; Ayoquescoi"
 
 #. name for zag
 msgid "Zaghawa"
@@ -30358,7 +30348,7 @@ msgstr "zangval"
 
 #. name for zai
 msgid "Zapotec; Isthmus"
-msgstr "zapoték; Isthmus"
+msgstr "Zapoték; Isthmusi"
 
 #. name for zaj
 msgid "Zaramo"
@@ -30374,31 +30364,31 @@ msgstr "zozu"
 
 #. name for zam
 msgid "Zapotec; Miahuatlán"
-msgstr ""
+msgstr "Zapoték; Miahuatláni"
 
 #. name for zao
 msgid "Zapotec; Ozolotepec"
-msgstr ""
+msgstr "Zapoték; Ozolotepeci"
 
 #. name for zap
 msgid "Zapotec"
-msgstr "zapoték"
+msgstr "Zapoték"
 
 #. name for zaq
 msgid "Zapotec; Aloápam"
-msgstr ""
+msgstr "Zapoték; Aloápami"
 
 #. name for zar
 msgid "Zapotec; Rincón"
-msgstr "zapoték; Rincón"
+msgstr "Zapoték; Rincóni"
 
 #. name for zas
 msgid "Zapotec; Santo Domingo Albarradas"
-msgstr ""
+msgstr "Zapoték; Santo Domingo Albarradasi"
 
 #. name for zat
 msgid "Zapotec; Tabaa"
-msgstr "zapoték; Tabaa"
+msgstr "Zapoték; Tabaa-i"
 
 # src/trans.h:193
 #. name for zau
@@ -30407,15 +30397,15 @@ msgstr "zangskari"
 
 #. name for zav
 msgid "Zapotec; Yatzachi"
-msgstr ""
+msgstr "Zapoték; Yatzachi-i"
 
 #. name for zaw
 msgid "Zapotec; Mitla"
-msgstr "zapoték; Mitla"
+msgstr "Zapoték; Mitlai"
 
 #. name for zax
 msgid "Zapotec; Xadani"
-msgstr "zapoték; Xadani"
+msgstr "Zapoték; Xadani-i"
 
 #. name for zay
 msgid "Zayse-Zergulla"
@@ -30991,7 +30981,7 @@ msgstr "tokano"
 
 #. name for zul
 msgid "Zulu"
-msgstr "zulu"
+msgstr "Zulu"
 
 # src/trans.h:316
 #. name for zum

@@ -23,24 +23,43 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 
-class PreserveSelection(object): # {{{
+class PreserveViewState(object): # {{{
 
     '''
     Save the set of selected books at enter time. If at exit time there are no
-    selected books, restore the previous selection.
+    selected books, restore the previous selection, the previous current index
+    and dont affect the scroll position.
     '''
 
-    def __init__(self, view):
+    def __init__(self, view, preserve_hpos=True, preserve_vpos=True):
         self.view = view
-        self.selected_ids = []
+        self.selected_ids = set()
+        self.current_id = None
+        self.preserve_hpos = preserve_hpos
+        self.preserve_vpos = preserve_vpos
+        self.vscroll = self.hscroll = 0
 
     def __enter__(self):
-        self.selected_ids = self.view.get_selected_ids()
+        try:
+            self.selected_ids = self.view.get_selected_ids()
+            self.current_id = self.view.current_id
+            self.vscroll = self.view.verticalScrollBar().value()
+            self.hscroll = self.view.horizontalScrollBar().value()
+        except:
+            import traceback
+            traceback.print_exc()
 
     def __exit__(self, *args):
         current = self.view.get_selected_ids()
-        if not current:
-            self.view.select_rows(self.selected_ids, using_ids=True)
+        if not current and self.selected_ids:
+            if self.current_id is not None:
+                self.view.current_id = self.current_id
+            self.view.select_rows(self.selected_ids, using_ids=True,
+                    scroll=False, change_current=self.current_id is None)
+            if self.preserve_vpos:
+                self.view.verticalScrollBar().setValue(self.vscroll)
+            if self.preserve_hpos:
+                self.view.horizontalScrollBar().setValue(self.hscroll)
 # }}}
 
 class BooksView(QTableView): # {{{
@@ -104,7 +123,7 @@ class BooksView(QTableView): # {{{
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
-        self.preserve_selected_books = PreserveSelection(self)
+        self.preserve_state = partial(PreserveViewState, self)
 
         # {{{ Column Header setup
         self.can_add_columns = True
@@ -787,6 +806,23 @@ class BooksView(QTableView): # {{{
             if i not in ans:
                 ans.append(i)
         return ans
+
+    @dynamic_property
+    def current_id(self):
+        def fget(self):
+            try:
+                return self.model().id(self.currentIndex())
+            except:
+                pass
+            return None
+        def fset(self, val):
+            if val is None: return
+            m = self.model()
+            for row in xrange(m.rowCount(QModelIndex())):
+                if m.id(row) == val:
+                    self.set_current_row(row, select=False)
+                    break
+        return property(fget=fget, fset=fset)
 
     def close(self):
         self._model.close()

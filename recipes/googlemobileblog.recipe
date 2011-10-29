@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-class BasicUserRecipe1318572445(AutomaticNewsRecipe):
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BasicUserRecipe1318572445(BasicNewsRecipe):
     title          = u'Google Mobile Blog'
     oldest_article = 7
     max_articles_per_feed = 100
