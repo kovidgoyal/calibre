@@ -66,12 +66,15 @@ class EXTHHeader(object):
                 # last update time
                 pass
             elif id == 503: # Long title
-                if not title or title == _('Unknown') or \
-                        'USER_CONTENT' in title or title.startswith('dtp_'):
-                    try:
-                        title = content.decode(codec)
-                    except:
-                        pass
+                # Amazon seems to regard this as the definitive book title
+                # rather than the title from the PDB header. In fact when
+                # sending MOBI files through Amazon's email service if the
+                # title contains non ASCII chars or non filename safe chars
+                # they are messed up in the PDB header
+                try:
+                    title = content.decode(codec)
+                except:
+                    pass
             #else:
             #    print 'unknown record', id, repr(content)
         if title:
@@ -324,6 +327,10 @@ class MobiReader(object):
             'ignore')
         self.processed_html = self.processed_html.replace('</</', '</')
         self.processed_html = re.sub(r'</([a-zA-Z]+)<', r'</\1><',
+                self.processed_html)
+        # Remove tags of the form <xyz: ...> as they can cause issues further
+        # along the pipeline
+        self.processed_html = re.sub(r'</{0,1}[a-zA-Z]+:\s+[^>]*>', '',
                 self.processed_html)
 
         for pat in ENCODING_PATS:

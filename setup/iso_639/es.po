@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-02 16:21+0000\n"
-"PO-Revision-Date: 2011-09-21 13:48+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"POT-Creation-Date: 2011-09-27 14:31+0000\n"
+"PO-Revision-Date: 2011-10-22 22:04+0000\n"
+"Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-22 04:47+0000\n"
-"X-Generator: Launchpad (build 13996)\n"
+"X-Launchpad-Export-Date: 2011-10-23 05:13+0000\n"
+"X-Generator: Launchpad (build 14170)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -5911,7 +5911,7 @@ msgstr "Gwahatike"
 
 #. name for dai
 msgid "Day"
-msgstr "Day"
+msgstr "Día"
 
 #. name for daj
 msgid "Daju; Dar Fur"
@@ -18231,7 +18231,7 @@ msgstr ""
 
 #. name for nhi
 msgid "Nahuatl; Zacatlán-Ahuacatlán-Tepetzintla"
-msgstr "Náhuatl de Zacatlán; Ahuacatlán y Tepetzintla"
+msgstr "Náhuatl de Zacatlán-Ahuacatlán-Tepetzintla"
 
 #. name for nhk
 msgid "Nahuatl; Isthmus-Cosoleacaque"

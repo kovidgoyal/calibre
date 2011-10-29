@@ -336,7 +336,7 @@ class Build(Command):
                 oinc = ['/Fo'+obj] if iswindows else ['-o', obj]
                 cmd = [compiler] + cflags + ext.cflags + einc + sinc + oinc
                 self.info(' '.join(cmd))
-                subprocess.check_call(cmd)
+                self.check_call(cmd)
 
         dest = self.dest(ext)
         elib = self.lib_dirs_to_ldflags(ext.lib_dirs)
@@ -350,17 +350,31 @@ class Build(Command):
             else:
                 cmd += objects + ext.extra_objs + ['-o', dest] + ldflags + ext.ldflags + elib + xlib
             self.info('\n\n', ' '.join(cmd), '\n\n')
-            subprocess.check_call(cmd)
+            self.check_call(cmd)
             if iswindows:
                 #manifest = dest+'.manifest'
                 #cmd = [MT, '-manifest', manifest, '-outputresource:%s;2'%dest]
                 #self.info(*cmd)
-                #subprocess.check_call(cmd)
+                #self.check_call(cmd)
                 #os.remove(manifest)
                 for x in ('.exp', '.lib'):
                     x = os.path.splitext(dest)[0]+x
                     if os.path.exists(x):
                         os.remove(x)
+
+    def check_call(self, *args, **kwargs):
+        """print cmdline if an error occured
+
+        If something is missing (qmake e.g.) you get a non-informative error
+         self.check_call(qmc + [ext.name+'.pro'])
+         so you would have to look a the source to see the actual command.
+        """
+        try:
+            subprocess.check_call(*args, **kwargs)
+        except:
+            cmdline = ' '.join(['"%s"' % (arg) if ' ' in arg else arg for arg in args[0]])
+            print "Error while executing: %s\n" % (cmdline)
+            raise
 
     def build_qt_objects(self, ext):
         obj_pat = 'release\\*.obj' if iswindows else '*.o'
@@ -380,8 +394,8 @@ class Build(Command):
             qmc = [QMAKE, '-o', 'Makefile']
             if iswindows:
                 qmc += ['-spec', 'win32-msvc2008']
-            subprocess.check_call(qmc + [ext.name+'.pro'])
-            subprocess.check_call([make, '-f', 'Makefile'])
+            self.check_call(qmc + [ext.name+'.pro'])
+            self.check_call([make, '-f', 'Makefile'])
             objects = glob.glob(obj_pat)
         return list(map(self.a, objects))
 
@@ -407,7 +421,7 @@ class Build(Command):
             cmd = [pyqt.sip_bin+exe, '-w', '-c', src_dir, '-b', sbf, '-I'+\
                     pyqt.pyqt_sip_dir] + shlex.split(pyqt.pyqt_sip_flags) + [sipf]
             self.info(' '.join(cmd))
-            subprocess.check_call(cmd)
+            self.check_call(cmd)
         module = self.j(src_dir, self.b(dest))
         if self.newer(dest, [sbf]+qt_objects):
             mf = self.j(src_dir, 'Makefile')
@@ -417,7 +431,7 @@ class Build(Command):
             makefile.extra_include_dirs = ext.inc_dirs
             makefile.generate()
 
-            subprocess.check_call([make, '-f', mf], cwd=src_dir)
+            self.check_call([make, '-f', mf], cwd=src_dir)
             shutil.copy2(module, dest)
 
     def clean(self):
@@ -457,7 +471,7 @@ class BuildPDF2XML(Command):
                     cmd += ['-I'+x for x in poppler_inc_dirs+magick_inc_dirs]
                     cmd += ['/Fo'+obj, src]
                 self.info(*cmd)
-                subprocess.check_call(cmd)
+                self.check_call(cmd)
             objects.append(obj)
 
         if self.newer(dest, objects):
@@ -470,7 +484,7 @@ class BuildPDF2XML(Command):
                         png_libs+magick_libs+poppler_libs+ft_libs+jpg_libs+pdfreflow_libs]
                 cmd += ['/OUT:'+dest] + objects
             self.info(*cmd)
-            subprocess.check_call(cmd)
+            self.check_call(cmd)
 
         self.info('Binary installed as', dest)
 

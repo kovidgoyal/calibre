@@ -37,6 +37,7 @@ class SearchRestrictionMixin(object):
         search = unicode(search)
         if not search:
             self.search_restriction.setCurrentIndex(0)
+            self._apply_search_restriction('')
         else:
             s = '*' + search
             if self.search_restriction.count() > 1:

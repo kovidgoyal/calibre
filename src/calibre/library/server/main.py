@@ -14,7 +14,7 @@ from calibre.constants import iswindows
 import cherrypy
 
 def start_threaded_server(db, opts):
-    server = LibraryServer(db, opts, embedded=True)
+    server = LibraryServer(db, opts, embedded=True, show_tracebacks=False)
     server.thread = Thread(target=server.start)
     server.thread.setDaemon(True)
     server.thread.start()
@@ -112,7 +112,7 @@ def main(args=sys.argv):
     if opts.with_library is None:
         opts.with_library = prefs['library_path']
     db = LibraryDatabase2(opts.with_library)
-    server = LibraryServer(db, opts)
+    server = LibraryServer(db, opts, show_tracebacks=opts.develop)
     server.start()
     return 0
 

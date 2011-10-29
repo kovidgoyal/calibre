@@ -4,21 +4,31 @@ __copyright__ = '2010-2011, Eddie Lau'
 # Region - Hong Kong, Vancouver, Toronto
 __Region__ = 'Hong Kong'
 # Users of Kindle 3 with limited system-level CJK support
-# please replace the following "True" with "False".
+# please replace the following "True" with "False". (Default: True)
 __MakePeriodical__ = True
-# Turn below to true if your device supports display of CJK titles
+# Turn below to True if your device supports display of CJK titles (Default: False)
 __UseChineseTitle__ = False
-# Set it to False if you want to skip images
+# Set it to False if you want to skip images (Default: True)
 __KeepImages__ = True
-# (HK only) Turn below to true if you wish to use life.mingpao.com as the main article source
+# (HK only) Turn below to True if you wish to use life.mingpao.com as the main article source (Default: True)
 __UseLife__ = True
-# (HK only) if __UseLife__ is true, turn this on if you want to include the column section
-__InclCols__ = False
+# (HK only) It is to disable premium content (Default: False)
+__InclPremium__ = False
+# (HK only) Turn below to True if you wish to parse articles in news.mingpao.com with their printer-friendly formats (Default: True)
+__ParsePFF__ = True
+# (HK only) Turn below to True if you wish hi-res images (Default: False)
+__HiResImg__ = False
+# Override the date returned by the program if specifying a YYYYMMDD below
+__Date__ = ''
 
 
 '''
 Change Log:
-2011/09/21: fetching "column" section is made optional. Default is False
+2011/10/21: fix a bug that hi-res img is unavailable in pages parsed from source txt
+2011/10/19: fix a bug in txt source parsing
+2011/10/17: disable fetching of premium content, also improved txt source parsing
+2011/10/04: option to get hi-res photos for the articles
+2011/09/21: fetching "column" section is made optional. 
 2011/09/18: parse "column" section stuff from source text file directly.
 2011/09/07: disable "column" section as it is no longer offered free.
 2011/06/26: add fetching Vancouver and Toronto versions of the paper, also provide captions for images using life.mingpao fetch source
@@ -42,7 +52,7 @@ Change Log:
 2010/10/31: skip repeated articles in section pages
 '''
 
-import os, datetime, re
+import os, datetime, re, mechanize
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -56,7 +66,7 @@ class MPRecipe(BasicNewsRecipe):
         title       = 'Ming Pao - Hong Kong'
         description = 'Hong Kong Chinese Newspaper (http://news.mingpao.com)'
         category    = 'Chinese, News, Hong Kong'
-        extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px;} font>b {font-size:200%; font-weight:bold;} div[class=heading] {font-size:200%; font-weight:bold;} div[class=images] {font-size:50%;}'
+        extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} font>b {font-size:200%; font-weight:bold;} div[class=heading] {font-size:200%; font-weight:bold;} div[class=images] {font-size:50%;}'
         masthead_url = 'http://news.mingpao.com/image/portals_top_logo_news.gif'
         keep_only_tags = [dict(name='h1'),
                           dict(name='font', attrs={'style':['font-size:14pt; line-height:160%;']}), # for entertainment page title
@@ -67,7 +77,7 @@ class MPRecipe(BasicNewsRecipe):
                           dict(attrs={'class':['content']}),  # for content from txt
                           dict(attrs={'class':['photo']}),
                           dict(name='table', attrs={'width':['100%'], 'border':['0'], 'cellspacing':['5'], 'cellpadding':['0']}),  # content in printed version of life.mingpao.com
-                          dict(name='img', attrs={'width':['180'], 'alt':['按圖放大']}), # images for source from life.mingpao.com
+                          dict(name='img', attrs={'width':['180'], 'alt':['????']}), # images for source from life.mingpao.com
                           dict(attrs={'class':['images']})   # for images from txt
                           ]
         if __KeepImages__:
@@ -147,43 +157,6 @@ class MPRecipe(BasicNewsRecipe):
     conversion_options = {'linearize_tables':True}
     timefmt = ''
 
-    def image_url_processor(cls, baseurl, url):
-        # trick: break the url at the first occurance of digit, add an additional
-        # '_' at the front
-        # not working, may need to move this to preprocess_html() method
-#        minIdx = 10000
-#        i0 = url.find('0')
-#        if i0 >= 0 and i0 < minIdx:
-#           minIdx = i0
-#        i1 = url.find('1')
-#        if i1 >= 0 and i1 < minIdx:
-#           minIdx = i1
-#        i2 = url.find('2')
-#        if i2 >= 0 and i2 < minIdx:
-#           minIdx = i2
-#        i3 = url.find('3')
-#        if i3 >= 0 and i0 < minIdx:
-#           minIdx = i3
-#        i4 = url.find('4')
-#        if i4 >= 0 and i4 < minIdx:
-#           minIdx = i4
-#        i5 = url.find('5')
-#        if i5 >= 0 and i5 < minIdx:
-#           minIdx = i5
-#        i6 = url.find('6')
-#        if i6 >= 0 and i6 < minIdx:
-#           minIdx = i6
-#        i7 = url.find('7')
-#        if i7 >= 0 and i7 < minIdx:
-#           minIdx = i7
-#        i8 = url.find('8')
-#        if i8 >= 0 and i8 < minIdx:
-#           minIdx = i8
-#        i9 = url.find('9')
-#        if i9 >= 0 and i9 < minIdx:
-#           minIdx = i9
-        return url
-
     def get_dtlocal(self):
         dt_utc = datetime.datetime.utcnow()
         if __Region__ == 'Hong Kong':
@@ -201,13 +174,22 @@ class MPRecipe(BasicNewsRecipe):
         return dt_local
 
     def get_fetchdate(self):
-        return self.get_dtlocal().strftime("%Y%m%d")
+        if __Date__ <> '':
+            return __Date__
+        else:
+            return self.get_dtlocal().strftime("%Y%m%d")
 
     def get_fetchformatteddate(self):
-        return self.get_dtlocal().strftime("%Y-%m-%d")
+        if __Date__ <> '':
+            return __Date__[0:4]+'-'+__Date__[4:6]+'-'+__Date__[6:8]
+        else:
+            return self.get_dtlocal().strftime("%Y-%m-%d")
 
     def get_fetchday(self):
-        return self.get_dtlocal().strftime("%d")
+        if __Date__ <> '':
+            return __Date__[6:8]
+        else:
+            return self.get_dtlocal().strftime("%d")
 
     def get_cover_url(self):
         if __Region__ == 'Hong Kong':
@@ -240,18 +222,21 @@ class MPRecipe(BasicNewsRecipe):
                                            (u'\u9ad4\u80b2 Sport', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalsp', 'nal'),
                                            (u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal')
                                           ]:
-                    articles = self.parse_section2(url, keystr)
+                    if __InclPremium__ == True:
+                        articles = self.parse_section2_txt(url, keystr)
+                    else:
+                        articles = self.parse_section2(url, keystr)
                     if articles:
                         feeds.append((title, articles))
 
-                if __InclCols__ == True:
+                if __InclPremium__ == True:
                     # parse column section articles directly from .txt files
                     for title, url, keystr in [(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
                                               ]:
                         articles = self.parse_section2_txt(url, keystr)
                         if articles:
                             feeds.append((title, articles))
-
+                        
                 for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
                                    (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
                     articles = self.parse_section(url)
@@ -260,15 +245,16 @@ class MPRecipe(BasicNewsRecipe):
             else:
                 for title, url in [(u'\u8981\u805e Headline', 'http://news.mingpao.com/' + dateStr + '/gaindex.htm'),
                                    (u'\u6e2f\u805e Local', 'http://news.mingpao.com/' + dateStr + '/gbindex.htm'),
-                                   (u'\u6559\u80b2 Education', 'http://news.mingpao.com/' + dateStr + '/gfindex.htm')]:
+                                   (u'\u6559\u80b2 Education', 'http://news.mingpao.com/' + dateStr + '/gfindex.htm'),
+                                   (u'\u793e\u8a55/\u7b46\u9663 Editorial', 'http://news.mingpao.com/' + dateStr + '/mrindex.htm')]:
                     articles = self.parse_section(url)
                     if articles:
                         feeds.append((title, articles))
 
                 # special- editorial
-                ed_articles = self.parse_ed_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalmr')
-                if ed_articles:
-                    feeds.append((u'\u793e\u8a55/\u7b46\u9663 Editorial', ed_articles))
+                #ed_articles = self.parse_ed_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=nalmr')
+                #if ed_articles:
+                #    feeds.append((u'\u793e\u8a55/\u7b46\u9663 Editorial', ed_articles))
 
                 for title, url in [(u'\u8ad6\u58c7 Forum', 'http://news.mingpao.com/' + dateStr + '/faindex.htm'),
                                    (u'\u4e2d\u570b China', 'http://news.mingpao.com/' + dateStr + '/caindex.htm'),
@@ -279,32 +265,46 @@ class MPRecipe(BasicNewsRecipe):
 
                 # special - finance
                 #fin_articles = self.parse_fin_section('http://www.mpfinance.com/htm/Finance/' + dateStr + '/News/ea,eb,ecindex.htm')
-                fin_articles = self.parse_fin_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea')
-                if fin_articles:
-                    feeds.append((u'\u7d93\u6fdf Finance', fin_articles))
+                #fin_articles = self.parse_fin_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea')
+                #if fin_articles:
+                #    feeds.append((u'\u7d93\u6fdf Finance', fin_articles))
 
-                for title, url in [('Tech News', 'http://news.mingpao.com/' + dateStr + '/naindex.htm'),
-                                   (u'\u9ad4\u80b2 Sport', 'http://news.mingpao.com/' + dateStr + '/spindex.htm')]:
-                    articles = self.parse_section(url)
+                for title, url, keystr in [(u'\u7d93\u6fdf Finance', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalea', 'nal')]:
+                    articles = self.parse_section2_txt(url, keystr)
                     if articles:
                         feeds.append((title, articles))
+                        
+                #for title, url in [('Tech News', 'http://news.mingpao.com/' + dateStr + '/naindex.htm'),
+                #                   (u'\u9ad4\u80b2 Sport', 'http://news.mingpao.com/' + dateStr + '/spindex.htm')]:
+                #    articles = self.parse_section(url)
+                #    if articles:
+                #        feeds.append((title, articles))
 
                 # special - entertainment
-                ent_articles = self.parse_ent_section('http://ol.mingpao.com/cfm/star1.cfm')
-                if ent_articles:
-                    feeds.append((u'\u5f71\u8996 Film/TV', ent_articles))
+                #ent_articles = self.parse_ent_section('http://ol.mingpao.com/cfm/star1.cfm')
+                #if ent_articles:
+                #    feeds.append((u'\u5f71\u8996 Film/TV', ent_articles))
 
+                for title, url, keystr in [(u'\u5f71\u8996 Film/TV', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr + '&Category=nalma', 'nal')
+                                          ]:
+                    articles = self.parse_section2_txt(url, keystr)
+                    if articles:
+                        feeds.append((title, articles))
+                        
+                if __InclPremium__ == True:
+                    # parse column section articles directly from .txt files
+                    for title, url, keystr in [(u'\u5c08\u6b04 Columns', 'http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn', 'ncl')
+                                              ]:
+                        articles = self.parse_section2_txt(url, keystr)
+                        if articles:
+                            feeds.append((title, articles))
+                            
                 for title, url in [(u'\u526f\u520a Supplement', 'http://news.mingpao.com/' + dateStr + '/jaindex.htm'),
                                    (u'\u82f1\u6587 English', 'http://news.mingpao.com/' + dateStr + '/emindex.htm')]:
                     articles = self.parse_section(url)
                     if articles:
                         feeds.append((title, articles))
 
-
-                # special- columns
-                col_articles = self.parse_col_section('http://life.mingpao.com/cfm/dailynews2.cfm?Issue=' + dateStr +'&Category=ncolumn')
-                if col_articles:
-                    feeds.append((u'\u5c08\u6b04 Columns', col_articles))
         elif __Region__ == 'Vancouver':
             for title, url in [(u'\u8981\u805e Headline', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VAindex.htm'),
                                (u'\u52a0\u570b Canada', 'http://www.mingpaovan.com/htm/News/' + dateStr + '/VBindex.htm'),
@@ -348,6 +348,16 @@ class MPRecipe(BasicNewsRecipe):
             title = self.tag_to_string(a)
             url = a.get('href', False)
             url = 'http://news.mingpao.com/' + dateStr + '/' +url
+            # replace the url to the print-friendly version
+            if __ParsePFF__ == True:
+                if url.rfind('Redirect') <> -1 and __InclPremium__ == True:
+                    url = re.sub(dateStr + '.*' + dateStr, dateStr, url)
+                    url = re.sub('%2F.*%2F', '/', url)
+                    title = title.replace(u'\u6536\u8cbb\u5167\u5bb9', '')
+                    url = url.replace('%2Etxt', '_print.htm')
+                    url = url.replace('%5F', '_')
+                else:
+                    url = url.replace('.htm', '_print.htm')
             if url not in included_urls and url.rfind('Redirect') == -1:
                 current_articles.append({'title': title, 'url': url, 'description':'', 'date':''})
                 included_urls.append(url)
@@ -356,6 +366,8 @@ class MPRecipe(BasicNewsRecipe):
 
     # parse from life.mingpao.com
     def parse_section2(self, url, keystr):
+        br = mechanize.Browser()
+        br.set_handle_redirect(False)
         self.get_fetchdate()
         soup = self.index_to_soup(url)
         a = soup.findAll('a', href=True)
@@ -366,9 +378,13 @@ class MPRecipe(BasicNewsRecipe):
             title = self.tag_to_string(i)
             url = 'http://life.mingpao.com/cfm/' + i.get('href', False)
             if (url not in included_urls) and (not url.rfind('.txt') == -1) and (not url.rfind(keystr) == -1):
-                url = url.replace('dailynews3.cfm', 'dailynews3a.cfm')  # use printed version of the article
-                current_articles.append({'title': title, 'url': url, 'description': ''})
-                included_urls.append(url)
+                try: 
+                    br.open_novisit(url)
+                    url = url.replace('dailynews3.cfm', 'dailynews3a.cfm')  # use printed version of the article
+                    current_articles.append({'title': title, 'url': url, 'description': ''})
+                    included_urls.append(url)
+                except:
+				    print 'skipping a premium article'
         current_articles.reverse()
         return current_articles
 
@@ -389,7 +405,7 @@ class MPRecipe(BasicNewsRecipe):
                 included_urls.append(url)
         current_articles.reverse()
         return current_articles
-
+        
     # parse from www.mingpaovan.com
     def parse_section3(self, url, baseUrl):
         self.get_fetchdate()
@@ -472,39 +488,152 @@ class MPRecipe(BasicNewsRecipe):
         current_articles.reverse()
         return current_articles
 
-    # preprocess those .txt based files
+    # preprocess those .txt and javascript based files
     def preprocess_raw_html(self, raw_html, url):
-        if url.rfind('ftp') == -1:
-            return raw_html
-        else:
-            splitter = re.compile(r'\n') # Match non-digits
-            new_raw_html = '<html><head><title>Untitled</title></head><body><div class="images">'
-            next_is_img_txt = False
-            title_started = False
-            met_article_start_char = False
-            for item in splitter.split(raw_html):
-                if item.startswith(u'\u3010'):
-                    met_article_start_char = True
-                    new_raw_html = new_raw_html + '</div><div class="content"><p>' + item + '<p>\n'
-                else:
-                    if next_is_img_txt == False:
-                        if item.startswith('='):
-                            next_is_img_txt = True
-                            new_raw_html += '<img src="' + str(item)[1:].strip() + '.jpg" /><p>\n'
+        new_html = raw_html
+        if url.rfind('ftp') <> -1 or url.rfind('_print.htm') <> -1:
+            if url.rfind('_print.htm') <> -1:
+                # javascript based file
+                splitter = re.compile(r'\n')
+                new_raw_html = '<html><head><title>Untitled</title></head>'
+                new_raw_html = new_raw_html + '<body>'
+                for item in splitter.split(raw_html):
+                    if item.startswith('var heading1 ='):
+                        heading = item.replace('var heading1 = \'', '')
+                        heading = heading.replace('\'', '')
+                        heading = heading.replace(';', '')
+                        new_raw_html = new_raw_html + '<div class="heading">' + heading
+                    if item.startswith('var heading2 ='):
+                        heading = item.replace('var heading2 = \'', '')
+                        heading = heading.replace('\'', '')
+                        heading = heading.replace(';', '')
+                        if heading <> '':
+                            new_raw_html = new_raw_html + '<br>' + heading + '</div>'
                         else:
-                            if met_article_start_char == False:
-                                if title_started == False:
-                                    new_raw_html = new_raw_html + '</div><div class="heading">' + item + '\n'
-                                    title_started = True
-                                else:
-                                    new_raw_html = new_raw_html + item + '\n'
-                            else:
-                                new_raw_html = new_raw_html + item + '<p>\n'
+                            new_raw_html = new_raw_html + '</div>'
+                    if item.startswith('var content ='):
+                        content = item.replace("var content = ", '')
+                        content = content.replace('\'', '')
+                        content = content.replace(';', '')
+                        new_raw_html = new_raw_html + '<div class="content">' + content + '</div>'
+                    if item.startswith('var photocontent ='):
+                        photo = item.replace('var photocontent = \'', '')
+                        photo = photo.replace('\'', '')
+                        photo = photo.replace(';', '')
+                        photo = photo.replace('<tr>', '')
+                        photo = photo.replace('<td>', '')
+                        photo = photo.replace('</tr>', '')
+                        photo = photo.replace('</td>', '<br>')
+                        photo = photo.replace('class="photo"', '')
+                        new_raw_html = new_raw_html + '<div class="images">' + photo + '</div>'
+                new_html = new_raw_html + '</body></html>'
+            else: 
+                # .txt based file
+                splitter = re.compile(r'\n') # Match non-digits
+                new_raw_html = '<html><head><title>Untitled</title></head><body><div class="images">'
+                next_is_img_txt = False
+                title_started = False
+                met_article_start_char = False
+                for item in splitter.split(raw_html):
+                    item = item.strip()
+                    if item.startswith(u'\u3010'):
+                        met_article_start_char = True
+                        new_raw_html = new_raw_html + '</div><div class="content"><p>' + item + '<p>\n'
                     else:
-                        next_is_img_txt = False
-                        new_raw_html = new_raw_html + item + '\n'
-            return new_raw_html + '</div></body></html>'
-
+                        if next_is_img_txt == False:
+                            if item.startswith("=@"):
+                                print 'skip movie link'
+                            elif item.startswith("=?"):
+                                next_is_img_txt = True
+                                new_raw_html += '<img src="' + str(item)[2:].strip() + '.gif" /><p>\n'
+                            elif item.startswith('=='):
+                                next_is_img_txt = True
+                                if False:
+                                    # TODO: check existence of .gif first
+                                    newimg = '_' + item[2:].strip() + '.jpg'
+                                    new_raw_html += '<img src="' + newimg + '" /><p>\n'
+                                else:
+                                    new_raw_html += '<img src="' + str(item)[2:].strip() + '.jpg" /><p>\n'
+                            elif item.startswith('='):
+                                next_is_img_txt = True
+                                if False:
+                                    # TODO: check existence of .gif first
+                                    newimg = '_' + item[1:].strip() + '.jpg'
+                                    new_raw_html += '<img src="' + newimg + '" /><p>\n'
+                                else:
+                                    new_raw_html += '<img src="' + str(item)[1:].strip() + '.jpg" /><p>\n'
+                            else:
+                                if next_is_img_txt == False and met_article_start_char == False:
+                                    if item <> '':
+                                        if title_started == False:
+                                            #print 'Title started at ', item
+                                            new_raw_html = new_raw_html + '</div><div class="heading">' + item + '\n'
+                                            title_started = True
+                                        else:
+                                            new_raw_html = new_raw_html + item + '\n'
+                                else:
+                                    new_raw_html = new_raw_html + item + '<p>\n'
+                        else:
+                            next_is_img_txt = False
+                            new_raw_html = new_raw_html + item + '\n'
+                new_html = new_raw_html + '</div></body></html>'
+        #raw_html = raw_html.replace(u'<p>\u3010', u'\u3010')
+        if __HiResImg__ == True:
+            # TODO: add a _ in front of an image url
+            if url.rfind('news.mingpao.com') > -1: 
+                imglist =  re.findall('src="?.*?jpg"', new_html)
+                br = mechanize.Browser()
+                br.set_handle_redirect(False)
+                for img in imglist:
+                    gifimg = img.replace('jpg"', 'gif"')
+                    try: 
+                        br.open_novisit(url + "/../" + gifimg[5:len(gifimg)-1])
+                        new_html = new_html.replace(img, gifimg)
+                    except: 
+                        # find the location of the first _
+                        pos = img.find('_')
+                        if pos > -1:
+                            # if found, insert _ after the first _
+                            newimg = img[0:pos] + '_' + img[pos:]
+                            new_html = new_html.replace(img, newimg)
+                        else: 
+                            # if not found, insert _ after "
+                            new_html = new_html.replace(img[1:], '"_' + img[1:])
+            elif url.rfind('life.mingpao.com') > -1:
+                imglist = re.findall('src=\'?.*?jpg\'', new_html)
+                br = mechanize.Browser()
+                br.set_handle_redirect(False)
+                #print 'Img list: ', imglist, '\n'
+                for img in imglist:
+                    #print 'Found img: ', img
+                    gifimg = img.replace('jpg\'', 'gif\'')
+                    try:
+                        gifurl = re.sub(r'dailynews.*txt', '', url)
+                        br.open_novisit(gifurl + gifimg[5:len(gifimg)-1])
+                        new_html = new_html.replace(img, gifimg)
+                    except:
+                        pos = img.rfind('/')
+                        newimg = img[0:pos+1] + '_' + img[pos+1:]
+                        new_html = new_html.replace(img, newimg)
+                # repeat with src quoted by double quotes, for text parsed from src txt
+                imglist = re.findall('src="?.*?jpg"', new_html)
+                for img in imglist:
+                    #print 'Found img: ', img
+                    gifimg = img.replace('jpg"', 'gif"')
+                    try:
+                        #print 'url', url
+                        pos = url.rfind('/')
+                        gifurl = url[:pos+1]
+                        #print 'try it:', gifurl + gifimg[5:len(gifimg)-1]
+                        br.open_novisit(gifurl + gifimg[5:len(gifimg)-1])
+                        new_html = new_html.replace(img, gifimg)
+                    except:
+                        pos = img.find('"')
+                        newimg = img[0:pos+1] + '_' + img[pos+1:]
+                        #print 'Use hi-res img', newimg
+                        new_html = new_html.replace(img, newimg)
+        return new_html
+        
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
@@ -513,7 +642,7 @@ class MPRecipe(BasicNewsRecipe):
         for item in soup.findAll(stype=True):
             del item['absmiddle']
         return soup
-
+        
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir

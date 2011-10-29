@@ -84,7 +84,7 @@ class PDNOVEL(USBMS):
     FORMATS = ['epub', 'pdf']
 
     VENDOR_ID   = [0x18d1]
-    PRODUCT_ID  = [0xb004]
+    PRODUCT_ID  = [0xb004, 0xa004]
     BCD         = [0x224]
 
     VENDOR_NAME = 'ANDROID'
@@ -224,7 +224,7 @@ class TREKSTOR(USBMS):
     FORMATS     = ['epub', 'txt', 'pdf']
 
     VENDOR_ID   = [0x1e68]
-    PRODUCT_ID  = [0x0041, 0x0042,
+    PRODUCT_ID  = [0x0041, 0x0042, 0x0052,
             0x003e # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
             ]
     BCD         = [0x0002]

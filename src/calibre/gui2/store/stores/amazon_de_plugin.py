@@ -6,7 +6,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
 
 from lxml import html
@@ -37,27 +36,16 @@ class AmazonDEKindleStore(StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         search_url = 'http://www.amazon.de/s/?url=search-alias%3Ddigital-text&field-keywords='
-        url =  search_url + urllib.quote_plus(query)
+        url = search_url + query.encode('ascii', 'backslashreplace').replace('%', '%25').replace('\\x', '%').replace(' ', '+')
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            doc = html.fromstring(f.read().decode('latin-1', 'replace'))
 
-            # Amazon has two results pages.
-            # 20110725: seems that is_shot is gone.
-#            is_shot = doc.xpath('boolean(//div[@id="shotgunMainResults"])')
-#            # Horizontal grid of books.
-#            if is_shot:
-#                data_xpath = '//div[contains(@class, "result")]'
-#                format_xpath = './/div[@class="productTitle"]/text()'
-#                cover_xpath = './/div[@class="productTitle"]//img/@src'
-#            # Vertical list of books.
-#            else:
             data_xpath = '//div[contains(@class, "result") and contains(@class, "product")]'
             format_xpath = './/span[@class="format"]/text()'
             cover_xpath = './/img[@class="productImage"]/@src'
-# end is_shot else
 
             for data in doc.xpath(data_xpath):
                 if counter <= 0:
@@ -80,11 +68,9 @@ class AmazonDEKindleStore(StorePlugin):
                 title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 price = ''.join(data.xpath('.//div[@class="newPrice"]/span/text()'))
 
-#                if is_shot:
-#                    author = format.split(' von ')[-1]
-#                else:
                 author = ''.join(data.xpath('.//div[@class="title"]/span[@class="ptBrand"]/text()'))
-                author = author.split('von ')[-1]
+                if author.startswith('von '):
+                    author = author[4:]
 
                 counter -= 1
 

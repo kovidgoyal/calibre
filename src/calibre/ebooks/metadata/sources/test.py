@@ -183,7 +183,11 @@ def test_identify_plugin(name, tests): # {{{
         rq = Queue()
         args = (log, rq, abort)
         start_time = time.time()
-        err = plugin.identify(*args, **kwargs)
+        plugin.running_a_test = True
+        try:
+            err = plugin.identify(*args, **kwargs)
+        finally:
+            plugin.running_a_test = False
         total_time = time.time() - start_time
         times.append(total_time)
         if err is not None:

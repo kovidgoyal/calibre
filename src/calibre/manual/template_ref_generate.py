@@ -65,7 +65,7 @@ def generate_template_language_help():
 
     funcs = defaultdict(dict)
 
-    for func in formatter_functions.get_builtins().values():
+    for func in formatter_functions().get_builtins().values():
         class_name = func.__class__.__name__
         func_sig = getattr(func, 'doc')
         x = func_sig.find(' -- ')
