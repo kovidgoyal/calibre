@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-10-04 10:49+0000\n"
-"Last-Translator: Christian Bøggild <Unknown>\n"
+"PO-Revision-Date: 2011-10-30 06:22+0000\n"
+"Last-Translator: Ida Nielsen <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-28 05:17+0000\n"
+"X-Launchpad-Export-Date: 2011-10-31 05:32+0000\n"
 "X-Generator: Launchpad (build 14197)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -644,11 +644,11 @@ msgstr "Finjustér hvordan calibre opfører sig i forskellige sammenhænge"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
 msgid "Keyboard"
-msgstr ""
+msgstr "Tastatur"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Rediger de tastatur genveje, som bruges af Calibra"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1114
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -851,7 +851,7 @@ msgstr "Denne profil er beregnet til Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:739
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Denne profil er til brug for PocketBook Pro 900 model serien"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -983,7 +983,7 @@ msgstr "Kommunikér med S60 telefoner."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:217
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Kommunikerer med WebOS tablets"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -1486,7 +1486,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:59
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Upload forsider til bøger"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:60
 msgid ""
@@ -1497,7 +1497,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Upload Sort / Hvid forside"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1604,7 +1604,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Kommunikerer nu med Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."

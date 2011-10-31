@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-10-16 21:30+0000\n"
+"PO-Revision-Date: 2011-10-30 09:31+0000\n"
 "Last-Translator: koliberek <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-10-28 05:25+0000\n"
+"X-Launchpad-Export-Date: 2011-10-31 05:33+0000\n"
 "X-Generator: Launchpad (build 14197)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1538,6 +1538,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Ostatnio przeczytana książka:</b> %(time)s<br /><b>Przecztane:</b> "
+"%(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1013
 #, python-format
@@ -1546,6 +1548,8 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>Rozdział %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Postęp:</b> %(chapter_progress)s%%<br />%(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1022
 #, python-format
@@ -1554,6 +1558,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>Rozdział %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Postęp:</b> %(chapter_progress)s%%<br /><b>Zaznaczenie:</b> %(text)s<br "
+"/><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1031
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1041
@@ -1563,6 +1570,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>Rozdział %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Postęp:</b> %(chapter_progress)s%%<br /><b>Zaznaczenie:</b> %(text)s<br "
+"/><b>Notatki:</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1790,7 +1800,7 @@ msgstr "Odśwież wysłane oddzielnie okładki przy automatycznym zarządzaniu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Użyj formatu SONY dla autora (tylko pierwszy autor)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid ""
@@ -1798,6 +1808,9 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Ustaw tę opcję jeśli chcesz, by nazwisko autora było wyświetlane w Sony tak "
+"jak ustawie je T1. Oznacza to, że będzie wyświetlane pierwsze nazwisko przy "
+"pracach zbiorowych. Jeśli używasz wtyczek pozostaw to pole nieustawione."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -5067,13 +5080,15 @@ msgstr "Nie zaznaczono żadnych książek do których mają być pobrane notatki
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Wystąpiły błędy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
 "Could not fetch annotations for some books. Click show details to see which "
 "ones."
 msgstr ""
+"Nie udało się pobrać komentarzy dla niektórych książek. Kliknij \"Pokaż "
+"szczegóły\" aby zobaczyć dokładniejsze informacje."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
@@ -6581,7 +6596,7 @@ msgstr "Skopiuj okładkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
 msgid "Remove Cover"
-msgstr ""
+msgstr "Usuń okładkę"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:335
 msgid "Double-click to open Book Details window"
@@ -15087,7 +15102,7 @@ msgstr "Automatyczne zarządzanie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
 msgid "Cannot change metadata management while a device is connected"
-msgstr ""
+msgstr "Nie można zmienić metadanych gdy urządzenie jest podłączone"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:30
 msgid "Metadata &management:"
@@ -15977,7 +15992,7 @@ msgstr "DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Download"
-msgstr ""
+msgstr "Pobierz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Price"
@@ -17648,7 +17663,7 @@ msgstr "pusty"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:571
 msgid "Invalid boolean query \"{0}\""
-msgstr ""
+msgstr "Nieprawidłowe zapytanie \"{0}\""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:55
 #, python-format
