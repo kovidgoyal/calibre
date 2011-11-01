@@ -61,11 +61,17 @@ class KOBO(USBMS):
                 ' ebook file itself. With this option, calibre will send a '
                 'separate cover image to the reader, useful if you '
                 'have modified the cover.'),
-            _('Upload Black and White Covers')
+            _('Upload Black and White Covers'),
+            _('Show expired books') +
+            ':::'+_('A bug in an earlier version left non kepubs book records'
+                ' in the datbase.  With this option Calibre will show the '
+                'expired records and allow you to delete them with '
+                'the new delete logic.'),
             ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = [
             ', '.join(['tags']),
+            True,
             True,
             True
             ]
@@ -73,6 +79,7 @@ class KOBO(USBMS):
     OPT_COLLECTIONS    = 0
     OPT_UPLOAD_COVERS  = 1
     OPT_UPLOAD_GRAYSCALE_COVERS  = 2
+    OPT_SHOW_EXPIRED_BOOK_RECORDS = 3
 
     def initialize(self):
         USBMS.initialize(self)
@@ -232,18 +239,23 @@ class KOBO(USBMS):
             self.dbversion = result[0]
 
             debug_print("Database Version: ", self.dbversion)
+
+            opts = self.settings()
             if self.dbversion >= 16:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                     'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility from content where ' \
-                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             elif self.dbversion < 16 and self.dbversion >= 14:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                     'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility  from content where ' \
-                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             elif self.dbversion < 14 and self.dbversion >= 8:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                     'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
-                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             else:
                 query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
                     'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility from content where BookID is Null'
@@ -343,21 +355,23 @@ class KOBO(USBMS):
             # Kobo does not delete the Book row (ie the row where the BookID is Null)
             # The next server sync should remove the row
             cursor.execute('delete from content where BookID = ?', t)
-            try:
-                cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
-                    'where BookID is Null and ContentID =?',t)
-            except Exception as e:
-                if 'no such column' not in str(e):
-                    raise
+            if ContentType == 6:
                 try:
-                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
                         'where BookID is Null and ContentID =?',t)
                 except Exception as e:
                     if 'no such column' not in str(e):
                         raise
-                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' ' \
-                        'where BookID is Null and ContentID =?',t)
-
+                    try:
+                        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                            'where BookID is Null and ContentID =?',t)
+                    except Exception as e:
+                        if 'no such column' not in str(e):
+                            raise
+                        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' ' \
+                            'where BookID is Null and ContentID =?',t)
+            else:
+                cursor.execute('delete from content where BookID is Null and ContentID =?',t)
 
             connection.commit()
 
