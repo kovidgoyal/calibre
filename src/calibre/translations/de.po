@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-10-27 14:11+0000\n"
+"PO-Revision-Date: 2011-11-01 08:57+0000\n"
 "Last-Translator: Hendrik Knackstedt <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-28 05:19+0000\n"
-"X-Generator: Launchpad (build 14197)\n"
+"X-Launchpad-Export-Date: 2011-11-02 04:55+0000\n"
+"X-Generator: Launchpad (build 14214)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -893,7 +893,7 @@ msgstr "Aktivierte Module"
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:493
 #, python-format
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Starten des Plugins %s schlug fehl. Traceback:"
+msgstr "Starten der Erweiterung %s schlug fehl. Traceback:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:540
 msgid ""
@@ -979,7 +979,7 @@ msgstr "Karte B"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
-msgstr "Debug-Log"
+msgstr "Fehlerdiagnoseprotokoll"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:17
 msgid "Communicate with Android phones."
@@ -1083,7 +1083,8 @@ msgstr "Kommunikation mit iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:206
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr "Gerät von Apple entdeckt, starte iTunes, einen Moment bitte..."
+msgstr ""
+"Gerät von Apple entdeckt, iTunes wird gestartet, einen Moment bitte …"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:208
 msgid ""
@@ -2334,7 +2335,7 @@ msgstr "Einstellungen zum Setzen von Metadaten in der Ausgabe"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:189
 msgid "Options to help with debugging the conversion"
-msgstr "Einstellungen zur Hilfe mit der Fehlersuche bei der Konvertierung"
+msgstr "Einstellungen zur Hilfe mit der Fehlerdiagnose bei der Konvertierung"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:217
 msgid ""
@@ -3484,7 +3485,7 @@ msgstr "Ausführlicher fortfahren"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:292
 msgid "Convert LRS to LRS, useful for debugging."
-msgstr "Konvertierung von LRS zu LRS, hilfreich bei der Fehlersuche."
+msgstr "Konvertierung von LRS zu LRS, hilfreich bei der Fehlerdiagnose."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:457
 msgid "Invalid LRF file. Could not set metadata."
@@ -4824,7 +4825,7 @@ msgstr "Spalten, die in der Liste der Bücher angezeigt werden sollen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:139
 msgid "Automatically launch content server on application startup"
-msgstr "Content Server automatisch beim Aufrufen von Calibre starten"
+msgstr "Inhalte-Server automatisch beim Aufrufen von Calibre starten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:140
 msgid "Oldest news kept in database"
@@ -4884,8 +4885,9 @@ msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr ""
-"Maximale Anzahl gleichzeitiger Konvertierungen / Nachrichten-Downloads. "
-"Diese Anzahl ist aus historischen Gründen das Doppelte des aktuellen Wertes."
+"Maximale Anzahl gleichzeitiger Konvertierungen/herunterzuladende "
+"Nachrichten. Diese Anzahl ist aus historischen Gründen das Doppelte des "
+"aktuellen Wertes."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:185
 msgid "Download social metadata (tags/rating/etc.)"
@@ -5028,7 +5030,7 @@ msgstr "Von ISBN hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:71
 msgid "Add files to selected book records"
-msgstr "Fügt Dateien zum ausgewählten Buch hinzu"
+msgstr "Dateien zum ausgewählten Buch hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:72
 msgid "Shift+A"
@@ -5264,7 +5266,7 @@ msgstr "Zu verwendende Calibre Bibliothek auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "Switch/create library..."
-msgstr "Wechsel/Neuerstellung der Bibliothek..."
+msgstr "Bibliothek wechseln/neu erstellen …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:57
@@ -5291,7 +5293,7 @@ msgstr "Bibliothek entfernen"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/random.py:17
 msgid "Pick a random book"
-msgstr "Wähle ein zufälliges Buch"
+msgstr "Zufällig ein Buch auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library Maintenance"
@@ -5303,7 +5305,7 @@ msgstr "Status der Metadaten-Sicherung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:193
 msgid "Start backing up metadata of all books"
-msgstr "Starte Sicherung der Metadaten aller Bücher"
+msgstr "Sicherung der Metadaten aller Bücher starten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:197
 msgid "Check library"
@@ -5482,7 +5484,7 @@ msgstr "C"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "Convert books"
-msgstr "Konvertiere Bücher"
+msgstr "Bücher konvertieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:30
 msgid "Convert individually"
@@ -5494,7 +5496,7 @@ msgstr "Auf einmal konvertieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:37
 msgid "Create a catalog of the books in your calibre library"
-msgstr "Erstellt einen Katalog von Büchern in Ihrer Calibre Bibliothek"
+msgstr "Einen Katalog der Bücher in Ihrer Calibre-Bibliothek erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:590
@@ -5504,7 +5506,7 @@ msgstr "Konvertierung nicht möglich"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:117
 #, python-format
 msgid "Starting conversion of %d book(s)"
-msgstr "Starte Konvertierung von %d Büchern"
+msgstr "Konvertierung von %d Büchern wird gestartet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:177
 msgid "Empty output file, probably the conversion process crashed"
@@ -5613,23 +5615,23 @@ msgstr "Gewählte Bücher entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:95
 msgid "Remove files of a specific format from selected books.."
-msgstr "Dateien des angegebenen Formates der gewählten Bücher entfernen..."
+msgstr "Dateien des angegebenen Formates der ausgewählten Bücher entfernen …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:98
 msgid "Remove all formats from selected books, except..."
-msgstr "Alle Formate der gewählten Bücher entfernen, außer..."
+msgstr "Alle Formate der ausgewählten Bücher entfernen, außer …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:101
 msgid "Remove all formats from selected books"
-msgstr "Entferne alle Formate aus den ausgewählten Büchern"
+msgstr "Alle Formate der ausgewählten Bücher entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:104
 msgid "Remove covers from selected books"
-msgstr "Umschlagbilder der gewählten Bücher entfernen"
+msgstr "Umschlagbilder der ausgewählten Bücher entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:108
 msgid "Remove matching books from device"
-msgstr "Passende Bücher vom Gerät löschen"
+msgstr "Übereinstimmende Bücher vom Gerät löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:131
 msgid "Cannot delete"
@@ -5705,8 +5707,8 @@ msgid ""
 "The selected books will be <b>permanently deleted</b> and the files removed "
 "from your calibre library. Are you sure?"
 msgstr ""
-"Die ausgewählten Bücher werden <b>permanent gelöscht</b> und die Dateien aus "
-"der Calibre- Bibliothek entfernt. Sind Sie sicher?"
+"Die ausgewählten Bücher werden <b>dauerhaft gelöscht</b> und die Dateien aus "
+"der Calibre-Bibliothek entfernt. Sind Sie sicher?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:327
 msgid ""
@@ -5731,11 +5733,11 @@ msgstr "Mit Bambook verbinden"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:77
 msgid "Start Content Server"
-msgstr "Content Server starten"
+msgstr "Inhalte-Server starten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:73
 msgid "Start/stop content server"
-msgstr "Startet/stoppt den Content Server"
+msgstr "Den Inhalte-Server starten/anhalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:79
 msgid "Stop Content Server"
@@ -5896,9 +5898,9 @@ msgid ""
 "proceed?"
 msgstr ""
 "Die Metadaten einiger Bücher in Ihrer Bibliothek haben sich geändert seit "
-"der Download gestartet wurde. Wenn Sie fortfahren, können diese Änderungen "
-"verloren gehen. Klicken Sie auf \"Details anzeigen\", um eine Liste aller "
-"geändertern Bücher zu sehen. Möchten Sie fortfahren?"
+"mit dem Herunterladen begonnen wurde. Wenn Sie fortfahren, können diese "
+"Änderungen verloren gehen. Klicken Sie auf »Details anzeigen«, um eine Liste "
+"aller geänderten Bücher zu sehen. Möchten Sie fortfahren?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:221
@@ -5955,7 +5957,7 @@ msgstr ""
 "werden einschließlich aller Metadaten <b>gelöscht</b>.<br><br>Alle "
 "Buchformate des zuerst gewählten Buches bleiben erhalten, entsprechende "
 "Formate des zweiten und aller nachfolgend selektierten Bücher werden "
-"dauerhaft aus der Calibre Bibliothek <b>gelöscht</b>.<br><br>Sind Sie "
+"dauerhaft aus der Calibre-Bibliothek <b>gelöscht</b>.<br><br>Sind Sie "
 "<b>sicher</b>, dass Sie fortfahren wollen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:302
@@ -5974,7 +5976,7 @@ msgstr ""
 "Zusammenfügen werden das zweite und alle weiteren ausgewählten Bücher "
 "<b>gelöscht</b>. <br><br>Alle Buchformate des zuerst ausgewählten Buches "
 "werden beibehalten, und doppelt vorhandene Formate im zweiten und weiteren "
-"ausgewählten Büchern werden aus Ihrer Calibre- Bibliothek "
+"ausgewählten Büchern werden aus Ihrer Calibre-Bibliothek "
 "<b>gelöscht</b>.<br><br>  Sind Sie sich <b>sicher</b>, dass Sie fortfahren "
 "möchten?"
 
@@ -6083,11 +6085,11 @@ msgstr "Willkommens-Assistenten ausführen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Get plugins to enhance calibre"
-msgstr "Hole Plugins um Calibre verbessern"
+msgstr "Calibre durch Erweiterungen verbessern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:35
 msgid "Restart in debug mode"
-msgstr "Neustart im Debug-Modus"
+msgstr "Neustart im Fehlerdiagnosemodus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:53
 msgid "Cannot configure while there are running jobs."
@@ -6108,7 +6110,7 @@ msgstr "Neustart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
-msgstr "Speichere einzelnes Format auf Festplatte..."
+msgstr "Einzelnes Format auf Festplatte speichern …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:39
 msgid "S"
@@ -6126,7 +6128,7 @@ msgstr "Auf Festplatte in ein einziges Verzeichnis speichern"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:68
 #, python-format
 msgid "Save only %s format to disk"
-msgstr "Nur das %s Format auf Festplatte speichern"
+msgstr "Nur das Format %s auf Festplatte speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:71
@@ -6369,11 +6371,11 @@ msgstr "Spezielles Format ansehen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:50
 msgid "Read a random book"
-msgstr "Lese ein zufällig ausgewähltes Buch"
+msgstr "Ein zufällig ausgewähltes Buch lesen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:55
 msgid "Clear recently viewed list"
-msgstr "Liste der zuletzt angeschauten Bücher löschen"
+msgstr "Liste der zuletzt betrachteten Bücher löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:217
@@ -6511,7 +6513,7 @@ msgstr "Füge Duplikate hinzu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:460
 msgid "Saving..."
-msgstr "Speichere..."
+msgstr "Wird gespeichert …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:467
 msgid "Collecting data, please wait..."
@@ -7339,24 +7341,24 @@ msgstr "Keine Seitenlinks zum Seitenverzeichniss für CBC Dateien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:19
 msgid "Debug"
-msgstr "Fehlersuche"
+msgstr "Fehlerdiagnose"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:21
 msgid "Debug the conversion process."
-msgstr "Fehlersuche im Konvertierungsprozess."
+msgstr "Fehlerdiagnose im Konvertierungsprozess."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:56
 msgid "Choose debug folder"
-msgstr "Ordner für Fehlersuche wählen"
+msgstr "Wählen Sie einen Ordner für die Fehlerdiagnose"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:58
 msgid "Invalid debug directory"
-msgstr "Ungültiges Verzeichnis für Fehlersuche"
+msgstr "Ungültiges Verzeichnis für Fehlerdiagnose"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug.py:59
 msgid "Failed to create debug directory"
-msgstr "Das Erstellen eines Verzeichnisses zur Fehlersuche schlug fehl"
+msgstr "Das Erstellen eines Verzeichnisses zur Fehlerdiagnose schlug fehl"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:55
 msgid ""
@@ -7365,11 +7367,12 @@ msgid ""
 "understanding the conversion process and figuring out the correct values for "
 "conversion parameters like Table of Contents and Chapter Detection."
 msgstr ""
-"Einen Ordner für die Ausgabe der Fehlersuche wählen. Falls Sie einen Ordner "
-"angeben, wird Calibre eine ganze Menge Ausgabedaten der Fehlersuche "
-"hineinschreiben. Dies ist hilfreich, um den Konvertierungsprozess zu "
-"verstehen und die richtigen Werte für Konvertierungsparameter wie "
-"Inhaltsverzeichnis und Kapitelerkennung herauszufinden."
+"Einen Ordner für die Ausgabe der Fehlerdiagnose wählen. Falls Sie einen "
+"Ordner angeben, wird Calibre eine ganze Menge Ausgabedaten der "
+"Fehlerdiagnose hineinschreiben. Dies ist hilfreich, um den "
+"Konvertierungsprozess zu verstehen und die richtigen Werte für "
+"Konvertierungsparameter wie Inhaltsverzeichnis und Kapitelerkennung "
+"herauszufinden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/debug_ui.py:59
 msgid ""
@@ -7377,9 +7380,9 @@ msgid ""
 "of the conversion process. This HTML can sometimes serve as a good starting "
 "point for hand editing a conversion."
 msgstr ""
-"Der Prozess der Fehlersuche gibt die zwischenzeitlich erstellten HTML-Daten "
-"der verschiedenen Stadien des Konvertierungsprozesses aus. Dieses HTML kann "
-"manchmal als guter Ausgangspunkt der händischen Bearbeitung der "
+"Der Prozess der Fehlerdiagnose gibt die zwischenzeitlich erstellten HTML-"
+"Daten der verschiedenen Stadien des Konvertierungsprozesses aus. Dieses HTML "
+"kann manchmal als guter Ausgangspunkt der händischen Bearbeitung der "
 "Konvertierung dienen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
@@ -9440,7 +9443,7 @@ msgid ""
 "All checked books will be <b>permanently deleted</b> from your device. "
 "Please verify the list."
 msgstr ""
-"Alle gewählten Bücher werden von Ihrem Gerät <b>für immer gelöscht</b>. "
+"Alle gewählten Bücher werden von Ihrem Gerät <b>dauerhaft gelöscht</b>. "
 "Bitte bestätigen Sie die Liste."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:75
@@ -10327,7 +10330,8 @@ msgstr "Neustart erforderlich"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:123
 msgid "You must restart Calibre before using this plugin!"
-msgstr "Du musst Calibre Neustarten um Plugins zu benutzen zu können"
+msgstr ""
+"Sie müssen Calibre neu starten, bevor Sie diese Erweiterung verwenden!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:164
 #, python-format
@@ -10594,8 +10598,8 @@ msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
 "have to restart calibre for the plugin to take effect."
 msgstr ""
-"Plugin <b>{0}</b> erfolgreich installiert unter <b> {1} plugins</b>. Sie "
-"müssen Calibre neu starten damit das Plug-in arbeitet."
+"Erweiterung <b>{0}</b> erfolgreich installiert unter <b> {1} plugins</b>. "
+"Sie müssen Calibre neu starten, damit die Erweiterung aktiviert wird."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:747
 msgid ""
@@ -10603,10 +10607,10 @@ msgid ""
 "uninstalled. Please post the error message in details below into the forum "
 "thread for this plugin and restart Calibre."
 msgstr ""
-"Während der Installation des Plugins ist ein Problem aufgetreten. Dieses "
-"Plugin wird nun deinstalliert. Bitte veröffentlichen Sie die Fehlermeldung "
-"im Detail unten in den Foren-Thread dieses Plugins und starten Sie Calibre "
-"neu."
+"Während der Installation der Erweiterung ist ein Problem aufgetreten. Diese "
+"Erweiterung wird nun entfernt. Bitte veröffentlichen Sie die Fehlermeldung "
+"im Detail unten in den Foren-Thread dieser Erweiterung und starten Sie "
+"Calibre neu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:772
 msgid "Version history missing"
@@ -10639,8 +10643,8 @@ msgstr "Neustart erforderlich"
 msgid ""
 "You must restart calibre before you can configure the <b>%s</b> plugin"
 msgstr ""
-"Sie müssen Calibre neu starten bevor Sie das <b>%s</b> Plug-in konfigurieren "
-"können."
+"Sie müssen Calibre neu starten bevor Sie die Erweiterung <b>%s</b> "
+"konfigurieren können."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:794
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:323
@@ -10972,7 +10976,7 @@ msgstr "Zuletzt heruntergeladen:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:429
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "Schedule news download"
-msgstr "Zeitgesteuerter Nachrichten-Download"
+msgstr "Zeitgesteuertes Herunterladen von Nachrichten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:432
 msgid "Add a custom news source"
@@ -12473,7 +12477,7 @@ msgstr "Minimiert im Systembereich der Kontrollleiste starten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:36
 msgid "Log debugging information to console"
-msgstr "Information zur Fehlersuche auf die Konsole ausgeben"
+msgstr "Information zur Fehlerdiagnose auf die Konsole ausgeben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:38
 msgid "Do not check for updates"
@@ -12484,8 +12488,8 @@ msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
 msgstr ""
-"Ignoriere benutzerdefinierte Plugins. Nützlich, wenn Sie ein Plugin "
-"installiert haben, das Calibre am Starten hindert"
+"Benutzerdefinierte Erweiterungen ignorieren. Nützlich, wenn Sie eine "
+"Erweiterung installiert haben, die Calibre am Starten hindert"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:44
 msgid ""
@@ -12520,7 +12524,7 @@ msgstr "Wählen Sie einen Ort für Ihre neue Calibre E-Book Bibliothek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:136
 msgid "Initializing user interface..."
-msgstr "Starten der Benutzeroberfläche..."
+msgstr "Benutzeroberfläche wird gestartet …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:162
 msgid "Repairing failed"
@@ -12564,21 +12568,21 @@ msgstr ""
 msgid ""
 "Bad database location %r. Will start with  a new, empty calibre library"
 msgstr ""
-"Ungültiger Datenbank-Ort %r. Starte mit einer neuen, leeren Calibre "
-"Bibliothek"
+"Ungültiger Datenbank-Ort %r. Es wird mit einer neuen, leeren Calibre-"
+"Bibliothek gestartet"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:213
 #, python-format
 msgid "Starting %s: Loading books..."
-msgstr "Starte %s: Lade Bücher..."
+msgstr "%s wird gestartet: Bücher werden geladen …"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:293
 msgid "If you are sure it is not running"
-msgstr "Wenn Sie sicher sind, dass es nicht gestartet ist"
+msgstr "Wenn Sie sicher sind, dass es nicht bereits ausgeführt wird"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:296
 msgid "may be running in the system tray, in the"
-msgstr "kann im Systemtray gestartet sein, im"
+msgstr "kann im Benachrichtigungsbereich gestartet sein, im"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:298
 msgid "upper right region of the screen."
@@ -12604,7 +12608,7 @@ msgstr "Start nicht möglich "
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:309
 #, python-format
 msgid "%s is already running."
-msgstr "%s ist schon gestartet."
+msgstr "%s läuft bereits."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:25
 msgid ""
@@ -13096,7 +13100,7 @@ msgstr "Das Umschlagbild im Format %s ist ungültig"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:505
 #, python-format
 msgid "Save changes and edit the metadata of %s"
-msgstr "Speichere Änderungen und bearbeite die Metadaten von %s"
+msgstr "Änderungen speichern und Metadaten von %s bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:602
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:807
@@ -13661,11 +13665,11 @@ msgid ""
 "that tell calibre what color to use. Click the Add Rule button below to get "
 "started.<p>You can <b>change an existing rule</b> by double clicking it."
 msgstr ""
-"Sie können die Spaltenfarbe innerhalb der Buchliste mithilfe von \"Regeln\" "
+"Sie können die Spaltenfarbe innerhalb der Buchliste mit Hilfe von »Regeln« "
 "festlegen, die Calibre vorschreiben, welche Farben benutzt werden sollen. "
-"Klicken Sie auf den \"Regel hinzufügen\"-Button unten, um zu beginnen. "
-"<p>Sie können eine <b>bereits angelegte Regel ändern</b>, indem Sie darauf "
-"doppelklicken."
+"Klicken Sie unten auf die Schaltfläche »Regel hinzufügen«, um zu beginnen. "
+"<p>Sie können eine <b>bereits angelegte Regel ändern</b>, indem Sie doppelt "
+"darauf klicken."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:491
 msgid "Add Rule"
@@ -14170,7 +14174,7 @@ msgstr "Farben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
-msgstr "Erhalte Information zur Fehlersuche"
+msgstr "Erhalte Information zur Fehlerdiagnose"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:32
@@ -14179,7 +14183,7 @@ msgstr "In die Zwis&chenablage kopieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:24
 msgid "Debug device detection"
-msgstr "Fehlersuche bei der Geräteerkennung"
+msgstr "Fehlerdiagnose bei der Geräteerkennung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:31
 msgid "Getting device information"
@@ -14361,7 +14365,7 @@ msgstr "&Benachrichtigungen im Systemtray deaktivieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:63
 msgid "Show &splash screen at startup"
-msgstr "Spla&sh-Screen beim Starten anzeigen"
+msgstr "Calibre-Logo beim Starten anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:67
 msgid "&Toolbar"
@@ -14726,7 +14730,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:25
 msgid "Max. simultaneous conversion/news download jobs:"
-msgstr "Max. gleichzeitige Konvertierungen/Nachrichten-Downloads"
+msgstr "Max. gleichzeitige Konvertierungen/herunterzuladende Nachrichten:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:33
 msgid "Limit the max. simultaneous jobs to the available CPU &cores"
@@ -14736,7 +14740,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:39
 msgid "Debug &device detection"
-msgstr "Fehlersuche bei &der Geräteerkennung"
+msgstr "Fehlerdiagnose bei &der Geräteerkennung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:43
 msgid "Get information to setup the &user defined device"
@@ -15301,7 +15305,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:431
 msgid "Failed to start content server"
-msgstr "Content Server konnte nicht gestartet werden"
+msgstr "Inhalte-Server konnte nicht gestartet werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:106
 msgid "Error log:"
@@ -15387,7 +15391,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically when calibre starts"
-msgstr "Starte den Server &automatisch, wenn  calibre startet"
+msgstr "Den Server &automatisch neu starten, wenn Calibre gestartet wird"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:119
 msgid "View &server logs"
@@ -16642,7 +16646,7 @@ msgstr "Aktuelle Suche löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:354
 msgid "Debug mode"
-msgstr "Debug-Modus"
+msgstr "Fehlerdiagnosemodus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:355
 #, python-format
@@ -16651,8 +16655,9 @@ msgid ""
 "log will be available in the file: %s<p>The log will be displayed "
 "automatically."
 msgstr ""
-"Sie haben Calibre im Debug-Modus gestartet. Beim verlassen des Programms "
-"wird ein Debug-Log erstellt: %s<p>Das Log wird automatisch angezeigt."
+"Sie haben Calibre im Fehlerdiagnosemodus gestartet. Beim Verlassen des "
+"Programms wird ein Fehlerdiagnoseprotokoll erstellt: %s<p>Das Protokoll wird "
+"automatisch angezeigt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:494
 #, python-format
@@ -16968,7 +16973,7 @@ msgstr "Voreingestellte Sprache für die Regeln der Silbentrennung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:59
 msgid "Save the current position in the document, when quitting"
-msgstr "Speichere beim Verlassen die aktuelle position im Dokument"
+msgstr "Beim Verlassen die aktuelle Position im Dokument speichern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:61
 msgid "Have the mouse wheel turn pages"
@@ -17205,14 +17210,14 @@ msgstr "Einstellungen zur Kontrolle des E-Book Viewers"
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
-"Falls angegeben, dann wird das Viewer Fenster beim Start im Vordergrund "
+"Falls angegeben, dann wird das Betrachter-Fenster beim Start im Vordergrund "
 "angezeigt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:801
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
-"Wenn ausgewählt, wird das Betrachter- Fenster nach Möglichkeit im "
+"Wenn ausgewählt, wird das Betrachter-Fenster nach Möglichkeit im "
 "Vollbildmodus geöffnet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:806
@@ -17720,9 +17725,9 @@ msgid ""
 msgstr ""
 "<p>Denken Sie daran, Calibre gestartet zu lassen, da der Server nur solange "
 "läuft, wie auch Calibre läuft.\n"
-"<p>Stanza sollte Ihre Calibre Zusammenstellung automatisch finden. Falls "
+"<p>Stanza sollte Ihre Calibre-Zusammenstellung automatisch finden. Falls "
 "nicht, versuchen Sie die URL http://myhostname:8080 als einen neuen Katalog "
-"im Stanza Reader auf dem iPhone hinzuzufügen. Dabei sollte myhostname der "
+"im Stanza-Reader auf dem iPhone hinzuzufügen. Dabei sollte myhostname der "
 "vollständige Servername oder die IP-Adresse des Rechners sein, auf dem "
 "Calibre läuft."
 
@@ -18593,7 +18598,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:673
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:503
 msgid "Show detailed output information. Useful for debugging"
-msgstr "Detaillierte Ausgabeinformation anzeigen. Hilfreich zur Fehlersuche."
+msgstr ""
+"Detaillierte Ausgabeinformation anzeigen. Hilfreich zur Fehlerdiagnose."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:686
 msgid "Error: You must specify a catalog output file"
@@ -19104,7 +19110,7 @@ msgstr "Leerzeichen mit Unterstrichen ersetzen."
 msgid ""
 "Save into a single directory, ignoring the template directory structure"
 msgstr ""
-"Speichere in ein einzelnes Verzeichnis, die Ordnerstruktur der Vorlage "
+"In einem einzelnen Verzeichnis speichern, die Ordnerstruktur der Vorlage "
 "ignorieren"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:303
@@ -19318,7 +19324,7 @@ msgstr "in Suche"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:875
 msgid "Matching books"
-msgstr "Passende Bücher"
+msgstr "Übereinstimmende Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:40
 msgid ""
@@ -19668,6 +19674,9 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) -- gibt die Argumente auf der Standard-Ausgabe aus. Wenn "
+"Sie Calibre nicht über die Befehlszeile gestartet haben (calibre-debug -g), "
+"landet die Ausgabe in einem schwarzen Loch."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:265
 msgid "field(name) -- returns the metadata field named by name"
@@ -20412,11 +20421,13 @@ msgstr "Konnte Artikel nicht abrufen."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:934
 msgid "The debug traceback is available earlier in this log"
-msgstr "Der Debug-Traceback ist weiter oben in diesem Protokoll"
+msgstr ""
+"Die Fehlerdiagnose-Rückverfolgung befindet sich weiter oben in diesem "
+"Protokoll"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:936
 msgid "Run with -vv to see the reason"
-msgstr "Mit -vv starten um den Grund zu sehen"
+msgstr "Mit -vv starten, um den Grund zu sehen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:959
 msgid "Fetching feeds..."
@@ -20437,7 +20448,7 @@ msgstr "Erstelle Impressum..."
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1055
 #, python-format
 msgid "Starting download [%d thread(s)]..."
-msgstr "Download von [%d Thread(s)] starten ..."
+msgstr "Herunterladen von [%d Thread(s)] wird gestartet …"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1071
 #, python-format
@@ -21343,7 +21354,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:398
 msgid "Save original file when converting from same format to same format"
 msgstr ""
-"Speichere die Originaldatei wenn vom selben Format in das selbe Format "
+"Die Originaldatei speichern, wenn vom selben Format in das selbe Format "
 "konvertiert wird"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:399
