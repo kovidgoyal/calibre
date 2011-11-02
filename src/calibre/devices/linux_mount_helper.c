@@ -44,6 +44,12 @@ int do_mount(const char *dev, const char *mp) {
         fprintf(stderr, "Specified device node does not exist\n");
         return EXIT_FAILURE;
     }
+
+    if (strncmp("/usr", mp, 4) ==  0 || strncmp("/bin", mp, 4) == 0 || strncmp("/sbin", mp, 5) == 0) {
+        fprintf(stderr, "Trying to mount to a mount point under /usr, /bin, /sbin is not allowed\n");
+        return EXIT_FAILURE;
+    }
+
     if (!exists(mp)) {
         if (mkdir(mp, S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0) {
             errsv = errno;
