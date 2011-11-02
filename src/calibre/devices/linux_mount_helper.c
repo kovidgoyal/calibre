@@ -211,6 +211,15 @@ int main(int argc, char** argv)
     }
     action = argv[1]; dev = argv[2]; mp = argv[3];
 
+    /* Ensure that PATH only contains system directories to prevent execution of
+       arbitrary executables as root */
+    if (setenv("PATH",
+            "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin\0",
+            1) != 0) {
+        fprintf(stderr, "Failed to restrict PATH env var, aborting.\n");
+        exit(EXIT_FAILURE);
+    }
+
     if (strncmp(action, "mount", 5) == 0) {
         status = do_mount(dev, mp);
     } else if (strncmp(action, "eject", 5) == 0) {
