@@ -109,14 +109,16 @@ class HTMLFile(object):
 
         try:
             with open(self.path, 'rb') as f:
-                src = f.read()
+                src = f.read(4096)
+                self.is_binary = level > 0 and not bool(self.HTML_PAT.search(src))
+                if not self.is_binary:
+                    src += f.read()
         except IOError as err:
             msg = 'Could not read from file: %s with error: %s'%(self.path, as_unicode(err))
             if level == 0:
                 raise IOError(msg)
             raise IgnoreFile(msg, err.errno)
 
-        self.is_binary = level > 0 and not bool(self.HTML_PAT.search(src[:4096]))
         if not self.is_binary:
             if not encoding:
                 encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
