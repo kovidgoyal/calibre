@@ -112,8 +112,10 @@ class PRST1(USBMS):
     def post_open_callback(self):
         # Set the thumbnail width to the theoretical max if the user has asked
         # that we do not preserve aspect ratio
-        if not self.settings().extra_customization[self.OPT_PRESERVE_ASPECT_RATIO]:
+        ec = self.settings().extra_customization
+        if not ec[self.OPT_PRESERVE_ASPECT_RATIO]:
             self.THUMBNAIL_WIDTH = 108
+        self.WANTS_UPDATED_THUMBNAILS = ec[self.OPT_REFRESH_COVERS]
         # Make sure the date offset is set to none, we'll calculate it in books.
         self.device_offset = None
 
@@ -558,14 +560,21 @@ class PRST1(USBMS):
 
         cursor = connection.cursor()
 
+        periodical_schema = \
+            "'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0'"
+        # Setting this to the SONY periodical schema apparently causes errors
+        # with some periodicals, therefore set it to null, since the special
+        # periodical navigation doesn't work anyway.
+        periodical_schema = 'null'
+
         query = '''
         UPDATE books
-        SET conforms_to = 'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0',
+        SET conforms_to = %s,
             periodical_name = ?,
             description = ?,
             publication_date = ?
         WHERE _id = ?
-        '''
+        '''%periodical_schema
         t = (name, None, pubdate, book.bookId,)
         cursor.execute(query, t)
 

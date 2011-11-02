@@ -598,8 +598,9 @@ class BuiltinFormatsModtimes(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, fmt):
         fmt_data = mi.get('format_metadata', {})
+        data = sorted(fmt_data.items(), key=lambda x:x[1]['mtime'], reverse=True)
         return ','.join(k.upper()+':'+format_date(v['mtime'], fmt)
-                        for k,v in fmt_data.iteritems())
+                        for k,v in data)
 
 class BuiltinFormatsSizes(BuiltinFormatterFunction):
     name = 'formats_sizes'
@@ -746,6 +747,14 @@ class BuiltinFormatDate(BuiltinFormatterFunction):
             'MMMM : the long localized month name (e.g. "January" to "December"). '
             'yy   : the year as two digit number (00 to 99). '
             'yyyy : the year as four digit number. '
+            'h    : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm) '
+            'hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm) '
+            'm    : the minutes without a leading 0 (0 to 59) '
+            'mm   : the minutes with a leading 0 (00 to 59) '
+            's    : the seconds without a leading 0 (0 to 59) '
+            'ss   : the seconds with a leading 0 (00 to 59) '
+            'ap   : use a 12-hour clock instead of a 24-hour clock, with "ap" replaced by the localized string for am or pm '
+            'AP   : use a 12-hour clock instead of a 24-hour clock, with "AP" replaced by the localized string for AM or PM '
             'iso  : the date with time and timezone. Must be the only format present')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, format_string):

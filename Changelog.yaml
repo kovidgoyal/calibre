@@ -19,6 +19,55 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.24
+  date: 2011-10-27
+
+  new features:
+    - title: "Kobo: Add support for fetching annotations from the kobo reader."
+      description: "Right click the send to device button in calibre with your kobo connected and choose fetch annotations. The annotations are placed into the comments of the corresponding books in the calibre library. This feature is still experimental."
+      type: major
+
+    - title: "Preserve the set of selected books in the library view when a device is connected, fixing a long standing annoyance"
+  
+  bug fixes:
+    - title: "Prevent changing of device metadata management option while a device is connected."
+      tickets: [874118]
+
+    - title: "Book details panel: Show tooltip only when hovering over cover, not the rest of the book information, as it makes it hard to read."
+      tickets: [876454]
+
+    - title: "MOBI Output: Fix use of list elements as link anchors caused links to always point to start of list."
+      tickets: [879391]
+
+    - title: "RB Output: Fix calibre generated rb files not being opened by the RocketBook."
+      tickets: [880930]
+
+    - title: "FB2 Input: Dont choke on FB2 files that have empty embedded content tags."
+      tickets: [880904] 
+
+    - title: "ODT Input: CSS rationalization should not fail with non ascii class names"
+
+    - title: "Fix creating new library using the copy structure option incorrectly setting all text type columns to be like the tags column"
+
+    - title: "E-book viewer: Don't choke on windows installs with a non UTF-8 filesystem encoding."
+      tickets: [879740]
+
+
+  improved recipes:
+    - Novaya Gazeta
+    - El Universal (Venezuela)
+    - The Australian (subscription enabled)
+    - Metro NL
+    - The Scotsman
+    - Japan Times
+
+  new recipes:
+    - title: Silicon Republic 
+      author: Neil Grogan
+
+    - title: Calibre Blog 
+      author: Krittika Goyal
+
 - version: 0.8.23
   date: 2011-10-21
 

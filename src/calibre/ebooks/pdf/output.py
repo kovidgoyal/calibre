@@ -15,7 +15,6 @@ from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.pdf.writer import PDFWriter, ImagePDFWriter, PDFMetadata
 from calibre.ebooks.pdf.pageoptions import UNITS, PAPER_SIZES, \
     ORIENTATIONS
 
@@ -90,6 +89,7 @@ class PDFOutput(OutputFormatPlugin):
             self.convert_text(oeb_book)
 
     def convert_images(self, images):
+        from calibre.ebooks.pdf.writer import ImagePDFWriter
         self.write(ImagePDFWriter, images)
 
     def get_cover_data(self):
@@ -105,6 +105,7 @@ class PDFOutput(OutputFormatPlugin):
                             self.cover_data = None
 
     def convert_text(self, oeb_book):
+        from calibre.ebooks.pdf.writer import PDFWriter
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
 
@@ -119,6 +120,7 @@ class PDFOutput(OutputFormatPlugin):
             self.write(PDFWriter, [s.path for s in opf.spine])
 
     def write(self, Writer, items):
+        from calibre.ebooks.pdf.writer import PDFMetadata
         writer = Writer(self.opts, self.log, cover_data=self.cover_data)
 
         close = False

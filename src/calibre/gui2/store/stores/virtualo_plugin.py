@@ -34,10 +34,11 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
-    def search(self, query, max_results=10, timeout=60):
-        url = 'http://virtualo.pl/c2/?q=' + urllib.quote(query)
+    def search(self, query, max_results=12, timeout=60):
+        url = 'http://virtualo.pl/?q=' + urllib.quote(query) + '&f=format_id:4,6,3'
 
         br = browser()
+        drm_pattern = re.compile("ADE")
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
@@ -46,26 +47,28 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//table/tr[2]/td[1]/a/@href'))
+                id = ''.join(data.xpath('.//table/tr[1]/td[1]/a/@href'))
                 if not id:
                     continue
 
                 price = ''.join(data.xpath('.//span[@class="price"]/text() | .//span[@class="price abbr"]/text()'))
-                cover_url = ''.join(data.xpath('.//table/tr[2]/td[1]/a/img/@src'))
+                cover_url = ''.join(data.xpath('.//table/tr[1]/td[1]/a/img/@src'))
                 title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 author = ', '.join(data.xpath('.//div[@class="authors"]/a/text()'))
                 formats = ', '.join(data.xpath('.//span[@class="format"]/a/text()'))
                 formats = re.sub(r'(, )?ONLINE(, )?', '', formats)
+                drm = drm_pattern.search(formats)
+                formats = re.sub(r'(, )?ADE(, )?', '', formats)
 
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = cover_url
+                s.cover_url = cover_url.split('.jpg')[0] + '.jpg'
                 s.title = title.strip() + ' ' + formats
                 s.author = author.strip()
                 s.price = price + ' zł'
-                s.detail_item = 'http://virtualo.pl' + id.strip()
+                s.detail_item = 'http://virtualo.pl' + id.strip().split('http://')[0]
                 s.formats = formats.upper().strip()
-                s.drm = SearchResult.DRM_UNKNOWN
+                s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
 
                 yield s
