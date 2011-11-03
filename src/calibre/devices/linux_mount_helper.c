@@ -9,6 +9,8 @@
 #include <fcntl.h>
 
 #define MARKER ".created_by_calibre_mount_helper"
+#define DEV "/dev/"
+#define MEDIA "/media/"
 #define False 0
 #define True 1
 
@@ -34,17 +36,17 @@ void ensure_root() {
 }
 
 int check_args(const char *dev, const char *mp) {
-    if (dev == NULL || strlen(dev) < strlen("/dev/") || mp == NULL || strlen(mp) < strlen("/media/")) {
+    if (dev == NULL || strlen(dev) < strlen(DEV) || mp == NULL || strlen(mp) < strlen(MEDIA)) {
         fprintf(stderr, "Invalid arguments\n");
         return False;
     }
 
-    if (strncmp("/media/", mp, strlen("/media/")) != 0)  {
+    if (strncmp(MEDIA, mp, strlen("MEDIA")) != 0)  {
         fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
         return False;
     }
 
-    if (strncmp("/dev/", dev, strlen("/dev/")) != 0) {
+    if (strncmp(DEV, dev, strlen(DEV)) != 0) {
         fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
         return False;
     }
