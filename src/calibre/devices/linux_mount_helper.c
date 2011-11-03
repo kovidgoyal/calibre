@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -36,17 +37,35 @@ void ensure_root() {
 }
 
 int check_args(const char *dev, const char *mp) {
+    char buffer[PATH_MAX+1];
+
     if (dev == NULL || strlen(dev) < strlen(DEV) || mp == NULL || strlen(mp) < strlen(MEDIA)) {
         fprintf(stderr, "Invalid arguments\n");
         return False;
     }
 
-    if (strncmp(MEDIA, mp, strlen("MEDIA")) != 0)  {
+    if (exists(mp)) {
+        if (realpath(mp, buffer) == NULL) {
+            fprintf(stderr, "Unable to resolve mount path\n");
+            return False;
+        }
+        if (strncmp(MEDIA, buffer, strlen(MEDIA)) != 0)  {
+            fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
+            return False;
+        }
+    }
+
+    if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0)  {
         fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
         return False;
     }
 
-    if (strncmp(DEV, dev, strlen(DEV)) != 0) {
+    if (realpath(dev, buffer) == NULL) {
+        fprintf(stderr, "Unable to resolve dev path\n");
+        return False;
+    }
+
+    if (strncmp(DEV, buffer, strlen(DEV)) != 0) {
         fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
         return False;
     }
