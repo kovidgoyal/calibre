@@ -1237,6 +1237,17 @@ class StoreEbookNLStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreEbookpointStore(StoreBase):
+    name = 'Ebookpoint'
+    author = u'Tomasz Długosz'
+    description = u'Ebooki wolne od DRM, 3 formaty w pakiecie, wysyłanie na Kindle'
+    actual_plugin = 'calibre.gui2.store.stores.ebookpoint_plugin:EbookpointStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
 class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
     description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'
@@ -1528,6 +1539,7 @@ plugins += [
     StoreChitankaStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
+	StoreEbookpointStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
     StoreEHarlequinStore,
