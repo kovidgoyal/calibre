@@ -36,43 +36,6 @@ void ensure_root() {
     }
 }
 
-int check_args(const char *dev, const char *mp) {
-    char buffer[PATH_MAX+1];
-
-    if (dev == NULL || strlen(dev) < strlen(DEV) || mp == NULL || strlen(mp) < strlen(MEDIA)) {
-        fprintf(stderr, "Invalid arguments\n");
-        return False;
-    }
-
-    if (exists(mp)) {
-        if (realpath(mp, buffer) == NULL) {
-            fprintf(stderr, "Unable to resolve mount path\n");
-            return False;
-        }
-        if (strncmp(MEDIA, buffer, strlen(MEDIA)) != 0)  {
-            fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
-            return False;
-        }
-    }
-
-    if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0)  {
-        fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
-        return False;
-    }
-
-    if (realpath(dev, buffer) == NULL) {
-        fprintf(stderr, "Unable to resolve dev path\n");
-        return False;
-    }
-
-    if (strncmp(DEV, buffer, strlen(DEV)) != 0) {
-        fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
-        return False;
-    }
-
-    return True;
-}
-
 int do_mount(const char *dev, const char *mp) {
     char options[1000], marker[2000];
 #ifdef __NetBSD__
@@ -236,6 +199,51 @@ int cleanup(const char *dev, const char *mp) {
     return cleanup_mount_point(mp);
 }
 
+void check_dev(const char*dev) {
+    char buffer[PATH_MAX+1];
+
+    if (dev == NULL || strlen(dev) < strlen(DEV)) {
+        fprintf(stderr, "Invalid arguments\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (realpath(dev, buffer) == NULL) {
+        fprintf(stderr, "Unable to resolve dev path\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (strncmp(DEV, buffer, strlen(DEV)) != 0) {
+        fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void check_mount_point(const char *mp) {
+    char buffer[PATH_MAX+1];
+
+    if (mp == NULL || strlen(mp) < strlen(MEDIA)) {
+        fprintf(stderr, "Invalid arguments\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (exists(mp)) {
+        if (realpath(mp, buffer) == NULL) {
+            fprintf(stderr, "Unable to resolve mount path\n");
+            exit(EXIT_FAILURE);
+        }
+        if (strncmp(MEDIA, buffer, strlen(MEDIA)) != 0)  {
+            fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0)  {
+        fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
+        exit(EXIT_FAILURE);
+    }
+
+}
+
 int main(int argc, char** argv)
 {
     char *action, *dev, *mp;
@@ -261,13 +269,24 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    if (!check_args(dev, mp)) exit(EXIT_FAILURE);
-
     if (strncmp(action, "mount", 5) == 0) {
+        dev = realpath(argv[2], NULL);
+        if (dev == NULL) {
+            fprintf(stderr, "Failed to resolve device node.\n");
+            exit(EXIT_FAILURE);
+        }
+        check_dev(dev); check_mount_point(mp);
         status = do_mount(dev, mp);
     } else if (strncmp(action, "eject", 5) == 0) {
+        dev = realpath(argv[2], NULL);
+        if (dev == NULL) {
+            fprintf(stderr, "Failed to resolve device node.\n");
+            exit(EXIT_FAILURE);
+        }
+        check_dev(dev); check_mount_point(mp);
         status = do_eject(dev, mp);
     } else if (strncmp(action, "cleanup", 7) == 0) {
+        check_mount_point(mp);
         status = cleanup(dev, mp);
     } else {
         fprintf(stderr, "Unrecognized action: must be mount, eject or cleanup\n");
