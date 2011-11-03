@@ -36,6 +36,32 @@ void ensure_root() {
     }
 }
 
+void check_mount_point(const char *mp) {
+    char buffer[PATH_MAX+1];
+
+    if (mp == NULL || strlen(mp) < strlen(MEDIA)) {
+        fprintf(stderr, "Invalid arguments\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (exists(mp)) {
+        if (realpath(mp, buffer) == NULL) {
+            fprintf(stderr, "Unable to resolve mount path\n");
+            exit(EXIT_FAILURE);
+        }
+        if (strncmp(MEDIA, buffer, strlen(MEDIA)) != 0)  {
+            fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0)  {
+        fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
+        exit(EXIT_FAILURE);
+    }
+
+}
+
 int do_mount(const char *dev, const char *mp) {
     char options[1000], marker[2000];
 #ifdef __NetBSD__
@@ -54,6 +80,17 @@ int do_mount(const char *dev, const char *mp) {
             fprintf(stderr, "Failed to create mount point with error: %s\n", strerror(errsv));
         }
     }
+    /* only mount if mp is under /media */
+    mp = realpath(mp, NULL);
+    if (mp == NULL) {
+        fprintf(stderr, "realpath on mp failed.\n");
+        exit(EXIT_FAILURE);
+    }
+    if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0) {
+        fprintf(stderr, "mount point is not under /media\n");
+        exit(EXIT_FAILURE);
+    }
+
     snprintf(marker, 2000, "%s/%s", mp, MARKER);
     if (!exists(marker)) {
         int fd = creat(marker, S_IRUSR|S_IWUSR);
@@ -218,35 +255,9 @@ void check_dev(const char*dev) {
     }
 }
 
-void check_mount_point(const char *mp) {
-    char buffer[PATH_MAX+1];
-
-    if (mp == NULL || strlen(mp) < strlen(MEDIA)) {
-        fprintf(stderr, "Invalid arguments\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (exists(mp)) {
-        if (realpath(mp, buffer) == NULL) {
-            fprintf(stderr, "Unable to resolve mount path\n");
-            exit(EXIT_FAILURE);
-        }
-        if (strncmp(MEDIA, buffer, strlen(MEDIA)) != 0)  {
-            fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0)  {
-        fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
-        exit(EXIT_FAILURE);
-    }
-
-}
-
 int main(int argc, char** argv)
 {
-    char *action, *dev, *mp;
+    char *action, *dev, *mp, *temp;
     int status = EXIT_FAILURE;
 
     /*printf("Real UID\t= %d\n", getuid());
@@ -275,6 +286,8 @@ int main(int argc, char** argv)
             fprintf(stderr, "Failed to resolve device node.\n");
             exit(EXIT_FAILURE);
         }
+        temp = realpath(mp, NULL);
+        if (temp != NULL) mp = temp;
         check_dev(dev); check_mount_point(mp);
         status = do_mount(dev, mp);
     } else if (strncmp(action, "eject", 5) == 0) {
@@ -283,9 +296,21 @@ int main(int argc, char** argv)
             fprintf(stderr, "Failed to resolve device node.\n");
             exit(EXIT_FAILURE);
         }
+        temp = realpath(mp, NULL);
+        if (temp == NULL) {
+            fprintf(stderr, "Mount point does not exist\n");
+            exit(EXIT_FAILURE);
+        }
+        mp = temp;
         check_dev(dev); check_mount_point(mp);
         status = do_eject(dev, mp);
     } else if (strncmp(action, "cleanup", 7) == 0) {
+        temp = realpath(mp, NULL);
+        if (temp == NULL) {
+            fprintf(stderr, "Mount point does not exist\n");
+            exit(EXIT_FAILURE);
+        }
+        mp = temp;
         check_mount_point(mp);
         status = cleanup(dev, mp);
     } else {
