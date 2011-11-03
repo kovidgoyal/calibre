@@ -39,12 +39,12 @@ int check_args(const char *dev, const char *mp) {
         return False;
     }
 
-    if (strncmp("/media/", mp, 6) != 0)  {
+    if (strncmp("/media/", mp, strlen("/media/")) != 0)  {
         fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
         return False;
     }
 
-    if (strncmp("/dev/", dev, 5) != 0) {
+    if (strncmp("/dev/", dev, strlen("/dev/")) != 0) {
         fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
         return False;
     }
