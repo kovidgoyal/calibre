@@ -1,0 +1,34 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class ingr(BasicNewsRecipe):
+    title                  = 'in.gr'
+    __author__             = 'Stelios'
+    description            = 'News from Greece'
+#    max_articles_per_feed  = 100
+    oldest_article         = 4
+    publisher              = 'in.gr'
+    category               = 'news, GR'
+    language               = 'el'
+    encoding               = 'utf8'
+    no_stylesheets         = True
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+    encoding              = 'utf8'
+    keep_only_tags = [
+  dict(name='h1'),
+
+  dict(name='div', attrs={'id' : ['in-news-article']})
+                        ]
+    remove_tags = [
+dict(name='em', attrs={'class' : ['credits']}),
+dict(name='div', attrs={'class' : ['article-tools-hor', 'promo-banners gAds', 'main', 'article-listen-player', 'article-tools-hor-bttm', 'tools-sec', 'article-tools', 'article-listen-player-ver']})
+]
+
+
+    feeds          = [
+                 (u'\u0395\u03BB\u03BB\u03AC\u03B4\u03B1', 'http://rss.in.gr/feed/news/greece'),
+	(u'\u0395\u03B9\u03B4\u03AE\u03C3\u03B5\u03B9\u03C2', 'http://rss.in.gr/feed/news'),
+	(u'\u039A\u03CC\u03C3\u03BC\u03BF\u03C2', 'http://rss.in.gr/feed/news/world'),
+	(u'\u0395\u03C0\u03B9\u03C3\u03C4\u03AE\u03BC\u03B7', 'http://rss.in.gr/feed/news/science'),
+	(u'\u03A0\u03BF\u03BB\u03B9\u03C4\u03B9\u03C3\u03BC\u03CC\u03C2', 'http://rss.in.gr/feed/news/culture')
+	]

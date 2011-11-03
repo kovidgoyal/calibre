@@ -40,7 +40,7 @@ class Sciencenews(BasicNewsRecipe):
                     ,dict(name='div', attrs={'class': 'embiggen'})
                   ]
 
-    feeds       = [(u"Science News / News Items", u'http://sciencenews.org/view/feed/type/news/name/news.rss')]
+    feeds       = [(u"Science News / News Items", u'http://sciencenews.org/index.php/feed/type/news/name/news.rss/view/feed/name/all.rss')]
 
     def get_cover_url(self):
         cover_url = None

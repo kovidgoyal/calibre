@@ -235,7 +235,9 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
             return ''
         return function_index[s[0]](s)
 
-    return re.sub('(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, format)
+    return re.sub(
+        '(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
+        repl_func, format)
 
 def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date

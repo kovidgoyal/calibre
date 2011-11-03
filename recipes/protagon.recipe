@@ -1,0 +1,26 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class protagon(BasicNewsRecipe):
+    title                  = 'Protagon'
+    __author__             = 'Stelios'
+    description            = 'Opinion articles in Greek'
+    oldest_article         = 7
+    max_articles_per_feed  = 100
+    publisher              = 'Various'
+    category               = 'GR'
+    language               = 'el'
+    encoding               = 'utf8'
+    no_stylesheets         = True
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+
+    keep_only_tags = [
+     dict(name='h1', attrs={'id' : ['title']}),
+     dict(name='div', attrs={'class' : ['freetext']})
+]
+
+    feeds          = [
+                     (u'\u0398\u03AD\u03BC\u03B1\u03C4\u03B1', 'http://www.protagon.gr/rss?i=protagon.el.8emata')
+]
+

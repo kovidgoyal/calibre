@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -9,6 +10,8 @@
 #include <fcntl.h>
 
 #define MARKER ".created_by_calibre_mount_helper"
+#define DEV "/dev/"
+#define MEDIA "/media/"
 #define False 0
 #define True 1
 
@@ -33,6 +36,43 @@ void ensure_root() {
     }
 }
 
+int check_args(const char *dev, const char *mp) {
+    char buffer[PATH_MAX+1];
+
+    if (dev == NULL || strlen(dev) < strlen(DEV) || mp == NULL || strlen(mp) < strlen(MEDIA)) {
+        fprintf(stderr, "Invalid arguments\n");
+        return False;
+    }
+
+    if (exists(mp)) {
+        if (realpath(mp, buffer) == NULL) {
+            fprintf(stderr, "Unable to resolve mount path\n");
+            return False;
+        }
+        if (strncmp(MEDIA, buffer, strlen(MEDIA)) != 0)  {
+            fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
+            return False;
+        }
+    }
+
+    if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0)  {
+        fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
+        return False;
+    }
+
+    if (realpath(dev, buffer) == NULL) {
+        fprintf(stderr, "Unable to resolve dev path\n");
+        return False;
+    }
+
+    if (strncmp(DEV, buffer, strlen(DEV)) != 0) {
+        fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
+        return False;
+    }
+
+    return True;
+}
+
 int do_mount(const char *dev, const char *mp) {
     char options[1000], marker[2000];
 #ifdef __NetBSD__
@@ -44,6 +84,7 @@ int do_mount(const char *dev, const char *mp) {
         fprintf(stderr, "Specified device node does not exist\n");
         return EXIT_FAILURE;
     }
+
     if (!exists(mp)) {
         if (mkdir(mp, S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0) {
             errsv = errno;
@@ -210,6 +251,17 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
     action = argv[1]; dev = argv[2]; mp = argv[3];
+
+    /* Ensure that PATH only contains system directories to prevent execution of
+       arbitrary executables as root */
+    if (setenv("PATH",
+            "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin\0",
+            1) != 0) {
+        fprintf(stderr, "Failed to restrict PATH env var, aborting.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (!check_args(dev, mp)) exit(EXIT_FAILURE);
 
     if (strncmp(action, "mount", 5) == 0) {
         status = do_mount(dev, mp);
