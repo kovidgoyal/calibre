@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-10-11 08:34+0000\n"
-"Last-Translator: Sidorychev Alexander <Unknown>\n"
+"PO-Revision-Date: 2011-11-02 18:35+0000\n"
+"Last-Translator: Eugene Krivobokov <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-10-28 05:26+0000\n"
-"X-Generator: Launchpad (build 14197)\n"
+"X-Launchpad-Export-Date: 2011-11-03 05:22+0000\n"
+"X-Generator: Launchpad (build 14214)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1514,7 +1514,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Загрузить чёрно-белые обложки"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1763,7 +1763,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Загрузить различные изображения обложек для книг"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:72
 msgid ""
@@ -2583,6 +2583,10 @@ msgid ""
 "negative, then the indent specified in the input document is used, that is, "
 "calibre does not change the indentation."
 msgstr ""
+"Когда calibre удаляет пустые строки между абзацами, она автоматически "
+"расставляет красные строки, чтобы абзацы визуально выделялись. Эта опция "
+"устанавливает величину отступа (в em). Если установлена отрицательная "
+"величина, используется размер отступа, указанный в документе."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:378
 msgid ""
@@ -2604,6 +2608,8 @@ msgid ""
 "Set the height of the inserted blank lines (in em). The height of the lines "
 "between paragraphs will be twice the value set here."
 msgstr ""
+"Установить высоту вставляемых пустых строк (в em). Высота строк между "
+"абзацами будет в два раза превышать заданное значение."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:398
 msgid ""

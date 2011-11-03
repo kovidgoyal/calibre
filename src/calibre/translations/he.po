@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-08-22 10:39+0000\n"
-"Last-Translator: reldude84@gmail.com <Unknown>\n"
+"PO-Revision-Date: 2011-11-02 16:40+0000\n"
+"Last-Translator: nachshon <Unknown>\n"
 "Language-Team: Hebrew <he@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-28 05:20+0000\n"
-"X-Generator: Launchpad (build 14197)\n"
+"X-Launchpad-Export-Date: 2011-11-03 05:22+0000\n"
+"X-Generator: Launchpad (build 14214)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -222,11 +222,11 @@ msgstr "סוג קובץ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "בדיקת תגיות מטא"
+msgstr "קורא נתונים נוספים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "כתיבת תגיות מטא"
+msgstr "כתיבת נתונים נוספים"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
@@ -249,7 +249,7 @@ msgstr "העדפות"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr "אחסן"
+msgstr "חנות"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
@@ -335,27 +335,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "אתחל קטלוג של הספרים שבספריית הקליברה שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "להמיר ספרים לתצורות שונות"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "למחוק ספרים מספריית הקליברה או מהמכשיר שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "לערוך את הנתונים של הספרים בספריית הקליברה שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "לקרוא ספרים בספריית הקליברה שלך"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "להוריד חדשות מהאנטרנט בתצורת ספר אלקטרוני."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Show a list of related books quickly"
@@ -371,7 +371,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Restart calibre"
-msgstr ""
+msgstr "לאתחל קליברה"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Open the folder that contains the book files in your calibre library"
@@ -379,7 +379,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "להעתיק ספרים למכשיר המחובר"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 msgid ""
