@@ -33,6 +33,25 @@ void ensure_root() {
     }
 }
 
+int check_args(const char *dev, const char *mp) {
+    if (dev == NULL || strlen(dev) < strlen("/dev/") || mp == NULL || strlen(mp) < strlen("/media/")) {
+        fprintf(stderr, "Invalid arguments\n");
+        return False;
+    }
+
+    if (strncmp("/media/", mp, 6) != 0)  {
+        fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
+        return False;
+    }
+
+    if (strncmp("/dev/", dev, 5) != 0) {
+        fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
+        return False;
+    }
+
+    return True;
+}
+
 int do_mount(const char *dev, const char *mp) {
     char options[1000], marker[2000];
 #ifdef __NetBSD__
@@ -42,11 +61,6 @@ int do_mount(const char *dev, const char *mp) {
 
     if (!exists(dev)) {
         fprintf(stderr, "Specified device node does not exist\n");
-        return EXIT_FAILURE;
-    }
-
-    if (strncmp("/usr", mp, 4) ==  0 || strncmp("/bin", mp, 4) == 0 || strncmp("/sbin", mp, 5) == 0) {
-        fprintf(stderr, "Trying to mount to a mount point under /usr, /bin, /sbin is not allowed\n");
         return EXIT_FAILURE;
     }
 
@@ -225,6 +239,8 @@ int main(int argc, char** argv)
         fprintf(stderr, "Failed to restrict PATH env var, aborting.\n");
         exit(EXIT_FAILURE);
     }
+
+    if (!check_args(dev, mp)) exit(EXIT_FAILURE);
 
     if (strncmp(action, "mount", 5) == 0) {
         status = do_mount(dev, mp);
