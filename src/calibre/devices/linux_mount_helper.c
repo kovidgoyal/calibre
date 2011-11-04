@@ -260,10 +260,16 @@ void check_dev(const char *dev) {
         exit(EXIT_FAILURE);
     }
 
+    if (strstr(dev, "/shm/") != NULL) {
+        fprintf(stderr, "naughty, naughty!\n");
+        exit(EXIT_FAILURE);
+    }
+
     if (!S_ISBLK(file_info.st_mode)) {
         fprintf(stderr, "dev node is not a block device\n");
         exit(EXIT_FAILURE);
     }
+
 }
 
 int main(int argc, char** argv)
