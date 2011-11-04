@@ -236,8 +236,9 @@ int cleanup(const char *dev, const char *mp) {
     return cleanup_mount_point(mp);
 }
 
-void check_dev(const char*dev) {
+void check_dev(const char *dev) {
     char buffer[PATH_MAX+1];
+    struct stat file_info;
 
     if (dev == NULL || strlen(dev) < strlen(DEV)) {
         fprintf(stderr, "Invalid arguments\n");
@@ -251,6 +252,16 @@ void check_dev(const char*dev) {
 
     if (strncmp(DEV, buffer, strlen(DEV)) != 0) {
         fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (stat(dev, &file_info) != 0) {
+        fprintf(stderr, "stat call on dev node failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (!S_ISBLK(file_info.st_mode)) {
+        fprintf(stderr, "dev node is not a block device\n");
         exit(EXIT_FAILURE);
     }
 }
