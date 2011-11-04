@@ -622,8 +622,11 @@ class Device(DeviceConfig, DevicePlugin):
                 if getattr(sys, 'frozen', False):
                     cmd = os.path.join(sys.executables_location, 'bin', cmd)
                 cmd = [cmd, 'mount']
+                mlabel = label
+                if mlabel.endswith('/'):
+                    mlabel = mlabel[:-1]
                 try:
-                    p = subprocess.Popen(cmd + [node, '/media/'+label])
+                    p = subprocess.Popen(cmd + [node, '/media/'+mlabel])
                 except OSError:
                     raise DeviceError(
                     _('Could not find mount helper: %s.')%cmd[0])
@@ -777,9 +780,12 @@ class Device(DeviceConfig, DevicePlugin):
             # try all the nodes to see what we can mount
             for dev in devs[i].split():
                 mp='/media/'+label+'-'+dev
+                mmp = mp
+                if mmp.endswith('/'):
+                    mmp = mmp[:-1]
                 #print "trying ", dev, "on", mp
                 try:
-                    p = subprocess.Popen(cmd + ["/dev/"+dev, mp])
+                    p = subprocess.Popen(cmd + ["/dev/"+dev, mmp])
                 except OSError:
                     raise DeviceError(_('Could not find mount helper: %s.')%cmd[0])
                 while p.poll() is None:

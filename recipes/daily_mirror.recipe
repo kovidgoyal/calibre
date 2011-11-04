@@ -1,10 +1,11 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-
+import re
 class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     title          = u'The Daily Mirror'
     description = 'News as provide by The Daily Mirror -UK'
 
     __author__ = 'Dave Asbury'
+    # last updated 30/10/11
     language = 'en_GB'
 
     cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
@@ -12,26 +13,30 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     masthead_url = 'http://www.nmauk.co.uk/nma/images/daily_mirror.gif'
 
 
-    oldest_article = 1
-    max_articles_per_feed = 100
+    oldest_article = 2
+    max_articles_per_feed = 30
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
+    extra_css  = '''
+	body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
+                	 '''
 
     keep_only_tags = [
-    dict(name='h1'),
-    dict(attrs={'class':['article-attr']}),
-    dict(name='div', attrs={'class' : [ 'article-body', 'crosshead']})
+       dict(name='div',attrs={'id' : 'body-content'})
+        ]
 
-
-    ]
+    remove_tags_after = [dict (name='div',attrs={'class' : 'related'})]
 
     remove_tags = [
-           dict(name='div', attrs={'class' : ['caption', 'article-resize']}),
-           dict( attrs={'class':'append-html'})
-           ]
+           dict(name='div',attrs={'id' : ['sidebar','menu','search-box','roffers-top']}),
+           dict(name='div',attrs={'class' :['inline-ad span-16 last','article-resize','related','list teasers']}),
+           dict(attrs={'class' : ['channellink','article-tags','replace','append-html']}),
+           dict(name='div',attrs={'class' : 'span-12 last sl-others addthis_toolbox addthis_default_style'})
+          ]
 
-
+    preprocess_regexps = [
+    (re.compile(r'<dl class="q-search">.*?</dl>', re.IGNORECASE | re.DOTALL), lambda match: '')]
 
 
     feeds          = [
@@ -43,10 +48,10 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         ,(u'Music News','http://www.mirror.co.uk/celebs/music/rss.xml')
         ,(u'Celebs and Tv Gossip','http://www.mirror.co.uk/celebs/tv/rss.xml')
         ,(u'Sport','http://www.mirror.co.uk/sport/rss.xml')
-         ,(u'Life Style','http://www.mirror.co.uk/life-style/rss.xml')
-         ,(u'Advice','http://www.mirror.co.uk/advice/rss.xml')
-             ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
+        ,(u'Life Style','http://www.mirror.co.uk/life-style/rss.xml')
+        ,(u'Advice','http://www.mirror.co.uk/advice/rss.xml')
+        ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
 
            # example of commented out feed not needed ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
-  ]
 
+  ]

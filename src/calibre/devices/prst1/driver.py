@@ -560,14 +560,21 @@ class PRST1(USBMS):
 
         cursor = connection.cursor()
 
+        periodical_schema = \
+            "'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0'"
+        # Setting this to the SONY periodical schema apparently causes errors
+        # with some periodicals, therefore set it to null, since the special
+        # periodical navigation doesn't work anyway.
+        periodical_schema = 'null'
+
         query = '''
         UPDATE books
-        SET conforms_to = 'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0',
+        SET conforms_to = %s,
             periodical_name = ?,
             description = ?,
             publication_date = ?
         WHERE _id = ?
-        '''
+        '''%periodical_schema
         t = (name, None, pubdate, book.bookId,)
         cursor.execute(query, t)
 

@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -7,8 +8,11 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+#include <strings.h>
 
 #define MARKER ".created_by_calibre_mount_helper"
+#define DEV "/dev/"
+#define MEDIA "/media/"
 #define False 0
 #define True 1
 
@@ -33,6 +37,20 @@ void ensure_root() {
     }
 }
 
+void check_mount_point(const char *mp) {
+
+    if (mp == NULL || strlen(mp) < strlen(MEDIA)) {
+        fprintf(stderr, "Invalid arguments\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0)  {
+        fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
+        exit(EXIT_FAILURE);
+    }
+
+}
+
 int do_mount(const char *dev, const char *mp) {
     char options[1000], marker[2000];
 #ifdef __NetBSD__
@@ -44,12 +62,24 @@ int do_mount(const char *dev, const char *mp) {
         fprintf(stderr, "Specified device node does not exist\n");
         return EXIT_FAILURE;
     }
+
     if (!exists(mp)) {
         if (mkdir(mp, S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH) != 0) {
             errsv = errno;
             fprintf(stderr, "Failed to create mount point with error: %s\n", strerror(errsv));
         }
     }
+    /* only mount if mp is under /media */
+    mp = realpath(mp, NULL);
+    if (mp == NULL) {
+        fprintf(stderr, "realpath on mp failed.\n");
+        exit(EXIT_FAILURE);
+    }
+    if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0) {
+        fprintf(stderr, "mount point is not under /media\n");
+        exit(EXIT_FAILURE);
+    }
+
     snprintf(marker, 2000, "%s/%s", mp, MARKER);
     if (!exists(marker)) {
         int fd = creat(marker, S_IRUSR|S_IWUSR);
@@ -195,10 +225,42 @@ int cleanup(const char *dev, const char *mp) {
     return cleanup_mount_point(mp);
 }
 
+void check_dev(const char *dev) {
+    struct stat file_info;
+
+    if (dev == NULL || strlen(dev) < strlen(DEV)) {
+        fprintf(stderr, "Invalid arguments\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (strncmp(DEV, dev, strlen(DEV)) != 0) {
+        fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (stat(dev, &file_info) != 0) {
+        fprintf(stderr, "stat call on dev node failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (strstr(dev, "/shm/") != NULL) {
+        fprintf(stderr, "naughty, naughty!\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (!S_ISBLK(file_info.st_mode)) {
+        fprintf(stderr, "dev node is not a block device\n");
+        exit(EXIT_FAILURE);
+    }
+
+}
+
+
 int main(int argc, char** argv)
 {
-    char *action, *dev, *mp;
+    char *action, *dev, *mp, *temp;
     int status = EXIT_FAILURE;
+    exit(EXIT_FAILURE);
 
     /*printf("Real UID\t= %d\n", getuid());
     printf("Effective UID\t= %d\n", geteuid());
@@ -211,11 +273,46 @@ int main(int argc, char** argv)
     }
     action = argv[1]; dev = argv[2]; mp = argv[3];
 
+    /* Ensure that PATH only contains system directories to prevent execution of
+       arbitrary executables as root */
+    if (setenv("PATH",
+            "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin\0",
+            1) != 0) {
+        fprintf(stderr, "Failed to restrict PATH env var, aborting.\n");
+        exit(EXIT_FAILURE);
+    }
+
     if (strncmp(action, "mount", 5) == 0) {
+        dev = realpath(argv[2], NULL);
+        if (dev == NULL) {
+            fprintf(stderr, "Failed to resolve device node.\n");
+            exit(EXIT_FAILURE);
+        }
+        mp = get_real_mount_point(mp);
+        check_dev(dev); check_mount_point(mp);
         status = do_mount(dev, mp);
     } else if (strncmp(action, "eject", 5) == 0) {
+        dev = realpath(argv[2], NULL);
+        if (dev == NULL) {
+            fprintf(stderr, "Failed to resolve device node.\n");
+            exit(EXIT_FAILURE);
+        }
+        temp = realpath(mp, NULL);
+        if (temp == NULL) {
+            fprintf(stderr, "Mount point does not exist\n");
+            exit(EXIT_FAILURE);
+        }
+        chdir(temp);
+        check_dev(dev); check_mount_point(mp);
         status = do_eject(dev, mp);
     } else if (strncmp(action, "cleanup", 7) == 0) {
+        temp = realpath(mp, NULL);
+        if (temp == NULL) {
+            fprintf(stderr, "Mount point does not exist\n");
+            exit(EXIT_FAILURE);
+        }
+        mp = temp;
+        check_mount_point(mp);
         status = cleanup(dev, mp);
     } else {
         fprintf(stderr, "Unrecognized action: must be mount, eject or cleanup\n");

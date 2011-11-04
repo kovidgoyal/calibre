@@ -1,6 +1,6 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.nin.co.rs
 '''
@@ -29,6 +29,7 @@ class Nin(BasicNewsRecipe):
     use_embedded_content   = False
     language               = 'sr'
     publication_type       = 'magazine'
+    masthead_url           = 'http://www.nin.co.rs/img/head/logo.jpg'
     extra_css              = """
                                  @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                  body{font-family: Verdana, Lucida, sans1, sans-serif}
@@ -72,9 +73,11 @@ class Nin(BasicNewsRecipe):
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.INDEX)
-        link_item = soup.find('img',attrs={'width':'100','border':'0'})
-        if link_item:
-           cover_url = self.PREFIX + link_item['src']
+        for item in soup.findAll('a', href=True):
+            if item['href'].startswith('/pages/issue.php?id='):
+               simg = item.find('img')
+               if simg:
+                   return self.PREFIX + item.img['src']
         return cover_url
 
     def parse_index(self):
