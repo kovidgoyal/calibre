@@ -38,22 +38,10 @@ void ensure_root() {
 }
 
 void check_mount_point(const char *mp) {
-    char buffer[PATH_MAX+1];
 
     if (mp == NULL || strlen(mp) < strlen(MEDIA)) {
         fprintf(stderr, "Invalid arguments\n");
         exit(EXIT_FAILURE);
-    }
-
-    if (exists(mp)) {
-        if (realpath(mp, buffer) == NULL) {
-            fprintf(stderr, "Unable to resolve mount path\n");
-            exit(EXIT_FAILURE);
-        }
-        if (strncmp(MEDIA, buffer, strlen(MEDIA)) != 0)  {
-            fprintf(stderr, "Trying to operate on a mount point not under /media is not allowed\n");
-            exit(EXIT_FAILURE);
-        }
     }
 
     if (strncmp(MEDIA, mp, strlen(MEDIA)) != 0)  {
@@ -267,41 +255,12 @@ void check_dev(const char *dev) {
 
 }
 
-char *get_real_mount_point(const char *mp) {
-    /* Resolve the mount point to a canonical path. Assumes that mp 
-     * either points to an existing directory, or only the leaf node 
-     * of mp does not exist. This is safe for the usage scenario of calibre-mount-helper. */ 
-    char *dirname = NULL, *basename, *p, *buffer;
-    buffer = calloc(PATH_MAX+1, sizeof(char));
-    if (buffer == NULL) exit(EXIT_FAILURE);
-    if (realpath(mp, buffer) != NULL) return buffer;
-
-    dirname = calloc(PATH_MAX+1, sizeof(char));
-    if (dirname == NULL) exit(EXIT_FAILURE);
-
-    strncpy(dirname, mp, PATH_MAX);
-    p = rindex(dirname, '/');
-    if (p == NULL) {
-        fprintf(stderr, "mountpoint must have atleast one /\n"); 
-        exit(EXIT_FAILURE);
-    }
-    basename = p+1;
-    *p = 0;
-    dirname = realpath(dirname, NULL);
-    if (dirname == NULL) {
-        fprintf(stderr, "parent directory of mount point cannot be resolved, ensure the mountpoint does not have a trailing slash.\n");
-        exit(EXIT_FAILURE);
-    }
-    snprintf(buffer, PATH_MAX, "%s/%s", dirname, basename);
-    free(dirname);
-    return buffer;
-}
-
 
 int main(int argc, char** argv)
 {
     char *action, *dev, *mp, *temp;
     int status = EXIT_FAILURE;
+    exit(EXIT_FAILURE);
 
     /*printf("Real UID\t= %d\n", getuid());
     printf("Effective UID\t= %d\n", geteuid());
@@ -343,7 +302,7 @@ int main(int argc, char** argv)
             fprintf(stderr, "Mount point does not exist\n");
             exit(EXIT_FAILURE);
         }
-        mp = temp;
+        chdir(temp);
         check_dev(dev); check_mount_point(mp);
         status = do_eject(dev, mp);
     } else if (strncmp(action, "cleanup", 7) == 0) {
