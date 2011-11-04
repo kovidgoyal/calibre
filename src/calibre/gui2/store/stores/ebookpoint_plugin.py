@@ -44,6 +44,7 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://ebookpoint.pl/search.scgi?szukaj=' + urllib.quote(query) + '&serwisyall=0&x=0&y=0'
+        ebook_string = 'eBook.'
 
         br = browser()
 
@@ -60,12 +61,13 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
 
                 cover_url = ''.join(data.xpath('.//a[@class="cover"]/img/@src'))
                 title = ''.join(data.xpath('.//h3/a/text()'))
+                title = re.sub(ebook_string, '', title)
                 author = ''.join(data.xpath('.//p[@class="author"]/text()'))
                 price = ''.join(data.xpath('.//p[@class="price"]/ins/text()'))
 
                 with closing(br.open(id.strip(), timeout=timeout)) as nf:
                     idata = html.fromstring(nf.read())
-                    formats = ', '.join(idata.xpath('//div[@class="col-left"]/h2/@class'))
+                    formats = ', '.join(idata.xpath('//div[@class="col-left"]/h2[contains(., "' + ebook_string + '")]/@class'))
 
                 counter -= 1
 
