@@ -238,7 +238,6 @@ int cleanup(const char *dev, const char *mp) {
 }
 
 void check_dev(const char *dev) {
-    char buffer[PATH_MAX+1];
     struct stat file_info;
 
     if (dev == NULL || strlen(dev) < strlen(DEV)) {
@@ -246,12 +245,7 @@ void check_dev(const char *dev) {
         exit(EXIT_FAILURE);
     }
 
-    if (realpath(dev, buffer) == NULL) {
-        fprintf(stderr, "Unable to resolve dev path\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (strncmp(DEV, buffer, strlen(DEV)) != 0) {
+    if (strncmp(DEV, dev, strlen(DEV)) != 0) {
         fprintf(stderr, "Trying to operate on a dev node not under /dev\n");
         exit(EXIT_FAILURE);
     }
