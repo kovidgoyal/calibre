@@ -14,7 +14,6 @@
 import sys, os, tempfile
 
 from calibre.ebooks.rtf2xml import copy, check_brackets
-# note to self. This is the first module in which I use tempfile. A good idea?
 
 class AddBrackets:
     """
@@ -54,8 +53,8 @@ class AddBrackets:
         self.__state = 'before_body'
         self.__inline = {}
         self.__temp_group = []
-        self.__open_bracket = 0
-        self.__found_brackets = 0
+        self.__open_bracket = False
+        self.__found_brackets = False
         self.__accept = [
         'cw<ci<bold______',
         'cw<ci<annotation'  ,
@@ -102,7 +101,7 @@ class AddBrackets:
                     )
             self.__write_obj.write(line)
         elif self.__token_info == 'ob<nu<open-brack':
-            self.__found_brackets = 1
+            self.__found_brackets = True
             self.__state = 'in_ignore'
             self.__ignore_count = self.__ob_count
             self.__write_obj.write(line)
@@ -134,7 +133,7 @@ class AddBrackets:
             self.__write_obj.write(
                 'cb<nu<clos-brack<0003\n'
                 )
-            self.__open_bracket = 0
+            self.__open_bracket = False
         inline_string = ''
         the_keys = self.__inline.keys()
         for the_key in the_keys:
@@ -144,7 +143,7 @@ class AddBrackets:
         if inline_string:
             self.__write_obj.write('ob<nu<open-brack<0003\n')
             self.__write_obj.write(inline_string)
-            self.__open_bracket = 1
+            self.__open_bracket = True
         self.__temp_group = []
 
     def __change_permanent_group(self):
@@ -172,32 +171,28 @@ class AddBrackets:
             (file = in_file)
         good_br =  self.__check_brack_obj.check_brackets()[0]
         if not good_br:
-            return 1
+            return True
 
     def add_brackets(self):
         """
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
-        line_to_read = 1
-        while line_to_read:
-            line_to_read = read_obj.readline()
-            line = line_to_read
-            self.__token_info = line[:16]
-            if self.__token_info == 'ob<nu<open-brack':
-                self.__ob_count = line[-5:-1]
-            if self.__token_info == 'cb<nu<clos-brack':
-                self.__cb_count = line[-5:-1]
-            action = self.__state_dict.get(self.__state)
-            if action == None:
-                sys.stderr.write('No matching state in module add_brackets.py\n')
-                sys.stderr.write(self.__state + '\n')
-            action(line)
-        read_obj.close()
-        self.__write_obj.close()
-        bad_brackets = self.__check_brackets(self.__write_to)
-        if not bad_brackets:
+        with open(self.__file, 'r') as read_obj:
+            with open(self.__write_to, 'w') as self.__write_obj:
+                for line in read_obj:
+                    self.__token_info = line[:16]
+                    if self.__token_info == 'ob<nu<open-brack':
+                        self.__ob_count = line[-5:-1]
+                    if self.__token_info == 'cb<nu<clos-brack':
+                        self.__cb_count = line[-5:-1]
+                    action = self.__state_dict.get(self.__state)
+                    if action is None:
+                        sys.stderr.write(
+                            'No matching state in module add_brackets.py\n'
+                            '%s\n' % self.__state)
+                    action(line)
+        #Check bad brackets
+        if not self.__check_brackets(self.__write_to):
             copy_obj = copy.Copy(bug_handler = self.__bug_handler)
             if self.__copy:
                 copy_obj.copy_file(self.__write_to, "add_brackets.data")

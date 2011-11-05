@@ -214,7 +214,7 @@ class ConvertToTags:
 
         if not check_encoding_obj.check_encoding(self.__file, verbose=False):
             self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
-        elif not check_encoding_obj.check_encoding(self.__file, self.__encoding):
+        elif not check_encoding_obj.check_encoding(self.__file, self.__encoding, verbose=False):
             self.__write_obj.write('<?xml version="1.0" encoding="UTF-8" ?>')
             self.__convert_utf = True
         else:
@@ -274,19 +274,10 @@ class ConvertToTags:
                 file_encoding = "us-ascii"
             with open(self.__file, 'r') as read_obj:
                 with open(self.__write_to, 'w') as write_obj:
-                    try:
-                        write_objenc = EncodedFile(write_obj, self.__encoding,
-                                        file_encoding, 'strict')
-                        for line in read_obj:
-                            write_objenc.write(line)
-                    except:
-                        if self.__convert_utf:
-                            sys.stderr.write('Conversion to UTF-8 is problematic,'
-                            ' encoding should be very carefully checked')
-                        write_objenc = EncodedFile(write_obj, self.__encoding,
-                                        file_encoding, 'replace')
-                        for line in read_obj:
-                            write_objenc.write(line)
+                    write_objenc = EncodedFile(write_obj, self.__encoding,
+                                    file_encoding, 'replace')
+                    for line in read_obj:
+                        write_objenc.write(line)
         copy_obj = copy.Copy(bug_handler = self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "convert_to_tags.data")
