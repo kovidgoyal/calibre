@@ -10,8 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os,  tempfile
+import sys, os
 from calibre.ebooks.rtf2xml import copy, border_parse
+from calibre.ptempfile import better_mktemp
+
 class Styles:
     """
     Change lines with style numbers to actual style names.
@@ -35,7 +37,7 @@ class Styles:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__run_level = run_level
     def __initiate_values(self):
         """

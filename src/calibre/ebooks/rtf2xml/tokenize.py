@@ -10,10 +10,11 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, re, tempfile
+import os, re
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.mreplace import MReplace
+from calibre.ptempfile import better_mktemp
 
 class Tokenize:
     """Tokenize RTF into one line per field. Each line will contain information useful for the rest of the script"""
@@ -27,7 +28,7 @@ class Tokenize:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         # self.__write_to = out_file
         self.__compile_expressions()
         #variables
@@ -208,5 +209,5 @@ class Tokenize:
 
 # if __name__ == '__main__':
     # sys.exit(main())
-    
+
 # calibre-debug -e src/calibre/ebooks/rtf2xml/tokenize.py
