@@ -76,7 +76,8 @@ def get_field_list(fm, use_defaults=False):
     for field in fm.displayable_field_keys():
         if field not in names:
             fieldlist.append((field, True))
-    return fieldlist
+    available = frozenset(fm.displayable_field_keys())
+    return [(f, d) for f, d in fieldlist if f in available]
 
 def render_data(mi, use_roman_numbers=True, all_fields=False):
     ans = []
