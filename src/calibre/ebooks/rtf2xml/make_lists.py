@@ -10,8 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile,  re
+import sys, os, re
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
+
 class MakeLists:
     """
     Form lists.
@@ -45,7 +47,7 @@ class MakeLists:
         self.__no_headings_as_list = no_headings_as_list
         self.__headings_to_sections = headings_to_sections
         self.__copy = copy
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__list_of_lists = list_of_lists
         self.__write_list_info = write_list_info
     def __initiate_values(self):

@@ -1,7 +1,8 @@
-import os, tempfile, sys
+import os, tempfile
 from codecs import EncodedFile
 
 from calibre.ebooks.rtf2xml import copy, check_encoding
+from calibre.ptempfile import better_mktemp
 
 public_dtd = 'rtf2xml1.0.dtd'
 
@@ -39,7 +40,7 @@ class ConvertToTags:
             self.__encoding = 'mac_roman'
         self.__indent = indent
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__convert_utf = False
         self.__bad_encoding = False
 

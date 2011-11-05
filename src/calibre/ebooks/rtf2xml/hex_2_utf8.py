@@ -10,10 +10,11 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile, cStringIO
+import sys, os, cStringIO
 
 from calibre.ebooks.rtf2xml import get_char_map, copy
 from calibre.ebooks.rtf2xml.char_set import char_set
+from calibre.ptempfile import better_mktemp
 
 class Hex2Utf8:
     """
@@ -73,7 +74,7 @@ class Hex2Utf8:
         self.__convert_wingdings = 0
         self.__convert_zapf = 0
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__bug_handler = bug_handler
         self.__invalid_rtf_handler = invalid_rtf_handler
 

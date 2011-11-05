@@ -587,7 +587,6 @@ class CoversModel(QAbstractListModel): # {{{
             return 1
         return pmap.width()*pmap.height()
 
-
     def clear_failed(self):
         good = []
         pmap = {}
@@ -729,7 +728,8 @@ class CoversWidget(QWidget): # {{{
             except Empty:
                 break
 
-        self.covers_view.clear_failed()
+        if self.continue_processing:
+            self.covers_view.clear_failed()
 
         if self.worker.error is not None:
             error_dialog(self, _('Download failed'),
@@ -759,7 +759,7 @@ class CoversWidget(QWidget): # {{{
         self.continue_processing = False
 
     def cancel(self):
-        self.continue_processing = False
+        self.cleanup()
         self.abort.set()
 
     def cover_pixmap(self):

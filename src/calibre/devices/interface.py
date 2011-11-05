@@ -62,7 +62,7 @@ class DevicePlugin(Plugin):
     #: Icon for this device
     icon = I('reader.png')
 
-    # Used by gui2.ui:annotations_fetched() and devices.kindle.driver:get_annotations()
+    # Encapsulates an annotation fetched from the device
     UserAnnotation = namedtuple('Annotation','type, value')
 
     #: GUI displays this as a message if not None. Useful if opening can take a

@@ -56,6 +56,7 @@ class ElUniversal(BasicNewsRecipe):
             ]
 
     def print_version(self, url):
-        rp,sep,rest = url.rpartition('/')
-        return rp + sep + 'imp_' + rest
+        return url + '-imp'
 
+    def get_article_url(self, article):
+        return article.get('guid',  None)

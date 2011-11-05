@@ -10,8 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os,  tempfile
+import os
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
+
 """
 Simply write the list of strings after style table
 """
@@ -42,7 +44,7 @@ class BodyStyles:
         self.__copy = copy
         self.__list_of_styles = list_of_styles
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
             # self.__write_to = 'table_info.data'
     def insert_info(self):
         """

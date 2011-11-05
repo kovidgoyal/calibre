@@ -10,9 +10,9 @@ class KoreaHerald(BasicNewsRecipe):
     language = 'en'
     description = u'Korea Herald News articles'
     __author__	= 'Seongkyoun Yoo'
-    oldest_article = 10
+    oldest_article = 15
     recursions = 3
-    max_articles_per_feed = 10
+    max_articles_per_feed = 15
     no_stylesheets         = True
     keep_only_tags    = [
 						dict(id=['contentLeft', '_article'])
@@ -25,7 +25,6 @@ class KoreaHerald(BasicNewsRecipe):
        ]
 
     feeds = [
-	('All News','http://www.koreaherald.com/rss/020000000000.xml'),
     ('National','http://www.koreaherald.com/rss/020100000000.xml'),
     ('Business','http://www.koreaherald.com/rss/020200000000.xml'),
     ('Life&Style','http://www.koreaherald.com/rss/020300000000.xml'),

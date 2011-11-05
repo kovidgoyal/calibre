@@ -20,9 +20,8 @@ from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
 from calibre.devices.usbms.books import CollectionsBookList
 from calibre.devices.usbms.books import BookList
-from calibre.ebooks.metadata import authors_to_sort_string
+from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
 from calibre.constants import islinux
-from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string
 
 DBPATH = 'Sony_Reader/database/books.db'
 THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'
@@ -40,7 +39,8 @@ class PRST1(USBMS):
     path_sep = '/'
     booklist_class = CollectionsBookList
 
-    FORMATS      = ['epub', 'pdf', 'txt']
+    FORMATS      = ['epub', 'pdf', 'txt', 'book', 'zbf'] # The last two are
+                                                         # used in japan
     CAN_SET_METADATA = ['collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
@@ -112,8 +112,10 @@ class PRST1(USBMS):
     def post_open_callback(self):
         # Set the thumbnail width to the theoretical max if the user has asked
         # that we do not preserve aspect ratio
-        if not self.settings().extra_customization[self.OPT_PRESERVE_ASPECT_RATIO]:
+        ec = self.settings().extra_customization
+        if not ec[self.OPT_PRESERVE_ASPECT_RATIO]:
             self.THUMBNAIL_WIDTH = 108
+        self.WANTS_UPDATED_THUMBNAILS = ec[self.OPT_REFRESH_COVERS]
         # Make sure the date offset is set to none, we'll calculate it in books.
         self.device_offset = None
 
@@ -186,7 +188,7 @@ class PRST1(USBMS):
             if self.device_offset is None:
                 query = 'SELECT file_path, modified_date FROM books'
                 cursor.execute(query)
-            
+
                 time_offsets = {}
                 for i, row in enumerate(cursor):
                     comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000);
@@ -194,7 +196,7 @@ class PRST1(USBMS):
                     offset = device_date - comp_date
                     time_offsets.setdefault(offset, 0)
                     time_offsets[offset] = time_offsets[offset] + 1
-                
+
                 try:
                     device_offset = max(time_offsets,key = lambda a: time_offsets.get(a))
                     debug_print("Device Offset: %d ms"%device_offset)
@@ -304,7 +306,7 @@ class PRST1(USBMS):
                     if use_sony_authors:
                         author = newmi.authors[0]
                     else:
-                        author = authors_to_string(newmi.authors)                        
+                        author = authors_to_string(newmi.authors)
             except:
                 author = _('Unknown')
             title = newmi.title or _('Unknown')
@@ -348,7 +350,7 @@ class PRST1(USBMS):
 
             if self.is_sony_periodical(book):
                 self.periodicalize_book(connection, book)
-            
+
         for book, bookId in db_books.items():
             if bookId is not None:
                 # Remove From Collections
@@ -531,7 +533,7 @@ class PRST1(USBMS):
         if book.pubdate.date() < date(2010, 10, 17):
             return False
         return True
-    
+
     def periodicalize_book(self, connection, book):
         if not self.is_sony_periodical(book):
             return
@@ -555,19 +557,26 @@ class PRST1(USBMS):
             pubdate = int(time.mktime(book.pubdate.timetuple()) * 1000)
         except:
             pass
-    
+
         cursor = connection.cursor()
-    
+
+        periodical_schema = \
+            "'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0'"
+        # Setting this to the SONY periodical schema apparently causes errors
+        # with some periodicals, therefore set it to null, since the special
+        # periodical navigation doesn't work anyway.
+        periodical_schema = 'null'
+
         query = '''
         UPDATE books
-        SET conforms_to = 'http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0',
+        SET conforms_to = %s,
             periodical_name = ?,
             description = ?,
-            publication_date = ? 
+            publication_date = ?
         WHERE _id = ?
-        '''
+        '''%periodical_schema
         t = (name, None, pubdate, book.bookId,)
         cursor.execute(query, t)
-        
+
         connection.commit()
         cursor.close()

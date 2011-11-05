@@ -121,7 +121,7 @@ _extra_lang_codes = {
         'en_TH' : _('English (Thailand)'),
         'en_TR' : _('English (Turkey)'),
         'en_CY' : _('English (Cyprus)'),
-        'en_CZ' : _('English (Czechoslovakia)'),
+        'en_CZ' : _('English (Czech Republic)'),
         'en_PK' : _('English (Pakistan)'),
         'en_HR' : _('English (Croatia)'),
         'en_ID' : _('English (Indonesia)'),

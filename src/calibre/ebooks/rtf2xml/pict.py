@@ -10,9 +10,11 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile
+import sys, os
 
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
+
 
 class Pict:
     """Process graphic information"""
@@ -28,7 +30,7 @@ class Pict:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__bracket_count = 0
         self.__ob_count = 0
         self.__cb_count = 0

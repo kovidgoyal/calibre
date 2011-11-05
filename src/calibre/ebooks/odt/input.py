@@ -74,7 +74,10 @@ class Extract(ODF2XHTML):
             style = style[0]
             css = style.text
             if css:
-                style.text, sel_map = self.do_filter_css(css)
+                css, sel_map = self.do_filter_css(css)
+                if not isinstance(css, unicode):
+                    css = css.decode('utf-8', 'ignore')
+                style.text = css
                 for x in root.xpath('//*[@class]'):
                     extra = []
                     orig = x.get('class')

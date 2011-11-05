@@ -616,20 +616,11 @@ class Device(DeviceConfig, DevicePlugin):
                     mount(node)
                     return 0
                 except:
-                    pass
+                    print 'Udisks mount call failed:'
+                    import traceback
+                    traceback.print_exc()
+                    return 1
 
-                cmd = 'calibre-mount-helper'
-                if getattr(sys, 'frozen', False):
-                    cmd = os.path.join(sys.executables_location, 'bin', cmd)
-                cmd = [cmd, 'mount']
-                try:
-                    p = subprocess.Popen(cmd + [node, '/media/'+label])
-                except OSError:
-                    raise DeviceError(
-                    _('Could not find mount helper: %s.')%cmd[0])
-                while p.poll() is None:
-                    time.sleep(0.1)
-                return p.returncode
 
             ret = do_mount(node, label)
             if ret != 0:
@@ -777,9 +768,12 @@ class Device(DeviceConfig, DevicePlugin):
             # try all the nodes to see what we can mount
             for dev in devs[i].split():
                 mp='/media/'+label+'-'+dev
+                mmp = mp
+                if mmp.endswith('/'):
+                    mmp = mmp[:-1]
                 #print "trying ", dev, "on", mp
                 try:
-                    p = subprocess.Popen(cmd + ["/dev/"+dev, mp])
+                    p = subprocess.Popen(cmd + ["/dev/"+dev, mmp])
                 except OSError:
                     raise DeviceError(_('Could not find mount helper: %s.')%cmd[0])
                 while p.poll() is None:
@@ -928,29 +922,12 @@ class Device(DeviceConfig, DevicePlugin):
                 umount(d)
             except:
                 pass
-        failures = False
         for d in drives:
             try:
                 eject(d)
             except Exception as e:
                 print 'Udisks eject call for:', d, 'failed:'
                 print '\t', e
-                failures = True
-
-        if not failures:
-            return
-
-        for drive in drives:
-            cmd = 'calibre-mount-helper'
-            if getattr(sys, 'frozen', False):
-                cmd = os.path.join(sys.executables_location, 'bin', cmd)
-            cmd = [cmd, 'eject']
-            mp = getattr(self, "_linux_mount_map", {}).get(drive,
-                    'dummy/')[:-1]
-            try:
-                subprocess.Popen(cmd + [drive, mp]).wait()
-            except:
-                pass
 
     def eject(self):
         if islinux:
@@ -976,19 +953,6 @@ class Device(DeviceConfig, DevicePlugin):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
 
     def linux_post_yank(self):
-        for drive, mp in getattr(self, '_linux_mount_map', {}).items():
-            if drive and mp:
-                mp = mp[:-1]
-                cmd = 'calibre-mount-helper'
-                if getattr(sys, 'frozen', False):
-                    cmd = os.path.join(sys.executables_location, 'bin', cmd)
-                cmd = [cmd, 'cleanup']
-                if mp and os.path.exists(mp):
-                    try:
-                        subprocess.Popen(cmd + [drive, mp]).wait()
-                    except:
-                        import traceback
-                        traceback.print_exc()
         self._linux_mount_map = {}
 
     def post_yank_cleanup(self):
@@ -1067,6 +1031,12 @@ class Device(DeviceConfig, DevicePlugin):
         Resolve path_map to annotation_map of files found on the device
         '''
         return {}
+
+    def add_annotation_to_library(self, db, db_id, annotation):
+        '''
+        Add an annotation to the calibre library
+        '''
+        pass
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         path = os.path.abspath(path)
@@ -1147,3 +1117,6 @@ class Device(DeviceConfig, DevicePlugin):
             os.makedirs(filedir)
 
         return filepath
+
+    def create_annotations_path(self, mdata, device_path=None):
+         return self.create_upload_path(os.path.abspath('/<storage>'), mdata, 'x.bookmark', create_dirs=False)

@@ -170,10 +170,36 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
     if format == 'iso':
         return isoformat(dt, assume_utc=assume_utc, as_utc=as_utc)
 
+    ampm = 'ap' in format.lower()
+
     if dt == UNDEFINED_DATE:
         return ''
 
     strf = partial(strftime, t=dt.timetuple())
+
+    def format_hour(hr):
+        l = len(hr)
+        h = dt.hour
+        if ampm:
+            h = h%12
+        if l == 1: return '%d'%h
+        return '%02d'%h
+
+    def format_minute(min):
+        l = len(min)
+        if l == 1: return '%d'%dt.minute
+        return '%02d'%dt.minute
+
+    def format_second(min):
+        l = len(min)
+        if l == 1: return '%d'%dt.second
+        return '%02d'%dt.second
+
+    def format_ampm(ap):
+        res = strf('%p')
+        if ap == 'AP':
+            return res
+        return res.lower()
 
     def format_day(dy):
         l = len(dy)
@@ -193,17 +219,25 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
         if len(yr) == 2: return '%02d'%(dt.year % 100)
         return '%04d'%dt.year
 
+    function_index = {
+            'd': format_day,
+            'M': format_month,
+            'y': format_year,
+            'h': format_hour,
+            'm': format_minute,
+            's': format_second,
+            'a': format_ampm,
+            'A': format_ampm,
+        }
     def repl_func(mo):
         s = mo.group(0)
         if s is None:
             return ''
-        if s[0] == 'd':
-            return format_day(s)
-        if s[0] == 'M':
-            return format_month(s)
-        return format_year(s)
+        return function_index[s[0]](s)
 
-    return re.sub('(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, format)
+    return re.sub(
+        '(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
+        repl_func, format)
 
 def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date

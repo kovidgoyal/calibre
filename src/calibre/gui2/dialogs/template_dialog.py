@@ -45,7 +45,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 "keyword"))
         TemplateHighlighter.Rules.append((QRegExp(
                 "|".join([r"\b%s\b" % builtin for builtin in
-                          formatter_functions.get_builtins()])),
+                          formatter_functions().get_builtins()])),
                 "builtin"))
 
         TemplateHighlighter.Rules.append((QRegExp(
@@ -248,8 +248,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         except:
             self.builtin_source_dict = {}
 
-        self.funcs = formatter_functions.get_functions()
-        self.builtins = formatter_functions.get_builtins()
+        self.funcs = formatter_functions().get_functions()
+        self.builtins = formatter_functions().get_builtins()
 
         func_names = sorted(self.funcs)
         self.function.clear()
