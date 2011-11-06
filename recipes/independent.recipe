@@ -1,13 +1,113 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+# adapted from old recipe by Darko Miletic <darko.miletic at gmail.com>
 
-class AdvancedUserRecipe1320474488(BasicNewsRecipe):
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
-    title = u'The Independent'
+
+class TheIndependentNew(BasicNewsRecipe):
+
+    title                   = u'The Independent'
+    __author__              = 'Will'
+    description             = 'The latest in UK News and World News from The \
+                               Independent. Wide range of international and local news, sports \
+                               news, commentary and opinion pieces.Independent News - Breaking news \
+                               that matters. Your daily comprehensive news source - The \
+                               Independent Newspaper'
+    publisher               = 'The Independent'
+    category                = 'news, UK'
+    no_stylesheets          = True
+    use_embedded_content    = False
+    remove_empty_feeds      = True
+    language                = 'en_GB'
+    publication_type        = 'newspaper'
+    masthead_url            = 'http://www.independent.co.uk/independent.co.uk/editorial/logo/independent_Masthead.png'
+    encoding                = 'utf-8'
+    remove_tags             =[
+                               dict(attrs={'id' : ['RelatedArtTag','renderBiography']}),
+                               dict(attrs={'class' : ['autoplay','openBiogPopup']})
+                             ]
+
+    keep_only_tags          =[dict(attrs={'id':'main'})]
+
+
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+    extra_css             = """
+                               h1{font-family: Georgia,serif }
+                               body{font-family: Verdana,Arial,Helvetica,sans-serif}
+                               img{margin-bottom: 0.4em; display:block}
+                               .byline,.image,.dateline{font-size: x-small; color:#888888}
+                            """
+
     oldest_article = 1
     max_articles_per_feed = 100
-    auto_cleanup = True
-    language = 'en_GB'
-    __author__ = 'NotTaken'
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(attrs={'class' : re.compile("widget.*")}):
+            remove = True
+            pattern = re.compile('((articleContent)|(title))$')
+            if (pattern.search(item['class'])) is not None:
+                remove = False
+
+            # corrections
+            # story content always good
+            pattern = re.compile('storyContent')
+            if (pattern.search(item['class'])) is not None:
+                remove = False
+
+            #images
+            pattern = re.compile('slideshow')
+            if (pattern.search(item['class'])) is not None:
+                remove = False
+
+            #social widgets always bad
+            pattern = re.compile('socialwidget')
+            if (pattern.search(item['class'])) is not None:
+                remove = True
+
+            if remove:
+                item.extract()
+
+        for item in soup.findAll('a',attrs={'href' : re.compile('.*')}):
+            if item.img is not None:
+                #use full size image
+                img = item.findNext('img')
+
+                img['src'] = item['href']
+
+                #insert heading
+                tag = Tag(soup,'h3')
+                text = NavigableString('Caption: ' + img['title'])
+                tag.insert(0,text)
+
+                #picture before text
+                img.extract()
+                item.insert(0,img)
+                item.insert(1,tag)
+
+                # remove link
+                item.name = "div"
+                item["class"]='image'
+                del item["href"]
+
+
+        #remove empty subtitles
+        subtitle = soup.find('h3',attrs={'class' : 'subtitle'})
+        subtitleText = subtitle.findNext('p')
+        if subtitleText is not None:
+            if len(subtitleText.contents[0]) <= 1 :
+                subtitleText.extract()
+                subtitle.extract()
+
+
+        return soup
 
     feeds = [
         (u'News - UK',
@@ -114,6 +214,5 @@ class AdvancedUserRecipe1320474488(BasicNewsRecipe):
         (u'Money', u'http://www.independent.co.uk/money/?service=rss'),
         (u'IndyBest',
          u'http://www.independent.co.uk/extras/indybest/?service=rss'),
-        (u'Blogs', u'http://blogs.independent.co.uk/feed/rss/'),
         ]
 
