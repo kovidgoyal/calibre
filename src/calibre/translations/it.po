@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-10-31 09:50+0000\n"
-"Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
+"PO-Revision-Date: 2011-11-05 18:52+0000\n"
+"Last-Translator: Marco Ciampa <ciampix@libero.it>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-01 04:55+0000\n"
-"X-Generator: Launchpad (build 14197)\n"
+"X-Launchpad-Export-Date: 2011-11-06 05:22+0000\n"
+"X-Generator: Launchpad (build 14231)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1534,6 +1534,9 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Normalmente, il lettori KOBO ottengono l'immagine di copertina dallo stesso "
+"file del libro. Con questa opzione, Calibre spedirà al lettore un'immagine "
+"di copertina separata, operazione utile se si è modificata la copertina."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
@@ -1560,6 +1563,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Ultimo libro letto:</b> %(time)s<br /><b>Già letto in "
+"percentuale:</b> %(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1013
 #, python-format
@@ -1815,6 +1820,10 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Normalmente, i lettori SONY ottengono l'immagine di copertina dallo stesso "
+"file del libro. Con quest'opzione, Calibre spedirà al lettore un'immagine di "
+"copertina separata, operazione utile se si sta cercando di spedire  libri "
+"protetti da DRM  a cui non è possibile cambiare la copertina."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:76
 msgid "Refresh separate covers when using automatic management"
@@ -9742,6 +9751,18 @@ msgid ""
 "information on python's regular expressions, and in particular the 'sub' "
 "function."
 msgstr ""
+"In modalità espressione regolare, il testo da cercare è una qualsiasi "
+"espressione regolare python-compatibile. Il testo di rimpiazzo può contenere "
+"backreference a espressioni tra parentesi presenti nel modello. La ricerca "
+"non è anchored, e può rilevare una corrispondenza e rimpiazzarla più volte "
+"nella stessa stringa. Le funzioni di modifica (minuscole ecc) vengono "
+"applicate al testo corrispondente, non all'insieme del campo. Il riquadro di "
+"destinazione specifica il campo dove il risultato , dopo la rilevazione ed "
+"il rimpiazzo, dovrà essere assegnato. Si può rimpiazzare il testo nel campi, "
+"o anteporre o posporre il testo corrispondente. Vedere <a "
+"href=\"http://docs.python.org/library/re.html\">questo riferimento</a> per "
+"ulteriori informazioni sulle espressioni regolari in python, ed in "
+"particolare sulla funzione \"sub\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:512
 msgid "S/R TEMPLATE ERROR"
@@ -15875,7 +15896,7 @@ msgstr "Configura la ricerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:336
 msgid "Couldn't find any books matching your query."
-msgstr ""
+msgstr "Impossibile trovare libri che corrispondano alla ricerca."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:350
 msgid "Choose format to download to your library."
@@ -15993,6 +16014,7 @@ msgstr "Rinomina la categoria utente"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:889
 msgid "You cannot use periods in the name when renaming user categories"
 msgstr ""
+"Non puoi utilizzare punti nel nome quando rinomini le categorie utente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:909
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:918
@@ -16974,6 +16996,8 @@ msgid ""
 "The name <b>%r</b> does not appear to end with a file extension. The name "
 "must end with a file  extension like .epub or .mobi"
 msgstr ""
+"Il nome <b>%r</b> non sembra terminare con un'estensione. Il nome deve "
+"terminare con un'estensione del tipo .epub o .mobi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:993
 msgid "Drag to resize"
@@ -16997,6 +17021,8 @@ msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
 msgstr ""
+"Scegli il tuo lettore di ebook. Se il dispositivo non è in elenco, scegli un "
+"dispositivo \"%s\"."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:505
 msgid "Moving library..."
@@ -17243,6 +17269,9 @@ msgid ""
 "No username and password set for mailserver. Most  mailservers need a "
 "username and password. Are you sure?"
 msgstr ""
+"Non è stato configurato alcun nome utente e password per il server di posta. "
+"La maggior parte dei server di posta richiede un nome utente e una password. "
+"Sei sicuro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:124
 msgid "Send email &from:"
