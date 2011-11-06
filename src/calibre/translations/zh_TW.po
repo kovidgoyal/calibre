@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-27 03:03+0000\n"
+"POT-Creation-Date: 2011-10-27 11:21+0000\n"
+"PO-Revision-Date: 2011-11-01 02:07+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-10-27 05:14+0000\n"
-"X-Generator: Launchpad (build 14197)\n"
+"X-Launchpad-Export-Date: 2011-11-02 04:56+0000\n"
+"X-Generator: Launchpad (build 14214)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -34,13 +34,13 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:79
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/books.py:24
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:581
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:579
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:71
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/books.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:660
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:308
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:309
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:310
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:485
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:106
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:109
@@ -83,7 +83,7 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/rtf.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/snb.py:16
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:49
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:301
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:302
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/covers.py:79
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/covers.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:80
@@ -104,8 +104,8 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1006
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:299
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:496
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:138
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:140
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:141
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:143
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1002
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1007
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1079
@@ -145,7 +145,7 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:380
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:168
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:576
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:579
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:151
@@ -178,14 +178,14 @@ msgstr "完全不做任何事"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:200
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:220
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:543
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:551
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:562
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2039
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2191
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3246
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3248
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3381
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:544
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:552
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:563
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2040
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2192
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3247
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3249
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3382
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:227
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:228
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:243
@@ -466,7 +466,7 @@ msgid "Change the way calibre behaves"
 msgstr "改變 calibre 的行為"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:919
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:233
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:252
 msgid "Add your own columns"
 msgstr "加入您自己的欄"
 
@@ -901,26 +901,26 @@ msgstr "書庫的路徑太長。必須少於 %d 字元。"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:647
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:563
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:989
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:990
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:820
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:832
 msgid "Yes"
 msgstr "是"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1103
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1104
 msgid "Main"
 msgstr "主要"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1105
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1106
 msgid "Card A"
 msgstr "記憶卡 A"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1107
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1108
 msgid "Card B"
 msgstr "記憶卡 B"
 
@@ -1067,8 +1067,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:102
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:447
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:470
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:526
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:545
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:527
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:546
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1084
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1090
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1125
@@ -1076,9 +1076,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1148
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1150
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:336
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:349
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3107
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:337
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:350
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3108
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
 msgstr "新聞"
@@ -1086,8 +1086,8 @@ msgstr "新聞"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2685
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:662
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3066
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3084
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3067
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3085
 msgid "Catalog"
 msgstr "分類"
 
@@ -1133,11 +1133,11 @@ msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:88
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:91
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:94
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:97
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:305
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:150
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:303
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:151
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:140
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:143
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:146
@@ -1157,8 +1157,8 @@ msgstr "正在傳送書籍到裝置中..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:330
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:344
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:439
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:474
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:437
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:472
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:297
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:328
 msgid "Adding books to device metadata listing..."
@@ -1168,8 +1168,8 @@ msgstr "將書籍加入裝置的元數據清單..."
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:354
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:114
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:125
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:391
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:423
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:389
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:421
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:334
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:352
 msgid "Removing books from device..."
@@ -1177,8 +1177,8 @@ msgstr "正在從裝置中移除書籍..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:369
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:374
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:427
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:434
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:425
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:432
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:359
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:364
 msgid "Removing books from device metadata listing..."
@@ -1427,43 +1427,83 @@ msgstr ""
 msgid "Communicate with the Kindle DX eBook reader."
 msgstr "與 Kindle DX eBook 閱讀器連接。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:25
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
 msgstr "與 Kobo 閱讀器連接。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:54
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "The Kobo supports several collections including "
 msgstr "Kobo 支援許多藏書包含 "
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
 msgid "Create tags for automatic management"
 msgstr "建立自動管理的標籤"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:59
 msgid "Upload covers for books (newer readers)"
 msgstr "上傳書籍的封面 (較新的閱讀器)"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:60
 msgid ""
 "Normally, the KOBO readers get the cover image from the ebook file itself. "
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:62
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
 msgstr "上傳黑白封面"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:561
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
 msgid "Not Implemented"
 msgstr "未實作"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:562
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:560
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:989
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:995
+#, python-format
+msgid ""
+"<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
+"%(pr)d%%<hr />"
+msgstr "<hr /><b>書籍上次閱讀：</b> %(time)s<br /><b>已讀百分比：</b> %(pr)d%%<hr />"
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1013
+#, python-format
+msgid ""
+"<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
+"/><hr />"
+msgstr ""
+"<b>第 %(chapter)d 章：</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>章節進度：</b> %(chapter_progress)s%%<br />%(annotation)s<br /><hr />"
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1022
+#, python-format
+msgid ""
+"<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
+"%(text)s<br /><hr />"
+msgstr ""
+"<b>第 %(chapter)d 章：</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>章節進度：</b> %(chapter_progress)s%%<br /><b>突顯：</b> %(text)s<br /><hr />"
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1031
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1041
+#, python-format
+msgid ""
+"<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
+"%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
+msgstr ""
+"<b>第 %(chapter)d 章：</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>章節進度：</b> %(chapter_progress)s%%<br /><b>突顯：</b> %(text)s<br "
+"/><b>筆記：</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1575,7 +1615,7 @@ msgid "All by author"
 msgstr "全部依作者"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:70
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:67
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:68
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
@@ -1612,7 +1652,7 @@ msgid ""
 msgstr "使用自動管理時重新整理個別封面 (新聞閱讀器)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:77
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:78
 msgid ""
 "Set this option to have separate book covers uploaded every time you connect "
 "your device. Unset this option if you have so many books on the reader that "
@@ -1620,12 +1660,12 @@ msgid ""
 msgstr "設定這個選項會在您每一次連接裝置時上傳分離的書籍封面。如果您在閱讀器上有太多書籍以致影響效能時請取消這個選項。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:90
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:81
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:82
 msgid "Preserve cover aspect ratio when building thumbnails"
 msgstr "建立縮圖時保持封面的長寬比"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:83
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:84
 msgid ""
 "Set this option if you want the cover thumbnails to have the same aspect "
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
@@ -1653,26 +1693,26 @@ msgstr "未命名的"
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
 msgstr "與 Sony eBook PRST1 之後的閱讀器連接。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:70
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
 msgstr "上傳書籍個別的封面縮圖"
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:72
 msgid ""
 "Normally, the SONY readers get the cover image from the ebook file itself. "
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:75
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:76
 msgid "Refresh separate covers when using automatic management"
 msgstr "使用自動管理時重新整理個別的封面"
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:87
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
 msgid "Use SONY Author Format (First Author Only)"
 msgstr "使用 SONY 作者格式 (只有第一位作者)"
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:89
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid ""
 "Set this option if you want the author on the Sony to appear the same way "
 "the T1 sets it. This means it will only show the first author for books with "
@@ -1840,6 +1880,8 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"無法存取您裝置中 SD 卡上的檔案。這可能有很多種原因。SD 卡可能損壞、可能容量太大不適用您的裝置、可能開啟防寫保護等。請試著使用不同的 SD "
+"卡，或重新將您的 SD 卡格式化為 FAT32 檔案系統。同時請確定在 SD 卡的根目錄沒有太多檔案。底層的錯誤為：%s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
@@ -3652,7 +3694,7 @@ msgstr "序"
 msgid "Main Text"
 msgstr "主文"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:41
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:42
 #, python-format
 msgid "%s format books are not supported"
 msgstr "%s 格式的電子書尚未支援"
@@ -4812,7 +4854,7 @@ msgstr "您書庫中的檔案符合資料庫中的資訊。"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:471
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:100
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:898
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:934
 msgid "Not allowed"
 msgstr "不允許的"
 
@@ -5981,17 +6023,17 @@ msgstr "複製封面"
 msgid "Remove Cover"
 msgstr "移除封面"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:569
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:335
 msgid "Double-click to open Book Details window"
 msgstr "雙擊開啟書籍詳細資料視窗"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:570
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:336
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:295
 msgid "Path"
 msgstr "路徑"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:571
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:337
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #, python-format
 msgid "Cover size: %(width)d x %(height)d"
@@ -6090,7 +6132,7 @@ msgstr "輸出"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:109
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:21
@@ -11204,54 +11246,54 @@ msgstr "標記成要刪除"
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr "請雙擊以<b>編輯</b>我<br><br>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:187
 #, python-format
 msgid "Hide column %s"
 msgstr "隱藏欄 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:192
 #, python-format
 msgid "Sort on %s"
 msgstr "排序於 %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:193
 msgid "Ascending"
 msgstr "遞增"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:196
 msgid "Descending"
 msgstr "遞減"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:208
 #, python-format
 msgid "Change text alignment for %s"
 msgstr "改變 %s 的文字對齊"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:210
 msgid "Left"
 msgstr "左"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:210
 msgid "Right"
 msgstr "右"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:192
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:211
 msgid "Center"
 msgstr "中央"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:230
 msgid "Show column"
 msgstr "顯示欄"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:242
 msgid "Shrink column if it is too wide to fit"
 msgstr "如果欄太寬無法符合則縮減它"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:226
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:245
 msgid "Restore default layout"
 msgstr "還原預設的配置"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:899
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:935
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
@@ -13654,7 +13696,7 @@ msgid "Change paths to &lowercase"
 msgstr "路徑改變為小寫(&L)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:46
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:57
 msgid "Format &dates as:"
 msgstr "將日期格式設為(&D):"
 
@@ -13819,25 +13861,29 @@ msgstr ""
 "任何群組搜尋字詞名稱"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:41
 msgid "Manual management"
 msgstr "手動管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:29
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:71
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:43
 msgid "Only on send"
 msgstr "只在傳送"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:30
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:72
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:45
 msgid "Automatic management"
 msgstr "自動管理"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
+msgid "Cannot change metadata management while a device is connected"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:30
 msgid "Metadata &management:"
 msgstr "元數據管理(&M):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:73
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:50
 msgid ""
 "<li><b>Manual management</b>: Calibre updates the metadata and adds "
 "collections only when a book is sent. With this option, calibre will never "
@@ -13848,7 +13894,7 @@ msgid ""
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:64
 msgid ""
 "Here you can control how calibre will save your books when you click the "
 "Send to Device button. This setting can be overriden for individual devices "
@@ -14771,7 +14817,7 @@ msgid ""
 msgstr "改變許多書籍的元數據會花上一些時間。您確定嗎？"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:823
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:457
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:458
 msgid "Searches"
 msgstr "搜尋"
 
@@ -17093,17 +17139,17 @@ msgstr "標籤必須只包含小寫字母、數字和底線，並以字母開頭
 msgid "%(tt)sAverage rating is %(rating)3.1f"
 msgstr "%(tt)s平均評等為 %(rating)3.1f"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3407
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3408
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p>將舊的資料庫轉移到 %s 的電子書庫<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3436
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3437
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr "正在複製 <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3453
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3454
 msgid "Compacting database"
 msgstr "正在壓實資料庫"
 
