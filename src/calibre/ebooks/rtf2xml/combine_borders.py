@@ -10,9 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, tempfile
+import os
 
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
 
 class CombineBorders:
     """Combine borders in RTF tokens to make later processing easier"""
@@ -25,7 +26,7 @@ class CombineBorders:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__state = 'default'
         self.__bord_pos = 'default'
         self.__bord_att = []

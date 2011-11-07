@@ -155,7 +155,7 @@ class BasicNewsRecipe(Recipe):
     #:
     auto_cleanup_keep = None
 
-    #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
+    #: Specify any extra :term:`CSS` that should be added to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
     #: `</head>` tag thereby overriding all :term:`CSS` except that which is
     #: declared using the style attribute on individual :term:`HTML` tags.
