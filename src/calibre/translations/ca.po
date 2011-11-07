@@ -10,16 +10,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-27 11:21+0000\n"
-"PO-Revision-Date: 2011-10-27 17:56+0000\n"
+"POT-Creation-Date: 2011-11-06 08:51+0000\n"
+"PO-Revision-Date: 2011-11-06 15:29+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-28 05:16+0000\n"
-"X-Generator: Launchpad (build 14197)\n"
+"X-Launchpad-Export-Date: 2011-11-07 05:24+0000\n"
+"X-Generator: Launchpad (build 14231)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -29,20 +29,20 @@ msgstr "No fa res"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:104
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:107
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:118
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:258
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:259
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:265
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:266
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:79
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/books.py:24
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:579
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:593
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:71
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/books.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:660
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:309
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:310
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:311
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:312
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:485
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:106
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:109
@@ -51,12 +51,12 @@ msgstr "No fa res"
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:140
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:102
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:332
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:335
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:334
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:337
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1898
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1900
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:288
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:292
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:34
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:35
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:98
@@ -147,7 +147,7 @@ msgstr "No fa res"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:380
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:168
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:579
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:580
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:151
@@ -958,8 +958,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:563
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:990
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:820
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:832
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:829
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:841
 msgid "Yes"
 msgstr "Sí"
 
@@ -988,7 +988,7 @@ msgstr "Registre de depuració"
 msgid "Communicate with Android phones."
 msgstr "Comunica't amb telèfons Android"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:143
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:148
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -996,11 +996,11 @@ msgstr ""
 "Llista de carpetes del dispositiu separades per comes on s'enviaran els "
 "llibres. Es farà servir la primera que ja existeixi al dispositiu."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:198
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:205
 msgid "Communicate with S60 phones."
 msgstr "Comunica't amb telèfons S60."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:217
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:224
 msgid "Communicate with WebOS tablets."
 msgstr "Comunica't amb tauletes tàctils WebOS."
 
@@ -1142,11 +1142,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:102
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:447
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:470
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:527
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:546
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1084
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1090
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1125
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:529
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:548
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1048
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1054
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1089
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1148
@@ -1214,11 +1214,11 @@ msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:88
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:91
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:94
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:303
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:151
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:95
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:98
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:101
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:315
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:153
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:140
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:143
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:146
@@ -1238,8 +1238,8 @@ msgstr "S'està transferint llibres al dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:330
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:344
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:437
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:472
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:451
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:486
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:297
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:328
 msgid "Adding books to device metadata listing..."
@@ -1249,8 +1249,8 @@ msgstr "S'està afegint llibres al llistat de metadades del dispositiu..."
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:354
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:114
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:125
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:389
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:421
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:403
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:435
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:334
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:352
 msgid "Removing books from device..."
@@ -1258,8 +1258,8 @@ msgstr "S'estan suprimint  els llibres del dispositiu..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:369
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:374
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:425
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:432
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:439
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:446
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:359
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:364
 msgid "Removing books from device metadata listing..."
@@ -1547,12 +1547,26 @@ msgstr ""
 msgid "Upload Black and White Covers"
 msgstr "Carrega portades en blanc i negre"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:559
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
+msgid "Show expired books"
+msgstr "Mostra els llibres caducats"
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
+msgid ""
+"A bug in an earlier version left non kepubs book records in the datbase.  "
+"With this option Calibre will show the expired records and allow you to "
+"delete them with the new delete logic."
+msgstr ""
+"Un error a una versió anterior deixava registres a la base de dades dels "
+"llibres no kepub. Amb aquesta opció el calibre mostra els registres caducats "
+"i permet suprimir-los amb el nou algoritme de supressió."
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:573
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
 msgid "Not Implemented"
 msgstr "No implementat"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:560
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:574
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
@@ -1560,8 +1574,8 @@ msgstr ""
 "No hi ha fitxers de llibre «.kobo» al dispositiu, són files a la base de "
 "dades sqlite. De moment no es poden exportar ni visualitzar"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:989
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:995
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1003
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1009
 #, python-format
 msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
@@ -1570,7 +1584,7 @@ msgstr ""
 "<hr /><b>Llibre llegit per darrer cop:</b> %(time)s<br /><b>Percentatge "
 "llegit:</b> %(pr)d%%<hr />"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1013
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1027
 #, python-format
 msgid ""
 "<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
@@ -1581,7 +1595,7 @@ msgstr ""
 "/><b>Progrés al capítol:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1022
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1036
 #, python-format
 msgid ""
 "<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
@@ -1592,8 +1606,8 @@ msgstr ""
 "/><b>Progrés al capítol:</b> %(chapter_progress)s%%<br /><b>Realça:</b> "
 "%(text)s<br /><hr />"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1031
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1041
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1045
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1055
 #, python-format
 msgid ""
 "<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
@@ -1903,16 +1917,7 @@ msgstr ""
 msgid "Unable to detect the %s disk drive."
 msgstr "No s'ha pogut detectar la unitat de disc %s."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:629
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:784
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:827
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:837
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:847
-#, python-format
-msgid "Could not find mount helper: %s."
-msgstr "No s'ha pogut trobar l'assistent de muntatge: %s"
-
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:641
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:632
 #, python-format
 msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
@@ -1921,12 +1926,12 @@ msgstr ""
 "No s'ha pogut detectar la unitat de disc %s. Pot ser que ja s'hagi expulsat "
 "la unitat o bé el nucli exporta una versió del SYSFS obsoleta."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:650
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:641
 #, python-format
 msgid "Unable to mount main memory (Error code: %d)"
 msgstr "No s'ha pogut muntar la memòria principal (codi d'error: %d)"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:701
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:692
 #, python-format
 msgid ""
 "The main memory of %s is read only. This usually happens because of file "
@@ -1935,22 +1940,30 @@ msgstr ""
 "La memòria principal de %s és només de lectura. Sol passar per errors al "
 "sistema de fitxers."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1011
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1013
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:778
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:821
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:831
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:841
+#, python-format
+msgid "Could not find mount helper: %s."
+msgstr "No s'ha pogut trobar l'assistent de muntatge: %s"
+
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:975
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:977
 msgid "The reader has no storage card in this slot."
 msgstr "El lector no té cap targeta de memòria en aquesta ranura."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1015
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:979
 #, python-format
 msgid "Selected slot: %s is not supported."
 msgstr "La ranura seleccionada: %s no és compatible."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1044
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1008
 msgid "There is insufficient free space in main memory"
 msgstr "No hi ha espai lliure suficient a la memòria principal"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1046
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1048
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1010
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1012
 msgid "There is insufficient free space on the storage card"
 msgstr "No hi ha espai lliure suficient a la targeta de memòria"
 
@@ -3200,7 +3213,7 @@ msgstr ""
 msgid "for a complete list with descriptions."
 msgstr "per a una llist complerta amb descripcions."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:248
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:250
 msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first."
@@ -3208,7 +3221,7 @@ msgstr ""
 "Recorre els enllaços dels fitxers HTML primer per amplitud. Normalment es "
 "recorren primer per profunditat."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:255
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:257
 #, python-format
 msgid ""
 "Maximum levels of recursion when following links in HTML files. Must be non-"
@@ -3219,7 +3232,7 @@ msgstr ""
 "No han de ser negatius. 0 significa que no es segueixen enllaços al fitxer "
 "HTML arrel. Per defecte %default."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:264
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:266
 msgid ""
 "Normally this input plugin re-arranges all the input files into a standard "
 "folder hierarchy. Only use this option if you know what you are doing as it "
@@ -4473,7 +4486,7 @@ msgstr ""
 msgid "Split Options:"
 msgstr "Opcions de divisió:"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:31
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:30
 #, python-format
 msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
@@ -4482,7 +4495,7 @@ msgstr ""
 "La unitat de mesura. Polzada per defecte. Les opcions són %s Nota: no "
 "sobreescriu la unitat per als marges!"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:36
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:35
 #, python-format
 msgid ""
 "The size of the paper. This size will be overridden when an output profile "
@@ -4491,7 +4504,7 @@ msgstr ""
 "Mida del paper. Es sobreescriu quan es fa servir un perfil de sortida. Per "
 "defecte és Letter. Les opcions són %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:40
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:39
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
@@ -4500,12 +4513,12 @@ msgstr ""
 "exemple «123 x 321» per indicar l'amplada i l'alçada. Això substitueix "
 "qualsevol mida de paper que s'hagi indicat abans."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:45
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:44
 #, python-format
 msgid "The orientation of the page. Default is portrait. Choices are %s"
 msgstr "Orientació de la pàgina. Vertical per defecte. Les opcions són %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:49
+#: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:48
 msgid ""
 "Preserve the aspect ratio of the cover, instead of stretching it to fill the "
 "full first page of the generated pdf."
@@ -6646,49 +6659,49 @@ msgstr ""
 msgid "Donate"
 msgstr "Donacions"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:121
 msgid "Click to open"
 msgstr "Feu clic per obrir"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:136
 msgid "Ids"
 msgstr "Identificadors"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:174
 #, python-format
 msgid "Book %(sidx)s of <span class=\"series_name\">%(series)s</span>"
 msgstr "Llibre %(sidx)s de <span class=\"series_name\">%(series)s</span>"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:188
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:189
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1035
 msgid "Collections"
 msgstr "Col·leccions"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:291
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:292
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:256
 msgid "Paste Cover"
 msgstr "Enganxa la portada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:292
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:257
 msgid "Copy Cover"
 msgstr "Copia la portada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:294
 msgid "Remove Cover"
 msgstr "Suprimeix la portada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:335
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:336
 msgid "Double-click to open Book Details window"
 msgstr "Feu doble clic per obrir la finestra de detalls del llibre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:336
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:337
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:295
 msgid "Path"
 msgstr "Camí"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:338
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #, python-format
 msgid "Cover size: %(width)d x %(height)d"
@@ -13135,7 +13148,7 @@ msgstr "Portada actual"
 msgid "Searching..."
 msgstr "S'està cercant..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:706
+#: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:705
 #, python-format
 msgid "Downloading covers for <b>%s</b>, please wait..."
 msgstr "S'està baixant portades per a <b>%s</b>, espereu..."
@@ -14291,11 +14304,11 @@ msgstr "Inhabilitat"
 msgid "Partitioned"
 msgstr "Repartit"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:172
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:175
 msgid "Column coloring"
 msgstr "Pintat de columna"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:181
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid " or "
@@ -20047,7 +20060,7 @@ msgstr ""
 "obtenir la data de modificació d'un format concret. Els noms del format "
 "estan sempre en majúscula, com a «EPUB»."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:608
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:609
 msgid ""
 "formats_sizes() -- return a comma-separated list of colon_separated items "
 "representing sizes in bytes of the formats of a book. You can use the select "
@@ -20059,7 +20072,7 @@ msgstr ""
 "funció «select» per aconseguir la mida d'un format concret. Els noms del "
 "format estan sempre en majúscula, com a «EPUB»."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:624
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:625
 msgid ""
 "human_readable(v) -- return a string representing the number v in KB, MB, "
 "GB, etc."
@@ -20067,7 +20080,7 @@ msgstr ""
 "human_readabe(v) -- s'obté un text que representa el nombre «v» en KB, MB, "
 "GB..."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:638
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:639
 msgid ""
 "format_number(v, template) -- format the number v using a python formatting "
 "template such as \"{0:5.2f}\" or \"{0:,d}\" or \"${0:5,.2f}\". The "
@@ -20081,7 +20094,7 @@ msgstr ""
 "documentació del llenguatge de les plantilles i del python per a més "
 "exemples. S'obté un text buit si el format falla."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:663
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:664
 msgid ""
 "sublist(val, start_index, end_index, separator) -- interpret the value as a "
 "list of items separated by `separator`, returning a new list made from the "
@@ -20102,7 +20115,7 @@ msgstr ""
 "comes) conté «A,B,C»: {tags:sublist(0,1,\\,)} dóna \"A\". {tags:sublist(-"
 "1,0,\\,)} dóna \"C\". {tags:sublist(0,-1,\\,)} dóna \"A, B\"."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:698
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:699
 msgid ""
 "subitems(val, start_index, end_index) -- This function is used to break "
 "apart lists of items such as genres. It interprets the value as a comma-"
@@ -20133,7 +20146,7 @@ msgstr ""
 "Assumint un valor de #gènere d'«A.B.C, D.E.F»: {#gènere:subitems(0,1)} "
 "s'obté «A, D», {#gènere:subitems(0,2)} s'obté «A.B, D.E»."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:736
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:737
 msgid ""
 "format_date(val, format_string) -- format the value, which must be a date, "
 "using the format_string, returning a string. The formatting codes are: d    "
@@ -20144,46 +20157,63 @@ msgid ""
 "(1 to 12). MM   : the month as number with a leading zero (01 to 12) MMM  : "
 "the abbreviated localized month name (e.g. \"Jan\" to \"Dec\"). MMMM : the "
 "long localized month name (e.g. \"January\" to \"December\"). yy   : the "
-"year as two digit number (00 to 99). yyyy : the year as four digit number. "
-"iso  : the date with time and timezone. Must be the only format present"
+"year as two digit number (00 to 99). yyyy : the year as four digit number. h "
+"   : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm) "
+"hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm) "
+"m    : the minutes without a leading 0 (0 to 59) mm   : the minutes with a "
+"leading 0 (00 to 59) s    : the seconds without a leading 0 (0 to 59) ss   : "
+"the seconds with a leading 0 (00 to 59) ap   : use a 12-hour clock instead "
+"of a 24-hour clock, with \"ap\" replaced by the localized string for am or "
+"pm AP   : use a 12-hour clock instead of a 24-hour clock, with \"AP\" "
+"replaced by the localized string for AM or PM iso  : the date with time and "
+"timezone. Must be the only format present"
 msgstr ""
-"format_date(val, text_format) -- dóna format a un valor que ha de ser una "
-"data utilitzant «text_format» i s'obté una cadena. Els codis de format són: "
-"«d»: el dia com a nombre sense zero inicial (1 a 31). «dd»: el dia com a "
-"nombre amb zero inicial (01 a 31). «ddd»: el nom del dia abreujat en "
+"format_date(val, cadena_format) -- dóna format al valor, que ha de ser una "
+"data, utilitzant «cadena_format» i s'obté una cadena. Els codis de format "
+"són: «d»: el dia com a nombre sense zero inicial (1 a 31). «dd»: el dia com "
+"a nombre amb zero inicial (01 a 31). «ddd»: el nom del dia abreujat en "
 "l'idioma local (per exemple «Dil» a «Diu»). «dddd»: el nom del dia complet "
 "en l'idioma local (per exemple «Dilluns» a «Divendres»). «M»: el mes com a "
-"nombre sense número inicial (1 a 12). «MM»: el mes com a nombre amb zero "
+"nombre sense zero inicial (1 a 12). «MM»: el mes com a nombre amb zero "
 "inicial (01 a 12). «MMM»: el nom del mes abreujat el l'idioma local (per "
 "exemple «Gen» a «Des»). «MMMM»: el nom del mes complet en l'idioma local "
 "(per exemple «Gener» a «Desembre»). «yy»: l'any com a nombre de dues xifres "
-"(00 a 99). «yyyy»: l'any com a nombre de quatre xifres. «iso»: la data amb "
-"l'hora i la zona horària. Ha de ser l'únic format present."
+"(00 a 99). «yyyy»: l'any com a nombre de quatre xifres. «h»: l'hora sense "
+"zero inicial (0 a 11 o 0 a 23 depenent de si es fa servir el format de 12 o "
+"el de 24 hores). «hh» l'hora amb zero inicial (00 a 11 o 00 a 23 depenent de "
+"si es fa servir el format de 12 o el de 24 hores). «m»: els minuts sense "
+"zero inicial (0 a 59). «mm»: els minuts amb zero inicial (00 a 59). «s»: els "
+"segons sense zero inicial (0 a 59). «ss»: els segons amb zero inicial (00 a "
+"59). «ap»: utilitza el rellotge de 12 hores enlloc del de 24 hores, «ap» es "
+"substitueix per la cadena en idioma local per a «am» o «pm». «AP»: utilitza "
+"el rellotge de 12 hores enlloc del de 24 hores, «AP» es substitueix per la "
+"cadena en idioma local per a «AM» o «PM». «iso»: la data amb l'hora i la "
+"zona horària; ha de ser l'únic format present."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:765
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:774
 msgid "uppercase(val) -- return value of the field in upper case"
 msgstr "uppercase(val) -- s'obté el valor del camp en majúscules"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:774
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:783
 msgid "lowercase(val) -- return value of the field in lower case"
 msgstr "lowercase(val) -- s'obté el valor del camp en minúscules"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:783
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:792
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
 "titlecase(val) -- s'obté el valor del camp amb les inicials en majúscula"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:792
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:801
 msgid "capitalize(val) -- return value of the field capitalized"
 msgstr ""
 "capitalize(val) -- s'obté el valor del camp amb la primera lletra en "
 "majúscula"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:801
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:810
 msgid "booksize() -- return value of the size field"
 msgstr "booksize() -- s'obté el valor del camp de mida"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:815
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:824
 msgid ""
 "ondevice() -- return Yes if ondevice is set, otherwise return the empty "
 "string"
@@ -20191,7 +20221,7 @@ msgstr ""
 "ondevice() -- s'obté «Yes» si s'ha establert «ondevice», un text buit en cas "
 "contrari"
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:827
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:836
 msgid ""
 "has_cover() -- return Yes if the book has a cover, otherwise return the "
 "empty string"
@@ -20199,7 +20229,7 @@ msgstr ""
 "has_cover() -- s'obté «Yes» si el llibre té portada, en cas contrari s'obté "
 "un text buit."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:839
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:848
 msgid ""
 "first_non_empty(value, value, ...) -- returns the first value that is not "
 "empty. If all values are empty, then the empty value is returned.You can "
@@ -20209,7 +20239,7 @@ msgstr ""
 "buit. Si tots els valors estan buits, s'obté un valor buit. S'hi pot posar "
 "tants valors com es vulgui."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:856
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:865
 msgid ""
 "and(value, value, ...) -- returns the string \"1\" if all values are not "
 "empty, otherwise returns the empty string. This function works well with "
@@ -20219,7 +20249,7 @@ msgstr ""
 "cas contrari s'obté la cadena buida. Aquesta funció va bé conjuntament amb "
 "«test» o «first_non_empty». S'hi pot posar tants valors com es vulgui."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:873
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:882
 msgid ""
 "or(value, value, ...) -- returns the string \"1\" if any value is not empty, "
 "otherwise returns the empty string. This function works well with test or "
@@ -20229,7 +20259,7 @@ msgstr ""
 "en cas contrari s'obté la cadena buida. Aquesta funció va bé conjuntament "
 "amb «test» o «first_non_empty». S'hi pot posar tants valors com es vulgui."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:890
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:899
 msgid ""
 "not(value) -- returns the string \"1\" if the value is empty, otherwise "
 "returns the empty string. This function works well with test or "
@@ -20239,7 +20269,7 @@ msgstr ""
 "s'obté la cadena buida. Aquesta funció va bé conjuntament amb «test» o "
 "«first_non_empty». S'hi pot posar tants valors com es vulgui."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:902
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:911
 msgid ""
 "list_union(list1, list2, separator) -- return a list made by merging the "
 "items in list1 and list2, removing duplicate items using a case-insensitive "
@@ -20254,7 +20284,7 @@ msgstr ""
 "«llista2» estan separats pel «separador», de la mateixa manera que a la "
 "llista obtinguda."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:927
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:936
 msgid ""
 "list_difference(list1, list2, separator) -- return a list made by removing "
 "from list1 any item found in list2, using a case-insensitive compare. The "
@@ -20267,7 +20297,7 @@ msgstr ""
 "estan separats pel «separador», de la mateixa manera que a la llista "
 "obtinguda."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:948
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:957
 msgid ""
 "list_intersection(list1, list2, separator) -- return a list made by removing "
 "from list1 any item not found in list2, using a case-insensitive compare. "
@@ -20280,7 +20310,7 @@ msgstr ""
 "estan separats pel «separador», de la mateixa manera que a la llista "
 "obtinguda."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:969
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:978
 msgid ""
 "list_sort(list, direction, separator) -- return list sorted using a case-"
 "insensitive sort. If direction is zero, the list is sorted ascending, "
@@ -20293,7 +20323,7 @@ msgstr ""
 "«llista» estan separats pel «separador», de la mateixa manera que a la "
 "llista obtinguda."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:984
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:993
 msgid ""
 "list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- return yes_val if "
 "list1 and list2 contain the same items, otherwise return no_val. The items "
@@ -20308,7 +20338,7 @@ msgstr ""
 "les llistes no és rellevant. La comparació no diferencia majúscules i "
 "minúscules."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1002
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1011
 msgid ""
 "list_re(src_list, separator, search_re, opt_replace) -- Construct a list by "
 "first separating src_list into items using the separator character. For each "
@@ -20322,7 +20352,7 @@ msgstr ""
 "l'afegeix a la llista que s'obtindrà. Si «subst_opt» no és una cadena buida "
 "s'aplica la substitució abans d'afegir l'element a la llista obtinguda."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1026
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1035
 msgid ""
 "today() -- return a date string for today. This value is designed for use in "
 "format_date or days_between, but can be manipulated like any other string. "
@@ -20332,7 +20362,7 @@ msgstr ""
 "lo a «format_date» o «days_between», però es pot manipular com qualsevol "
 "altre text. La data està en format ISO."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1037
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1046
 msgid ""
 "days_between(date1, date2) -- return the number of days between date1 and "
 "date2. The number is positive if date1 is greater than date2, otherwise "
@@ -20343,7 +20373,7 @@ msgstr ""
 "«data2». El nombre és positiu si «data1» és posterior a «data2», negativo en "
 "cas contrari. Si «data1» o «data2» no són dates, s'obté una cadena buida."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1059
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1068
 msgid ""
 "language_strings(lang_codes, localize) -- return the strings for the "
 "language codes passed in lang_codes. If localize is zero, return the strings "
@@ -20355,7 +20385,7 @@ msgstr ""
 "les cadenes en anglès. Sí «localize» no és zero, s'obtenen les cadenes en la "
 "llengua local actual. «Lang_codes» és una llista separada per comes."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1079
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1088
 msgid ""
 "language_codes(lang_strings) -- return the language codes for the strings "
 "passed in lang_strings. The strings must be in the language of the current "
@@ -20450,8 +20480,8 @@ msgid "English (Cyprus)"
 msgstr "Anglès (Xipre)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
-msgid "English (Czechoslovakia)"
-msgstr "Anglès (Txecoslovàquia)"
+msgid "English (Czech Republic)"
+msgstr "Anglès (República Txeca)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Pakistan)"
