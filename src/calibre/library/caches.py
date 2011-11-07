@@ -936,6 +936,9 @@ class ResultCache(SearchQueryParser): # {{{
                 item.refresh_composites()
 
     def refresh(self, db, field=None, ascending=True):
+        # reinitialize the template cache in case a composite column has changed
+        db.initialize_template_cache()
+
         temp = db.conn.get('SELECT * FROM meta2')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
