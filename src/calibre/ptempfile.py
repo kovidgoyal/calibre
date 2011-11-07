@@ -194,4 +194,8 @@ class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
         tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size, suffix=suffix,
                 prefix=prefix, dir=dir, mode=mode, bufsize=bufsize)
 
+def better_mktemp(*args, **kwargs):
+    fd, path = tempfile.mkstemp(*args, **kwargs)
+    os.close(fd)
+    return path
 

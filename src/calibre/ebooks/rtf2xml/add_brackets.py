@@ -11,10 +11,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile
+import sys, os
 
 from calibre.ebooks.rtf2xml import copy, check_brackets
-# note to self. This is the first module in which I use tempfile. A good idea?
+from calibre.ptempfile import better_mktemp
 
 class AddBrackets:
     """
@@ -39,7 +39,7 @@ class AddBrackets:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__run_level = run_level
 
     def __initiate_values(self):

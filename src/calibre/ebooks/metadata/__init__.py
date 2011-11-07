@@ -116,10 +116,14 @@ def title_sort(title, order=None):
         title = title[1:]
     match = _title_pat.search(title)
     if match:
-        prep = match.group(1)
-        title = title[len(prep):] + ', ' + prep
-        if title[0] in _ignore_starts:
-            title = title[1:]
+        try:
+            prep = match.group(1)
+        except IndexError:
+            pass
+        else:
+            title = title[len(prep):] + ', ' + prep
+            if title[0] in _ignore_starts:
+                title = title[1:]
     return title.strip()
 
 coding = zip(

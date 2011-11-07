@@ -36,7 +36,8 @@ class ANDROID(USBMS):
                        0xca2  : [0x100, 0x0227, 0x0226, 0x222],
                        0xca3  : [0x100, 0x0227, 0x0226, 0x222],
                        0xca4  : [0x100, 0x0227, 0x0226, 0x222],
-                       0xca9  : [0x100, 0x0227, 0x0226, 0x222]
+                       0xca9  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xcac  : [0x100, 0x0227, 0x0226, 0x222],
             },
 
             # Eken
@@ -138,8 +139,12 @@ class ANDROID(USBMS):
             # Advent
             0x0955 : { 0x7100 : [0x9999] }, # This is the same as the Notion Ink Adam
 
+            # Kobo
+            0x2237: { 0x2208 : [0x0226] },
+
             }
-    EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books']
+    EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
+            'sdcard/ebooks']
     EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
             'send e-books to on the device. The first one that exists will '
             'be used')
@@ -149,7 +154,7 @@ class ANDROID(USBMS):
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
             'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON',
-            'VIZIO', 'GOOGLE', 'FREESCAL']
+            'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -160,11 +165,13 @@ class ANDROID(USBMS):
             'MB860', 'MULTI-CARD', 'MID7015A', 'INCREDIBLE', 'A7EB', 'STREAK',
             'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
             'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
-            'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI']
+            'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI',
+            'UMS', '.K080', 'P990']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
-            '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL', 'ANDROID_MID']
+            '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
+            'ANDROID_MID', 'P990_SD_CARD']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

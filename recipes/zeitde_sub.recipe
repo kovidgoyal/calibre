@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+#!/usr/bin/env  python2
 # -*- coding: utf-8 mode: python -*-
 
 __license__   = 'GPL v3'
@@ -123,6 +123,9 @@ class ZeitEPUBAbo(BasicNewsRecipe):
 
         # new login process
         response = browser.open(url)
+        # Get rid of nested form
+        response.set_data(response.get_data().replace('<div><form action="/abo/zeit_digital?destination=node%2F94"  accept-charset="UTF-8" method="post" id="user-login-form" class="zol_inlinelabel">', ''))
+        browser.set_response(response)
         browser.select_form(nr=2)
         browser.form['name']=self.username
         browser.form['pass']=self.password
@@ -178,7 +181,11 @@ class ZeitEPUBAbo(BasicNewsRecipe):
             browser = self.get_browser()
 
             # new login process
-            browser.open(url)
+            response=browser.open(url)
+            # Get rid of nested form
+            response.set_data(response.get_data().replace('<div><form action="/abo/zeit_digital?destination=node%2F94"  accept-charset="UTF-8" method="post" id="user-login-form" class="zol_inlinelabel">', ''))
+            browser.set_response(response)
+
             browser.select_form(nr=2)
             browser.form['name']=self.username
             browser.form['pass']=self.password
@@ -211,4 +218,3 @@ class ZeitEPUBAbo(BasicNewsRecipe):
                 self.log.warning('Using static old low-res cover')
                 cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/1946/001_001.jpg'
         return cover_url
-

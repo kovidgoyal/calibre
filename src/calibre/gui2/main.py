@@ -347,7 +347,8 @@ def main(args=sys.argv):
         except socket.error:
             if iswindows:
                 cant_start()
-            os.remove(ADDRESS)
+            if os.path.exists(ADDRESS):
+                os.remove(ADDRESS)
             try:
                 listener = Listener(address=ADDRESS)
             except socket.error:

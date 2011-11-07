@@ -1,0 +1,37 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+class SKAI(BasicNewsRecipe):
+    title                  = 'SKAI'
+    __author__             = 'Stelios'
+    description            = 'News from Greece'
+    oldest_article         = 2
+    max_articles_per_feed  = 100
+    publisher              = 'skai.gr'
+    category               = 'news, GR'
+    language               = 'el'
+    encoding               = 'utf8'
+    no_stylesheets         = True
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+    encoding              = 'utf8'
+    keep_only_tags = [
+ dict(name='h1'),
+  dict(name='div', attrs={'class' : ['articleText']})
+]
+
+
+    feeds          = [
+	(u'\u039A\u03C5\u03C1\u03B9\u03CC\u03C4\u03B5\u03C1\u03B5\u03C2 \u0395\u03B9\u03B4\u03AE\u03C3\u03B5\u03B9\u03C2', 'http://feeds.feedburner.com/skai/Uulu'),
+	(u'\u0395\u03BB\u03BB\u03AC\u03B4\u03B1', 'http://feeds.feedburner.com/skai/PLwa'),
+	(u'\u039A\u03CC\u03C3\u03BC\u03BF\u03C2', 'http://feeds.feedburner.com/skai/aqOL'),
+	(u'\u03A0\u03BF\u03BB\u03B9\u03C4\u03B9\u03BA\u03AE','http://feeds.feedburner.com/skai/yinm'),
+	(u'\u039F\u03B9\u03BA\u03BF\u03BD\u03BF\u03BC\u03AF\u03B1', 'http://feeds.feedburner.com/skai/oPUt'),
+	(u'\u03A4\u03B5\u03C7\u03BD\u03BF\u03BB\u03BF\u03B3\u03AF\u03B1', 'http://feeds.feedburner.com/skai/fqsg'),
+	(u'\u0391\u03B8\u03BB\u03B7\u03C4\u03B9\u03C3\u03BC\u03CC\u03C2', 'http://feeds.feedburner.com/skai/TfmK'),
+	(u'\u03A5\u03B3\u03B5\u03AF\u03B1', 'http://feeds.feedburner.com/skai/TABn'),
+	(u'\u03A0\u03BF\u03BB\u03B9\u03C4\u03B9\u03C3\u03BC\u03CC\u03C2', 'http://feeds.feedburner.com/skai/ppGl'),
+	(u'\u0391\u03C5\u03C4\u03BF\u03BA\u03AF\u03BD\u03B7\u03C3\u03B7', 'http://feeds.feedburner.com/skai/HCCc'),
+	(u'\u03A0\u03B5\u03C1\u03B9\u03B2\u03AC\u03BB\u03BB\u03BF\u03BD', 'http://feeds.feedburner.com/skai/jVWs'),
+	(u'\u03A0\u03B1\u03C1\u03AC\u03BE\u03B5\u03BD\u03B1', 'http://feeds.feedburner.com/skai/bpAR')
+]

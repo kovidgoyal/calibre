@@ -1,86 +1,248 @@
-__license__   = 'GPL v3'
-__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
-'''
-www.independent.co.uk
-'''
+# adapted from old recipe by Darko Miletic <darko.miletic at gmail.com>
 
-from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+import string, re
+from calibre import strftime
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 
-class TheIndependent(BasicNewsRecipe):
-    title                 = 'The Independent'
-    __author__            = 'Darko Miletic'
-    description           = 'Independent News - Breaking news, comment and features from The Independent newspaper'
-    publisher             = 'The Independent'
-    category              = 'news, politics, UK'
-    oldest_article        = 2
-    max_articles_per_feed = 200
-    no_stylesheets        = True
-    encoding              = 'cp1252'
-    use_embedded_content  = False
-    language              = 'en_GB'
-    remove_empty_feeds    = True
-    publication_type      = 'newspaper'
-    masthead_url          = 'http://www.independent.co.uk/independent.co.uk/images/logo-london.png'
-    extra_css             = """
-                               h1{font-family: Georgia,serif }
-                               body{font-family: Verdana,Arial,Helvetica,sans-serif}
-                               img{margin-bottom: 0.4em; display:block}
-                               .info,.caption,.credits{font-size: x-small}
-                            """
 
+class TheIndependentNew(BasicNewsRecipe):
+
+    title                   = u'The Independent'
+    __author__              = 'Will'
+    description             = 'The latest in UK News and World News from The \
+                               Independent. Wide range of international and local news, sports \
+                               news, commentary and opinion pieces.Independent News - Breaking news \
+                               that matters. Your daily comprehensive news source - The \
+                               Independent Newspaper'
+    publisher               = 'The Independent'
+    category                = 'news, UK'
+    no_stylesheets          = True
+    use_embedded_content    = False
+    remove_empty_feeds      = True
+    language                = 'en_GB'
+    publication_type        = 'newspaper'
+    masthead_url            = 'http://www.independent.co.uk/independent.co.uk/editorial/logo/independent_Masthead.png'
+    encoding                = 'utf-8'
+    remove_tags             =[
+                               dict(attrs={'id' : ['RelatedArtTag','renderBiography']}),
+                               dict(attrs={'class' : ['autoplay','openBiogPopup']})
+                             ]
+   
+    keep_only_tags          =[dict(attrs={'id':'main'})]
+    
+    
+    
     conversion_options = {
                           'comment'   : description
                         , 'tags'      : category
                         , 'publisher' : publisher
                         , 'language'  : language
-                        }
-
-    remove_tags      =[
-                        dict(name=['meta','link','object','embed','iframe','base','style'])
-                        ,dict(attrs={'class':['related-articles','share','googleCols','article-tools','paging','googleArt']})
-                        ,dict(attrs={'id':['newsVideoPlayer','yahoobook','google-intext']})
-                      ]
-    keep_only_tags   =[dict(attrs={'id':'article'})]
-    remove_attributes=['lang','onclick','width','xmlns:fb']
-
+                        }  
+                        
+    extra_css             = """
+                               h1{font-family: Georgia,serif }
+                               body{font-family: Verdana,Arial,Helvetica,sans-serif}
+                               img{margin-bottom: 0.4em; display:block}
+                               .byline,.image,.dateline{font-size: x-small; color:#888888}
+                            """                     
+    
+    oldest_article = 1
+    max_articles_per_feed = 100
+    
+    def preprocess_html(self, soup):
+        for item in soup.findAll(attrs={'class' : re.compile("widget.*")}):
+            remove = True
+            pattern = re.compile('((articleContent)|(title))$')
+            if (pattern.search(item['class'])) is not None:
+                remove = False
+            
+            # corrections
+            # story content always good
+            pattern = re.compile('storyContent')    
+            if (pattern.search(item['class'])) is not None:
+                remove = False
+            
+            #images
+            pattern = re.compile('slideshow')    
+            if (pattern.search(item['class'])) is not None:
+                remove = False
+            
+            #social widgets always bad
+            pattern = re.compile('socialwidget')    
+            if (pattern.search(item['class'])) is not None:
+                remove = True
+            
+            if remove:
+                item.extract()
+                
+        for item in soup.findAll('a',attrs={'href' : re.compile('.*')}):
+            if item.img is not None:
+                #use full size image
+                img = item.findNext('img')
+    
+                img['src'] = item['href']
+    
+                #insert caption if available
+                if img['title'] is not None and (len(img['title']) > 1):
+                    tag = Tag(soup,'h3')
+                    text = NavigableString(img['title'])
+                    tag.insert(0,text)
+                
+                    #picture before text
+                    img.extract()
+                    item.insert(0,img)
+                    item.insert(1,tag)
+    
+                # remove link
+                item.name = "div"
+                item["class"]='image'
+                del item["href"]
+                
+                
+        #remove empty subtitles
+        """
+        currently the subtitle is located in first paragraph after
+        sibling <h3 class="subtitle"> tag. This may be 'fixed' at
+        some point. 
+        """       
+        subtitle = soup.find('h3',attrs={'class' : 'subtitle'})
+        if subtitle is not None:
+	        subtitleText = subtitle.findNext('p')
+	        if subtitleText is not None:
+	            if len(subtitleText.contents[0]) <= 1 : 
+	                subtitleText.extract()
+	                subtitle.extract()
+                
+        
+        return soup
+        
+        
+        
+    def postprocess_html(self,soup, first_fetch):
+        #find broken images and remove captions
+        for item in soup.findAll('div', attrs={'class' : 'byline'}):
+            img = item.findNext('img')
+            if img is not None and img['src'] is not None:
+                # broken images still point to remote url       
+                pattern = re.compile('http://www.independent.co.uk.*')    
+                if pattern.match(img["src"]) is not None:
+                    caption = img.findNextSibling('h3')
+                    if caption is not None:
+                        caption.extract()
+                    img.extract()
+        return soup
+                        
+                    
+        
 
     feeds = [
-              (u'UK'                 , u'http://www.independent.co.uk/news/uk/rss'                 )
-             ,(u'World'              , u'http://www.independent.co.uk/news/world/rss'              )
-             ,(u'Business'           , u'http://www.independent.co.uk/news/business/rss'           )
-             ,(u'People'             , u'http://www.independent.co.uk/news/people/rss'             )
-             ,(u'Science'            , u'http://www.independent.co.uk/news/science/rss'            )
-             ,(u'Media'              , u'http://www.independent.co.uk/news/media/rss'              )
-             ,(u'Education'          , u'http://www.independent.co.uk/news/education/rss'          )
-             ,(u'Leading Articles'   , u'http://www.independent.co.uk/opinion/leading-articles/rss')
-             ,(u'Comentators'        , u'http://www.independent.co.uk/opinion/commentators/rss'    )
-             ,(u'Columnists'         , u'http://www.independent.co.uk/opinion/columnists/rss'      )
-             ,(u'Letters'            , u'http://www.independent.co.uk/opinion/letters/rss'         )
-             ,(u'Big Question'       , u'http://www.independent.co.uk/extras/big-question/rss'     )
-             ,(u'Sport'              , u'http://www.independent.co.uk/sport/rss'                   )
-             ,(u'Life&Style'         , u'http://www.independent.co.uk/life-style/rss'              )
-             ,(u'Arts&Entertainment' , u'http://www.independent.co.uk/arts-entertainment/rss'      )
-             ,(u'Travel'             , u'http://www.independent.co.uk/travel/rss'                  )
-             ,(u'Money'              , u'http://www.independent.co.uk/money/rss'                   )
-            ]
+        (u'News - UK',
+         u'http://www.independent.co.uk/news/uk/?service=rss'),
+        (u'News - World',
+         u'http://www.independent.co.uk/news/world/?service=rss'),
+        (u'News - Business',
+         u'http://www.independent.co.uk/news/business/?service=rss'),
+        (u'News - People',
+         u'http://www.independent.co.uk/news/people/?service=rss'),
+        (u'News - Science',
+         u'http://www.independent.co.uk/news/science/?service=rss'),
+        (u'News - Media',
+         u'http://www.independent.co.uk/news/media/?service=rss'),
+        (u'News - Education',
+         u'http://www.independent.co.uk/news/education/?service=rss'),
+        (u'News - Obituaries',
+         u'http://www.independent.co.uk/news/obituaries/?service=rss'),
+        (u'News - Corrections',
+         u'http://www.independent.co.uk/news/corrections/?service=rss'
+         ),
+        (u'Opinion',
+         u'http://www.independent.co.uk/opinion/?service=rss'),
+        (u'Environment',
+         u'http://www.independent.co.uk/environment/?service=rss'),
+        (u'Sport - Athletics',
+         u'http://www.independent.co.uk/sport/general/athletics/?service=rss'
+         ),
+        (u'Sport - Cricket',
+         u'http://www.independent.co.uk/sport/cricket/?service=rss'),
+        (u'Sport - Football',
+         u'http://www.independent.co.uk/sport/football/?service=rss'),
+        (u'Sport - Golf',
+         u'http://www.independent.co.uk/sport/golf/?service=rss'),
+        (u'Sport - Motor racing',
+         u'http://www.independent.co.uk/sport/motor-racing/?service=rss'
+         ),
+        (u'Sport - Olympics',
+         u'http://www.independent.co.uk/sport/olympics/?service=rss'),
+        (u'Sport - Racing',
+         u'http://www.independent.co.uk/sport/racing/?service=rss'),
+        (u'Sport - Rugby League',
+         u'http://www.independent.co.uk/sport/general/rugby-league/?service=rss'),
+        (u'Sport - Rugby Union',
+         u'http://www.independent.co.uk/sport/rugby/rugby-union/?service=rss'
+         ),
+        (u'Sport - Sailing',
+         u'http://www.independent.co.uk/sport/general/sailing/?service=rss'
+         ),
+        (u'Sport - Tennis',
+         u'http://www.independent.co.uk/sport/tennis/?service=rss'),
+        (u'Sport - Others',
+         u'http://www.independent.co.uk/sport/general/others/?service=rss'
+         ),
+        (u'Life & Style - Fashion',
+         u'http://www.independent.co.uk/life-style/fashion/?service=rss'
+         ),
+        (u'Life & Style -Food & Drink',
+         u'http://www.independent.co.uk/life-style/food-and-drink/?service=rss'
+         ),
+        (u'Life & Style - Health and Families',
+         u'http://www.independent.co.uk/life-style/health-and-families/?service=rss'
+         ),
+        (u'Life & Style - House & Home',
+         u'http://www.independent.co.uk/life-style/house-and-home/'),
+        (u'Life & Style - History',
+         u'http://www.independent.co.uk/life-style/history/?service=rss'
+         ),
+        (u'Life & Style - Gadgets & Tech',
+         u'http://www.independent.co.uk/life-style/gadgets-and-tech/?service=rss'
+         ),
+        (u'Life & Style - Motoring',
+         u'http://www.independent.co.uk/life-style/motoring/?service=rss'
+         ),
+        (u'Arts & Ents - Art',
+         u'http://www.independent.co.uk/arts-entertainment/art/?service=rss'
+         ),
+        (u'Arts & Ents - Architecture',
+         u'http://www.independent.co.uk/arts-entertainment/architecture/?service=rss'
+         ),
+        (u'Arts & Ents - Music',
+         u'http://www.independent.co.uk/arts-entertainment/music/?service=rss'
+         ),
+        (u'Arts & Ents - Classical',
+         u'http://www.independent.co.uk/arts-entertainment/classical/?service=rss'
+         ),
+        (u'Arts & Ents - Films',
+         u'http://www.independent.co.uk/arts-entertainment/films/?service=rss'
+         ),
+        (u'Arts & Ents - TV',
+         u'http://www.independent.co.uk/arts-entertainment/tv/?service=rss'
+         ),
+        (u'Arts & Ents - Theatre and Dance',
+         u'http://www.independent.co.uk/arts-entertainment/theatre-dance/?service=rss'
+         ),
+        (u'Arts & Ents - Comedy',
+         u'http://www.independent.co.uk/arts-entertainment/comedy/?service=rss'
+         ),
+        (u'Arts & Ents - Books',
+         u'http://www.independent.co.uk/arts-entertainment/books/?service=rss'
+         ),
+        (u'Travel', u'http://www.independent.co.uk/travel/?service=rss'
+         ),
+        (u'Money', u'http://www.independent.co.uk/money/?service=rss'),
+        (u'IndyBest',
+         u'http://www.independent.co.uk/extras/indybest/?service=rss'),
+        ]
+        
+        
+        
 
-    def get_article_url(self, article):
-        return article.get('guid',  None)
-
-    def preprocess_html(self, soup):
-        for item in soup.body.findAll(style=True):
-            del item['style']
-        for item in soup.body.findAll(['author','preform']):
-            item.name='span'
-        for item in soup.body.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
-        for item in soup.body.findAll('div', attrs={'class':['clear-o','body','photoCaption']}):
-            item.name = 'p'
-        for item in soup.body.findAll('div'):
-            if not item.attrs and not item.contents:
-               item.extract()
-        soup2 = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        soup2.body.replaceWith(soup.body)
-        return soup2
