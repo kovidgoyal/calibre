@@ -216,7 +216,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     self.create_custom_column(f['label'], f['name'], f['datatype'],
                             f['is_multiple'] is not None and len(f['is_multiple']) > 0,
                             f['is_editable'], f['display'])
+        self.initialize_template_cache()
         self.initialize_dynamic()
+
+    def initialize_template_cache(self):
+        self.formatter_template_cache = {}
 
     def get_property(self, idx, index_is_id=False, loc=-1):
         row = self.data._data[idx] if index_is_id else self.data[idx]
@@ -897,7 +901,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         row = self.data._data[idx] if index_is_id else self.data[idx]
         fm = self.FIELD_MAP
-        mi = Metadata(None)
+        mi = Metadata(None, template_cache=self.formatter_template_cache)
 
         aut_list = row[fm['au_map']]
         if aut_list:
@@ -955,6 +959,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.set_identifiers(self.get_identifiers(id, index_is_id=True))
         mi.application_id = id
         mi.id = id
+
         for key, meta in self.field_metadata.custom_iteritems():
             mi.set_user_metadata(key, meta)
             if meta['datatype'] == 'composite':
