@@ -1,8 +1,9 @@
 # adapted from old recipe by Darko Miletic <darko.miletic at gmail.com>
 
-import re
+import string, re
+from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 
 
 class TheIndependentNew(BasicNewsRecipe):
@@ -27,87 +28,113 @@ class TheIndependentNew(BasicNewsRecipe):
                                dict(attrs={'id' : ['RelatedArtTag','renderBiography']}),
                                dict(attrs={'class' : ['autoplay','openBiogPopup']})
                              ]
-
+   
     keep_only_tags          =[dict(attrs={'id':'main'})]
-
-
-
+    
+    
+    
     conversion_options = {
                           'comment'   : description
                         , 'tags'      : category
                         , 'publisher' : publisher
                         , 'language'  : language
-                        }
-
+                        }  
+                        
     extra_css             = """
                                h1{font-family: Georgia,serif }
                                body{font-family: Verdana,Arial,Helvetica,sans-serif}
                                img{margin-bottom: 0.4em; display:block}
                                .byline,.image,.dateline{font-size: x-small; color:#888888}
-                            """
-
+                            """                     
+    
     oldest_article = 1
     max_articles_per_feed = 100
-
+    
     def preprocess_html(self, soup):
         for item in soup.findAll(attrs={'class' : re.compile("widget.*")}):
             remove = True
             pattern = re.compile('((articleContent)|(title))$')
             if (pattern.search(item['class'])) is not None:
                 remove = False
-
+            
             # corrections
             # story content always good
-            pattern = re.compile('storyContent')
+            pattern = re.compile('storyContent')    
             if (pattern.search(item['class'])) is not None:
                 remove = False
-
+            
             #images
-            pattern = re.compile('slideshow')
+            pattern = re.compile('slideshow')    
             if (pattern.search(item['class'])) is not None:
                 remove = False
-
+            
             #social widgets always bad
-            pattern = re.compile('socialwidget')
+            pattern = re.compile('socialwidget')    
             if (pattern.search(item['class'])) is not None:
                 remove = True
-
+            
             if remove:
                 item.extract()
-
+                
         for item in soup.findAll('a',attrs={'href' : re.compile('.*')}):
             if item.img is not None:
                 #use full size image
                 img = item.findNext('img')
-
+    
                 img['src'] = item['href']
-
-                #insert heading
-                tag = Tag(soup,'h3')
-                text = NavigableString('Caption: ' + img['title'])
-                tag.insert(0,text)
-
-                #picture before text
-                img.extract()
-                item.insert(0,img)
-                item.insert(1,tag)
-
+    
+                #insert caption if available
+                if img['title'] is not None and (len(img['title']) > 1):
+                    tag = Tag(soup,'h3')
+                    text = NavigableString(img['title'])
+                    tag.insert(0,text)
+                
+                    #picture before text
+                    img.extract()
+                    item.insert(0,img)
+                    item.insert(1,tag)
+    
                 # remove link
                 item.name = "div"
                 item["class"]='image'
                 del item["href"]
-
-
+                
+                
         #remove empty subtitles
+        """
+        currently the subtitle is located in first paragraph after
+        sibling <h3 class="subtitle"> tag. This may be 'fixed' at
+        some point. 
+        """       
         subtitle = soup.find('h3',attrs={'class' : 'subtitle'})
-        subtitleText = subtitle.findNext('p')
-        if subtitleText is not None:
-            if len(subtitleText.contents[0]) <= 1 :
-                subtitleText.extract()
-                subtitle.extract()
-
-
+        if subtitle is not None:
+	        subtitleText = subtitle.findNext('p')
+	        if subtitleText is not None:
+	            if len(subtitleText.contents[0]) <= 1 : 
+	                subtitleText.extract()
+	                subtitle.extract()
+                
+        
         return soup
+        
+        
+        
+    def postprocess_html(self,soup, first_fetch):
+        #find broken images and remove captions
+        for item in soup.findAll('div', attrs={'class' : 'byline'}):
+            img = item.findNext('img')
+            if img is not None and img['src'] is not None:
+                # broken images still point to remote url       
+                pattern = re.compile('http://www.independent.co.uk.*')    
+                if pattern.match(img["src"]) is not None:
+                    caption = img.findNextSibling('h3')
+                    if caption is not None:
+                        caption.extract()
+                    img.extract()
+        return soup
+                        
+                    
+        
 
     feeds = [
         (u'News - UK',
@@ -125,7 +152,7 @@ class TheIndependentNew(BasicNewsRecipe):
         (u'News - Education',
          u'http://www.independent.co.uk/news/education/?service=rss'),
         (u'News - Obituaries',
-         u'http://rss.feedsportal.com/c/266/f/3531/index.rss'),
+         u'http://www.independent.co.uk/news/obituaries/?service=rss'),
         (u'News - Corrections',
          u'http://www.independent.co.uk/news/corrections/?service=rss'
          ),
@@ -146,11 +173,11 @@ class TheIndependentNew(BasicNewsRecipe):
          u'http://www.independent.co.uk/sport/motor-racing/?service=rss'
          ),
         (u'Sport - Olympics',
-         u'http://rss.feedsportal.com/c/266/f/3800/index.rss'),
+         u'http://www.independent.co.uk/sport/olympics/?service=rss'),
         (u'Sport - Racing',
          u'http://www.independent.co.uk/sport/racing/?service=rss'),
         (u'Sport - Rugby League',
-         u'http://rss.feedsportal.com/c/266/f/3795/index.rss'),
+         u'http://www.independent.co.uk/sport/general/rugby-league/?service=rss'),
         (u'Sport - Rugby Union',
          u'http://www.independent.co.uk/sport/rugby/rugby-union/?service=rss'
          ),
@@ -215,4 +242,7 @@ class TheIndependentNew(BasicNewsRecipe):
         (u'IndyBest',
          u'http://www.independent.co.uk/extras/indybest/?service=rss'),
         ]
+        
+        
+        
 
