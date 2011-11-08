@@ -12,12 +12,12 @@ from PyQt4.Qt import (QColor, Qt, QModelIndex, QSize, QApplication,
                      QPen, QStyle, QPainter, QStyleOptionViewItemV4,
                      QIcon,  QDoubleSpinBox, QVariant, QSpinBox,
                      QStyledItemDelegate, QComboBox, QTextDocument,
-                     QAbstractTextDocumentLayout, QDateTime)
+                     QAbstractTextDocumentLayout)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
-from calibre.utils.date import now, format_date
+from calibre.utils.date import now, format_date, qt_to_dt
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
 from calibre.utils.icu import sort_key
@@ -118,7 +118,7 @@ class DateDelegate(QStyledItemDelegate): # {{{
         d = val.toDateTime()
         if d <= UNDEFINED_QDATETIME:
             return ''
-        return format_date(d.toPyDateTime(), self.format)
+        return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
@@ -138,7 +138,7 @@ class PubDateDelegate(QStyledItemDelegate): # {{{
         self.format = tweaks['gui_pubdate_display_format']
         if self.format is None:
             self.format = 'MMM yyyy'
-        return format_date(d.toPyDateTime(), self.format)
+        return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
@@ -260,7 +260,7 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
         d = val.toDateTime()
         if d <= UNDEFINED_QDATETIME:
             return ''
-        return format_date(d.toPyDateTime(), self.format)
+        return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
