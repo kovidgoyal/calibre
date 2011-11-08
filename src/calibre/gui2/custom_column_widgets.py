@@ -697,7 +697,6 @@ class BulkDateTime(BulkBase):
             val = None
         else:
             val = qt_to_dt(val)
-        print val
         return val
 
 class BulkSeries(BulkBase):

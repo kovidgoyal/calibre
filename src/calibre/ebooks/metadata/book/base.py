@@ -32,6 +32,7 @@ NULL_VALUES = {
                 'device_collections': [],
                 'author_sort_map': {},
                 'authors'      : [_('Unknown')],
+                'author_sort'  : _('Unknown'),
                 'title'        : _('Unknown'),
                 'user_categories' : {},
                 'author_link_map' : {},

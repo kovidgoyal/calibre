@@ -122,6 +122,11 @@ class Kobo(Device):
     output_format = 'EPUB'
     id = 'kobo'
 
+class KoboVox(Kobo):
+    name = 'Kobo Vox'
+    output_profile = 'tablet'
+    id = 'kobo_vox'
+
 class Booq(Device):
     name = 'bq Classic'
     manufacturer = 'Booq'

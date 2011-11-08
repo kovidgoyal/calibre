@@ -173,8 +173,6 @@ def get_components(template, mi, id, timefmt='%b %Y', length=250,
     tsorder = tweaks['save_template_title_series_sorting']
     format_args = FORMAT_ARGS.copy()
     format_args.update(mi.all_non_none_fields())
-    if mi.is_null('author_sort'):
-        format_args['author_sort'] = _('Unknown')
     if mi.title:
         if tsorder == 'strictly_alphabetic':
             v = mi.title
