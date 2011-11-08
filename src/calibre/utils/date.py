@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from datetime import datetime
+from datetime import datetime, time
 from functools import partial
 
 from dateutil.parser import parse
@@ -160,6 +160,9 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
     ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
     if not format:
         format = 'dd MMM yyyy'
+
+    if not isinstance(dt, datetime):
+        dt = datetime.combine(dt, time())
 
     if hasattr(dt, 'tzinfo'):
         if dt.tzinfo is None:

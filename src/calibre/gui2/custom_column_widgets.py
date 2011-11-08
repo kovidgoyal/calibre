@@ -7,15 +7,15 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateEdit, \
-        QDate, QGroupBox, QVBoxLayout, QSizePolicy, \
+from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit, \
+        QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, \
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
         QPushButton
 
 from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.gui2.comments_editor import Editor as CommentsEditor
-from calibre.gui2 import UNDEFINED_QDATE, error_dialog
+from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
@@ -142,27 +142,27 @@ class Rating(Int):
             val *= 2
         return val
 
-class DateEdit(QDateEdit):
+class DateTimeEdit(QDateTimeEdit):
 
     def focusInEvent(self, x):
         self.setSpecialValueText('')
-        QDateEdit.focusInEvent(self, x)
+        QDateTimeEdit.focusInEvent(self, x)
 
     def focusOutEvent(self, x):
         self.setSpecialValueText(_('Undefined'))
-        QDateEdit.focusOutEvent(self, x)
+        QDateTimeEdit.focusOutEvent(self, x)
 
     def set_to_today(self):
-        self.setDate(now())
+        self.setDateTime(now())
 
     def set_to_clear(self):
-        self.setDate(UNDEFINED_QDATE)
+        self.setDateTime(UNDEFINED_QDATETIME)
 
 class DateTime(Base):
 
     def setup_ui(self, parent):
         cm = self.col_metadata
-        self.widgets = [QLabel('&'+cm['name']+':', parent), DateEdit(parent)]
+        self.widgets = [QLabel('&'+cm['name']+':', parent), DateTimeEdit(parent)]
         self.widgets.append(QLabel(''))
         w = QWidget(parent)
         self.widgets.append(w)
@@ -179,24 +179,25 @@ class DateTime(Base):
         w = self.widgets[1]
         format = cm['display'].get('date_format','')
         if not format:
-            format = 'dd MMM yyyy'
+            format = 'dd MMM yyyy hh:mm'
         w.setDisplayFormat(format)
         w.setCalendarPopup(True)
-        w.setMinimumDate(UNDEFINED_QDATE)
+        w.setMinimumDateTime(UNDEFINED_QDATETIME)
         w.setSpecialValueText(_('Undefined'))
         self.today_button.clicked.connect(w.set_to_today)
         self.clear_button.clicked.connect(w.set_to_clear)
 
     def setter(self, val):
         if val is None:
-            val = self.widgets[1].minimumDate()
+            val = self.widgets[1].minimumDateTime()
         else:
-            val = QDate(val.year, val.month, val.day)
-        self.widgets[1].setDate(val)
+            val = QDateTime(val)
+        self.widgets[1].setDateTime(val)
 
     def getter(self):
-        val = self.widgets[1].date()
-        if val == UNDEFINED_QDATE:
+        val = self.widgets[1].dateTime()
+        print val
+        if val <= UNDEFINED_QDATETIME:
             val = None
         else:
             val = qt_to_dt(val)
@@ -537,9 +538,9 @@ class BulkBase(Base):
         if hasattr(self.main_widget, 'valueChanged'):
             # spinbox widgets
             self.main_widget.valueChanged.connect(self.a_c_checkbox_changed)
-        if hasattr(self.main_widget, 'dateChanged'):
+        if hasattr(self.main_widget, 'dateTimeChanged'):
             # dateEdit widgets
-            self.main_widget.dateChanged.connect(self.a_c_checkbox_changed)
+            self.main_widget.dateTimeChanged.connect(self.a_c_checkbox_changed)
 
     def a_c_checkbox_changed(self):
         if not self.ignore_change_signals:
@@ -658,7 +659,7 @@ class BulkDateTime(BulkBase):
 
     def setup_ui(self, parent):
         cm = self.col_metadata
-        self.make_widgets(parent, DateEdit)
+        self.make_widgets(parent, DateTimeEdit)
         self.widgets.append(QLabel(''))
         w = QWidget(parent)
         self.widgets.append(w)
@@ -678,25 +679,26 @@ class BulkDateTime(BulkBase):
             format = 'dd MMM yyyy'
         w.setDisplayFormat(format)
         w.setCalendarPopup(True)
-        w.setMinimumDate(UNDEFINED_QDATE)
+        w.setMinimumDateTime(UNDEFINED_QDATETIME)
         w.setSpecialValueText(_('Undefined'))
         self.today_button.clicked.connect(w.set_to_today)
         self.clear_button.clicked.connect(w.set_to_clear)
 
     def setter(self, val):
         if val is None:
-            val = self.main_widget.minimumDate()
+            val = self.main_widget.minimumDateTime()
         else:
-            val = QDate(val.year, val.month, val.day)
-        self.main_widget.setDate(val)
+            val = QDateTime(val)
+        self.main_widget.setDateTime(val)
         self.ignore_change_signals = False
 
     def getter(self):
-        val = self.main_widget.date()
-        if val == UNDEFINED_QDATE:
+        val = self.main_widget.dateTime()
+        if val <= UNDEFINED_QDATETIME:
             val = None
         else:
             val = qt_to_dt(val)
+        print val
         return val
 
 class BulkSeries(BulkBase):

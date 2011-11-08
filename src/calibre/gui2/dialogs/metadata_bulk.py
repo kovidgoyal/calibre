@@ -7,14 +7,14 @@ import re, os, inspect
 
 from PyQt4.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
-                     QDate, QCompleter
+                     QDateTime, QCompleter
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
 from calibre.ebooks.metadata.book.base import SafeFormat
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATE, \
+from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATETIME, \
     gprefs, question_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import dynamic, JSONConfig
@@ -306,18 +306,21 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
-        self.pubdate.setMinimumDate(UNDEFINED_QDATE)
+        self.pubdate.setMinimumDateTime(UNDEFINED_QDATETIME)
         pubdate_format = tweaks['gui_pubdate_display_format']
         if pubdate_format is not None:
             self.pubdate.setDisplayFormat(pubdate_format)
         self.pubdate.setSpecialValueText(_('Undefined'))
         self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
-        self.pubdate.dateChanged.connect(self.do_apply_pubdate)
-        self.adddate.setDate(QDate.currentDate())
-        self.adddate.setMinimumDate(UNDEFINED_QDATE)
+        self.pubdate.dateTimeChanged.connect(self.do_apply_pubdate)
+        self.adddate.setDateTime(QDateTime.currentDateTime())
+        self.adddate.setMinimumDateTime(UNDEFINED_QDATETIME)
+        adddate_format = tweaks['gui_timestamp_display_format']
+        if adddate_format is not None:
+            self.adddate.setDisplayFormat(adddate_format)
         self.adddate.setSpecialValueText(_('Undefined'))
         self.clear_adddate_button.clicked.connect(self.clear_adddate)
-        self.adddate.dateChanged.connect(self.do_apply_adddate)
+        self.adddate.dateTimeChanged.connect(self.do_apply_adddate)
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)
@@ -347,13 +350,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.apply_pubdate.setChecked(True)
 
     def clear_pubdate(self, *args):
-        self.pubdate.setDate(UNDEFINED_QDATE)
+        self.pubdate.setMinimumDateTime(UNDEFINED_QDATETIME)
 
     def do_apply_adddate(self, *args):
         self.apply_adddate.setChecked(True)
 
     def clear_adddate(self, *args):
-        self.adddate.setDate(UNDEFINED_QDATE)
+        self.adddate.setMinimumDateTime(UNDEFINED_QDATETIME)
 
     def button_clicked(self, which):
         if which == self.button_box.button(QDialogButtonBox.Apply):
@@ -935,9 +938,9 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         languages = self.languages.lang_codes
         pubdate = adddate = None
         if self.apply_pubdate.isChecked():
-            pubdate = qt_to_dt(self.pubdate.date())
+            pubdate = qt_to_dt(self.pubdate.dateTime())
         if self.apply_adddate.isChecked():
-            adddate = qt_to_dt(self.adddate.date())
+            adddate = qt_to_dt(self.adddate.dateTime())
 
         cover_action = None
         if self.cover_remove.isChecked():
