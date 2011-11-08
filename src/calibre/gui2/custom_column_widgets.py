@@ -196,7 +196,6 @@ class DateTime(Base):
 
     def getter(self):
         val = self.widgets[1].dateTime()
-        print val
         if val <= UNDEFINED_QDATETIME:
             val = None
         else:
