@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-06 08:51+0000\n"
-"PO-Revision-Date: 2011-11-03 11:36+0000\n"
+"PO-Revision-Date: 2011-11-08 01:39+0000\n"
 "Last-Translator: SteliosGero <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-07 05:27+0000\n"
+"X-Launchpad-Export-Date: 2011-11-08 05:32+0000\n"
 "X-Generator: Launchpad (build 14231)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -8252,7 +8252,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:232
 msgid "&Done"
-msgstr ""
+msgstr "Έ&γινε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:235
 msgid "Delete &marked"
@@ -8458,7 +8458,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:241
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:649
 msgid "&OK"
-msgstr ""
+msgstr "&ΟΚ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:242
@@ -8613,7 +8613,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:55
 msgid "Link"
-msgstr ""
+msgstr "Σύνδεσμος"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
@@ -8654,7 +8654,7 @@ msgstr "Κεφαλαία/Πεζά Τίτλου"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:270
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:442
 msgid "Capitalize"
-msgstr ""
+msgstr "Πρώτο γράμμα κεφαλαίο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:181
 msgid "Copy to author sort"
@@ -8682,12 +8682,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:610
 msgid "&Search for:"
-msgstr ""
+msgstr "&Αναζήτηση για:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:316
 msgid "F&ind"
-msgstr ""
+msgstr "Εύ&ρεση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:91
 msgid "Sort by author"
@@ -8787,7 +8787,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:61
 msgid "Search/Replace"
-msgstr ""
+msgstr "Εύρεση/Αντικατάσταση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:83
@@ -8981,7 +8981,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:593
 msgid "Remove &all"
-msgstr ""
+msgstr "Αφαίρεση &όλων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:558
 msgid "If checked, the series will be cleared"
@@ -9118,7 +9118,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:599
 msgid "Sa&ve"
-msgstr ""
+msgstr "Απο&θήκευση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:601
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:64
@@ -9179,7 +9179,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:614
 msgid "&Replace with:"
-msgstr ""
+msgstr "&Αντικατάσταση με:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:615
 msgid ""
@@ -9211,7 +9211,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:622
 msgid "M&ode:"
-msgstr ""
+msgstr "&Λειτουργία:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:623
 msgid "Specify how the text should be copied into the destination."
@@ -9290,7 +9290,7 @@ msgstr "&Εμφάνιση κωδικού πρόσβασης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:122
 msgid "Restart required"
-msgstr ""
+msgstr "Απαιτείται επανεκκίνηση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:123
 msgid "You must restart Calibre before using this plugin!"
@@ -9306,12 +9306,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:136
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:111
 msgid "All"
-msgstr ""
+msgstr "Όλα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Installed"
-msgstr ""
+msgstr "Εγκαταστάθηκε(αν)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:397
@@ -9320,7 +9320,7 @@ msgstr "Μη εγκατεστημένα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 msgid "Update available"
-msgstr ""
+msgstr "Ενημέρωση διαθέσιμη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Plugin Name"
@@ -9333,15 +9333,15 @@ msgstr "Κατάσταση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Available"
-msgstr ""
+msgstr "Διαθέσιμο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Calibre"
-msgstr ""
+msgstr "Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Released"
-msgstr ""
+msgstr "Κυκλοφορία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:328
 msgid "PayPal"
@@ -9369,7 +9369,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:394
 msgid "New version available"
-msgstr ""
+msgstr "Νέα έκδοση διαθέσιμη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:396
 msgid "Latest version installed"
@@ -9432,7 +9432,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:512
 msgid "Description"
-msgstr ""
+msgstr "Περιγραφή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:535
@@ -9581,7 +9581,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:785
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:341
 msgid "Must restart"
-msgstr ""
+msgstr "Πρέπει να γίνει επανεκκίνηση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:786
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:342
@@ -9807,7 +9807,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:157
 msgid "days"
-msgstr ""
+msgstr "ημέρες"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:161
 msgid ""
@@ -9830,7 +9830,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:352
 msgid "Account"
-msgstr ""
+msgstr "Λογαριασμός"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:353
 msgid "(optional)"
@@ -9838,7 +9838,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:354
 msgid "(required)"
-msgstr ""
+msgstr "(απαιτείται)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:371
 msgid "Created by: "
@@ -9884,7 +9884,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Go"
-msgstr ""
+msgstr "Πάμε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:208
 msgid "blurb"
@@ -10115,7 +10115,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:183
 msgid "&Author:"
-msgstr ""
+msgstr "&Συγγραφέας:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1091
@@ -10174,7 +10174,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:222
 msgid "Invalid name"
-msgstr ""
+msgstr "Μη έγκυρο όνομα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:192
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:223
@@ -10220,7 +10220,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:172
 msgid "Add a new category"
-msgstr ""
+msgstr "Εισάγετε μια νέα κατηγορία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to the what is in the box"
@@ -10302,7 +10302,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:105
 msgid "Tag"
-msgstr ""
+msgstr "Ετικέτα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:108
 msgid "Count"
@@ -10373,7 +10373,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:85
 msgid "Python &code:"
-msgstr ""
+msgstr "&Κώδικας Python:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_line_editor.py:30
 msgid "Remove any template from the box"
@@ -10387,7 +10387,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:473
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:48
 msgid "Edit template"
-msgstr ""
+msgstr "Επεξεργασία προτύπου"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/test_email_ui.py:56
 msgid "Test email settings"
@@ -10430,7 +10430,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:64
 msgid "Discard changes"
-msgstr ""
+msgstr "Απόρριψη αλλαγών"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:66
 msgid "Rebuild ePub from exploded contents"
@@ -10455,7 +10455,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:149
 msgid "Recipe for "
-msgstr ""
+msgstr "Συνταγή για "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:177
@@ -10506,14 +10506,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:317
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:344
 msgid "Replace recipe?"
-msgstr ""
+msgstr "Αντικατάσταση συνταγής;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:259
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:318
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:345
 #, python-format
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "Μια συνταγή με το όνομα %s ήδη υπάρχει. Θέλετε να αντικατασταθεί;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:285
 msgid "Choose builtin recipe"
@@ -10798,7 +10798,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1288
 msgid "ISBN:"
-msgstr ""
+msgstr "ISBN:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:150
 msgid "Regular expression (?P<isbn>)"
@@ -10806,7 +10806,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:152
 msgid "Publisher:"
-msgstr ""
+msgstr "Εκδότης:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:153
 msgid "Regular expression (?P<publisher>)"
@@ -10814,7 +10814,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:155
 msgid "Published:"
-msgstr "Δημοσιεύτηκε:"
+msgstr "Εκδόθηκε:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:156
 msgid "Regular expression (?P<published>)"
@@ -11001,7 +11001,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:430
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:59
 msgid "Press a key..."
-msgstr ""
+msgstr "Πατήστε ένα πλήκτρο..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:457
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:80
@@ -11019,7 +11019,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:508
 msgid "Shortcuts"
-msgstr ""
+msgstr "Συντομεύσεις"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:592
 msgid ""
@@ -11078,7 +11078,7 @@ msgstr "Σύνθετη Αναζήτηση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:184
 msgid "Shift+Ctrl+F"
-msgstr ""
+msgstr "Shift+Ctrl+F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:194
 msgid ""
@@ -11088,7 +11088,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:200
 msgid "&Go!"
-msgstr ""
+msgstr "&Πάμε!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:206
 msgid "Do Quick Search (you can also press the Enter key)"
@@ -11420,7 +11420,7 @@ msgstr "&Έξοδος"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:138
 msgid "Unhandled exception"
-msgstr ""
+msgstr "Άγνωστο σφάλμα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:267
@@ -11493,7 +11493,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:506
 msgid "&Number:"
-msgstr ""
+msgstr "&Αριθμός:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:603
 #, python-format
@@ -11548,7 +11548,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:867
 msgid "&Browse"
-msgstr ""
+msgstr "&Περιήγηση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:869
 msgid "T&rim"
@@ -11556,7 +11556,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:871
 msgid "&Remove"
-msgstr ""
+msgstr "&Αφαίρεση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:877
 msgid "Download co&ver"
@@ -11597,7 +11597,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1058
 msgid "stars"
-msgstr ""
+msgstr "αστέρια"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1127
 msgid "Tags changed"
@@ -11661,7 +11661,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1332
 msgid "&Publisher:"
-msgstr ""
+msgstr "&Εκδότης:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1402
 msgid "Clear date"
@@ -11739,7 +11739,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:32
 msgid "Edit Metadata"
-msgstr ""
+msgstr "Επεξεργασία μεταδεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:844
@@ -11747,14 +11747,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:211
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:401
 msgid "Next"
-msgstr ""
+msgstr "Επόμενο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:70
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:221
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:384
 msgid "Previous"
-msgstr ""
+msgstr "Προηγούμενο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:116
 msgid ""
@@ -11848,7 +11848,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:602
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:807
 msgid "Change cover"
-msgstr ""
+msgstr "Αλλαγή εξωφύλλου"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:661
 msgid "Co&mments"
@@ -11857,7 +11857,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:701
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:848
 msgid "&Metadata"
-msgstr ""
+msgstr "&Μεταδεδομένα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:706
 msgid "&Cover and formats"
@@ -11901,11 +11901,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:425
 msgid "Please wait"
-msgstr ""
+msgstr "Παρακαλώ περιμένετε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:454
 msgid "Query: "
-msgstr ""
+msgstr "Ερώτηση: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:473
 msgid "Failed to download metadata. Click Show Details to see details"
@@ -11925,7 +11925,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:548
 msgid "Searching..."
-msgstr ""
+msgstr "Αναζήτηση…"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:705
 #, python-format
@@ -12186,15 +12186,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:40
 msgid "is equal to"
-msgstr ""
+msgstr "είναι ίσο με"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:41
 msgid "is less than"
-msgstr ""
+msgstr "είναι μικρότερη από"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:42
 msgid "is greater than"
-msgstr ""
+msgstr "είναι μεγαλύτερο από"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:45
 msgid "has"
@@ -12215,20 +12215,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:49
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:57
 msgid "is set"
-msgstr ""
+msgstr "είναι"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:58
 msgid "is not set"
-msgstr "δεν είναι ορισμένο"
+msgstr "δεν είναι"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
 msgid "is"
-msgstr ""
+msgstr "είναι"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:54
 msgid "is not"
-msgstr ""
+msgstr "δεν είναι"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:55
 msgid "matches pattern"
@@ -12344,7 +12344,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:491
 msgid "Add Rule"
-msgstr ""
+msgstr "Προσθήκη Κανόνα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:494
 msgid "Remove Rule"
@@ -12398,7 +12398,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:88
 msgid "Move column up"
-msgstr ""
+msgstr "Μετακίνηση στήλης πάνω"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:84
@@ -12417,7 +12417,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:96
 msgid "Move column down"
-msgstr ""
+msgstr "Μετακίνηση στήλης κάτω"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/columns_ui.py:98
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:91
@@ -12543,7 +12543,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:177
 msgid "My Tags"
-msgstr ""
+msgstr "Οι Ετικέτες μου"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:178
 msgid "My Series"
@@ -12555,7 +12555,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:180
 msgid "People"
-msgstr ""
+msgstr "Άτομα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:207
 msgid ""
@@ -12721,7 +12721,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:246
 msgid "&Template"
-msgstr ""
+msgstr "&Πρότυπο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:247
 msgid "Field template. Uses the same syntax as save templates."
@@ -12758,7 +12758,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:255
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:260
 msgid "Values"
-msgstr ""
+msgstr "Τιμές"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:256
 msgid ""
@@ -12779,7 +12779,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:263
 msgid "Colors"
-msgstr ""
+msgstr "Χρώματα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_debug.py:21
 msgid "Getting debug information"
@@ -12852,7 +12852,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:27
 msgid "Email"
-msgstr "Ηλεκ. αλληλογραφία"
+msgstr "Email"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:32
 msgid "Formats to email. The first matching format will be sent."
@@ -12917,11 +12917,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:142
 msgid "Disabled"
-msgstr ""
+msgstr "Απενεργοποιημένο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:143
 msgid "Partitioned"
-msgstr ""
+msgstr "Διαμερισμένο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:175
 msgid "Column coloring"
@@ -12987,11 +12987,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:120
 msgid "Move up"
-msgstr ""
+msgstr "Μετακίνηση πάνω"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:127
 msgid "Move down"
-msgstr ""
+msgstr "Μετακίνηση κάτω"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:139
 msgid "Default author link template:"
@@ -13082,7 +13082,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:92
 msgid "&Apply"
-msgstr ""
+msgstr "&Εφαρμογή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:237
 msgid "Restore &defaults"
@@ -13090,7 +13090,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:238
 msgid "Save changes"
-msgstr ""
+msgstr "Αποθήκευση αλλαγών"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:239
 msgid "Cancel and return to overview"
@@ -13119,7 +13119,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
-msgstr ""
+msgstr "Πηγή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:50
 msgid "Cover priority"
@@ -13230,7 +13230,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid " secs"
-msgstr ""
+msgstr " δευτερόλεπτα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:113
 msgid "Max. time to wait after first &cover is found:"
@@ -13310,7 +13310,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:72
 msgid " minutes"
-msgstr ""
+msgstr " λεπτά"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:52
 msgid "Device currently connected: "
@@ -13961,7 +13961,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:96
 msgid "&Function:"
-msgstr ""
+msgstr "&Συνάρτηση:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:97
 msgid "Enter the name of the function to create."
@@ -13977,15 +13977,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:102
 msgid "&Delete"
-msgstr ""
+msgstr "&Διαγραφή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:103
 msgid "&Replace"
-msgstr ""
+msgstr "&Αντικατάσταση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:104
 msgid "C&reate"
-msgstr ""
+msgstr "&Δημιουργία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:105
 msgid "&Program Code: (be sure to follow python indenting rules)"
@@ -13997,15 +13997,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:41
 msgid "Separator"
-msgstr ""
+msgstr "Διαχωριστική γραμμή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:58
 msgid "Choose library"
-msgstr ""
+msgstr "Επιλογή βιβλιοθήκης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:219
 msgid "The main toolbar"
-msgstr ""
+msgstr "Η κύρια μπάρα εργαλείων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:220
 msgid "The main toolbar when a device is connected"
@@ -14176,7 +14176,7 @@ msgstr "Αναζήτηση (Για Σύνθετη Αναζήτηση πατήσ�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:392
 msgid "Start search"
-msgstr ""
+msgstr "Έναρξη αναζήτησης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:402
 msgid "Enable or disable search highlighting."
@@ -14249,11 +14249,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid "Keys"
-msgstr ""
+msgstr "Πλήκτρα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:225
 msgid "Double click to change"
-msgstr ""
+msgstr "Διπλό κλικ για τροποποίηση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:73
 msgid "Frame"
@@ -14278,11 +14278,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:219
 msgid "&Name:"
-msgstr ""
+msgstr "&Όνομα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:221
 msgid "&Description:"
-msgstr ""
+msgstr "Περιγρα&φή:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:222
 msgid "&Headquarters:"
@@ -14290,7 +14290,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:226
 msgid "Enabled:"
-msgstr ""
+msgstr "Ενεργό:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:227
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:189
@@ -14328,17 +14328,17 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
 msgid "Query:"
-msgstr ""
+msgstr "Ερώτημα:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
 msgid "Enable"
-msgstr ""
+msgstr "Ενεργοποίηση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:112
 msgid "Invert"
-msgstr ""
+msgstr "Αναστροφή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -14347,7 +14347,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Enabled"
-msgstr ""
+msgstr "Ενεργό"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Headquarters"
@@ -14355,7 +14355,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "No DRM"
-msgstr ""
+msgstr "Χωρίς DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:129
 msgid ""
@@ -14399,12 +14399,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/results_view.py:47
 msgid "Configure..."
-msgstr ""
+msgstr "Παραμετροποίηση..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:99
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:99
 msgid "Time"
-msgstr ""
+msgstr "Ώρα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:100
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:100
@@ -14419,7 +14419,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:102
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:102
 msgid "Display"
-msgstr ""
+msgstr "Εμφάνιση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:103
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:103
@@ -14453,7 +14453,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:105
 msgid "Performance"
-msgstr ""
+msgstr "Επιδόσεις"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:106
 msgid "Number of simultaneous searches"
@@ -14473,13 +14473,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:62
 msgid "Search:"
-msgstr ""
+msgstr "Αναζήτηση:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:142
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:77
 msgid "Books:"
-msgstr ""
+msgstr "Βιβλία:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:144
@@ -14488,32 +14488,32 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:63
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "Close"
-msgstr ""
+msgstr "Κλείσιμο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:129
 msgid "&Price:"
-msgstr ""
+msgstr "&Τιμή:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:176
 msgid "Download:"
-msgstr ""
+msgstr "Λήψη:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:235
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:187
 msgid "Titl&e/Author/Price ..."
-msgstr ""
+msgstr "Τίτλο&ς/Συγγραφέας/Τιμή..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "DRM"
-msgstr ""
+msgstr "DRM"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Download"
-msgstr ""
+msgstr "Λήψη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Price"
-msgstr ""
+msgstr "Τιμή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:200
 #, python-format
@@ -14552,7 +14552,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:41
 msgid "Download..."
-msgstr ""
+msgstr "Λήψη αρχείου..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/results_view.py:45
 msgid "Goto in store..."
@@ -14629,7 +14629,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:74
 msgid "&Query:"
-msgstr ""
+msgstr "&Ερώτημα:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_control.py:75
 msgid ""
@@ -14647,11 +14647,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:59
 msgid "Home"
-msgstr ""
+msgstr "Αρχική"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:60
 msgid "Reload"
-msgstr ""
+msgstr "Επαναφόρτωση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:61
 msgid "%p%"
@@ -14738,7 +14738,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:83
 msgid "New Category"
-msgstr ""
+msgstr "Νέα Κατηγορία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:134
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:137
@@ -14797,7 +14797,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:322
 msgid "Collapse all categories"
-msgstr ""
+msgstr "Σύμπτυξη όλων των κατηγοριών"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:346
 msgid "No More Matches.</b><p> Click Find again to go to first match"
@@ -14821,11 +14821,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:370
 msgid "Match all"
-msgstr ""
+msgstr "Ταίριασμα όλων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:370
 msgid "Match any"
-msgstr ""
+msgstr "Ταίριασμα με οποιοδήποτε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:375
 msgid ""
@@ -14926,7 +14926,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:476
 msgid "Show all categories"
-msgstr ""
+msgstr "Προβολή Κατηγοριών"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:479
 msgid "Change sub-categorization scheme"
@@ -15004,7 +15004,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:354
 msgid "Debug mode"
-msgstr ""
+msgstr "Λειτουργία αποσφαλμάτωσης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:355
 #, python-format
@@ -15024,15 +15024,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:578
 msgid "Conversion Error"
-msgstr ""
+msgstr "Σφάλμα Μετατροπής"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:601
 msgid "Recipe Disabled"
-msgstr ""
+msgstr "Η συνταγή Απενεργοποιήθηκε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:617
 msgid "<b>Failed</b>"
-msgstr ""
+msgstr "<b>Απέτυχε</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:651
 msgid "There are active jobs. Are you sure you want to quit?"
@@ -15064,24 +15064,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:80
 msgid "Update available!"
-msgstr ""
+msgstr "Υπάρχει διαθέσιμη ενημέρωση!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:85
 msgid "Show this notification for future updates"
-msgstr ""
+msgstr "Να εμφανίζεται αυτή η ειδοποίηση για τις επόμενες ενημερώσεις"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:90
 msgid "&Get update"
-msgstr ""
+msgstr "&Λήψη ενημέρωσης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:94
 msgid "Update &plugins"
-msgstr ""
+msgstr "Ενημέρωση &πρόσθετων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:153
 #, python-format
 msgid " (%d plugin updates)"
-msgstr ""
+msgstr " (%d ενημερώσεις πρόσθετων)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:156
 msgid "Update found"
@@ -15089,21 +15089,21 @@ msgstr "Υπάρχει νέα έκδοση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:159
 msgid "updated plugins"
-msgstr ""
+msgstr "ενημερωμένα πρόσθετα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:190
 msgid "Plugin Updates"
-msgstr ""
+msgstr "Ενημερώσεις Πρόσθετων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:188
 #, python-format
 msgid "There are %d plugin updates available"
-msgstr ""
+msgstr "Υπάρχουν %d ενημερώσεις πρόσθετων διαθέσιμες"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:192
 msgid "Install and configure user plugins"
-msgstr ""
+msgstr "Εγκατάσταση και ρύθμιση των πρόσθετων του χρήστη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -15144,7 +15144,7 @@ msgstr "Επεξεργασία"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:65
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:667
 msgid "Reset"
-msgstr "Μηδενισμός"
+msgstr "Επαναφορά"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager_ui.py:66
 msgid "Export"
@@ -15236,7 +15236,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "disabled"
-msgstr ""
+msgstr "ανενεργό"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:200
 msgid "Mouse &wheel flips pages"
@@ -15468,7 +15468,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:475
 msgid "Choose ebook"
-msgstr ""
+msgstr "Επιλογή ebook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:476
 msgid "Ebooks"
@@ -15483,11 +15483,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:500
 msgid "larger"
-msgstr ""
+msgstr "μεγαλύτερο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:502
 msgid "smaller"
-msgstr ""
+msgstr "μικρότερο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:518
 #, python-format
@@ -15522,11 +15522,11 @@ msgstr "Διαχείριση Σελιδοδεικτών"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:680
 msgid "Loading ebook..."
-msgstr ""
+msgstr "Γίνεται φόρτωση του eBook..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:692
 msgid "Could not open ebook"
-msgstr ""
+msgstr "Δεν ήταν δυνατή η φόρτωση του eBook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:791
 msgid "Options to control the ebook viewer"
@@ -15615,7 +15615,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/printing.py:114
 msgid "Print eBook"
-msgstr ""
+msgstr "Εκτύπωση eBook"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:103
 msgid "Test name invalid"
@@ -15783,7 +15783,7 @@ msgstr "Γίνεται αποστολή..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:44
 msgid "Mail successfully sent"
-msgstr ""
+msgstr "Το mail στάλθηκε επιτυχώς"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:59
 msgid "Setup sending email using"
@@ -15820,11 +15820,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:95
 msgid "Setup"
-msgstr ""
+msgstr "Ρυθμίσεις"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:102
 msgid "Incorrect username"
-msgstr ""
+msgstr "Λανθασμένο όνομα χρήστη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:103
 #, python-format
@@ -16749,7 +16749,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:854
 msgid "Name:"
-msgstr ""
+msgstr "Όνομα:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:855
 msgid "Search string:"
@@ -16761,7 +16761,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:864
 msgid "added"
-msgstr ""
+msgstr "προστέθηκε"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:869
 msgid "Error: You must specify a name"
@@ -17142,7 +17142,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:342
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:618
 msgid "All books"
-msgstr ""
+msgstr "Όλα τα βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:295
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:341
@@ -17159,11 +17159,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:90
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:111
 msgid "Go to"
-msgstr ""
+msgstr "Μετάβαση σε"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "First"
-msgstr ""
+msgstr "Πρώτο"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "Last"
@@ -17177,7 +17177,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:126
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:256
 msgid "Average rating"
-msgstr ""
+msgstr "Μέσος όρος βαθμολόγησης"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:127
 #, python-format
@@ -17191,11 +17191,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:257
 msgid "Popularity"
-msgstr ""
+msgstr "Δημοτικότητα"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:276
 msgid "Sort by"
-msgstr ""
+msgstr "Ταξινόμηση κατά"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:279
 msgid "library"
@@ -17203,7 +17203,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:280
 msgid "home"
-msgstr ""
+msgstr "αρχή"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:387
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:452
@@ -17220,11 +17220,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:523
 msgid "Up"
-msgstr ""
+msgstr "Πάνω"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:653
 msgid "in"
-msgstr ""
+msgstr "στο"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:656
 msgid "Books in"
@@ -17249,7 +17249,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:772
 msgid "Permalink"
-msgstr ""
+msgstr "Μόνιμος σύνδεσμος"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:773
 msgid "A permanent link to this book"
@@ -17257,11 +17257,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:785
 msgid "This book has been deleted"
-msgstr ""
+msgstr "Αυτό το βιβλίο έχει διαγραφεί"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:873
 msgid "in search"
-msgstr ""
+msgstr "σε αναζήτηση"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:875
 msgid "Matching books"
@@ -17337,7 +17337,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:271
 msgid "Books in your library"
-msgstr ""
+msgstr "Βιβλία στην βιβλιοθήκη σας"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:277
 msgid "By "
@@ -17349,7 +17349,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:34
 msgid "Usage"
-msgstr ""
+msgstr "Χρήση"
 
 #: /home/kovid/work/calibre/src/calibre/utils/config.py:85
 msgid "Created by "
@@ -18000,7 +18000,7 @@ msgstr "Απλοποιημένα Κινέζικα"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "Chinese (HK)"
-msgstr ""
+msgstr "Κινέζικα(ΗΚ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "Traditional Chinese"
@@ -18016,7 +18016,7 @@ msgstr "Αγγλικά (Αυστραλία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Bulgaria)"
-msgstr ""
+msgstr "Αγγλικά (Βουλγαρία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (New Zealand)"
@@ -18028,7 +18028,7 @@ msgstr "Αγγλικά (Καναδάς)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (Greece)"
-msgstr ""
+msgstr "Αγγλικά (Ελλάδα)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "English (India)"
@@ -18036,43 +18036,43 @@ msgstr "Αγγλικά (Ινδία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English (Nepal)"
-msgstr ""
+msgstr "Αγγλικά (Νεπάλ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Thailand)"
-msgstr ""
+msgstr "Αγγλικά (Ταιλάνδη)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Turkey)"
-msgstr ""
+msgstr "Αγγλικά (Τουρκία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Cyprus)"
-msgstr ""
+msgstr "Αγγλικά (Κύπρος)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Czech Republic)"
-msgstr ""
+msgstr "Αγγλικά (Τσεχική Δημοκρατία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Pakistan)"
-msgstr ""
+msgstr "Αγγλικά (Πακιστάν)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (Croatia)"
-msgstr ""
+msgstr "Αγγλικά (Κροατία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "English (Indonesia)"
-msgstr ""
+msgstr "Αγγλικά (Ινδονησία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Israel)"
-msgstr ""
+msgstr "Αγγλικά (Ισραήλ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "English (Russia)"
-msgstr ""
+msgstr "Αγγλικά (Ρωσία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "English (Singapore)"
@@ -18080,7 +18080,7 @@ msgstr "Αγγλικά (Σιγκαπούρη)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "English (Yemen)"
-msgstr ""
+msgstr "Αγγλικά (Υεμένη)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "English (Ireland)"
@@ -18088,11 +18088,11 @@ msgstr "Αγγλικά (Ιρλανδία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "English (China)"
-msgstr ""
+msgstr "Αγγλικά (Κίνα)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
 msgid "English (South Africa)"
-msgstr ""
+msgstr "Αγγλικά (Νότια Αφρική)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
 msgid "Spanish (Paraguay)"
@@ -18100,83 +18100,83 @@ msgstr "Ισπανικά (Παραγουάη)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "Spanish (Uruguay)"
-msgstr ""
+msgstr "Ισπανικά (Ουρουγουάη)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "Spanish (Argentina)"
-msgstr ""
+msgstr "Ισπανικά (Αργεντινή)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "Spanish (Mexico)"
-msgstr ""
+msgstr "Ισπανικά (Μεξικό)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "Spanish (Cuba)"
-msgstr ""
+msgstr "Ισπανικά (Κούβα)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
 msgid "Spanish (Chile)"
-msgstr ""
+msgstr "Ισπανικά (Χιλή)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
 msgid "Spanish (Ecuador)"
-msgstr ""
+msgstr "Ισπανικά (Εκουαδόρ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
 msgid "Spanish (Honduras)"
-msgstr ""
+msgstr "Ισπανικά (Ονδούρα)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "Spanish (Venezuela)"
-msgstr ""
+msgstr "Ισπανικά (Βενεζουέλα)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "Spanish (Bolivia)"
-msgstr ""
+msgstr "Ισπανικά (Βολιβία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "Spanish (Nicaragua)"
-msgstr ""
+msgstr "Ισπανικά (Νικαράγουα)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "Spanish (Colombia)"
-msgstr ""
+msgstr "Ισπανικά (Κολομβία)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "German (AT)"
-msgstr ""
+msgstr "Γερμανικά (AT)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
 msgid "French (BE)"
-msgstr ""
+msgstr "Γαλικά (ΒΕ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "Dutch (NL)"
-msgstr ""
+msgstr "Ολανδικά (NL)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
 msgid "Dutch (BE)"
-msgstr ""
+msgstr "Ολανδικά (ΒΕ)"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
 msgid "AM"
-msgstr ""
+msgstr "π.μ."
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
 msgid "PM"
-msgstr ""
+msgstr "μ.μ."
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:162
 msgid "am"
-msgstr ""
+msgstr "πμ"
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:164
 msgid "pm"
-msgstr ""
+msgstr "μμ"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
@@ -18196,7 +18196,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:203
 msgid "Interpreter died"
-msgstr ""
+msgstr "Ο διερμηνέας πέθανε"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:204
 msgid ""
@@ -18206,11 +18206,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
-msgstr ""
+msgstr "Καλως Ήρθατε στο"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
-msgstr ""
+msgstr " κονσόλα "
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:51
 msgid "Code is running"
@@ -18300,7 +18300,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
 msgid " from "
-msgstr ""
+msgstr " από "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:837
 msgid "\tFailed links:"
@@ -18320,7 +18320,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:959
 msgid "Fetching feeds..."
-msgstr ""
+msgstr "Γίνεται λήψη των RSS feeds..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:964
 msgid "Got feeds from index page"
@@ -18408,7 +18408,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:121
 msgid "Main menu"
-msgstr ""
+msgstr "Κύριο μενού"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:125
 msgid "Previous section"
@@ -18420,16 +18420,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"
-msgstr ""
+msgstr "Κύριο Μενού"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:303
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:393
 msgid "Sections"
-msgstr ""
+msgstr "Ενότητες"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:390
 msgid "Articles"
-msgstr ""
+msgstr "Άρθρα"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:480
 msgid ""
@@ -18498,15 +18498,15 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:649
 msgid "OK"
-msgstr ""
+msgstr "Εντάξει"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:652
 msgid "Save"
-msgstr ""
+msgstr "Αποθήκευση"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
-msgstr ""
+msgstr "Άνοιγμα"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "Cancel"
@@ -18514,23 +18514,23 @@ msgstr "Ακύρωση"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"
-msgstr ""
+msgstr "&Κλείσιμο"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:664
 msgid "Apply"
-msgstr ""
+msgstr "Εφαρμογή"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:674
 msgid "Don't Save"
-msgstr ""
+msgstr "Να μη γίνει αποθήκευση"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:676
 msgid "Close without Saving"
-msgstr ""
+msgstr "Κλείσιμο χωρίς αποθήκευση"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:678
 msgid "Discard"
-msgstr ""
+msgstr "Απόρριψη"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:681
 msgid "&Yes"
@@ -18546,19 +18546,19 @@ msgstr "&Όχι"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:690
 msgid "N&o to All"
-msgstr ""
+msgstr "Ό&χι σε Όλα"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:693
 msgid "Save All"
-msgstr ""
+msgstr "Αποθήκευση όλων"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:696
 msgid "Abort"
-msgstr ""
+msgstr "Ματαίωση"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:699
 msgid "Retry"
-msgstr ""
+msgstr "Επανάληψη"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Ignore"
@@ -18566,7 +18566,7 @@ msgstr "Παράβλεψη"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Restore Defaults"
-msgstr ""
+msgstr "Επαναφορά Προεπιλογών"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:12
 msgid "Auto increment series index"
