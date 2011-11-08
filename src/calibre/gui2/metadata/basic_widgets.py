@@ -1411,7 +1411,8 @@ class DateEdit(QDateTimeEdit): # {{{
         def fset(self, val):
             if val is None:
                 val = UNDEFINED_DATE
-            val = as_local_time(val)
+            else:
+                val = as_local_time(val)
             self.setDateTime(val)
         return property(fget=fget, fset=fset)
 
