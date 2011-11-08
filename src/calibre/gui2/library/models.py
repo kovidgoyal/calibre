@@ -9,9 +9,9 @@ import functools, re, os, traceback
 from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
-        QModelIndex, QVariant, QDate, QColor)
+        QModelIndex, QVariant, QDateTime, QColor)
 
-from calibre.gui2 import NONE, UNDEFINED_QDATE
+from calibre.gui2 import NONE, UNDEFINED_QDATETIME
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import SafeFormat
@@ -580,9 +580,9 @@ class BooksModel(QAbstractTableModel): # {{{
         def datetime_type(r, idx=-1):
             val = self.db.data[r][idx]
             if val is not None:
-                return QVariant(QDate(val))
+                return QVariant(QDateTime(val))
             else:
-                return QVariant(UNDEFINED_QDATE)
+                return QVariant(UNDEFINED_QDATETIME)
 
         def bool_type(r, idx=-1):
             return None # displayed using a decorator
@@ -815,7 +815,7 @@ class BooksModel(QAbstractTableModel): # {{{
             if not val:
                 val = None
         elif typ == 'datetime':
-            val = value.toDate()
+            val = value.toDateTime()
             if val.isNull():
                 val = None
             else:
@@ -860,7 +860,7 @@ class BooksModel(QAbstractTableModel): # {{{
                 if column not in self.editable_cols:
                     return False
                 val = int(value.toInt()[0]) if column == 'rating' else \
-                      value.toDate() if column in ('timestamp', 'pubdate') else \
+                      value.toDateTime() if column in ('timestamp', 'pubdate') else \
                       unicode(value.toString()).strip()
                 id = self.db.id(row)
                 books_to_refresh = set([id])

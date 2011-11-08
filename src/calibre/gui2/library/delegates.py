@@ -14,10 +14,10 @@ from PyQt4.Qt import (QColor, Qt, QModelIndex, QSize, QApplication,
                      QStyledItemDelegate, QComboBox, QTextDocument,
                      QAbstractTextDocumentLayout)
 
-from calibre.gui2 import UNDEFINED_QDATE, error_dialog
+from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
-from calibre.utils.date import now, format_date
+from calibre.utils.date import now, format_date, qt_to_dt
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
 from calibre.utils.icu import sort_key
@@ -107,25 +107,23 @@ class RatingDelegate(QStyledItemDelegate): # {{{
 class DateDelegate(QStyledItemDelegate): # {{{
 
     def __init__(self, parent, tweak_name='gui_timestamp_display_format',
-            default_format='dd MMM yyyy', editor_format='dd MMM yyyy'):
+            default_format='dd MMM yyyy'):
         QStyledItemDelegate.__init__(self, parent)
         self.tweak_name = tweak_name
-        self.default_format = default_format
-        self.editor_format = editor_format
+        self.format = tweaks[self.tweak_name]
+        if self.format is None:
+            format = default_format
 
     def displayText(self, val, locale):
-        d = val.toDate()
-        if d <= UNDEFINED_QDATE:
+        d = val.toDateTime()
+        if d <= UNDEFINED_QDATETIME:
             return ''
-        format = tweaks[self.tweak_name]
-        if format is None:
-            format = self.default_format
-        return format_date(d.toPyDate(), format)
+        return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.editor_format)
-        qde.setMinimumDate(UNDEFINED_QDATE)
+        qde.setDisplayFormat(self.format)
+        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
@@ -134,18 +132,18 @@ class DateDelegate(QStyledItemDelegate): # {{{
 class PubDateDelegate(QStyledItemDelegate): # {{{
 
     def displayText(self, val, locale):
-        d = val.toDate()
-        if d <= UNDEFINED_QDATE:
+        d = val.toDateTime()
+        if d <= UNDEFINED_QDATETIME:
             return ''
-        format = tweaks['gui_pubdate_display_format']
-        if format is None:
-            format = 'MMM yyyy'
-        return format_date(d.toPyDate(), format)
+        self.format = tweaks['gui_pubdate_display_format']
+        if self.format is None:
+            self.format = 'MMM yyyy'
+        return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat('MM yyyy')
-        qde.setMinimumDate(UNDEFINED_QDATE)
+        qde.setDisplayFormat(self.format)
+        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
@@ -259,15 +257,15 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
             self.format = format
 
     def displayText(self, val, locale):
-        d = val.toDate()
-        if d <= UNDEFINED_QDATE:
+        d = val.toDateTime()
+        if d <= UNDEFINED_QDATETIME:
             return ''
-        return format_date(d.toPyDate(), self.format)
+        return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
         qde.setDisplayFormat(self.format)
-        qde.setMinimumDate(UNDEFINED_QDATE)
+        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
@@ -279,11 +277,11 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if val is None:
             val = now()
-        editor.setDate(val)
+        editor.setDateTime(val)
 
     def setModelData(self, editor, model, index):
-        val = editor.date()
-        if val <= UNDEFINED_QDATE:
+        val = editor.dateTime()
+        if val <= UNDEFINED_QDATETIME:
             val = None
         model.setData(index, QVariant(val), Qt.EditRole)
 
