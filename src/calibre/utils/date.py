@@ -242,6 +242,69 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
         '(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
         repl_func, format)
 
+def clean_date_for_sort(dt, format):
+    ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
+    if not format:
+        format = 'yyMd'
+
+    if not isinstance(dt, datetime):
+        dt = datetime.combine(dt, time())
+
+    if hasattr(dt, 'tzinfo'):
+        if dt.tzinfo is not None:
+            dt = as_utc(dt)
+
+    if format == 'iso':
+        format = 'yyMdhms'
+
+    tt = {'year':UNDEFINED_DATE.year, 'mon':UNDEFINED_DATE.month,
+          'day':UNDEFINED_DATE.day, 'hour':UNDEFINED_DATE.hour,
+          'min':UNDEFINED_DATE.minute, 'sec':UNDEFINED_DATE.second}
+
+    def has_hour(tt, hr):
+        tt['hour'] = dt.hour
+        return ''
+
+    def has_minute(tt, min):
+        tt['min'] = dt.minute
+        return ''
+
+    def has_second(tt, min):
+        tt['sec'] = dt.second
+        return ''
+
+    def has_day(tt, dy):
+        tt['day'] = dt.day
+        return ''
+
+    def has_month(tt, mo):
+        tt['mon'] = dt.month
+        return ''
+
+    def has_year(tt, yr):
+        tt['year'] = dt.year
+        return ''
+
+    function_index = {
+            'd': has_day,
+            'M': has_month,
+            'y': has_year,
+            'h': has_hour,
+            'm': has_minute,
+            's': has_second
+        }
+    def repl_func(mo):
+        s = mo.group(0)
+        if s is None:
+            return ''
+        return function_index[s[0]](tt, s)
+
+    re.sub(
+        '(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))',
+        repl_func, format)
+
+    return datetime(tt['year'], tt['mon'], tt['day'], tt['hour'], tt['min'], tt['sec'])
+
 def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date
     frtoen = {

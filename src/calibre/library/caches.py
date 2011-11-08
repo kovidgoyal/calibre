@@ -12,7 +12,7 @@ from datetime import timedelta
 from threading import Thread
 
 from calibre.utils.config import tweaks, prefs
-from calibre.utils.date import parse_date, now, UNDEFINED_DATE
+from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 from calibre.utils.localization import canonicalize_lang, lang_map
@@ -1062,7 +1062,16 @@ class SortKeyGenerator(object):
             if dt == 'datetime':
                 if val is None:
                     val = UNDEFINED_DATE
-
+                format = None
+                if name == 'timestamp':
+                    format = tweaks['gui_timestamp_display_format']
+                elif name == 'pubdate':
+                    format = tweaks['gui_pubdate_display_format']
+                elif name == 'last_modified':
+                    format = tweaks['gui_last_modified_display_format']
+                elif fm['is_custom']:
+                    format = fm['display'].get('date_format', None)
+                val = clean_date_for_sort(val, format)
             elif dt == 'series':
                 if val is None:
                     val = ('', 1)
