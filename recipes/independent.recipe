@@ -7,7 +7,12 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 
 
 class TheIndependentNew(BasicNewsRecipe):
-
+    
+     #used for converting rating to stars
+    _STAR_URL = 'http://www.independent.co.uk/skins/ind/images/rating_star.png'
+    _NO_STAR_URL = 'http://www.independent.co.uk/skins/ind/images/rating_star_grey.png'
+   
+   
     title                   = u'The Independent'
     __author__              = 'Will'
     description             = 'The latest in UK News and World News from The \
@@ -44,11 +49,25 @@ class TheIndependentNew(BasicNewsRecipe):
                                h1{font-family: Georgia,serif }
                                body{font-family: Verdana,Arial,Helvetica,sans-serif}
                                img{margin-bottom: 0.4em; display:block}
-                               .byline,.image,.dateline{font-size: x-small; color:#888888}
+                               .starRating img {float: left}
+                               .starRating {margin-top:0.4em; display: block}
+                               .image {clear:left; font-size: x-small; color:#888888;}
+                               .articleByTimeLocation {font-size: x-small; color:#888888;
+                                margin-bottom:0.2em ; margin-top:0.2em ; display:block}
+                                .subtitle {clear:left}
+                               .column-1 h1 { color: #191919}
+                               .column-1 h2 { color: #333333}
+                               .column-1 h3 { color: #444444}
+                               .column-1 p { color: #777777}
+                               .column-1 p,a,h1,h2,h3 { margin: 0; }
+                               .column-1 div{color:#888888; margin: 0;}
+                               .articleContent {display: block; clear:left;}
                             """                     
     
     oldest_article = 1
     max_articles_per_feed = 100
+    
+    
     
     def preprocess_html(self, soup):
         for item in soup.findAll(attrs={'class' : re.compile("widget.*")}):
@@ -115,13 +134,40 @@ class TheIndependentNew(BasicNewsRecipe):
 	                subtitle.extract()
                 
         
+        
+        #replace rating numbers with stars
+        for item in soup.findAll('div',attrs={ 'class' : 'starRating'}):
+            if item is not None:
+                soup2 = self._insertRatingStars(soup,item)
+            if soup2 is not None:
+                soup = soup2
+        
+        
         return soup
         
-        
+    
+    
+    def _insertRatingStars(self,soup,item):
+        if item.contents is None:
+            return
+        rating = item.contents[0]
+        if not rating.isdigit():
+            return None
+        rating = int(item.contents[0])    
+        for i in range(1,6):
+            star = Tag(soup,'img')
+            if i <= rating:
+                star['src'] = self._STAR_URL
+            else:
+                star['src'] = self._NO_STAR_URL
+            star['alt'] = 'star number ' +  str(i)
+            item.insert(i,star)
+        #item.contents[0] = NavigableString('(' + str(rating) + ')')
+        item.contents[0] = '' 
         
     def postprocess_html(self,soup, first_fetch):
         #find broken images and remove captions
-        for item in soup.findAll('div', attrs={'class' : 'byline'}):
+        for item in soup.findAll('div', attrs={'class' : 'image'}):
             img = item.findNext('img')
             if img is not None and img['src'] is not None:
                 # broken images still point to remote url       
