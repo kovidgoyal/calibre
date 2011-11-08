@@ -171,7 +171,7 @@ class ANDROID(USBMS):
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
             '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
-            'ANDROID_MID', 'P990_SD_CARD']
+            'ANDROID_MID', 'P990_SD_CARD', '.K080']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
