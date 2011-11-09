@@ -315,6 +315,12 @@ content_server_wont_display = []
 # level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
 maximum_resort_levels = 5
 
+#: Choose whether dates are sorted using visible fields
+# Date values contain both a date and a time. When sorted, all the fields are
+# used, regardless of what is displayed. Set this tweak to True to use only
+# the fields that are being displayed.
+sort_dates_using_visible_fields = False
+
 #: Specify which font to use when generating a default cover
 # Absolute path to .ttf font files to use as the fonts for the title, author
 # and footer when generating a default cover. Useful if the default font (Liberation
