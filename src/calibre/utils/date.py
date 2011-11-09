@@ -156,6 +156,66 @@ def utcfromtimestamp(stamp):
         traceback.print_exc()
         return utcnow()
 
+#### Format date functions
+
+def fd_format_hour(dt, strf, ampm, hr):
+    l = len(hr)
+    h = dt.hour
+    if ampm:
+        h = h%12
+    if l == 1: return '%d'%h
+    return '%02d'%h
+
+def fd_format_minute(dt, strf, ampm, min):
+    l = len(min)
+    if l == 1: return '%d'%dt.minute
+    return '%02d'%dt.minute
+
+def fd_format_second(dt, strf, ampm, sec):
+    l = len(sec)
+    if l == 1: return '%d'%dt.second
+    return '%02d'%dt.second
+
+def fd_format_ampm(dt, strf, ampm, ap):
+    res = strf('%p')
+    if ap == 'AP':
+        return res
+    return res.lower()
+
+def fd_format_day(dt, strf, ampm, dy):
+    l = len(dy)
+    if l == 1: return '%d'%dt.day
+    if l == 2: return '%02d'%dt.day
+    if l == 3: return strf('%a')
+    return strf('%A')
+
+def fd_format_month(dt, strf, ampm, mo):
+    l = len(mo)
+    if l == 1: return '%d'%dt.month
+    if l == 2: return '%02d'%dt.month
+    if l == 3: return strf('%b')
+    return strf('%B')
+
+def fd_format_year(dt, strf, ampm, yr):
+    if len(yr) == 2: return '%02d'%(dt.year % 100)
+    return '%04d'%dt.year
+
+fd_function_index = {
+        'd': fd_format_day,
+        'M': fd_format_month,
+        'y': fd_format_year,
+        'h': fd_format_hour,
+        'm': fd_format_minute,
+        's': fd_format_second,
+        'a': fd_format_ampm,
+        'A': fd_format_ampm,
+    }
+def fd_repl_func(dt, strf, ampm, mo):
+    s = mo.group(0)
+    if not s:
+        return ''
+    return fd_function_index[s[0]](dt, strf, ampm, s)
+
 def format_date(dt, format, assume_utc=False, as_utc=False):
     ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
     if not format:
@@ -173,77 +233,58 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
     if format == 'iso':
         return isoformat(dt, assume_utc=assume_utc, as_utc=as_utc)
 
-    ampm = 'ap' in format.lower()
-
     if dt == UNDEFINED_DATE:
         return ''
 
     strf = partial(strftime, t=dt.timetuple())
-
-    def format_hour(hr):
-        l = len(hr)
-        h = dt.hour
-        if ampm:
-            h = h%12
-        if l == 1: return '%d'%h
-        return '%02d'%h
-
-    def format_minute(min):
-        l = len(min)
-        if l == 1: return '%d'%dt.minute
-        return '%02d'%dt.minute
-
-    def format_second(min):
-        l = len(min)
-        if l == 1: return '%d'%dt.second
-        return '%02d'%dt.second
-
-    def format_ampm(ap):
-        res = strf('%p')
-        if ap == 'AP':
-            return res
-        return res.lower()
-
-    def format_day(dy):
-        l = len(dy)
-        if l == 1: return '%d'%dt.day
-        if l == 2: return '%02d'%dt.day
-        if l == 3: return strf('%a')
-        return strf('%A')
-
-    def format_month(mo):
-        l = len(mo)
-        if l == 1: return '%d'%dt.month
-        if l == 2: return '%02d'%dt.month
-        if l == 3: return strf('%b')
-        return strf('%B')
-
-    def format_year(yr):
-        if len(yr) == 2: return '%02d'%(dt.year % 100)
-        return '%04d'%dt.year
-
-    function_index = {
-            'd': format_day,
-            'M': format_month,
-            'y': format_year,
-            'h': format_hour,
-            'm': format_minute,
-            's': format_second,
-            'a': format_ampm,
-            'A': format_ampm,
-        }
-    def repl_func(mo):
-        s = mo.group(0)
-        if s is None:
-            return ''
-        return function_index[s[0]](s)
-
+    repl_func = partial(fd_repl_func, dt, strf, 'ap' in format.lower())
     return re.sub(
         '(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
         repl_func, format)
 
+#### Clean date functions
+
+def cd_has_hour(tt, dt):
+    tt['hour'] = dt.hour
+    return ''
+
+def cd_has_minute(tt, dt):
+    tt['min'] = dt.minute
+    return ''
+
+def cd_has_second(tt, dt):
+    tt['sec'] = dt.second
+    return ''
+
+def cd_has_day(tt, dt):
+    tt['day'] = dt.day
+    return ''
+
+def cd_has_month(tt, dt):
+    tt['mon'] = dt.month
+    return ''
+
+def cd_has_year(tt, dt):
+    tt['year'] = dt.year
+    return ''
+
+cd_function_index = {
+        'd': cd_has_day,
+        'M': cd_has_month,
+        'y': cd_has_year,
+        'h': cd_has_hour,
+        'm': cd_has_minute,
+        's': cd_has_second
+    }
+
+def cd_repl_func(tt, dt, match_object):
+    s = match_object.group(0)
+    if not s:
+        return ''
+    return cd_function_index[s[0]](tt, dt)
+
 def clean_date_for_sort(dt, format):
-    ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
+    ''' Return dt with fields not in shown in format set to a default '''
     if not format:
         format = 'yyMd'
 
@@ -261,48 +302,8 @@ def clean_date_for_sort(dt, format):
           'day':UNDEFINED_DATE.day, 'hour':UNDEFINED_DATE.hour,
           'min':UNDEFINED_DATE.minute, 'sec':UNDEFINED_DATE.second}
 
-    def has_hour(tt, hr):
-        tt['hour'] = dt.hour
-        return ''
-
-    def has_minute(tt, min):
-        tt['min'] = dt.minute
-        return ''
-
-    def has_second(tt, min):
-        tt['sec'] = dt.second
-        return ''
-
-    def has_day(tt, dy):
-        tt['day'] = dt.day
-        return ''
-
-    def has_month(tt, mo):
-        tt['mon'] = dt.month
-        return ''
-
-    def has_year(tt, yr):
-        tt['year'] = dt.year
-        return ''
-
-    function_index = {
-            'd': has_day,
-            'M': has_month,
-            'y': has_year,
-            'h': has_hour,
-            'm': has_minute,
-            's': has_second
-        }
-    def repl_func(mo):
-        s = mo.group(0)
-        if s is None:
-            return ''
-        return function_index[s[0]](tt, s)
-
-    re.sub(
-        '(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))',
-        repl_func, format)
-
+    repl_func = partial(cd_repl_func, tt, dt)
+    re.sub('(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, format)
     return datetime(tt['year'], tt['mon'], tt['day'], tt['hour'], tt['min'], tt['sec'])
 
 def replace_months(datestr, clang):

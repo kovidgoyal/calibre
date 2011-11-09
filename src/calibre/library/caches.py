@@ -1062,16 +1062,17 @@ class SortKeyGenerator(object):
             if dt == 'datetime':
                 if val is None:
                     val = UNDEFINED_DATE
-                format = None
-                if name == 'timestamp':
-                    format = tweaks['gui_timestamp_display_format']
-                elif name == 'pubdate':
-                    format = tweaks['gui_pubdate_display_format']
-                elif name == 'last_modified':
-                    format = tweaks['gui_last_modified_display_format']
-                elif fm['is_custom']:
-                    format = fm['display'].get('date_format', None)
-                val = clean_date_for_sort(val, format)
+                if tweaks['sort_dates_using_visible_fields']:
+                    format = None
+                    if name == 'timestamp':
+                        format = tweaks['gui_timestamp_display_format']
+                    elif name == 'pubdate':
+                        format = tweaks['gui_pubdate_display_format']
+                    elif name == 'last_modified':
+                        format = tweaks['gui_last_modified_display_format']
+                    elif fm['is_custom']:
+                        format = fm['display'].get('date_format', None)
+                    val = clean_date_for_sort(val, format)
             elif dt == 'series':
                 if val is None:
                     val = ('', 1)
