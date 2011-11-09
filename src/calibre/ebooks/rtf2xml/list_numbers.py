@@ -10,8 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, tempfile
+import os
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
+
 class ListNumbers:
     """
         RTF puts list numbers outside of the paragraph. The public method
@@ -36,7 +38,7 @@ class ListNumbers:
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
     def __initiate_values(self):
         """
         initiate values for fix_list_numbers.

@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-10-21 00:21+0000\n"
-"PO-Revision-Date: 2011-10-24 21:46+0000\n"
-"Last-Translator: Jim_daskalos <Unknown>\n"
+"POT-Creation-Date: 2011-10-27 11:21+0000\n"
+"PO-Revision-Date: 2011-11-03 11:36+0000\n"
+"Last-Translator: SteliosGero <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-10-25 04:49+0000\n"
-"X-Generator: Launchpad (build 14185)\n"
+"X-Launchpad-Export-Date: 2011-11-04 04:46+0000\n"
+"X-Generator: Launchpad (build 14231)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -33,13 +33,13 @@ msgstr "Δεν κάνει τίποτα"
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:79
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/books.py:24
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:581
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:579
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:71
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/books.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:660
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:308
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:309
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:310
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:485
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:106
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:109
@@ -82,7 +82,7 @@ msgstr "Δεν κάνει τίποτα"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/rtf.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/snb.py:16
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:49
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:301
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:302
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/covers.py:79
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/covers.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:80
@@ -103,8 +103,8 @@ msgstr "Δεν κάνει τίποτα"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1006
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:299
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:496
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:138
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:140
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:141
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:143
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1002
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1007
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1079
@@ -144,7 +144,7 @@ msgstr "Δεν κάνει τίποτα"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:380
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:168
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:576
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:579
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:151
@@ -177,14 +177,14 @@ msgstr "Δεν κάνει τίποτα"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:200
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:220
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:543
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:551
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:562
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2039
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2191
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3246
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3248
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3381
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:544
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:552
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:563
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2040
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2192
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3247
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3249
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3382
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:227
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:228
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:243
@@ -357,7 +357,7 @@ msgstr "Επεξεργασία των μεταδεδομένων των βιβλ
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Read books in your calibre library"
-msgstr "Διάβασε βιβλία στη βιβλιοθήκη σου"
+msgstr "Διάβασε βιβλία από την βιβλιοθήκη σου"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Download news from the internet in ebook form"
@@ -478,7 +478,7 @@ msgid "Change the way calibre behaves"
 msgstr "Ρύθμισε την συμπεριφορά του calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:919
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:233
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:252
 msgid "Add your own columns"
 msgstr "Πρόσθεσε δικές σου στήλες"
 
@@ -646,7 +646,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1092
 msgid "Tweaks"
-msgstr ""
+msgstr "Προσαρμογές"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1098
 msgid "Fine tune how calibre behaves in various contexts"
@@ -654,7 +654,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
 msgid "Keyboard"
-msgstr ""
+msgstr "Πληκτρολόγιο"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 msgid "Customize the keyboard shortcuts used by calibre"
@@ -817,6 +817,8 @@ msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
+"Προορίζεται για το Samsung Galaxy και παρόμοιες συσκευές tablet με ανάλυση "
+"600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
@@ -828,7 +830,7 @@ msgstr "Αυτό το περίγραμμα προορίζεται για το SO
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Κατάλληλο για χρήση με κάθε συσκευή ηλεκτρονικού μελανιού"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
@@ -947,32 +949,32 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:647
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:563
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:989
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:990
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:820
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:832
 msgid "Yes"
 msgstr "Ναι"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1103
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1104
 msgid "Main"
-msgstr "Κύριο"
+msgstr "Κύρια μνήμη"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1105
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1106
 msgid "Card A"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1107
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1108
 msgid "Card B"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
-msgstr ""
+msgstr "Καταγραφή προβλημάτων"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:17
 msgid "Communicate with Android phones."
@@ -1091,6 +1093,9 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
+"Κάποια βιβλία δεν βρέθηκαν στην βάση δεδομένων του iTunes.\n"
+"Διαγράψτε την εφαρμογή iBooks.\n"
+"Πατήστε 'Εμφάνιση Λεπτομερειών' για την λίστα."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1044
 msgid ""
@@ -1102,8 +1107,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:102
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:447
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:470
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:526
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:545
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:527
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:546
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1084
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1090
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1125
@@ -1111,9 +1116,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1148
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1150
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:336
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:349
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3107
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:337
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:350
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3108
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
 msgstr "Νέα"
@@ -1121,8 +1126,8 @@ msgstr "Νέα"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2685
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:662
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3066
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3084
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3067
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3085
 msgid "Catalog"
 msgstr "Κατάλογος"
 
@@ -1166,11 +1171,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:88
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:91
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:94
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:97
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:305
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:150
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:303
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:151
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:140
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:143
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:146
@@ -1190,8 +1195,8 @@ msgstr "Μεταφορά βιβλίων στη συσκευή..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:330
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:344
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:439
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:474
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:437
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:472
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:297
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:328
 msgid "Adding books to device metadata listing..."
@@ -1201,8 +1206,8 @@ msgstr "Προσθήκη βιβλίων στον κατάλογο μεταδεδ
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:354
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:114
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:125
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:391
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:423
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:389
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:421
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:334
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:352
 msgid "Removing books from device..."
@@ -1210,8 +1215,8 @@ msgstr "Αφαίρεση βιβλίων από τη συσκευή..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:369
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:374
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:427
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:434
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:425
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:432
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:359
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:364
 msgid "Removing books from device metadata listing..."
@@ -1361,7 +1366,7 @@ msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:57
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "Δεν είναι δυνατή η λήψη αρχείων από αυτή την συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
@@ -1457,42 +1462,75 @@ msgstr ""
 msgid "Communicate with the Kindle DX eBook reader."
 msgstr "Επικοινωνία με το ηλ.αναγνωστήριο Kindle DX."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:25
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
 msgstr "Επικοινωνία με το Kobo Reader"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:54
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "The Kobo supports several collections including "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
 msgid "Create tags for automatic management"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:59
 msgid "Upload covers for books (newer readers)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:60
 msgid ""
 "Normally, the KOBO readers get the cover image from the ebook file itself. "
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:62
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:561
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
 msgid "Not Implemented"
 msgstr "Δεν έχει υλοποιηθεί"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:562
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:560
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:989
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:995
+#, python-format
+msgid ""
+"<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
+"%(pr)d%%<hr />"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1013
+#, python-format
+msgid ""
+"<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
+"/><hr />"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1022
+#, python-format
+msgid ""
+"<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
+"%(text)s<br /><hr />"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1031
+#: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1041
+#, python-format
+msgid ""
+"<b>Chapter %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
+"%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
@@ -1605,7 +1643,7 @@ msgid "All by author"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:70
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:67
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:68
 msgid ""
 "Comma separated list of metadata fields to turn into collections on the "
 "device. Possibilities include: "
@@ -1640,7 +1678,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:77
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:78
 msgid ""
 "Set this option to have separate book covers uploaded every time you connect "
 "your device. Unset this option if you have so many books on the reader that "
@@ -1648,12 +1686,12 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:90
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:81
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:82
 msgid "Preserve cover aspect ratio when building thumbnails"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:92
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:83
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:84
 msgid ""
 "Set this option if you want the cover thumbnails to have the same aspect "
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
@@ -1662,7 +1700,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:96
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Αναζήτηση για βιβλία σε όλους του φακέλους"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:98
 msgid ""
@@ -1670,6 +1708,9 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Αυτή η επιλογή λέει στο calibre να ψάξει για βιβλία σε όλους του φακέλους "
+"στην συσκευή και στις κάρτες αποθήκευσης της. Αυτό επιτρέπει στο calibre να "
+"βρει βιβλία που μπήκαν από άλλα προγράμματα ή 'κατέβηκαν' ασύρματα."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1680,26 +1721,26 @@ msgstr "Χωρίς όνομα"
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:70
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:72
 msgid ""
 "Normally, the SONY readers get the cover image from the ebook file itself. "
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:75
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:76
 msgid "Refresh separate covers when using automatic management"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:87
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
 msgid "Use SONY Author Format (First Author Only)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:89
+#: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid ""
 "Set this option if you want the author on the Sony to appear the same way "
 "the T1 sets it. This means it will only show the first author for books with "
@@ -3287,14 +3328,14 @@ msgstr "Όχι"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:365
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:578
 msgid "Title"
-msgstr ""
+msgstr "Τίτλος"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:749
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1032
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/models.py:23
 msgid "Author(s)"
-msgstr ""
+msgstr "Συγγραφείς"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:750
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:64
@@ -3343,7 +3384,7 @@ msgstr[1] ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Γλώσσες"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:759
 msgid "Timestamp"
@@ -3355,7 +3396,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:305
 msgid "Published"
-msgstr ""
+msgstr "Δημοσιεύτηκε"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:763
 msgid "Rights"
@@ -3408,7 +3449,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:74
 msgid "Set the published date."
-msgstr ""
+msgstr "Ορίστε την ημερομηνία δημοσίευσης."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:77
 msgid "Get the cover from the ebook and save it at as the specified file."
@@ -3473,7 +3514,7 @@ msgstr "Εξώφυλλο"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:436
 msgid "Downloads metadata and covers from Amazon"
-msgstr ""
+msgstr "Κατέβασμα μεταδεδομένων και  εξώφυλλων από το Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:446
 msgid "US"
@@ -3528,11 +3569,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/google.py:163
 msgid "Downloads metadata and covers from Google Books"
-msgstr ""
+msgstr "Κατέβασμα μεταδεδομένων και  εξώφυλλων από το Google Books"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:27
 msgid "Downloads metadata from isbndb.com"
-msgstr ""
+msgstr "Κατέβασμα μεταδεδομένων από το isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/isbndb.py:37
 msgid "IsbnDB key:"
@@ -3553,15 +3594,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/openlibrary.py:15
 msgid "Downloads covers from The Open Library"
-msgstr ""
+msgstr "Κατέβασμα εξώφυλλων από το The Open Library"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:33
 msgid "Downloads metadata and covers from Overdrive's Content Reserve"
 msgstr ""
+"Κατέβασμα μεταδεδομένων και  εξώφυλλων από το Overdrive's Content Reserve"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:45
 msgid "Download all metadata (slow)"
-msgstr ""
+msgstr "Κατέβασμα όλων των μεταδεδομένων (αργό)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/overdrive.py:46
 msgid "Enable this option to gather all metadata available from Overdrive."
@@ -3578,7 +3620,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/ozon.py:24
 msgid "Downloads metadata and covers from OZON.ru"
-msgstr ""
+msgstr "Κατέβασμα μεταδεδομένων και  εξώφυλλων από το OZON.ru"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:22
 msgid "Modify images to meet Palm device size limitations."
@@ -3639,7 +3681,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
 msgid "No details available"
-msgstr ""
+msgstr "Δεν υπάρχουν διαθέσιμες λεπτομέρειες"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1500
 msgid "Title Page"
@@ -3662,7 +3704,7 @@ msgstr "Γλωσσάρι"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1504
 msgid "Acknowledgements"
-msgstr ""
+msgstr "Παραδοχές"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1505
 msgid "Bibliography"
@@ -3708,7 +3750,7 @@ msgstr "Πρόλογος"
 msgid "Main Text"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:41
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/iterator.py:42
 #, python-format
 msgid "%s format books are not supported"
 msgstr ""
@@ -4237,7 +4279,7 @@ msgstr "Εμφάνιση εικονιδίου πλαισίου συστήματ�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:143
 msgid "Upload downloaded news to device"
-msgstr ""
+msgstr "Μεταφόρτωση των κατεβασμένων νέων στην συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
 msgid "Delete news books from library after uploading to device"
@@ -4286,7 +4328,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:189
 msgid "Automatically download the cover, if available"
-msgstr ""
+msgstr "Αυτόματο κατέβασμα εξώφυλλων, αν υπάρχουν"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:191
 msgid "Limit max simultaneous jobs to number of CPUs"
@@ -4321,27 +4363,27 @@ msgstr "Βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:30
 msgid "EPUB Books"
-msgstr ""
+msgstr "Βιβλία EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:31
 msgid "LRF Books"
-msgstr ""
+msgstr "Βιβλία LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:32
 msgid "HTML Books"
-msgstr ""
+msgstr "Βιβλία HTML"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:33
 msgid "LIT Books"
-msgstr ""
+msgstr "Βιβλία LIT"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:34
 msgid "MOBI Books"
-msgstr ""
+msgstr "Βιβλία MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:35
 msgid "Topaz books"
-msgstr ""
+msgstr "Βιβλία Topaz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:36
 msgid "Text books"
@@ -4349,11 +4391,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:37
 msgid "PDF Books"
-msgstr ""
+msgstr "Βιβλία PDF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:38
 msgid "SNB Books"
-msgstr ""
+msgstr "Βιβλία SNB"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:39
 msgid "Comics"
@@ -4365,11 +4407,11 @@ msgstr "Αρχεία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
-msgstr ""
+msgstr "Προσθήκη βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:48
 msgid "Add books to the calibre library/device from files on your computer"
-msgstr ""
+msgstr "Προσθήκη βιβλίων στην βιβλιοθήκη/συσκευή από τον υπολογιστή σας"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:49
 msgid "A"
@@ -4377,7 +4419,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:52
 msgid "Add books from a single directory"
-msgstr ""
+msgstr "Προσθήκη βιβλίων από έναν φάκελο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:58
 msgid ""
@@ -4390,6 +4432,8 @@ msgid ""
 "Add books from directories, including sub directories (Multiple books per "
 "directory, assumes every ebook file is a different book)"
 msgstr ""
+"Προσθήκη βιβλίων από φακέλους, συμπεριλαμβανομένων και υποφακέλλων (Πολλά "
+"βιβλία ανά φάκελλο, κάθε τύπος αρχείου είναι διαφορετικό e-book)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:67
 msgid "Add Empty book. (Book entry with no formats)"
@@ -4422,7 +4466,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:259
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:91
 msgid "No books selected"
-msgstr ""
+msgstr "Δεν επιλέχθηκαν βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:88
 msgid "Cannot add files as no books are selected"
@@ -4454,19 +4498,19 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:270
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:319
 msgid "Uploading books to device."
-msgstr ""
+msgstr "Μεταφορτώνονται βιβλία στην συσκευή."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:290
 msgid "Supported books"
-msgstr ""
+msgstr "Υποστηριζόμενα βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:293
 msgid "Select books"
-msgstr ""
+msgstr "Επιλέξτε βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:331
 msgid "Merged some books"
-msgstr ""
+msgstr "Ενώθηκαν κάποια βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:332
 msgid ""
@@ -4487,7 +4531,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:397
 msgid "Add to library"
-msgstr ""
+msgstr "Προσθήκη στην βιβλιοθήκη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:134
@@ -4511,11 +4555,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:13
 msgid "Add books to library"
-msgstr ""
+msgstr "Προσθήκη βιβλίων στην βιβλιοθήκη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
 msgstr ""
+"Προσθήκη βιβλίων στην βιβλιοθήκη του calibre από την συνδεδεμένη συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:26
 msgid "Merging user annotations into database"
@@ -4524,11 +4569,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:595
 msgid "Fetch annotations (experimental)"
-msgstr ""
+msgstr "Προσκόμισε σχόλια (πειραματικό)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:107
 msgid "Not supported"
-msgstr ""
+msgstr "Δεν υποστηρίζεται"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:108
 msgid "Fetching annotations is not supported for this device"
@@ -4587,7 +4632,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:127
 msgid "No library found"
-msgstr ""
+msgstr "Δεν βρέθηκε βιβλιοθήκη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:90
 #, python-format
@@ -4602,15 +4647,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:105
 msgid "Library moved"
-msgstr ""
+msgstr "Η βιβλιοθήκη μετακινήθηκε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:107
 msgid "Forget library"
-msgstr ""
+msgstr "Ξέχασε την βιβλιοθήκη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:116
 msgid "New library location"
-msgstr ""
+msgstr "Νέα τοποθεσία βιβλιοθήκης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:128
 #, python-format
@@ -4619,7 +4664,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:139
 msgid "Choose Library"
-msgstr ""
+msgstr "Επιλογή Βιβλιοθήκης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:140
 msgid "Choose calibre library to work with"
@@ -4627,7 +4672,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:143
 msgid "Switch/create library..."
-msgstr ""
+msgstr "Αλλαγή/δημιουργία βιβλιοθήκης..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:146
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:57
@@ -4635,7 +4680,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:125
 #, python-format
 msgid "%d books"
-msgstr ""
+msgstr "%d βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:87
@@ -4645,7 +4690,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:88
 msgid "Rename library"
-msgstr ""
+msgstr "Μετονομασία βιβλιοθήκης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:165
 msgid "Remove library"
@@ -4670,7 +4715,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:197
 msgid "Check library"
-msgstr ""
+msgstr "Έλεγχος βιβλιοθήκης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:201
 msgid "Restore database"
@@ -4732,7 +4777,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:324
 msgid "none"
-msgstr ""
+msgstr "καμία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:325
 msgid "Backup status"
@@ -4803,7 +4848,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:471
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:100
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:898
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:934
 msgid "Not allowed"
 msgstr ""
 
@@ -4815,7 +4860,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:472
 msgid "You cannot change libraries while jobs are running."
-msgstr ""
+msgstr "Δεν είναι δυνατή η τροποποίηση βιβλιοθηκών ενώ εκτελούνται εργασίες."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "C"
@@ -4823,19 +4868,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:22
 msgid "Convert books"
-msgstr ""
+msgstr "Μετατροπή βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:30
 msgid "Convert individually"
-msgstr ""
+msgstr "Μεμονωμένη μετατροπή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:33
 msgid "Bulk convert"
-msgstr ""
+msgstr "Μετατροπή πολλών"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:37
 msgid "Create a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Δημιουργία καταλόγου βιβλίων της βιβλιοθήκης calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:88
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:590
@@ -4853,7 +4898,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:127
 msgid "Copy to library"
-msgstr ""
+msgstr "Αντιγραφή στην βιβλιοθήκη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:128
 msgid "Copy selected books to the specified library"
@@ -4869,12 +4914,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:175
 msgid "No library"
-msgstr ""
+msgstr "Δεν βρέθηκε βιβλιοθήκη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:176
 #, python-format
 msgid "No library found at %s"
-msgstr ""
+msgstr "Δεν βρέθηκε βιβλιοθήκη στο %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:179
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:183
@@ -4883,12 +4928,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:194
 msgid "Could not copy books: "
-msgstr ""
+msgstr "Δεν ήταν δυνατή η αντιγραφή των βιβλίων: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:198
 #, python-format
 msgid "Copied %(num)d books to %(loc)s"
-msgstr ""
+msgstr "Αντιγράφηκαν %(num)d βιβλία στο %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:213
 msgid ""
@@ -4939,15 +4984,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:85
 msgid "Remove books"
-msgstr ""
+msgstr "Διαγραφή βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:88
 msgid "Remove selected books"
-msgstr ""
+msgstr "Διαγραφή επιλεγμένων βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:95
 msgid "Remove files of a specific format from selected books.."
-msgstr ""
+msgstr "Διαγραφή τύπων αρχείων από τα επιλεγμένα βιβία.."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:98
 msgid "Remove all formats from selected books, except..."
@@ -5055,7 +5100,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:77
 msgid "Start Content Server"
-msgstr ""
+msgstr "Εκκίνηση Διακομιστή Περιεχομένου"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:73
 msgid "Start/stop content server"
@@ -5076,7 +5121,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:103
 msgid "(delete from library)"
-msgstr ""
+msgstr "(διαγραφή από την βιβλιοθήκη)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:118
 msgid "Setup email based sharing of books"
@@ -5088,11 +5133,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:136
 msgid "Send to device"
-msgstr ""
+msgstr "Αποστολή στην συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:154
 msgid "Connect/share"
-msgstr ""
+msgstr "Σύνδεση/διαμοιρασμός"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:79
@@ -5130,7 +5175,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:38
 msgid "Download metadata and covers"
-msgstr ""
+msgstr "Κατέβασμα μεταδεδομένων και  εξώφυλλων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:45
 msgid "Merge into first selected book - delete others"
@@ -5154,27 +5199,28 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:73
 msgid "Cannot download metadata"
-msgstr ""
+msgstr "Αδύνατη η λήψη μεταδεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:83
 msgid "Failed to download metadata"
-msgstr ""
+msgstr "Η λήψη μεταδεδομένων απέτυχε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:472
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:735
 msgid "Download failed"
-msgstr ""
+msgstr "Η λήψη απέτυχε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:90
 #, python-format
 msgid "Failed to download metadata or covers for any of the %d book(s)."
 msgstr ""
+"Η λήψη μεταδεδομένων ή εξώφυλλων απέτυχε για κάποια από τα %d βιβλία."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:93
 msgid "Metadata download completed"
-msgstr ""
+msgstr "Η λήψη μεταδεδομένων ολοκληρώθηκε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:95
 #, python-format
@@ -5182,6 +5228,8 @@ msgid ""
 "Finished downloading metadata for <b>%d book(s)</b>. Proceed with updating "
 "the metadata in your library?"
 msgstr ""
+"Ολοκληρώθηκε η λήψη μεταδεδομένων για <b>%d βιβλίο--α</b>. Να ενημερωθούν τα "
+"μεταδεδομένα στην βιβλιοθήκη;"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:102
 #, python-format
@@ -5189,10 +5237,12 @@ msgid ""
 "Could not download metadata and/or covers for %d of the books. Click \"Show "
 "details\" to see which books."
 msgstr ""
+"Δεν ήταν δυνατή η λήψη μεταδεδομένων ή/και εξώφυλλων για %d βιβλία. Πατήστε "
+"«εμφάνιση πληροφοριών» για να δείτε ποια είναι."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:109
 msgid "Download complete"
-msgstr ""
+msgstr "Η λήψη ολοκληρώθηκε"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:797
@@ -5267,7 +5317,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:472
 msgid "Applying changed metadata"
-msgstr ""
+msgstr "Γίνεται εφαρμογή των νέων μεταδεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:545
 msgid "Some failures"
@@ -5285,7 +5335,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:19
 msgid "Fetch news"
-msgstr ""
+msgstr "Λήψη ειδήσεων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:54
 msgid "Fetching news from "
@@ -5371,7 +5421,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:35
 msgid "Restart in debug mode"
-msgstr ""
+msgstr "Επανεκκίνηση σε λειτουργία αποσφαλμάτωσης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:53
 msgid "Cannot configure while there are running jobs."
@@ -5400,7 +5450,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:39
 msgid "Save to disk"
-msgstr ""
+msgstr "Αποθήκευση στον δίσκο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:48
 msgid "Save to disk in a single directory"
@@ -5525,7 +5575,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
-msgstr ""
+msgstr "Λήψη βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:22
 msgid "Search for ebooks"
@@ -5537,7 +5587,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "title"
-msgstr ""
+msgstr "τίτλος"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "book"
@@ -5685,7 +5735,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:218
 msgid "This book no longer exists in your library"
-msgstr ""
+msgstr "Αυτό το βιβλίο δεν υπάρχει πλέον στην βιβλιοθήκη σας"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:225
 #, python-format
@@ -5799,7 +5849,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:146
 msgid "Add books to calibre"
-msgstr ""
+msgstr "Προσθήκη βιβλίων στο calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:26
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:62
@@ -5957,17 +6007,17 @@ msgstr ""
 msgid "Remove Cover"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:569
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:335
 msgid "Double-click to open Book Details window"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:570
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:336
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:295
 msgid "Path"
 msgstr "Διαδρομή"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:571
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:337
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #, python-format
 msgid "Cover size: %(width)d x %(height)d"
@@ -6066,7 +6116,7 @@ msgstr "έξοδος"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:109
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:68
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:21
@@ -6318,11 +6368,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:83
 msgid "Unordered list"
-msgstr ""
+msgstr "Λίστα χωρίς ταξινόμηση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:86
 msgid "Align left"
-msgstr ""
+msgstr "Στοίχιση αριστερά"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:88
 msgid "Align center"
@@ -6446,7 +6496,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:523
 msgid "Normal view"
-msgstr ""
+msgstr "Κανονική προβολή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/comments_editor.py:524
 msgid "HTML Source"
@@ -6461,7 +6511,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:74
 msgid "Bulk Convert"
-msgstr ""
+msgstr "Μετατροπή Πολλών"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:189
@@ -7241,7 +7291,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:144
 msgid "Could not open file"
-msgstr ""
+msgstr "Δεν ήταν δυνατό το άνοιγμα του αρχείου"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:145
 msgid "Could not open the file, do you have it open in another program?"
@@ -7814,7 +7864,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:451
 msgid "Download books from device"
-msgstr ""
+msgstr "Λήψη βιβλίων από την συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:462
 msgid "View book on device"
@@ -7826,7 +7876,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:509
 msgid "Send to main memory"
-msgstr ""
+msgstr "Αποστολή στην κύρια μνήμη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:511
 msgid "Send to storage card A"
@@ -7847,7 +7897,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:540
 msgid "Send and delete from library"
-msgstr ""
+msgstr "Αποστολή και διαγραφή από την βιβλιοθήκη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:583
 msgid "Eject device"
@@ -7908,20 +7958,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:924
 msgid "Choose format to send to device"
-msgstr ""
+msgstr "Επιλέξτε τον τύπο αρχείου που θα σταλεί στην συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:932
 msgid "No device"
-msgstr ""
+msgstr "Καμία συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:933
 msgid "Cannot send: No device is connected"
-msgstr ""
+msgstr "Δεν είναι δυνατή η αποστολή: Δεν υπάρχει συνδεδεμένη συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:936
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:940
 msgid "No card"
-msgstr ""
+msgstr "Δεν υπάρχει κάρτα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:937
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:941
@@ -7936,15 +7986,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1031
 msgid "Sending catalogs to device."
-msgstr ""
+msgstr "Γίνεται αποστολή καταλόγων στην συσκευή."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1130
 msgid "Sending news to device."
-msgstr ""
+msgstr "Γίνεται αποστολή ειδήσεων στην συσκευή."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1184
 msgid "Sending books to device."
-msgstr ""
+msgstr "Γίνεται αποστολή βιβλίων στην συσκευή."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1224
 msgid ""
@@ -7954,7 +8004,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1297
 msgid "No space on device"
-msgstr ""
+msgstr "Δεν υπάρχει ελεύθερος χώρος στην συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:1298
 msgid ""
@@ -8289,7 +8339,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:57
 #, python-format
 msgid "There is no existing calibre library at %s"
-msgstr ""
+msgstr "Δεν υπάρχει βιβλιοθήκη calibre στο %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:62
 msgid "Not empty"
@@ -8320,11 +8370,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:77
 msgid "Choose your calibre library"
-msgstr ""
+msgstr "Επιλέξτε την βιβλιοθήκη σας"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:78
 msgid "Your calibre library is currently located at {0}"
-msgstr ""
+msgstr "Η βιβλιοθήκη σας βρίσκεται στο {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library_ui.py:79
 msgid "New &Location:"
@@ -8406,7 +8456,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:233
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "&Cancel"
-msgstr ""
+msgstr "&Ακύρωση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comments_dialog_ui.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:26
@@ -8426,11 +8476,11 @@ msgstr "Βιβλιοθήκη"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:70
 msgid "Device"
-msgstr ""
+msgstr "Συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_location_ui.py:79
 msgid "Library and Device"
-msgstr ""
+msgstr "Βιβλιοθήκη και συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
@@ -8664,11 +8714,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:21
 msgid "Active Jobs"
-msgstr ""
+msgstr "Ενεργές Εργασίες"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:36
 msgid "&Stop selected jobs"
-msgstr ""
+msgstr "&Σταμάτημα επιλεγμένων εργασιών"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:40
 msgid "Show job &details"
@@ -8680,7 +8730,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
-msgstr ""
+msgstr "&Αντιγραφή στο πρόχειρο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:53
 msgid "Show &details"
@@ -8710,11 +8760,11 @@ msgstr "Αντιγραφή στο πρόχειρο"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:854
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:955
 msgid "View log"
-msgstr ""
+msgstr "Εμφάνιση καταγραφής"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:58
 msgid "Title/Author"
-msgstr ""
+msgstr "Τίτλος/Συγγραφέας"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:59
 msgid "Standard metadata"
@@ -8970,7 +9020,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:573
 msgid "&Published:"
-msgstr ""
+msgstr "&Δημοσιεύτηκε:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:575
 msgid "Clear published date"
@@ -9256,7 +9306,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:397
 msgid "Not installed"
-msgstr ""
+msgstr "Μη εγκατεστημένα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 msgid "Update available"
@@ -9804,11 +9854,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:429
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "Schedule news download"
-msgstr ""
+msgstr "Προγραμματίστε το κατέβασμα ειδήσεων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:432
 msgid "Add a custom news source"
-msgstr ""
+msgstr "Προσθήκη προσαρμοσμένης πηγής ειδήσεων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:437
 msgid "Download all scheduled new sources"
@@ -9901,7 +9951,7 @@ msgstr "&Για προχωρημένους"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:229
 msgid "&Download now"
-msgstr ""
+msgstr "&Κατεβάστε τώρα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:230
 msgid "&Delete downloaded news older than:"
@@ -9931,7 +9981,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:236
 msgid "Download &all scheduled"
-msgstr ""
+msgstr "Κατεβάστε όλα τα προγραμματισμένα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:41
 msgid "contains"
@@ -10101,7 +10151,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
 msgid "Publishers"
-msgstr ""
+msgstr "Εκδόσεις"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:143
 msgid " (not on any book)"
@@ -10577,7 +10627,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:51
 #, python-format
 msgid "Download %s"
-msgstr ""
+msgstr "Μεταφόρτωση %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dnd.py:54
 #, python-format
@@ -10600,11 +10650,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:91
 #, python-format
 msgid "Downloading %s"
-msgstr ""
+msgstr "Λήψη %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:103
 msgid "Downloading"
-msgstr ""
+msgstr "Λήψη σε εξέλιξη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:107
 msgid "Failed to download ebook"
@@ -10754,7 +10804,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:155
 msgid "Published:"
-msgstr ""
+msgstr "Δημοσιεύτηκε:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:156
 msgid "Regular expression (?P<published>)"
@@ -10786,11 +10836,11 @@ msgstr "έκδοση"
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:30
 msgid "created by Kovid Goyal"
-msgstr ""
+msgstr "Δημιουργήθηκε από τον Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:179
 msgid "Connected "
-msgstr ""
+msgstr "Συνδεδεμένο "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:219
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:230
@@ -10975,7 +11025,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:336
 msgid "No matches"
-msgstr ""
+msgstr "Καμία αντιστοιχία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:647
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:412
@@ -10985,23 +11035,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:57
 msgid "Eject this device"
-msgstr ""
+msgstr "Εξαγωγή της συσκευής"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:69
 msgid "Show books in calibre library"
-msgstr ""
+msgstr "Εμφάνιση των βιβλίων της βιβλιοθήκης calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:71
 msgid "Show books in the main memory of the device"
-msgstr ""
+msgstr "Εμφάνιση των βιβλίων στην κύρια μνήμη της συσκευής"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:73
 msgid "Show books in storage card A"
-msgstr ""
+msgstr "Εμφάνιση των βιβλίων στην κάρτα μνήμης Α"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:75
 msgid "Show books in storage card B"
-msgstr ""
+msgstr "Εμφάνιση των βιβλίων στην κάρτα μνήμης Β"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:89
 msgid "Delete library"
@@ -11049,7 +11099,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:58
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:285
 msgid "On Device"
-msgstr ""
+msgstr "Στην Συσκευή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:60
 msgid "Size (MB)"
@@ -11088,54 +11138,54 @@ msgstr ""
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:168
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:187
 #, python-format
 msgid "Hide column %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:192
 #, python-format
 msgid "Sort on %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:193
 msgid "Ascending"
 msgstr "Αύξουσα"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:177
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:196
 msgid "Descending"
 msgstr "Φθίνουσα"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:208
 #, python-format
 msgid "Change text alignment for %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:210
 msgid "Left"
-msgstr ""
+msgstr "Αριστερά"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:210
 msgid "Right"
 msgstr "Δεξιά"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:192
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:211
 msgid "Center"
 msgstr "Κέντρο"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:230
 msgid "Show column"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:242
 msgid "Shrink column if it is too wide to fit"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:226
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:245
 msgid "Restore default layout"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:899
+#: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:935
 msgid ""
 "Dropping onto a device is not supported. First add the book to the calibre "
 "library."
@@ -12160,7 +12210,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:58
 msgid "is not set"
-msgstr ""
+msgstr "δεν είναι ορισμένο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:53
 msgid "is"
@@ -13081,7 +13131,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:158
 msgid "Published date"
-msgstr ""
+msgstr "Ημερομηνία δημοσίευσης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:265
 #, python-format
@@ -13502,7 +13552,7 @@ msgid "Change paths to &lowercase"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:46
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:76
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:57
 msgid "Format &dates as:"
 msgstr ""
 
@@ -13650,7 +13700,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:131
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:652
 msgid "&Save"
-msgstr ""
+msgstr "&Αποθήκευση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:132
 msgid "Make &user categories from:"
@@ -13663,25 +13713,29 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:70
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:41
 msgid "Manual management"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:29
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:71
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:43
 msgid "Only on send"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:30
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:72
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:45
 msgid "Automatic management"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
+msgid "Cannot change metadata management while a device is connected"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:30
 msgid "Metadata &management:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:73
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:50
 msgid ""
 "<li><b>Manual management</b>: Calibre updates the metadata and adds "
 "collections only when a book is sent. With this option, calibre will never "
@@ -13692,7 +13746,7 @@ msgid ""
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:77
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:64
 msgid ""
 "Here you can control how calibre will save your books when you click the "
 "Send to Device button. This setting can be overriden for individual devices "
@@ -14108,7 +14162,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:376
 msgid "Search (For Advanced Search click the button to the left)"
-msgstr ""
+msgstr "Αναζήτηση (Για Σύνθετη Αναζήτηση πατήστε το κουμπί στα αριστερά)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:392
 msgid "Start search"
@@ -14120,7 +14174,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:457
 msgid "Saved Searches"
-msgstr ""
+msgstr "Αποθηκευμένες Αναζητήσεις"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:459
 msgid "Choose saved search or enter name for new saved search"
@@ -14518,7 +14572,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
-msgstr ""
+msgstr "Λήψη βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:140
 msgid "Open a selected book in the system's web browser"
@@ -14530,7 +14584,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/ebooks_com_plugin.py:96
 msgid "Not Available"
-msgstr ""
+msgstr "Μη Διαθέσιμο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/adv_search_builder_ui.py:179
 msgid ""
@@ -14608,7 +14662,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:823
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:457
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:458
 msgid "Searches"
 msgstr "Αναζητήσεις"
 
@@ -14647,7 +14701,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:52
 msgid "Manage Publishers"
-msgstr ""
+msgstr "Διαχείρηση Εκδόσεων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:54
 msgid "Manage Tags"
@@ -14770,7 +14824,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:382
 msgid "Manage authors, tags, etc"
-msgstr ""
+msgstr "Διαχείριση συγγραφέων, tags, κτλ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:383
 msgid ""
@@ -14905,7 +14959,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:271
 msgid "Fetch news from "
-msgstr ""
+msgstr "Λήψη ειδήσεων από "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:344
 msgid "Convert existing"
@@ -15021,7 +15075,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:156
 msgid "Update found"
-msgstr ""
+msgstr "Υπάρχει νέα έκδοση"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:159
 msgid "updated plugins"
@@ -15586,6 +15640,8 @@ msgid ""
 "Choose your e-book device. If your device is not in the list, choose a "
 "\"%s\" device."
 msgstr ""
+"Επιλέξτε τον ηλεκτρονικό αναγνώστη σας. Αν η συσκευή σας δεν είναι στην "
+"λίστα, επιλέξτε  την \"%s\" συσκευή."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:505
 msgid "Moving library..."
@@ -15632,7 +15688,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:47
 msgid "Welcome to calibre"
-msgstr ""
+msgstr "Καλώς  ήρθατε στο calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:48
@@ -15641,10 +15697,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:48
 msgid "The one stop solution to all your e-book needs."
 msgstr ""
+"Το μοναδικό πρόγραμμα που χρειάζεστε για την διαχείριση των e-books σας."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:57
 msgid "&Manufacturers"
-msgstr ""
+msgstr "&Κατασκευαστές"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:58
 msgid "&Devices"
@@ -15656,6 +15713,8 @@ msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
+"<h2>Συγχαρητήρια!</h2> Εγκαταστήσατε το calibre με επιτυχία. Πατήστε %s για "
+"εφαρμογή των ρυθμίσεων."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""
@@ -15684,7 +15743,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:57
 msgid "Choose your &language:"
-msgstr ""
+msgstr "Επιλέξτε την &γλώσσα σας:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:58
 msgid ""
@@ -15885,7 +15944,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
-msgstr ""
+msgstr "&Κανένα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:145
 msgid "Use Gmail"
@@ -15942,7 +16001,7 @@ msgstr "ναι"
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:590
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:222
 msgid "no"
-msgstr ""
+msgstr "όχι"
 
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:164
 #: /home/kovid/work/calibre/src/calibre/library/caches.py:568
@@ -16830,27 +16889,27 @@ msgstr ""
 msgid "%(tt)sAverage rating is %(rating)3.1f"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3407
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3408
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3436
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3437
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3453
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3454
 msgid "Compacting database"
 msgstr "Συμπίεση βάσης δεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:176
 msgid "Ratings"
-msgstr ""
+msgstr "Βαθμολογείες"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:213
 msgid "Identifiers"
-msgstr ""
+msgstr "Αναγνωριστικά"
 
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:223
 msgid "Author Sort"
@@ -18170,7 +18229,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:142
 msgid "Unknown feed"
-msgstr ""
+msgstr "Άγνωστη ροή δεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:160
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:187
@@ -18202,7 +18261,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:48
 msgid "Unknown News Source"
-msgstr ""
+msgstr "Άγνωστη πηγή ειδήσεων"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:718
 #, python-format
@@ -18231,7 +18290,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:932
 msgid "Could not fetch article."
-msgstr ""
+msgstr "Δεν ήταν δυνατή η λήψη άρθρου"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:934
 msgid "The debug traceback is available earlier in this log"
@@ -18433,7 +18492,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
 msgid "Cancel"
-msgstr ""
+msgstr "Ακύρωση"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"
@@ -18457,15 +18516,15 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:681
 msgid "&Yes"
-msgstr ""
+msgstr "&Ναι"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:684
 msgid "Yes to &All"
-msgstr ""
+msgstr "Ναι σε &Όλα"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:687
 msgid "&No"
-msgstr ""
+msgstr "&Όχι"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:690
 msgid "N&o to All"
@@ -18485,7 +18544,7 @@ msgstr ""
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:702
 msgid "Ignore"
-msgstr ""
+msgstr "Παράβλεψη"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:705
 msgid "Restore Defaults"
@@ -19006,6 +19065,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:354
 msgid "The number of seconds to wait before sending emails"
 msgstr ""
+"Ο αριθμός των δευτερολέπτων αναμονής πριν την αποστολή ηλεκτρονικού "
+"ταχυδρομείου"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:355
 msgid ""
@@ -19069,7 +19130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:390
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Ενοποιημένη μπάρα εργαλείων στο OSx"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:391
 msgid ""
@@ -19086,6 +19147,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:398
 msgid "Save original file when converting from same format to same format"
 msgstr ""
+"Αποθήκευση του πρωτότυπου αρχείου κατά την μετατροπή από ίδιο τύπο αρχείου "
+"σε ίδιο τύπο αρχείου"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:399
 msgid ""

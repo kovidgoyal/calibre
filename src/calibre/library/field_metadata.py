@@ -635,9 +635,7 @@ class FieldMetadata(dict):
                 self._search_term_map[t] = key
 
     def search_term_to_field_key(self, term):
-        if term in self._search_term_map:
-            return  self._search_term_map[term]
-        return term
+        return self._search_term_map.get(term, term)
 
     def searchable_fields(self):
         return [k for k in self._tb_cats.keys()

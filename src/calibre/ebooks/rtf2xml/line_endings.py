@@ -10,10 +10,11 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, tempfile
+import os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.cleantext import clean_ascii_chars
+from calibre.ptempfile import better_mktemp
 
 class FixLineEndings:
     """Fix line endings"""
@@ -28,7 +29,7 @@ class FixLineEndings:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__replace_illegals = replace_illegals
 
     def fix_endings(self):

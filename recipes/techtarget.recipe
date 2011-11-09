@@ -1,0 +1,50 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TechTarget(BasicNewsRecipe):
+    title          = u'Techtarget'
+    __author__            = 'Julio:map'
+    description           = '''IT Infrastructure related blogs
+                                    from Techtarget'''
+    publisher             = 'Techtarget'
+    category              = 'IT, Infrastructure'
+    oldest_article        = 7
+    language = 'en'
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    needs_subscription    = True
+    auto_cleanup = False
+    LOGIN = u'http://searchservervirtualization.techtarget.com/login'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None:
+            br.open(self.LOGIN)
+            br.select_form(nr=1)
+            br['email'] = self.username
+            if self.password is not None:
+               br['password'] = self.password
+            br.submit()
+        return br
+
+    keep_only_tags = [dict(name='div', attrs={'id':'article'}),dict(name='div', attrs={'class':'entry'})]
+    remove_tags= [dict(name='div', attrs={'id':['articleToolbar','relatedContent']})]
+    remove_tags_after = [dict(name='div', attrs={'id':'relatedContent'})]
+
+
+    feeds          = [
+       (u'IT news and analysis for CIOs', u'http://feeds.pheedo.com/SearchCIOITNewsAndAnalysisForCIOs'),
+       (u'TotalCIO', u'http://feeds.pheedo.com/1532.xml'),
+       (u'SearchCIO-Midmarket: Technology news and tips for midmarket CIOs', u'http://feeds.pheedo.com/techtarget/Searchsmb/Smbs'),
+       (u'Compliance news and advice for senior IT and business managers', u'http://feeds.pheedo.com/tt/1200'),
+       (u'Server virtualization news and opinions', u'http://feeds.pheedo.com/SearchservervirtualizationServerVirtualizationNewsAndOpinions'),
+       (u'The Virtualization Room', u'http://feeds.pheedo.com/techtarget/nzLe'),
+       (u'Server virtualization technical tips and expert advice', u'http://feeds.pheedo.com/SearchservervirtualizationServerVirtualizationTechnicalTipsAndExpertAdvice'),
+       (u'Cloud Computing news and Technical Advice', u'http://feeds.pheedo.com/1260'),
+       (u'IT infrastructure news', u'http://feeds.pheedo.com/techtarget/Searchdatacenter/ItInfrastructure'),
+       (u'Storage Channel Update', u'http://feeds.pheedo.com/ChannelMarker-TheItChannelWeblog'),
+       (u'VMware Tips and News', u'http://feeds.pheedo.com/SearchvmwarecomVmwareTipsAndTricks'),
+       (u'Enterprise IT news roundup', u'http://feeds.pheedo.com/WhatisEnterpriseItNewsRoundup'),
+       (u'WhatIs: Enterprise IT tips and expert advice', u'http://feeds.pheedo.com/WhatisEnterpriseItTipsAndExpertAdvice'),
+       (u'WhatIs: Enterprise IT news roundup', u'http://feeds.pheedo.com/WhatisEnterpriseItNewsRoundup'),
+       ]

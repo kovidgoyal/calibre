@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap, re, os, errno, shutil
 
-from PyQt4.Qt import (Qt, QDateEdit, QDate, pyqtSignal, QMessageBox,
+from PyQt4.Qt import (Qt, QDateTimeEdit, pyqtSignal, QMessageBox,
     QIcon, QToolButton, QWidget, QLabel, QGridLayout, QApplication,
     QDoubleSpinBox, QListWidgetItem, QSize, QPixmap, QDialog, QMenu,
     QPushButton, QSpinBox, QLineEdit, QSizePolicy, QDialogButtonBox, QAction)
@@ -21,7 +21,7 @@ from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (title_sort, authors_to_string,
         string_to_authors, check_isbn, authors_to_sort_string)
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATE,
+from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
         choose_files, error_dialog, choose_images)
 from calibre.utils.date import (local_tz, qt_to_dt, as_local_time,
         UNDEFINED_DATE)
@@ -1377,25 +1377,24 @@ class PublisherEdit(MultiCompleteComboBox): # {{{
 
 # }}}
 
-class DateEdit(QDateEdit): # {{{
+class DateEdit(QDateTimeEdit): # {{{
 
     TOOLTIP = ''
     LABEL = _('&Date:')
-    FMT = 'd MMM yyyy'
+    FMT = 'dd MMM yyyy hh:mm:ss'
     ATTR = 'timestamp'
+    TWEAK = 'gui_timestamp_display_format'
 
     def __init__(self, parent):
-        QDateEdit.__init__(self, parent)
+        QDateTimeEdit.__init__(self, parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
-        fmt = self.FMT
+        fmt = tweaks[self.TWEAK]
         if fmt is None:
-            fmt = tweaks['gui_pubdate_display_format']
-            if fmt is None:
-                fmt = 'MMM yyyy'
+            fmt = self.FMT
         self.setDisplayFormat(fmt)
         self.setCalendarPopup(True)
-        self.setMinimumDate(UNDEFINED_QDATE)
+        self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setSpecialValueText(_('Undefined'))
         self.clear_button = QToolButton(parent)
         self.clear_button.setIcon(QIcon(I('trash.png')))
@@ -1408,12 +1407,13 @@ class DateEdit(QDateEdit): # {{{
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return qt_to_dt(self.date(), as_utc=False)
+            return qt_to_dt(self.dateTime(), as_utc=False)
         def fset(self, val):
             if val is None:
                 val = UNDEFINED_DATE
-            val = as_local_time(val)
-            self.setDate(QDate(val.year, val.month, val.day))
+            else:
+                val = as_local_time(val)
+            self.setDateTime(val)
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
@@ -1429,11 +1429,12 @@ class DateEdit(QDateEdit): # {{{
     @property
     def changed(self):
         o, c = self.original_val, self.current_val
-        return o.year != c.year or o.month != c.month or o.day != c.day
+        return o != c
 
 class PubdateEdit(DateEdit):
     LABEL = _('Publishe&d:')
-    FMT = None
+    FMT = 'MMM yyyy'
     ATTR = 'pubdate'
+    TWEAK = 'gui_pubdate_display_format'
 
 # }}}

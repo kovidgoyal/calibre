@@ -19,6 +19,67 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.25
+  date: 2011-11-06
+
+  new features:
+    - title: "Drivers for the LG Optimus 2X, HTC Incredible S, Samsung Stratosphere and the Kobo Vox"
+      tickets: [886558, 885058, 884762, 884039] 
+
+    - title: "Get books: Add ebookpoint.pl store"
+
+    - title: "Support hour/minute/seconds in datetime format strings in the template language and in tweaks"
+  
+  bug fixes:
+    - title: "Fix Book detils preferences showing custom columns even after they have been deleted"
+      tickets: [884799]
+
+    - title: "Replace use of insecure tempfile in the bundled rtf2xml library."
+      tickets: [885245]
+
+    - title: "Remove the suid mount helper used on linux and bsd, as it proved impossible to make it secure."
+      description: "This means that if you are on BSD or an older linux distribution, without support for udisks, device detection will no longer work in calibre. You will have to either mount the devices by hand before starting calibre, or stick with version 0.8.24 (the vulnerability in the mount helper is a privilege escalation, which is relatively harmless on the vast majority of single user systems)."
+      tickets: [885027]
+
+    - title: "Do not error out if there is an invalid regex for title sort set in tweaks"
+
+    - title: "Content server: Fix another place where --url-prefix was forgotten"
+      tickets: [885332]
+
+    - title: "HTML Input: Limit memory consumption when converting HTML files that link to large binary files."
+      tickets: [884821]
+
+    - title: "T1 driver: Workaround for T1 showing error messages when opening some news downloads on the device"
+
+    - title: "Kobo driver: Fix longstanding bug that would prevent re-adding a epub that has been previously deleted from the Kobo using calibre"
+
+    - title: "Fix partial cover search not resuming after pressing back in the metadata download dialog"
+      tickets: [875196]
+
+    - title: "T1 driver: Fix auto refresh covers option"
+
+    - title: "Content server: Do not show tracebacks in HTML output when not running in develop mode"
+
+    - title: "Textile output; Fix out of memory issue when dealing with large margins."
+
+  improved recipes:
+    - The Independent
+    - Die Zeit subscription version
+    - NIN online
+    - Science News
+    - Updated Daily Mirror
+    - Science AAAS
+
+  new recipes:
+    - title: b365 Realitatea and Catavencii
+      author: Silviu Cotoara
+
+    - title: Various Greek news sources 
+      author: Stelios
+
+    - title: Real world economics blog 
+      author: Julio Map
+
 - version: 0.8.24
   date: 2011-10-27
 

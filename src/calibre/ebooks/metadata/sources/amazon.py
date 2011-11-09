@@ -341,11 +341,11 @@ class Worker(Thread): # Get details {{{
         return authors
 
     def parse_rating(self, root):
-        ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[@class="asinReviewsSummary"]')
+        ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]')
         if not ratings:
-            ratings = root.xpath('//div[@class="buying"]/descendant::span[@class="asinReviewsSummary"]')
+            ratings = root.xpath('//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]')
         if not ratings:
-            ratings = root.xpath('//span[@class="crAvgStars"]/descendant::span[@class="asinReviewsSummary"]')
+            ratings = root.xpath('//span[@class="crAvgStars"]/descendant::span[contains(@class,"asinReviewsSummary")]')
         if ratings:
             for elem in ratings[0].xpath('descendant::*[@title]'):
                 t = elem.get('title').strip()

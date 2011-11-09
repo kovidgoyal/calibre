@@ -10,10 +10,11 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, tempfile
+import os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.utils.cleantext import clean_ascii_chars
+from calibre.ptempfile import better_mktemp
 
 class ReplaceIllegals:
     """
@@ -27,7 +28,7 @@ class ReplaceIllegals:
         self.__file = in_file
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
 
     def replace_illegals(self):
         """

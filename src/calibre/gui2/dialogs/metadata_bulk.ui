@@ -366,7 +366,7 @@ from the value in the box</string>
            <item row="9" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
-              <widget class="QDateEdit" name="adddate">
+              <widget class="QDateTimeEdit" name="adddate">
                <property name="displayFormat">
                 <string>d MMM yyyy</string>
                </property>
@@ -411,7 +411,7 @@ from the value in the box</string>
            <item row="10" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QDateEdit" name="pubdate">
+              <widget class="QDateTimeEdit" name="pubdate">
                <property name="displayFormat">
                 <string>MMM yyyy</string>
                </property>
