@@ -6,9 +6,9 @@ class TechTarget(BasicNewsRecipe):
     description           = '''IT Infrastructure related blogs
                                     from Techtarget'''
     publisher             = 'Techtarget'
-    language = 'en'
     category              = 'IT, Infrastructure'
     oldest_article        = 7
+    language = 'en'
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
@@ -27,7 +27,7 @@ class TechTarget(BasicNewsRecipe):
             br.submit()
         return br
 
-    keep_only_tags = [dict(name='div', attrs={'id':'article'})]
+    keep_only_tags = [dict(name='div', attrs={'id':'article'}),dict(name='div', attrs={'class':'entry'})]
     remove_tags= [dict(name='div', attrs={'id':['articleToolbar','relatedContent']})]
     remove_tags_after = [dict(name='div', attrs={'id':'relatedContent'})]
 
