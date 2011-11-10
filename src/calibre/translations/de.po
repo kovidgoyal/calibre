@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-06 08:51+0000\n"
-"PO-Revision-Date: 2011-11-01 08:57+0000\n"
-"Last-Translator: Hendrik Knackstedt <Unknown>\n"
+"PO-Revision-Date: 2011-11-09 14:10+0000\n"
+"Last-Translator: Christian K. <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-07 05:27+0000\n"
-"X-Generator: Launchpad (build 14231)\n"
+"X-Launchpad-Export-Date: 2011-11-10 04:55+0000\n"
+"X-Generator: Launchpad (build 14263)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1544,7 +1544,7 @@ msgstr "Schwarz-Weiß Umschläge hochladen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "Zeige abgelaufene Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -1552,6 +1552,10 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Ein Fehler in einer frühern Version hat Einträge von nicht-kepubs-Büchern in "
+"der Datenbank zurückgelassen. Mit dieser Option wird Calibre diese "
+"abgelaufenen Einträge anzeigen. Sie können diese dann mit Hilfe der neuen "
+"Löschfunktion entfernen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:573
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -1584,6 +1588,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>Kapitel %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Kapitelfortschritt:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
+"/><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1036
 #, python-format
@@ -1592,6 +1599,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>Kapitel %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Kapitelfortschritt:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
+"%(text)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1045
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1055
@@ -14421,6 +14431,11 @@ msgid ""
 "Manage Authors. You can use the values {author} and \n"
 "{author_sort}, and any template function."
 msgstr ""
+"<p>Gib eine Vorlage an, die benutzt werden soll, um einen Link für\n"
+"einen Autor in den Buchinformationen zu erstellen. Die Vorlage wird\n"
+"benutzt, wenn kein Link für den Autor über \"Autoren Organisieren\"\n"
+"bereitgestellt wurde. Sie können die Werte {author} und\n"
+"{author_sort} und jede Vorlagenfunktion benutzen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Use &Roman numerals for series"
@@ -17829,6 +17844,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to: CSV, XML output formats"
 msgstr ""
+"Ausgabefeld, nach dem sortiert werden soll.\n"
+"Verfügbare Felder: author_sort, id, rating, size, timestamp, title_sort\n"
+"Vorgabe: '%default'\n"
+"Gilt für CSV- und XML-Ausgabeformate"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:251
 #, python-format
@@ -18158,6 +18177,9 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
+"Warnung: widersprüchliche Werte für Sortierung nach\n"
+"Autor '{0}':\n"
+"'{1}' <> '{2}'\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1729
 msgid ""
@@ -19135,7 +19157,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:309
 #, python-format
 msgid "Template evaluation resulted in no path components. Template: %s"
-msgstr ""
+msgstr "Auswertung der Vorlage ergab keine Pfadkomponente. Vorlage: %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:405
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:438
@@ -19677,6 +19699,8 @@ msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(id, val) -- Zuweisung von val zu id, gibt val zurück. id muss ein "
+"Bezeichner sein, kein Ausdruck"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:253
 msgid ""
@@ -19691,12 +19715,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:265
 msgid "field(name) -- returns the metadata field named by name"
 msgstr ""
+"field(name) -- gibt das Feld Metadaten, das durch name bezeichnet ist, zurück"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:274
 msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(name) -- gibt das Feld Metadaten, das durch name bezeichnet ist, "
+"ohne jegliche Formatierung zurück"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:284
 msgid ""
@@ -19760,15 +19787,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:386
 msgid "strcat_max requires 2 or more arguments"
-msgstr ""
+msgstr "strcat_max erfordert zwei oder mehr Argumente"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:388
 msgid "strcat_max requires an even number of arguments"
-msgstr ""
+msgstr "strcat_max erfordert eine gerade Anzahl von Argumenten"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:392
 msgid "first argument to strcat_max must be an integer"
-msgstr ""
+msgstr "das erste Argument von strcat_max muss eine Ganzzahl sein"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:410
 msgid ""
@@ -19879,6 +19906,8 @@ msgid ""
 "human_readable(v) -- return a string representing the number v in KB, MB, "
 "GB, etc."
 msgstr ""
+"human_readable(v) -- gibt einen String zurück der die Zahl v in KB, MB, GB, "
+"etc. ausdrückt"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:639
 msgid ""
@@ -19945,18 +19974,23 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:774
 msgid "uppercase(val) -- return value of the field in upper case"
 msgstr ""
+"uppercase(val) -- gibt den Wert des Feldes val in Großbuchstaben zurück"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:783
 msgid "lowercase(val) -- return value of the field in lower case"
 msgstr ""
+"lowercase(val) -- gibt den Wert des Feldes val in Kleinbuchstaben zurück"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:792
 msgid "titlecase(val) -- return value of the field in title case"
 msgstr ""
+"titlecase(val) -- gibt den Wert des Feldes val im Überschriftenstil zurück"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:801
 msgid "capitalize(val) -- return value of the field capitalized"
 msgstr ""
+"capitalize(val) -- gibt den Wert des Feldes val mit großen Anfangsbuchstaben "
+"zurück"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:810
 msgid "booksize() -- return value of the size field"
@@ -19973,6 +20007,8 @@ msgid ""
 "has_cover() -- return Yes if the book has a cover, otherwise return the "
 "empty string"
 msgstr ""
+"has_cover() -- gibt Yes zurück, wenn das Buch einen Umschlag hat, "
+"andernfalls einen leeren String"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:848
 msgid ""
@@ -20133,7 +20169,7 @@ msgstr "Englisch (Australien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Bulgaria)"
-msgstr ""
+msgstr "Englisch (Bulgarien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (New Zealand)"
@@ -20153,7 +20189,7 @@ msgstr "Englisch (Indien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English (Nepal)"
-msgstr ""
+msgstr "Englisch (Nepal)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Thailand)"
@@ -20169,7 +20205,7 @@ msgstr "Englisch (Zypern)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Czech Republic)"
-msgstr ""
+msgstr "Englisch (Tschechische Republik)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Pakistan)"
@@ -20189,7 +20225,7 @@ msgstr "Englisch (Israel)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "English (Russia)"
-msgstr ""
+msgstr "Englisch (Russland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "English (Singapore)"
@@ -20257,7 +20293,7 @@ msgstr "Spanisch (Nicaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "Spanish (Colombia)"
-msgstr ""
+msgstr "Spanisch (Kolumbien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "German (AT)"
@@ -20489,7 +20525,7 @@ msgstr "Impressumskopie geladen"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1216
 msgid "Articles in this issue: "
-msgstr ""
+msgstr "Artikel in dieser Ausgabe: "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1286
 msgid "Untitled Article"
@@ -20550,7 +20586,7 @@ msgstr "Vorhergehender Abschnitt"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:214
 msgid "Section Menu"
-msgstr ""
+msgstr "Auswahlmenü"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/templates.py:217
 msgid "Main Menu"

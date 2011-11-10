@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-06 08:51+0000\n"
-"PO-Revision-Date: 2011-11-07 19:22+0000\n"
+"PO-Revision-Date: 2011-11-09 08:17+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-08 05:32+0000\n"
-"X-Generator: Launchpad (build 14231)\n"
+"X-Launchpad-Export-Date: 2011-11-10 04:56+0000\n"
+"X-Generator: Launchpad (build 14263)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -20274,159 +20274,159 @@ msgstr "brazil portugál"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (UK)"
-msgstr "Angol (Brit)"
+msgstr "angol (Egyesült Királyság)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Simplified Chinese"
-msgstr "Kínai (egyszerűsített)"
+msgstr "kínai (egyszerűsített)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "Chinese (HK)"
-msgstr "Kínai (hongkongi)"
+msgstr "kínai (Hongkong)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "Traditional Chinese"
-msgstr "Kínai (hagyományos)"
+msgstr "kínai (hagyományos)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English"
-msgstr "Angol"
+msgstr "angol"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:114
 msgid "English (Australia)"
-msgstr "Angol (Ausztrália)"
+msgstr "angol (Ausztrália)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Bulgaria)"
-msgstr "Angol (Bulgária)"
+msgstr "angol (Bulgária)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (New Zealand)"
-msgstr "Angol (Új-Zéland)"
+msgstr "angol (Új-Zéland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Canada)"
-msgstr "Angol (Kanada)"
+msgstr "angol (Kanada)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (Greece)"
-msgstr "Angol (Görögország)"
+msgstr "angol (Görögország)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "English (India)"
-msgstr "Angol (India)"
+msgstr "angol (India)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English (Nepal)"
-msgstr "Angol (Nepál)"
+msgstr "angol (Nepál)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Thailand)"
-msgstr "Angol (Thaiföld)"
+msgstr "angol (Thaiföld)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Turkey)"
-msgstr "Angol (Törökország)"
+msgstr "angol (Törökország)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Cyprus)"
-msgstr "Angol (Ciprus)"
+msgstr "angol (Ciprus)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Czech Republic)"
-msgstr "Angol (Cseh Köztársaság)"
+msgstr "angol (Cseh Köztársaság)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Pakistan)"
-msgstr "Angol (Pakisztán)"
+msgstr "angol (Pakisztán)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (Croatia)"
-msgstr "Angol (Horvátország)"
+msgstr "angol (Horvátország)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "English (Indonesia)"
-msgstr "Angol (Indonézia)"
+msgstr "angol (Indonézia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Israel)"
-msgstr "Angol (Izrael)"
+msgstr "angol (Izrael)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "English (Russia)"
-msgstr "Angol (Oroszország)"
+msgstr "angol (Oroszország)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "English (Singapore)"
-msgstr "Angol (Szingapúr)"
+msgstr "angol (Szingapúr)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "English (Yemen)"
-msgstr "Angol (Jemen)"
+msgstr "angol (Jemen)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "English (Ireland)"
-msgstr "Angol (Írország)"
+msgstr "angol (Írország)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "English (China)"
-msgstr "Angol (Kína)"
+msgstr "angol (Kína)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
 msgid "English (South Africa)"
-msgstr "Angol (Dél-Afrika)"
+msgstr "angol (Dél-Afrika)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:135
 msgid "Spanish (Paraguay)"
-msgstr "Spanyol (Paraguay)"
+msgstr "spanyol (Paraguay)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:136
 msgid "Spanish (Uruguay)"
-msgstr "Spanyol (Uruguay)"
+msgstr "spanyol (Uruguay)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "Spanish (Argentina)"
-msgstr "Spanyol (Argentína)"
+msgstr "spanyol (Argentína)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "Spanish (Mexico)"
-msgstr "Spanyol (Mexikó)"
+msgstr "spanyol (Mexikó)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "Spanish (Cuba)"
-msgstr "Spanyol (Kuba)"
+msgstr "spanyol (Kuba)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
 msgid "Spanish (Chile)"
-msgstr "Spanyol (Chile)"
+msgstr "spanyol (Chile)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
 msgid "Spanish (Ecuador)"
-msgstr "Spanyol (Ecuador)"
+msgstr "spanyol (Ecuador)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
 msgid "Spanish (Honduras)"
-msgstr "Spanyol (Honduras)"
+msgstr "spanyol (Honduras)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "Spanish (Venezuela)"
-msgstr "Spanyol (Venezuela)"
+msgstr "spanyol (Venezuela)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "Spanish (Bolivia)"
-msgstr "Spanyol (Bolívia)"
+msgstr "spanyol (Bolívia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "Spanish (Nicaragua)"
-msgstr "Spanyol (Nicaragua)"
+msgstr "spanyol (Nicaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "Spanish (Colombia)"
-msgstr "Spanyol (Kolumbia)"
+msgstr "spanyol (Kolumbia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "German (AT)"
-msgstr "Német (AT)"
+msgstr "német (Ausztria)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
 msgid "French (BE)"
@@ -20434,11 +20434,11 @@ msgstr "Francia (BE)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "Dutch (NL)"
-msgstr "Holland (NL)"
+msgstr "holland (Hollandia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
 msgid "Dutch (BE)"
-msgstr "Holland (BE)"
+msgstr "holland (Belgium)"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
