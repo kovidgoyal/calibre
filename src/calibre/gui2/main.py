@@ -137,7 +137,8 @@ class GuiRunner(QObject):
             self.splash_screen.finish(main)
         main.initialize(self.library_path, db, self.listener, self.actions)
         if DEBUG:
-            prints('Started up in', time.time() - self.startup_time)
+            prints('Started up in', time.time() - self.startup_time, 'with',
+                    len(db.data), 'books')
         add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
         sys.excepthook = main.unhandled_exception
         if len(self.args) > 1:
