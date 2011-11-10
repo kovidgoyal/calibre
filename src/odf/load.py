@@ -24,12 +24,9 @@
 # in memory. The user should then be able to make operations and then save
 # the structure again.
 
-from xml.sax import make_parser,handler
-from xml.sax.xmlreader import InputSource
-import xml.sax.saxutils
+from xml.sax import handler
 from element import Element
 from namespaces import OFFICENS
-from cStringIO import StringIO
 
 #
 # Parse the XML files
@@ -102,9 +99,18 @@ class LoadParser(handler.ContentHandler):
         if self.parse == False:
             return
         self.level = self.level - 1
-        str = ''.join(self.data)
-        if len(str.strip()) > 0:
-            self.curr.addText(str, check_grammar=False)
+        # Changed by Kovid to deal with <span> tags with only whitespace
+        # content.
+        data = ''.join(self.data)
+        tn = getattr(self.curr, 'tagName', '')
+        try:
+            do_strip = not tn.startswith('text:')
+        except:
+            do_strip = True
+        if do_strip:
+            data = data.strip()
+        if data:
+            self.curr.addText(data, check_grammar=False)
         self.data = []
         self.curr = self.curr.parentNode
         self.parent = self.curr
