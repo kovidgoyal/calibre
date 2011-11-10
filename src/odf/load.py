@@ -101,15 +101,15 @@ class LoadParser(handler.ContentHandler):
         self.level = self.level - 1
         # Changed by Kovid to deal with <span> tags with only whitespace
         # content.
-        data = ''.join(self.data)
+        data = q = ''.join(self.data)
         tn = getattr(self.curr, 'tagName', '')
         try:
             do_strip = not tn.startswith('text:')
         except:
             do_strip = True
         if do_strip:
-            data = data.strip()
-        if data:
+            q = q.strip()
+        if q:
             self.curr.addText(data, check_grammar=False)
         self.data = []
         self.curr = self.curr.parentNode
