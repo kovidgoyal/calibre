@@ -1317,9 +1317,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
-        if name:
-            if not replace:
-                return False
+        if name and not replace:
+            return False
         name = self.construct_file_name(id)
         ext = ('.' + format.lower()) if format else ''
         dest = os.path.join(path, name+ext)
