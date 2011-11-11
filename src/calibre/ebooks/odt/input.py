@@ -44,15 +44,19 @@ class Extract(ODF2XHTML):
         # Remove the position:relative as it causes problems with some epub
         # renderers. Remove display: block on an image inside a div as it is
         # redundant and prevents text-align:center from working in ADE
+        # Also ensure that the img is contained in its containing div
         imgpath = XPath('//h:div/h:img[@style]')
         for img in imgpath(root):
             div = img.getparent()
             if len(div) == 1:
-                style = div.attrib['style'].replace('position:relative', '')
-                if style.startswith(';'): style = style[1:]
+                style = div.attrib.get('style', '')
+                if style and not style.endswith(';'):
+                    style = style + ';'
+                style += 'position:static' # Ensures position of containing
+                                           # div is static
+                # Ensure that the img is always contained in its frame
                 div.attrib['style'] = style
-                if img.attrib.get('style', '') == 'display: block;':
-                    del img.attrib['style']
+                img.attrib['style'] = 'max-width: 100%; max-height: 100%'
 
         # A div/div/img construct causes text-align:center to not work in ADE
         # so set the display of the second div to inline. This should have no
@@ -65,7 +69,7 @@ class Extract(ODF2XHTML):
             div1 = div2.getparent()
             if len(div1) == len(div2) == 1:
                 style = div2.attrib['style']
-                div2.attrib['style'] = 'position:static;display:inline;'+style
+                div2.attrib['style'] = 'display:inline;'+style
 
 
     def filter_css(self, root, log):
