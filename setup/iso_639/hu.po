@@ -9,14 +9,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-27 14:31+0000\n"
-"PO-Revision-Date: 2011-11-09 09:07+0000\n"
-"Last-Translator: SZERVÑC Attila <Unknown>\n"
+"PO-Revision-Date: 2011-11-10 07:13+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <debian-l10n-hungarian@lists.d.o>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-10 04:57+0000\n"
-"X-Generator: Launchpad (build 14263)\n"
+"X-Launchpad-Export-Date: 2011-11-11 04:52+0000\n"
+"X-Generator: Launchpad (build 14277)\n"
 "X-Poedit-Country: HUNGARY\n"
 "Language: hu\n"
 "X-Poedit-Language: Hungarian\n"
@@ -384,7 +384,7 @@ msgstr ""
 
 #. name for adx
 msgid "Tibetan; Amdo"
-msgstr ""
+msgstr "tibeti; Amdo"
 
 #. name for ady
 msgid "Adyghe"
@@ -708,7 +708,7 @@ msgstr ""
 
 #. name for aii
 msgid "Neo-Aramaic; Assyrian"
-msgstr ""
+msgstr "arámi; új-arámi; asszír"
 
 #. name for aij
 msgid "Lishanid Noshan"
@@ -1077,7 +1077,7 @@ msgstr ""
 
 #. name for amw
 msgid "Neo-Aramaic; Western"
-msgstr ""
+msgstr "arámi; új-arámi; nyugati"
 
 #. name for amx
 msgid "Anmatyerre"
@@ -1414,7 +1414,7 @@ msgstr ""
 
 #. name for arc
 msgid "Aramaic; Official (700-300 BCE)"
-msgstr ""
+msgstr "arámi; hivatalos (i.e. 700- i.e. 300)"
 
 #. name for ard
 msgid "Arabana"
@@ -2089,7 +2089,7 @@ msgstr ""
 
 #. name for bak
 msgid "Bashkir"
-msgstr "Baskír"
+msgstr "baskír"
 
 #. name for bal
 msgid "Baluchi"
@@ -2498,7 +2498,7 @@ msgstr ""
 
 #. name for bel
 msgid "Belarusian"
-msgstr "Belarusz"
+msgstr "belarusz"
 
 #. name for bem
 msgid "Bemba (Zambia)"
@@ -2506,7 +2506,7 @@ msgstr ""
 
 #. name for ben
 msgid "Bengali"
-msgstr "Bengáli"
+msgstr "bengáli"
 
 #. name for beo
 msgid "Beami"
@@ -2802,7 +2802,7 @@ msgstr ""
 
 #. name for bhn
 msgid "Neo-Aramaic; Bohtan"
-msgstr ""
+msgstr "arámi; új-arámi; bohtan"
 
 #. name for bho
 msgid "Bhojpuri"
@@ -2970,7 +2970,7 @@ msgstr ""
 
 #. name for bjf
 msgid "Neo-Aramaic; Barzani Jewish"
-msgstr ""
+msgstr "arámi; új-arámi; barzani zsidó"
 
 #. name for bjg
 msgid "Bidyogo"
@@ -3370,7 +3370,7 @@ msgstr ""
 
 #. name for bng
 msgid "Benga"
-msgstr ""
+msgstr "benga"
 
 #. name for bni
 msgid "Bangi"
@@ -3683,7 +3683,7 @@ msgstr ""
 
 #. name for bqn
 msgid "Bulgarian Sign Language"
-msgstr "Bolgár jelnyelv"
+msgstr "bolgár jelnyelv"
 
 #. name for bqo
 msgid "Balo"
@@ -4076,9 +4076,10 @@ msgstr ""
 msgid "Bugawac"
 msgstr ""
 
+# src/trans.h:285
 #. name for bul
 msgid "Bulgarian"
-msgstr "Bolgár"
+msgstr "bolgár"
 
 #. name for bum
 msgid "Bulu (Cameroon)"
@@ -5041,7 +5042,7 @@ msgstr ""
 
 #. name for chu
 msgid "Slavonic; Old"
-msgstr ""
+msgstr "szláv; ószláv"
 
 #. name for chv
 msgid "Chuvash"
@@ -5229,7 +5230,7 @@ msgstr ""
 
 #. name for cld
 msgid "Neo-Aramaic; Chaldean"
-msgstr ""
+msgstr "arámi; új-arámi; új-babilóniai"
 
 #. name for cle
 msgid "Chinantec; Lealao"
@@ -5627,7 +5628,7 @@ msgstr "kasubi"
 
 #. name for csc
 msgid "Catalan Sign Language"
-msgstr ""
+msgstr "katalán jelnyelv"
 
 #. name for csd
 msgid "Chiangmai Sign Language"
@@ -5635,7 +5636,7 @@ msgstr ""
 
 #. name for cse
 msgid "Czech Sign Language"
-msgstr ""
+msgstr "cseh jelnyelv"
 
 #. name for csf
 msgid "Cuba Sign Language"
@@ -7731,7 +7732,7 @@ msgstr ""
 
 #. name for fro
 msgid "French; Old (842-ca. 1400)"
-msgstr ""
+msgstr "francia; ófrancia (842- kb. 1400)"
 
 #. name for frp
 msgid "Arpitan"
@@ -8639,7 +8640,7 @@ msgstr ""
 
 #. name for goh
 msgid "German; Old High (ca. 750-1050)"
-msgstr ""
+msgstr "német; ónémet (kb. 750-1050)"
 
 #. name for goi
 msgid "Gobasi"
@@ -9721,7 +9722,7 @@ msgstr ""
 
 #. name for hsh
 msgid "Hungarian Sign Language"
-msgstr ""
+msgstr "magyar jelnyelv"
 
 #. name for hsl
 msgid "Hausa Sign Language"
@@ -10936,7 +10937,7 @@ msgstr ""
 
 #. name for jpa
 msgid "Aramaic; Jewish Palestinian"
-msgstr ""
+msgstr "arámi; zsidó palesztin"
 
 # src/trans.h:222
 #. name for jpn
@@ -11804,7 +11805,7 @@ msgstr ""
 
 #. name for khg
 msgid "Tibetan; Khams"
-msgstr ""
+msgstr "tibeti; Khams"
 
 #. name for khh
 msgid "Kehu"
@@ -18261,7 +18262,7 @@ msgstr ""
 
 #. name for nhb
 msgid "Beng"
-msgstr ""
+msgstr "beng"
 
 #. name for nhc
 msgid "Nahuatl; Tabasco"
@@ -18931,7 +18932,7 @@ msgstr ""
 
 #. name for non
 msgid "Norse; Old"
-msgstr "ónorvég"
+msgstr "norvég; ónorvég"
 
 #. name for nop
 msgid "Numanggang"
@@ -19352,7 +19353,7 @@ msgstr ""
 
 #. name for nwc
 msgid "Newari; Old"
-msgstr ""
+msgstr "newari; ónewari"
 
 #. name for nwe
 msgid "Ngwe"
@@ -19572,11 +19573,11 @@ msgstr ""
 
 #. name for oar
 msgid "Aramaic; Old (up to 700 BCE)"
-msgstr ""
+msgstr "arámi; óarámi (i.e. 700-ig)"
 
 #. name for oav
 msgid "Avar; Old"
-msgstr "avar; régi"
+msgstr "avar; óavar"
 
 #. name for obi
 msgid "Obispeño"
@@ -19600,11 +19601,11 @@ msgstr ""
 
 #. name for obr
 msgid "Burmese; Old"
-msgstr ""
+msgstr "burmai; óburmai"
 
 #. name for obt
 msgid "Breton; Old"
-msgstr ""
+msgstr "breton; óbreton"
 
 #. name for obu
 msgid "Obulom"
@@ -19616,7 +19617,7 @@ msgstr ""
 
 #. name for och
 msgid "Chinese; Old"
-msgstr ""
+msgstr "kínai; ókínai"
 
 #. name for oci
 msgid "Occitan (post 1500)"
@@ -19640,7 +19641,7 @@ msgstr ""
 
 #. name for odt
 msgid "Dutch; Old"
-msgstr ""
+msgstr "holland; óholland"
 
 #. name for odu
 msgid "Odual"
@@ -19652,7 +19653,7 @@ msgstr ""
 
 #. name for ofs
 msgid "Frisian; Old"
-msgstr ""
+msgstr "fríz; ófríz"
 
 #. name for ofu
 msgid "Efutop"
@@ -19668,7 +19669,7 @@ msgstr ""
 
 #. name for oge
 msgid "Georgian; Old"
-msgstr ""
+msgstr "grúz; ógrúz"
 
 #. name for ogg
 msgid "Ogbogolo"
@@ -19684,11 +19685,11 @@ msgstr ""
 
 #. name for oht
 msgid "Hittite; Old"
-msgstr ""
+msgstr "hettita; óhettita"
 
 #. name for ohu
 msgid "Hungarian; Old"
-msgstr ""
+msgstr "magyar; ómagyar"
 
 #. name for oia
 msgid "Oirata"
@@ -19716,7 +19717,7 @@ msgstr "odzsibwa"
 
 #. name for ojp
 msgid "Japanese; Old"
-msgstr ""
+msgstr "japán; ójapán"
 
 #. name for ojs
 msgid "Ojibwa; Severn"
@@ -19776,7 +19777,7 @@ msgstr ""
 
 #. name for oko
 msgid "Korean; Old (3rd-9th cent.)"
-msgstr ""
+msgstr "koreai; ókoreai (III--IX. sz.)"
 
 #. name for okr
 msgid "Kirike"
@@ -19944,7 +19945,7 @@ msgstr ""
 
 #. name for onw
 msgid "Nubian; Old"
-msgstr ""
+msgstr "núbiai; ónúbiai"
 
 #. name for onx
 msgid "Onin Based Pidgin"
@@ -20048,7 +20049,7 @@ msgstr ""
 
 #. name for orv
 msgid "Russian; Old"
-msgstr ""
+msgstr "orosz; óorosz"
 
 #. name for orw
 msgid "Oro Win"
@@ -20080,7 +20081,7 @@ msgstr ""
 
 #. name for osp
 msgid "Spanish; Old"
-msgstr ""
+msgstr "spanyol; óspanyol"
 
 #. name for oss
 msgid "Ossetian"
@@ -20096,7 +20097,7 @@ msgstr ""
 
 #. name for osx
 msgid "Saxon; Old"
-msgstr ""
+msgstr "szász; ószász"
 
 #. name for ota
 msgid "Turkish; Ottoman (1500-1928)"
@@ -20104,7 +20105,7 @@ msgstr "török (ottomán) (1500-1928)"
 
 #. name for otb
 msgid "Tibetan; Old"
-msgstr ""
+msgstr "tibeti; ótibeti"
 
 #. name for otd
 msgid "Ot Danum"
@@ -20120,7 +20121,7 @@ msgstr ""
 
 #. name for otk
 msgid "Turkish; Old"
-msgstr ""
+msgstr "török; ótörök"
 
 #. name for otl
 msgid "Otomi; Tilapa"
@@ -20164,7 +20165,7 @@ msgstr ""
 
 #. name for oty
 msgid "Tamil; Old"
-msgstr ""
+msgstr "tamil; ótamil"
 
 #. name for otz
 msgid "Otomi; Ixtenco"
@@ -20184,7 +20185,7 @@ msgstr ""
 
 #. name for oui
 msgid "Uighur; Old"
-msgstr ""
+msgstr "ujgur; óujgur"
 
 #. name for oum
 msgid "Ouma"
@@ -20200,7 +20201,7 @@ msgstr ""
 
 #. name for owl
 msgid "Welsh; Old"
-msgstr ""
+msgstr "walesi; ówalesi"
 
 #. name for oyb
 msgid "Oy"
@@ -20537,7 +20538,7 @@ msgstr ""
 
 #. name for peo
 msgid "Persian; Old (ca. 600-400 B.C.)"
-msgstr ""
+msgstr "perzsa"
 
 #. name for pep
 msgid "Kunja"
@@ -22492,7 +22493,7 @@ msgstr ""
 
 #. name for sam
 msgid "Aramaic; Samaritan"
-msgstr ""
+msgstr "arámi; szamaritánus"
 
 # src/trans.h:193
 #. name for san
@@ -22919,7 +22920,7 @@ msgstr ""
 
 #. name for sga
 msgid "Irish; Old (to 900)"
-msgstr "óír (900-ig)"
+msgstr "ír; óír (900-ig)"
 
 #. name for sgb
 msgid "Ayta; Mag-antsi"
@@ -25576,7 +25577,7 @@ msgstr "tumleo"
 
 #. name for tmr
 msgid "Aramaic; Jewish Babylonian (ca. 200-1200 CE)"
-msgstr ""
+msgstr "arámi; zsidó babilóniai (kb. 200-1200)"
 
 #. name for tms
 msgid "Tima"
@@ -28451,10 +28452,9 @@ msgstr ""
 msgid "Kombio"
 msgstr "kombio"
 
-# src/trans.h:285
 #. name for xbm
 msgid "Breton; Middle"
-msgstr "breton; közép"
+msgstr "breton; Középkori"
 
 #. name for xbn
 msgid "Kenaboi"
@@ -28519,7 +28519,7 @@ msgstr ""
 
 #. name for xct
 msgid "Tibetan; Classical"
-msgstr ""
+msgstr "tibeti; klasszikus"
 
 #. name for xcu
 msgid "Curonian"
@@ -30797,7 +30797,7 @@ msgstr ""
 
 #. name for zpg
 msgid "Zapotec; Guevea De Humboldt"
-msgstr ""
+msgstr "zapoték; Guevea De Humboldt"
 
 #. name for zph
 msgid "Zapotec; Totomachapan"

@@ -7,16 +7,16 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-06 08:51+0000\n"
-"PO-Revision-Date: 2011-11-02 18:35+0000\n"
-"Last-Translator: Eugene Krivobokov <Unknown>\n"
+"PO-Revision-Date: 2011-11-10 08:39+0000\n"
+"Last-Translator: Alexey Moskvin <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-11-07 05:34+0000\n"
-"X-Generator: Launchpad (build 14231)\n"
+"X-Launchpad-Export-Date: 2011-11-11 04:52+0000\n"
+"X-Generator: Launchpad (build 14277)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1953,6 +1953,11 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Ошибка при доступе к файлам в основной памяти устройства. Вам следует "
+"связаться с производителем устройства для технической поддержки. "
+"Распространенные решения проблемы: попробуйте другой USB кабель/порт. Если в "
+"Вашем устройстве есть функция \"Сбросить настройки на значения по "
+"умолчанию\", то воспользуйтесь ей. Исходная ошибка: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:113
 #, python-format
@@ -4963,6 +4968,8 @@ msgid ""
 "Could not fetch annotations for some books. Click show details to see which "
 "ones."
 msgstr ""
+"Не удалось запросить аннотации для некоторых книг. Нажмите \"Показать "
+"детали\" чтобы увидеть для каких именно."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
@@ -10205,7 +10212,7 @@ msgstr "Восстановление базы данных"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:80
 #, python-format
 msgid "The old database was saved as: %s"
-msgstr ""
+msgstr "Старая база данных была сохранена как: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:84
 #, python-format
@@ -10217,7 +10224,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
 msgid "Restoring database was successful. %s"
-msgstr ""
+msgstr "Восстановление базы данных прошло успешно. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:94
 msgid ""
@@ -10780,7 +10787,7 @@ msgstr "Имя уже используется"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:201
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:231
 msgid "That name is already used, perhaps with different case."
-msgstr ""
+msgstr "Это время уже используется, возможно в другом регистре."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:244
 msgid ""
@@ -11496,7 +11503,7 @@ msgstr "Неизвестное задание"
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:84
 #, python-format
 msgid "There are %d waiting jobs:"
-msgstr ""
+msgstr "%d задач сейчас ожидают"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:257
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:260
@@ -13832,7 +13839,7 @@ msgstr "Отменить и вернуться к окну параметров"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:295
 msgid "Restoring to defaults not supported for"
-msgstr ""
+msgstr "Сброс к значениям по умолчанию не поддерживается для"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:330
 msgid ""
