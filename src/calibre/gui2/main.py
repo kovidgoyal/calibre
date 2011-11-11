@@ -134,8 +134,9 @@ class GuiRunner(QObject):
         main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
-            self.splash_screen.finish(main)
         main.initialize(self.library_path, db, self.listener, self.actions)
+        if self.splash_screen is not None:
+            self.splash_screen.finish(main)
         if DEBUG:
             prints('Started up in', time.time() - self.startup_time, 'with',
                     len(db.data), 'books')
