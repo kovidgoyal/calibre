@@ -65,7 +65,7 @@ class Extract(ODF2XHTML):
             div1 = div2.getparent()
             if len(div1) == len(div2) == 1:
                 style = div2.attrib['style']
-                div2.attrib['style'] = 'display:inline;'+style
+                div2.attrib['style'] = 'position:static;display:inline;'+style
 
 
     def filter_css(self, root, log):
