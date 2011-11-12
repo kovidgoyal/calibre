@@ -116,8 +116,14 @@ class UploadToGoogleCode(Command): # {{{
             return self.re_upload()
 
         for fname in installers():
-            path = self.upload_one(fname)
-            self.paths[os.path.basename(fname)] = path
+            bname = os.path.basename(fname)
+            if bname in self.old_files:
+                path = 'http://calibre-ebook.googlecode.com/files/'+bname
+                self.info('%s already uploaded, skipping. Assuming URL is: %s',
+                        bname, path)
+            else:
+                path = self.upload_one(fname)
+            self.paths[bname] = path
         self.info('Updating path map')
         self.info(repr(self.paths))
         raw = subprocess.Popen(['ssh', 'divok', 'cat', self.GPATHS],
