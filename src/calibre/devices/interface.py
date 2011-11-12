@@ -256,6 +256,8 @@ class DevicePlugin(Plugin):
 
     def set_progress_reporter(self, report_progress):
         '''
+        Set a function to report progress information.
+
         :param report_progress: Function that is called with a % progress
                                 (number between 0 and 100) for various tasks
                                 If it is called with -1 that means that the

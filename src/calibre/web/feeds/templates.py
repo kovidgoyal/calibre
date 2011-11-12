@@ -22,6 +22,9 @@ class Template(object):
 
     IS_HTML = True
 
+    def __init__(self, lang=None):
+        self.html_lang = lang
+
     def generate(self, *args, **kwargs):
         if not kwargs.has_key('style'):
             kwargs['style'] = ''
@@ -100,6 +103,8 @@ class IndexTemplate(Template):
                 ul,
                 CLASS('calibre_rescale_100'))
         self.root = HTML(head, BODY(div))
+        if self.html_lang:
+            self.root.set('lang', self.html_lang)
 
 class FeedTemplate(Template):
 
@@ -174,6 +179,9 @@ class FeedTemplate(Template):
         div.append(ul)
         div.append(self.get_navbar(f, feeds, top=False))
         self.root = HTML(head, body)
+        if self.html_lang:
+            self.root.set('lang', self.html_lang)
+
 
 class NavBarTemplate(Template):
 
@@ -262,6 +270,9 @@ class TouchscreenIndexTemplate(Template):
                 DIV(CLASS('divider')),
                 toc)
         self.root = HTML(head, BODY(div))
+        if self.html_lang:
+            self.root.set('lang', self.html_lang)
+
 
 class TouchscreenFeedTemplate(Template):
 
@@ -363,6 +374,9 @@ class TouchscreenFeedTemplate(Template):
         div.append(BR())
         div.append(bottom_navbar)
         self.root = HTML(head, body)
+        if self.html_lang:
+            self.root.set('lang', self.html_lang)
+
 
 class TouchscreenNavBarTemplate(Template):
 

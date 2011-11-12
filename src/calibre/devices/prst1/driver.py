@@ -503,7 +503,10 @@ class PRST1(USBMS):
 
     def upload_book_cover(self, connection, book, source_id):
         debug_print('PRST1: Uploading/Refreshing Cover for ' + book.title)
-        if not book.thumbnail or not book.thumbnail[-1]:
+        if (not book.thumbnail or isinstance(book.thumbnail, ImageWrapper) or
+                not book.thumbnail[-1]):
+            # If the thumbnail is an ImageWrapper instance, it refers to a book
+            # not in the calibre library
             return
         cursor = connection.cursor()
 
