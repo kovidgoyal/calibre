@@ -13,7 +13,7 @@ Input plugin for HTML or OPF ebooks.
 
 import os, re, sys, uuid, tempfile, errno as gerrno
 from urlparse import urlparse, urlunparse
-from urllib import unquote
+from urllib import unquote, quote
 from functools import partial
 from itertools import izip
 
@@ -468,7 +468,10 @@ class HTMLInput(InputFormatPlugin):
                     self.oeb.log, ignore_opf=True)
             # Load into memory
             item = self.oeb.manifest.add(id, href, media_type)
-            item.html_input_href = bhref
+            # bhref refers to an already existing file. The read() method of
+            # DirContainer will call unquote on it before trying to read the
+            # file, therefore we quote it here.
+            item.html_input_href = quote(bhref)
             if guessed in self.OEB_STYLES:
                 item.override_css_fetch = partial(
                         self.css_import_handler, os.path.dirname(link))
