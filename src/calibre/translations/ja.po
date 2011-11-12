@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-06 08:51+0000\n"
-"PO-Revision-Date: 2011-10-25 16:01+0000\n"
+"PO-Revision-Date: 2011-11-11 18:55+0000\n"
 "Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-11-07 05:29+0000\n"
-"X-Generator: Launchpad (build 14231)\n"
+"X-Launchpad-Export-Date: 2011-11-12 04:48+0000\n"
+"X-Generator: Launchpad (build 14277)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -3448,7 +3448,7 @@ msgstr ""
 msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
-msgstr "著者を設定。複数の著者を設定する場合には&で区切ってください。著者名は「苗字」「名前」の順です。"
+msgstr "著者を設定。複数の著者を設定する場合には&で区切ってください。著者名は 名 姓 の順です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
@@ -12335,7 +12335,7 @@ msgstr "ファーストネームとラストネームを交換します。この
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:71
 msgid "&Swap author firstname and lastname"
-msgstr "著者の苗字と名前を入れ替える(&S)"
+msgstr "著者の 名 と 姓 を入れ替える(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:72
 msgid ""
@@ -13635,7 +13635,7 @@ msgstr "ダウンロードしたすべてのコメントをプレーンテキス
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:94
 msgid "Swap author names from FN LN to LN, FN"
-msgstr "著者名を、苗字 名前 から 名前, 苗字 に変換する"
+msgstr "著者名を、名 姓 から 姓, 名 に変換する"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:98
 msgid "Max. number of &tags to download:"
@@ -14197,7 +14197,7 @@ msgstr "自動管理"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
 msgid "Cannot change metadata management while a device is connected"
-msgstr ""
+msgstr "デバイスを接続している間は書誌情報の管理を変更できません"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:30
 msgid "Metadata &management:"
@@ -18954,23 +18954,23 @@ msgstr "作業中..."
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:108
 msgid "Brazilian Portuguese"
-msgstr "ポルトガル語（ブラジル）"
+msgstr "ポルトガル語 (ブラジル)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:109
 msgid "English (UK)"
-msgstr "英語（イギリス）"
+msgstr "英語 (イギリス)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:110
 msgid "Simplified Chinese"
-msgstr "中国語（簡体字)"
+msgstr "中国語 (簡体字)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:111
 msgid "Chinese (HK)"
-msgstr "中国語（香港）"
+msgstr "中国語 (香港)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:112
 msgid "Traditional Chinese"
-msgstr "中国語（繁体字）"
+msgstr "中国語 (繁体字）"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:113
 msgid "English"
@@ -18982,7 +18982,7 @@ msgstr "英語 (オーストラリア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Bulgaria)"
-msgstr "英語（ブルガリア）"
+msgstr "英語 (ブルガリア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (New Zealand)"
@@ -18990,55 +18990,55 @@ msgstr "英語 (ニュージーランド)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Canada)"
-msgstr "英語（カナダ）"
+msgstr "英語 (カナダ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:118
 msgid "English (Greece)"
-msgstr "英語（ギリシャ）"
+msgstr "英語 (ギリシャ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:119
 msgid "English (India)"
-msgstr "英語（インド）"
+msgstr "英語 (インド)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:120
 msgid "English (Nepal)"
-msgstr "英語（ネパール）"
+msgstr "英語 (ネパール)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:121
 msgid "English (Thailand)"
-msgstr "英語（タイ）"
+msgstr "英語 (タイ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:122
 msgid "English (Turkey)"
-msgstr "英語（トルコ）"
+msgstr "英語 (トルコ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:123
 msgid "English (Cyprus)"
-msgstr "英語（キプロス）"
+msgstr "英語 (キプロス)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Czech Republic)"
-msgstr ""
+msgstr "英語 (チェコ共和国)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Pakistan)"
-msgstr "英語（パキスタン）"
+msgstr "英語 (パキスタン)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (Croatia)"
-msgstr "英語（クロアチア）"
+msgstr "英語 (クロアチア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:127
 msgid "English (Indonesia)"
-msgstr "英語（インドネシア）"
+msgstr "英語 (インドネシア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:128
 msgid "English (Israel)"
-msgstr "英語（イスラエル）"
+msgstr "英語 (イスラエル)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:129
 msgid "English (Russia)"
-msgstr "英語（ロシア）"
+msgstr "英語 (ロシア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:130
 msgid "English (Singapore)"
@@ -19046,7 +19046,7 @@ msgstr "英語 (シンガポール)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:131
 msgid "English (Yemen)"
-msgstr "英語（イエメン）"
+msgstr "英語 (イエメン)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:132
 msgid "English (Ireland)"
@@ -19054,7 +19054,7 @@ msgstr "英語 (アイルランド)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:133
 msgid "English (China)"
-msgstr "英語（中国）"
+msgstr "英語 (中国)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:134
 msgid "English (South Africa)"
@@ -19070,7 +19070,7 @@ msgstr "スペイン語 (ウルグアイ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "Spanish (Argentina)"
-msgstr "スペイン語（アルゼンチン）"
+msgstr "スペイン語 (アルゼンチン)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "Spanish (Mexico)"
@@ -19110,7 +19110,7 @@ msgstr "スペイン語 (コロンビア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "German (AT)"
-msgstr "ドイツ語（オーストリア）"
+msgstr "ドイツ語 (オーストリア)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
 msgid "French (BE)"
@@ -19118,11 +19118,11 @@ msgstr "フランス語(ベラルーシ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "Dutch (NL)"
-msgstr "ドイツ語（オランダ）"
+msgstr "ドイツ語 (オランダ)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
 msgid "Dutch (BE)"
-msgstr "ドイツ語（ベルギー)"
+msgstr "ドイツ語 (ベルギー)"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:158

@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-06 08:51+0000\n"
-"PO-Revision-Date: 2011-11-05 09:27+0000\n"
-"Last-Translator: Jellby <Unknown>\n"
+"PO-Revision-Date: 2011-11-11 20:24+0000\n"
+"Last-Translator: Kiolko <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-07 05:35+0000\n"
-"X-Generator: Launchpad (build 14231)\n"
+"X-Launchpad-Export-Date: 2011-11-12 04:48+0000\n"
+"X-Generator: Launchpad (build 14277)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
 msgid ""
@@ -217,7 +217,7 @@ msgstr "No hace absolutamente nada"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "Desconocido"
+msgstr "Dispositivo desconocido"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -1560,7 +1560,7 @@ msgstr "Enviar portadas en blanco y negro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "Mostrar libros caducados"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -1568,6 +1568,9 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Un fallo en versiones anteriores dejaba los registros de libros no kepub en "
+"la base de datos. Con esta opción calibre mostrará los registros caducados y "
+"le permitirá borrarlos con la nueva función de borrado."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:573
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:390
@@ -20160,6 +20163,28 @@ msgid ""
 "replaced by the localized string for AM or PM iso  : the date with time and "
 "timezone. Must be the only format present"
 msgstr ""
+"format_date(val, texto_formato) -- da formato a un valor, que debe ser un "
+"campo de fecha, según «texto_formato» y devuelve un texto. Los códigos de "
+"formato son: «d»: el día como un número, sin cero inicial (de 1 a 31). «dd»: "
+"el día como un número, con un cero inicial si es necesario (de 01 a 31). "
+"«ddd»: el día de la semana abreviado según el idioma local (p. ej. de «lun» "
+"a «dom»). «dddd»: el nombre local completo del día de la semana (p. ej. de "
+"«lunes» a «domingo»). «M»: el mes como un número sin cero inicial (de 1 a "
+"12). «MM»: el mes como un número, con un cero inicial si es necesario (de 01 "
+"a 12). «MMM»: el mes abreviado según el idioma local (p. ej. de «ene» a "
+"«dic»). «MMMM»: el nombre local completo del mes (p. ej. de «enero» a "
+"«diciembre»). «yy»: el año como un número de dos cifras (de 00 a 99). "
+"«yyyy»: el año como un número de cuatro cifras. «h»: la hora sin cero "
+"inicial (de 0 a 11 o de 0 a 23, según am/pm). «hh»: la hora con un cero "
+"inicial si es necesario (de 00 a 11 o de 00 a 23, según am/pm). «m»: los "
+"minutos sin cero inicial (de 0 a 59). «mm»: los minutos con un cero inicial "
+"si es necesaro (de 00 a 59). «s»: los segundos sin cero inicial (de 0 a 59). "
+"«ss»: los segundos con un cero inicial si es necesario (de 00 a 59). «ap»: "
+"se escribe la hora en formato de 12 horas en lugar de 24, con «ap» "
+"sustituido por la forma local para am o pm. «AP»: se escribe la hora en "
+"formato de 12 horas en lugar de 24, con «AP» sustituido por la forma local "
+"para AM o PM. «iso»: la fecha con hora y zona horaria. Debe ser el único "
+"formato presente."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:774
 msgid "uppercase(val) -- return value of the field in upper case"
@@ -20450,7 +20475,7 @@ msgstr "Inglés (Chipre)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Czech Republic)"
-msgstr ""
+msgstr "Inglés (República Checa)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Pakistan)"
