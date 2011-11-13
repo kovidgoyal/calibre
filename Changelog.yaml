@@ -19,6 +19,65 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.26
+  date: 2011-11-12
+
+  new features:
+    - title: "Tweak to control sorting of date type columns. You can choose to have them sorted only by displayed fields"
+
+    - title: "Driver for the Trekstor 3.0"
+
+    - title: "Performance improvements when evaluating templates, and in particular general program mode templates"
+  
+  bug fixes:
+    - title: "ODT Input: When converting to EPUB improve handling of large images placed inside small frames, to prevent them from obscuring text."
+      tickets: [860272,884759]
+
+    - title: "EPUB Input: Automatically strip entries of type application/text from the spine. Apparently there are EPUB production tools out there that create them."
+      tickets: [884792]
+
+    - title: "Keep the startup splash screen visible until the GUI has fully completed initializing."
+      tickets: [885827]
+
+    - title: "ODT Input: Fix handling of span tags containing only whitespace."
+      tickets: [887311]
+
+    - title: "On windows when changing title or author via the main book list, handle the case of one of the books files being open in another program more gracefully."
+      tickets: [880585]
+
+    - title: "When adding a format to an existing book record, ensure that no changes are made to the database until after the file operations have succeeded."
+
+    - title: "Fix bug that prevented configuring which fields to download metadata for when adding books by ISBN"
+      tickets: [856076] 
+
+    - title: "Fix Japanese characters not being crrectly displayed on index pages in news downloads for the SONY T1"
+      tickets: [888029] 
+
+    - title: "Get Books: Fix booleans in search expressions not working in non-English calibre versions"
+      tickets: [887554]
+
+    - title: "Fix a bug in the support for hours/minutes/seconds in datetime format strings"
+      tickets: [887412] 
+
+    - title: "Treat an author_sort value of 'Unknown' the same way as unknown authors are treated in template processing"
+
+    - title: "Detect SD card in Kobo Vox"
+
+    - title: "Amazon metadata download: Workaround for change in Amazon website causing some books to have incorrect ratings downloaded"
+
+  improved recipes:
+    - Metro NL
+    - The Independent
+    - Frankfurter Rundschau
+    - L'Espresso
+    - Il Giornale
+    - Berlingske.dk
+    - Suedeutsche Zeitung
+
+  new recipes:
+    - title: Techtarget 
+      author: Julio Map
+
 - version: 0.8.25
   date: 2011-11-06
 

@@ -242,10 +242,6 @@ Replace ``192.168.1.2`` with the local IP address of the computer running |app|.
 
 If you get timeout errors while browsing the calibre catalog in Stanza, try increasing the connection timeout value in the stanza settings. Go to Info->Settings and increase the value of Download Timeout.
 
-.. note::
-    As of iOS version 5 Stanza no longer works on Apple devices. Alternatives to Stanza are discussed `in this forum <http://www.mobileread.com/forums/showthread.php?t=152789>`_.
-
-
 Using iBooks
 **************
 
