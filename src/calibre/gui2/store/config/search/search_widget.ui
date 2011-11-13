@@ -127,7 +127,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Number of conver download threads to use</string>
+         <string>Number of cover download threads to use</string>
         </property>
        </widget>
       </item>
