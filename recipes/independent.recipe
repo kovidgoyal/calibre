@@ -1,26 +1,27 @@
 # adapted from old recipe by Darko Miletic <darko.miletic at gmail.com>
 
-import re
+import string, re
+from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 
 
 class TheIndependentNew(BasicNewsRecipe):
-
+    
     # flag to enable/disable article graphics on business pages/some others
     # eg http://www.independent.co.uk/news/world/europe/berlusconi-departure-fails-to-calm-the-markets-6259682.html
     # -max dimensions can be altered using the .pictureContainer img selector in the css
     _FETCH_ARTICLE_GRAPHICS = True
-
+    
     #Flag to enable/disable image fetching (not business)
     _FETCH_IMAGES = True
-
-
+    
+    
      #used for converting rating to stars
     _STAR_URL = 'http://www.independent.co.uk/skins/ind/images/rating_star.png'
     _NO_STAR_URL = 'http://www.independent.co.uk/skins/ind/images/rating_star_grey.png'
-
-
+   
+   
     title                   = u'The Independent'
     __author__              = 'Will'
     description             = 'The latest in UK News and World News from The \
@@ -41,26 +42,26 @@ class TheIndependentNew(BasicNewsRecipe):
                                dict(attrs={'id' : ['RelatedArtTag','renderBiography']}),
                                dict(attrs={'class' : ['autoplay','openBiogPopup']})
                              ]
-
+   
     keep_only_tags          =[dict(attrs={'id':'main'})]
     recursions = 0
-
+    
     # fixes non compliant html nesting and 'marks' article graphics links
     preprocess_regexps      = [
                                 (re.compile('<span class="storyTop ">(?P<nested>.*?)</span>', re.DOTALL),
                                 lambda match: '<div class="storyTop">' + match.group('nested') + '</div>'),
-                                (re.compile('<strong>.*?Click.*?to view graphic.*?</strong>', re.DOTALL),
+                                (re.compile('(<strong>.*?[Cc]lick.*?<a.*?((HERE)|([Hh]ere)).*?</strong>)', re.DOTALL),
                                 lambda match: '<div class="article-graphic">' + match.group(0) + '</div>'),
-                              ]
-
-
+                              ] 
+    
+    
     conversion_options = {
                           'comment'   : description
                         , 'tags'      : category
                         , 'publisher' : publisher
                         , 'language'  : language
-                        }
-
+                        }  
+                        
     extra_css             = """
                                h1{font-family: Georgia,serif }
                                body{font-family: Verdana,Arial,Helvetica,sans-serif}
@@ -80,22 +81,22 @@ class TheIndependentNew(BasicNewsRecipe):
                                .articleContent {display: block; clear:left;}
                                .storyTop{}
                                .pictureContainer img { max-width: 400px; max-height: 400px;}
-                            """
-
+                            """                     
+    
     oldest_article = 1
     max_articles_per_feed = 100
-
+    
     _processed_urls = []
-
-
+    
+    
     def get_article_url(self, article):
         url = super(self.__class__,self).get_article_url(article)
-
+        
         title = article.get('title', None)
         if title and re.search("^Video:",title):
             return None
-
-        #remove duplicates
+        
+        #remove duplicates 
         if not (url in self._processed_urls):
             self._processed_urls.append(url)
         else:
@@ -103,132 +104,147 @@ class TheIndependentNew(BasicNewsRecipe):
         return url
 
     def preprocess_html(self, soup):
-
+        
+        #remove 'advertorial articles'
+        strapline = soup.find('div',attrs={'class' : re.compile('.*strapLine.*')})
+        if strapline:
+            for para in strapline.findAll('p'):
+                if len(para.contents) and isinstance(para.contents[0],NavigableString) \
+                and para.contents[0] == 'ADVERTORIAL FEATURE':
+                    return None                          
+        
         items_to_extract = []
-
+        
         for item in soup.findAll(attrs={'class' : re.compile("widget.*")}):
             remove = True
             pattern = re.compile('((articleContent)|(title))$')
             if (pattern.search(item['class'])) is not None:
                 remove = False
-
+            
             # corrections
             # story content always good
-            pattern = re.compile('storyContent')
+            pattern = re.compile('storyContent')    
             if (pattern.search(item['class'])) is not None:
                 remove = False
-
+            
             #images
-            pattern = re.compile('slideshow')
+            pattern = re.compile('slideshow')    
             if (pattern.search(item['class'])) is not None:
                 if self._FETCH_IMAGES:
                     remove = False
                 else:
                     remove = True
-
+            
             #social widgets always bad
-            pattern = re.compile('socialwidget')
+            pattern = re.compile('socialwidget')    
             if (pattern.search(item['class'])) is not None:
                 remove = True
-
+            
             if remove:
                 items_to_extract.append(item)
-
+                
         for item in items_to_extract:
-            item.extract()
-
-        items_to_extract = []
-
-        if self._FETCH_IMAGES:
+            item.extract()  
+            
+        items_to_extract = []                
+        
+        if self._FETCH_IMAGES:        
             for item in soup.findAll('a',attrs={'href' : re.compile('.*')}):
                 if item.img is not None:
                     #use full size image
                     img = item.findNext('img')
-
+        
                     img['src'] = item['href']
-
+        
                     #insert caption if available
                     if img['title'] is not None and (len(img['title']) > 1):
                         tag = Tag(soup,'h3')
                         text = NavigableString(img['title'])
                         tag.insert(0,text)
-
+                    
                         #picture before text
                         img.extract()
                         item.insert(0,img)
                         item.insert(1,tag)
-
+        
                     # remove link
                     item.name = "div"
                     item["class"]='image'
                     del item["href"]
-
-
+                
+                
         #remove empty subtitles
         """
         currently the subtitle is located in first paragraph after
         sibling <h3 class="subtitle"> tag. This may be 'fixed' at
-        some point.
-        """
+        some point. 
+        """       
         subtitle = soup.find('h3',attrs={'class' : 'subtitle'})
         if subtitle is not None:
             subtitleText = subtitle.findNext('p')
             if subtitleText is not None:
-                if len(subtitleText.contents[0]) <= 1 :
+                if len(subtitleText.contents[0]) <= 1 : 
                     subtitleText.extract()
                     subtitle.extract()
-
-
+                       
+        
         #replace rating numbers with stars
         for item in soup.findAll('div',attrs={ 'class' : 'starRating'}):
             if item is not None:
                 soup2 = self._insertRatingStars(soup,item)
             if soup2 is not None:
                 soup = soup2
-
-
+               
+       
         #remove empty paragraph tags in storyTop which can leave a space
         #between first paragraph and rest of story
+        nested_content = False       
         storyTop = soup.find('div',attrs={ 'class' : ['storyTop']})
         for item in storyTop.findAll('p'):
-            if item.contents is not None and len(item.contents[0]) <= 1 :
+            for nested in item:
+                if isinstance(nested, Tag):
+                    nested_content = True
+                    break
+            if not nested_content and item.contents is not None and len(item.contents[0]) <= 1 :
                 items_to_extract.append(item)
-
+                
         for item in items_to_extract:
-            item.extract()
-
-        items_to_extract = []
-
-
+            item.extract()  
+            
+        items_to_extract = [] 
+        
+        
         #remove line breaks immediately next to tags with default margins
         #to prevent double line spacing and narrow columns of text
         storyTop = soup.find('div',attrs={ 'class' : ['storyTop']})
-        self._remove_undesired_line_breaks_from_tag(storyTop,soup)
-
-
+        self._remove_undesired_line_breaks_from_tag(storyTop,soup)          
+        
+                                          
         #replace article graphics link with the graphics themselves
         if self._FETCH_ARTICLE_GRAPHICS:
             items_to_insert = []
             for item in soup.findAll('div', attrs={'class' : ['article-graphic']}):
                 strong = item.find('strong')
+                if not strong:
+                    continue
                 for child in strong:
                     if isinstance(child,Tag):
                         if str(child.name) == 'a':
                             items_to_insert.extend(self._get_article_graphic(strong,child['href'],soup))
-
+                
             for item in items_to_insert:
-                item[0].replaceWith(item[1])
-
+                item[0].replaceWith(item[1])               
+        
         for item in items_to_extract:
-            item.extract()
-
+            item.extract()      
+        
         return soup
-
-
+        
+        
     def _get_article_graphic(self,old_item,url,soup):
-
+        
         items_to_insert = []
-
+        
         if re.search('\.jpg$',str(url)):
             div = Tag(soup,'div')
             div['class'] = 'pictureContainer'
@@ -238,20 +254,20 @@ class TheIndependentNew(BasicNewsRecipe):
             div.insert(0,img)
             items_to_insert.append((old_item,div,))
             return items_to_insert
-
+            
         soup2 = self.index_to_soup(url)
         for item in soup2.findAll('div',attrs={'class' : re.compile("widget picture article.*")}):
             items_to_insert.append((old_item,item),)
         return items_to_insert
-
-
+    
+    
     def _insertRatingStars(self,soup,item):
         if item.contents is None:
             return
         rating = item.contents[0]
         if not rating.isdigit():
             return None
-        rating = int(item.contents[0])
+        rating = int(item.contents[0])    
         for i in range(1,6):
             star = Tag(soup,'img')
             if i <= rating:
@@ -261,26 +277,26 @@ class TheIndependentNew(BasicNewsRecipe):
             star['alt'] = 'star number ' +  str(i)
             item.insert(i,star)
         #item.contents[0] = NavigableString('(' + str(rating) + ')')
-        item.contents[0] = ''
-
+        item.contents[0] = '' 
+        
     def postprocess_html(self,soup, first_fetch):
         #find broken images and remove captions
         items_to_extract = []
         for item in soup.findAll('div', attrs={'class' : 'image'}):
             img = item.findNext('img')
             if img is not None and img['src'] is not None:
-                # broken images still point to remote url
-                pattern = re.compile('http://www.independent.co.uk.*')
+                # broken images still point to remote url       
+                pattern = re.compile('http://www.independent.co.uk.*')    
                 if pattern.match(img["src"]) is not None:
                     caption = img.findNextSibling('h3')
                     if caption is not None:
                         items_to_extract.append(caption)
                     items_to_extract.append(img)
-
+        
         for item in items_to_extract:
-            item.extract()
+            item.extract()              
         return soup
-
+        
     def _recurisvely_linearise_tag_tree(
         self,
         item,
@@ -295,25 +311,25 @@ class TheIndependentNew(BasicNewsRecipe):
         if not (isinstance(item,Tag)):
             return linearised
         for nested in item:
-            linearised.append(nested)
+            linearised.append(nested)  
             linearised = self._recurisvely_linearise_tag_tree(nested,linearised, count)
         return linearised
-
-
+    
+    
     def _get_previous_tag(self,current_index, tag_tree):
         if current_index == 0:
             return None
         else:
             return tag_tree[current_index - 1]
-
-
+    
+    
     def _get_next_tag(self,current_index, tag_tree):
         if current_index < len(tag_tree) - 1:
             return tag_tree[current_index + 1]
         else:
             return None
-
-
+    
+    
     def _list_match(self,test_str, list_regex):
         for regex in list_regex:
             match = re.match(regex, test_str)
@@ -322,24 +338,24 @@ class TheIndependentNew(BasicNewsRecipe):
         return False
 
     def _remove_undesired_line_breaks_from_tag(self,parent,soup):
-
+        
         if parent is None:
             return
-
-
+        
+         
         tag_tree = self._recurisvely_linearise_tag_tree(parent)
         items_to_remove = []
-
-
+       
+        
         for item in tag_tree:
             if item == u'\n':
                items_to_remove.append(item)
                continue;
-
+               
         for item in items_to_remove:
             tag_tree.remove(item)
-
-
+            
+        
         spaced_tags = [r'p', r'h\d', r'blockquote']
         tags_to_extract = []
         tags_to_replace = []
@@ -347,41 +363,41 @@ class TheIndependentNew(BasicNewsRecipe):
             if isinstance(tag, Tag):
                 if str(tag) == '<br />':
                     previous_tag = self._get_previous_tag(i, tag_tree)
-
+        
                     if isinstance(previous_tag, Tag):
                         previous_tag_is_spaced = previous_tag is not None\
                              and self._list_match(str(previous_tag.name),
                                 spaced_tags)
                     else:
                         previous_tag_is_spaced = False
-
+        
                     next_tag = self._get_next_tag(i, tag_tree)
-
+        
                     if isinstance(next_tag, Tag):
                         next_tag_is_spaced = next_tag is not None\
                              and self._list_match(str(next_tag.name), spaced_tags)
                     else:
                         next_tag_is_spaced = False
-
+        
                     if previous_tag_is_spaced or next_tag_is_spaced or i == 0\
                          or i == len(tag_tree) - 1:
                         tags_to_extract.append(tag)
                     else:
                         tags_to_replace.append((tag,NavigableString(' '),))
-
-
+                       
+        
         for pair in tags_to_replace:
-            pair[0].replaceWith(pair[1])
+            pair[0].replaceWith(pair[1])       
         for tag in tags_to_extract:
             tag.extract()
-
+                                                                            
     feeds = [
         (u'News - UK',
          u'http://www.independent.co.uk/news/uk/?service=rss'),
         (u'News - World',
          u'http://www.independent.co.uk/news/world/?service=rss'),
         (u'News - Business',
-         u'http://www.independent.co.uk/news/business/?service=rss'),
+         u'http://www.independent.co.uk/news/business/?service=rss'), 
         (u'News - People',
          u'http://www.independent.co.uk/news/people/?service=rss'),
         (u'News - Science',
@@ -481,4 +497,4 @@ class TheIndependentNew(BasicNewsRecipe):
         (u'IndyBest',
          u'http://www.independent.co.uk/extras/indybest/?service=rss'),
         ]
-
+        
