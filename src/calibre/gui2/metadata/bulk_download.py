@@ -131,8 +131,9 @@ def get_job_details(job):
 def merge_result(oldmi, newmi, ensure_fields=None):
     dummy = Metadata(_('Unknown'))
     for f in msprefs['ignore_fields']:
-        if ':' not in f and (ensure_fields and f not in ensure_fields):
-            setattr(newmi, f, getattr(dummy, f))
+        if ':' in f or (ensure_fields and f in ensure_fields):
+            continue
+        setattr(newmi, f, getattr(dummy, f))
     fields = set()
     for plugin in metadata_plugins(['identify']):
         fields |= plugin.touched_fields
