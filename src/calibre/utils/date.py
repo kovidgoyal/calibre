@@ -293,7 +293,7 @@ def clean_date_for_sort(dt, format):
 
     if hasattr(dt, 'tzinfo'):
         if dt.tzinfo is not None:
-            dt = as_utc(dt)
+            dt = as_local_time(dt)
 
     if format == 'iso':
         format = 'yyMdhms'
