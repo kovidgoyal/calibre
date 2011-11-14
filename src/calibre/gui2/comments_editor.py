@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import re, os
 
 from lxml import html
-from lxml.html import soupparser
 
 from PyQt4.Qt import QApplication, QFontInfo, QSize, QWidget, QPlainTextEdit, \
     QToolBar, QVBoxLayout, QAction, QIcon, Qt, QTabWidget, QUrl, \
@@ -19,6 +18,7 @@ from PyQt4.QtWebKit import QWebView, QWebPage
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities
 from calibre.gui2 import open_url
+from calibre.utils.soupparser import fromstring
 
 class PageAction(QAction): # {{{
 
@@ -227,7 +227,7 @@ class EditorWidget(QWebView): # {{{
                 try:
                     root = html.fromstring(raw)
                 except:
-                    root = soupparser.fromstring(raw)
+                    root = fromstring(raw)
 
                 elems = []
                 for body in root.xpath('//body'):
