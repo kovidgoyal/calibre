@@ -353,14 +353,14 @@ class MobiReader(object):
             self.processed_html = self.remove_random_bytes(self.processed_html)
             root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
-            from lxml.html import soupparser
+            from calibre.utils.soupparser import fromstring
             self.log.warning('Malformed markup, parsing using BeautifulSoup')
             try:
-                root = soupparser.fromstring(self.processed_html)
+                root = fromstring(self.processed_html)
             except Exception:
                 self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
                 self.processed_html = self.remove_random_bytes(self.processed_html)
-                root = soupparser.fromstring(self.processed_html)
+                root = fromstring(self.processed_html)
 
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')

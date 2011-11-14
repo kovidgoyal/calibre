@@ -894,8 +894,8 @@ class Manifest(object):
                     except etree.XMLSyntaxError as err:
                         self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
                         if err.args and err.args[0].startswith('Excessive depth'):
-                            from lxml.html import soupparser
-                            data = soupparser.fromstring(data)
+                            from calibre.utils.soupparser import fromstring
+                            data = fromstring(data)
                         else:
                             data = html.fromstring(data)
                         data.attrib.pop('xmlns', None)

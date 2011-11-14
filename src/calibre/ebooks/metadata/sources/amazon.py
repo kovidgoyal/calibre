@@ -12,7 +12,7 @@ from urllib import urlencode
 from threading import Thread
 from Queue import Queue, Empty
 
-from lxml.html import soupparser, tostring
+from lxml.html import tostring
 
 from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
@@ -23,6 +23,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
 from calibre.utils.localization import canonicalize_lang
+from calibre.utils.soupparser import fromstring
 
 class Worker(Thread): # Get details {{{
 
@@ -199,7 +200,7 @@ class Worker(Thread): # Get details {{{
             return
 
         try:
-            root = soupparser.fromstring(clean_ascii_chars(raw))
+            root = fromstring(clean_ascii_chars(raw))
         except:
             msg = 'Failed to parse amazon details page: %r'%self.url
             self.log.exception(msg)
@@ -623,7 +624,7 @@ class Amazon(Source):
 
         if found:
             try:
-                root = soupparser.fromstring(clean_ascii_chars(raw))
+                root = fromstring(clean_ascii_chars(raw))
             except:
                 msg = 'Failed to parse amazon page for query: %r'%query
                 log.exception(msg)
