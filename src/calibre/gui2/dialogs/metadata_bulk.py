@@ -340,6 +340,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.restoreGeometry(bytes(geom))
         self.languages.init_langs(self.db)
         self.languages.setEditText('')
+        self.authors.setFocus(Qt.OtherFocusReason)
         self.exec_()
 
     def save_state(self, *args):
