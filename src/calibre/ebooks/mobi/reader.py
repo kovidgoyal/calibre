@@ -929,7 +929,7 @@ class MobiReader(object):
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         pos = 0
-        self.processed_html = ''
+        processed_html = cStringIO.StringIO()
         end_tag_re = re.compile(r'<\s*/')
         for end in sorted(positions):
             if end == 0:
@@ -947,12 +947,14 @@ class MobiReader(object):
                         end = r
                 else:
                     end = r + 1
-            self.processed_html += self.mobi_html[pos:end] + (anchor % oend)
+            processed_html.write(self.mobi_html[pos:end] + (anchor % oend))
             pos = end
-        self.processed_html += self.mobi_html[pos:]
+        processed_html.write(self.mobi_html[pos:])
+        processed_html = processed_html.getvalue()
+
         # Remove anchors placed inside entities
         self.processed_html = re.sub(r'&([^;]*?)(<a id="filepos\d+"></a>)([^;]*);',
-                r'&\1\3;\2', self.processed_html)
+                r'&\1\3;\2', processed_html)
 
 
     def extract_images(self, processed_records, output_dir):
