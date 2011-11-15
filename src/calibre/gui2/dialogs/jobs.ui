@@ -19,6 +19,34 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="SearchBox2" name="search"/>
+     </item>
+     <item>
+      <widget class="QToolButton" name="search_button">
+       <property name="toolTip">
+        <string>Find next match</string>
+       </property>
+       <property name="text">
+        <string>&amp;Search</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="clear_button">
+       <property name="toolTip">
+        <string>Find previous match</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="2">
     <widget class="QTableView" name="jobs_view">
      <property name="contextMenuPolicy">
       <enum>Qt::NoContextMenu</enum>
@@ -40,42 +68,42 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QPushButton" name="kill_button">
      <property name="text">
       <string>&amp;Stop selected jobs</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="2" column="1">
     <widget class="QPushButton" name="hide_button">
      <property name="text">
       <string>&amp;Hide selected jobs</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QPushButton" name="details_button">
      <property name="text">
       <string>Show job &amp;details</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="3" column="1">
     <widget class="QPushButton" name="show_button">
      <property name="text">
       <string>Show &amp;all jobs</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QPushButton" name="stop_all_jobs_button">
      <property name="text">
       <string>Stop &amp;all non device jobs</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="QPushButton" name="hide_all_button">
      <property name="text">
       <string>&amp;Hide all jobs</string>
@@ -84,6 +112,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SearchBox2</class>
+   <extends>QComboBox</extends>
+   <header>calibre/gui2/search_box.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../../resources/images.qrc"/>
  </resources>

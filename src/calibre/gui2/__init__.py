@@ -175,6 +175,8 @@ def _config(): # {{{
         help='Search history for the plugin preferences')
     c.add_opt('shortcuts_search_history', default=[],
         help='Search history for the keyboard preferences')
+    c.add_opt('jobs_search_history', default=[],
+        help='Search history for the keyboard preferences')
     c.add_opt('tweaks_search_history', default=[],
         help='Search history for tweaks')
     c.add_opt('worker_limit', default=6,

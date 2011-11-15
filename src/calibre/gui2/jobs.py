@@ -18,23 +18,26 @@ from PyQt4.Qt import (QAbstractTableModel, QVariant, QModelIndex, Qt,
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
-from calibre.gui2 import Dispatcher, error_dialog, question_dialog, NONE, config, gprefs
+from calibre.gui2 import (Dispatcher, error_dialog, question_dialog, NONE,
+        config, gprefs)
 from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__, as_unicode
 from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
+from calibre.utils.search_query_parser import SearchQueryParser, ParseException
+from calibre.utils.icu import lower
 
-HIDE_ROLE = Qt.UserRole + 1
-
-class JobManager(QAbstractTableModel): # {{{
+class JobManager(QAbstractTableModel, SearchQueryParser): # {{{
 
     job_added = pyqtSignal(int)
     job_done  = pyqtSignal(int)
 
     def __init__(self):
         QAbstractTableModel.__init__(self)
+        SearchQueryParser.__init__(self, ['all'])
+
         self.wait_icon     = QVariant(QIcon(I('jobs.png')))
         self.running_icon  = QVariant(QIcon(I('exec.png')))
         self.error_icon    = QVariant(QIcon(I('dialog_error.png')))
@@ -93,7 +96,7 @@ class JobManager(QAbstractTableModel): # {{{
 
     def data(self, index, role):
         try:
-            if role not in (Qt.DisplayRole, Qt.DecorationRole, HIDE_ROLE):
+            if role not in (Qt.DisplayRole, Qt.DecorationRole):
                 return NONE
             row, col = index.row(), index.column()
             job = self.jobs[row]
@@ -123,9 +126,6 @@ class JobManager(QAbstractTableModel): # {{{
                 if job.killed or job.failed:
                     return self.error_icon
                 return self.done_icon
-            if role == HIDE_ROLE:
-                return QVariant('h' if getattr(job, 'hidden_in_gui', False)
-                        else 's')
         except:
             import traceback
             traceback.print_exc()
@@ -316,6 +316,62 @@ class JobManager(QAbstractTableModel): # {{{
                 continue
             if not isinstance(job, ParallelJob):
                 self._kill_job(job)
+
+    def universal_set(self):
+        return set([i for i, j in enumerate(self.jobs) if not getattr(j,
+            'hidden_in_gui', False)])
+
+    def get_matches(self, location, query, candidates=None):
+        if candidates is None:
+            candidates = self.universal_set()
+        ans = set()
+        if not query:
+            return ans
+        query = lower(query)
+        for j in candidates:
+            job = self.jobs[j]
+            if job.description and query in lower(job.description):
+                ans.add(j)
+        return ans
+
+    def find(self, query):
+        query = query.strip()
+        rows = self.parse(query)
+        return rows
+
+# }}}
+
+class FilterModel(QSortFilterProxyModel): # {{{
+
+    search_done = pyqtSignal(object)
+
+    def __init__(self, parent):
+        QSortFilterProxyModel.__init__(self, parent)
+        self.search_filter = None
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        if (self.search_filter is not None and source_row not in
+                self.search_filter):
+            return False
+        m = self.sourceModel()
+        try:
+            job = m.row_to_job(source_row)
+        except:
+            return False
+        return not getattr(job, 'hidden_in_gui', False)
+
+    def find(self, query):
+        ok = True
+        val = None
+        if query:
+            try:
+                val = self.sourceModel().parse(query)
+            except ParseException:
+                ok = False
+        self.search_filter = val
+        self.search_done.emit(ok)
+        self.reset()
+
 # }}}
 
 # Jobs UI {{{
@@ -468,10 +524,9 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         Ui_JobsDialog.__init__(self)
         self.setupUi(self)
         self.model = model
-        self.proxy_model = QSortFilterProxyModel(self)
+        self.proxy_model = FilterModel(self)
         self.proxy_model.setSourceModel(self.model)
-        self.proxy_model.setFilterRole(HIDE_ROLE)
-        self.proxy_model.setFilterFixedString('s')
+        self.proxy_model.search_done.connect(self.search.search_done)
         self.jobs_view.setModel(self.proxy_model)
         self.setWindowModality(Qt.NonModal)
         self.setWindowTitle(__appname__ + _(' - Jobs'))
@@ -485,6 +540,12 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.hide_button.clicked.connect(self.hide_selected)
         self.hide_all_button.clicked.connect(self.hide_all)
         self.show_button.clicked.connect(self.show_hidden)
+        self.search.initialize('jobs_search_history',
+                help_text=_('Search for a job by name'))
+        self.search.search.connect(self.find)
+        self.search_button.clicked.connect(lambda :
+                self.find(self.search.current_text))
+        self.clear_button.clicked.connect(lambda : self.search.clear())
         self.restore_state()
 
     def restore_state(self):
@@ -563,7 +624,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
 
     def show_hidden(self, *args):
         self.model.show_hidden_jobs()
-        self.proxy_model.reset()
+        self.find(self.search.current_text)
 
     def closeEvent(self, e):
         self.save_state()
@@ -576,5 +637,9 @@ class JobsDialog(QDialog, Ui_JobsDialog):
     def hide(self, *args):
         self.save_state()
         return QDialog.hide(self, *args)
+
+    def find(self, query):
+        self.proxy_model.find(query)
+
 # }}}
 
