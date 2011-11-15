@@ -17,8 +17,8 @@
    <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/jobs.png</normaloff>:/images/jobs.png</iconset>
   </property>
-  <layout class="QVBoxLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
     <widget class="QTableView" name="jobs_view">
      <property name="contextMenuPolicy">
       <enum>Qt::NoContextMenu</enum>
@@ -40,24 +40,45 @@
      </property>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0">
     <widget class="QPushButton" name="kill_button">
      <property name="text">
       <string>&amp;Stop selected jobs</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="hide_button">
+     <property name="text">
+      <string>&amp;Hide selected jobs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <widget class="QPushButton" name="details_button">
      <property name="text">
       <string>Show job &amp;details</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="show_button">
+     <property name="text">
+      <string>Show &amp;all jobs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
     <widget class="QPushButton" name="stop_all_jobs_button">
      <property name="text">
       <string>Stop &amp;all non device jobs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="hide_all_button">
+     <property name="text">
+      <string>&amp;Hide all jobs</string>
      </property>
     </widget>
    </item>
