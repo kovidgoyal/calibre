@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-13 11:51+0000\n"
-"PO-Revision-Date: 2011-11-08 01:39+0000\n"
+"PO-Revision-Date: 2011-11-14 17:33+0000\n"
 "Last-Translator: SteliosGero <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-14 05:00+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Launchpad-Export-Date: 2011-11-15 05:05+0000\n"
+"X-Generator: Launchpad (build 14291)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1122,7 +1122,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3111
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
-msgstr "Νέα"
+msgstr "Ειδήσεις"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2685
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
@@ -4445,6 +4445,9 @@ msgid ""
 "Add books from directories, including sub-directories (One book per "
 "directory, assumes every ebook file is the same book in a different format)"
 msgstr ""
+"Προσθήκη βιβλίων από φακέλους, συμπεριλαμβανομένων και υποφακέλλων (Ένα "
+"βιβλίο ανά φάκελλο, κάθε αρχείο e-book στο φάκελλο θεωρείται πως είναι το "
+"ίδιο βιβλίο)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:61
 msgid ""
@@ -4718,7 +4721,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/random.py:17
 msgid "Pick a random book"
-msgstr ""
+msgstr "Επιλογή ενός βιβλίου στην τύχη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:188
 msgid "Library Maintenance"
@@ -5015,11 +5018,11 @@ msgstr "Διαγραφή τύπων αρχείων από τα επιλεγμέ�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:98
 msgid "Remove all formats from selected books, except..."
-msgstr ""
+msgstr "Διαγραφή όλων των τύπων από τα επιλεγμένα αρχεία, εκτός..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:101
 msgid "Remove all formats from selected books"
-msgstr ""
+msgstr "Διαγραφή όλων των τύπων από τα επιλεγμένα αρχεία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:104
 msgid "Remove covers from selected books"
@@ -5042,6 +5045,8 @@ msgid ""
 "Choose formats <b>not</b> to be deleted.<p>Note that this will never remove "
 "all formats from a book."
 msgstr ""
+"Επιλέξτε τους τύπους που <b>δεν</b> θα διαγραφούν.<p> Αυτό ποτέ δεν "
+"διαγράφει όλους τους τύπους ενός βιβλίου."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:188
 msgid ""
@@ -5106,11 +5111,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:31
 msgid "Connect to folder"
-msgstr ""
+msgstr "Σύνδεση με φάκελλο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:36
 msgid "Connect to iTunes"
-msgstr ""
+msgstr "Σύνδεση με το iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:42
 msgid "Connect to Bambook"
@@ -5182,15 +5187,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:25
 msgid "Edit metadata"
-msgstr ""
+msgstr "Επεξεργασία μεταδεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:32
 msgid "Edit metadata individually"
-msgstr ""
+msgstr "Επεξεργασία μεταδεδομένων μεμονωμένα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:35
 msgid "Edit metadata in bulk"
-msgstr ""
+msgstr "Μαζική επεξεργασία μεταδεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:38
 msgid "Download metadata and covers"
@@ -5283,7 +5288,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:222
 msgid "Cannot edit metadata"
-msgstr ""
+msgstr "Αδύνατη η επεξεργασία μεταδεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:259
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:262
@@ -5358,7 +5363,7 @@ msgstr "Λήψη ειδήσεων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:54
 msgid "Fetching news from "
-msgstr ""
+msgstr "Γίνεται λήψη ειδήσεων από το "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:83
 msgid " fetched."
@@ -5598,7 +5603,7 @@ msgstr "Λήψη βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:22
 msgid "Search for ebooks"
-msgstr ""
+msgstr "Αναζήτηση e-books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "author"
@@ -5615,7 +5620,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
 msgid "Search for this %s"
-msgstr ""
+msgstr "Αναζήτηση για αυτό το(ν) %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -5698,7 +5703,7 @@ msgstr "Προβολή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:48
 msgid "View specific format"
-msgstr ""
+msgstr "Επιλογή τύπου αρχείου και προβολή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:50
 msgid "Read a random book"
@@ -9887,7 +9892,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:197
 #, python-format
 msgid "%s news sources"
-msgstr ""
+msgstr "%s πηγές ειδήσεων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:311
 msgid "Need username and password"
@@ -10056,7 +10061,7 @@ msgstr " ημέρες"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:235
 msgid "Download all scheduled news sources at once"
-msgstr ""
+msgstr "Κατεβάστε όλα τα νέα με την μια"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:236
 msgid "Download &all scheduled"
@@ -10604,7 +10609,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:257
 msgid "Add custom news source"
-msgstr ""
+msgstr "Προσθήκη τροποποιημένης πηγής ειδήσεων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:258
 msgid "Available user recipes"
@@ -10942,7 +10947,7 @@ msgstr "Πρόοδος"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:65
 msgid "Running time"
-msgstr ""
+msgstr "Χρόνος εκτέλεσης"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:77
 #, python-format
@@ -10993,7 +10998,7 @@ msgstr "Μη διαθέσιμο"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:367
 msgid "Jobs:"
-msgstr ""
+msgstr "Εργασίες:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:369
 msgid "Shift+Alt+J"
@@ -14966,7 +14971,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:394
 #, python-format
 msgid "Search for %s"
-msgstr ""
+msgstr "Αναζήτηση για %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:399
 #, python-format
@@ -18453,7 +18458,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1364
 #, python-format
 msgid "Article downloaded: %s"
-msgstr ""
+msgstr "Το άρθρο κατέβηκε: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1375
 #, python-format

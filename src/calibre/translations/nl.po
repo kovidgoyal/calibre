@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-13 11:51+0000\n"
-"PO-Revision-Date: 2011-11-11 15:08+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
+"PO-Revision-Date: 2011-11-14 20:38+0000\n"
+"Last-Translator: Patrick <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-14 04:58+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Launchpad-Export-Date: 2011-11-15 05:05+0000\n"
+"X-Generator: Launchpad (build 14291)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -7761,10 +7761,12 @@ msgid ""
 "Removes the margin CSS properties. Note that page margins are not affected "
 "by this setting."
 msgstr ""
+"Verwijdert de CSS eigenschappen van de marges. NB: pagina marges worden door "
+"deze setting niet gewijzigd."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:177
 msgid "&Margins"
-msgstr ""
+msgstr "&Marges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:181
 msgid "Removes the padding CSS properties"
@@ -7784,21 +7786,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
-msgstr ""
+msgstr "Verwijdert voor- en achtergrond kleuren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:192
 msgid "&Colors"
-msgstr ""
+msgstr "&Kleuren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
-msgstr ""
+msgstr "&Andere CSS eigenschappen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:202
 msgid ""
 "Comma separated list of CSS properties to remove. For example: display, "
 "color, font-family"
 msgstr ""
+"Te verwijderen CSS eigenschappen, gescheiden door komma's. Bij voorbeeld: "
+"display, color, font-family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
@@ -12375,14 +12379,16 @@ msgid ""
 "Could not change the on disk location of this book. Is it open in another "
 "program?"
 msgstr ""
+"Kan van dit boek de locatie op de harde schijf niet wijzigen. Is dit boek "
+"geopend in een ander programma?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:867
 msgid "Failed to set data"
-msgstr ""
+msgstr "Kan de data niet wijzigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:868
 msgid "Could not set data, click Show Details to see why."
-msgstr ""
+msgstr "Kan de data niet wijzigen. Klik \"Toon Details\" om te zien waarom."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1049
 msgid "In Library"
@@ -16168,7 +16174,7 @@ msgstr "Aantal te gebruiken threads voor het bijwerken van lokale opslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:89
 msgid "Number of cover download threads to use"
-msgstr ""
+msgstr "Aantal \"threads\" om covers te downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:97
 msgid "Number of details threads to use"
