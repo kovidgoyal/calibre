@@ -46,7 +46,8 @@ class DziennikInternautowRecipe(BasicNewsRecipe):
 		dict(name = 'div', attrs = {'class' : 'poradniki_context'}),
 		dict(name = 'div', attrs = {'class' : 'uniBox'}),
 		dict(name = 'object', attrs = {}),
-		dict(name = 'h3', attrs = {})
+		dict(name = 'h3', attrs = {}),
+		dict(attrs={'class':'twitter-share-button'})
 	]
 	
 	preprocess_regexps = [
@@ -58,3 +59,8 @@ class DziennikInternautowRecipe(BasicNewsRecipe):
 			(r'\s*</', lambda match: '</'),
 		]
 	]
+
+	def skip_ad_pages(self, soup):
+		if 'Advertisement' in soup.title:
+			nexturl=soup.find('a')['href']
+			return self.index_to_soup(nexturl, raw=True)
