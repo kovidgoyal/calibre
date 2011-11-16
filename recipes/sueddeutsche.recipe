@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
-Fetch sueddeutsche.
+Fetch sueddeutsche.de
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -62,7 +62,7 @@ class Sueddeutsche(BasicNewsRecipe):
               (u'Sport', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ESport%24?output=rss'),
               (u'Leben', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ELeben%24?output=rss'),
               (u'Karriere', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EKarriere%24?output=rss'),
-              (u'M&uuml;nchen & Region', u'http://www.sueddeutsche.de/app/service/rss/ressort/muenchen/rss.xml'),
+              (u'München & Region', u'http://www.sueddeutsche.de/app/service/rss/ressort/muenchen/rss.xml'), # AGe 2011-11-13
               (u'Bayern', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EBayern%24?output=rss'),
               (u'Medien', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EMedien%24?output=rss'),
               (u'Digital', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EDigital%24?output=rss'),

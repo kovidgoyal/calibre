@@ -27,7 +27,7 @@ class CGM(BasicNewsRecipe):
             del item['style']
         ad=soup.findAll('a')
         for r in ad:
-            if 'http://www.hustla.pl' in r['href']:                
+            if 'http://www.hustla.pl' in r['href'] or 'http://www.ebilet.pl' in r['href']:                
                  r.extract()
         gallery=soup.find('div', attrs={'class':'galleryFlash'})
         if gallery:

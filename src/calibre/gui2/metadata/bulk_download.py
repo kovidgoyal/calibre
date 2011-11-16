@@ -98,7 +98,7 @@ def split_jobs(ids, batch_size=100):
         ids = ids[batch_size:]
     return ans
 
-def start_download(gui, ids, callback):
+def start_download(gui, ids, callback, ensure_fields=None):
     d = ConfirmDialog(ids, gui)
     ret = d.exec_()
     d.b.clicked.disconnect()
@@ -108,7 +108,8 @@ def start_download(gui, ids, callback):
     for batch in split_jobs(ids):
         job = ThreadedJob('metadata bulk download',
             _('Download metadata for %d books')%len(batch),
-            download, (batch, gui.current_db, d.identify, d.covers), {}, callback)
+            download, (batch, gui.current_db, d.identify, d.covers,
+                ensure_fields), {}, callback)
         gui.job_manager.run_threaded_job(job)
     gui.status_bar.show_message(_('Metadata download started'), 3000)
 
@@ -127,11 +128,12 @@ def get_job_details(job):
     det_msg = '\n'.join(det_msg)
     return id_map, failed_ids, failed_covers, all_failed, det_msg
 
-def merge_result(oldmi, newmi):
+def merge_result(oldmi, newmi, ensure_fields=None):
     dummy = Metadata(_('Unknown'))
     for f in msprefs['ignore_fields']:
-        if ':' not in f:
-            setattr(newmi, f, getattr(dummy, f))
+        if ':' in f or (ensure_fields and f in ensure_fields):
+            continue
+        setattr(newmi, f, getattr(dummy, f))
     fields = set()
     for plugin in metadata_plugins(['identify']):
         fields |= plugin.touched_fields
@@ -154,7 +156,7 @@ def merge_result(oldmi, newmi):
 
     return newmi
 
-def download(ids, db, do_identify, covers,
+def download(ids, db, do_identify, covers, ensure_fields,
         log=None, abort=None, notifications=None):
     ids = list(ids)
     metadata = [db.get_metadata(i, index_is_id=True, get_user_categories=False)
@@ -184,7 +186,7 @@ def download(ids, db, do_identify, covers,
                 pass
             if results:
                 all_failed = False
-                mi = merge_result(mi, results[0])
+                mi = merge_result(mi, results[0], ensure_fields=ensure_fields)
                 identifiers = mi.identifiers
                 if not mi.is_null('rating'):
                     # set_metadata expects a rating out of 10
@@ -193,7 +195,7 @@ def download(ids, db, do_identify, covers,
                 log.error('Failed to download metadata for', title)
                 failed_ids.add(i)
                 # We don't want set_metadata operating on anything but covers
-                mi = merge_result(mi, mi)
+                mi = merge_result(mi, mi, ensure_fields=ensure_fields)
         if covers:
             cdata = download_cover(log, title=title, authors=authors,
                     identifiers=identifiers)

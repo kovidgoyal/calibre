@@ -14,7 +14,7 @@
    <string>Edit Meta information</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../../../resources/images.qrc">
+   <iconset resource="../../../work/calibre/resources/images.qrc">
     <normaloff>:/images/edit_input.png</normaloff>:/images/edit_input.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
@@ -44,8 +44,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>954</width>
-        <height>584</height>
+        <width>950</width>
+        <height>576</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -210,7 +210,7 @@
               <string>Open Tag Editor</string>
              </property>
              <property name="icon">
-              <iconset resource="../../../../resources/images.qrc">
+              <iconset resource="../../../work/calibre/resources/images.qrc">
                <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
              </property>
             </widget>
@@ -381,7 +381,7 @@ from the value in the box</string>
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="../../../../resources/images.qrc">
+                <iconset resource="../../../work/calibre/resources/images.qrc">
                  <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                </property>
               </widget>
@@ -429,7 +429,7 @@ from the value in the box</string>
                 <string>...</string>
                </property>
                <property name="icon">
-                <iconset resource="../../../../resources/images.qrc">
+                <iconset resource="../../../work/calibre/resources/images.qrc">
                  <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
                </property>
               </widget>
@@ -1078,8 +1078,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>197</width>
-                <height>60</height>
+                <width>205</width>
+                <height>66</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -1177,6 +1177,7 @@ not multiple and the destination field is multiple</string>
  <tabstops>
   <tabstop>authors</tabstop>
   <tabstop>auto_author_sort</tabstop>
+  <tabstop>swap_title_and_author</tabstop>
   <tabstop>author_sort</tabstop>
   <tabstop>rating</tabstop>
   <tabstop>publisher</tabstop>
@@ -1185,50 +1186,52 @@ not multiple and the destination field is multiple</string>
   <tabstop>remove_tags</tabstop>
   <tabstop>remove_all_tags</tabstop>
   <tabstop>series</tabstop>
+  <tabstop>clear_series</tabstop>
   <tabstop>autonumber_series</tabstop>
   <tabstop>series_numbering_restarts</tabstop>
   <tabstop>series_start_number</tabstop>
-  <tabstop>button_box</tabstop>
-  <tabstop>query_field</tabstop>
-  <tabstop>save_button</tabstop>
-  <tabstop>remove_button</tabstop>
-  <tabstop>search_field</tabstop>
-  <tabstop>search_mode</tabstop>
-  <tabstop>s_r_src_ident</tabstop>
-  <tabstop>s_r_template</tabstop>
-  <tabstop>search_for</tabstop>
-  <tabstop>case_sensitive</tabstop>
-  <tabstop>replace_with</tabstop>
-  <tabstop>replace_func</tabstop>
-  <tabstop>destination_field</tabstop>
-  <tabstop>replace_mode</tabstop>
-  <tabstop>comma_separated</tabstop>
-  <tabstop>s_r_dst_ident</tabstop>
-  <tabstop>results_count</tabstop>
-  <tabstop>starting_from</tabstop>
-  <tabstop>multiple_separator</tabstop>
-  <tabstop>test_text</tabstop>
-  <tabstop>test_result</tabstop>
-  <tabstop>scrollArea</tabstop>
-  <tabstop>central_widget</tabstop>
-  <tabstop>swap_title_and_author</tabstop>
-  <tabstop>clear_series</tabstop>
   <tabstop>adddate</tabstop>
   <tabstop>clear_adddate_button</tabstop>
   <tabstop>apply_adddate</tabstop>
   <tabstop>pubdate</tabstop>
   <tabstop>clear_pubdate_button</tabstop>
   <tabstop>apply_pubdate</tabstop>
+  <tabstop>languages</tabstop>
+  <tabstop>clear_languages</tabstop>
   <tabstop>remove_format</tabstop>
   <tabstop>change_title_to_title_case</tabstop>
+  <tabstop>update_title_sort</tabstop>
   <tabstop>remove_conversion_settings</tabstop>
   <tabstop>cover_generate</tabstop>
   <tabstop>cover_remove</tabstop>
   <tabstop>cover_from_fmt</tabstop>
+  <tabstop>starting_from</tabstop>
+  <tabstop>multiple_separator</tabstop>
+  <tabstop>test_text</tabstop>
+  <tabstop>test_result</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>central_widget</tabstop>
+  <tabstop>query_field</tabstop>
+  <tabstop>button_box</tabstop>
+  <tabstop>save_button</tabstop>
+  <tabstop>remove_button</tabstop>
+  <tabstop>search_field</tabstop>
+  <tabstop>search_mode</tabstop>
+  <tabstop>s_r_src_ident</tabstop>
+  <tabstop>s_r_template</tabstop>
+  <tabstop>replace_with</tabstop>
+  <tabstop>replace_func</tabstop>
+  <tabstop>replace_mode</tabstop>
+  <tabstop>comma_separated</tabstop>
+  <tabstop>s_r_dst_ident</tabstop>
+  <tabstop>results_count</tabstop>
   <tabstop>scrollArea11</tabstop>
+  <tabstop>destination_field</tabstop>
+  <tabstop>search_for</tabstop>
+  <tabstop>case_sensitive</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../resources/images.qrc"/>
+  <include location="../../../work/calibre/resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

@@ -83,7 +83,7 @@ class NOOK(USBMS):
 class NOOK_COLOR(NOOK):
     description    = _('Communicate with the Nook Color and TSR eBook readers.')
 
-    PRODUCT_ID  = [0x002, 0x003]
+    PRODUCT_ID  = [0x002, 0x003, 0x004]
     BCD         = [0x216]
 
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_DISK'
@@ -104,5 +104,4 @@ class NOOK_COLOR(NOOK):
         path = os.path.join(path, subdir)
         return USBMS.create_upload_path(self, path, mdata, fname,
                 create_dirs=create_dirs)
-
 

@@ -180,7 +180,7 @@ class EPUBInput(InputFormatPlugin):
         for y in opf.itermanifest():
             id_ = y.get('id', None)
             if id_ and y.get('media-type', None) in \
-                ('application/vnd.adobe-page-template+xml',):
+                ('application/vnd.adobe-page-template+xml','application/text'):
                     not_for_spine.add(id_)
 
         for x in list(opf.iterspine()):
@@ -188,6 +188,9 @@ class EPUBInput(InputFormatPlugin):
             if ref is None or ref in not_for_spine:
                 x.getparent().remove(x)
                 continue
+
+        if len(list(opf.iterspine())) == 0:
+            raise ValueError('No valid entries in the spine of this EPUB')
 
         with open('content.opf', 'wb') as nopf:
             nopf.write(opf.render())

@@ -136,7 +136,7 @@ the previously checked out |app| code directory, for example::
 
     cd /Users/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub-directories. Ensure you have installed the |app| commandline tools via :guilabel:Preferences->Advanced->Miscellaneous in the |app| GUI.
+calibre is the directory that contains the src and resources sub-directories. Ensure you have installed the |app| commandline tools via :guilabel:`Preferences->Advanced->Miscellaneous` in the |app| GUI.
 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
 So, following the example above, it would be ``/Users/kovid/work/calibre/src``. Apple 

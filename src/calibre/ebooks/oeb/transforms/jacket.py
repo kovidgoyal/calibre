@@ -171,6 +171,14 @@ def render_jacket(mi, output_profile,
                     comments=comments,
                     footer=''
                     )
+        for key in mi.custom_field_keys():
+            try:
+                display_name, val = mi.format_field_extended(key)[:2]
+                key = key.replace('#', '_')
+                args[key] = val
+                args[key+'_label'] = display_name
+            except:
+                pass
 
         generated_html = P('jacket/template.xhtml',
                 data=True).decode('utf-8').format(**args)

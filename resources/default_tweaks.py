@@ -141,21 +141,33 @@ sort_columns_at_startup = None
 #: Control how dates are displayed
 # Format to be used for publication date and the timestamp (date).
 #  A string controlling how the publication date is displayed in the GUI
-#  d    the day as number without a leading zero (1 to 31)
+#  d     the day as number without a leading zero (1 to 31)
 #  dd    the day as number with a leading zero (01 to 31)
-#  ddd    the abbreviated localized day name (e.g. 'Mon' to 'Sun').
-#  dddd    the long localized day name (e.g. 'Monday' to 'Qt::Sunday').
-#  M    the month as number without a leading zero (1-12)
+#  ddd   the abbreviated localized day name (e.g. 'Mon' to 'Sun').
+#  dddd  the long localized day name (e.g. 'Monday' to 'Qt::Sunday').
+#  M     the month as number without a leading zero (1-12)
 #  MM    the month as number with a leading zero (01-12)
-#  MMM    the abbreviated localized month name (e.g. 'Jan' to 'Dec').
-#  MMMM    the long localized month name (e.g. 'January' to 'December').
+#  MMM   the abbreviated localized month name (e.g. 'Jan' to 'Dec').
+#  MMMM  the long localized month name (e.g. 'January' to 'December').
 #  yy    the year as two digit number (00-99)
-#  yyyy    the year as four digit number
+#  yyyy  the year as four digit number
+#  h     the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm) '
+#  hh    the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm) '
+#  m     the minutes without a leading 0 (0 to 59) '
+#  mm    the minutes with a leading 0 (00 to 59) '
+#  s     the seconds without a leading 0 (0 to 59) '
+#  ss    the seconds with a leading 0 (00 to 59) '
+#  ap    use a 12-hour clock instead of a 24-hour clock, with "ap"
+#        replaced by the localized string for am or pm '
+#  AP    use a 12-hour clock instead of a 24-hour clock, with "AP"
+#        replaced by the localized string for AM or PM '
+#  iso   the date with time and timezone. Must be the only format present
 #  For example, given the date of 9 Jan 2010, the following formats show
 #  MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010
 #  MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10
 # publication default if not set: MMM yyyy
 # timestamp default if not set: dd MMM yyyy
+# last_modified_display_format if not set: dd MMM yyyy
 gui_pubdate_display_format = 'MMM yyyy'
 gui_timestamp_display_format = 'dd MMM yyyy'
 gui_last_modified_display_format = 'dd MMM yyyy'

@@ -112,7 +112,7 @@ class DateDelegate(QStyledItemDelegate): # {{{
         self.tweak_name = tweak_name
         self.format = tweaks[self.tweak_name]
         if self.format is None:
-            format = default_format
+            self.format = default_format
 
     def displayText(self, val, locale):
         d = val.toDateTime()

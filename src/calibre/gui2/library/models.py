@@ -5,13 +5,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re, os, traceback
+import functools, re, os, traceback, errno
 from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QVariant, QDateTime, QColor)
 
-from calibre.gui2 import NONE, UNDEFINED_QDATETIME
+from calibre.gui2 import NONE, UNDEFINED_QDATETIME, error_dialog
 from calibre.utils.pyparsing import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import SafeFormat
@@ -851,59 +851,78 @@ class BooksModel(QAbstractTableModel): # {{{
 
     def setData(self, index, value, role):
         if role == Qt.EditRole:
-            row, col = index.row(), index.column()
-            column = self.column_map[col]
-            if self.is_custom_column(column):
-                if not self.set_custom_column_data(row, column, value):
-                    return False
-            else:
-                if column not in self.editable_cols:
-                    return False
-                val = int(value.toInt()[0]) if column == 'rating' else \
-                      value.toDateTime() if column in ('timestamp', 'pubdate') else \
-                      unicode(value.toString()).strip()
-                id = self.db.id(row)
-                books_to_refresh = set([id])
-                if column == 'rating':
-                    val = 0 if val < 0 else 5 if val > 5 else val
-                    val *= 2
-                    self.db.set_rating(id, val)
-                elif column == 'series':
-                    val = val.strip()
-                    if not val:
-                        books_to_refresh |= self.db.set_series(id, val,
-                                                        allow_case_change=True)
-                        self.db.set_series_index(id, 1.0)
-                    else:
-                        pat = re.compile(r'\[([.0-9]+)\]')
-                        match = pat.search(val)
-                        if match is not None:
-                            self.db.set_series_index(id, float(match.group(1)))
-                            val = pat.sub('', val).strip()
-                        elif val:
-                            if tweaks['series_index_auto_increment'] != 'const':
-                                ni = self.db.get_next_series_num_for(val)
-                                if ni != 1:
-                                    self.db.set_series_index(id, ni)
-                        if val:
-                            books_to_refresh |= self.db.set_series(id, val,
-                                                        allow_case_change=True)
-                elif column == 'timestamp':
-                    if val.isNull() or not val.isValid():
-                        return False
-                    self.db.set_timestamp(id, qt_to_dt(val, as_utc=False))
-                elif column == 'pubdate':
-                    if val.isNull() or not val.isValid():
-                        return False
-                    self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
-                elif column == 'languages':
-                    val = val.split(',')
-                    self.db.set_languages(id, val)
-                else:
-                    books_to_refresh |= self.db.set(row, column, val,
+            from calibre.gui2.ui import get_gui
+            try:
+                return self._set_data(index, value)
+            except (IOError, OSError) as err:
+                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
+                    import traceback
+                    error_dialog(get_gui(), _('Permission denied'),
+                            _('Could not change the on disk location of this'
+                                ' book. Is it open in another program?'),
+                            det_msg=traceback.format_exc(), show=True)
+            except:
+                import traceback
+                traceback.print_exc()
+                error_dialog(get_gui(), _('Failed to set data'),
+                        _('Could not set data, click Show Details to see why.'),
+                        det_msg=traceback.format_exc(), show=True)
+        return False
+
+    def _set_data(self, index, value):
+        row, col = index.row(), index.column()
+        column = self.column_map[col]
+        if self.is_custom_column(column):
+            if not self.set_custom_column_data(row, column, value):
+                return False
+        else:
+            if column not in self.editable_cols:
+                return False
+            val = (int(value.toInt()[0]) if column == 'rating' else
+                    value.toDateTime() if column in ('timestamp', 'pubdate')
+                    else unicode(value.toString()).strip())
+            id = self.db.id(row)
+            books_to_refresh = set([id])
+            if column == 'rating':
+                val = 0 if val < 0 else 5 if val > 5 else val
+                val *= 2
+                self.db.set_rating(id, val)
+            elif column == 'series':
+                val = val.strip()
+                if not val:
+                    books_to_refresh |= self.db.set_series(id, val,
                                                     allow_case_change=True)
-                self.refresh_ids(list(books_to_refresh), row)
-            self.dataChanged.emit(index, index)
+                    self.db.set_series_index(id, 1.0)
+                else:
+                    pat = re.compile(r'\[([.0-9]+)\]')
+                    match = pat.search(val)
+                    if match is not None:
+                        self.db.set_series_index(id, float(match.group(1)))
+                        val = pat.sub('', val).strip()
+                    elif val:
+                        if tweaks['series_index_auto_increment'] != 'const':
+                            ni = self.db.get_next_series_num_for(val)
+                            if ni != 1:
+                                self.db.set_series_index(id, ni)
+                    if val:
+                        books_to_refresh |= self.db.set_series(id, val,
+                                                    allow_case_change=True)
+            elif column == 'timestamp':
+                if val.isNull() or not val.isValid():
+                    return False
+                self.db.set_timestamp(id, qt_to_dt(val, as_utc=False))
+            elif column == 'pubdate':
+                if val.isNull() or not val.isValid():
+                    return False
+                self.db.set_pubdate(id, qt_to_dt(val, as_utc=False))
+            elif column == 'languages':
+                val = val.split(',')
+                self.db.set_languages(id, val)
+            else:
+                books_to_refresh |= self.db.set(row, column, val,
+                                                allow_case_change=True)
+            self.refresh_ids(list(books_to_refresh), row)
+        self.dataChanged.emit(index, index)
         return True
 
 # }}}

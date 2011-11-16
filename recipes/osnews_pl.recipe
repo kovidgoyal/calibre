@@ -23,7 +23,7 @@ class OSNewsRecipe(BasicNewsRecipe):
 
     oldest_article = 7
     max_articles_per_feed = 100
-
+    cover_url='http://osnews.pl/wp-content/themes/osnews/img/logo.png'
     extra_css = '''
         .news-heading {font-size:150%}
         .newsinformations li {display:inline;}
@@ -44,7 +44,9 @@ class OSNewsRecipe(BasicNewsRecipe):
         dict(name = 'div', attrs = {'class' : 'sociable'}),
         dict(name = 'div', attrs = {'class' : 'post_prev'}),
         dict(name = 'div', attrs = {'class' : 'post_next'}),
-        dict(name = 'div', attrs = {'class' : 'clr'})
+        dict(name = 'div', attrs = {'class' : 'clr'}),
+        dict(name = 'div', attrs = {'class' : 'tw_button'}),
+        dict(name = 'div', attrs = {'style' : 'width:56px;height:60px;float:left;margin-right:10px'})
     ]
 
     preprocess_regexps = [(re.compile(u'</span>Komentarze: \(?[0-9]+\)? ?<span'), lambda match: '</span><span')]
