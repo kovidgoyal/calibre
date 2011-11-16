@@ -387,6 +387,7 @@ class KINDLE_FIRE(KINDLE2):
     BCD = [0x216, 0x100]
 
     EBOOK_DIR_MAIN = 'Documents'
+    SUPPORTS_SUB_DIRS = False
 
     def get_main_ebook_dir(self, for_upload=False):
         if for_upload:
