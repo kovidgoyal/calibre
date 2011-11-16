@@ -377,3 +377,21 @@ class KINDLE_DX(KINDLE2):
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
 
+class KINDLE_FIRE(KINDLE2):
+
+    name = 'Kindle Fire Device Interface'
+    description = _('Communicate with the Kindle Fire')
+    gui_name = 'Fire'
+
+    PRODUCT_ID = [0x0006]
+    BCD = [0x216, 0x100]
+
+    EBOOK_DIR_MAIN = 'Documents'
+
+    def get_main_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return self.EBOOK_DIR_MAIN
+        return ''
+
+
+

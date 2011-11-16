@@ -107,6 +107,10 @@ class KindleDX(Kindle):
     name = 'Kindle DX'
     id = 'kindledx'
 
+class KindleFire(KindleDX):
+    name = 'Kindle Fire'
+    id = 'kindle_fire'
+
 class Sony505(Device):
 
     output_profile = 'sony'
