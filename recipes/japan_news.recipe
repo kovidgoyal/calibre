@@ -1,0 +1,19 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+class NewsOnJapan(BasicNewsRecipe):
+    title          = u'News On Japan'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+
+    feeds          = [
+('News', 
+ 'http://newsonjapan.com/rss/top.xml'),
+]
