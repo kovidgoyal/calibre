@@ -111,6 +111,7 @@ class KindleFire(KindleDX):
     name = 'Kindle Fire'
     id = 'kindle_fire'
     output_profile = 'kindle_fire'
+    supports_color = True
 
 class Sony505(Device):
 
@@ -183,6 +184,10 @@ class NookColor(Nook):
     name = 'Nook Color'
     output_profile = 'nook_color'
     supports_color = True
+
+class NookTablet(NookColor):
+    id = 'nook_tablet'
+    name = 'Nook Tablet'
 
 class CybookG3(Device):
 
