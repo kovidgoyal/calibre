@@ -659,7 +659,7 @@ class KindleFireOutput(KindleDXOutput):
     description = _('This profile is intended for the Amazon Kindle Fire.')
 
     screen_size               = (570, 1016)
-    dpi                       = 150.0
+    dpi                       = 169.0
     comic_screen_size = (570, 1016)
 
 class IlliadOutput(OutputProfile):
