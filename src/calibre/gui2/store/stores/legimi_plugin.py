@@ -43,6 +43,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
         url = 'http://www.legimi.com/pl/ebooks/?price=any&lang=pl&search=' + urllib.quote_plus(query) + '&sort=relevance'
         
         br = browser()
+        drm_pattern = re.compile("(DRM)")
         
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
@@ -61,6 +62,10 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 author = re.sub(',','',author)
                 author = re.sub(';',',',author)
                 price = ''.join(data.xpath('.//span[@class="ebook_price"]/text()'))
+                formats = ''.join(data.xpath('.//div[@class="item_entries"]/span[3]/text()'))
+                formats = re.sub('Format:','',formats)
+                drm = drm_pattern.search(formats)
+                formats = re.sub('\(DRM\)','',formats)
 
                 counter -= 1
                 
@@ -70,7 +75,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 s.author = author.strip()
                 s.price = price
                 s.detail_item = 'http://www.legimi.com/' + id.strip()
-                s.drm = SearchResult.DRM_LOCKED
-                s.formats = 'EPUB'
+                s.drm = SearchResult.DRM_LOCKED if drm else SearchResult.DRM_UNLOCKED
+                s.formats = formats.strip()
                 
                 yield s
