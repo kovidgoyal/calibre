@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-13 11:51+0000\n"
-"PO-Revision-Date: 2011-09-21 02:40+0000\n"
-"Last-Translator: Nestor Carvalho <Unknown>\n"
+"PO-Revision-Date: 2011-11-16 02:34+0000\n"
+"Last-Translator: Fabrício Massuia <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-11-14 05:12+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Launchpad-Export-Date: 2011-11-16 05:20+0000\n"
+"X-Generator: Launchpad (build 14291)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -19776,7 +19776,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid "Control behavior of the book list"
-msgstr ""
+msgstr "Controla o comportamento da lista de livros"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:331
 msgid ""
