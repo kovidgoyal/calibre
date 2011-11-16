@@ -652,6 +652,15 @@ class KindleDXOutput(OutputProfile):
         return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
                 'ttt '.join(tags)+'ttt ')
 
+class KindleFireOutput(KindleDXOutput):
+
+    name = 'Kindle Fire'
+    short_name = 'kindle_fire'
+    description = _('This profile is intended for the Amazon Kindle Fire.')
+
+    screen_size               = (570, 1016)
+    dpi                       = 150.0
+    comic_screen_size = (570, 1016)
 
 class IlliadOutput(OutputProfile):
 
