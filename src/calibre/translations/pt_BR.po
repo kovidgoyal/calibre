@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-13 11:51+0000\n"
-"PO-Revision-Date: 2011-11-16 02:34+0000\n"
-"Last-Translator: Fabrício Massuia <Unknown>\n"
+"PO-Revision-Date: 2011-11-16 20:44+0000\n"
+"Last-Translator: Gusmao <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-11-16 05:20+0000\n"
+"X-Launchpad-Export-Date: 2011-11-17 05:22+0000\n"
 "X-Generator: Launchpad (build 14291)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -381,6 +381,7 @@ msgstr "Reiniciar calibre"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Open the folder that contains the book files in your calibre library"
 msgstr ""
+"Abrir a pasta que contém os arquivos de livros na sua biblioteca calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Send books to the connected device"
@@ -2838,6 +2839,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:602
 msgid "Search pattern (regular expression) to be replaced with sr1-replace."
 msgstr ""
+"Pesquisa por padrão (expressão regular) para ser substituído por sr1-replace"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:607
 msgid "Replacement to replace the text found with sr1-search."

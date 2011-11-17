@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-13 11:51+0000\n"
-"PO-Revision-Date: 2011-08-05 18:12+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-11-16 22:40+0000\n"
+"Last-Translator: mascot4M <Unknown>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2011-11-14 05:08+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Launchpad-Export-Date: 2011-11-17 05:22+0000\n"
+"X-Generator: Launchpad (build 14291)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -254,7 +254,7 @@ msgstr "Obchod"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr ""
+msgstr "Obchod elektronických kníh"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -329,7 +329,7 @@ msgstr "Nastaviť metadáta zo súborov %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:730
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Pridať knihy do Calibre alebo pripojeného zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Fetch annotations from a connected Kindle (experimental)"
@@ -337,51 +337,51 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Vytvoriť katalóg kníh vo vašej Calibre knižnici"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Konvertovať knihy do rôznych formátov"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Vymazať knihy z vašej Calibre knižnice alebo pripojeného zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Upraviť metadata kníh vo vašej Calibre knižnici"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Čítať knihy vo vašej Calibre knižnici"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Stiahnuť novinky z internetu v knižnej forme"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Rýchle zobrazenie zoznamu príbuzných kníh"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Exportovať knihy z vašej Calibre knižnici na hard disk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Zobraziť detaily knihy v samostatnom okne"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Restart calibre"
-msgstr ""
+msgstr "Reštart Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "Otvoriť priečinok obsahujúci súbory knihy vo vašej Calibre knižnici"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Odoslať knihy na pripojené zariadenie"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 msgid ""
@@ -392,15 +392,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "Prezrieť užívateľský manuál Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:812
 msgid "Customize calibre"
-msgstr ""
+msgstr "Prispôsobiť Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Jednoducho nájsť knihy podobné momentálne označenej knihe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid ""
@@ -409,7 +409,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Kopírovať knihy zo zariadenia do vašej Calibre knižnici"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Edit the collections in which books are placed on your device"
@@ -417,11 +417,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Kopírovať knihy z vašej Calibre knižnice to inej"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "Vykonať malé úpravy EPUB súborov vo vašej Calibre knižnici"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid ""
@@ -431,15 +431,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:854
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Náhodne vybrať knihu z vašej Calibre knižnice"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:861
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Hľadať knihy od iných predajcov kníh"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:877
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Získať nové Calibre pluginy alebo aktualizovať exitujúce"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:896
 msgid "Look and Feel"
@@ -643,11 +643,11 @@ msgstr "Doladiť chovanie calibre v rôznych kontextoch"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
 msgid "Keyboard"
-msgstr ""
+msgstr "Klávesnica"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1109
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Prispôsobiť klávesové skratky používané v Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1114
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -689,7 +689,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Konvertovať eknihy na %s formát"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:48
 msgid "Input profile"
@@ -938,7 +938,7 @@ msgstr "Áno"
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1109
 msgid "Main"
-msgstr ""
+msgstr "Základné"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
@@ -19310,7 +19310,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:323
 msgid "Specify which font to use when generating a default cover"
-msgstr ""
+msgstr "Určiť ktorý font sa použije pri generovaní základnej obálky"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:324
 msgid ""
@@ -19338,7 +19338,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:342
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Jazyk použitý pri zoraďovaní"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:343
 msgid ""
@@ -19356,7 +19356,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:354
 msgid "Number of columns for custom metadata in the edit metadata dialog"
-msgstr ""
+msgstr "Počet stĺpcov pre vlastné metadata v editovacom metadata okne"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:355
 msgid ""
@@ -19368,7 +19368,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:360
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "Počet sekúnd čakania pred odoslaním emailov"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:361
 msgid ""
@@ -19381,7 +19381,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:368
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "Odstránenie žltých čiar na okrajoch stránky knihy"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:369
 msgid ""
@@ -19392,7 +19392,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:374
 msgid "The maximum width and height for covers saved in the calibre library"
-msgstr ""
+msgstr "Maximálna šírka a výška obálky uloženej v Calibre knižnici"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:375
 msgid ""
@@ -19403,7 +19403,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:380
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "Kam odoslať stiahnuté novinky"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid ""
@@ -19448,7 +19448,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:404
 msgid "Save original file when converting from same format to same format"
-msgstr ""
+msgstr "Uložiť pôvodný súbor keď prebieha konverzia z rovnakého formátu"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:405
 msgid ""
