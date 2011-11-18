@@ -372,13 +372,13 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.apply_pubdate.setChecked(True)
 
     def clear_pubdate(self, *args):
-        self.pubdate.setMinimumDateTime(UNDEFINED_QDATETIME)
+        self.pubdate.setDateTime(UNDEFINED_QDATETIME)
 
     def do_apply_adddate(self, *args):
         self.apply_adddate.setChecked(True)
 
     def clear_adddate(self, *args):
-        self.adddate.setMinimumDateTime(UNDEFINED_QDATETIME)
+        self.adddate.setDateTime(UNDEFINED_QDATETIME)
 
     def button_clicked(self, which):
         if which == self.button_box.button(QDialogButtonBox.Apply):
