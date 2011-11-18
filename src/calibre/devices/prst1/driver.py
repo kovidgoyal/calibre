@@ -13,9 +13,11 @@ Device driver for the SONY T1 devices
 
 import os, time, re
 import sqlite3 as sqlite
+from sqlite3 import DatabaseError
 from contextlib import closing
 from datetime import date
 
+from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
 from calibre.devices.usbms.books import CollectionsBookList
@@ -275,11 +277,19 @@ class PRST1(USBMS):
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
         use_sony_authors = opts.extra_customization[self.OPT_USE_SONY_AUTHORS]
 
-        cursor = connection.cursor()
+        try:
+            cursor = connection.cursor()
 
-        # Get existing books
-        query = 'SELECT file_path, _id FROM books'
-        cursor.execute(query)
+            # Get existing books
+            query = 'SELECT file_path, _id FROM books'
+            cursor.execute(query)
+        except DatabaseError:
+            raise DeviceError('The SONY database is corrupted. '
+                    ' Delete the file %s on your reader and then disconnect '
+                    ' reconnect it. If you are using an SD card, you '
+                    ' should delete the file on the card as well. Note that '
+                    ' deleting this file may cause your reader to forget '
+                    ' any notes/highlights, etc.')
 
         db_books = {}
         for i, row in enumerate(cursor):

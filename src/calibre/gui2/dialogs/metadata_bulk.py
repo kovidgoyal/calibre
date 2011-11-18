@@ -23,6 +23,8 @@ from calibre.utils.icu import sort_key, capitalize
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.magick.draw import identify_data
 from calibre.utils.date import qt_to_dt
+from calibre.ptempfile import SpooledTemporaryFile
+from calibre.db import SPOOL_SIZE
 
 def get_cover_data(stream, ext): # {{{
     from calibre.ebooks.metadata.meta import get_metadata
@@ -134,11 +136,12 @@ class MyBlockingBusy(QDialog): # {{{
             do_autonumber, do_remove_format, remove_format, do_swap_ta, \
             do_remove_conv, do_auto_author, series, do_series_restart, \
             series_start_value, do_title_case, cover_action, clear_series, \
-            pubdate, adddate, do_title_sort, languages, clear_languages = self.args
+            pubdate, adddate, do_title_sort, languages, clear_languages, \
+            restore_original = self.args
 
 
-        # first loop: do author and title. These will commit at the end of each
-        # operation, because each operation modifies the file system. We want to
+        # first loop: All changes that modify the filesystem and commit
+        # immediately. We want to
         # try hard to keep the DB and the file system in sync, even in the face
         # of exceptions or forced exits.
         if self.current_phase == 1:
@@ -196,6 +199,27 @@ class MyBlockingBusy(QDialog): # {{{
                     if covers:
                         self.db.set_cover(id, covers[-1][0])
                     covers = []
+
+            if do_remove_format:
+                self.db.remove_format(id, remove_format, index_is_id=True,
+                        notify=False, commit=True)
+
+            if restore_original:
+                formats = self.db.formats(id, index_is_id=True)
+                formats = formats.split(',') if formats else []
+                originals = [x.upper() for x in formats if
+                        x.upper().startswith('ORIGINAL_')]
+                for ofmt in originals:
+                    fmt = ofmt.replace('ORIGINAL_', '')
+                    with SpooledTemporaryFile(SPOOL_SIZE) as stream:
+                        self.db.copy_format_to(id, ofmt, stream,
+                                index_is_id=True)
+                        stream.seek(0)
+                        self.db.add_format(id, fmt, stream, index_is_id=True,
+                                notify=False)
+                    self.db.remove_format(id, ofmt, index_is_id=True,
+                            notify=False, commit=True)
+
         elif self.current_phase == 2:
             # All of these just affect the DB, so we can tolerate a total rollback
             if do_auto_author:
@@ -232,9 +256,6 @@ class MyBlockingBusy(QDialog): # {{{
                 self.db.set_series(id, series, notify=False, commit=False)
                 num = next if do_autonumber and series else 1.0
                 self.db.set_series_index(id, num, notify=False, commit=False)
-
-            if do_remove_format:
-                self.db.remove_format(id, remove_format, index_is_id=True, notify=False, commit=False)
 
             if do_remove_conv:
                 self.db.delete_conversion_options(id, 'PIPE', commit=False)
@@ -340,6 +361,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.restoreGeometry(bytes(geom))
         self.languages.init_langs(self.db)
         self.languages.setEditText('')
+        self.authors.setFocus(Qt.OtherFocusReason)
         self.exec_()
 
     def save_state(self, *args):
@@ -935,6 +957,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         do_title_case = self.change_title_to_title_case.isChecked()
         do_title_sort = self.update_title_sort.isChecked()
         clear_languages = self.clear_languages.isChecked()
+        restore_original = self.restore_original.isChecked()
         languages = self.languages.lang_codes
         pubdate = adddate = None
         if self.apply_pubdate.isChecked():
@@ -954,7 +977,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, do_title_case, cover_action, clear_series,
-                pubdate, adddate, do_title_sort, languages, clear_languages)
+                pubdate, adddate, do_title_sort, languages, clear_languages,
+                restore_original)
 
         bb = MyBlockingBusy(_('Applying changes to %d books.\nPhase {0} {1}%%.')
                 %len(self.ids), args, self.db, self.ids,

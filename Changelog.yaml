@@ -19,6 +19,60 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.27
+  date: 2011-11-18
+
+  new features:
+    - title: "Drivers for the Kindle Fire and the Nook Tablet"
+      tickets: [890918] 
+
+    - title: "Conversion: Add an option under Look & Feel to remove specified style information (CSS) from the document during conversion."
+      tickets: [871384]
+
+    - title: "Add an option in the bulk metadata edit dialog to restore the pre-conversion files for many books with a single click."
+      tickets: [886116]
+
+    - title: "Jobs list: Add the ability to search for and to hide jobs, useful if you have run a lot of jobs and the list is getting crowded."
+      tickets: [883734]
+
+    - title: "Book jacket generation: Add ability to customize the book jacket template and add custom columns into the jacket."
+      tickets: [889912]
+
+    - title: "MOBI Input: Performance improvement when viewing/converting a file with a lot of links"
+  
+  bug fixes:
+    - title: "Fix regression in 0.8.26 that broke disabling the update of particular fields during a bulk metadata download." 
+      tickets: [889696]
+
+    - title: "Get Books: Fix DRM status for legimi"
+
+    - title: "When parsing for lxml via BeatifulSoup, use the calibre modified copy of BeautifulSoup (more robust)."
+      tickets: [889890]
+
+    - title: "HTML Input: Handle double encoded URLs in img tags"
+      tickets: [889323] 
+
+  improved recipes:
+    - Various Polish recipes
+    - Academia Catavencu
+    - El Periodico de Aragon 
+    - Weblogs SL
+    - Folha de Sao Paolo (subscription)
+
+  new recipes:
+    - title: News on Japan
+      author: Krittika Goyal
+
+    - title: Formula AS 
+      author: Silviu Cotoara
+
+    - title: Various Turkish news sources 
+      author: Osman Kaysan
+
+    - title: Infra.pl and Spider's Web 
+      author: fenuks
+
+
 - version: 0.8.26
   date: 2011-11-12
 

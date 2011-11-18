@@ -1,0 +1,38 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+'''
+bianet.com.tr
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Radikal_tr(BasicNewsRecipe):
+    title                 = 'Bianet'
+    __author__            = 'Osman Kaysan'
+    description           = 'Independent News from Turkey'
+    publisher             = 'Bianet'
+    category              = 'news, politics, Turkey'
+    oldest_article        = 7
+    max_articles_per_feed = 120
+    masthead_url          = 'http://bianet.org/images/bianet_logo.gif'
+    language              = 'tr'
+    no_stylesheets        = True
+
+    conversion_options = {
+                             'comments'        : description
+                            ,'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': True
+                ,'remove_paragraph_spacing': True,
+                          }
+
+    remove_tags_before  = dict(name='div', attrs={'class':'manset'})
+    remove_tags = [ dict(name='ul', attrs={'class':['altul']}), dict(name='div', attrs={'id':['habermenu']}), dict(name='div', attrs={'class':['mail']}), dict(name='div', attrs={'class':['from']})]
+    remove_tags_after   = dict(name='div', attrs={'id':'habermenu'})
+
+    feeds = [(u'Bianet', u'http://bianet.org/bianet.rss')]
+
+    def preprocess_html(self, soup):
+        return self.adeify_images(soup)

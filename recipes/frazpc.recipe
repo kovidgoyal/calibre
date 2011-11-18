@@ -18,7 +18,7 @@ class FrazPC(BasicNewsRecipe):
     max_articles_per_feed = 100
     use_embedded_content = False
     no_stylesheets = True
-
+    cover_url='http://www.frazpc.pl/images/logo.png'
     feeds          = [
         (u'Aktualno\u015bci', u'http://www.frazpc.pl/feed/aktualnosci'), 
         (u'Artyku\u0142y', u'http://www.frazpc.pl/feed/artykuly')
@@ -33,6 +33,7 @@ class FrazPC(BasicNewsRecipe):
         dict(name='div', attrs={'class':'comments_box'})
     ]
 
+    remove_tags_after=dict(name='div', attrs={'class':'content'})
     preprocess_regexps = [(re.compile(r'\| <a href="#comments">Komentarze \([0-9]*\)</a>'), lambda match: '')]
 
     remove_attributes = [ 'width', 'height' ]
