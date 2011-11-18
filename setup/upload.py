@@ -198,9 +198,8 @@ class UploadToGoogleCode(Command): # {{{
 
         # Now add the file itself
         file_name = os.path.basename(file_path)
-        f = open(file_path, 'rb')
-        file_content = f.read()
-        f.close()
+        with open(file_path, 'rb') as f:
+            file_content = f.read()
 
         body.extend(
             ['--' + BOUNDARY,
@@ -265,7 +264,7 @@ class UploadToSourceForge(Command): # {{{
             if not os.path.exists(x): continue
             start = time.time()
             self.info('Uploading', x)
-            check_call(['rsync', '-v', '-e', 'ssh -x', x,
+            check_call(['rsync', '-z', '--progress', '-e', 'ssh -x', x,
                 '%s,%s@frs.sourceforge.net:%s'%(self.USERNAME, self.PROJECT,
                     self.rdir+'/')])
             print 'Uploaded in', int(time.time() - start), 'seconds'
@@ -376,7 +375,8 @@ class UploadUserManual(Command): # {{{
         for x in glob.glob(self.j(path, '*')):
             self.build_plugin_example(x)
 
-        check_call(' '.join(['scp', '-r', 'src/calibre/manual/.build/html/*',
+        check_call(' '.join(['rsync', '-z', '-r', '--progress',
+            'src/calibre/manual/.build/html/',
                     'bugs:%s'%USER_MANUAL]), shell=True)
 # }}}
 
