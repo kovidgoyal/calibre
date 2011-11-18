@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-27 14:31+0000\n"
-"PO-Revision-Date: 2011-11-04 23:01+0000\n"
+"PO-Revision-Date: 2011-11-13 15:24+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-06 05:23+0000\n"
-"X-Generator: Launchpad (build 14231)\n"
+"X-Launchpad-Export-Date: 2011-11-14 05:15+0000\n"
+"X-Generator: Launchpad (build 14277)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -8572,43 +8572,43 @@ msgstr "Guntai"
 
 #. name for gnu
 msgid "Gnau"
-msgstr ""
+msgstr "Gnau"
 
 #. name for gnw
 msgid "Guaraní; Western Bolivian"
-msgstr ""
+msgstr "Guaraní; bolivià occidental"
 
 #. name for gnz
 msgid "Ganzi"
-msgstr ""
+msgstr "Ganzi"
 
 #. name for goa
 msgid "Guro"
-msgstr ""
+msgstr "Guro"
 
 #. name for gob
 msgid "Playero"
-msgstr ""
+msgstr "Playero"
 
 #. name for goc
 msgid "Gorakor"
-msgstr ""
+msgstr "Gorakor"
 
 #. name for god
 msgid "Godié"
-msgstr ""
+msgstr "Godié"
 
 #. name for goe
 msgid "Gongduk"
-msgstr ""
+msgstr "Gongduk"
 
 #. name for gof
 msgid "Gofa"
-msgstr ""
+msgstr "Gofa"
 
 #. name for gog
 msgid "Gogo"
-msgstr ""
+msgstr "Gogo"
 
 #. name for goh
 msgid "German; Old High (ca. 750-1050)"
@@ -8616,23 +8616,23 @@ msgstr "Alt alemany; antic (ca. 750-1050)"
 
 #. name for goi
 msgid "Gobasi"
-msgstr ""
+msgstr "Gobasi"
 
 #. name for goj
 msgid "Gowlan"
-msgstr ""
+msgstr "Gowlan"
 
 #. name for gok
 msgid "Gowli"
-msgstr ""
+msgstr "Gowli"
 
 #. name for gol
 msgid "Gola"
-msgstr ""
+msgstr "Gola"
 
 #. name for gom
 msgid "Konkani; Goan"
-msgstr ""
+msgstr "Konkani; goanès"
 
 #. name for gon
 msgid "Gondi"
@@ -8640,71 +8640,71 @@ msgstr "Gondi"
 
 #. name for goo
 msgid "Gone Dau"
-msgstr ""
+msgstr "Gone Dau"
 
 #. name for gop
 msgid "Yeretuar"
-msgstr ""
+msgstr "Yeretuar"
 
 #. name for goq
 msgid "Gorap"
-msgstr ""
+msgstr "Gorap"
 
 #. name for gor
 msgid "Gorontalo"
-msgstr ""
+msgstr "Gorontalo"
 
 #. name for gos
 msgid "Gronings"
-msgstr ""
+msgstr "Gronings"
 
 #. name for got
 msgid "Gothic"
-msgstr ""
+msgstr "Gòtic"
 
 #. name for gou
 msgid "Gavar"
-msgstr ""
+msgstr "Gavar"
 
 #. name for gow
 msgid "Gorowa"
-msgstr ""
+msgstr "Gorowa"
 
 #. name for gox
 msgid "Gobu"
-msgstr ""
+msgstr "Gobu"
 
 #. name for goy
 msgid "Goundo"
-msgstr ""
+msgstr "Goundo"
 
 #. name for goz
 msgid "Gozarkhani"
-msgstr ""
+msgstr "Gozarkhani"
 
 #. name for gpa
 msgid "Gupa-Abawa"
-msgstr ""
+msgstr "Gupa-Abawa"
 
 #. name for gpn
 msgid "Taiap"
-msgstr ""
+msgstr "Taiap"
 
 #. name for gqa
 msgid "Ga'anda"
-msgstr ""
+msgstr "Gaanda"
 
 #. name for gqi
 msgid "Guiqiong"
-msgstr ""
+msgstr "Guiqiong"
 
 #. name for gqn
 msgid "Guana (Brazil)"
-msgstr ""
+msgstr "Guana (Brasil)"
 
 #. name for gqr
 msgid "Gor"
-msgstr ""
+msgstr "Gor"
 
 #. name for gra
 msgid "Garasia; Rajput"
@@ -8720,19 +8720,19 @@ msgstr "Grec antic (fins el 1453)"
 
 #. name for grd
 msgid "Guruntum-Mbaaru"
-msgstr ""
+msgstr "Guruntum"
 
 #. name for grg
 msgid "Madi"
-msgstr ""
+msgstr "Madi"
 
 #. name for grh
 msgid "Gbiri-Niragu"
-msgstr ""
+msgstr "Gbiri-Niragu"
 
 #. name for gri
 msgid "Ghari"
-msgstr ""
+msgstr "Ghari"
 
 #. name for grj
 msgid "Grebo; Southern"
@@ -8740,35 +8740,35 @@ msgstr "Grebo; meridional"
 
 #. name for grm
 msgid "Kota Marudu Talantang"
-msgstr ""
+msgstr "Kota Marudu; Talantang"
 
 #. name for grn
 msgid "Guarani"
-msgstr "guaraní"
+msgstr "Guaraní"
 
 #. name for gro
 msgid "Groma"
-msgstr ""
+msgstr "Groma"
 
 #. name for grq
 msgid "Gorovu"
-msgstr ""
+msgstr "Gorovu"
 
 #. name for grr
 msgid "Taznatit"
-msgstr ""
+msgstr "Taznatit"
 
 #. name for grs
 msgid "Gresi"
-msgstr ""
+msgstr "Gresi"
 
 #. name for grt
 msgid "Garo"
-msgstr ""
+msgstr "Garo"
 
 #. name for gru
 msgid "Kistane"
-msgstr ""
+msgstr "Gurage; septentrional"
 
 #. name for grv
 msgid "Grebo; Central"
@@ -8776,11 +8776,11 @@ msgstr "Grebo; central"
 
 #. name for grw
 msgid "Gweda"
-msgstr ""
+msgstr "Gweda"
 
 #. name for grx
 msgid "Guriaso"
-msgstr ""
+msgstr "Guriaso"
 
 #. name for gry
 msgid "Grebo; Barclayville"
@@ -8788,7 +8788,7 @@ msgstr "Grebo; Barclayville"
 
 #. name for grz
 msgid "Guramalum"
-msgstr ""
+msgstr "Guramalum"
 
 #. name for gse
 msgid "Ghanaian Sign Language"
@@ -8800,7 +8800,7 @@ msgstr "Llenguatge de signes alemany"
 
 #. name for gsl
 msgid "Gusilay"
-msgstr ""
+msgstr "Gusilay"
 
 #. name for gsm
 msgid "Guatemalan Sign Language"
@@ -8808,7 +8808,7 @@ msgstr "Llenguatge de signes guatemaltec"
 
 #. name for gsn
 msgid "Gusan"
-msgstr ""
+msgstr "Gusan"
 
 #. name for gso
 msgid "Gbaya; Southwest"
@@ -8816,7 +8816,7 @@ msgstr "Gbaya; Sudoccidental"
 
 #. name for gsp
 msgid "Wasembo"
-msgstr ""
+msgstr "Wasembo"
 
 #. name for gss
 msgid "Greek Sign Language"
@@ -8828,23 +8828,23 @@ msgstr "Alemany; suís"
 
 #. name for gta
 msgid "Guató"
-msgstr ""
+msgstr "Guató"
 
 #. name for gti
 msgid "Gbati-ri"
-msgstr ""
+msgstr "Gbati-ri"
 
 #. name for gua
 msgid "Shiki"
-msgstr ""
+msgstr "Shiki"
 
 #. name for gub
 msgid "Guajajára"
-msgstr ""
+msgstr "Guajajara"
 
 #. name for guc
 msgid "Wayuu"
-msgstr ""
+msgstr "Guajiro"
 
 #. name for gud
 msgid "Dida; Yocoboué"
@@ -8852,23 +8852,23 @@ msgstr "Dida; Yocoboué"
 
 #. name for gue
 msgid "Gurinji"
-msgstr ""
+msgstr "Gurindji"
 
 #. name for guf
 msgid "Gupapuyngu"
-msgstr ""
+msgstr "Gupapuyngu"
 
 #. name for gug
 msgid "Guaraní; Paraguayan"
-msgstr ""
+msgstr "Guaraní; paraguaià"
 
 #. name for guh
 msgid "Guahibo"
-msgstr ""
+msgstr "Guahibo"
 
 #. name for gui
 msgid "Guaraní; Eastern Bolivian"
-msgstr ""
+msgstr "Guaraní; bolivià oriental"
 
 #. name for guj
 msgid "Gujarati"
@@ -8876,7 +8876,7 @@ msgstr "gujarati"
 
 #. name for guk
 msgid "Gumuz"
-msgstr ""
+msgstr "Gumús"
 
 #. name for gul
 msgid "Creole English; Sea Island"
@@ -8884,27 +8884,27 @@ msgstr "Anglès crioll; Sea Island"
 
 #. name for gum
 msgid "Guambiano"
-msgstr ""
+msgstr "Guambià"
 
 #. name for gun
 msgid "Guaraní; Mbyá"
-msgstr ""
+msgstr "Guaraní; Mbyà"
 
 #. name for guo
 msgid "Guayabero"
-msgstr ""
+msgstr "Guayabero"
 
 #. name for gup
 msgid "Gunwinggu"
-msgstr ""
+msgstr "Gunwinggu"
 
 #. name for guq
 msgid "Aché"
-msgstr ""
+msgstr "Aché"
 
 #. name for gur
 msgid "Farefare"
-msgstr ""
+msgstr "Gurenne"
 
 #. name for gus
 msgid "Guinean Sign Language"
@@ -8912,67 +8912,67 @@ msgstr "Llenguatge de signes guineà"
 
 #. name for gut
 msgid "Maléku Jaíka"
-msgstr ""
+msgstr "Guatuso"
 
 #. name for guu
 msgid "Yanomamö"
-msgstr ""
+msgstr "Guaharibo"
 
 #. name for guv
 msgid "Gey"
-msgstr ""
+msgstr "Gey"
 
 #. name for guw
 msgid "Gun"
-msgstr ""
+msgstr "Gun-Gbe"
 
 #. name for gux
 msgid "Gourmanchéma"
-msgstr ""
+msgstr "Gourmanchéma"
 
 #. name for guz
 msgid "Gusii"
-msgstr ""
+msgstr "Gusí"
 
 #. name for gva
 msgid "Guana (Paraguay)"
-msgstr ""
+msgstr "Guana (Paraguai)"
 
 #. name for gvc
 msgid "Guanano"
-msgstr ""
+msgstr "Guanano"
 
 #. name for gve
 msgid "Duwet"
-msgstr ""
+msgstr "Duwet"
 
 #. name for gvf
 msgid "Golin"
-msgstr ""
+msgstr "Golin"
 
 #. name for gvj
 msgid "Guajá"
-msgstr ""
+msgstr "Guajà"
 
 #. name for gvl
 msgid "Gulay"
-msgstr ""
+msgstr "Gulay"
 
 #. name for gvm
 msgid "Gurmana"
-msgstr ""
+msgstr "Gurmana"
 
 #. name for gvn
 msgid "Kuku-Yalanji"
-msgstr ""
+msgstr "Kuku; Yalanji"
 
 #. name for gvo
 msgid "Gavião Do Jiparaná"
-msgstr ""
+msgstr "Gaviao Jiparanà"
 
 #. name for gvp
 msgid "Gavião; Pará"
-msgstr ""
+msgstr "Gaviao Parà"
 
 #. name for gvr
 msgid "Gurung; Western"
@@ -8980,75 +8980,75 @@ msgstr "Gurung; occidental"
 
 #. name for gvs
 msgid "Gumawana"
-msgstr ""
+msgstr "Gumawana"
 
 #. name for gvy
 msgid "Guyani"
-msgstr ""
+msgstr "Guyani"
 
 #. name for gwa
 msgid "Mbato"
-msgstr ""
+msgstr "Mbato"
 
 #. name for gwb
 msgid "Gwa"
-msgstr ""
+msgstr "Gwa"
 
 #. name for gwc
 msgid "Kalami"
-msgstr ""
+msgstr "Kalami"
 
 #. name for gwd
 msgid "Gawwada"
-msgstr ""
+msgstr "Gawwada"
 
 #. name for gwe
 msgid "Gweno"
-msgstr ""
+msgstr "Gweno"
 
 #. name for gwf
 msgid "Gowro"
-msgstr ""
+msgstr "Gowro"
 
 #. name for gwg
 msgid "Moo"
-msgstr ""
+msgstr "Moo"
 
 #. name for gwi
 msgid "Gwichʼin"
-msgstr ""
+msgstr "Gwichin"
 
 #. name for gwj
 msgid "/Gwi"
-msgstr ""
+msgstr "Gwi"
 
 #. name for gwn
 msgid "Gwandara"
-msgstr ""
+msgstr "Gwandara"
 
 #. name for gwr
 msgid "Gwere"
-msgstr ""
+msgstr "Gwere"
 
 #. name for gwt
 msgid "Gawar-Bati"
-msgstr ""
+msgstr "Gawar-Bati"
 
 #. name for gwu
 msgid "Guwamu"
-msgstr ""
+msgstr "Guwamu"
 
 #. name for gww
 msgid "Kwini"
-msgstr ""
+msgstr "Goonan"
 
 #. name for gwx
 msgid "Gua"
-msgstr ""
+msgstr "Gua"
 
 #. name for gxx
 msgid "Wè Southern"
-msgstr ""
+msgstr "We; meridional"
 
 #. name for gya
 msgid "Gbaya; Northwest"
@@ -9056,35 +9056,35 @@ msgstr "Gbaya; Nordoccidental"
 
 #. name for gyb
 msgid "Garus"
-msgstr ""
+msgstr "Garus"
 
 #. name for gyd
 msgid "Kayardild"
-msgstr ""
+msgstr "Gayardilt"
 
 #. name for gye
 msgid "Gyem"
-msgstr ""
+msgstr "Gyem"
 
 #. name for gyf
 msgid "Gungabula"
-msgstr ""
+msgstr "Gungabula"
 
 #. name for gyg
 msgid "Gbayi"
-msgstr ""
+msgstr "Gbayi"
 
 #. name for gyi
 msgid "Gyele"
-msgstr ""
+msgstr "Gyele"
 
 #. name for gyl
 msgid "Gayil"
-msgstr ""
+msgstr "Galila"
 
 #. name for gym
 msgid "Ngäbere"
-msgstr ""
+msgstr "Ngabere"
 
 #. name for gyn
 msgid "Creole English; Guyanese"
@@ -9092,27 +9092,27 @@ msgstr "Creole English; Guyana"
 
 #. name for gyr
 msgid "Guarayu"
-msgstr ""
+msgstr "Guaraiú"
 
 #. name for gyy
 msgid "Gunya"
-msgstr ""
+msgstr "Gunya"
 
 #. name for gza
 msgid "Ganza"
-msgstr ""
+msgstr "Ganza"
 
 #. name for gzi
 msgid "Gazi"
-msgstr ""
+msgstr "Gazi"
 
 #. name for gzn
 msgid "Gane"
-msgstr ""
+msgstr "Gane"
 
 #. name for haa
 msgid "Han"
-msgstr ""
+msgstr "Han"
 
 #. name for hab
 msgid "Hanoi Sign Language"
@@ -9120,11 +9120,11 @@ msgstr "Llenguatge de signes de Hanoi"
 
 #. name for hac
 msgid "Gurani"
-msgstr ""
+msgstr "Hawrami"
 
 #. name for had
 msgid "Hatam"
-msgstr ""
+msgstr "Hatam"
 
 #. name for hae
 msgid "Oromo; Eastern"
@@ -9136,19 +9136,19 @@ msgstr "Llenguatge de signes Haipong"
 
 #. name for hag
 msgid "Hanga"
-msgstr ""
+msgstr "Hanga"
 
 #. name for hah
 msgid "Hahon"
-msgstr ""
+msgstr "Hahon"
 
 #. name for hai
 msgid "Haida"
-msgstr ""
+msgstr "Haida"
 
 #. name for haj
 msgid "Hajong"
-msgstr ""
+msgstr "Hajong"
 
 #. name for hak
 msgid "Chinese; Hakka"
@@ -9156,11 +9156,11 @@ msgstr "Xinès; Hakka"
 
 #. name for hal
 msgid "Halang"
-msgstr ""
+msgstr "Halang"
 
 #. name for ham
 msgid "Hewa"
-msgstr ""
+msgstr "Hewa"
 
 #. name for han
 msgid "Hangaza"
@@ -18216,7 +18216,7 @@ msgstr ""
 
 #. name for nhd
 msgid "Guaraní; Ava"
-msgstr ""
+msgstr "Guaraní; Ava"
 
 #. name for nhe
 msgid "Nahuatl; Eastern Huasteca"
@@ -22916,7 +22916,7 @@ msgstr ""
 
 #. name for sgw
 msgid "Sebat Bet Gurage"
-msgstr ""
+msgstr "Gurage; occidental"
 
 #. name for sgx
 msgid "Sierra Leone Sign Language"
@@ -26588,7 +26588,7 @@ msgstr ""
 
 #. name for ugb
 msgid "Kuku-Ugbanh"
-msgstr ""
+msgstr "Kuku; Ugbanh"
 
 #. name for uge
 msgid "Ughele"
@@ -26984,7 +26984,7 @@ msgstr ""
 
 #. name for uwa
 msgid "Kuku-Uwanh"
-msgstr ""
+msgstr "Kuku; Uwanh"
 
 #. name for uya
 msgid "Doko-Uyanga"
@@ -27564,7 +27564,7 @@ msgstr ""
 
 #. name for wec
 msgid "Wè Western"
-msgstr ""
+msgstr "We; occidental"
 
 #. name for wed
 msgid "Wedau"
@@ -27932,7 +27932,7 @@ msgstr ""
 
 #. name for wob
 msgid "Wè Northern"
-msgstr ""
+msgstr "We; septentrional"
 
 #. name for woc
 msgid "Wogeo"
@@ -28716,7 +28716,7 @@ msgstr ""
 
 #. name for xmh
 msgid "Kuku-Muminh"
-msgstr ""
+msgstr "Kuku: Muminh"
 
 #. name for xmj
 msgid "Majera"
@@ -28744,11 +28744,11 @@ msgstr ""
 
 #. name for xmp
 msgid "Kuku-Mu'inh"
-msgstr ""
+msgstr "Kuku; Mu'inh"
 
 #. name for xmq
 msgid "Kuku-Mangk"
-msgstr ""
+msgstr "Kuku; Mangk"
 
 #. name for xmr
 msgid "Meroitic"

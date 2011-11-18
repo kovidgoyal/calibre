@@ -118,8 +118,20 @@ class CSSFlattener(object):
 
     def __call__(self, oeb, context):
         oeb.logger.info('Flattening CSS and remapping font sizes...')
+        self.context = self.opts =context
         self.oeb = oeb
-        self.context = context
+
+        self.filter_css = frozenset()
+        if self.opts.filter_css:
+            try:
+                self.filter_css = frozenset([x.strip().lower() for x in
+                    self.opts.filter_css.split(',')])
+            except:
+                self.oeb.log.warning('Failed to parse filter_css, ignoring')
+            else:
+                self.oeb.log.debug('Filtering CSS properties: %s'%
+                    ', '.join(self.filter_css))
+
         self.stylize_spine()
         self.sbase = self.baseline_spine() if self.fbase else None
         self.fmap = FontMapper(self.sbase, self.fbase, self.fkey)
@@ -280,6 +292,10 @@ class CSSFlattener(object):
             self.oeb.logger.exception('Failed to set minimum line-height')
 
         if cssdict:
+            for x in self.filter_css:
+                cssdict.pop(x, None)
+
+        if cssdict:
             if self.lineh and self.fbase and tag != 'body':
                 self.clean_edges(cssdict, style, psize)
             margin = asfloat(style['margin-left'], 0)
@@ -310,7 +326,6 @@ class CSSFlattener(object):
         if self.lineh and 'line-height' not in cssdict:
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh
-
 
         if (self.context.remove_paragraph_spacing or
                 self.context.insert_blank_line) and tag in ('p', 'div'):

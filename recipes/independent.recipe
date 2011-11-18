@@ -49,7 +49,7 @@ class TheIndependentNew(BasicNewsRecipe):
     preprocess_regexps      = [
                                 (re.compile('<span class="storyTop ">(?P<nested>.*?)</span>', re.DOTALL),
                                 lambda match: '<div class="storyTop">' + match.group('nested') + '</div>'),
-                                (re.compile('<strong>.*?Click.*?to view graphic.*?</strong>', re.DOTALL),
+                                (re.compile('(<strong>.*?[Cc]lick.*?<a.*?((HERE)|([Hh]ere)).*?</strong>)', re.DOTALL),
                                 lambda match: '<div class="article-graphic">' + match.group(0) + '</div>'),
                               ]
 
@@ -103,6 +103,14 @@ class TheIndependentNew(BasicNewsRecipe):
         return url
 
     def preprocess_html(self, soup):
+
+        #remove 'advertorial articles'
+        strapline = soup.find('div',attrs={'class' : re.compile('.*strapLine.*')})
+        if strapline:
+            for para in strapline.findAll('p'):
+                if len(para.contents) and isinstance(para.contents[0],NavigableString) \
+                and para.contents[0] == 'ADVERTORIAL FEATURE':
+                    return None
 
         items_to_extract = []
 
@@ -189,9 +197,14 @@ class TheIndependentNew(BasicNewsRecipe):
 
         #remove empty paragraph tags in storyTop which can leave a space
         #between first paragraph and rest of story
+        nested_content = False
         storyTop = soup.find('div',attrs={ 'class' : ['storyTop']})
         for item in storyTop.findAll('p'):
-            if item.contents is not None and len(item.contents[0]) <= 1 :
+            for nested in item:
+                if isinstance(nested, Tag):
+                    nested_content = True
+                    break
+            if not nested_content and item.contents is not None and len(item.contents[0]) <= 1 :
                 items_to_extract.append(item)
 
         for item in items_to_extract:
@@ -211,6 +224,8 @@ class TheIndependentNew(BasicNewsRecipe):
             items_to_insert = []
             for item in soup.findAll('div', attrs={'class' : ['article-graphic']}):
                 strong = item.find('strong')
+                if not strong:
+                    continue
                 for child in strong:
                     if isinstance(child,Tag):
                         if str(child.name) == 'a':
