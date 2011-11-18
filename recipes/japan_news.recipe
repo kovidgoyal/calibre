@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class NewsOnJapan(BasicNewsRecipe):
     title          = u'News On Japan'
@@ -14,6 +13,6 @@ class NewsOnJapan(BasicNewsRecipe):
 
 
     feeds          = [
-('News', 
+('News',
  'http://newsonjapan.com/rss/top.xml'),
 ]
