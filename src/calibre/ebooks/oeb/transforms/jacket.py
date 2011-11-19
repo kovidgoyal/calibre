@@ -16,6 +16,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, XHTML
 from calibre.library.comments import comments_to_html
 from calibre.utils.date import is_date_undefined
+from calibre.ebooks.chardet import strip_encoding_declarations
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
@@ -180,10 +181,14 @@ def render_jacket(mi, output_profile,
             except:
                 pass
 
+        args['_genre_label'] = args.get('_genre_label', '')
+        args['_genre'] = args.get('_genre', '')
+
         generated_html = P('jacket/template.xhtml',
                 data=True).decode('utf-8').format(**args)
 
         # Post-process the generated html to strip out empty header items
+
         soup = BeautifulSoup(generated_html)
         if not series:
             series_tag = soup.find(attrs={'class':'cbj_series'})
@@ -206,7 +211,8 @@ def render_jacket(mi, output_profile,
             if hr_tag is not None:
                 hr_tag.extract()
 
-        return soup.renderContents(None)
+        return strip_encoding_declarations(
+                soup.renderContents('utf-8').decode('utf-8'))
 
     from calibre.ebooks.oeb.base import RECOVER_PARSER
 
