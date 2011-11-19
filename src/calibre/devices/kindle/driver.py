@@ -388,13 +388,9 @@ class KINDLE_FIRE(KINDLE2):
 
     EBOOK_DIR_MAIN = 'Documents'
     SUPPORTS_SUB_DIRS = False
+    SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS_FOR_SCAN = True
     VENDOR_NAME = 'AMAZON'
     WINDOWS_MAIN_MEM = 'KINDLE'
-
-    def get_main_ebook_dir(self, for_upload=False):
-        if for_upload:
-            return self.EBOOK_DIR_MAIN
-        return ''
-
 
 
