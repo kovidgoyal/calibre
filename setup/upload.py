@@ -6,7 +6,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, re, cStringIO, base64, httplib, subprocess, hashlib, shutil, time, \
-    glob, stat
+    glob, stat, sys
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp
 from zipfile import ZipFile
@@ -58,6 +58,47 @@ class ReUpload(Command): # {{{
                 os.remove(x)
 # }}}
 
+class ReadFileWithProgressReporting(file): # {{{
+
+    def __init__(self, path, mode='rb'):
+        file.__init__(self, path, mode)
+        self.seek(0, os.SEEK_END)
+        self._total = self.tell()
+        self.seek(0)
+        self.start_time = time.time()
+
+    def __len__(self):
+        return self._total
+
+    def read(self, size):
+        data = file.read(self, size)
+        if data:
+            self.report_progress(len(data))
+        return data
+
+    def report_progress(self, size):
+        sys.stdout.write(b'\x1b[s')
+        sys.stdout.write(b'\x1b[K')
+        frac = float(self.tell())/self._total
+        mb_pos = self.tell()/float(1024**2)
+        mb_tot = self._total/float(1024**2)
+        kb_pos = self.tell()/1024.0
+        kb_rate = kb_pos/(time.time()-self.start_time)
+        bit_rate = kb_rate * 1024
+        eta = int((self._total - self.tell())/bit_rate) + 1
+        eta_m, eta_s = eta / 60, eta % 60
+        sys.stdout.write(
+            '  %.1f%%   %.1f/%.1fMB %.1f KB/sec    %d minutes, %d seconds left'%(
+                frac*100, mb_pos, mb_tot, kb_rate, eta_m, eta_s))
+        sys.stdout.write(b'\x1b[u')
+        if self.tell() >= self._total:
+            sys.stdout.write('\n')
+            t = int(time.time() - self.start_time) + 1
+            print ('Upload took %d minutes and %d seconds at %.1f KB/sec' % (
+                t/60, t%60, kb_rate))
+        sys.stdout.flush()
+# }}}
+
 class UploadToGoogleCode(Command): # {{{
 
     USERNAME = 'kovidgoyal'
@@ -92,7 +133,7 @@ class UploadToGoogleCode(Command): # {{{
             self.upload_one(src)
 
     def upload_one(self, fname):
-        self.info('Uploading', fname)
+        self.info('\nUploading', fname)
         typ = 'Type-' + ('Source' if fname.endswith('.gz') else 'Archive' if
                 fname.endswith('.zip') else 'Installer')
         ext = os.path.splitext(fname)[1][1:]
@@ -102,7 +143,7 @@ class UploadToGoogleCode(Command): # {{{
         start = time.time()
         path = self.upload(os.path.abspath(fname), desc,
                 labels=[typ, op, 'Featured'])
-        self.info('\tUploaded to:', path, 'in', int(time.time() - start),
+        self.info('Uploaded to:', path, 'in', int(time.time() - start),
                 'seconds')
         return path
 
@@ -198,9 +239,8 @@ class UploadToGoogleCode(Command): # {{{
 
         # Now add the file itself
         file_name = os.path.basename(file_path)
-        f = open(file_path, 'rb')
-        file_content = f.read()
-        f.close()
+        with open(file_path, 'rb') as f:
+            file_content = f.read()
 
         body.extend(
             ['--' + BOUNDARY,
@@ -230,10 +270,17 @@ class UploadToGoogleCode(Command): # {{{
             'Content-Type': content_type,
             }
 
-        server = httplib.HTTPSConnection(self.UPLOAD_HOST)
-        server.request('POST', upload_uri, body, headers)
-        resp = server.getresponse()
-        server.close()
+        with NamedTemporaryFile(delete=False) as f:
+            f.write(body)
+
+        try:
+            body = ReadFileWithProgressReporting(f.name)
+            server = httplib.HTTPSConnection(self.UPLOAD_HOST)
+            server.request('POST', upload_uri, body, headers)
+            resp = server.getresponse()
+            server.close()
+        finally:
+            os.remove(f.name)
 
         if resp.status == 201:
             return resp.getheader('Location')
@@ -265,7 +312,7 @@ class UploadToSourceForge(Command): # {{{
             if not os.path.exists(x): continue
             start = time.time()
             self.info('Uploading', x)
-            check_call(['rsync', '-v', '-e', 'ssh -x', x,
+            check_call(['rsync', '-z', '--progress', '-e', 'ssh -x', x,
                 '%s,%s@frs.sourceforge.net:%s'%(self.USERNAME, self.PROJECT,
                     self.rdir+'/')])
             print 'Uploaded in', int(time.time() - start), 'seconds'
@@ -376,7 +423,8 @@ class UploadUserManual(Command): # {{{
         for x in glob.glob(self.j(path, '*')):
             self.build_plugin_example(x)
 
-        check_call(' '.join(['scp', '-r', 'src/calibre/manual/.build/html/*',
+        check_call(' '.join(['rsync', '-z', '-r', '--progress',
+            'src/calibre/manual/.build/html/',
                     'bugs:%s'%USER_MANUAL]), shell=True)
 # }}}
 
