@@ -12539,7 +12539,7 @@ msgstr "За&грузить метаданные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:226
 msgid "Configure download metadata"
-msgstr ""
+msgstr "Настроить загрузку метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:230
 msgid "Change how calibre downloads metadata"
@@ -12595,7 +12595,7 @@ msgstr "&Пользовательские метаданные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:788
 msgid "&Comments"
-msgstr "Комментарии"
+msgstr "&Комментарии"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:854
 msgid "Basic metadata"
@@ -12603,11 +12603,11 @@ msgstr "Основные метаданные"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 msgid "Has cover"
-msgstr "Есть обложка"
+msgstr "Обложка"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:133
 msgid "Has summary"
-msgstr ""
+msgstr "Аннотация"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:190
 msgid ""
@@ -12619,7 +12619,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:268
 msgid "See at"
-msgstr ""
+msgstr "Посмотреть на"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:403
 msgid "calibre is downloading metadata from: "
