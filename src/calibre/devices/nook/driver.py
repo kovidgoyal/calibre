@@ -81,7 +81,7 @@ class NOOK(USBMS):
         return [x.replace('#', '_') for x in components]
 
 class NOOK_COLOR(NOOK):
-    description    = _('Communicate with the Nook Color and TSR eBook readers.')
+    description    = _('Communicate with the Nook Color, TSR and Tablet eBook readers.')
 
     PRODUCT_ID  = [0x002, 0x003, 0x004]
     BCD         = [0x216]

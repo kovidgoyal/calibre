@@ -291,6 +291,11 @@ def clean_date_for_sort(dt, format):
     if not isinstance(dt, datetime):
         dt = datetime.combine(dt, time())
 
+    if hasattr(dt, 'tzinfo'):
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=_local_tz)
+        dt = as_local_time(dt)
+
     if format == 'iso':
         format = 'yyMdhms'
 

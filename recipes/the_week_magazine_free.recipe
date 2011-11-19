@@ -5,7 +5,6 @@ www.theweek.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class TheWeek(BasicNewsRecipe):
     title                 = 'The Week Magazine'
@@ -21,23 +20,7 @@ class TheWeek(BasicNewsRecipe):
     encoding              = 'utf-8'
     use_embedded_content  = False
     language              = 'en'
-    preprocess_regexps      = [(re.compile(r'<h3><a href=.*</body>', re.DOTALL), lambda match: '</body>')]
-    remove_tags_before    = dict(name='h1')
-    remove_tags_after     = dict(name='div', attrs={'class':'articleSubscribe4free'})
-    remove_tags           = [
-                              dict(name='div', attrs={'class':['floatLeft','imageCaption','slideshowImageAttribution','postDate','utilities','cartoonInfo','left','middle','col300','articleSubscribe4free',' articleFlyout','articleFlyout floatRight','fourFreeBar']})
-                             ,dict(name='div', attrs={'id':['cartoonThumbs','rightColumn','header','partners']})
-                             ,dict(name='ul', attrs={'class':['slideshowNav','hotTopicsList topicList']})
-                              ]
-    remove_attributes     = ['width','height', 'style', 'font', 'color']
-    extra_css = '''
-                h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
-                h3{font-size: 14px;color:#999999; font-family:Geneva, Arial, Helvetica, sans-serif;font-weight: bold;}
-                h2{color:#666666; font-family:Geneva, Arial, Helvetica, sans-serif;font-size:small;}
-                p {font-family:Arial,Helvetica,sans-serif;}
-                '''
-    filter_regexps = [r'www\.palmcoastdata\.com']
-
+    auto_cleanup = True
     feeds          =  [
                (u'News-Opinion', u'http://theweek.com/section/index/news_opinion.rss'),
                (u'Business', u'http://theweek.com/section/index/business.rss'),

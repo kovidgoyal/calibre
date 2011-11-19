@@ -710,7 +710,8 @@ class Metadata(object):
             fmt('Title sort', self.title_sort)
         if self.authors:
             fmt('Author(s)',  authors_to_string(self.authors) + \
-               ((' [' + self.author_sort + ']') if self.author_sort else ''))
+               ((' [' + self.author_sort + ']') 
+                if self.author_sort and self.author_sort != _('Unknown') else ''))
         if self.publisher:
             fmt('Publisher', self.publisher)
         if getattr(self, 'book_producer', False):
