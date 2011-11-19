@@ -176,14 +176,14 @@ def render_jacket(mi, output_profile,
             try:
                 display_name, val = mi.format_field_extended(key)[:2]
                 key = key.replace('#', '_')
-                args[key] = val
-                args[key+'_label'] = display_name
+                args[key] = escape(val)
+                args[key+'_label'] = escape(display_name)
             except:
                 pass
 
         # Used in the comment describing use of custom columns in templates
-        args['_genre_label'] = args.get('_genre_label', '')
-        args['_genre'] = args.get('_genre', '')
+        args['_genre_label'] = args.get('_genre_label', '{_genre_label}')
+        args['_genre'] = args.get('_genre', '{_genre}')
 
         generated_html = P('jacket/template.xhtml',
                 data=True).decode('utf-8').format(**args)
