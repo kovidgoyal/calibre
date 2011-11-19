@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-11-14 17:33+0000\n"
+"PO-Revision-Date: 2011-11-19 03:17+0000\n"
 "Last-Translator: SteliosGero <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-18 04:59+0000\n"
+"X-Launchpad-Export-Date: 2011-11-19 04:58+0000\n"
 "X-Generator: Launchpad (build 14299)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4902,7 +4902,7 @@ msgstr "Μετατροπή βιβλίων"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:30
 msgid "Convert individually"
-msgstr "Μεμονωμένη μετατροπή"
+msgstr "Μετατροπή ενός"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/convert.py:33
 msgid "Bulk convert"
@@ -5034,7 +5034,7 @@ msgstr "Διαγραφή όλων των τύπων από τα επιλεγμέ
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:104
 msgid "Remove covers from selected books"
-msgstr ""
+msgstr "Διαγραφή εξώφυλλων από τα επιλεγμένα βιβλία"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:108
 msgid "Remove matching books from device"
@@ -5634,13 +5634,13 @@ msgstr "Αναζήτηση για αυτό το(ν) %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:110
 msgid "Stores"
-msgstr ""
+msgstr "Καταστήματα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_dialog.py:18
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search.py:285
 msgid "Choose stores"
-msgstr ""
+msgstr "Επιλέξτε καταστήματα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:106
@@ -5715,7 +5715,7 @@ msgstr "Επιλογή τύπου αρχείου και προβολή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:50
 msgid "Read a random book"
-msgstr ""
+msgstr "Διαβάστε ένα βιβλίο στην τύχη"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:55
 msgid "Clear recently viewed list"
@@ -5780,7 +5780,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:246
 msgid "Adding..."
-msgstr ""
+msgstr "Γίνεται προσθήκη..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:259
 msgid "Searching in all sub-directories..."
@@ -6009,7 +6009,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:121
 msgid "Click to open"
-msgstr ""
+msgstr "Κάντε κλικ για να ανοίξει"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:136
 msgid "Ids"
@@ -10034,7 +10034,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:218
 msgid "&Schedule"
-msgstr ""
+msgstr "&Προγραμματισμός"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:219
 msgid "Add &title as tag"
@@ -14425,7 +14425,7 @@ msgstr "Περιγρα&φή:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:222
 msgid "&Headquarters:"
-msgstr ""
+msgstr "&Έδρα:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:226
 msgid "Enabled:"
@@ -14471,7 +14471,7 @@ msgstr "Ερώτημα:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:81
 msgid "Enable"
-msgstr "Ενεργοποίηση"
+msgstr "Επιλογή"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:137
@@ -14490,7 +14490,7 @@ msgstr "Ενεργό"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "Headquarters"
-msgstr ""
+msgstr "Έδρα"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:21
 msgid "No DRM"
@@ -15123,7 +15123,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:198
 msgid "&Donate to support calibre"
-msgstr ""
+msgstr "&Κάντε μια δωρεά για να υποστηρίξτε το calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:234
 msgid "&Restore"
@@ -15837,7 +15837,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:47
 msgid "Welcome to calibre"
-msgstr "Καλώς  ήρθατε στο calibre"
+msgstr "Καλώς ήρθατε στο calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:48

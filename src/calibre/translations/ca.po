@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-11-13 13:04+0000\n"
+"PO-Revision-Date: 2011-11-18 16:21+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-18 04:56+0000\n"
+"X-Launchpad-Export-Date: 2011-11-19 04:55+0000\n"
 "X-Generator: Launchpad (build 14299)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -863,7 +863,7 @@ msgstr "Aquest perfil és adient per a l'Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Aquest perfil és adient per a l'Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -1524,7 +1524,7 @@ msgstr "Comunica't amb un lector Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Comunica't amb el Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -5674,17 +5674,17 @@ msgstr "Memòria principal"
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:520
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:529
 msgid "Storage Card A"
-msgstr "Tarja de memòria A"
+msgstr "Targeta de memòria A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:221
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:522
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:531
 msgid "Storage Card B"
-msgstr "Tarja de memòria B"
+msgstr "Targeta de memòria B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:226
 msgid "No books to delete"
-msgstr "Cap llibre per esborrar"
+msgstr "No hi ha cap llibre per suprimir"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:227
 msgid "None of the selected books are on the device"
@@ -6487,7 +6487,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid "Duplicates found!"
-msgstr "N'he trobat de repetits!"
+msgstr "S'ha trobat duplicats!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:388
 msgid ""
@@ -8252,7 +8252,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
 msgid "Convert"
-msgstr "Converteix"
+msgstr "Conversió"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:200
 msgid "Options specific to the input format."
@@ -9742,15 +9742,15 @@ msgstr "Treballs actius"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:33
 msgid "Find next match"
-msgstr ""
+msgstr "Troba la coincidència següent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
-msgstr ""
+msgstr "&Cerca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Find previous match"
-msgstr ""
+msgstr "Troba la coincidència anterior"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:54
 msgid "&Stop selected jobs"
@@ -9758,7 +9758,7 @@ msgstr "&Atura les tasques seleccionades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:58
 msgid "&Hide selected jobs"
-msgstr ""
+msgstr "&Amaga les tasques seleccionades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
@@ -9766,7 +9766,7 @@ msgstr "Mostra &detalls de la tasca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:66
 msgid "Show &all jobs"
-msgstr ""
+msgstr "Mostra &totes les tasques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:70
 msgid "Stop &all non device jobs"
@@ -9774,7 +9774,7 @@ msgstr "Atura &totes les tasques que no són de dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr ""
+msgstr "&Amaga totes les tasques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
@@ -10130,10 +10130,15 @@ msgid ""
 "to restore the EPUB from ORIGINAL_EPUB. Useful if you did a bulk conversion "
 "of a large number of books and something went wrong."
 msgstr ""
+"En fer una conversió al mateix format, per exemple d'EPUB a EPUB, el calibre "
+"desa l'EPUB original com a ORIGINAL_EPUB. Aquesta opció li diu al calibre "
+"que restauri l'EPUB a partir d'ORIGINAL_EPUB. És útil si s'ha fet una "
+"conversió en massa d'un gran nombre de llibres i quelcom ha fallat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:259
 msgid "Restore pre conversion &originals, if available"
 msgstr ""
+"Restaura els &originals d'abans de la conversió, si estan disponibles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:268
 msgid ""
@@ -12204,7 +12209,7 @@ msgstr " - Tasques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:544
 msgid "Search for a job by name"
-msgstr ""
+msgstr "Cerca una tasca pel nom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:615
@@ -16674,7 +16679,7 @@ msgstr "Estableix l'ordre de les entrades a l'explorador d'etiquetes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:370
 msgid "Match all"
-msgstr "Fes-ho coincidir tot"
+msgstr "Coincidència amb tot"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:370
 msgid "Match any"
@@ -19677,7 +19682,7 @@ msgstr "Llibres a la biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:277
 msgid "By "
-msgstr "De "
+msgstr "Per "
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:278
 msgid "Books sorted by "
@@ -21529,6 +21534,40 @@ msgid ""
 "timestamp default if not set: dd MMM yyyy\n"
 "last_modified_display_format if not set: dd MMM yyyy"
 msgstr ""
+"El format que s'utilitzarà per a la data de publicació i la marca horària "
+"(date).\n"
+"La cadena que controla com es visualitza la data de publicació a la "
+"interfície\n"
+"gràfica.\n"
+"«d»: el dia com a nombre sense zero inicial (1 a 31)\n"
+"«dd»: el dia com a nombre amb zero inicial (01 a 31)\n"
+"«ddd»: el nom del dia abreujat en l'idioma local («Dil» a «Diu»)\n"
+"«dddd»: el nom del dia complet en l'idioma local («Dilluns» a «Divendres»)\n"
+"«M»: el mes com a nombre sense zero inicial (1 a 12)\n"
+"«MM»: el mes com a nombre amb zero inicial (01 a 12)\n"
+"«MMM»: el nom del mes abreujat el l'idioma local («Gen» a «Des»)\n"
+"«MMMM»: el nom del mes complet en l'idioma local («Gener» a «Desembre»)\n"
+"«yy»: l'any com a nombre de dues xifres (00 a 99)\n"
+"«yyyy»: l'any com a nombre de quatre xifres\n"
+"«h»: l'hora sense zero inicial (0 a 11 o 0 a 23 depenent del format)\n"
+"«hh» l'hora amb zero inicial (00 a 11 o 00 a 23 depenent del format)\n"
+"«m»: els minuts sense zero inicial (0 a 59)\n"
+"«mm»: els minuts amb zero inicial (00 a 59)\n"
+"«s»: els segons sense zero inicial (0 a 59)\n"
+"«ss»: els segons amb zero inicial (00 a 59)\n"
+"«ap»: utilitza el rellotge de 12 hores enlloc del de 24 hores, «ap» es\n"
+"substitueix per la cadena en idioma local per a «am» o «pm»\n"
+"«AP»: utilitza el rellotge de 12 hores enlloc del de 24 hores, «AP» es\n"
+"substitueix per la cadena en idioma local per a «AM» o «PM»\n"
+"«iso»: la data amb l'hora i la zona horària; ha de ser l'únic format "
+"present.\n"
+"Per exemple, si es amb la data 9 de gener de 2010 els formats següents\n"
+"mostren: «MMM yyyy» ==> Gen 2010, «yyyy» ==> 2010,\n"
+"«dd MMM yyyy» ==> 09 Gen 2010, «MM/yyyy» ==> 01/2010,\n"
+"«d/M/yy» ==> 9/1/10, «yy» ==> 10.\n"
+"Format predeterminat de la publicació si no s'estableix: «MMM yyyy»\n"
+"Format predeterminat de la marca horària si no s'estableix: «dd MMM yyyy»\n"
+"Format de la data de la darrera modificació si no s'estableix: «dd MMM yyyy»"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:174
 msgid "Control sorting of titles and series in the library display"
@@ -22229,46 +22268,3 @@ msgstr ""
 "opcions\n"
 "i repetir-ho. Si s'estableix a «False» s'evita que el calibre desi el fitxer "
 "original."
-
-#~ msgid ""
-#~ "Format to be used for publication date and the timestamp (date).\n"
-#~ "A string controlling how the publication date is displayed in the GUI\n"
-#~ "d    the day as number without a leading zero (1 to 31)\n"
-#~ "dd    the day as number with a leading zero (01 to 31)\n"
-#~ "ddd    the abbreviated localized day name (e.g. 'Mon' to 'Sun').\n"
-#~ "dddd    the long localized day name (e.g. 'Monday' to 'Qt::Sunday').\n"
-#~ "M    the month as number without a leading zero (1-12)\n"
-#~ "MM    the month as number with a leading zero (01-12)\n"
-#~ "MMM    the abbreviated localized month name (e.g. 'Jan' to 'Dec').\n"
-#~ "MMMM    the long localized month name (e.g. 'January' to 'December').\n"
-#~ "yy    the year as two digit number (00-99)\n"
-#~ "yyyy    the year as four digit number\n"
-#~ "For example, given the date of 9 Jan 2010, the following formats show\n"
-#~ "MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010\n"
-#~ "MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10\n"
-#~ "publication default if not set: MMM yyyy\n"
-#~ "timestamp default if not set: dd MMM yyyy"
-#~ msgstr ""
-#~ "El format que s'utilitza per a la data de publicació i la marca horària\n"
-#~ "(data). És una cadena que controla com es mostra a la interfície\n"
-#~ "la data de publicació.\n"
-#~ "«d»: el dia com a nombre sense zero inicial (1 a 31).\n"
-#~ "«dd»: el dia com a nombre amb zero inicial (01 a 31).\n"
-#~ "«ddd»: el nom del dia abreujat en l'idioma local (per exemple «Dil» a "
-#~ "«Diu»).\n"
-#~ "«dddd»: el nom del dia complet en l'idioma local (per exemple «Dilluns» a "
-#~ "«Divendres»).\n"
-#~ "«M»: el mes com a nombre sense número inicial (1 a 12).\n"
-#~ "«MM»: el mes com a nombre amb zero inicial (01 a 12).\n"
-#~ "«MMM»: el nom del mes abreujat el l'idioma local (per exemple «Gen» a "
-#~ "«Des»).\n"
-#~ "«MMMM»: el nom del mes complet en l'idioma local (per exemple «Gener» a "
-#~ "«Desembre»).\n"
-#~ "«yy»: l'any com a nombre de dues xifres (00 a 99).\n"
-#~ "«yyyy»: l'any com a nombre de quatre xifres.\n"
-#~ "Per exemple, per a la data «9 de gener de 2010», els següents formats "
-#~ "mostren:\n"
-#~ "MMM yyyy ==> Gen 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Gen 2010\n"
-#~ "MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10\n"
-#~ "Format de la data de publicació per defecte: MMM yyyy\n"
-#~ "Format de la marca horària per defecte: dd MMM yyyy"

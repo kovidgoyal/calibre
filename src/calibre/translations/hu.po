@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-11-16 18:27+0000\n"
+"PO-Revision-Date: 2011-11-18 16:32+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-18 05:00+0000\n"
+"X-Launchpad-Export-Date: 2011-11-19 05:00+0000\n"
 "X-Generator: Launchpad (build 14299)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -847,7 +847,7 @@ msgstr "Ez az Amazon Kindle DX profilja."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Ez a Kindle Fire profilja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -1501,7 +1501,7 @@ msgstr "Kommunikáció Kindle DX eBook olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Kommunikáció a Kindle Fire-rel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -2568,6 +2568,10 @@ msgid ""
 "prevents it from being overridden on your device. For example: font-"
 "family,color,margin-left,margin-right"
 msgstr ""
+"A minden CSS szabályból eltávolítani kívánt CSS tulajdonságok vesszővel "
+"tagolt listája. Ez hasznos lehet, ha néhány stílus információt az olvasó "
+"eszköz nem tud kezelni, felülírni, vagy figyelmen kívül hagyni. Például: "
+"font-family,color,margin-left,margin-right"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:324
 msgid ""
@@ -7626,11 +7630,11 @@ msgstr "Táb&lázatok szöveggé alakítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
 msgid "Select what style information you want completely removed:"
-msgstr ""
+msgstr "Válassza ki a teljesen eltávolítani kívánt stílus-információkat:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:171
 msgid "Removes the font-family CSS property"
-msgstr ""
+msgstr "A „font-family” (betűtípus) CSS tulajdonság eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
@@ -7641,6 +7645,8 @@ msgid ""
 "Removes the margin CSS properties. Note that page margins are not affected "
 "by this setting."
 msgstr ""
+"A „margin” (margó) CSS tulajdonságok eltávolítása. Ez nem érinti az oldalra "
+"vonatkozó margó-beállításokat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:177
 msgid "&Margins"
@@ -7648,11 +7654,11 @@ msgstr "&Margók"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:181
 msgid "Removes the padding CSS properties"
-msgstr ""
+msgstr "A „padding” (belső margó) CSS tulajdonságok eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:182
 msgid "&Padding"
-msgstr ""
+msgstr "&Belső margó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:186
 msgid "Convert floating images/text into static images/text"
@@ -7664,7 +7670,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
-msgstr ""
+msgstr "Elő- és háttérszín eltávolítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:192
 msgid "&Colors"
@@ -7672,13 +7678,15 @@ msgstr "&Színek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
-msgstr ""
+msgstr "&Egyéb CSS tulajdonságok:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:202
 msgid ""
 "Comma separated list of CSS properties to remove. For example: display, "
 "color, font-family"
 msgstr ""
+"Az eltávolítani kívánt CSS tulajdonságok vesszővel tagolt listája. Például: "
+"display, color, font-family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
@@ -7686,7 +7694,7 @@ msgstr "Ki&egészítő CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:228
 msgid "&Filter Style Information"
-msgstr ""
+msgstr "&Stílus információk szűrése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -9623,15 +9631,15 @@ msgstr "Aktív műveletek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:33
 msgid "Find next match"
-msgstr ""
+msgstr "Következő találat keresése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
-msgstr ""
+msgstr "&Keresés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Find previous match"
-msgstr ""
+msgstr "Előző találat keresése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:54
 msgid "&Stop selected jobs"
@@ -9639,7 +9647,7 @@ msgstr "Kijelölt műveletek &leállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:58
 msgid "&Hide selected jobs"
-msgstr ""
+msgstr "&Kiválasztott műveletek rejtése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
@@ -9647,7 +9655,7 @@ msgstr "Műveletek &részleteinek megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:66
 msgid "Show &all jobs"
-msgstr ""
+msgstr "&Minden művelet megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:70
 msgid "Stop &all non device jobs"
@@ -9655,7 +9663,7 @@ msgstr "Összes nem eszközre von&atkozó művelet megállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr ""
+msgstr "Minden művelet &rejtése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
@@ -9802,7 +9810,7 @@ msgstr ""
 "kompatibilis reguláris kifejezés. A helyettesítő szöveg tartalmazhat "
 "visszautalásokat a zárójeles/csoport kifejezésekre a mintában. A keresés az "
 "adott szövegrészben több helyen is találatot eredményezhet. A módosító "
-"műveletek(pl. ki- és nagybetűk megkülönböztetése) a talált egyezésre "
+"műveletek(pl. kis- és nagybetűk megkülönböztetése) a talált egyezésre "
 "vonatkoznak, nem pedig a mező tartalmára. A célmező határozza meg, hogy a "
 "csere eredménye hová kerüljön. Az eredménnyel lecserélheti a célmező "
 "tartalmát illetve összefűzheti azokat az eredeti tartalommal az élen, vagy a "
@@ -10007,10 +10015,15 @@ msgid ""
 "to restore the EPUB from ORIGINAL_EPUB. Useful if you did a bulk conversion "
 "of a large number of books and something went wrong."
 msgstr ""
+"Ha azonos formátumba konvertál, például EPUB-ból EPUB-ba, akkor a calibre az "
+"eredeti EPUB fájlt ORIGINAL_EPUB néven elmenti. Ezzel az opcióval "
+"visszaállíthatja az EPUB-ot az ORIGINAL_EPUB-ból. Ez hasznos lehet, ha "
+"egyszerre több könyvet is konvertált és valami nem sikerült, szükség van a "
+"konvertálás előtti könyvre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:259
 msgid "Restore pre conversion &originals, if available"
-msgstr ""
+msgstr "Ha van, akkor a &konvertálás előtti eredeti visszaállítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:268
 msgid ""
@@ -12077,7 +12090,7 @@ msgstr " – Műveletek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:544
 msgid "Search for a job by name"
-msgstr ""
+msgstr "Művelet keresése név szerint"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:615
@@ -16099,7 +16112,7 @@ msgstr "A  gyorsítótár frissítéséhez használandó szálak száma"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:89
 msgid "Number of cover download threads to use"
-msgstr ""
+msgstr "A borító-letöltési szálak száma"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:97
 msgid "Number of details threads to use"
@@ -19344,7 +19357,7 @@ msgstr "Könyvek böngészése e szerint:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:392
 msgid "Choose a category to browse by:"
-msgstr "Válassza ki mely kategória szerint kíván böngészni:"
+msgstr "Válassza ki, mely kategória szerint kíván böngészni:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:522
 msgid "Browsing by"
@@ -21353,6 +21366,45 @@ msgid ""
 "timestamp default if not set: dd MMM yyyy\n"
 "last_modified_display_format if not set: dd MMM yyyy"
 msgstr ""
+"A kiadás dátumánál és az időbélyegnél használt formátum.\n"
+"Ez szabályozza a dátum megjelenését a kezelőfelületen.\n"
+"d – hónap napja kezdő 0 nélkül (1-től 31-ig)\n"
+"dd – a hónap napja kezdő nullával (01-től 31-ig)\n"
+"ddd – a nap rövid, beállított nyelvnek megfelelő neve (pl.: „Hét”, „Vas”)\n"
+"dddd – a nap teljes, beállított nyelvnek megfelelő neve (pl.: „Hétfő”, "
+"„Vasárnap”)\n"
+"M – a hónap száma kezdő 0 nélkül (1-től 12-ig)\n"
+"MM – a hónap száma kezdő 0-val (01-től 12-ig)\n"
+"MMM – a hónap rövid, beállított nyelvnek megfelelő neve (pl.: „Már”, „Ápr”)\n"
+"MMMM – a hónap teljes, beállított nyelvnek megfelelő neve (pl.: „Március”, "
+"„Április”)\n"
+"yy – az év utolsó két számjegye (00-tól 99-ig)\n"
+"yyyy – az év négy számjeggyel\n"
+"h – óra kezdő 0 nélkül (0-tól 11-ig vagy 0-tól 23-ig a 12/24 órás "
+"beállítástól függően)\n"
+"hh – óra kezdő 0-val (00-tól 11-ig vagy 00-tól 23-ig a 12/24 órás "
+"beállítástól függően)\n"
+"m – perc kezdő 0 nélkül (0-tól 59-ig)\n"
+"mm – perc kezdő 0-val (00-tól 59-ig)\n"
+"s – másodperc kezdő 0 nélkül (0-tól 59-ig)\n"
+"ss – másodperc kezdő 0-val (00-tól 59-ig)\n"
+"ap – 12 órás mód használata a 24 órás helyett, az „ap” helyére a „de.” vagy "
+"a „du.” fog kerülni\n"
+"AP – 12 órás mód használata a 24 órás helyett, az „AP” helyére a „DE.” vagy "
+"a „DU.” fog kerülni\n"
+"iso – dátum és idő időzónával\n"
+"Például, ha a dátum 2010. január 9.-e, akkor a formázás így alakul különböző "
+"esetekben:\n"
+"MMM yyyy ==> Jan 2010 yyyy ==> 2010 dd\n"
+"MMM yyyy ==> 09 Jan 2010\n"
+"MM/yyyy ==> 01/2010\n"
+"d/M/yy ==> 9/1/10\n"
+"yy ==> 10\n"
+"\n"
+"Alapértelmezett értékek:\n"
+"Kiadás dátuma:  MMM yyyy\n"
+"Időbélyeg: dd MMM yyyy\n"
+"Utolsó módosítás dátuma: dd MMM yyyy"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:174
 msgid "Control sorting of titles and series in the library display"
@@ -21783,7 +21835,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:329
 msgid "Choose whether dates are sorted using visible fields"
-msgstr ""
+msgstr "Csak a látható dátum mezők figyelembe vétele rendezéskor"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid ""
@@ -21791,6 +21843,13 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
+"A dátum típusú mezők tartalmazzák a dátum és az idő értéket is. Rendezéskor "
+"minden\n"
+"mező figyelembe lesz véve, függetlenül attól, hogy látszik-e, vagy sem. Ha "
+"ezt az\n"
+"értéket „True”-ra állítja, akkor a dátum mezőket csak akkor veszi figyelembe "
+"rendezésnél,\n"
+"ha az adott dátum oszlop látszik."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:335
 msgid "Specify which font to use when generating a default cover"
@@ -22026,47 +22085,3 @@ msgstr ""
 "állapotot.\n"
 "Ha a save_original_format értéke False, akkor a calibre nem menti az eredeti "
 "fájlt."
-
-#~ msgid ""
-#~ "Format to be used for publication date and the timestamp (date).\n"
-#~ "A string controlling how the publication date is displayed in the GUI\n"
-#~ "d    the day as number without a leading zero (1 to 31)\n"
-#~ "dd    the day as number with a leading zero (01 to 31)\n"
-#~ "ddd    the abbreviated localized day name (e.g. 'Mon' to 'Sun').\n"
-#~ "dddd    the long localized day name (e.g. 'Monday' to 'Qt::Sunday').\n"
-#~ "M    the month as number without a leading zero (1-12)\n"
-#~ "MM    the month as number with a leading zero (01-12)\n"
-#~ "MMM    the abbreviated localized month name (e.g. 'Jan' to 'Dec').\n"
-#~ "MMMM    the long localized month name (e.g. 'January' to 'December').\n"
-#~ "yy    the year as two digit number (00-99)\n"
-#~ "yyyy    the year as four digit number\n"
-#~ "For example, given the date of 9 Jan 2010, the following formats show\n"
-#~ "MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010\n"
-#~ "MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10\n"
-#~ "publication default if not set: MMM yyyy\n"
-#~ "timestamp default if not set: dd MMM yyyy"
-#~ msgstr ""
-#~ "A módosítás (gui_last_modified_display_format) és a \n"
-#~ "kiadás (gui_pubdate_display_format) dátumának, \n"
-#~ "valamint a időbélyegnek (gui_timestamp_display_format) \n"
-#~ "a megjelenítési formáját tudja itt beállítani.\n"
-#~ "d – hónap napja kezdő 0 nélkül (1-től 31-ig)\n"
-#~ "dd – a hónap napja kezdő nullával (01-től 31-ig)\n"
-#~ "ddd – a nap rövid, beállított nyelvnek megfelelő neve (pl.: „Hét”, „Vas”)\n"
-#~ "dddd – a nap teljes, beállított nyelvnek megfelelő neve (pl.: „Hétfő”, "
-#~ "„Vasárnap”)\n"
-#~ "M – a hónap száma kezdő 0 nélkül (1-től 12-ig)\n"
-#~ "MM – a hónap száma kezdő 0-val (01-től 12-ig)\n"
-#~ "MMM – a hónap rövid, beállított nyelvnek megfelelő neve (pl.: „Már”, „Ápr”)\n"
-#~ "MMMM – a hónap teljes, beállított nyelvnek megfelelő neve (pl.: „Március”, "
-#~ "„Április”)\n"
-#~ "yy – az év utolsó két számjegye (00-tól 99-ig)\n"
-#~ "yyyy – az év négy számjeggyel\n"
-#~ "Példa:\n"
-#~ "A 2010. április 9.-e különböző mintákkal->\n"
-#~ "yyyy MMM ==>2010 Ápr\n"
-#~ "yyyy MMM dd ==> 2010 Ápr 09\n"
-#~ "yyyy.MM.dd. ==> 2010.04.09.\n"
-#~ "\n"
-#~ "A kiadás dátuma, ha nincs beállítva másképp: MMM yyyy\n"
-#~ "Az időbélyeg, ha nincs beállítva másképp: dd MMM yyyy"

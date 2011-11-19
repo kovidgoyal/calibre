@@ -8,19 +8,19 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-09-29 06:52+0000\n"
-"Last-Translator: Khoa Dang <Unknown>\n"
+"PO-Revision-Date: 2011-11-18 08:09+0000\n"
+"Last-Translator: kronpas <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-11-18 05:10+0000\n"
+"X-Launchpad-Export-Date: 2011-11-19 05:09+0000\n"
 "X-Generator: Launchpad (build 14299)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "hoàn toàn không thực thi"
+msgstr "Không làm gì cả"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
@@ -199,7 +199,7 @@ msgstr "hoàn toàn không thực thi"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "Không rõ"
+msgstr "Chưa xác định."
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -356,23 +356,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:759
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Đọc sách trong thư viện calibre của bạn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:764
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Tải tin tức từ Internet dưới dạng sách điện tử"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Hiển thị nhanh danh sách các sách liên quan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:774
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Xuất sách từ thư viện Calibre qua ổ cứng"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:779
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Hiển thị chi tiết sách trong một cửa sổ pop-up mới"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:784
 msgid "Restart calibre"
@@ -380,17 +380,19 @@ msgstr "Khởi động lại calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:789
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "Mở thư mục chứa các tệp tin tạo sách trong thư viện calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Gửi sách đến thiết bị đang kết nối"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Gửi sách qua mail hoặc qua trang web kết nối tới iTunes hoặc thư mục trên "
+"máy tính của bạn, coi như đang gửi qua thiết bị khác."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -399,50 +401,55 @@ msgstr "Xem Hướng Dẫn Sử Dụng calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
 msgid "Customize calibre"
-msgstr ""
+msgstr "Tuỳ chỉnh calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Tìm sách tương tự với sách đang được chọn dễ hơn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
+"Chuyển đổi giữa các thư viện calibre khác nhau và thực hiện công tác bảo trì."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:827
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Chép sách từ thiết bị sang thư viện calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Chỉnh sửa các sách đã được sưu tập trong thiết bị của bạn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:837
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Chép sách từ thư viện calibre này sang thư viện khác"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Make small tweaks to epub files in your calibre library"
 msgstr ""
+"Thực hiện các chỉnh sửa nhỏ cho tập tin dạng epub trong thư viện calibre của "
+"bạn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Tìm và đánh dấu màu các kết quả trùng tiếp theo hoặc trước đó khi tìm kiếm "
+"trong thư viện calibre."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Chọn sách bất kỳ trong thư viện calibre của bạn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:860
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Tìm sách từ các nhà bán sách khác nhau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:876
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Lấy plugin mới cho calibre hoặc cập nhật plugin đã có"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Look and Feel"
@@ -570,7 +577,7 @@ msgstr "Thay đổi thông tin mô tả trước khi lưu/gửi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1032
 msgid "Template Functions"
-msgstr ""
+msgstr "Các chức năng về biểu mẫu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1034
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1081
@@ -582,7 +589,7 @@ msgstr "Nâng cao"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1038
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Tạo chức năng biểu mẫu riêng của bạn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1043
 msgid "Sharing books by email"
@@ -620,7 +627,7 @@ msgstr "Tải thông tin mô tả"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1074
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Kiểm soát cách calibre tải thông tin về sách từ Internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1079
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
@@ -641,11 +648,11 @@ msgstr "Điều chỉnh cách calibre ứng xử trong những trường hợp k
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1102
 msgid "Keyboard"
-msgstr ""
+msgstr "Bàn phím"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1108
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Tuỳ biến phím tắt bàn phím được calibre sử dụng"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -686,7 +693,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Chuyển đổi sách điện tử sang định dạng %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:48
 msgid "Input profile"
@@ -697,6 +704,8 @@ msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
+"Hồ sơ này sẽ cung cấp thông số mặc định, có thể hữu ích nếu bạn không có "
+"thông tin về tài liệu đầu vào."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:60
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:453
@@ -834,7 +843,7 @@ msgstr "Hồ sơ này dùng cho Amazon Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Hồ sơ này dành cho Amazon Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -847,7 +856,7 @@ msgstr "Dùng cho Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Hồ sơ này dành cho các thiết bị thuộc series PocketBook Pro 900"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -881,6 +890,9 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
+"    các tuỳ chọn %prog\n"
+"    Tuỳ biến calibre qua việc tải plugin bên ngoài\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:546
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -922,7 +934,7 @@ msgstr "Vô hiệu hóa plugin có tên sau"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:142
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
-msgstr ""
+msgstr "Đường dẫn tới thư viện quá dài. Cần ít hơn %d ký tự"
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:139
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:649
@@ -932,12 +944,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:829
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:841
 msgid "Yes"
-msgstr ""
+msgstr "Đồng ý"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1109
 msgid "Main"
-msgstr ""
+msgstr "Chính"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
@@ -949,7 +961,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1113
 msgid "Card B"
-msgstr ""
+msgstr "Thẻ B"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
@@ -973,7 +985,7 @@ msgstr "Giao tiếp với điện thoại S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:224
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Tương tác với máy tính bảng WebOS"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -986,6 +998,17 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Nếu bạn không muốn calibre nhận biết thiết bị Apple của bạn khi "
+"đã kết nối với máy tính, nhấn <b>Vô hiệu hóa trình điều khiển "
+"Apple</b>.</p><p> Để chuyển sách tới thiết bị Apple của bạn, nhấn "
+"<b>Vô hiệu hóa trình điều khiển Apple</b>, sau đó sử dụng phương thức "
+"'Kết nối với iTunes' được khuyến nghị tại <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Câu hỏi "
+"thường gặp về Calibre + iDevices</a>, sử dụng "
+"<em>Connect/Share</em>|<em>Connect to iTunes</em> trong danh "
+"mục.</p><p>Kích hoạt trình điều khiển để kết nối trực tiếp tới các "
+"thiết bị của Apple là cơ chế người dùng cấp cao không được hỗ "
+"trợ.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:64
 msgid "Disable Apple driver"
@@ -1005,11 +1028,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "Lưu bìa từ iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:123
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Kích hoạt để lưu và hiển thị bìa sách từ iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
 #, python-format
@@ -1401,7 +1424,7 @@ msgstr "Giao tiếp với Kindle eBook reader."
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:186
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Trang đã đọc gần nhất: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:192
 #, python-format
@@ -1429,7 +1452,7 @@ msgstr "Giao tiếp với Kindle 2/3 eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Gửi thông tin về số trang khi gửi sách"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:299
 msgid ""
@@ -1438,10 +1461,14 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Kindle 3 và các phiên bản mới hơn có thể sử dụng thông tin về số trang lưu "
+"trong tập tin MOBI. Thông qua lựa chọn này, calibre sẽ tính toán và gửi "
+"thông tin đó qua Kindle khi tải tập tin MOBI qua bằng USB. Cần chú ý số "
+"trang không tương đương với bất cứ số trang sách giấy nào."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:304
 msgid "Use slower but more accurate page number generation"
-msgstr ""
+msgstr "Sử dụng cơ chế đếm số trang chậm hơn nhưng chính xác hơn"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:306
 msgid ""
@@ -1450,6 +1477,9 @@ msgid ""
 "book. However, this method is slower and will slow down sending files to the "
 "Kindle."
 msgstr ""
+"Có hai cách khởi tạo thông tin số trang. Sử dụng cơ chế chính xác hơn sẽ cho "
+"ra số trang gần tương đương với sách in. Tuy nhiên, cách này chậm hơn và sẽ "
+"làm chậm quá trình gửi tập tin đến Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:374
 msgid "Communicate with the Kindle DX eBook reader."
@@ -1457,7 +1487,7 @@ msgstr "Giao tiếp với Kindle DX eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Giao tiếp với Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -1465,15 +1495,15 @@ msgstr "Giao tiếp với Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "The Kobo supports several collections including "
-msgstr ""
+msgstr "Kobo hỗ trợ vài bộ sưu tập, bao gồm "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "Tạo nhãn để quản lý tự động"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:59
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Tải lên bìa sách (cho máy đọc sách mới)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:60
 msgid ""
@@ -1481,14 +1511,17 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Thông thường, máy KOBO lấy thông tin về bìa sách từ tập tin sách. Bằng tuỳ "
+"chọn này, calibre sẽ gửi một bìa sách riêng đến máy, tiện dụng trong trường "
+"hợp bạn đã sửa đổi bìa sách."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Tải lên bìa sách đen trắng"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "Hiển thị các sách đã quá hạn"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -1496,6 +1529,9 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Một lỗi trong phiên bản mới hơn lưu các thông tin về sách không phải dạng "
+"điện tử trong cơ sở dữ liệu. Bằng tuỳ chọn này Calibre sẽ hiển thị các thông "
+"tin quá hạn và cho phép bạn xoá chúng bằng phương thức xoá mới."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:573
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381
@@ -1587,7 +1623,7 @@ msgstr "Giao tiếp với thiết bị đọc sách EEE"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Tương tác với máy tính bảng Adam"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
@@ -1595,11 +1631,11 @@ msgstr "Giao tiếp với thiết bị đọc sách Nextbook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "Tương tác với Moovybook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "Tương tác với COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
@@ -1881,7 +1917,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:65
 msgid "Template to control how books are saved"
-msgstr ""
+msgstr "Biểu mẫu kiểm soát cách lưu sách"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:68
 msgid "Extra customization"
@@ -1903,6 +1939,11 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Không thể truy cập tập tin trong bộ nhớ chính thiết bị của bạn. Bạn nên liên "
+"hệ với hãng sản xuất thiết bị để được hỗ trợ thêm. Các cách chữa lỗi thông "
+"thường: thử dây USB khác/cổng USB khác trên máy tính. Nếu thiết bị có chức "
+"năng \"Reset to factory default\" (\"Trở về trạng thái mặc định khi xuất "
+"xưởng\"), thử dùng nó. Lỗi: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:113
 #, python-format
@@ -1913,11 +1954,16 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"Không thể truy cập tập tin trên thẻ SD trong máy bạn. Có nhiều nguyên nhân "
+"dẫn đến điều này. Thẻ SD có thể bị lỗi, dung lượng quá lớn đối với thiết bị "
+"của bạn, đang bị khoá chức năng ghi, v.v.. THử một thẻ SD khác, hoặc định "
+"dạng lại thẻ SD sử dụng loại định dạng FAT32. Chú ý không để quá nhiều tập "
+"tin ở thư mục gốc trên thẻ SD. Lỗi: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
 msgid "USB Vendor ID (in hex)"
-msgstr ""
+msgstr "Tên hãng sản xuất USB (dưới dạng hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:38
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:41
@@ -1930,7 +1976,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "Tên sản phẩm USB (dạng hex)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
@@ -2090,6 +2136,8 @@ msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
 msgstr ""
+"Chỉ rõ kích thước ảnh dạng điểm ảnh rộng x cao. Thông thường, cỡ ảnh được "
+"tính toán tự động từ hồ sơ xuất, tuỳ chọn này bỏ qua nó."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:325
 msgid ""
@@ -19362,3 +19410,8 @@ msgid ""
 "conversion is poor, you can tweak the settings and run it again. By setting\n"
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
+"Khi Calibre chuyển đổi định dạng giữa 2 định dạng giống nhau, ví dụ \n"
+"từ EPUB sang EPUB, tài liệu gốc được lưu lại, nhằm trong trường hợp\n"
+"văn bản chuyển đổi có chất lượng kém, bạn có thể điều chỉnh các \n"
+"tuỳ chọn và chuyển khởi chạy lại. Khi lưu tuỳ chọn này thành \"không\" \n"
+"Calibre sẽ không lưu lại tài liệu gốc nữa."
