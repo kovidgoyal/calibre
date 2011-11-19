@@ -221,7 +221,7 @@ class ITUNES(DriverBase):
     #  0x12a2   iPad2 (GSM)
     #  0x12a3   iPad2 (CDMA)
     VENDOR_ID = [0x05ac]
-    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a,0x129f,0x12a0,0x12a2,0x12a3]
+    PRODUCT_ID = [0x1292,0x1293,0x1294,0x1297,0x1299,0x129a,0x129f,0x12a2,0x12a3]
     BCD = [0x01]
 
     # Plugboard ID
@@ -1412,10 +1412,16 @@ class ITUNES(DriverBase):
                         tmp_cover.write(cover_data)
 
                     if lb_added:
-                        if lb_added.Artwork.Count:
-                            lb_added.Artwork.Item(1).SetArtworkFromFile(tc)
-                        else:
-                            lb_added.AddArtworkFromFile(tc)
+                        try:
+                            if lb_added.Artwork.Count:
+                                lb_added.Artwork.Item(1).SetArtworkFromFile(tc)
+                            else:
+                                lb_added.AddArtworkFromFile(tc)
+                        except:
+                            if DEBUG:
+                                self.log.warning("  iTunes automation interface reported an error"
+                                                 " when adding artwork to '%s' in the iTunes Library" % metadata.title)
+                            pass
 
                     if db_added:
                         if db_added.Artwork.Count:
@@ -2775,6 +2781,8 @@ class ITUNES(DriverBase):
                 lb_added.sort_name.set(metadata_x.title_sort)
 
             if db_added:
+                self.log.warning("  waiting for db_added to become writeable ")
+                time.sleep(1.0)
                 db_added.name.set(metadata_x.title)
                 db_added.album.set(metadata_x.title)
                 db_added.artist.set(authors_to_string(metadata_x.authors))
