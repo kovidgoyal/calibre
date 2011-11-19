@@ -181,6 +181,7 @@ def render_jacket(mi, output_profile,
             except:
                 pass
 
+        # Used in the comment describing use of custom columns in templates
         args['_genre_label'] = args.get('_genre_label', '')
         args['_genre'] = args.get('_genre', '')
 
