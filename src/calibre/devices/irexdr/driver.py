@@ -33,7 +33,7 @@ class IREXDR1000(USBMS):
 
     MAIN_MEMORY_VOLUME_LABEL  = 'IRex Digital Reader 1000 Main Memory'
 
-    EBOOK_DIR_MAIN = 'ebooks'
+    EBOOK_DIR_MAIN = ''
     DELETE_EXTS = ['.mbp']
     SUPPORTS_SUB_DIRS = True
 
@@ -44,7 +44,7 @@ class IREXDR800(IREXDR1000):
     WINDOWS_MAIN_MEM = 'DR800'
     FORMATS     = ['epub', 'pdb', 'html', 'pdf', 'txt']
 
-    EBOOK_DIR_MAIN = 'Books'
+    EBOOK_DIR_MAIN = ''
     DELETE_EXTS = []
     SUPPORTS_SUB_DIRS = True
 
