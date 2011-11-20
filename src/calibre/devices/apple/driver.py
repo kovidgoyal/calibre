@@ -217,6 +217,7 @@ class ITUNES(DriverBase):
     #  0x1297   iPhone 4
     #  0x129a   iPad
     #  0x129f   iPad2 (WiFi)
+    #  0x12a0   iPhone 4S
     #  0x12a2   iPad2 (GSM)
     #  0x12a3   iPad2 (CDMA)
     VENDOR_ID = [0x05ac]
@@ -1305,6 +1306,8 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info(" ITUNES._add_new_copy()")
 
+        self._update_epub_metadata(fpath, metadata)
+
         db_added = None
         lb_added = None
 
@@ -1409,10 +1412,16 @@ class ITUNES(DriverBase):
                         tmp_cover.write(cover_data)
 
                     if lb_added:
-                        if lb_added.Artwork.Count:
-                            lb_added.Artwork.Item(1).SetArtworkFromFile(tc)
-                        else:
-                            lb_added.AddArtworkFromFile(tc)
+                        try:
+                            if lb_added.Artwork.Count:
+                                lb_added.Artwork.Item(1).SetArtworkFromFile(tc)
+                            else:
+                                lb_added.AddArtworkFromFile(tc)
+                        except:
+                            if DEBUG:
+                                self.log.warning("  iTunes automation interface reported an error"
+                                                 " when adding artwork to '%s' in the iTunes Library" % metadata.title)
+                            pass
 
                     if db_added:
                         if db_added.Artwork.Count:
@@ -2663,6 +2672,7 @@ class ITUNES(DriverBase):
                     metadata.timestamp = now()
                     if DEBUG:
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
+
             else:
                 metadata.timestamp = now()
                 if DEBUG:
@@ -2699,7 +2709,7 @@ class ITUNES(DriverBase):
             if iswindows and metadata.series:
                 metadata.tags = None
 
-            set_metadata(zfo, metadata, update_timestamp=True)
+            set_metadata(zfo, metadata, apply_null=True, update_timestamp=True)
 
     def _update_device(self, msg='', wait=True):
         '''
@@ -2771,6 +2781,8 @@ class ITUNES(DriverBase):
                 lb_added.sort_name.set(metadata_x.title_sort)
 
             if db_added:
+                self.log.warning("  waiting for db_added to become writeable ")
+                time.sleep(1.0)
                 db_added.name.set(metadata_x.title)
                 db_added.album.set(metadata_x.title)
                 db_added.artist.set(authors_to_string(metadata_x.authors))
