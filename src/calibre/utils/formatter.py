@@ -339,6 +339,7 @@ class TemplateFormatter(string.Formatter):
     ########## a formatter that throws exceptions ############
 
     def unsafe_format(self, fmt, kwargs, book):
+        self.column_name = self.template_cache = None
         self.kwargs = kwargs
         self.book = book
         self.composite_values = {}
