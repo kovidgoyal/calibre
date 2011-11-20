@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-10-30 09:31+0000\n"
+"PO-Revision-Date: 2011-11-19 23:01+0000\n"
 "Last-Translator: koliberek <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-11-19 05:04+0000\n"
+"X-Launchpad-Export-Date: 2011-11-20 05:33+0000\n"
 "X-Generator: Launchpad (build 14299)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -852,7 +852,7 @@ msgstr "Ten profil przeznaczony jest dla urządzenia Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Ten profil jest przeznaczony dla Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -1494,7 +1494,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Umożliwia komunikację z Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -1528,7 +1528,7 @@ msgstr "Wyślij czarno-białe okładki"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "Pokaż"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -2581,6 +2581,10 @@ msgid ""
 "prevents it from being overridden on your device. For example: font-"
 "family,color,margin-left,margin-right"
 msgstr ""
+"Oddzielana przecinkami lista właściwości CSS, które będą usunięte ze "
+"wszystkich arkuszy stylów. Jest to użyteczne jeśli jakieś formatowanie "
+"koliduje z ustawieniami na czytniku. Przykładem może być font-family, color, "
+"margin-left, margin-right."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:324
 msgid ""
@@ -7628,67 +7632,70 @@ msgstr "&Przekształcaj tabele na tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
 msgid "Select what style information you want completely removed:"
-msgstr ""
+msgstr "Wybierz elementy stylów, które chcesz całkowicie usunąć:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:171
 msgid "Removes the font-family CSS property"
-msgstr ""
+msgstr "Usuwa właściwość font-family z arkusza stylów"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
-msgstr ""
+msgstr "&Czcionki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:176
 msgid ""
 "Removes the margin CSS properties. Note that page margins are not affected "
 "by this setting."
 msgstr ""
+"Usuwa właściwość margin. Opcja ta nie ma wpływu na wielkość marginesu strony."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:177
 msgid "&Margins"
-msgstr ""
+msgstr "&Marginesy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:181
 msgid "Removes the padding CSS properties"
-msgstr ""
+msgstr "Usuwa właściwość padding z arkusza stylów"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:182
 msgid "&Padding"
-msgstr ""
+msgstr "Odstę&py"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:186
 msgid "Convert floating images/text into static images/text"
-msgstr ""
+msgstr "Zamienia pływające elementy (tekst/obrazki) w statyczne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:187
 msgid "F&loats"
-msgstr ""
+msgstr "Pływające elementy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
-msgstr ""
+msgstr "Usuwa oznaczenie kolorów tła i tekstu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:192
 msgid "&Colors"
-msgstr ""
+msgstr "&Kolory"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
-msgstr ""
+msgstr "&Inne właściwości CSS:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:202
 msgid ""
 "Comma separated list of CSS properties to remove. For example: display, "
 "color, font-family"
 msgstr ""
+"Oddzielane przecinkami właściwości stylów, które mają być usunięte. "
+"Przykład: display, color, font-family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
-msgstr ""
+msgstr "&Dodatkowy CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:228
 msgid "&Filter Style Information"
-msgstr ""
+msgstr "&Filtruj informację o stylach"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -9626,15 +9633,15 @@ msgstr "Aktywne zadanie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:33
 msgid "Find next match"
-msgstr ""
+msgstr "Znajdź następne dopasowanie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
-msgstr ""
+msgstr "&Szukaj"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Find previous match"
-msgstr ""
+msgstr "Znajdź poprzednie dopasowanie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:54
 msgid "&Stop selected jobs"
@@ -9642,7 +9649,7 @@ msgstr "&Zatrzymaj wybrane zadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:58
 msgid "&Hide selected jobs"
-msgstr ""
+msgstr "&Ukryj wybrane zadnia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
@@ -9650,7 +9657,7 @@ msgstr "Pokaż &szczegóły zadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:66
 msgid "Show &all jobs"
-msgstr ""
+msgstr "Pokaż wszystkie zadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:70
 msgid "Stop &all non device jobs"
@@ -9658,7 +9665,7 @@ msgstr "Zatrzymaj &wszystkie zadania nie na urządzeniu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr ""
+msgstr "Ukryj &wszystkie zadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
@@ -10011,10 +10018,14 @@ msgid ""
 "to restore the EPUB from ORIGINAL_EPUB. Useful if you did a bulk conversion "
 "of a large number of books and something went wrong."
 msgstr ""
+"Przy konwersji  z formatu na ten sam format np. z EPUB do EPUB calibre "
+"zachowuje oryginalny plik jako ORIGINAL_EPUB. Ta opcja spowoduje, że calibre "
+"odtworzy EPUB z pliku ORIGINAL_EPUB. Użyteczne jeśli konwertowanych było "
+"wiele książek naraz i coś poszło nie tak."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:259
 msgid "Restore pre conversion &originals, if available"
-msgstr ""
+msgstr "Przywróć &oryginały sprzed konwersji jeśli to możliwe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:268
 msgid ""
@@ -12069,7 +12080,7 @@ msgstr " - Zadania"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:544
 msgid "Search for a job by name"
-msgstr ""
+msgstr "Wyszukaj zadanie po nazwie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:615
@@ -12288,11 +12299,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:867
 msgid "Failed to set data"
-msgstr ""
+msgstr "Nie można ustawić danych"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:868
 msgid "Could not set data, click Show Details to see why."
 msgstr ""
+"Nie dało się ustawić danych, kliknij Pokaż szczegóły, by przekonać się "
+"dlaczego."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1049
 msgid "In Library"
@@ -15488,7 +15501,7 @@ msgstr ""
 "        <li><b>locals</b>: zmienne lokalne.</li>\n"
 "        <li><b>twoje argumenty</b>: Musisz podać co najmniej jeden poprawny "
 "argument.\n"
-"        Liczba argumentów musi być zgodna z wartością pola arg Suma "
+"        Liczba argumentów musi być zgodna z wartością pola arg Liczba "
 "argumentów, \n"
 "        chyba, że pole to ma wartość -1. W tym przypadku ostatnim argumentem "
 "musi być *args.\n"
@@ -15571,7 +15584,7 @@ msgstr "Wpisz nazwę funkcji, którą chcesz stworzyć."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:98
 msgid "Arg &count:"
-msgstr "Suma argumentów:"
+msgstr "Liczba argumentów:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:99
 msgid "Set this to -1 if the function takes a variable number of arguments"
@@ -16072,7 +16085,7 @@ msgstr "Liczba wątków pamięci podręcznej"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:89
 msgid "Number of cover download threads to use"
-msgstr ""
+msgstr "Liczba wątków użytych do ściągania okładek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:97
 msgid "Number of details threads to use"
@@ -20106,6 +20119,33 @@ msgid ""
 "replaced by the localized string for AM or PM iso  : the date with time and "
 "timezone. Must be the only format present"
 msgstr ""
+"format_date(val, format_string) -- formatuje wartość val, która musi być "
+"prawidłową datą przy użyciu format_string i zwraca string. Kody formatujące "
+"datę są następujące: \n"
+"d           - numer dnia miesiąca bez zera wiodącego (1 - 31)\n"
+"dd        - numer dnia miesiąca z zerem wiodącym (01 - 31)\n"
+"ddd      - skrócona nazwa dnia tygodnia (pon - nie)\n"
+"dddd    - pełna nazwa dnia tygodnia (poniedziałek - niedziela)\n"
+"M           - numer miesiąca bez zera wiodącego (1- 12)\n"
+"MM       - numer miesiąca z zerem wiodącym (01 - 12)\n"
+"MMM    - skrócona nazwa miesiąca (sty - gru)\n"
+"MMMM - pełna nazwa miesiąca (styczeń - grudzień)\n"
+"yy         - dwie cyfry roku (00 - 99)\n"
+"yyyy     - cztery cyfry roku\n"
+"h          - godzina bez zera wiodącego (0 - 11 lub 0 - 23 zależnie od "
+"ustawień)\n"
+"hh       - godzina z zerem wiodącym (00 - 11 lub 00 - 23 zależnie od "
+"ustawień)\n"
+"m        - minuty bez zera wiodącego (0 - 59)\n"
+"mm     - minuty z zerem wiodącym (00 - 59)\n"
+"s         - sekundy bez zera wiodącego (0 - 59)\n"
+"ss        - sekundy z zerem wiodącym (00 - 59)\n"
+"ap       - użyj zegara 12-godzinnego z oznaczeniem pory dnia w miejscu "
+"\"ap\"\n"
+"AP       - użyj zegara 24-godzinnego z oznaczeniem pory dnia w miejscu "
+"\"AP\"\n"
+"iso       - data i czas ze strefą czasową. Musi być jedynym określeniem "
+"formatu."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:774
 msgid "uppercase(val) -- return value of the field in upper case"
@@ -20396,7 +20436,7 @@ msgstr "angielski (Cypr)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Czech Republic)"
-msgstr ""
+msgstr "Angielski (Czechy)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Pakistan)"
@@ -21295,6 +21335,41 @@ msgid ""
 "timestamp default if not set: dd MMM yyyy\n"
 "last_modified_display_format if not set: dd MMM yyyy"
 msgstr ""
+"Format używany do wyświetlania daty publikacji oraz stempla czasowego "
+"(date).\n"
+"Łańcuch znaków określający w jaki sposób data jest wyświetlana w interfejsie "
+"użytkownika:\n"
+"d           - numer dnia miesiąca bez zera wiodącego (1 - 31)\n"
+"dd        - numer dnia miesiąca z zerem wiodącym (01 - 31)\n"
+"ddd      - skrócona nazwa dnia tygodnia (pon - nie)\n"
+"dddd    - pełna nazwa dnia tygodnia (poniedziałek - niedziela)\n"
+"M           - numer miesiąca bez zera wiodącego (1- 12)\n"
+"MM       - numer miesiąca z zerem wiodącym (01 - 12)\n"
+"MMM    - skrócona nazwa miesiąca (sty - gru)\n"
+"MMMM - pełna nazwa miesiąca (styczeń - grudzień)\n"
+"yy         - dwie cyfry roku (00 - 99)\n"
+"yyyy     - cztery cyfry roku\n"
+"h          - godzina bez zera wiodącego (0 - 11 lub 0 - 23 zależnie od "
+"ustawień)\n"
+"hh       - godzina z zerem wiodącym (00 - 11 lub 00 - 23 zależnie od "
+"ustawień)\n"
+"m        - minuty bez zera wiodącego (0 - 59)\n"
+"mm     - minuty z zerem wiodącym (00 - 59)\n"
+"s         - sekundy bez zera wiodącego (0 - 59)\n"
+"ss        - sekundy z zerem wiodącym (00 - 59)\n"
+"ap       - użyj zegara 12-godzinnego z oznaczeniem pory dnia w miejscu "
+"\"ap\"\n"
+"AP       - użyj zegara 24-godzinnego z oznaczeniem pory dnia w miejscu "
+"\"AP\"\n"
+"iso       - data i czas ze strefą czasową. Musi być jedynym określeniem "
+"formatu.\n"
+"Dla przykładu data 1 stycznia 2010 może być przedstawiona w jednym z "
+"formatów:\n"
+"MMM yyyy ==> sty 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 sty 2010\n"
+"MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10\n"
+"Dla daty publikacji domyślnym formatem jest MMM yyyy\n"
+"Dla stempla czasowego domyślnym formatem jest dd MMMyyyy\n"
+"Dla last_modified_display_format domyślnym formatem jest dd MMM yyyy"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:174
 msgid "Control sorting of titles and series in the library display"
@@ -21717,7 +21792,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:329
 msgid "Choose whether dates are sorted using visible fields"
-msgstr ""
+msgstr "Sposób sortowania wg dat"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid ""
@@ -21725,6 +21800,12 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
+"Pole daty zawiera informację o dacie i czasie. Przy sortowaniu brana jest "
+"pod uwagę całość\n"
+"niezależnie od sposobu wyświetalnia zawartości pola. Ten parametr określa "
+"czy przy sortowaniu ma\n"
+"być brana pod uwagę cała zawartość pola czy tylko ta jej część, która jest "
+"wyświetlana."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:335
 msgid "Specify which font to use when generating a default cover"
