@@ -11,7 +11,7 @@ import datetime
 from urllib import quote_plus
 from Queue import Queue, Empty
 from lxml import etree, html
-from calibre import prints, as_unicode
+from calibre import as_unicode
 
 from calibre.ebooks.chardet import xml_to_unicode
 
@@ -54,7 +54,7 @@ class Ozon(Source):
     def create_query(self, log, title=None, authors=None, identifiers={}): # {{{
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/webservice/webservice.asmx/SearchWebService?searchContext=div_book&searchText='
-        
+
         # for ozon.ru search we have to format ISBN with '-'
         isbn = _format_isbn(log, identifiers.get('isbn', None))
         # TODO: format isbn!
@@ -79,7 +79,7 @@ class Ozon(Source):
         return search_url
     # }}}
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, 
+    def identify(self, log, result_queue, abort, title=None, authors=None,
             identifiers={}, timeout=30): # {{{
         if not self.is_configured():
             return
@@ -112,13 +112,13 @@ class Ozon(Source):
     def get_metadata(self, log, entries, title, authors, identifiers): # {{{
         # some book titles have extra characters like this
         # TODO: make a twick
-        reRemoveFromTitle = None 
+        reRemoveFromTitle = None
         #reRemoveFromTitle = re.compile(r'[?!:.,;+-/&%"\'=]')
-        
+
         title = unicode(title).upper() if title else ''
         if reRemoveFromTitle:
-            title = reRemoveFromTitle.sub('', title) 
-        authors = map(_normalizeAuthorNameWithInitials, 
+            title = reRemoveFromTitle.sub('', title)
+        authors = map(_normalizeAuthorNameWithInitials,
                       map(unicode.upper, map(unicode, authors))) if authors else None
         ozon_id = identifiers.get('ozon', None)
 
@@ -320,7 +320,7 @@ class Ozon(Source):
                 displ_lang = lng_splt[0].strip()
         metadata.language = _translageLanguageToCode(displ_lang)
         #log.debug(u'language: %s'%displ_lang)
-        
+
         # can be set before from xml search responce
         if not metadata.pubdate:
             xpt = u'normalize-space(//div[@class="product-misc"]//text()[contains(., "г.")])'
@@ -434,13 +434,13 @@ def _translageLanguageToCode(displayLang): # {{{
 # [В.П. Колесников | Колесников В.П.]-> В. П. BКолесников
 def _normalizeAuthorNameWithInitials(name): # {{{
     res = name
-    if name: 
-        re1 = u'^(?P<lname>\S+)\s+(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?$' 
+    if name:
+        re1 = u'^(?P<lname>\S+)\s+(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?$'
         re2 = u'^(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?\s+(?P<lname>\S+)$'
         matcher = re.match(re1, unicode(name), re.UNICODE)
         if not matcher:
             matcher = re.match(re2, unicode(name), re.UNICODE)
-            
+
         if matcher:
             d = matcher.groupdict()
             res = ' '.join(x for x in (d['fname'], d['mname'], d['lname']) if x)
