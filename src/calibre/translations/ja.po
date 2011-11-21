@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-11-20 03:04+0000\n"
-"Last-Translator: Ado Nishimura <Unknown>\n"
+"PO-Revision-Date: 2011-11-20 14:55+0000\n"
+"Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-11-20 05:32+0000\n"
+"X-Launchpad-Export-Date: 2011-11-21 05:22+0000\n"
 "X-Generator: Launchpad (build 14299)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1478,7 +1478,7 @@ msgstr "白黒の表紙をアップロード"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "期限切れの本を表示"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -1486,6 +1486,8 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"初期バージョンのバグにより、データーベースに非kepub書籍のレコードが残っていることがあります。このオプションを有効にすると、Calibreは期限切れの"
+"レコードを表示し、新しい削除ロジックを利用して削除できるようになります。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:573
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381
@@ -1514,6 +1516,8 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>%(chapter)d 章:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>章の進行度:</b> %(chapter_progress)s%%<br />%(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1036
 #, python-format
@@ -1522,6 +1526,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>%(chapter)d 章:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>章の進行度:</b> %(chapter_progress)s%%<br /><b>ハイライト:</b> %(text)s<br /><hr "
+"/>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1045
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1055
@@ -1531,6 +1538,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>%(chapter)d 章:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>章の進行度:</b> %(chapter_progress)s%%<br /><b>ハイライト:</b> %(text)s<br "
+"/><b>注釈:</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"

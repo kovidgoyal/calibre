@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-11-14 20:38+0000\n"
-"Last-Translator: Patrick <Unknown>\n"
+"PO-Revision-Date: 2011-11-20 20:19+0000\n"
+"Last-Translator: david <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-19 04:56+0000\n"
+"X-Launchpad-Export-Date: 2011-11-21 05:21+0000\n"
 "X-Generator: Launchpad (build 14299)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -901,7 +901,7 @@ msgstr "Dit profiel is bedoeld voor de Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Dit profiel is bestemd voor de Amazon Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -1556,7 +1556,7 @@ msgstr "Communiceer met de Kindle DX e-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "communicatie met de Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -7754,15 +7754,15 @@ msgstr "Tabellen naar rege&ls omzetten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
 msgid "Select what style information you want completely removed:"
-msgstr ""
+msgstr "Selecteer welke stijl van informatie u wenst te verwijderen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:171
 msgid "Removes the font-family CSS property"
-msgstr ""
+msgstr "verwijderd de font-familie CSS eigenschappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
-msgstr ""
+msgstr "& Fonts"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:176
 msgid ""
@@ -7778,19 +7778,19 @@ msgstr "&Marges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:181
 msgid "Removes the padding CSS properties"
-msgstr ""
+msgstr "verwijderd de extra CSS eigenschappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:182
 msgid "&Padding"
-msgstr ""
+msgstr "& extra"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:186
 msgid "Convert floating images/text into static images/text"
-msgstr ""
+msgstr "verander bewegende beelden/tekst naar stilstaande beelden/tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:187
 msgid "F&loats"
-msgstr ""
+msgstr "beweging"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
@@ -7814,11 +7814,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
-msgstr ""
+msgstr "& extra CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:228
 msgid "&Filter Style Information"
-msgstr ""
+msgstr "& filter Stijl informatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -9765,15 +9765,15 @@ msgstr "Actieve taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:33
 msgid "Find next match"
-msgstr ""
+msgstr "Vind volgende"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
-msgstr ""
+msgstr "&Zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Find previous match"
-msgstr ""
+msgstr "Vind voorgaande"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:54
 msgid "&Stop selected jobs"
@@ -9781,7 +9781,7 @@ msgstr "&Stop geselecteerde taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:58
 msgid "&Hide selected jobs"
-msgstr ""
+msgstr "&verberg geselecteerde ques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
@@ -9789,7 +9789,7 @@ msgstr "Taak&details tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:66
 msgid "Show &all jobs"
-msgstr ""
+msgstr "toon alle ques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:70
 msgid "Stop &all non device jobs"
@@ -9797,7 +9797,7 @@ msgstr "&Alle niet-apparaat gerelateerde taken stoppen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr ""
+msgstr "verberg alle ques"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
@@ -12217,7 +12217,7 @@ msgstr " - Taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:544
 msgid "Search for a job by name"
-msgstr ""
+msgstr "zoek een que op naam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:615
@@ -21928,7 +21928,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:329
 msgid "Choose whether dates are sorted using visible fields"
-msgstr ""
+msgstr "kies of datums gesorteerd worden op weergave"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:330
 msgid ""
@@ -21936,6 +21936,10 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
+"datums bevatten de dag en uur. waneer gesorteerd, alle velden zij\n"
+"gebruikt, ongeacht wat weergegeven wordt. Verander deze aanpassing naar true "
+"om enkel\n"
+"de velden te gebruiken die weergegeven zijn."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:335
 msgid "Specify which font to use when generating a default cover"

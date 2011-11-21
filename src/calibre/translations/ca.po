@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-11-18 16:21+0000\n"
+"PO-Revision-Date: 2011-11-20 16:52+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-19 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-11-21 05:21+0000\n"
 "X-Generator: Launchpad (build 14299)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -226,15 +226,15 @@ msgstr "Tipus de fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "Lector de metadades"
+msgstr "Lectura de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "Editor de metadades"
+msgstr "Edició de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "Generador del catàleg"
+msgstr "Generació del catàleg"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
@@ -1358,7 +1358,7 @@ msgstr "Fes servir una carpeta arbitrària com a dispositiu."
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:29
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
 msgid "Device Interface"
-msgstr "Interfície del dispostiu"
+msgstr "Interfície del dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
@@ -3048,7 +3048,7 @@ msgstr "No s'ha pogut analitzar: %(name)s amb l'error: %(err)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/__init__.py:27
 msgid "ePub Fixer"
-msgstr "Reparador d'ePub"
+msgstr "Reparació d'ePub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/fix/epubcheck.py:18
 msgid "Workaround epubcheck bugs"
@@ -13088,7 +13088,7 @@ msgstr "Camps de metadades descarregats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:32
 msgid "Edit Metadata"
-msgstr "Edita les metadades"
+msgstr "Edició de metadades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:66
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:844
