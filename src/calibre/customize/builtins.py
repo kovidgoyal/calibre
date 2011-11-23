@@ -567,7 +567,7 @@ from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
-        LIBREAIR)
+        LIBREAIR, ODYSSEY)
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
         SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
@@ -689,7 +689,7 @@ plugins += [
     IPAPYRUS,
     EDGE,
     SNE,
-    ALEX,
+    ALEX, ODYSSEY,
     PALMPRE,
     KOBO,
     AZBOOKA,

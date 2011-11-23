@@ -965,16 +965,22 @@ class Manifest(object):
                     try:
                         data = etree.fromstring(data, parser=parser)
                     except etree.XMLSyntaxError:
-                        self.oeb.logger.warn('Stripping comments and meta tags from %s'%
+                        self.oeb.logger.warn('Stripping comments from %s'%
                                 self.href)
                         data = re.compile(r'<!--.*?-->', re.DOTALL).sub('',
                                 data)
-                        data = re.sub(r'<meta\s+[^>]+?>', '', data)
                         data = data.replace(
-                                "<?xml version='1.0' encoding='utf-8'?><o:p></o:p>",
-                                '')
+                            "<?xml version='1.0' encoding='utf-8'?><o:p></o:p>",
+                            '')
                         data = data.replace("<?xml version='1.0' encoding='utf-8'??>", '')
-                        data = etree.fromstring(data, parser=RECOVER_PARSER)
+                        try:
+                            data = etree.fromstring(data,
+                                    parser=RECOVER_PARSER)
+                        except etree.XMLSyntaxError:
+                            self.oeb.logger.warn('Stripping meta tags from %s'%
+                                self.href)
+                            data = re.sub(r'<meta\s+[^>]+?>', '', data)
+                            data = etree.fromstring(data, parser=RECOVER_PARSER)
             elif namespace(data.tag) != XHTML_NS:
                 # OEB_DOC_NS, but possibly others
                 ns = namespace(data.tag)

@@ -311,8 +311,7 @@ class MobiWriter(object):
             elif self.indexer.is_periodical:
                 # If you change this, remember to change the cdetype in the EXTH
                 # header as well
-                bt = {'newspaper':0x101}.get(self.publication_type, 0x103)
-
+                bt = 0x103 if self.indexer.is_flat_periodical else 0x101
 
         exth = self.build_exth(bt)
         first_image_record = None

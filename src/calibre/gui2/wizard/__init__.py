@@ -209,6 +209,12 @@ class CybookOrizon(CybookOpus):
     name = 'Cybook Orizon'
     id = 'cybook_orizon'
 
+class CybookOdyssey(CybookOpus):
+
+    name = 'Cybook Odyssey'
+    id = 'cybook_odyssey'
+
+
 class PocketBook360(CybookOpus):
 
     manufacturer = 'PocketBook'

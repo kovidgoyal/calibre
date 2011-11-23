@@ -201,15 +201,49 @@ save_template_title_series_sorting = 'library_order'
 
 #: Set the list of words considered to be "articles" for sort strings
 # Set the list of words that are to be considered 'articles' when computing the
-# title sort strings. The list is a regular expression, with the articles
-# separated by 'or' bars. Comparisons are case insensitive, and that cannot be
-# changed. Changes to this tweak won't have an effect until the book is modified
-# in some way. If you enter an invalid pattern, it is silently ignored.
-# To disable use the expression: '^$'
-# This expression is designed for articles that are followed by spaces. If you
-# also need to match articles that are followed by other characters, for example L'
-# in French, use: "^(A\s+|The\s+|An\s+|L')" instead.
-# Default: '^(A|The|An)\s+'
+# title sort strings. The articles differ by language. By default, calibre uses
+# a combination of articles from English and whatever language the calibre user
+# interface is set to. In addition, in some contexts where the book language is
+# available, the language of the book is used. You can change the list of
+# articles for a given language or add a new language by editing
+# per_language_title_sort_articles. To tell calibre to use a language other
+# than the user interface language, set, default_language_for_title_sort. For
+# example, to use German, set it to 'deu'. A value of None means the user
+# interface language is used. The setting title_sort_articles is ignored
+# (present only for legacy reasons).
+per_language_title_sort_articles = {
+        # English
+        'eng'  : (r'A\s+', r'The\s+', r'An\s+'),
+        # Spanish
+        'spa'  : (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+',
+                  r'Una\s+', r'Unos\s+', r'Unas\s+'),
+        # French
+        'fra'  : (r'Le\s+', r'La\s+', r"L'", r'Les\s+', r'Un\s+', r'Une\s+',
+                  r'Des\s+'),
+        # Italian
+        'ita'  : (r'Lo\s+', r'Il\s+', r"L'", r'La\s+', r'Gli\s+', r'I\s+',
+                  r'Le\s+', ),
+        # Portuguese
+        'por'  : (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
+                  r'Uma\s+', r'Umas\s+', ),
+        # Romanian
+        'ron'  : (r'Un\s+', r'O\s+', r'Nişte\s+', ),
+        # German
+        'deu'  : (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
+                  r'Eine\s+', r'Einen\s+', ),
+        # Dutch
+        'nld'  : (r'De\s+', r'Het\s+', r'Een\s+', ),
+        # Swedish
+        'swe'  : (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+', ),
+        # Turkish
+        'tur'  : (r'Bir\s+', ),
+        # Afrikaans
+        'afr'  : (r"'n\s+", r'Die\s+', ),
+        # Greek
+        'ell'  : (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+',
+                  r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+", ),
+}
+default_language_for_title_sort = None
 title_sort_articles=r'^(A|The|An)\s+'
 
 #: Specify a folder calibre should connect to at startup
