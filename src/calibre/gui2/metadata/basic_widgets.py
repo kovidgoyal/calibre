@@ -138,9 +138,10 @@ class TitleSortEdit(TitleEdit):
             ' For example, The Exorcist might be sorted as Exorcist, The.')
     LABEL = _('Title &sort:')
 
-    def __init__(self, parent, title_edit, autogen_button):
+    def __init__(self, parent, title_edit, autogen_button, languages_edit):
         TitleEdit.__init__(self, parent)
         self.title_edit = title_edit
+        self.languages_edit = languages_edit
 
         base = self.TOOLTIP
         ok_tooltip = '<p>' + textwrap.fill(base+'<br><br>'+
@@ -157,10 +158,20 @@ class TitleSortEdit(TitleEdit):
 
         self.autogen_button = autogen_button
         autogen_button.clicked.connect(self.auto_generate)
+        languages_edit.editTextChanged.connect(self.update_state)
+        languages_edit.currentIndexChanged.connect(self.update_state)
         self.update_state()
 
+    @property
+    def book_lang(self):
+        try:
+            book_lang = self.languages_edit.lang_codes[0]
+        except:
+            book_lang = None
+        return book_lang
+
     def update_state(self, *args):
-        ts = title_sort(self.title_edit.current_val)
+        ts = title_sort(self.title_edit.current_val, lang=self.book_lang)
         normal = ts == self.current_val
         if normal:
             col = 'rgb(0, 255, 0, 20%)'
@@ -173,7 +184,8 @@ class TitleSortEdit(TitleEdit):
         self.setWhatsThis(tt)
 
     def auto_generate(self, *args):
-        self.current_val = title_sort(self.title_edit.current_val)
+        self.current_val = title_sort(self.title_edit.current_val,
+                lang=self.book_lang)
 
     def break_cycles(self):
         try:
