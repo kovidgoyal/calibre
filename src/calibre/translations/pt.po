@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-11-13 21:44+0000\n"
-"Last-Translator: Daniel Ramos <Unknown>\n"
+"PO-Revision-Date: 2011-11-22 17:57+0000\n"
+"Last-Translator: Sérgio Marques <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-19 05:04+0000\n"
-"X-Generator: Launchpad (build 14299)\n"
+"X-Launchpad-Export-Date: 2011-11-23 05:18+0000\n"
+"X-Generator: Launchpad (build 14336)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -203,7 +203,7 @@ msgstr "Desconhecido"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "Padrão"
+msgstr "Base"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
@@ -227,11 +227,11 @@ msgstr "Leitor de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "Editor de Metadados"
+msgstr "Editor de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "Gerador de catálogo"
+msgstr "Gerador de catálogos"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
 msgid "User Interface Action"
@@ -250,11 +250,11 @@ msgstr "Preferências"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr "Armazenar"
+msgstr "Guardar"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
-msgstr "Uma loja de ebooks"
+msgstr "Uma loja de \"ebooks\""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -262,9 +262,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Cria um arquivo PMLZ, contendo o ficheiro PML e todas as imagens existentes "
-"na pasta pmlname_img ou imagens. Este plugin é executado sempre que se "
-"adicionar um ficheiro PML à bibilioteca."
+"Criar um arquivo PMLZ, contendo o ficheiro PML e todas as imagens existentes "
+"na pasta pmlname_img ou imagens. Este \"plug-in \" é executado sempre que se "
+"adicionar um ficheiro PML à coleção."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:50
 msgid ""
@@ -272,9 +272,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
-"Cria um arquivo TXTZ quando um ficheiro TXT é importado e inclui referências "
-"Markdown ou Textile a imagens. Tanto as imagens referenciadas como o próprio "
-"ficheiro TXT são adicionados ao arquivo."
+"Criar um arquivo TXTZ quando um ficheiro TXT é importado e inclui "
+"referências \"Markdown\" ou \"Textile\" a imagens. Tanto as imagens "
+"referenciadas como o próprio ficheiro TXT são adicionados ao arquivo."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
@@ -303,7 +303,7 @@ msgstr "Extrai a capa dos ficheiros de banda desenhada"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:386
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Lê os metadados dos ficheiros %s"
+msgstr "Ler metadados de %s ficheiros."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:323
 msgid "Read metadata from ebooks in RAR archives"

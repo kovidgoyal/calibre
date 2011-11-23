@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-18 04:40+0000\n"
-"PO-Revision-Date: 2011-11-18 18:23+0000\n"
+"PO-Revision-Date: 2011-11-22 19:10+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-19 05:00+0000\n"
-"X-Generator: Launchpad (build 14299)\n"
+"X-Launchpad-Export-Date: 2011-11-23 05:18+0000\n"
+"X-Generator: Launchpad (build 14336)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -6882,6 +6882,13 @@ msgid ""
 "   will be selected.\n"
 " -For time field, only the date will be used. "
 msgstr ""
+"Alcune spiegazioni riguardo questo modello:\n"
+" -I campi disponibili sono 'ordine_autore', 'autori', 'id',\n"
+"    'isbn', 'datapub', 'editore', 'indice_serie', 'serie',\n"
+"   'etichette', 'marcatemporale', 'titolo', 'uuid', 'ordine_titolo'\n"
+" -Per gli elenchi come autori ed etichette, solo il primo elemento\n"
+"   sarà selezionato.\n"
+" -Per il campo relativo al tempo, solo la data sarà usata. "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_csv_xml.py:16
 msgid "CSV/XML Options"
@@ -7453,6 +7460,20 @@ msgid ""
 "size-rescaling\">User Manual</a> for a discussion of how font size rescaling "
 "works.</p>"
 msgstr ""
+"<p>Questa procedura ti aiuterà a scegliere un'appropriata dimensione chiave "
+"del carattere per le tue necessità. Semplicemente, inserisci la dimensione "
+"base del carattere dei documenti in ingresso e quindi inserisci le "
+"dimensioni dei caratteri di ingresso. La procedura ti mostrerà come sarà "
+"mappata la dimensione del carattere, attraverso l'algoritmo di scalatura dei "
+"caratteri. Puoi regolare l'algoritmo regolando la dimensione base del "
+"carattere desiderato e del carattere chiave in basso. Quando trovi valori "
+"accettabili, premi OK.</p>\n"
+"<p>In automatico, se la dimensione base del carattere desiderato è zero e/o "
+"non è specificato nessuna dimensione chiave del carattere, calibre userà i "
+"valori del profilo di uscita corrente. </p>\n"
+"<p>Consulta il <a href=\"http://manual.calibre-"
+"ebook.com/conversion.html#font-size-rescaling\">Manuale Utente</a> per una "
+"spiegazione su come lavora la scalatura della dimensione dei caratteri.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:108
 msgid "&Output document"
@@ -7765,6 +7786,8 @@ msgid ""
 "Comma separated list of CSS properties to remove. For example: display, "
 "color, font-family"
 msgstr ""
+"Elenco separate da virgole delle proprietà CSS da rimuovere. Ad esempio: "
+"display, color, font-family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
@@ -8580,6 +8603,13 @@ msgid ""
 "tag.</p><p>To learn more advanced usage of XPath see the <a "
 "href=\"http://manual.calibre-ebook.com/xpath.html\">XPath Tutorial</a>."
 msgstr ""
+"<p>Ad esempio, per confrontare tutte i tag h2 che hanno class=\"chapter\", "
+"imposta il tag a <i>h2</i>, l'attributo a <i>class</i> ed il valore a "
+"<i>chapter</i>.</p><p>Lasciando l'attributo vuoto si confronterà ogni "
+"attributo e lasciando il valore vuoto si confronterà ogni valore. Impostando "
+"il tag a * si confronterà ogni tag.</p><p>Per imparare ad utilizzare in modo "
+"avanzato XPath guarda <a href=\"http://manual.calibre-"
+"ebook.com/xpath.html\">XPath Tutorial</a>."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/cover_flow.py:145
 msgid "Browse by covers"
@@ -9688,6 +9718,9 @@ msgid ""
 "generated from the author. Exactly how this value is automatically\n"
 "generated can be controlled via Preferences->Advanced->Tweaks"
 msgstr ""
+"Ripristina tutti i valori di ordinamento autori a un valore automaticamente\n"
+"generato dall'autore. Come viene generato automaticamente questo valore\n"
+"può essere controllato in Preferenze->Avanzate->Tweaks"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:96
 msgid "Recalculate all author sort values"
@@ -9698,6 +9731,10 @@ msgid ""
 "Copy author sort to author for every author. You typically use this button\n"
 "after changing Preferences->Advanced->Tweaks->Author sort name algorithm"
 msgstr ""
+"Copia l'ordinamento autore in autore per ogni autore. Normalmente si "
+"utilizza questo pulsante\n"
+"dopo aver cambiato Preferenze->Avanzate->Tweaks->Algoritmo ordinamento nome "
+"autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:99
 msgid "Copy all author sort values to author"
@@ -10805,6 +10842,14 @@ msgid ""
 "only restores books, not any settings stored in the database, or any custom "
 "recipes.<p>Do you want to restore the database?"
 msgstr ""
+"Il tuo elenco di libri, con tutti i loro metadati è salvata in un singolo "
+"file, chiamato database. In aggiunta, i metadati di ogni singolo libro sono "
+"salvati nella cartella di questo stesso libro, come copia di "
+"sicurezza.<p>Questa operazione ricostruirà il database dai metadati "
+"individuali di ogni singolo libro. Questo è utile se il database è "
+"danneggiato e ottieni un elenco vuoto di libri. Nota che la ricostruzione "
+"riguarderà solo i libri, non le impostazioni salvate nel database, o "
+"qualunque formula personalizzata.<p>Vuoi ricostruire il database?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:117
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:131
@@ -11488,11 +11533,11 @@ msgstr "Era"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:263
 msgid "Template language tutorial"
-msgstr ""
+msgstr "Tutorial sul modello del linguaggio"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:267
 msgid "Template function reference"
-msgstr ""
+msgstr "Riferimento al modello della funzione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog.py:285
 msgid "EXCEPTION: "
@@ -11870,7 +11915,7 @@ msgstr "Notizie:"
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:144
 #, python-format
 msgid "Attached is the %s periodical downloaded by calibre."
-msgstr ""
+msgstr "In allegato c'è il %s periodico scaricato da calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:193
 msgid "E-book:"
@@ -12357,6 +12402,8 @@ msgid ""
 "Could not change the on disk location of this book. Is it open in another "
 "program?"
 msgstr ""
+"Non è possibile cambiare la posizione sul disco di questo libro. È aperto da "
+"qualche altro programma?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:867
 msgid "Failed to set data"
@@ -12533,12 +12580,17 @@ msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
 msgstr ""
+"Ignora i plugin personalizzati, utile se hai installato un plugin che "
+"impedisce l'avvio di calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:44
 msgid ""
 "Cause a running calibre instance, if any, to be shutdown. Note that if there "
 "are running jobs, they will be silently aborted, so use with care."
 msgstr ""
+"A causa di un'istanza calibre in esecuzione, se del caso, da arrestare. Nota "
+"che se ci sono lavori in esecuzione, essi saranno interrotti "
+"silenziosamente, perciò usala con attenzione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:712
@@ -12872,6 +12924,8 @@ msgid ""
 "You have changed the tags. In order to use the tags editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
+"Hai cambiato le etichette. Per poter usare l'editor delle etichette, devi "
+"annullare o applicare questi cambiamenti. Vuoi applicare i cambiamenti?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:1156
 msgid "A comma separated list of languages for this book"
@@ -13035,6 +13089,10 @@ msgid ""
 "Using this button to create title sort will change title sort from red to "
 "green."
 msgstr ""
+"Crea automaticamente la voce per ordinare i titoli basandosi sul valore "
+"corrente del titolo.\n"
+"Usando questo pulsante per creare un ordinamento dei titoli cambierà "
+"l'ordine dei titoli da rosso a verde."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:127
 msgid ""
@@ -13197,6 +13255,10 @@ msgid ""
 "single distinctive word from the title.<p>To see the full log, click Show "
 "Details."
 msgstr ""
+"Impossibile trovare un libro che soddisfi la tua ricerca. Prova rendendo la "
+"ricerca <b>meno specifica</b>. Per esempio, usa solo il cognome dell'autore "
+"ed una singola parola distintiva del titolo.<p>Per vedere l'intero registro, "
+"premi Mostra dettagli."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:545
 msgid "Current cover"
@@ -13640,6 +13702,11 @@ msgid ""
 "            <ul>%(rule)s</ul>\n"
 "            "
 msgstr ""
+"            <p>Imposta il colore di<b>%(col)s</b> a <b>%(color)s</b> se le "
+"seguenti\n"
+"            condizioni sono soddisfatte:</p>\n"
+"            <ul>%(rule)s</ul>\n"
+"            "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:467
 #, python-format
