@@ -164,4 +164,21 @@ class EB511(USBMS):
 
     OSX_MAIN_MEM_VOL_PAT = re.compile(r'/eReader')
 
+class ODYSSEY(N516):
+    name  = 'Cybook Odyssey driver'
+    gui_name       = 'Odyssey'
+    description    = _('Communicate with the Cybook Odyssey eBook reader.')
+
+    BCD = [0x316]
+    VENDOR_NAME      = 'LINUX'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
+
+    FORMATS     = ['epub', 'fb2', 'html', 'pdf', 'txt']
+
+    EBOOK_DIR_MAIN = 'calibre'
+
+    def get_main_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return self.EBOOK_DIR_MAIN
+        return ''
 
