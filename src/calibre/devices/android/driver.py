@@ -64,6 +64,7 @@ class ANDROID(USBMS):
             0xfce : {
                 0xd12e : [0x0100],
                 0xe14f : [0x0226],
+                0x614f : [0x0226, 0x100],
                 },
 
             # Google
