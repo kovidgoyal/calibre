@@ -332,8 +332,8 @@ def do_remove(db, ids):
             for y in x:
                 db.delete_book(y)
 
-        send_message()
     db.clean()
+    send_message()
 
 def remove_option_parser():
     return get_parser(_(
@@ -358,7 +358,7 @@ def command_remove(args, dbpath):
     for x in args[1].split(','):
         y = x.split('-')
         if len(y) > 1:
-            ids.append(range(int(y[0], int(y[1]))))
+            ids.extend(range(int(y[0]), int(y[1])))
         else:
             ids.append(int(y[0]))
 

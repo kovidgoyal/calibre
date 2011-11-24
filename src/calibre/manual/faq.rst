@@ -117,8 +117,8 @@ How can I help get my device supported in |app|?
 If your device appears as a USB disk to the operating system, adding support for it to |app| is very easy.
 We just need some information from you:
 
-  * What ebook formats does your device support?
-  * Is there a special directory on the device in which all ebook files should be placed?
+  * Complete list of ebook formats that your device supports.
+  * Is there a special directory on the device in which all ebook files should be placed? Also does the device detect files placed in sub directories?
   * We also need information about your device that |app| will collect automatically. First, if your
     device supports SD cards, insert them. Then connect your device to the computer. In calibre go to :guilabel:`Preferences->Advanced->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file

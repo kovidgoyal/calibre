@@ -757,6 +757,7 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, NookColorOutput, PocketBook900Output, GenericEink, GenericEinkLarge]
+        BambookOutput, NookColorOutput, PocketBook900Output, GenericEink,
+        GenericEinkLarge, KindleFireOutput]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))

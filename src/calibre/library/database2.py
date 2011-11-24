@@ -15,7 +15,7 @@ from math import ceil
 
 from calibre import prints
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
-        string_to_authors, authors_to_string)
+        string_to_authors, authors_to_string, get_title_sort_pat)
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.database import LibraryDatabase
 from calibre.library.field_metadata import FieldMetadata, TagsIcons
@@ -1004,10 +1004,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return False
 
     def find_identical_books(self, mi):
-        fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
+        fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE) if
+            isinstance(pat, basestring) else pat, repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
-                    (tweaks.get('title_sort_articles', r'^(a|the|an)\s+'), ''),
+                    (get_title_sort_pat(), ''),
                     (r'[-._]', ' '),
                     (r'\s+', ' ')
                 ]
