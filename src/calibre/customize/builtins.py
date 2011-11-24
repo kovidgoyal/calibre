@@ -1383,6 +1383,17 @@ class StoreLibreDEStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreLitResStore(StoreBase):
+    name = 'LitRes'
+    description = u'ebooks from LitRes.ru'
+    actual_plugin = 'calibre.gui2.store.stores.litres_plugin:LitResStore'
+    author = 'Roman Mukhin'
+
+    drm_free_only = False
+    headquarters = 'RU'
+    formats = ['EPUB', 'TXT', 'RTF', 'HTML', 'FB2', 'LRF', 'PDF', 'MOBI', 'LIT', 'ISILO3', 'JAR', 'RB', 'PRC']
+    affiliate = True
+
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = u'Public domain and creative commons works from many sources.'
@@ -1567,6 +1578,7 @@ plugins += [
     StoreKoboStore,
     StoreLegimiStore,
     StoreLibreDEStore,
+    StoreLitResStore,
     StoreManyBooksStore,
     StoreMobileReadStore,
     StoreNextoStore,

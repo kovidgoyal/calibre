@@ -12,14 +12,14 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-09-27 14:31+0000\n"
-"PO-Revision-Date: 2011-11-13 15:24+0000\n"
+"PO-Revision-Date: 2011-11-22 16:45+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: Catalan <linux@softcatala.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-14 05:15+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Launchpad-Export-Date: 2011-11-23 05:19+0000\n"
+"X-Generator: Launchpad (build 14336)\n"
 "Language: ca\n"
 
 #. name for aaa
@@ -9164,71 +9164,71 @@ msgstr "Hewa"
 
 #. name for han
 msgid "Hangaza"
-msgstr ""
+msgstr "Hangaza"
 
 #. name for hao
 msgid "Hakö"
-msgstr ""
+msgstr "Hako"
 
 #. name for hap
 msgid "Hupla"
-msgstr ""
+msgstr "Hupla"
 
 #. name for haq
 msgid "Ha"
-msgstr ""
+msgstr "Ha"
 
 #. name for har
 msgid "Harari"
-msgstr ""
+msgstr "Harari"
 
 #. name for has
 msgid "Haisla"
-msgstr ""
+msgstr "Haisla"
 
 #. name for hat
 msgid "Creole; Haitian"
-msgstr ""
+msgstr "Crioll haitià"
 
 #. name for hau
 msgid "Hausa"
-msgstr ""
+msgstr "Hausa"
 
 #. name for hav
 msgid "Havu"
-msgstr ""
+msgstr "Havu"
 
 #. name for haw
 msgid "Hawaiian"
-msgstr ""
+msgstr "Hawaià"
 
 #. name for hax
 msgid "Haida; Southern"
-msgstr ""
+msgstr "Haida; meridional"
 
 #. name for hay
 msgid "Haya"
-msgstr ""
+msgstr "Haya"
 
 #. name for haz
 msgid "Hazaragi"
-msgstr ""
+msgstr "Hazaragi"
 
 #. name for hba
 msgid "Hamba"
-msgstr ""
+msgstr "Hamba"
 
 #. name for hbb
 msgid "Huba"
-msgstr ""
+msgstr "Huba"
 
 #. name for hbn
 msgid "Heiban"
-msgstr ""
+msgstr "Heiban"
 
 #. name for hbo
 msgid "Hebrew; Ancient"
-msgstr ""
+msgstr "Hebreu antic"
 
 #. name for hbs
 msgid "Serbo-Croatian"
@@ -9236,7 +9236,7 @@ msgstr "Serbocroat"
 
 #. name for hbu
 msgid "Habu"
-msgstr ""
+msgstr "Habu"
 
 #. name for hca
 msgid "Creole Hindi; Andaman"
@@ -9244,11 +9244,11 @@ msgstr "Hindi crioll; Andaman"
 
 #. name for hch
 msgid "Huichol"
-msgstr ""
+msgstr "Huichol"
 
 #. name for hdn
 msgid "Haida; Northern"
-msgstr ""
+msgstr "Haida; septentrional"
 
 #. name for hds
 msgid "Honduras Sign Language"
@@ -9256,7 +9256,7 @@ msgstr "Llenguatge de signes hondureny"
 
 #. name for hdy
 msgid "Hadiyya"
-msgstr ""
+msgstr "Hadia"
 
 #. name for hea
 msgid "Miao; Northern Qiandong"
@@ -9268,59 +9268,59 @@ msgstr "Hebreu"
 
 #. name for hed
 msgid "Herdé"
-msgstr ""
+msgstr "Herdé"
 
 #. name for heg
 msgid "Helong"
-msgstr ""
+msgstr "Helong"
 
 #. name for heh
 msgid "Hehe"
-msgstr ""
+msgstr "Hehe"
 
 #. name for hei
 msgid "Heiltsuk"
-msgstr ""
+msgstr "Heiltsuk"
 
 #. name for hem
 msgid "Hemba"
-msgstr ""
+msgstr "Hemba"
 
 #. name for her
 msgid "Herero"
-msgstr ""
+msgstr "Herero"
 
 #. name for hgm
 msgid "Hai//om"
-msgstr ""
+msgstr "Hai om"
 
 #. name for hgw
 msgid "Haigwai"
-msgstr ""
+msgstr "Haigwai"
 
 #. name for hhi
 msgid "Hoia Hoia"
-msgstr ""
+msgstr "Hoia Hoia"
 
 #. name for hhr
 msgid "Kerak"
-msgstr ""
+msgstr "Kerak"
 
 #. name for hhy
 msgid "Hoyahoya"
-msgstr ""
+msgstr "Hoyahoya"
 
 #. name for hia
 msgid "Lamang"
-msgstr ""
+msgstr "Lamang"
 
 #. name for hib
 msgid "Hibito"
-msgstr ""
+msgstr "Hibito"
 
 #. name for hid
 msgid "Hidatsa"
-msgstr ""
+msgstr "Hidatsa"
 
 #. name for hif
 msgid "Hindi; Fiji"
@@ -9328,23 +9328,23 @@ msgstr "Hindi; Fiji"
 
 #. name for hig
 msgid "Kamwe"
-msgstr ""
+msgstr "Kamwe"
 
 #. name for hih
 msgid "Pamosu"
-msgstr ""
+msgstr "Hinihon"
 
 #. name for hii
 msgid "Hinduri"
-msgstr ""
+msgstr "Hinduri"
 
 #. name for hij
 msgid "Hijuk"
-msgstr ""
+msgstr "Hijuk"
 
 #. name for hik
 msgid "Seit-Kaitetu"
-msgstr ""
+msgstr "Seit-Kaitetu"
 
 #. name for hil
 msgid "Hiligaynon"
@@ -24696,7 +24696,7 @@ msgstr ""
 
 #. name for tcs
 msgid "Creole; Torres Strait"
-msgstr ""
+msgstr "Crioll; Torres Estret"
 
 #. name for tct
 msgid "T'en"
