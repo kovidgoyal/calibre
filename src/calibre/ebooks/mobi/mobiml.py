@@ -376,8 +376,8 @@ class MobiMLizer(object):
         istate.preserve = (style['white-space'] in ('pre', 'pre-wrap'))
         istate.bgcolor  = style['background-color']
         istate.fgcolor  = style['color']
-        istate.strikethrough = style['text-decoration'] == 'line-through'
-        istate.underline = style['text-decoration'] == 'underline'
+        istate.strikethrough = style.effective_text_decoration == 'line-through'
+        istate.underline = style.effective_text_decoration == 'underline'
         ff = style['font-family'].lower() if style['font-family'] else ''
         if 'monospace' in ff or 'courier' in ff or ff.endswith(' mono'):
             istate.family = 'monospace'
