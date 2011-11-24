@@ -6,11 +6,7 @@ www.nin.co.rs
 '''
 
 import re
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from contextlib import closing
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre import entity_to_unicode
 
 class Nin(BasicNewsRecipe):
     title                  = 'NIN online'
@@ -81,7 +77,7 @@ class Nin(BasicNewsRecipe):
         return cover_url
 
     feeds          = [(u'NIN Online', u'http://www.nin.co.rs/misc/rss.php?feed=RSS2.0')]
-    
+
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)
         return url.replace('.co.yu', '.co.rs')

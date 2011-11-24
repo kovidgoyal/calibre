@@ -11,7 +11,7 @@ import re
 import urllib2
 
 from contextlib import closing
-from lxml import etree, html
+from lxml import etree
 from PyQt4.Qt import QUrl
 
 from calibre import browser, url_slash_cleaner, prints
@@ -25,18 +25,18 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class LitResStore(BasicStoreConfig, StorePlugin):
     shop_url = u'http://www.litres.ru'
     #http://robot.litres.ru/pages/biblio_book/?art=174405
-    
+
     def open(self, parent=None, detail_item=None, external=False):
-        
+
         aff_id = u'?' + _get_affiliate_id()
-        
+
         url = self.shop_url + aff_id
         detail_url = None
         if detail_item:
             # http://www.litres.ru/pages/biblio_book/?art=157074
             detail_url = self.shop_url + u'/pages/biblio_book/' + aff_id +\
-                u'&art=' + urllib2.quote(detail_item) 
-        
+                u'&art=' + urllib2.quote(detail_item)
+
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
         else:
@@ -44,28 +44,28 @@ class LitResStore(BasicStoreConfig, StorePlugin):
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
-        
+
 
     def search(self, query, max_results=10, timeout=60):
         search_url = u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02&'\
         'search=%s&limit=0,%s'
         search_url = search_url % (urllib2.quote(query), max_results)
-        
+
         counter = max_results
         br = browser()
         br.addheaders.append( ['Accept-Encoding','gzip'] )
-        
+
         with closing(br.open(search_url, timeout=timeout)) as r:
             ungzipResponse(r,br)
             raw= xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
-            
+
             parser = etree.XMLParser(recover=True, no_network=True)
             doc = etree.fromstring(raw, parser=parser)
             for data in doc.xpath('//*[local-name() = "fb2-book"]'):
                 if counter <= 0:
                     break
                 counter -= 1
-                
+
                 try:
                     sRes = self.create_search_result(data)
                 except Exception as e:
@@ -75,10 +75,10 @@ class LitResStore(BasicStoreConfig, StorePlugin):
 
     def get_details(self, search_result, timeout=60):
         pass
-    
+
     def create_search_result(self, data):
         xp_template = 'normalize-space(@{0})'
-        
+
         sRes = SearchResult()
         sRes.drm = SearchResult.DRM_UNLOCKED
         sRes.detail_item = data.xpath(xp_template.format('hub_id'))
@@ -92,7 +92,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         # cover vs cover_preview
         sRes.cover_url = data.xpath(xp_template.format('cover_preview'))
         sRes.price = format_price_in_RUR(sRes.price)
-        
+
         types = data.xpath('//fb2-book//files/file/@type')
         fmt_set = _parse_ebook_formats(' '.join(types))
         sRes.formats = ', '.join(fmt_set)
@@ -134,8 +134,8 @@ def _get_affiliate_id():
 def _parse_ebook_formats(formatsStr):
     '''
     Creates a set with displayable names of the formats
-    
-    :param formatsStr: string with comma separated book formats 
+
+    :param formatsStr: string with comma separated book formats
            as it provided by ozon.ru
     :return: a list with displayable book formats
     '''
