@@ -917,14 +917,13 @@ class BuiltinListUnion(BuiltinFormatterFunction):
     aliases = ['merge_lists']
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
-        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        res = [l.strip() for l in list1.split(separator) if l.strip()]
         l2 = [l.strip() for l in list2.split(separator) if l.strip()]
-        lcl1 = set([icu_lower(l) for l in l1])
+        lcl1 = set([icu_lower(l) for l in res])
 
-        res = set(l1)
         for i in l2:
-            if icu_lower(i) not in lcl1:
-                res.add(i)
+            if icu_lower(i) not in lcl1 and i not in res:
+                res.append(i)
         if separator == ',':
             return ', '.join(res)
         return separator.join(res)
@@ -944,7 +943,7 @@ class BuiltinListDifference(BuiltinFormatterFunction):
 
         res = []
         for i in l1:
-            if icu_lower(i) not in l2:
+            if icu_lower(i) not in l2 and i not in res:
                 res.append(i)
         if separator == ',':
             return ', '.join(res)
@@ -963,10 +962,10 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
         l2 = set([icu_lower(l.strip()) for l in list2.split(separator) if l.strip()])
 
-        res = set()
+        res = []
         for i in l1:
-            if icu_lower(i) in l2:
-                res.add(i)
+            if icu_lower(i) in l2 and i not in res:
+                res.append(i)
         if separator == ',':
             return ', '.join(res)
         return separator.join(res)
@@ -1017,13 +1016,14 @@ class BuiltinListRe(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, src_list, separator, search_re, opt_replace):
         l = [l.strip() for l in src_list.split(separator) if l.strip()]
-        res = set()
+        res = []
         for item in l:
             if re.search(search_re, item, flags=re.I) is not None:
                 if opt_replace:
                     item = re.sub(search_re, opt_replace, item)
                 for i in [l.strip() for l in item.split(',') if l.strip()]:
-                    res.add(i)
+                    if i not in res:
+                        res.append(i)
         if separator == ',':
             return ', '.join(res)
         return separator.join(res)
