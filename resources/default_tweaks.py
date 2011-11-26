@@ -232,7 +232,9 @@ per_language_title_sort_articles = {
         'deu'  : (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
                   r'Eine\s+', r'Einen\s+', ),
         # Dutch
-        'nld'  : (r'De\s+', r'Het\s+', r'Een\s+', ),
+        'nld'  : (r'De\s+', r'Het\s+', r'Een\s+', r"'n\s+", r"'s\s+", r'Ene\s+',
+                  r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+',
+                  r"'t\s+"),
         # Swedish
         'swe'  : (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+', ),
         # Turkish
