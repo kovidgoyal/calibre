@@ -13,7 +13,7 @@ import threading, random
 from itertools import repeat
 from math import ceil
 
-from calibre import prints
+from calibre import prints, force_unicode
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
         string_to_authors, authors_to_string, get_title_sort_pat)
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
@@ -33,7 +33,7 @@ from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks, from_json, to_json
-from calibre.utils.icu import sort_key, strcmp
+from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
@@ -1002,6 +1002,19 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 title = title.decode(preferred_encoding, 'replace')
             return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
         return False
+
+    def books_with_same_title(self, mi, all_matches=True):
+        title = mi.title
+        ans = set()
+        if title:
+            title = lower(force_unicode(title))
+            for book_id in self.all_ids():
+                x = self.title(book_id, index_is_id=True)
+                if lower(x) == title:
+                    ans.add(book_id)
+                    if not all_matches:
+                        break
+        return ans
 
     def find_identical_books(self, mi):
         fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE) if

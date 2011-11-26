@@ -232,7 +232,9 @@ per_language_title_sort_articles = {
         'deu'  : (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
                   r'Eine\s+', r'Einen\s+', ),
         # Dutch
-        'nld'  : (r'De\s+', r'Het\s+', r'Een\s+', ),
+        'nld'  : (r'De\s+', r'Het\s+', r'Een\s+', r"'n\s+", r"'s\s+", r'Ene\s+',
+                  r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+',
+                  r"'t\s+"),
         # Swedish
         'swe'  : (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+', ),
         # Turkish
@@ -242,6 +244,8 @@ per_language_title_sort_articles = {
         # Greek
         'ell'  : (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+',
                   r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+", ),
+        # Hungarian
+        'hun'  : (r'A\s+', 'Az\s+', 'Egy\s+',),
 }
 default_language_for_title_sort = None
 title_sort_articles=r'^(A|The|An)\s+'

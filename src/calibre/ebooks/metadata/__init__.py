@@ -109,12 +109,16 @@ def get_title_sort_pat(lang=None):
     q = canonicalize_lang(q) if q else q
     data = tweaks['per_language_title_sort_articles']
     ans = data.get(q, None)
-    if ans is None:
-        ans = data['eng']
-    ans = frozenset(ans + data['eng'])
+    try:
+        ans = frozenset(ans) if ans else frozenset(data['eng'])
+    except:
+        ans = frozenset((r'A\s+', r'The\s+', r'An\s+'))
     ans = '|'.join(ans)
     ans = '^(%s)'%ans
-    ans = re.compile(ans, re.IGNORECASE)
+    try:
+        ans = re.compile(ans, re.IGNORECASE)
+    except:
+        ans = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
     _title_pats[lang] = ans
     return ans
 
