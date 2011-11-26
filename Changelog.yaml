@@ -19,6 +19,63 @@
 #  new recipes:
 #    - title: 
 
+- version: 0.8.28
+  date: 2011-11-25
+
+  new features:
+    - title: "Get Books: Add litres.ru store"
+
+    - title: "Change the algorithm that generates title sort strings to strip leading articles from both english and the current language set for the calibre user interface. In addition, in the edit metadata dialog, calibre will use the book's language when calculating the sort string. This behavior can be adjusted via Preferences->Tweaks."
+      tickets: [886763]
+
+    - title: "Driver for Cybook Odyssey."
+      tickets: [893457]
+
+    - title: "Irex driver: Put books into the top level directory instead of into /ebooks or /Books."
+      tickets: [883616]
+  
+  bug fixes:
+    - title: "Have downloaded periodicals recognized when transferred via USB to the Kindle Fire"
+
+    - title: "MOBI Output: Fix underline and strikethrough properties declared on parents not being rendered on child tags."
+      tickets: [894245]
+
+    - title: "Template language: Fix regression that broke ordering of items when formatting a list"
+
+    - title: "Conversion pipeline: When removing obsolete <font> tags convert them to <div> instead of <span> if they contain block level tags."
+      tickets: [892525] 
+
+    - title: "When downloading metadata, fix the case normalization of double-barelled author names."
+      tickets: [893257]
+
+    - title: "Template language: Fix regression that broke using general program mode in save to disk templates"
+
+    - title: "calibredb: Fix use of ranges when specifying ids for the remove command"
+
+    - title: "Apple driver: Add ids for iPhone 4S. More robust against iTunes automation errors when adding artwork."
+      tickets: [892468]
+
+    - title: "Fix encoding of comments incorrectly detected when downloading metadata from ozon.ru"
+
+    - title: "Fix calibre not getting list of books on the Kindle Fire"
+
+  improved recipes:
+    - El Mundo
+    - BBC
+    - NIN Online
+    - ABC Australia
+    - Salon.com
+    - Expansion (Spanish)
+    - The Week
+    - Heise Online
+
+  new recipes:
+    - title: Give me something to read and Let's get Critical
+      author: Barty
+
+    - title: Worldcrunch
+      author: Krittika Goyal
+
 - version: 0.8.27
   date: 2011-11-18
 

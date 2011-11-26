@@ -141,8 +141,17 @@ class UploadToGoogleCode(Command): # {{{
                 'dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
         desc = installer_description(fname)
         start = time.time()
-        path = self.upload(os.path.abspath(fname), desc,
-                labels=[typ, op, 'Featured'])
+        for i in range(5):
+            try:
+                path = self.upload(os.path.abspath(fname), desc,
+                    labels=[typ, op, 'Featured'])
+            except:
+                import traceback
+                traceback.print_exc()
+                print ('\nUpload failed, trying again in 30 secs')
+                time.sleep(30)
+            else:
+                break
         self.info('Uploaded to:', path, 'in', int(time.time() - start),
                 'seconds')
         return path
@@ -312,9 +321,16 @@ class UploadToSourceForge(Command): # {{{
             if not os.path.exists(x): continue
             start = time.time()
             self.info('Uploading', x)
-            check_call(['rsync', '-z', '--progress', '-e', 'ssh -x', x,
-                '%s,%s@frs.sourceforge.net:%s'%(self.USERNAME, self.PROJECT,
-                    self.rdir+'/')])
+            for i in range(5):
+                try:
+                    check_call(['rsync', '-z', '--progress', '-e', 'ssh -x', x,
+                    '%s,%s@frs.sourceforge.net:%s'%(self.USERNAME, self.PROJECT,
+                        self.rdir+'/')])
+                except:
+                    print ('\nUpload failed, trying again in 30 seconds')
+                    time.sleep(30)
+                else:
+                    break
             print 'Uploaded in', int(time.time() - start), 'seconds'
             print ('\n')
 

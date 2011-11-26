@@ -17949,7 +17949,7 @@ msgid "Ndoola"
 msgstr ""
 
 #. name for nds
-msgid "Saxon; Low"
+msgid "German; Low"
 msgstr ""
 
 #. name for ndt
