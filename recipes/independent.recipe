@@ -39,7 +39,9 @@ class TheIndependentNew(BasicNewsRecipe):
     encoding                = 'utf-8'
     remove_tags             =[
                                dict(attrs={'id' : ['RelatedArtTag','renderBiography']}),
-                               dict(attrs={'class' : ['autoplay','openBiogPopup']})
+                               dict(attrs={'class' : ['autoplay','openBiogPopup']}),
+                               dict(name='img',attrs={'alt' : ['Get Adobe Flash player']}),
+                               dict(attrs={'style' : re.compile('.*')}),
                              ]
 
     keep_only_tags          =[dict(attrs={'id':'main'})]
@@ -113,6 +115,7 @@ class TheIndependentNew(BasicNewsRecipe):
                     return None
 
         items_to_extract = []
+        slideshow_elements = []
 
         for item in soup.findAll(attrs={'class' : re.compile("widget.*")}):
             remove = True
@@ -131,6 +134,7 @@ class TheIndependentNew(BasicNewsRecipe):
             if (pattern.search(item['class'])) is not None:
                 if self._FETCH_IMAGES:
                     remove = False
+                    slideshow_elements.append(item)
                 else:
                     remove = True
 
@@ -148,28 +152,29 @@ class TheIndependentNew(BasicNewsRecipe):
         items_to_extract = []
 
         if self._FETCH_IMAGES:
-            for item in soup.findAll('a',attrs={'href' : re.compile('.*')}):
-                if item.img is not None:
-                    #use full size image
-                    img = item.findNext('img')
+            for element in slideshow_elements:
+                for item in element.findAll('a',attrs={'href' : re.compile('.*')}):
+                    if item.img is not None:
+                        #use full size image
+                        img = item.findNext('img')
 
-                    img['src'] = item['href']
+                        img['src'] = item['href']
 
-                    #insert caption if available
-                    if img['title'] is not None and (len(img['title']) > 1):
-                        tag = Tag(soup,'h3')
-                        text = NavigableString(img['title'])
-                        tag.insert(0,text)
+                        #insert caption if available
+                        if img.get('title') and (len(img['title']) > 1):
+                            tag = Tag(soup,'h3')
+                            text = NavigableString(img['title'])
+                            tag.insert(0,text)
 
-                        #picture before text
-                        img.extract()
-                        item.insert(0,img)
-                        item.insert(1,tag)
+                            #picture before text
+                            img.extract()
+                            item.insert(0,img)
+                            item.insert(1,tag)
 
-                    # remove link
-                    item.name = "div"
-                    item["class"]='image'
-                    del item["href"]
+                        # remove link
+                        item.name = "div"
+                        item["class"]='image'
+                        del item["href"]
 
 
         #remove empty subtitles
@@ -283,7 +288,7 @@ class TheIndependentNew(BasicNewsRecipe):
         items_to_extract = []
         for item in soup.findAll('div', attrs={'class' : 'image'}):
             img = item.findNext('img')
-            if img is not None and img['src'] is not None:
+            if img and img.get('src'):
                 # broken images still point to remote url
                 pattern = re.compile('http://www.independent.co.uk.*')
                 if pattern.match(img["src"]) is not None:
