@@ -13,7 +13,7 @@ from datetime import timedelta
 from lxml import etree
 from lxml.builder import ElementMaker
 
-from calibre import browser
+from calibre import browser, force_unicode
 from calibre.utils.date import parse_date, now as nowf, utcnow, tzlocal, \
         isoformat, fromordinal
 
@@ -66,8 +66,9 @@ def serialize_collection(mapping_of_recipe_classes):
             x.title.decode('ascii')
     '''
     for urn in sorted(mapping_of_recipe_classes.keys(),
-            key=lambda key: getattr(mapping_of_recipe_classes[key], 'title',
-                'zzz')):
+            key=lambda key: force_unicode(
+                getattr(mapping_of_recipe_classes[key], 'title', 'zzz'),
+                'utf-8')):
         recipe = serialize_recipe(urn, mapping_of_recipe_classes[urn])
         collection.append(recipe)
     collection.set('count', str(len(collection)))
