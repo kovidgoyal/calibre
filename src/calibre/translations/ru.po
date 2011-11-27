@@ -7,15 +7,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-25 08:01+0000\n"
-"PO-Revision-Date: 2011-11-19 16:21+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-11-27 03:35+0000\n"
+"Last-Translator: Mikhail Makarov <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-11-26 04:57+0000\n"
+"X-Launchpad-Export-Date: 2011-11-27 05:23+0000\n"
 "X-Generator: Launchpad (build 14381)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
@@ -855,7 +855,7 @@ msgstr "Профиль для Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Этот профиль предназначен для Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -868,7 +868,7 @@ msgstr "Этот профиль предназначен для Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Этот профиль предназначен для серии устройств PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1379,7 +1379,7 @@ msgstr "Соединиться с Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Установить связь с Cybook Odyssey eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1501,7 +1501,7 @@ msgstr "Соединиться с Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Установить связь с Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -1517,7 +1517,7 @@ msgstr "Создать теги для автоматического упрвл
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:59
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Загрузить обложки для книг"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:60
 msgid ""
@@ -1525,6 +1525,9 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Как правило, KOBO-ридеры получают картинку обложки от самой электронной "
+"книги. С этой опцией calibre отправить отдельную картинку обложки. Это "
+"полезно, если вы изменяли обложку."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
@@ -1562,6 +1565,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Последний раз книга читалась:</b> %(time)s<br /><b>Процент "
+"прочитан:</b> %(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1027
 #, python-format
@@ -1671,7 +1676,7 @@ msgstr "Установить связь с Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Установить связь с Nook Color, TSR и Tablet eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1683,7 +1688,7 @@ msgstr "Установить связь с Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Установить связь с Sony eBook выпущенными до PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1784,7 +1789,7 @@ msgstr "Без имени"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:38
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Установить связь с PRST1 и более новыми SONY eBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:73
 msgid "Upload separate cover thumbnails for books"
@@ -9318,7 +9323,7 @@ msgstr "Активные задания"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:33
 msgid "Find next match"
-msgstr ""
+msgstr "Найти следующее совпадение"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
@@ -9326,7 +9331,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Find previous match"
-msgstr ""
+msgstr "Найти предыдущее совпадение"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:54
 msgid "&Stop selected jobs"
@@ -9334,7 +9339,7 @@ msgstr "&Остановить выбранные задания"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:58
 msgid "&Hide selected jobs"
-msgstr ""
+msgstr "&Скрыть выбранные задания"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
@@ -9342,7 +9347,7 @@ msgstr "Показать подробности задания"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:66
 msgid "Show &all jobs"
-msgstr ""
+msgstr "Показать &все задания"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:70
 msgid "Stop &all non device jobs"
@@ -9350,7 +9355,7 @@ msgstr "Остановить &все задания не на устройств
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr ""
+msgstr "&Скрыть все задания"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
