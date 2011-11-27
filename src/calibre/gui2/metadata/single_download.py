@@ -28,7 +28,7 @@ from calibre.ebooks.metadata.sources.identify import (identify,
         urls_from_identifiers)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import error_dialog, NONE
-from calibre.utils.date import utcnow, fromordinal, format_date
+from calibre.utils.date import utcnow, fromordinal, format_date, UNDEFINED_DATE
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
 # }}}
@@ -201,7 +201,7 @@ class ResultsModel(QAbstractTableModel): # {{{
         elif col == 1:
             key = attrgetter('title')
         elif col == 2:
-            key = attrgetter('pubdate')
+            key = lambda x: x.pubdate if x.pubdate else UNDEFINED_DATE
         elif col == 3:
             key = attrgetter('has_cached_cover_url')
         elif key == 4:
