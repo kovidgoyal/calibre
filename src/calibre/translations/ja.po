@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 08:01+0000\n"
-"PO-Revision-Date: 2011-11-20 14:55+0000\n"
+"PO-Revision-Date: 2011-11-27 16:03+0000\n"
 "Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-11-26 04:53+0000\n"
+"X-Launchpad-Export-Date: 2011-11-28 05:19+0000\n"
 "X-Generator: Launchpad (build 14381)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -470,7 +470,7 @@ msgstr "calibreの挙動を変更する"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:918
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:252
 msgid "Add your own columns"
-msgstr "表示列を追加"
+msgstr "表示列の追加"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:924
 msgid "Add/remove your own columns to the calibre book list"
@@ -526,7 +526,7 @@ msgstr "各出力フォーマット特有の変換オプションを設定する
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:985
 msgid "Adding books"
-msgstr "本を追加"
+msgstr "本の追加"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:987
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:999
@@ -1334,7 +1334,7 @@ msgstr "電子書籍リーダー Elonex EB 511と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Cybook Odyssey 電子書籍リーダー と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1630,7 +1630,7 @@ msgstr "Nook 電子書籍リーダ─と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Nook Color, TSR, タブレット電子書籍リーダー と通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -5759,7 +5759,7 @@ msgstr "本"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
 msgid "Search for this %s"
-msgstr "%s を検索"
+msgstr "%sを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
@@ -6706,7 +6706,7 @@ msgstr "出力フォーマットに関するオプション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:15
 msgid "Comic Input"
-msgstr "コミックの入力"
+msgstr "コミック入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:15
@@ -6832,7 +6832,7 @@ msgstr "DJVU 入力"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
-msgstr "より速い処理のために、できれば &djvutxt を使用する。"
+msgstr "高速に処理するため、利用可能であれば djvutxt を使用する(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/epub_output.py:15
 msgid "EPUB Output"
@@ -9429,7 +9429,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:259
 msgid "Restore pre conversion &originals, if available"
-msgstr ""
+msgstr "利用可能であれば変換前のオリジナルを復元する(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:268
 msgid ""
@@ -12486,7 +12486,7 @@ msgstr "ファーストネームとラストネームを交換します。この
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:71
 msgid "&Swap author firstname and lastname"
-msgstr "著者の 名 と 姓 を入れ替える(&S)"
+msgstr "著者の名と姓を入れ替える(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:72
 msgid ""
@@ -14169,7 +14169,7 @@ msgstr "書誌情報をOPFファイルに保存する(&O)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:71
 msgid "&Show files in file browser after saving to disk"
-msgstr "ディスクに保存の後、ファイルブラウザでファイルを表示する。(&S)"
+msgstr "ディスク保存後にファイルブラウザーでファイルを表示する(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search.py:34
 msgid ""
@@ -15511,7 +15511,7 @@ msgstr "平均評価でソート"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:363
 msgid "Set the sort order for entries in the Tag Browser"
-msgstr "タグブラウザー中のエントリーの、ソート順を設定"
+msgstr "タグブラウザー中にあるエントリーのソート順を設定"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:370
 msgid "Match all"
@@ -15576,7 +15576,7 @@ msgstr "%(item)s を カテゴリー  %(cat)s から削除"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:394
 #, python-format
 msgid "Search for %s"
-msgstr "%s を検索"
+msgstr "%sを検索"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:399
 #, python-format
@@ -19916,7 +19916,7 @@ msgid ""
 "(\\ characters) in the template. It doesn't hurt anything to leave it there\n"
 "even if there aren't any backslashes."
 msgstr ""
-"タグブラウザをパーティションする時に、サブカテゴリーのラベルはテンプレートによってコントロールされます: 名前でソートする時には "
+"タグブラウザーをパーティションする時に、サブカテゴリーのラベルはテンプレートによってコントロールされます: 名前でソートする時には "
 "categories_collapsed_name_template、平均評価でソートする時には "
 "categories_collapsed_rating_template 、そして人気度でソートする時には\n"
 "categories_collapsed_popularity_template を使います。\n"
