@@ -1531,7 +1531,7 @@ class StoreWoblinkStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.woblink_plugin:WoblinkStore'
 
     headquarters = 'PL'
-    formats = ['EPUB']
+    formats = ['EPUB', 'PDF', 'WOBLINK']
 
 class XinXiiStore(StoreBase):
     name = 'XinXii'
