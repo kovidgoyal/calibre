@@ -124,7 +124,10 @@ def cap_author_token(token):
     scots_name = None
     for x in ('mc', 'mac'):
         if (token.lower().startswith(x) and len(token) > len(x) and
-                token[len(x)] == upper(token[len(x)])):
+                (
+                    token[len(x)] == upper(token[len(x)]) or
+                    lt == token
+                )):
             scots_name = len(x)
             break
     ans = capitalize(token)
