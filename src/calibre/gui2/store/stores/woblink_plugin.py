@@ -61,6 +61,12 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 price = ''.join(data.xpath('.//div[@class="prices"]/p[1]/span/text()'))
                 price = re.sub('PLN', ' zł', price)
                 price = re.sub('\.', ',', price)
+                formats = ', '.join(data.xpath('.//p[3]/img/@src'))
+                formats = formats[8:-4].upper()
+                if formats == 'EPUB':
+                    formats = 'WOBLINK'
+                    if 'E Ink' in data.xpath('.//div[@class="prices"]/img/@title'):
+                        formats += ', EPUB'
 
                 counter -= 1
 
@@ -71,6 +77,6 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
                 s.price = price
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_LOCKED
-                s.formats = 'EPUB'
+                s.formats = formats
 
                 yield s
