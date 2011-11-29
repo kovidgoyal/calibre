@@ -265,7 +265,7 @@ How do I use |app| with my Android phone/tablet?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are two ways that you can connect your Android device to calibre. Using a USB cable-- or wirelessly, over the air.
-The USB cable method only works if your Android device can act as a USB disk, which some Android tablets cannot. 
+**The USB cable method only works if your Android device can act as a USB disk, that means in windows it must have a drive letter, like K:**.
 
 Using a USB cable
 ^^^^^^^^^^^^^^^^^^^^

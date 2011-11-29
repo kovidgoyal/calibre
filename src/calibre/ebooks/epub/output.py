@@ -132,9 +132,11 @@ class EPUBOutput(OutputFormatPlugin):
 
     def upshift_markup(self): # {{{
         'Upgrade markup to comply with XHTML 1.1 where possible'
-        from calibre.ebooks.oeb.base import XPath
+        from calibre.ebooks.oeb.base import XPath, XML
         for x in self.oeb.spine:
             root = x.data
+            if (not root.get(XML('lang'))) and (root.get('lang')):
+               root.set(XML('lang'), root.get('lang'))
             body = XPath('//h:body')(root)
             if body:
                 body = body[0]

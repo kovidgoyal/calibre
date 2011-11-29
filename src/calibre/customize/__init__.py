@@ -449,7 +449,7 @@ class CatalogPlugin(Plugin): # {{{
                           ['author_sort','authors','comments','cover','formats',
                            'id','isbn','ondevice','pubdate','publisher','rating',
                            'series_index','series','size','tags','timestamp',
-                           'title_sort','title','uuid'])
+                           'title_sort','title','uuid','languages'])
         all_custom_fields = set(db.custom_field_keys())
         all_fields = all_std_fields.union(all_custom_fields)
 
