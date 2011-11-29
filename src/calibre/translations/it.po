@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-11-25 08:01+0000\n"
-"PO-Revision-Date: 2011-11-24 00:16+0000\n"
+"PO-Revision-Date: 2011-11-28 07:00+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-26 04:52+0000\n"
-"X-Generator: Launchpad (build 14381)\n"
+"X-Launchpad-Export-Date: 2011-11-29 05:25+0000\n"
+"X-Generator: Launchpad (build 14399)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -14201,6 +14201,9 @@ msgid ""
 "A list of color names to use when displaying an item. The\n"
 "list must be empty or contain a color for each value."
 msgstr ""
+"Un elenco di nomi di colori  da utilizzare quando si visualizza un "
+"elemento.\n"
+"L'elenco deve essere vuoto o contenere un colore per ogni valore."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:263
 msgid "Colors"
@@ -14292,6 +14295,9 @@ msgid ""
 "used for the subject. Also, the same templates used for \"Save to disk\" "
 "such as {title} and {author_sort} can be used here."
 msgstr ""
+"Oggetto dell'email da utilizzare all'invio. Se lasciato vuoto, il titolo "
+"sarà utilizzato come oggetto. Inoltre, possono essere impiegati gli stessi "
+"modelli utilizzati per \"Salva su disco\" come {title} e {author_sort}."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/emailp.py:37
 msgid ""
@@ -15271,6 +15277,8 @@ msgstr "Gestione automatica"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:36
 msgid "Cannot change metadata management while a device is connected"
 msgstr ""
+"Impossibile modificare la gestione dei metadati mentre un dispositivo è "
+"connesso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:30
 msgid "Metadata &management:"
@@ -15964,7 +15972,7 @@ msgstr "falso"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/adv_search_builder_ui.py:163
 msgid "Affiliate:"
-msgstr ""
+msgstr "Filiale:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/adv_search_builder_ui.py:235
 msgid "Nam&e/Description ..."
@@ -16013,6 +16021,8 @@ msgstr ""
 msgid ""
 "This store is currently enabled and can be used in other parts of calibre."
 msgstr ""
+"Questo negozio è attualmente abilitato e può essere utilizzato in altre "
+"parti di calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:136
 msgid "This store only distributes ebooks without DRM."
@@ -16023,6 +16033,8 @@ msgid ""
 "This store distributes ebooks with DRM. It may have some titles without DRM, "
 "but you will need to check on a per title basis."
 msgstr ""
+"Questo negozio distribuisce ebook con DRM. Potrebbe avere alcuni titolo "
+"senza DRM, ma per verificare dovresti effettuare una ricerca per titolo."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/models.py:140
 #, python-format
@@ -16061,7 +16073,7 @@ msgstr "Numero di secondi di attesa per la risposta di un negozio"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:101
 msgid "Number of seconds to let a store process results"
-msgstr ""
+msgstr "Numero di secondi concessi affinché un negozio elabori i risultati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:102
@@ -16614,6 +16626,8 @@ msgid ""
 "Could not convert %(num)d of %(tot)d books, because no suitable source "
 "format was found."
 msgstr ""
+"Impossibile convertire %(num)d di %(tot)d libri, poiché non è stato trovato "
+"alcun formato appropriato."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:133
 msgid "Queueing books for bulk conversion"
