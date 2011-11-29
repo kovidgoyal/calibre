@@ -1306,7 +1306,8 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info(" ITUNES._add_new_copy()")
 
-        self._update_epub_metadata(fpath, metadata)
+        if fpath.rpartition('.')[2].lower() == 'epub':
+            self._update_epub_metadata(fpath, metadata)
 
         db_added = None
         lb_added = None
