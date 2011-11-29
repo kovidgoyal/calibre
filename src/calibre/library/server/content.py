@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import re, os, posixpath
 
 import cherrypy
+from cherrypy.lib import cptools
 
 from calibre import fit_image, guess_type
 from calibre.utils.date import fromtimestamp
@@ -195,13 +196,26 @@ class ContentServer(object):
 
         return data
 
-
     def get_format(self, id, format):
         format = format.upper()
+        fm = self.db.format_metadata(id, format, allow_cache=False)
+        if not fm:
+            raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
+        cherrypy.response.headers['Last-Modified'] = \
+            self.last_modified(fm['mtime'])
+        # Check the If-Modified-Since request header. Returns appropriate HTTP
+        # response
+        cptools.validate_since()
+
         fmt = self.db.format(id, format, index_is_id=True, as_file=True,
                 mode='rb')
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
+        mt = guess_type('dummy.'+format.lower())[0]
+        if mt is None:
+            mt = 'application/octet-stream'
+        cherrypy.response.headers['Content-Type'] = mt
+
         mi = newmi = self.db.get_metadata(id, index_is_id=True)
         if format == 'EPUB':
             # Get the original metadata
@@ -221,19 +235,19 @@ class ContentServer(object):
             set_metadata(fmt, newmi, format.lower())
             fmt.seek(0)
 
-        mt = guess_type('dummy.'+format.lower())[0]
-        if mt is None:
-            mt = 'application/octet-stream'
-        au = authors_to_string(mi.authors if mi.authors else [_('Unknown')])
-        title = mi.title if mi.title else _('Unknown')
+        fmt.seek(0, 2)
+        cherrypy.response.headers['Content-Length'] = fmt.tell()
+        fmt.seek(0)
+
+        au = authors_to_string(newmi.authors if newmi.authors else
+                [_('Unknown')])
+        title = newmi.title if newmi.title else _('Unknown')
         fname = u'%s - %s_%s.%s'%(title[:30], au[:30], id, format.lower())
         fname = ascii_filename(fname).replace('"', '_')
-        cherrypy.response.headers['Content-Type'] = mt
         cherrypy.response.headers['Content-Disposition'] = \
                 b'attachment; filename="%s"'%fname
+        cherrypy.response.body = fmt
         cherrypy.response.timeout = 3600
-        cherrypy.response.headers['Last-Modified'] = \
-            self.last_modified(self.db.format_last_modified(id, format))
         return fmt
     # }}}
 
