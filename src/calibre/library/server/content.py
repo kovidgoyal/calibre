@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 import re, os, posixpath
 
 import cherrypy
-from cherrypy.lib import cptools
 
 from calibre import fit_image, guess_type
 from calibre.utils.date import fromtimestamp
@@ -201,11 +200,10 @@ class ContentServer(object):
         fm = self.db.format_metadata(id, format, allow_cache=False)
         if not fm:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
+        mi = newmi = self.db.get_metadata(id, index_is_id=True)
+
         cherrypy.response.headers['Last-Modified'] = \
-            self.last_modified(fm['mtime'])
-        # Check the If-Modified-Since request header. Returns appropriate HTTP
-        # response
-        cptools.validate_since()
+            self.last_modified(max(fm['mtime'], mi.last_modified))
 
         fmt = self.db.format(id, format, index_is_id=True, as_file=True,
                 mode='rb')
@@ -216,7 +214,6 @@ class ContentServer(object):
             mt = 'application/octet-stream'
         cherrypy.response.headers['Content-Type'] = mt
 
-        mi = newmi = self.db.get_metadata(id, index_is_id=True)
         if format == 'EPUB':
             # Get the original metadata
 
