@@ -808,7 +808,7 @@ class ITUNES(DriverBase):
             self.log.info("ITUNES.get_file(): exporting '%s'" % path)
         outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
@@ -3224,7 +3224,7 @@ class ITUNES_ASYNC(ITUNES):
             only_presence=False):
         return self.connected, self
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
