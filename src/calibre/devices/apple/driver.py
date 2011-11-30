@@ -3239,7 +3239,7 @@ class ITUNES_ASYNC(ITUNES):
         we need to talk to iTunes to discover if there's a connected iPod
         '''
         if DEBUG:
-            self.log.info("ITUNES_ASYNC.open(connected_device: iTunes)")
+            self.log.info("ITUNES_ASYNC.open(connected_device: %s)" % repr(connected_device))
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
