@@ -283,7 +283,10 @@ class CSSFlattener(object):
                 psize = fsize
             elif 'font-size' in cssdict or tag == 'body':
                 fsize = self.fmap[font_size]
-                cssdict['font-size'] = "%0.5fem" % (fsize / psize)
+                try:
+                    cssdict['font-size'] = "%0.5fem" % (fsize / psize)
+                except ZeroDivisionError:
+                    cssdict['font-size'] = '%.1fpt'%fsize
                 psize = fsize
 
         try:
