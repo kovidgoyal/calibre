@@ -199,6 +199,15 @@ class ANDROID(USBMS):
             dirs = list(map(aldiko_tweak, dirs))
         return dirs
 
+    def windows_sort_drives(self, drives):
+        vid, pid, bcd = self.device_being_opened[:3]
+        if (vid, pid, bcd) == (0x0e79, 0x1408, 0x0222):
+            letter_a = drives.get('carda', None)
+            if letter_a is not None:
+                drives['carda'] = drives['main']
+                drives['main']  = letter_a
+        return drives
+
 class S60(USBMS):
 
     name = 'S60 driver'
