@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 08:01+0000\n"
-"PO-Revision-Date: 2011-11-27 07:46+0000\n"
+"PO-Revision-Date: 2011-11-29 09:51+0000\n"
 "Last-Translator: Lucian Martin <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-11-28 05:19+0000\n"
-"X-Generator: Launchpad (build 14381)\n"
+"X-Launchpad-Export-Date: 2011-11-30 05:24+0000\n"
+"X-Generator: Launchpad (build 14404)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -21178,7 +21178,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"
-msgstr ""
+msgstr "Împarte numele autorilor multipli"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:77
 msgid ""
@@ -21606,7 +21606,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:363
 msgid "Choose whether dates are sorted using visible fields"
-msgstr ""
+msgstr "Alegeţi dacă data este sortată folosind câmpurile vizibile"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:364
 msgid ""
@@ -21614,6 +21614,9 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
+"Valorile datei conţin data şi ora. La sortare, toate câmpurile sunt\n"
+"folosite, indiferent de ce este afişat.  Setaţi această opţiune pe\n"
+"\"Adevărat\" pentru a folosi doar câmpurile care sunt afişate."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:369
 msgid "Specify which font to use when generating a default cover"
