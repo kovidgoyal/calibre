@@ -1398,6 +1398,8 @@ class BasicNewsRecipe(Recipe):
                                           oldest_article=self.oldest_article,
                                           max_articles_per_feed=self.max_articles_per_feed,
                                           get_article_url=self.get_article_url))
+                    if (self.delay > 0):
+                        time.sleep(self.delay)
             except Exception as err:
                 feed = Feed()
                 msg = 'Failed feed: %s'%(title if title else url)
