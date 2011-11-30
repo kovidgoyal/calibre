@@ -59,9 +59,9 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
 
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None) :
-        self.open(None)
+        self.open(None, None)
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         # Make sure the Bambook library is ready
         if not is_bambook_lib_ready():
             raise OpenFeedback(_("Unable to connect to Bambook, you need to install Bambook library first."))
@@ -309,8 +309,8 @@ class BAMBOOK(DeviceConfig, DevicePlugin):
                             with TemporaryFile('.snb') as snbfile:
                                 if self.bambook.PackageSNB(snbfile, tdir) and self.bambook.VerifySNB(snbfile):
                                     guid = self.bambook.SendFile(snbfile, self.get_guid(metadata[i].uuid))
-                        
-                    elif f[-3:].upper() == 'SNB':    
+
+                    elif f[-3:].upper() == 'SNB':
                         if self.bambook.VerifySNB(f):
                             guid = self.bambook.SendFile(f, self.get_guid(metadata[i].uuid))
                     else:

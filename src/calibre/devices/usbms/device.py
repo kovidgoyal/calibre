@@ -847,38 +847,42 @@ class Device(DeviceConfig, DevicePlugin):
         self._card_b_prefix = None
 # ------------------------------------------------------
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         time.sleep(5)
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
-        if islinux:
-            try:
-                self.open_linux()
-            except DeviceError:
-                time.sleep(7)
-                self.open_linux()
-        if isfreebsd:
-            self._main_dev = self._card_a_dev = self._card_b_dev = None
-            try:
-                self.open_freebsd()
-            except DeviceError:
-                subprocess.Popen(["camcontrol", "rescan", "all"])
-                time.sleep(2)
-                self.open_freebsd()
-        if iswindows:
-            try:
-                self.open_windows()
-            except DeviceError:
-                time.sleep(7)
-                self.open_windows()
-        if isosx:
-            try:
-                self.open_osx()
-            except DeviceError:
-                time.sleep(7)
-                self.open_osx()
+        self.device_being_opened = connected_device
+        try:
+            if islinux:
+                try:
+                    self.open_linux()
+                except DeviceError:
+                    time.sleep(7)
+                    self.open_linux()
+            if isfreebsd:
+                self._main_dev = self._card_a_dev = self._card_b_dev = None
+                try:
+                    self.open_freebsd()
+                except DeviceError:
+                    subprocess.Popen(["camcontrol", "rescan", "all"])
+                    time.sleep(2)
+                    self.open_freebsd()
+            if iswindows:
+                try:
+                    self.open_windows()
+                except DeviceError:
+                    time.sleep(7)
+                    self.open_windows()
+            if isosx:
+                try:
+                    self.open_osx()
+                except DeviceError:
+                    time.sleep(7)
+                    self.open_osx()
 
-        self.current_library_uuid = library_uuid
-        self.post_open_callback()
+            self.current_library_uuid = library_uuid
+            self.post_open_callback()
+        finally:
+            self.device_being_opened = None
 
     def post_open_callback(self):
         pass
