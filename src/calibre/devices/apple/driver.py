@@ -824,7 +824,7 @@ class ITUNES(DriverBase):
         '''
 
         if DEBUG:
-            self.log.info("ITUNES.open()")
+            self.log.info("ITUNES.open(connected_device: %s)" % repr(connected_device))
 
         # Display a dialog recommending using 'Connect to iTunes' if user hasn't
         # previously disabled the dialog
@@ -3239,7 +3239,7 @@ class ITUNES_ASYNC(ITUNES):
         we need to talk to iTunes to discover if there's a connected iPod
         '''
         if DEBUG:
-            self.log.info("ITUNES_ASYNC.open()")
+            self.log.info("ITUNES_ASYNC.open(connected_device: iTunes)")
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
