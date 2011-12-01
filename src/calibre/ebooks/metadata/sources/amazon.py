@@ -741,6 +741,14 @@ if __name__ == '__main__': # tests {{{
             isbn_test, title_test, authors_test)
     com_tests = [ # {{{
 
+            ( # # in title
+                {'title':'Expert C# 2008 Business Objects',
+                    'authors':['Lhotka']},
+                [title_test('Expert C# 2008 Business Objects', exact=True),
+                    authors_test(['Rockford Lhotka'])
+                    ]
+            ),
+
             (  # Description has links
                 {'identifiers':{'isbn': '9780671578275'}},
                 [title_test('A Civil Campaign: A Comedy of Biology and Manners',
