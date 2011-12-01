@@ -743,6 +743,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         else:
             flags = re.I
 
+        flags |= re.UNICODE
+
         try:
             if self.search_mode.currentIndex() == 0:
                 self.s_r_obj = re.compile(re.escape(unicode(self.search_for.text())), flags)
