@@ -175,7 +175,7 @@ class ODYSSEY(N516):
 
     FORMATS     = ['epub', 'fb2', 'html', 'pdf', 'txt']
 
-    EBOOK_DIR_MAIN = 'calibre'
+    EBOOK_DIR_MAIN = 'Digital Editions'
 
     def get_main_ebook_dir(self, for_upload=False):
         if for_upload:

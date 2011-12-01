@@ -29,22 +29,7 @@ class RollingStones(BasicNewsRecipe):
     max_articles_per_feed = 25
     use_embedded_content  = False
     no_stylesheets = True
-
-    remove_javascript     = True
-    #####################################################################################
-    # cleanup section                                                                   #
-    #####################################################################################
-    keep_only_tags       = [
-                            dict(name='div', attrs={'class':['c65l']}),
-                            dict(name='div', attrs={'id':['col1']}),
-
-
-                           ]
-    remove_tags = [
-                    dict(name='div', attrs={'class': ['storyActions upper','storyActions lowerArticleNav']}),
-                    dict(name='div', attrs={'id': ['comments','related']}),
-                  ]
-
+    auto_cleanup = True
 
     feeds          = [
                        (u'News', u'http://www.rollingstone.com/siteServices/rss/allNews'),
@@ -58,25 +43,7 @@ class RollingStones(BasicNewsRecipe):
 
 
 
-    def get_article_url(self, article):
-        return article.get('guid',  None)
-
-
-    def append_page(self, soup, appendtag, position):
-        '''
-        Some are the articles are multipage so the below function
-        will get the articles that have <next>
-        '''
-        pager = soup.find('li',attrs={'class':'next'})
-        if pager:
-           nexturl = pager.a['href']
-           soup2 = self.index_to_soup(nexturl)
-           texttag = soup2.find('div', attrs={'id':'storyTextContainer'})
-           for it in texttag.findAll(style=True):
-               del it['style']
-           newpos = len(texttag.contents)
-           self.append_page(soup2,texttag,newpos)
-           texttag.extract()
-           appendtag.insert(position,texttag)
+    def print_version(self, url):
+        return url +'?print=true'
 
 

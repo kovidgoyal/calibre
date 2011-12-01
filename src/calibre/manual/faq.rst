@@ -265,7 +265,7 @@ How do I use |app| with my Android phone/tablet?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are two ways that you can connect your Android device to calibre. Using a USB cable-- or wirelessly, over the air.
-The USB cable method only works if your Android device can act as a USB disk, which some Android tablets cannot. 
+**The USB cable method only works if your Android device can act as a USB disk, that means in windows it must have a drive letter, like K:**.
 
 Using a USB cable
 ^^^^^^^^^^^^^^^^^^^^
@@ -373,6 +373,8 @@ changes to the collections to be recognized. As such, it is unlikely that
 any |app| developers will ever feel motivated enough to support it. There is however, a |app| plugin
 that allows you to create collections on your Kindle from the |app| metadata. It is available
 `from here <http://www.mobileread.com/forums/showthread.php?t=118635>`_. 
+
+.. note:: Amazon have removed the ability to manipulate collections completely in their newer models, like the Kindle Touch and Kindle Fire, making even the above plugin useless. If you really want the ability to manage collections on your Kindle via a USB connection, we encourage you to complain to Amazon about it, or get a reader where this is supported, like the SONY Readers.
 
 Library Management
 ------------------
