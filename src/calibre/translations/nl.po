@@ -56,16 +56,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-11-23 07:48+0000\n"
-"PO-Revision-Date: 2011-11-22 23:47+0000\n"
+"POT-Creation-Date: 2011-11-25 08:01+0000\n"
+"PO-Revision-Date: 2011-11-26 16:59+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-24 04:43+0000\n"
-"X-Generator: Launchpad (build 14336)\n"
+"X-Launchpad-Export-Date: 2011-11-27 05:22+0000\n"
+"X-Generator: Launchpad (build 14381)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -84,8 +84,8 @@ msgstr "Doet helemaal niets"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:108
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:119
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:265
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:266
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -1033,7 +1033,7 @@ msgstr "Debuglog"
 msgid "Communicate with Android phones."
 msgstr "Communiceer met Android telefoons."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:148
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:149
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -1041,11 +1041,11 @@ msgstr ""
 "Door komma's gescheiden lijst van mappen op het apparaat om e-books naartoe "
 "te sturen. De eerst bestaande map zal gebruikt worden"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:205
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:206
 msgid "Communicate with S60 phones."
 msgstr "Communiceer met S60 telefoons."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:224
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:225
 msgid "Communicate with WebOS tablets."
 msgstr "Communiceer met WebOS tablets."
 
@@ -1441,7 +1441,7 @@ msgstr "Communiceer met Elonex EB511 e-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Communiceer met de Cybook Odyssey eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1561,7 +1561,7 @@ msgstr "Communiceer met de Kindle DX e-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr "communicatie met de Kindle Fire"
+msgstr "Communiceer met de Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -1748,7 +1748,7 @@ msgstr "Communiceer met de Nook e-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Communiceer met de Nook Color, TSR en Tablet eBook readers."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -7763,15 +7763,15 @@ msgstr "Tabellen naar rege&ls omzetten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
 msgid "Select what style information you want completely removed:"
-msgstr "Selecteer welke stijl van informatie u wenst te verwijderen"
+msgstr "Selecteer welke stijl informatie u geheel wilt verwijderen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:171
 msgid "Removes the font-family CSS property"
-msgstr "verwijderd de font-familie CSS eigenschappen"
+msgstr "Verwijderd de lettertype-familie CSS eigenschappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
-msgstr "& Fonts"
+msgstr "&Lettertypes"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:176
 msgid ""
@@ -7787,19 +7787,20 @@ msgstr "&Marges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:181
 msgid "Removes the padding CSS properties"
-msgstr "verwijderd de extra CSS eigenschappen"
+msgstr "Verwijdert de padding (opvulling) CSS eigenschappen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:182
 msgid "&Padding"
-msgstr "& extra"
+msgstr "&Padding (opvulling)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:186
 msgid "Convert floating images/text into static images/text"
-msgstr "verander bewegende beelden/tekst naar stilstaande beelden/tekst"
+msgstr ""
+"Verander drijvende afbeeldingen/tekst naar statische afbeeldingen/tekst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:187
 msgid "F&loats"
-msgstr "beweging"
+msgstr "&Drijft"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
@@ -7823,11 +7824,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
-msgstr "& extra CSS"
+msgstr "&Extra CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:228
 msgid "&Filter Style Information"
-msgstr "& filter Stijl informatie"
+msgstr "&Filter stijl informatie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -9774,7 +9775,7 @@ msgstr "Actieve taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:33
 msgid "Find next match"
-msgstr "Vind volgende"
+msgstr "Vind volgende overeenkomst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
@@ -9782,7 +9783,7 @@ msgstr "&Zoeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Find previous match"
-msgstr "Vind voorgaande"
+msgstr "Vind vorige overeenkomst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:54
 msgid "&Stop selected jobs"
@@ -9790,7 +9791,7 @@ msgstr "&Stop geselecteerde taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:58
 msgid "&Hide selected jobs"
-msgstr "&verberg geselecteerde ques"
+msgstr "&Verberg geselecteerde taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
@@ -9798,7 +9799,7 @@ msgstr "Taak&details tonen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:66
 msgid "Show &all jobs"
-msgstr "toon alle ques"
+msgstr "Toon &alle taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:70
 msgid "Stop &all non device jobs"
@@ -9806,7 +9807,7 @@ msgstr "&Alle niet-apparaat gerelateerde taken stoppen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr "verberg alle ques"
+msgstr "&Verberg alle taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
@@ -12231,7 +12232,7 @@ msgstr " - Taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:544
 msgid "Search for a job by name"
-msgstr "zoek een que op naam"
+msgstr "Zoek een taak op naam"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:615
@@ -15826,8 +15827,8 @@ msgid ""
 "<p>The toolbar in calibre is different depending on whether a device is "
 "connected or not. Choose <b>which toolbar</b> you would like to customize:"
 msgstr ""
-"<p>De werkbalk in calibre is anders afhankelijk van het feit of een reader "
-"al dan niet gekoppeld is. Kies <b>welke werkbalk</b> u wilt aanpassen:"
+"<p>Afhankelijk van het feit of een reader al dan niet gekoppeld is, is de "
+"werkbalk verschillend. Kies <b>welke werkbalk</b> u wilt aanpassen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
@@ -16238,7 +16239,7 @@ msgstr "Aantal te gebruiken threads voor het bijwerken van lokale opslag"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:89
 msgid "Number of cover download threads to use"
-msgstr "Aantal \"threads\" om covers te downloaden"
+msgstr "Aantal \"threads\" om omslagen te downloaden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:97
 msgid "Number of details threads to use"
@@ -20404,7 +20405,7 @@ msgstr ""
 "lijst2 worden gescheiden door scheiding, zo ook de items in de teruggegeven "
 "lijst."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:936
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:935
 msgid ""
 "list_difference(list1, list2, separator) -- return a list made by removing "
 "from list1 any item found in list2, using a case-insensitive compare. The "
@@ -20416,7 +20417,7 @@ msgstr ""
 "hoofdlettergevoelig wordt vergeleken.  De items in lijst1 en lijst2 worden "
 "gescheiden door scheiding, zo ook de items in de teruggegeven lijst."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:957
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:956
 msgid ""
 "list_intersection(list1, list2, separator) -- return a list made by removing "
 "from list1 any item not found in list2, using a case-insensitive compare. "
@@ -20429,7 +20430,7 @@ msgstr ""
 "lijst2 worden gescheiden door scheiding, zo ook de items in de teruggegeven "
 "lijst."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:978
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:977
 msgid ""
 "list_sort(list, direction, separator) -- return list sorted using a case-"
 "insensitive sort. If direction is zero, the list is sorted ascending, "
@@ -20441,7 +20442,7 @@ msgstr ""
 "gesorteerd, anders aflopend. De items in lijst worden gescheiden door "
 "scheiding, zo ook de items in de teruggegeven lijst."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:993
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:992
 msgid ""
 "list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- return yes_val if "
 "list1 and list2 contain the same items, otherwise return no_val. The items "
@@ -20456,7 +20457,7 @@ msgstr ""
 "gebruiken (scheiding1 of scheiding2). De volgorde van items in de lijst is "
 "niet relevant. De vergelijking is ongevoelig voor hoofd- en kleine letters."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1011
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1010
 msgid ""
 "list_re(src_list, separator, search_re, opt_replace) -- Construct a list by "
 "first separating src_list into items using the separator character. For each "
@@ -21497,6 +21498,42 @@ msgid ""
 "timestamp default if not set: dd MMM yyyy\n"
 "last_modified_display_format if not set: dd MMM yyyy"
 msgstr ""
+"Te gebruiken formaat voor publicatie datum en de tijdstempel (datum).\n"
+" Een string die controleert hoe de publicatie datum wordt weergegeven in de "
+"GUI\n"
+" d de dag als nummer zonder een voorloopnul (1 tot en met 31)\n"
+" dd de dag als nummer met een voorloopnul (01 tot en met 31)\n"
+" ddd de verkorte gelokaliseerde dag naam (bijv. 'Maa' tot en met 'Zon').\n"
+" dddd de lange dagen gelokaliseerde naam (bijv. 'Maandag' tot en met "
+"'Zondag').\n"
+" M de maand als nummer zonder een voorloopnul (1-12)\n"
+" MM de maand als getal met een voorloopnul (01-12)\n"
+" MMM de verkorte lokale naam van de maand (bijvoorbeeld 'Jan' tot en met "
+"'Dec').\n"
+" MMMM de lange gelokaliseerde naam van de maand (bijvoorbeeld 'Januari' tot "
+"en met 'December').\n"
+" yy het jaar als twee cijfers (00-99)\n"
+" yyyy het jaar als vier cijfers\n"
+" h de uren zonder voorafgaande 0 (0 tot en met 11 of 0 tot en met 23 "
+"afhankelijk van am/pm) '\n"
+" hh het uur met een toonaangevende 0 (00 tot en met 11 of 00 tot en met 23, "
+"afhankelijk van am/pm) '\n"
+" m de minuut zonder dat een voorafgaande 0 (0 tot en met 59) '\n"
+" mm de minuut met een toonaangevende 0 (00 tot en met 59) '\n"
+" s de seconden zonder een voorafgaande 0 (0 tot en met 59) '\n"
+" ss de seconde met een toonaangevende 0 (00 tot 59) '\n"
+" ap gebruik van een 12-uurs klok in plaats van een 24-uurs klok, met \"ap\"\n"
+" vervangen door de gelokaliseerde string voor AM of PM '\n"
+" AP gebruik van een 12-uurs klok in plaats van een 24-uurs klok, met \"AP\"\n"
+" vervangen door de gelokaliseerde string voor AM of PM '\n"
+" iso van de datum met de tijd en tijdzone. Moet de enige formaat aanwezig "
+"zijn\n"
+" Bijvoorbeeld, gezien de datum van 9 jan 2010, de volgende formaten tonen\n"
+" MMM yyyy ==> Januari 2010 yyyy ==> 2010 dd MMM yyyy ==> 09 Januari 2010\n"
+" MM / yyyy ==> 01/2010 d / M / yy ==> 9/1/10 yy ==> 10\n"
+" publicatie standaard indien niet ingesteld: MMM yyyy\n"
+" timestamp standaard indien niet ingesteld: dd MMM yyyy\n"
+" last_modified_display_format indien niet ingesteld: dd MMM yyyy"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:174
 msgid "Control sorting of titles and series in the library display"
@@ -21599,6 +21636,24 @@ msgid ""
 "interface language is used. The setting title_sort_articles is ignored\n"
 "(present only for legacy reasons)."
 msgstr ""
+"Geef een lijst van woorden welke worden gezien als 'voorzetsels'  tijdens "
+"het\n"
+"berekenen van titelsortering. De voorzetsel verschillen per taal. Standaard "
+"zal\n"
+"calibre een combinatie van voorzetsels gebruiken van Engels en de taal die\n"
+"momenteel is ingesteld als de interface taal. Daarnaast, zal calibre "
+"voorzetsels\n"
+"gebruiken van de taal ingesteld voor het boek (indien aanwezig). U kunt de\n"
+"voorzetsels voor een taal aanpassen of een nieuwe taal toevoegen door\n"
+"per_language_title_sort_articles te wijzigen. Om calibre te vertellen dat "
+"een\n"
+"andere taal dan die van de gebruiksinterface te gebruiken, dient u de\n"
+"default_language_for_title_sort aan te passen. Bijvoorbeeld, voor Duits\n"
+"gebruikt u 'deu'. Met de waarde None wordt de taal van de "
+"gebruikersinterface\n"
+"gebruikt. De instelling title_sort_articles wordt genegeerd (enkel aanwezig "
+"voor\n"
+"ondersteuning van verouderde taken)."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:248
 msgid "Specify a folder calibre should connect to at startup"
@@ -21929,7 +21984,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:363
 msgid "Choose whether dates are sorted using visible fields"
-msgstr "kies of datums gesorteerd worden op weergave"
+msgstr ""
+"Geef aan of data worden gesorteerd gebruik makend van weergegeven velden"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:364
 msgid ""
@@ -21937,10 +21993,11 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
-"datums bevatten de dag en uur. waneer gesorteerd, alle velden zij\n"
-"gebruikt, ongeacht wat weergegeven wordt. Verander deze aanpassing naar true "
-"om enkel\n"
-"de velden te gebruiken die weergegeven zijn."
+"Datum waardes bevatten zowel de dag als het uur. Indien gesorteerd, worden "
+"alle velden\n"
+"gebruikt, ongeacht de wijze van weergave. Zet deze aanpassing op True om "
+"enkel\n"
+"de weergegeven velden te gebruiken."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:369
 msgid "Specify which font to use when generating a default cover"

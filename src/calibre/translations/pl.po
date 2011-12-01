@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-11-23 07:48+0000\n"
-"PO-Revision-Date: 2011-11-19 23:01+0000\n"
+"POT-Creation-Date: 2011-11-25 08:01+0000\n"
+"PO-Revision-Date: 2011-11-28 21:36+0000\n"
 "Last-Translator: koliberek <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-11-24 04:51+0000\n"
-"X-Generator: Launchpad (build 14336)\n"
+"X-Launchpad-Export-Date: 2011-11-29 05:25+0000\n"
+"X-Generator: Launchpad (build 14399)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -27,8 +27,8 @@ msgstr "Ta opcja zupełnie nic nie zmienia"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:108
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:119
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:265
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:266
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -980,7 +980,7 @@ msgstr "Dziennik debugowania"
 msgid "Communicate with Android phones."
 msgstr "Umożliwia komunikację z telefonami z Androidem."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:148
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:149
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -988,11 +988,11 @@ msgstr ""
 "Oddzielona przecinkami lista katalogów na urządzeniu, do których mają być "
 "wysyłane książki. Zostanie użyty pierwszy istniejący katalog"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:205
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:206
 msgid "Communicate with S60 phones."
 msgstr "Umożliwia komunikację z telefonami S60."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:224
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:225
 msgid "Communicate with WebOS tablets."
 msgstr "Umożliwia komunikację z tabletami z systemem WebOS."
 
@@ -1377,7 +1377,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikiem Cybook Odyssey eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1541,6 +1541,9 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Błąd w poprzedniej wersji programu spowodował pozostawienie w bazie książek "
+"nie przystosowanych dla Kobo. Ta opcja pokaże ci te rekordy i pozwoli na "
+"usunięcie ich przy wykorzystaniu nowego algorytmu usuwania."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:573
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381
@@ -1682,7 +1685,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Umożliwia komunikację z czytnikami Nook Color, TSR i Tablet eBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -8953,7 +8956,7 @@ msgstr "Zrzucanie bazy danych do SQL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:81
 msgid "Loading database from SQL"
-msgstr "Wczytywanie bazdy danych z SQL"
+msgstr "Wczytywanie bazy danych z SQL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:148
 msgid "Check Library -- Problems Found"
@@ -11416,7 +11419,7 @@ msgstr "Etykieta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:108
 msgid "Count"
-msgstr ""
+msgstr "Liczba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:111
 msgid "Was"
@@ -12301,6 +12304,8 @@ msgid ""
 "Could not change the on disk location of this book. Is it open in another "
 "program?"
 msgstr ""
+"NIe można zmienić lokalizacji książki na dysku. Czy nie jest ona otwarta w "
+"innym programie?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:867
 msgid "Failed to set data"
@@ -16064,7 +16069,7 @@ msgstr "Czas oczekiwania na przetworzenie oferty sklepu [s]"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:50
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:102
 msgid "Display"
-msgstr ""
+msgstr "Wyświetl"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search/search_widget_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/search_widget_ui.py:103
@@ -20246,7 +20251,7 @@ msgstr ""
 "Elementy listy wynikowej są oddzielane tym samym separatorem co list na "
 "wejściu."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:936
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:935
 msgid ""
 "list_difference(list1, list2, separator) -- return a list made by removing "
 "from list1 any item found in list2, using a case-insensitive compare. The "
@@ -20258,7 +20263,7 @@ msgstr ""
 "znaczenia. Lista wynikowa jest rozdzielana tym samym separatorem co listy "
 "źródłowe."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:957
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:956
 msgid ""
 "list_intersection(list1, list2, separator) -- return a list made by removing "
 "from list1 any item not found in list2, using a case-insensitive compare. "
@@ -20270,7 +20275,7 @@ msgstr ""
 "liter nie ma znaczenia. Lista wynikowa jest rozdzielana tym samym "
 "separatorem co listy źródłowe."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:978
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:977
 msgid ""
 "list_sort(list, direction, separator) -- return list sorted using a case-"
 "insensitive sort. If direction is zero, the list is sorted ascending, "
@@ -20282,7 +20287,7 @@ msgstr ""
 "przeciwnym przypadku malejąco. Elementy listy wynikowej są oddzielane tym "
 "samym separatorem co listy źródłowej."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:993
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:992
 msgid ""
 "list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- return yes_val if "
 "list1 and list2 contain the same items, otherwise return no_val. The items "
@@ -20296,7 +20301,7 @@ msgstr ""
 "użyciu separatorów (sep1 i sep2). Kolejność elementów listy nie jest "
 "znacząca, wielkość liter również."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1011
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1010
 msgid ""
 "list_re(src_list, separator, search_re, opt_replace) -- Construct a list by "
 "first separating src_list into items using the separator character. For each "
@@ -21475,6 +21480,23 @@ msgid ""
 "interface language is used. The setting title_sort_articles is ignored\n"
 "(present only for legacy reasons)."
 msgstr ""
+"Okreś listę słów, które zostaną potraktowane jako rodzajniki przy "
+"konstruowaniu\n"
+"pola sortowania tytułu. Rodzajnik są różne w różnych językach. Domyślnie "
+"calibre użytwa\n"
+"kombinacji rodzajników z języka angielskiego i języka interfejsu. Dodatkow w "
+"przypadku gdy\n"
+"określony jest język książki brane są pod uwagę również ustawienia tego "
+"języka. Można zmienić\n"
+"listę rodzajników dla danego języka lub dodać język modyfikując parametr "
+"per_language_title_sort_articles.\n"
+"Aby użyć języka innego niż język interfejsu ustaw parametr "
+"default_language_for_title_sort.\n"
+"Np., żeby użyć języka niemieckiego ustaw ten parametr na 'deu'. Wartość None "
+"oznacza, że zostanie\n"
+"użyty język interfejsu użytkownika. Parametr title_sort_articles jest "
+"ignorowany (pozostawiony jedynie\n"
+"dla zgodności wstecz)."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:248
 msgid "Specify a folder calibre should connect to at startup"

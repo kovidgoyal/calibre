@@ -10,16 +10,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-23 07:48+0000\n"
-"PO-Revision-Date: 2011-11-19 11:19+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2011-11-25 08:01+0000\n"
+"PO-Revision-Date: 2011-11-25 15:31+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-24 04:54+0000\n"
-"X-Generator: Launchpad (build 14336)\n"
+"X-Launchpad-Export-Date: 2011-11-26 04:59+0000\n"
+"X-Generator: Launchpad (build 14381)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
 msgid ""
@@ -45,8 +45,8 @@ msgstr "No hace absolutamente nada"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:108
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:119
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:265
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:266
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -1003,7 +1003,7 @@ msgstr "Registro de depuración"
 msgid "Communicate with Android phones."
 msgstr "Comunicar con teléfonos Android."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:148
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:149
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -1011,11 +1011,11 @@ msgstr ""
 "Lista de directorios, separados por comas, donde almacenar los libros en el "
 "dispositivo. Se usará el primero que exista"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:205
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:206
 msgid "Communicate with S60 phones."
 msgstr "Comunicar con teléfonos S60."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:224
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:225
 msgid "Communicate with WebOS tablets."
 msgstr "Comunicar con tabletas WebOS."
 
@@ -1417,7 +1417,7 @@ msgstr "Comunicarse con el lector Elonex EB 511"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Comunicar con el lector Cybook Odyssey."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1727,7 +1727,7 @@ msgstr "Comunicarse con el lector Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Comunicar con los lectores Nook Color, TSR y Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -20433,7 +20433,7 @@ msgstr ""
 "versión de «lista1»). Los elementos de «lista1» y «lista2» están separados "
 "por «separador», así como los de la lista resultante."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:936
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:935
 msgid ""
 "list_difference(list1, list2, separator) -- return a list made by removing "
 "from list1 any item found in list2, using a case-insensitive compare. The "
@@ -20445,7 +20445,7 @@ msgstr ""
 "distinguir mayúsculas y minúsculas. Los elementos de «lista1» y «lista2» "
 "están separados por «separador», así como los de la lista resultante."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:957
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:956
 msgid ""
 "list_intersection(list1, list2, separator) -- return a list made by removing "
 "from list1 any item not found in list2, using a case-insensitive compare. "
@@ -20458,7 +20458,7 @@ msgstr ""
 "y «lista2» están separados por «separador», así como los de la lista "
 "resultante."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:978
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:977
 msgid ""
 "list_sort(list, direction, separator) -- return list sorted using a case-"
 "insensitive sort. If direction is zero, the list is sorted ascending, "
@@ -20471,7 +20471,7 @@ msgstr ""
 "elementos de «lista» están separados por «separador», así como los de la "
 "lista resultante."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:993
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:992
 msgid ""
 "list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- return yes_val if "
 "list1 and list2 contain the same items, otherwise return no_val. The items "
@@ -20486,7 +20486,7 @@ msgstr ""
 "elementos no es relevante. La comparación no diferencia mayúsculas y "
 "minúsculas."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1011
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1010
 msgid ""
 "list_re(src_list, separator, search_re, opt_replace) -- Construct a list by "
 "first separating src_list into items using the separator character. For each "
@@ -21676,6 +21676,18 @@ msgid ""
 "interface language is used. The setting title_sort_articles is ignored\n"
 "(present only for legacy reasons)."
 msgstr ""
+"Establece la lista de palabras que se consideran «artículos» al crear los\n"
+"textos de orden de título. Los artículos dependen del idioma. De manera\n"
+"predeterminada, calibre usa una combinación de artículos en inglés y el\n"
+"idioma que se use en la interfaz de calibre. Además, cuando el idioma del\n"
+"libro está disponible, también se usan los artículos de ese idioma. Puede\n"
+"cambiar la lista de artículos de un idioma determinado o añadir un nuevo\n"
+"idioma modificando per_language_title_sort_articles. Para hacer que\n"
+"calibre use un idioma distinto del de la interfaz, asigne un valor a\n"
+"default_language_for_title_sort. Por ejemplo, para usar los artículos\n"
+"en alemán, asígnele el valor 'deu'. Un valor de «None» significa que se\n"
+"usará el idioma de la interfaz. El valor del ajuste title_sort_articles no\n"
+"tiene ningún efecto (existe sólo por motivos históricos)."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:248
 msgid "Specify a folder calibre should connect to at startup"
