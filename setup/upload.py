@@ -169,8 +169,9 @@ class UploadToGoogleCode(Command): # {{{
             bname = os.path.basename(fname)
             if bname in self.old_files:
                 path = 'http://calibre-ebook.googlecode.com/files/'+bname
-                self.info('%s already uploaded, skipping. Assuming URL is: %s',
-                        bname, path)
+                self.info(
+                    '%s already uploaded, skipping. Assuming URL is: %s'%(
+                        bname, path))
             else:
                 path = self.upload_one(fname)
             self.paths[bname] = path
