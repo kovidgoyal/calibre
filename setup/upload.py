@@ -174,6 +174,7 @@ class UploadToGoogleCode(Command): # {{{
                 self.info(
                     '%s already uploaded, skipping. Assuming URL is: %s'%(
                         bname, path))
+                self.old_files.pop(bname)
             else:
                 path = self.upload_one(fname)
             self.paths[bname] = path
