@@ -145,6 +145,8 @@ class UploadToGoogleCode(Command): # {{{
             try:
                 path = self.upload(os.path.abspath(fname), desc,
                     labels=[typ, op, 'Featured'])
+            except KeyboardInterrupt:
+                raise SystemExit(1)
             except:
                 import traceback
                 traceback.print_exc()
@@ -327,6 +329,8 @@ class UploadToSourceForge(Command): # {{{
                     check_call(['rsync', '-z', '--progress', '-e', 'ssh -x', x,
                     '%s,%s@frs.sourceforge.net:%s'%(self.USERNAME, self.PROJECT,
                         self.rdir+'/')])
+                except KeyboardInterrupt:
+                    raise SystemExit(1)
                 except:
                     print ('\nUpload failed, trying again in 30 seconds')
                     time.sleep(30)
