@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-11-23 07:48+0000\n"
-"PO-Revision-Date: 2011-11-19 16:45+0000\n"
+"POT-Creation-Date: 2011-11-25 08:01+0000\n"
+"PO-Revision-Date: 2011-11-26 08:42+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-24 04:47+0000\n"
-"X-Generator: Launchpad (build 14336)\n"
+"X-Launchpad-Export-Date: 2011-11-27 05:23+0000\n"
+"X-Generator: Launchpad (build 14381)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -26,8 +26,8 @@ msgstr "Semmit sem csinál"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:108
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:119
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:265
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:266
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -978,7 +978,7 @@ msgstr "Hibakeresési napló"
 msgid "Communicate with Android phones."
 msgstr "Kommunikáció Androidos telefonnal."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:148
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:149
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -986,11 +986,11 @@ msgstr ""
 "Vesszővel tagolt mappa-lista az e-bookok olvasóra küldéséhez. Az első létező "
 "mappába kerülnek a könyvek."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:205
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:206
 msgid "Communicate with S60 phones."
 msgstr "Kommunikáció S60-as telefonnal."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:224
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:225
 msgid "Communicate with WebOS tablets."
 msgstr "Kommunikáció WebOS táblagépekkel."
 
@@ -1386,7 +1386,7 @@ msgstr "Kommunikáció Elonex EB 511 eBook olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Kommunikáció a Cybook Odyssey olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1692,7 +1692,7 @@ msgstr "Kommunikáció Nook eBook olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Kommunikáció a Nook Color, TSR és Tablet olvasóval."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -20289,7 +20289,7 @@ msgstr ""
 "az „elválasztó”-val van tagolva, de a bemeneti „lista1” és „lista2” egyes "
 "elemeit is ennek kell elválasztania."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:936
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:935
 msgid ""
 "list_difference(list1, list2, separator) -- return a list made by removing "
 "from list1 any item found in list2, using a case-insensitive compare. The "
@@ -20301,7 +20301,7 @@ msgstr ""
 "„lista2”-ben. A visszatérési lista az „elválasztó”-val van tagolva, de a "
 "bemeneti „lista1” és „lista2” egyes elemeit is ennek kell elválasztania."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:957
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:956
 msgid ""
 "list_intersection(list1, list2, separator) -- return a list made by removing "
 "from list1 any item not found in list2, using a case-insensitive compare. "
@@ -20315,7 +20315,7 @@ msgstr ""
 "tagolva, de a bemeneti „lista1” és „lista2” egyes elemeit is ennek kell "
 "elválasztania."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:978
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:977
 msgid ""
 "list_sort(list, direction, separator) -- return list sorted using a case-"
 "insensitive sort. If direction is zero, the list is sorted ascending, "
@@ -20328,7 +20328,7 @@ msgstr ""
 "csökkenő sorrendben rendez. A visszatérési lista az „elválasztó”-val van "
 "tagolva, de a bemeneti „lista” egyes elemeit is ennek kell elválasztania."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:993
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:992
 msgid ""
 "list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- return yes_val if "
 "list1 and list2 contain the same items, otherwise return no_val. The items "
@@ -20343,7 +20343,7 @@ msgstr ""
 "listákban lévő elemek sorrendje tetszőleges lehet. A listaelemek "
 "ellenőrzésekor a kis- és nagybetűk nincsenek megkülönböztetve."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1011
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1010
 msgid ""
 "list_re(src_list, separator, search_re, opt_replace) -- Construct a list by "
 "first separating src_list into items using the separator character. For each "
@@ -21510,6 +21510,24 @@ msgid ""
 "interface language is used. The setting title_sort_articles is ignored\n"
 "(present only for legacy reasons)."
 msgstr ""
+"Adja meg a névelőként kezelt szavakat a cím rendezési forma létrehozásához.\n"
+"A névelők az adott nyelvtől függnek. Alapesetben a calibre az angol "
+"névelőket\n"
+"a program nyelvének megfelelő névelőkkel kombinálja. Továbbá, ha a könyv "
+"nyelve\n"
+"be van állítva, akkor ennek a nyelvnek a névelőit is figyelembe veszi. A "
+"névelők listáját\n"
+"az adott nyelvhez illetve új nyelvet is hozzáadhat a "
+"„per_language_title_sort_articles”\n"
+"szerkesztésével. Ahhoz, hogy a calibre a program beállított nyelvétől eltérő "
+"nyelvet\n"
+"vegyen figyelembe, állítsa be a „default_language_for_title_sort” értéket. "
+"Például a\n"
+"német nyelvhez „deu”, magyarhoz „hun”. Ha ez az érték „None”, akkor a "
+"kezelőfelület\n"
+"nyelve a mérvadó. A „title_sort_articles” értéket a továbbiakban a calibre "
+"nem veszi\n"
+"figyelembe, csak a visszamenőleges kompatibilitás miatt maradt a programban."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:248
 msgid "Specify a folder calibre should connect to at startup"

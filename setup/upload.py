@@ -25,12 +25,12 @@ MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
 def installers():
     installers = list(map(installer_name, ('dmg', 'msi', 'tar.bz2')))
     installers.append(installer_name('tar.bz2', is64bit=True))
-    installers.insert(0, 'dist/%s-%s.tar.gz'%(__appname__, __version__))
+    installers.insert(0, 'dist/%s-%s.tar.xz'%(__appname__, __version__))
     installers.append('dist/%s-portable-%s.zip'%(__appname__, __version__))
     return installers
 
 def installer_description(fname):
-    if fname.endswith('.tar.gz'):
+    if fname.endswith('.tar.xz'):
         return 'Source code'
     if fname.endswith('.tar.bz2'):
         bits = '32' if 'i686' in fname else '64'
@@ -117,7 +117,7 @@ class UploadToGoogleCode(Command): # {{{
 
     def re_upload(self):
         fnames = set([os.path.basename(x) for x in installers() if not
-                x.endswith('.tar.gz') and os.path.exists(x)])
+                x.endswith('.tar.xz') and os.path.exists(x)])
         existing = set(self.old_files.keys()).intersection(fnames)
         br = self.login_to_gmail()
         for x in fnames:
@@ -134,17 +134,19 @@ class UploadToGoogleCode(Command): # {{{
 
     def upload_one(self, fname):
         self.info('\nUploading', fname)
-        typ = 'Type-' + ('Source' if fname.endswith('.gz') else 'Archive' if
+        typ = 'Type-' + ('Source' if fname.endswith('.xz') else 'Archive' if
                 fname.endswith('.zip') else 'Installer')
         ext = os.path.splitext(fname)[1][1:]
         op  = 'OpSys-'+{'msi':'Windows','zip':'Windows',
-                'dmg':'OSX','bz2':'Linux','gz':'All'}[ext]
+                'dmg':'OSX','bz2':'Linux','xz':'All'}[ext]
         desc = installer_description(fname)
         start = time.time()
         for i in range(5):
             try:
                 path = self.upload(os.path.abspath(fname), desc,
                     labels=[typ, op, 'Featured'])
+            except KeyboardInterrupt:
+                raise SystemExit(1)
             except:
                 import traceback
                 traceback.print_exc()
@@ -169,8 +171,10 @@ class UploadToGoogleCode(Command): # {{{
             bname = os.path.basename(fname)
             if bname in self.old_files:
                 path = 'http://calibre-ebook.googlecode.com/files/'+bname
-                self.info('%s already uploaded, skipping. Assuming URL is: %s',
-                        bname, path)
+                self.info(
+                    '%s already uploaded, skipping. Assuming URL is: %s'%(
+                        bname, path))
+                self.old_files.pop(bname)
             else:
                 path = self.upload_one(fname)
             self.paths[bname] = path
@@ -326,6 +330,8 @@ class UploadToSourceForge(Command): # {{{
                     check_call(['rsync', '-z', '--progress', '-e', 'ssh -x', x,
                     '%s,%s@frs.sourceforge.net:%s'%(self.USERNAME, self.PROJECT,
                         self.rdir+'/')])
+                except KeyboardInterrupt:
+                    raise SystemExit(1)
                 except:
                     print ('\nUpload failed, trying again in 30 seconds')
                     time.sleep(30)
@@ -469,11 +475,11 @@ class UploadToServer(Command): # {{{
     description = 'Upload miscellaneous data to calibre server'
 
     def run(self, opts):
-        check_call('ssh divok rm -f %s/calibre-\*.tar.gz'%DOWNLOADS, shell=True)
-        #check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS, shell=True)
-        check_call('gpg --armor --detach-sign dist/calibre-*.tar.gz',
+        check_call('ssh divok rm -f %s/calibre-\*.tar.xz'%DOWNLOADS, shell=True)
+        #check_call('scp dist/calibre-*.tar.xz divok:%s/'%DOWNLOADS, shell=True)
+        check_call('gpg --armor --detach-sign dist/calibre-*.tar.xz',
                 shell=True)
-        check_call('scp dist/calibre-*.tar.gz.asc divok:%s/signatures/'%DOWNLOADS,
+        check_call('scp dist/calibre-*.tar.xz.asc divok:%s/signatures/'%DOWNLOADS,
                 shell=True)
         check_call('ssh divok bzr update /usr/local/calibre',
                    shell=True)

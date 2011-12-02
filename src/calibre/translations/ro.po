@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-11-23 07:48+0000\n"
-"PO-Revision-Date: 2011-11-19 21:31+0000\n"
+"POT-Creation-Date: 2011-11-25 08:01+0000\n"
+"PO-Revision-Date: 2011-11-29 09:51+0000\n"
 "Last-Translator: Lucian Martin <Unknown>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-11-24 04:52+0000\n"
-"X-Generator: Launchpad (build 14336)\n"
+"X-Launchpad-Export-Date: 2011-11-30 05:24+0000\n"
+"X-Generator: Launchpad (build 14404)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -27,8 +27,8 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:108
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:119
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:265
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:266
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -998,7 +998,7 @@ msgstr "Registrul pentru depanare"
 msgid "Communicate with Android phones."
 msgstr "Comunică cu telefoane Android."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:148
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:149
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -1006,11 +1006,11 @@ msgstr ""
 "Lista separată prin virgule a directoarelor ce vor fi trimise către "
 "dispozitiv. Va fi folosit primul dispozitiv identificat."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:205
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:206
 msgid "Communicate with S60 phones."
 msgstr "Comunică cu telefoanele S60."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:224
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:225
 msgid "Communicate with WebOS tablets."
 msgstr "Comunică cu tabletele WebOS."
 
@@ -1404,7 +1404,7 @@ msgstr "Comunică cu dispozitivul Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Comunică cu dispozitivul Cybook Odyssey."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -20360,7 +20360,7 @@ msgstr ""
 "folosite. Elementele din \"list1\" şi \"list2\" sunt separate prin "
 "\"separator\" ca şi elementele din lista returnată."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:936
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:935
 msgid ""
 "list_difference(list1, list2, separator) -- return a list made by removing "
 "from list1 any item found in list2, using a case-insensitive compare. The "
@@ -20373,7 +20373,7 @@ msgstr ""
 "\"list1\" şi \"list2\" sunt separate prin \"separator\" ca şi elementele din "
 "lista returnată."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:957
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:956
 msgid ""
 "list_intersection(list1, list2, separator) -- return a list made by removing "
 "from list1 any item not found in list2, using a case-insensitive compare. "
@@ -20386,7 +20386,7 @@ msgstr ""
 "din \"list1\" şi \"list2\" sunt separate prin \"separator\" ca şi elementele "
 "din lista returnată."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:978
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:977
 msgid ""
 "list_sort(list, direction, separator) -- return list sorted using a case-"
 "insensitive sort. If direction is zero, the list is sorted ascending, "
@@ -20399,7 +20399,7 @@ msgstr ""
 "Elementele listei sunt separate prin \"separator\" ca şi cele din lista "
 "returnată."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:993
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:992
 msgid ""
 "list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- return yes_val if "
 "list1 and list2 contain the same items, otherwise return no_val. The items "
@@ -20408,7 +20408,7 @@ msgid ""
 "The compare is case insensitive."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1011
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1010
 msgid ""
 "list_re(src_list, separator, search_re, opt_replace) -- Construct a list by "
 "first separating src_list into items using the separator character. For each "
@@ -21178,7 +21178,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"
-msgstr ""
+msgstr "Împarte numele autorilor multipli"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:77
 msgid ""
@@ -21606,7 +21606,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:363
 msgid "Choose whether dates are sorted using visible fields"
-msgstr ""
+msgstr "Alegeţi dacă data este sortată folosind câmpurile vizibile"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:364
 msgid ""
@@ -21614,6 +21614,9 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
+"Valorile datei conţin data şi ora. La sortare, toate câmpurile sunt\n"
+"folosite, indiferent de ce este afişat.  Setaţi această opţiune pe\n"
+"\"Adevărat\" pentru a folosi doar câmpurile care sunt afişate."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:369
 msgid "Specify which font to use when generating a default cover"
