@@ -217,6 +217,7 @@ class ITUNES(DriverBase):
     #  0x1297   iPhone 4
     #  0x129a   iPad
     #  0x129f   iPad2 (WiFi)
+    #  0x12a0   iPhone 4S
     #  0x12a2   iPad2 (GSM)
     #  0x12a3   iPad2 (CDMA)
     VENDOR_ID = [0x05ac]
@@ -1305,6 +1306,9 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info(" ITUNES._add_new_copy()")
 
+        if fpath.rpartition('.')[2].lower() == 'epub':
+            self._update_epub_metadata(fpath, metadata)
+
         db_added = None
         lb_added = None
 
@@ -1409,10 +1413,16 @@ class ITUNES(DriverBase):
                         tmp_cover.write(cover_data)
 
                     if lb_added:
-                        if lb_added.Artwork.Count:
-                            lb_added.Artwork.Item(1).SetArtworkFromFile(tc)
-                        else:
-                            lb_added.AddArtworkFromFile(tc)
+                        try:
+                            if lb_added.Artwork.Count:
+                                lb_added.Artwork.Item(1).SetArtworkFromFile(tc)
+                            else:
+                                lb_added.AddArtworkFromFile(tc)
+                        except:
+                            if DEBUG:
+                                self.log.warning("  iTunes automation interface reported an error"
+                                                 " when adding artwork to '%s' in the iTunes Library" % metadata.title)
+                            pass
 
                     if db_added:
                         if db_added.Artwork.Count:
@@ -2638,68 +2648,61 @@ class ITUNES(DriverBase):
 
         # Refresh epub metadata
         with open(fpath,'r+b') as zfo:
-            # Touch the OPF timestamp
-            try:
-                zf_opf = ZipFile(fpath,'r')
-                fnames = zf_opf.namelist()
-                opf = [x for x in fnames if '.opf' in x][0]
-            except:
-                raise UserFeedback("'%s' is not a valid EPUB" % metadata.title,
-                                   None,
-                                   level=UserFeedback.WARN)
+            if False:
+                try:
+                    zf_opf = ZipFile(fpath,'r')
+                    fnames = zf_opf.namelist()
+                    opf = [x for x in fnames if '.opf' in x][0]
+                except:
+                    raise UserFeedback("'%s' is not a valid EPUB" % metadata.title,
+                                       None,
+                                       level=UserFeedback.WARN)
 
-            opf_tree = etree.fromstring(zf_opf.read(opf))
-            md_els = opf_tree.xpath('.//*[local-name()="metadata"]')
-            if md_els:
-                ts = md_els[0].find('.//*[@name="calibre:timestamp"]')
-                if ts is not None:
-                    timestamp = ts.get('content')
-                    old_ts = parse_date(timestamp)
-                    metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                               old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
-                    if DEBUG:
-                        self.log.info("   existing timestamp: %s" % metadata.timestamp)
+                #Touch the OPF timestamp
+                opf_tree = etree.fromstring(zf_opf.read(opf))
+                md_els = opf_tree.xpath('.//*[local-name()="metadata"]')
+                if md_els:
+                    ts = md_els[0].find('.//*[@name="calibre:timestamp"]')
+                    if ts is not None:
+                        timestamp = ts.get('content')
+                        old_ts = parse_date(timestamp)
+                        metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
+                                                   old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
+                        if DEBUG:
+                            self.log.info("   existing timestamp: %s" % metadata.timestamp)
+                    else:
+                        metadata.timestamp = now()
+                        if DEBUG:
+                            self.log.info("   add timestamp: %s" % metadata.timestamp)
+
                 else:
                     metadata.timestamp = now()
                     if DEBUG:
+                        self.log.warning("   missing <metadata> block in OPF file")
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
-            else:
-                metadata.timestamp = now()
-                if DEBUG:
-                    self.log.warning("   missing <metadata> block in OPF file")
-                    self.log.info("   add timestamp: %s" % metadata.timestamp)
-            # Force the language declaration for iBooks 1.1
-            #metadata.language = get_lang().replace('_', '-')
 
-            # Updates from metadata plugboard (ignoring publisher)
-            metadata.language = metadata_x.language
-
-            if DEBUG:
-                if metadata.language != metadata_x.language:
-                    self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
-
-            zf_opf.close()
+                zf_opf.close()
 
             # If 'News' in tags, tweak the title/author for friendlier display in iBooks
-            if _('News') in metadata.tags or \
-               _('Catalog') in metadata.tags:
-                if metadata.title.find('[') > 0:
-                    metadata.title = metadata.title[:metadata.title.find('[')-1]
+            if _('News') in metadata_x.tags or \
+               _('Catalog') in metadata_x.tags:
+                if metadata_x.title.find('[') > 0:
+                    metadata_x.title = metadata_x.title[:metadata_x.title.find('[')-1]
                 date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
-                metadata.author = metadata.authors = [date_as_author]
-                sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', metadata.title).rstrip()
-                metadata.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
+                metadata_x.author = metadata_x.authors = [date_as_author]
+                sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', metadata_x.title).rstrip()
+                metadata_x.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
 
             # Remove any non-alpha category tags
-            for tag in metadata.tags:
+            for tag in metadata_x.tags:
                 if not self._is_alpha(tag[0]):
-                    metadata.tags.remove(tag)
+                    metadata_x.tags.remove(tag)
 
             # If windows & series, nuke tags so series used as Category during _update_iTunes_metadata()
-            if iswindows and metadata.series:
-                metadata.tags = None
+            if iswindows and metadata_x.series:
+                metadata_x.tags = None
 
-            set_metadata(zfo, metadata, update_timestamp=True)
+            set_metadata(zfo, metadata_x, apply_null=True, update_timestamp=True)
 
     def _update_device(self, msg='', wait=True):
         '''
@@ -2771,6 +2774,8 @@ class ITUNES(DriverBase):
                 lb_added.sort_name.set(metadata_x.title_sort)
 
             if db_added:
+                self.log.warning("  waiting for db_added to become writeable ")
+                time.sleep(1.0)
                 db_added.name.set(metadata_x.title)
                 db_added.album.set(metadata_x.title)
                 db_added.artist.set(authors_to_string(metadata_x.authors))
@@ -2826,6 +2831,8 @@ class ITUNES(DriverBase):
                                 break
 
                 if db_added:
+                    self.log.warning("  waiting for db_added to become writeable ")
+                    time.sleep(1.0)
                     # If no title_sort plugboard tweak, create sort_name from series/index
                     if metadata.title_sort == metadata_x.title_sort:
                         db_added.sort_name.set("%s %s" % (self.title_sorter(metadata_x.series), series_index))
@@ -2866,6 +2873,8 @@ class ITUNES(DriverBase):
                 lb_added.SortName = metadata_x.title_sort
 
             if db_added:
+                self.log.warning("  waiting for db_added to become writeable ")
+                time.sleep(1.0)
                 db_added.Name = metadata_x.title
                 db_added.Album = metadata_x.title
                 db_added.Artist = authors_to_string(metadata_x.authors)

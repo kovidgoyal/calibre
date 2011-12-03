@@ -114,7 +114,7 @@ html_short_title = 'Start'
 html_logo        = 'resources/logo.png'
 
 epub_author      = 'Kovid Goyal'
-epub_cover       = 'epub_cover.jpg'
+kovid_epub_cover       = 'epub_cover.jpg'
 epub_publisher   = 'Kovid Goyal'
 epub_identifier  = 'http://manual.calibre-ebook.com'
 epub_scheme      = 'url'

@@ -258,6 +258,14 @@ The following functions are available in addition to those described in single-f
         MMMM : the long localized month name (e.g. "January" to "December"). 
         yy   : the year as two digit number (00 to 99). 
         yyyy : the year as four digit number.
+        h    : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm)
+        hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm)
+        m    : the minutes without a leading 0 (0 to 59)
+        mm   : the minutes with a leading 0 (00 to 59)
+        s    : the seconds without a leading 0 (0 to 59)
+        ss   : the seconds with a leading 0 (00 to 59)
+        ap   : use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the localized string for am or pm.
+        AP   : use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
         iso  : the date with time and timezone. Must be the only format present.
     
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables.
@@ -266,8 +274,9 @@ The following functions are available in addition to those described in single-f
     * ``has_cover()`` -- return ``Yes`` if the book has a cover, otherwise return the empty string
     * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``list_difference(list1, list2, separator)`` -- return a list made by removing from `list1` any item found in `list2`, using a case-insensitive compare. The items in `list1` and `list2` are separated by separator, as are the items in the returned list.
-    * ``list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- return `yes_val` if list1 and list2 contain the same items, otherwise return `no_val`. The items are determined by splitting each list using the appropriate separator character (`sep1` or `sep2`). The order of items in the lists is not relevant. The compare is case insensitive.
+    * ``list_equals(list1, sep1, list2, sep2, yes_val, no_val)`` -- return `yes_val` if `list1` and `list2` contain the same items, otherwise return `no_val`. The items are determined by splitting each list using the appropriate separator character (`sep1` or `sep2`). The order of items in the lists is not relevant. The compare is case insensitive.
     * ``list_intersection(list1, list2, separator)`` -- return a list made by removing from `list1` any item not found in `list2`, using a case-insensitive compare. The items in `list1` and `list2` are separated by separator, as are the items in the returned list.
+    * ``list_re(src_list, separator, search_re, opt_replace)`` -- Construct a list by first separating `src_list` into items using the `separator` character. For each item in the list, check if it matches `search_re`. If it does, then add it to the list to be returned. If `opt_replace` is not the empty string, then apply the replacement before adding the item to the returned list.
     * ``list_sort(list, direction, separator)`` -- return list sorted using a case-insensitive sort. If `direction` is zero, the list is sorted ascending, otherwise descending. The list items are separated by separator, as are the items in the returned list.
     * ``list_union(list1, list2, separator)`` -- return a list made by merging the items in list1 and list2, removing duplicate items using a case-insensitive compare. If items differ in case, the one in list1 is used. The items in list1 and list2 are separated by separator, as are the items in the returned list.
     * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.

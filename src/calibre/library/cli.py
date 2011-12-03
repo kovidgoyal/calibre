@@ -47,6 +47,9 @@ def get_parser(usage):
 def get_db(dbpath, options):
     if options.library_path is not None:
         dbpath = options.library_path
+    if dbpath is None:
+        raise ValueError('No saved library path, either run the GUI or use the'
+                ' --with-library option')
     dbpath = os.path.abspath(dbpath)
     return LibraryDatabase2(dbpath)
 
@@ -329,8 +332,8 @@ def do_remove(db, ids):
             for y in x:
                 db.delete_book(y)
 
-        send_message()
     db.clean()
+    send_message()
 
 def remove_option_parser():
     return get_parser(_(
@@ -339,7 +342,8 @@ def remove_option_parser():
 
 Remove the books identified by ids from the database. ids should be a comma separated \
 list of id numbers (you can get id numbers by using the list command). For example, \
-23,34,57-85
+23,34,57-85 (when specifying a range, the last number in the range is not
+included).
 '''))
 
 def command_remove(args, dbpath):
@@ -355,7 +359,7 @@ def command_remove(args, dbpath):
     for x in args[1].split(','):
         y = x.split('-')
         if len(y) > 1:
-            ids.append(range(int(y[0], int(y[1]))))
+            ids.extend(range(int(y[0]), int(y[1])))
         else:
             ids.append(int(y[0]))
 
@@ -365,6 +369,7 @@ def command_remove(args, dbpath):
 
 def do_add_format(db, id, fmt, path):
     db.add_format_with_hooks(id, fmt.upper(), path, index_is_id=True)
+    send_message()
 
 def add_format_option_parser():
     return get_parser(_(
@@ -393,6 +398,7 @@ def command_add_format(args, dbpath):
 
 def do_remove_format(db, id, fmt):
     db.remove_format(id, fmt, index_is_id=True)
+    send_message()
 
 def remove_format_option_parser():
     return get_parser(_(

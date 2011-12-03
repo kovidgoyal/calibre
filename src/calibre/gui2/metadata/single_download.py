@@ -28,7 +28,8 @@ from calibre.ebooks.metadata.sources.identify import (identify,
         urls_from_identifiers)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.gui2 import error_dialog, NONE
-from calibre.utils.date import utcnow, fromordinal, format_date
+from calibre.utils.date import (utcnow, fromordinal, format_date,
+        UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
 # }}}
@@ -201,7 +202,12 @@ class ResultsModel(QAbstractTableModel): # {{{
         elif col == 1:
             key = attrgetter('title')
         elif col == 2:
-            key = attrgetter('pubdate')
+            def dategetter(x):
+                x = getattr(x, 'pubdate', None)
+                if x is None:
+                    x = UNDEFINED_DATE
+                return as_utc(x)
+            key = dategetter
         elif col == 3:
             key = attrgetter('has_cached_cover_url')
         elif key == 4:
@@ -587,7 +593,6 @@ class CoversModel(QAbstractListModel): # {{{
             return 1
         return pmap.width()*pmap.height()
 
-
     def clear_failed(self):
         good = []
         pmap = {}
@@ -729,7 +734,8 @@ class CoversWidget(QWidget): # {{{
             except Empty:
                 break
 
-        self.covers_view.clear_failed()
+        if self.continue_processing:
+            self.covers_view.clear_failed()
 
         if self.worker.error is not None:
             error_dialog(self, _('Download failed'),
@@ -759,7 +765,7 @@ class CoversWidget(QWidget): # {{{
         self.continue_processing = False
 
     def cancel(self):
-        self.continue_processing = False
+        self.cleanup()
         self.abort.set()
 
     def cover_pixmap(self):

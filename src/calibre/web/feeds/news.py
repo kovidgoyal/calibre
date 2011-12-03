@@ -155,7 +155,7 @@ class BasicNewsRecipe(Recipe):
     #:
     auto_cleanup_keep = None
 
-    #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
+    #: Specify any extra :term:`CSS` that should be added to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
     #: `</head>` tag thereby overriding all :term:`CSS` except that which is
     #: declared using the style attribute on individual :term:`HTML` tags.
@@ -842,12 +842,22 @@ class BasicNewsRecipe(Recipe):
         finally:
             self.cleanup()
 
+    @property
+    def lang_for_html(self):
+        try:
+            lang = self.language.replace('_', '-').partition('-')[0].lower()
+            if lang == 'und':
+                lang = None
+        except:
+            lang = None
+        return lang
+
     def feeds2index(self, feeds):
-        templ = templates.IndexTemplate()
+        templ = (templates.TouchscreenIndexTemplate if self.touchscreen else
+                templates.IndexTemplate)
+        templ = templ(lang=self.lang_for_html)
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
         timefmt = self.timefmt
-        if self.touchscreen:
-            templ = templates.TouchscreenIndexTemplate()
         return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
 
@@ -870,8 +880,6 @@ class BasicNewsRecipe(Recipe):
         if len(ans) < len(src):
             return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
         return ans
-
-
 
     def feed2index(self, f, feeds):
         feed = feeds[f]
@@ -900,11 +908,10 @@ class BasicNewsRecipe(Recipe):
                 feed.image_url = feed.image_url.decode(sys.getfilesystemencoding(), 'strict')
 
 
-        templ = templates.FeedTemplate()
+        templ = (templates.TouchscreenFeedTemplate if self.touchscreen else
+                    templates.FeedTemplate)
+        templ = templ(lang=self.lang_for_html)
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
-
-        if self.touchscreen:
-            templ = templates.TouchscreenFeedTemplate()
 
         return templ.generate(f, feeds, self.description_limiter,
                               extra_css=css).render(doctype='xhtml')

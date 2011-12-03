@@ -207,8 +207,11 @@ class PRS505(USBMS):
         c = self.initialize_XML_cache()
         blists = {}
         for i in c.paths:
-            if booklists[i] is not None:
-                blists[i] = booklists[i]
+            try:
+                if booklists[i] is not None:
+                    blists[i] = booklists[i]
+            except IndexError:
+                pass
         opts = self.settings()
         if opts.extra_customization:
             collections = [x.strip() for x in
@@ -298,41 +301,4 @@ class PRS505(USBMS):
             with open(cpath, 'wb') as f:
                 f.write(metadata.thumbnail[-1])
             debug_print('Cover uploaded to: %r'%cpath)
-
-class PRST1(USBMS):
-    name           = 'SONY PRST1 and newer Device Interface'
-    gui_name       = 'SONY Reader'
-    description    = _('Communicate with Sony PRST1 and newer eBook readers')
-    author         = 'Kovid Goyal'
-    supported_platforms = ['windows', 'osx', 'linux']
-
-    FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt']
-    VENDOR_ID    = [0x054c]   #: SONY Vendor Id
-    PRODUCT_ID   = [0x05c2]
-    BCD          = [0x226]
-
-    VENDOR_NAME        = 'SONY'
-    WINDOWS_MAIN_MEM   = re.compile(
-            r'(PRS-T1&)'
-            )
-
-    THUMBNAIL_HEIGHT = 217
-    SCAN_FROM_ROOT = True
-    EBOOK_DIR_MAIN = __appname__
-    SUPPORTS_SUB_DIRS = True
-
-    def windows_filter_pnp_id(self, pnp_id):
-        return '_LAUNCHER' in pnp_id or '_SETTING' in pnp_id
-
-    def get_carda_ebook_dir(self, for_upload=False):
-        if for_upload:
-            return __appname__
-        return self.EBOOK_DIR_CARD_A
-
-    def get_main_ebook_dir(self, for_upload=False):
-        if for_upload:
-            return __appname__
-        return ''
-
-
 

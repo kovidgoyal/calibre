@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, textwrap, subprocess, shutil, tempfile, atexit, stat, shlex
+import sys, os, textwrap, subprocess, shutil, tempfile, atexit, shlex
 
 from setup import (Command, islinux, isbsd, basenames, modules, functions,
         __appname__, __version__)
@@ -168,10 +168,6 @@ class Develop(Command):
         ret = p.wait()
         if ret != 0:
             return warn()
-        if not isbsd:
-            os.chown(dest, 0, 0)
-            os.chmod(dest, stat.S_ISUID|stat.S_ISGID|stat.S_IRUSR|stat.S_IWUSR|\
-                    stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH)
         self.manifest.append(dest)
         return dest
 

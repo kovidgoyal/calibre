@@ -715,6 +715,26 @@ class Style(object):
         return self._lineHeight
 
     @property
+    def effective_text_decoration(self):
+        '''
+        Browsers do this creepy thing with text-decoration where even though the
+        property is not inherited, it looks like it is because containing
+        blocks apply it. The actual algorithm is utterly ridiculous, see
+        http://reference.sitepoint.com/css/text-decoration
+        This matters for MOBI output, where text-decoration is mapped to <u>
+        and <st> tags. Trying to implement the actual algorithm is too much
+        work, so we just use a simple fake that should cover most cases.
+        '''
+        css = self._style.get('text-decoration', None)
+        pcss = None
+        parent = self._get_parent()
+        if parent is not None:
+            pcss = parent._style.get('text-decoration', None)
+        if css in ('none', None) and pcss not in (None, 'none'):
+            return pcss
+        return css
+
+    @property
     def marginTop(self):
         return self._unit_convert(
             self._get('margin-top'), base=self.height)

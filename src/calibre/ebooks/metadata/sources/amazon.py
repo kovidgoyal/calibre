@@ -12,7 +12,7 @@ from urllib import urlencode
 from threading import Thread
 from Queue import Queue, Empty
 
-from lxml.html import soupparser, tostring
+from lxml.html import tostring
 
 from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
@@ -23,6 +23,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
 from calibre.utils.localization import canonicalize_lang
+from calibre.utils.soupparser import fromstring
 
 class Worker(Thread): # Get details {{{
 
@@ -30,9 +31,11 @@ class Worker(Thread): # Get details {{{
     Get book details from amazons book page in a separate thread
     '''
 
-    def __init__(self, url, result_queue, browser, log, relevance, domain, plugin, timeout=20):
+    def __init__(self, url, result_queue, browser, log, relevance, domain,
+            plugin, timeout=20, testing=False):
         Thread.__init__(self)
         self.daemon = True
+        self.testing = testing
         self.url, self.result_queue = url, result_queue
         self.log, self.timeout = log, timeout
         self.relevance, self.plugin = relevance, plugin
@@ -189,16 +192,15 @@ class Worker(Thread): # Get details {{{
                 self.log.exception(msg)
             return
 
+        oraw = raw
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
-        #open('/t/t.html', 'wb').write(raw)
-
         if '<title>404 - ' in raw:
             self.log.error('URL malformed: %r'%self.url)
             return
 
         try:
-            root = soupparser.fromstring(clean_ascii_chars(raw))
+            root = fromstring(clean_ascii_chars(raw))
         except:
             msg = 'Failed to parse amazon details page: %r'%self.url
             self.log.exception(msg)
@@ -211,14 +213,20 @@ class Worker(Thread): # Get details {{{
             self.log.error(msg)
             return
 
-        self.parse_details(root)
+        self.parse_details(oraw, root)
 
-    def parse_details(self, root):
+    def parse_details(self, raw, root):
         try:
             asin = self.parse_asin(root)
         except:
             self.log.exception('Error parsing asin for url: %r'%self.url)
             asin = None
+        if self.testing:
+            import tempfile
+            with tempfile.NamedTemporaryFile(prefix=asin + '_',
+                    suffix='.html', delete=False) as f:
+                f.write(raw)
+            print ('Downloaded html for', asin, 'saved in', f.name)
 
         try:
             title = self.parse_title(root)
@@ -310,7 +318,7 @@ class Worker(Thread): # Get details {{{
             return l.get('href').rpartition('/')[-1]
 
     def parse_title(self, root):
-        tdiv = root.xpath('//h1[@class="parseasinTitle"]')[0]
+        tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')[0]
         actual_title = tdiv.xpath('descendant::*[@id="btAsinTitle"]')
         if actual_title:
             title = tostring(actual_title[0], encoding=unicode,
@@ -320,11 +328,11 @@ class Worker(Thread): # Get details {{{
         return re.sub(r'[(\[].*[)\]]', '', title).strip()
 
     def parse_authors(self, root):
-        x = '//h1[@class="parseasinTitle"]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
+        x = '//h1[contains(@class, "parseasinTitle")]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
         aname = root.xpath(x)
         if not aname:
             aname = root.xpath('''
-            //h1[@class="parseasinTitle"]/following-sibling::*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]
+            //h1[contains(@class, "parseasinTitle")]/following-sibling::*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]
                     ''')
         for x in aname:
             x.tail = ''
@@ -334,11 +342,11 @@ class Worker(Thread): # Get details {{{
         return authors
 
     def parse_rating(self, root):
-        ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[@class="asinReviewsSummary"]')
+        ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]')
         if not ratings:
-            ratings = root.xpath('//div[@class="buying"]/descendant::span[@class="asinReviewsSummary"]')
+            ratings = root.xpath('//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]')
         if not ratings:
-            ratings = root.xpath('//span[@class="crAvgStars"]/descendant::span[@class="asinReviewsSummary"]')
+            ratings = root.xpath('//span[@class="crAvgStars"]/descendant::span[contains(@class,"asinReviewsSummary")]')
         if ratings:
             for elem in ratings[0].xpath('descendant::*[@title]'):
                 t = elem.get('title').strip()
@@ -616,7 +624,7 @@ class Amazon(Source):
 
         if found:
             try:
-                root = soupparser.fromstring(clean_ascii_chars(raw))
+                root = fromstring(clean_ascii_chars(raw))
             except:
                 msg = 'Failed to parse amazon page for query: %r'%query
                 log.exception(msg)
@@ -666,7 +674,8 @@ class Amazon(Source):
             log.error('No matches found with query: %r'%query)
             return
 
-        workers = [Worker(url, result_queue, br, log, i, domain, self) for i, url in
+        workers = [Worker(url, result_queue, br, log, i, domain, self,
+            testing=getattr(self, 'running_a_test', False)) for i, url in
                 enumerate(matches)]
 
         for w in workers:
@@ -740,16 +749,6 @@ if __name__ == '__main__': # tests {{{
 
             ),
 
-            ( # An e-book ISBN not on Amazon, the title/author search matches
-              # the Kindle edition, which has different markup for ratings and
-              # isbn
-                {'identifiers':{'isbn': '9780307459671'},
-                    'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
-                [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us',
-                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
-
-            ),
-
             (  # This isbn not on amazon
                 {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
                     'authors':['Lutz']},
@@ -783,7 +782,7 @@ if __name__ == '__main__': # tests {{{
     de_tests = [ # {{{
             (
                 {'identifiers':{'isbn': '3548283519'}},
-                [title_test('Wer Wind sät',
+                [title_test('Wer Wind Sät: Der Fünfte Fall Für Bodenstein Und Kirchhoff',
                     exact=True), authors_test(['Nele Neuhaus'])
                  ]
 
@@ -835,6 +834,6 @@ if __name__ == '__main__': # tests {{{
     ] # }}}
 
     test_identify_plugin(Amazon.name, com_tests)
-    #test_identify_plugin(Amazon.name, es_tests)
+    #test_identify_plugin(Amazon.name, de_tests)
 # }}}
 

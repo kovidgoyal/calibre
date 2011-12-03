@@ -6,7 +6,7 @@ from threading import RLock
 from urllib import unquote
 from PyQt4.Qt import (QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt,
                     QByteArray, QTranslator, QCoreApplication, QThread,
-                    QEvent, QTimer, pyqtSignal, QDate, QDesktopServices,
+                    QEvent, QTimer, pyqtSignal, QDateTime, QDesktopServices,
                     QFileDialog, QFileIconProvider, QSettings,
                     QIcon, QApplication, QDialog, QUrl, QFont)
 
@@ -104,7 +104,7 @@ gprefs.defaults['show_files_after_save'] = True
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
-UNDEFINED_QDATE = QDate(UNDEFINED_DATE)
+UNDEFINED_QDATETIME = QDateTime(UNDEFINED_DATE)
 
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
@@ -174,6 +174,8 @@ def _config(): # {{{
     c.add_opt('plugin_search_history', default=[],
         help='Search history for the plugin preferences')
     c.add_opt('shortcuts_search_history', default=[],
+        help='Search history for the keyboard preferences')
+    c.add_opt('jobs_search_history', default=[],
         help='Search history for the keyboard preferences')
     c.add_opt('tweaks_search_history', default=[],
         help='Search history for tweaks')

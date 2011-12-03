@@ -13,9 +13,9 @@ import threading, random
 from itertools import repeat
 from math import ceil
 
-from calibre import prints
+from calibre import prints, force_unicode
 from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
-        string_to_authors, authors_to_string)
+        string_to_authors, authors_to_string, get_title_sort_pat)
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.database import LibraryDatabase
 from calibre.library.field_metadata import FieldMetadata, TagsIcons
@@ -33,7 +33,7 @@ from calibre import isbytestring
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.date import utcnow, now as nowf, utcfromtimestamp
 from calibre.utils.config import prefs, tweaks, from_json, to_json
-from calibre.utils.icu import sort_key, strcmp
+from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import BOOK_EXTENSIONS, check_ebook_format
 from calibre.utils.magick.draw import save_cover_data_to
@@ -214,8 +214,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
                 for f in fmvals:
                     self.create_custom_column(f['label'], f['name'], f['datatype'],
-                            f['is_multiple'] is not None, f['is_editable'], f['display'])
+                            f['is_multiple'] is not None and len(f['is_multiple']) > 0,
+                            f['is_editable'], f['display'])
+        self.initialize_template_cache()
         self.initialize_dynamic()
+
+    def initialize_template_cache(self):
+        self.formatter_template_cache = {}
 
     def get_property(self, idx, index_is_id=False, loc=-1):
         row = self.data._data[idx] if index_is_id else self.data[idx]
@@ -302,7 +307,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if cats_changed:
             self.prefs.set('user_categories', user_cats)
 
-        load_user_template_functions(self.prefs.get('user_template_functions', []))
+        if not self.is_second_db:
+            load_user_template_functions(self.prefs.get('user_template_functions', []))
 
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
@@ -895,7 +901,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         row = self.data._data[idx] if index_is_id else self.data[idx]
         fm = self.FIELD_MAP
-        mi = Metadata(None)
+        mi = Metadata(None, template_cache=self.formatter_template_cache)
 
         aut_list = row[fm['au_map']]
         if aut_list:
@@ -953,6 +959,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.set_identifiers(self.get_identifiers(id, index_is_id=True))
         mi.application_id = id
         mi.id = id
+
         for key, meta in self.field_metadata.custom_iteritems():
             mi.set_user_metadata(key, meta)
             if meta['datatype'] == 'composite':
@@ -996,11 +1003,25 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
         return False
 
+    def books_with_same_title(self, mi, all_matches=True):
+        title = mi.title
+        ans = set()
+        if title:
+            title = lower(force_unicode(title))
+            for book_id in self.all_ids():
+                x = self.title(book_id, index_is_id=True)
+                if lower(x) == title:
+                    ans.add(book_id)
+                    if not all_matches:
+                        break
+        return ans
+
     def find_identical_books(self, mi):
-        fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
+        fuzzy_title_patterns = [(re.compile(pat, re.IGNORECASE) if
+            isinstance(pat, basestring) else pat, repl) for pat, repl in
                 [
                     (r'[\[\](){}<>\'";,:#]', ''),
-                    (tweaks.get('title_sort_articles', r'^(a|the|an)\s+'), ''),
+                    (get_title_sort_pat(), ''),
                     (r'[-._]', ' '),
                     (r'\s+', ' ')
                 ]
@@ -1310,10 +1331,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
-        if name:
-            if not replace:
-                return False
-            self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format))
+        if name and not replace:
+            return False
         name = self.construct_file_name(id)
         ext = ('.' + format.lower()) if format else ''
         dest = os.path.join(path, name+ext)
@@ -1326,7 +1345,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 shutil.copyfileobj(stream, f)
         stream.seek(0, 2)
         size=stream.tell()
-        self.conn.execute('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
+        self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
         self.conn.commit()
         self.refresh_ids([id])
@@ -2103,7 +2122,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         user_mi = mi.get_all_user_metadata(make_copy=False)
         for key in user_mi.iterkeys():
             if key in self.field_metadata and \
-                    user_mi[key]['datatype'] == self.field_metadata[key]['datatype']:
+                    user_mi[key]['datatype'] == self.field_metadata[key]['datatype'] and \
+                    (user_mi[key]['datatype'] != 'text' or
+                     user_mi[key]['is_multiple'] == self.field_metadata[key]['is_multiple']):
                 val = mi.get(key, None)
                 if force_changes or val is not None:
                     doit(self.set_custom, id, val=val, extra=mi.get_extra(key),
@@ -3357,7 +3378,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             prefix = self.library_path
         FIELDS = set(['title', 'sort', 'authors', 'author_sort', 'publisher', 'rating',
             'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
-            'uuid', 'pubdate', 'last_modified', 'identifiers'])
+            'uuid', 'pubdate', 'last_modified', 'identifiers', 'languages'])
         for x in self.custom_column_num_map:
             FIELDS.add(x)
         data = []

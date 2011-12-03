@@ -341,7 +341,9 @@ class DB(object):
                                 if f['is_custom']]
                 for f in fmvals:
                     self.create_custom_column(f['label'], f['name'],
-                            f['datatype'], f['is_multiple'] is not None,
+                            f['datatype'],
+                            (f['is_multiple'] is not None and
+                                len(f['is_multiple']) > 0),
                             f['is_editable'], f['display'])
 
         defs = self.prefs.defaults

@@ -20,6 +20,7 @@ from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
 from calibre import guess_type, prints, prepare_string_for_xml
 from calibre.ebooks.oeb.transforms.cover import CoverManager
+from calibre.constants import filesystem_encoding
 
 TITLEPAGE = CoverManager.SVG_TEMPLATE.decode('utf-8').replace(\
         '__ar__', 'none').replace('__viewbox__', '0 0 600 800'
@@ -180,6 +181,8 @@ class EbookIterator(object):
         self.delete_on_exit = []
         self._tdir = TemporaryDirectory('_ebook_iter')
         self.base  = self._tdir.__enter__()
+        if not isinstance(self.base, unicode):
+            self.base = self.base.decode(filesystem_encoding)
         from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
         plumber = Plumber(self.pathtoebook, self.base, self.log)
         plumber.setup_options()

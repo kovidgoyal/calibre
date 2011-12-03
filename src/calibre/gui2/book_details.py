@@ -76,7 +76,8 @@ def get_field_list(fm, use_defaults=False):
     for field in fm.displayable_field_keys():
         if field not in names:
             fieldlist.append((field, True))
-    return fieldlist
+    available = frozenset(fm.displayable_field_keys())
+    return [(f, d) for f, d in fieldlist if f in available]
 
 def render_data(mi, use_roman_numbers=True, all_fields=False):
     ans = []
@@ -204,6 +205,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
 class CoverView(QWidget): # {{{
 
     cover_changed = pyqtSignal(object, object)
+    cover_removed = pyqtSignal(object)
 
     def __init__(self, vertical, parent=None):
         QWidget.__init__(self, parent)
@@ -289,10 +291,12 @@ class CoverView(QWidget): # {{{
         cm = QMenu(self)
         paste = cm.addAction(_('Paste Cover'))
         copy = cm.addAction(_('Copy Cover'))
+        remove = cm.addAction(_('Remove Cover'))
         if not QApplication.instance().clipboard().mimeData().hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
+        remove.triggered.connect(self.remove_cover)
         cm.exec_(ev.globalPos())
 
     def copy_to_clipboard(self):
@@ -315,6 +319,25 @@ class CoverView(QWidget): # {{{
                 self.cover_changed.emit(id_,
                     pixmap_to_data(pmap))
 
+    def remove_cover(self):
+        id_ = self.data.get('id', None)
+        self.pixmap = self.default_pixmap
+        self.do_layout()
+        self.update()
+        if id_ is not None:
+            self.cover_removed.emit(id_)
+
+    def update_tooltip(self, current_path):
+        try:
+            sz = self.pixmap.size()
+        except:
+            sz = QSize(0, 0)
+        self.setToolTip(
+            '<p>'+_('Double-click to open Book Details window') +
+            '<br><br>' + _('Path') + ': ' + current_path +
+            '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
+                width=sz.width(), height=sz.height())
+        )
 
     # }}}
 
@@ -457,6 +480,7 @@ class BookDetails(QWidget): # {{{
     remote_file_dropped = pyqtSignal(object, object)
     files_dropped = pyqtSignal(object, object)
     cover_changed = pyqtSignal(object, object)
+    cover_removed = pyqtSignal(object)
 
     # Drag 'n drop {{{
     DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
@@ -514,6 +538,7 @@ class BookDetails(QWidget): # {{{
 
         self.cover_view = CoverView(vertical, self)
         self.cover_view.cover_changed.connect(self.cover_changed.emit)
+        self.cover_view.cover_removed.connect(self.cover_removed.emit)
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
         self._layout.addWidget(self.book_info)
@@ -549,16 +574,7 @@ class BookDetails(QWidget): # {{{
 
     def update_layout(self):
         self._layout.do_layout(self.rect())
-        try:
-            sz = self.cover_view.pixmap.size()
-        except:
-            sz = QSize(0, 0)
-        self.setToolTip(
-            '<p>'+_('Double-click to open Book Details window') +
-            '<br><br>' + _('Path') + ': ' + self.current_path +
-            '<br><br>' + _('Cover size: %(width)d x %(height)d')%dict(
-                width=sz.width(), height=sz.height())
-        )
+        self.cover_view.update_tooltip(self.current_path)
 
     def reset_info(self):
         self.show_data(Metadata(_('Unknown')))

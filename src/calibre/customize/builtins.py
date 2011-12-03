@@ -502,6 +502,7 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
 # }}}
 
 from calibre.ebooks.comic.input import ComicInput
+from calibre.ebooks.djvu.input import DJVUInput
 from calibre.ebooks.epub.input import EPUBInput
 from calibre.ebooks.fb2.input import FB2Input
 from calibre.ebooks.html.input import HTMLInput
@@ -553,9 +554,11 @@ from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
-from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
+from calibre.devices.kindle.driver import (KINDLE, KINDLE2, KINDLE_DX,
+        KINDLE_FIRE)
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
-from calibre.devices.prs505.driver import PRS505, PRST1
+from calibre.devices.prs505.driver import PRS505
+from calibre.devices.prst1.driver import PRST1
 from calibre.devices.user_defined.driver import USER_DEFINED
 from calibre.devices.android.driver import ANDROID, S60, WEBOS
 from calibre.devices.nokia.driver import N770, N810, E71X, E52
@@ -564,7 +567,7 @@ from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
-        LIBREAIR)
+        LIBREAIR, ODYSSEY)
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
         SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
@@ -599,6 +602,7 @@ plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
 
 plugins += [
     ComicInput,
+    DJVUInput,
     EPUBInput,
     FB2Input,
     HTMLInput,
@@ -653,9 +657,7 @@ plugins += [
     MIBUK,
     SHINEBOOK,
     POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701, POCKETBOOK360P,
-    KINDLE,
-    KINDLE2,
-    KINDLE_DX,
+    KINDLE, KINDLE2, KINDLE_DX, KINDLE_FIRE,
     NOOK, NOOK_COLOR,
     PRS505, PRST1,
     ANDROID, S60, WEBOS,
@@ -687,7 +689,7 @@ plugins += [
     IPAPYRUS,
     EDGE,
     SNE,
-    ALEX,
+    ALEX, ODYSSEY,
     PALMPRE,
     KOBO,
     AZBOOKA,
@@ -1248,6 +1250,17 @@ class StoreEbookNLStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = False
 
+class StoreEbookpointStore(StoreBase):
+    name = 'Ebookpoint'
+    author = u'Tomasz Długosz'
+    description = u'Ebooki wolne od DRM, 3 formaty w pakiecie, wysyłanie na Kindle'
+    actual_plugin = 'calibre.gui2.store.stores.ebookpoint_plugin:EbookpointStore'
+
+    drm_free_only = True
+    headquarters = 'PL'
+    formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
+
 class StoreEbookscomStore(StoreBase):
     name = 'eBooks.com'
     description = u'Sells books in multiple electronic formats in all categories. Technical infrastructure is cutting edge, robust and scalable, with servers in the US and Europe.'
@@ -1370,6 +1383,17 @@ class StoreLibreDEStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreLitResStore(StoreBase):
+    name = 'LitRes'
+    description = u'ebooks from LitRes.ru'
+    actual_plugin = 'calibre.gui2.store.stores.litres_plugin:LitResStore'
+    author = 'Roman Mukhin'
+
+    drm_free_only = False
+    headquarters = 'RU'
+    formats = ['EPUB', 'TXT', 'RTF', 'HTML', 'FB2', 'LRF', 'PDF', 'MOBI', 'LIT', 'ISILO3', 'JAR', 'RB', 'PRC']
+    affiliate = True
+
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = u'Public domain and creative commons works from many sources.'
@@ -1462,7 +1486,7 @@ class StoreVirtualoStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.virtualo_plugin:VirtualoStore'
 
     headquarters = 'PL'
-    formats = ['EPUB', 'PDF']
+    formats = ['EPUB', 'MOBI', 'PDF']
 
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
@@ -1507,7 +1531,7 @@ class StoreWoblinkStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.woblink_plugin:WoblinkStore'
 
     headquarters = 'PL'
-    formats = ['EPUB']
+    formats = ['EPUB', 'PDF', 'WOBLINK']
 
 class XinXiiStore(StoreBase):
     name = 'XinXii'
@@ -1540,6 +1564,7 @@ plugins += [
     StoreChitankaStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
+	StoreEbookpointStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
     StoreEHarlequinStore,
@@ -1553,6 +1578,7 @@ plugins += [
     StoreKoboStore,
     StoreLegimiStore,
     StoreLibreDEStore,
+    StoreLitResStore,
     StoreManyBooksStore,
     StoreMobileReadStore,
     StoreNextoStore,

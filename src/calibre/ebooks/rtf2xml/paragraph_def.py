@@ -10,8 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile
+import sys, os
 from calibre.ebooks.rtf2xml import copy, border_parse
+from calibre.ptempfile import better_mktemp
+
 class ParagraphDef:
     """
 =================
@@ -66,7 +68,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__default_font = default_font
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
     def __initiate_values(self):
         """
         Initiate all values.

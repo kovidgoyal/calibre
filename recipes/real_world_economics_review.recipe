@@ -1,0 +1,19 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Real_world_economics_review(BasicNewsRecipe):
+    title          = u'Real-world economis review blog'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    use_embedded_content = False
+    __author__ = 'Julio Map'
+    language = 'en'
+
+    no_stylesheets = True
+
+    keep_only_tags = dict(name='div', attrs={'id':'main'})
+    remove_tags = [dict(name='div', attrs={'id':'postpath'}),
+        dict(name='div', attrs={'class':'robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing'}),
+        dict(name='div', attrs={'class':'sharedaddy sd-sharing-enabled'})
+        ]
+
+    feeds          = [(u'Real-World Economics Review Blog', u'http://rwer.wordpress.com/feed/')]

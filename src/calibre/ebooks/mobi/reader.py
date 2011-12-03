@@ -66,12 +66,15 @@ class EXTHHeader(object):
                 # last update time
                 pass
             elif id == 503: # Long title
-                if not title or title == _('Unknown') or \
-                        'USER_CONTENT' in title or title.startswith('dtp_'):
-                    try:
-                        title = content.decode(codec)
-                    except:
-                        pass
+                # Amazon seems to regard this as the definitive book title
+                # rather than the title from the PDB header. In fact when
+                # sending MOBI files through Amazon's email service if the
+                # title contains non ASCII chars or non filename safe chars
+                # they are messed up in the PDB header
+                try:
+                    title = content.decode(codec)
+                except:
+                    pass
             #else:
             #    print 'unknown record', id, repr(content)
         if title:
@@ -325,6 +328,10 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('</</', '</')
         self.processed_html = re.sub(r'</([a-zA-Z]+)<', r'</\1><',
                 self.processed_html)
+        # Remove tags of the form <xyz: ...> as they can cause issues further
+        # along the pipeline
+        self.processed_html = re.sub(r'</{0,1}[a-zA-Z]+:\s+[^>]*>', '',
+                self.processed_html)
 
         for pat in ENCODING_PATS:
             self.processed_html = pat.sub('', self.processed_html)
@@ -346,14 +353,14 @@ class MobiReader(object):
             self.processed_html = self.remove_random_bytes(self.processed_html)
             root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
-            from lxml.html import soupparser
+            from calibre.utils.soupparser import fromstring
             self.log.warning('Malformed markup, parsing using BeautifulSoup')
             try:
-                root = soupparser.fromstring(self.processed_html)
+                root = fromstring(self.processed_html)
             except Exception:
                 self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
                 self.processed_html = self.remove_random_bytes(self.processed_html)
-                root = soupparser.fromstring(self.processed_html)
+                root = fromstring(self.processed_html)
 
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')
@@ -922,7 +929,7 @@ class MobiReader(object):
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         pos = 0
-        self.processed_html = ''
+        processed_html = cStringIO.StringIO()
         end_tag_re = re.compile(r'<\s*/')
         for end in sorted(positions):
             if end == 0:
@@ -940,12 +947,14 @@ class MobiReader(object):
                         end = r
                 else:
                     end = r + 1
-            self.processed_html += self.mobi_html[pos:end] + (anchor % oend)
+            processed_html.write(self.mobi_html[pos:end] + (anchor % oend))
             pos = end
-        self.processed_html += self.mobi_html[pos:]
+        processed_html.write(self.mobi_html[pos:])
+        processed_html = processed_html.getvalue()
+
         # Remove anchors placed inside entities
         self.processed_html = re.sub(r'&([^;]*?)(<a id="filepos\d+"></a>)([^;]*);',
-                r'&\1\3;\2', self.processed_html)
+                r'&\1\3;\2', processed_html)
 
 
     def extract_images(self, processed_records, output_dir):

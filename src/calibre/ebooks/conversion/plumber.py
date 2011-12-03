@@ -308,6 +308,16 @@ OptionRecommendation(name='extra_css',
                 'rules.')
         ),
 
+OptionRecommendation(name='filter_css',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('A comma separated list of CSS properties that '
+                'will be removed from all CSS style rules. This is useful '
+                'if the presence of some style information prevents it '
+                'from being overridden on your device. '
+                'For example: '
+                'font-family,color,margin-left,margin-right')
+        ),
+
 OptionRecommendation(name='page_breaks_before',
             recommended_value="//*[name()='h1' or name()='h2']",
             level=OptionRecommendation.LOW,
@@ -693,6 +703,8 @@ OptionRecommendation(name='sr3_replace',
     def unarchive(self, path, tdir):
         extract(path, tdir)
         files = list(walk(tdir))
+        files = [f if isinstance(f, unicode) else f.decode(filesystem_encoding)
+                for f in files]
         from calibre.customize.ui import available_input_formats
         fmts = available_input_formats()
         for x in ('htm', 'html', 'xhtm', 'xhtml'): fmts.remove(x)

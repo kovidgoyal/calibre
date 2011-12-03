@@ -29,7 +29,8 @@ from calibre.utils.zipfile import ZipFile
 
 FIELDS = ['all', 'title', 'title_sort', 'author_sort', 'authors', 'comments',
           'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
-          'rating', 'series_index', 'series', 'size', 'tags', 'timestamp', 'uuid']
+          'rating', 'series_index', 'series', 'size', 'tags', 'timestamp',
+          'uuid', 'languages']
 
 #Allowed fields for template
 TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate', 'title_sort',
@@ -601,7 +602,7 @@ class BIBTEX(CatalogPlugin): # {{{
                     bibtexc, db, citation_bibtex, addfiles_bibtex))
 # }}}
 
-class EPUB_MOBI(CatalogPlugin):
+class EPUB_MOBI(CatalogPlugin): # {{{
     'ePub catalog generator'
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
@@ -5177,3 +5178,4 @@ Author '{0}':
 
         # returns to gui2.actions.catalog:catalog_generated()
         return catalog.error
+# }}}

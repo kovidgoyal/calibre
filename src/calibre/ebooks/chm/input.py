@@ -22,7 +22,7 @@ class CHMInput(InputFormatPlugin):
     def _chmtohtml(self, output_dir, chm_path, no_images, log, debug_dump=False):
         from calibre.ebooks.chm.reader import CHMReader
         log.debug('Opening CHM file')
-        rdr = CHMReader(chm_path, log, self.opts)
+        rdr = CHMReader(chm_path, log, input_encoding=self.opts.input_encoding)
         log.debug('Extracting CHM to %s' % output_dir)
         rdr.extract_content(output_dir, debug_dump=debug_dump)
         self._chm_reader = rdr

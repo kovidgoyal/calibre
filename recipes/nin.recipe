@@ -1,16 +1,12 @@
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.nin.co.rs
 '''
 
 import re
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from contextlib import closing
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
-from calibre import entity_to_unicode
 
 class Nin(BasicNewsRecipe):
     title                  = 'NIN online'
@@ -29,6 +25,7 @@ class Nin(BasicNewsRecipe):
     use_embedded_content   = False
     language               = 'sr'
     publication_type       = 'magazine'
+    masthead_url           = 'http://www.nin.co.rs/img/head/logo.jpg'
     extra_css              = """
                                  @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                  body{font-family: Verdana, Lucida, sans1, sans-serif}
@@ -72,64 +69,18 @@ class Nin(BasicNewsRecipe):
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.INDEX)
-        link_item = soup.find('img',attrs={'width':'100','border':'0'})
-        if link_item:
-           cover_url = self.PREFIX + link_item['src']
+        for item in soup.findAll('a', href=True):
+            if item['href'].startswith('/pages/issue.php?id='):
+               simg = item.find('img')
+               if simg:
+                   return self.PREFIX + item.img['src']
         return cover_url
 
-    def parse_index(self):
-        articles = []
-        count = 0
-        soup = self.index_to_soup(self.INDEX)
-        for item in soup.findAll('a',attrs={'class':'lmeninavFont'}):
-            count = count +1
-            if self.test and count > 2:
-               return articles
-            section  = self.tag_to_string(item)
-            feedlink = self.PREFIX + item['href']
-            feedpage = self.index_to_soup(feedlink)
-            self.report_progress(0, _('Fetching feed')+' %s...'%(section))
-            inarts   = []
-            for art in feedpage.findAll('span',attrs={'class':'artTitle'}):
-                alink = art.parent
-                url   = self.PREFIX + alink['href']
-                title = self.tag_to_string(art)
-                sparent = alink.parent
-                alink.extract()
-                description = self.tag_to_string(sparent)
-                date = strftime(self.timefmt)
-                inarts.append({
-                                  'title'      :title
-                                 ,'date'       :date
-                                 ,'url'        :url
-                                 ,'description':description
-                                })
-            articles.append((section,inarts))
-        return articles
+    feeds          = [(u'NIN Online', u'http://www.nin.co.rs/misc/rss.php?feed=RSS2.0')]
 
-    def index_to_soup(self, url_or_raw, raw=False):
-        if re.match(r'\w+://', url_or_raw):
-            open_func = getattr(self.browser, 'open_novisit', self.browser.open)
-            with closing(open_func(url_or_raw)) as f:
-                _raw = f.read()
-            if not _raw:
-                raise RuntimeError('Could not fetch index from %s'%url_or_raw)
-        else:
-            _raw = url_or_raw
-        if raw:
-            return _raw
-        if not isinstance(_raw, unicode) and self.encoding:
-            if callable(self.encoding):
-                _raw = self.encoding(_raw)
-            else:
-                _raw = _raw.decode(self.encoding, 'replace')
-        massage = list(BeautifulSoup.MARKUP_MASSAGE)
-        enc = 'cp1252' if callable(self.encoding) or self.encoding is None else self.encoding
-        massage.append((re.compile(r'&(\S+?);'), lambda match:
-            entity_to_unicode(match, encoding=enc)))
-        massage.append((re.compile(r'[\x00-\x08]+'), lambda match:
-            ''))
-        return BeautifulSoup(_raw, markupMassage=massage)
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        return url.replace('.co.yu', '.co.rs')
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

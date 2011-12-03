@@ -1,34 +1,86 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
+from calibre.utils.magick import Image
+
+
+''' Version 1.2, updated cover image to match the changed website.
+ added info date on title
+ version 1.4 Updated tags, delay and added autoclean 22-09-2011
+ version 1.5 Changes due to changes in site
+ version 1.6 Added css, removed auto cleanup, added buitenland section, added use_embedded_content, added remove_attributes
+    Added some processing on pictures
+    Removed links in html
+    Removed extre white characters
+    changed handling of self closing span
+ Version 1.7 11-11-2011 Changed oldest_article back to 1.5
+    changed è into &egrave;
+    updated remove tags
+    removed keep_only tags
+'''
 
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title = u'Metro Nieuws NL'
-# Version 1.2, updated cover image to match the changed website.
-# added info date on title
-    oldest_article = 2
+    oldest_article = 1.5
     max_articles_per_feed = 100
     __author__     = u'DrMerry'
     description    = u'Metro Nederland'
     language       = u'nl'
     simultaneous_downloads = 5
+    timeout = 2
     #delay          = 1
-    auto_cleanup = True
-    auto_cleanup_keep = '//div[@class="article-image-caption-2column"]|//div[@id="date"]'
+    center_navbar  = True
+    #auto_cleanup = True
+    #auto_cleanup_keep = '//div[@class="article-image-caption-2column"]/*|//div[@id="date"]/*|//div[@class="article-image-caption-3column"]/*'
     timefmt        = ' [%A, %d %b %Y]'
     no_stylesheets = True
     remove_javascript = True
     remove_empty_feeds = True
     cover_url      = 'http://www.oldreadmetro.com/img/en/metroholland/last/1/small.jpg'
     publication_type = 'newspaper'
-    remove_tags_before = dict(name='div', attrs={'id':'date'})
-    remove_tags_after = dict(name='div', attrs={'id':'column-1-3'})
+    remove_tags_before = dict(id='date')
+    remove_tags_after = dict(name='div', attrs={'class':'article-body'})
     encoding              = 'utf-8'
-    extra_css = 'body{font-size:12px} #date, .article-image-caption {font-size: 0.583em} h2 {font-size: 0.917em} p.small, span, li, li span span, p, b, i, u, p.small.article-paragraph,  p.small.article-paragraph p, p.small.article-paragraph span, p span, span {font-size: 0.833em} h1 {font-size: 1em}'
+    remove_attributes = ['style', 'font', 'width', 'height']
+    use_embedded_content = False
+    conversion_options = {
+        'authors'        : 'Metro Nederland',
+        'author_sort'    : 'Metro Nederland',
+        'publisher'      : 'DrMerry/Metro Nederland'
+    }
+    extra_css = 'body {padding:5px 0px; background:#fff;font-size: 13px;}\
+        #date {clear: both;margin-left: 19px;font-size: 11px;font-weight: 300;color: #616262;height: 15px;}\
+        .article-box-fact.module-title {clear:both;padding: 8px 0;color: #24763b;font-family: arial, sans-serif;font-size: 14px;font-weight: bold;}\
+        h1.title {color: #000000;font-size: 44px;padding-bottom: 10px;font-weight: 300;} h2.subtitle {font-size: 13px;font-weight: 700;padding-bottom: 10px;}\
+        .article-body p{padding-bottom:10px;}div.column-1-3{margin-left: 19px;padding-right: 9px;}\
+        div.column-1-2 {display: inline;padding-right: 7px;}\
+        p.article-image-caption {font-size: 12px;font-weight: 300;color: #616262;margin-top: 5px;} \
+        p.article-image-caption .credits {font-style: italic;font-size: 10px;}\
+        div.article-image-caption {width: 246px;margin-bottom: 5px;margin-left: 10px;}\
+        div.article-image-caption-2column {margin-bottom: 10px;width: 373px;} div.article-image-caption-3column {}\
+        img {border:0px;} .img-mask {position:absolute;top:0px;left:0px;}'
 
-    remove_tags = [dict(name='div', attrs={'class':[ 'metroCommentFormWrap',
+    remove_tags = [dict(name='div', attrs={'class':[ 'metroCommentFormWrap', 'related-links'
         'commentForm', 'metroCommentInnerWrap', 'article-slideshow-counter-container', 'article-slideshow-control', 'ad', 'header-links',
-        'art-rgt','pluck-app pluck-comm', 'share-and-byline', 'article-tools-below-title', 'col-179 ', 'related-links', 'clear padding-top-15', 'share-tools', 'article-page-auto-pushes', 'footer-edit']}),
-        dict(name='div', attrs={'id':['article-2', 'article-4', 'article-1', 'navigation', 'footer', 'header', 'comments', 'sidebar']}),
+        'art-rgt','pluck-app pluck-comm', 'share-and-byline', 'article-tools-below-title', 'col-179 ', 'related-links', 'clear padding-top-15', 'share-tools',
+        'article1','article-page-auto-pushes', 'footer-edit','clear']}),
+        dict(name='div', attrs={'id':['article-2', 'article-4', 'article-1', 'navigation', 'footer', 'header', 'comments', 'sidebar', 'share-and-byline']}),
         dict(name='iframe')]
+
+    preprocess_regexps = [(re.compile(r'(<p>(&nbsp;|\s)*</p>|<a[^>]*>Tweet</a>|<a[^>]*>|</a>|<!--.*?-->)', re.DOTALL|re.IGNORECASE),lambda match: ''),
+        (re.compile(r'(&nbsp;|\s\s)+\s*', re.DOTALL|re.IGNORECASE),lambda match: ' '),
+        (re.compile(r'([\s>])([^\s>]+)(<span[^>]+) />', re.DOTALL|re.IGNORECASE),
+            lambda match: match.group(1) + match.group(3) + '>' + match.group(2) + '</span>'),
+        ]
+
+    def postprocess_html(self, soup, first):
+        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+            iurl = tag['src']
+            img = Image()
+            img.open(iurl)
+            img.trim(0)
+            img.save(iurl)
+        return soup
 
     feeds = [
         (u'Binnenland', u'http://www.metronieuws.nl/rss.xml?c=1277377288-3'),
@@ -36,6 +88,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         (u'Den Haag', u'http://www.metronieuws.nl/rss.xml?c=1289013337-3'),
         (u'Rotterdam', u'http://www.metronieuws.nl/rss.xml?c=1289013337-2'),
         (u'Amsterdam', u'http://www.metronieuws.nl/rss.xml?c=1289013337-1'),
+        (u'Buitenland', u'http://www.metronieuws.nl/rss.xml?c=1277377288-4'),
         (u'Columns', u'http://www.metronieuws.nl/rss.xml?c=1277377288-17'),
         (u'Entertainment', u'http://www.metronieuws.nl/rss.xml?c=1277377288-2'),
         (u'Dot', u'http://www.metronieuws.nl/rss.xml?c=1283166782-12'),

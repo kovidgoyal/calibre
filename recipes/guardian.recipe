@@ -9,6 +9,7 @@ www.guardian.co.uk
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 class Guardian(BasicNewsRecipe):
 
@@ -16,16 +17,19 @@ class Guardian(BasicNewsRecipe):
     if date.today().weekday() == 6:
         base_url = "http://www.guardian.co.uk/theobserver"
         cover_pic = 'Observer digital edition'
+        masthead_url = 'http://static.guim.co.uk/sys-images/Guardian/Pix/site_furniture/2010/10/19/1287478087992/The-Observer-001.gif'
     else:
         base_url = "http://www.guardian.co.uk/theguardian"
         cover_pic = 'Guardian digital edition'
+        masthead_url = 'http://static.guim.co.uk/static/f76b43f9dcfd761f0ecf7099a127b603b2922118/common/images/logos/the-guardian/titlepiece.gif'
 
     __author__ = 'Seabound and Sujata Raman'
     language = 'en_GB'
 
-    oldest_article = 7
-    max_articles_per_feed = 100
-    remove_javascript = True
+    oldest_article              = 7
+    max_articles_per_feed       = 100
+    remove_javascript           = True
+    encoding                    = 'utf-8'
 
     # List of section titles to ignore
     # For example: ['Sport']
@@ -41,6 +45,16 @@ class Guardian(BasicNewsRecipe):
                         dict(name='div', attrs={'class':["guardian-tickets promo-component",]}),
                         dict(name='ul', attrs={'class':["pagination"]}),
                         dict(name='ul', attrs={'id':["content-actions"]}),
+                        # article history link
+                        dict(name='a', attrs={'class':["rollover history-link"]}),
+                        # "a version of this article ..." speil
+                        dict(name='div' , attrs = { 'class' : ['section']}),
+                        # "about this article" js dialog
+                        dict(name='div', attrs={'class':["share-top",]}),
+                        # author picture
+                        dict(name='img', attrs={'class':["contributor-pic-small"]}),
+                        # embedded videos/captions
+                        dict(name='span',attrs={'class' : ['inline embed embed-media']}),
                         #dict(name='img'),
                         ]
     use_embedded_content    = False
@@ -67,6 +81,13 @@ class Guardian(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
 
+          # multiple html sections in soup, useful stuff in the first
+          html = soup.find('html')
+          soup2 = BeautifulSoup()
+          soup2.insert(0,html) 
+          
+          soup = soup2  
+          
           for item in soup.findAll(style=True):
               del item['style']
 
@@ -74,7 +95,18 @@ class Guardian(BasicNewsRecipe):
               del item['face']
           for tag in soup.findAll(name=['ul','li']):
                 tag.name = 'div'
-
+         
+         # removes number next to rating stars
+          items_to_remove = []
+          rating_container = soup.find('div', attrs = {'class': ['rating-container']})
+          if rating_container:
+            for item in rating_container:
+                if isinstance(item, Tag) and str(item.name) == 'span':
+                    items_to_remove.append(item)
+          
+          for item in items_to_remove:
+            item.extract()
+          
           return soup
 
     def find_sections(self):
@@ -119,10 +151,8 @@ class Guardian(BasicNewsRecipe):
                         }
 
     def parse_index(self):
-        try:
-            feeds = []
-            for title, href in self.find_sections():
-                feeds.append((title, list(self.find_articles(href))))
-            return feeds
-        except:
-            raise NotImplementedError
+        feeds = []
+        for title, href in self.find_sections():
+            feeds.append((title, list(self.find_articles(href))))
+        return feeds
+

@@ -12,13 +12,15 @@ class GN(BasicNewsRecipe):
         EDITION = 0
 
         __author__ = 'Piotr Kontek'
-        title = u'Gość niedzielny'
         description = 'Weekly magazine'
         encoding = 'utf-8'
         no_stylesheets = True
         language = 'pl'
         remove_javascript = True
         temp_files = []
+        simultaneous_downloads = 1
+        masthead_url = 'http://gosc.pl/files/11/03/12/949089_top.gif'
+        title = u'Gość niedzielny'
 
         articles_are_obfuscated = True
 
@@ -63,7 +65,6 @@ class GN(BasicNewsRecipe):
                     if img != None:
                         a = img.parent
                         self.EDITION = a['href']
-                        self.title = img['alt']
                         self.cover_url = 'http://www.gosc.pl' + img['src']
                         if not first:
                             break
@@ -94,16 +95,16 @@ class GN(BasicNewsRecipe):
 
         def find_articles(self, main_block):
                 for a in main_block.findAll('div', attrs={'class':'prev_doc2'}):
-                        art = a.find('a')
-                        yield {
+						art = a.find('a')
+						yield {
                                 'title' : self.tag_to_string(art),
                                 'url'   : 'http://www.gosc.pl' + art['href'].replace('/doc/','/doc_pr/'),
                                 'date'  : '',
                                 'description' : ''
                                 }
                 for a in main_block.findAll('div', attrs={'class':'sr-document'}):
-                        art = a.find('a')
-                        yield {
+						art = a.find('a')
+						yield {
                                 'title' : self.tag_to_string(art),
                                 'url'   : 'http://www.gosc.pl' + art['href'].replace('/doc/','/doc_pr/'),
                                 'date'  : '',

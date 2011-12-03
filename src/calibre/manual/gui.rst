@@ -351,7 +351,7 @@ You can build advanced search queries easily using the :guilabel:`Advanced Searc
 clicking the button |sbi|.
 
 Available fields for searching are: ``tag, title, author, publisher, series, series_index, rating, cover,
-comments, format, identifiers, date, pubdate, search, size`` and custom columns. If a device is plugged in, the ``ondevice`` field becomes available. To find the search name (actually called the `lookup name`) for a custom column, hover your mouse over the column header in the library view.
+comments, format, identifiers, date, pubdate, search, size`` and custom columns. If a device is plugged in, the ``ondevice`` field becomes available, when searching the calibre library view. To find the search name (actually called the `lookup name`) for a custom column, hover your mouse over the column header in the library view.
 
 The syntax for searching for dates is::
 

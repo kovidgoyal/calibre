@@ -16,7 +16,7 @@ class DeutscheWelle_es(BasicNewsRecipe):
     max_articles_per_feed = 100
     use_embedded_content  = False
     no_stylesheets        = True
-    language              = 'de_ES'
+    language              = 'de'
     publication_type      = 'newsportal'
     remove_empty_feeds    = True
     masthead_url          = 'http://www.dw-world.de/skins/std/channel1/pics/dw_logo1024.gif'

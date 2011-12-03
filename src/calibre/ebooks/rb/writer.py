@@ -104,8 +104,9 @@ class RBWriter(object):
         size = len(text)
 
         pages = []
-        for i in range(0, (len(text) / TEXT_RECORD_SIZE) + 1):
-            pages.append(zlib.compress(text[i * TEXT_RECORD_SIZE : (i * TEXT_RECORD_SIZE) + TEXT_RECORD_SIZE], 9))
+        for i in range(0, (len(text) + TEXT_RECORD_SIZE-1) / TEXT_RECORD_SIZE):
+            zobj = zlib.compressobj(9, zlib.DEFLATED, 13, 8, 0)
+            pages.append(zobj.compress(text[i * TEXT_RECORD_SIZE : (i * TEXT_RECORD_SIZE) + TEXT_RECORD_SIZE]) + zobj.flush())
 
         return (size, pages)
 

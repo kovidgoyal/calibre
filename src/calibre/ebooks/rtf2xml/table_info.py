@@ -10,8 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os,  tempfile
+import os
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
+
 # note to self. This is the first module in which I use tempfile. A good idea?
 """
 """
@@ -42,7 +44,7 @@ class TableInfo:
         self.__copy = copy
         self.__table_data = table_data
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
             # self.__write_to = 'table_info.data'
     def insert_info(self):
         """
