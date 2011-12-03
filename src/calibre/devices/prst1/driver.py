@@ -296,6 +296,13 @@ class PRST1(USBMS):
             lpath = row[0].replace('\\', '/')
             db_books[lpath] = row[1]
 
+		# Work-around for Sony Bug (SD Card DB not using right SQLite sequence)
+		if source_id == 1:
+			sdcard_sequence_start = '4294967296'
+			query = 'UPDATE sqlite_sequence SET seq = ? WHERE seq < ?'
+			t = (sdcard_sequence_start, sdcard_sequence_start,)
+			cursor.execute(query, t)
+
         for book in booklist:
             # Run through plugboard if needed
             if plugboard is not None:
@@ -322,12 +329,10 @@ class PRST1(USBMS):
             title = newmi.title or _('Unknown')
 
             # Get modified date
+            # If there was a detected offset, use that. Otherwise use UTC (same as Sony software)
             modified_date = os.path.getmtime(book.path) * 1000
             if self.device_offset is not None:
                 modified_date = modified_date + self.device_offset
-            else:
-                time_offset = -time.altzone if time.daylight else -time.timezone
-                modified_date = modified_date + (time_offset * 1000)
 
             if lpath not in db_books:
                 query = '''
@@ -578,17 +583,17 @@ class PRST1(USBMS):
         # Setting this to the SONY periodical schema apparently causes errors
         # with some periodicals, therefore set it to null, since the special
         # periodical navigation doesn't work anyway.
-        periodical_schema = 'null'
+        periodical_schema = None
 
         query = '''
         UPDATE books
-        SET conforms_to = %s,
+        SET conforms_to = ?,
             periodical_name = ?,
             description = ?,
             publication_date = ?
         WHERE _id = ?
-        '''%periodical_schema
-        t = (name, None, pubdate, book.bookId,)
+        '''
+        t = (periodical_schema, name, None, pubdate, book.bookId,)
         cursor.execute(query, t)
 
         connection.commit()
