@@ -412,7 +412,8 @@ class DetailView(QDialog, Ui_Dialog): # {{{
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update)
         self.timer.start(1000)
-
+        v = self.log.verticalScrollBar()
+        v.setValue(v.maximum())
 
     def update(self):
         if self.html_view:

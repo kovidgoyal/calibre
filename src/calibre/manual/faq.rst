@@ -89,6 +89,10 @@ Then just add this HTML file to the GUI and use the convert button to create you
 
 .. note:: By default, when adding HTML files, |app| follows links in the files in *depth first* order. This means that if file A.html links to B.html and C.html and D.html, but B.html also links to D.html, then the files will be in the order A.html, B.html, D.html, C.html. If instead you want the order to be A.html, B.html, C.html, D.html then you must tell |app| to add your files in *breadth first* order. Do this by going to Preferences->Plugins and customizing the HTML to ZIP plugin.
 
+The EPUB I produced with |app| is not valid?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+|app| does not guarantee that an EPUB produced by it is valid. The only guarantee it makes is that if you feed it valid XHTML 1.1 + CSS 2.1 it will output a valid EPUB. |app| is designed for ebook consumers, not producers. It tries hard to ensure that EPUBs it produces actually work as intended on a wide variety of devices, a goal that is incompatible with producing valid EPUBs, and one that is far more important to the vast majority of its users. If you need a tool that always produces valid EPUBs, |app| is not for you.
 
 How do I use some of the advanced features of the conversion tools?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -373,6 +377,8 @@ changes to the collections to be recognized. As such, it is unlikely that
 any |app| developers will ever feel motivated enough to support it. There is however, a |app| plugin
 that allows you to create collections on your Kindle from the |app| metadata. It is available
 `from here <http://www.mobileread.com/forums/showthread.php?t=118635>`_. 
+
+.. note:: Amazon have removed the ability to manipulate collections completely in their newer models, like the Kindle Touch and Kindle Fire, making even the above plugin useless. If you really want the ability to manage collections on your Kindle via a USB connection, we encourage you to complain to Amazon about it, or get a reader where this is supported, like the SONY Readers.
 
 Library Management
 ------------------

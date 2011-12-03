@@ -287,7 +287,7 @@ class KINDLE2(KINDLE):
     name           = 'Kindle 2/3 Device Interface'
     description    = _('Communicate with the Kindle 2/3 eBook reader.')
 
-    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4']
+    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
     DELETE_EXTS    = KINDLE.DELETE_EXTS
 
     PRODUCT_ID = [0x0002, 0x0004]

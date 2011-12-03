@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-23 07:48+0000\n"
+"POT-Creation-Date: 2011-11-25 08:01+0000\n"
 "PO-Revision-Date: 2011-11-13 12:49+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-11-24 04:44+0000\n"
-"X-Generator: Launchpad (build 14336)\n"
+"X-Launchpad-Export-Date: 2011-11-26 04:49+0000\n"
+"X-Generator: Launchpad (build 14381)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -28,8 +28,8 @@ msgstr "Ne fait strictement rien"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:108
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:119
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:265
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:266
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:267
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -1005,7 +1005,7 @@ msgstr "Journal de débogage"
 msgid "Communicate with Android phones."
 msgstr "Communiquer avec les téléphones Android"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:148
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:149
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -1013,11 +1013,11 @@ msgstr ""
 "Liste de répertoires séparés par des virgules utilisée pour envoyer les "
 "ebooks vers l'appareil. Le premier existant sera utilisé."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:205
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:206
 msgid "Communicate with S60 phones."
 msgstr "Communiquer avec les téléphones S60"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:224
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:225
 msgid "Communicate with WebOS tablets."
 msgstr "Communique avec une tablette WebOS"
 
@@ -20637,7 +20637,7 @@ msgstr ""
 "de la liste 1 est utilisé. Les éléments des listes 1 et 2 sont séparés par "
 "le séparateur, comme ceux de la liste retournée."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:936
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:935
 msgid ""
 "list_difference(list1, list2, separator) -- return a list made by removing "
 "from list1 any item found in list2, using a case-insensitive compare. The "
@@ -20649,7 +20649,7 @@ msgstr ""
 "une comparaison insensible à la casse. Les éléments des listes 1 et 2 sont "
 "séparés par le séparateur, comme ceux de la liste retournée."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:957
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:956
 msgid ""
 "list_intersection(list1, list2, separator) -- return a list made by removing "
 "from list1 any item not found in list2, using a case-insensitive compare. "
@@ -20662,7 +20662,7 @@ msgstr ""
 "des listes 1 et 2 sont séparés par le séparateur, comme ceux de la liste "
 "retournée."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:978
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:977
 msgid ""
 "list_sort(list, direction, separator) -- return list sorted using a case-"
 "insensitive sort. If direction is zero, the list is sorted ascending, "
@@ -20674,7 +20674,7 @@ msgstr ""
 "est triée de manière ascendante, sinon descendante. Les éléments des listes "
 "1 et 2 sont séparés par le séparateur, comme ceux de la liste retournée."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:993
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:992
 msgid ""
 "list_equals(list1, sep1, list2, sep2, yes_val, no_val) -- return yes_val if "
 "list1 and list2 contain the same items, otherwise return no_val. The items "
@@ -20688,7 +20688,7 @@ msgstr ""
 "approprié (sep1 or sep2). L'ordre des éléments dans la liste n'est pas pris "
 "en compte. La comparaison est insensible à la casse."
 
-#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1011
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1010
 msgid ""
 "list_re(src_list, separator, search_re, opt_replace) -- Construct a list by "
 "first separating src_list into items using the separator character. For each "
