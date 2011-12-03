@@ -15,7 +15,8 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.utils.localization import canonicalize_lang, lang_map, get_udc
+from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc,
+        get_lang)
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
@@ -215,6 +216,10 @@ class ResultCache(SearchQueryParser): # {{{
     '''
     def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
+        l = get_lang()
+        asciize_author_names = l and l.lower() in ('en', 'eng')
+        if not asciize_author_names:
+            self.ascii_name = lambda x: False
         self.db_prefs = db_prefs
         self.composites = {}
         self.udc = get_udc()

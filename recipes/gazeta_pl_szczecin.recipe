@@ -1,0 +1,35 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+import re
+import string
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class GazetaPlSzczecin(BasicNewsRecipe):
+    title          = u'Gazeta.pl Szczecin'
+    description    = u'Wiadomości ze Szczecina na portalu Gazeta.pl.'
+    __author__     = u'Michał Szkutnik'
+    __license__    = u'GPL v3'
+    language       = 'pl'
+    publisher      = 'Agora S.A.'
+    category       = 'news, szczecin'
+    oldest_article = 2
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+    remove_tags    = [ { "name" : "a", "attrs" : { "href" : "http://szczecin.gazeta.pl/szczecin/www.gazeta.pl" }}]
+    cover_url      = "http://bi.gazeta.pl/i/hp/hp2009/logo.gif"
+    feeds          = [(u'Wszystkie', u'http://rss.feedsportal.com/c/32739/f/530434/index.rss')]
+
+    def get_article_url(self, article):
+        s = re.search("""/0L(szczecin.*)/story01.htm""", article.link)
+        s = s.group(1)
+        replacements = { "0B" : ".", "0C" : "/", "0H" : ",", "0I"  : "_"}
+        for (a, b) in replacements.iteritems():
+            s = string.replace(s, a, b)
+        s = string.replace(s, "0A", "0")
+        return "http://"+s
+
+    def print_version(self, url):
+        s = re.search("""/(\d*),(\d*),(\d*),.*\.html""", url)
+        no1 = s.group(2)
+        no2 = s.group(3)
+        return """http://szczecin.gazeta.pl/szczecin/2029020,%s,%s.html""" % (no1, no2)

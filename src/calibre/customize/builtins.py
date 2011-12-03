@@ -255,7 +255,7 @@ class LRXMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw', 'azw4'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw4', 'pobi'])
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):
@@ -545,7 +545,7 @@ from calibre.customize.profiles import input_profiles, output_profiles
 
 from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
-from calibre.devices.blackberry.driver import BLACKBERRY
+from calibre.devices.blackberry.driver import BLACKBERRY, PLAYBOOK
 from calibre.devices.cybook.driver import CYBOOK, ORIZON
 from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
@@ -646,7 +646,7 @@ plugins += [
 plugins += [
     HANLINV3,
     HANLINV5,
-    BLACKBERRY,
+    BLACKBERRY, PLAYBOOK,
     CYBOOK,
     ORIZON,
     ILIAD,

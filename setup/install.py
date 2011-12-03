@@ -283,8 +283,7 @@ class Install(Develop):
 class Sdist(Command):
 
     description = 'Create a source distribution'
-    DEST = os.path.join('dist', '%s-%s.tar.gz'%(__appname__, __version__))
-
+    DEST = os.path.join('dist', '%s-%s.tar.xz'%(__appname__, __version__))
 
     def run(self, opts):
         if not self.e(self.d(self.DEST)):
@@ -313,7 +312,7 @@ class Sdist(Command):
                 shutil.copy2(f, dest)
 
         self.info('\tCreating tarfile...')
-        subprocess.check_call(['tar', '-czf', self.a(self.DEST),
+        subprocess.check_call(['tar', '-cJf', self.a(self.DEST),
             'calibre'], cwd=self.d(tdir))
 
     def clean(self):

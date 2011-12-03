@@ -808,7 +808,7 @@ class ITUNES(DriverBase):
             self.log.info("ITUNES.get_file(): exporting '%s'" % path)
         outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
@@ -824,7 +824,7 @@ class ITUNES(DriverBase):
         '''
 
         if DEBUG:
-            self.log.info("ITUNES.open()")
+            self.log.info("ITUNES.open(connected_device: %s)" % repr(connected_device))
 
         # Display a dialog recommending using 'Connect to iTunes' if user hasn't
         # previously disabled the dialog
@@ -3224,7 +3224,7 @@ class ITUNES_ASYNC(ITUNES):
             only_presence=False):
         return self.connected, self
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
@@ -3239,7 +3239,7 @@ class ITUNES_ASYNC(ITUNES):
         we need to talk to iTunes to discover if there's a connected iPod
         '''
         if DEBUG:
-            self.log.info("ITUNES_ASYNC.open()")
+            self.log.info("ITUNES_ASYNC.open(connected_device: %s)" % repr(connected_device))
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):

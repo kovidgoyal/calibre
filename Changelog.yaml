@@ -4,20 +4,91 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-#- version: ?.?.?
-#  date: 2011-??-??
+# - version: ?.?.?
+#   date: 2011-??-??
 #
-#  new features:
-#    - title: 
+#   new features:
+#     - title: 
 #  
-#  bug fixes:
-#    - title: 
+#   bug fixes:
+#     - title: 
 #
-#  improved recipes:
-#    - 
+#   improved recipes:
+#     - 
 #
-#  new recipes:
-#    - title: 
+#   new recipes:
+#     - title: 
+
+- version: 0.8.29
+  date: 2011-12-02
+
+  new features:
+    - title: "When searching for author names with accented characters, allow the non accented version to match. For example, searching for Nino will now match Niño."
+      tickets: [879729]
+
+    - title: "Driver for Blackberry Playbook, Motorola Electrify and Samsung Galaxy GIO S5660"
+      tickets: [805745,898123,897330]
+
+    - title: "Metadata search and replace, make the regular expressions unicode aware"
+ 
+  bug fixes:
+    - title: "Fix regression in 0.8.28 that broke sending PDF files to iTunes"
+      tickets: [896791]
+
+    - title: "Metadata download, do not strip # from titles." 
+      tickets: [898310]
+
+    - title: "Conversion pipeline: Do not error out on books that set font size to zero."
+      tickets: [898194]
+
+    - title: "News download: Respect the delay setting when downloading RSS feeds as well."
+      tickets: [897907]
+
+    - title: "EPUB Output: Ensure that xml:lang is set if lang is set as ADE looks for xml:lang, not lang"
+      tickets: [897531]
+
+    - title: "Content server: Reduce memory consumption when sending very large files"
+      tickets: [897343] 
+
+    - title: "Preserve capitalization of Scottish author names when downloading metadata"
+
+    - title: "Fix update title sort in bulk metadata edit not using language information"
+
+    - title: "Fix sorting by published column in the download metadata dialog broken"
+      tickets: [896832] 
+
+    - title: "Allow use of languages field when generating CSV/XML catalogs"
+      tickets: [896620] 
+
+    - title: "Get Books: Fix ebookpoint.pl"
+
+    - title: "When calculating title sort for a book based on its language, only use the specified language not a combination of the language and english"
+      tickets: [896412]
+
+  improved recipes:
+    - Metro NL
+    - Ming Pao
+    - Rolling Stones Mag
+    - Buffalo News
+
+  new recipes:
+    - title: gs24.pl and Gazeta.pl Szczecin
+      author: Michal Szkutnik
+
+    - title: Vanity Fair 
+      author: Barty
+
+    - title: Skylife
+      author: thomass
+
+    - title: Daily Writing Tips
+      author: NotTaken
+
+    - title: TechDirt
+      author: Krittika Goyal
+
+    - title: Cosmopolitan UK
+      author: Dave Asbury
 
 - version: 0.8.28
   date: 2011-11-25
