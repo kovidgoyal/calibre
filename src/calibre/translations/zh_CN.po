@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-02 08:51+0000\n"
-"PO-Revision-Date: 2011-11-13 00:48+0000\n"
-"Last-Translator: Kelvin Hu <Unknown>\n"
+"PO-Revision-Date: 2011-12-03 17:51+0000\n"
+"Last-Translator: Aron Xu <happyaron.xu@gmail.com>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-12-03 05:12+0000\n"
+"X-Launchpad-Export-Date: 2011-12-04 04:42+0000\n"
 "X-Generator: Launchpad (build 14418)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -208,7 +208,7 @@ msgstr "未知"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "基于"
+msgstr "基本"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
@@ -1506,7 +1506,7 @@ msgstr "\".kobo\"文件不以书籍形式存在于设备上，它们排列在SQL
 msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
-msgstr ""
+msgstr "<hr /><b>最近阅读：</b> %(time)s<br /><b>阅读进度：</b> %(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1027
 #, python-format
@@ -1515,6 +1515,8 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>第 %(chapter)d 章：</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>章节进度：</b> %(chapter_progress)s%%<br />%(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1036
 #, python-format
@@ -3532,7 +3534,7 @@ msgstr "日本"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:453
 msgid "Spain"
-msgstr ""
+msgstr "西班牙"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:457
 msgid "Amazon website to use:"
@@ -6082,7 +6084,7 @@ msgstr "复制封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:294
 msgid "Remove Cover"
-msgstr ""
+msgstr "删除封面"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:336
 msgid "Double-click to open Book Details window"
@@ -6722,7 +6724,7 @@ msgstr "调试过程会输出转换各个阶段种生成的中转 HTML。此 HTM
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input.py:14
 msgid "DJVU Input"
-msgstr ""
+msgstr "DJVU 输入"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/djvu_input_ui.py:25
 msgid "Use &djvutxt, if available, for faster processing"
@@ -7057,7 +7059,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
-msgstr ""
+msgstr "字体(&F)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:176
 msgid ""
@@ -7091,7 +7093,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:192
 msgid "&Colors"
-msgstr ""
+msgstr "颜色(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
@@ -8467,7 +8469,7 @@ msgstr "复到到剪贴板(&T)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:232
 msgid "&Done"
-msgstr ""
+msgstr "完成(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:235
 msgid "Delete &marked"
@@ -8953,7 +8955,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
-msgstr ""
+msgstr "搜索(&S)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Find previous match"

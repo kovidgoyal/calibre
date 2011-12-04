@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-02 08:51+0000\n"
-"PO-Revision-Date: 2011-11-25 13:21+0000\n"
+"PO-Revision-Date: 2011-12-03 12:56+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-03 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-12-04 04:41+0000\n"
 "X-Generator: Launchpad (build 14418)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1298,7 +1298,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Comunica't amb el PlayBook de Blackberry"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -18645,6 +18645,13 @@ msgid ""
 "in the range is not\n"
 "included).\n"
 msgstr ""
+"%prog remove ID\n"
+"\n"
+"Suprimeix els llibres identificats per l'identificador de la base de dades. "
+"«ID» ha de ser una llista separada per comes de nombres d'identificador (es "
+"pot aconseguir els nombres d'identificador utilitzant l'ordre «list»). Per "
+"exemple, 23,34,57-85 (quan s'especifica un interval no s'inclou el darrer "
+"nombre de l'interval).\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:355
 msgid "You must specify at least one book to remove"
