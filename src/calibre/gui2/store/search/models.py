@@ -62,6 +62,7 @@ class Matches(QAbstractItemModel):
         # Only the showing matches.
         self.matches = []
         self.query = ''
+        self.filterable_query = False
         self.search_filter = SearchFilter()
         self.cover_pool = CoverThreadPool(cover_thread_count)
         self.details_pool = DetailsThreadPool(detail_thread_count)
@@ -82,6 +83,7 @@ class Matches(QAbstractItemModel):
         self.all_matches = []
         self.search_filter.clear_search_results()
         self.query = ''
+        self.filterable_query = False
         self.cover_pool.abort()
         self.details_pool.abort()
         self.total_changed.emit(self.rowCount())
@@ -113,7 +115,10 @@ class Matches(QAbstractItemModel):
 
     def filter_results(self):
         self.layoutAboutToBeChanged.emit()
-        if self.query:
+        # Only use the search filter's filtered results when there is a query
+        # and it is a filterable query. This allows for the stores best guess
+        # matches to come though.
+        if self.query and self.filterable_query:
             self.matches = list(self.search_filter.parse(self.query))
         else:
             self.matches = list(self.search_filter.universal_set())
@@ -134,6 +139,35 @@ class Matches(QAbstractItemModel):
 
     def set_query(self, query):
         self.query = query
+        self.filterable_query = self.is_filterable_query(query)
+        
+    def is_filterable_query(self, query):
+        # Remove control modifiers.
+        query = query.replace('\\', '')
+        query = query.replace('!', '')
+        query = query.replace('=', '')
+        query = query.replace('~', '')
+        query = query.replace('>', '')
+        query = query.replace('<', '')
+        # Store the query at this point for comparision later
+        mod_query = query
+        # Remove filter identifiers
+        # Remove the prefix.
+        for loc in ('all', 'author', 'authors', 'title'):
+            query = re.sub(r'%s:"(?P<a>[^\s"]+)"' % loc, '\g<a>', query)
+            query = query.replace('%s:' % loc, '')
+        # Remove the prefix and search text.
+        for loc in ('cover', 'download', 'downloads', 'drm', 'format', 'formats', 'price', 'store'):
+            query = re.sub(r'%s:"[^"]"' % loc, '', query)
+            query = re.sub(r'%s:[^\s]*' % loc, '', query)
+        # Remove whitespace
+        query = re.sub('\s', '', query)
+        mod_query = re.sub('\s', '', mod_query)
+        # If mod_query and query are the same then there were no filter modifiers
+        # so this isn't a filterable query.
+        if mod_query == query:
+            return False
+        return True
 
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)

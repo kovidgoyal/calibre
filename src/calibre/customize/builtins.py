@@ -1155,6 +1155,26 @@ class StoreAmazonFRKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+class StoreAmazonITKindleStore(StoreBase):
+    name = 'Amazon IT Kindle'
+    author = 'Charles Haley'
+    description = u'eBook Kindle a prezzi incredibili'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_it_plugin:AmazonITKindleStore'
+
+    headquarters = 'IT'
+    formats = ['KINDLE']
+    affiliate = True
+
+class StoreAmazonESKindleStore(StoreBase):
+    name = 'Amazon ES Kindle'
+    author = 'Charles Haley'
+    description = u'eBook Kindle en España'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_es_plugin:AmazonESKindleStore'
+
+    headquarters = 'ES'
+    formats = ['KINDLE']
+    affiliate = True
+
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
     author = 'Charles Haley'
@@ -1554,7 +1574,9 @@ plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
     StoreAmazonDEKindleStore,
+    StoreAmazonESKindleStore,
     StoreAmazonFRKindleStore,
+    StoreAmazonITKindleStore,
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
     StoreBNStore,
@@ -1564,7 +1586,7 @@ plugins += [
     StoreChitankaStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
-	StoreEbookpointStore,
+    StoreEbookpointStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
     StoreEHarlequinStore,

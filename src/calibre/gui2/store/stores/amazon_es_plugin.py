@@ -17,30 +17,27 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
-class AmazonFRKindleStore(StorePlugin):
+class AmazonESKindleStore(StorePlugin):
     '''
     For comments on the implementation, please see amazon_plugin.py
     '''
 
     def open(self, parent=None, detail_item=None, external=False):
-        aff_id = {'tag': 'charhale-21'}
-        store_link = 'http://www.amazon.fr/livres-kindle/b?ie=UTF8&node=695398031&ref_=sa_menu_kbo1&_encoding=UTF8&tag=%(tag)s&linkCode=ur2&camp=1642&creative=19458' % aff_id
-
+        aff_id = {'tag': 'charhale09-21'}
+        store_link = 'http://www.amazon.es/ebooks-kindle/b?_encoding=UTF8&node=827231031&tag=%(tag)s&ie=UTF8&linkCode=ur2&camp=3626&creative=24790' % aff_id
         if detail_item:
             aff_id['asin'] = detail_item
-            store_link = 'http://www.amazon.fr/gp/redirect.html?ie=UTF8&location=http://www.amazon.fr/dp/%(asin)s&tag=%(tag)s&linkCode=ur2&camp=1634&creative=6738' % aff_id
+            store_link = 'http://www.amazon.es/gp/redirect.html?ie=UTF8&location=http://www.amazon.es/dp/%(asin)s&tag=%(tag)s&linkCode=ur2&camp=3626&creative=24790' % aff_id
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
-        search_url = 'http://www.amazon.fr/s/?url=search-alias%3Ddigital-text&field-keywords='
+        search_url = 'http://www.amazon.es/s/?url=search-alias%3Ddigital-text&field-keywords='
         url = search_url + query.encode('ascii', 'backslashreplace').replace('%', '%25').replace('\\x', '%').replace(' ', '+')
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            # doc = html.fromstring(f.read().decode('latin-1', 'replace'))
-            # Apparently amazon.fr is responding in UTF-8 now
-            doc = html.fromstring(f.read())
+            doc = html.fromstring(f.read().decode('latin-1', 'replace'))
 
             data_xpath = '//div[contains(@class, "result") and contains(@class, "product")]'
             format_xpath = './/span[@class="format"]/text()'
