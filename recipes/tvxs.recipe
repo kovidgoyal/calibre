@@ -7,11 +7,14 @@ class TVXS(BasicNewsRecipe):
     __author__             = 'hargikas'
     description            = 'News from Greece'
     max_articles_per_feed  = 100
-    oldest_article         = 100
+    oldest_article         = 3
+    simultaneous_downloads = 1
     publisher              = 'TVXS'
     category               = 'news, GR'
     language               = 'el'
     encoding               = None
+    use_embedded_content = False
+    remove_empty_feeds = True
     #conversion_options     = { 'linearize_tables': True}
     no_stylesheets         = True
     remove_tags_before     = dict(name='h1',attrs={'class':'print-title'})
