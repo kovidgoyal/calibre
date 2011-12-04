@@ -54,7 +54,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="book_a" or @class="book_b"]'):
+            for data in doc.xpath('//div[@id="results"]//li'):
                 if counter <= 0:
                     break
 
@@ -64,15 +64,21 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
                     continue
                 id = mo.group()
                 
-                cover_url = ''.join(data.xpath('.//img[1]/@src'))
+                cover_url = ''
+                cover_load = ''.join(data.xpath('.//div[@class="img"]//img/@onload'))
+                mo = re.search('(?<=\').+?(?=\')', cover_load)
+                if mo:
+                    cover_url = mo.group();
                 
                 title = ''
                 author = ''
-                heading_a = data.xpath('.//a[1]/text()')
-                if heading_a:
-                    title = heading_a[0]
-                if len(heading_a) >= 2:
-                    author = heading_a[1]
+                header_parts = data.xpath('.//div[@class="descr"]/h4//a//text()')
+                if header_parts:
+                    title = header_parts[0]
+                    header_parts = header_parts[1:]
+                if header_parts:
+                    author = ', '.join(header_parts)
+                
 
                 counter -= 1
                 
@@ -98,22 +104,18 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
         with closing(br.open(url + id, timeout=timeout)) as nf:
             pdoc = html.fromstring(nf.read())
             
-            pdata = pdoc.xpath('//table[@class="price"]/tr/td/text()')
-            if len(pdata) >= 2:
-                price = pdata[1]
+            price_l = pdoc.xpath('//span[@class="price"]/text()')
+            if price_l:
+                price = price_l[0]
+            search_result.price = price.strip()
             
             search_result.drm = SearchResult.DRM_UNLOCKED
-            for sec in ('Printing', 'Copying', 'Lending'):
-                if pdoc.xpath('boolean(//div[@class="formatTableInner"]//table//tr[contains(th, "%s") and contains(td, "Off")])' % sec):
-                    search_result.drm = SearchResult.DRM_LOCKED
-                    break
+            permissions = ' '.join(pdoc.xpath('//div[@class="permissions-items"]//text()'))
+            if 'off' in permissions:
+                search_result.drm = SearchResult.DRM_LOCKED
             
-            fdata = ', '.join(pdoc.xpath('//table[@class="price"]//tr//td[1]/text()'))
-            fdata = fdata.replace(':', '')
-            fdata = re.sub(r'\s{2,}', ' ', fdata)
-            fdata = fdata.replace(' ,', ',')
-            fdata = fdata.strip()
-            search_result.formats = fdata
-        
-        search_result.price = price.strip()
+            fdata = pdoc.xpath('//div[contains(@class, "more-links") and contains(@class, "more-links-info")]/div//span/text()')
+            if len(fdata) > 1:
+                search_result.formats = ', '.join(fdata[1:])
+
         return True

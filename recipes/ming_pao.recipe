@@ -24,6 +24,7 @@ __Date__ = ''
 
 '''
 Change Log:
+2011/12/01: take care of situation that in txt source parsing, the article content does start with special character u'\u3010'
 2011/10/21: fix a bug that hi-res img is unavailable in pages parsed from source txt
 2011/10/19: fix a bug in txt source parsing
 2011/10/17: disable fetching of premium content, also improved txt source parsing
@@ -533,12 +534,22 @@ class MPRecipe(BasicNewsRecipe):
                 new_raw_html = '<html><head><title>Untitled</title></head><body><div class="images">'
                 next_is_img_txt = False
                 title_started = False
+                title_break_reached = False
                 met_article_start_char = False
                 for item in splitter.split(raw_html):
                     item = item.strip()
-                    if item.startswith(u'\u3010'):
-                        met_article_start_char = True
-                        new_raw_html = new_raw_html + '</div><div class="content"><p>' + item + '<p>\n'
+                    # if title already reached but break between title and content not yet found, record title_break_reached
+                    if title_started == True and title_break_reached == False and item == '':
+                        title_break_reached = True
+                    # if title reached and title_break_reached and met_article_start_char == False and item is not empty
+                    # start content
+                    elif title_started == True and title_break_reached == True and met_article_start_char == False:
+                        if item <> '':
+                            met_article_start_char = True
+                            new_raw_html = new_raw_html + '</div><div class="content"><p>' + item + '<p>\n'
+                    #if item.startswith(u'\u3010'):
+                    #    met_article_start_char = True
+                    #    new_raw_html = new_raw_html + '</div><div class="content"><p>' + item + '<p>\n'
                     else:
                         if next_is_img_txt == False:
                             if item.startswith("=@"):
@@ -787,3 +798,4 @@ class MPRecipe(BasicNewsRecipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
+
