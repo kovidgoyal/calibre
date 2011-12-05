@@ -1085,6 +1085,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return cPickle.loads(str(data))
         return None
 
+    def has_conversion_options(self, ids, format='PIPE'):
+        return self.conn.get('''
+            SELECT data FROM conversion_options WHERE book IN %r AND
+        format=? LIMIT 1'''%(tuple(ids),), (format,), all=False) is not None
+
     def delete_conversion_options(self, id, format, commit=True):
         self.conn.execute('DELETE FROM conversion_options WHERE book=? AND format=?',
                 (id, format.upper()))
