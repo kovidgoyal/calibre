@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-02 08:51+0000\n"
-"PO-Revision-Date: 2011-11-28 07:00+0000\n"
+"PO-Revision-Date: 2011-12-04 10:45+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-03 05:00+0000\n"
+"X-Launchpad-Export-Date: 2011-12-05 05:20+0000\n"
 "X-Generator: Launchpad (build 14418)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1294,7 +1294,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Comunica con il Blackberry playbook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -9730,7 +9730,7 @@ msgid ""
 msgstr ""
 "Ripristina tutti i valori di ordinamento autori a un valore automaticamente\n"
 "generato dall'autore. Come viene generato automaticamente questo valore\n"
-"può essere controllato in Preferenze->Avanzate->Tweaks"
+"può essere controllato in Preferenze->Avanzate->Ottimizzazioni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:96
 msgid "Recalculate all author sort values"
@@ -9743,8 +9743,8 @@ msgid ""
 msgstr ""
 "Copia l'ordinamento autore in autore per ogni autore. Normalmente si "
 "utilizza questo pulsante\n"
-"dopo aver cambiato Preferenze->Avanzate->Tweaks->Algoritmo ordinamento nome "
-"autore"
+"dopo aver cambiato Preferenze->Avanzate->Ottimizzazioni->Algoritmo "
+"ordinamento nome autore"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog_ui.py:99
 msgid "Copy all author sort values to author"
@@ -10153,6 +10153,12 @@ msgid ""
 "to restore the EPUB from ORIGINAL_EPUB. Useful if you did a bulk conversion "
 "of a large number of books and something went wrong."
 msgstr ""
+"Quando calibre converte da un formato allo stesso formato, per\r\n"
+"esempio da EPUB a EPUB, il file originale EPUB viene salvato come "
+"ORIGINAL_EPUB.\r\n"
+"Questa opzione dice a calibre di ripristinare l'EPUB dall'ORIGINAL_EPUB.\r\n"
+"Utile in caso di problemi durante la conversione massiva di gran numero di "
+"libri."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:259
 msgid "Restore pre conversion &originals, if available"
@@ -15745,11 +15751,11 @@ msgstr "Sposta azioni selezionate in basso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:120
 msgid "This tweak has it default value"
-msgstr ""
+msgstr "Questa ottimizzazione ha il suo valore predefinito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:122
 msgid "This tweak has been customized"
-msgstr ""
+msgstr "Questa ottimizzazione è stata personalizzata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:291
 msgid ""
@@ -15760,7 +15766,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:324
 msgid "Search for tweak"
-msgstr ""
+msgstr "Cerca ottimizzazioni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:338
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:378
@@ -15768,6 +15774,8 @@ msgid ""
 "There was a syntax error in your tweak. Click the show details button for "
 "details."
 msgstr ""
+"Si è verificato un errore di sintassi nell'ottimizzazione. Fai clic su "
+"Mostra dettagli per saperne di più."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:391
 msgid "Invalid tweaks"
@@ -15778,7 +15786,7 @@ msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
-"Le ottimizzazioni inserite non sono valide, provare a ripristinare quelle "
+"Le ottimizzazioni inserite non sono valide, prova a ripristinare quelle "
 "predefinite e cambiarle una per volta fino a trovare quella non valida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:25
@@ -15787,22 +15795,26 @@ msgid ""
 "calibre. Your changes will only take effect <b>after a restart</b> of "
 "calibre."
 msgstr ""
+"I valori delle ottimizzazioni sono mostrati in basso. Modificali per "
+"cambiare il comportamento di calibre. Le modifiche avranno effetto solo "
+"<b>dopo il riavvio</b> di calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:56
 msgid "Edit tweaks for any custom plugins you have installed"
 msgstr ""
+"Modifica le ottimizzazioni per qualsiasi plugin personalizzato installato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:57
 msgid "&Plugin tweaks"
-msgstr ""
+msgstr "Ottimizzazioni dei &plugin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:77
 msgid "Edit tweak"
-msgstr ""
+msgstr "Modifica ottimizzazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:86
 msgid "Restore this tweak to its default value"
-msgstr ""
+msgstr "Ripristina questa ottimizzazione al suo valore predefinito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:87
 msgid "Restore &default"
@@ -15810,7 +15822,7 @@ msgstr "Ripristina pre&definiti"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:91
 msgid "Apply any changes you made to this tweak"
-msgstr ""
+msgstr "Applica tutte le modifiche fatte a questa ottimizzazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:348
 msgid "Delete current search"
@@ -21270,7 +21282,7 @@ msgid ""
 "conversion is poor, you can tweak the settings and run it again. By setting\n"
 "this to False you can prevent calibre from saving the original file."
 msgstr ""
-"Quando calibre converte dallo stesso formato allo stesso formato, per\n"
+"Quando calibre converte da un formato allo stesso formato, per\n"
 "esempio da EPUB a EPUB, il file originale viene salvato, così se la\n"
 "conversione è scadente, puoi modificare i parametri e lanciarla di nuovo.\n"
 "Impostandola a Falso impedisci a calibre di salvare il file originale."

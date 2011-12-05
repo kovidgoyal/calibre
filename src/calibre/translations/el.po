@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-02 08:51+0000\n"
-"PO-Revision-Date: 2011-11-19 14:47+0000\n"
-"Last-Translator: SteliosGero <Unknown>\n"
+"PO-Revision-Date: 2011-12-04 19:51+0000\n"
+"Last-Translator: Nick Apostolakis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-03 04:58+0000\n"
+"X-Launchpad-Export-Date: 2011-12-05 05:20+0000\n"
 "X-Generator: Launchpad (build 14418)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -434,6 +434,8 @@ msgstr "Αντιγραφή ενός βιβλίου από τη βιβλιοθή�
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Make small tweaks to epub files in your calibre library"
 msgstr ""
+"Προκαλέστε μικρές ρυθμίσεις στα epub αρχεία που βρίσκονται στην βιβλιοθήκη "
+"του calibre σας"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid ""
@@ -635,7 +637,7 @@ msgstr "Μεταφόρτωση μεταδεδομένων"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1074
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Ελένξτε πως το calibre κατεβάσει μεταδεδομένα βιβλίων απο το δίκτυο"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1079
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
@@ -645,6 +647,8 @@ msgstr "Πρόσθετα"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1085
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr ""
+"Προσθέστε/αφαιρέστε/παραμετροποιήστε διάφορα μέρη της λειτουργικότητας του "
+"calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1091
 msgid "Tweaks"
@@ -652,7 +656,7 @@ msgstr "Προσαρμογές"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1097
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr ""
+msgstr "Ρυθμίστε την συμπεριφορά του calibre σε διαφορετικά περιβάλλοντα"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1102
 msgid "Keyboard"
@@ -661,6 +665,7 @@ msgstr "Πληκτρολόγιο"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1108
 msgid "Customize the keyboard shortcuts used by calibre"
 msgstr ""
+"Ρυθμίστε τις συντομεύσεις πληκτρολογίου που χρησιμοποιούντε απο το calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -669,7 +674,7 @@ msgstr "Υπολειπόμενα"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Miscellaneous advanced configuration"
-msgstr ""
+msgstr "Προχωρημένες ρυθμίσεις διαφόρων παραμέτρων"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
@@ -704,7 +709,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Μετατροπή ηλεκτρονικών βιβλίων σε %s μορφή"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:48
 msgid "Input profile"
@@ -813,6 +818,8 @@ msgstr "Προορίζεται για το iPad και παρόμοιες συσ
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:437
 msgid "Intended for generic tablet devices, does no resizing of images"
 msgstr ""
+"Προορίζεται για γενικές συσκευές tablet, δεν αλλάζει τις διαστάσεις των "
+"εικόνων"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:445
 msgid ""
@@ -836,7 +843,7 @@ msgstr "Κατάλληλο για χρήση με κάθε συσκευή ηλε
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "Κατάλληλο για χρήση σε μεγάλες συσκευές ηλεκτρονικής μελάνης"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
@@ -856,7 +863,7 @@ msgstr "Αυτό το περίγραμμα προορίζεται για το Am
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Αυτό το προφίλ προορίζεται για το Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -869,7 +876,7 @@ msgstr "Προφίλ για χρήση με το Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Αυτό το προφίλ προορίζεται για τη σειρά συσκευών PocketBook Pro 900"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -950,6 +957,8 @@ msgstr "Απενεργοποίηση του ονομαζόμενου προσθ�
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
+"Η διαδρομή για την βιβλιοθήκη είναι πολύ μεγάλη. Πρέπει να είναι μικρότερη "
+"απο %d χαρακτήρες"
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:139
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:649
@@ -970,13 +979,13 @@ msgstr "Κύρια μνήμη"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1125
 msgid "Card A"
-msgstr ""
+msgstr "Κάρτα μνήμης Α"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1127
 msgid "Card B"
-msgstr ""
+msgstr "Κάρτα μνήμης Β"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
@@ -1000,7 +1009,7 @@ msgstr "Επικοινωνία με τηλέφωνα S60."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:237
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Επικοινωνία με tablet WebOS"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -1024,15 +1033,17 @@ msgstr "Ενεργοποίηση οδηγού Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr ""
+msgstr "Χρησιμοποιήσε την Σειρά ως Κατηγορία στο iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Ενεργοποιείστε για να χρησιμοποιήσετε το όνομα σειράς ως Είδος στο iTunes "
+"και Κατηγορία στο iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
-msgstr ""
+msgstr "Αποθηκεύστε προσωρινά τα εξώφυλα απο το iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:123
 msgid "Enable to cache and display covers from iTunes/iBooks"
@@ -1151,18 +1162,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "Διεύθυνση IP συσκευής (επανεκίνησε το calibre μετά την αλλαγή)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:48
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
+"Δεν ήταν δυνατόν να προστεθεί το βιβλίο στην βιβλιοθήκη απευθείας αποτο "
+"Bambook. Παρακαλώ αποθηκεύστε το βιβλίο στο δίσκο και προσθέστε το στη "
+"βιβλιοθήκη απο το δίσκο."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:67
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
+"Δεν ήταν δυνατόν να συνδεθώ στο Bambook, θα πρέπει να εγκαταστήσετε την "
+"βιβλιοθήκη Bambook πρώτα."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -1170,6 +1186,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
+"Δεν ήταν δυνατόν να συνδεθώ στο Bambook\n"
+"Εάν προσπαθείτε να συνδεθείτε μέχω ασύρματου δικτίου, βεβαιωθείτε οτι η IP "
+"διευθυνση του  Bambook είναι σωστά ρυθμισμένη."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
@@ -1235,7 +1254,7 @@ msgstr "Αποστολή μεταδεδομένων στη συσκευή..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:129
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Το SDK του Bambook  δεν έχει εγκατασταθεί"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
@@ -1259,11 +1278,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Επικοινώνησε με την σειρά συσκευών ανάγνωσης BOEYE BEX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Επικοινώνησε με την σειρά συσκευών ανάγνωσης BOEYE BDX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1271,7 +1290,7 @@ msgstr "Επικοινωνία με το ηλ.αναγνωστήριο Cybook Ge
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr ""
+msgstr "Επικοινώνησε με την συσκευή ανάγνωσης Cybook Orizon eBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:25
 msgid "Communicate with the EB600 eBook reader."
@@ -1287,7 +1306,7 @@ msgstr "Επικοινωνία με το PocketBook 301 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:232
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Επικοινώνησε με την συσκευή ανάγνωσης PocketBook 602/603/902/903"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
 msgid "Communicate with the PocketBook 360+ reader."

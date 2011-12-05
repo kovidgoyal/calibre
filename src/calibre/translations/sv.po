@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-02 08:51+0000\n"
-"PO-Revision-Date: 2011-09-30 15:26+0000\n"
-"Last-Translator: Arve Eriksson <Unknown>\n"
+"PO-Revision-Date: 2011-12-04 19:49+0000\n"
+"Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-03 05:08+0000\n"
+"X-Launchpad-Export-Date: 2011-12-05 05:21+0000\n"
 "X-Generator: Launchpad (build 14418)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
@@ -848,7 +848,7 @@ msgstr "Denna profil är avsedd för Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "This profil ar avsedd för Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -861,7 +861,7 @@ msgstr "Denna profil är avsedd för Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Denna profil är avsedd för PocketBook Pro 900-serien av enheter."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -1274,7 +1274,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Kommunicera med Blackberry Playbook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1388,7 +1388,7 @@ msgstr "Kommunicera med läsplattan Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Kommunicera med Cybook Odyssey ebokläsare."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1508,7 +1508,7 @@ msgstr "Kommunicera med läsplattan Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Kommunicera med Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -1524,7 +1524,7 @@ msgstr "Skapa märkningar för automatisk hantering"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:59
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Ladda Upp omslag för Böcker (nyare läsare)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:60
 msgid ""
@@ -1532,14 +1532,17 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Normalt får Kobo läsarna omslagsbild från själva ebokfilen. Med detta "
+"alternativ kommer Calibre skicka en separat omslagsbild till läsaren, "
+"användbart om du har ändrat omslaget."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Ladda Upp Svartvitt omslag"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "Visa utgått böcker"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -1689,7 +1692,7 @@ msgstr "Kommunicera med läsplattan Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Kommunicera med Sony ebokläsare äldre än PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1799,7 +1802,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:73
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Ladda upp separat ikoner för böcker"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:74
 msgid ""
@@ -1810,7 +1813,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:78
 msgid "Refresh separate covers when using automatic management"
-msgstr ""
+msgstr "Uppdatera separata omslag Närs du använder Automatisk hantering"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid "Use SONY Author Format (First Author Only)"
