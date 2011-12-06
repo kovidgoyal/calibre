@@ -30,6 +30,8 @@ CONTENT_TAGS = set(['img', 'hr', 'br'])
 
 NOT_VTAGS = HEADER_TAGS | NESTABLE_TAGS | TABLE_TAGS | SPECIAL_TAGS | \
     CONTENT_TAGS
+LEAF_TAGS = set(['base', 'basefont', 'frame', 'link', 'meta', 'area', 'br',
+'col', 'hr', 'img', 'input', 'param'])
 PAGE_BREAKS = set(['always', 'left', 'right'])
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
@@ -246,7 +248,17 @@ class MobiMLizer(object):
                     last.text = None
                 else:
                     last = bstate.body[-1]
-                    last.addprevious(anchor)
+                    # We use append instead of addprevious so that inline
+                    # anchors in large blocks point to the correct place. See
+                    # https://bugs.launchpad.net/calibre/+bug/899831
+                    # This could potentially break if inserting an anchor at
+                    # this point in the markup is illegal, but I cannot think
+                    # of such a case offhand.
+                    if barename(last.tag) in LEAF_TAGS:
+                        last.addprevious(anchor)
+                    else:
+                        last.append(anchor)
+
             istate.ids.clear()
         if not text:
             return
