@@ -540,7 +540,11 @@ class MobiMLizer(object):
             old_mim = self.opts.mobi_ignore_margins
             self.opts.mobi_ignore_margins = False
 
-        if text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS:
+        if (text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS or (
+            # We have an id but no text and no children, the id should still
+            # be added.
+            istate.ids and tag in ('a', 'span', 'i', 'b', 'u') and
+            len(elem)==0)):
             self.mobimlize_content(tag, text, bstate, istates)
         for child in elem:
             self.mobimlize_elem(child, stylizer, bstate, istates)
