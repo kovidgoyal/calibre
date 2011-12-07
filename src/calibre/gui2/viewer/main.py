@@ -172,7 +172,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     STATE_VERSION = 1
 
-    def __init__(self, pathtoebook=None, debug_javascript=False):
+    def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None):
         MainWindow.__init__(self, None)
         self.setupUi(self)
         self.view.magnification_changed.connect(self.magnification_changed)
@@ -280,7 +280,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
 
         if pathtoebook is not None:
-            f = functools.partial(self.load_ebook, pathtoebook)
+            f = functools.partial(self.load_ebook, pathtoebook, open_at=open_at)
             QTimer.singleShot(50, f)
         self.view.setMinimumSize(100, 100)
         self.toc.setCursor(Qt.PointingHandCursor)
@@ -457,8 +457,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def goto_end(self):
         self.goto_page(self.pos.maximum())
 
-    def goto_page(self, new_page):
-        if self.current_page is not None:
+    def goto_page(self, new_page, loaded_check=True):
+        if self.current_page is not None or not loaded_check:
             for page in self.iterator.spine:
                 if new_page >= page.start_page and new_page <= page.max_page:
                     try:
@@ -672,7 +672,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             except:
                 traceback.print_exc()
 
-    def load_ebook(self, pathtoebook):
+    def load_ebook(self, pathtoebook, open_at=None):
         if self.iterator is not None:
             self.save_current_position()
             self.iterator.__exit__()
@@ -731,10 +731,17 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.current_index = -1
             QApplication.instance().alert(self, 5000)
             previous = self.set_bookmarks(self.iterator.bookmarks)
-            if previous is not None:
+            if open_at is None and previous is not None:
                 self.goto_bookmark(previous)
             else:
-                self.next_document()
+                if open_at is None:
+                    self.next_document()
+                else:
+                    if open_at > self.pos.maximum():
+                        open_at = self.pos.maximum()
+                    if open_at < self.pos.minimum():
+                        open_at = self.pos.minimum()
+                    self.goto_page(open_at, loaded_check=False)
 
     def set_vscrollbar_value(self, pagenum):
         self.vertical_scrollbar.blockSignals(True)
@@ -804,6 +811,9 @@ def config(defaults=None):
         help=_('Remember last used window size'))
     c.add_opt('debug_javascript', ['--debug-javascript'], default=False,
         help=_('Print javascript alert and console messages to the console'))
+    c.add_opt('open_at', ['--open-at'], default=None,
+        help=_('The position at which to open the specified book. The position is '
+            'a location as displayed in the top left corner of the viewer.'))
 
     return c
 
@@ -823,13 +833,17 @@ def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     pid = os.fork() if False and (islinux or isbsd) else -1
+    try:
+        open_at = float(opts.open_at)
+    except:
+        open_at = None
     if pid <= 0:
         app = Application(args)
         app.setWindowIcon(QIcon(I('viewer.png')))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)
         main = EbookViewer(args[1] if len(args) > 1 else None,
-                debug_javascript=opts.debug_javascript)
+                debug_javascript=opts.debug_javascript, open_at=open_at)
         sys.excepthook = main.unhandled_exception
         main.show()
         if opts.raise_window:
