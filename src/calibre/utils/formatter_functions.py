@@ -720,12 +720,12 @@ class BuiltinSubitems(BuiltinFormatterFunction):
         items = [v.strip() for v in val.split(',')]
         rv = set()
         for item in items:
-            component = item.split('.')
+            components = re.split(r'(?<=[^\.\s])\.(?=[^\.\s])', item, flags=re.U)
             try:
                 if ei == 0:
-                    rv.add('.'.join(component[si:]))
+                    rv.add('.'.join(components[si:]))
                 else:
-                    rv.add('.'.join(component[si:ei]))
+                    rv.add('.'.join(components[si:ei]))
             except:
                 pass
         return ', '.join(sorted(rv, key=sort_key))
