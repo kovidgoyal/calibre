@@ -252,7 +252,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Milliseconds
         self.hang_time = self.config.get('hang_time', 75) * 1000
 
-        self.max_results = self.config.get('max_results', 10)
+        self.max_results = self.config.get('max_results', 15)
         self.should_open_external = self.config.get('open_external', True)
 
         # Number of threads to run for each type of operation

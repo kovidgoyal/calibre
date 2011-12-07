@@ -40,9 +40,9 @@ class ChitankaStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        # check for cyrilic symbols before performing search
+        # check for cyrillic symbols before performing search
         uquery = unicode(query.strip(), 'utf-8')
-        reObj = re.search(u'^[а-яА-Я\\d]{4,}[а-яА-Я\\d\\s]*$', uquery)
+        reObj = re.search(u'^[а-яА-Я\\d\\s]{3,}$', uquery)
         if not reObj:
             return
 

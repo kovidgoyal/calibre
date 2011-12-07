@@ -25,7 +25,8 @@ from calibre.utils.logging import Log
 
 class BulkConfig(Config):
 
-    def __init__(self, parent, db, preferred_output_format=None):
+    def __init__(self, parent, db, preferred_output_format=None,
+            has_saved_settings=True):
         ResizableDialog.__init__(self, parent)
 
         self.setup_output_formats(db, preferred_output_format)
@@ -54,6 +55,12 @@ class BulkConfig(Config):
         rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
         rb.setVisible(False)
         self.groups.setMouseTracking(True)
+        if not has_saved_settings:
+            o = self.opt_individual_saved_settings
+            o.setEnabled(False)
+            o.setToolTip(_('None of the selected books have saved conversion '
+                'settings.'))
+            o.setChecked(False)
 
 
     def setup_pipeline(self, *args):
