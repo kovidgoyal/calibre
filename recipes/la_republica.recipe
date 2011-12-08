@@ -25,12 +25,12 @@ class LaRepubblica(BasicNewsRecipe):
     use_embedded_content    = False
     no_stylesheets          = True
     publication_type        = 'newspaper'
-    articles_are_obfuscated = True    
-    temp_files              = []    
+    articles_are_obfuscated = True
+    temp_files              = []
     extra_css               = """
                                img{display: block}
                               """
-                           
+
     remove_attributes = ['width','height','lang','xmlns:og','xmlns:fb']
 
     preprocess_regexps = [
@@ -38,14 +38,14 @@ class LaRepubblica(BasicNewsRecipe):
         (re.compile(r'<head>.*?<title>', re.DOTALL|re.IGNORECASE), lambda match: '<head><title>'),
         (re.compile(r'</title>.*?</head>', re.DOTALL|re.IGNORECASE), lambda match: '</title></head>')
     ]
-    
+
     def get_article_url(self, article):
         link = BasicNewsRecipe.get_article_url(self, article)
         if link and not '.repubblica.it/' in link:
             link2 = article.get('id', article.get('guid', None))
             if link2:
                 link = link2
-        return link.rpartition('?')[0]        
+        return link.rpartition('?')[0]
 
     def get_obfuscated_article(self, url):
         count = 0
@@ -56,12 +56,12 @@ class LaRepubblica(BasicNewsRecipe):
                 count = 10
             except:
                 print "Retrying download..."
-            count += 1        
+            count += 1
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
         self.temp_files[-1].write(html)
         self.temp_files[-1].close()
         return self.temp_files[-1].name
-        
+
     keep_only_tags     = [
                           dict(attrs={'class':'articolo'}),
                           dict(attrs={'class':'body-text'}),
@@ -105,8 +105,8 @@ class LaRepubblica(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for item in soup.findAll(['hgroup','deresponsabilizzazione','per']):
             item.name = 'div'
-            item.attrs = []            
+            item.attrs = []
         for item in soup.findAll(style=True):
-            del item['style']           
+            del item['style']
         return soup
-                      
+
