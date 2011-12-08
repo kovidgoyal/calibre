@@ -717,10 +717,18 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             return ''
         si = int(start_index)
         ei = int(end_index)
+        has_periods = '.' in val
         items = [v.strip() for v in val.split(',')]
         rv = set()
+        if has_periods:
+            pp = re.compile(r'(?<=[^\.\s])\.(?=[^\.\s])', re.U)
+        else:
+            pp = None
         for item in items:
-            components = re.split(r'(?<=[^\.\s])\.(?=[^\.\s])', item, flags=re.U)
+            if has_periods and '.' in item:
+                components = pp.split(item)
+            else:
+                components = [item]
             try:
                 if ei == 0:
                     rv.add('.'.join(components[si:]))
