@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-02 08:51+0000\n"
-"PO-Revision-Date: 2011-11-13 12:49+0000\n"
+"PO-Revision-Date: 2011-12-07 22:01+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-12-03 04:57+0000\n"
-"X-Generator: Launchpad (build 14418)\n"
+"X-Launchpad-Export-Date: 2011-12-08 05:35+0000\n"
+"X-Generator: Launchpad (build 14443)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -874,7 +874,7 @@ msgstr "Ce profil est prévu pour le Kindle DX d'Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Ce profile est prévu pour le Kindle Fire d'Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -1308,7 +1308,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Communiquer avec le playbook de Blackberry"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1422,7 +1422,7 @@ msgstr "Communiquer avec le lecteur d'ebook Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Communiquer avec la liseuse d'ebook de Cybook Odyssey"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1544,7 +1544,7 @@ msgstr "Communiquer avec le lecteur d'ebook Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Communiquer avec le Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -1732,7 +1732,7 @@ msgstr "Communiquer avec le lecteur d'ebook Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Communiquer avec les liseuses Nook Color, TSR et Tablet"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -2663,6 +2663,10 @@ msgid ""
 "prevents it from being overridden on your device. For example: font-"
 "family,color,margin-left,margin-right"
 msgstr ""
+"Une liste de propriétés CSS séparée par des virgules et qui sera supprimée "
+"de toutes les règles de style CSS. Cela est utile si la présence de "
+"certaines informations de style les empêche d'être outrepassées sur votre "
+"appareil. Par exemple : font-family,color,margin-left,margin-right"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:324
 msgid ""
@@ -7848,10 +7852,11 @@ msgstr "&Linéariser les tables"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
 msgid "Select what style information you want completely removed:"
 msgstr ""
+"Sélectionnez quel style d'information vous souhaitez supprimer complètement:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:171
 msgid "Removes the font-family CSS property"
-msgstr ""
+msgstr "Supprime la propriété CSS font-family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
@@ -7862,6 +7867,8 @@ msgid ""
 "Removes the margin CSS properties. Note that page margins are not affected "
 "by this setting."
 msgstr ""
+"Supprime les propriétés CSS de marge. A noter que les marges de la page ne "
+"sont pas concernées par cette configuration"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:177
 msgid "&Margins"
@@ -7869,23 +7876,23 @@ msgstr "&Marges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:181
 msgid "Removes the padding CSS properties"
-msgstr ""
+msgstr "Supprime la propriété CSS padding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:182
 msgid "&Padding"
-msgstr ""
+msgstr "Espacement"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:186
 msgid "Convert floating images/text into static images/text"
-msgstr ""
+msgstr "Converti images/texte flottant en images/texte fixe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:187
 msgid "F&loats"
-msgstr ""
+msgstr "F&lottant"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
-msgstr ""
+msgstr "Supprime les couleurs d'avant plan et d'arrière plan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:192
 msgid "&Colors"
@@ -7893,21 +7900,23 @@ msgstr "&Couleurs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
-msgstr ""
+msgstr "&Autres propriétés CSS:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:202
 msgid ""
 "Comma separated list of CSS properties to remove. For example: display, "
 "color, font-family"
 msgstr ""
+"Liste de propriétés CSS à supprimer séparées par des virgules. Par exemple: "
+"display, color, font-family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
-msgstr ""
+msgstr "CSS supplém&entaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:228
 msgid "&Filter Style Information"
-msgstr ""
+msgstr "&Filtrer les informations de style"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
@@ -9874,15 +9883,15 @@ msgstr "Travaux en cours"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:33
 msgid "Find next match"
-msgstr ""
+msgstr "Trouver la prochaine occurence"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
-msgstr ""
+msgstr "&Rechercher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Find previous match"
-msgstr ""
+msgstr "Trouver la précédente occurence"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:54
 msgid "&Stop selected jobs"
@@ -9890,7 +9899,7 @@ msgstr "Arrêter les travaux sélectionnés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:58
 msgid "&Hide selected jobs"
-msgstr ""
+msgstr "&Cacher les taches sélectionnées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:62
 msgid "Show job &details"
@@ -9898,7 +9907,7 @@ msgstr "Afficher les &détails du travail"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:66
 msgid "Show &all jobs"
-msgstr ""
+msgstr "Afficher &toutes les tâches"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:70
 msgid "Stop &all non device jobs"
@@ -9906,7 +9915,7 @@ msgstr "&Arrêter tous les travaux ne concernant pas les appareils"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr ""
+msgstr "&Cacher toute les tâches"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:49
 msgid "&Copy to clipboard"
@@ -10269,10 +10278,15 @@ msgid ""
 "to restore the EPUB from ORIGINAL_EPUB. Useful if you did a bulk conversion "
 "of a large number of books and something went wrong."
 msgstr ""
+"Lors d'une conversion d'un format au même format, par exemple EPUB à EPUB, "
+"Calibre sauvegarde le fichier original EPUB sous ORIGINAL_EPUB. Cette option "
+"indique à Calibre de restaurer le fichier EPUB à partir d'ORIGINAL_EPUB. "
+"Utile si vous aviez converti en masse un grand nombre de livres et qu'il y a "
+"eu un problème."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:259
 msgid "Restore pre conversion &originals, if available"
-msgstr ""
+msgstr "Restaurer les &originaux préconversion si ceux-ci sont disponibles"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:268
 msgid ""
@@ -12357,7 +12371,7 @@ msgstr " - Travaux"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:544
 msgid "Search for a job by name"
-msgstr ""
+msgstr "Chercher une tâche par son nom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:593
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:615
@@ -18822,6 +18836,13 @@ msgid ""
 "in the range is not\n"
 "included).\n"
 msgstr ""
+"%prog supprime les ids\n"
+"\n"
+"Supprime les livres identifiés par les ids de la base de données. Les ids "
+"devraient être une liste de nombres id séparés par des virgules (vous pouvez "
+"obtenir les nombres id en utilisant la commande list).\n"
+"Par exemple, 23,34,57-85 (quand un intervalle est précisé, le dernier nombre "
+"dans l'intervalle n'est pas inclus).\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:355
 msgid "You must specify at least one book to remove"
@@ -21542,6 +21563,17 @@ msgid ""
 "switch\n"
 "to ascii ordering for performance reasons."
 msgstr ""
+"Habituellement Calibre tri selon le lexique dépendant de la langue utilisée "
+"lorsqu'il affiche\n"
+"des valeurs à compléter. Cela signifie que l'ordre de tri est correct selon "
+"la langue\n"
+"de l'usager. Cependant, cela peut être lent. La performance est améliorée en "
+"basculant\n"
+"sur un tri ascii. Ce paramètre permet de contrôler quand cela bascule. "
+"Paramétrer à zéro\n"
+"pour toujours utiliser le tri ascii. Paramétrer à quelque chose de plus "
+"grand que zéro pour basculer\n"
+"au tri ascii pour des raisons de performance."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:108
 msgid "Control partitioning of Tag Browser"
@@ -21936,6 +21968,16 @@ msgid ""
 "level sorts, and if you are seeing a slowdown, reduce the value of this "
 "tweak."
 msgstr ""
+"Paramètre le le nombre maximum de 'niveau' de tri que Calibre utilisera pour "
+"trier de nouveau la\n"
+"librairie après certaines opérations telles que les recherches ou la "
+"connexion  d'un appareil. Chaque\n"
+"niveau de tri inflige une pénalité de performance supplémentaire. Si la base "
+"de données est importante (plusieurs\n"
+"milliers de livres) la pénalité peut devenir perceptible. Si vous n'êtes pas "
+"concernés pour les tri\n"
+"multi-niveaux et si vous notez un ralentissement, réduisez la valeur de ce "
+"paramètre."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:368
 msgid "Choose whether dates are sorted using visible fields"
