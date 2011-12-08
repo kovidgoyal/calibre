@@ -712,6 +712,8 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             'value of "A.B.C, D.E.F", {#genre:subitems(0,1)} returns "A, D". '
             '{#genre:subitems(0,2)} returns "A.B, D.E"')
 
+    period_pattern = re.compile(r'(?<=[^\.\s])\.(?=[^\.\s])', re.U)
+
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index):
         if not val:
             return ''
@@ -720,13 +722,9 @@ class BuiltinSubitems(BuiltinFormatterFunction):
         has_periods = '.' in val
         items = [v.strip() for v in val.split(',')]
         rv = set()
-        if has_periods:
-            pp = re.compile(r'(?<=[^\.\s])\.(?=[^\.\s])', re.U)
-        else:
-            pp = None
         for item in items:
             if has_periods and '.' in item:
-                components = pp.split(item)
+                components = self.period_pattern.split(item)
             else:
                 components = [item]
             try:
