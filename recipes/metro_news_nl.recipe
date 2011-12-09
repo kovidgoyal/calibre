@@ -15,13 +15,13 @@ try:
     SHOWDEBUG1 = mlog.showdebuglevel(1)
     SHOWDEBUG2 = mlog.showdebuglevel(2)
 except:
-    print 'drMerry debuglogger not found, skipping debug options'
+    #print 'drMerry debuglogger not found, skipping debug options'
     SHOWDEBUG0 = False
     SHOWDEBUG1 = False
     SHOWDEBUG2 = False
     KEEPSTATS = False
 
-print ('level0: %s\nlevel1: %s\nlevel2: %s' % (SHOWDEBUG0,SHOWDEBUG1,SHOWDEBUG2))
+#print ('level0: %s\nlevel1: %s\nlevel2: %s' % (SHOWDEBUG0,SHOWDEBUG1,SHOWDEBUG2))
 
 ''' Version 1.2, updated cover image to match the changed website.
  added info date on title
