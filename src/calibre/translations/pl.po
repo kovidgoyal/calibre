@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-02 08:51+0000\n"
-"PO-Revision-Date: 2011-12-06 19:31+0000\n"
+"PO-Revision-Date: 2011-12-08 18:57+0000\n"
 "Last-Translator: koliberek <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-12-07 04:49+0000\n"
-"X-Generator: Launchpad (build 14435)\n"
+"X-Launchpad-Export-Date: 2011-12-09 04:44+0000\n"
+"X-Generator: Launchpad (build 14450)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -445,7 +445,7 @@ msgstr "Wybierz losową książkę z biblioteki calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:860
 msgid "Search for books from different book sellers"
-msgstr "Szukaj książek u różnych dostawców treści"
+msgstr "Szukaj książek w różnych księgarniach"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:876
 msgid "Get new calibre plugins or update your existing ones"
@@ -10909,7 +10909,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:197
 #, python-format
 msgid "%s news sources"
-msgstr "%s źródło newsów"
+msgstr "%s źródeł newsów"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:311
 msgid "Need username and password"
@@ -11666,7 +11666,7 @@ msgid ""
 "You will lose any unsaved changes. To save your changes, click the "
 "Add/Update recipe button. Continue?"
 msgstr ""
-"Stracisz niezapisane zmiany. Aby zapisać zmiany, kliknij w przycisk "
+"Stracisz niezapisane zmiany. Aby zapisać zmiany, kliknij przycisk "
 "Dodaj/Uaktualnij źródła. Kontynuować?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:257
@@ -11839,7 +11839,7 @@ msgstr "E-book:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:201
 msgid "Attached, you will find the e-book"
-msgstr "W załączniku znajdziesz e-booka"
+msgstr "W załączniku znajdziesz e-book"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:189
@@ -20465,7 +20465,7 @@ msgstr "angielski (Cypr)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:124
 msgid "English (Czech Republic)"
-msgstr "Angielski (Czechy)"
+msgstr "angielski (Czechy)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Pakistan)"
@@ -20541,7 +20541,7 @@ msgstr "hiszpański (Honduras)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "Spanish (Venezuela)"
-msgstr "Hiszpański (Wenezuela)"
+msgstr "hiszpański (Wenezuela)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "Spanish (Bolivia)"
@@ -20549,11 +20549,11 @@ msgstr "hiszpański (Boliwia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "Spanish (Nicaragua)"
-msgstr "Hiszpański (Nikaragua)"
+msgstr "hiszpański (Nikaragua)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "Spanish (Colombia)"
-msgstr "Hiszpański (Kolumbia)"
+msgstr "hiszpański (Kolumbia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "German (AT)"

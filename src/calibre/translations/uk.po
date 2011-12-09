@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-02 08:51+0000\n"
-"PO-Revision-Date: 2011-12-05 18:27+0000\n"
+"PO-Revision-Date: 2011-12-08 19:46+0000\n"
 "Last-Translator: yurchor <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-12-06 05:28+0000\n"
-"X-Generator: Launchpad (build 14435)\n"
+"X-Launchpad-Export-Date: 2011-12-09 04:45+0000\n"
+"X-Generator: Launchpad (build 14450)\n"
 "Language: uk\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -276,6 +276,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Створити архів TXTZ у разі імпортування файла TXT, що містить посилання "
+"Markdown або Textile на зображення. До архіву буде додано разом з файлом TXT "
+"файли зображень."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
@@ -1016,11 +1019,11 @@ msgstr "Вимкнути драйвер Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr "Використати Серії як Категорії в iTunes/iBooks"
+msgstr "Використати Серії як Категорії у iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "Увімкнути використання назви серія як жанру iTunes, категорія iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
@@ -16573,7 +16576,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1442
 msgid "No books available to catalog"
-msgstr ""
+msgstr "У каталозі немає книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1518
 msgid ""
@@ -16601,7 +16604,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1732
 msgid "No books available to include in catalog"
-msgstr ""
+msgstr "Немає книг для включення до каталогу"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:5074
 msgid ""
@@ -16611,11 +16614,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:26
 msgid "Invalid titles"
-msgstr ""
+msgstr "Некоректні назви"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:27
 msgid "Extra titles"
-msgstr ""
+msgstr "Зайві назви"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:28
 msgid "Invalid authors"
@@ -16635,11 +16638,11 @@ msgstr "Додаткові формати книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:32
 msgid "Unknown files in books"
-msgstr ""
+msgstr "Невідомі файли у книгах"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:33
 msgid "Missing covers files"
-msgstr ""
+msgstr "Файли обкладинок, яких не вистачає"
 
 #: /home/kovid/work/calibre/src/calibre/library/check_library.py:34
 msgid "Cover files not in database"
@@ -16682,7 +16685,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:144
 msgid "Sort results in ascending order"
-msgstr ""
+msgstr "Впорядкувати дані за зростанням"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:146
 msgid ""
@@ -16700,7 +16703,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:149
 msgid "The string used to separate fields. Default is a space."
-msgstr ""
+msgstr "Рядок, який відокремлюватиме поля. Типовим є пробіл."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:150
 msgid ""
@@ -16710,11 +16713,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:172
 msgid "Invalid fields. Available fields:"
-msgstr ""
+msgstr "Некоректні поля. Можливі поля:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:179
 msgid "Invalid sort field. Available fields:"
-msgstr ""
+msgstr "Некоректне поле впорядковування. Можливі поля:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:251
 msgid ""
@@ -16739,7 +16742,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:286
 msgid "Process directories recursively"
-msgstr ""
+msgstr "Обробляти каталоги рекурсивно"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:288
 msgid ""
@@ -16749,23 +16752,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:290
 msgid "Add an empty book (a book with no formats)"
-msgstr ""
+msgstr "Додати порожню книгу (книгу без формату)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:292
 msgid "Set the title of the added empty book"
-msgstr ""
+msgstr "Встановити назву доданої порожньої книги"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:294
 msgid "Set the authors of the added empty book"
-msgstr ""
+msgstr "Встановити авторів доданої порожньої книги"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:296
 msgid "Set the ISBN of the added empty book"
-msgstr ""
+msgstr "Встановити ISBN доданої порожньої книги"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:322
 msgid "You must specify at least one file to add"
-msgstr ""
+msgstr "Вам слід вказати принаймні один файл для додавання"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:340
 msgid ""
@@ -16780,7 +16783,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:355
 msgid "You must specify at least one book to remove"
-msgstr ""
+msgstr "Вам слід вказати принаймні одну книгу для вилучення"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:376
 msgid ""
@@ -16793,11 +16796,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:390
 msgid "You must specify an id and an ebook file"
-msgstr ""
+msgstr "Вам слід вказати ідентифікатор і файл електронної книги"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:395
 msgid "ebook file must have an extension"
-msgstr ""
+msgstr "назва файла електронної книги повинна містити суфікс"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:405
 msgid ""
@@ -16811,7 +16814,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:421
 msgid "You must specify an id and a format"
-msgstr ""
+msgstr "Вам слід вказати ідентифікатор і формат"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:440
 msgid ""
@@ -16825,11 +16828,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:447
 msgid "Print metadata in OPF form (XML)"
-msgstr ""
+msgstr "Вивести метадані у форматі OPF (XML)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:456
 msgid "You must specify an id"
-msgstr ""
+msgstr "Вам слід вказати ідентифікатор"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:472
 msgid ""
@@ -16846,7 +16849,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:487
 msgid "You must specify an id and a metadata file"
-msgstr ""
+msgstr "Вам слід вказати ідентифікатор і файл метаданих"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:507
 msgid ""
@@ -16862,6 +16865,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:515
 msgid "Export all books in database, ignoring the list of ids."
 msgstr ""
+"Експортувати всі книги у бібліотеці з ігноруванням списку ідентифікаторів."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:517
 msgid "Export books to the specified directory. Default is"
@@ -16940,7 +16944,7 @@ msgstr "Показувати докладні виведені дані. Кор�
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:687
 msgid "Error: You must specify a catalog output file"
-msgstr ""
+msgstr "Помилка: вам слід вказати файли виведення каталогу"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:734
 msgid ""
@@ -16980,11 +16984,11 @@ msgstr "Показати параметри кожного стовпчика."
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:793
 #, python-format
 msgid "You will lose all data in the column: %r. Are you sure (y/n)? "
-msgstr ""
+msgstr "Ви втратите всі дані у цьому стовпчику: %r. Ви впевнені (т/н)? "
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:795
 msgid "y"
-msgstr ""
+msgstr "т"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:802
 msgid ""
@@ -17019,7 +17023,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:847
 msgid "Error: You must specify an action (add|remove|list)"
-msgstr ""
+msgstr "Помилка: вам слід вказати дію (add|remove|list)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:855
 msgid "Name:"
@@ -17031,7 +17035,7 @@ msgstr "Рядок пошуку:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:862
 msgid "Error: You must specify a name and a search string"
-msgstr ""
+msgstr "Помилка: вам слід вказати назву або рядок для пошуку"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:865
 msgid "added"
@@ -17057,6 +17061,9 @@ msgid ""
 "Perform some checks on the filesystem representing a library. Reports are "
 "{0}\n"
 msgstr ""
+"%prog бібліотека_для_перевірки [параметри]\n"
+"\n"
+"Виконати деякі перевірки у файловій системі бібліотеки. Звіти буде {0}\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:892
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1042
@@ -17068,18 +17075,24 @@ msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
 msgstr ""
+"Список звітів, відокремлених комами.\n"
+"Типове значення: всі"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:899
 msgid ""
 "Comma-separated list of extensions to ignore.\n"
 "Default: all"
 msgstr ""
+"Список суфіксів назв, які слід ігнорувати, відокремлений комами.\n"
+"Типове значення: всі"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:903
 msgid ""
 "Comma-separated list of names to ignore.\n"
 "Default: all"
 msgstr ""
+"Список назв, які слід ігнорувати, відокремлений комами.\n"
+"Типове значення: всі"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:933
 msgid "Unknown report check"
@@ -17105,11 +17118,13 @@ msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
+"Виконати відновлення. Команду не буде виконано, якщо не буде вказано цього "
+"параметра."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:994
 #, python-format
 msgid "You must provide the %s option to do a recovery"
-msgstr ""
+msgstr "Для виконання відновлення вам слід вказати параметр %s"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1031
 msgid ""
@@ -17136,10 +17151,13 @@ msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
 msgstr ""
+"Список назв фільтрів категорій, відокремлених комами.\n"
+"Типове значення: all"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1053
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr ""
+"Рядок, який відокремлюватиме поля у режимі CSV. Типовим роздільником є кома."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1091
 msgid "CATEGORY ITEMS"
@@ -17171,7 +17189,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:68
 #, python-format
 msgid "%(tt)sAverage rating is %(rating)3.1f"
-msgstr ""
+msgstr "%(tt)sСередня оцінка — %(rating)3.1f"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3425
 #, python-format
@@ -17209,7 +17227,7 @@ msgstr "Оброблено"
 
 #: /home/kovid/work/calibre/src/calibre/library/restore.py:200
 msgid "creating custom column "
-msgstr ""
+msgstr "створення нетипового стовпчика "
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:32
 msgid "The title"
@@ -17261,7 +17279,7 @@ msgstr "Дата публікації"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
-msgstr ""
+msgstr "Дата, коли метадані цієї книги було востаннє змінено"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
@@ -17376,7 +17394,7 @@ msgstr "Час очікування на дані з сервера у секу�
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:29
 #, python-format
 msgid "The max number of worker threads to use. Default is %default"
-msgstr ""
+msgstr "Максимальна кількість потоків обробки. Типовою є %default"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:31
 msgid "Set a password to restrict access. By default access is unrestricted."
@@ -17390,7 +17408,7 @@ msgstr "Ім’я користувача для доступу. Типовим �
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:37
 #, python-format
 msgid "The maximum size for displayed covers. Default is %default."
-msgstr ""
+msgstr "Максимальний розмір для показаних обкладинок. Типовим є %default."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:39
 msgid ""
@@ -17437,16 +17455,16 @@ msgstr "Перейти до"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "First"
-msgstr ""
+msgstr "Перша"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:106
 msgid "Last"
-msgstr ""
+msgstr "Остання"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:109
 #, python-format
 msgid "Browsing %d books"
-msgstr ""
+msgstr "Перегляд %d книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:126
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:256
@@ -17482,15 +17500,15 @@ msgstr "домівка"
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:387
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:452
 msgid "Browse books by"
-msgstr ""
+msgstr "Переглянути книги за"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:392
 msgid "Choose a category to browse by:"
-msgstr ""
+msgstr "Виберіть категорію для перегляду:"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:522
 msgid "Browsing by"
-msgstr ""
+msgstr "Перегляд за"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:523
 msgid "Up"
@@ -17502,7 +17520,7 @@ msgstr "у"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:656
 msgid "Books in"
-msgstr ""
+msgstr "Книги у"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:745
 msgid "Other formats"
@@ -17523,23 +17541,23 @@ msgstr "Подробиці"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:772
 msgid "Permalink"
-msgstr ""
+msgstr "Стале посилання"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:773
 msgid "A permanent link to this book"
-msgstr ""
+msgstr "Стале посилання на цю книгу"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:785
 msgid "This book has been deleted"
-msgstr ""
+msgstr "Цю книгу було вилучено"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:873
 msgid "in search"
-msgstr ""
+msgstr "у пошуку"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:875
 msgid "Matching books"
-msgstr ""
+msgstr "Встановлення відповідності книг"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/main.py:40
 msgid ""
@@ -17903,7 +17921,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:363
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "switch потребує непарної кількості аргументів"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:376
 msgid ""
@@ -17917,15 +17935,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:386
 msgid "strcat_max requires 2 or more arguments"
-msgstr ""
+msgstr "strcat_max потребує 2 або більшої кількості аргументів"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:388
 msgid "strcat_max requires an even number of arguments"
-msgstr ""
+msgstr "strcat_max потребує парної кількості аргументів"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:392
 msgid "first argument to strcat_max must be an integer"
-msgstr ""
+msgstr "першим аргументом strcat_max має бути ціле число"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:410
 msgid ""
@@ -18109,11 +18127,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:792
 msgid "titlecase(val) -- return value of the field in title case"
-msgstr ""
+msgstr "titlecase(значення) — повернути значення поля великими літерами"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:801
 msgid "capitalize(val) -- return value of the field capitalized"
-msgstr ""
+msgstr "capitalize(значення) — замінити перші літери значення поля великими"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:810
 msgid "booksize() -- return value of the size field"
@@ -18246,7 +18264,7 @@ msgstr "Очікування…"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:54
 msgid "Aborted, taking too long"
-msgstr ""
+msgstr "Перервано, дія є занадто тривалою"
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:56
 msgid "Stopped"
@@ -18454,11 +18472,11 @@ msgstr "вечора"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
-msgstr ""
+msgstr "Вибрати тему (потрібен перезапуск)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:109
 msgid "ERROR: Unhandled exception"
-msgstr ""
+msgstr "Помилка: непридатне до обробки виключення"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:188
 msgid "No interpreter"
@@ -18467,6 +18485,7 @@ msgstr "Немає інтерпретатора"
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:189
 msgid "No active interpreter found. Try restarting the console"
 msgstr ""
+"Не виявлено активного інтерпретатора. Спробуйте перезапустити консоль."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:203
 msgid "Interpreter died"
@@ -18496,11 +18515,11 @@ msgstr "Перезапустити консоль"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"
-msgstr ""
+msgstr "Адресу слід вказувати у форматі sftp"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:57
 msgid "host must be of the form user@hostname"
-msgstr ""
+msgstr "вузол слід вказувати у формі користувач@назва_вузла"
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:68
 msgid "Failed to negotiate SSH session: "
@@ -18509,19 +18528,19 @@ msgstr "Не вдалося узгодити сеанс SSH: "
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:71
 #, python-format
 msgid "Failed to authenticate with server: %s"
-msgstr ""
+msgstr "Не вдалося пройти розпізнавання на сервері: %s"
 
 #: /home/kovid/work/calibre/src/calibre/utils/smtp.py:255
 msgid "Control email delivery"
-msgstr ""
+msgstr "Керування отриманням пошти"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:120
 msgid "Unknown section"
-msgstr ""
+msgstr "Невідомий розділ"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:142
 msgid "Unknown feed"
-msgstr ""
+msgstr "Невідома подача"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:160
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:187
@@ -18530,26 +18549,30 @@ msgstr "Стаття без назви"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:22
 msgid "Download periodical content from the internet"
-msgstr ""
+msgstr "Періодично отримувати дані з інтернету"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:37
 msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
+"Корисно для розробки рецептів. Примусово встановлює для "
+"max_articles_per_feed значення 2 та визначає отримання не більше 2 подач."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:40
 msgid "Username for sites that require a login to access content."
 msgstr ""
+"Ім’я користувача на сайтах, на яких для доступу до даних потрібна реєстрація."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:43
 msgid "Password for sites that require a login to access content."
-msgstr ""
+msgstr "Пароль до сайтів, на яких для доступу до даних потрібна реєстрація."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/input.py:47
 msgid ""
 "Do not download latest version of builtin recipes from the calibre server"
 msgstr ""
+"Не отримувати найсвіжішу версію вбудованих рецептів з сервера calibre"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:48
 msgid "Unknown News Source"
@@ -18558,7 +18581,7 @@ msgstr "Невідоме джерело новин"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:718
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
-msgstr ""
+msgstr "Для роботи з рецептом «%s» потрібне ім’я користувача і пароль."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:825
 msgid "Download finished"
@@ -18566,11 +18589,11 @@ msgstr "Завантаження завершено"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:827
 msgid "Failed to download the following articles:"
-msgstr ""
+msgstr "Не вдалося отримати такі статті:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:833
 msgid "Failed to download parts of the following articles:"
-msgstr ""
+msgstr "Не вдалося отримати частини таких статей:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
 msgid " from "
@@ -18578,19 +18601,20 @@ msgstr " з "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:837
 msgid "\tFailed links:"
-msgstr ""
+msgstr "\tПомилкові посилання:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:939
 msgid "Could not fetch article."
-msgstr ""
+msgstr "Не вдалося отримати статтю."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:941
 msgid "The debug traceback is available earlier in this log"
 msgstr ""
+"Дані діагностичного зворотного трасування наведено у цьому журналі вище"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:943
 msgid "Run with -vv to see the reason"
-msgstr ""
+msgstr "Запустіть з -vv, щоб переглянути повідомлення щодо причини"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:966
 msgid "Fetching feeds..."
@@ -18606,17 +18630,17 @@ msgstr "Пробую завантажити обкладинку…"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:982
 msgid "Generating masthead..."
-msgstr ""
+msgstr "Створення титульної сторінки…"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1062
 #, python-format
 msgid "Starting download [%d thread(s)]..."
-msgstr ""
+msgstr "Розпочато звантаження [%d потоків]…"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1078
 #, python-format
 msgid "Feeds downloaded to %s"
-msgstr ""
+msgstr "Дані подач збережено до %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1087
 #, python-format
@@ -18630,7 +18654,7 @@ msgstr "Отримання обкладинки з %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1142
 msgid "Masthead image downloaded"
-msgstr ""
+msgstr "Отримано зображення титульної сторінки"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1223
 msgid "Articles in this issue: "
@@ -18665,6 +18689,8 @@ msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
+"У вас немає прав на отримання цього випуску. Збіг строк передплати або "
+"перевищено максимальне значення звантажень на сьогодні."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 msgid "You"
@@ -18711,11 +18737,14 @@ msgid ""
 "\n"
 "Where URL is for example http://google.com"
 msgstr ""
+"%prog адреса\n"
+"\n"
+"Приклад адреси: http://google.com"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:483
 #, python-format
 msgid "Base directory into which URL is saved. Default is %default"
-msgstr ""
+msgstr "Базовий каталог, до якого зберігатиметься адреса. Типовим є %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:486
 #, python-format
@@ -18723,6 +18752,8 @@ msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
 msgstr ""
+"Час очікування у секундах на відповідь від сервера. Типове значення: "
+"%default с"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:489
 #, python-format
@@ -18730,6 +18761,8 @@ msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default "
 "%default"
 msgstr ""
+"Максимальна кількість рівнів рекурсії, тобто глибина переходу за "
+"посиланнями. Типовим є значення %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:492
 #, python-format
@@ -18948,7 +18981,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:84
 msgid "Use author sort in Tag Browser"
-msgstr ""
+msgstr "Використовувати впорядковування за автором на панелі перегляду міток"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:85
 msgid ""
@@ -18989,7 +19022,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:108
 msgid "Control partitioning of Tag Browser"
-msgstr ""
+msgstr "Керування поділом на панелі перегляду міток"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:109
 msgid ""
@@ -19022,6 +19055,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:130
 msgid "Specify columns to sort the booklist by on startup"
 msgstr ""
+"Вкажіть стовпчики, які використовуватимуться для впорядковування списку книг "
+"під час запуску"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:131
 msgid ""
@@ -19076,6 +19111,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:174
 msgid "Control sorting of titles and series in the library display"
 msgstr ""
+"Керування впорядковуванням назв та серій на панелі перегляду бібліотеки"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:175
 msgid ""
@@ -19099,7 +19135,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:188
 msgid "Control formatting of title and series when used in templates"
-msgstr ""
+msgstr "Керування форматування назв та серій під час використання у шаблонах"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:189
 msgid ""
@@ -19121,6 +19157,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:201
 msgid "Set the list of words considered to be \"articles\" for sort strings"
 msgstr ""
+"Вкажіть список слів, які вважатимуться артиклями під час впорядковування "
+"рядків"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:202
 msgid ""
@@ -19144,6 +19182,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:253
 msgid "Specify a folder calibre should connect to at startup"
 msgstr ""
+"Вкажіть теку, з якою calibre має встановлювати з’єднання під час запуску"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:254
 msgid ""
@@ -19160,7 +19199,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:263
 msgid "Specify renaming rules for SONY collections"
-msgstr ""
+msgstr "Вкажіть правила перейменування для збірок SONY"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:264
 msgid ""
@@ -19235,7 +19274,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:316
 msgid "Specify how SONY collections are sorted"
-msgstr ""
+msgstr "Вкажіть спосіб впорядковування збірок SONY"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:317
 msgid ""
@@ -19267,6 +19306,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:334
 msgid "Control how tags are applied when copying books to another library"
 msgstr ""
+"Керувати способом, у який застосовуватимуться мітки під час копіювання книг "
+"до іншої бібліотеки"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:335
 msgid ""
@@ -19277,11 +19318,15 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:339
 msgid "Set the maximum number of tags to show per book in the content server"
 msgstr ""
+"Встановіть максимальну кількість міток, які буде показано для запису книги, "
+"на сервері даних"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:342
 msgid ""
 "Set custom metadata fields that the content server will or will not display."
 msgstr ""
+"Встановіть нетипові поля метаданих, які сервер даних буде або не буде "
+"показувати."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:343
 msgid ""
@@ -19304,7 +19349,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:360
 msgid "Set the maximum number of sort 'levels'"
-msgstr ""
+msgstr "Встановіть максимальну кількість рівнів впорядковування"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:361
 msgid ""
@@ -19320,7 +19365,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:368
 msgid "Choose whether dates are sorted using visible fields"
-msgstr ""
+msgstr "Визначтеся, чи буде впорядковано дати на основі видимих полів"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:369
 msgid ""
@@ -19332,6 +19377,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:374
 msgid "Specify which font to use when generating a default cover"
 msgstr ""
+"Вкажіть шрифт, яким слід скористатися для створення типової обкладинки"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:375
 msgid ""
@@ -19343,7 +19389,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid "Control behavior of the book list"
-msgstr ""
+msgstr "Керування роботою списку книг"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:382
 msgid ""
@@ -19359,7 +19405,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:393
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Мова, яку слід використовувати для впорядковування."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:394
 msgid ""
@@ -19378,6 +19424,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:405
 msgid "Number of columns for custom metadata in the edit metadata dialog"
 msgstr ""
+"Кількість стовпчиків для нетипових метаданих у вікні редагування метаданих"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:406
 msgid ""
@@ -19389,7 +19436,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:411
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "Проміжок очікування перед надсиланням повідомлень у секундах"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:412
 msgid ""
@@ -19402,7 +19449,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:419
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "Вилучати світло-жовті лінії на краях списку книг"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:420
 msgid ""
@@ -19425,7 +19472,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:431
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "Куди надсилати отримані новини"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:432
 msgid ""
@@ -19439,7 +19486,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:439
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "На яких інтерфейсах сервер даних має очікувати на дані"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:440
 msgid ""
@@ -19454,7 +19501,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:447
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Уніфікована панель інструментів у OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:448
 msgid ""

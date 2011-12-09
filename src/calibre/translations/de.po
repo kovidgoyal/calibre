@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-02 08:51+0000\n"
-"PO-Revision-Date: 2011-11-29 20:34+0000\n"
+"PO-Revision-Date: 2011-12-08 13:19+0000\n"
 "Last-Translator: Ralph Kugler <ralph.kugler@r-kugler.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-03 04:57+0000\n"
-"X-Generator: Launchpad (build 14418)\n"
+"X-Launchpad-Export-Date: 2011-12-09 04:44+0000\n"
+"X-Generator: Launchpad (build 14450)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1294,7 +1294,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Verbinde mit dem Blackberry Playbook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1408,7 +1408,7 @@ msgstr "Kommunikation mit dem Elonex EB 511 E-Book-Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:170
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Verbinde mit dem Cybook Odyssey eBook Leser"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1529,7 +1529,7 @@ msgstr "Kommunikation mit dem Kindle DX E-Book-Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:383
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Verbinde mit dem Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -7777,6 +7777,7 @@ msgstr "Tabellen &linearisieren"
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:166
 msgid "Select what style information you want completely removed:"
 msgstr ""
+"Wählen Sie aus, welche Style Vorlagen Sie komplett entfernen möchten:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:171
 msgid "Removes the font-family CSS property"
@@ -7784,7 +7785,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
-msgstr ""
+msgstr "&Schriftarten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:176
 msgid ""
@@ -7814,7 +7815,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
-msgstr ""
+msgstr "Entfernt Vorder- und Hintergrundfarben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:192
 msgid "&Colors"
@@ -7822,21 +7823,23 @@ msgstr "&Farben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
-msgstr ""
+msgstr "&Andere CSS Eigenschaften"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:202
 msgid ""
 "Comma separated list of CSS properties to remove. For example: display, "
 "color, font-family"
 msgstr ""
+"Eine  durch Komma getrennte Liste der CSS Eigenschaften, die entfernt werden "
+"sollen. Beispiel: display(Anzeigen), color (Farbe), font-family(Schriftart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
-msgstr ""
+msgstr "&Extra CSS"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:228
 msgid "&Filter Style Information"
-msgstr ""
+msgstr "&Filter Stil-Informationen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output.py:19
 msgid "LRF Output"
