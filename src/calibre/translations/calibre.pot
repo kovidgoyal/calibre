@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.30\n"
-"POT-Creation-Date: 2011-12-09 08:05+IST\n"
-"PO-Revision-Date: 2011-12-09 08:05+IST\n"
+"POT-Creation-Date: 2011-12-10 09:46+IST\n"
+"PO-Revision-Date: 2011-12-10 09:46+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -24,8 +24,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:108
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:119
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:278
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:279
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:282
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:283
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:99
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -46,8 +46,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:140
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:102
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:334
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:337
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:338
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:341
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1898
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1900
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/output.py:24
@@ -889,15 +889,15 @@ msgstr ""
 msgid "Communicate with Android phones."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:149
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:152
 msgid "Comma separated list of directories to send e-books to on the device. The first one that exists will be used"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:218
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:222
 msgid "Communicate with S60 phones."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:237
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:241
 msgid "Communicate with WebOS tablets."
 msgstr ""
 
@@ -2403,16 +2403,16 @@ msgstr ""
 msgid "for a complete list with descriptions."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:250
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:254
 msgid "Traverse links in HTML files breadth first. Normally, they are traversed depth first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:257
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:261
 #, python-format
 msgid "Maximum levels of recursion when following links in HTML files. Must be non-negative. 0 implies that no links in the root HTML file are followed. Default is %default."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:266
+#: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:270
 msgid "Normally this input plugin re-arranges all the input files into a standard folder hierarchy. Only use this option if you know what you are doing as it can result in various nasty side effects in the rest of of the conversion pipeline."
 msgstr ""
 
@@ -4847,7 +4847,7 @@ msgid "Search for this %s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:35
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:110
 msgid "Stores"
 msgstr ""
@@ -5166,8 +5166,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:80
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:79
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:133
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:139
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:35
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:75
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:191
 msgid "..."
@@ -5187,6 +5187,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:31
 msgid "Donate"
 msgstr ""
 
@@ -6556,7 +6557,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:64
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:129
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:78
 msgid "0"
 msgstr ""
@@ -8449,7 +8450,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:82
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:111
 msgid "All"
 msgstr ""
@@ -8777,7 +8778,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:288
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:80
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:76
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:679
@@ -10055,7 +10056,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:78
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts_ui.py:83
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:83
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:367
 msgid "None"
@@ -12819,6 +12820,10 @@ msgstr ""
 msgid "&Program Code: (be sure to follow python indenting rules)"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:35
+msgid "Location Manager"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
 msgstr ""
@@ -13138,7 +13143,7 @@ msgid "Nam&e/Description ..."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:78
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:31
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:108
 msgid "Query:"
 msgstr ""
@@ -13148,7 +13153,7 @@ msgid "Enable"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_widget_ui.py:84
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:77
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:112
 msgid "Invert"
 msgstr ""
@@ -13281,13 +13286,13 @@ msgid "Search:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:63
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:77
 msgid "Books:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:65
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:135
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:114
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/mobileread/store_dialog_ui.py:79
 #: /home/kovid/work/calibre/src/calibre/gui2/store/web_store_dialog_ui.py:63
@@ -13371,16 +13376,16 @@ msgstr ""
 msgid "Choose format to download to your library."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:107
 msgid "Get Books"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:114
 msgid "Open a selected book in the system's web browser"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:115
 msgid "Open in &external browser"
 msgstr ""
 
