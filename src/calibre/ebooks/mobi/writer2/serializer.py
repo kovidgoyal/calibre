@@ -178,7 +178,11 @@ class Serializer(object):
         at the end.
         '''
         hrefs = self.oeb.manifest.hrefs
-        path, frag = urldefrag(urlnormalize(href))
+        try:
+            path, frag = urldefrag(urlnormalize(href))
+        except ValueError:
+            # Unparseable URL
+            return False
         if path and base:
             path = base.abshref(path)
         if path and path not in hrefs:
