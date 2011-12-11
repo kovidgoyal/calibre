@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-10 04:27+0000\n"
-"PO-Revision-Date: 2011-12-08 18:57+0000\n"
-"Last-Translator: koliberek <Unknown>\n"
+"PO-Revision-Date: 2011-12-10 14:29+0000\n"
+"Last-Translator: Marcin Ostajewski (panszpik) <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-12-10 04:48+0000\n"
+"X-Launchpad-Export-Date: 2011-12-11 05:28+0000\n"
 "X-Generator: Launchpad (build 14450)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -217,7 +217,7 @@ msgstr "Dostosuj"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:57
 msgid "Cannot configure"
-msgstr "Nie można skonfigurować"
+msgstr "Nie można konfigurować"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
@@ -5397,7 +5397,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:389
 msgid "Starting library scan, this may take a while"
-msgstr ""
+msgstr "Skanowanie biblioteki, to może chwilę potrwać"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:395
 msgid "No problems found"
@@ -7184,7 +7184,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:61
 msgid "None of the selected books have saved conversion settings."
-msgstr ""
+msgstr "Żadna z zaznaczonych książek nie ma zapisanych ustawień konwersji."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:81
 msgid "Bulk Convert"
@@ -15643,7 +15643,7 @@ msgstr "Kod &programu: (stosuj reguły wcięć z pythona)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:35
 msgid "Location Manager"
-msgstr ""
+msgstr "Menedżer miejsc"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
@@ -17307,6 +17307,8 @@ msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
 msgstr ""
+"Miejsce w którym wskazana książka ma być otwarta. Jest to pozycja widoczna w "
+"górnym lewym rogu przeglądarki."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:822
 msgid ""
@@ -20448,11 +20450,11 @@ msgstr "angielski (Australia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Japan)"
-msgstr ""
+msgstr "Angielski (Japonia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (Germany)"
-msgstr ""
+msgstr "Angielski (Niemcy)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Bulgaria)"

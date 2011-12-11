@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-10 04:27+0000\n"
-"PO-Revision-Date: 2011-12-09 16:07+0000\n"
+"PO-Revision-Date: 2011-12-10 17:34+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-10 04:38+0000\n"
+"X-Launchpad-Export-Date: 2011-12-11 05:19+0000\n"
 "X-Generator: Launchpad (build 14450)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -15800,7 +15800,7 @@ msgstr "Codi de &programa: (cal seguir les regles de sagnat de python)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:35
 msgid "Location Manager"
-msgstr ""
+msgstr "Gestor d'ubicacions"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
