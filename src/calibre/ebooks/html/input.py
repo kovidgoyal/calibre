@@ -18,7 +18,7 @@ from functools import partial
 from itertools import izip
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import islinux, isbsd, iswindows
 from calibre import unicode_path, as_unicode
@@ -121,7 +121,7 @@ class HTMLFile(object):
 
         if not self.is_binary:
             if not encoding:
-                encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
+                encoding = detect_xml_encoding(src[:4096], verbose=verbose)[1]
                 self.encoding = encoding
             else:
                 self.encoding = encoding
@@ -148,7 +148,11 @@ class HTMLFile(object):
                 url = match.group(i)
                 if url:
                     break
-            link = self.resolve(url)
+            try:
+                link = self.resolve(url)
+            except ValueError:
+                # Unparseable URL, ignore
+                continue
             if link not in self.links:
                 self.links.append(link)
 

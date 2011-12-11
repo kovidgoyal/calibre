@@ -18,7 +18,8 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.zipfile import safe_replace
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import Log
-from calibre import guess_type, prints, prepare_string_for_xml
+from calibre import (guess_type, prints, prepare_string_for_xml,
+        xml_replace_entities)
 from calibre.ebooks.oeb.transforms.cover import CoverManager
 from calibre.constants import filesystem_encoding
 
@@ -96,13 +97,19 @@ class EbookIterator(object):
         self.ebook_ext = ext.replace('original_', '')
 
     def search(self, text, index, backwards=False):
-        text = text.lower()
+        text = prepare_string_for_xml(text.lower())
         pmap = [(i, path) for i, path in enumerate(self.spine)]
         if backwards:
             pmap.reverse()
         for i, path in pmap:
             if (backwards and i < index) or (not backwards and i > index):
-                if text in open(path, 'rb').read().decode(path.encoding).lower():
+                with open(path, 'rb') as f:
+                    raw = f.read().decode(path.encoding)
+                try:
+                    raw = xml_replace_entities(raw)
+                except:
+                    pass
+                if text in raw.lower():
                     return i
 
     def find_missing_css_files(self):

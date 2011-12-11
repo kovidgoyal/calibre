@@ -5,8 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, itertools, operator
 from functools import partial
+from future_builtins import map
 
 from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal,
     QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication,
@@ -793,8 +794,13 @@ class BooksView(QTableView): # {{{
         sel = QItemSelection()
         m = self.model()
         max_col = m.columnCount(QModelIndex()) - 1
-        for row in rows:
-            sel.select(m.index(row, 0), m.index(row, max_col))
+        # Create a range based selector for each set of contiguous rows
+        # as supplying selectors for each individual row causes very poor
+        # performance if a large number of rows has to be selected.
+        for k, g in itertools.groupby(enumerate(rows), lambda (i,x):i-x):
+            group = list(map(operator.itemgetter(1), g))
+            sel.merge(QItemSelection(m.index(min(group), 0),
+                m.index(max(group), max_col)), sm.Select)
         sm.select(sel, sm.ClearAndSelect)
 
     def get_selected_ids(self):

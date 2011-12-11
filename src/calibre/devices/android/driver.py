@@ -143,6 +143,9 @@ class ANDROID(USBMS):
             # Kobo
             0x2237: { 0x2208 : [0x0226] },
 
+            # Lenovo
+            0x17ef : { 0x7421 : [0x0216] },
+
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
             'sdcard/ebooks']
@@ -155,7 +158,7 @@ class ANDROID(USBMS):
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
             'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON',
-            'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC']
+            'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -167,12 +170,13 @@ class ANDROID(USBMS):
             'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
             'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
             'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI',
-            'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD']
+            'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
             '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
-            'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853']
+            'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853',
+            'A1-07___C0541A4F']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

@@ -17,6 +17,10 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
 
+# If the specified screen has either dimension larger than this value, no image
+# rescaling is done (we assume that it is a tablet output profile)
+MAX_SCREEN_SIZE = 3000
+
 def extract_comic(path_to_comic_file):
     '''
     Un-archive the comic file.
@@ -141,7 +145,7 @@ class PageProcessor(list): # {{{
                     newsizey = int(newsizex / aspect)
                     deltax = 0
                     deltay = (SCRHEIGHT - newsizey) / 2
-                if newsizex < 20000 and newsizey < 20000:
+                if newsizex < MAX_SCREEN_SIZE and newsizey < MAX_SCREEN_SIZE:
                     # Too large and resizing fails, so better
                     # to leave it as original size
                     wand.size = (newsizex, newsizey)
@@ -165,14 +169,14 @@ class PageProcessor(list): # {{{
                     newsizey = int(newsizex / aspect)
                     deltax = 0
                     deltay = (wscreeny - newsizey) / 2
-                if newsizex < 20000 and newsizey < 20000:
+                if newsizex < MAX_SCREEN_SIZE and newsizey < MAX_SCREEN_SIZE:
                     # Too large and resizing fails, so better
                     # to leave it as original size
                     wand.size = (newsizex, newsizey)
                     wand.set_border_color(pw)
                     wand.add_border(pw, deltax, deltay)
             else:
-                if SCRWIDTH < 20000 and SCRHEIGHT < 20000:
+                if SCRWIDTH < MAX_SCREEN_SIZE and SCRHEIGHT < MAX_SCREEN_SIZE:
                     wand.size = (SCRWIDTH, SCRHEIGHT)
 
             if not self.opts.dont_sharpen:
