@@ -545,7 +545,8 @@ class Scheduler(QObject):
             if not self.internet_connection_failed:
                 self.internet_connection_failed = True
                 if self._parent.is_minimized_to_tray:
-                    self._parent.status_bar.show_message(self.no_internet_msg, 5000)
+                    self._parent.status_bar.show_message(self.no_internet_msg,
+                            5000)
                 elif not self.no_internet_dialog.isVisible():
                     self.no_internet_dialog.show()
             return False
@@ -567,7 +568,9 @@ class Scheduler(QObject):
     def check(self):
         recipes = self.recipe_model.get_to_be_downloaded_recipes()
         for urn in recipes:
-            self.download(urn)
+            if not self.download(urn):
+                # No internet connection, we will try again in a minute
+                break
 
 if __name__ == '__main__':
     from calibre.gui2 import is_ok_to_use_qt
