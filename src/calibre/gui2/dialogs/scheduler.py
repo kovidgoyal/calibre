@@ -419,6 +419,13 @@ class Scheduler(QObject):
         QObject.__init__(self, parent)
         self.internet_connection_failed = False
         self._parent = parent
+        self.no_internet_msg = _('Cannot download news as no internet connection '
+                'is active')
+        self.no_internet_dialog = d = error_dialog(self._parent,
+                self.no_internet_msg, _('No internet connection'),
+                show_copy_button=False)
+        d.setModal(False)
+
         self.recipe_model = RecipeModel()
         self.db = db
         self.lock = QMutex(QMutex.Recursive)
@@ -523,7 +530,6 @@ class Scheduler(QObject):
         finally:
             self.lock.unlock()
 
-
     def download_clicked(self, urn):
         if urn is not None:
             return self.download(urn)
@@ -534,18 +540,24 @@ class Scheduler(QObject):
     def download_all_scheduled(self):
         self.download_clicked(None)
 
-    def download(self, urn):
-        self.lock.lock()
+    def has_internet_connection(self):
         if not internet_connected():
             if not self.internet_connection_failed:
                 self.internet_connection_failed = True
-                d = error_dialog(self._parent, _('No internet connection'),
-                        _('Cannot download news as no internet connection '
-                            'is active'))
-                d.setModal(False)
-                d.show()
+                if self._parent.is_minimized_to_tray:
+                    self._parent.status_bar.show_message(self.no_internet_msg, 5000)
+                elif not self.no_internet_dialog.isVisible():
+                    self.no_internet_dialog.show()
             return False
         self.internet_connection_failed = False
+        if self.no_internet_dialog.isVisible():
+            self.no_internet_dialog.hide()
+        return True
+
+    def download(self, urn):
+        self.lock.lock()
+        if not self.has_internet_connection():
+            return False
         doit = urn not in self.download_queue
         self.lock.unlock()
         if doit:

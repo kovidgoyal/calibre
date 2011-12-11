@@ -723,10 +723,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.write_settings()
         if self.system_tray_icon.isVisible():
             if not dynamic['systray_msg'] and not isosx:
-                info_dialog(self, 'calibre', 'calibre '+\
+                info_dialog(self, 'calibre', 'calibre '+ \
                         _('will keep running in the system tray. To close it, '
                         'choose <b>Quit</b> in the context menu of the '
-                        'system tray.')).exec_()
+                        'system tray.'), show_copy_button=False).exec_()
                 dynamic['systray_msg'] = True
             self.hide_windows()
             e.ignore()
