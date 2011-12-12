@@ -154,7 +154,11 @@ class Split(object):
 
     def rewrite_links(self, url):
         href, frag = urldefrag(url)
-        href = self.current_item.abshref(href)
+        try:
+            href = self.current_item.abshref(href)
+        except ValueError:
+            # Unparseable URL
+            return url
         if href in self.map:
             anchor_map = self.map[href]
             nhref = anchor_map[frag if frag else None]

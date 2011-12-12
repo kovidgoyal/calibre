@@ -451,6 +451,10 @@ class CatalogPlugin(Plugin): # {{{
                            'series_index','series','size','tags','timestamp',
                            'title_sort','title','uuid','languages'])
         all_custom_fields = set(db.custom_field_keys())
+        for field in list(all_custom_fields):
+            fm = db.field_metadata[field]
+            if fm['datatype'] == 'series':
+                all_custom_fields.add(field+'_index')
         all_fields = all_std_fields.union(all_custom_fields)
 
         if opts.fields != 'all':

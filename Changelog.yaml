@@ -19,6 +19,66 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.30
+  date: 2011-12-09
+
+  new features:
+    - title: "Get Books: Add amazon.es and amazon.it"
+
+    - title: "Bulk convert dialog: Disable the Use saved conversion settings checkbox when none of the books being converted has saved conversion settings"
+
+    - title: "ebook-viewer: And a command line switch to specify the position at which the file should be opened."
+      tickets: [899325]
+
+    - title: "Distribute calibre source code compressed with xz instead of gzip for a 40% reduction in size"
+
+  bug fixes:
+    - title: "Get Books: Fix ebooks.com and amazon.fr. Fix cover display in Diesel ebooks store."
+
+    - title: "HTML Input: Fix regression that broke processing of a small fraction of HTML files encoded in a multi-byte character encoding."
+      tickets: [899691]
+
+    - title: "Greatly reduce the delay at the end of a bulk metadata edit operation that operates on a very large number (thousands) of books"
+
+    - title: "Template language: Fix the subitems formatter function to split only when the period is surrounded by non-white space and not another period"
+
+    - title: "Fix ampersands in titles not displaying in the Cover Browser"
+
+    - title: "MOBI Output: Do not ignore an empty anchor at the end of a block element."
+
+    - title: "MOBI Output: Handle links to inline anchors placed inside large blocks of text correctly, i.e. the link should not point to the start of the block."
+      tickets: [899831]
+
+    - title: "E-book viewer: Fix searching for text that is represented as entities in the underlying HTML."
+      tickets: [899573]
+
+    - title: "Have the Esc shortcut perform exactly the same set of actions as clicking the clear button."
+      tickets: [900048]
+
+    - title: "Prevent the adding books dialog from becoming too wide"
+
+    - title: "Fix custom column editing not behaving correctly with the Previous button in the edit metadata dialog."
+      tickets: [899836]
+
+    - title: "T1 driver. More fixes to datetime handling to try to convince the T1's buggy firmware to not rescan metadata."
+      tickets: [899514]
+
+    - title: "Only allow searching via non accented author names if the user interface language in calibre is set to English."
+      tickets: [899227]
+
+  improved recipes:
+    - Die Zeit subscription
+    - Metro UK
+    - suedeutsche.de
+
+  new recipes:
+    - title: Blues News 
+      author: Oskar Kunicki
+
+    - title: "TVXS"
+      author: Hargikas
+
+
 - version: 0.8.29
   date: 2011-12-02
 

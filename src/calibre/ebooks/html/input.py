@@ -148,7 +148,11 @@ class HTMLFile(object):
                 url = match.group(i)
                 if url:
                     break
-            link = self.resolve(url)
+            try:
+                link = self.resolve(url)
+            except ValueError:
+                # Unparseable URL, ignore
+                continue
             if link not in self.links:
                 self.links.append(link)
 
