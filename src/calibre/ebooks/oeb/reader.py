@@ -371,8 +371,15 @@ class OEBReader(object):
             else :
                 description = None
 
+            index_image = xpath(child,
+                    'descendant::calibre:meta[@name = "toc_thumbnail"]')
+            toc_thumbnail = (index_image[0].text if index_image else None)
+            if not toc_thumbnail or not toc_thumbnail.strip():
+                toc_thumbnail = None
+
             node = toc.add(title, href, id=id, klass=klass,
-                    play_order=po, description=description, author=author)
+                    play_order=po, description=description, author=author,
+                           toc_thumbnail=toc_thumbnail)
 
             self._toc_from_navpoint(item, node, child)
 

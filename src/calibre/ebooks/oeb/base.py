@@ -1629,9 +1629,10 @@ class TOC(object):
     :attr:`id`: Option unique identifier for this node.
     :attr:`author`: Optional author attribution for periodicals <mbp:>
     :attr:`description`: Optional description attribute for periodicals <mbp:>
+    :attr:`toc_thumbnail`: Optional toc thumbnail image
     """
     def __init__(self, title=None, href=None, klass=None, id=None,
-            play_order=None, author=None, description=None):
+            play_order=None, author=None, description=None, toc_thumbnail=None):
         self.title = title
         self.href = urlnormalize(href) if href else href
         self.klass = klass
@@ -1643,10 +1644,11 @@ class TOC(object):
         self.play_order = play_order
         self.author = author
         self.description = description
+        self.toc_thumbnail = toc_thumbnail
 
-    def add(self, title, href, klass=None, id=None, play_order=0, author=None, description=None):
+    def add(self, title, href, klass=None, id=None, play_order=0, author=None, description=None, toc_thumbnail=None):
         """Create and return a new sub-node of this node."""
-        node = TOC(title, href, klass, id, play_order, author, description)
+        node = TOC(title, href, klass, id, play_order, author, description, toc_thumbnail)
         self.nodes.append(node)
         return node
 
