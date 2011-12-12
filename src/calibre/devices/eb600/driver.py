@@ -173,8 +173,9 @@ class INVESBOOK(EB600):
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'html', 'pdf', 'rtf', 'txt']
     BCD         = [0x110, 0x323]
 
-    VENDOR_NAME = ['INVES_E6', 'INVES-WI']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['00INVES_E600', 'INVES-WIBOOK']
+    VENDOR_NAME = ['INVES_E6', 'INVES-WI', 'POCKETBO']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['00INVES_E600', 'INVES-WIBOOK',
+            'OK_POCKET_611_61']
 
 class BOOQ(EB600):
     name = 'Booq Device Interface'
