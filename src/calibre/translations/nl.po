@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-10 04:27+0000\n"
-"PO-Revision-Date: 2011-12-08 13:26+0000\n"
-"Last-Translator: drMerry <Unknown>\n"
+"PO-Revision-Date: 2011-12-11 09:30+0000\n"
+"Last-Translator: Redmar <redmar@ubuntu-nl.org>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-11 05:20+0000\n"
-"X-Generator: Launchpad (build 14450)\n"
+"X-Launchpad-Export-Date: 2011-12-12 05:16+0000\n"
+"X-Generator: Launchpad (build 14458)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -4878,7 +4878,7 @@ msgstr "Opties voor LRF-ebookweergave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:136
 msgid "Formats that are viewed using the internal viewer"
-msgstr "Formaten die met de interne viewer worden bekeken"
+msgstr "Formaten die met het interne-leesvenster worden bekeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
 msgid "Columns to be displayed in the book list"
@@ -5500,7 +5500,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:389
 msgid "Starting library scan, this may take a while"
-msgstr ""
+msgstr "Bibliotheek aan het scannen, dit kan even duren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:395
 msgid "No problems found"
@@ -7293,6 +7293,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:61
 msgid "None of the selected books have saved conversion settings."
 msgstr ""
+"Geen van de geselecteerde boeken hebben bijbehorende conversie-instellingen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/bulk.py:81
 msgid "Bulk Convert"
@@ -15772,7 +15773,7 @@ msgstr "&Programmacode: (zorg dat u de identatie-regels van python gebruikt)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:35
 msgid "Location Manager"
-msgstr ""
+msgstr "Locatiebeheer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
@@ -17442,6 +17443,8 @@ msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
 msgstr ""
+"De positie waarop het geselecteerde boek geopend moet worden. De positie is "
+"een locatie zoals weergeven in de linker bovenhoek van het leesvenster."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:822
 msgid ""
@@ -20593,11 +20596,11 @@ msgstr "Engels (Australië)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Japan)"
-msgstr ""
+msgstr "Engels (Japan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (Germany)"
-msgstr ""
+msgstr "Engels (Duitsland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Bulgaria)"
