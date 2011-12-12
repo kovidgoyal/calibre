@@ -409,7 +409,7 @@ locale_for_sorting =  ''
 # columns. If False, one column is used.
 metadata_single_use_2_cols_for_custom_fields = True
 
-#: Order of custom columns in column(s) in edit metadata
+#: Order of custom column(s) in edit metadata
 # Controls the order that custom columns are listed in edit metadata single
 # and bulk. The columns listed in the tweak are displayed first and in the
 # order provided. Any columns not listed are dislayed after the listed ones,
