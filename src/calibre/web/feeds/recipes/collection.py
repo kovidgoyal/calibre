@@ -79,7 +79,12 @@ def serialize_builtin_recipes():
     from calibre.web.feeds.recipes import compile_recipe
     recipe_mapping = {}
     for rid, f in iterate_over_builtin_recipe_files():
-        recipe_class = compile_recipe(open(f, 'rb').read())
+        with open(f, 'rb') as stream:
+            try:
+                recipe_class = compile_recipe(stream.read())
+            except:
+                print ('Failed to compile: %s'%f)
+                raise
         if recipe_class is not None:
             recipe_mapping['builtin:'+rid] = recipe_class
 
