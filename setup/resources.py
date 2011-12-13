@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob
+import os, cPickle, re, shutil, marshal, zipfile, glob, subprocess, time
 from zlib import compress
 
 from setup import Command, basenames, __appname__
@@ -23,7 +23,46 @@ def get_opts_from_parser(parser):
         for o in g.option_list:
             for x in do_opt(o): yield x
 
-class Kakasi(Command):
+class Coffee(Command): # {{{
+
+    description = 'Compile coffeescript files into javascript'
+    COFFEE_DIRS = {'ebooks/oeb/display': 'display'}
+
+    def add_options(self, parser):
+        parser.add_option('--watch', '-w', action='store_true', default=False,
+                help='Autocompile when .coffee files are changed')
+
+    def run(self, opts):
+        self.do_coffee_compile()
+        if opts.watch:
+            try:
+                while True:
+                    time.sleep(1)
+                    self.do_coffee_compile(timestamp=True)
+            except KeyboardInterrupt:
+                pass
+
+    def do_coffee_compile(self, timestamp=False):
+        for toplevel, dest in self.COFFEE_DIRS.iteritems():
+            dest = self.j(self.RESOURCES, dest)
+            for x in glob.glob(self.j(self.SRC, __appname__, toplevel, '*.coffee')):
+                js = self.j(dest, os.path.basename(x.rpartition('.')[0]+'.js'))
+                if self.newer(js, x):
+                    print ('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
+                        timestamp else '', os.path.basename(x)))
+                    subprocess.check_call(['coffee', '-c', '-o', dest, x])
+
+    def clean(self):
+        for toplevel, dest in self.COFFEE_DIRS.iteritems():
+            dest = self.j(self.RESOURCES, dest)
+            for x in glob.glob(self.j(self.SRC, __appname__, toplevel, '*.coffee')):
+                x = x.rpartition('.')[0] + '.js'
+                x = self.j(dest, os.path.basename(x))
+                if os.path.exists(x):
+                    os.remove(x)
+# }}}
+
+class Kakasi(Command): # {{{
 
     description = 'Compile resources for unihandecode'
 
@@ -61,9 +100,6 @@ class Kakasi(Command):
         if self.newer(dest, src):
             self.info('\tGenerating kanadict')
             self.mkkanadict(src, dest)
-
-        return
-
 
     def mkitaiji(self, src, dst):
         dic = {}
@@ -125,11 +161,12 @@ class Kakasi(Command):
         kakasi = self.j(self.RESOURCES, 'localization', 'pykakasi')
         if os.path.exists(kakasi):
             shutil.rmtree(kakasi)
+# }}}
 
-class Resources(Command):
+class Resources(Command): # {{{
 
     description = 'Compile various needed calibre resources'
-    sub_commands = ['kakasi']
+    sub_commands = ['kakasi', 'coffee']
 
     def run(self, opts):
         scripts = {}
@@ -223,13 +260,13 @@ class Resources(Command):
             x = self.j(self.RESOURCES, x+'.pickle')
             if os.path.exists(x):
                 os.remove(x)
-        from setup.commands import kakasi
+        from setup.commands import kakasi, coffee
         kakasi.clean()
+        coffee.clean()
         for x in ('builtin_recipes.xml', 'builtin_recipes.zip',
                 'template-functions.json'):
             x = self.j(self.RESOURCES, x)
             if os.path.exists(x):
                 os.remove(x)
-
-
+# }}}
 
