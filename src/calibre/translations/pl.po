@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-10 04:27+0000\n"
-"PO-Revision-Date: 2011-12-10 14:29+0000\n"
-"Last-Translator: Marcin Ostajewski (panszpik) <Unknown>\n"
+"PO-Revision-Date: 2011-12-12 20:27+0000\n"
+"Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-12-11 05:28+0000\n"
-"X-Generator: Launchpad (build 14450)\n"
+"X-Launchpad-Export-Date: 2011-12-13 04:53+0000\n"
+"X-Generator: Launchpad (build 14458)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -347,7 +347,7 @@ msgstr "Generuj katalog książek w bieżącej bibliotece"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:744
 msgid "Convert books to various ebook formats"
-msgstr "Konwertuj książki do różnych formatów"
+msgstr "Konwertuj książki na różne formaty"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:749
 msgid "Delete books from your calibre library or connected device"
@@ -1081,7 +1081,7 @@ msgid ""
 "desktop, then add to calibre's Library window."
 msgstr ""
 "Nie można skopiować książek bezpośrednio z iUrządzenia. Przeciągnij z "
-"Biblioteki iTunes na Pulpit, a następnie dodaj do Biblioteki Calibre"
+"Biblioteki iTunes na Pulpit, a następnie dodaj do biblioteki calibre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:371
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:374
@@ -1165,7 +1165,7 @@ msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr "Adres IP urządzenia (ponownie uruchom Calibre po zmianie tej opcji)"
+msgstr "Adres IP urządzenia (ponownie uruchom calibre po zmianie tej opcji)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:48
 msgid ""
@@ -1807,9 +1807,9 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
-"Ustawienie tej opcji pozwoli Calibre na szukanie książek we wszystkich "
-"folderach na urządzeniu i jego karcie pamięci. Pozwala to Calibre znaleźć "
-"książki wprowadzone do urządzenia przez inne oprogramowanie oraz pobrane "
+"Ustawienie tej opcji pozwoli calibre na szukanie książek we wszystkich "
+"folderach na urządzeniu i jego karcie pamięci. Pozwala to znaleźć książki "
+"wprowadzone do urządzenia przez inne oprogramowanie oraz pobrane "
 "bezprzewodowo."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
@@ -4944,7 +4944,7 @@ msgstr "Dodaj książki"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books to the calibre library/device from files on your computer"
 msgstr ""
-"Dodaj książki do biblioteki Calibre/urządzenia z plików na komputerze"
+"Dodaj książki do biblioteki calibre/urządzenia z plików na komputerze"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:48
 msgid "A"
@@ -5001,7 +5001,7 @@ msgstr "Shift+A"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:260
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:91
 msgid "No books selected"
-msgstr "Nie wybrano ksiązek"
+msgstr "Nie wybrano książek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:87
 msgid "Cannot add files as no books are selected"
@@ -5056,7 +5056,7 @@ msgid ""
 "settings:"
 msgstr ""
 "Znaleziono następujące zduplikowane książki oraz następujące formaty książek "
-"zostały przetworzone i dołączone do bazy danych Calibre zgodnie z twoimi "
+"zostały przetworzone i dołączone do bazy danych calibre zgodnie z twoimi "
 "ustawieniami auto-dołączania:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:342
@@ -5082,7 +5082,7 @@ msgstr "Dodaj do biblioteki"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:183
 msgid "No book selected"
-msgstr "Nie wybrano ksiązki"
+msgstr "Nie wybrano żadnej książki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:382
 msgid ""
@@ -5100,7 +5100,7 @@ msgstr "Dodaj książki do biblioteki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add_to_library.py:14
 msgid "Add books to your calibre library from the connected device"
-msgstr "Dodaj do biblioteki Calibre książki z podłączonego urządzenia"
+msgstr "Dodaj do biblioteki calibre książki z podłączonego urządzenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:26
 msgid "Merging user annotations into database"
@@ -5160,7 +5160,7 @@ msgstr "Generowanie katalogu %s..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:85
 msgid "Catalog generated."
-msgstr "Katalog wygenerowany."
+msgstr "Katalog został wygenerowany."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:88
 msgid "Export Catalog Directory"
@@ -6632,7 +6632,7 @@ msgstr "Kliknij, aby otworzyć"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:136
 msgid "Ids"
-msgstr "Ids"
+msgstr "Identyfikatory"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:174
 #, python-format
@@ -10376,7 +10376,7 @@ msgstr "Status"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Available"
-msgstr "Dostepny"
+msgstr "Dostępny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:303
 msgid "Calibre"
@@ -10409,7 +10409,7 @@ msgstr "Platforma niedostępna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:389
 msgid "Calibre upgrade required"
-msgstr "Wymagana aktualizacja Calibre"
+msgstr "Wymagana jest aktualizacja calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:392
 msgid "Plugin deprecated"
@@ -15310,12 +15310,12 @@ msgid ""
 "<li><b>Automatic management</b>: Calibre automatically keeps metadata on the "
 "device in sync with the calibre library, on every connect</li></ul>"
 msgstr ""
-"<li><b>Manualne zarządzanie</b>: Calibre aktualizuje metadane i dodaje "
+"<li><b>Manualne zarządzanie</b>: calibre aktualizuje metadane i dodaje "
 "kolekcje tylko gdy książka jest wysyłana. Z tą opcją, calibre nigdy nie "
 "usunie kolekcji.</li>\n"
-"<li><b>Tylko przy wysyłaniu</b>: Calibre aktualizuje metadane i dodaje/usuwa "
+"<li><b>Tylko przy wysyłaniu</b>: calibre aktualizuje metadane i dodaje/usuwa "
 "kolekcje dla książki wtedy, gdy książka jest wysłana na urządzenie. </li>\n"
-"<li><b>Automatyczne zarządzanie</b>: Calibre automatycznie przechowuje "
+"<li><b>Automatyczne zarządzanie</b>: calibre automatycznie przechowuje "
 "metadane na urządzeniu w synchronizacji z biblioteką calibre, przy każdym "
 "połączeniu</li></ul>"
 
@@ -17646,7 +17646,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:232
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:237
 msgid "Bad configuration"
-msgstr "Zła konfiguracja"
+msgstr "Błędna konfiguracja"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:222
 msgid "You must set the From email address"
@@ -21463,7 +21463,7 @@ msgstr ""
 "I tak, przy sortowaniu 'library_order' książka o tytule \"The Client\" "
 "pojawi się pod literą \"C\",\n"
 "natomiast przy sortowaniu 'strictly_alphabetic' pod literą \"T\".\n"
-"Parametr ten dotyczy jedynie interfejsu Calibre i nie ma wpływu na "
+"Parametr ten dotyczy jedynie interfejsu calibre i nie ma wpływu na "
 "czytniki.\n"
 "Dodatkowo książki dodane przed zmianą parametru pozostają na dotychczasowych "
 "miejscach\n"
