@@ -12,13 +12,20 @@ Utilities to help with developing coffeescript based apps
 '''
 import time, SimpleHTTPServer, SocketServer, threading, os, subprocess
 
+class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+
+    def translate_path(self, path):
+        if path.endswith('jquery.js'):
+            return P('content_server/jquery.js')
+        return SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(self,
+                path)
+
 class Server(threading.Thread):
 
     def __init__(self, port=8000):
         threading.Thread.__init__(self)
         self.port = port
         self.daemon = True
-        Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
         self.httpd = SocketServer.TCPServer(("localhost", port), Handler)
 
     def run(self):

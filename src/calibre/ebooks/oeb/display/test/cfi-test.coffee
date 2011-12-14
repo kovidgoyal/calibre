@@ -7,11 +7,10 @@
 ###
 
 viewport_top = (node) ->
-    node.offsetTop - window.pageYOffset
+    $(node).offset().top - window.pageYOffset
 
 viewport_left = (node) ->
-    node.offsetLeft - window.pageXOffset
-
+    $(node).offset().left - window.pageXOffset
 
 window.onload = ->
     h1 = document.getElementsByTagName('h1')[0]
