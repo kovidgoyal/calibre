@@ -229,7 +229,10 @@ class EPUBOutput(OutputFormatPlugin):
             if opts.extract_to is not None:
                 from calibre.utils.zipfile import ZipFile
                 if os.path.exists(opts.extract_to):
-                    shutil.rmtree(opts.extract_to)
+                    if os.path.isdir(opts.extract_to):
+                        shutil.rmtree(opts.extract_to)
+                    else:
+                        os.remove(opts.extract_to)
                 os.mkdir(opts.extract_to)
                 with ZipFile(output_path) as zf:
                     zf.extractall(path=opts.extract_to)
