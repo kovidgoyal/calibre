@@ -1,26 +1,26 @@
-# Afrikaans translation for calibre
-# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# Kurdish translation for calibre
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
 # This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-10 04:27+0000\n"
-"PO-Revision-Date: 2011-08-05 17:39+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
-"Language-Team: Afrikaans <af@li.org>\n"
+"PO-Revision-Date: 2011-12-12 17:33+0000\n"
+"Last-Translator: Erdal Ronahi <erdal.ronahi@gmail.com>\n"
+"Language-Team: Kurdish <ku@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-11 05:16+0000\n"
-"X-Generator: Launchpad (build 14450)\n"
+"X-Launchpad-Export-Date: 2011-12-13 04:53+0000\n"
+"X-Generator: Launchpad (build 14458)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "Doen absolute niks"
+msgstr "Tiştek nake"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
@@ -200,11 +200,11 @@ msgstr "Doen absolute niks"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "Onbekend"
+msgstr "Nayê zanîn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "Basis"
+msgstr "Bingeh"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
@@ -220,15 +220,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr "Lêertipe"
+msgstr "Cureyê pelî"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "Metadata leeser"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "Metadata skrywer"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
@@ -246,7 +246,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr ""
+msgstr "Vebijêrk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -273,7 +273,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
-msgstr "Onttrek voorblad van strokies-prent lêers"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:164
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:175
@@ -298,7 +298,7 @@ msgstr "Onttrek voorblad van strokies-prent lêers"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:386
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Lees metadata van %s lêers"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:323
 msgid "Read metadata from ebooks in RAR archives"
@@ -2818,9 +2818,6 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
-"Volg al die lokale skakels in die HTML lêer en maak 'n ZIP lêer met al die "
-"gekoppelde lêers. Hierdie nuts-program sal elke keer hardloop as u 'n HTML "
-"lêer byvoeg in die biblioteek."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:60
 msgid ""
