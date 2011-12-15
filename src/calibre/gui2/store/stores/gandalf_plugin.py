@@ -54,7 +54,7 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//img/@src'))
+                cover_url = ''.join(data.xpath('.//div[@class="info"]/h3/a/@id'))
                 title = ''.join(data.xpath('.//div[@class="info"]/h3/a/@title'))
                 formats = ''.join(data.xpath('.//div[@class="info"]/p[1]/text()'))
                 formats = re.findall(r'\((.*?)\)',formats)[0]
@@ -67,7 +67,7 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = cover_url
+                s.cover_url = 'http://imguser.gandalf.com.pl/' + re.sub('p', 'p_', cover_url) + '.jpg'
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price
