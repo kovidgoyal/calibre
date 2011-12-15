@@ -5,10 +5,35 @@
  Copyright 2011, Kovid Goyal <kovid@kovidgoyal.net>
  Released under the GPLv3 License
 ###
-
+#
 log = (error) ->
-    if error and window?.console?.log
-        window.console.log(error)
+    if error
+        if window?.console?.log
+            window.console.log(error)
+        else if process?.stdout?.write
+            process.stdout.write(error + '\n')
+
+# CFI escaping {{{
+escape_for_cfi = (raw) ->
+    if raw
+        for c in ['^', '[', ']', ',', '(', ')', ';', '~', '@', '-', '!']
+            raw = raw.replace(c, '^'+c)
+    raw
+
+unescape_from_cfi = (raw) ->
+    ans = raw
+    if raw
+        dropped = false
+        ans = []
+        for c in raw
+            if not dropped and c == '^'
+                dropped = true
+                continue
+            dropped = false
+            ans.push(c)
+        ans = ans.join('')
+    ans
+# }}}
 
 fstr = (d) -> # {{{
     # Convert a timestamp floating point number to a string
@@ -76,14 +101,70 @@ class CanonicalFragmentIdentifier
 
             # Add id assertions for robustness where possible
             id = node.getAttribute?('id')
-            idspec = if id then "[#{ id }]" else ''
+            idspec = if id then "[#{ escape_for_cfi(id) }]" else ''
             cfi = '/' + index + idspec + cfi
             node = p
 
         cfi
     # }}}
 
-    at: (x, y, doc=window.document) -> # {{{
+    decode: (cfi, doc=window?.document) -> # {{{
+        simple_node_regex = ///
+            ^/(\d+)          # The node count
+              (\[[^\]]*\])?  # The optional id assertion
+        ///
+        error = null
+        node = doc
+
+        until cfi.length <= 0 or error
+            if ( (r = cfi.match(simple_node_regex)) is not null ) # Path step
+                target = parseInt(r[1])
+                assertion = r[2]
+                if assertion
+                    assertion = unescape_from_cfi(assertion.slice(1, assertion.length-1))
+                index = 0
+                child = node.firstChild
+
+                while true
+                    if not child
+                        if assertion # Try to use the assertion to find the node
+                            child = doc.getElementById(assertion)
+                            if child
+                                node = child
+                        if not child
+                            error = "No matching child found for CFI: " + cfi
+                        break
+                    index |= 1 # Increment index by 1 if it is even
+                    if child.nodeType in [1, 7] # We have an element or a PI
+                        index++
+                    if ( index == target )
+                        cfi = cfi.substr(r[0].length)
+                        node = child
+                        break
+                    child = child.nextSibling
+
+            else if cfi[0] == '!' # Indirection
+                if node.contentDocument
+                    node = node.contentDocument
+                    cfi = cfi.substr(1)
+                else
+                    error = "Cannot reference #{ node.nodeName }'s content:" + cfi
+
+            else
+                break
+
+        if error
+            log(error)
+            return null
+
+        point = {}
+        error = null
+
+        point
+
+    # }}}
+
+    at: (x, y, doc=window?.document) -> # {{{
         cdoc = doc
         target = null
         cwin = cdoc.defaultView
@@ -116,11 +197,11 @@ class CanonicalFragmentIdentifier
         if name in ['audio', 'video']
             tail = "~" + fstr target.currentTime
 
-        else if name in ['img']
+        if name in ['img', 'video']
             px = ((x + cwin.scrollX - target.offsetLeft)*100)/target.offsetWidth
             py = ((y + cwin.scrollY - target.offsetTop)*100)/target.offsetHeight
             tail = "#{ tail }@#{ fstr px },#{ fstr py }"
-        else
+        else if name != 'audio'
             if cdoc.caretRangeFromPoint # WebKit
                 range = cdoc.caretRangeFromPoint(x, y)
                 if range
@@ -133,4 +214,12 @@ class CanonicalFragmentIdentifier
         this.encode(doc, target, offset, tail)
     # }}}
 
-window.cfi = new CanonicalFragmentIdentifier()
+if window?
+    window.cfi = new CanonicalFragmentIdentifier()
+else if process?
+    # Some debugging code goes here to be run with the coffee interpreter
+    cfi = new CanonicalFragmentIdentifier()
+    t = 'a^!,1'
+    log(t)
+    log(escape_for_cfi(t))
+    log(unescape_from_cfi(escape_for_cfi(t)))
