@@ -19,16 +19,15 @@ from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_IMAGES, \
     PAGE_MAP_MIME, JPEG_MIME, NCX_MIME, SVG_MIME
 from calibre.ebooks.oeb.base import XMLDECL_RE, COLLAPSE_RE, \
-    ENTITY_RE, MS_COVER_TYPE, iterlinks
+    MS_COVER_TYPE, iterlinks
 from calibre.ebooks.oeb.base import namespace, barename, XPath, xpath, \
                                     urlnormalize, BINARY_MIME, \
                                     OEBError, OEBBook, DirContainer
 from calibre.ebooks.oeb.writer import OEBWriter
-from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.utils.localization import get_lang
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
-from calibre import guess_type
+from calibre import guess_type, xml_replace_entities
 
 __all__ = ['OEBReader']
 
@@ -107,8 +106,7 @@ class OEBReader(object):
         try:
             opf = etree.fromstring(data)
         except etree.XMLSyntaxError:
-            repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
-            data = ENTITY_RE.sub(repl, data)
+            data = xml_replace_entities(data, encoding=None)
             try:
                 opf = etree.fromstring(data)
                 self.logger.warn('OPF contains invalid HTML named entities')
