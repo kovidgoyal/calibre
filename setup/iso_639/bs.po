@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: iso_639_3\n"
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
-"POT-Creation-Date: 2011-09-27 14:31+0000\n"
+"POT-Creation-Date: 2011-11-25 14:01+0000\n"
 "PO-Revision-Date: 2011-08-27 07:15+0000\n"
 "Last-Translator: Nesiren Armin <Unknown>\n"
 "Language-Team: Bosanski <kde@lugbih.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-28 04:38+0000\n"
-"X-Generator: Launchpad (build 14049)\n"
+"X-Launchpad-Export-Date: 2011-11-26 05:07+0000\n"
+"X-Generator: Launchpad (build 14381)\n"
 "Language: \n"
 
 #. name for aaa
@@ -17954,7 +17954,7 @@ msgid "Ndoola"
 msgstr ""
 
 #. name for nds
-msgid "Saxon; Low"
+msgid "German; Low"
 msgstr ""
 
 #. name for ndt

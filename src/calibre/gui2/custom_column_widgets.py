@@ -230,8 +230,6 @@ class Text(Base):
 
     def setup_ui(self, parent):
         self.sep = self.col_metadata['multiple_seps']
-        values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(key=sort_key)
 
         if self.col_metadata['is_multiple']:
             w = MultiCompleteLineEdit(parent)
@@ -239,7 +237,6 @@ class Text(Base):
             if self.sep['ui_to_list'] == '&':
                 w.set_space_before_sep(True)
                 w.set_add_separator(tweaks['authors_completer_append_separator'])
-            w.update_items_cache(values)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         else:
             w = MultiCompleteComboBox(parent)
@@ -249,16 +246,19 @@ class Text(Base):
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
 
     def initialize(self, book_id):
+        values = list(self.db.all_custom(num=self.col_id))
+        values.sort(key=sort_key)
+        self.widgets[1].clear()
+        self.widgets[1].update_items_cache(values)
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
         self.initial_val = val
         val = self.normalize_db_val(val)
-        self.widgets[1].update_items_cache(self.all_values)
 
         if self.col_metadata['is_multiple']:
             self.setter(val)
         else:
             idx = None
-            for i, c in enumerate(self.all_values):
+            for i, c in enumerate(values):
                 if c == val:
                     idx = i
                 self.widgets[1].addItem(c)
@@ -287,8 +287,6 @@ class Text(Base):
 class Series(Base):
 
     def setup_ui(self, parent):
-        values = self.all_values = list(self.db.all_custom(num=self.col_id))
-        values.sort(key=sort_key)
         w = MultiCompleteComboBox(parent)
         w.set_separator(None)
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
@@ -305,6 +303,8 @@ class Series(Base):
         self.widgets.append(w)
 
     def initialize(self, book_id):
+        values = list(self.db.all_custom(num=self.col_id))
+        values.sort(key=sort_key)
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
         s_index = self.db.get_custom_extra(book_id, num=self.col_id, index_is_id=True)
         if s_index is None:
@@ -314,11 +314,12 @@ class Series(Base):
         self.initial_val = val
         val = self.normalize_db_val(val)
         idx = None
-        for i, c in enumerate(self.all_values):
+        self.name_widget.clear()
+        for i, c in enumerate(values):
             if c == val:
                 idx = i
             self.name_widget.addItem(c)
-        self.name_widget.update_items_cache(self.all_values)
+        self.name_widget.update_items_cache(values)
         self.name_widget.setEditText('')
         if idx is not None:
             self.widgets[1].setCurrentIndex(idx)

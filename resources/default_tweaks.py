@@ -219,7 +219,7 @@ per_language_title_sort_articles = {
                   r'Una\s+', r'Unos\s+', r'Unas\s+'),
         # French
         'fra'  : (r'Le\s+', r'La\s+', r"L'", r'Les\s+', r'Un\s+', r'Une\s+',
-                  r'Des\s+'),
+                  r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'"),
         # Italian
         'ita'  : (r'Lo\s+', r'Il\s+', r"L'", r'La\s+', r'Gli\s+', r'I\s+',
                   r'Le\s+', ),
@@ -230,7 +230,8 @@ per_language_title_sort_articles = {
         'ron'  : (r'Un\s+', r'O\s+', r'Nişte\s+', ),
         # German
         'deu'  : (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
-                  r'Eine\s+', r'Einen\s+', ),
+                  r'Eine\s+', r'Einen\s+', r'Dem\s+', r'Des\s+', r'Einem\s+',
+                  r'Eines\s+'),
         # Dutch
         'nld'  : (r'De\s+', r'Het\s+', r'Een\s+', r"'n\s+", r"'s\s+", r'Ene\s+',
                   r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+',

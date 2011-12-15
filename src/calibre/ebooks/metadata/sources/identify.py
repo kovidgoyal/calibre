@@ -305,7 +305,8 @@ class ISBNMerge(object):
                     ans.pubdate = r.pubdate
                     break
             if getattr(ans.pubdate, 'year', None) == min_year:
-                min_date = datetime(min_year, ans.pubdate.month, ans.pubdate.day)
+                min_date = datetime(min_year, ans.pubdate.month, ans.pubdate.day,
+                                    tzinfo=utc_tz)
             else:
                 min_date = datetime(min_year, 1, 2, tzinfo=utc_tz)
             ans.pubdate = min_date

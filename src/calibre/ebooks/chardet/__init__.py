@@ -53,7 +53,6 @@ def substitute_entites(raw):
 _CHARSET_ALIASES = { "macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis" }
 
-
 def force_encoding(raw, verbose, assume_utf8=False):
     from calibre.constants import preferred_encoding
     try:
@@ -74,6 +73,36 @@ def force_encoding(raw, verbose, assume_utf8=False):
         encoding = 'utf-8'
     return encoding
 
+def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
+    if not raw or isinstance(raw, unicode):
+        return raw, None
+    for x in ('utf8', 'utf-16-le', 'utf-16-be'):
+        bom = getattr(codecs, 'BOM_'+x.upper().replace('-16', '16').replace(
+            '-', '_'))
+        if raw.startswith(bom):
+            return raw[len(bom):], x
+    encoding = None
+    for pat in ENCODING_PATS:
+        match = pat.search(raw)
+        if match:
+            encoding = match.group(1)
+            break
+    if encoding is None:
+        encoding = force_encoding(raw, verbose, assume_utf8=assume_utf8)
+    if encoding.lower().strip() == 'macintosh':
+        encoding = 'mac-roman'
+    if encoding.lower().replace('_', '-').strip() in (
+            'gb2312', 'chinese', 'csiso58gb231280', 'euc-cn', 'euccn',
+            'eucgb2312-cn', 'gb2312-1980', 'gb2312-80', 'iso-ir-58'):
+        # Microsoft Word exports to HTML with encoding incorrectly set to
+        # gb2312 instead of gbk. gbk is a superset of gb2312, anyway.
+        encoding = 'gbk'
+    try:
+        codecs.lookup(encoding)
+    except LookupError:
+        encoding = 'utf-8'
+
+    return raw, encoding
 
 def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
                    resolve_entities=False, assume_utf8=False):
@@ -83,43 +112,16 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
     prints a warning if detection confidence is < 100%
     @return: (unicode, encoding used)
     '''
-    encoding = None
     if not raw:
-        return u'', encoding
+        return u'', None
+    raw, encoding = detect_xml_encoding(raw, verbose=verbose,
+            assume_utf8=assume_utf8)
     if not isinstance(raw, unicode):
-        if raw.startswith(codecs.BOM_UTF8):
-            raw, encoding = raw.decode('utf-8')[1:], 'utf-8'
-        elif raw.startswith(codecs.BOM_UTF16_LE):
-            raw, encoding = raw.decode('utf-16-le')[1:], 'utf-16-le'
-        elif raw.startswith(codecs.BOM_UTF16_BE):
-            raw, encoding = raw.decode('utf-16-be')[1:], 'utf-16-be'
-    if not isinstance(raw, unicode):
-        for pat in ENCODING_PATS:
-            match = pat.search(raw)
-            if match:
-                encoding = match.group(1)
-                break
-        if encoding is None:
-            encoding = force_encoding(raw, verbose, assume_utf8=assume_utf8)
-        try:
-            if encoding.lower().strip() == 'macintosh':
-                encoding = 'mac-roman'
-            if encoding.lower().replace('_', '-').strip() in (
-                    'gb2312', 'chinese', 'csiso58gb231280', 'euc-cn', 'euccn',
-                    'eucgb2312-cn', 'gb2312-1980', 'gb2312-80', 'iso-ir-58'):
-                # Microsoft Word exports to HTML with encoding incorrectly set to
-                # gb2312 instead of gbk. gbk is a superset of gb2312, anyway.
-                encoding = 'gbk'
-            raw = raw.decode(encoding, 'replace')
-        except LookupError:
-            encoding = 'utf-8'
-            raw = raw.decode(encoding, 'replace')
+        raw = raw.decode(encoding, 'replace')
 
     if strip_encoding_pats:
         raw = strip_encoding_declarations(raw)
     if resolve_entities:
         raw = substitute_entites(raw)
-
-
 
     return raw, encoding

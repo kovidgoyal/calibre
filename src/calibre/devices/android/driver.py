@@ -167,12 +167,12 @@ class ANDROID(USBMS):
             'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
             'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
             'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI',
-            'UMS', '.K080', 'P990', 'LTE']
+            'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
             '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
-            'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD']
+            'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
@@ -198,6 +198,18 @@ class ANDROID(USBMS):
                 dirs = [dirs]
             dirs = list(map(aldiko_tweak, dirs))
         return dirs
+
+    def windows_sort_drives(self, drives):
+        try:
+            vid, pid, bcd = self.device_being_opened[:3]
+        except:
+            vid, pid, bcd = -1, -1, -1
+        if (vid, pid, bcd) == (0x0e79, 0x1408, 0x0222):
+            letter_a = drives.get('carda', None)
+            if letter_a is not None:
+                drives['carda'] = drives['main']
+                drives['main']  = letter_a
+        return drives
 
 class S60(USBMS):
 

@@ -12,7 +12,7 @@ class Sueddeutsche(BasicNewsRecipe):
 
     title = u'sueddeutsche.de'
     description = 'News from Germany'
-    __author__ = 'Oliver Niesner and Armin Geller'
+    __author__ = 'Oliver Niesner and Armin Geller' #AGe 2011-11-25
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
     oldest_article = 7
@@ -22,7 +22,7 @@ class Sueddeutsche(BasicNewsRecipe):
 
     encoding = 'utf-8'
     remove_javascript = True
-
+    cover_url  = 'http://polpix.sueddeutsche.com/polopoly_fs/1.1219199.1322239289!/image/image.jpg_gen/derivatives/860x860/image.jpg' # 2011-11-25 AGe
 
     remove_tags = [ dict(name='link'), dict(name='iframe'),
                     dict(name='div', attrs={'id':["bookmarking","themenbox","artikelfoot","CAD_AD",
@@ -47,7 +47,7 @@ class Sueddeutsche(BasicNewsRecipe):
 
     extra_css = '''
                     h2{font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #003399;}
-                    a{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-style:italic;}
+                    a{font-family:Arial,Helvetica,sans-serif; font-style:italic;}
                     .dachzeile p{font-family:Arial,Helvetica,sans-serif; font-size: x-small; }
                     h1{ font-family:Arial,Helvetica,sans-serif;  font-size:x-large; font-weight:bold;}
                     .artikelTeaser{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-weight:bold; }

@@ -539,7 +539,8 @@ class Style(object):
         'Return value in pts'
         if base is None:
             base = self.width
-        font = font or self.fontSize
+        if not font and font != 0:
+            font = self.fontSize
         return unit_convert(value, base, font, self._profile.dpi)
 
     def pt_to_px(self, value):

@@ -164,7 +164,14 @@ class MyBlockingBusy(QDialog): # {{{
                 self.db.set_title(id, titlecase(title), notify=False)
             if do_title_sort:
                 title = self.db.title(id, index_is_id=True)
-                self.db.set_title_sort(id, title_sort(title), notify=False)
+                if languages:
+                    lang = languages[0]
+                else:
+                    lang = self.db.languages(id, index_is_id=True)
+                    if lang:
+                        lang = lang.partition(',')[0]
+                self.db.set_title_sort(id, title_sort(title, lang=lang),
+                        notify=False)
             if au:
                 self.db.set_authors(id, string_to_authors(au), notify=False)
             if cover_action == 'remove':
@@ -735,6 +742,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             flags = 0
         else:
             flags = re.I
+
+        flags |= re.UNICODE
 
         try:
             if self.search_mode.currentIndex() == 0:

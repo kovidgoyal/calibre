@@ -121,7 +121,18 @@ def cap_author_token(token):
         # Normalize tokens of the form J.K. to J. K.
         parts = token.split('.')
         return '. '.join(map(capitalize, parts)).strip()
+    scots_name = None
+    for x in ('mc', 'mac'):
+        if (token.lower().startswith(x) and len(token) > len(x) and
+                (
+                    token[len(x)] == upper(token[len(x)]) or
+                    lt == token
+                )):
+            scots_name = len(x)
+            break
     ans = capitalize(token)
+    if scots_name is not None:
+        ans = ans[:scots_name] + upper(ans[scots_name]) + ans[scots_name+1:]
     for x in ('-', "'"):
         idx = ans.find(x)
         if idx > -1 and len(ans) > idx+2:
@@ -333,7 +344,7 @@ class Source(Plugin):
                 # Remove single quotes not followed by 's'
                 (r"'(?!s)", ''),
                 # Replace other special chars with a space
-                (r'''[:,;+!@#$%^&*(){}.`~"\s\[\]/]''', ' ')
+                (r'''[:,;+!@$%^&*(){}.`~"\s\[\]/]''', ' '),
             ]]
 
             for pat, repl in title_patterns:

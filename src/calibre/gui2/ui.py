@@ -195,7 +195,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         for ac in self.iactions.values():
             ac.do_genesis()
-        self.donate_action = QAction(QIcon(I('donate.png')), _('&Donate to support calibre'), self)
+        self.donate_action = QAction(QIcon(I('donate.png')),
+                _('&Donate to support calibre'), self)
         for st in self.istores.values():
             st.do_genesis()
         MainWindowMixin.__init__(self, db)
@@ -358,7 +359,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                         'log will be displayed automatically.')%self.gui_debug, show=True)
 
     def esc(self, *args):
-        self.search.clear()
+        self.clear_button.click()
 
     def start_content_server(self, check_started=True):
         from calibre.library.server.main import start_threaded_server
