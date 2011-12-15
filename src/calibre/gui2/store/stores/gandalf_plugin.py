@@ -56,8 +56,8 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
 
                 cover_url = ''.join(data.xpath('.//img/@src'))
                 title = ''.join(data.xpath('.//div[@class="info"]/h3/a/@title'))
-                formats = title.split()
-                formats = formats[-1]
+                formats = ''.join(data.xpath('.//div[@class="info"]/p[1]/text()'))
+                formats = re.findall(r'\((.*?)\)',formats)[0]
                 author = ''.join(data.xpath('.//div[@class="info"]/h4/text() | .//div[@class="info"]/h4/span/text()'))
                 price = ''.join(data.xpath('.//h3[@class="promocja"]/text()'))
                 price = re.sub('PLN', 'zł', price)
