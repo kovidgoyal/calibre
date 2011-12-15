@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-10 04:27+0000\n"
-"PO-Revision-Date: 2011-12-13 21:32+0000\n"
-"Last-Translator: frenkx <Unknown>\n"
+"PO-Revision-Date: 2011-12-14 19:01+0000\n"
+"Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-14 04:44+0000\n"
+"X-Launchpad-Export-Date: 2011-12-15 05:17+0000\n"
 "X-Generator: Launchpad (build 14487)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1040,7 +1040,7 @@ msgstr "Einschalten des Apple-Treibers"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr "Verwende Reihen als Kategorien in iTunes/iBooks"
+msgstr "Verwende Buchreihen als Kategorien in iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
@@ -2874,12 +2874,12 @@ msgstr "Geben Sie den Herausgeber des E-Books an"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:504
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
 msgid "Set the series this ebook belongs to."
-msgstr "Geben Sie die Reihe an, zu der dieses E-Book gehört."
+msgstr "Geben Sie die Buchreihe an, zu der dieses E-Book gehört."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:508
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:62
 msgid "Set the index of the book in this series."
-msgstr "Geben Sie den Index des Buches in dieser Reihe an."
+msgstr "Geben Sie den Index des Buches in dieser Buchreihe an."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:512
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:64
@@ -3040,7 +3040,7 @@ msgstr "Konnte kein E-Book im Archiv finden"
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:787
 msgid "Values of series index and rating must be numbers. Ignoring"
 msgstr ""
-"Die Werte von Reihen und Bewertungen müssen in Zahlen angegeben werden. "
+"Die Werte von Buchreihen und Bewertungen müssen in Zahlen angegeben werden. "
 "Ignorieren"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:794
@@ -3783,8 +3783,8 @@ msgstr "Schlagworte"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:140
 msgid "Series"
 msgid_plural "Series"
-msgstr[0] "Reihen"
-msgstr[1] "Reihen"
+msgstr[0] "Buchreihen"
+msgstr[1] "Buchreihen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:760
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:68
@@ -4847,7 +4847,7 @@ msgstr "Benachrichtigen, wenn eine neue Version verfügbar ist"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
 msgid "Use Roman numerals for series number"
-msgstr "Benutze römische Ziffern für Reihennummerierung"
+msgstr "Benutze römische Ziffern für Buchreihennummerierung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:125
 msgid "Sort tags list by name, popularity, or rating"
@@ -6283,7 +6283,7 @@ msgstr "Bücher desselben Autors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:26
 msgid "Books in this series"
-msgstr "Bücher dieser Reihe"
+msgstr "Bücher dieser Buchreihe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:27
 msgid "Alt+Shift+S"
@@ -6982,7 +6982,7 @@ msgstr "Beschreibungen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:301
 msgid "Books by &Series"
-msgstr "Bücher nach Reihen"
+msgstr "Bücher nach Buchreihen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:302
 msgid "Books by &Title"
@@ -8019,7 +8019,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:214
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:458
 msgid "&Series:"
-msgstr "&Reihen:"
+msgstr "Buch&reihen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:173
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:174
@@ -8027,7 +8027,8 @@ msgstr "&Reihen:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:147
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:457
 msgid "List of known series. You can add new series."
-msgstr "Liste der bekannten Reihen. Sie können neue Reihen hinzufügen."
+msgstr ""
+"Liste der bekannten Buchreihen. Sie können neue Buchreihen hinzufügen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:175
 msgid "Book "
@@ -8738,7 +8739,7 @@ msgstr "Änderungen übernehmen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:716
 msgid "Remove series"
-msgstr "Reihen entfernen"
+msgstr "Buchreihen entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:719
 msgid "Automatically number books"
@@ -10132,11 +10133,11 @@ msgstr "&Alle entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:155
 msgid "If checked, the series will be cleared"
-msgstr "Falls ausgewählt, wird der \"Reihen\"- Eintrag entfernt."
+msgstr "Falls ausgewählt, wird der \"Buchreihen\"- Eintrag entfernt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:156
 msgid "&Clear series"
-msgstr "&Reihe löschen"
+msgstr "Buch&reihe löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:163
 msgid ""
@@ -11436,8 +11437,8 @@ msgstr "Geben Sie einen Autorennamen ein. Nur ein Autor darf benutzt werden."
 msgid ""
 "Enter a series name, without an index. Only one series name can be used."
 msgstr ""
-"Reihenbezeichnung (ohne Index) eingeben. Es darf nur eine Reihenbezeichnung "
-"verwendet werden."
+"Buchreihenbezeichnung (ohne Index) eingeben. Es darf nur eine "
+"Buchreihenbezeichnung verwendet werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:218
 msgid "Enter tags separated by spaces"
@@ -11460,7 +11461,7 @@ msgstr "Nur in spezifischen Feldern suchen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:221
 msgid "Titl&e/Author/Series ..."
-msgstr "Tit&el/Autor/Reihe ..."
+msgstr "Tit&el/Autor/Buchreihe ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/select_formats.py:45
 msgid "Choose formats"
@@ -12135,7 +12136,7 @@ msgstr "Regulärer Ausdruck (?P<author>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:143
 msgid "Series:"
-msgstr "Reihen:"
+msgstr "Buchreihen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:144
 msgid "Regular expression (?P<series>)"
@@ -12143,7 +12144,7 @@ msgstr "Regulärer Ausdruck (?P<series>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:146
 msgid "Series index:"
-msgstr "Reihenindex:"
+msgstr "Buchreihenindex:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:147
 msgid "Regular expression (?P<series_index>)"
@@ -13244,7 +13245,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:166
 msgid "Remove unused series (Series that have no books)"
-msgstr "Unbenutzte Reihen entfernen (Reihen ohne Bücher)"
+msgstr "Unbenutzte Buchreihen entfernen (Buchreihen ohne Bücher)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:201
 msgid ""
@@ -13971,7 +13972,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:30
 msgid "Text column for keeping series-like information"
-msgstr "Textspalte für Reihen- Information"
+msgstr "Textspalte für Buchreihen- Information"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:33
 msgid "Text, but with a fixed set of permitted values"
@@ -14086,7 +14087,7 @@ msgstr "Meine Tags"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:178
 msgid "My Series"
-msgstr "Meine Reihen"
+msgstr "Meine Buchreihen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:179
 msgid "My Rating"
@@ -15256,7 +15257,7 @@ msgstr "Pfade in K&leinschreibung umwandeln"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:57
 msgid "Format &dates as:"
-msgstr "&Daten formatieren als:"
+msgstr "&Datum formatieren als:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:53
 msgid "File &formats to save:"
@@ -16529,7 +16530,7 @@ msgstr "Autoren verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:50
 msgid "Manage Series"
-msgstr "Reihen verwalten"
+msgstr "Buchreihen verwalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:52
 msgid "Manage Publishers"
@@ -19190,15 +19191,15 @@ msgstr "Die Schlagwörter"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:37
 msgid "The series"
-msgstr "Die Reihen"
+msgstr "Die Buchreihen"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:38
 msgid ""
 "The series number. To get leading zeros use {series_index:0>3s} or "
 "{series_index:>3s} for leading spaces"
 msgstr ""
-"Die Reihennummer. Für anführende Nullen verwenden Sie {series_index:0>3s} "
-"oder {series_index:>3s} für anführende Leerzeichen"
+"Die Buchreihennummer. Für anführende Nullen verwenden Sie "
+"{series_index:0>3s} oder {series_index:>3s} für anführende Leerzeichen"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:41
 msgid "The rating"
@@ -19618,7 +19619,7 @@ msgstr "SCHLAGWÖRTER: %s<br />"
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:174
 #, python-format
 msgid "SERIES: %(series)s [%(sidx)s]<br />"
-msgstr "Reihe: %(series)s [%(sidx)s]<br />"
+msgstr "Buchreihe: %(series)s [%(sidx)s]<br />"
 
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:271
 msgid "Books in your library"
