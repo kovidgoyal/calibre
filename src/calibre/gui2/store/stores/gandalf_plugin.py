@@ -59,7 +59,7 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
                 formats = ''.join(data.xpath('.//div[@class="info"]/p[1]/text()'))
                 formats = re.findall(r'\((.*?)\)',formats)[0]
                 author = ''.join(data.xpath('.//div[@class="info"]/h4/text() | .//div[@class="info"]/h4/span/text()'))
-                price = ''.join(data.xpath('.//h3[@class="promocja"]/text()'))
+                price = ''.join(data.xpath('.//div[@class="options"]/h3/text()'))
                 price = re.sub('PLN', 'zł', price)
                 price = re.sub('\.', ',', price)
                 drm = data.xpath('boolean(.//div[@class="info" and contains(., "Zabezpieczenie: DRM")])')
