@@ -154,7 +154,7 @@ class Formatter(TemplateFormatter):
                     return self.composite_values[key]
                 self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
                 self.composite_values[key] = \
-                    self.vformat(b['display']['composite_template'], [], kwargs)
+                    self.evaluate(b['display']['composite_template'], [], kwargs)
                 return self.composite_values[key]
             if key in kwargs:
                 val = kwargs[key]
