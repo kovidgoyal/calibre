@@ -855,6 +855,16 @@ class NYTimes(BasicNewsRecipe):
 
         return soup
     def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            idxdiv = soup.find('div',attrs={'class':'articleSpanImage'})
+            if idxdiv is not None:
+                if idxdiv.img:
+                    self.add_toc_thumbnail(article, idxdiv.img['src'])
+            else:
+                img = soup.find('img')
+                if img is not None:
+                    self.add_toc_thumbnail(article, img['src'])
+
         shortparagraph = ""
         try:
             if len(article.text_summary.strip()) == 0:

@@ -136,7 +136,8 @@ class IndexEntry(object):
             'last_child_index': 23,
             'image_index': 69,
             'desc_offset': 70,
-            'author_offset': 73,
+            'author_offset': 71,
+
     }
     RTAG_MAP = {v:k for k, v in TAG_VALUES.iteritems()}
 
@@ -754,6 +755,13 @@ class Indexer(object): # {{{
                 normalized_articles.append(article)
                 article.author_offset = self.cncx[art.author]
                 article.desc_offset = self.cncx[art.description]
+                if getattr(art, 'toc_thumbnail', None) is not None:
+                    try:
+                        ii = self.serializer.images[art.toc_thumbnail] - 1
+                        if ii > -1:
+                            article.image_index = ii
+                    except KeyError:
+                        pass # Image not found in serializer
 
             if normalized_articles:
                 normalized_articles.sort(key=lambda x:x.offset)

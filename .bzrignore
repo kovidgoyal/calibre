@@ -2,6 +2,8 @@
 .check-cache.pickle
 src/calibre/plugins
 resources/images.qrc
+src/calibre/ebooks/oeb/display/test/*.js
+resources/display/*.js
 src/calibre/manual/.build/
 src/calibre/manual/cli/
 src/calibre/manual/template_ref.rst

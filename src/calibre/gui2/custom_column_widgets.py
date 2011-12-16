@@ -429,7 +429,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     # The fields named here must be first in the widget list
     tweak_cols = tweaks['metadata_edit_custom_column_order']
     comments_in_tweak = 0
-    for key in tweak_cols:
+    for key in (tweak_cols or ()):
         # Add the key if it really exists in the database
         if key in cols_to_display:
             cols.append(key)

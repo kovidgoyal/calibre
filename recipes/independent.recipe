@@ -104,6 +104,13 @@ class TheIndependentNew(BasicNewsRecipe):
             url = None
         return url
 
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            picdiv = soup.find('img')
+            if picdiv is not None:
+                self.add_toc_thumbnail(article,picdiv['src'])
+ 
+
     def preprocess_html(self, soup):
 
         #remove 'advertorial articles'
