@@ -19,6 +19,65 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.31
+  date: 2011-12-16
+
+  new features:
+    - title: "Conversion engine: When parsing invalid XHTML use the HTML 5 algorithm, for greater robustness."
+      tickets: [901466]
+
+    - title: "Driver for PocketBook 611 and Lenovo IdeaPad"
+
+    - title: "Allow customization of the order in which custom column editing is performed in the edit metadata dialog. Setting is available via Preferences->Tweaks."
+      tickets: [902731]
+
+    - title: "MOBI news download: Allow recipes to set a thumbnail for entries in the periodical table of contents. Currently used by the NYTimes, WSJ, Independent, GUardian and Globe and Mail recipes"
+      tickets: [900130]
+
+    - title: "E-book viewer: Add an option to the right click menu to search for the currently selected word"
+
+    - title: "Automatically hide the no internet connection available error message if the connection is restored before the user clicks OK"
+ 
+  bug fixes:
+    - title: "Fix comments not hidden in Book details panel when they are turned off via Preferences->Look & Feel->Book Details"
+
+    - title: "E-book viewer: Do not popup an error message if the user tries to use the mouse wheel to scroll before a document is loaded."
+      tickets: [903449] 
+
+    - title: "Add docx to the list of ebook extensions."
+      tickets: [903452]
+
+    - title: "When downloading metadata from non-English Amazon websites, do not correct the case of book titles."
+
+    - title: "Fix regression in 0.8.30 that broke bulk conversion of a single book." 
+      tickets: [902506]
+
+    - title: "When minimized to system tray do not display the no internet connection error as a dialog box, instead use a system tray notification"
+
+    - title: "Catalog generation: Include the series_index field for custom series columns as well"
+
+    - title: "Comic Input: Do not rescale images when using the Tablet output profile (or any output profile with a screen size larger than 3000x3000)"
+
+    - title: "HTML Input: Ignore unparseable URLs instead of crashing on them."
+      tickets: [902372] 
+
+
+  improved recipes:
+    - La Republica
+    - CND
+    - Berliner Zeitung
+    - Zaman Gazetesi
+
+  new recipes:
+    - title: CND Weekly
+      author: Derek Liang
+
+    - title: descopera.org 
+      author: Marius Ignatescu
+
+    - title: Rynek Zdrowia 
+      author: spi630
+
 - version: 0.8.30
   date: 2011-12-09
 
