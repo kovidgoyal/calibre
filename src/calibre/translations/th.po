@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-10 04:27+0000\n"
-"PO-Revision-Date: 2011-08-05 16:43+0000\n"
-"Last-Translator: sksy <songkit@gmail.com>\n"
+"PO-Revision-Date: 2011-12-15 15:14+0000\n"
+"Last-Translator: akarong <Unknown>\n"
 "Language-Team: Thai <th@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-12-11 05:32+0000\n"
-"X-Generator: Launchpad (build 14450)\n"
+"X-Launchpad-Export-Date: 2011-12-16 05:24+0000\n"
+"X-Generator: Launchpad (build 14523)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:410
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:431
@@ -220,7 +220,7 @@ msgstr "ฐาน"
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:397
 msgid "Customize"
-msgstr ""
+msgstr "กำหนดค่า"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:52
@@ -261,7 +261,7 @@ msgstr "ปรับแต่ง"
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "จัดเก็บ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 msgid "An ebook store."
@@ -421,7 +421,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "ทำการปรับแต่งเล็กๆให้กับแฟ้ม epub ในห้องสมุด Calibre ของคุณ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid ""
@@ -476,7 +476,7 @@ msgstr "เพิ่ม/ลดคอลัมน์ของคุณเอง�
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Toolbar"
-msgstr ""
+msgstr "แถบเครื่องมือ"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:935
 msgid ""
@@ -488,7 +488,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:941
 msgid "Searching"
-msgstr ""
+msgstr "กำลังค้นหา"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:947
 msgid "Customize the way searching for books works in calibre"
@@ -563,7 +563,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1027
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "เปลี่ยนช่อง Metadata ก่อนทำการ บันทึก/ส่ง"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1032
 msgid "Template Functions"
@@ -613,7 +613,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1068
 msgid "Metadata download"
-msgstr ""
+msgstr "ดาวน์โหลด Metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1074
 msgid "Control how calibre downloads ebook metadata from the net"
@@ -638,7 +638,7 @@ msgstr "ปรับพฤติกรรมของ calibre ที่จะต
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1102
 msgid "Keyboard"
-msgstr ""
+msgstr "แป้นพิมพ์"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1108
 msgid "Customize the keyboard shortcuts used by calibre"
@@ -945,11 +945,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1127
 msgid "Card B"
-msgstr ""
+msgstr "การ์ด ข"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
-msgstr ""
+msgstr "บันทึกการแก้จุดเสีย"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:17
 msgid "Communicate with Android phones."
@@ -1487,7 +1487,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "แสดงหนังสือที่หมดอายุ"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
