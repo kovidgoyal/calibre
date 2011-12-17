@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-12-10 04:27+0000\n"
-"PO-Revision-Date: 2011-12-15 17:42+0000\n"
-"Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
+"POT-Creation-Date: 2011-12-16 09:06+0000\n"
+"PO-Revision-Date: 2011-12-17 04:16+0000\n"
+"Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-12-16 05:23+0000\n"
-"X-Generator: Launchpad (build 14523)\n"
+"X-Launchpad-Export-Date: 2011-12-17 05:01+0000\n"
+"X-Generator: Launchpad (build 14525)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -44,7 +44,7 @@ msgstr "まったく何もしません"
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:106
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/input.py:109
 #: /home/kovid/work/calibre/src/calibre/ebooks/chm/metadata.py:56
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:443
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:447
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:140
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:102
@@ -100,18 +100,18 @@ msgstr "まったく何もしません"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:128
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:169
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:748
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1004
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1006
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1008
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1005
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1007
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1009
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:299
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:496
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:145
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:147
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1008
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1013
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1085
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:144
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:151
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:818
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:273
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:277
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:142
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/reader.py:149
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:66
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:113
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:120
@@ -146,7 +146,7 @@ msgstr "まったく何もしません"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:381
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:168
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:580
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:583
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/__init__.py:42
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata.py:151
@@ -177,7 +177,7 @@ msgstr "まったく何もしません"
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/google_books_plugin.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:200
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:220
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:233
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:548
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:556
@@ -186,7 +186,7 @@ msgstr "まったく何もしません"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:2209
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3264
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3266
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3399
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3403
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:240
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:241
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:243
@@ -234,11 +234,11 @@ msgstr "書誌情報の書き出し"
 msgid "Catalog generator"
 msgstr "カタログ生成"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:523
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
 msgstr "ユーザーインターフェースアクション"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:557
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:197
@@ -248,12 +248,12 @@ msgstr "ユーザーインターフェースアクション"
 msgid "Preferences"
 msgstr "設定"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:609
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
 msgstr "ストア"
 
-#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
+#: /home/kovid/work/calibre/src/calibre/customize/__init__.py:617
 msgid "An ebook store."
 msgstr "電子書籍ストア"
 
@@ -910,7 +910,7 @@ msgstr "ライブラリへのパスが長すぎます。%d文字以下でなけ�
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:139
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:649
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:66
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:564
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:600
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:995
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:835
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:847
@@ -1089,7 +1089,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1058
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1093
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:453
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:460
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1148
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1150
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:341
@@ -1101,7 +1101,7 @@ msgstr "ニュース"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2688
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:663
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:666
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3084
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3102
 msgid "Catalog"
@@ -1219,7 +1219,7 @@ msgstr "Blackberryスマートフォンと通信します。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:263
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:264
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
@@ -1249,23 +1249,23 @@ msgstr "Cybook Orizon 電子書籍リーダーと通信します。"
 msgid "Communicate with the EB600 eBook reader."
 msgstr "EB600 電子書籍リーダーと通信します。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:192
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
 msgstr "Astak Mentor EB600と通信します。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:215
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
 msgstr "PocketBook 301 と通信します。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:232
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
 msgstr "PocketBook 602/603/902/903リーダーと通信します。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:252
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 360+ reader."
 msgstr "PocketBook 360+リーダーと通信します。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:262
+#: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:263
 msgid "Communicate with the PocketBook 701"
 msgstr "PocketBook 701と通信します。"
 
@@ -2012,17 +2012,17 @@ msgstr ""
 msgid "Card A folder"
 msgstr "カードA、ディレクトリ"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:207
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:211
 #, python-format
 msgid "Rendered %s"
 msgstr "%sを描画"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:210
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:214
 #, python-format
 msgid "Failed %s"
 msgstr "失敗: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:264
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:268
 #, python-format
 msgid ""
 "Failed to process comic: \n"
@@ -2033,7 +2033,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:283
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:287
 #, python-format
 msgid ""
 "Number of colors for grayscale image conversion. Default: %default. Values "
@@ -2043,69 +2043,69 @@ msgstr ""
 "グレースケールの画像変換での色数。デフォルト:  %default。EPUBフォーマットでコミックを作成した場合は、 "
 "256以下の値のときはデバイス上の文字が見づらいかもしれません。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:287
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:291
 msgid ""
 "Disable normalize (improve contrast) color range for pictures. Default: False"
 msgstr "写真の色域を正規化しない（コントラストを強調）。デフォルト: 無効"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:290
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:294
 msgid "Maintain picture aspect ratio. Default is to fill the screen."
 msgstr "画像のアスペクト比を管理する。デフォルトでは画面に合わせます。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:292
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:296
 msgid "Disable sharpening."
 msgstr "コントラスト強調しない。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:294
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:298
 msgid ""
 "Disable trimming of comic pages. For some comics, trimming might remove "
 "content as well as borders."
 msgstr "コミックページのトリミングをしない。一部のコミックでは、トリミングによって境界線だけでなくて、コンテントまで取り去ることがあります。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:297
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:301
 msgid "Don't split landscape images into two portrait images"
 msgstr "横長イメージを二つの縦長イメージに分割しない。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:299
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:303
 msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
 msgstr "縦横比を維持し、画像幅を横長モードでの幅にあわせて画面の高さを使うことで、画像を拡大縮小する。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:302
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:306
 msgid ""
 "Used for right-to-left publications like manga. Causes landscape pages to be "
 "split into portrait pages from right to left."
 msgstr "漫画のような右から左への出版物の時に使用。横長のページを右、左の縦長のページに分割します。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:306
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:310
 msgid ""
 "Enable Despeckle. Reduces speckle noise. May greatly increase processing "
 "time."
 msgstr "Despeckleを有効にする。speckleノイズを低減させる。処理時間がかなり増える可能性があります。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:309
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:313
 msgid ""
 "Don't sort the files found in the comic alphabetically by name. Instead use "
 "the order they were added to the comic."
 msgstr "コミックのファイルを名前でアルファベット順でソートしない。代わりに、コミックに追加した順序を利用して行う。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:313
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:317
 msgid ""
 "The format that images in the created ebook are converted to. You can "
 "experiment to see which format gives you optimal size and look on your "
 "device."
 msgstr "作成した電子書籍中の画像が変換されるフォーマット。どのフォーマットが、あなたの機器で最適なサイズや見た目になるか、試すことができます。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:317
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:321
 msgid "Apply no processing to the image"
 msgstr "画像の処理をしない"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:319
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:323
 msgid "Do not convert the image to grayscale (black and white)"
 msgstr "画像をグレースケール（白黒）に変換しない。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:321
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:325
 msgid ""
 "Specify the image size as widthxheight pixels. Normally, an image size is "
 "automatically calculated from the output profile, this option overrides it."
@@ -2113,7 +2113,7 @@ msgstr ""
 "画像のサイズを、幅x高さの形式でピクセル単位で指定する。通常は、画像サイズは出力用プロファイルから自動的に計算されますが、このオプションはそれより優先され"
 "ます。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:325
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:329
 msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
@@ -2121,8 +2121,8 @@ msgstr ""
 "CBCファイル（comic book "
 "collection）を変換する時に、各ベージへのリンクをを目次に入れない。注：これは目次に1つ以上のセクションがある時にのみ有効です。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:467
-#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:479
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:471
+#: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:483
 msgid "Page"
 msgstr "ページ"
 
@@ -3365,7 +3365,7 @@ msgstr "テンプレートエラー"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:649
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:66
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:564
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:600
 msgid "No"
 msgstr "いいえ"
 
@@ -3573,54 +3573,54 @@ msgstr ""
 "表紙イメージとソーシャルな書誌情報を、ISBNに基づいてLibraryThing.comから取得します。\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/opf2.py:1417
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1505
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1238
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single.py:943
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Cover"
 msgstr "表紙"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:437
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:438
 msgid "Downloads metadata and covers from Amazon"
 msgstr "Amazonから書誌情報と表紙をダウンロード"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:447
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:448
 msgid "US"
 msgstr "US"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:448
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:449
 msgid "France"
 msgstr "フランス"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:449
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:450
 msgid "Germany"
 msgstr "ドイツ"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:450
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:451
 msgid "UK"
 msgstr "英国"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:451
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:452
 msgid "Italy"
 msgstr "イタリア"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:452
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:453
 msgid "Japan"
 msgstr "日本"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:453
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:454
 msgid "Spain"
 msgstr "スペイン"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:457
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:458
 msgid "Amazon website to use:"
 msgstr "使用するAmazonウエブサイト"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:458
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:459
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
 msgstr "Amazonからの書誌情報はこの国のAmazonウエブサイトから取得されます。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:611
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:621
 msgid "Amazon timed out. Try again later."
 msgstr "Amazonがタイムアウトしました。後でまた試してみてください。"
 
@@ -3754,74 +3754,74 @@ msgstr ""
 msgid "This is an Amazon Topaz book. It cannot be processed."
 msgstr "これはAmazon Topaz ブックです。処理できません。"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:498
 msgid "No details available"
 msgstr "詳細不明"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1506
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1239
 msgid "Title Page"
 msgstr "タイトルページ"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1507
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1240
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:15
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:199
 msgid "Table of Contents"
 msgstr "目次"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1508
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1241
 msgid "Index"
 msgstr "索引"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1509
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1242
 msgid "Glossary"
 msgstr "用語解説"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1510
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1243
 msgid "Acknowledgements"
 msgstr "謝辞"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1511
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1244
 msgid "Bibliography"
 msgstr "書誌情報"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1512
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1245
 msgid "Colophon"
 msgstr "出版社のマーク"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1513
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1246
 msgid "Copyright"
 msgstr "著作権"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1514
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1247
 msgid "Dedication"
 msgstr "献辞"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1515
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1248
 msgid "Epigraph"
 msgstr "題辞"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1516
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1249
 msgid "Foreword"
 msgstr "前書き"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1517
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1250
 msgid "List of Illustrations"
 msgstr "図一覧"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1518
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1251
 msgid "List of Tables"
 msgstr "表一覧"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1519
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1252
 msgid "Notes"
 msgstr "注釈"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1520
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1253
 msgid "Preface"
 msgstr "はじめに"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1521
+#: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1254
 msgid "Main Text"
 msgstr "本文"
 
@@ -6159,49 +6159,49 @@ msgstr "フォルダごとに複数の本。各電子書籍ファイルは異な
 msgid "Donate"
 msgstr "寄付"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:124
 msgid "Click to open"
 msgstr "クリックして開く"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:139
 msgid "Ids"
 msgstr "Ids"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:174
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:177
 #, python-format
 msgid "Book %(sidx)s of <span class=\"series_name\">%(series)s</span>"
 msgstr "<span class=\"series_name\">%(series)s</span>の %(sidx)s 巻"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:192
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1054
 msgid "Collections"
 msgstr "コレクション"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:292
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:295
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:256
 msgid "Paste Cover"
 msgstr "表紙を貼り付け"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:293
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:296
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:257
 msgid "Copy Cover"
 msgstr "表紙をコピー"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:294
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:297
 msgid "Remove Cover"
 msgstr "表紙を削除"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:336
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:339
 msgid "Double-click to open Book Details window"
 msgstr "ダブルクリックで本の詳細ウィンドウを開く"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:340
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/delete_matching_from_device.py:76
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:295
 msgid "Path"
 msgstr "パス名"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:338
+#: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:341
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:109
 #, python-format
 msgid "Cover size: %(width)d x %(height)d"
@@ -8038,10 +8038,10 @@ msgstr "表紙ブラウザーがロードできません"
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:115
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:152
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:186
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:568
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:609
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:632
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:683
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:604
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:645
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:668
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:719
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:341
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:349
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:127
@@ -8054,23 +8054,23 @@ msgid "Undefined"
 msgstr "未定義"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:129
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:640
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:676
 msgid "star(s)"
 msgstr "星"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:130
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:641
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:677
 msgid "Unrated"
 msgstr "未評価"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:173
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:670
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:706
 #, python-format
 msgid "Set '%s' to today"
 msgstr "'%s'を今日にする"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:175
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:672
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:708
 #, python-format
 msgid "Clear '%s'"
 msgstr "'%s'をクリア"
@@ -8085,37 +8085,37 @@ msgid ""
 "default"
 msgstr "\"{0}\"一覧に無効な値があるので、デフォルト値を使用します"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:523
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:559
 msgid "Apply changes"
 msgstr "変更を適用"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:716
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:752
 msgid "Remove series"
 msgstr "シリーズを取り除く"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:719
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:755
 msgid "Automatically number books"
 msgstr "本を自動的に番号付けする"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:722
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:758
 msgid "Force numbers to start with "
 msgstr "強制的に番号を次からはじめる： "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:794
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:830
 msgid ""
 "The enumeration \"{0}\" contains invalid values that will not appear in the "
 "list"
 msgstr "\"{0}\"一覧に無効な値が入っているので、リストに表示しません。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:838
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:874
 msgid "Remove all tags"
 msgstr "すべてのタグを削除"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:858
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:894
 msgid "tags to add"
 msgstr "追加するタグ"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:865
+#: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:901
 msgid "tags to remove"
 msgstr "取り除くタグ"
 
@@ -10301,26 +10301,26 @@ msgstr "%(days)d 日, %(hours)d 時間 %(mins)d 分前"
 msgid "Last downloaded:"
 msgstr "最後のダウンロード："
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:429
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:422
+msgid "Cannot download news as no internet connection is active"
+msgstr "インターネットに接続されていないので、ニュースがダウンロードできません。"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:425
+msgid "No internet connection"
+msgstr "インターネット未接続"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:436
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:206
 msgid "Schedule news download"
 msgstr "ニュースの取得スケジュール"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:432
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:439
 msgid "Add a custom news source"
 msgstr "ニュースソースをカスタマイズして追加"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:437
-msgid "Download all scheduled new sources"
-msgstr "定期的に取得するニュースソースをすべてダウンロード"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:542
-msgid "No internet connection"
-msgstr "インターネット未接続"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:543
-msgid "Cannot download news as no internet connection is active"
-msgstr "インターネットに接続されていないので、ニュースがダウンロードできません。"
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:444
+msgid "Download all scheduled news sources"
+msgstr "スケジュールされたすべてのニュースソースをダウンロード"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Go"
@@ -11733,12 +11733,12 @@ msgid "LRF Viewer toolbar"
 msgstr "LRF ビューアーツールバー"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:561
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:567
 msgid "Next Page"
 msgstr "次のページ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:562
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:568
 msgid "Previous Page"
 msgstr "前のページ"
 
@@ -16003,7 +16003,7 @@ msgid "Options to customize the ebook viewer"
 msgstr "電子書籍ビューアーをカスタマイズするためのオプション"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:48
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:811
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:812
 msgid "Remember last used window size"
 msgstr "最後に使ったウィンドウのサイズを覚える"
 
@@ -16085,32 +16085,36 @@ msgstr "キーボードショートカットの編集の途中です。まず、
 msgid "&Lookup in dictionary"
 msgstr "辞書を検索(&L)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:541
+msgid "&Search for next occurrence"
+msgstr "次を検索(&S)"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:546
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
 msgid "Go to..."
 msgstr "ジャンプ..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:558
 msgid "Next Section"
 msgstr "次の章"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:553
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:559
 msgid "Previous Section"
 msgstr "前の章"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:555
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:561
 msgid "Document Start"
 msgstr "文書の最初"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:556
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:562
 msgid "Document End"
 msgstr "文書の最後"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:558
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:564
 msgid "Section Start"
 msgstr "章の頭"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:559
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:565
 msgid "Section End"
 msgstr "章末"
 
@@ -16255,31 +16259,31 @@ msgstr "電子書籍をロード中..."
 msgid "Could not open ebook"
 msgstr "電子書籍を開けませんでした"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:798
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:799
 msgid "Options to control the ebook viewer"
 msgstr "電子書籍ビューアーをコントロールするオプション"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:805
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:806
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr "指定した場合は、ビューアーウィンドウは起動時に前面へ表示しようとします。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:808
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:809
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr "指定した場合は、ビューアーウィンドウは起動時に全画面表示しようとします。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:813
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:814
 msgid "Print javascript alert and console messages to the console"
 msgstr "Javascriptアラートとコンソールメッセージをコンソールへ表示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:815
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:816
 msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
 msgstr "指定された本を開く位置です。位置とは、ビューアーの左上の端が表示されている場所のことです。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:822
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:823
 msgid ""
 "%prog [options] file\n"
 "\n"
@@ -16950,7 +16954,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適応される出力フォーマット: BIBTEX 出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:636
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:639
 #, python-format
 msgid ""
 "Title of generated catalog used as title in metadata.\n"
@@ -16961,7 +16965,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適応される出力フォーマット: ePub、MOBI 出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:643
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:646
 #, python-format
 msgid ""
 "Save the output from different stages of the conversion pipeline to the "
@@ -16977,7 +16981,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適応される出力フォーマット: ePub、MOBI 出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:653
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:656
 #, python-format
 msgid ""
 "field:pattern specifying custom field/contents indicating book should be "
@@ -16989,7 +16993,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適応される出力フォーマット: ePub、MOBI 出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:660
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:663
 #, python-format
 msgid ""
 "Regex describing tags to exclude as genres.\n"
@@ -17000,7 +17004,7 @@ msgstr ""
 "デフォルト: '%default' は括弧つきのタグを除きます, 例 '[<tag>]'\n"
 "適用対象: ePub, MOBI 出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:666
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:669
 #, python-format
 msgid ""
 "Comma-separated list of tag words indicating book should be excluded from "
@@ -17012,7 +17016,7 @@ msgstr ""
 "this'を排除します。デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:674
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:677
 #, python-format
 msgid ""
 "Include 'Authors' section in catalog.\n"
@@ -17023,7 +17027,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:681
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:684
 #, python-format
 msgid ""
 "Include 'Descriptions' section in catalog.\n"
@@ -17034,7 +17038,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:688
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:691
 #, python-format
 msgid ""
 "Include 'Genres' section in catalog.\n"
@@ -17045,7 +17049,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:695
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:698
 #, python-format
 msgid ""
 "Include 'Titles' section in catalog.\n"
@@ -17056,7 +17060,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:702
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:705
 #, python-format
 msgid ""
 "Include 'Series' section in catalog.\n"
@@ -17067,7 +17071,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:709
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:712
 #, python-format
 msgid ""
 "Include 'Recently Added' section in catalog.\n"
@@ -17078,7 +17082,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:716
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:719
 #, python-format
 msgid ""
 "Custom field containing note text to insert in Description header.\n"
@@ -17089,7 +17093,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:723
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:726
 #, python-format
 msgid ""
 "<custom field>:[before|after]:[True|False] specifying:\n"
@@ -17106,7 +17110,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:733
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:736
 #, python-format
 msgid ""
 "Specifies the output profile.  In some cases, an output profile is required "
@@ -17121,7 +17125,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:740
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:743
 #, python-format
 msgid ""
 "field:pattern indicating book has been read.\n"
@@ -17132,7 +17136,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:746
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:749
 #, python-format
 msgid ""
 "Size hint (in inches) for book covers in catalog.\n"
@@ -17145,7 +17149,7 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:754
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:757
 #, python-format
 msgid ""
 "Tag indicating book to be displayed as wishlist item.\n"
@@ -17156,15 +17160,15 @@ msgstr ""
 "デフォルト: '%default'\n"
 "適用対象: ePub, MOBI出力フォーマット"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1438
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1441
 msgid "No enabled genres found to catalog.\n"
 msgstr "カタログへの有効なジャンルが見つかりませんでした。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1442
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1445
 msgid "No books available to catalog"
 msgstr "カタログへの本がありません"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1518
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1521
 msgid ""
 "Inconsistent Author Sort values for\n"
 "Author '{0}':\n"
@@ -17181,7 +17185,7 @@ msgstr ""
 "\n"
 "'{0}'の本をすべて選択し、書誌情報編集ダイアログで正しい著者名ソートの値を入力し、カタログを再構築してください。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1535
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1538
 msgid ""
 "Warning: inconsistent Author Sort values for\n"
 "Author '{0}':\n"
@@ -17191,7 +17195,7 @@ msgstr ""
 "著者 '{0}':\n"
 "'{1}' <> '{2}'\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1730
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1733
 msgid ""
 "No books found to catalog.\n"
 "Check 'Excluded books' criteria in E-book options.\n"
@@ -17199,11 +17203,11 @@ msgstr ""
 "カタログへの本が見つかりませんでした。\n"
 "電子書籍オプションの'排除する本’を確認してください。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1732
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:1735
 msgid "No books available to include in catalog"
 msgstr "カタログへ入れる本がありません"
 
-#: /home/kovid/work/calibre/src/calibre/library/catalog.py:5074
+#: /home/kovid/work/calibre/src/calibre/library/catalog.py:5077
 msgid ""
 "\n"
 "*** Adding 'By Authors' Section required for MOBI output ***"
@@ -17257,7 +17261,7 @@ msgid ""
 "settings."
 msgstr "Calibreライブラリへのパス。デフォルトは設定に保存されているパス。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:128
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:139
 msgid ""
 "%prog list [options]\n"
 "\n"
@@ -17267,7 +17271,7 @@ msgstr ""
 "\n"
 "Calibreデータベースに存在する本のリスト\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:135
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:146
 #, python-format
 msgid ""
 "The fields to display when listing books in the database. Should be a comma "
@@ -17280,7 +17284,7 @@ msgstr ""
 "利用できるフィールド: %s\n"
 "デフォルト: %%default 特別フィールド\"すべて\"はすべてのフィールドを選択する場合に利用できます。テキスト出力フォーマットのみで有効です。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:142
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:153
 #, python-format
 msgid ""
 "The field by which to sort the results.\n"
@@ -17291,11 +17295,11 @@ msgstr ""
 "使用できるフィールド：%s\n"
 "デフォルト: %%default"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:144
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:155
 msgid "Sort results in ascending order"
 msgstr "昇順に並び替え"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:146
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:157
 msgid ""
 "Filter the results by the search query. For the format of the search query, "
 "please see the search related documentation in the User Manual. Default is "
@@ -17304,38 +17308,38 @@ msgstr ""
 "検索文字列で結果をフィルターする。検索文字列のフォーマットについては、ユーザーマニュアルの検索関連のドキュメントを参照してください。デフォルトは何もフィル"
 "ターしません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:148
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1050
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:159
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1063
 msgid ""
 "The maximum width of a single line in the output. Defaults to detecting "
 "screen size."
 msgstr "出力ファイル中の、1行の最大の長さ。デフォルトは画面サイズから判別。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:149
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:160
 msgid "The string used to separate fields. Default is a space."
 msgstr "区切り文字(デフォルトは半角スペース）"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:150
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:161
 msgid ""
 "The prefix for all file paths. Default is the absolute path to the library "
 "folder."
 msgstr "すべてのファイルパスの接頭辞。デフォルトはライブラリフォルダーへの絶対パス。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:172
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:185
 msgid "Invalid fields. Available fields:"
 msgstr "無効なフィールド。有効なフィールド:"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:179
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:192
 msgid "Invalid sort field. Available fields:"
 msgstr "無効な並び替えフィールド。有効なフィールド:"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:251
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:264
 msgid ""
 "The following books were not added as they already exist in the database "
 "(see --duplicates option):"
 msgstr "次の本は、すでにデータベースに存在するので、追加されませんでした。（--duplicatesオプションを参照）"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:276
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:289
 msgid ""
 "%prog add [options] file1 file2 file3 ...\n"
 "\n"
@@ -17347,43 +17351,43 @@ msgstr ""
 "\n"
 "指定したファイルをデータベースに追加する。ディレクトリを追加することもできます。下のディレクトリ関連オプションも参照してください。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:284
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:297
 msgid ""
 "Assume that each directory has only a single logical book and that all files "
 "in it are different e-book formats of that book"
 msgstr "各ディレクトリには1つの本しかなく、すべてのファイルは、その本の違ったフォーマットである、と仮定します。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:286
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:299
 msgid "Process directories recursively"
 msgstr "ディレクトリを再帰的に処理する"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:288
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:301
 msgid ""
 "Add books to database even if they already exist. Comparison is done based "
 "on book titles."
 msgstr "本がすでにデータベースに存在する場合でも追加します。本のタイトルに基づいて比較します。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:290
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:303
 msgid "Add an empty book (a book with no formats)"
 msgstr "空の本を追加する（フォーマットが1つも無い本）"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:292
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:305
 msgid "Set the title of the added empty book"
 msgstr "追加された空の本のタイトルを設定。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:294
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:307
 msgid "Set the authors of the added empty book"
 msgstr "追加された空の本の著者を設定。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:296
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:309
 msgid "Set the ISBN of the added empty book"
 msgstr "追加された空の本のISBNを設定します"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:322
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:335
 msgid "You must specify at least one file to add"
 msgstr "追加する、最低1つのファイルを選択しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:340
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:353
 msgid ""
 "%prog remove ids\n"
 "\n"
@@ -17398,11 +17402,11 @@ msgstr ""
 "データーベースからidsで指定された書籍を削除する。idsはコンマ区切りのid番号です（listコマンドを使ってid番号を取得できます）。例： "
 "23,34,57-85 （範囲を指定する場合、最後の範囲番号は含まれません）\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:355
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:368
 msgid "You must specify at least one book to remove"
 msgstr "最低でも1つの削除する本を指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:376
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:389
 msgid ""
 "%prog add_format [options] id ebook_file\n"
 "\n"
@@ -17415,15 +17419,15 @@ msgstr ""
 "IDで表される本にebook_fileの電子書籍をフォーマットの1つとして追加する。IDはlistコマンドで取得できます。同じフォーマットが既に存在する場"
 "合は、置き換えられます。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:390
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:403
 msgid "You must specify an id and an ebook file"
 msgstr "IDと電子書籍ファイルを指定する必要があります"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:395
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:408
 msgid "ebook file must have an extension"
 msgstr "電子書籍ファイルには拡張子が必要です"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:405
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:418
 msgid ""
 "\n"
 "%prog remove_format [options] id fmt\n"
@@ -17438,11 +17442,11 @@ msgstr ""
 "IDで表される論理上の本からfmtフォーマットを削除します。IDはlistコマンドで取得できます。fmtはLRFやTXT、EPUBのようなファイル拡張子で"
 "す。もし論理上の本にfmtが無い場合には何もしません。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:421
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:434
 msgid "You must specify an id and a format"
 msgstr "IDとフォーマットを指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:440
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:453
 msgid ""
 "\n"
 "%prog show_metadata [options] id\n"
@@ -17456,15 +17460,15 @@ msgstr ""
 "\n"
 "IDで指定されたCalibreデータベースにある本の書誌情報を表示する。IDはlistコマンドから取られたID番号。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:447
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:460
 msgid "Print metadata in OPF form (XML)"
 msgstr "OPFフォーマット(XML)で書誌情報を表示"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:456
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:469
 msgid "You must specify an id"
 msgstr "IDを指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:472
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:485
 msgid ""
 "\n"
 "%prog set_metadata [options] id /path/to/metadata.opf\n"
@@ -17482,11 +17486,11 @@ msgstr ""
 "metadata.opfファイルから、Calibreデータベース中のIDで指定された本の書誌情報を設定する。IDはlistコマンドからのID番号。show"
 "_metadataコマンドの--as-opfスイッチを使うと、OPFフォーマットがどのような感じの物か見ることができます。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:487
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:500
 msgid "You must specify an id and a metadata file"
 msgstr "IDと書誌情報ファイルを指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:507
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:520
 msgid ""
 "%prog export [options] ids\n"
 "\n"
@@ -17501,28 +17505,28 @@ msgstr ""
 "ID（カンマ区切りのリスト）で指定された本をファイルシステムにエクスポートします。\n"
 "エクスポート処理は、本の全てのフォーマットと、表紙、書誌情報（OPFファイル）を保存します。ID番号はlistコマンドから取得できます。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:515
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:528
 msgid "Export all books in database, ignoring the list of ids."
 msgstr "IDのリストを無視してデータベースからすべての本をエクスポートします。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:517
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:530
 msgid "Export books to the specified directory. Default is"
 msgstr "本を指定したディレクトリにエクスポートします。デフォルト:"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:519
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:532
 msgid "Export all books into a single directory"
 msgstr "ディレクトリにすべての本をエクスポート"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:526
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:539
 msgid "Specifying this switch will turn this behavior off."
 msgstr "このスイッチ指定すると、この挙動をOFFにできます。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:549
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:562
 #, python-format
 msgid "You must specify some ids or the %s option"
 msgstr "IDか%sオプションを指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:562
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:575
 msgid ""
 "%prog add_custom_column [options] label name datatype\n"
 "\n"
@@ -17538,13 +17542,13 @@ msgstr ""
 "nameは人間に読みやすい列の名前。\n"
 "datatypeは以下のいずれか: {0}\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:571
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:584
 msgid ""
 "This column stores tag like data (i.e. multiple comma separated values). "
 "Only applies if datatype is text."
 msgstr "この列はタグ状のデータ（例: 複数のカンマ区切りの値）を保持します。datatypeがtextの時のみ有効です。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:575
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:588
 msgid ""
 "A dictionary of options to customize how the data in this column will be "
 "interpreted. This is a JSON  string. For enumeration columns, use --"
@@ -17553,11 +17557,11 @@ msgstr ""
 "この列のデータがどのように解釈されるか、カスタマイズするためのオプションのディクショナリ。これはJSON文字列です。列挙型の列の時は、こうしてください。-"
 "-display='{\"enum_values\":[\"val1\", \"val2\"]}'"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:589
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:602
 msgid "You must specify label, name and datatype"
 msgstr "labelとname、datatypeを指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:651
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:664
 msgid ""
 "\n"
 "    %prog catalog /path/to/destination.(CSV|EPUB|MOBI|XML ...) [options]\n"
@@ -17574,7 +17578,7 @@ msgstr ""
 "    オプションは生成されるカタログでどのようにエントリーが表示されるかをコントロールします。\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:664
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:677
 msgid ""
 "Comma-separated list of database IDs to catalog.\n"
 "If declared, --search is ignored.\n"
@@ -17584,7 +17588,7 @@ msgstr ""
 "宣言する場合は、--searchは無視されます。\n"
 "デフォルト: all"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:668
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:681
 msgid ""
 "Filter the results by the search query. For the format of the search query, "
 "please see the search-related documentation in the User Manual.\n"
@@ -17593,16 +17597,16 @@ msgstr ""
 "結果を検索文字列でフィルターします。検索文字列のフォーマットについては、ユーザーマニュアルの検索関連ドキュメントを参照してください。\n"
 "デフォルト: フィルターなし"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:674
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:687
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:503
 msgid "Show detailed output information. Useful for debugging"
 msgstr "詳細な出力情報を表示します。デバッグに便利です。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:687
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:700
 msgid "Error: You must specify a catalog output file"
 msgstr "エラー：カタログ出力ファイルを指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:734
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:747
 msgid ""
 "\n"
 "    %prog set_custom [options] column id value\n"
@@ -17621,17 +17625,17 @@ msgstr ""
 "    custom_columnsコマンドを使ってカスタム列の名前のリストを取得できます。\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:744
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:757
 msgid ""
 "If the column stores multiple values, append the specified values to the "
 "existing ones, instead of replacing them."
 msgstr "もし列に複数の値を設定できる場合、値を指定した値に入れ替えるのではなく、すでにある値に付け加えます。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:755
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:768
 msgid "Error: You must specify a field name, id and value"
 msgstr "エラー：フィールド名、ID、値を指定しなくてはなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:775
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:788
 msgid ""
 "\n"
 "    %prog custom_columns [options]\n"
@@ -17645,20 +17649,20 @@ msgstr ""
 "    存在するカスタム列を表示。列名とIDを表示します。\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:781
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:794
 msgid "Show details for each column."
 msgstr "各列の詳細を表示"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:793
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:806
 #, python-format
 msgid "You will lose all data in the column: %r. Are you sure (y/n)? "
 msgstr "この列のすべてのデータが失われます: %r. よろしいですか (y/n)？ "
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:795
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:808
 msgid "y"
 msgstr "y"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:802
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:815
 msgid ""
 "\n"
 "    %prog remove_custom_column [options] label\n"
@@ -17673,15 +17677,15 @@ msgstr ""
 "    labelで指定されるカスタム列を削除。custom_columns コマンドで存在するカスタム列を見ることができます。\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:809
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:822
 msgid "Do not ask for confirmation"
 msgstr "確認を表示しない"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:819
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:832
 msgid "Error: You must specify a column label"
 msgstr "エラー：列ラベルを指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:830
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:843
 msgid ""
 "\n"
 "    %prog saved_searches [options] list\n"
@@ -17702,40 +17706,40 @@ msgstr ""
 "    もしすでにある名前と同じ名前を追加しようとした場合、すでにある物は置き換えられます。\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:847
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:860
 msgid "Error: You must specify an action (add|remove|list)"
 msgstr "エラー：動作を指定しなければなりません。(add|remove|list)"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:855
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:868
 msgid "Name:"
 msgstr "名前:"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:856
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:869
 msgid "Search string:"
 msgstr "検索文字列:"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:862
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:875
 msgid "Error: You must specify a name and a search string"
 msgstr "エラー：名前と検索文字列を指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:865
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:878
 msgid "added"
 msgstr "追加された"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:870
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:883
 msgid "Error: You must specify a name"
 msgstr "エラー：名前を指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:873
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:886
 msgid "removed"
 msgstr "削除された"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:877
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:890
 #, python-format
 msgid "Error: Action %s not recognized, must be one of: (add|remove|list)"
 msgstr "Error: %sと言う動作がわかりません。次の中の物でなければなりません: (add|remove|list)"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:885
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:898
 msgid ""
 "%prog check_library [options]\n"
 "\n"
@@ -17746,12 +17750,12 @@ msgstr ""
 "\n"
 "ライブラリのあるファイルシステムをチェックします。レポート：{0}\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:892
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1042
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:905
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1055
 msgid "Output in CSV"
 msgstr "CSVで出力"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:895
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:908
 msgid ""
 "Comma-separated list of reports.\n"
 "Default: all"
@@ -17759,7 +17763,7 @@ msgstr ""
 "カンマ区切りのレポートのリスト\n"
 "デフォルト: all"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:899
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:912
 msgid ""
 "Comma-separated list of extensions to ignore.\n"
 "Default: all"
@@ -17767,7 +17771,7 @@ msgstr ""
 "無視する拡張子(カンマ区切りのリスト)\n"
 "デフォルト: all"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:903
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:916
 msgid ""
 "Comma-separated list of names to ignore.\n"
 "Default: all"
@@ -17775,11 +17779,11 @@ msgstr ""
 "無視する名前のカンマ区切りのリスト\n"
 "デフォルト: all"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:933
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:946
 msgid "Unknown report check"
 msgstr "不明なレポートチェック"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:967
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:980
 msgid ""
 "%prog restore_database [options]\n"
 "\n"
@@ -17803,18 +17807,18 @@ msgstr ""
 "す。再生された書誌情報は、OPFファイルの内容と同様になります。\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:981
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:994
 msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr "実際にリカバリーを行います。このコマンドはこのオプションを指定しなければ実行されません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:994
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1007
 #, python-format
 msgid "You must provide the %s option to do a recovery"
 msgstr "実際にリカバリーを行うには%sオプションを指定しなければなりません。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1031
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1044
 msgid ""
 "%prog list_categories [options]\n"
 "\n"
@@ -17825,19 +17829,19 @@ msgstr ""
 "\n"
 "データベース中のカテゴリ情報のレポートを作成します。情報はタグブラウザーに表示されるものと同等です。\n"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1039
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1052
 msgid ""
 "Output only the number of items in a category instead of the counts per item "
 "within the category"
 msgstr "カテゴリ内のアイテムのカウント番号ではなく、カテゴリ内のアイテム番号のみを出力します。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1044
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1057
 msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr "CSVモードでカテゴリーの値の周りを囲む文字。デフォルトはダブルクオート(\")。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1047
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1060
 msgid ""
 "Comma-separated list of category lookup names.\n"
 "Default: all"
@@ -17845,15 +17849,15 @@ msgstr ""
 "カンマ区切りのカテゴリの検索名リスト。\n"
 "デフォルト: all"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1053
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1066
 msgid "The string used to separate fields in CSV mode. Default is a comma."
 msgstr "CSVモードでのフィールド区切りに使われる文字列。デフォルトはカンマです。"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1091
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1104
 msgid "CATEGORY ITEMS"
 msgstr "カテゴリー・アイテム"
 
-#: /home/kovid/work/calibre/src/calibre/library/cli.py:1164
+#: /home/kovid/work/calibre/src/calibre/library/cli.py:1177
 #, python-format
 msgid ""
 "%%prog command [options] [arguments]\n"
@@ -17889,17 +17893,17 @@ msgstr "ラベルは、小文字のアルファベット、数字、アンダー
 msgid "%(tt)sAverage rating is %(rating)3.1f"
 msgstr "%(tt)s 平均評価は %(rating)3.1f"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3425
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3429
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p>古いデータベースを %s の電子書籍ライブラリへ移行<br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3454
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3458
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr "コピー中<b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3471
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3475
 msgid "Compacting database"
 msgstr "データベースのコンパクト化"
 
@@ -19395,16 +19399,16 @@ msgstr "サーバー %s の認証に失敗しました"
 msgid "Control email delivery"
 msgstr "メール配送の制御"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:120
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:123
 msgid "Unknown section"
 msgstr "不明なセクション"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:142
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:145
 msgid "Unknown feed"
 msgstr "不明なフィード"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:160
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:187
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:163
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:190
 msgid "Untitled article"
 msgstr "タイトルのない記事"
 
@@ -19435,112 +19439,112 @@ msgstr "Calibreサーバーから最新の内蔵レシピをダウンロード�
 msgid "Unknown News Source"
 msgstr "不明なニュースソース"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:718
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:737
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
 msgstr "\"%s\" レシピはユーザー名とパスワードが必要です。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:825
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:844
 msgid "Download finished"
 msgstr "ダウンロード完了"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:827
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:846
 msgid "Failed to download the following articles:"
 msgstr "以下の記事のダウンロードに失敗しました："
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:833
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:852
 msgid "Failed to download parts of the following articles:"
 msgstr "以下の記事の一部のダウンロードに失敗しました。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:835
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:854
 msgid " from "
 msgstr " / "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:837
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:856
 msgid "\tFailed links:"
 msgstr "\t失敗したリンク:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:939
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:958
 msgid "Could not fetch article."
 msgstr "記事を取得できませんでした。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:941
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:960
 msgid "The debug traceback is available earlier in this log"
 msgstr "デバッグ用トレースバックはこのログの前のほうにあります。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:943
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:962
 msgid "Run with -vv to see the reason"
 msgstr "-wを付けて実行すると理由が参照できます"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:966
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:985
 msgid "Fetching feeds..."
 msgstr "フィードの取得中..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:971
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:990
 msgid "Got feeds from index page"
 msgstr "インデックスページからフィードを取得"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:980
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:999
 msgid "Trying to download cover..."
 msgstr "表紙をダウンロードしようとしています..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:982
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1001
 msgid "Generating masthead..."
 msgstr "ロゴイメージを生成中..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1062
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1081
 #, python-format
 msgid "Starting download [%d thread(s)]..."
 msgstr "ダウンロードを開始 [%d スレッド]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1078
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1097
 #, python-format
 msgid "Feeds downloaded to %s"
 msgstr "%s にフィードがダウンロードされました。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1087
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1106
 #, python-format
 msgid "Could not download cover: %s"
 msgstr "表紙がダウンロードできません: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1096
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1115
 #, python-format
 msgid "Downloading cover from %s"
 msgstr "%s から表紙をダウンロード中"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1142
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1161
 msgid "Masthead image downloaded"
 msgstr "ロゴイメージをダウンロードしました"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1223
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1242
 msgid "Articles in this issue: "
 msgstr "このニュースの記事: "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1293
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1314
 msgid "Untitled Article"
 msgstr "タイトルのない記事"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1364
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1386
 #, python-format
 msgid "Article downloaded: %s"
 msgstr "記事をダウンロードしました：%s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1375
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1397
 #, python-format
 msgid "Article download failed: %s"
 msgstr "記事のダウンロードに失敗しました：%s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1392
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1414
 msgid "Fetching feed"
 msgstr "フィードを取得中"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1536
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1558
 msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
 msgstr "ログインに失敗。Calibreの定期刊行物サービスにあるユーザー名とパスワードの設定を確かめてください。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1551
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1573
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
@@ -20457,10 +20461,26 @@ msgstr ""
 "もしTrueの場合フィールドは２つの列を使ってレイアウトされ、もしFalseの場合1つの列が使われます。"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:411
+msgid "Order of custom column(s) in edit metadata"
+msgstr ""
+
+#: /home/kovid/work/calibre/resources/default_tweaks.py:412
+msgid ""
+"Controls the order that custom columns are listed in edit metadata single\n"
+"and bulk. The columns listed in the tweak are displayed first and in the\n"
+"order provided. Any columns not listed are dislayed after the listed ones,\n"
+"in alphabetical order. Do note that this tweak does not change the size of\n"
+"the edit widgets. Putting comments widgets in this list may result in some\n"
+"odd widget spacing when using two-column mode.\n"
+"Enter a comma-separated list of custom field lookup names, as in\n"
+"metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']"
+msgstr ""
+
+#: /home/kovid/work/calibre/resources/default_tweaks.py:422
 msgid "The number of seconds to wait before sending emails"
 msgstr "メールを送信する前に待つ秒数"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:412
+#: /home/kovid/work/calibre/resources/default_tweaks.py:423
 msgid ""
 "The number of seconds to wait before sending emails when using a\n"
 "public email server like gmail or hotmail. Default is: 5 minutes\n"
@@ -20472,11 +20492,11 @@ msgstr ""
 "デフォルトは5分です。この値を低くすると、サーバーのSPAM制限に引っかかって送信に失敗する可能性があります。変更点は、Calibreを再起動した後で有効"
 "になります。"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:419
+#: /home/kovid/work/calibre/resources/default_tweaks.py:430
 msgid "Remove the bright yellow lines at the edges of the book list"
 msgstr "本リストの端にある明るい黄色いラインを取り除く"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:420
+#: /home/kovid/work/calibre/resources/default_tweaks.py:431
 msgid ""
 "Control whether the bright yellow lines at the edges of book list are drawn\n"
 "when a section of the user interface is hidden. Changes will take effect\n"
@@ -20485,11 +20505,11 @@ msgstr ""
 "本リストの端にある、ユーザーインターフェースの一部が隠れている時に表示される、明るい黄色い線を表示するかどうかを設定する。変更はcalibreの再起動後に"
 "有効になります。"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:425
+#: /home/kovid/work/calibre/resources/default_tweaks.py:436
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr "calibreのライブラリに保存される表紙の幅、高さの最大値"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:426
+#: /home/kovid/work/calibre/resources/default_tweaks.py:437
 msgid ""
 "All covers in the calibre library will be resized, preserving aspect ratio,\n"
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
@@ -20497,11 +20517,11 @@ msgid ""
 msgstr ""
 "calibreのライブラリ内の全ての表紙は、アスペクト比を保ちながらこのサイズにリサイズされます。これは異常に大きな表紙による遅さを避けるためにあります。"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:431
+#: /home/kovid/work/calibre/resources/default_tweaks.py:442
 msgid "Where to send downloaded news"
 msgstr "ダウンロードしたニュースの送り先"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:432
+#: /home/kovid/work/calibre/resources/default_tweaks.py:443
 msgid ""
 "When automatically sending downloaded news to a connected device, calibre\n"
 "will by default send it to the main memory. By changing this tweak, you can\n"
@@ -20514,11 +20534,11 @@ msgstr ""
 "るかを変更できます。有効な値は\"main\", \"carda\", "
 "\"cardb\"です。注：もし選択した場所に十分なスペースがない場合、ファイルは最も空きがある場所へ送られます。"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:439
+#: /home/kovid/work/calibre/resources/default_tweaks.py:450
 msgid "What interfaces should the content server listen on"
 msgstr "コンテンツサーバーがどのインターフェースをlistenするか"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:440
+#: /home/kovid/work/calibre/resources/default_tweaks.py:451
 msgid ""
 "By default, the calibre content server listens on '0.0.0.0' which means that "
 "it\n"
@@ -20533,11 +20553,11 @@ msgstr ""
 "カルマシンからの接続のみに限定したり、'::'に変える事で、すべてのIPv4とIPv6の接続を受けることができます。（ただし、これはすべてのOSで動作する"
 "とは限りません）"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:447
+#: /home/kovid/work/calibre/resources/default_tweaks.py:458
 msgid "Unified toolbar on OS X"
 msgstr "OS XでのUnified toolbar"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:448
+#: /home/kovid/work/calibre/resources/default_tweaks.py:459
 msgid ""
 "If you enable this option and restart calibre, the toolbar will be "
 "'unified'\n"
@@ -20553,11 +20573,11 @@ msgstr ""
 "しかしながら、これにはいくつかのバグがあり、例えばツールバーの最小幅が本来の2倍になったり他のランダムなバグが発生します。そのため、自己責任で有効にしてく"
 "ださい。"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:455
+#: /home/kovid/work/calibre/resources/default_tweaks.py:466
 msgid "Save original file when converting from same format to same format"
 msgstr "同じフォーマットから同じフォーマットへ変換する場合、オリジナルのファイルを保存しておく。"
 
-#: /home/kovid/work/calibre/resources/default_tweaks.py:456
+#: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
 "When calibre does a conversion from the same format to the same format, for\n"
 "example, from EPUB to EPUB, the original file is saved, so that in case the\n"
