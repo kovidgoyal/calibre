@@ -653,6 +653,25 @@ class BasicNewsRecipe(Recipe):
         '''
         raise NotImplementedError
 
+    def add_toc_thumbnail(self, article, src):
+        '''
+        Call this from populate_article_metadata with the src attribute of an
+        <img> tag from the article that is appropriate for use as the thumbnail
+        representing the article in the Table of Contents. Whether the
+        thumbnail is actually used is device dependent (currently only used by
+        the Kindles). Note that the referenced image must be one that was
+        successfully downloaded, otherwise it will be ignored.
+        '''
+        if not src or not hasattr(article, 'toc_thumbnail'):
+            return
+
+        src = src.replace('\\', '/')
+        if re.search(r'feed_\d+/article_\d+/images/img', src, flags=re.I) is None:
+            self.log.warn('Ignoring invalid TOC thumbnail image: %r'%src)
+            return
+        article.toc_thumbnail = re.sub(r'^.*?feed', 'feed',
+                src, flags=re.IGNORECASE)
+
     def populate_article_metadata(self, article, soup, first):
         '''
         Called when each HTML page belonging to article is downloaded.
@@ -1285,13 +1304,16 @@ class BasicNewsRecipe(Recipe):
                         desc = None
                     else:
                         desc = self.description_limiter(desc)
+                    tt = a.toc_thumbnail if a.toc_thumbnail else None
                     entries.append('%sindex.html'%adir)
                     po = self.play_order_map.get(entries[-1], None)
                     if po is None:
                         self.play_order_counter += 1
                         po = self.play_order_counter
-                    parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'),
-                                    play_order=po, author=auth, description=desc)
+                    parent.add_item('%sindex.html'%adir, None,
+                            a.title if a.title else _('Untitled Article'),
+                            play_order=po, author=auth,
+                            description=desc, toc_thumbnail=tt)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])

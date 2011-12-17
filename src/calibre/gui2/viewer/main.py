@@ -758,11 +758,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.set_page_number(frac)
 
     def next_document(self):
-        if self.current_index < len(self.iterator.spine) - 1:
+        if (hasattr(self, 'current_index') and self.current_index <
+                len(self.iterator.spine) - 1):
             self.load_path(self.iterator.spine[self.current_index+1])
 
     def previous_document(self):
-        if self.current_index > 0:
+        if hasattr(self, 'current_index') and self.current_index > 0:
             self.load_path(self.iterator.spine[self.current_index-1], pos=1.0)
 
     def keyPressEvent(self, event):

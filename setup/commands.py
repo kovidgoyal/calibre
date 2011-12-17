@@ -11,7 +11,7 @@ __all__ = [
         'build', 'build_pdf2xml', 'server',
         'gui',
         'develop', 'install',
-        'kakasi', 'resources',
+        'kakasi', 'coffee', 'resources',
         'check',
         'sdist',
         'manual', 'tag_release',
@@ -49,9 +49,10 @@ gui = GUI()
 from setup.check import Check
 check = Check()
 
-from setup.resources import Resources, Kakasi
+from setup.resources import Resources, Kakasi, Coffee
 resources = Resources()
 kakasi = Kakasi()
+coffee = Coffee()
 
 from setup.publish import Manual, TagRelease, Stage1, Stage2, \
         Stage3, Stage4, Stage5, Publish

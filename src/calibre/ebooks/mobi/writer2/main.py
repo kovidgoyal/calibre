@@ -161,7 +161,7 @@ class MobiWriter(object):
         index = 1
 
         mh_href = None
-        if 'masthead' in oeb.guide:
+        if 'masthead' in oeb.guide and oeb.guide['masthead'].href:
             mh_href = oeb.guide['masthead'].href
             self.image_records.append(None)
             index += 1
