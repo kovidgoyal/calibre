@@ -1,56 +1,68 @@
-# -*- coding: utf-8 -*-
+import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class Focus_pl(BasicNewsRecipe):
-    title          = u'Focus.pl'
-    oldest_article = 15
-    max_articles_per_feed = 100
-    __author__        = 'fenuks'
-    language       = 'pl'
-    description ='polish scientific monthly magazine'
+class FocusRecipe(BasicNewsRecipe):
+    __license__ = 'GPL v3'
+    __author__ = u'intromatyk <intromatyk@gmail.com>'
+    language = 'pl'
+    version = 1
+
+    title = u'Focus'
+    publisher = u'Gruner + Jahr Polska'
+    category = u'News'
+    description = u'Newspaper'
     category='magazine'
     cover_url=''
     remove_empty_feeds= True
     no_stylesheets=True
-    #remove_tags_before=dict(name='div', attrs={'class':'h2 h2f'})
-    #remove_tags_after=dict(name='div', attrs={'class':'clear'})
-    keep_only_tags=[dict(name='div', attrs={'class':['h2 h2f', 'news-left', 'news-right']})]
-    feeds          = [(u'Wszystkie kategorie', u'http://focus.pl.feedsportal.com/c/32992/f/532692/index.rss'),
-	(u'Nauka', u'http://focus.pl.feedsportal.com/c/32992/f/532693/index.rss'),
-	(u'Historia', u'http://focus.pl.feedsportal.com/c/32992/f/532694/index.rss'),
-	(u'Cywilizacja', u'http://focus.pl.feedsportal.com/c/32992/f/532695/index.rss'),
-	(u'Sport', u'http://focus.pl.feedsportal.com/c/32992/f/532696/index.rss'),
-	(u'Technika', u'http://focus.pl.feedsportal.com/c/32992/f/532697/index.rss'),
-	(u'Przyroda', u'http://focus.pl.feedsportal.com/c/32992/f/532698/index.rss'),
-	(u'Technologie', u'http://focus.pl.feedsportal.com/c/32992/f/532699/index.rss'),
-	(u'Warto wiedzieć', u'http://focus.pl.feedsportal.com/c/32992/f/532700/index.rss'),
-           ]
+    oldest_article = 7
+    max_articles_per_feed = 100000
+    recursions = 0
+
+    no_stylesheets = True
+    remove_javascript = True
+    encoding = 'utf-8'
+    # Seems to work best, but YMMV
+    simultaneous_downloads = 5
+
+    r = re.compile('.*(?P<url>http:\/\/(www.focus.pl)|(rss.feedsportal.com\/c)\/.*\.html?).*')
+    keep_only_tags =[]
+    keep_only_tags.append(dict(name = 'div', attrs = {'id' : 'cll'}))
+    
+    remove_tags =[]
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'ulm noprint'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'txb'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'h2'}))
+    remove_tags.append(dict(name = 'ul', attrs = {'class' : 'txu'}))
+    remove_tags.append(dict(name = 'div', attrs = {'class' : 'ulc'}))
+
+    extra_css = '''
+                    body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
+                    h1{text-align: left;}
+                    h2{font-size: medium; font-weight: bold;}
+                    p.lead {font-weight: bold; text-align: left;}
+                    .authordate {font-size: small; color: #696969;}
+                    .fot{font-size: x-small; color: #666666;}
+                    '''    
+
+
+    feeds          = [
+                            ('Nauka', 'http://focus.pl.feedsportal.com/c/32992/f/532693/index.rss'),
+                            ('Historia', 'http://focus.pl.feedsportal.com/c/32992/f/532694/index.rss'),
+                            ('Cywilizacja', 'http://focus.pl.feedsportal.com/c/32992/f/532695/index.rss'),
+                            ('Sport', 'http://focus.pl.feedsportal.com/c/32992/f/532696/index.rss'),
+                            ('Technika', 'http://focus.pl.feedsportal.com/c/32992/f/532697/index.rss'),
+                            ('Przyroda', 'http://focus.pl.feedsportal.com/c/32992/f/532698/index.rss'),
+                            ('Technologie', 'http://focus.pl.feedsportal.com/c/32992/f/532699/index.rss'),                            
+                          ]
 
     def skip_ad_pages(self, soup):
-          if 'Advertisement' in soup.title:
-              tag=soup.find(name='a')
-              if tag:
-                 new_soup=self.index_to_soup(tag['href']+ 'do-druku/1/', raw=True)
-                 return new_soup
-
-    def append_page(self, appendtag):
-            tag=appendtag.find(name='div', attrs={'class':'arrows'})
-            if tag:
-                nexturl='http://www.focus.pl/'+tag.a['href']
-                for rem in appendtag.findAll(name='div', attrs={'class':'klik-nav'}):
-                    rem.extract()
-                while nexturl:
-                     soup2=self.index_to_soup(nexturl)
-                     nexturl=None
-                     pagetext=soup2.find(name='div', attrs={'class':'txt'})
-                     tag=pagetext.find(name='div', attrs={'class':'arrows'})
-                     for r in tag.findAll(name='a'):
-                         if u'Następne' in r.string:
-                             nexturl='http://www.focus.pl/'+r['href']
-                     for rem in pagetext.findAll(name='div', attrs={'class':'klik-nav'}):
-                         rem.extract()
-                     pos = len(appendtag.contents)
-                     appendtag.insert(pos, pagetext)
+        if ('advertisement' in soup.find('title').string.lower()):
+            href = soup.find('a').get('href')
+            return self.index_to_soup(href, raw=True)
+        else:
+            return None
 
     def get_cover_url(self):
         soup=self.index_to_soup('http://www.focus.pl/magazyn/')
@@ -59,7 +71,14 @@ class Focus_pl(BasicNewsRecipe):
             self.cover_url='http://www.focus.pl/' + tag.a['href']
             return getattr(self, 'cover_url', self.cover_url)
 
-
-    def preprocess_html(self, soup):
-         self.append_page(soup.body)
-         return soup
+    def print_version(self, url):
+     if url.count ('focus.pl.feedsportal.com'):
+            u = url.find('focus0Bpl')
+            u = 'http://www.focus.pl/' + url[u + 11:]
+            u = u.replace('0C', '/')
+            u = u.replace('A', '')
+            u = u.replace ('0E','-')
+            u = u.replace('/nc/1//story01.htm', '/do-druku/1')
+     else:
+            u = url.replace('/nc/1','/do-druku/1')           
+     return u
