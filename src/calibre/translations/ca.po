@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-16 09:06+0000\n"
-"PO-Revision-Date: 2011-12-10 17:34+0000\n"
+"PO-Revision-Date: 2011-12-17 13:19+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-17 04:55+0000\n"
+"X-Launchpad-Export-Date: 2011-12-18 04:35+0000\n"
 "X-Generator: Launchpad (build 14525)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -8177,7 +8177,7 @@ msgstr "Prova-ho"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:93
 msgid "Occurrences:"
-msgstr "Vegades:"
+msgstr "Coincidències:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder_ui.py:94
 #: /home/kovid/work/calibre/src/calibre/gui2/store/mobileread_store_dialog_ui.py:64
@@ -11094,7 +11094,7 @@ msgstr "Afegeix una font nova de notícies"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:444
 msgid "Download all scheduled news sources"
-msgstr ""
+msgstr "Baixa totes les fonts de notícies programades"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Go"
@@ -17279,7 +17279,7 @@ msgstr "&Cerca al diccionari"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:541
 msgid "&Search for next occurrence"
-msgstr ""
+msgstr "&Cerca la coincidència següent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:546
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
@@ -22180,7 +22180,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:411
 msgid "Order of custom column(s) in edit metadata"
-msgstr ""
+msgstr "Ordre de les columnes personalitzades en editar les metadades"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:412
 msgid ""
@@ -22193,6 +22193,16 @@ msgid ""
 "Enter a comma-separated list of custom field lookup names, as in\n"
 "metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']"
 msgstr ""
+"Controla l'ordre que es mostren les columnes personalitzades en l'edició de\n"
+"metadades individual i en massa. Les columnes incloses en l'ajustament es\n"
+"mostren primer i en l'ordre que s'ha donat. La resta de columnes es mostren\n"
+"després en ordre alfabètic. Tingueu en compte que aquest ajustament no\n"
+"canvia la mida dels ginys d'edició. Si es posa ginys de comentari a la "
+"llista pot\n"
+"fer causar un espaiat dels ginys irregular en el mode de dues columnes.\n"
+"Introduïu una llista separada per comes dels noms de camps de cerca\n"
+"personalitzada com a:\n"
+"metadata_edit_custom_column_order = ['#gènere', '#lesmevesetiquetes', '#etc']"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:422
 msgid "The number of seconds to wait before sending emails"
