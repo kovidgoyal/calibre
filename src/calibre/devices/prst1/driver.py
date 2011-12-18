@@ -285,7 +285,7 @@ class PRST1(USBMS):
             cursor.execute(query)
         except DatabaseError:
             raise DeviceError('The SONY database is corrupted. '
-                    ' Delete the file %s on your reader and then disconnect '
+                    ' Delete the file books.db on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file may cause your reader to forget '
