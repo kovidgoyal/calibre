@@ -409,6 +409,17 @@ locale_for_sorting =  ''
 # columns. If False, one column is used.
 metadata_single_use_2_cols_for_custom_fields = True
 
+#: Order of custom column(s) in edit metadata
+# Controls the order that custom columns are listed in edit metadata single
+# and bulk. The columns listed in the tweak are displayed first and in the
+# order provided. Any columns not listed are dislayed after the listed ones,
+# in alphabetical order. Do note that this tweak does not change the size of
+# the edit widgets. Putting comments widgets in this list may result in some
+# odd widget spacing when using two-column mode.
+# Enter a comma-separated list of custom field lookup names, as in
+# metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']
+metadata_edit_custom_column_order = []
+
 #: The number of seconds to wait before sending emails
 # The number of seconds to wait before sending emails when using a
 # public email server like gmail or hotmail. Default is: 5 minutes

@@ -33,6 +33,9 @@ class PluginWidget(QWidget, Ui_Form):
             self.all_fields.append(x)
             QListWidgetItem(x, self.db_fields)
 
+            fm = db.field_metadata[x]
+            if fm['datatype'] == 'series':
+                QListWidgetItem(x+'_index', self.db_fields)
 
     def initialize(self, name, db):
         self.name = name

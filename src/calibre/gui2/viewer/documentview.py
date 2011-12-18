@@ -537,6 +537,12 @@ class DocumentView(QWebView): # {{{
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
+        self.search_action = QAction(QIcon(I('dictionary.png')),
+                _('&Search for next occurrence'), self)
+        self.search_action.setShortcut(Qt.CTRL+Qt.Key_S)
+        self.search_action.triggered.connect(self.search_next)
+        self.addAction(self.search_action)
+
         self.goto_location_action = QAction(_('Go to...'), self)
         self.goto_location_menu = m = QMenu(self)
         self.goto_location_actions = a = {
@@ -620,6 +626,7 @@ class DocumentView(QWebView): # {{{
         text = unicode(self.selectedText())
         if text:
             menu.insertAction(list(menu.actions())[0], self.dictionary_action)
+            menu.insertAction(list(menu.actions())[0], self.search_action)
         menu.addSeparator()
         menu.addAction(self.goto_location_action)
         menu.exec_(ev.globalPos())
@@ -629,6 +636,12 @@ class DocumentView(QWebView): # {{{
             t = unicode(self.selectedText()).strip()
             if t:
                 self.manager.lookup(t.split()[0])
+
+    def search_next(self):
+        if self.manager is not None:
+            t = unicode(self.selectedText()).strip()
+            if t:
+                self.manager.search.set_search_string(t)
 
     def set_manager(self, manager):
         self.manager = manager

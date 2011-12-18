@@ -1,61 +1,44 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
-import re
+
+'''Calibre recipe to convert the RSS feeds of the Berliner Zeitung to an ebook.'''
 
 class SportsIllustratedRecipe(BasicNewsRecipe) :
-    __author__    = 'ape'
-    __copyright__ = 'ape'
+    __author__    = 'a.peter'
+    __copyright__ = 'a.peter'
     __license__   = 'GPL v3'
     language      = 'de'
-    description   = 'Berliner Zeitung'
-    version       = 2
+    description   = 'Berliner Zeitung RSS'
+    version       = 4
     title         = u'Berliner Zeitung'
     timefmt       = ' [%d.%m.%Y]'
 
+    #oldest_article = 7.0
     no_stylesheets = True
     remove_javascript = True
     use_embedded_content = False
     publication_type = 'newspaper'
 
-    keep_only_tags = [dict(name='div', attrs={'class':'teaser t_split t_artikel'})]
+    remove_tags_before = dict(name='div', attrs={'class':'newstype'})
+    remove_tags_after = [dict(id='article_text')]
 
-    INDEX = 'http://www.berlinonline.de/berliner-zeitung/'
-
-    def parse_index(self):
-        base = 'http://www.berlinonline.de'
-        answer = []
-        articles = {}
-        more = 1
-
-        soup = self.index_to_soup(self.INDEX)
-
-        # Get list of links to ressorts from index page
-        ressort_list = soup.findAll('ul', attrs={'class': re.compile('ressortlist')})
-        for ressort in ressort_list[0].findAll('a'):
-            feed_title = ressort.string
-            print 'Analyzing', feed_title
-            if not articles.has_key(feed_title):
-                articles[feed_title] = []
-                answer.append(feed_title)
-            # Load ressort page.
-            feed = self.index_to_soup('http://www.berlinonline.de' + ressort['href'])
-            # find mainbar div which contains the list of all articles
-            for article_container in feed.findAll('div', attrs={'class': re.compile('mainbar')}):
-                # iterate over all articles
-                for article_teaser in article_container.findAll('div', attrs={'class': re.compile('teaser')}):
-                    # extract title of article
-                    if article_teaser.h3 != None:
-                        article = {'title' : article_teaser.h3.a.string, 'date' : u'', 'url'  : base + article_teaser.h3.a['href'], 'description' : u''}
-                        articles[feed_title].append(article)
-                    else:
-                        # Skip teasers for missing photos
-                        if article_teaser.div.p.contents[0].find('Foto:') > -1:
-                            continue
-                        article = {'title': 'Weitere Artikel ' + str(more), 'date': u'', 'url': base + article_teaser.div.p.a['href'], 'description': u''}
-                        articles[feed_title].append(article)
-                        more += 1
-        answer = [[key, articles[key]] for key in answer if articles.has_key(key)]
-        return answer
+    feeds = [(u'Startseite', u'http://www.berliner-zeitung.de/home/10808950,10808950,view,asFeed.xml'),
+             (u'Politik', u'http://www.berliner-zeitung.de/home/10808018,10808018,view,asFeed.xml'),
+             (u'Wirtschaft', u'http://www.berliner-zeitung.de/home/10808230,10808230,view,asFeed.xml'),
+             (u'Berlin', u'http://www.berliner-zeitung.de/home/10809148,10809148,view,asFeed.xml'),
+             (u'Brandenburg', u'http://www.berliner-zeitung.de/home/10809312,10809312,view,asFeed.xml'),
+             (u'Wissenschaft', u'http://www.berliner-zeitung.de/home/10808894,10808894,view,asFeed.xml'),
+             (u'Digital', u'http://www.berliner-zeitung.de/home/10808718,10808718,view,asFeed.xml'),
+             (u'Kultur', u'http://www.berliner-zeitung.de/home/10809150,10809150,view,asFeed.xml'),
+             (u'Panorama', u'http://www.berliner-zeitung.de/home/10808334,10808334,view,asFeed.xml'),
+             (u'Sport', u'http://www.berliner-zeitung.de/home/10808794,10808794,view,asFeed.xml'),
+             (u'Hertha', u'http://www.berliner-zeitung.de/home/10808800,10808800,view,asFeed.xml'),
+             (u'Union', u'http://www.berliner-zeitung.de/home/10808802,10808802,view,asFeed.xml'),
+             (u'Verkehr', u'http://www.berliner-zeitung.de/home/10809298,10809298,view,asFeed.xml'),
+             (u'Polizei', u'http://www.berliner-zeitung.de/home/10809296,10809296,view,asFeed.xml'),
+             (u'Meinung', u'http://www.berliner-zeitung.de/home/10808020,10808020,view,asFeed.xml')]
 
     def get_masthead_url(self):
-        return 'http://www.berlinonline.de/.img/berliner-zeitung/blz_logo.gif'
+        return 'http://www.berliner-zeitung.de/image/view/10810244,7040611,data,logo.png'
 
+    def print_version(self, url):
+        return url.replace('.html', ',view,printVersion.html')

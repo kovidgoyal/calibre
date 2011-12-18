@@ -3376,11 +3376,15 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         if prefix is None:
             prefix = self.library_path
-        FIELDS = set(['title', 'sort', 'authors', 'author_sort', 'publisher', 'rating',
-            'timestamp', 'size', 'tags', 'comments', 'series', 'series_index',
-            'uuid', 'pubdate', 'last_modified', 'identifiers', 'languages'])
-        for x in self.custom_column_num_map:
-            FIELDS.add(x)
+        fdata = self.custom_column_num_map
+
+        FIELDS = set(['title', 'sort', 'authors', 'author_sort', 'publisher',
+            'rating', 'timestamp', 'size', 'tags', 'comments', 'series',
+            'series_index', 'uuid', 'pubdate', 'last_modified', 'identifiers',
+            'languages']).union(set(fdata))
+        for x, data in fdata.iteritems():
+            if data['datatype'] == 'series':
+                FIELDS.add('%d_index'%x)
         data = []
         for record in self.data:
             if record is None: continue

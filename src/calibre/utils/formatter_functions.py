@@ -712,20 +712,26 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             'value of "A.B.C, D.E.F", {#genre:subitems(0,1)} returns "A, D". '
             '{#genre:subitems(0,2)} returns "A.B, D.E"')
 
+    period_pattern = re.compile(r'(?<=[^\.\s])\.(?=[^\.\s])', re.U)
+
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index):
         if not val:
             return ''
         si = int(start_index)
         ei = int(end_index)
+        has_periods = '.' in val
         items = [v.strip() for v in val.split(',')]
         rv = set()
         for item in items:
-            component = item.split('.')
+            if has_periods and '.' in item:
+                components = self.period_pattern.split(item)
+            else:
+                components = [item]
             try:
                 if ei == 0:
-                    rv.add('.'.join(component[si:]))
+                    rv.add('.'.join(components[si:]))
                 else:
-                    rv.add('.'.join(component[si:ei]))
+                    rv.add('.'.join(components[si:ei]))
             except:
                 pass
         return ', '.join(sorted(rv, key=sort_key))

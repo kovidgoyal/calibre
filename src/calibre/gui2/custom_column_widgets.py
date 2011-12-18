@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit, \
-        QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, \
+        QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout, \
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
         QPushButton
 
@@ -401,70 +401,106 @@ widgets = {
         'enumeration': Enumeration
 }
 
-def field_sort_key(y, x=None):
-    m1 = x[y]
-    n1 = 'zzzzz' if m1['datatype'] == 'comments' else m1['name']
+def field_sort_key(y, fm=None):
+    m1 = fm[y]
+    name = icu_lower(m1['name'])
+    n1 = 'zzzzz' + name if m1['datatype'] == 'comments' else name
     return sort_key(n1)
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
-    def widget_factory(type, col):
+    def widget_factory(typ, key):
         if bulk:
-            w = bulk_widgets[type](db, col, parent)
+            w = bulk_widgets[typ](db, key, parent)
         else:
-            w = widgets[type](db, col, parent)
+            w = widgets[typ](db, key, parent)
         if book_id is not None:
             w.initialize(book_id)
         return w
-    x = db.custom_column_num_map
-    cols = list(x)
-    cols.sort(key=partial(field_sort_key, x=x))
-    count_non_comment = len([c for c in cols if x[c]['datatype'] != 'comments'])
+    fm = db.field_metadata
 
-    layout.setColumnStretch(1, 10)
+    # Get list of all non-composite custom fields. We must make widgets for these
+    fields = fm.custom_field_keys(include_composites=False)
+    cols_to_display = fields
+    cols_to_display.sort(key=partial(field_sort_key, fm=fm))
+
+    # This will contain the fields in the order to display them
+    cols = []
+
+    # The fields named here must be first in the widget list
+    tweak_cols = tweaks['metadata_edit_custom_column_order']
+    comments_in_tweak = 0
+    for key in (tweak_cols or ()):
+        # Add the key if it really exists in the database
+        if key in cols_to_display:
+            cols.append(key)
+            if fm[key]['datatype'] == 'comments':
+                comments_in_tweak += 1
+
+    # Add all the remaining fields
+    comments_not_in_tweak = 0
+    for key in cols_to_display:
+        if key not in cols:
+            cols.append(key)
+            if fm[key]['datatype'] == 'comments':
+                comments_not_in_tweak += 1
+
+    count = len(cols)
+    layout_rows_for_comments = 9
     if two_column:
-        turnover_point = (count_non_comment+1)/2
-        layout.setColumnStretch(3, 10)
+        turnover_point = ((count-comments_not_in_tweak+1) +
+                          comments_in_tweak*(layout_rows_for_comments-1))/2
     else:
         # Avoid problems with multi-line widgets
-        turnover_point = count_non_comment + 1000
+        turnover_point = count + 1000
     ans = []
-    column = row = comments_row = 0
-    for col in cols:
-        if not x[col]['editable']:
+    column = row = base_row = max_row = 0
+    for key in cols:
+        if not fm[key]['is_editable']:
+            continue # this almost never happens
+        dt = fm[key]['datatype']
+        if dt == 'composite' or (bulk and dt == 'comments'):
             continue
-        dt = x[col]['datatype']
-        if dt == 'composite':
-            continue
-        if dt == 'comments':
-            continue
-        w = widget_factory(dt, col)
+        w = widget_factory(dt, fm[key]['colnum'])
         ans.append(w)
+        if two_column and dt == 'comments':
+            # Here for compatibility with old layout. Comments always started
+            # in the left column
+            comments_in_tweak -= 1
+            # no special processing if the comment field was named in the tweak
+            if comments_in_tweak < 0 and comments_not_in_tweak > 0:
+                # Force a turnover, adding comments widgets below max_row.
+                # Save the row to return to if we turn over again
+                column = 0
+                row = max_row
+                base_row = row
+                turnover_point = row + (comments_not_in_tweak * layout_rows_for_comments)/2
+                comments_not_in_tweak = 0
+
+        l = QGridLayout()
+        if dt == 'comments':
+            layout.addLayout(l, row, column, layout_rows_for_comments, 1)
+            layout.setColumnStretch(column, 100)
+            row += layout_rows_for_comments
+        else:
+            layout.addLayout(l, row, column, 1, 1)
+            layout.setColumnStretch(column, 100)
+            row += 1
         for c in range(0, len(w.widgets), 2):
-            w.widgets[c].setWordWrap(True)
-            w.widgets[c].setBuddy(w.widgets[c+1])
-            layout.addWidget(w.widgets[c], row, column)
-            layout.addWidget(w.widgets[c+1], row, column+1)
-            row += 1
-        comments_row = max(comments_row, row)
-        if row >= turnover_point:
-            column += 2
-            turnover_point = count_non_comment + 1000
-            row = 0
-    if not bulk: # Add the comments fields
-        row = comments_row
-        column = 0
-        for col in cols:
-            dt = x[col]['datatype']
             if dt != 'comments':
-                continue
-            w = widget_factory(dt, col)
-            ans.append(w)
-            layout.addWidget(w.widgets[0], row, column, 1, 2)
-            if two_column and column == 0:
-                column = 2
-                continue
-            column = 0
-            row += 1
+                w.widgets[c].setWordWrap(True)
+                w.widgets[c].setBuddy(w.widgets[c+1])
+                l.addWidget(w.widgets[c], c, 0)
+                l.addWidget(w.widgets[c+1], c, 1)
+                l.setColumnStretch(1, 10000)
+            else:
+                l.addWidget(w.widgets[0], 0, 0, 1, 2)
+        l.addItem(QSpacerItem(0, 0, vPolicy=QSizePolicy.Expanding), c, 0, 1, 1)
+        max_row = max(max_row, row)
+        if row >= turnover_point:
+            column = 1
+            turnover_point = count + 1000
+            row = base_row
+
     items = []
     if len(ans) > 0:
         items.append(QSpacerItem(10, 10, QSizePolicy.Minimum,

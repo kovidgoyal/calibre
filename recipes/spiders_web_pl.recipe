@@ -8,8 +8,8 @@ class SpidersWeb(BasicNewsRecipe):
     cover_url      = 'http://www.spidersweb.pl/wp-content/themes/spiderweb/img/Logo.jpg'
     category       = 'IT, WEB'
     language       = 'pl'
+    no_stylesheers=True
     max_articles_per_feed = 100
-    remove_tags_before=dict(name="h1", attrs={'class':'Title'})
-    remove_tags_after=dict(name="div", attrs={'class':'Text'})
-    remove_tags=[dict(name='div', attrs={'class':['Tags', 'CommentCount FloatL', 'Show FloatL']})]
+    keep_only_tags=[dict(id='Post')]
+    remove_tags=[dict(name='div', attrs={'class':['Comments', 'Shows', 'Post-Tags']})]
     feeds          = [(u'Wpisy', u'http://www.spidersweb.pl/feed')]

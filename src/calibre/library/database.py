@@ -1089,8 +1089,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         ids = tuple(ids)
         if len(ids) > 50000:
             return True
+        if len(ids) == 1:
+            ids = '(%d)'%ids[0]
+        else:
+            ids = repr(ids)
         return self.conn.get('''
-            SELECT data FROM conversion_options WHERE book IN %r AND
+            SELECT data FROM conversion_options WHERE book IN %s AND
         format=? LIMIT 1'''%(ids,), (format,), all=False) is not None
 
     def delete_conversion_options(self, id, format, commit=True):

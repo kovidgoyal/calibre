@@ -656,11 +656,11 @@ class Tag(object): # {{{
                         ' image record associated with this article',
                         'image_index'),
                     70 : ('Description offset in cncx', 'desc_offset'),
-                    71 : ('Image attribution offset in cncx',
-                        'image_attr_offset'),
+                    71 : ('Author offset in cncx', 'author_offset'),
                     72 : ('Image caption offset in cncx',
                         'image_caption_offset'),
-                    73 : ('Author offset in cncx', 'author_offset'),
+                    73 : ('Image attribution offset in cncx',
+                        'image_attr_offset'),
             },
 
             'chapter_with_subchapters' : {
