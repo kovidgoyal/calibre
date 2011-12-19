@@ -10,50 +10,20 @@ __docformat__ = 'restructuredtext en'
 '''
 Utilities to help with developing coffeescript based apps
 '''
-import time, SimpleHTTPServer, SocketServer, threading, os, subprocess
+import time, SimpleHTTPServer, SocketServer, os, subprocess
 
 class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+
+    generated_files = set()
 
     def translate_path(self, path):
         if path.endswith('jquery.js'):
             return P('content_server/jquery.js')
+        if path.endswith('.coffee'):
+            return self.compile_coffeescript(path[1:])
+
         return SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(self,
                 path)
-
-class Server(threading.Thread):
-
-    def __init__(self, port=8000):
-        threading.Thread.__init__(self)
-        self.port = port
-        self.daemon = True
-        self.httpd = SocketServer.TCPServer(("localhost", port), Handler)
-
-    def run(self):
-        print('serving at localhost:%d'%self.port)
-        self.httpd.serve_forever()
-
-    def end(self):
-        self.httpd.shutdown()
-        self.join()
-
-class Compiler(threading.Thread):
-
-    def __init__(self, coffee_files):
-        threading.Thread.__init__(self)
-        self.daemon = True
-        if not isinstance(coffee_files, dict):
-            coffee_files = {x:os.path.splitext(os.path.basename(x))[0]+'.js'
-                    for x in coffee_files}
-        a = os.path.abspath
-        self.src_map = {a(x):a(y) for x, y in coffee_files.iteritems()}
-        self.keep_going = True
-
-    def run(self):
-        while self.keep_going:
-            for src, dest in self.src_map.iteritems():
-                if self.newer(src, dest):
-                    self.compile(src, dest)
-            time.sleep(0.1)
 
     def newer(self, src, dest):
         try:
@@ -64,42 +34,33 @@ class Compiler(threading.Thread):
         return (not os.access(dest, os.R_OK) or sstat.st_mtime >
                 os.stat(dest).st_mtime)
 
-    def compile(self, src, dest):
-        with open(dest, 'wb') as f:
-            try:
-                subprocess.check_call(['coffee', '-c', '-p', src], stdout=f)
-            except:
-                print('Compilation of %s failed'%src)
-                f.seek(0)
-                f.truncate()
-                f.write('// Compilation of cofeescript failed')
+    def compile_coffeescript(self, src):
+        dest = os.path.splitext(src)[0] + '.js'
+        self.generated_files.add(dest)
+        if self.newer(src, dest):
+            with open(dest, 'wb') as f:
+                try:
+                    subprocess.check_call(['coffee', '-c', '-p', src], stdout=f)
+                except:
+                    print('Compilation of %s failed'%src)
+                    f.seek(0)
+                    f.truncate()
+                    f.write('// Compilation of coffeescript failed')
+                    f.write('alert("Compilation of %s failed");'%src)
+        return dest
 
-    def end(self):
-        self.keep_going = False
-        self.join()
-        for x in self.src_map.itervalues():
+def serve(port=8000):
+    httpd = SocketServer.TCPServer(('localhost', port), Handler)
+    print('serving at localhost:%d'%port)
+    try:
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            raise SystemExit(0)
+    finally:
+        for x in Handler.generated_files:
             try:
                 os.remove(x)
             except:
                 pass
 
-def serve(coffee_files, port=8000):
-    ws = Server(port=port)
-    comp = Compiler(coffee_files)
-    comp.start()
-    ws.start()
-
-    try:
-        while True:
-            time.sleep(1)
-            if not comp.is_alive() or not ws.is_alive():
-                print ('Worker failed')
-                raise SystemExit(1)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        try:
-            comp.end()
-        except:
-            pass
-        ws.end()

@@ -18,8 +18,8 @@ except ImportError:
 
 
 def run_devel_server():
-    os.chdir(os.path.dirname(__file__))
-    serve(['../cfi.coffee', 'cfi-test.coffee'])
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    serve()
 
 if __name__ == '__main__':
     run_devel_server()
