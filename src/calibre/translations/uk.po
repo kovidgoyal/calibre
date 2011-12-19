@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-16 09:06+0000\n"
-"PO-Revision-Date: 2011-12-17 19:03+0000\n"
+"PO-Revision-Date: 2011-12-18 17:54+0000\n"
 "Last-Translator: yurchor <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-12-18 04:37+0000\n"
+"X-Launchpad-Export-Date: 2011-12-19 04:48+0000\n"
 "X-Generator: Launchpad (build 14525)\n"
 "Language: uk\n"
 
@@ -646,7 +646,7 @@ msgstr "Додати/Вилучити/Налаштувати різні част
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1091
 msgid "Tweaks"
-msgstr "Пристосування"
+msgstr "Коригування"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1097
 msgid "Fine tune how calibre behaves in various contexts"
@@ -2568,6 +2568,12 @@ msgid ""
 "detection, use the expression \"/\". See the XPath Tutorial in the calibre "
 "User Manual for further help on using this feature."
 msgstr ""
+"Вираз XPath для виявлення заголовків глав. Типово теґи <h1> або <h2>, які "
+"містять слова \"chapter\",\"book\",\"section\" або \"part\", а також теґи, "
+"що містять class=\"chapter\", вважатимуться теґами заголовків глав. Вказаний "
+"вираз має оброблятися як список елементів. Щоб вимкнути виявлення глав, "
+"скористайтеся виразом \"/\". Докладніший опис цієї можливості можна знайти у "
+"настановах щодо XPath у підручнику користувача calibre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:295
 msgid ""
@@ -2576,6 +2582,11 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
+"Вкажіть спосіб позначення виявлених глав. Значення \"pagebreak\" призведе до "
+"вставлення розривів сторінок перед главами. Значення \"rule\" призведе до "
+"вставлення лінії перед главами. Значення \"none\" призведе до вимикання "
+"позначення глав, а значення \"both\" — до використання розривів сторінок і "
+"ліній для позначення глав."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:305
 msgid ""
@@ -2594,6 +2605,10 @@ msgid ""
 "prevents it from being overridden on your device. For example: font-"
 "family,color,margin-left,margin-right"
 msgstr ""
+"Список властивостей CSS, розділених комами, записи з якого слід вилучити з "
+"усіх правил стилів CSS. Корисно, якщо визначення даних стилів запобігає "
+"використанню параметрів вашого пристрою. Приклад: font-family,color,margin-"
+"left,margin-right"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:324
 msgid ""
@@ -2893,6 +2908,8 @@ msgid ""
 "Left aligned scene break markers are center aligned. Replace soft scene "
 "breaks that use multiple blank lines with horizontal rules."
 msgstr ""
+"Вирівняні ліворуч роздільники сцен буде вирівняно за центром. Гнучкі розриви "
+"сцен декількома порожніми рядками буде замінено горизонтальними лініями."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:585
 msgid ""
@@ -3115,6 +3132,9 @@ msgid ""
 "will flatten the file system inside the EPUB, putting all files into the top "
 "level."
 msgstr ""
+"Цей пункт може знадобитися, лише якщо ви маєте намір використовувати EPUB "
+"для читання у FBReaderJ. Програма спростить файлову систему у EPUB, "
+"розташувавши всі файли на верхньому рівні."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/output.py:186
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:206
@@ -3169,6 +3189,9 @@ msgid ""
 "negative. 0 implies that no links in the root HTML file are followed. "
 "Default is %default."
 msgstr ""
+"Максимальна кількість рівнів рекурсії під час переходу за посиланнями у "
+"файлах HTML. Має бути невід’ємним. Значення 0 відповідає переходу за "
+"посиланнями у кореневому файлі HTML. Типовим значенням є %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:270
 msgid ""
@@ -4415,6 +4438,9 @@ msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
+"Нетиповий розмір сторінки документа. Формат: ширинаxвисота. Приклад: "
+"«123x321» — ширина і висота. Перевизначає будь-які вказані значення розмірів "
+"аркуша."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:44
 #, python-format
@@ -13143,7 +13169,7 @@ msgstr "не відповідає взірцеві"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:75
 msgid "If the ___ column ___ values"
-msgstr ""
+msgstr "Якщо ___ стовпчика ___ значень"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:210
 msgid ""
@@ -14745,6 +14771,8 @@ msgid ""
 "Enter the names of any grouped search terms you wish\n"
 "to be shown as user categories"
 msgstr ""
+"Вкажіть назви будь-яких ключів пошуку, які слід\n"
+"показувати як категорії користувача."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending.py:28
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:41
@@ -14788,6 +14816,11 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
+"За допомогою цього пункту можна визначити спосіб зберігання книг, яким "
+"програма скористається у відповідь на натискання кнопки «Надіслати на "
+"пристрій». Значення у цьому пункту може бути перевизначено для окремих "
+"пристроїв налаштуванням додатків роботи з пристроями на сторінці "
+"«Налаштування -> Додатково -> Додатки»."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:70
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:432
@@ -14867,6 +14900,10 @@ msgid ""
 "collection using a browser from anywhere in the world. Any changes to the "
 "settings will only take effect after a server restart."
 msgstr ""
+"У calibre передбачено мережевий сервер, за допомогою якого ви зможете "
+"отримувати доступ до вашої збірки книг з програми для перегляду інтернету "
+"будь-де у цілому світі. Всі зміни набудуть чинності лише після перезапуску "
+"сервера."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:115
 msgid "Run server &automatically when calibre starts"
@@ -15170,6 +15207,9 @@ msgid ""
 "The tweaks you entered are invalid, try resetting the tweaks to default and "
 "changing them one by one until you find the invalid setting."
 msgstr ""
+"Вказані вами коригування є некоректними, спробуйте відновити типові "
+"значення, а потім змінити їх одне за одним, аж доки не знайдете некоректне "
+"значення."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:25
 msgid ""
@@ -15177,6 +15217,9 @@ msgid ""
 "calibre. Your changes will only take effect <b>after a restart</b> of "
 "calibre."
 msgstr ""
+"Значення коригувань показано нижче. Внесіть до них зміни, щоб змінити "
+"поведінку calibre. Внесені зміни набудуть чинності лише <b>після "
+"перезапуску</b> calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:56
 msgid "Edit tweaks for any custom plugins you have installed"
@@ -15240,6 +15283,8 @@ msgid ""
 "Save current search under the name shown in the box. Press and hold for a "
 "pop-up options menu."
 msgstr ""
+"Зберегти поточний пошук з назвою, вказаною у полі назви. Натисніть і "
+"утримуйте, щоб відкрити контекстне меню варіантів обробки."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/search_box.py:470
 msgid "Create saved search"
@@ -15917,6 +15962,8 @@ msgid ""
 "All of these category_managers are available by right-clicking on items in "
 "the tag browser above"
 msgstr ""
+"Доступ до всіх цих засобів керування категоріями можна отримати клацанням "
+"правою кнопкою миші на пунктах панелі перегляду міток, розташованої вище."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:345
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:378
@@ -17383,6 +17430,10 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"поле:взірець, що позначає нетипове поле або дані, яке свідчить про те, що "
+"книгу має бути виключено.\n"
+"Типове значення: «%default»\n"
+"Застосовується до: формати виведення ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:663
 #, python-format
@@ -17391,6 +17442,9 @@ msgid ""
 "Default: '%default' excludes bracketed tags, e.g. '[<tag>]'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Формальний вираз, що описує мітки для виключення жанрів.\n"
+"Типове значення: «%default»\n"
+"Застосовується до: формати виведення ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:669
 #, python-format
@@ -17507,6 +17561,9 @@ msgid ""
 "Default: '%default'\n"
 "Applies to ePub, MOBI output formats"
 msgstr ""
+"поле:взірець, що позначає те, що книгу було прочитано.\n"
+"Типове значення: «%default»\n"
+"Застосовується до: формати виведення ePub, MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:749
 #, python-format
@@ -17818,6 +17875,12 @@ msgid ""
 "id.\n"
 "id is an id number from the list command.\n"
 msgstr ""
+"\n"
+"%prog show_metadata [параметри] ідентифікатор\n"
+"\n"
+"Показати метадані, що зберігаються у базі даних calibre для книги з "
+"ідентифікатором «ідентифікатор».\n"
+"«ідентифікатор» є ідентифікатором, який повертає команда list.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:460
 msgid "Print metadata in OPF form (XML)"
@@ -18870,7 +18933,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:154
 msgid "strlen(a) -- Returns the length of the string passed as the argument"
-msgstr ""
+msgstr "strlen(a) — повертає довжину рядка, переданого як аргумент."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:167
 msgid ""
@@ -18913,6 +18976,13 @@ msgid ""
 "automatically. For example, template('[[title_sort]]') will evaluate the "
 "template {title_sort} and return its value."
 msgstr ""
+"template(x) — обробляє x як шаблон. Обробку буде виконано у власному "
+"контексті, тобто змінні не використовуватимуться як спільні для функції "
+"виклику і обробки шаблону. Оскільки символи «{» і «}» є особливими, вам слід "
+"використовувати «[[» для позначення символу «{» і «]]» для позначення "
+"символу «}». Перетворення буде виконано автоматично. Наприклад, "
+"template('[[title_sort]]') буде оброблено як шаблон {title_sort} і повернуто "
+"відповідне значення."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:228
 msgid ""
@@ -18920,12 +18990,18 @@ msgid ""
 "'assign'ed to) instead of the book metadata.  This permits using the "
 "template processor to construct complex results from local variables."
 msgstr ""
+"eval(шаблон) — обробляє шаблон з передаванням локальних змінних (змінних, "
+"які було визначено за допомогою «assign») замість метаданих книги. Це надає "
+"змогу скористатися обробником шаблонів для побудови складних результатів на "
+"основі локальних змінних."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:242
 msgid ""
 "assign(id, val) -- assigns val to id, then returns val. id must be an "
 "identifier, not an expression"
 msgstr ""
+"assign(ідентифікатор, значення) — надає ідентифікатору значення, потім "
+"повертає значення. «ідентифікатор» має бути ідентифікатором, а не виразом."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:253
 msgid ""
@@ -18933,6 +19009,9 @@ msgid ""
 "start calibre from the command line (calibre-debug -g), the output will go "
 "to a black hole."
 msgstr ""
+"print(a, b, ...) — виводить аргументи до стандартного виведення. Якщо ви не "
+"запускали calibre з командного рядка (calibre-debug -g), дані нікуди не буде "
+"виведено."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:265
 msgid "field(name) -- returns the metadata field named by name"
@@ -18944,6 +19023,8 @@ msgid ""
 "raw_field(name) -- returns the metadata field named by name without applying "
 "any formatting."
 msgstr ""
+"raw_field(назва) — повертає поле метаданих, вказане за допомогою параметра "
+"«назва», без застосування форматування."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:284
 msgid ""
@@ -18967,13 +19048,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:313
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "Функції lookup слід передавати 2 або непарну кількість аргументів."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:326
 msgid ""
 "test(val, text if not empty, text if empty) -- return `text if not empty` if "
 "the field is not empty, otherwise return `text if empty`"
 msgstr ""
+"test(значення, текст для непорожнього, текст для порожнього) — повертає "
+"«текст для непорожнього», якщо значення не є порожнім. Якщо це не так, "
+"повертає «текст для порожнього»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:339
 msgid ""
@@ -18981,6 +19065,10 @@ msgid ""
 "contains matches for the regular expression `pattern`. Returns `text if "
 "match` if matches are found, otherwise it returns `text if no match`"
 msgstr ""
+"contains(значення, взірець, текст для відповідності, текст для "
+"невідповідності) — перевіряє, чи міститься у значенні відповідник "
+"формального виразу «взірець». Повертає «текст для відповідності», якщо буде "
+"знайдено відповідник, інакше повертає «текст для невідповідності»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:355
 msgid ""
@@ -19064,6 +19152,8 @@ msgid ""
 "ifempty(val, text if empty) -- return val if val is not empty, otherwise "
 "return `text if empty`"
 msgstr ""
+"ifempty(значення, текст для порожнього) — повертає «значення», якщо "
+"«значення» не є порожнім, інакше повертає «текст для порожнього»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:512
 msgid ""
@@ -19126,6 +19216,7 @@ msgid ""
 "human_readable(v) -- return a string representing the number v in KB, MB, "
 "GB, etc."
 msgstr ""
+"human_readable(v) — повертає рядок, що відповідає числу v у кБ, МБ, ГБ тощо."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:639
 msgid ""
@@ -19231,6 +19322,9 @@ msgid ""
 "empty. If all values are empty, then the empty value is returned.You can "
 "have as many values as you want."
 msgstr ""
+"first_non_empty(значення, значення, ...) — повертає перше значення, яке не є "
+"порожнім. Якщо всі значення є порожніми, повертає порожнє значення. Ви "
+"можете вказати довільну кількість значень."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:871
 msgid ""
@@ -19238,6 +19332,10 @@ msgid ""
 "empty, otherwise returns the empty string. This function works well with "
 "test or first_non_empty. You can have as many values as you want."
 msgstr ""
+"and(значення, значення, ...) — повертає рядок «1», якщо всі значення не є "
+"порожніми. Якщо одне зі значень є порожнім, повертає порожній рядок. Ця "
+"функція добре поєднується з test або first_non_empty. Ви можете вказати "
+"довільну кількість значень."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:888
 msgid ""
@@ -19245,6 +19343,10 @@ msgid ""
 "otherwise returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
+"or(значення, значення, ...) — повертає рядок «1», якщо хоч одне значення не "
+"є порожнім. Якщо всі значення є порожніми, повертає порожній рядок. Ця "
+"функція добре поєднується з test або first_non_empty. Ви можете вказати "
+"довільну кількість значень."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:905
 msgid ""
@@ -19252,6 +19354,9 @@ msgid ""
 "returns the empty string. This function works well with test or "
 "first_non_empty. You can have as many values as you want."
 msgstr ""
+"not(значення) — повертає рядок «1», якщо значення не є порожнім. Якщо "
+"значення є порожнім, повертає порожній рядок. Ця функція добре поєднується з "
+"test або first_non_empty. Ви можете вказати довільну кількість значень."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:917
 msgid ""
@@ -19310,6 +19415,9 @@ msgid ""
 "format_date or days_between, but can be manipulated like any other string. "
 "The date is in ISO format."
 msgstr ""
+"today() — повертає сьогоднішню дату. Це значення створено для використання у "
+"format_date або days_between, але з ним можна працювати як зі звичайним "
+"рядком. Дату буде повернуто у форматі ISO."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1052
 msgid ""
@@ -19318,6 +19426,10 @@ msgid ""
 "negative. If either date1 or date2 are not dates, the function returns the "
 "empty string."
 msgstr ""
+"days_between(дата1, дата2) — повертає кількість днів між датою дата1 і датою "
+"дата2. Кількість днів є додатною, якщо дата1 перевищує дата2, інакше "
+"значення буде від’ємним. Якщо значення дата1 або значення дата2 не вдасться "
+"обробити як дату, функція поверне порожній рядок."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1074
 msgid ""
@@ -19326,6 +19438,11 @@ msgid ""
 "in English. If localize is not zero, return the strings in the language of "
 "the current locale. Lang_codes is a comma-separated list."
 msgstr ""
+"language_strings(коди_мов, локалізація) — повертає рядки кодів мов, передані "
+"як коди_мов. Якщо значенням параметра «локалізація» є нуль, рядки буде "
+"повернуто англійською. Якщо значенням параметра «локалізація» є ненульове "
+"значення, рядки буде повернуто у поточній локалі. Параметр «коди_мов» слід "
+"вказувати у форматі списку, розділеного комами."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1094
 msgid ""
@@ -19580,6 +19697,8 @@ msgid ""
 "Interpreter dies while excuting a command. To see the command, click Show "
 "details"
 msgstr ""
+"Інтерпретатор завершив роботу у аварійному режимі під час виконання команди. "
+"Щоб переглянути команду, натисніть кнопку «Показати подробиці»."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
@@ -20094,6 +20213,8 @@ msgstr ""
 msgid ""
 "Completion sort order: choose when to change from lexicographic to ASCII-like"
 msgstr ""
+"Впорядкування списку автоматичного доповнення: виберіть умови переходу з "
+"лексикографічного до впорядкування за ASCII"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:100
 msgid ""
@@ -20461,6 +20582,9 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
+"У значеннях дат містяться дані щодо дати і часу. Під час впорядковування\n"
+"буде використано всі поля, незалежно від показаних даних. Встановіть для\n"
+"цього коригування значення «True», щоб було використано лише показані поля."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:374
 msgid "Specify which font to use when generating a default cover"
@@ -20474,6 +20598,13 @@ msgid ""
 "(Liberation\n"
 "Serif) does not contain glyphs for the language of the books in your library."
 msgstr ""
+"Абсолютний шлях до файлів шрифтів .ttf, якими слід користуватися для "
+"записів\n"
+"заголовка, автора та нижнього колонтитула під час створення типового "
+"зображення\n"
+"обкладинки. Корисний, якщо у типовому шрифті (Liberation Serif) не "
+"міститься\n"
+"гліфів для мови книг у вашій бібліотеці."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid "Control behavior of the book list"
@@ -20524,7 +20655,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:411
 msgid "Order of custom column(s) in edit metadata"
-msgstr ""
+msgstr "Порядок нетипових стовпчиків при редагуванні метаданих"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:412
 msgid ""

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-16 09:06+0000\n"
-"PO-Revision-Date: 2011-12-12 20:27+0000\n"
+"PO-Revision-Date: 2011-12-18 17:54+0000\n"
 "Last-Translator: Piotr Parafiniuk <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-12-17 05:06+0000\n"
+"X-Launchpad-Export-Date: 2011-12-19 04:48+0000\n"
 "X-Generator: Launchpad (build 14525)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1659,7 +1659,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek EEE"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr "Połączenie z tabletem Adam"
+msgstr "Umożliwia komunikację z tabletem Adam"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
@@ -1667,11 +1667,11 @@ msgstr "Umożliwia komunikację z czytnikiem książek Nextbook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr "Połączenie z czytnikiem Moovybook"
+msgstr "Umożliwia komunikację z czytnikiem książek Moovybook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr "Połącz z COBY"
+msgstr "Umożliwia komunikację z czytnikiem książek COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
@@ -1864,11 +1864,11 @@ msgstr "Umożliwia komunikację z czytnikiem książek Teclast K3/K5"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:37
 msgid "Communicate with the Newsmy reader."
-msgstr "Umożliwia komunikację z czytnikiem Newsmy."
+msgstr "Umożliwia komunikację z czytnikiem książek Newsmy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:48
 msgid "Communicate with the Archos reader."
-msgstr "Umożliwia komunikację z czytnikiem Archos."
+msgstr "Umożliwia komunikację z czytnikiem książek Archos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:58
 msgid "Communicate with the Pico reader."
@@ -1876,7 +1876,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek Pico."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:68
 msgid "Communicate with the iPapyrus reader."
-msgstr "Umożliwia komunikację z czytnikiem iPapyrus."
+msgstr "Umożliwia komunikację z czytnikiem książek iPapyrus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:79
 msgid "Communicate with the Sovos reader."
@@ -1888,7 +1888,7 @@ msgstr "Umożliwia komunikację z czytnikiem książek Sunstech EB700."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:100
 msgid "Communicate with the Stash W950 reader."
-msgstr "Umożliwia komunikację z czytnikiem Stash W950."
+msgstr "Umożliwia komunikację z czytnikiem książek Stash W950."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:112
 msgid "Communicate with the Wexler reader."
@@ -10983,7 +10983,7 @@ msgstr "Dodaj własne źródło newsów"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:444
 msgid "Download all scheduled news sources"
-msgstr ""
+msgstr "Pobierz wszystkie zaplanowane"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Go"
@@ -17111,7 +17111,7 @@ msgstr "Sprawdź w słowniku"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:541
 msgid "&Search for next occurrence"
-msgstr ""
+msgstr "&Szukaj następnego wystąpienia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:546
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
@@ -21961,7 +21961,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:411
 msgid "Order of custom column(s) in edit metadata"
-msgstr ""
+msgstr "Kolejność kolumn użytkownika w oknie edycji"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:412
 msgid ""
@@ -21974,6 +21974,19 @@ msgid ""
 "Enter a comma-separated list of custom field lookup names, as in\n"
 "metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']"
 msgstr ""
+"Określa w jakiej kolejności będą wyświetlane kolumny użytkownika w oknie "
+"edycji metadanych.\n"
+"Kolumny wymienione w tym parametrze są wyświetlane na początku, w kolejności "
+"określonej przez użytkownika.\n"
+"Kolumny nie wyspecyfikowane tutaj są wyświetlane dalej, w kolejności "
+"alfabetycznej.\n"
+"Należy pamiętać, że ten parametr nie zmienia rozmiaru pól - umieszczenie na "
+"liście\n"
+"pola komentarza może poskutkować trudnym do przewidzenia układem pól w "
+"trybie dwukolumnowym.\n"
+"W parametrze należy podać oddzielaną przecinkami listę pól wyszukiwania "
+"np.:\n"
+"metadata_edit_custom_column_order = ['#genre', '#mytags', '#itp']"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:422
 msgid "The number of seconds to wait before sending emails"

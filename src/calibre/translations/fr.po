@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-16 09:06+0000\n"
-"PO-Revision-Date: 2011-12-15 18:46+0000\n"
+"PO-Revision-Date: 2011-12-18 17:43+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-12-17 04:58+0000\n"
+"X-Launchpad-Export-Date: 2011-12-19 04:47+0000\n"
 "X-Generator: Launchpad (build 14525)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1850,7 +1850,7 @@ msgid ""
 msgstr ""
 "En précisant cette option, calibre recherchera des livres dans tous les "
 "répertoires sur l'appareil et sur ses cartes. Cela permet à calibre de "
-"trouver des livres sur l'appareil par d'autre logiciels et par le "
+"trouver des livres chargés dans l'appareil par d'autres logiciels et par "
 "téléchargement sans fil."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
@@ -11236,7 +11236,7 @@ msgstr "Ajouter une source personnalisée de News"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:444
 msgid "Download all scheduled news sources"
-msgstr ""
+msgstr "Télécharger toutes les sources de news planifiées"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:207
 msgid "Go"
@@ -17469,7 +17469,7 @@ msgstr "&Rechercher dans le dictionnaire"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:541
 msgid "&Search for next occurrence"
-msgstr ""
+msgstr "&Chercher la prochaine occurrence"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:546
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
@@ -22091,6 +22091,22 @@ msgid ""
 "Example: locale_for_sorting = 'fr' -- sort using French rules.\n"
 "Example: locale_for_sorting = 'nb' -- sort using Norwegian rules."
 msgstr ""
+"Régler cette personnalisation forcera le tri à utiliser\n"
+"l'ordre de collation pour la langue spécifiée. Ceci peut être utile si vous "
+"lancez\n"
+"Calibre en anglais mais voulez effectuer le tri dans la langue du lieu où "
+"vous vivez.\n"
+"Réglez cette personnalisation sur le code langue ISO 639-1 désiré, en "
+"minuscule.\n"
+"Vous pouvez trouver la listes des locales supportées à l'adresse\n"
+"http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/nls/rbagsicusorts"
+"equencetables.htm\n"
+"Défaut : locale_for_sorting = '' -- utiliser la langue d'affichage de "
+"Calibre\n"
+"Exemple : locale_for_sorting = 'fr' -- trier en utilisant les règles du "
+"français.\n"
+"Exemple : locale_for_sorting = 'nb' -- trier en utilisant les règles du "
+"norvégien."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:405
 msgid "Number of columns for custom metadata in the edit metadata dialog"
@@ -22113,7 +22129,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:411
 msgid "Order of custom column(s) in edit metadata"
-msgstr ""
+msgstr "Ordre des colonne(s) personnalisée(s) dans l'édition des métadonnées"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:412
 msgid ""

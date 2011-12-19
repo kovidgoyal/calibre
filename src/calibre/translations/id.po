@@ -8,19 +8,19 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-16 09:06+0000\n"
-"PO-Revision-Date: 2011-08-05 16:24+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-12-18 09:30+0000\n"
+"Last-Translator: Baharuddin Nur <Unknown>\n"
 "Language-Team: Indonesian <id@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-12-17 05:01+0000\n"
+"X-Launchpad-Export-Date: 2011-12-19 04:47+0000\n"
 "X-Generator: Launchpad (build 14525)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr ""
+msgstr "Tidak ada apa-apanya"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:105
@@ -200,7 +200,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr "Tidak Diketahui"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
@@ -216,27 +216,27 @@ msgstr "Sesuaikan"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:57
 msgid "Cannot configure"
-msgstr "Tidak dapat mengkonfigurasi"
+msgstr "Tidak bisa ditata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr "Jenis file"
+msgstr "Bentuk berkas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "Pembaca metadata"
+msgstr "Pembaca data-semu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "Penulis metadata"
+msgstr "penulis data-semu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "Pembuat katalog"
+msgstr "Penyusun katalog"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
-msgstr "Aksi Antar Muka"
+msgstr "langkah lintas halaman pengguna"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -246,16 +246,16 @@ msgstr "Aksi Antar Muka"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "Pengaturan"
+msgstr "Preferensi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "Pajang"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:617
 msgid "An ebook store."
-msgstr ""
+msgstr "Pajangan buku elektronik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -270,10 +270,13 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Buat arsip TXTZ saat sebuah berkas TXT yang diimpor mengandung referensi "
+"Markdown atau Textile ke dalam gambar. Referensi gambar dan berkas TXT "
+"keduanya ditambhkan ke dalam arsip."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
-msgstr "Tarik sampul dari file komik"
+msgstr "Mengekstraksi sampul dari berkas komik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:164
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:175
@@ -298,15 +301,15 @@ msgstr "Tarik sampul dari file komik"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:386
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Baca metadata dari file %s"
+msgstr "Baca data-bayangan atau data-semu dari berkas %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:323
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Baca metadata dari ebook di dalak arsip RAR"
+msgstr "Baca data-bayangan dari buku elektronik dalam bentuk RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:397
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Baca metadata dari ebook di dalam arsip ZIP"
+msgstr "Baca data-bayangan dari buku elektronik dalam bentuk ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:410
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:431
@@ -316,132 +319,137 @@ msgstr "Baca metadata dari ebook di dalam arsip ZIP"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:484
 #, python-format
 msgid "Set metadata in %s files"
-msgstr "Sesuaikan metadata di dalam file %s"
+msgstr "Buat data-bayangan dalam berkas %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:420
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:452
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:495
 #, python-format
 msgid "Set metadata from %s files"
-msgstr "Sesuaikan metadata dari file %s"
+msgstr "Buat data-bayangan dari berkas %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Tambahkan buku ke dalam calibre atau perangkat yang terhubung"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:734
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Ambil annotasi dari Kindle (uji-coba)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:739
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Buat katalog buku dal am library calibre anda"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:744
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Konversi buku ke dalam berbagai bentuk format buku elektronik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:749
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Hapus buku dari library calibre atau perangkat lain yang terhubung"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:754
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Perbaiki data-bayangan (metadata) buku dalam library calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:759
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Baca buku dal am library calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:764
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Unduh berita dari internet ke dalam bentuk buku elektronik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:769
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Tampilkan daftar buku terkait dengan cepat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:774
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Kirim buku dari library calibre anda ke piranti keras (hard disk)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:779
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Tampilkan rincian buku dalam kilasan yang terpisah"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:784
 msgid "Restart calibre"
-msgstr ""
+msgstr "Mulai kembali calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:789
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "Buku folder yang berisi berkas buku ke dalam library calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:795
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Kirim buku ke piranti yang terhubung"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:800
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Kirim buku menggunakan email atau web juga terhubung ke iTunes atau folder "
+"di komputer anda sebagai bagian dari piranti"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr ""
+msgstr "Cari Petunjuk Bagi Pengguna calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
 msgid "Customize calibre"
-msgstr ""
+msgstr "calibre yang telah disesuaikan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:816
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Temukan buku yang sama dengan yang telah dipilih"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:821
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
+"Berpindah diantara library calibre dan lakukan perbaikan atau pemeliharaan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:827
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Gandakan buku dari piranti anda ke dalam library calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:832
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Perbaiki koleksi buku yang ada dalam perangkat anda"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:837
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Gandakan buku dari satu library calibre ke yang lainnya"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr ""
+msgstr "Buat penanda kecil ke berkas epub dalam library calibre anda"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Temukan kesesuaian dari yang sebelum dan sesudah saat melakukan pencarian di "
+"library calibre anda dalam tampilan sekilas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Pilih buku secara acak dari library calibre anda"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:860
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Cari buku dari penjual buku yang berbeda"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:876
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Dapatkan plugin calibre yang baru atau perbaharui yang sudah ada"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:895
 msgid "Look and Feel"
-msgstr "Tampilan dan Rasa"
+msgstr "Lihat dan Rasakan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:897
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:909
@@ -449,15 +457,15 @@ msgstr "Tampilan dan Rasa"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:931
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:943
 msgid "Interface"
-msgstr "Interface"
+msgstr "interface"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:901
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Sesuaikan tampilan dan gaya interface calibre"
+msgstr "Sesuaikan tampilan dan rasa interface calibre sesuai selera anda"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:907
 msgid "Behavior"
-msgstr "Perilaku"
+msgstr "kelakuan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:913
 msgid "Change the way calibre behaves"
@@ -470,29 +478,31 @@ msgstr "Tambah kolom sendiri"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:924
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
+msgstr "Tambahkan/hapus kolom dalam daftar buku calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Toolbar"
-msgstr ""
+msgstr "Cantelan piranti"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:935
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
+"Sesuaikan cantelan piranti dan daftar kondisinya, ganti cara yang paling "
+"sesuai untuk masing-masing"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:941
 msgid "Searching"
-msgstr ""
+msgstr "Sedang mencari"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:947
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Sesuaikan cara calibre mencari buku sesuai kebutuhan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:952
 msgid "Input Options"
-msgstr "Opsi Input"
+msgstr "Pilihan masukan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:954
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:965
@@ -506,23 +516,23 @@ msgstr "Sesuaikan opsi konversi yang spesifik untuk setiap format input"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:963
 msgid "Common Options"
-msgstr "Opsi umum"
+msgstr "Pilihan umum"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:969
 msgid "Set conversion options common to all formats"
-msgstr "Sesuaikan opsi konversi yang umum untuk semua format"
+msgstr "Tetapkan pilihan umum untuk semua format"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:974
 msgid "Output Options"
-msgstr "Opsi Output"
+msgstr "Pilihan luaran"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:980
 msgid "Set conversion options specific to each output format"
-msgstr "Sesuaikan opsi konversi yang spesifik untuk setiap format output"
+msgstr "Tetapkan konversi yang spesifik untuk setiap format luaran"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:985
 msgid "Adding books"
-msgstr "Tambah buku"
+msgstr "Menambahkan buku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:987
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:999
@@ -534,32 +544,36 @@ msgstr "Impor/Expor"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:991
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
+"Kendalikan bagaimana calibre membaca metadata dari file saat menambahkan buku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:997
 msgid "Saving books to disk"
-msgstr "Simpan buku ke dalam disk"
+msgstr "Rekam buku ke dalam disk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1003
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
+"Kendalikan bagaimana calibre mengekspor file dari database ke disk saat "
+"merekam ke disk"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1009
 msgid "Sending books to devices"
-msgstr "Kirim buku ke dalam alat"
+msgstr "Mengirim buku ke dalam piranti"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1015
 msgid "Control how calibre transfers files to your ebook reader"
 msgstr ""
+"kendalikan bagaimana calibre memindahkan file ke pembaca buku elekronik anda"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1021
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "plugboard metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1027
 msgid "Change metadata fields before saving/sending"
-msgstr "Ubah field metadata sebelum simpan/kirim"
+msgstr "Rubah laman metadata sebelum direkam/dikirim"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1032
 msgid "Template Functions"
@@ -571,11 +585,11 @@ msgstr "Fungsi Templat"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1104
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1115
 msgid "Advanced"
-msgstr "Lanjutan"
+msgstr "Tingkat Lebih Lanjut"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1038
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Buat fungsi templat sendiri"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1043
 msgid "Sharing books by email"
@@ -592,29 +606,33 @@ msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
+"Atur cara berbagi buku melalui email. Dapat digunakan untuk pengiriman "
+"otomatis dari berita yang diunduh ke dalam piranti anda"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1055
 msgid "Sharing over the net"
-msgstr "Berbagi memalui internet"
+msgstr "Berbagi melalui jaringan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1061
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
+"Atur Content Server calibre yang akan memberi akses ke calibre library anda "
+"dari mana saja, dari piranti apa saja melalui internet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1068
 msgid "Metadata download"
-msgstr ""
+msgstr "unduh metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1074
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Kendalikan bagaimana calibre mengunduh metadata ebook dari jaringan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1079
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
 msgid "Plugins"
-msgstr "Plugin"
+msgstr "Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1085
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -622,19 +640,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1091
 msgid "Tweaks"
-msgstr ""
+msgstr "Tweak"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1097
 msgid "Fine tune how calibre behaves in various contexts"
 msgstr ""
+"Temukan dengan tepat bagaimana perilaku calibre dalam berbagai konteks"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1102
 msgid "Keyboard"
-msgstr ""
+msgstr "Papan ketik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1108
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Kustomisasi jalan pintas pada keyboard yang digunakan oleh calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
