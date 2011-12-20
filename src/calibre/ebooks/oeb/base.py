@@ -946,7 +946,8 @@ class Manifest(object):
                     # ones, as they are interpreted incorrectly by some browser
                     # based renderers
                     ans = re.sub(
-                        r'<(?P<tag>div|a|span)(?=[\s/])(?P<arg>[^>]*)/\s*>',
+                        # tag name followed by either a space or a /
+                        r'<(?P<tag>div|a|span)(?=[\s/])(?P<arg>[^>]*)/>',
                         r'<\g<tag>\g<arg>></\g<tag>>', ans)
                 return ans
             if isinstance(data, unicode):
