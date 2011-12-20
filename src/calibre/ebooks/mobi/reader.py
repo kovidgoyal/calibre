@@ -975,7 +975,7 @@ class MobiReader(object):
             processed_records.append(i)
             data  = self.sections[i][0]
             if data[:4] in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n',
-                    b'RESC', b'BOUN', b'FDST', b'DATP'}:
+                    b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
                 # A FLIS, FCIS, SRCS or EOF record, ignore
                 continue
             buf = cStringIO.StringIO(data)

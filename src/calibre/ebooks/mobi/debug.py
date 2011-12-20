@@ -1136,7 +1136,8 @@ class BinaryRecord(object): # {{{
         self.raw = record.raw
         sig = self.raw[:4]
         name = '%06d'%idx
-        if sig in (b'FCIS', b'FLIS', b'SRCS', b'DATP'):
+        if sig in {b'FCIS', b'FLIS', b'SRCS', b'DATP', b'RESC', b'BOUN',
+                b'FDST', b'AUDI', b'VIDE',}:
             name += '-' + sig.decode('ascii')
         elif sig == b'\xe9\x8e\r\n':
             name += '-' + 'EOF'
