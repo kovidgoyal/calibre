@@ -942,7 +942,12 @@ class Manifest(object):
             if isinstance(data, etree._Element):
                 ans = xml2str(data, pretty_print=self.oeb.pretty_print)
                 if self.media_type in OEB_DOCS:
-                    ans = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ans)
+                    # Convert self closing div|span|a tags to normally closed
+                    # ones, as they are interpreted incorrectly by some browser
+                    # based renderers
+                    ans = re.sub(
+                        r'<(?P<tag>div|a|span)(?=[\s/])(?P<arg>[^>]*)/\s*>',
+                        r'<\g<tag>\g<arg>></\g<tag>>', ans)
                 return ans
             if isinstance(data, unicode):
                 return data.encode('utf-8')
