@@ -683,7 +683,7 @@ class DeviceMixin(object): # {{{
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
-                det_msg=autos
+                det_msg=autos, skip_dialog_name='auto_convert_before_send'
         )
 
     def set_default_thumbnail(self, height):

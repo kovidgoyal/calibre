@@ -407,11 +407,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         return getattr(self, '__systray_minimized', False)
 
     def ask_a_yes_no_question(self, title, msg, det_msg='',
-            show_copy_button=False, ans_when_user_unavailable=True):
+            show_copy_button=False, ans_when_user_unavailable=True,
+            skip_dialog_name=None, skipped_value=True):
         if self.is_minimized_to_tray:
             return ans_when_user_unavailable
         return question_dialog(self, title, msg, det_msg=det_msg,
-                show_copy_button=show_copy_button)
+                show_copy_button=show_copy_button,
+                skip_dialog_name=skip_dialog_name,
+                skip_dialog_skipped_value=skipped_value)
 
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():
