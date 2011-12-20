@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-16 09:06+0000\n"
-"PO-Revision-Date: 2011-12-18 19:55+0000\n"
+"PO-Revision-Date: 2011-12-19 18:50+0000\n"
 "Last-Translator: Marian Felkel <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-19 04:47+0000\n"
-"X-Generator: Launchpad (build 14525)\n"
+"X-Launchpad-Export-Date: 2011-12-20 04:49+0000\n"
+"X-Generator: Launchpad (build 14538)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -7827,7 +7827,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:187
 msgid "F&loats"
-msgstr ""
+msgstr "fließt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
@@ -10217,7 +10217,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:259
 msgid "Restore pre conversion &originals, if available"
-msgstr ""
+msgstr "Stelle nach möglichkeit das Originalformat wieder her"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:268
 msgid ""
@@ -14682,6 +14682,12 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"Eine kommagetrennte Liste von Spalten, in der die Begriffe\n"
+"Punkte enthalten, wird im Tag-Browser angezeigt. Zum Beispiel, wenn\n"
+"diese Box 'tags' enthält, dann werden Tags in der Form 'Mystery.Englisch'\n"
+"und 'Mystery.Thriller' mit Englisch und Thriller\n"
+"unter Mystery angezeigt. Wenn 'tags' nicht in dieser Box steht,\n"
+"dann werden die Tags jeweils in ihrer eigenen Zeile angezeigt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:218
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -15762,7 +15768,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:35
 msgid "Location Manager"
-msgstr ""
+msgstr "Ortungsdienst"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
@@ -17443,6 +17449,8 @@ msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
 msgstr ""
+"Die Stelle, an der das Buch geöffnet werden soll. Die Stelle wird oben links "
+"im Viewer angezeigt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:823
 msgid ""
