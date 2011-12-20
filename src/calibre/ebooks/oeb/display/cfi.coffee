@@ -159,6 +159,63 @@ class CanonicalFragmentIdentifier
 
         point = {}
         error = null
+        offset = null
+
+        if (r = cfi.match(/^:(\d+)/)) != null
+            # Character offset
+            offset = parseInt(r[1])
+            cfi = cfi.substr(r[0].length)
+
+        if (r = cfi.match(/^~(-?\d+(\.\d+)?)/)) != null
+            # Temporal offset
+            point.time = r[1] - 0 # Coerce to number
+            cfi = cfi.substr(r[0].length)
+
+        if (r = cfi.match(/^@(-?\d+(\.\d+)?),(-?\d+(\.\d+)?)/)) != null
+            # Spatial offset
+            point.x = r[1] - 0 # Coerce to number
+            point.y = r[3] - 0 # Coerce to number
+            cfi = cfi.substr(r[0].length)
+
+        if( (r = cfi.match(/^\[([^\]]+)\]/)) != null )
+            assertion = r[1]
+            cfi = cfi.substr(r[0].length)
+            if (r = assertion.match(/;s=([ab])$/)) != null
+                if r.index > 0 and assertion[r.index - 1] != '^'
+                    assertion = assertion.substr(0, r.index)
+                    point.forward = (r[1] == 'a')
+                assertion = unescape_from_cfi(assertion)
+                # TODO: Handle text assertion
+
+        # Find the text node that contains the offset
+        node?.parentNode?.normalize()
+        if offset != null
+            while true
+                len = node.nodeValue.length
+                if offset < len or (not point.forward and offset == len)
+                    break
+                next = false
+                while true
+                    nn = node.nextSibling
+                    if nn.nodeType in [3, 4, 5, 6] # Text node, entity, cdata
+                        next = nn
+                        break
+                if not next
+                    if offset > len
+                        error = "Offset out of range: #{ offset }"
+                        offset = len
+                    break
+                node = next
+                offset -= len
+            point.offset = offset
+
+        point.node = node
+        if error
+            point.error = error
+        else if cfi.length > 0
+            point.error = "Undecoded CFI: #{ cfi }"
+
+        log(point.error)
 
         point
 
@@ -192,7 +249,7 @@ class CanonicalFragmentIdentifier
             cdoc = cd
             cwin = cdoc.defaultView
 
-        target.normalize()
+        (if target.parentNode then target.parentNode else target).normalize()
 
         if name in ['audio', 'video']
             tail = "~" + fstr target.currentTime
