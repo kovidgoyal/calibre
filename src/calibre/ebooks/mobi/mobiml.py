@@ -325,6 +325,7 @@ class MobiMLizer(object):
                 elem.text = None
                 elem.set('id', id_)
                 elem.tail = tail
+                elem.tag = XHTML('a')
             else:
                 return
         tag = barename(elem.tag)
