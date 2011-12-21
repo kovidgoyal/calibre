@@ -1,0 +1,54 @@
+################################################################################
+#Description:	  http://nol.hu/ RSS channel
+#Author: 	  Bigpapa (bigpapabig@hotmail.com)
+#Date:	  2011.12.18. - V1.1
+################################################################################
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class NOL(BasicNewsRecipe):
+    title = u'NOL'
+    __author__             = 'Bigpapa'
+    oldest_article         = 5
+    max_articles_per_feed  = 5	# Az adott e-bookban tarolt cikkek feedenkenti maximalis szamat adja meg.
+    no_stylesheets         = True
+    #delay                  = 1
+    use_embedded_content   = False
+    encoding               = 'utf8'
+    language               = 'hu'
+    publication_type       = 'newsportal'
+
+    conversion_options ={
+	'linearize_tables' : True,
+	}
+  
+    keep_only_tags    = [
+	dict(name='table', attrs={'class':['article-box']})
+	]
+
+    remove_tags = [
+
+	dict(name='div', attrs={'class':['h','ad-container-outer','tags noborder','ad-container-inner','image-container-lead','tags','related-container']}),
+	dict(name='h4'),
+	dict(name='tfoot'),
+	dict(name='td', attrs={'class':['foot']}),
+	dict(name='span', attrs={'class':['image-container-caption']}),
+	]
+
+
+    feeds          = [
+    #	(u'V\xe1logat\xe1s', 'http://nol.hu/feed/valogatas.rss'),
+	(u'Belf\xf6ld', 'http://nol.hu/feed/belfold.rss'),
+	(u'K\xfclf\xf6ld', 'http://nol.hu/feed/kulfold.rss'),
+	(u'Gazdas\xe1g', 'http://nol.hu/feed/gazdasag.rss'),
+	(u'V\xe9lem\xe9ny', 'http://nol.hu/feed/velemeny.rss'),
+	(u'Kult\xfara', 'http://nol.hu/feed/kult.rss'),
+	(u'Tud/Tech', 'http://nol.hu/feed/tud-tech.rss'),
+	(u'Sport', 'http://nol.hu/feed/sport.rss'),
+	(u'Noller', 'http://nol.hu/feed/noller.rss'),
+	(u'Mozaik', 'http://nol.hu/feed/mozaik.rss'),
+	(u'Utaz\xe1s', 'http://nol.hu/feed/utazas.rss'),
+	(u'Aut\xf3', 'http://nol.hu/feed/auto.rss'),
+	(u'Voks', 'http://nol.hu/feed/voks.rss'),
+
+                   	 ]
