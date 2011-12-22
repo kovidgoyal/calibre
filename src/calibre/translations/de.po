@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-16 09:06+0000\n"
-"PO-Revision-Date: 2011-12-20 19:33+0000\n"
-"Last-Translator: Marian Felkel <Unknown>\n"
+"PO-Revision-Date: 2011-12-21 16:08+0000\n"
+"Last-Translator: Mirko Russo <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-21 05:19+0000\n"
-"X-Generator: Launchpad (build 14538)\n"
+"X-Launchpad-Export-Date: 2011-12-22 05:26+0000\n"
+"X-Generator: Launchpad (build 14560)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -20368,11 +20368,11 @@ msgstr "Englisch (Australien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:115
 msgid "English (Japan)"
-msgstr ""
+msgstr "Englisch (Japan)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:116
 msgid "English (Germany)"
-msgstr ""
+msgstr "Englisch (Deutschland)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:117
 msgid "English (Bulgaria)"
@@ -20521,22 +20521,22 @@ msgstr "Holländisch (BE)"
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
 msgid "AM"
-msgstr ""
+msgstr "vormittags"
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:162
 msgid "PM"
-msgstr ""
+msgstr "nachmittags"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:164
 msgid "am"
-msgstr ""
+msgstr "vormittags"
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:166
 msgid "pm"
-msgstr ""
+msgstr "nachmittags"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:56
 msgid "Choose theme (needs restart)"
@@ -21053,7 +21053,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:76
 msgid "Splitting multiple author names"
-msgstr ""
+msgstr "Mehrfachnamen bei Autoren aufsplitten"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:77
 msgid ""
@@ -21067,7 +21067,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:84
 msgid "Use author sort in Tag Browser"
-msgstr ""
+msgstr "Benutze die Autorensortierung im Schlagwort-Browser"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:85
 msgid ""
@@ -21108,7 +21108,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:108
 msgid "Control partitioning of Tag Browser"
-msgstr ""
+msgstr "Kontrolliere die Partition im Schlagwort-Browser"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:109
 msgid ""
@@ -21219,6 +21219,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:188
 msgid "Control formatting of title and series when used in templates"
 msgstr ""
+"Kontrolliere das Formatieren von Titel und Serien bei Benutzung in Vorlagen"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:189
 msgid ""
@@ -21386,6 +21387,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:334
 msgid "Control how tags are applied when copying books to another library"
 msgstr ""
+"Kontrolliere, wie Schlagworte angewandt werden, wenn Bücher in eine andere "
+"Bibliothek kopiert werden"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:335
 msgid ""
@@ -21526,7 +21529,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:411
 msgid "Order of custom column(s) in edit metadata"
-msgstr ""
+msgstr "Reihenfolge der benutzerdefinierten Spalten bei Metadaten bearbeiten"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:412
 msgid ""
@@ -21639,7 +21642,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:458
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Vereinheitlichte Symbolleiste in OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:459
 msgid ""
