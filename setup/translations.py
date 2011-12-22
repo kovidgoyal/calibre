@@ -233,7 +233,7 @@ class GetTranslations(Translations): # {{{
 
         if self.modified_translations:
             subprocess.check_call(['bzr', 'commit', '-m',
-                'IGN:Updated translations', self.PATH])
+                'IGN:Updated translations'])
         else:
             print('No updated translations available')
 
