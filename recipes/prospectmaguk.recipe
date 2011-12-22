@@ -1,0 +1,79 @@
+#!/usr/bin/env  python
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
+__license__   = 'GPL v3'
+
+'''
+calibre recipe for prospectmagazine.co.uk (subscription)
+'''
+
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class ProspectMagUK(BasicNewsRecipe):
+	title                   = u'Prospect Magazine'
+	description				= 'A general-interest publication offering analysis and commentary about politics, news and business.'
+	__author__				= 'barty, duluoz'
+	timefmt					= ' [%d %B %Y]'
+	no_stylesheets			= True
+	publication_type        = 'magazine'
+	masthead_url            = 'http://www.prospectmagazine.co.uk/wp-content/themes/prospect/images/titleMain.jpg'
+	category                = 'news, UK'
+	language                = 'en_GB'
+	max_articles_per_feed   = 100
+	auto_cleanup            = True
+	needs_subscription      = True
+
+	auto_cleanup_keep = '//div[@class="lead_image"]'
+	remove_tags       = [{'class':['shareinpost','postutils','postinfo']}]
+
+	INDEX             = 'http://www.prospectmagazine.co.uk/current-issue'
+
+	def get_browser(self):
+		br = BasicNewsRecipe.get_browser()
+		if self.username is not None and self.password is not None:
+			br.open('http://www.prospectmagazine.co.uk/wp-login.php')
+			br.select_form(name='loginform')
+			br['log'] = self.username
+			br['pwd'] = self.password
+			br.submit()
+		return br
+
+	def parse_index(self):
+		soup = self.index_to_soup(self.INDEX)
+		#div = soup.find('h1',text=re.compile(r'Issue \d+'))
+		#fname = self.tag_to_string( div) if div is not None else 'Current Issue'
+		div = soup.find('div', id='cover_image')
+		if div is not None:
+			img = div.find('img', src=True)
+			if img is not None:
+				src = img['src']
+				if src.startswith('/'):
+					src = 'http://www.prospectmagazine.co.uk' + src
+				self.cover_url = src
+		feeds = []
+		# loop through sections
+		for sect in soup.findAll('div',attrs={'class':'sectionheading'}):
+			fname = self.tag_to_string( sect).replace('>','').strip()
+			self.log('Found section', fname)
+			articles = []
+
+			# note: can't just find siblings with class='post' because that will also
+			#       grab all the articles belonging to the sections that follow.
+			for item in sect.findNextSiblings('div',attrs={'class':True}):
+				if not 'post' in item['class']: break
+				a = item.find('a', href=True)
+				if a is None: continue
+				url = a['href']
+				title = self.tag_to_string(a)
+				p = item.find('p')
+				desc = self.tag_to_string( p) if p is not None else ''
+				art = {'title':title, 'description':desc,'date':' ', 'url':url}
+				p = item.find(attrs={'class':re.compile('author')})
+				self.log('\tFound article:', title, '::', url)
+				if p is not None:
+					art['author'] = self.tag_to_string( p).strip()
+				articles.append(art)
+
+			feeds.append((fname, articles))
+		return feeds
