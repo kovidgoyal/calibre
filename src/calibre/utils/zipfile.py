@@ -1297,9 +1297,7 @@ class ZipFile:
         Add a directory recursively to the zip file with an optional prefix.
         '''
         if prefix:
-            zi = ZipInfo(prefix+'/')
-            zi.external_attr = 16
-            self.writestr(zi, '')
+            self.writestr(prefix+'/', '', 0755)
         cwd = os.path.abspath(os.getcwd())
         try:
             os.chdir(path)

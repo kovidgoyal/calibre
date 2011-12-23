@@ -1,44 +1,58 @@
-# -*- coding: utf-8 -*-
-import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
+################################################################################
+#Description:	  http://hvg.hu/ RSS channel
+#Author: 	  Bigpapa (bigpapabig@hotmail.com)
+#Date:	  2011.12.20. - V1.1
+################################################################################
 
-class HVG(BasicNewsRecipe):
-    title                 = 'HVG.HU'
-    __author__            = u'István Papp'
-    description           = u'Friss hírek a HVG-től'
-    timefmt               = ' [%Y. %b. %d., %a.]'
-    oldest_article        = 4
-    language              = 'hu'
+from calibre.web.feeds.news import BasicNewsRecipe
 
-    max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'utf8'
-    publisher             = 'HVG Online'
-    category              = u'news, hírek, hvg'
-    extra_css             = 'body{ font-family: Verdana,Helvetica,Arial,sans-serif } .introduction{font-weight: bold} .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small} .story-feature h2{text-align: center; text-transform: uppercase} '
-    preprocess_regexps    = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
-    remove_tags_before    = dict(id='pg-content')
-    remove_javascript     = True
-    remove_empty_feeds    = True
+class hvg(BasicNewsRecipe):
+    title          = u'HVG'
+    __author__     = 'Bigpapa'
+    language = 'hu'
+    oldest_article = 5		# Hany napos legyen a legregebbi cikk amit leszedjen.
+    max_articles_per_feed = 5	# Az adott e-bookban tarolt cikkek feedenkenti maximalis szamat adja meg.
+    no_stylesheets = True
+    encoding = 'utf8'
+    extra_css = ' h2 { font:bold 28px} '
 
-    feeds = [
-              (u'Itthon', u'http://hvg.hu/rss/itthon')
-             ,(u'Világ', u'http://hvg.hu/rss/vilag')
-             ,(u'Gazdaság', u'http://hvg.hu/rss/gazdasag')
-             ,(u'IT | Tudomány', u'http://hvg.hu/rss/tudomany')
-             ,(u'Panoráma', u'http://hvg.hu/rss/Panorama')
-             ,(u'Karrier', u'http://hvg.hu/rss/karrier')
-             ,(u'Gasztronómia', u'http://hvg.hu/rss/gasztronomia')
-             ,(u'Helyi érték', u'http://hvg.hu/rss/helyiertek')
-             ,(u'Kultúra', u'http://hvg.hu/rss/kultura')
-             ,(u'Cégautó', u'http://hvg.hu/rss/cegauto')
-             ,(u'Vállalkozó szellem', u'http://hvg.hu/rss/kkv')
-             ,(u'Egészség', u'http://hvg.hu/rss/egeszseg')
-             ,(u'Vélemény', u'http://hvg.hu/rss/velemeny')
-             ,(u'Sport', u'http://hvg.hu/rss/sport')
-            ]
+    remove_attributes = ['style','font', 'href']
 
-    def print_version(self, url):
-        return url.replace ('#rss', '/print')
+    keep_only_tags    = [
+		dict(name='div', attrs={'id':['pg-content']})
+	]
 
+    remove_tags = [ 
+	dict(name='div', attrs={'class':['box articlemenu', 'bannergoogle468', 'boxcontainer left', 'boxcontainer', 'commentbox']}),
+	dict(name='table', attrs={'class':['banner2', 'monocle']}),
+	dict(name='div', attrs={'id':['connect_widget_4cf63ca849ddf4577922632', 'sharetip', 'upprev_box']}),
+	dict(name='div', attrs={'style':['float: right; margin-bottom: 5px;', 'display: none;']}),
+	dict(name='h3', attrs={'class':['hthree']}),
+	dict(name='ul', attrs={'class':['defaultul']}),
+	dict(name='form', attrs={'id':['commentForm']}),
+	dict(name='h6', attrs={'class':['hthree']}),
+	dict(name='h6', attrs={'class':['more2']}),
+	dict(name='img', attrs={'class':['framed']}),
+	dict(name='td', attrs={'class':['greyboxbody','embedvideobody','embedvideofooter','embedvideobottom']}),
+
+
+
+	]
+
+    feeds          = [
+#	(u'\xd6sszes', 'http://hvg.hu/rss'),
+	(u'Itthon', 'http://hvg.hu/rss/itthon'),
+	(u'Vil\xe1g', 'http://hvg.hu/rss/vilag'),
+	(u'Gazdas\xe1g', 'http://hvg.hu/rss/gazdasag'),
+	(u'Tudom\xe1ny', 'http://hvg.hu/rss/tudomany'),
+	(u'Panor\xe1ma', 'http://hvg.hu/rss/panorama'),
+	(u'Karrier', 'http://hvg.hu/rss/karrier'),
+	(u'Gasztron\xf3mia', 'http://hvg.hu/rss/gasztronomia'),
+	(u'Helyi \xe9rt\xe9k', 'http://hvg.hu/rss/helyiertek'),
+	(u'Kult\xfara', 'http://hvg.hu/rss/kultura'),
+	(u'C\xe9gaut\xf3', 'http://hvg.hu/rss/cegauto'),
+	(u'V\xe1llalkoz\xf3 szellem', 'http://hvg.hu/rss/kkv'),
+	(u'Eg\xe9szs\xe9g', 'http://hvg.hu/rss/egeszseg'),
+	(u'V\xe9lem\xe9ny', 'http://hvg.hu/rss/velemeny'),
+	(u'Sport', 'http://hvg.hu/rss/sport')
+]

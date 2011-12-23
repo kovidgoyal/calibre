@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 from calibre.web.feeds.news import BasicNewsRecipe
-
 class Nowa_Fantastyka(BasicNewsRecipe):
     title          = u'Nowa Fantastyka'
     oldest_article = 7
     __author__        = 'fenuks'
     language       = 'pl'
+    encoding='latin2'
     description ='site for fantasy readers'
     category='fantasy'
     max_articles_per_feed = 100
     INDEX='http://www.fantastyka.pl/'
+    no_stylesheets=True
+    needs_subscription = 'optional'
     remove_tags_before=dict(attrs={'class':'belka1-tlo-md'})
     #remove_tags_after=dict(name='span', attrs={'class':'naglowek-oceny'})
     remove_tags_after=dict(name='td', attrs={'class':'belka1-bot'})
-    remove_tags=[dict(attrs={'class':'avatar2'})]
-    feeds          = []
+    remove_tags=[dict(attrs={'class':'avatar2'}), dict(name='span', attrs={'class':'alert-oceny'}), dict(name='img', attrs={'src':['obrazki/sledz1.png', 'obrazki/print.gif', 'obrazki/mlnf.gif']}), dict(name='b', text='Dodaj komentarz'),dict(name='a', attrs={'href':'http://www.fantastyka.pl/10,1727.html'})]
 
     def find_articles(self, url):
         articles = []
@@ -45,3 +46,13 @@ class Nowa_Fantastyka(BasicNewsRecipe):
         cover=soup.find(name='img', attrs={'class':'okladka'})
         self.cover_url=self.INDEX+ cover['src']
         return getattr(self, 'cover_url', self.cover_url)
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://www.fantastyka.pl/')
+            br.select_form(nr=0)
+            br['login']   = self.username
+            br['pass'] = self.password
+            br.submit()
+        return br

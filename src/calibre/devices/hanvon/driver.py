@@ -170,8 +170,8 @@ class ODYSSEY(N516):
     description    = _('Communicate with the Cybook Odyssey eBook reader.')
 
     BCD = [0x316]
-    VENDOR_NAME      = 'LINUX'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
+    VENDOR_NAME      = ['LINUX', 'BOOKEEN']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['FILE-STOR_GADGET', 'FLASH_DISK']
 
     FORMATS     = ['epub', 'fb2', 'html', 'pdf', 'txt']
 

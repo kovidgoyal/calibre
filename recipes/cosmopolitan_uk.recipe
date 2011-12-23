@@ -7,6 +7,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     description = 'Fashion, beauty and Gossip for women from COSMOPOLITAN -UK'
 
     __author__ = 'Dave Asbury'
+    #last update 21/12/11
     # greyscale code by Starson
     cover_url = 'http://www.cosmopolitan.magazine.co.uk/files/4613/2085/8988/Cosmo_Cover3.jpg'
     no_stylesheets = True
@@ -31,8 +32,9 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
                               dict(name='div',attrs={'class' : ['blogInfo','viral_toolbar','comment_number','prevEntry nav']}),
                               dict(name='div',attrs={'class' : 'blog_module_about_the_authors'}),
                               dict(attrs={'id': ['breadcrumbs','comment','related_links_list','right_rail','content_sec_fb_more','content_sec_mostpopularstories','content-sec_fb_frame_viewfb_bot']}),
-                              dict(attrs={'class' : ['read_liked_that_header','fb_back_next_area']})
-                            ]
+                              dict(attrs={'class' : ['read_liked_that_header','fb_back_next_area']}),
+                              dict(name='li',attrs={'class' : 'thumb'})
+              ]
 
     feeds          = [
         (u'Love & Sex', u'http://www.cosmopolitan.co.uk/love-sex/rss/'), (u'Men', u'http://cosmopolitan.co.uk/men/rss/'), (u'Fashion', u'http://cosmopolitan.co.uk/fashion/rss/'), (u'Hair & Beauty', u'http://cosmopolitan.co.uk/beauty-hair/rss/'), (u'LifeStyle', u'http://cosmopolitan.co.uk/lifestyle/rss/'), (u'Cosmo On Campus', u'http://cosmopolitan.co.uk/campus/rss/'), (u'Celebrity Gossip', u'http://cosmopolitan.co.uk/celebrity-gossip/rss/')]
@@ -48,4 +50,3 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
             img.type = "GrayscaleType"
             img.save(iurl)
         return soup
-
