@@ -147,7 +147,8 @@ class GuiRunner(QObject):
                     os.path.isdir(p)]
             if len(files) < len(sys.argv[1:]):
                 prints('Ignoring directories passed as command line arguments')
-            add_filesystem_book(files)
+            if files:
+                add_filesystem_book(files)
         self.app.file_event_hook = add_filesystem_book
         self.main = main
 
