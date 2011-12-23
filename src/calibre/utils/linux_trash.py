@@ -36,6 +36,11 @@ uid = os.getuid()
 TOPDIR_TRASH = '.Trash'
 TOPDIR_FALLBACK = '.Trash-%s'%uid
 
+def uniquote(raw):
+    if isinstance(raw, unicode):
+        raw = raw.encode('utf-8')
+    return quote(raw).decode('utf-8')
+
 def is_parent(parent, path):
     path = op.realpath(path) # In case it's a symlink
     parent = op.realpath(parent)
@@ -53,7 +58,7 @@ def info_for(src, topdir):
         src = op.relpath(src, topdir)
 
     info  = "[Trash Info]\n"
-    info += "Path=" + quote(src) + "\n"
+    info += "Path=" + uniquote(src) + "\n"
     info += "DeletionDate=" + format_date(datetime.now()) + "\n"
     return info
 
