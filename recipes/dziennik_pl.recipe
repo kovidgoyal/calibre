@@ -1,0 +1,58 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class Dziennik_pl(BasicNewsRecipe):
+    title          = u'Dziennik.pl'
+    __author__        = 'fenuks'
+    description   = u'Wiadomości z kraju i ze świata. Wiadomości gospodarcze. Znajdziesz u nas informacje, wydarzenia, komentarze, opinie.'
+    category       = 'newspaper'
+    language       = 'pl'
+    cover_url='http://6.s.dziennik.pl/images/og_dziennik.jpg'
+    no_stylesheets = True
+    oldest_article = 7
+    max_articles_per_feed = 100
+    remove_javascript=True
+    remove_empty_feeds=True
+    preprocess_regexps     = [(re.compile("Komentarze:"), lambda m: '')]
+    keep_only_tags=[dict(id='article')]
+    remove_tags=[dict(name='div', attrs={'class':['art_box_dodatki', 'new_facebook_icons2', 'leftArt', 'article_print', 'quiz-widget']}), dict(name='a', attrs={'class':'komentarz'})]
+    feeds          = [(u'Wszystko', u'http://rss.dziennik.pl/Dziennik-PL/'),
+		(u'Wiadomości', u'http://rss.dziennik.pl/Dziennik-Wiadomosci'),
+		(u'Gospodarka', u'http://rss.dziennik.pl/Dziennik-Gospodarka'),
+		(u'Kobieta', u'http://rss.dziennik.pl/Dziennik-Kobieta'),
+		(u'Auto', u'http://rss.dziennik.pl/Dziennik-Auto'),
+		(u'Rozrywka', u'http://rss.dziennik.pl/Dziennik-Rozrywka'),
+		(u'Film', u'http://rss.dziennik.pl/Dziennik-Film'),
+		(u'Muzyka' , u'http://rss.dziennik.pl/Dziennik-Muzyka'),
+		(u'Kultura', u'http://rss.dziennik.pl/Dziennik-Kultura'),
+		(u'Nauka', u'http://rss.dziennik.pl/Dziennik-Nauka'),
+		(u'Podróże', u'http://rss.dziennik.pl/Dziennik-Podroze/'),
+		(u'Nieruchomości', u'http://rss.dziennik.pl/Dziennik-Nieruchomosci')]
+
+    def append_page(self, soup, appendtag):
+        tag=soup.find('a', attrs={'class':'page_next'})
+        if tag:
+            appendtag.find('div', attrs={'class':'article_paginator'}).extract()
+        while tag:
+            soup2= self.index_to_soup(tag['href'])
+            tag=soup2.find('a', attrs={'class':'page_next'})
+            if not tag:
+                for r in appendtag.findAll('div', attrs={'class':'art_src'}):
+                    r.extract()
+            pagetext = soup2.find(name='div', attrs={'class':'article_body'})
+            for dictionary in self.remove_tags:
+                 v=pagetext.findAll(name=dictionary['name'], attrs=dictionary['attrs'])
+                 for delete in v:
+                     delete.extract()
+            pos = len(appendtag.contents)
+            appendtag.insert(pos, pagetext)
+            if appendtag.find('div', attrs={'class':'article_paginator'}):
+                appendtag.find('div', attrs={'class':'article_paginator'}).extract()
+
+
+
+
+    def preprocess_html(self, soup):
+         self.append_page(soup, soup.body)
+         return soup

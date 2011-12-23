@@ -19,6 +19,81 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.32
+  date: 2011-12-23
+
+  new features:
+    - title: "Linux: When deleting books, send them to the recycle bin, instead of permanently deleting. This is the same behavior as on Windows and OS X."
+
+    - title: "Add a checkbox to allow users to disable the popup that asks if books should be auto-converted before sending to device"
+
+    - title: "Drivers for Droid Razr, Samsung GT-I9003 and Bookeen Odyssey"
+      tickets: [906356, 906056, 905862] 
+
+    - title: "Allow passing multiple filenames as command line arguments to calibre, to add multiple books."
+      tickets: [907968]
+ 
+  bug fixes:
+    - title: "MOBI Output: Fix regression in 0.8.30 that caused the use of hidden heading elements for the TOC to generate links in the wrong place."
+      tickets: [907156]
+
+    - title: "EPUB Output: Ensure directories have the correct permissions bits set when unzipping an epub with unzip on Unix"
+
+    - title: "Fix bottom most shortcuts in keyboard shortcuts for viewer not editable"
+
+    - title: "EPUB Output: Fix handling of self closing <audio> tags."
+      tickets: [906521]
+
+    - title: "MOBI Input: Map invalid <o:p> tags to <p> tags before parsing, to handle broken nesting."
+      tickets: [905715] 
+
+    - title: "Conversion pipeline: HTML5 parsing: Fix handling of XML namespaces. Fixes regression in 0.8.30 that caused some articles in some news downloads to appear blank when viewed in Adobe Digital Editions based readers"
+
+    - title: "Get Books: Gandalf store, fix price and cover detection"
+
+    - title: "EPUB Output: Fix the Flatten filenames option in EPUB Output causing duplicated manifest ids in rare cases."
+      tickets: [905692]
+
+    - title: "When adding books via ISBN, show the user the list of invalid ISBNs that will be ignored, if any, before starting the add operation."
+      tickets: [905690]
+
+    - title: "Fix unsmarten punctuation conversion option broken in 0.8.31."
+      tickets: [905596]
+
+    - title: "Fix broken evaluation of composite columns in save-to-disk"
+
+  improved recipes:
+    - Cosmopolitan UK
+    - Hindustan Times
+    - HVG
+    - moneynews.com
+    - Ming Pao
+    - Glasgow Herald
+    - Times of India
+    - Focus Magazine
+    - Hacker News
+    - Independent
+    - Sueddeutsche
+
+  new recipes:
+    - title: Prospect Magazine UK 
+      author: Barty and duoloz
+
+    - title: Elet es Irodalom and NOL 
+      author: Bigpapa
+
+    - title: Salonica Press News
+      author: SteliosGero
+
+    - title: Echo Online 
+      author: Armin Geller
+
+    - title: Various Polish news sources 
+      author: fenuks
+
+    - title: Various Italian news sources 
+      author: faber1971
+
 - version: 0.8.31
   date: 2011-12-16
 

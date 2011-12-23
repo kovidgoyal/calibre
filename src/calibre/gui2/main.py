@@ -143,12 +143,12 @@ class GuiRunner(QObject):
         add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
         sys.excepthook = main.unhandled_exception
         if len(self.args) > 1:
-            p = os.path.abspath(self.args[1])
-            if os.path.isdir(p):
-                prints('Ignoring directory passed as command line argument:',
-                        self.args[1])
-            else:
-                add_filesystem_book(p)
+            files = [os.path.abspath(p) for p in self.args[1:] if not
+                    os.path.isdir(p)]
+            if len(files) < len(sys.argv[1:]):
+                prints('Ignoring directories passed as command line arguments')
+            if files:
+                add_filesystem_book(files)
         self.app.file_event_hook = add_filesystem_book
         self.main = main
 

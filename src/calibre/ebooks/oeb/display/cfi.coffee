@@ -4,6 +4,7 @@
 ###
  Copyright 2011, Kovid Goyal <kovid@kovidgoyal.net>
  Released under the GPLv3 License
+ Based on code originally written by Peter Sorotkin (epubcfi.js)
 ###
 #
 log = (error) ->
@@ -159,6 +160,63 @@ class CanonicalFragmentIdentifier
 
         point = {}
         error = null
+        offset = null
+
+        if (r = cfi.match(/^:(\d+)/)) != null
+            # Character offset
+            offset = parseInt(r[1])
+            cfi = cfi.substr(r[0].length)
+
+        if (r = cfi.match(/^~(-?\d+(\.\d+)?)/)) != null
+            # Temporal offset
+            point.time = r[1] - 0 # Coerce to number
+            cfi = cfi.substr(r[0].length)
+
+        if (r = cfi.match(/^@(-?\d+(\.\d+)?),(-?\d+(\.\d+)?)/)) != null
+            # Spatial offset
+            point.x = r[1] - 0 # Coerce to number
+            point.y = r[3] - 0 # Coerce to number
+            cfi = cfi.substr(r[0].length)
+
+        if( (r = cfi.match(/^\[([^\]]+)\]/)) != null )
+            assertion = r[1]
+            cfi = cfi.substr(r[0].length)
+            if (r = assertion.match(/;s=([ab])$/)) != null
+                if r.index > 0 and assertion[r.index - 1] != '^'
+                    assertion = assertion.substr(0, r.index)
+                    point.forward = (r[1] == 'a')
+                assertion = unescape_from_cfi(assertion)
+                # TODO: Handle text assertion
+
+        # Find the text node that contains the offset
+        node?.parentNode?.normalize()
+        if offset != null
+            while true
+                len = node.nodeValue.length
+                if offset < len or (not point.forward and offset == len)
+                    break
+                next = false
+                while true
+                    nn = node.nextSibling
+                    if nn.nodeType in [3, 4, 5, 6] # Text node, entity, cdata
+                        next = nn
+                        break
+                if not next
+                    if offset > len
+                        error = "Offset out of range: #{ offset }"
+                        offset = len
+                    break
+                node = next
+                offset -= len
+            point.offset = offset
+
+        point.node = node
+        if error
+            point.error = error
+        else if cfi.length > 0
+            point.error = "Undecoded CFI: #{ cfi }"
+
+        log(point.error)
 
         point
 
@@ -192,7 +250,7 @@ class CanonicalFragmentIdentifier
             cdoc = cd
             cwin = cdoc.defaultView
 
-        target.normalize()
+        (if target.parentNode then target.parentNode else target).normalize()
 
         if name in ['audio', 'video']
             tail = "~" + fstr target.currentTime
@@ -212,6 +270,67 @@ class CanonicalFragmentIdentifier
                 # without caretRangeFromPoint (Gecko, IE)
 
         this.encode(doc, target, offset, tail)
+    # }}}
+
+    point: (cfi, doc=window?.document) -> # {{{
+        r = this.decode(cfi, doc)
+        if not r
+            return null
+        node = r.node
+        ndoc = node.ownerDocument
+        if not ndoc
+            log("CFI node has no owner document: #{ cfi } #{ node }")
+            return null
+
+        nwin = ndoc.defaultView
+        x = null
+        y = null
+
+        if typeof(r.offset) == "number"
+            # Character offset
+            range = ndoc.createRange()
+            if r.forward
+                try_list = [{start:0, end:0, a:0.5}, {start:0, end:1, a:1}, {start:-1, end:0, a:0}]
+            else
+                try_list = [{start:0, end:0, a:0.5}, {start:-1, end:0, a:0}, {start:0, end:1, a:1}]
+            k = 0
+            a = null
+            rects = null
+            node_len = node.nodeValue.length
+            until rects or rects.length or k >= try_list.length
+                t = try_list[k++]
+                start_offset = r.offset + t.start
+                end_offset = r.offset + t.end
+                a = t.a
+                if start_offset < 0 or end_offset >= node_len
+                    continue
+                range.setStart(node, start_offset)
+                range.setEnd(node, end_offset)
+                rects = range.getClientRects()
+
+            if not rects or not rects.length
+                log("Could not find caret position: rects: #{ rects } offset: #{ r.offset }")
+                return null
+
+            rect = rects[0]
+            x = (a*rect.left + (1-a)*rect.right)
+            y = (rect.top + rect.bottom)/2
+        else
+            x = node.offsetLeft - nwin.scrollX
+            y = node.offsetTop - nwin.scrollY
+            if typeof(r.x) == "number" and node.offsetWidth
+                x += (r.x*node.offsetWidth)/100
+                y += (r.y*node.offsetHeight)/100
+
+        until ndoc == doc
+            node = nwin.frameElement
+            ndoc = node.ownerDocument
+            nwin = ndoc.defaultView
+            x += node.offsetLeft - nwin.scrollX
+            y += node.offsetTop - nwin.scrollY
+
+        {x:x, y:y, node:r.node, time:r.time}
+
     # }}}
 
 if window?

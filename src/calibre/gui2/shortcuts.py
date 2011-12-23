@@ -260,11 +260,11 @@ class ShortcutConfig(QWidget):
         self.view.setModel(model)
         self.delegate = Delegate()
         self.view.setItemDelegate(self.delegate)
-        self.delegate.sizeHintChanged.connect(self.scrollTo)
+        self.delegate.sizeHintChanged.connect(self.scrollTo,
+                type=Qt.QueuedConnection)
 
     def scrollTo(self, index):
-        self.view.scrollTo(index)
-
+        self.view.scrollTo(index, self.view.EnsureVisible)
 
     @property
     def is_editing(self):

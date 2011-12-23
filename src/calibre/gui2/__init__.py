@@ -273,11 +273,34 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
     return d
 
 def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
-        default_yes=True):
+        default_yes=True,
+        # Skippable dialogs
+        # Set skip_dialog_name to a unique name for this dialog
+        # Set skip_dialog_msg to a message displayed to the user
+        skip_dialog_name=None, skip_dialog_msg=_('Show this confirmation again'),
+        skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True):
     from calibre.gui2.dialogs.message_box import MessageBox
+
+    auto_skip = set(gprefs.get('questions_to_auto_skip', []))
+    if (skip_dialog_name is not None and skip_dialog_name in auto_skip):
+        return bool(skip_dialog_skipped_value)
+
     d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
                     show_copy_button=show_copy_button, default_yes=default_yes)
-    return d.exec_() == d.Accepted
+
+    if skip_dialog_name is not None and skip_dialog_msg:
+        tc = d.toggle_checkbox
+        tc.setVisible(True)
+        tc.setText(skip_dialog_msg)
+        tc.setChecked(bool(skip_dialog_skip_precheck))
+
+    ret = d.exec_() == d.Accepted
+
+    if skip_dialog_name is not None and not d.toggle_checkbox.isChecked():
+        auto_skip.add(skip_dialog_name)
+        gprefs.set('questions_to_auto_skip', list(auto_skip))
+
+    return ret
 
 def info_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
