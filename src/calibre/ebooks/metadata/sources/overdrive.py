@@ -14,13 +14,13 @@ from threading import RLock
 from Queue import Queue, Empty
 
 from lxml import html
-from lxml.html import soupparser
 
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.library.comments import sanitize_comments_html
+from calibre.utils.soupparser import fromstring
 
 ovrdrv_data_cache = {}
 cache_lock = RLock()
@@ -403,7 +403,7 @@ class OverDrive(Source):
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
         try:
-            root = soupparser.fromstring(raw)
+            root = fromstring(raw)
         except:
             return False
 

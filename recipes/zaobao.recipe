@@ -16,6 +16,7 @@ class ZAOBAO(BasicNewsRecipe):
     recursions     = 1
     language = 'zh'
     encoding     = 'gbk'
+    masthead_url = 'http://www.zaobao.com/ssi/images1/zblogo_original.gif'
 #    multithreaded_fetch = True
 
     keep_only_tags    = [

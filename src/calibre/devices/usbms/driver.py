@@ -202,7 +202,7 @@ class USBMS(CLI, Device):
             debug_print('USBMS: scan from root', self.SCAN_FROM_ROOT, ebook_dir)
             if not os.path.exists(ebook_dir): continue
             # Get all books in the ebook_dir directory
-            if self.SUPPORTS_SUB_DIRS:
+            if self.SUPPORTS_SUB_DIRS or self.SUPPORTS_SUB_DIRS_FOR_SCAN:
                 # build a list of files to check, so we can accurately report progress
                 flist = []
                 for path, dirs, files in os.walk(ebook_dir):

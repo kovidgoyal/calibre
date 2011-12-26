@@ -11,9 +11,8 @@ import operator
 import math
 from collections import defaultdict
 from lxml import etree
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS
-from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES
-from calibre.ebooks.oeb.base import namespace, barename
+from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
+        namespace, barename, XPath)
 from calibre.ebooks.oeb.stylizer import Stylizer
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
@@ -118,8 +117,20 @@ class CSSFlattener(object):
 
     def __call__(self, oeb, context):
         oeb.logger.info('Flattening CSS and remapping font sizes...')
+        self.context = self.opts =context
         self.oeb = oeb
-        self.context = context
+
+        self.filter_css = frozenset()
+        if self.opts.filter_css:
+            try:
+                self.filter_css = frozenset([x.strip().lower() for x in
+                    self.opts.filter_css.split(',')])
+            except:
+                self.oeb.log.warning('Failed to parse filter_css, ignoring')
+            else:
+                self.oeb.log.debug('Filtering CSS properties: %s'%
+                    ', '.join(self.filter_css))
+
         self.stylize_spine()
         self.sbase = self.baseline_spine() if self.fbase else None
         self.fmap = FontMapper(self.sbase, self.fbase, self.fkey)
@@ -220,7 +231,10 @@ class CSSFlattener(object):
                     cssdict['text-align'] = val
             del node.attrib['align']
         if node.tag == XHTML('font'):
-            node.tag = XHTML('span')
+            tags = ['descendant::h:%s'%x for x in ('p', 'div', 'table', 'h1',
+                'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'dl', 'blockquote')]
+            tag = 'div' if XPath('|'.join(tags))(node) else 'span'
+            node.tag = XHTML(tag)
             if 'size' in node.attrib:
                 def force_int(raw):
                     return int(re.search(r'([0-9+-]+)', raw).group(1))
@@ -269,7 +283,10 @@ class CSSFlattener(object):
                 psize = fsize
             elif 'font-size' in cssdict or tag == 'body':
                 fsize = self.fmap[font_size]
-                cssdict['font-size'] = "%0.5fem" % (fsize / psize)
+                try:
+                    cssdict['font-size'] = "%0.5fem" % (fsize / psize)
+                except ZeroDivisionError:
+                    cssdict['font-size'] = '%.1fpt'%fsize
                 psize = fsize
 
         try:
@@ -278,6 +295,10 @@ class CSSFlattener(object):
                 cssdict['line-height'] = str(minlh)
         except:
             self.oeb.logger.exception('Failed to set minimum line-height')
+
+        if cssdict:
+            for x in self.filter_css:
+                cssdict.pop(x, None)
 
         if cssdict:
             if self.lineh and self.fbase and tag != 'body':
@@ -310,7 +331,6 @@ class CSSFlattener(object):
         if self.lineh and 'line-height' not in cssdict:
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh
-
 
         if (self.context.remove_paragraph_spacing or
                 self.context.insert_blank_line) and tag in ('p', 'div'):

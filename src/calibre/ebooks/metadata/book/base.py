@@ -32,6 +32,7 @@ NULL_VALUES = {
                 'device_collections': [],
                 'author_sort_map': {},
                 'authors'      : [_('Unknown')],
+                'author_sort'  : _('Unknown'),
                 'title'        : _('Unknown'),
                 'user_categories' : {},
                 'author_link_map' : {},
@@ -45,9 +46,9 @@ class SafeFormat(TemplateFormatter):
     def get_value(self, orig_key, args, kwargs):
         if not orig_key:
             return ''
-        orig_key = orig_key.lower()
-        key = orig_key
-        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
+        key = orig_key = orig_key.lower()
+        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and \
+                key not in ALL_METADATA_FIELDS:
             key = field_metadata.search_term_to_field_key(key)
             if key is None or (self.book and
                                 key not in self.book.all_field_keys()):
@@ -59,9 +60,8 @@ class SafeFormat(TemplateFormatter):
             b = self.book.get_user_metadata(key, False)
         except:
             b = None
-        if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
-            v = ''
-        elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
+        if b and ((b['datatype'] == 'int' and self.book.get(key, 0) == 0) or
+                  (b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0)):
             v = ''
         else:
             v = self.book.format_field(key, series_with_index=False)[1]
@@ -95,7 +95,7 @@ class Metadata(object):
     becomes a reserved field name.
     '''
 
-    def __init__(self, title, authors=(_('Unknown'),), other=None):
+    def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None):
         '''
         @param title: title or ``_('Unknown')``
         @param authors: List of strings or []
@@ -114,6 +114,7 @@ class Metadata(object):
                 self.author = list(authors) if authors else []# Needed for backward compatibility
                 self.authors = list(authors) if authors else []
         self.formatter = SafeFormat()
+        self.template_cache = template_cache
 
     def is_null(self, field):
         '''
@@ -159,7 +160,8 @@ class Metadata(object):
                                             d['display']['composite_template'],
                                             self,
                                             _('TEMPLATE ERROR'),
-                                            self).strip()
+                                            self, column_name=field,
+                                            template_cache=self.template_cache).strip()
             return val
         if field.startswith('#') and field.endswith('_index'):
             try:
@@ -708,7 +710,8 @@ class Metadata(object):
             fmt('Title sort', self.title_sort)
         if self.authors:
             fmt('Author(s)',  authors_to_string(self.authors) + \
-               ((' [' + self.author_sort + ']') if self.author_sort else ''))
+               ((' [' + self.author_sort + ']') 
+                if self.author_sort and self.author_sort != _('Unknown') else ''))
         if self.publisher:
             fmt('Publisher', self.publisher)
         if getattr(self, 'book_producer', False):

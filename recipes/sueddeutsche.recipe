@@ -3,57 +3,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
-Fetch sueddeutsche.
+Fetch sueddeutsche.de
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-
-
 class Sueddeutsche(BasicNewsRecipe):
 
     title = u'sueddeutsche.de'
     description = 'News from Germany'
-    __author__ = 'Oliver Niesner and Armin Geller'
+    __author__ = 'Oliver Niesner and Armin Geller' #Update AGe 2011-12-16
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'
     oldest_article = 7
     max_articles_per_feed = 50
     no_stylesheets = True
     language = 'de'
-
     encoding = 'utf-8'
     remove_javascript = True
-
-
-    remove_tags = [ dict(name='link'), dict(name='iframe'),
-                    dict(name='div', attrs={'id':["bookmarking","themenbox","artikelfoot","CAD_AD",
-                          "SKY_AD","NT1_AD","navbar1","sdesiteheader"]}),
-
-                    dict(name='div', attrs={'class':["similar-article-box","artikelliste","nteaser301bg",
-                                 "pages closed","basebox right narrow","headslot galleried"]}),
-
-                    dict(name='div', attrs={'class':["articleDistractor","listHeader","listHeader2","hr2",
-                             "item","videoBigButton","articlefooter full-column",
-                                                     "bildbanderolle full-column","footerCopy padleft5"]}),
-
-                    dict(name='p', attrs={'class':["ressortartikeln","artikelFliestext","entry-summary"]}),
-                    dict(name='div', attrs={'style':["position:relative;"]}),
-                    dict(name='span', attrs={'class':["nlinkheaderteaserschwarz","artikelLink","r10000000"]}),
-                    dict(name='table', attrs={'class':["stoerBS","kommentare","footer","pageBoxBot","pageAktiv","bgcontent"]}),
-                    dict(name='ul', attrs={'class':["breadcrumb","articles","activities","sitenav","actions"]}),
-                    dict(name='td', attrs={'class':["artikelDruckenRight"]}),
-                    dict(name='p', text = "ANZEIGE")
-                     ]
-    remove_tags_after = [dict(name='div', attrs={'class':["themenbox full-column"]})]
-
-    extra_css = '''
-                    h2{font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #003399;}
-                    a{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-style:italic;}
-                    .dachzeile p{font-family:Arial,Helvetica,sans-serif; font-size: x-small; }
-                    h1{ font-family:Arial,Helvetica,sans-serif;  font-size:x-large; font-weight:bold;}
-                    .artikelTeaser{font-family:Arial,Helvetica,sans-serif; font-size: x-small; font-weight:bold; }
-                    body{font-family:Arial,Helvetica,sans-serif; }
-                    .photo {font-family:Arial,Helvetica,sans-serif; font-size: x-small; color: #666666;}                 '''
-
+    auto_cleanup = True
+    cover_url  = 'http://polpix.sueddeutsche.com/polopoly_fs/1.1237395.1324054345!/image/image.jpg_gen/derivatives/860x860/image.jpg' # 2011-12-16 AGe
     feeds = [
               (u'Politik', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EPolitik%24?output=rss'),
               (u'Wirtschaft', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EWirtschaft%24?output=rss'),
@@ -62,7 +29,7 @@ class Sueddeutsche(BasicNewsRecipe):
               (u'Sport', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ESport%24?output=rss'),
               (u'Leben', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ELeben%24?output=rss'),
               (u'Karriere', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EKarriere%24?output=rss'),
-              (u'M&uuml;nchen & Region', u'http://www.sueddeutsche.de/app/service/rss/ressort/muenchen/rss.xml'),
+              (u'München & Region', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EMünchen&Region%24?output=rss'),
               (u'Bayern', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EBayern%24?output=rss'),
               (u'Medien', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EMedien%24?output=rss'),
               (u'Digital', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EDigital%24?output=rss'),
@@ -76,7 +43,12 @@ class Sueddeutsche(BasicNewsRecipe):
               (u'Service', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EService%24?output=rss'), # sometimes only
               (u'Verlag', u'http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5EVerlag%24?output=rss'),   # sometimes only
             ]
-
+# AGe 2011-12-16 Problem of Handling redirections solved by a solution of Recipes-Re-usable code from kiklop74.
+# Feed is:                    http://suche.sueddeutsche.de/query/%23/sort/-docdatetime/drilldown/%C2%A7ressort%3A%5ESport%24?output=rss
+# Article download source is: http://sz.de/1.1237295 (Ski Alpin: Der Erfolg kommt, der Trainer geht)
+# Article source is:          http://www.sueddeutsche.de/sport/ski-alpin-der-erfolg-kommt-der-trainer-geht-1.1237295
+# Article printversion is:    http://www.sueddeutsche.de/sport/2.220/ski-alpin-der-erfolg-kommt-der-trainer-geht-1.1237295
     def print_version(self, url):
-        main, sep, id = url.rpartition('/')
+        n_url=self.browser.open_novisit(url).geturl()
+        main, sep, id = n_url.rpartition('/')
         return main + '/2.220/' + id

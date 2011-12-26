@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -18,11 +17,17 @@ class Berlingske_dk(BasicNewsRecipe):
     no_stylesheets        = True
     remove_empty_feeds    = True
     use_embedded_content  = False
+    remove_javascript     = True
     publication_type      = 'newspaper'
     encoding              = 'utf8'
     language              = 'da'
-    masthead_url          = 'http://www.berlingske.dk/sites/all/themes/bm/img/layout/masthead_bg.gif'
-    extra_css             = ' body{font-family: Arial,Helvetica,sans-serif } h1,.manchet,.byline{font-family: Cambria,Georgia,Times,"Times New Roman",serif } '
+    auto_cleanup          = True
+    extra_css             = '''
+                            .manchet {color:#888888;}
+                            .dateline {font-size: x-small; color:#444444;}
+                            .manchet,.dateline { font-family: Cambria,Georgia,Times,"Times New Roman",serif }
+                            .body {font-family: Arial,Helvetica,sans-serif }
+                            '''
 
     conversion_options = {
                           'comment'  : description
@@ -32,18 +37,14 @@ class Berlingske_dk(BasicNewsRecipe):
                         }
 
     feeds              = [
-                            (u'Breaking news' , u'http://www.berlingske.dk/breaking/rss'          )
-                           ,(u'Seneste nyt'   , u'http://www.berlingske.dk/seneste/rss'           )
-                           ,(u'Topnyheder'    , u'http://www.berlingske.dk/top/rss'               )
-                           ,(u'Danmark'       , u'http://www.berlingske.dk/danmark/seneste/rss'   )
-                           ,(u'Verden'        , u'http://www.berlingske.dk/verden/seneste/rss'    )
-                           ,(u'Klima'         , u'http://www.berlingske.dk/klima/seneste/rss'     )
-                           ,(u'Debat'         , u'http://www.berlingske.dk/debat/seneste/rss'     )
-                           ,(u'Koebenhavn'    , u'http://www.berlingske.dk/koebenhavn/seneste/rss')
-                           ,(u'Politik'       , u'http://www.berlingske.dk/politik/seneste/rss'   )
-                           ,(u'Kultur'        , u'http://www.berlingske.dk/kultur/seneste/rss'    )
+                            (u'Breaking news' , u'http://www.b.dk/breaking/rss'          )
+                           ,(u'Seneste nyt'   , u'http://www.b.dk/seneste/rss'           )
+                           ,(u'Topnyheder'    , u'http://www.b.dk/top/rss'               )
+                           ,(u'Danmark'       , u'http://www.b.dk/danmark/seneste/rss'   )
+                           ,(u'Verden'        , u'http://www.b.dk/verden/seneste/rss'    )
+                           ,(u'Klima'         , u'http://www.b.dk/klima/seneste/rss'     )
+                           ,(u'Debat'         , u'http://www.b.dk/debat/seneste/rss'     )
+                           ,(u'Koebenhavn'    , u'http://www.b.dk/koebenhavn/seneste/rss')
+                           ,(u'Politik'       , u'http://www.b.dk/politik/seneste/rss'   )
+                           ,(u'Kultur'        , u'http://www.b.dk/kultur/seneste/rss'    )
                           ]
-
-    keep_only_tags     = [dict(attrs={'class':['first','pt-article']})]
-    remove_tags        = [dict(name=['object','link','base','iframe','embed'])]
-

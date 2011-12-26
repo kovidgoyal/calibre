@@ -195,7 +195,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         for ac in self.iactions.values():
             ac.do_genesis()
-        self.donate_action = QAction(QIcon(I('donate.png')), _('&Donate to support calibre'), self)
+        self.donate_action = QAction(QIcon(I('donate.png')),
+                _('&Donate to support calibre'), self)
         for st in self.istores.values():
             st.do_genesis()
         MainWindowMixin.__init__(self, db)
@@ -358,7 +359,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                         'log will be displayed automatically.')%self.gui_debug, show=True)
 
     def esc(self, *args):
-        self.search.clear()
+        self.clear_button.click()
 
     def start_content_server(self, check_started=True):
         from calibre.library.server.main import start_threaded_server
@@ -406,11 +407,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         return getattr(self, '__systray_minimized', False)
 
     def ask_a_yes_no_question(self, title, msg, det_msg='',
-            show_copy_button=False, ans_when_user_unavailable=True):
+            show_copy_button=False, ans_when_user_unavailable=True,
+            skip_dialog_name=None, skipped_value=True):
         if self.is_minimized_to_tray:
             return ans_when_user_unavailable
         return question_dialog(self, title, msg, det_msg=det_msg,
-                show_copy_button=show_copy_button)
+                show_copy_button=show_copy_button,
+                skip_dialog_name=skip_dialog_name,
+                skip_dialog_skipped_value=skipped_value)
 
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():
@@ -722,10 +726,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.write_settings()
         if self.system_tray_icon.isVisible():
             if not dynamic['systray_msg'] and not isosx:
-                info_dialog(self, 'calibre', 'calibre '+\
+                info_dialog(self, 'calibre', 'calibre '+ \
                         _('will keep running in the system tray. To close it, '
                         'choose <b>Quit</b> in the context menu of the '
-                        'system tray.')).exec_()
+                        'system tray.'), show_copy_button=False).exec_()
                 dynamic['systray_msg'] = True
             self.hide_windows()
             e.ignore()

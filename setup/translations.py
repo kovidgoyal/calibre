@@ -215,32 +215,34 @@ class GetTranslations(Translations): # {{{
     description = 'Get updated translations from Launchpad'
     BRANCH = 'lp:~kovid/calibre/translations'
 
-    @classmethod
-    def modified_translations(cls):
-        raw = subprocess.Popen(['bzr', 'status'],
+    @property
+    def modified_translations(self):
+        raw = subprocess.Popen(['bzr', 'status', '-S', self.PATH],
                 stdout=subprocess.PIPE).stdout.read().strip()
+        ans = []
         for line in raw.splitlines():
             line = line.strip()
-            if line.startswith(cls.PATH) and line.endswith('.po'):
-                yield line
+            if line.startswith('M') and line.endswith('.po'):
+                ans.append(line.split()[-1])
+        return ans
 
     def run(self, opts):
-        if len(list(self.modified_translations())) == 0:
+        if not self.modified_translations:
             subprocess.check_call(['bzr', 'merge', self.BRANCH])
-        if len(list(self.modified_translations())) == 0:
-            print 'No updated translations available'
-        else:
-            subprocess.check_call(['bzr', 'commit', '-m',
-                'IGN:Updated translations', self.PATH])
         self.check_for_errors()
 
-    @classmethod
-    def check_for_errors(cls):
+        if self.modified_translations:
+            subprocess.check_call(['bzr', 'commit', '-m',
+                'IGN:Updated translations'])
+        else:
+            print('No updated translations available')
+
+    def check_for_errors(self):
         errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
         if os.path.exists(errors):
             shutil.rmtree(errors)
         os.mkdir(errors)
-        pofilter = ('pofilter', '-i', cls.PATH, '-o', errors,
+        pofilter = ('pofilter', '-i', self.PATH, '-o', errors,
                 '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
                 #'-t', 'xmltags',
                 #'-t', 'brackets',
@@ -253,23 +255,20 @@ class GetTranslations(Translations): # {{{
                 '-t', 'printf')
         subprocess.check_call(pofilter)
         errfiles = glob.glob(errors+os.sep+'*.po')
-        subprocess.check_call(['gvim', '-f', '-p', '--']+errfiles)
-        for f in errfiles:
-            with open(f, 'r+b') as f:
-                raw = f.read()
-                raw = re.sub(r'# \(pofilter\).*', '', raw)
-                f.seek(0)
-                f.truncate()
-                f.write(raw)
+        if errfiles:
+            subprocess.check_call(['gvim', '-f', '-p', '--']+errfiles)
+            for f in errfiles:
+                with open(f, 'r+b') as f:
+                    raw = f.read()
+                    raw = re.sub(r'# \(pofilter\).*', '', raw)
+                    f.seek(0)
+                    f.truncate()
+                    f.write(raw)
 
-        subprocess.check_call(['pomerge', '-t', cls.PATH, '-i', errors, '-o',
-            cls.PATH])
-        if len(list(cls.modified_translations())) > 0:
-            subprocess.call(['bzr', 'diff', cls.PATH])
-            yes = raw_input('Merge corrections? [y/n]: ').strip()
-            if yes in ['', 'y']:
-                subprocess.check_call(['bzr', 'commit', '-m',
-                    'IGN:Translation corrections', cls.PATH])
+            subprocess.check_call(['pomerge', '-t', self.PATH, '-i', errors, '-o',
+                self.PATH])
+            return True
+        return False
 
 # }}}
 

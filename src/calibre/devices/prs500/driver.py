@@ -240,7 +240,7 @@ class PRS500(DeviceConfig, DevicePlugin):
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
 
-    def open(self, library_uuid) :
+    def open(self, connected_device, library_uuid) :
         """
         Claim an interface on the device for communication.
         Requires write privileges to the device file.

@@ -287,7 +287,7 @@ class KINDLE2(KINDLE):
     name           = 'Kindle 2/3 Device Interface'
     description    = _('Communicate with the Kindle 2/3 eBook reader.')
 
-    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4']
+    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
     DELETE_EXTS    = KINDLE.DELETE_EXTS
 
     PRODUCT_ID = [0x0002, 0x0004]
@@ -376,4 +376,21 @@ class KINDLE_DX(KINDLE2):
 
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
+
+class KINDLE_FIRE(KINDLE2):
+
+    name = 'Kindle Fire Device Interface'
+    description = _('Communicate with the Kindle Fire')
+    gui_name = 'Fire'
+
+    PRODUCT_ID = [0x0006]
+    BCD = [0x216, 0x100]
+
+    EBOOK_DIR_MAIN = 'Documents'
+    SUPPORTS_SUB_DIRS = False
+    SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS_FOR_SCAN = True
+    VENDOR_NAME = 'AMAZON'
+    WINDOWS_MAIN_MEM = 'KINDLE'
+
 

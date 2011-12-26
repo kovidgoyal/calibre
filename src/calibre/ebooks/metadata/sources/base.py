@@ -15,7 +15,7 @@ from calibre.customize import Plugin
 from calibre.utils.logging import ThreadSafeLog, FileStream
 from calibre.utils.config import JSONConfig
 from calibre.utils.titlecase import titlecase
-from calibre.utils.icu import capitalize, lower
+from calibre.utils.icu import capitalize, lower, upper
 from calibre.ebooks.metadata import check_isbn
 
 msprefs = JSONConfig('metadata_sources/global.json')
@@ -121,7 +121,23 @@ def cap_author_token(token):
         # Normalize tokens of the form J.K. to J. K.
         parts = token.split('.')
         return '. '.join(map(capitalize, parts)).strip()
-    return capitalize(token)
+    scots_name = None
+    for x in ('mc', 'mac'):
+        if (token.lower().startswith(x) and len(token) > len(x) and
+                (
+                    token[len(x)] == upper(token[len(x)]) or
+                    lt == token
+                )):
+            scots_name = len(x)
+            break
+    ans = capitalize(token)
+    if scots_name is not None:
+        ans = ans[:scots_name] + upper(ans[scots_name]) + ans[scots_name+1:]
+    for x in ('-', "'"):
+        idx = ans.find(x)
+        if idx > -1 and len(ans) > idx+2:
+            ans = ans[:idx+1] + upper(ans[idx+1]) + ans[idx+2:]
+    return ans
 
 def fixauthors(authors):
     if not authors:
@@ -328,7 +344,7 @@ class Source(Plugin):
                 # Remove single quotes not followed by 's'
                 (r"'(?!s)", ''),
                 # Replace other special chars with a space
-                (r'''[:,;+!@#$%^&*(){}.`~"\s\[\]/]''', ' ')
+                (r'''[:,;+!@$%^&*(){}.`~"\s\[\]/]''', ' '),
             ]]
 
             for pat, repl in title_patterns:

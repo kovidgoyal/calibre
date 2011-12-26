@@ -162,7 +162,7 @@ class DeviceManager(Thread): # {{{
             try:
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
-                dev.open(self.current_library_uuid)
+                dev.open(detected_device, self.current_library_uuid)
             except OpenFeedback as e:
                 if dev not in self.ejected_devices:
                     self.open_feedback_msg(dev.get_gui_name(), e)
@@ -683,7 +683,7 @@ class DeviceMixin(object): # {{{
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
-                det_msg=autos
+                det_msg=autos, skip_dialog_name='auto_convert_before_send'
         )
 
     def set_default_thumbnail(self, height):

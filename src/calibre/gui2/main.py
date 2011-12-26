@@ -134,19 +134,21 @@ class GuiRunner(QObject):
         main = Main(self.opts, gui_debug=self.gui_debug)
         if self.splash_screen is not None:
             self.splash_screen.showMessage(_('Initializing user interface...'))
-            self.splash_screen.finish(main)
         main.initialize(self.library_path, db, self.listener, self.actions)
+        if self.splash_screen is not None:
+            self.splash_screen.finish(main)
         if DEBUG:
-            prints('Started up in', time.time() - self.startup_time)
+            prints('Started up in', time.time() - self.startup_time, 'with',
+                    len(db.data), 'books')
         add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
         sys.excepthook = main.unhandled_exception
         if len(self.args) > 1:
-            p = os.path.abspath(self.args[1])
-            if os.path.isdir(p):
-                prints('Ignoring directory passed as command line argument:',
-                        self.args[1])
-            else:
-                add_filesystem_book(p)
+            files = [os.path.abspath(p) for p in self.args[1:] if not
+                    os.path.isdir(p)]
+            if len(files) < len(sys.argv[1:]):
+                prints('Ignoring directories passed as command line arguments')
+            if files:
+                add_filesystem_book(files)
         self.app.file_event_hook = add_filesystem_book
         self.main = main
 
@@ -347,7 +349,8 @@ def main(args=sys.argv):
         except socket.error:
             if iswindows:
                 cant_start()
-            os.remove(ADDRESS)
+            if os.path.exists(ADDRESS):
+                os.remove(ADDRESS)
             try:
                 listener = Listener(address=ADDRESS)
             except socket.error:

@@ -35,7 +35,10 @@ class PluginWidget(QWidget, Ui_Form):
 
         self.all_fields = [x for x in FIELDS if x != 'all']
         #add custom columns
-        self.all_fields.extend([x for x in sorted(db.custom_field_keys())])
+        for x in sorted(db.custom_field_keys()):
+            self.all_fields.append(x)
+            if db.field_metadata[x]['datatype'] == 'series':
+                self.all_fields.append(x+'_index')
         #populate
         for x in self.all_fields:
             QListWidgetItem(x, self.db_fields)

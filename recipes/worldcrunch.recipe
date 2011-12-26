@@ -1,0 +1,17 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Worldcrunch(BasicNewsRecipe):
+    title          = u'Worldcrunch'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 1 #days
+    max_articles_per_feed = 25
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+
+
+    feeds          = [
+('News',
+ 'http://www.worldcrunch.com/feed'),
+]

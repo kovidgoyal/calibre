@@ -95,18 +95,37 @@ def author_to_author_sort(author, method=None):
 def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))
 
-try:
-    _title_pat = re.compile(tweaks.get('title_sort_articles',
-                                       r'^(A|The|An)\s+'), re.IGNORECASE)
-except:
-    print 'Error in title sort pattern'
-    import traceback
-    traceback.print_exc()
-    _title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
+_title_pats = {}
+def get_title_sort_pat(lang=None):
+    ans = _title_pats.get(lang, None)
+    if ans is not None:
+        return ans
+    q = lang
+    from calibre.utils.localization import canonicalize_lang, get_lang
+    if lang is None:
+        q = tweaks['default_language_for_title_sort']
+        if q is None:
+            q = get_lang()
+    q = canonicalize_lang(q) if q else q
+    data = tweaks['per_language_title_sort_articles']
+    ans = data.get(q, None)
+    try:
+        ans = frozenset(ans) if ans else frozenset(data['eng'])
+    except:
+        ans = frozenset((r'A\s+', r'The\s+', r'An\s+'))
+    ans = '|'.join(ans)
+    ans = '^(%s)'%ans
+    try:
+        ans = re.compile(ans, re.IGNORECASE)
+    except:
+        ans = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
+    _title_pats[lang] = ans
+    return ans
 
-_ignore_starts = u'\'"'+u''.join(unichr(x) for x in range(0x2018, 0x201e)+[0x2032, 0x2033])
+_ignore_starts = u'\'"'+u''.join(unichr(x) for x in
+        range(0x2018, 0x201e)+[0x2032, 0x2033])
 
-def title_sort(title, order=None):
+def title_sort(title, order=None, lang=None):
     if order is None:
         order = tweaks['title_series_sorting']
     title = title.strip()
@@ -114,12 +133,16 @@ def title_sort(title, order=None):
         return title
     if title and title[0] in _ignore_starts:
         title = title[1:]
-    match = _title_pat.search(title)
+    match = get_title_sort_pat(lang).search(title)
     if match:
-        prep = match.group(1)
-        title = title[len(prep):] + ', ' + prep
-        if title[0] in _ignore_starts:
-            title = title[1:]
+        try:
+            prep = match.group(1)
+        except IndexError:
+            pass
+        else:
+            title = title[len(prep):] + ', ' + prep
+            if title[0] in _ignore_starts:
+                title = title[1:]
     return title.strip()
 
 coding = zip(

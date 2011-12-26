@@ -56,8 +56,11 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
         </body>
     <html>
     '''%(f, c, css)
+    fm = getattr(mi, 'field_metadata', field_metadata)
+    fl = dict(get_field_list(fm))
+    show_comments = (all_fields or fl.get('comments', True))
     comments = u''
-    if mi.comments:
+    if mi.comments and show_comments:
         comments = comments_to_html(force_unicode(mi.comments))
     right_pane = u'<div id="comments" class="comments">%s</div>'%comments
 
@@ -76,7 +79,8 @@ def get_field_list(fm, use_defaults=False):
     for field in fm.displayable_field_keys():
         if field not in names:
             fieldlist.append((field, True))
-    return fieldlist
+    available = frozenset(fm.displayable_field_keys())
+    return [(f, d) for f, d in fieldlist if f in available]
 
 def render_data(mi, use_roman_numbers=True, all_fields=False):
     ans = []

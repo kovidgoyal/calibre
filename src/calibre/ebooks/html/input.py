@@ -13,12 +13,12 @@ Input plugin for HTML or OPF ebooks.
 
 import os, re, sys, uuid, tempfile, errno as gerrno
 from urlparse import urlparse, urlunparse
-from urllib import unquote
+from urllib import unquote, quote
 from functools import partial
 from itertools import izip
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import islinux, isbsd, iswindows
 from calibre import unicode_path, as_unicode
@@ -121,7 +121,7 @@ class HTMLFile(object):
 
         if not self.is_binary:
             if not encoding:
-                encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
+                encoding = detect_xml_encoding(src[:4096], verbose=verbose)[1]
                 self.encoding = encoding
             else:
                 self.encoding = encoding
@@ -148,7 +148,11 @@ class HTMLFile(object):
                 url = match.group(i)
                 if url:
                     break
-            link = self.resolve(url)
+            try:
+                link = self.resolve(url)
+            except ValueError:
+                # Unparseable URL, ignore
+                continue
             if link not in self.links:
                 self.links.append(link)
 
@@ -468,7 +472,10 @@ class HTMLInput(InputFormatPlugin):
                     self.oeb.log, ignore_opf=True)
             # Load into memory
             item = self.oeb.manifest.add(id, href, media_type)
-            item.html_input_href = bhref
+            # bhref refers to an already existing file. The read() method of
+            # DirContainer will call unquote on it before trying to read the
+            # file, therefore we quote it here.
+            item.html_input_href = quote(bhref)
             if guessed in self.OEB_STYLES:
                 item.override_css_fetch = partial(
                         self.css_import_handler, os.path.dirname(link))

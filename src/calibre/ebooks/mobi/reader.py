@@ -353,14 +353,14 @@ class MobiReader(object):
             self.processed_html = self.remove_random_bytes(self.processed_html)
             root = html.fromstring(self.processed_html)
         if root.xpath('descendant::p/descendant::p'):
-            from lxml.html import soupparser
+            from calibre.utils.soupparser import fromstring
             self.log.warning('Malformed markup, parsing using BeautifulSoup')
             try:
-                root = soupparser.fromstring(self.processed_html)
+                root = fromstring(self.processed_html)
             except Exception:
                 self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
                 self.processed_html = self.remove_random_bytes(self.processed_html)
-                root = soupparser.fromstring(self.processed_html)
+                root = fromstring(self.processed_html)
 
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')
@@ -502,6 +502,7 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('> <', '>\n<')
         self.processed_html = self.processed_html.replace('<mbp: ', '<mbp:')
         self.processed_html = re.sub(r'<\?xml[^>]*>', '', self.processed_html)
+        self.processed_html = re.sub(r'<\s*(/?)\s*o:p[^>]*>', r'', self.processed_html)
         # Swap inline and block level elements, and order block level elements according to priority
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
         self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
@@ -929,7 +930,7 @@ class MobiReader(object):
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         pos = 0
-        self.processed_html = ''
+        processed_html = cStringIO.StringIO()
         end_tag_re = re.compile(r'<\s*/')
         for end in sorted(positions):
             if end == 0:
@@ -947,12 +948,14 @@ class MobiReader(object):
                         end = r
                 else:
                     end = r + 1
-            self.processed_html += self.mobi_html[pos:end] + (anchor % oend)
+            processed_html.write(self.mobi_html[pos:end] + (anchor % oend))
             pos = end
-        self.processed_html += self.mobi_html[pos:]
+        processed_html.write(self.mobi_html[pos:])
+        processed_html = processed_html.getvalue()
+
         # Remove anchors placed inside entities
         self.processed_html = re.sub(r'&([^;]*?)(<a id="filepos\d+"></a>)([^;]*);',
-                r'&\1\3;\2', self.processed_html)
+                r'&\1\3;\2', processed_html)
 
 
     def extract_images(self, processed_records, output_dir):
@@ -971,7 +974,8 @@ class MobiReader(object):
                 continue
             processed_records.append(i)
             data  = self.sections[i][0]
-            if data[:4] in (b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n'):
+            if data[:4] in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n',
+                    b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
                 # A FLIS, FCIS, SRCS or EOF record, ignore
                 continue
             buf = cStringIO.StringIO(data)

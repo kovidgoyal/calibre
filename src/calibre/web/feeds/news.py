@@ -155,7 +155,7 @@ class BasicNewsRecipe(Recipe):
     #:
     auto_cleanup_keep = None
 
-    #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
+    #: Specify any extra :term:`CSS` that should be added to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
     #: `</head>` tag thereby overriding all :term:`CSS` except that which is
     #: declared using the style attribute on individual :term:`HTML` tags.
@@ -653,6 +653,25 @@ class BasicNewsRecipe(Recipe):
         '''
         raise NotImplementedError
 
+    def add_toc_thumbnail(self, article, src):
+        '''
+        Call this from populate_article_metadata with the src attribute of an
+        <img> tag from the article that is appropriate for use as the thumbnail
+        representing the article in the Table of Contents. Whether the
+        thumbnail is actually used is device dependent (currently only used by
+        the Kindles). Note that the referenced image must be one that was
+        successfully downloaded, otherwise it will be ignored.
+        '''
+        if not src or not hasattr(article, 'toc_thumbnail'):
+            return
+
+        src = src.replace('\\', '/')
+        if re.search(r'feed_\d+/article_\d+/images/img', src, flags=re.I) is None:
+            self.log.warn('Ignoring invalid TOC thumbnail image: %r'%src)
+            return
+        article.toc_thumbnail = re.sub(r'^.*?feed', 'feed',
+                src, flags=re.IGNORECASE)
+
     def populate_article_metadata(self, article, soup, first):
         '''
         Called when each HTML page belonging to article is downloaded.
@@ -842,12 +861,22 @@ class BasicNewsRecipe(Recipe):
         finally:
             self.cleanup()
 
+    @property
+    def lang_for_html(self):
+        try:
+            lang = self.language.replace('_', '-').partition('-')[0].lower()
+            if lang == 'und':
+                lang = None
+        except:
+            lang = None
+        return lang
+
     def feeds2index(self, feeds):
-        templ = templates.IndexTemplate()
+        templ = (templates.TouchscreenIndexTemplate if self.touchscreen else
+                templates.IndexTemplate)
+        templ = templ(lang=self.lang_for_html)
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
         timefmt = self.timefmt
-        if self.touchscreen:
-            templ = templates.TouchscreenIndexTemplate()
         return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
 
@@ -870,8 +899,6 @@ class BasicNewsRecipe(Recipe):
         if len(ans) < len(src):
             return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
         return ans
-
-
 
     def feed2index(self, f, feeds):
         feed = feeds[f]
@@ -900,11 +927,10 @@ class BasicNewsRecipe(Recipe):
                 feed.image_url = feed.image_url.decode(sys.getfilesystemencoding(), 'strict')
 
 
-        templ = templates.FeedTemplate()
+        templ = (templates.TouchscreenFeedTemplate if self.touchscreen else
+                    templates.FeedTemplate)
+        templ = templ(lang=self.lang_for_html)
         css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
-
-        if self.touchscreen:
-            templ = templates.TouchscreenFeedTemplate()
 
         return templ.generate(f, feeds, self.description_limiter,
                               extra_css=css).render(doctype='xhtml')
@@ -1278,13 +1304,16 @@ class BasicNewsRecipe(Recipe):
                         desc = None
                     else:
                         desc = self.description_limiter(desc)
+                    tt = a.toc_thumbnail if a.toc_thumbnail else None
                     entries.append('%sindex.html'%adir)
                     po = self.play_order_map.get(entries[-1], None)
                     if po is None:
                         self.play_order_counter += 1
                         po = self.play_order_counter
-                    parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'),
-                                    play_order=po, author=auth, description=desc)
+                    parent.add_item('%sindex.html'%adir, None,
+                            a.title if a.title else _('Untitled Article'),
+                            play_order=po, author=auth,
+                            description=desc, toc_thumbnail=tt)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
@@ -1391,6 +1420,8 @@ class BasicNewsRecipe(Recipe):
                                           oldest_article=self.oldest_article,
                                           max_articles_per_feed=self.max_articles_per_feed,
                                           get_article_url=self.get_article_url))
+                    if (self.delay > 0):
+                        time.sleep(self.delay)
             except Exception as err:
                 feed = Feed()
                 msg = 'Failed feed: %s'%(title if title else url)

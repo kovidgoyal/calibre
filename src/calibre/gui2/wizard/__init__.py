@@ -80,7 +80,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle 1, 2, 3 or 4'
+    name = 'Kindle 1-4 and Touch'
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -107,6 +107,12 @@ class KindleDX(Kindle):
     name = 'Kindle DX'
     id = 'kindledx'
 
+class KindleFire(KindleDX):
+    name = 'Kindle Fire'
+    id = 'kindle_fire'
+    output_profile = 'kindle_fire'
+    supports_color = True
+
 class Sony505(Device):
 
     output_profile = 'sony'
@@ -121,6 +127,11 @@ class Kobo(Device):
     output_profile = 'kobo'
     output_format = 'EPUB'
     id = 'kobo'
+
+class KoboVox(Kobo):
+    name = 'Kobo Vox'
+    output_profile = 'tablet'
+    id = 'kobo_vox'
 
 class Booq(Device):
     name = 'bq Classic'
@@ -174,6 +185,10 @@ class NookColor(Nook):
     output_profile = 'nook_color'
     supports_color = True
 
+class NookTablet(NookColor):
+    id = 'nook_tablet'
+    name = 'Nook Tablet'
+
 class CybookG3(Device):
 
     name = 'Cybook Gen 3'
@@ -193,6 +208,12 @@ class CybookOrizon(CybookOpus):
 
     name = 'Cybook Orizon'
     id = 'cybook_orizon'
+
+class CybookOdyssey(CybookOpus):
+
+    name = 'Cybook Odyssey'
+    id = 'cybook_odyssey'
+
 
 class PocketBook360(CybookOpus):
 

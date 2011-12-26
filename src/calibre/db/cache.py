@@ -48,6 +48,7 @@ class Cache(object):
         self.read_lock, self.write_lock = create_locks()
         self.record_lock = RecordLock(self.read_lock)
         self.format_metadata_cache = defaultdict(dict)
+        self.formatter_template_cache = {}
 
         # Implement locking for all simple read/write API methods
         # An unlocked version of the method is stored with the name starting
@@ -89,7 +90,7 @@ class Cache(object):
             return self.backend.format_abspath(book_id, fmt, name, path)
 
     def _get_metadata(self, book_id, get_user_categories=True): # {{{
-        mi = Metadata(None)
+        mi = Metadata(None, template_cache=self.formatter_template_cache)
         author_ids = self._field_ids_for('authors', book_id)
         aut_list = [self._author_data(i) for i in author_ids]
         aum = []

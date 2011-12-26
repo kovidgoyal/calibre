@@ -13,9 +13,11 @@ Device driver for the SONY T1 devices
 
 import os, time, re
 import sqlite3 as sqlite
+from sqlite3 import DatabaseError
 from contextlib import closing
 from datetime import date
 
+from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre.devices.usbms.device import USBDevice
 from calibre.devices.usbms.books import CollectionsBookList
@@ -264,27 +266,44 @@ class PRST1(USBMS):
         collections = booklist.get_collections(collections_attributes)
 
         with closing(sqlite.connect(dbpath)) as connection:
-            self.update_device_books(connection, booklist, source_id, plugboard)
+            self.update_device_books(connection, booklist, source_id,
+                    plugboard, dbpath)
             self.update_device_collections(connection, booklist, collections, source_id)
 
         debug_print('PRST1: finished update_device_database')
 
-    def update_device_books(self, connection, booklist, source_id, plugboard):
+    def update_device_books(self, connection, booklist, source_id, plugboard,
+            dbpath):
         opts = self.settings()
         upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
         use_sony_authors = opts.extra_customization[self.OPT_USE_SONY_AUTHORS]
 
-        cursor = connection.cursor()
+        try:
+            cursor = connection.cursor()
 
-        # Get existing books
-        query = 'SELECT file_path, _id FROM books'
-        cursor.execute(query)
+            # Get existing books
+            query = 'SELECT file_path, _id FROM books'
+            cursor.execute(query)
+        except DatabaseError:
+            raise DeviceError(('The SONY database is corrupted. '
+                    ' Delete the file %s on your reader and then disconnect '
+                    ' reconnect it. If you are using an SD card, you '
+                    ' should delete the file on the card as well. Note that '
+                    ' deleting this file will cause your reader to forget '
+                    ' any notes/highlights, etc.')%dbpath)
 
         db_books = {}
         for i, row in enumerate(cursor):
             lpath = row[0].replace('\\', '/')
             db_books[lpath] = row[1]
+
+        # Work-around for Sony Bug (SD Card DB not using right SQLite sequence)
+        if source_id == 1:
+            sdcard_sequence_start = '4294967296'
+            query = 'UPDATE sqlite_sequence SET seq = ? WHERE seq < ?'
+            t = (sdcard_sequence_start, sdcard_sequence_start,)
+            cursor.execute(query, t)
 
         for book in booklist:
             # Run through plugboard if needed
@@ -312,12 +331,10 @@ class PRST1(USBMS):
             title = newmi.title or _('Unknown')
 
             # Get modified date
+            # If there was a detected offset, use that. Otherwise use UTC (same as Sony software)
             modified_date = os.path.getmtime(book.path) * 1000
             if self.device_offset is not None:
                 modified_date = modified_date + self.device_offset
-            else:
-                time_offset = -time.altzone if time.daylight else -time.timezone
-                modified_date = modified_date + (time_offset * 1000)
 
             if lpath not in db_books:
                 query = '''
@@ -503,7 +520,10 @@ class PRST1(USBMS):
 
     def upload_book_cover(self, connection, book, source_id):
         debug_print('PRST1: Uploading/Refreshing Cover for ' + book.title)
-        if not book.thumbnail or not book.thumbnail[-1]:
+        if (not book.thumbnail or isinstance(book.thumbnail, ImageWrapper) or
+                not book.thumbnail[-1]):
+            # If the thumbnail is an ImageWrapper instance, it refers to a book
+            # not in the calibre library
             return
         cursor = connection.cursor()
 
@@ -565,17 +585,17 @@ class PRST1(USBMS):
         # Setting this to the SONY periodical schema apparently causes errors
         # with some periodicals, therefore set it to null, since the special
         # periodical navigation doesn't work anyway.
-        periodical_schema = 'null'
+        periodical_schema = None
 
         query = '''
         UPDATE books
-        SET conforms_to = %s,
+        SET conforms_to = ?,
             periodical_name = ?,
             description = ?,
             publication_date = ?
         WHERE _id = ?
-        '''%periodical_schema
-        t = (name, None, pubdate, book.bookId,)
+        '''
+        t = (periodical_schema, name, None, pubdate, book.bookId,)
         cursor.execute(query, t)
 
         connection.commit()

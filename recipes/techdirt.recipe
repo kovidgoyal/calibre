@@ -1,0 +1,20 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TechDirt(BasicNewsRecipe):
+    title          = u'Tech Dirt'
+    language       = 'en'
+    __author__     = 'Krittika Goyal'
+    oldest_article = 7 #days
+    max_articles_per_feed = 25
+    use_embedded_content = False
+
+    no_stylesheets = True
+    auto_cleanup = True
+    encoding = 'latin1'
+
+
+    feeds          = [
+('News',
+ 'http://feeds.feedburner.com/techdirt/feed'),
+]
+

@@ -1,0 +1,47 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Kovid Goyal <kovid at kovidgoyal.net>, Armin Geller'
+'''
+Fetch echo-online.de
+'''
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+class Echo_Online(BasicNewsRecipe):
+    title          = u' Echo Online'
+    description = '-Echo Online-'
+    publisher = 'Echo Online GmbH'
+    category = 'News, Germany'
+    __author__ = 'Armin Geller' # 2011-12-17
+    language = 'de'
+    lang = 'de-DE'
+    encoding = 'iso-8859-1'
+    timefmt = ' [%a, %d %b %Y]'
+
+    oldest_article = 7
+    max_articles_per_feed = 2
+    no_stylesheets = True
+    auto_cleanup = True
+    remove_javascript = True
+
+    feeds = [
+              (u'Topnews', u'http://www.echo-online.de/storage/rss/rss/topnews.xml'),
+              (u'Darmstadt', u'http://www.echo-online.de/rss/darmstadt.xml'),
+              (u'Darmstadt-Dieburg', u'http://www.echo-online.de/rss/darmstadtdieburg.xml'),
+              (u'Kreis Gro\xdf-Gerau', u'http://www.echo-online.de/rss/kreisgrossgerau.xml'),
+              (u'R\xfcsselsheim', u'http://www.echo-online.de/rss/ruesselsheim.xml'),
+              (u'Kreis Bergstra\xdfe', u'http://www.echo-online.de/rss/bergstrasse.xml'),
+              (u'Odenwaldkreis', u'http://www.echo-online.de/rss/odenwald.xml'),
+              (u'SV 98', u'http://www.echo-online.de/rss/sv98.xml'),
+              (u'Kino', u'http://www.echo-online.de/rss/kino.xml'),
+              (u'Ausstellungen', u'http://www.echo-online.de/rss/ausstellungen.xml'),
+              (u'Ausflug & Reise', u'http://www.echo-online.de/rss/ausflugreise.xml'),
+             ]
+
+    def print_version(self, url):
+          return self.browser.open_novisit(url).geturl() + '?_FRAME=33&_FORMAT=PRINT'
+
+    remove_tags = [dict(name='div', attrs={'class':["header", "name"]}),]
+    auto_cleanup_keep = '//div[@class="bild_gross w270"]'
+
+#    cover_url = 'http://profile.ak.fbcdn.net/hprofile-ak-ash2/41801_145340745513489_893927_n.jpg' # 2011-12-16 AGe
+    cover_url = 'http://adcounter.darmstaedter-echo.de/webdav/files/config/gui/images/Zeitungsfaecher.gif' # 2011-12-16 AGe
+

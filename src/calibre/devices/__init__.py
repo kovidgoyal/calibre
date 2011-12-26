@@ -39,15 +39,15 @@ def get_connected_device():
         if ok:
             dev = d
             dev.reset(log_packets=False, detected_device=det)
-            connected_devices.append(dev)
+            connected_devices.append((det, dev))
 
     if dev is None:
         print >>sys.stderr, 'Unable to find a connected ebook reader.'
         return
 
-    for d in connected_devices:
+    for det, d in connected_devices:
         try:
-            d.open(None)
+            d.open(det, None)
         except:
             continue
         else:
@@ -121,7 +121,7 @@ def debug(ioreg_to_tmp=False, buf=None):
             out('Trying to open', dev.name, '...', end=' ')
             try:
                 dev.reset(detected_device=det)
-                dev.open(None)
+                dev.open(det, None)
                 out('OK')
             except:
                 import traceback

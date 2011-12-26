@@ -23,7 +23,9 @@ class TheCND(BasicNewsRecipe):
 	remove_tags		= [dict(name='table', attrs={'align':'right'}), dict(name='img', attrs={'src':'http://my.cnd.org/images/logo.gif'}), dict(name='hr', attrs={}), dict(name='small', attrs={})]
 	no_stylesheets	 = True
 
-	preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+	preprocess_regexps = [  (re.compile(r'<!--.*?-->', re.DOTALL), lambda m: ''),
+				(re.compile('<table width.*?</table>', re.DOTALL), lambda m: ''),
+				]
 
 	def print_version(self, url):
 		if url.find('news/article.php') >= 0:
@@ -46,16 +48,18 @@ class TheCND(BasicNewsRecipe):
 			title = self.tag_to_string(a)
 			self.log('\tFound article: ', title, 'at', url)
 			date = a.nextSibling
+			if re.search('cm', date):
+				continue
 			if (date is not None) and len(date)>2:
 				if not articles.has_key(date):
 					articles[date] = []
 				articles[date].append({'title':title, 'url':url, 'description': '', 'date':''})
 				self.log('\t\tAppend to : ', date)
 
-		self.log('log articles', articles)
+		#self.log('log articles', articles)
 		mostCurrent = sorted(articles).pop()
-		self.title = 'CND ' + mostCurrent
-
+		self.title = 'CND ' + mostCurrent		
+		
 		feeds.append((self.title, articles[mostCurrent]))
 
 		return feeds

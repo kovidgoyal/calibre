@@ -30,7 +30,7 @@ BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'text', 'ht
                    'html', 'htmlz', 'xhtml', 'pdf', 'pdb', 'pdr', 'prc', 'mobi', 'azw', 'doc',
                    'epub', 'fb2', 'djv', 'djvu', 'lrx', 'cbr', 'cbz', 'cbc', 'oebzip',
                    'rb', 'imp', 'odt', 'chm', 'tpz', 'azw1', 'pml', 'pmlz', 'mbp', 'tan', 'snb',
-                   'xps', 'oxps', 'azw4', 'book', 'zbf']
+                   'xps', 'oxps', 'azw4', 'book', 'zbf', 'pobi', 'docx']
 
 class HTMLRenderer(object):
 
