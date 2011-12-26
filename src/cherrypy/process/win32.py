@@ -1,7 +1,6 @@
 """Windows service. Requires pywin32."""
 
 import os
-import thread
 import win32api
 import win32con
 import win32event
@@ -84,7 +83,7 @@ class Win32Bus(wspbus.Bus):
             return self.events[state]
         except KeyError:
             event = win32event.CreateEvent(None, 0, 0,
-                                           u"WSPBus %s Event (pid=%r)" %
+                                           "WSPBus %s Event (pid=%r)" %
                                            (state.name, os.getpid()))
             self.events[state] = event
             return event
@@ -97,7 +96,7 @@ class Win32Bus(wspbus.Bus):
         win32event.PulseEvent(event)
     state = property(_get_state, _set_state)
     
-    def wait(self, state, interval=0.1):
+    def wait(self, state, interval=0.1, channel=None):
         """Wait for the given state(s), KeyboardInterrupt or SystemExit.
         
         Since this class uses native win32event objects, the interval
@@ -128,7 +127,7 @@ class _ControlCodes(dict):
     
     def key_for(self, obj):
         """For the given value, return its corresponding key."""
-        for key, val in self.iteritems():
+        for key, val in self.items():
             if val is obj:
                 return key
         raise ValueError("The given object could not be found: %r" % obj)

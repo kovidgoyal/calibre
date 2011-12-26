@@ -93,6 +93,7 @@ class ANDROID(USBMS):
 
             # Viewsonic/Vizio
             0x0489 : {
+                    0xc000 : [0x0226],
                     0xc001 : [0x0226],
                     0xc004 : [0x0226],
                     0x8801 : [0x0226, 0x0227],

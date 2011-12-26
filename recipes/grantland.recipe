@@ -1,0 +1,96 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class GrantLand(BasicNewsRecipe):
+	title          = u"Grantland"
+	description    = 'Writings on Sports & Pop Culture'
+	language       = 'en'
+	__author__     = 'Barty'
+	max_articles_per_feed = 100
+	no_stylesheets = False
+	# auto_cleanup is too aggressive sometimes and we end up with blank articles
+	auto_cleanup   = False
+	timefmt        = ' [%a, %d %b %Y]'
+	oldest_article = 365
+
+	cover_url      = 'http://cdn0.sbnation.com/imported_assets/740965/blog_grantland_grid_3.jpg'
+	masthead_url   = 'http://a1.espncdn.com/prod/assets/grantland/grantland-logo.jpg'
+
+	INDEX          = 'http://www.grantland.com'
+	CATEGORIES     = [
+		# comment out categories you don't want
+		# (user friendly name, url suffix, max number of articles to load)
+		('Today in Grantland','',20),
+		('In Case You Missed It','incaseyoumissedit',35),
+		]
+
+	remove_tags    = [
+		{'name':['head','style','script']},
+		{'id':['header']},
+		{'class':re.compile(r'\bside|\bad\b|floatright|tags')}
+		]
+	remove_tags_before = {'class':'wrapper'}
+	remove_tags_after  = [{'id':'content'}]
+
+	preprocess_regexps = [
+		# <header> tags with an img inside are just blog banners, don't need them
+		# note: there are other useful <header> tags so we don't want to just strip all of them
+		(re.compile(r'<header class.+?<img .+?>.+?</header>', re.DOTALL|re.IGNORECASE),lambda m: ''),
+		# delete everything between the *last* <hr class="small" /> and </article>
+		(re.compile(r'<hr class="small"(?:(?!<hr class="small").)+</article>', re.DOTALL|re.IGNORECASE),lambda m: '<hr class="small" /></article>'),
+		]
+	extra_css = """cite, time { font-size: 0.8em !important; margin-right: 1em !important; }
+		img + cite { display:block; text-align:right}"""
+
+	def parse_index(self):
+		feeds = []
+		seen_urls = set([])
+
+		for category in self.CATEGORIES:
+
+			(cat_name, tag, max_articles) = category
+			self.log('Reading category:', cat_name)
+			articles = []
+
+			page = "%s/%s" % (self.INDEX, tag)
+			soup = self.index_to_soup(page)
+			headers = soup.findAll('h2' if tag=='' else 'h3')
+
+			for header in headers:
+				tag = header.find('a')
+				if tag is None or not hasattr(tag,'href'):
+					continue
+				url = tag['href']
+				if url.startswith('/'):
+					url = self.INDEX + url
+				if url in seen_urls:
+					continue
+				seen_urls.add(url)
+				title = self.tag_to_string(tag)
+				if 'Podcast:' in title or 'In Case You Missed It' in title:
+					continue
+				desc = dt = ''
+				par = header.parent
+				#tag = par.find('cite')
+				#if tag is not None:
+				#	desc = '['+self.tag_to_string(tag) + '] '
+				tag = par.find('div')
+				if tag is not None:
+					desc = desc + self.tag_to_string(tag)
+					tag = tag.find('time')
+					if tag is not None:
+						dt = self.tag_to_string( tag)
+
+				self.log('\tFound article:', title)
+				self.log('\t', url)
+				articles.append({'title':title,'url':url,'description':desc,'date':dt})
+				if len(articles) >= max_articles:
+					break
+
+			if articles:
+				feeds.append((cat_name, articles))
+
+		return feeds
+
+	def print_version(self, url):
+		return url+'?view=print'

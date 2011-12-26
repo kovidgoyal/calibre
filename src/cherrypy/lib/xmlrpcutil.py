@@ -1,13 +1,19 @@
 import sys
 
 import cherrypy
+from cherrypy._cpcompat import ntob
 
+def get_xmlrpclib():
+    try:
+        import xmlrpc.client as x
+    except ImportError:
+        import xmlrpclib as x
+    return x
 
 def process_body():
     """Return (params, method) from request body."""
     try:
-        import xmlrpclib
-        return xmlrpclib.loads(cherrypy.request.body.read())
+        return get_xmlrpclib().loads(cherrypy.request.body.read())
     except Exception:
         return ('ERROR PARAMS', ), 'ERRORMETHOD'
 
@@ -29,13 +35,13 @@ def _set_response(body):
     # as a "Protocol Error", we'll just return 200 every time.
     response = cherrypy.response
     response.status = '200 OK'
-    response.body = body
+    response.body = ntob(body, 'utf-8')
     response.headers['Content-Type'] = 'text/xml'
     response.headers['Content-Length'] = len(body)
 
 
 def respond(body, encoding='utf-8', allow_none=0):
-    import xmlrpclib
+    xmlrpclib = get_xmlrpclib()
     if not isinstance(body, xmlrpclib.Fault):
         body = (body,)
     _set_response(xmlrpclib.dumps(body, methodresponse=1,
@@ -44,6 +50,6 @@ def respond(body, encoding='utf-8', allow_none=0):
 
 def on_error(*args, **kwargs):
     body = str(sys.exc_info()[1])
-    import xmlrpclib
+    xmlrpclib = get_xmlrpclib()
     _set_response(xmlrpclib.dumps(xmlrpclib.Fault(1, body)))
 

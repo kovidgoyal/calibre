@@ -51,8 +51,7 @@ class PreserveViewState(object): # {{{
             traceback.print_exc()
 
     def __exit__(self, *args):
-        current = self.view.get_selected_ids()
-        if not current and self.selected_ids:
+        if self.selected_ids:
             if self.current_id is not None:
                 self.view.current_id = self.current_id
             self.view.select_rows(self.selected_ids, using_ids=True,
