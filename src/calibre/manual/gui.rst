@@ -362,8 +362,9 @@ The syntax for searching for dates is::
 If the date is ambiguous, the current locale is used for date comparison. For example, in an mm/dd/yyyy
 locale 2/1/2009 is interpreted as 1 Feb 2009. In a dd/mm/yyyy locale it is interpreted as 2 Jan 2009.  Some
 special date strings are available. The string ``today`` translates to today's date, whatever it is. The
-strings ``yesterday`` and ``thismonth`` also work. In addition, the string ``daysago`` can be used to compare
-to a date some number of days ago. For example::
+strings ``yesterday`` and ``thismonth`` (or the translated equivalent in the current language) also work. 
+In addition, the string ``daysago`` (also translated) can be used to compare to a date some number of days ago.
+For example::
 
     date:>10daysago
     date:<=45daysago
@@ -399,7 +400,7 @@ You can search for the absence or presence of a field using the special "true" a
 Yes/no custom columns are searchable. Searching for ``false``, ``empty``, or ``blank`` will find all books
 with undefined values in the column. Searching for ``true`` will find all books that do not have undefined
 values in the column. Searching for ``yes`` or ``checked`` will find all books with ``Yes`` in the column.
-Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column.
+Searching for ``no`` or ``unchecked`` will find all books with ``No`` in the column. Note that the words ``yes``, ``no``, ``blank``, ``empty``, ``checked`` and ``unchecked`` are translated; you must use the current language's equivalent word. The words ``true`` and ``false`` and the special values ``_yes`` and ``_no`` are not translated.
 
 Hierarchical items (e.g. A.B.C) use an extended syntax to match initial parts of the hierarchy. This is done by adding a period between the exact match indicator (=) and the text. For example, the query ``tags:=.A`` will find the tags `A` and `A.B`, but will not find the tags `AA` or `AA.B`. The query ``tags:=.A.B`` will find the tags `A.B` and `A.B.C`, but not the tag `A`.
 
