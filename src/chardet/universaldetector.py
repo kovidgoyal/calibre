@@ -81,7 +81,7 @@ class UniversalDetector:
             elif aBuf[:4] == '\x00\x00\xFF\xFE':
                 # 00 00 FF FE  UCS-4, unusual octet order BOM (2143)
                 self.result = {'encoding': "X-ISO-10646-UCS-4-2143", 'confidence': 1.0}
-            elif aBuf[:4] == '\xFF\xFE':
+            elif aBuf[:2] == '\xFF\xFE':
                 # FF FE  UTF-16, little endian BOM
                 self.result = {'encoding': "UTF-16LE", 'confidence': 1.0}
             elif aBuf[:2] == '\xFE\xFF':

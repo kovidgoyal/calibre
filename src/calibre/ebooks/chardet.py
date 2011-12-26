@@ -1,34 +1,15 @@
-######################## BEGIN LICENSE BLOCK ########################
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
-#
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-# 02110-1301  USA
-######################### END LICENSE BLOCK #########################
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
-
-__version__ = "1.0"
+__license__   = 'GPL v3'
+__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
 
 import re, codecs
+from chardet import detect
 
-def detect(aBuf):
-    import calibre.ebooks.chardet.universaldetector as universaldetector
-    u = universaldetector.UniversalDetector()
-    u.reset()
-    u.feed(aBuf)
-    u.close()
-    return u.result
-
-# Added by Kovid
 ENCODING_PATS = [
                  re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>',
                             re.IGNORECASE),
@@ -63,7 +44,8 @@ def force_encoding(raw, verbose, assume_utf8=False):
     if chardet['confidence'] < 1 and assume_utf8:
         encoding = 'utf-8'
     if chardet['confidence'] < 1 and verbose:
-        print 'WARNING: Encoding detection confidence %d%%'%(chardet['confidence']*100)
+        print('WARNING: Encoding detection confidence %d%%'%(
+            chardet['confidence']*100))
     if not encoding:
         encoding = preferred_encoding
     encoding = encoding.lower()
@@ -113,7 +95,7 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
     @return: (unicode, encoding used)
     '''
     if not raw:
-        return u'', None
+        return '', None
     raw, encoding = detect_xml_encoding(raw, verbose=verbose,
             assume_utf8=assume_utf8)
     if not isinstance(raw, unicode):

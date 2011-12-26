@@ -180,7 +180,7 @@ eError,eError,eError,eItsMe,eError,eError,eError,eError,# 38-3f
 eError,eError,eError,eError,eItsMe,eError,eStart,eStart,# 40-47 
 )
 
-ISO2022JPCharLenTable = (0, 0, 0, 0, 0, 0, 0, 0)
+ISO2022JPCharLenTable = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 ISO2022JPSMModel = {'classTable': ISO2022JP_cls,
                     'classFactor': 10,
