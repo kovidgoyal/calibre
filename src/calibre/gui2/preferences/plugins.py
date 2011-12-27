@@ -273,7 +273,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def add_plugin(self):
         path = choose_files(self, 'add a plugin dialog', _('Add plugin'),
-                filters=[(_('Plugins') + ' (*.zip)', ['zip'])], all_files=False,
+                filters=[(_('Plugins [.zip files]'), ['zip'])], all_files=False,
                     select_only_single_file=True)
         if not path:
             return
