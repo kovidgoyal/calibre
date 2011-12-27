@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-23 07:12+0000\n"
-"PO-Revision-Date: 2011-12-21 18:34+0000\n"
+"PO-Revision-Date: 2011-12-26 09:41+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-24 05:25+0000\n"
+"X-Launchpad-Export-Date: 2011-12-27 04:56+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -4954,7 +4954,7 @@ msgstr "categorie del navigatore dei tag da non visualizzare"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:280
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "Mostra ancora questa conferma"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:529
 msgid "Choose Files"
@@ -8996,21 +8996,24 @@ msgstr "Reimposta autore a Sconosciuto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:72
 msgid "Some invalid ISBNs"
-msgstr ""
+msgstr "Alcuni ISBN non validi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:73
 msgid ""
 "Some of the ISBNs you entered were invalid. They will be ignored. Click Show "
 "Details to see which ones. Do you want to proceed?"
 msgstr ""
+"Alcuni ISBN inseriti non sono validi. Saranno ignorati. Fai clic su Mostra "
+"dettagli per sapere quali. Vuoi continuare?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:79
 msgid "All invalid ISBNs"
-msgstr ""
+msgstr "Tutti gli ISBBN non validi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:80
 msgid "All the ISBNs you entered were invalid. No books can be added."
 msgstr ""
+"Tutti gli ISBN inseriti non sono validi. Non può essere aggiunto alcun libro."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:63
 msgid "Add books by ISBN"
@@ -14048,7 +14051,7 @@ msgstr "Il titolo %s è già in uso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:271
 msgid "You must enter a template for composite columns"
-msgstr ""
+msgstr "Devi inserire un modello per le colonne composte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:281
 msgid "You must enter at least one value for enumeration columns"
