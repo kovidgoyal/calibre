@@ -959,10 +959,8 @@ class DocumentView(QWebView): # {{{
         mods = event.modifiers()
         if mods & Qt.CTRL:
             if self.manager is not None and event.delta() != 0:
-                f = (self.manager.font_size_larger if event.delta() > 0 else
-                        self.manager.font_size_smaller)
-                f(False)
-            return
+                (self.manager.font_size_larger if event.delta() > 0 else
+                        self.manager.font_size_smaller)()
         if event.delta() < -14:
             if self.document.wheel_flips_pages:
                 self.next_page()
