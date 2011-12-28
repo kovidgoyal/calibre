@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-23 07:12+0000\n"
-"PO-Revision-Date: 2011-12-23 12:02+0000\n"
+"PO-Revision-Date: 2011-12-27 16:07+0000\n"
 "Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-24 05:24+0000\n"
+"X-Launchpad-Export-Date: 2011-12-28 05:20+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2545,6 +2545,14 @@ msgid ""
 "See the XPath Tutorial in the calibre User Manual for further help on using "
 "this feature."
 msgstr ""
+"Egy XPath kifejezés a fejezetcímek detektálásához. Alapesetben azokat a <h1> "
+"és <h2> HTML tag-eket tekinti a program fejezetcímnek, melyek tartalmazzák a "
+"„chapter”, „book”, „section”, „prologue”, „epilogue” vagy „part” "
+"kifejezéseket, illetve azokat a HTML tag-eket, melyeknek van "
+"class=\"chapter\" paraméterük. A kifejezés egy találati listát ad "
+"eredményül. A fejezet detektálás tiltásához a kifejezés értéke legyen „/”. "
+"További információk az Xpath oktatóban és Calibre Felhasználói Kézikönyvben "
+"található."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:295
 msgid ""
@@ -4866,7 +4874,7 @@ msgstr "Ne jelenítse meg a címkeböngésző kategóriáit."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:280
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "A megerősítés megjelenítése következő alkalommal is"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:529
 msgid "Choose Files"
