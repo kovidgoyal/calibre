@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-23 07:12+0000\n"
-"PO-Revision-Date: 2011-08-05 17:26+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2011-12-28 08:19+0000\n"
+"Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-24 05:28+0000\n"
+"X-Launchpad-Export-Date: 2011-12-29 04:45+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -413,6 +413,7 @@ msgstr "Finn bøker enkelt, lik den nåværende valgte boken"
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
+"Bytt mellom forskjellige calibre-bibliotek og gjennomfør vedlikehold av dem"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:827
 msgid "Copy books from the devce to your calibre library"
@@ -440,7 +441,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:853
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Velg en tilfelding bok fra calibrebiblioteket ditt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:860
 msgid "Search for books from different book sellers"
@@ -650,11 +651,11 @@ msgstr "Finjustér hvordan calibre virker i ulike sammenhenger"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1102
 msgid "Keyboard"
-msgstr ""
+msgstr "Tastatur"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1108
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Tilpass tastatur-snarveier for calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
@@ -847,7 +848,7 @@ msgstr "Denne profilen er ment for Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Denne profilen er tiltenkt for Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -860,7 +861,7 @@ msgstr "Denne profilen er ment for Sandra Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Denne profilen er tiltenkt PocketBook Pro 900 enhetserien."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -991,7 +992,7 @@ msgstr "Kommuniser med S60 telefoner."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:244
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Kommuniser med WebOS tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:47
 msgid ""
@@ -1004,14 +1005,22 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Dersom du ikke ønsker at calibre skal gjenkjenne din Apple iEnhet når den "
+"er koblet til datamaskinen, klikk <b>Slå av Apple Driver</b>.</p><p>FOr å "
+"overføre bøker til din iEnhet, klikk <b>Slå av Apple Driver</b>, deretter "
+"benytt 'koble til iTunes' metoden som er anbefalt i  <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>, ved å benytte <em>Connect/Share</em>|<em>Connect to "
+"iTunes</em> menu item.</p><p>Å slå på Apple Driver for direkte kobling til "
+"iEnheter er en ikkestøttet avansert brukerinstilling.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:64
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Slå av Apple driver"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:68
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Slå på Apple driver"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:118
 msgid "Use Series as Category in iTunes/iBooks"
@@ -1020,6 +1029,8 @@ msgstr "Bruk serier som kategori i iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
 msgstr ""
+"Slå på mulighet for å benytte serienavn som iTunes sjanger under iBooks "
+"kategorien"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:121
 msgid "Cache covers from iTunes/iBooks"
@@ -1027,7 +1038,7 @@ msgstr "Cache omslag fra iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:123
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Slå på muligheten for å mellomlagre og vise omslag fra iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
 #, python-format
@@ -1035,6 +1046,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"\"Kopier filer til iTunes mediafolder %s\" er slått på under iTunes "
+"instillinger/avansert"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:126
 msgid ""
@@ -1043,6 +1056,11 @@ msgid ""
 "your calibre configuration directory.</p><p>Enabling indicates that iTunes "
 "is configured to store copies in your iTunes Media folder.</p>"
 msgstr ""
+"<p>Denne innstillingen samsvarer med dine iTunes "
+"<i>instillinger</i>|<i>Avansert</i> instilling.</p><p>Om slått av vil dette "
+"lagre kopier av bøker overført til iTunes i ditt calibre-"
+"tilpassningsdirektorat.</p><p>Påslått indikerer at iTunes er konfigurert til "
+"å lagre kopier i din iTunes mediafolder.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:190
 msgid "Apple device"
@@ -1077,7 +1095,7 @@ msgstr "Oppdaterer metadatalister for enheten..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3164
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d av %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:498
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1131
@@ -1253,15 +1271,15 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Kommuniser med Blackberry playbook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Kommuniser med BOEYE BEX Serien av eBook lesere."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Kommuniser med BOEYE BDX serien av eBook lesere."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
@@ -1289,7 +1307,7 @@ msgstr "Kommuniser med PocketBook 602/603/902/903 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Kommuniser med PocketBook 360+ lesere."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:263
 msgid "Communicate with the PocketBook 701"
@@ -1351,7 +1369,7 @@ msgstr "Kommuniser med The Book leser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:58
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Kommuniser med Libre Air leser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:71
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1503,7 +1521,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:59
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Last opp omslag for bøker (nyere leserenheter)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:60
 msgid ""
@@ -1511,14 +1529,17 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Normalt vil KOBO-lesere motta omslagsbilder fra ebok-filen selv. Med dette "
+"valget vil calibre sende et separat omslagsbilde til leseren. Dette er "
+"nyttig dersom du har modifisert omslaget."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Last opp svart/hvitt omslag"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "Vis utgåtte bøker"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -1526,6 +1547,9 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"En feilkode i en tidligere versjon har etterlatt tidligere boksreferanser i "
+"databasen. Med dette valget vil calibre vise de utgåtte oppføringene og "
+"tillate deg å slette dem med sin nye slettemetode."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:573
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381
@@ -1547,6 +1571,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Siste leste bok:</b> %(time)s<br /><b>Prosent lest:</b> %(pr)d%%<hr "
+"/>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1027
 #, python-format
@@ -1555,6 +1581,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>Kapittel %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Kapittelprogresjon:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
+"/><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1036
 #, python-format
@@ -1563,6 +1592,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>Kapittel %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Kapittelprogresjon:</b> %(chapter_progress)s%%<br /><b>Fremhevet:</b> "
+"%(text)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1045
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1055
@@ -1572,6 +1604,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>Kapittel %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Kapittelprogresjon:</b> %(chapter_progress)s%%<br /><b>Fremhev:</b> "
+"%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1616,7 +1651,7 @@ msgstr "Kommuniser med EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Kommuniser med Adam tablet"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
@@ -1624,15 +1659,15 @@ msgstr "Kommuniser med Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "Kommuniser med Moovybook leser"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "Kommuniser med COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Kommuniser med Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
@@ -1656,7 +1691,7 @@ msgstr "Kommuniser med Nook eBook leser"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Kommuniser med Nook Color, TSR og Tablet eBook lesere."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1668,11 +1703,12 @@ msgstr "Kommuniser med Sony PRS-500 eBook-leser."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Kommuniser med Sony eBook lesere eldre enn PRST1"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
 msgstr ""
+"Kommentarer har blitt fjernet ettersom SONYs lesere ikke håndterer dem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid "All by title"
@@ -1698,6 +1734,9 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+".To spesielle samlinger er tilgjengelige: %(abt)s:%(abtv)s og "
+"%(aba)s:%(abav)s. Legg disse verdiene til listen for å aktivisere dem. "
+"Samlingene vil navnet etter \":\" tegnet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
@@ -1762,6 +1801,9 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Ved dette valget settes calibre til å se etter bøker i alle foldere i "
+"enheten og kort. Dette tillater calibre å finne bøker som er lagt inn av "
+"annen programvare og trådløs nedlasting."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1770,11 +1812,11 @@ msgstr "Ikke navngitt"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:38
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Kommuniser med PRST1 og nyere SONY eBok-lesere"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:73
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Last opp separate minjatyrbilder av omslag for bøker"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:74
 msgid ""
@@ -1782,14 +1824,17 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Normalt vil SONY-lesere motta omslagsbilder fra e-bokfilen selv. Med dette "
+"valget vil calibre sende et separat omslagsbilde til leseren. Anvendelig "
+"dersom du sender DRM-beskyttede bøker der du ikke kan endre omslaget."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:78
 msgid "Refresh separate covers when using automatic management"
-msgstr ""
+msgstr "Gjenomppfrisk separate omslag når automatisk administrering benyttes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Bruk SONY forfatterformat (Kun første forfatter)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:92
 msgid ""
@@ -1797,6 +1842,10 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Bruk dette valget dersom du ønsker at forfatter på Sony-enheten skal vises "
+"på samme måte som T1 bestemmer det. Dette betyr at kun første forfatter for "
+"bøker med flere forfattere vises. Slå av dette valget deersom du benytter "
+"metadata - oppsett."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
@@ -1952,6 +2001,10 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Kunne ikke finne filer i hovedminnet i din enhet. Du bør kontakte enhetens "
+"produsent for støtte. Vanlige metoder for å rette problemet er: forsøk en "
+"annen kabel/USB-port i datamaskinen. Dersom din enhet har en \"Gjenopprett "
+"til fabrikkstandard\" innstilling, bruk denne. Underliggende feil:%s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:113
 #, python-format
