@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2011-12-25 15:36+0000\n"
+"PO-Revision-Date: 2011-12-29 16:04+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-12-26 04:53+0000\n"
+"X-Launchpad-Export-Date: 2011-12-30 05:39+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 
 #. name for aaa
@@ -87,11 +87,11 @@ msgstr "Afar"
 
 #. name for aas
 msgid "Aasáx"
-msgstr ""
+msgstr "Aasáx"
 
 #. name for aat
 msgid "Albanian; Arvanitika"
-msgstr ""
+msgstr "Albanian; Arvanitika"
 
 #. name for aau
 msgid "Abau"
@@ -123,7 +123,7 @@ msgstr "Ayta; Ambala"
 
 #. name for abd
 msgid "Manide"
-msgstr ""
+msgstr "Manide"
 
 #. name for abe
 msgid "Abnaki; Western"
@@ -407,7 +407,7 @@ msgstr "Argentine Sign Language"
 
 #. name for aee
 msgid "Pashayi; Northeast"
-msgstr ""
+msgstr "Pashayi; Northeast"
 
 #. name for aek
 msgid "Haeke"
@@ -1259,67 +1259,67 @@ msgstr "A'tong"
 
 #. name for aox
 msgid "Atorada"
-msgstr ""
+msgstr "Atorada"
 
 #. name for aoz
 msgid "Uab Meto"
-msgstr ""
+msgstr "Uab Meto"
 
 #. name for apb
 msgid "Sa'a"
-msgstr ""
+msgstr "Sa'a"
 
 #. name for apc
 msgid "Arabic; North Levantine"
-msgstr ""
+msgstr "Arabic; North Levantine"
 
 #. name for apd
 msgid "Arabic; Sudanese"
-msgstr ""
+msgstr "Arabic; Sudanese"
 
 #. name for ape
 msgid "Bukiyip"
-msgstr ""
+msgstr "Bukiyip"
 
 #. name for apf
 msgid "Agta; Pahanan"
-msgstr ""
+msgstr "Agta; Pahanan"
 
 #. name for apg
 msgid "Ampanang"
-msgstr ""
+msgstr "Ampanang"
 
 #. name for aph
 msgid "Athpariya"
-msgstr ""
+msgstr "Athpariya"
 
 #. name for api
 msgid "Apiaká"
-msgstr ""
+msgstr "Apiaká"
 
 #. name for apj
 msgid "Apache; Jicarilla"
-msgstr ""
+msgstr "Apache; Jicarilla"
 
 #. name for apk
 msgid "Apache; Kiowa"
-msgstr ""
+msgstr "Apache; Kiowa"
 
 #. name for apl
 msgid "Apache; Lipan"
-msgstr ""
+msgstr "Apache; Lipan"
 
 #. name for apm
 msgid "Apache; Mescalero-Chiricahua"
-msgstr ""
+msgstr "Apache; Mescalero-Chiricahua"
 
 #. name for apn
 msgid "Apinayé"
-msgstr ""
+msgstr "Apinayé"
 
 #. name for apo
 msgid "Ambul"
-msgstr ""
+msgstr "Ambul"
 
 #. name for app
 msgid "Apma"
