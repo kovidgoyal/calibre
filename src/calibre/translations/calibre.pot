@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.33\n"
-"POT-Creation-Date: 2011-12-30 09:05+IST\n"
-"PO-Revision-Date: 2011-12-30 09:05+IST\n"
+"POT-Creation-Date: 2011-12-30 20:05+IST\n"
+"PO-Revision-Date: 2011-12-30 20:05+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -1376,7 +1376,7 @@ msgid "Show expired books"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
-msgid "A bug in an earlier version left non kepubs book records in the datbase.  With this option Calibre will show the expired records and allow you to delete them with the new delete logic."
+msgid "A bug in an earlier version left non kepubs book records in the database.  With this option Calibre will show the expired records and allow you to delete them with the new delete logic."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
@@ -2404,7 +2404,7 @@ msgid "Do not insert a Table of Contents at the beginning of the book."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:149
-msgid "Specify the sectionization of elements. A value of \"nothing\" turns the book into a single section. A value of \"files\" turns each file into a separate section; use this if your device is having trouble. A value of \"Table of Contents\" turns the entries in the Table of Contents into titles and creates sections; if it fails, adjust the \"Structure Detection\" and/or \"Table of Contents\" settings (turn on \"Force use of auto-generated Table of Contents)."
+msgid "Specify the sectionization of elements. A value of \"nothing\" turns the book into a single section. A value of \"files\" turns each file into a separate section; use this if your device is having trouble. A value of \"Table of Contents\" turns the entries in the Table of Contents into titles and creates sections; if it fails, adjust the \"Structure Detection\" and/or \"Table of Contents\" settings (turn on \"Force use of auto-generated Table of Contents\")."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:158
@@ -2429,7 +2429,7 @@ msgid "Maximum levels of recursion when following links in HTML files. Must be n
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/input.py:270
-msgid "Normally this input plugin re-arranges all the input files into a standard folder hierarchy. Only use this option if you know what you are doing as it can result in various nasty side effects in the rest of of the conversion pipeline."
+msgid "Normally this input plugin re-arranges all the input files into a standard folder hierarchy. Only use this option if you know what you are doing as it can result in various nasty side effects in the rest of the conversion pipeline."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:32
@@ -3821,7 +3821,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:92
 #, python-format
-msgid "Are you sure you want to add the same files to all %d books? If the formatalready exists for a book, it will be replaced."
+msgid "Are you sure you want to add the same files to all %d books? If the format already exists for a book, it will be replaced."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:98
@@ -7167,7 +7167,7 @@ msgid "Error talking to device"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:752
-msgid "There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot."
+msgid "There was a temporary error talking to the device. Please unplug and reconnect the device or reboot."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:795
@@ -14953,7 +14953,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:669
 #, python-format
 msgid ""
-"Comma-separated list of tag words indicating book should be excluded from output.For example: 'skip' will match 'skip this book' and 'Skip will like this'.Default: '%default'\n"
+"Comma-separated list of tag words indicating book should be excluded from output. For example: 'skip' will match 'skip this book' and 'Skip will like this'. Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
 
@@ -16318,7 +16318,7 @@ msgid "sublist(val, start_index, end_index, separator) -- interpret the value as
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:699
-msgid "subitems(val, start_index, end_index) -- This function is used to break apart lists of items such as genres. It interprets the value as a comma-separated list of items, where each item is a period-separated list. Returns a new list made by first finding all the period-separated items, then for each such item extracting the start_index` to the `end_index` components, then combining the results back together. The first component in a period-separated list has an index of zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Example using basic template mode and assuming a #genre value of \"A.B.C\": {#genre:subitems(0,1)} returns \"A\". {#genre:subitems(0,2)} returns \"A.B\". {#genre:subitems(1,0)} returns \"B.C\". Assuming a #genre value of \"A.B.C, D.E.F\", {#genre:subitems(0,1)} returns \"A, D\". {#genre:subitems(0,2)} returns \"A.B, D.E\""
+msgid "subitems(val, start_index, end_index) -- This function is used to break apart lists of items such as genres. It interprets the value as a comma-separated list of items, where each item is a period-separated list. Returns a new list made by first finding all the period-separated items, then for each such item extracting the `start_index` to the `end_index` components, then combining the results back together. The first component in a period-separated list has an index of zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Example using basic template mode and assuming a #genre value of \"A.B.C\": {#genre:subitems(0,1)} returns \"A\". {#genre:subitems(0,2)} returns \"A.B\". {#genre:subitems(1,0)} returns \"B.C\". Assuming a #genre value of \"A.B.C, D.E.F\", {#genre:subitems(0,1)} returns \"A, D\". {#genre:subitems(0,2)} returns \"A.B, D.E\""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:743
@@ -16354,7 +16354,7 @@ msgid "has_cover() -- return Yes if the book has a cover, otherwise return the e
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:854
-msgid "first_non_empty(value, value, ...) -- returns the first value that is not empty. If all values are empty, then the empty value is returned.You can have as many values as you want."
+msgid "first_non_empty(value, value, ...) -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:871
@@ -16650,7 +16650,7 @@ msgid "Interpreter died"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/console.py:204
-msgid "Interpreter dies while excuting a command. To see the command, click Show details"
+msgid "Interpreter dies while executing a command. To see the command, click Show details"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
@@ -16727,110 +16727,110 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:737
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:750
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:844
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:857
 msgid "Download finished"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:846
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:859
 msgid "Failed to download the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:852
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:865
 msgid "Failed to download parts of the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:854
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:867
 msgid " from "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:856
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid "\tFailed links:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:958
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:971
 msgid "Could not fetch article."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:960
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:973
 msgid "The debug traceback is available earlier in this log"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:962
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:975
 msgid "Run with -vv to see the reason"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:985
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:998
 msgid "Fetching feeds..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:990
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1003
 msgid "Got feeds from index page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:999
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1012
 msgid "Trying to download cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1001
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1014
 msgid "Generating masthead..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1081
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1094
 #, python-format
 msgid "Starting download [%d thread(s)]..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1097
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1110
 #, python-format
 msgid "Feeds downloaded to %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1106
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1119
 #, python-format
 msgid "Could not download cover: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1115
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1128
 #, python-format
 msgid "Downloading cover from %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1161
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1174
 msgid "Masthead image downloaded"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1242
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1255
 msgid "Articles in this issue: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1314
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1327
 msgid "Untitled Article"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1386
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1399
 #, python-format
 msgid "Article downloaded: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1397
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1410
 #, python-format
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1414
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1427
 msgid "Fetching feed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1558
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1571
 msgid "Failed to log in, check your username and password for the calibre Periodicals service."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1573
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1586
 msgid "You do not have permission to download this issue. Either your subscription has expired or you have exceeded the maximum allowed downloads for today."
 msgstr ""
 
@@ -16914,7 +16914,7 @@ msgid "Only links that match this regular expression will be followed. This opti
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:500
-msgid "Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both filter regexp and match regexp are specified, then filter regexp is applied first."
+msgid "Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored. By default, no links are ignored. If both filter regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:502
@@ -17103,7 +17103,7 @@ msgid "Specify renaming rules for SONY collections"
 msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:264
-msgid "Specify renaming rules for sony collections. This tweak is only applicable if\nmetadata management is set to automatic. Collections on Sonys are named\ndepending upon whether the field is standard or custom. A collection derived\nfrom a standard field is named for the value in that field. For example, if\nthe standard 'series' column contains the value 'Darkover', then the\ncollection name is 'Darkover'. A collection derived from a custom field will\nhave the name of the field added to the value. For example, if a custom series\ncolumn named 'My Series' contains the name 'Darkover', then the collection\nwill by default be named 'Darkover (My Series)'. For purposes of this\ndocumentation, 'Darkover' is called the value and 'My Series' is called the\ncategory. If two books have fields that generate the same collection name,\nthen both books will be in that collection.\nThis set of tweaks lets you specify for a standard or custom field how\nthe collections are to be named. You can use it to add a description to a\nstandard field, for example 'Foo (Tag)' instead of the 'Foo'. You can also use\nit to force multiple fields to end up in the same collection. For example, you\ncould force the values in 'series', '#my_series_1', and '#my_series_2' to\nappear in collections named 'some_value (Series)', thereby merging all of the\nfields into one set of collections.\nThere are two related tweaks. The first determines the category name to use\nfor a metadata field.  The second is a template, used to determines how the\nvalue and category are combined to create the collection name.\nThe syntax of the first tweak, sony_collection_renaming_rules, is:\n{'field_lookup_name':'category_name_to_use', 'lookup_name':'name', ...}\nThe second tweak, sony_collection_name_template, is a template. It uses the\nsame template language as plugboards and save templates. This tweak controls\nhow the value and category are combined together to make the collection name.\nThe only two fields available are {category} and {value}. The {value} field is\nnever empty. The {category} field can be empty. The default is to put the\nvalue first, then the category enclosed in parentheses, it is isn't empty:\n'{value} {category:|(|)}'\nExamples: The first three examples assume that the second tweak\nhas not been changed.\n1: I want three series columns to be merged into one set of collections. The\ncolumn lookup names are 'series', '#series_1' and '#series_2'. I want nothing\nin the parenthesis. The value to use in the tweak value would be:\nsony_collection_renaming_rules={'series':'', '#series_1':'', '#series_2':''}\n2: I want the word '(Series)' to appear on collections made from series, and\nthe word '(Tag)' to appear on collections made from tags. Use:\nsony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n3: I want 'series' and '#myseries' to be merged, and for the collection name\nto have '(Series)' appended. The renaming rule is:\nsony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}\n4: Same as example 2, but instead of having the category name in parentheses\nand appended to the value, I want it prepended and separated by a colon, such\nas in Series: Darkover. I must change the template used to format the category name\nThe resulting two tweaks are:\nsony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\nsony_collection_name_template='{category:||: }{value}'"
+msgid "Specify renaming rules for sony collections. This tweak is only applicable if\nmetadata management is set to automatic. Collections on Sonys are named\ndepending upon whether the field is standard or custom. A collection derived\nfrom a standard field is named for the value in that field. For example, if\nthe standard 'series' column contains the value 'Darkover', then the\ncollection name is 'Darkover'. A collection derived from a custom field will\nhave the name of the field added to the value. For example, if a custom series\ncolumn named 'My Series' contains the name 'Darkover', then the collection\nwill by default be named 'Darkover (My Series)'. For purposes of this\ndocumentation, 'Darkover' is called the value and 'My Series' is called the\ncategory. If two books have fields that generate the same collection name,\nthen both books will be in that collection.\nThis set of tweaks lets you specify for a standard or custom field how\nthe collections are to be named. You can use it to add a description to a\nstandard field, for example 'Foo (Tag)' instead of the 'Foo'. You can also use\nit to force multiple fields to end up in the same collection. For example, you\ncould force the values in 'series', '#my_series_1', and '#my_series_2' to\nappear in collections named 'some_value (Series)', thereby merging all of the\nfields into one set of collections.\nThere are two related tweaks. The first determines the category name to use\nfor a metadata field.  The second is a template, used to determines how the\nvalue and category are combined to create the collection name.\nThe syntax of the first tweak, sony_collection_renaming_rules, is:\n{'field_lookup_name':'category_name_to_use', 'lookup_name':'name', ...}\nThe second tweak, sony_collection_name_template, is a template. It uses the\nsame template language as plugboards and save templates. This tweak controls\nhow the value and category are combined together to make the collection name.\nThe only two fields available are {category} and {value}. The {value} field is\nnever empty. The {category} field can be empty. The default is to put the\nvalue first, then the category enclosed in parentheses, it isn't empty:\n'{value} {category:|(|)}'\nExamples: The first three examples assume that the second tweak\nhas not been changed.\n1: I want three series columns to be merged into one set of collections. The\ncolumn lookup names are 'series', '#series_1' and '#series_2'. I want nothing\nin the parenthesis. The value to use in the tweak value would be:\nsony_collection_renaming_rules={'series':'', '#series_1':'', '#series_2':''}\n2: I want the word '(Series)' to appear on collections made from series, and\nthe word '(Tag)' to appear on collections made from tags. Use:\nsony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\n3: I want 'series' and '#myseries' to be merged, and for the collection name\nto have '(Series)' appended. The renaming rule is:\nsony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}\n4: Same as example 2, but instead of having the category name in parentheses\nand appended to the value, I want it prepended and separated by a colon, such\nas in Series: Darkover. I must change the template used to format the category name\nThe resulting two tweaks are:\nsony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}\nsony_collection_name_template='{category:||: }{value}'"
 msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:316

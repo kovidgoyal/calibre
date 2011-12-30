@@ -751,7 +751,7 @@ class DeviceMixin(object): # {{{
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
-                             'and or reboot.')).show()
+                             'or reboot.')).show()
                 return
         except:
             pass
