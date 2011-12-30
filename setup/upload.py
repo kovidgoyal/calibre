@@ -108,7 +108,10 @@ class UploadToGoogleCode(Command): # {{{
     PASSWORD_FILE = os.path.expanduser('~/.googlecodecalibre')
     OFFLINEIMAP   = os.path.expanduser('~/work/kde/conf/offlineimap/rc')
     GPATHS = '/var/www/status.calibre-ebook.com/googlepaths'
+    # If you change this, remember to change the default URL used by
+    # http://calibre-ebook.com as well
     GC_PROJECT = 'calibre-ebook-ii'
+
     UPLOAD_HOST = '%s.googlecode.com'%GC_PROJECT
     FILES_LIST = 'http://code.google.com/p/%s/downloads/list'%GC_PROJECT
     DELETE_URL = 'http://code.google.com/p/%s/downloads/delete?name=%%s'%GC_PROJECT
