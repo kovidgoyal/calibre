@@ -307,19 +307,13 @@ class KINDLE2(KINDLE):
               'generator will produce pages that correspond better to a printed book. '
               'However, this method is slower and will slow down sending files '
               'to the Kindle.'),
-        _('Use the sidecar (.sdr) folder for the page number file (Kindle 4)') +
-            ':::' +
-            _('Enable this for the Kindle 4 Touch/Non Touch only. '
-            ),
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
         True,
         False,
-        False,
     ]
     OPT_APNX           = 0
     OPT_APNX_ACCURATE  = 1
-    OPT_APNX_SIDECAR   = 2
 
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
@@ -353,7 +347,13 @@ class KINDLE2(KINDLE):
                 if h in path_map:
                     book.device_collections = list(sorted(path_map[h]))
     
-    
+    # Detect if the product family needs .apnx files uploaded to sidecar folder
+    def post_open_callback(self):
+        product_id = self.device_being_opened[1]
+        self.sidecar_apnx = ((product_id == 0x4) | (product_id == 0x6)) # 4 for for Kindle 4 and 6 for Kindle Fire
+   
+    # Override the deletion of books. Delete files from the sidecar folder. This code is very similar
+    # to the USBMS delete books
     def delete_books(self, paths, end_session=True):
         opts = self.settings()
         for i, path in enumerate(paths):
@@ -365,7 +365,8 @@ class KINDLE2(KINDLE):
 
                 filepath = os.path.splitext(path)[0]
 
-                if (opts.extra_customization[self.OPT_APNX_SIDECAR]):
+                # If the Kindle needs a sidecar folder, build the path in a variable
+                if (self.sidecar_apnx):
                     filename = os.path.splitext(os.path.basename(path))[0]
                     sidecarpath = os.path.join(os.path.dirname(filepath), filename + ".sdr")
                                 
@@ -374,11 +375,13 @@ class KINDLE2(KINDLE):
                         os.unlink(filepath + ext)
                     if os.path.exists(path + ext):
                         os.unlink(path + ext)
+                    # Delete files in the sidecar folder as well
                     if os.path.exists(os.path.join(sidecarpath,  filename + ext)):
                         os.unlink(os.path.join(sidecarpath,  filename + ext))
                                 
                 if self.SUPPORTS_SUB_DIRS:
                     try:
+                        # Remove the sidecar folder if it exists
                         if (os.path.exists(sidecarpath)):
                             os.removedirs(sidecarpath)
                         os.removedirs(os.path.dirname(path))
@@ -397,12 +400,12 @@ class KINDLE2(KINDLE):
         if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi', '.prc'):
             return
         
-        if (opts.extra_customization[self.OPT_APNX_SIDECAR]):
+        # Create the sidecar folder if necessary
+        if (self.sidecar_apnx):
             path = os.path.join(os.path.dirname(filepath), filename+".sdr")
 
             if not os.path.exists(path):
                 os.makedirs(path)
-                
 
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
