@@ -471,3 +471,8 @@ unified_title_toolbar_on_osx = False
 # this to False you can prevent calibre from saving the original file.
 save_original_format = True
 
+#: Number of recently viewed books to show
+# Right-clicking the View button shows a list of recently viewed books. Control
+# how many should be shown, here.
+gui_view_history_size = 15
+
