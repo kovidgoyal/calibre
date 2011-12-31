@@ -284,11 +284,11 @@ class KINDLE(USBMS):
 
 class KINDLE2(KINDLE):
 
-    name           = 'Kindle 2/3 Device Interface'
-    description    = _('Communicate with the Kindle 2/3 eBook reader.')
+    name           = 'Kindle 2/3/4 Device Interface'
+    description    = _('Communicate with the Kindle 2/3/4 eBook reader.')
 
     FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
-    DELETE_EXTS    = KINDLE.DELETE_EXTS
+    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs']
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
@@ -307,13 +307,19 @@ class KINDLE2(KINDLE):
               'generator will produce pages that correspond better to a printed book. '
               'However, this method is slower and will slow down sending files '
               'to the Kindle.'),
+        _('Use the sidecar (.sdr) folder for the page number file (Kindle 4)') +
+            ':::' +
+            _('Enable this for the Kindle 4 Touch/Non Touch only. '
+            ),
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
         True,
         False,
+        False,
     ]
     OPT_APNX           = 0
     OPT_APNX_ACCURATE  = 1
+    OPT_APNX_SIDECAR   = 2
 
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
@@ -346,6 +352,43 @@ class KINDLE2(KINDLE):
                 h = hashlib.sha1(path).hexdigest()
                 if h in path_map:
                     book.device_collections = list(sorted(path_map[h]))
+    
+    
+    def delete_books(self, paths, end_session=True):
+        opts = self.settings()
+        print('KINDLE2: deleting %d books'%(len(paths)))
+        for i, path in enumerate(paths):
+            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
+            path = self.normalize_path(path)
+            if os.path.exists(path):
+                # Delete the ebook
+                os.unlink(path)
+
+                filepath = os.path.splitext(path)[0]
+
+                if (opts.extra_customization[self.OPT_APNX_SIDECAR]):
+                    filename = os.path.splitext(os.path.basename(path))[0]
+                    sidecarpath = os.path.join(os.path.dirname(filepath), filename + ".sdr")
+                    print 'SDR delete debug: Filepath= {0} \nSDR debug:Filename = {1}\nSDR debug: SDR Folder={2}'.format(filepath, filename, sidecarpath)
+                                
+                for ext in self.DELETE_EXTS:
+                    print 'SDR delete debug: extension {0}'.format(ext)
+                    if os.path.exists(filepath + ext):
+                        os.unlink(filepath + ext)
+                    if os.path.exists(path + ext):
+                        os.unlink(path + ext)
+                    if os.path.exists(os.path.join(sidecarpath,  filename + ext)):
+                        os.unlink(os.path.join(sidecarpath,  filename + ext))
+                                
+                if self.SUPPORTS_SUB_DIRS:
+                    try:
+                        if (os.path.exists(sidecarpath)):
+                            os.removedirs(sidecarpath)
+                        os.removedirs(os.path.dirname(path))
+                    except:
+                        pass
+        self.report_progress(1.0, _('Removing books from device...'))
+        print('KINDLE2: finished deleting %d books'%(len(paths)))
 
     def upload_cover(self, path, filename, metadata, filepath):
         '''
@@ -357,6 +400,14 @@ class KINDLE2(KINDLE):
 
         if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi', '.prc'):
             return
+        
+        if (opts.extra_customization[self.OPT_APNX_SIDECAR]):
+            path = os.path.join(os.path.dirname(filepath), filename+".sdr")
+            print 'SDR debug: Filepath= {0} \nSDR debug:Filename = {1}\nSDR debug: SDR Folder={2}'.format(filepath, filename, path)
+
+            if not os.path.exists(path):
+                os.makedirs(path)
+                
 
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
