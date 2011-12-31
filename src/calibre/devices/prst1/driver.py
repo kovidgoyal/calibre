@@ -286,12 +286,15 @@ class PRST1(USBMS):
             query = 'SELECT file_path, _id FROM books'
             cursor.execute(query)
         except DatabaseError:
-            raise DeviceError(('The SONY database is corrupted. '
+            import traceback
+            tb = traceback.format_exc()
+            raise DeviceError((('The SONY database is corrupted. '
                     ' Delete the file %s on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.')%dbpath)
+                    ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
+                    '\n'+tb)
 
         db_books = {}
         for i, row in enumerate(cursor):

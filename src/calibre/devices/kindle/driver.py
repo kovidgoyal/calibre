@@ -356,7 +356,6 @@ class KINDLE2(KINDLE):
     
     def delete_books(self, paths, end_session=True):
         opts = self.settings()
-        print('KINDLE2: deleting %d books'%(len(paths)))
         for i, path in enumerate(paths):
             self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
             path = self.normalize_path(path)
@@ -369,10 +368,8 @@ class KINDLE2(KINDLE):
                 if (opts.extra_customization[self.OPT_APNX_SIDECAR]):
                     filename = os.path.splitext(os.path.basename(path))[0]
                     sidecarpath = os.path.join(os.path.dirname(filepath), filename + ".sdr")
-                    print 'SDR delete debug: Filepath= {0} \nSDR debug:Filename = {1}\nSDR debug: SDR Folder={2}'.format(filepath, filename, sidecarpath)
                                 
                 for ext in self.DELETE_EXTS:
-                    print 'SDR delete debug: extension {0}'.format(ext)
                     if os.path.exists(filepath + ext):
                         os.unlink(filepath + ext)
                     if os.path.exists(path + ext):
@@ -388,7 +385,6 @@ class KINDLE2(KINDLE):
                     except:
                         pass
         self.report_progress(1.0, _('Removing books from device...'))
-        print('KINDLE2: finished deleting %d books'%(len(paths)))
 
     def upload_cover(self, path, filename, metadata, filepath):
         '''
@@ -403,7 +399,6 @@ class KINDLE2(KINDLE):
         
         if (opts.extra_customization[self.OPT_APNX_SIDECAR]):
             path = os.path.join(os.path.dirname(filepath), filename+".sdr")
-            print 'SDR debug: Filepath= {0} \nSDR debug:Filename = {1}\nSDR debug: SDR Folder={2}'.format(filepath, filename, path)
 
             if not os.path.exists(path):
                 os.makedirs(path)

@@ -77,7 +77,7 @@
         <cstring>template_value</cstring>
        </property>
        <property name="toolTip">
-        <string>The value the of the template using the current book in the library view</string>
+        <string>The value of the template using the current book in the library view</string>
        </property>
       </widget>
      </item>

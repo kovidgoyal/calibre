@@ -108,8 +108,13 @@ class UploadToGoogleCode(Command): # {{{
     PASSWORD_FILE = os.path.expanduser('~/.googlecodecalibre')
     OFFLINEIMAP   = os.path.expanduser('~/work/kde/conf/offlineimap/rc')
     GPATHS = '/var/www/status.calibre-ebook.com/googlepaths'
-    UPLOAD_HOST = 'calibre-ebook.googlecode.com'
-    FILES_LIST = 'http://code.google.com/p/calibre-ebook/downloads/list'
+    # If you change this, remember to change the default URL used by
+    # http://calibre-ebook.com as well
+    GC_PROJECT = 'calibre-ebook-ii'
+
+    UPLOAD_HOST = '%s.googlecode.com'%GC_PROJECT
+    FILES_LIST = 'http://code.google.com/p/%s/downloads/list'%GC_PROJECT
+    DELETE_URL = 'http://code.google.com/p/%s/downloads/delete?name=%%s'%GC_PROJECT
 
     def add_options(self, parser):
         parser.add_option('--re-upload', default=False, action='store_true',
@@ -126,7 +131,7 @@ class UploadToGoogleCode(Command): # {{{
                 continue
             if x in existing:
                 self.info('Deleting', x)
-                br.open('http://code.google.com/p/calibre-ebook/downloads/delete?name=%s'%x)
+                br.open(self.DELETE_URL%x)
                 br.select_form(predicate=lambda y: 'delete.do' in y.action)
                 br.form.find_control(name='delete')
                 br.submit(name='delete')
@@ -170,7 +175,8 @@ class UploadToGoogleCode(Command): # {{{
         for fname in installers():
             bname = os.path.basename(fname)
             if bname in self.old_files:
-                path = 'http://calibre-ebook.googlecode.com/files/'+bname
+                path = 'http://%s.googlecode.com/files/%s'%(self.GC_PROJECT,
+                        bname)
                 self.info(
                     '%s already uploaded, skipping. Assuming URL is: %s'%(
                         bname, path))
@@ -230,7 +236,7 @@ class UploadToGoogleCode(Command): # {{{
             if ext in ('flv', 'mp4', 'ogg', 'avi'):
                 continue
             self.info('\tDeleting', fname)
-            self.br.open('http://code.google.com/p/calibre-ebook/downloads/delete?name=%s'%fname)
+            self.br.open(self.DELETE_URL%fname)
             self.br.select_form(predicate=lambda x: 'delete.do' in x.action)
             self.br.form.find_control(name='delete')
             self.br.submit(name='delete')

@@ -78,7 +78,7 @@ def node_depth(node):
         p = p.getparent()
     return ans
 
-def html5_parse(data, max_nesting_depth=300):
+def html5_parse(data, max_nesting_depth=100):
     import html5lib
     data = html5lib.parse(data, treebuilder='lxml').getroot()
 

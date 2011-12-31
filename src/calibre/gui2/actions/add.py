@@ -91,7 +91,7 @@ class AddAction(InterfaceAction):
                 _('Are you sure'),
             _('Are you sure you want to add the same'
                 ' files to all %d books? If the format'
-                'already exists for a book, it will be replaced.')%len(ids)):
+                ' already exists for a book, it will be replaced.')%len(ids)):
                 return
 
         books = choose_files(self.gui, 'add formats dialog dir',

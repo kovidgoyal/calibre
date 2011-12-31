@@ -497,7 +497,7 @@ def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.c
     parser.add_option('--match-regexp', default=[], action='append', dest='match_regexps',
                       help=_('Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.'))
     parser.add_option('--filter-regexp', default=[], action='append', dest='filter_regexps',
-                      help=_('Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both filter regexp and match regexp are specified, then filter regexp is applied first.'))
+                      help=_('Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored. By default, no links are ignored. If both filter regexp and match regexp are specified, then filter regexp is applied first.'))
     parser.add_option('--dont-download-stylesheets', action='store_true', default=False,
                       help=_('Do not download CSS stylesheets.'), dest='no_stylesheets')
     parser.add_option('--verbose', help=_('Show detailed output information. Useful for debugging'),

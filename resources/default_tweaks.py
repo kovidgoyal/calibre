@@ -291,7 +291,7 @@ auto_connect_to_folder = ''
 # how the value and category are combined together to make the collection name.
 # The only two fields available are {category} and {value}. The {value} field is
 # never empty. The {category} field can be empty. The default is to put the
-# value first, then the category enclosed in parentheses, it is isn't empty:
+# value first, then the category enclosed in parentheses, it isn't empty:
 # '{value} {category:|(|)}'
 # Examples: The first three examples assume that the second tweak
 # has not been changed.
