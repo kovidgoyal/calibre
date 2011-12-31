@@ -80,6 +80,7 @@ def node_depth(node):
 
 def html5_parse(data, max_nesting_depth=100):
     import html5lib
+    data = re.sub(r'<\s*title\s*/\s*>', '<title></title>', data)
     data = html5lib.parse(data, treebuilder='lxml').getroot()
 
     # Check that the asinine HTML 5 algorithm did not result in a tree with
