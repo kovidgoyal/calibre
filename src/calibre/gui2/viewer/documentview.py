@@ -62,6 +62,10 @@ def config(defaults=None):
     c.add_opt('page_flip_duration', default=0.5,
             help=_('The time, in seconds, for the page flip animation. Default'
                 ' is half a second.'))
+    c.add_opt('font_magnification_step', default=0.2,
+            help=_('The amount by which to change the font size when clicking'
+                ' the font larger/smaller buttons. Should be a number between '
+                '0 and 1.'))
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -87,6 +91,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
         self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
         self.opt_page_flip_duration.setValue(opts.page_flip_duration)
+        fms = opts.font_magnification_step
+        if fms < 0.01 or fms > 1:
+            fms = 0.2
+        self.opt_font_mag_step.setValue(int(fms*100))
         self.serif_family.setCurrentFont(QFont(opts.serif_family))
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
         self.mono_family.setCurrentFont(QFont(opts.mono_family))
@@ -143,6 +151,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
         c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
         c.set('page_flip_duration', self.opt_page_flip_duration.value())
+        c.set('font_magnification_step',
+                float(self.opt_font_mag_step.value())/100.)
         idx = self.hyphenate_default_lang.currentIndex()
         c.set('hyphenate_default_lang',
                 str(self.hyphenate_default_lang.itemData(idx).toString()))
@@ -223,6 +233,7 @@ class Document(QWebPage): # {{{
         self.do_fit_images = opts.fit_images
         self.page_flip_duration = opts.page_flip_duration
         self.enable_page_flip = self.page_flip_duration > 0.1
+        self.font_magnification_step = opts.font_magnification_step
         self.wheel_flips_pages = opts.wheel_flips_pages
 
     def fit_images(self):
@@ -932,13 +943,17 @@ class DocumentView(QWebView): # {{{
             self.magnification_changed.emit(val)
         return property(fget=fget, fset=fset)
 
-    def magnify_fonts(self):
-        self.multiplier += 0.2
+    def magnify_fonts(self, amount=None):
+        if amount is None:
+            amount = self.document.font_magnification_step
+        self.multiplier += amount
         return self.document.scroll_fraction
 
-    def shrink_fonts(self):
-        if self.multiplier >= 0.2:
-            self.multiplier -= 0.2
+    def shrink_fonts(self, amount=None):
+        if amount is None:
+            amount = self.document.font_magnification_step
+        if self.multiplier >= amount:
+            self.multiplier -= amount
         return self.document.scroll_fraction
 
     def changeEvent(self, event):
@@ -956,6 +971,11 @@ class DocumentView(QWebView): # {{{
         painter.end()
 
     def wheelEvent(self, event):
+        mods = event.modifiers()
+        if mods & Qt.CTRL:
+            if self.manager is not None and event.delta() != 0:
+                (self.manager.font_size_larger if event.delta() > 0 else
+                        self.manager.font_size_smaller)()
         if event.delta() < -14:
             if self.document.wheel_flips_pages:
                 self.next_page()

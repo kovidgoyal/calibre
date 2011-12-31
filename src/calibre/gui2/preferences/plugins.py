@@ -20,6 +20,7 @@ from calibre.gui2 import (NONE, error_dialog, info_dialog, choose_files,
         question_dialog, gprefs)
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.icu import lower
+from calibre.constants import iswindows
 
 class PluginModel(QAbstractItemModel, SearchQueryParser): # {{{
 
@@ -272,8 +273,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.modify_plugin(op='remove')
 
     def add_plugin(self):
+        info = '' if iswindows else ' [.zip %s]'%_('files')
         path = choose_files(self, 'add a plugin dialog', _('Add plugin'),
-                filters=[(_('Plugins') + ' (*.zip)', ['zip'])], all_files=False,
+                filters=[(_('Plugins') + info, ['zip'])], all_files=False,
                     select_only_single_file=True)
         if not path:
             return

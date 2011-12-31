@@ -77,7 +77,6 @@ class Widget(QWidget):
                     self._options, only_existing=True)
             defaults.update(specifics)
 
-
         self.apply_recommendations(defaults)
         self.setup_help(get_help)
 

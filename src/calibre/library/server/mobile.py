@@ -117,6 +117,8 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
 
         data = TD()
         for fmt in book['formats'].split(','):
+            if not fmt or fmt.lower().startswith('original_'):
+                continue
             a = quote(ascii_filename(book['authors']))
             t = quote(ascii_filename(book['title']))
             s = SPAN(

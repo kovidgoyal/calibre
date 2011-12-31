@@ -201,7 +201,7 @@ class Console(QTextEdit):
     def interpreter_died(self, controller, returncode):
         if not self.shutting_down and controller.current_command is not None:
             error_dialog(self, _('Interpreter died'),
-                    _('Interpreter dies while excuting a command. To see '
+                    _('Interpreter dies while executing a command. To see '
                         'the command, click Show details'),
                     det_msg=controller.current_command, show=True)
 

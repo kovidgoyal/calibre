@@ -9,7 +9,7 @@ from various formats.
 
 import traceback, os, re
 from cStringIO import StringIO
-from calibre import CurrentDir
+from calibre import CurrentDir, force_unicode
 
 class ConversionError(Exception):
 
@@ -237,10 +237,10 @@ def generate_masthead(title, output_path=None, width=600, height=60):
     img = Image.new('RGB', (width, height), 'white')
     draw = ImageDraw.Draw(img)
     try:
-        font = ImageFont.truetype(font_path, 48)
+        font = ImageFont.truetype(font_path, 48, encoding='unic')
     except:
-        font = ImageFont.truetype(default_font, 48)
-    text = title.encode('utf-8')
+        font = ImageFont.truetype(default_font, 48, encoding='unic')
+    text = force_unicode(title)
     width, height = draw.textsize(text, font=font)
     left = max(int((width - width)/2.), 0)
     top = max(int((height - height)/2.), 0)
