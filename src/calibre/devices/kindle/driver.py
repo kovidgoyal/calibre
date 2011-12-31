@@ -350,8 +350,14 @@ class KINDLE2(KINDLE):
     # Detect if the product family needs .apnx files uploaded to sidecar folder
     def post_open_callback(self):
         product_id = self.device_being_opened[1]
-        # 4 for for Kindle 4 and 6 for Kindle Fire
-        self.sidecar_apnx = product_id in {0x4, 0x6}
+        self.sidecar_apnx = False
+        if product_id > 0x3:
+            # Check if we need to put the apnx into a sidecar dir
+            for _, dirnames, _ in os.walk(self._main_prefix):
+                for x in dirnames:
+                    if x.endswith('.sdr'):
+                        self.sidecar_apnx = True
+                        return
 
     def upload_cover(self, path, filename, metadata, filepath):
         '''
