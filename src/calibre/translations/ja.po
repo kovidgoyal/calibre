@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-30 14:42+0000\n"
-"PO-Revision-Date: 2011-12-17 04:16+0000\n"
+"PO-Revision-Date: 2011-12-31 07:59+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-12-31 05:41+0000\n"
+"X-Launchpad-Export-Date: 2012-01-01 05:30+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1496,10 +1496,12 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"以前のヴァージョンのバグのため、kepubsではない書籍のデーターベースレコードが残ってしまいます。Calibreは有効期限切れのレコードを表示し、新しい"
+"削除ロジックであなたが削除できるようにします。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
-msgstr ""
+msgstr "プレビューを表示"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid ""
@@ -1507,10 +1509,13 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
+"Kobo Touch "
+"やその他のヴァージョンに含まれているプレヴュー機能は、もう見る必要がなくなったのでディフォールトでは表示されません。プレビューを見る/削除する場合には有効"
+"にしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "おすすめを表示"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -1518,6 +1523,8 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Koboはデバイス上でおすすめを表示するようになりました。通常それはファイルがありますが、場合によってはそれは単に購入へのWebリンクです。おすすめを見る"
+"/削除するには有効にしてください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381
@@ -2949,6 +2956,9 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
+"要素のセクション化を指定します。「なし」を選ぶと、本をひとつのセクションにまとめます。「ファイル」は各ファイルを別のセクションにします。（もし、デバイスで"
+"問題があった場合にはこれを選んでください）「目次」は目次の項目からタイトルとセクションを生成します。「目次」で失敗した場合には、「構造の検出」や「目次」設"
+"定を調整してください。（「強制的に目次を生成」を使ってください）"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:158
 #, python-format
@@ -2988,6 +2998,8 @@ msgid ""
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 msgstr ""
+"通常この入力プラグインはすべての入力ファイルを通常のフォルダー階層に再アレンジします。このオプションは、後の変換パイプラインに種々のひどい副作用を起こす可"
+"能性があるので、何が起こるのかを理解している場合にのみ使用してください。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:32
 msgid "CSS file used for the output instead of the default file"
@@ -4162,6 +4174,8 @@ msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
+"紙のサイズ。このサイズはディフォールトの出力プロファイル以外を使った場合にはオーバーライドされます。ディフォールトは’letter’です。選択肢は %s "
+"です。"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:39
 msgid ""
@@ -4518,7 +4532,7 @@ msgstr "タグブラウザーのカテゴリを表示しない。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:280
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "この確認をまた出す。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:529
 msgid "Choose Files"
@@ -16023,7 +16037,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:213
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
 msgid "&General"

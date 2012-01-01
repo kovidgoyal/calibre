@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-30 14:42+0000\n"
-"PO-Revision-Date: 2011-12-26 09:41+0000\n"
+"PO-Revision-Date: 2011-12-31 09:12+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-31 05:41+0000\n"
+"X-Launchpad-Export-Date: 2012-01-01 05:30+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1574,7 +1574,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
-msgstr ""
+msgstr "Mostra anteprime"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid ""
@@ -1585,7 +1585,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Mostra consigli"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -1593,6 +1593,9 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo ora mostra i consigli sul dispositivo. In alcuni casi ci sono i file, "
+"ma in altri sono solo puntatori al sito web dove comprare. Abilita se "
+"desideri vederli/eliminarli."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381
@@ -4542,6 +4545,10 @@ msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
+"Le dimensioni del foglio. Tali dimensioni saranno ignorate se viene "
+"utilizzato un profilo di output non predefinito. Il predefinito è "
+"lettera.\r\n"
+"Le possibili scelte sono %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:39
 msgid ""
@@ -5095,6 +5102,8 @@ msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
 msgstr ""
+"Sei sicuro di voler aggiungere gli stessi file a tutti i %d libri? Se il "
+"formato esiste già per un libro, sarà sostituito."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:98
 msgid "Select book files"
@@ -8145,7 +8154,7 @@ msgstr "Mantieni le &proporzioni della copertina"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:58
 msgid "&Custom size:"
-msgstr ""
+msgstr "Dimensione &personalizzata:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -8845,6 +8854,8 @@ msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device or reboot."
 msgstr ""
+"Si è verificato un errore temporaneo nella comunicazione con il dispositivo. "
+"Scollega e ricollega il dispositivo o riavvia."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:795
 msgid "Device: "

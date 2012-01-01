@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-12-30 14:42+0000\n"
-"PO-Revision-Date: 2011-12-29 12:07+0000\n"
+"PO-Revision-Date: 2011-12-31 17:12+0000\n"
 "Last-Translator: Daniel Winzen <d@winzen4.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-31 05:39+0000\n"
+"X-Launchpad-Export-Date: 2012-01-01 05:29+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -2619,6 +2619,13 @@ msgid ""
 "See the XPath Tutorial in the calibre User Manual for further help on using "
 "this feature."
 msgstr ""
+"Ein XPath-Ausdruck, um die Kapiteltitel zu finden. Standardmässig werden "
+"<h1> oder <h2> tags, welche die Wörter \"chapter\", \"book\", \"section\", "
+"\"prologue\", \"epilogue\" oder \"part\" enthalten als Kapiteltitel "
+"behandelt, ebenso wie alle tags die class=\"chapter\" haben. Der genutzte "
+"Ausdruck muss eine Liste von Elementen bewerten. Um die Kapitelerkennung "
+"abzuschalten, benutzen Sie den Ausdruck \"/\". Siehe das XPath Tutorial im "
+"Calibre Handbuch für weitere Hilfe zu diesem Feature."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:295
 msgid ""
@@ -3759,7 +3766,7 @@ msgstr "Produzent"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:157
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:245
 msgid "Comments"
-msgstr "Bemerkung"
+msgstr "Bemerkungen"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:757
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/jacket.py:171
@@ -9056,6 +9063,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:80
 msgid "All the ISBNs you entered were invalid. No books can be added."
 msgstr ""
+"Alle ISBNs die Sie eingegeben haben sind ungültig. Es konnten keine Bücher "
+"hinzugefügt werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn_ui.py:63
 msgid "Add books by ISBN"
@@ -15168,7 +15177,7 @@ msgstr "Keine passenden Plugins gefunden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
 msgid "files"
-msgstr ""
+msgstr "Dateien"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:277
 msgid "Add plugin"
@@ -17160,7 +17169,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:213
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
 msgid "&General"
