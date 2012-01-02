@@ -81,21 +81,21 @@ _startup_cwd = os.getcwd()
 class ChannelFailures(Exception):
     """Exception raised when errors occur in a listener during Bus.publish()."""
     delimiter = '\n'
-    
+
     def __init__(self, *args, **kwargs):
         # Don't use 'super' here; Exceptions are old-style in Py2.4
         # See http://www.cherrypy.org/ticket/959
         Exception.__init__(self, *args, **kwargs)
         self._exceptions = list()
-    
+
     def handle_exception(self):
         """Append the current exception to self."""
         self._exceptions.append(sys.exc_info()[1])
-    
+
     def get_instances(self):
         """Return a list of seen exception instances."""
         return self._exceptions[:]
-    
+
     def __str__(self):
         exception_strings = map(repr, self.get_instances())
         return self.delimiter.join(exception_strings)
@@ -112,7 +112,7 @@ class _StateEnum(object):
         name = None
         def __repr__(self):
             return "states.%s" % self.name
-    
+
     def __setattr__(self, key, value):
         if isinstance(value, self.State):
             value.name = key
@@ -138,19 +138,19 @@ else:
 
 class Bus(object):
     """Process state-machine and messenger for HTTP site deployment.
-    
+
     All listeners for a given channel are guaranteed to be called even
     if others at the same channel fail. Each failure is logged, but
     execution proceeds on to the next listener. The only way to stop all
     processing from inside a listener is to raise SystemExit and stop the
     whole server.
     """
-    
+
     states = states
     state = states.STOPPED
     execv = False
     max_cloexec_files = max_files
-    
+
     def __init__(self):
         self.execv = False
         self.state = states.STOPPED
@@ -158,32 +158,32 @@ class Bus(object):
             [(channel, set()) for channel
              in ('start', 'stop', 'exit', 'graceful', 'log', 'main')])
         self._priorities = {}
-    
+
     def subscribe(self, channel, callback, priority=None):
         """Add the given callback at the given channel (if not present)."""
         if channel not in self.listeners:
             self.listeners[channel] = set()
         self.listeners[channel].add(callback)
-        
+
         if priority is None:
             priority = getattr(callback, 'priority', 50)
         self._priorities[(channel, callback)] = priority
-    
+
     def unsubscribe(self, channel, callback):
         """Discard the given callback (if present)."""
         listeners = self.listeners.get(channel)
         if listeners and callback in listeners:
             listeners.discard(callback)
             del self._priorities[(channel, callback)]
-    
+
     def publish(self, channel, *args, **kwargs):
         """Return output of all subscribers for the given channel."""
         if channel not in self.listeners:
             return []
-        
+
         exc = ChannelFailures()
         output = []
-        
+
         items = [(self._priorities[(channel, listener)], listener)
                  for listener in self.listeners[channel]]
         try:
@@ -214,7 +214,7 @@ class Bus(object):
         if exc:
             raise exc
         return output
-    
+
     def _clean_exit(self):
         """An atexit handler which asserts the Bus is not running."""
         if self.state != states.EXITING:
@@ -224,11 +224,11 @@ class Bus(object):
                 "bus.block() after start(), or call bus.exit() before the "
                 "main thread exits." % self.state, RuntimeWarning)
             self.exit()
-    
+
     def start(self):
         """Start all services."""
         atexit.register(self._clean_exit)
-        
+
         self.state = states.STARTING
         self.log('Bus STARTING')
         try:
@@ -248,13 +248,13 @@ class Bus(object):
                 pass
             # Re-raise the original error
             raise e_info
-    
+
     def exit(self):
         """Stop all services and prepare to exit the process."""
         exitstate = self.state
         try:
             self.stop()
-            
+
             self.state = states.EXITING
             self.log('Bus EXITING')
             self.publish('exit')
@@ -267,31 +267,35 @@ class Bus(object):
             # can't just let exceptions propagate out unhandled.
             # Assume it's been logged and just die.
             os._exit(70) # EX_SOFTWARE
-        
-        if exitstate == states.STARTING:
+
+        # Changed by Kovid, we cannot have all of calibre being quit
+        # Also we want to catch the port blocked/busy error and try listening only on
+        # the external ip
+        # See https://bitbucket.org/cherrypy/cherrypy/issue/1017/exit-behavior-is-not-good-when-running-in
+        if False and exitstate == states.STARTING:
             # exit() was called before start() finished, possibly due to
             # Ctrl-C because a start listener got stuck. In this case,
             # we could get stuck in a loop where Ctrl-C never exits the
             # process, so we just call os.exit here.
             os._exit(70) # EX_SOFTWARE
-    
+
     def restart(self):
         """Restart the process (may close connections).
-        
+
         This method does not restart the process from the calling thread;
         instead, it stops the bus and asks the main thread to call execv.
         """
         self.execv = True
         self.exit()
-    
+
     def graceful(self):
         """Advise all services to reload."""
         self.log('Bus graceful')
         self.publish('graceful')
-    
+
     def block(self, interval=0.1):
         """Wait for the EXITING state, KeyboardInterrupt or SystemExit.
-        
+
         This function is intended to be called only by the main thread.
         After waiting for the EXITING state, it also waits for all threads
         to terminate, and then calls os.execv if self.execv is True. This
@@ -309,7 +313,7 @@ class Bus(object):
             self.log('SystemExit raised: shutting down bus')
             self.exit()
             raise
-        
+
         # Waiting for ALL child threads to finish is necessary on OS X.
         # See http://www.cherrypy.org/ticket/581.
         # It's also good to let them all shut down before allowing
@@ -327,22 +331,22 @@ class Bus(object):
                 if not d:
                     self.log("Waiting for thread %s." % t.getName())
                     t.join()
-        
+
         if self.execv:
             self._do_execv()
-    
+
     def wait(self, state, interval=0.1, channel=None):
         """Poll for the given state(s) at intervals; publish to channel."""
         if isinstance(state, (tuple, list)):
             states = state
         else:
             states = [state]
-        
+
         def _wait():
             while self.state not in states:
                 time.sleep(interval)
                 self.publish(channel)
-        
+
         # From http://psyco.sourceforge.net/psycoguide/bugs.html:
         # "The compiled machine code does not include the regular polling
         # done by Python, meaning that a KeyboardInterrupt will not be
@@ -353,18 +357,18 @@ class Bus(object):
             sys.modules['psyco'].cannotcompile(_wait)
         except (KeyError, AttributeError):
             pass
-        
+
         _wait()
-    
+
     def _do_execv(self):
         """Re-execute the current process.
-        
+
         This must be called from the main thread, because certain platforms
         (OS X) don't allow execv to be called in a child thread very well.
         """
         args = sys.argv[:]
         self.log('Re-spawning %s' % ' '.join(args))
-        
+
         if sys.platform[:4] == 'java':
             from _systemrestart import SystemRestart
             raise SystemRestart
@@ -377,16 +381,16 @@ class Bus(object):
             if self.max_cloexec_files:
                 self._set_cloexec()
             os.execv(sys.executable, args)
-    
+
     def _set_cloexec(self):
         """Set the CLOEXEC flag on all open files (except stdin/out/err).
-        
+
         If self.max_cloexec_files is an integer (the default), then on
         platforms which support it, it represents the max open files setting
         for the operating system. This function will be called just before
         the process is restarted via os.execv() to prevent open files
         from persisting into the new process.
-        
+
         Set self.max_cloexec_files to 0 to disable this behavior.
         """
         for fd in range(3, self.max_cloexec_files): # skip stdin/out/err
@@ -395,7 +399,7 @@ class Bus(object):
             except IOError:
                 continue
             fcntl.fcntl(fd, fcntl.F_SETFD, flags | fcntl.FD_CLOEXEC)
-    
+
     def stop(self):
         """Stop all services."""
         self.state = states.STOPPING
@@ -403,7 +407,7 @@ class Bus(object):
         self.publish('stop')
         self.state = states.STOPPED
         self.log('Bus STOPPED')
-    
+
     def start_with_callback(self, func, args=None, kwargs=None):
         """Start 'func' in a new thread T, then start self (and return T)."""
         if args is None:
@@ -411,18 +415,18 @@ class Bus(object):
         if kwargs is None:
             kwargs = {}
         args = (func,) + args
-        
+
         def _callback(func, *a, **kw):
             self.wait(states.STARTED)
             func(*a, **kw)
         t = threading.Thread(target=_callback, args=args, kwargs=kwargs)
         t.setName('Bus Callback ' + t.getName())
         t.start()
-        
+
         self.start()
-        
+
         return t
-    
+
     def log(self, msg="", level=20, traceback=False):
         """Log the given message. Append the last traceback if requested."""
         if traceback:
