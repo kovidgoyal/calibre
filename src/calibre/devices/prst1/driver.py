@@ -239,7 +239,7 @@ class PRST1(USBMS):
 
         if booklists[0] is not None:
             self.update_device_database(booklists[0], collections, None)
-        if booklists[1] is not None:
+        if len(booklists) > 1 and booklists[1] is not None:
             self.update_device_database(booklists[1], collections, 'carda')
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
