@@ -11,13 +11,13 @@ msgstr ""
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-01-01 03:01+0000\n"
+"PO-Revision-Date: 2012-01-01 11:27+0000\n"
 "Last-Translator: Kenan Dervišević <kenan3008@gmail.com>\n"
 "Language-Team: Bosanski <bs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-01-01 05:31+0000\n"
+"X-Launchpad-Export-Date: 2012-01-02 05:00+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 "Language: \n"
 
@@ -17955,7 +17955,7 @@ msgstr "ndoola"
 
 #. name for nds
 msgid "German; Low"
-msgstr ""
+msgstr "njemački; donji"
 
 #. name for ndt
 msgid "Ndunga"
@@ -30848,78 +30848,3 @@ msgstr "zaza"
 #. name for zzj
 msgid "Zhuang; Zuojiang"
 msgstr "žuanski; czuoczjanj"
-
-#~ msgid "Saxon; Low"
-#~ msgstr "saksonski (donja)"
-
-#~ msgid "Apalik"
-#~ msgstr "apalik"
-
-#~ msgid "Ayi (China)"
-#~ msgstr "ai (Kina)"
-
-#~ msgid "Bekwil"
-#~ msgstr "bekvil"
-
-#~ msgid "Burum-Mindik"
-#~ msgstr "burum-mindik"
-
-#~ msgid "Bozo; Hainyaxo"
-#~ msgstr "bozo (hajnjjašo)"
-
-#~ msgid "Dhanwar (India)"
-#~ msgstr "dhanvar (Іndija)"
-
-#~ msgid "Dogon; Kolum So"
-#~ msgstr "dogonski (kolum-so)"
-
-#~ msgid "Duduela"
-#~ msgstr "duduela"
-
-#~ msgid "Kag-Fer-Jiir-Koor-Ror-Us-Zuksun"
-#~ msgstr "kar-fer-džir-koor-ror-us-zuksun"
-
-#~ msgid "Kwato"
-#~ msgstr "kvato"
-
-#~ msgid "Mahei"
-#~ msgstr "mahei"
-
-#~ msgid "Miri"
-#~ msgstr "miri"
-
-#~ msgid "Kumak"
-#~ msgstr "kumak"
-
-#~ msgid "Nakama"
-#~ msgstr "nakama"
-
-#~ msgid "Nootka"
-#~ msgstr "nutka"
-
-#~ msgid "Nung (Myanmar)"
-#~ msgstr "nung (Mijanmar)"
-
-#~ msgid "Ounge"
-#~ msgstr "unge"
-
-#~ msgid "Tingal"
-#~ msgstr "tingal"
-
-#~ msgid "Takpa"
-#~ msgstr "takpa"
-
-#~ msgid "Were"
-#~ msgstr "vere"
-
-#~ msgid "Dumpu"
-#~ msgstr "dumpu"
-
-#~ msgid "Mbedam"
-#~ msgstr "mbedam"
-
-#~ msgid "Malagasy; Antankarana"
-#~ msgstr "malagasijski (antankarana)"
-
-#~ msgid "Yonggom"
-#~ msgstr "jonggom"
