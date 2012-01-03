@@ -33,7 +33,12 @@ class TagesspiegelRSS(BasicNewsRecipe):
     no_javascript = True
     remove_empty_feeds = True
     encoding = 'utf-8'
-    auto_cleanup = True
+    remove_tags = [{'class':'hcf-header'}]
+
+    def print_version(self, url):
+        url = url.split('/')
+        url[-1] = 'v_print,%s?p='%url[-1]
+        return '/'.join(url)
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.tagesspiegel.de/zeitung/')
