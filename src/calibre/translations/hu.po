@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-12-30 14:42+0000\n"
-"PO-Revision-Date: 2011-12-27 16:07+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2012-01-02 19:31+0000\n"
+"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-31 05:40+0000\n"
-"X-Generator: Launchpad (build 14560)\n"
+"X-Launchpad-Export-Date: 2012-01-03 04:47+0000\n"
+"X-Generator: Launchpad (build 14616)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1556,7 +1556,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
-msgstr ""
+msgstr "Előnézet mutatása"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid ""
@@ -1564,10 +1564,14 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
+"Az előnézet mutatása megtalálható a Touch és még néhány egyéb eszközön. "
+"Alapesetben ez nem jelenik meg, mert nincs igazán  jelentősége. "
+"Engedélyezze, ha meg kívánja tekinteni, vagy törölni szeretné az "
+"előnézeteket."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Ajánlások megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -1575,6 +1579,9 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Az ajánlások megtekinthetők a Kobo eszközökön. Néhány esetben ezek fájlokat "
+"is tartalmaznak, máskor csak egy linket a vásárlási oldalra. Engedélyezze, "
+"ha meg kívánja tekinteni, vagy törölni szeretné az ajánlásokat."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381
@@ -8049,7 +8056,7 @@ msgstr "Borító méret&arányának megtartása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:58
 msgid "&Custom size:"
-msgstr ""
+msgstr "&Egyéni méret:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -14989,7 +14996,7 @@ msgstr "Nem található ilyen bővítmény"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
 msgid "files"
-msgstr ""
+msgstr "fájlok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:277
 msgid "Add plugin"
@@ -17041,7 +17048,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:213
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
 msgid "&General"
