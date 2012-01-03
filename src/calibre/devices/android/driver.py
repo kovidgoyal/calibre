@@ -93,6 +93,7 @@ class ANDROID(USBMS):
 
             # Viewsonic/Vizio
             0x0489 : {
+                    0xc000 : [0x0226],
                     0xc001 : [0x0226],
                     0xc004 : [0x0226],
                     0x8801 : [0x0226, 0x0227],
@@ -137,7 +138,7 @@ class ANDROID(USBMS):
             0x5e3 : { 0x726 : [0x222] },
 
             # ZTE
-            0x19d2 : { 0x1353 : [0x226] },
+            0x19d2 : { 0x1353 : [0x226], 0x1351 : [0x227] },
 
             # Advent
             0x0955 : { 0x7100 : [0x9999] }, # This is the same as the Notion Ink Adam

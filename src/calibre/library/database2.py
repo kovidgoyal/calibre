@@ -2063,6 +2063,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if path_changed:
             self.set_path(id, index_is_id=True)
 
+        if should_replace_field('title_sort'):
+            self.set_title_sort(id, mi.title_sort, notify=False, commit=False)
         if should_replace_field('author_sort'):
             doit(self.set_author_sort, id, mi.author_sort, notify=False,
                     commit=False)

@@ -13,19 +13,19 @@
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
 # version 2.1 of the License, or (at your option) any later version.
-#
+# 
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-#
+# 
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
-import constants
+import constants, sys
 from escsm import HZSMModel, ISO2022CNSMModel, ISO2022JPSMModel, ISO2022KRSMModel
 from charsetprober import CharSetProber
 from codingstatemachine import CodingStateMachine
@@ -75,5 +75,5 @@ class EscCharSetProber(CharSetProber):
                     self._mState = constants.eFoundIt
                     self._mDetectedCharset = codingSM.get_coding_state_machine()
                     return self.get_state()
-
+                
         return self.get_state()

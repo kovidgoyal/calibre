@@ -1,10 +1,9 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.la-razon.com
 '''
 
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class LaRazon_Bol(BasicNewsRecipe):
@@ -16,19 +15,17 @@ class LaRazon_Bol(BasicNewsRecipe):
     oldest_article        = 1
     max_articles_per_feed = 200
     no_stylesheets        = True
-    encoding              = 'cp1252'
+    encoding              = 'utf8'
     use_embedded_content  = False
     language              = 'es_BO'
     publication_type      = 'newspaper'
-    delay                 = 1
     remove_empty_feeds    = True
-    cover_url             = strftime('http://www.la-razon.com/portadas/%Y%m%d_LaRazon.jpg')
-    masthead_url          = 'http://www.la-razon.com/imagenes/logo.jpg'
-    extra_css             = """ body{font-family: Arial,Helvetica,sans-serif }
-                                img{margin-bottom: 0.4em}
-                                .noticia-titulo{font-family: Georgia,"Times New Roman",Times,serif}
-                                .lead{font-weight: bold; font-size: 0.8em}
-                                """
+    masthead_url          = 'http://www.la-razon.com/static/LRZRazon/images/lrz-logo.png'
+    extra_css             = """ body{font-family: Georgia,"Times New Roman",Times,serif}
+                                img{margin-bottom: 0.4em; display: block}
+                                .meta{font-size: small; font-family: Arial,Helvetica,sans-serif}
+                            """
+    INDEX = 'http://www.la-razon.com/'
 
     conversion_options = {
                           'comment'   : description
@@ -37,28 +34,37 @@ class LaRazon_Bol(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags    = [dict(name='div', attrs={'class':['noticia-titulo','noticia-desarrollo']})]
-    remove_tags       = [dict(name=['meta','link','form','iframe','embed','object'])]
+    keep_only_tags    = [dict(name='div', attrs={'class':['pg-hd', 'pg-bd']})]
+    remove_tags       = [
+                          dict(name=['meta','link','form','iframe','embed','object'])
+                         ,dict(name='div', attrs={'class':'bd'})
+                        ]
     remove_attributes = ['width','height']
 
     feeds = [
-              (u'Editorial'     , u'http://www.la-razon.com/rss_editorial.php' )
-             ,(u'Opinión'       , u'http://www.la-razon.com/rss_opinion.php'   )
-             ,(u'Nacional'      , u'http://www.la-razon.com/rss_nacional.php'  )
-             ,(u'Economia'      , u'http://www.la-razon.com/rss_economia.php'  )
-             ,(u'Ciudades'      , u'http://www.la-razon.com/rss_ciudades.php'  )
-             ,(u'Sociedad'      , u'http://www.la-razon.com/rss_sociedad.php'  )
-             ,(u'Mundo'         , u'http://www.la-razon.com/rss_sociedad.php'  )
-             ,(u'La Revista'    , u'http://www.la-razon.com/rss_larevista.php' )
-             ,(u'Sociales'      , u'http://www.la-razon.com/rss_sociales.php'  )
-             ,(u'Mia'           , u'http://www.la-razon.com/rss_mia.php'       )
-             ,(u'Marcas'        , u'http://www.la-razon.com/rss_marcas.php'    )
-             ,(u'Escape'        , u'http://www.la-razon.com/rss_escape.php'    )
-             ,(u'El Financiero' , u'http://www.la-razon.com/rss_financiero.php')
-             ,(u'Tendencias'    , u'http://www.la-razon.com/rss_tendencias.php')
+              (u'Editorial'     , u'http://www.la-razon.com/rss/opinion/editorial/'     )
+             ,(u'Nacional'      , u'http://www.la-razon.com/rss/nacional/'              )
+             ,(u'Economia'      , u'http://www.la-razon.com/rss/economia/'              )
+             ,(u'Ciudades'      , u'http://www.la-razon.com/rss/ciudades/'              )
+             ,(u'Sociedad'      , u'http://www.la-razon.com/rss/sociedad/'              )
+             ,(u'Mundo'         , u'http://www.la-razon.com/rss/mundo/'                 )
+             ,(u'La Revista'    , u'http://www.la-razon.com/rss/la_revista/'            )
+             ,(u'Sociales'      , u'http://www.la-razon.com/rss/sociales/'              )
+             ,(u'Mia'           , u'http://www.la-razon.com/rss/suplementos/mia/'       )
+             ,(u'Marcas'        , u'http://www.la-razon.com/rss/marcas/'                )
+             ,(u'Escape'        , u'http://www.la-razon.com/rss/suplementos/escape/'    )
+             ,(u'El Financiero' , u'http://www.la-razon.com/rss/suplementos/financiero/')
+             ,(u'Tendencias'    , u'http://www.la-razon.com/rss/suplementos/tendencias/')
             ]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(self.INDEX)
+        lightbox = soup.find('div', attrs = {'class' : 'lightbox lightbox-frontpage'})
+        return lightbox.img['src']
+
+

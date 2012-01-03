@@ -437,6 +437,16 @@ class BasicNewsRecipe(Recipe):
         # Uh-oh recipe using something exotic, call get_browser
         return self.get_browser()
 
+    @property
+    def cloned_browser(self):
+        if self.get_browser.im_func is BasicNewsRecipe.get_browser.im_func:
+            # We are using the default get_browser, which means no need to
+            # clone
+            br = BasicNewsRecipe.get_browser(self)
+        else:
+            br = self.clone_browser(self.browser)
+        return br
+
     def get_article_url(self, article):
         '''
         Override in a subclass to customize extraction of the :term:`URL` that points
@@ -534,7 +544,10 @@ class BasicNewsRecipe(Recipe):
         `url_or_raw`: Either a URL or the downloaded index page as a string
         '''
         if re.match(r'\w+://', url_or_raw):
-            open_func = getattr(self.browser, 'open_novisit', self.browser.open)
+            # We may be called in a thread (in the skip_ad_pages method), so
+            # clone the browser to be safe
+            br = self.cloned_browser
+            open_func = getattr(br, 'open_novisit', br.open)
             with closing(open_func(url_or_raw)) as f:
                 _raw = f.read()
             if not _raw:

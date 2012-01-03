@@ -666,8 +666,8 @@ class EPUB_MOBI(CatalogPlugin): # {{{
                           default=('~,'+_('Catalog')),
                           dest='exclude_tags',
                           action = None,
-                          help=_("Comma-separated list of tag words indicating book should be excluded from output."
-                              "For example: 'skip' will match 'skip this book' and 'Skip will like this'."
+                          help=_("Comma-separated list of tag words indicating book should be excluded from output. "
+                              "For example: 'skip' will match 'skip this book' and 'Skip will like this'. "
                               "Default: '%default'\n"
                               "Applies to: ePub, MOBI output formats")),
                    Option('--generate-authors',

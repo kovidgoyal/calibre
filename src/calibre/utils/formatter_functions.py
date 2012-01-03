@@ -701,7 +701,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             'as a comma-separated list of items, where each item is a period-'
             'separated list. Returns a new list made by first finding all the '
             'period-separated items, then for each such item extracting the '
-            'start_index` to the `end_index` components, then combining '
+            '`start_index` to the `end_index` components, then combining '
             'the results back together. The first component in a period-'
             'separated list has an index of zero. If an index is negative, '
             'then it counts from the end of the list. As a special case, an '
@@ -853,7 +853,7 @@ class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
     category = 'Iterating over values'
     __doc__ = doc = _('first_non_empty(value, value, ...) -- '
             'returns the first value that is not empty. If all values are '
-            'empty, then the empty value is returned.'
+            'empty, then the empty value is returned. '
             'You can have as many values as you want.')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):

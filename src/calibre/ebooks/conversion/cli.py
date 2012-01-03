@@ -141,7 +141,7 @@ def add_pipeline_options(parser, plumber):
                       'insert_blank_line', 'insert_blank_line_size',
                       'remove_paragraph_spacing',
                       'remove_paragraph_spacing_indent_size',
-                      'asciiize',
+                      'asciiize', 'keep_ligatures',
                   ]
                   ),
 
