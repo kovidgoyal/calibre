@@ -1417,8 +1417,9 @@ class MOBIFile(object): # {{{
             image_index += 1
             r = self.records[i]
             fmt = None
-            if i >= fii and r.raw[:4] not in (b'FLIS', b'FCIS', b'SRCS',
-                    b'\xe9\x8e\r\n'):
+            if i >= fii and r.raw[:4] not in {b'FLIS', b'FCIS', b'SRCS',
+                    b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
+                    b'AUDI', b'VIDE'}:
                 try:
                     width, height, fmt = identify_data(r.raw)
                 except:
