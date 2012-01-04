@@ -10,7 +10,8 @@ __docformat__ = 'restructuredtext en'
 '''
 Utilities to help with developing coffeescript based apps
 '''
-import time, SimpleHTTPServer, SocketServer, os, subprocess, cStringIO
+import time, SimpleHTTPServer, SocketServer, os, subprocess
+from io import BytesIO
 
 class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
@@ -28,7 +29,7 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.send_header("Content-Length", bytes(len(raw)))
             self.send_header("Last-Modified", self.date_time_string(int(mtime)))
             self.end_headers()
-            return cStringIO.StringIO(raw)
+            return BytesIO(raw)
 
         return SimpleHTTPServer.SimpleHTTPRequestHandler.send_head(self)
 

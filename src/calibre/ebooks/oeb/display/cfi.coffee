@@ -58,16 +58,6 @@ get_current_time = (target) -> # {{{
     fstr(ans)
 # }}}
 
-set_current_time = (target, val) -> # {{{
-    if target.currentTime == undefined
-        return
-    if target.readyState == 4 or target.readyState == "complete"
-        target.currentTime = val
-    else
-        fn = -> target.currentTime = val
-        target.addEventListener("canplay", fn, false)
-
-#}}}
 
 class CanonicalFragmentIdentifier
 
@@ -76,13 +66,23 @@ class CanonicalFragmentIdentifier
 
     constructor: () ->
 
+    set_current_time: (target, val) -> # {{{
+        if target.currentTime == undefined
+            return
+        if target.readyState == 4 or target.readyState == "complete"
+            target.currentTime = val
+        else
+            fn = -> target.currentTime = val
+            target.addEventListener("canplay", fn, false)
+    #}}}
+
     encode: (doc, node, offset, tail) -> # {{{
         cfi = tail or ""
 
         # Handle the offset, if any
         switch node.nodeType
             when 1 # Element node
-                if typeoff(offset) == 'number'
+                if typeof(offset) == 'number'
                     node = node.childNodes.item(offset)
             when 3, 4, 5, 6 # Text/entity/CDATA node
                 offset or= 0
@@ -136,7 +136,7 @@ class CanonicalFragmentIdentifier
         node = doc
 
         until cfi.length < 1 or error
-            if ( (r = cfi.match(simple_node_regex)) is not null ) # Path step
+            if (r = cfi.match(simple_node_regex)) # Path step
                 target = parseInt(r[1])
                 assertion = r[2]
                 if assertion
@@ -318,22 +318,31 @@ class CanonicalFragmentIdentifier
                 try_list = [{start:0, end:0, a:0.5}, {start:0, end:1, a:1}, {start:-1, end:0, a:0}]
             else
                 try_list = [{start:0, end:0, a:0.5}, {start:-1, end:0, a:0}, {start:0, end:1, a:1}]
-            k = 0
             a = null
             rects = null
             node_len = node.nodeValue.length
-            until rects or rects.length or k >= try_list.length
-                t = try_list[k++]
-                start_offset = r.offset + t.start
-                end_offset = r.offset + t.end
-                a = t.a
-                if start_offset < 0 or end_offset >= node_len
-                    continue
-                range.setStart(node, start_offset)
-                range.setEnd(node, end_offset)
-                rects = range.getClientRects()
+            offset = r.offset
+            for i in [0, 1]
+                # Try reducing the offset by 1 if we get no match as if it refers to the position after the
+                # last character we wont get a match with getClientRects
+                offset = r.offset - i
+                if offset < 0
+                    offset = 0
+                k = 0
+                until rects?.length or k >= try_list.length
+                    t = try_list[k++]
+                    start_offset = offset + t.start
+                    end_offset = offset + t.end
+                    a = t.a
+                    if start_offset < 0 or end_offset >= node_len
+                        continue
+                    range.setStart(node, start_offset)
+                    range.setEnd(node, end_offset)
+                    rects = range.getClientRects()
+                if rects?.length
+                    break
 
-            if not rects or not rects.length
+            if not rects?.length
                 log("Could not find caret position: rects: #{ rects } offset: #{ r.offset }")
                 return null
 
