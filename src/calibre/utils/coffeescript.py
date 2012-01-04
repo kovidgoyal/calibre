@@ -15,12 +15,15 @@ import time, SimpleHTTPServer, SocketServer, os, subprocess
 class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     generated_files = set()
+    special_resources = {}
 
     def translate_path(self, path):
+        path = self.special_resources.get(path, path)
         if path.endswith('jquery.js'):
             return P('content_server/jquery.js')
         if path.endswith('.coffee'):
-            return self.compile_coffeescript(path[1:])
+            path = path[1:] if path.startswith('/') else path
+            return self.compile_coffeescript(path)
 
         return SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(self,
                 path)
@@ -49,8 +52,12 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                     f.write('alert("Compilation of %s failed");'%src)
         return dest
 
-def serve(port=8000):
-    httpd = SocketServer.TCPServer(('localhost', port), Handler)
+class HTTPD(SocketServer.TCPServer):
+    allow_reuse_address = True
+
+def serve(resources={}, port=8000):
+    Handler.special_resources = resources
+    httpd = HTTPD(('localhost', port), Handler)
     print('serving at localhost:%d'%port)
     try:
         try:

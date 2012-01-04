@@ -16,10 +16,9 @@ except ImportError:
     if False: init_calibre, serve
     from calibre.utils.coffeescript import serve
 
-
 def run_devel_server():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    serve()
+    serve(resources={'/cfi.coffee':'../cfi.coffee'})
 
 if __name__ == '__main__':
     run_devel_server()

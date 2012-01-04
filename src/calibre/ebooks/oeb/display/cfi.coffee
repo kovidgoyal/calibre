@@ -4,7 +4,7 @@
 ###
  Copyright 2011, Kovid Goyal <kovid@kovidgoyal.net>
  Released under the GPLv3 License
- Based on code originally written by Peter Sorotkin (epubcfi.js)
+ Based on code originally written by Peter Sorotkin (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
 ###
 #
 log = (error) ->
@@ -50,6 +50,24 @@ fstr = (d) -> # {{{
         ans += if (n % 10 == 0) then (n/10) else n
     ans
 # }}}
+
+get_current_time = (target) -> # {{{
+    ans = 0
+    if target.currentTime != undefined
+        ans = target.currentTime
+    fstr(ans)
+# }}}
+
+set_current_time = (target, val) -> # {{{
+    if target.currentTime == undefined
+        return
+    if target.readyState == 4 or target.readyState == "complete"
+        target.currentTime = val
+    else
+        fn = -> target.currentTime = val
+        target.addEventListener("canplay", fn, false)
+
+#}}}
 
 class CanonicalFragmentIdentifier
 
@@ -102,7 +120,8 @@ class CanonicalFragmentIdentifier
 
             # Add id assertions for robustness where possible
             id = node.getAttribute?('id')
-            idspec = if id then "[#{ escape_for_cfi(id) }]" else ''
+            idok = id and id.match(/^[-a-zA-Z_0-9.\u007F-\uFFFF]+$/)
+            idspec = if idok then "[#{ escape_for_cfi(id) }]" else ''
             cfi = '/' + index + idspec + cfi
             node = p
 
@@ -117,7 +136,7 @@ class CanonicalFragmentIdentifier
         error = null
         node = doc
 
-        until cfi.length <= 0 or error
+        until cfi.length < 1 or error
             if ( (r = cfi.match(simple_node_regex)) is not null ) # Path step
                 target = parseInt(r[1])
                 assertion = r[2]
@@ -253,7 +272,7 @@ class CanonicalFragmentIdentifier
         (if target.parentNode then target.parentNode else target).normalize()
 
         if name in ['audio', 'video']
-            tail = "~" + fstr target.currentTime
+            tail = "~" + get_current_time(target)
 
         if name in ['img', 'video']
             px = ((x + cwin.scrollX - target.offsetLeft)*100)/target.offsetWidth
