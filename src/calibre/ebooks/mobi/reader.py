@@ -974,12 +974,13 @@ class MobiReader(object):
                 continue
             processed_records.append(i)
             data  = self.sections[i][0]
+            image_index += 1
             if data[:4] in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n',
                     b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
-                # A FLIS, FCIS, SRCS or EOF record, ignore
+                # This record is a known non image type, not need to try to
+                # load the image
                 continue
             buf = cStringIO.StringIO(data)
-            image_index += 1
             try:
                 im = PILImage.open(buf)
                 im = im.convert('RGB')
