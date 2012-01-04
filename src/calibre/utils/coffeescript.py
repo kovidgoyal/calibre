@@ -10,20 +10,32 @@ __docformat__ = 'restructuredtext en'
 '''
 Utilities to help with developing coffeescript based apps
 '''
-import time, SimpleHTTPServer, SocketServer, os, subprocess
+import time, SimpleHTTPServer, SocketServer, os, subprocess, cStringIO
 
 class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
-    generated_files = set()
     special_resources = {}
+    compiled_cs = {}
+
+    def send_head(self):
+        path = self.path
+        if path.endswith('.coffee'):
+            path = path[1:] if path.startswith('/') else path
+            path = self.special_resources.get(path, path)
+            raw, mtime = self.compile_coffeescript(path)
+            self.send_response(200)
+            self.send_header("Content-type", b'text/javascript')
+            self.send_header("Content-Length", bytes(len(raw)))
+            self.send_header("Last-Modified", self.date_time_string(int(mtime)))
+            self.end_headers()
+            return cStringIO.StringIO(raw)
+
+        return SimpleHTTPServer.SimpleHTTPRequestHandler.send_head(self)
 
     def translate_path(self, path):
         path = self.special_resources.get(path, path)
-        if path.endswith('jquery.js'):
+        if path.endswith('/jquery.js'):
             return P('content_server/jquery.js')
-        if path.endswith('.coffee'):
-            path = path[1:] if path.startswith('/') else path
-            return self.compile_coffeescript(path)
 
         return SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(self,
                 path)
@@ -34,23 +46,23 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         except:
             time.sleep(0.01)
             sstat = os.stat(src)
-        return (not os.access(dest, os.R_OK) or sstat.st_mtime >
-                os.stat(dest).st_mtime)
+        return sstat.st_mtime > dest
 
     def compile_coffeescript(self, src):
-        dest = os.path.splitext(src)[0] + '.js'
-        self.generated_files.add(dest)
-        if self.newer(src, dest):
-            with open(dest, 'wb') as f:
-                try:
-                    subprocess.check_call(['coffee', '-c', '-p', src], stdout=f)
-                except:
-                    print('Compilation of %s failed'%src)
-                    f.seek(0)
-                    f.truncate()
-                    f.write('// Compilation of coffeescript failed')
-                    f.write('alert("Compilation of %s failed");'%src)
-        return dest
+        raw, mtime = self.compiled_cs.get(src, (None, 0))
+        if self.newer(src, mtime):
+            mtime = time.time()
+            try:
+                raw = subprocess.check_output(['coffee', '-c', '-p', src])
+            except:
+                print('Compilation of %s failed'%src)
+                cs = '''
+                // Compilation of coffeescript failed
+                alert("Compilation of %s failed");
+                '''%src
+                raw = cs.encode('utf-8')
+            self.compiled_cs[src] = (raw, mtime)
+        return raw, mtime
 
 class HTTPD(SocketServer.TCPServer):
     allow_reuse_address = True
@@ -60,14 +72,7 @@ def serve(resources={}, port=8000):
     httpd = HTTPD(('localhost', port), Handler)
     print('serving at localhost:%d'%port)
     try:
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            raise SystemExit(0)
-    finally:
-        for x in Handler.generated_files:
-            try:
-                os.remove(x)
-            except:
-                pass
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        raise SystemExit(0)
 

@@ -107,12 +107,12 @@ class CanonicalFragmentIdentifier
                         cfi = "!" + cfi
                         continue
                 break
-            # Increase index by the length of all previous sibling text nodes
+            # Find position of node in parent
             index = 0
             child = p.firstChild
             while true
-                index |= 1
-                if child.nodeType in [1, 7]
+                index |= 1 # Increment index by 1 if it is even
+                if child.nodeType == 1
                     index++
                 if child == node
                     break
@@ -120,8 +120,7 @@ class CanonicalFragmentIdentifier
 
             # Add id assertions for robustness where possible
             id = node.getAttribute?('id')
-            idok = id and id.match(/^[-a-zA-Z_0-9.\u007F-\uFFFF]+$/)
-            idspec = if idok then "[#{ escape_for_cfi(id) }]" else ''
+            idspec = if id then "[#{ escape_for_cfi(id) }]" else ''
             cfi = '/' + index + idspec + cfi
             node = p
 
@@ -155,11 +154,18 @@ class CanonicalFragmentIdentifier
                             error = "No matching child found for CFI: " + cfi
                         break
                     index |= 1 # Increment index by 1 if it is even
-                    if child.nodeType in [1, 7] # We have an element or a PI
+                    if child.nodeType == 1
                         index++
                     if ( index == target )
                         cfi = cfi.substr(r[0].length)
                         node = child
+                        if assertion and node.id != assertion
+                            # The found child does not match the id assertion,
+                            # trust the id assertion if an element with that id
+                            # exists
+                            child = doc.getElementById(assertion)
+                            if child
+                                node = child
                         break
                     child = child.nextSibling
 
