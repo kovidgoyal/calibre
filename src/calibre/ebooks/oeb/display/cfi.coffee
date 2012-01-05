@@ -119,12 +119,12 @@ class CanonicalFragmentIdentifier
     # This class is a namespace to expose CFI functions via the window.cfi
     # object
 
-    constructor: () ->
+    constructor: () -> # {{{
         this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
         this.IE_ERR = "Your browser is too old. You need Internet Explorer version 8 or newer."
-        this.is_compatible()
+    # }}}
 
-    is_compatible: () ->
+    is_compatible: () -> # {{{
         if not window.document.createRange
             throw this.CREATE_RANGE_ERR
         # Check if Internet Explorer >= 8 as getClientRects returns physical
@@ -138,6 +138,7 @@ class CanonicalFragmentIdentifier
         if ver > 4 and ver < 8
             # We have IE < 8
             throw this.IE_ERR
+    # }}}
 
     set_current_time: (target, val) -> # {{{
         if target.currentTime == undefined
