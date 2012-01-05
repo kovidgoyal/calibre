@@ -76,7 +76,9 @@ viewport_to_document = (x, y, doc) -> # {{{
         # We are in a frame
         node = win.frameElement
         rect = node.getBoundingClientRect()
-        return viewport_to_document(rect.left, rect.top, node.ownerDocument)
+        [vx, vy] = viewport_to_document(rect.left, rect.top, node.ownerDocument)
+        x += vx
+        y += vy
     return [x, y]
 # }}}
 
