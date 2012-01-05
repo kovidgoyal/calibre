@@ -208,6 +208,10 @@ class ITUNES(DriverBase):
     BACKLOADING_ERROR_MESSAGE = _(
         "Cannot copy books directly from iDevice. "
         "Drag from iTunes Library to desktop, then add to calibre's Library window.")
+    UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE = _(
+        "Unsupported direct connect mode. "
+        "See http://www.mobileread.com/forums/showthread.php?t=118559 "
+        "for instructions on using 'Connect to iTunes'")
 
     # Product IDs:
     #  0x1291   iPod Touch
@@ -834,7 +838,7 @@ class ITUNES(DriverBase):
             raise AppleOpenFeedback(self)
         else:
             if DEBUG:
-                self.log.info(" advanced user mode, directly connecting to iDevice")
+                self.log.warning(" %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
@@ -1163,6 +1167,8 @@ class ITUNES(DriverBase):
                 added = pl.add(appscript.mactypes.File(fpath),to=pl)
                 if False:
                     self.log.info("  '%s' added to Device|Books" % metadata.title)
+
+                self._wait_for_writable_metadata(added)
                 return added
 
         elif iswindows:
@@ -1324,7 +1330,6 @@ class ITUNES(DriverBase):
             '''
             Unsupported direct-connect mode.
             '''
-            self.log.warning("  unsupported direct connect mode")
             db_added = self._add_device_book(fpath, metadata)
             lb_added = self._add_library_book(fpath, metadata)
             if not lb_added and DEBUG:
@@ -1392,16 +1397,17 @@ class ITUNES(DriverBase):
                         except:
                             if DEBUG:
                                 self.log.warning("  iTunes automation interface reported an error"
-                                                 " when adding artwork to '%s' in the iTunes Library" % metadata.title)
+                                                 " adding artwork to '%s' in the iTunes Library" % metadata.title)
                             pass
 
                     if db_added:
                         try:
                             db_added.artworks[1].data_.set(cover_data)
+                            self.log.info("   writing '%s' cover to iDevice" % metadata.title)
                         except:
                             if DEBUG:
                                 self.log.warning("  iTunes automation interface reported an error"
-                                                 " when adding artwork to '%s' on the iDevice" % metadata.title)
+                                                 " adding artwork to '%s' on the iDevice" % metadata.title)
                             #import traceback
                             #traceback.print_exc()
                             #from calibre import ipython
@@ -2761,10 +2767,6 @@ class ITUNES(DriverBase):
 
         STRIP_TAGS = re.compile(r'<[^<]*?/?>')
 
-        # Confirm writable metadata if directly connected to device
-        if db_added:
-            self._wait_for_writable_metadata(db_added)
-
         # Update metadata from plugboard
         # If self.plugboard is None (no transforms), original metadata is returned intact
         metadata_x = self._xform_metadata_via_plugboard(metadata, this_book.format)
@@ -2990,12 +2992,13 @@ class ITUNES(DriverBase):
                             db_added.Genre = tag
                         break
 
-    def _wait_for_writable_metadata(self, db_added, delay=0.5):
+    def _wait_for_writable_metadata(self, db_added, delay=2.0):
         '''
-        Ensure device metadata is writable
+        Ensure iDevice metadata is writable. Direct connect mode only
         '''
         if DEBUG:
             self.log.info(" ITUNES._wait_for_writable_metadata()")
+            self.log.warning("  %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
 
         attempts = 9
         while attempts:
@@ -3009,8 +3012,8 @@ class ITUNES(DriverBase):
                 attempts -= 1
                 time.sleep(delay)
                 if DEBUG:
-                    self.log.warning("  waiting for iDevice metadata to become writable, attempt #%d" %
-                                     (10 - attempts))
+                    self.log.warning("  waiting %.1f seconds for iDevice metadata to become writable (attempt #%d)" %
+                                     (delay, (10 - attempts)))
         else:
             if DEBUG:
                 self.log.error(" failed to write device metadata")
