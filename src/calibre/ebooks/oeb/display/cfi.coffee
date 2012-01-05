@@ -5,14 +5,17 @@
  Copyright 2011, Kovid Goyal <kovid@kovidgoyal.net>
  Released under the GPLv3 License
  Based on code originally written by Peter Sorotkin (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
+
+ This script requires the createRange method on the document object that must create a W3C compliant range object
 ###
-#
-log = (error) ->
+
+log = (error) -> # {{{
     if error
         if window?.console?.log
             window.console.log(error)
         else if process?.stdout?.write
             process.stdout.write(error + '\n')
+# }}}
 
 # CFI escaping {{{
 escape_for_cfi = (raw) ->
@@ -58,6 +61,56 @@ get_current_time = (target) -> # {{{
     fstr(ans)
 # }}}
 
+# Equivalent for caretRangeFromPoint for non WebKit browsers {{{
+range_has_point = (range, x, y) ->
+    for rect in range.getClientRects()
+        if (rect.left <= x <= rect.right) and (rect.top <= y <= rect.bottom)
+            return true
+    return false
+
+offset_in_text_node = (node, range, x, y) ->
+    limits = [0, node.nodeValue.length]
+    while limits[0] != limits[1]
+        pivot = Math.floor( (limits[0] + limits[1]) / 2 )
+        lr = [limits[0], pivot]
+        rr = [pivot+1, limits[1]]
+        range.setStart(node, pivot)
+        range.setEnd(node, pivot+1)
+        if range_has_point(range, x, y)
+            return pivot
+        range.setStart(node, rr[0])
+        range.setEnd(node, rr[1])
+        if range_has_point(range, x, y)
+            limits = rr
+            continue
+        range.setStart(node, lr[0])
+        range.setEnd(node, lr[1])
+        if range_has_point(range, x, y)
+            limits = lr
+            continue
+        break
+    return limits[0]
+
+find_offset_for_point = (x, y, node, cdoc) ->
+    range = cdoc.createRange()
+    child = node.firstChild
+    last_child = null
+    while child
+        if child.nodeType in [3, 4, 5, 6] and child.nodeValue?.length
+            range.setStart(child, 0)
+            range.setEnd(child, child.nodeValue.length)
+            if range_has_point(range, x, y)
+                return [child, offset_in_text_node(child, range, x, y)]
+            last_child = child
+        child = child.nextSibling
+
+    if not last_child
+        throw "#{node} has no children"
+    # The point must be after the last bit of text
+    pos = 0
+    return [last_child, last_child.nodeValue.length]
+
+# }}}
 
 class CanonicalFragmentIdentifier
 
@@ -65,6 +118,11 @@ class CanonicalFragmentIdentifier
     # object
 
     constructor: () ->
+        this.COMPAT_ERR = "Your browser does not support the createRange function. Update it to a newer version."
+
+    is_compatible: () ->
+        if not window.document.createRange
+            throw this.COMPAT_ERR
 
     set_current_time: (target, val) -> # {{{
         if target.currentTime == undefined
@@ -290,9 +348,12 @@ class CanonicalFragmentIdentifier
                 if range
                     target = range.startContainer
                     offset = range.startOffset
+                else
+                    throw "Failed to find range from point (#{ x }, #{ y })"
+            else if cdoc.createRange
+                [target, offset] = find_offset_for_point(x, y, target, cdoc)
             else
-                # TODO: implement a span bisection algorithm for UAs
-                # without caretRangeFromPoint (Gecko, IE)
+                throw this.COMPAT_ERR
 
         this.encode(doc, target, offset, tail)
     # }}}
@@ -313,6 +374,8 @@ class CanonicalFragmentIdentifier
 
         if typeof(r.offset) == "number"
             # Character offset
+            if not ndoc.createRange
+                throw this.COMPAT_ERR
             range = ndoc.createRange()
             if r.forward
                 try_list = [{start:0, end:0, a:0.5}, {start:0, end:1, a:1}, {start:-1, end:0, a:0}]
