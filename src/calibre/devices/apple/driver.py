@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 
 import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
+
 from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image, confirm_config_name
 from calibre.constants import isosx, iswindows
@@ -806,6 +807,7 @@ class ITUNES(DriverBase):
         '''
         if DEBUG:
             self.log.info("ITUNES.get_file(): exporting '%s'" % path)
+
         outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
 
     def open(self, connected_device, library_uuid):
@@ -1945,7 +1947,7 @@ class ITUNES(DriverBase):
             return thumb_data
 
         if DEBUG:
-            self.log.info(" ITUNES._generate_thumbnail():")
+            self.log.info(" ITUNES._generate_thumbnail('%s'):" % title)
         if isosx:
 
             # Fetch the artwork from iTunes
@@ -2759,9 +2761,14 @@ class ITUNES(DriverBase):
 
         STRIP_TAGS = re.compile(r'<[^<]*?/?>')
 
+        # Confirm writable metadata if directly connected to device
+        if db_added:
+            self._wait_for_writable_metadata(db_added)
+
         # Update metadata from plugboard
         # If self.plugboard is None (no transforms), original metadata is returned intact
         metadata_x = self._xform_metadata_via_plugboard(metadata, this_book.format)
+
         if isosx:
             if lb_added:
                 lb_added.name.set(metadata_x.title)
@@ -2772,10 +2779,9 @@ class ITUNES(DriverBase):
                 lb_added.enabled.set(True)
                 lb_added.sort_artist.set(icu_title(metadata_x.author_sort))
                 lb_added.sort_name.set(metadata_x.title_sort)
+                lb_added.year.set(metadata_x.pubdate.year)
 
             if db_added:
-                self.log.warning("  waiting for db_added to become writeable ")
-                time.sleep(1.0)
                 db_added.name.set(metadata_x.title)
                 db_added.album.set(metadata_x.title)
                 db_added.artist.set(authors_to_string(metadata_x.authors))
@@ -2784,6 +2790,7 @@ class ITUNES(DriverBase):
                 db_added.enabled.set(True)
                 db_added.sort_artist.set(icu_title(metadata_x.author_sort))
                 db_added.sort_name.set(metadata_x.title_sort)
+                db_added.year.set(metadata_x.pubdate.year)
 
             if metadata_x.comments:
                 if lb_added:
@@ -2871,6 +2878,7 @@ class ITUNES(DriverBase):
                 lb_added.Enabled = True
                 lb_added.SortArtist = icu_title(metadata_x.author_sort)
                 lb_added.SortName = metadata_x.title_sort
+                lb_added.Year = metadata_x.pubdate.year
 
             if db_added:
                 self.log.warning("  waiting for db_added to become writeable ")
@@ -2883,6 +2891,7 @@ class ITUNES(DriverBase):
                 db_added.Enabled = True
                 db_added.SortArtist = icu_title(metadata_x.author_sort)
                 db_added.SortName = metadata_x.title_sort
+                db_added.Year = metadata_x.pubdate.year
 
             if metadata_x.comments:
                 if lb_added:
@@ -2980,6 +2989,31 @@ class ITUNES(DriverBase):
                         if db_added:
                             db_added.Genre = tag
                         break
+
+    def _wait_for_writable_metadata(self, db_added, delay=0.5):
+        '''
+        Ensure device metadata is writable
+        '''
+        if DEBUG:
+            self.log.info(" ITUNES._wait_for_writable_metadata()")
+
+        attempts = 9
+        while attempts:
+            try:
+                if isosx:
+                    db_added.bpm.set(0)
+                elif iswindows:
+                    db_added.BPM = 0
+                break
+            except:
+                attempts -= 1
+                time.sleep(delay)
+                if DEBUG:
+                    self.log.warning("  waiting for iDevice metadata to become writable, attempt #%d" %
+                                     (10 - attempts))
+        else:
+            if DEBUG:
+                self.log.error(" failed to write device metadata")
 
     def _xform_metadata_via_plugboard(self, book, format):
         ''' Transform book metadata from plugboard templates '''
@@ -3090,6 +3124,7 @@ class ITUNES_ASYNC(ITUNES):
                 for (i,book) in enumerate(library_books):
                     format = 'pdf' if library_books[book].kind().startswith('PDF') else 'epub'
                     this_book = Book(library_books[book].name(), library_books[book].artist())
+                    #this_book.path = library_books[book].location().path
                     this_book.path = self.path_template % (library_books[book].name(),
                                                            library_books[book].artist(),
                                                            format)
