@@ -28,10 +28,15 @@ mark_and_reload = (evt) ->
     # Remove image in case the click was on the image itself, we want the cfi to
     # be on the underlying element
     ms = document.getElementById("marker")
-    ms.parentNode?.removeChild(ms)
+    if ms
+        ms.parentNode?.removeChild(ms)
 
     fn = () ->
-        window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
+        try
+            window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
+        catch err
+            log("Failed to calculate cfi: #{ err }")
+            return
         if window.current_cfi
             epubcfi = "#epubcfi(#{ window.current_cfi })"
             newloc = window.location.href.replace(/#.*$/, '') + epubcfi

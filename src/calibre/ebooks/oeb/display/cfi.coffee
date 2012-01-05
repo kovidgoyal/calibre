@@ -8,8 +8,7 @@
  (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
  Improvements with respect to that code:
  1. Works on all browsers (WebKit, Firefox and IE >= 8)
- 2. Works if the point is after the last text character in an element
- 3. Works for elements that are scrollable (i.e. have their own scrollbars)
+ 2. Works for elements that are scrollable (i.e. have their own scrollbars)
 
  To check if this script is compatible with the current browser, call
  window.cfi.is_compatible() it will throw an exception if not compatible.
@@ -127,9 +126,9 @@ find_offset_for_point = (x, y, node, cdoc) ->
 
     if not last_child
         throw "#{node} has no children"
-    # The point must be after the last bit of text
-    pos = 0
-    return [last_child, last_child.nodeValue.length]
+    # The point must be after the last bit of text/in the padding/border, we dont know
+    # how to get a good point in this case
+    throw "Point (#{x}, #{y}) is in the padding/border of #{node}, so cannot calculate offset"
 
 # }}}
 
@@ -192,9 +191,11 @@ class CanonicalFragmentIdentifier
                 offset or= 0
                 while true
                     p = node.previousSibling
-                    if (p?.nodeType not in [3, 4, 5, 6])
+                    if not p or p.nodeType > 8
                         break
-                    offset += p.nodeValue.length
+                    # log("previous sibling:"+ p + " " + p?.nodeType + " length: " + p?.nodeValue?.length)
+                    if p.nodeType not in [2, 8] and p.nodeValue?.length?
+                        offset += p.nodeValue.length
                     node = p
                 cfi = ":" + offset + cfi
             else # Not handled
@@ -332,6 +333,7 @@ class CanonicalFragmentIdentifier
                     if nn.nodeType in [3, 4, 5, 6] and nn.nodeValue?.length # Text node, entity, cdata
                         next = nn
                         break
+                    node = nn
                 if not next
                     if offset > len
                         error = "Offset out of range: #{ offset }"
@@ -391,14 +393,11 @@ class CanonicalFragmentIdentifier
             py = ((y + cwin.scrollY - target.offsetTop)*100)/target.offsetHeight
             tail = "#{ tail }@#{ fstr px },#{ fstr py }"
         else if name != 'audio'
-            if cdoc.caretRangeFromPoint # WebKit
-                range = cdoc.caretRangeFromPoint(x, y)
-                if range
-                    target = range.startContainer
-                    offset = range.startOffset
-                else
-                    throw "Failed to find range from point (#{ x }, #{ y })"
-            else if cdoc.createRange
+            # Get the test offset
+            # We use a custom function instead of caretRangeFromPoint as
+            # caretRangeFromPoint does weird things when the point falls in the
+            # padding of the element
+            if cdoc.createRange
                 [target, offset] = find_offset_for_point(x, y, target, cdoc)
             else
                 throw this.CREATE_RANGE_ERR
