@@ -31,6 +31,7 @@
                 max-height: 100px;
                 overflow: scroll;
                 border: solid 1px black;
+                padding: 2em;
             }
         </style>
     </head>
@@ -39,6 +40,7 @@
             <h1 id="first-h1">Testing EPUB CFI</h1>
             <div id="current-cfi">Current CFI:&nbsp;None</div>
             <h2>A div with scrollbars</h2>
+            <p>Scroll down and click on some elements. Make sure to hit both bold and not bold text</p>
             <div id="overflow"> But I must explain to you how all this mistaken
                 idea of denouncing pleasure and praising pain was born and I
                 will give you a complete account of the system, and expound the
@@ -60,6 +62,9 @@
                 demoralized by the charms of pleasure of the moment, so blinded
                 by desire, that they cannot foresee
             </div>
+            <h2>Some entities</h2>
+            <p>Entities: &amp; &copy; &sect; &gt;</p>
+            <p>An invisible CDATA: <![CDATA[CDATA]]> followed by some text</p>
         </div>
         <img id="marker" style="position: absolute; display:none; z-index:10" src="marker.png" alt="Marker" />
     </body>

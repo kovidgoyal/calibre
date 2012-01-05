@@ -41,6 +41,10 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         return SimpleHTTPServer.SimpleHTTPRequestHandler.translate_path(self,
                 path)
 
+    def guess_type(self, path):
+        ans = SimpleHTTPServer.SimpleHTTPRequestHandler.guess_type(self, path)
+        return ans
+
     def newer(self, src, dest):
         try:
             sstat = os.stat(src)

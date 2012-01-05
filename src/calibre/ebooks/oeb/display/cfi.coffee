@@ -260,7 +260,7 @@ class CanonicalFragmentIdentifier
                     index |= 1 # Increment index by 1 if it is even
                     if child.nodeType == 1
                         index++
-                    if ( index == target )
+                    if index == target
                         cfi = cfi.substr(r[0].length)
                         node = child
                         if assertion and node.id != assertion
