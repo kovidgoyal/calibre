@@ -474,10 +474,10 @@ class CanonicalFragmentIdentifier
                 x = (point.a*rect.left + (1-point.a)*rect.right)
                 y = (rect.top + rect.bottom)/2
                 [x, y] = viewport_to_document(x, y, ndoc)
-                tn = if span.firstChild then span.firstChild.nodeValue else ''
-                tn = ndoc.createTextNode(tn)
                 p = span.parentNode
-                p.insertBefore(tn, span)
+                for node in span.childNodes
+                    span.removeChild(node)
+                    p.insertBefore(node, span)
                 p.removeChild(span)
                 p.normalize()
                 if callback
