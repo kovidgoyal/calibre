@@ -69,7 +69,7 @@ get_current_time = (target) -> # {{{
 
 viewport_to_document = (x, y, doc) -> # {{{
     win = doc.defaultView
-    x += if win.scrollX then win.scrollX else 0
+    x += if win.scrollX then win.scrollX else 0 # These can be NaN on IE
     y += if win.scrollY then win.scrollY else 0
 
     if doc != window.document
