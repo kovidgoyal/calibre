@@ -6,19 +6,53 @@
  Released under the GPLv3 License
 ###
 
-viewport_top = (node) ->
-    $(node).offset().top - window.pageYOffset
+log = (error) ->
+    if error
+        if window?.console?.log
+            window.console.log(error)
+        else if process?.stdout?.write
+            process.stdout.write(error + '\n')
 
-viewport_left = (node) ->
-    $(node).offset().left - window.pageXOffset
+show_cfi = () ->
+    if window.current_cfi
+        fn = (x, y) ->
+            ms = document.getElementById("marker").style
+            ms.display = 'block'
+            ms.top = y - 30 + 'px'
+            ms.left = x - 1 + 'px'
+
+        window.cfi.scroll_to(window.current_cfi, fn)
+    null
+
+mark_and_reload = (evt) ->
+    # Remove image in case the click was on the image itself, we want the cfi to
+    # be on the underlying element
+    ms = document.getElementById("marker")
+    ms.parentNode.removeChild(ms)
+
+    fn = () ->
+        window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
+        if window.current_cfi
+            epubcfi = "#epubcfi(#{ window.current_cfi })"
+            newloc = window.location.href.replace(/#.*$/, '') + epubcfi
+            window.location.replace(newloc)
+            document.getElementById('current-cfi').innerHTML = window.current_cfi
+            window.location.reload()
+
+    setTimeout(fn, 1)
+    null
 
 window.onload = ->
-    h1 = document.getElementsByTagName('h1')[0]
-    x = h1.scrollLeft + 150
-    y = viewport_top(h1) + h1.offsetHeight/2
-    e = document.elementFromPoint x, y
-    if e.getAttribute('id') != 'first-h1'
-        alert 'Failed to find top h1'
+    try
+        window.cfi.is_compatible()
+    catch error
+        alert(error)
         return
-    alert window.cfi.at x, y
+    document.onclick = mark_and_reload
+    r = location.hash.match(/#epubcfi\((.+)\)$/)
+    if r
+        window.current_cfi = r[1]
+        document.getElementById('current-cfi').innerHTML = window.current_cfi
+        setTimeout(show_cfi, 100)
+    null
 

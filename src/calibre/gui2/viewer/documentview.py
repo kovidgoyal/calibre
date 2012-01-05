@@ -12,14 +12,13 @@ from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer,
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog,
                      QColor, QPoint, QImage, QRegion, QVariant, QIcon,
                      QFont, pyqtSignature, QAction, QByteArray, QMenu,
-                     pyqtSignal)
+                     pyqtSignal, QSwipeGesture)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.flip import SlideFlip
-from calibre.gui2.viewer.gestures import Gestures
 from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.constants import iswindows
 from calibre import prints, guess_type
@@ -514,7 +513,6 @@ class DocumentView(QWebView): # {{{
     def __init__(self, *args):
         QWebView.__init__(self, *args)
         self.flipper = SlideFlip(self)
-        self.gestures = Gestures()
         self.is_auto_repeat_event = False
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
@@ -582,6 +580,7 @@ class DocumentView(QWebView): # {{{
             else:
                 m.addAction(name, a[key], self.shortcuts.get_sequences(key)[0])
         self.goto_location_action.setMenu(self.goto_location_menu)
+        self.grabGesture(Qt.SwipeGesture)
 
     def goto_next_section(self, *args):
         if self.manager is not None:
@@ -1047,27 +1046,23 @@ class DocumentView(QWebView): # {{{
             self.manager.viewport_resized(self.scroll_fraction)
 
     def event(self, ev):
-        typ = ev.type()
-        if typ == ev.TouchBegin:
-            try:
-                self.gestures.start_gesture('touch', ev)
-            except:
-                import traceback
-                traceback.print_exc()
-        elif typ == ev.TouchEnd:
-            try:
-                gesture = self.gestures.end_gesture('touch', ev, self.rect())
-            except:
-                import traceback
-                traceback.print_exc()
-            if gesture is not None:
-                ev.accept()
-                if gesture == 'lineleft':
-                    self.next_page()
-                elif gesture == 'lineright':
-                    self.previous_page()
+        if ev.type() == ev.Gesture:
+            swipe = ev.gesture(Qt.SwipeGesture)
+            if swipe is not None:
+                self.handle_swipe(swipe)
                 return True
         return QWebView.event(self, ev)
+
+    def handle_swipe(self, swipe):
+        if swipe.state() == Qt.GestureFinished:
+            if swipe.horizontalDirection() == QSwipeGesture.Left:
+                self.previous_page()
+            elif swipe.horizontalDirection() == QSwipeGesture.Right:
+                self.next_page()
+            elif swipe.verticalDirection() == QSwipeGesture.Up:
+                self.goto_previous_section()
+            elif swipe.horizontalDirection() == QSwipeGesture.Down:
+                self.goto_next_section()
 
     def mouseReleaseEvent(self, ev):
         opos = self.document.ypos

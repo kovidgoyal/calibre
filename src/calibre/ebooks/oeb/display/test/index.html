@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Testing CFI functionality</title>
+        <script type="text/javascript" src="cfi.coffee"></script>
+        <script type="text/javascript" src="cfi-test.coffee"></script>
+        <style type="text/css">
+            body { font-family: sans-serif }
+
+            h2 {
+                border-top: solid 2px black;
+                margin-top: 4ex;
+            }
+
+            #container {
+                max-width: 30em;
+                margin-right: auto;
+                margin-left: 2em;
+                position:relative;
+            }
+
+            #current-cfi { 
+                font-family: monospace;
+                border: solid 1px blue;
+                padding: 1em;
+            }
+            #overflow {
+                max-height: 100px;
+                overflow: scroll;
+                border: solid 1px black;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <h1 id="first-h1">Testing EPUB CFI</h1>
+            <div id="current-cfi">Current CFI:&nbsp;None</div>
+            <h2>A div with scrollbars</h2>
+            <div id="overflow"> But I must explain to you how all this mistaken
+                idea of denouncing pleasure and praising pain was born and I
+                will give you a complete account of the system, and expound the
+                actual teachings of the great explorer of the truth, the
+                master-builder of human happiness. No one rejects, dislikes, or
+                avoids pleasure itself, because it is pleasure, but because
+                those who do not know how to pursue pleasure rationally
+                encounter consequences that are extremely painful. Nor again is
+                there anyone who <b>loves</b> or pursues or desires to obtain pain of
+                itself, because it is pain, but because occasionally
+                circumstances occur in which toil and pain can procure him some
+                great pleasure. To take a trivial example, which of us ever
+                undertakes laborious physical exercise, except to obtain some
+                advantage from it? But who has any right to find fault with a
+                man who chooses to enjoy a pleasure that has no annoying
+                consequences, or one who avoids a pain that produces no
+                resultant pleasure? On the other hand, we denounce with
+                righteous indignation and dislike men who are so beguiled and
+                demoralized by the charms of pleasure of the moment, so blinded
+                by desire, that they cannot foresee
+            </div>
+        </div>
+        <img id="marker" style="position: absolute; display:none; z-index:10" src="marker.png" alt="Marker" />
+    </body>
+</html>
+
+

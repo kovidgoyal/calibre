@@ -4,15 +4,24 @@
 ###
  Copyright 2011, Kovid Goyal <kovid@kovidgoyal.net>
  Released under the GPLv3 License
- Based on code originally written by Peter Sorotkin (epubcfi.js)
+ Based on code originally written by Peter Sorotkin
+ (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
+ Improvements with respect to that code:
+ 1. Works on all browsers (WebKit, Firefox and IE >= 8)
+ 2. Works if the point is after the last text character in an element
+ 3. Works for elements that are scrollable (i.e. have their own scrollbars)
+
+ To check if this script is compatible with the current browser, call
+ window.cfi.is_compatible() it will throw an exception if not compatible.
 ###
-#
-log = (error) ->
+
+log = (error) -> # {{{
     if error
         if window?.console?.log
             window.console.log(error)
         else if process?.stdout?.write
             process.stdout.write(error + '\n')
+# }}}
 
 # CFI escaping {{{
 escape_for_cfi = (raw) ->
@@ -51,12 +60,111 @@ fstr = (d) -> # {{{
     ans
 # }}}
 
+get_current_time = (target) -> # {{{
+    ans = 0
+    if target.currentTime != undefined
+        ans = target.currentTime
+    fstr(ans)
+# }}}
+
+viewport_to_document = (x, y, doc) -> # {{{
+    win = doc.defaultView
+    x += win.scrollX
+    y += win.scrollY
+    if doc != window.document
+        # We are in a frame
+        node = win.frameElement
+        rect = node.getBoundingClientRect()
+        return viewport_to_document(rect.left, rect.top, node.ownerDocument)
+    return [x + win.scrollX, y + win.scrollY]
+# }}}
+
+# Equivalent for caretRangeFromPoint for non WebKit browsers {{{
+range_has_point = (range, x, y) ->
+    for rect in range.getClientRects()
+        if (rect.left <= x <= rect.right) and (rect.top <= y <= rect.bottom)
+            return true
+    return false
+
+offset_in_text_node = (node, range, x, y) ->
+    limits = [0, node.nodeValue.length]
+    while limits[0] != limits[1]
+        pivot = Math.floor( (limits[0] + limits[1]) / 2 )
+        lr = [limits[0], pivot]
+        rr = [pivot+1, limits[1]]
+        range.setStart(node, pivot)
+        range.setEnd(node, pivot+1)
+        if range_has_point(range, x, y)
+            return pivot
+        range.setStart(node, rr[0])
+        range.setEnd(node, rr[1])
+        if range_has_point(range, x, y)
+            limits = rr
+            continue
+        range.setStart(node, lr[0])
+        range.setEnd(node, lr[1])
+        if range_has_point(range, x, y)
+            limits = lr
+            continue
+        break
+    return limits[0]
+
+find_offset_for_point = (x, y, node, cdoc) ->
+    range = cdoc.createRange()
+    child = node.firstChild
+    last_child = null
+    while child
+        if child.nodeType in [3, 4, 5, 6] and child.nodeValue?.length
+            range.setStart(child, 0)
+            range.setEnd(child, child.nodeValue.length)
+            if range_has_point(range, x, y)
+                return [child, offset_in_text_node(child, range, x, y)]
+            last_child = child
+        child = child.nextSibling
+
+    if not last_child
+        throw "#{node} has no children"
+    # The point must be after the last bit of text
+    pos = 0
+    return [last_child, last_child.nodeValue.length]
+
+# }}}
+
 class CanonicalFragmentIdentifier
 
     # This class is a namespace to expose CFI functions via the window.cfi
     # object
 
-    constructor: () ->
+    constructor: () -> # {{{
+        this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
+        this.IE_ERR = "Your browser is too old. You need Internet Explorer version 8 or newer."
+    # }}}
+
+    is_compatible: () -> # {{{
+        if not window.document.createRange
+            throw this.CREATE_RANGE_ERR
+        # Check if Internet Explorer >= 8 as getClientRects returns physical
+        # rather than logical pixels on older IE
+        div = document.createElement('div')
+        ver = 3
+        while true
+            div.innerHTML = "<!--[if gt IE #{ ++ver }]><i></i><![endif]-->"
+            if div.getElementsByTagName('i').length == 0
+                break
+        if ver > 4 and ver < 8
+            # We have IE < 8
+            throw this.IE_ERR
+    # }}}
+
+    set_current_time: (target, val) -> # {{{
+        if target.currentTime == undefined
+            return
+        if target.readyState == 4 or target.readyState == "complete"
+            target.currentTime = val
+        else
+            fn = -> target.currentTime = val
+            target.addEventListener("canplay", fn, false)
+    #}}}
 
     encode: (doc, node, offset, tail) -> # {{{
         cfi = tail or ""
@@ -64,7 +172,7 @@ class CanonicalFragmentIdentifier
         # Handle the offset, if any
         switch node.nodeType
             when 1 # Element node
-                if typeoff(offset) == 'number'
+                if typeof(offset) == 'number'
                     node = node.childNodes.item(offset)
             when 3, 4, 5, 6 # Text/entity/CDATA node
                 offset or= 0
@@ -89,12 +197,12 @@ class CanonicalFragmentIdentifier
                         cfi = "!" + cfi
                         continue
                 break
-            # Increase index by the length of all previous sibling text nodes
+            # Find position of node in parent
             index = 0
             child = p.firstChild
             while true
-                index |= 1
-                if child.nodeType in [1, 7]
+                index |= 1 # Increment index by 1 if it is even
+                if child.nodeType == 1
                     index++
                 if child == node
                     break
@@ -117,8 +225,8 @@ class CanonicalFragmentIdentifier
         error = null
         node = doc
 
-        until cfi.length <= 0 or error
-            if ( (r = cfi.match(simple_node_regex)) is not null ) # Path step
+        until cfi.length < 1 or error
+            if (r = cfi.match(simple_node_regex)) # Path step
                 target = parseInt(r[1])
                 assertion = r[2]
                 if assertion
@@ -136,11 +244,18 @@ class CanonicalFragmentIdentifier
                             error = "No matching child found for CFI: " + cfi
                         break
                     index |= 1 # Increment index by 1 if it is even
-                    if child.nodeType in [1, 7] # We have an element or a PI
+                    if child.nodeType == 1
                         index++
                     if ( index == target )
                         cfi = cfi.substr(r[0].length)
                         node = child
+                        if assertion and node.id != assertion
+                            # The found child does not match the id assertion,
+                            # trust the id assertion if an element with that id
+                            # exists
+                            child = doc.getElementById(assertion)
+                            if child
+                                node = child
                         break
                     child = child.nextSibling
 
@@ -198,7 +313,9 @@ class CanonicalFragmentIdentifier
                 next = false
                 while true
                     nn = node.nextSibling
-                    if nn.nodeType in [3, 4, 5, 6] # Text node, entity, cdata
+                    if not nn
+                        break
+                    if nn.nodeType in [3, 4, 5, 6] and nn.nodeValue?.length # Text node, entity, cdata
                         next = nn
                         break
                 if not next
@@ -253,7 +370,7 @@ class CanonicalFragmentIdentifier
         (if target.parentNode then target.parentNode else target).normalize()
 
         if name in ['audio', 'video']
-            tail = "~" + fstr target.currentTime
+            tail = "~" + get_current_time(target)
 
         if name in ['img', 'video']
             px = ((x + cwin.scrollX - target.offsetLeft)*100)/target.offsetWidth
@@ -265,9 +382,12 @@ class CanonicalFragmentIdentifier
                 if range
                     target = range.startContainer
                     offset = range.startOffset
+                else
+                    throw "Failed to find range from point (#{ x }, #{ y })"
+            else if cdoc.createRange
+                [target, offset] = find_offset_for_point(x, y, target, cdoc)
             else
-                # TODO: implement a span bisection algorithm for UAs
-                # without caretRangeFromPoint (Gecko, IE)
+                throw this.CREATE_RANGE_ERR
 
         this.encode(doc, target, offset, tail)
     # }}}
@@ -285,52 +405,102 @@ class CanonicalFragmentIdentifier
         nwin = ndoc.defaultView
         x = null
         y = null
+        range = null
 
         if typeof(r.offset) == "number"
             # Character offset
+            if not ndoc.createRange
+                throw this.CREATE_RANGE_ERR
             range = ndoc.createRange()
             if r.forward
                 try_list = [{start:0, end:0, a:0.5}, {start:0, end:1, a:1}, {start:-1, end:0, a:0}]
             else
                 try_list = [{start:0, end:0, a:0.5}, {start:-1, end:0, a:0}, {start:0, end:1, a:1}]
-            k = 0
             a = null
             rects = null
             node_len = node.nodeValue.length
-            until rects or rects.length or k >= try_list.length
-                t = try_list[k++]
-                start_offset = r.offset + t.start
-                end_offset = r.offset + t.end
-                a = t.a
-                if start_offset < 0 or end_offset >= node_len
-                    continue
-                range.setStart(node, start_offset)
-                range.setEnd(node, end_offset)
-                rects = range.getClientRects()
+            offset = r.offset
+            for i in [0, 1]
+                # Try reducing the offset by 1 if we get no match as if it refers to the position after the
+                # last character we wont get a match with getClientRects
+                offset = r.offset - i
+                if offset < 0
+                    offset = 0
+                k = 0
+                until rects?.length or k >= try_list.length
+                    t = try_list[k++]
+                    start_offset = offset + t.start
+                    end_offset = offset + t.end
+                    a = t.a
+                    if start_offset < 0 or end_offset >= node_len
+                        continue
+                    range.setStart(node, start_offset)
+                    range.setEnd(node, end_offset)
+                    rects = range.getClientRects()
+                if rects?.length
+                    break
 
-            if not rects or not rects.length
+
+            if not rects?.length
                 log("Could not find caret position: rects: #{ rects } offset: #{ r.offset }")
                 return null
 
-            rect = rects[0]
-            x = (a*rect.left + (1-a)*rect.right)
-            y = (rect.top + rect.bottom)/2
         else
-            x = node.offsetLeft - nwin.scrollX
-            y = node.offsetTop - nwin.scrollY
-            if typeof(r.x) == "number" and node.offsetWidth
-                x += (r.x*node.offsetWidth)/100
-                y += (r.y*node.offsetHeight)/100
+            [x, y] = [r.x, r.y]
 
-        until ndoc == doc
-            node = nwin.frameElement
+        {x:x, y:y, node:r.node, time:r.time, range:range, a:a}
+
+    # }}}
+
+    scroll_to: (cfi, callback=false, doc=window?.document) -> # {{{
+        point = this.point(cfi, doc)
+        if not point
+            log("No point found for cfi: #{ cfi }")
+            return
+        if typeof point.time == 'number'
+            this.set_current_time(point.node, point.time)
+
+        if point.range != null
+            r = point.range
+            node = r.startContainer
             ndoc = node.ownerDocument
             nwin = ndoc.defaultView
-            x += node.offsetLeft - nwin.scrollX
-            y += node.offsetTop - nwin.scrollY
+            span = ndoc.createElement('span')
+            span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
+            r.surroundContents(span)
+            span.scrollIntoView()
+            fn = ->
+                rect = span.getBoundingClientRect()
+                x = (point.a*rect.left + (1-point.a)*rect.right)
+                y = (rect.top + rect.bottom)/2
+                [x, y] = viewport_to_document(x, y, ndoc)
+                tn = if span.firstChild then span.firstChild.nodeValue else ''
+                tn = ndoc.createTextNode(tn)
+                p = span.parentNode
+                p.insertBefore(tn, span)
+                p.removeChild(span)
+                p.normalize()
+                if callback
+                    callback(x, y)
+        else
+            node = point.node
+            nwin = node.ownerDocument.defaultView
+            node.scrollIntoView()
 
-        {x:x, y:y, node:r.node, time:r.time}
+            fn = ->
+                rect = node.getBoundingClientRect()
+                [x, y] = viewport_to_document(rect.left, rect.top, node.ownerDocument)
+                if typeof(point.x) == 'number' and node.offsetWidth
+                    x += (r.x*node.offsetWidth)/100
+                if typeof(point.y) == 'number' and node.offsetHeight
+                    y += (r.y*node.offsetHeight)/100
+                scrollTo(x, y)
+                if callback
+                    callback(x, y)
 
+        setTimeout(fn, 10)
+
+        null
     # }}}
 
 if window?
