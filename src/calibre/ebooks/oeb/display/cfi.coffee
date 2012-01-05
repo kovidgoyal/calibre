@@ -69,14 +69,15 @@ get_current_time = (target) -> # {{{
 
 viewport_to_document = (x, y, doc) -> # {{{
     win = doc.defaultView
-    x += win.scrollX
-    y += win.scrollY
+    x += if win.scrollX then win.scrollX else 0
+    y += if win.scrollY then win.scrollY else 0
+
     if doc != window.document
         # We are in a frame
         node = win.frameElement
         rect = node.getBoundingClientRect()
         return viewport_to_document(rect.left, rect.top, node.ownerDocument)
-    return [x + win.scrollX, y + win.scrollY]
+    return [x, y]
 # }}}
 
 # Equivalent for caretRangeFromPoint for non WebKit browsers {{{
@@ -146,6 +147,15 @@ class CanonicalFragmentIdentifier
     constructor: () -> # {{{
         this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
         this.IE_ERR = "Your browser is too old. You need Internet Explorer version 8 or newer."
+        div = document.createElement('div')
+        ver = 3
+        while true
+            div.innerHTML = "<!--[if gt IE #{ ++ver }]><i></i><![endif]-->"
+            if div.getElementsByTagName('i').length == 0
+                break
+        this.iever = ver
+        this.isie = ver > 4
+
     # }}}
 
     is_compatible: () -> # {{{
@@ -153,13 +163,7 @@ class CanonicalFragmentIdentifier
             throw this.CREATE_RANGE_ERR
         # Check if Internet Explorer >= 8 as getClientRects returns physical
         # rather than logical pixels on older IE
-        div = document.createElement('div')
-        ver = 3
-        while true
-            div.innerHTML = "<!--[if gt IE #{ ++ver }]><i></i><![endif]-->"
-            if div.getElementsByTagName('i').length == 0
-                break
-        if ver > 4 and ver < 8
+        if this.isie and this.iever < 8
             # We have IE < 8
             throw this.IE_ERR
     # }}}

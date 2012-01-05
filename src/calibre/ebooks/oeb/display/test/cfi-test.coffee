@@ -28,7 +28,7 @@ mark_and_reload = (evt) ->
     # Remove image in case the click was on the image itself, we want the cfi to
     # be on the underlying element
     ms = document.getElementById("marker")
-    ms.parentNode.removeChild(ms)
+    ms.parentNode?.removeChild(ms)
 
     fn = () ->
         window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
