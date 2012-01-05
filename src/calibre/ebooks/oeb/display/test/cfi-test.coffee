@@ -22,18 +22,18 @@ viewport_left = (node) ->
 show_cfi = (dont_seek) ->
     if window.current_cfi
         pos = window.cfi.point(window.current_cfi)
-        ms = document.getElementById("marker").style
         if pos
-            ms.visibility = "visible"
-            ms.top = (pos.y - 30) + window.scrollY + "px"
-            ms.left = (pos.x - 1) + window.scrollX + "px"
+            ms = $("#marker")
+            ms.offset({left:pos.x-1, top:pos.y-30})
+            ms.css('visibility', 'visible')
             if not dont_seek
                 if typeof pos.time == "number"
                     window.cfi.set_current_time(pos.node, pos.time)
                 scrollTo(0, pos.y - 30)
     null
 
-RELOAD = true
+# Set this to true to have the browser reload the page with the current cfi
+RELOAD = false
 
 mark_and_reload = (evt) ->
     window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)

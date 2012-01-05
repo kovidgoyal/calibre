@@ -4,9 +4,11 @@
 ###
  Copyright 2011, Kovid Goyal <kovid@kovidgoyal.net>
  Released under the GPLv3 License
- Based on code originally written by Peter Sorotkin (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
+ Based on code originally written by Peter Sorotkin
+ (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
 
- This script requires the createRange method on the document object that must create a W3C compliant range object
+ To check if this script is compatible with the current browser, call
+ window.cfi.is_compatible() it will throw an exception if not compatible.
 ###
 
 log = (error) -> # {{{
@@ -118,11 +120,24 @@ class CanonicalFragmentIdentifier
     # object
 
     constructor: () ->
-        this.COMPAT_ERR = "Your browser does not support the createRange function. Update it to a newer version."
+        this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
+        this.IE_ERR = "Your browser is too old. You need Internet Explorer version 8 or newer."
+        this.is_compatible()
 
     is_compatible: () ->
         if not window.document.createRange
-            throw this.COMPAT_ERR
+            throw this.CREATE_RANGE_ERR
+        # Check if Internet Explorer >= 8 as getClientRects returns physical
+        # rather than logical pixels on older IE
+        div = document.createElement('div')
+        ver = 3
+        while true
+            div.innerHTML = "<!--[if gt IE #{ ++ver }]><i></i><![endif]-->"
+            if div.getElementsByTagName('i').length == 0
+                break
+        if ver > 4 and ver < 8
+            # We have IE < 8
+            throw this.IE_ERR
 
     set_current_time: (target, val) -> # {{{
         if target.currentTime == undefined
@@ -353,7 +368,7 @@ class CanonicalFragmentIdentifier
             else if cdoc.createRange
                 [target, offset] = find_offset_for_point(x, y, target, cdoc)
             else
-                throw this.COMPAT_ERR
+                throw this.CREATE_RANGE_ERR
 
         this.encode(doc, target, offset, tail)
     # }}}
@@ -375,7 +390,7 @@ class CanonicalFragmentIdentifier
         if typeof(r.offset) == "number"
             # Character offset
             if not ndoc.createRange
-                throw this.COMPAT_ERR
+                throw this.CREATE_RANGE_ERR
             range = ndoc.createRange()
             if r.forward
                 try_list = [{start:0, end:0, a:0.5}, {start:0, end:1, a:1}, {start:-1, end:0, a:0}]

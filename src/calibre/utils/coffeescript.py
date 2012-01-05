@@ -70,7 +70,7 @@ class HTTPD(SocketServer.TCPServer):
 
 def serve(resources={}, port=8000):
     Handler.special_resources = resources
-    httpd = HTTPD(('localhost', port), Handler)
+    httpd = HTTPD(('0.0.0.0', port), Handler)
     print('serving at localhost:%d'%port)
     try:
         httpd.serve_forever()
