@@ -6,6 +6,10 @@
  Released under the GPLv3 License
  Based on code originally written by Peter Sorotkin
  (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
+ Improvements with respect to that code:
+ 1. Works on all browsers (WebKit, Firefox and IE >= 8)
+ 2. Works if the point is after the last text character in an element
+ 3. Works for elements that are scrollable (i.e. have their own scrollbars)
 
  To check if this script is compatible with the current browser, call
  window.cfi.is_compatible() it will throw an exception if not compatible.
@@ -470,7 +474,12 @@ class CanonicalFragmentIdentifier
                 x = (point.a*rect.left + (1-point.a)*rect.right)
                 y = (rect.top + rect.bottom)/2
                 [x, y] = viewport_to_document(x, y, ndoc)
-                span.outerHTML = span.innerHTML
+                tn = if span.firstChild then span.firstChild.nodeValue else ''
+                tn = ndoc.createTextNode(tn)
+                p = span.parentNode
+                p.insertBefore(tn, span)
+                p.removeChild(span)
+                p.normalize()
                 if callback
                     callback(x, y)
         else

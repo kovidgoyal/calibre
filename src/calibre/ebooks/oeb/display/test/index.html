@@ -3,7 +3,6 @@
     <head>
         <title>Testing CFI functionality</title>
         <script type="text/javascript" src="cfi.coffee"></script>
-        <script type="text/javascript" src="jquery.js"></script>
         <script type="text/javascript" src="cfi-test.coffee"></script>
         <style type="text/css">
             body { font-family: sans-serif }
@@ -35,7 +34,7 @@
     <body>
         <div id="container">
             <h1 id="first-h1">Testing EPUB CFI</h1>
-            <div>Current CFI:&nbsp;<span id="current-cfi">None</span></div>
+            <div id="current-cfi">Current CFI:&nbsp;None</div>
             <h2>A div with scrollbars</h2>
             <div id="overflow"> But I must explain to you how all this mistaken
                 idea of denouncing pleasure and praising pain was born and I
@@ -59,7 +58,7 @@
                 by desire, that they cannot foresee
             </div>
         </div>
-        <img id="marker" style="position: absolute; visibility: hidden; z-index:10" src="marker.png" alt="Marker" />
+        <img id="marker" style="position: absolute; display:none; z-index:10" src="marker.png" alt="Marker" />
     </body>
 </html>
 

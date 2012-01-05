@@ -13,47 +13,42 @@ log = (error) ->
         else if process?.stdout?.write
             process.stdout.write(error + '\n')
 
-viewport_top = (node) ->
-    $(node).offset().top - window.pageYOffset
-
-viewport_left = (node) ->
-    $(node).offset().left - window.pageXOffset
-
-show_cfi = (dont_seek) ->
+show_cfi = () ->
     if window.current_cfi
         fn = (x, y) ->
-            ms = $("#marker")
-            ms.css('visibility', 'visible')
-            # This strange sequence is needed to get it to work in Chrome
-            # when called from the onload handler
-            ms.offset({left:x-1, top:y-30})
-            ms.offset()
-            ms.offset({left:x-1, top:y-30})
-
+            ms = document.getElementById("marker").style
+            ms.display = 'block'
+            ms.top = y - 30 + 'px'
+            ms.left = x - 1 + 'px'
 
         window.cfi.scroll_to(window.current_cfi, fn)
     null
 
-
 mark_and_reload = (evt) ->
-    window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
-    if window.current_cfi
-        fn = () ->
+    # Remove image in case the click was on the image itself, we want the cfi to
+    # be on the underlying element
+    ms = document.getElementById("marker")
+    ms.parentNode.removeChild(ms)
+
+    fn = () ->
+        window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
+        if window.current_cfi
             epubcfi = "#epubcfi(#{ window.current_cfi })"
             newloc = window.location.href.replace(/#.*$/, '') + epubcfi
             window.location.replace(newloc)
             document.getElementById('current-cfi').innerHTML = window.current_cfi
             window.location.reload()
 
-        setTimeout(fn, 1)
+    setTimeout(fn, 1)
     null
 
 window.onload = ->
-    window.onscroll = show_cfi
-    window.onresize = show_cfi
+    try
+        window.cfi.is_compatible()
+    catch error
+        alert(error)
+        return
     document.onclick = mark_and_reload
-    for iframe in document.getElementsByTagName("iframe")
-        iframe.contentWindow.onscroll = show_cfi
     r = location.hash.match(/#epubcfi\((.+)\)$/)
     if r
         window.current_cfi = r[1]
