@@ -21,30 +21,29 @@ viewport_left = (node) ->
 
 show_cfi = (dont_seek) ->
     if window.current_cfi
-        pos = window.cfi.point(window.current_cfi)
-        if pos
+        fn = (x, y) ->
             ms = $("#marker")
-            ms.offset({left:pos.x-1, top:pos.y-30})
             ms.css('visibility', 'visible')
-            if not dont_seek
-                if typeof pos.time == "number"
-                    window.cfi.set_current_time(pos.node, pos.time)
-                scrollTo(0, pos.y - 30)
+            # This strange sequence is needed to get it to work in Chrome
+            # when called from the onload handler
+            ms.offset({left:x-1, top:y-30})
+            ms.offset()
+            ms.offset({left:x-1, top:y-30})
+
+
+        window.cfi.scroll_to(window.current_cfi, fn)
     null
 
-# Set this to true to have the browser reload the page with the current cfi
-RELOAD = false
 
 mark_and_reload = (evt) ->
     window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
-    if not RELOAD
-        show_cfi(true)
     if window.current_cfi
         fn = () ->
-            newloc = window.location.href.replace(/#.*$/, '') + "#epubcfi(#{ window.current_cfi })"
+            epubcfi = "#epubcfi(#{ window.current_cfi })"
+            newloc = window.location.href.replace(/#.*$/, '') + epubcfi
             window.location.replace(newloc)
-            if RELOAD
-                window.location.reload()
+            document.getElementById('current-cfi').innerHTML = window.current_cfi
+            window.location.reload()
 
         setTimeout(fn, 1)
     null
@@ -58,7 +57,7 @@ window.onload = ->
     r = location.hash.match(/#epubcfi\((.+)\)$/)
     if r
         window.current_cfi = r[1]
-        setTimeout(show_cfi, 1)
+        document.getElementById('current-cfi').innerHTML = window.current_cfi
+        setTimeout(show_cfi, 100)
     null
-
 

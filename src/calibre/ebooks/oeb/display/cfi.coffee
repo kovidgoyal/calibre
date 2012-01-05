@@ -63,6 +63,18 @@ get_current_time = (target) -> # {{{
     fstr(ans)
 # }}}
 
+viewport_to_document = (x, y, doc) -> # {{{
+    win = doc.defaultView
+    x += win.scrollX
+    y += win.scrollY
+    if doc != window.document
+        # We are in a frame
+        node = win.frameElement
+        rect = node.getBoundingClientRect()
+        return viewport_to_document(rect.left, rect.top, node.ownerDocument)
+    return [x + win.scrollX, y + win.scrollY]
+# }}}
+
 # Equivalent for caretRangeFromPoint for non WebKit browsers {{{
 range_has_point = (range, x, y) ->
     for rect in range.getClientRects()
@@ -297,7 +309,9 @@ class CanonicalFragmentIdentifier
                 next = false
                 while true
                     nn = node.nextSibling
-                    if nn.nodeType in [3, 4, 5, 6] # Text node, entity, cdata
+                    if not nn
+                        break
+                    if nn.nodeType in [3, 4, 5, 6] and nn.nodeValue?.length # Text node, entity, cdata
                         next = nn
                         break
                 if not next
@@ -387,6 +401,7 @@ class CanonicalFragmentIdentifier
         nwin = ndoc.defaultView
         x = null
         y = null
+        range = null
 
         if typeof(r.offset) == "number"
             # Character offset
@@ -421,29 +436,62 @@ class CanonicalFragmentIdentifier
                 if rects?.length
                     break
 
+
             if not rects?.length
                 log("Could not find caret position: rects: #{ rects } offset: #{ r.offset }")
                 return null
 
-            rect = rects[0]
-            x = (a*rect.left + (1-a)*rect.right)
-            y = (rect.top + rect.bottom)/2
         else
-            x = node.offsetLeft - nwin.scrollX
-            y = node.offsetTop - nwin.scrollY
-            if typeof(r.x) == "number" and node.offsetWidth
-                x += (r.x*node.offsetWidth)/100
-                y += (r.y*node.offsetHeight)/100
+            [x, y] = [r.x, r.y]
 
-        until ndoc == doc
-            node = nwin.frameElement
+        {x:x, y:y, node:r.node, time:r.time, range:range, a:a}
+
+    # }}}
+
+    scroll_to: (cfi, callback=false, doc=window?.document) -> # {{{
+        point = this.point(cfi, doc)
+        if not point
+            log("No point found for cfi: #{ cfi }")
+            return
+        if typeof point.time == 'number'
+            this.set_current_time(point.node, point.time)
+
+        if point.range != null
+            r = point.range
+            node = r.startContainer
             ndoc = node.ownerDocument
             nwin = ndoc.defaultView
-            x += node.offsetLeft - nwin.scrollX
-            y += node.offsetTop - nwin.scrollY
+            span = ndoc.createElement('span')
+            span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
+            r.surroundContents(span)
+            span.scrollIntoView()
+            fn = ->
+                rect = span.getBoundingClientRect()
+                x = (point.a*rect.left + (1-point.a)*rect.right)
+                y = (rect.top + rect.bottom)/2
+                [x, y] = viewport_to_document(x, y, ndoc)
+                span.outerHTML = span.innerHTML
+                if callback
+                    callback(x, y)
+        else
+            node = point.node
+            nwin = node.ownerDocument.defaultView
+            node.scrollIntoView()
 
-        {x:x, y:y, node:r.node, time:r.time}
+            fn = ->
+                rect = node.getBoundingClientRect()
+                [x, y] = viewport_to_document(rect.left, rect.top, node.ownerDocument)
+                if typeof(point.x) == 'number' and node.offsetWidth
+                    x += (r.x*node.offsetWidth)/100
+                if typeof(point.y) == 'number' and node.offsetHeight
+                    y += (r.y*node.offsetHeight)/100
+                scrollTo(x, y)
+                if callback
+                    callback(x, y)
 
+        setTimeout(fn, 10)
+
+        null
     # }}}
 
 if window?
