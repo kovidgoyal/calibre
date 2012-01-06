@@ -5,13 +5,18 @@
  Copyright 2011, Kovid Goyal <kovid@kovidgoyal.net>
  Released under the GPLv3 License
  Based on code originally written by Peter Sorotkin
- (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
+ http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js
+
  Improvements with respect to that code:
  1. Works on all browsers (WebKit, Firefox and IE >= 8)
- 2. Works for elements that are scrollable (i.e. have their own scrollbars)
+ 2. Works for content in elements that are scrollable (i.e. have their own scrollbars)
+ 3. Much more comprehensive testing/error handling
+ 4. Properly encodes/decodes assertions
 
  To check if this script is compatible with the current browser, call
  window.cfi.is_compatible() it will throw an exception if not compatible.
+
+ Tested on: Firefox 9, IE 9, Chromium 16, Qt WebKit 2.1
 ###
 
 log = (error) -> # {{{
