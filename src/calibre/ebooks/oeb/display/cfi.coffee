@@ -143,16 +143,18 @@ find_offset_for_point = (x, y, node, cdoc) ->
 
 class CanonicalFragmentIdentifier
 
-    # This class is a namespace to expose CFI functions via the window.cfi
-    # object. The three most important functions are:
-    #
-    # is_compatible(): Throws an error if the browser is not compatible with
-    #                  this script
-    #
-    # at(x, y): which maps a point to a CFI, if possible
-    #
-    # scroll_to(cfi): which scrolls the browser to a point corresponding to the
-    #                 given cfi, and returns the x and y co-ordinates of the point.
+    ###
+    This class is a namespace to expose CFI functions via the window.cfi
+    object. The three most important functions are:
+
+    is_compatible(): Throws an error if the browser is not compatible with
+                     this script
+
+    at(x, y): which maps a point to a CFI, if possible
+
+    scroll_to(cfi): which scrolls the browser to a point corresponding to the
+                    given cfi, and returns the x and y co-ordinates of the point.
+    ###
 
     constructor: () -> # {{{
         this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
