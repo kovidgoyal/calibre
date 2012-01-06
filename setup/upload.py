@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, subprocess, hashlib, shutil, glob, stat, sys
+import os, re, subprocess, hashlib, shutil, glob, stat, sys, time
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp
 from zipfile import ZipFile
@@ -82,7 +82,7 @@ def get_sourceforge_data():
     return {'username':'kovidgoyal', 'project':'calibre'}
 
 def send_data(loc):
-    subprocess.check_call(['rsync', '--delete', '-r', '-z', '-h', '--progress', '-e', 'ssh -x',
+    subprocess.check_call(['rsync', '--inplace', '--delete', '-r', '-z', '-h', '--progress', '-e', 'ssh -x',
         loc+'/', '%s@%s:%s'%(STAGING_USER, STAGING_HOST, STAGING_DIR)])
 
 def gc_cmdline(ver, gdata):
@@ -105,8 +105,8 @@ def run_remote_upload(args):
 
 class UploadInstallers(Command): # {{{
 
-    def add_option(self, parser):
-        parser.add_option('--replace', help=
+    def add_options(self, parser):
+        parser.add_option('--replace', default=False, action='store_true', help=
                 'Replace existing installers, when uploading to google')
 
     def run(self, opts):
@@ -134,7 +134,12 @@ class UploadInstallers(Command): # {{{
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
             for f, desc in files.iteritems():
                 fo.write('%s: %s\n'%(f, desc))
-        send_data(tdir)
+        try:
+            send_data(tdir)
+        except:
+            print('\nUpload to staging failed, retrying in a minute')
+            time.sleep(60)
+            send_data(tdir)
 
     def upload_to_google(self, replace):
         gdata = get_google_data()
