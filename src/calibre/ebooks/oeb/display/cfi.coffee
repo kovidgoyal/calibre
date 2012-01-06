@@ -8,8 +8,7 @@
  (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
  Improvements with respect to that code:
  1. Works on all browsers (WebKit, Firefox and IE >= 8)
- 2. Works if the point is after the last text character in an element
- 3. Works for elements that are scrollable (i.e. have their own scrollbars)
+ 2. Works for elements that are scrollable (i.e. have their own scrollbars)
 
  To check if this script is compatible with the current browser, call
  window.cfi.is_compatible() it will throw an exception if not compatible.
@@ -69,14 +68,25 @@ get_current_time = (target) -> # {{{
 
 viewport_to_document = (x, y, doc) -> # {{{
     win = doc.defaultView
-    x += win.scrollX
-    y += win.scrollY
+    if typeof(win.pageXOffset) == 'number'
+        x += win.pageXOffset
+        y += win.pageYOffset
+    else # IE < 9
+        if document.body and ( document.body.scrollLeft or document.body.scrollTop )
+            x += document.body.scrollLeft
+            y += document.body.scrollTop
+        else if document.documentElement and ( document.documentElement.scrollLeft or document.documentElement.scrollTop)
+            y += document.documentElement.scrollTop
+            x += document.documentElement.scrollLeft
+
     if doc != window.document
         # We are in a frame
         node = win.frameElement
         rect = node.getBoundingClientRect()
-        return viewport_to_document(rect.left, rect.top, node.ownerDocument)
-    return [x + win.scrollX, y + win.scrollY]
+        [vx, vy] = viewport_to_document(rect.left, rect.top, node.ownerDocument)
+        x += vx
+        y += vy
+    return [x, y]
 # }}}
 
 # Equivalent for caretRangeFromPoint for non WebKit browsers {{{
@@ -124,20 +134,37 @@ find_offset_for_point = (x, y, node, cdoc) ->
 
     if not last_child
         throw "#{node} has no children"
-    # The point must be after the last bit of text
-    pos = 0
-    return [last_child, last_child.nodeValue.length]
+    # The point must be after the last bit of text/in the padding/border, we dont know
+    # how to get a good point in this case
+    throw "Point (#{x}, #{y}) is in the padding/border of #{node}, so cannot calculate offset"
 
 # }}}
 
 class CanonicalFragmentIdentifier
 
     # This class is a namespace to expose CFI functions via the window.cfi
-    # object
+    # object. The three most important functions are:
+    #
+    # is_compatible(): Throws an error if the browser is not compatible with
+    #                  this script
+    #
+    # at(x, y): which maps a point to a CFI, if possible
+    #
+    # scroll_to(cfi): which scrolls the browser to a point corresponding to the
+    #                 given cfi, and returns the x and y co-ordinates of the point.
 
     constructor: () -> # {{{
         this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
         this.IE_ERR = "Your browser is too old. You need Internet Explorer version 8 or newer."
+        div = document.createElement('div')
+        ver = 3
+        while true
+            div.innerHTML = "<!--[if gt IE #{ ++ver }]><i></i><![endif]-->"
+            if div.getElementsByTagName('i').length == 0
+                break
+        this.iever = ver
+        this.isie = ver > 4
+
     # }}}
 
     is_compatible: () -> # {{{
@@ -145,13 +172,7 @@ class CanonicalFragmentIdentifier
             throw this.CREATE_RANGE_ERR
         # Check if Internet Explorer >= 8 as getClientRects returns physical
         # rather than logical pixels on older IE
-        div = document.createElement('div')
-        ver = 3
-        while true
-            div.innerHTML = "<!--[if gt IE #{ ++ver }]><i></i><![endif]-->"
-            if div.getElementsByTagName('i').length == 0
-                break
-        if ver > 4 and ver < 8
+        if this.isie and this.iever < 8
             # We have IE < 8
             throw this.IE_ERR
     # }}}
@@ -178,9 +199,11 @@ class CanonicalFragmentIdentifier
                 offset or= 0
                 while true
                     p = node.previousSibling
-                    if (p?.nodeType not in [3, 4, 5, 6])
+                    if not p or p.nodeType > 8
                         break
-                    offset += p.nodeValue.length
+                    # log("previous sibling:"+ p + " " + p?.nodeType + " length: " + p?.nodeValue?.length)
+                    if p.nodeType not in [2, 8] and p.nodeValue?.length?
+                        offset += p.nodeValue.length
                     node = p
                 cfi = ":" + offset + cfi
             else # Not handled
@@ -246,7 +269,7 @@ class CanonicalFragmentIdentifier
                     index |= 1 # Increment index by 1 if it is even
                     if child.nodeType == 1
                         index++
-                    if ( index == target )
+                    if index == target
                         cfi = cfi.substr(r[0].length)
                         node = child
                         if assertion and node.id != assertion
@@ -318,6 +341,7 @@ class CanonicalFragmentIdentifier
                     if nn.nodeType in [3, 4, 5, 6] and nn.nodeValue?.length # Text node, entity, cdata
                         next = nn
                         break
+                    node = nn
                 if not next
                     if offset > len
                         error = "Offset out of range: #{ offset }"
@@ -377,14 +401,11 @@ class CanonicalFragmentIdentifier
             py = ((y + cwin.scrollY - target.offsetTop)*100)/target.offsetHeight
             tail = "#{ tail }@#{ fstr px },#{ fstr py }"
         else if name != 'audio'
-            if cdoc.caretRangeFromPoint # WebKit
-                range = cdoc.caretRangeFromPoint(x, y)
-                if range
-                    target = range.startContainer
-                    offset = range.startOffset
-                else
-                    throw "Failed to find range from point (#{ x }, #{ y })"
-            else if cdoc.createRange
+            # Get the text offset
+            # We use a custom function instead of caretRangeFromPoint as
+            # caretRangeFromPoint does weird things when the point falls in the
+            # padding of the element
+            if cdoc.createRange
                 [target, offset] = find_offset_for_point(x, y, target, cdoc)
             else
                 throw this.CREATE_RANGE_ERR
@@ -461,7 +482,9 @@ class CanonicalFragmentIdentifier
             this.set_current_time(point.node, point.time)
 
         if point.range != null
+            # Character offset
             r = point.range
+            [so, eo, sc, ec] = [r.startOffset, r.endOffset, r.startContainer, r.endContainer]
             node = r.startContainer
             ndoc = node.ownerDocument
             nwin = ndoc.defaultView
@@ -470,16 +493,21 @@ class CanonicalFragmentIdentifier
             r.surroundContents(span)
             span.scrollIntoView()
             fn = ->
-                rect = span.getBoundingClientRect()
+                # Remove the span we inserted
+                p = span.parentNode
+                for node in span.childNodes
+                    span.removeChild(node)
+                    p.insertBefore(node, span)
+                p.removeChild(span)
+                p.normalize()
+
+                # Reset the range to what it was before span
+                r.setStart(sc, so)
+                r.setEnd(ec, eo)
+                rect = r.getClientRects()[0]
                 x = (point.a*rect.left + (1-point.a)*rect.right)
                 y = (rect.top + rect.bottom)/2
                 [x, y] = viewport_to_document(x, y, ndoc)
-                tn = if span.firstChild then span.firstChild.nodeValue else ''
-                tn = ndoc.createTextNode(tn)
-                p = span.parentNode
-                p.insertBefore(tn, span)
-                p.removeChild(span)
-                p.normalize()
                 if callback
                     callback(x, y)
         else

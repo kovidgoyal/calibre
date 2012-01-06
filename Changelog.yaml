@@ -19,6 +19,56 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.34
+  date: 2011-01-06
+
+  new features:
+    - title: "Apple driver: Set the year field in iTunes based on the published date in calibre." 
+      tickets: [909050]
+
+    - title: "EPUB Input: When converting a file that has entries in the manifest that do no exist, remove them, instead of aborting the conversion."
+      tickets: [910933]
+
+    - title: "Kindle driver: Ensure page counts are correctly sent to the device when connecting to Kindle 4/Touch."
+      tickets: [910279]
+
+    - title: "Allow user to set the number of recently viewed books shown in the dropdown menu of the view button, via a tweak in Preferences->Tweaks."
+      tickets: [910292]
+ 
+  bug fixes:
+    - title: "Fix regression in 0.8.33 that caused calibre to crash when starting the Content Server, if the port the content server is trying to listen on is blocked/busy."
+      tickets: [910512]
+
+    - title: "MOBI Input: Fix regression that caused a mixup of images when the MOBI file header contains an incorrect first image index pointer."
+      tickets: [911243]
+
+    - title: "Do not remove leading and trailing spaces from the replace fields in the Search and Replace conversion options"
+      tickets: [910523]
+
+    - title: "Conversion pipeline: Fix regression in 0.8.31 that broke parsing of documents containing a self closing <title/> tag."
+      tickets: [910325]
+
+  improved recipes:
+    - Kopalnia Wiedzy
+    - Alternet
+    - Tagesspiegel
+    - Philadelphia Inquirer
+    - Seattle Times
+    - La Razon
+
+  new recipes:
+    - title: Various Italian news sources 
+      author: faber1971
+
+    - title: money.pl 
+      author: intromatyk
+
+    - title: Diario Rio Negro
+      author: Darko Miletic.
+
+    - title: FHM UK 
+      author: Dave Asbury
+
 - version: 0.8.33
   date: 2011-12-30
 

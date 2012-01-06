@@ -18,7 +18,7 @@ except ImportError:
 
 def run_devel_server():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    serve(resources={'cfi.coffee':'../cfi.coffee'})
+    serve(resources={'cfi.coffee':'../cfi.coffee', '/':'index.html'})
 
 if __name__ == '__main__':
     run_devel_server()

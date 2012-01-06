@@ -344,6 +344,9 @@ class GoogleCode(Base):# {{{
 
 class SourceForge(Base): # {{{
 
+    # Note that you should manually ssh once to username,project@frs.sourceforge.net
+    # on the staging server so that the host key is setup
+
     def __init__(self, files, project, version, username, replace=False):
         self.username, self.project, self.version = username, project, version
         self.base = '/home/frs/project/c/ca/'+project

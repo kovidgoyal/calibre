@@ -24,19 +24,29 @@ show_cfi = () ->
         window.cfi.scroll_to(window.current_cfi, fn)
     null
 
+window_ypos = (pos=null) ->
+    if pos == null
+        return window.pageYOffset
+    window.scrollTo(0, pos)
+
 mark_and_reload = (evt) ->
     # Remove image in case the click was on the image itself, we want the cfi to
     # be on the underlying element
     ms = document.getElementById("marker")
-    ms.parentNode.removeChild(ms)
+    if ms
+        ms.parentNode?.removeChild(ms)
 
     fn = () ->
-        window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
+        try
+            window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
+        catch err
+            alert("Failed to calculate cfi: #{ err }")
+            return
         if window.current_cfi
-            epubcfi = "#epubcfi(#{ window.current_cfi })"
-            newloc = window.location.href.replace(/#.*$/, '') + epubcfi
+            epubcfi = "epubcfi(#{ window.current_cfi })"
+            ypos = window_ypos()
+            newloc = window.location.href.replace(/#.*$/, '') + "#" + ypos + epubcfi
             window.location.replace(newloc)
-            document.getElementById('current-cfi').innerHTML = window.current_cfi
             window.location.reload()
 
     setTimeout(fn, 1)
@@ -49,10 +59,15 @@ window.onload = ->
         alert(error)
         return
     document.onclick = mark_and_reload
-    r = location.hash.match(/#epubcfi\((.+)\)$/)
+    r = location.hash.match(/#(\d*)epubcfi\((.+)\)$/)
     if r
-        window.current_cfi = r[1]
-        document.getElementById('current-cfi').innerHTML = window.current_cfi
-        setTimeout(show_cfi, 100)
+        window.current_cfi = r[2]
+        ypos = if r[1] then 0+r[1] else 0
+        base = document.getElementById('first-h1').innerHTML
+        document.title = base + ": " + window.current_cfi
+        fn = () ->
+            show_cfi()
+            window_ypos(ypos)
+        setTimeout(fn, 100)
     null
 
