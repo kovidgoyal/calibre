@@ -66,8 +66,8 @@ window.onload = ->
         base = document.getElementById('first-h1').innerHTML
         document.title = base + ": " + window.current_cfi
         fn = () ->
+            show_cfi()
             window_ypos(ypos)
-        setTimeout(show_cfi, 1)
         setTimeout(fn, 100)
     null
 

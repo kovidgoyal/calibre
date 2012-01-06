@@ -482,7 +482,9 @@ class CanonicalFragmentIdentifier
             this.set_current_time(point.node, point.time)
 
         if point.range != null
+            # Character offset
             r = point.range
+            [so, eo, sc, ec] = [r.startOffset, r.endOffset, r.startContainer, r.endContainer]
             node = r.startContainer
             ndoc = node.ownerDocument
             nwin = ndoc.defaultView
@@ -491,16 +493,19 @@ class CanonicalFragmentIdentifier
             r.surroundContents(span)
             span.scrollIntoView()
             fn = ->
-                rect = span.getBoundingClientRect()
-                x = (point.a*rect.left + (1-point.a)*rect.right)
-                y = (rect.top + rect.bottom)/2
-                [x, y] = viewport_to_document(x, y, ndoc)
                 p = span.parentNode
                 for node in span.childNodes
                     span.removeChild(node)
                     p.insertBefore(node, span)
                 p.removeChild(span)
                 p.normalize()
+                r.setStart(sc, so)
+                r.setEnd(ec, eo)
+
+                rect = r.getClientRects()[0]
+                x = (point.a*rect.left + (1-point.a)*rect.right)
+                y = (rect.top + rect.bottom)/2
+                [x, y] = viewport_to_document(x, y, ndoc)
                 if callback
                     callback(x, y)
         else
