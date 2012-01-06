@@ -493,6 +493,16 @@ class CanonicalFragmentIdentifier
             r.surroundContents(span)
             span.scrollIntoView()
             fn = ->
+                # Remove the span and get the new position now that scrolling
+                # has (hopefully) completed
+                #
+                # In WebKit, the boundingrect of the span is wrong in some
+                # situations, whereas in IE resetting the range causes it to
+                # loose bounding info. So we use the range's rects unless they
+                # are absent, in which case we use the span's rect
+                #
+                rect = span.getBoundingClientRect()
+
                 # Remove the span we inserted
                 p = span.parentNode
                 for node in span.childNodes
@@ -501,10 +511,13 @@ class CanonicalFragmentIdentifier
                 p.removeChild(span)
                 p.normalize()
 
-                # Reset the range to what it was before span
+                # Reset the range to what it was before the span was added
                 r.setStart(sc, so)
                 r.setEnd(ec, eo)
-                rect = r.getClientRects()[0]
+                rects = r.getClientRects()
+                if rects.length > 0
+                    rect = rects[0]
+
                 x = (point.a*rect.left + (1-point.a)*rect.right)
                 y = (rect.top + rect.bottom)/2
                 [x, y] = viewport_to_document(x, y, ndoc)
