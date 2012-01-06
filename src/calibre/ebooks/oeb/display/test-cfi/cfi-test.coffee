@@ -47,7 +47,6 @@ mark_and_reload = (evt) ->
             ypos = window_ypos()
             newloc = window.location.href.replace(/#.*$/, '') + "#" + ypos + epubcfi
             window.location.replace(newloc)
-            document.getElementById('current-cfi').innerHTML = window.current_cfi
             window.location.reload()
 
     setTimeout(fn, 1)
@@ -64,10 +63,11 @@ window.onload = ->
     if r
         window.current_cfi = r[2]
         ypos = if r[1] then 0+r[1] else 0
-        document.getElementById('current-cfi').innerHTML = window.current_cfi
+        base = document.getElementById('first-h1').innerHTML
+        document.title = base + ": " + window.current_cfi
         fn = () ->
-            show_cfi()
             window_ypos(ypos)
+        setTimeout(show_cfi, 1)
         setTimeout(fn, 100)
     null
 

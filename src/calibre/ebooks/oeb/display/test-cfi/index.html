@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Testing CFI functionality</title>
+        <title>Testing EPUB CFI</title>
         <script type="text/javascript" src="cfi.coffee"></script>
         <script type="text/javascript" src="cfi-test.coffee"></script>
         <style type="text/css">
@@ -22,29 +22,29 @@
                 position:relative;
             }
 
-            #current-cfi { 
-                font-family: monospace;
-                border: solid 1px blue;
-                padding: 1em;
-            }
             #overflow {
                 max-height: 100px;
                 overflow: scroll;
                 border: solid 1px black;
                 padding: 2em;
             }
+
             #whitespace {
                 border: 20px solid gray;
                 margin: 20px;
                 padding: 20px;
+            }
+
+            #reset {
+                color: blue;
+                text-decoration: none
             }
         </style>
     </head>
     <body>
         <div id="container">
             <h1 id="first-h1">Testing EPUB CFI</h1>
-            <div id="current-cfi">Current CFI:&nbsp;None</div>
-            <p><a href="/">Reset</a></p>
+            <p><a id="reset" href="/">Reset CFI to None</a></p>
             <h2>A div with scrollbars</h2>
             <p>Scroll down and click on some elements. Make sure to hit both bold and not bold text</p>
             <div id="overflow">But I must explain to you how all this mistaken
