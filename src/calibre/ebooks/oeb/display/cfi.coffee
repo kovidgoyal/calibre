@@ -122,18 +122,14 @@ offset_in_text_node = (node, range, x, y) ->
 find_offset_for_point = (x, y, node, cdoc) ->
     range = cdoc.createRange()
     child = node.firstChild
-    last_child = null
     while child
         if child.nodeType in [3, 4, 5, 6] and child.nodeValue?.length
             range.setStart(child, 0)
             range.setEnd(child, child.nodeValue.length)
             if range_has_point(range, x, y)
                 return [child, offset_in_text_node(child, range, x, y)]
-            last_child = child
         child = child.nextSibling
 
-    if not last_child
-        throw "#{node} has no children"
     # The point must be after the last bit of text/in the padding/border, we dont know
     # how to get a good point in this case
     throw "Point (#{x}, #{y}) is in the padding/border of #{node}, so cannot calculate offset"
