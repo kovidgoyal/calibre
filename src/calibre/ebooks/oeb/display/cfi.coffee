@@ -68,8 +68,16 @@ get_current_time = (target) -> # {{{
 
 viewport_to_document = (x, y, doc) -> # {{{
     win = doc.defaultView
-    x += if win.scrollX then win.scrollX else 0 # These can be NaN on IE
-    y += if win.scrollY then win.scrollY else 0
+    if typeof(win.pageXOffset) == 'number'
+        x += win.pageXOffset
+        y += win.pageYOffset
+    else # IE < 9
+        if document.body and ( document.body.scrollLeft or document.body.scrollTop )
+            x += document.body.scrollLeft
+            y += document.body.scrollTop
+        else if document.documentElement and ( document.documentElement.scrollLeft or document.documentElement.scrollTop)
+            y += document.documentElement.scrollTop
+            x += document.documentElement.scrollLeft
 
     if doc != window.document
         # We are in a frame
