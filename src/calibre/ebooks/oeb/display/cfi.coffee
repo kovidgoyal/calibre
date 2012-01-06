@@ -493,15 +493,17 @@ class CanonicalFragmentIdentifier
             r.surroundContents(span)
             span.scrollIntoView()
             fn = ->
+                # Remove the span we inserted
                 p = span.parentNode
                 for node in span.childNodes
                     span.removeChild(node)
                     p.insertBefore(node, span)
                 p.removeChild(span)
                 p.normalize()
+
+                # Reset the range to what it was before span
                 r.setStart(sc, so)
                 r.setEnd(ec, eo)
-
                 rect = r.getClientRects()[0]
                 x = (point.a*rect.left + (1-point.a)*rect.right)
                 y = (rect.top + rect.bottom)/2

@@ -75,6 +75,8 @@ def get_google_data():
         'username':'kovidgoyal@gmail.com', 'password':pw, 'gc_password':gc_password,
         'path_map_server':'root@kovidgoyal.net',
         'path_map_location':'/var/www/status.calibre-ebook.com/googlepaths',
+        # If you change this remember to change it in the
+        # status.calibre-ebook.com server as well
         'project':'calibre-ebook-ii'
     }
 
