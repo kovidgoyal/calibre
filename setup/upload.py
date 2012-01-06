@@ -82,7 +82,7 @@ def get_sourceforge_data():
     return {'username':'kovidgoyal', 'project':'calibre'}
 
 def send_data(loc):
-    subprocess.check_call(['rsync', '-r', '-z', '-h', '--progress', '-e', 'ssh -x',
+    subprocess.check_call(['rsync', '--delete', '-r', '-z', '-h', '--progress', '-e', 'ssh -x',
         loc+'/', '%s@%s:%s'%(STAGING_USER, STAGING_HOST, STAGING_DIR)])
 
 def gc_cmdline(ver, gdata):

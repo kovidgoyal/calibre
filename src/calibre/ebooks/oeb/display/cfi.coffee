@@ -393,7 +393,7 @@ class CanonicalFragmentIdentifier
             py = ((y + cwin.scrollY - target.offsetTop)*100)/target.offsetHeight
             tail = "#{ tail }@#{ fstr px },#{ fstr py }"
         else if name != 'audio'
-            # Get the test offset
+            # Get the text offset
             # We use a custom function instead of caretRangeFromPoint as
             # caretRangeFromPoint does weird things when the point falls in the
             # padding of the element
