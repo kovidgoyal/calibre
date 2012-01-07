@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import os, locale, re, cStringIO, cPickle
 from gettext import GNUTranslations, NullTranslations
-from zipfile import ZipFile
 
 _available_translations = None
 
@@ -79,6 +78,7 @@ def set_translators():
             buf = cStringIO.StringIO(buf.getvalue())
 
         if mpath is not None:
+            from zipfile import ZipFile
             with ZipFile(P('localization/locales.zip',
                 allow_user_override=False), 'r') as zf:
                 if buf is None:
