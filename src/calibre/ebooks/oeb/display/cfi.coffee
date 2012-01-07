@@ -71,19 +71,25 @@ get_current_time = (target) -> # {{{
     fstr(ans)
 # }}}
 
-viewport_to_document = (x, y, doc) -> # {{{
-    win = doc.defaultView
+window_scroll_pos = (win) -> # {{{
     if typeof(win.pageXOffset) == 'number'
-        x += win.pageXOffset
-        y += win.pageYOffset
+        x = win.pageXOffset
+        y = win.pageYOffset
     else # IE < 9
         if document.body and ( document.body.scrollLeft or document.body.scrollTop )
-            x += document.body.scrollLeft
-            y += document.body.scrollTop
+            x = document.body.scrollLeft
+            y = document.body.scrollTop
         else if document.documentElement and ( document.documentElement.scrollLeft or document.documentElement.scrollTop)
-            y += document.documentElement.scrollTop
-            x += document.documentElement.scrollLeft
+            y = document.documentElement.scrollTop
+            x = document.documentElement.scrollLeft
+    return [x, y]
+# }}}
 
+viewport_to_document = (x, y, doc) -> # {{{
+    win = doc.defaultView
+    [wx, wy] = window_scroll_pos(win)
+    x += wx
+    y += wy
     if doc != window.document
         # We are in a frame
         node = win.frameElement
@@ -367,6 +373,7 @@ class CanonicalFragmentIdentifier
     # }}}
 
     at: (x, y, doc=window?.document) -> # {{{
+        # x, y are in viewport co-ordinates
         cdoc = doc
         target = null
         cwin = cdoc.defaultView
@@ -389,8 +396,9 @@ class CanonicalFragmentIdentifier
             if not cd
                 break
 
-            x = x + cwin.pageXOffset - target.offsetLeft
-            y = y + cwin.pageYOffset - target.offsetTop
+            rect = target.getBoundingClientRect()
+            x = x - rect.x
+            y = y - rect.y
             cdoc = cd
             cwin = cdoc.defaultView
 
@@ -400,8 +408,9 @@ class CanonicalFragmentIdentifier
             tail = "~" + get_current_time(target)
 
         if name in ['img', 'video']
-            px = ((x + cwin.scrollX - target.offsetLeft)*100)/target.offsetWidth
-            py = ((y + cwin.scrollY - target.offsetTop)*100)/target.offsetHeight
+            rect = target.getBoundingClientRect()
+            px = ((x - rect.left)*100)/target.offsetWidth
+            py = ((y - rect.top)*100)/target.offsetHeight
             tail = "#{ tail }@#{ fstr px },#{ fstr py }"
         else if name != 'audio'
             # Get the text offset
@@ -532,12 +541,12 @@ class CanonicalFragmentIdentifier
             node.scrollIntoView()
 
             fn = ->
-                rect = node.getBoundingClientRect()
-                [x, y] = viewport_to_document(rect.left, rect.top, node.ownerDocument)
+                r = node.getBoundingClientRect()
+                [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
                 if typeof(point.x) == 'number' and node.offsetWidth
-                    x += (r.x*node.offsetWidth)/100
+                    x += (point.x*node.offsetWidth)/100
                 if typeof(point.y) == 'number' and node.offsetHeight
-                    y += (r.y*node.offsetHeight)/100
+                    y += (point.y*node.offsetHeight)/100
                 scrollTo(x, y)
                 if callback
                     callback(x, y)
