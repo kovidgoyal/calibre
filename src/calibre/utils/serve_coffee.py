@@ -12,6 +12,11 @@ Utilities to help with developing coffeescript based apps.
 A coffeescript compiler and a simple web server that automatically serves
 coffeescript files as javascript.
 '''
+import sys
+if sys.version_info.major > 2:
+    print('This script is not Python 3 compatible. Run it with Python 2',
+            file=sys.stderr)
+    raise SystemExit(1)
 
 import time, SimpleHTTPServer, SocketServer, os, sys, re
 from io import BytesIO
