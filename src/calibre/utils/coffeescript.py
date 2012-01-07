@@ -8,8 +8,11 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
-Utilities to help with developing coffeescript based apps
+Utilities to help with developing coffeescript based apps.
+A coffeescript compiler and a simple web server that automatically serves
+coffeescript files as javascript.
 '''
+
 import time, SimpleHTTPServer, SocketServer, os, bz2, sys
 from io import BytesIO
 
