@@ -124,7 +124,7 @@ class BOOX(HANLINV3):
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x322, 0x323]
+    BCD         = [0x322, 0x323, 0x326]
 
     MAIN_MEMORY_VOLUME_LABEL  = 'BOOX Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'BOOX Storage Card'
