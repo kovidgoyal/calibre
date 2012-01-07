@@ -74,8 +74,14 @@ def set_translators():
         if mpath and os.access(mpath+'.po', os.R_OK):
             from calibre.translations.msgfmt import make
             buf = cStringIO.StringIO()
-            make(mpath+'.po', buf)
-            buf = cStringIO.StringIO(buf.getvalue())
+            try:
+                make(mpath+'.po', buf)
+            except:
+                print (('Failed to compile translations file: %s,'
+                        ' ignoring')%(mpath+'.po'))
+                buf = None
+            else:
+                buf = cStringIO.StringIO(buf.getvalue())
 
         if mpath is not None:
             from zipfile import ZipFile
