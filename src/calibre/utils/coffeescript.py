@@ -138,6 +138,10 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler): # {{{
 class HTTPD(SocketServer.TCPServer):
     allow_reuse_address = True
 
+# }}}
+
+compile_coffeescript = Compiler()
+
 def serve(resources={}, port=8000):
     Handler.special_resources = resources
     httpd = HTTPD(('0.0.0.0', port), Handler)
@@ -146,9 +150,6 @@ def serve(resources={}, port=8000):
         httpd.serve_forever()
     except KeyboardInterrupt:
         raise SystemExit(0)
-# }}}
-
-compile_coffeescript = Compiler()
 
 def main():
     import argparse
