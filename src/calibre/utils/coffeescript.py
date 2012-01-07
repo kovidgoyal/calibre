@@ -163,8 +163,6 @@ class HTTPD(SocketServer.TCPServer):
 # }}}
 
 compile_coffeescript = Compiler()
-from threading import Thread
-Thread(target=compile_coffeescript, args=('1+2',)).run()
 
 def serve(resources={}, port=8000, host='0.0.0.0'):
     Handler.special_resources = resources
@@ -175,6 +173,7 @@ def serve(resources={}, port=8000, host='0.0.0.0'):
     except KeyboardInterrupt:
         raise SystemExit(0)
 
+# CLI {{{
 def main():
     import argparse
     ver = re.search(r'CoffeeScript Compiler v(.+)', CS_JS[:500]).group(1)
@@ -225,4 +224,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+# }}}
 
