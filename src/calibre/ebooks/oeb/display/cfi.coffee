@@ -8,10 +8,11 @@
  http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js
 
  Improvements with respect to that code:
- 1. Works on all browsers (WebKit, Firefox and IE >= 8)
+ 1. Works on all browsers (WebKit, Firefox and IE >= 9)
  2. Works for content in elements that are scrollable (i.e. have their own scrollbars)
  3. Much more comprehensive testing/error handling
  4. Properly encodes/decodes assertions
+ 5. Handles points in the padding of elements consistently
 
  To check if this script is compatible with the current browser, call
  window.cfi.is_compatible() it will throw an exception if not compatible.
@@ -164,7 +165,7 @@ class CanonicalFragmentIdentifier
 
     constructor: () -> # {{{
         this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
-        this.IE_ERR = "Your browser is too old. You need Internet Explorer version 8 or newer."
+        this.IE_ERR = "Your browser is too old. You need Internet Explorer version 9 or newer."
         div = document.createElement('div')
         ver = 3
         while true
@@ -181,8 +182,8 @@ class CanonicalFragmentIdentifier
             throw this.CREATE_RANGE_ERR
         # Check if Internet Explorer >= 8 as getClientRects returns physical
         # rather than logical pixels on older IE
-        if this.isie and this.iever < 8
-            # We have IE < 8
+        if this.isie and this.iever < 9
+            # We have IE < 9
             throw this.IE_ERR
     # }}}
 
