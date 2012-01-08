@@ -502,7 +502,7 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('> <', '>\n<')
         self.processed_html = self.processed_html.replace('<mbp: ', '<mbp:')
         self.processed_html = re.sub(r'<\?xml[^>]*>', '', self.processed_html)
-        self.processed_html = re.sub(r'<(/?)o:p', r'<\1p', self.processed_html)
+        self.processed_html = re.sub(r'<\s*(/?)\s*o:p[^>]*>', r'', self.processed_html)
         # Swap inline and block level elements, and order block level elements according to priority
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
         self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
@@ -974,12 +974,13 @@ class MobiReader(object):
                 continue
             processed_records.append(i)
             data  = self.sections[i][0]
+            image_index += 1
             if data[:4] in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n',
                     b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
-                # A FLIS, FCIS, SRCS or EOF record, ignore
+                # This record is a known non image type, not need to try to
+                # load the image
                 continue
             buf = cStringIO.StringIO(data)
-            image_index += 1
             try:
                 im = PILImage.open(buf)
                 im = im.convert('RGB')

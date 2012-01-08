@@ -270,7 +270,7 @@ class HTMLInput(InputFormatPlugin):
             help=_('Normally this input plugin re-arranges all the input '
                 'files into a standard folder hierarchy. Only use this option '
                 'if you know what you are doing as it can result in various '
-                'nasty side effects in the rest of of the conversion pipeline.'
+                'nasty side effects in the rest of the conversion pipeline.'
                 )
         ),
 

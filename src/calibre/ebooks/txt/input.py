@@ -22,7 +22,7 @@ class TXTInput(InputFormatPlugin):
     name        = 'TXT Input'
     author      = 'John Schember'
     description = 'Convert TXT files to HTML'
-    file_types  = set(['txt', 'txtz', 'text'])
+    file_types  = set(['txt', 'txtz', 'text', 'md', 'textile', 'markdown'])
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
@@ -77,6 +77,11 @@ class TXTInput(InputFormatPlugin):
                         txt += tf.read() + '\n\n'
         else:
             txt = stream.read()
+            if file_ext in {'md', 'textile', 'markdown'}:
+                options.formatting_type = {'md': 'markdown'}.get(file_ext, file_ext)
+                log.info('File extension indicates particular formatting. '
+                        'Forcing formatting type to: %s'%options.formatting_type)
+                options.paragraph_type = 'off'
 
         # Get the encoding of the document.
         if options.input_encoding:

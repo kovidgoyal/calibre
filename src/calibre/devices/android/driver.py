@@ -50,6 +50,7 @@ class ANDROID(USBMS):
                        0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
                        0x70c6 : [0x226],
                        0x4316 : [0x216],
+                       0x42d6 : [0x216],
                      },
             # Freescale
             0x15a2 : {
@@ -138,7 +139,7 @@ class ANDROID(USBMS):
             0x5e3 : { 0x726 : [0x222] },
 
             # ZTE
-            0x19d2 : { 0x1353 : [0x226] },
+            0x19d2 : { 0x1353 : [0x226], 0x1351 : [0x227] },
 
             # Advent
             0x0955 : { 0x7100 : [0x9999] }, # This is the same as the Notion Ink Adam

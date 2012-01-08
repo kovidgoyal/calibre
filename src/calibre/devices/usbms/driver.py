@@ -10,7 +10,7 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os, re, time, json, uuid, functools
+import os, re, time, json, uuid, functools, shutil
 from itertools import cycle
 
 from calibre.constants import numeric_version
@@ -339,10 +339,13 @@ class USBMS(CLI, Device):
 
                 filepath = os.path.splitext(path)[0]
                 for ext in self.DELETE_EXTS:
-                    if os.path.exists(filepath + ext):
-                        os.unlink(filepath + ext)
-                    if os.path.exists(path + ext):
-                        os.unlink(path + ext)
+                    for x in (filepath, path):
+                        x += ext
+                        if os.path.exists(x):
+                            if os.path.isdir(x):
+                                shutil.rmtree(x, ignore_errors=True)
+                            else:
+                                os.unlink(x)
 
                 if self.SUPPORTS_SUB_DIRS:
                     try:

@@ -175,13 +175,27 @@ class OEBReader(object):
         manifest = self.oeb.manifest
         known = set(manifest.hrefs)
         unchecked = set(manifest.values())
+        cdoc = OEB_DOCS|OEB_STYLES
+        invalid = set()
         while unchecked:
             new = set()
             for item in unchecked:
+                data = None
+                if (item.media_type in cdoc or
+                        item.media_type[-4:] in ('/xml', '+xml')):
+                    try:
+                        data = item.data
+                    except:
+                        self.oeb.log.exception(u'Failed to read from manifest '
+                                u'entry with id: %s, ignoring'%item.id)
+                        invalid.add(item)
+                        continue
+                if data is None:
+                    continue
+
                 if (item.media_type in OEB_DOCS or
-                    item.media_type[-4:] in ('/xml', '+xml')) and \
-                   item.data is not None:
-                    hrefs = [r[2] for r in iterlinks(item.data)]
+                        item.media_type[-4:] in ('/xml', '+xml')):
+                    hrefs = [r[2] for r in iterlinks(data)]
                     for href in hrefs:
                         href, _ = urldefrag(href)
                         if not href:
@@ -197,7 +211,7 @@ class OEBReader(object):
                             new.add(href)
                 elif item.media_type in OEB_STYLES:
                     try:
-                        urls = list(cssutils.getUrls(item.data))
+                        urls = list(cssutils.getUrls(data))
                     except:
                         urls = []
                     for url in urls:
@@ -230,6 +244,9 @@ class OEBReader(object):
                 media_type = guessed or BINARY_MIME
                 added = manifest.add(id, href, media_type)
                 unchecked.add(added)
+
+            for item in invalid:
+                self.oeb.manifest.remove(item)
 
     def _manifest_from_opf(self, opf):
         manifest = self.oeb.manifest

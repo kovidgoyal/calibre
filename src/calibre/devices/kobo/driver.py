@@ -25,7 +25,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge'
-    version = (1, 0, 11)
+    version = (1, 0, 12)
 
     dbversion = 0
     fwversion = 0
@@ -64,22 +64,34 @@ class KOBO(USBMS):
             _('Upload Black and White Covers'),
             _('Show expired books') +
             ':::'+_('A bug in an earlier version left non kepubs book records'
-                ' in the datbase.  With this option Calibre will show the '
+                ' in the database.  With this option Calibre will show the '
                 'expired records and allow you to delete them with '
                 'the new delete logic.'),
+            _('Show Previews') +
+            ':::'+_('Kobo previews are included on the Touch and some other versions'
+                ' by default they are no longer displayed as there is no good reason to '
+                'see them.  Enable if you wish to see/delete them.'),
+            _('Show Recommendations') +
+            ':::'+_('Kobo now shows recommendations on the device.  In some case these have '
+                'files but in other cases they are just pointers to the web site to buy. '
+                'Enable if you wish to see/delete them.'),
             ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = [
             ', '.join(['tags']),
             True,
             True,
-            True
+            True,
+            False,
+            False
             ]
 
     OPT_COLLECTIONS    = 0
     OPT_UPLOAD_COVERS  = 1
     OPT_UPLOAD_GRAYSCALE_COVERS  = 2
     OPT_SHOW_EXPIRED_BOOK_RECORDS = 3
+    OPT_SHOW_PREVIEWS = 4
+    OPT_SHOW_RECOMMENDATIONS = 5
 
     def initialize(self):
         USBMS.initialize(self)
@@ -161,6 +173,8 @@ class KOBO(USBMS):
                 # Label Previews
                 if accessibility == 6:
                     playlist_map[lpath].append('Preview')
+                elif accessibility == 4:
+                    playlist_map[lpath].append('Recommendation')
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -241,31 +255,40 @@ class KOBO(USBMS):
             debug_print("Database Version: ", self.dbversion)
 
             opts = self.settings()
-            if self.dbversion >= 16:
+            if self.dbversion >= 33:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility from content where ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, IsDownloaded from content where ' \
+                    'BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')', \
+                    previews=' and Accessibility <> 6' \
+                    if opts.extra_customization[self.OPT_SHOW_PREVIEWS] == False else '', \
+                    recomendations=' and IsDownloaded in (\'true\', 1)' \
+                    if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] == False else '')
+            elif self.dbversion >= 16 and self.dbversion < 33:
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, "1" as IsDownloaded from content where ' \
                     'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
                     if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             elif self.dbversion < 16 and self.dbversion >= 14:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility  from content where ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where ' \
                     'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
                     if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             elif self.dbversion < 14 and self.dbversion >= 8:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where ' \
                     'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
                     if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             else:
                 query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility from content where BookID is Null'
+                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where BookID is Null'
 
             try:
                 cursor.execute (query)
             except Exception as e:
                 err = str(e)
                 if not ('___ExpirationStatus' in err or 'FavouritesIndex' in err or
-                        'Accessibility' in err):
+                        'Accessibility' in err or 'IsDownloaded' in err):
                     raise
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                     'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as '
@@ -701,6 +724,7 @@ class KOBO(USBMS):
 
         accessibilitylist = {
             "Preview":6,
+            "Recommendation":4,
        }
 #        debug_print('Starting update_device_database_collections', collections_attributes)
 

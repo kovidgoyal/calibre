@@ -13,7 +13,7 @@ class Moscowtimes(BasicNewsRecipe):
     category              = 'Russia, Moscow, Russian news, Moscow news, Russian newspaper, daily news, independent news, reliable news, USSR, Soviet Union, CIS, Russian politics, Russian business, Russian culture, Russian opinion, St Petersburg, Saint Petersburg'
     publisher             = 'The Moscow Times'
     language              = 'en'
-    oldest_article        = 2
+    oldest_article        = 4
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
@@ -50,7 +50,7 @@ class Moscowtimes(BasicNewsRecipe):
                        dict(name='div', attrs={'class':['photo_nav','phototext']})
                       ,dict(name=['iframe','meta','base','link','embed','object'])
                      ]
-                     
+
     def preprocess_html(self, soup):
         for lnk in soup.findAll('a'):
             if lnk.string is not None:
@@ -58,13 +58,13 @@ class Moscowtimes(BasicNewsRecipe):
                lnk.replaceWith(ind)
         return soup
 
-    def print_version(self, url):        
+    def print_version(self, url):
         return url.replace('.themoscowtimes.com/','.themoscowtimes.com/print/')
 
     def get_cover_url(self):
         cover_url = None
         href =  'http://www.themoscowtimes.com/pdf/'
-        soup = self.index_to_soup(href)        
+        soup = self.index_to_soup(href)
         div = soup.find('div',attrs={'class':'left'})
         if div:
             a = div.find('a')

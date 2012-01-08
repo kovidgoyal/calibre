@@ -291,7 +291,7 @@ auto_connect_to_folder = ''
 # how the value and category are combined together to make the collection name.
 # The only two fields available are {category} and {value}. The {value} field is
 # never empty. The {category} field can be empty. The default is to put the
-# value first, then the category enclosed in parentheses, it is isn't empty:
+# value first, then the category enclosed in parentheses, it isn't empty:
 # '{value} {category:|(|)}'
 # Examples: The first three examples assume that the second tweak
 # has not been changed.
@@ -470,4 +470,15 @@ unified_title_toolbar_on_osx = False
 # conversion is poor, you can tweak the settings and run it again. By setting
 # this to False you can prevent calibre from saving the original file.
 save_original_format = True
+
+#: Number of recently viewed books to show
+# Right-clicking the View button shows a list of recently viewed books. Control
+# how many should be shown, here.
+gui_view_history_size = 15
+
+#: When using the 'Tweak Book' action, which format to prefer
+# When tweaking a book that has multiple formats, calibre picks one
+# automatically. By default EPUB is preferred to HTMLZ. If you would like to
+# prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'
+tweak_book_prefer = 'epub'
 

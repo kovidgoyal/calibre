@@ -10,16 +10,15 @@ __docformat__ = 'restructuredtext en'
 import os
 
 try:
-    from calibre.utils.coffeescript import serve
+    from calibre.utils.serve_coffee import serve
 except ImportError:
     import init_calibre
     if False: init_calibre, serve
-    from calibre.utils.coffeescript import serve
-
+    from calibre.utils.serve_coffee import serve
 
 def run_devel_server():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    serve()
+    serve(resources={'cfi.coffee':'../cfi.coffee', '/':'index.html'})
 
 if __name__ == '__main__':
     run_devel_server()

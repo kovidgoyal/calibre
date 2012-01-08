@@ -80,7 +80,7 @@ class PML_HTMLizer(object):
         'b': ('<span style="font-weight: bold;">', '</span>'),
         'l': ('<span style="font-size: 150%;">', '</span>'),
         'k': ('<span style="font-size: 75%; font-variant: small-caps;">', '</span>'),
-        'FN': ('<br /><br style="page-break-after: always;" /><div id="fn-%s"><p>', '</p><<small><a href="#rfn-%s">return</a></small></div>'),
+        'FN': ('<br /><br style="page-break-after: always;" /><div id="fn-%s"><p>', '</p><small><a href="#rfn-%s">return</a></small></div>'),
         'SB': ('<br /><br style="page-break-after: always;" /><div id="sb-%s"><p>', '</p><small><a href="#rsb-%s">return</a></small></div>'),
     }
 
@@ -143,7 +143,7 @@ class PML_HTMLizer(object):
         'd',
         'b',
     ]
-    
+
     NEW_LINE_EXCHANGE_STATES = {
         'h1': 'h1c',
     }
@@ -230,7 +230,7 @@ class PML_HTMLizer(object):
         div = []
         span = []
         other = []
-        
+
         for key, val in state.items():
             if key in self.NEW_LINE_EXCHANGE_STATES and val[0]:
                 state[self.NEW_LINE_EXCHANGE_STATES[key]] = val
@@ -644,7 +644,7 @@ class PML_HTMLizer(object):
                 empty_count = 0
                 text = self.end_line()
                 parsed.append(text)
-                
+
                 # Basic indent will be set if the \t starts the line or
                 # if we are in a continuing \t block.
                 if basic_indent:
@@ -666,7 +666,7 @@ class PML_HTMLizer(object):
                     parsed.append(self.STATES_TAGS['T'][1])
                     indent_state['T'] = False
                     adv_indent_val = ''
-                
+
                 output.append(u''.join(parsed))
             line.close()
 
@@ -677,7 +677,7 @@ class PML_HTMLizer(object):
     def get_toc(self):
         '''
         Toc can have up to 5 levels, 0 - 4 inclusive.
-        
+
         This function will add items to their appropriate
         depth in the TOC tree. If the specified depth is
         invalid (item would not have a valid parent) add

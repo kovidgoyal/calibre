@@ -5,7 +5,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     description = 'News as provide by The Daily Mirror -UK'
 
     __author__ = 'Dave Asbury'
-    # last updated 30/10/11
+    # last updated 26/12/11
     language = 'en_GB'
 
     cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
@@ -13,30 +13,22 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     masthead_url = 'http://www.nmauk.co.uk/nma/images/daily_mirror.gif'
 
 
-    oldest_article = 2
-    max_articles_per_feed = 30
+    oldest_article = 1
+    max_articles_per_feed = 20
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
-    extra_css  = '''
-	body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
-                	 '''
-
-    keep_only_tags = [
-       dict(name='div',attrs={'id' : 'body-content'})
-        ]
-
-    remove_tags_after = [dict (name='div',attrs={'class' : 'related'})]
-
+    auto_cleanup = True
     remove_tags = [
-           dict(name='div',attrs={'id' : ['sidebar','menu','search-box','roffers-top']}),
-           dict(name='div',attrs={'class' :['inline-ad span-16 last','article-resize','related','list teasers']}),
-           dict(attrs={'class' : ['channellink','article-tags','replace','append-html']}),
-           dict(name='div',attrs={'class' : 'span-12 last sl-others addthis_toolbox addthis_default_style'})
+           dict(name='title'),
+           dict(name='div',attrs={'class' : ['inline-ad span-16 last','caption']}),
           ]
 
     preprocess_regexps = [
-    (re.compile(r'<dl class="q-search">.*?</dl>', re.IGNORECASE | re.DOTALL), lambda match: '')]
+    (re.compile(r'- mirror.co.uk', re.IGNORECASE | re.DOTALL), lambda match: '')]
+
+    preprocess_regexps = [
+    (re.compile(r'Advertisement >>', re.IGNORECASE | re.DOTALL), lambda match: '')]
 
 
     feeds          = [
@@ -53,5 +45,10 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
 
            # example of commented out feed not needed ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
-
   ]
+    extra_css  = '''
+	body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
+                    h1{ font-size:18px;}
+                    img { display:block}
+                	 '''
+

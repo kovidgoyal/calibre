@@ -1410,19 +1410,22 @@ class MOBIFile(object): # {{{
             self.mobi_header.extra_data_flags, decompress) for r in xrange(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
+        image_index = 0
         for i in xrange(fntbr, len(self.records)):
             if i in self.indexing_record_nums or i in self.huffman_record_nums:
                 continue
+            image_index += 1
             r = self.records[i]
             fmt = None
-            if i >= fii and r.raw[:4] not in (b'FLIS', b'FCIS', b'SRCS',
-                    b'\xe9\x8e\r\n'):
+            if i >= fii and r.raw[:4] not in {b'FLIS', b'FCIS', b'SRCS',
+                    b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
+                    b'AUDI', b'VIDE'}:
                 try:
                     width, height, fmt = identify_data(r.raw)
                 except:
                     pass
             if fmt is not None:
-                self.image_records.append(ImageRecord(len(self.image_records)+1, r, fmt))
+                self.image_records.append(ImageRecord(image_index, r, fmt))
             else:
                 self.binary_records.append(BinaryRecord(i, r))
 

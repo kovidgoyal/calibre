@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 
 import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
+
 from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image, confirm_config_name
 from calibre.constants import isosx, iswindows
@@ -207,6 +208,10 @@ class ITUNES(DriverBase):
     BACKLOADING_ERROR_MESSAGE = _(
         "Cannot copy books directly from iDevice. "
         "Drag from iTunes Library to desktop, then add to calibre's Library window.")
+    UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE = _(
+        "Unsupported direct connect mode. "
+        "See http://www.mobileread.com/forums/showthread.php?t=118559 "
+        "for instructions on using 'Connect to iTunes'")
 
     # Product IDs:
     #  0x1291   iPod Touch
@@ -806,6 +811,7 @@ class ITUNES(DriverBase):
         '''
         if DEBUG:
             self.log.info("ITUNES.get_file(): exporting '%s'" % path)
+
         outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
 
     def open(self, connected_device, library_uuid):
@@ -832,7 +838,7 @@ class ITUNES(DriverBase):
             raise AppleOpenFeedback(self)
         else:
             if DEBUG:
-                self.log.info(" advanced user mode, directly connecting to iDevice")
+                self.log.warning(" %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
@@ -1161,6 +1167,8 @@ class ITUNES(DriverBase):
                 added = pl.add(appscript.mactypes.File(fpath),to=pl)
                 if False:
                     self.log.info("  '%s' added to Device|Books" % metadata.title)
+
+                self._wait_for_writable_metadata(added)
                 return added
 
         elif iswindows:
@@ -1322,7 +1330,6 @@ class ITUNES(DriverBase):
             '''
             Unsupported direct-connect mode.
             '''
-            self.log.warning("  unsupported direct connect mode")
             db_added = self._add_device_book(fpath, metadata)
             lb_added = self._add_library_book(fpath, metadata)
             if not lb_added and DEBUG:
@@ -1390,16 +1397,17 @@ class ITUNES(DriverBase):
                         except:
                             if DEBUG:
                                 self.log.warning("  iTunes automation interface reported an error"
-                                                 " when adding artwork to '%s' in the iTunes Library" % metadata.title)
+                                                 " adding artwork to '%s' in the iTunes Library" % metadata.title)
                             pass
 
                     if db_added:
                         try:
                             db_added.artworks[1].data_.set(cover_data)
+                            self.log.info("   writing '%s' cover to iDevice" % metadata.title)
                         except:
                             if DEBUG:
                                 self.log.warning("  iTunes automation interface reported an error"
-                                                 " when adding artwork to '%s' on the iDevice" % metadata.title)
+                                                 " adding artwork to '%s' on the iDevice" % metadata.title)
                             #import traceback
                             #traceback.print_exc()
                             #from calibre import ipython
@@ -1945,7 +1953,7 @@ class ITUNES(DriverBase):
             return thumb_data
 
         if DEBUG:
-            self.log.info(" ITUNES._generate_thumbnail():")
+            self.log.info(" ITUNES._generate_thumbnail('%s'):" % title)
         if isosx:
 
             # Fetch the artwork from iTunes
@@ -2762,6 +2770,7 @@ class ITUNES(DriverBase):
         # Update metadata from plugboard
         # If self.plugboard is None (no transforms), original metadata is returned intact
         metadata_x = self._xform_metadata_via_plugboard(metadata, this_book.format)
+
         if isosx:
             if lb_added:
                 lb_added.name.set(metadata_x.title)
@@ -2772,10 +2781,9 @@ class ITUNES(DriverBase):
                 lb_added.enabled.set(True)
                 lb_added.sort_artist.set(icu_title(metadata_x.author_sort))
                 lb_added.sort_name.set(metadata_x.title_sort)
+                lb_added.year.set(metadata_x.pubdate.year)
 
             if db_added:
-                self.log.warning("  waiting for db_added to become writeable ")
-                time.sleep(1.0)
                 db_added.name.set(metadata_x.title)
                 db_added.album.set(metadata_x.title)
                 db_added.artist.set(authors_to_string(metadata_x.authors))
@@ -2784,6 +2792,7 @@ class ITUNES(DriverBase):
                 db_added.enabled.set(True)
                 db_added.sort_artist.set(icu_title(metadata_x.author_sort))
                 db_added.sort_name.set(metadata_x.title_sort)
+                db_added.year.set(metadata_x.pubdate.year)
 
             if metadata_x.comments:
                 if lb_added:
@@ -2871,6 +2880,7 @@ class ITUNES(DriverBase):
                 lb_added.Enabled = True
                 lb_added.SortArtist = icu_title(metadata_x.author_sort)
                 lb_added.SortName = metadata_x.title_sort
+                lb_added.Year = metadata_x.pubdate.year
 
             if db_added:
                 self.log.warning("  waiting for db_added to become writeable ")
@@ -2883,6 +2893,7 @@ class ITUNES(DriverBase):
                 db_added.Enabled = True
                 db_added.SortArtist = icu_title(metadata_x.author_sort)
                 db_added.SortName = metadata_x.title_sort
+                db_added.Year = metadata_x.pubdate.year
 
             if metadata_x.comments:
                 if lb_added:
@@ -2980,6 +2991,32 @@ class ITUNES(DriverBase):
                         if db_added:
                             db_added.Genre = tag
                         break
+
+    def _wait_for_writable_metadata(self, db_added, delay=2.0):
+        '''
+        Ensure iDevice metadata is writable. Direct connect mode only
+        '''
+        if DEBUG:
+            self.log.info(" ITUNES._wait_for_writable_metadata()")
+            self.log.warning("  %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
+
+        attempts = 9
+        while attempts:
+            try:
+                if isosx:
+                    db_added.bpm.set(0)
+                elif iswindows:
+                    db_added.BPM = 0
+                break
+            except:
+                attempts -= 1
+                time.sleep(delay)
+                if DEBUG:
+                    self.log.warning("  waiting %.1f seconds for iDevice metadata to become writable (attempt #%d)" %
+                                     (delay, (10 - attempts)))
+        else:
+            if DEBUG:
+                self.log.error(" failed to write device metadata")
 
     def _xform_metadata_via_plugboard(self, book, format):
         ''' Transform book metadata from plugboard templates '''
@@ -3090,6 +3127,7 @@ class ITUNES_ASYNC(ITUNES):
                 for (i,book) in enumerate(library_books):
                     format = 'pdf' if library_books[book].kind().startswith('PDF') else 'epub'
                     this_book = Book(library_books[book].name(), library_books[book].artist())
+                    #this_book.path = library_books[book].location().path
                     this_book.path = self.path_template % (library_books[book].name(),
                                                            library_books[book].artist(),
                                                            format)

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob, subprocess, time
+import os, cPickle, re, shutil, marshal, zipfile, glob, time
 from zlib import compress
 
 from setup import Command, basenames, __appname__
@@ -35,6 +35,8 @@ class Coffee(Command): # {{{
                 help='Display the generated javascript')
 
     def run(self, opts):
+        from calibre.utils.coffeescript import compile_coffeescript
+        self.compiler = compile_coffeescript
         self.do_coffee_compile(opts)
         if opts.watch:
             try:
@@ -61,20 +63,24 @@ class Coffee(Command): # {{{
                 if self.newer(js, x):
                     print ('\t%sCompiling %s'%(time.strftime('[%H:%M:%S] ') if
                         timestamp else '', os.path.basename(x)))
-                    try:
-                        subprocess.check_call(['coffee', '-c', '-o', dest, x])
-                    except:
+                    with open(x, 'rb') as f:
+                        cs, errs = self.compiler(f.read())
+                    for line in errs:
+                        print (line)
+                    if cs and not errs:
+                        with open(js, 'wb') as f:
+                            f.write(cs.encode('utf-8'))
+                        if opts.show_js:
+                            self.show_js(js)
+                            print ('#'*80)
+                            print ('#'*80)
+                    else:
                         print ('\n\tCompilation of %s failed'%os.path.basename(x))
                         if ignore_errors:
                             with open(js, 'wb') as f:
                                 f.write('# Compilation from coffeescript failed')
                         else:
                             raise SystemExit(1)
-                    else:
-                        if opts.show_js:
-                            self.show_js(js)
-                            print ('#'*80)
-                            print ('#'*80)
 
     def clean(self):
         for toplevel, dest in self.COFFEE_DIRS.iteritems():

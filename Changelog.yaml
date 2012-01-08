@@ -19,6 +19,112 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.34
+  date: 2011-01-06
+
+  new features:
+    - title: "Apple driver: Set the year field in iTunes based on the published date in calibre." 
+      tickets: [909050]
+
+    - title: "EPUB Input: When converting a file that has entries in the manifest that do no exist, remove them, instead of aborting the conversion."
+      tickets: [910933]
+
+    - title: "Kindle driver: Ensure page counts are correctly sent to the device when connecting to Kindle 4/Touch."
+      tickets: [910279]
+
+    - title: "Allow user to set the number of recently viewed books shown in the dropdown menu of the view button, via a tweak in Preferences->Tweaks."
+      tickets: [910292]
+ 
+  bug fixes:
+    - title: "Fix regression in 0.8.33 that caused calibre to crash when starting the Content Server, if the port the content server is trying to listen on is blocked/busy."
+      tickets: [910512]
+
+    - title: "MOBI Input: Fix regression that caused a mixup of images when the MOBI file header contains an incorrect first image index pointer."
+      tickets: [911243]
+
+    - title: "Do not remove leading and trailing spaces from the replace fields in the Search and Replace conversion options"
+      tickets: [910523]
+
+    - title: "Conversion pipeline: Fix regression in 0.8.31 that broke parsing of documents containing a self closing <title/> tag."
+      tickets: [910325]
+
+  improved recipes:
+    - Kopalnia Wiedzy
+    - Alternet
+    - Tagesspiegel
+    - Philadelphia Inquirer
+    - Seattle Times
+    - La Razon
+
+  new recipes:
+    - title: Various Italian news sources 
+      author: faber1971
+
+    - title: money.pl 
+      author: intromatyk
+
+    - title: Diario Rio Negro
+      author: Darko Miletic.
+
+    - title: FHM UK 
+      author: Dave Asbury
+
+- version: 0.8.33
+  date: 2011-12-30
+
+  new features:
+    - title: "LIT Input: Switch to non-recursive algorithm, to allow conversion of files with deeply nested markup."
+      tickets: [909535]
+
+    - title: "Content server: Do not show the original_* formats in the mobile interface. Also upgrade to the latest CherryPy release."
+
+    - title: "E-book viewer: Add option in viewer preferences to control how much the font size is changed when you click the make fonts bigger/smaller buttons."
+      tickets: [908980]
+
+    - title: "E-book viewer: Allow changing font size via Ctrl+Mouse wheel"
+      tickets: [908975] 
+
+    - title: "Kobo driver: Hide previews and recommendations from the book list. You can customize the Kobo plugin if you would like to see them via Preferences->Plugins"
+ 
+  bug fixes:
+    - title: "Copy to library: Fix title sort not being copied"
+
+    - title: "PDF Output: Add custom size conversion option to the GUI (it was only present on the command line before)"
+
+    - title: "Add missing --keep-ligatures option to the ebook-convert command line"
+      tickets: [909182]
+      
+    - title: "Fix rendering of non ascii characters in generated masthead images when downloading news for the Kindle"
+
+    - title: "Linux binary: Disable qt-sp-api as it causes crashes/performance issues on various distros"
+
+    - title: "E-book viewer: Ensure that reference mode highlighting is removed from the book when reference mode is closed."
+      tickets: [908982]
+
+    - title: "Fix unable to load plugins from files on GNOME/XFCE desktops"
+
+    - title: "Fix regression that broke customizing toolbars on non English calibre installs"
+
+    - title: "Conversion pipeline: Disable HTML 5 parsing if it results in deeply nested trees."
+      tickets: [908818]
+
+    - title: "Do not loose position in book list on device connection/sync, if a search is active."
+      tickets: [908553]
+
+    - title: "Fix regression in 0.8.32 that broke deleting books if the path to the library contained non-ascii characters on linux"
+      tickets: [908068] 
+
+  improved recipes:
+    - Echo Online
+    - La Razon
+
+  new recipes:
+    - title: NYTimes Global
+      author: Krittika Goyal
+
+    - title: Grantland 
+      author: Barty
+
 - version: 0.8.32
   date: 2011-12-23
 

@@ -70,9 +70,29 @@ def clone_element(elem, nsmap={}, in_context=True):
     nelem.extend(elem)
     return nelem
 
-def html5_parse(data):
+def node_depth(node):
+    ans = 0
+    p = node.getparent()
+    while p is not None:
+        ans += 1
+        p = p.getparent()
+    return ans
+
+def html5_parse(data, max_nesting_depth=100):
     import html5lib
+    # html5lib bug: http://code.google.com/p/html5lib/issues/detail?id=195
+    data = re.sub(r'<\s*title\s*[^>]*/\s*>', '<title></title>', data)
+
     data = html5lib.parse(data, treebuilder='lxml').getroot()
+
+    # Check that the asinine HTML 5 algorithm did not result in a tree with
+    # insane nesting depths
+    for x in data.iterdescendants():
+        if isinstance(x.tag, basestring) and len(x) is 0: # Leaf node
+            depth = node_depth(x)
+            if depth > max_nesting_depth:
+                raise ValueError('html5lib resulted in a tree with nesting'
+                        ' depth > %d'%max_nesting_depth)
     # Set lang correctly
     xl = data.attrib.pop('xmlU0003Alang', None)
     if xl is not None and 'lang' not in data.attrib:

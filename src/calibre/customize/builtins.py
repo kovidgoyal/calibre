@@ -839,7 +839,7 @@ class ActionCopyToLibrary(InterfaceActionBase):
 class ActionTweakEpub(InterfaceActionBase):
     name = 'Tweak ePub'
     actual_plugin = 'calibre.gui2.actions.tweak_epub:TweakEpubAction'
-    description = _('Make small tweaks to epub files in your calibre library')
+    description = _('Make small tweaks to epub or htmlz files in your calibre library')
 
 class ActionNextMatch(InterfaceActionBase):
     name = 'Next Match'

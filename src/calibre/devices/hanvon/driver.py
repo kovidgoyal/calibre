@@ -50,7 +50,8 @@ class THEBOOK(N516):
     BCD = [0x399]
     MAIN_MEMORY_VOLUME_LABEL  = 'The Book Main Memory'
     EBOOK_DIR_MAIN = 'My books'
-    WINDOWS_CARD_A_MEM = '_FILE-STOR_GADGE'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_FILE-STOR_GADGE',
+            'FILE-STOR_GADGET']
 
 class LIBREAIR(N516):
     name = 'Libre Air Driver'

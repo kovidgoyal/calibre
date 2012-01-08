@@ -12,14 +12,13 @@ from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer,
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog,
                      QColor, QPoint, QImage, QRegion, QVariant, QIcon,
                      QFont, pyqtSignature, QAction, QByteArray, QMenu,
-                     pyqtSignal)
+                     pyqtSignal, QSwipeGesture)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.flip import SlideFlip
-from calibre.gui2.viewer.gestures import Gestures
 from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.constants import iswindows
 from calibre import prints, guess_type
@@ -62,6 +61,10 @@ def config(defaults=None):
     c.add_opt('page_flip_duration', default=0.5,
             help=_('The time, in seconds, for the page flip animation. Default'
                 ' is half a second.'))
+    c.add_opt('font_magnification_step', default=0.2,
+            help=_('The amount by which to change the font size when clicking'
+                ' the font larger/smaller buttons. Should be a number between '
+                '0 and 1.'))
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -87,6 +90,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
         self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
         self.opt_page_flip_duration.setValue(opts.page_flip_duration)
+        fms = opts.font_magnification_step
+        if fms < 0.01 or fms > 1:
+            fms = 0.2
+        self.opt_font_mag_step.setValue(int(fms*100))
         self.serif_family.setCurrentFont(QFont(opts.serif_family))
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
         self.mono_family.setCurrentFont(QFont(opts.mono_family))
@@ -143,6 +150,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
         c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
         c.set('page_flip_duration', self.opt_page_flip_duration.value())
+        c.set('font_magnification_step',
+                float(self.opt_font_mag_step.value())/100.)
         idx = self.hyphenate_default_lang.currentIndex()
         c.set('hyphenate_default_lang',
                 str(self.hyphenate_default_lang.itemData(idx).toString()))
@@ -223,6 +232,7 @@ class Document(QWebPage): # {{{
         self.do_fit_images = opts.fit_images
         self.page_flip_duration = opts.page_flip_duration
         self.enable_page_flip = self.page_flip_duration > 0.1
+        self.font_magnification_step = opts.font_magnification_step
         self.wheel_flips_pages = opts.wheel_flips_pages
 
     def fit_images(self):
@@ -503,7 +513,6 @@ class DocumentView(QWebView): # {{{
     def __init__(self, *args):
         QWebView.__init__(self, *args)
         self.flipper = SlideFlip(self)
-        self.gestures = Gestures()
         self.is_auto_repeat_event = False
         self.debug_javascript = False
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
@@ -571,6 +580,7 @@ class DocumentView(QWebView): # {{{
             else:
                 m.addAction(name, a[key], self.shortcuts.get_sequences(key)[0])
         self.goto_location_action.setMenu(self.goto_location_menu)
+        self.grabGesture(Qt.SwipeGesture)
 
     def goto_next_section(self, *args):
         if self.manager is not None:
@@ -932,13 +942,17 @@ class DocumentView(QWebView): # {{{
             self.magnification_changed.emit(val)
         return property(fget=fget, fset=fset)
 
-    def magnify_fonts(self):
-        self.multiplier += 0.2
+    def magnify_fonts(self, amount=None):
+        if amount is None:
+            amount = self.document.font_magnification_step
+        self.multiplier += amount
         return self.document.scroll_fraction
 
-    def shrink_fonts(self):
-        if self.multiplier >= 0.2:
-            self.multiplier -= 0.2
+    def shrink_fonts(self, amount=None):
+        if amount is None:
+            amount = self.document.font_magnification_step
+        if self.multiplier >= amount:
+            self.multiplier -= amount
         return self.document.scroll_fraction
 
     def changeEvent(self, event):
@@ -956,6 +970,11 @@ class DocumentView(QWebView): # {{{
         painter.end()
 
     def wheelEvent(self, event):
+        mods = event.modifiers()
+        if mods & Qt.CTRL:
+            if self.manager is not None and event.delta() != 0:
+                (self.manager.font_size_larger if event.delta() > 0 else
+                        self.manager.font_size_smaller)()
         if event.delta() < -14:
             if self.document.wheel_flips_pages:
                 self.next_page()
@@ -1027,27 +1046,23 @@ class DocumentView(QWebView): # {{{
             self.manager.viewport_resized(self.scroll_fraction)
 
     def event(self, ev):
-        typ = ev.type()
-        if typ == ev.TouchBegin:
-            try:
-                self.gestures.start_gesture('touch', ev)
-            except:
-                import traceback
-                traceback.print_exc()
-        elif typ == ev.TouchEnd:
-            try:
-                gesture = self.gestures.end_gesture('touch', ev, self.rect())
-            except:
-                import traceback
-                traceback.print_exc()
-            if gesture is not None:
-                ev.accept()
-                if gesture == 'lineleft':
-                    self.next_page()
-                elif gesture == 'lineright':
-                    self.previous_page()
+        if ev.type() == ev.Gesture:
+            swipe = ev.gesture(Qt.SwipeGesture)
+            if swipe is not None:
+                self.handle_swipe(swipe)
                 return True
         return QWebView.event(self, ev)
+
+    def handle_swipe(self, swipe):
+        if swipe.state() == Qt.GestureFinished:
+            if swipe.horizontalDirection() == QSwipeGesture.Left:
+                self.previous_page()
+            elif swipe.horizontalDirection() == QSwipeGesture.Right:
+                self.next_page()
+            elif swipe.verticalDirection() == QSwipeGesture.Up:
+                self.goto_previous_section()
+            elif swipe.horizontalDirection() == QSwipeGesture.Down:
+                self.goto_next_section()
 
     def mouseReleaseEvent(self, ev):
         opos = self.document.ypos
