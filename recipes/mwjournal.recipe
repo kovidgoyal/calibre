@@ -1,0 +1,135 @@
+##
+## Title:        Microwave Journal RSS recipe
+## Contact:      Kiavash (use Mobile Read)
+##
+## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+## Copyright:    Kiavash
+##
+## Written:      Jan 2012
+## Last Edited:  2012-01-07
+##
+
+__license__   = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__copyright__   = 'Kiavash'
+__author__ = 'Kaivash'
+
+'''
+Microwave Journal Monthly Magazine
+You need to sign up (free) and get username/password.
+'''
+
+import re   # Import the regular expressions module.
+from calibre.ptempfile import TemporaryFile # we need this for saving to a temp file
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class MWJournal(BasicNewsRecipe):
+    # Title to use for the ebook.
+    title          = u'Microwave Journal'
+    __author__ = 'Kiavash'
+
+    #A brief description for the ebook.
+    description = u'Microwave Journal web site ebook created using rss feeds.'
+
+    # Set publisher and publication type.
+    publisher = 'Horizon House'
+    publication_type = 'magazine'
+    language = 'en'
+
+    oldest_article = 31     # monthly published magazine. Some months are 31 days!
+    max_articles_per_feed = 100
+    remove_empty_feeds = True
+    auto_cleanup = True
+
+    # Disable stylesheets and javascript from site.
+    no_stylesheets = True
+    remove_javascript = True
+
+    needs_subscription = True   # oh yeah... we need to login btw.
+
+    # Timeout for fetching files from the server in seconds. The default of 120 seconds, seems somewhat excessive.
+    timeout = 30
+
+    # Specify extra CSS - overrides ALL other CSS (IE. Added last).
+    extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
+                 .introduction, .first { font-weight: bold; } \
+                 .cross-head { font-weight: bold; font-size: 125%; } \
+                 .cap, .caption { display: block; font-size: 80%; font-style: italic; } \
+                 .cap, .caption, .caption img, .caption span { display: block; text-align: center; margin: 5px auto; } \
+                 .byl, .byd, .byline img, .byline-name, .byline-title, .author-name, .author-position, \
+                    .correspondent-portrait img, .byline-lead-in, .name, .bbc-role { display: block; \
+                    text-align: center; font-size: 80%; font-style: italic; margin: 1px auto; } \
+                 .story-date, .published { font-size: 80%; } \
+                 table { width: 100%; } \
+                 td img { display: block; margin: 5px auto; } \
+                 ul { padding-top: 10px; } \
+                 ol { padding-top: 10px; } \
+                 li { padding-top: 5px; padding-bottom: 5px; } \
+                 h1 { text-align: center; font-size: 175%; font-weight: bold; } \
+                 h2 { text-align: center; font-size: 150%; font-weight: bold; } \
+                 h3 { text-align: center; font-size: 125%; font-weight: bold; } \
+                 h4, h5, h6 { text-align: center; font-size: 100%; font-weight: bold; }'
+
+    remove_tags    = [
+                        dict(name='div', attrs={'class':'boxadzonearea350'}), # Removes banner ads
+                        dict(name='font', attrs={'class':'footer'}),    # remove fonts if you do like your fonts more! Comment out to use website's fonts
+                     ]
+
+    # Remove various tag attributes to improve the look of the ebook pages.
+    remove_attributes = [ 'border', 'cellspacing', 'align', 'cellpadding', 'colspan',
+                          'valign', 'vspace', 'hspace', 'alt', 'width', 'height' ]
+
+    # Remove the line breaks,
+    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+                              (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
+
+    # Select the feeds that you are interested.
+    feeds          = [
+                        (u'Current Issue', u'http://www.mwjournal.com/rss/Rss.asp?type=99'),
+                        #(u'Industry News', u'http://mwjournal.com/rss/Rss.asp?type=1'),
+                        #(u'Resources', u'http://mwjournal.com/rss/Rss.asp?type=3'),
+                        #(u'Buyer\'s Guide', u'http://mwjournal.com/rss/Rss.asp?type=5'),
+                        (u'Events', u'http://mwjournal.com/rss/Rss.asp?type=2'),
+                        #(u'All Updates', u'http://mwjournal.com/rss/Rss.asp?type=0'),
+                    ]
+
+    #  No magazine is complete without cover. Let's get it then!
+    # The function is adapted from the Economist recipe
+    def get_cover_url(self):
+        cover_url = None
+        cover_page_location = 'http://www.mwjournal.com/Journal/'   # Cover image is located on this page
+        soup = self.index_to_soup(cover_page_location)
+        cover_item = soup.find('img',attrs={'src':lambda x: x and '/IssueImg/3_MWJ_CurrIss_CoverImg' in x}) # There are three files named cover, we want the highest resolution which is the 3rd image. So we look for the pattern. Remember that the name of the cover image changes every month so we cannot search for the complete name. Instead we are searching for the pattern
+        if cover_item:
+            cover_url = 'http://www.mwjournal.com' + cover_item['src'].strip()  # yeah! we found it. Let's fetch the image file and pass it as cover to calibre
+        return cover_url
+
+    def print_version(self, url):
+        '''
+        this function uses the print version of the article.  Replaces the URL with its print version and fetch that page instead.
+        '''
+        return url.replace('http://mwjournal.com/Journal/article.asp?HH_ID=', 'http://mwjournal.com/Journal/Print.asp?Id=')
+
+
+    def get_browser(self):
+        '''
+        Microwave Journal website, directs the login page to omeda.com once login info is submitted, omeda.com redirects to mwjournal.com with again the browser logs in into that site (hidden from the user). To overcome this obsticle, first login page is fetch and its output is stored to an HTML file. Then the HTML file is opened again and second login form is submitted (Many thanks to Barty which helped with second page login).
+        '''
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            url = ('http://www.omeda.com/cgi-win/mwjreg.cgi?m=login') #  main login page.
+            br.open(url)    # fetch the 1st login page
+            br.select_form('login')     # finds the login form
+            br['EMAIL_ADDRESS']   = self.username   # fills the username
+            br['PASSWORD'] = self.password      # fills the password
+            raw = br.submit().read()        # submit the form and read the 2nd login form
+            # save it to an htm temp file (from ESPN recipe written by  Kovid Goyal kovid@kovidgoyal.net
+            with TemporaryFile(suffix='.htm') as fname:
+                with open(fname, 'wb') as f:
+                    f.write(raw)
+                br.open_local_file(fname)
+            br.select_form(nr=0)    # finds submit on the 2nd form
+            didwelogin = br.submit().read()     # submit it and read the return html
+            if 'Welcome ' not in didwelogin:    # did it login successfully? Is Username/password correct?
+                raise Exception('Failed to login, are you sure your username and password are correct?')
+            #login is done
+        return br

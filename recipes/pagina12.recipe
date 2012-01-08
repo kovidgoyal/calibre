@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pagina12.com.ar
 '''
@@ -66,9 +66,7 @@ class Pagina12(BasicNewsRecipe):
         return url.replace('http://www.pagina12.com.ar/','http://www.pagina12.com.ar/imprimir/')
 
     def get_cover_url(self):
-        rawc = self.index_to_soup('http://www.pagina12.com.ar/diario/principal/diario/index.html',True)
-        rawc2 = re.sub(r'PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN','PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"',rawc)
-        soup = BeautifulSoup(rawc2,fromEncoding=self.encoding,smartQuotesTo=None)
+        soup = self.index_to_soup('http://www.pagina12.com.ar/diario/principal/diario/index.html')
         for image in soup.findAll('img',alt=True):
            if image['alt'].startswith('Tapa de la fecha'):
               return image['src']
