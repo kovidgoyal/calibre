@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-06 07:42+0000\n"
-"PO-Revision-Date: 2011-12-23 19:21+0000\n"
+"PO-Revision-Date: 2012-01-07 19:10+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-07 05:00+0000\n"
+"X-Launchpad-Export-Date: 2012-01-08 05:01+0000\n"
 "X-Generator: Launchpad (build 14640)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1110,6 +1110,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"El mode de connexió directa no és compatible. Vegeu "
+"http://www.mobileread.com/forums/showthread.php?t=118559 per a instruccions "
+"de com utilitzar «Connecta a l'iTunes»"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:376
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
@@ -1500,7 +1503,7 @@ msgstr "<b>Posició %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:288
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Comunica't amb un lector Kindle 2/3/4/Touch"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
@@ -1583,10 +1586,13 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Un error en una versió anterior deixava els registres de llibres no kepub a "
+"la base de dades. Amb aquesta opció el calibre mostra els registres obsolets "
+"i permet suprimir-los amb la nova lògica de supressió."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
-msgstr ""
+msgstr "Mostra les previsualitzacions"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid ""
@@ -1594,10 +1600,13 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
+"Les previsualitzacions de Kobo s'inclouen al Touch i algunes altres "
+"versions. Per defecte ja no es mostren perquè no hi ha cap motiu per fer-ho. "
+"Habiliteu-ho si les voleu veure o suprimir."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Mostra les recomanacions"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -1605,6 +1614,9 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"El Kobo ara mostra recomanacions al dispositiu. En alguns casos són fitxers "
+"però en d'altres nomes són senyaladors al lloc web de compra. Habiliteu-ho "
+"si les voleu veure o suprimir."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381

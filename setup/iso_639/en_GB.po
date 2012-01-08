@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-01-06 16:19+0000\n"
+"PO-Revision-Date: 2012-01-07 09:51+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-01-07 05:20+0000\n"
+"X-Launchpad-Export-Date: 2012-01-08 05:02+0000\n"
 "X-Generator: Launchpad (build 14640)\n"
 
 #. name for aaa
@@ -1603,23 +1603,23 @@ msgstr "Zaiwa"
 
 #. name for atc
 msgid "Atsahuaca"
-msgstr ""
+msgstr "Atsahuaca"
 
 #. name for atd
 msgid "Manobo; Ata"
-msgstr ""
+msgstr "Manobo; Ata"
 
 #. name for ate
 msgid "Atemble"
-msgstr ""
+msgstr "Atemble"
 
 #. name for atg
 msgid "Ivbie North-Okpela-Arhe"
-msgstr ""
+msgstr "Ivbie North-Okpela-Arhe"
 
 #. name for ati
 msgid "Attié"
-msgstr ""
+msgstr "Attié"
 
 #. name for atj
 msgid "Atikamekw"
@@ -1627,115 +1627,115 @@ msgstr ""
 
 #. name for atk
 msgid "Ati"
-msgstr ""
+msgstr "Ati"
 
 #. name for atl
 msgid "Agta; Mt. Iraya"
-msgstr ""
+msgstr "Agta; Mt. Iraya"
 
 #. name for atm
 msgid "Ata"
-msgstr ""
+msgstr "Ata"
 
 #. name for atn
 msgid "Ashtiani"
-msgstr ""
+msgstr "Ashtiani"
 
 #. name for ato
 msgid "Atong"
-msgstr ""
+msgstr "Atong"
 
 #. name for atp
 msgid "Atta; Pudtol"
-msgstr ""
+msgstr "Atta; Pudtol"
 
 #. name for atq
 msgid "Aralle-Tabulahan"
-msgstr ""
+msgstr "Aralle-Tabulahan"
 
 #. name for atr
 msgid "Waimiri-Atroari"
-msgstr ""
+msgstr "Waimiri-Atroari"
 
 #. name for ats
 msgid "Gros Ventre"
-msgstr ""
+msgstr "Gros Ventre"
 
 #. name for att
 msgid "Atta; Pamplona"
-msgstr ""
+msgstr "Atta; Pamplona"
 
 #. name for atu
 msgid "Reel"
-msgstr ""
+msgstr "Reel"
 
 #. name for atv
 msgid "Altai; Northern"
-msgstr ""
+msgstr "Altai; Northern"
 
 #. name for atw
 msgid "Atsugewi"
-msgstr ""
+msgstr "Atsugewi"
 
 #. name for atx
 msgid "Arutani"
-msgstr ""
+msgstr "Arutani"
 
 #. name for aty
 msgid "Aneityum"
-msgstr ""
+msgstr "Aneityum"
 
 #. name for atz
 msgid "Arta"
-msgstr ""
+msgstr "Arta"
 
 #. name for aua
 msgid "Asumboa"
-msgstr ""
+msgstr "Asumboa"
 
 #. name for aub
 msgid "Alugu"
-msgstr ""
+msgstr "Alugu"
 
 #. name for auc
 msgid "Waorani"
-msgstr ""
+msgstr "Waorani"
 
 #. name for aud
 msgid "Anuta"
-msgstr ""
+msgstr "Anuta"
 
 #. name for aue
 msgid "=/Kx'au//'ein"
-msgstr ""
+msgstr "=/Kx'au//'ein"
 
 #. name for aug
 msgid "Aguna"
-msgstr ""
+msgstr "Aguna"
 
 #. name for auh
 msgid "Aushi"
-msgstr ""
+msgstr "Aushi"
 
 #. name for aui
 msgid "Anuki"
-msgstr ""
+msgstr "Anuki"
 
 #. name for auj
 msgid "Awjilah"
-msgstr ""
+msgstr "Awjilah"
 
 #. name for auk
 msgid "Heyo"
-msgstr ""
+msgstr "Heyo"
 
 #. name for aul
 msgid "Aulua"
-msgstr ""
+msgstr "Aulua"
 
 #. name for aum
 msgid "Asu (Nigeria)"
-msgstr ""
+msgstr "Asu (Nigeria)"
 
 #. name for aun
 msgid "One; Molmo"
@@ -1743,7 +1743,7 @@ msgstr ""
 
 #. name for auo
 msgid "Auyokawa"
-msgstr ""
+msgstr "Auyokawa"
 
 #. name for aup
 msgid "Makayam"
@@ -1751,55 +1751,55 @@ msgstr ""
 
 #. name for auq
 msgid "Anus"
-msgstr ""
+msgstr "Anus"
 
 #. name for aur
 msgid "Aruek"
-msgstr ""
+msgstr "Aruek"
 
 #. name for aut
 msgid "Austral"
-msgstr ""
+msgstr "Austral"
 
 #. name for auu
 msgid "Auye"
-msgstr ""
+msgstr "Auye"
 
 #. name for auw
 msgid "Awyi"
-msgstr ""
+msgstr "Awyi"
 
 #. name for aux
 msgid "Aurá"
-msgstr ""
+msgstr "Aurá"
 
 #. name for auy
 msgid "Awiyaana"
-msgstr ""
+msgstr "Awiyaana"
 
 #. name for auz
 msgid "Arabic; Uzbeki"
-msgstr ""
+msgstr "Arabic; Uzbeki"
 
 #. name for ava
 msgid "Avaric"
-msgstr ""
+msgstr "Avaric"
 
 #. name for avb
 msgid "Avau"
-msgstr ""
+msgstr "Avau"
 
 #. name for avd
 msgid "Alviri-Vidari"
-msgstr ""
+msgstr "Alviri-Vidari"
 
 #. name for ave
 msgid "Avestan"
-msgstr ""
+msgstr "Avestan"
 
 #. name for avi
 msgid "Avikam"
-msgstr ""
+msgstr "Avikam"
 
 #. name for avk
 msgid "Kotava"
