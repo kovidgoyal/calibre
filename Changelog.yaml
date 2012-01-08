@@ -20,7 +20,7 @@
 #     - title: 
 
 - version: 0.8.34
-  date: 2011-01-06
+  date: 2012-01-06
 
   new features:
     - title: "Apple driver: Set the year field in iTunes based on the published date in calibre." 
