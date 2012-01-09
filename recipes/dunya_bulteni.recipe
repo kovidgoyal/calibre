@@ -1,0 +1,12 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BasicUserRecipe1321194347(BasicNewsRecipe):
+    title          = u'D\xfcnya B\xfclteni'
+    language = 'tr'
+    __author__ = 'asalet_r'
+
+    oldest_article = 7
+    max_articles_per_feed = 50
+    auto_cleanup = True
+
+    feeds          = [(u'Tarih Dosyas\u0131', u'http://www.dunyabulteni.net/servisler/rss.php?kategoriID=157'), (u'R\xf6portaj', u'http://www.dunyabulteni.net/servisler/rss.php?kategoriID=153'), (u'Makale-Yorum', u'http://www.dunyabulteni.net/servisler/rss.php?kategoriID=174'), (u'K\xfclt\xfcr-Sanat', u'http://www.dunyabulteni.net/servisler/rss.php?kategoriID=66'), (u'Hayat\u0131n \u0130\xe7inden', u'http://www.dunyabulteni.net/servisler/rss.php?kategoriID=200'), (u'Haber Analiz', u'http://www.dunyabulteni.net/servisler/rss.php?kategoriID=123'), (u'Gezi-\u0130zlenim', u'http://www.dunyabulteni.net/servisler/rss.php?kategoriID=90'), (u'Aile Sa\u011fl\u0131k E\u011fitim', u'http://www.dunyabulteni.net/servisler/rss.php?kategoriID=75')]
