@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-06 07:42+0000\n"
-"PO-Revision-Date: 2012-01-06 08:00+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2012-01-08 19:40+0000\n"
+"Last-Translator: Péter Trombitás <trombipeti@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-07 05:05+0000\n"
+"X-Launchpad-Export-Date: 2012-01-09 04:48+0000\n"
 "X-Generator: Launchpad (build 14640)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -5713,7 +5713,7 @@ msgstr "Tartalomkiszolgáló leállítása"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:90
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:109
 msgid "Email to"
-msgstr "E-mail küldése"
+msgstr "E-mail küldése ide:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:94
 msgid "Email to and delete from library"
@@ -11910,7 +11910,7 @@ msgstr "%s formátumban."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:217
 msgid "Sending email to"
-msgstr "E-mail küldése:"
+msgstr "E-mail küldése ide:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:248
 msgid "Auto convert the following books before sending via email?"
