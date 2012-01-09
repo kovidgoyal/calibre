@@ -381,7 +381,7 @@ class TagsView(QTreeView): # {{{
                         self.context_menu.addAction(self.delete_icon,
                                 _('Delete search %s')%display_name(tag),
                                 partial(self.context_menu_handler,
-                                        action='delete_search', key=tag.name))
+                                        action='delete_search', key=tag.original_name))
                     if key.startswith('@') and not item.is_gst:
                         self.context_menu.addAction(self.user_category_icon,
                                 _('Remove %(item)s from category %(cat)s')%
