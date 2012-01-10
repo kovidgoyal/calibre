@@ -34,6 +34,9 @@ mark_and_reload = (evt) ->
     # be on the underlying element
     if evt.button == 2
         return # Right mouse click, generated only in firefox
+    reset = document.getElementById('reset')
+    if document.elementFromPoint(evt.clientX, evt.clientY) == reset
+        return
     ms = document.getElementById("marker")
     if ms
         ms.parentNode?.removeChild(ms)
