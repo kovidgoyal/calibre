@@ -114,6 +114,15 @@
             <p>Try clicking at different points along the image. Also try changing the magnification and then hitting reload.</p>
             <img src="marker.png" width="150" height="200" alt="Test Image" style="border: solid 1px black"/>
 
+            <h2>Video</h2>
+            <p>Try clicking on this video while it is playing. The page should
+            reload with the video paused at the point it was at when you
+            clicked.  To play the video you should right click on it and select
+            play (otherwise the click will cause a reload). This is currently
+            broken because of issues in the python server use to serve test
+            content. I lack the patience to track down the bug. </p>
+            <video width="320" height="240" controls="controls" preload="auto" src="birds.mp4" type="video/mp4" />
+
         </div>
         <img id="marker" style="position: absolute; display:none; z-index:10" src="marker.png" alt="Marker" />
     </body>
