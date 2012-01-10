@@ -32,6 +32,8 @@ window_ypos = (pos=null) ->
 mark_and_reload = (evt) ->
     # Remove image in case the click was on the image itself, we want the cfi to
     # be on the underlying element
+    if evt.button == 2
+        return # Right mouse click, generated only in firefox
     ms = document.getElementById("marker")
     if ms
         ms.parentNode?.removeChild(ms)
