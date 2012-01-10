@@ -167,9 +167,13 @@ def main():
         # so launch the gui as usual
         from calibre.gui2.main import main as gui_main
         return gui_main(['calibre'])
-    if 'CALIBRE_LAUNCH_INTERPRETER' in os.environ:
-        from calibre.utils.pyconsole.interpreter import main
-        return main()
+    csw = os.environ.get('CALIBRE_SIMPLE_WORKER', None)
+    if csw:
+        mod, _, func = csw.partition(':')
+        mod = importlib.import_module(mod)
+        func = getattr(mod, func)
+        func()
+        return
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
     resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT'])
