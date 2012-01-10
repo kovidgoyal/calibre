@@ -164,6 +164,7 @@ class Handler(SimpleHTTPServer.SimpleHTTPRequestHandler): # {{{
 
 class HTTPD(SocketServer.TCPServer):
     allow_reuse_address = True
+    protocol_version = 'HTTP/1.1'
 
 # }}}
 

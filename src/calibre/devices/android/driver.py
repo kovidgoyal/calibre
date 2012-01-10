@@ -74,7 +74,7 @@ class ANDROID(USBMS):
                 0x0001 : [0x0223, 0x9999],
                 0x4e11 : [0x0100, 0x226, 0x227],
                 0x4e12 : [0x0100, 0x226, 0x227],
-                0x4e21 : [0x0100, 0x226, 0x227],
+                0x4e21 : [0x0100, 0x226, 0x227, 0x231],
                 0xb058 : [0x0222, 0x226, 0x227],
                 0x0ff9 : [0x0226],
             },
@@ -175,7 +175,7 @@ class ANDROID(USBMS):
             'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
             'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI',
             'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107',
-            'GT-I9003_CARD', 'XT912']
+            'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',

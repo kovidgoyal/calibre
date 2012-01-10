@@ -13,7 +13,7 @@ class Moscowtimes(BasicNewsRecipe):
     category              = 'Russia, Moscow, Russian news, Moscow news, Russian newspaper, daily news, independent news, reliable news, USSR, Soviet Union, CIS, Russian politics, Russian business, Russian culture, Russian opinion, St Petersburg, Saint Petersburg'
     publisher             = 'The Moscow Times'
     language              = 'en'
-    oldest_article        = 4
+    oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False

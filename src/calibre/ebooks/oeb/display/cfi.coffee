@@ -191,9 +191,9 @@ class CanonicalFragmentIdentifier
         if target.currentTime == undefined
             return
         if target.readyState == 4 or target.readyState == "complete"
-            target.currentTime = val
+            target.currentTime = val + 0
         else
-            fn = -> target.currentTime = val
+            fn = ()-> target.currentTime = val
             target.addEventListener("canplay", fn, false)
     #}}}
 
