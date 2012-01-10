@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-06 07:42+0000\n"
-"PO-Revision-Date: 2011-12-31 07:59+0000\n"
+"PO-Revision-Date: 2012-01-09 12:04+0000\n"
 "Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-01-07 05:06+0000\n"
+"X-Launchpad-Export-Date: 2012-01-10 05:21+0000\n"
 "X-Generator: Launchpad (build 14640)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1045,6 +1045,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"サポートされていない直接接続モードです。詳しくは "
+"http://www.mobileread.com/forums/showthread.php?t=118559 "
+"で「iTunesへ接続」の使い方を参照してください。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:376
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
@@ -1426,7 +1429,7 @@ msgstr "<b>場所：%(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:288
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Kindle 2/3/4/Touch eBookリーダーと通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
@@ -7590,7 +7593,7 @@ msgstr "表紙のアスペクト比を保つ(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:58
 msgid "&Custom size:"
-msgstr ""
+msgstr "カスタムサイズ(&C):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -14117,7 +14120,7 @@ msgstr "該当するプラグインが見つかりません。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
 msgid "files"
-msgstr ""
+msgstr "ファイル"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:277
 msgid "Add plugin"
@@ -15796,7 +15799,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Failed to start Content Server"
-msgstr ""
+msgstr "コンテントサーバーの開始に失敗しました。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:377
 #, python-format
@@ -15805,6 +15808,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"コンテントサーバーの開始ができませんでした. Error:\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:503
 #, python-format

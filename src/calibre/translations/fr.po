@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-06 07:42+0000\n"
-"PO-Revision-Date: 2012-01-01 09:14+0000\n"
+"PO-Revision-Date: 2012-01-09 19:20+0000\n"
 "Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-01-07 05:03+0000\n"
+"X-Launchpad-Export-Date: 2012-01-10 05:20+0000\n"
 "X-Generator: Launchpad (build 14640)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -1120,6 +1120,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Mode de connexion directe non supporté. Allez voir "
+"http://www.mobileread.com/forums/showthread.php?t=118559 pour des "
+"instructions sur la manière d'utiliser 'Connecter à iTunes'"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:376
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
@@ -1509,7 +1512,7 @@ msgstr "<b>Emplacement %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:288
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Communiquer avec les lecteurs d'eBook Kindle 2/3/4/Touch"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
@@ -17154,7 +17157,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Failed to start Content Server"
-msgstr ""
+msgstr "Erreur lors du démarage du serveur de contenu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:377
 #, python-format
@@ -17163,6 +17166,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Impossible de démarrer le serveur de contenu. Erreur :\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:503
 #, python-format
@@ -22469,7 +22475,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:473
 msgid "Number of recently viewed books to show"
-msgstr ""
+msgstr "Nombre de livres récemment vu à afficher"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:474
 msgid ""
@@ -22477,3 +22483,6 @@ msgid ""
 "Control\n"
 "how many should be shown, here."
 msgstr ""
+"Faire un click droit sur le bouton Afficher présente une liste des livres "
+"récemment affichés. Contrôler\n"
+"le nombre de livres affichés de cette manière ici."
