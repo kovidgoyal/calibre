@@ -157,6 +157,9 @@ def email_news(mi, remove, get_fmts, done, job_manager):
         sent_mails.append(to_s[0])
     return sent_mails
 
+plugboard_email_value = 'email'
+plugboard_email_formats = ['epub']
+
 class EmailMixin(object): # {{{
 
     def send_by_mail(self, to, fmts, delete_from_library, subject='', send_ids=None,
@@ -164,10 +167,13 @@ class EmailMixin(object): # {{{
         ids = [self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()] if send_ids is None else send_ids
         if not ids or len(ids) == 0:
             return
+
         files, _auto_ids = self.library_view.model().get_preferred_formats_from_ids(ids,
                                     fmts, set_metadata=True,
                                     specific_format=specific_format,
-                                    exclude_auto=do_auto_convert)
+                                    exclude_auto=do_auto_convert,
+                                    use_plugboard=plugboard_email_value,
+                                    plugboard_formats=plugboard_email_formats)
         if do_auto_convert:
             nids = list(set(ids).difference(_auto_ids))
             ids = [i for i in ids if i in nids]
