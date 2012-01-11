@@ -153,3 +153,12 @@ else:
         atexit.register(cleanup_cdir)
 # }}}
 
+def get_version():
+    '''Return version string that indicates if we are running in a dev env'''
+    dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+    v = __version__
+    if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
+        v += '*'
+    return v
+
+
