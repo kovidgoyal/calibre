@@ -110,7 +110,9 @@ def fork_job(mod_name, func_name, args=(), kwargs={}, timeout=300, # seconds
         communicate(ans, w, listener, (mod_name, func_name, args, kwargs),
                 timeout=timeout)
     finally:
-        w.kill()
+        t = Thread(target=w.kill)
+        t.daemon=True
+        t.start()
         if no_output:
             try:
                 os.remove(w.log_path)
