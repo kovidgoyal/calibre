@@ -214,6 +214,10 @@ class SchedulerDialog(QDialog, Ui_Dialog):
 
         self.recipes.setModel(self.recipe_model)
         self.detail_box.setVisible(False)
+        self.download_button = self.buttonBox.addButton(_('&Download now'),
+                self.buttonBox.ActionRole)
+        self.download_button.setToolTip(_('Download this periodical now'))
+        self.download_button.setIcon(QIcon(I('arrow-down.png')))
         self.download_button.setVisible(False)
         self.recipes.currentChanged = self.current_changed
         for b, c in self.SCHEDULE_TYPES.iteritems():
