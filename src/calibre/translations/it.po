@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-06 07:42+0000\n"
-"PO-Revision-Date: 2012-01-09 17:38+0000\n"
+"PO-Revision-Date: 2012-01-10 09:15+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-10 05:21+0000\n"
+"X-Launchpad-Export-Date: 2012-01-11 04:39+0000\n"
 "X-Generator: Launchpad (build 14640)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -437,7 +437,8 @@ msgstr "Copia un libro da una biblioteca di calibre ad un'altra"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Make small tweaks to epub files in your calibre library"
-msgstr "Applica piccole modifiche ai file epub nella libreria di calibre"
+msgstr ""
+"Applica piccole ottimizzazioni ai file epub nella libreria di calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid ""
@@ -14098,6 +14099,8 @@ msgid ""
 "The colors box must be empty or contain the same number of items as the "
 "value box"
 msgstr ""
+"Il riquadro dei colori deve essere vuoto o contenere lo stesso numero di "
+"voci del riquadro dei valori"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:302
 msgid "The color {0} is unknown"
@@ -14142,7 +14145,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:229
 msgid "Show checkmarks"
-msgstr ""
+msgstr "Mostra i marcatori di controllo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:230
 msgid ""
@@ -15017,7 +15020,7 @@ msgstr "Impossibile trovare un plugin corrispondente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
 msgid "files"
-msgstr ""
+msgstr "file"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:277
 msgid "Add plugin"
@@ -15720,7 +15723,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:35
 msgid "Location Manager"
-msgstr ""
+msgstr "Gestore degli indirizzi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:36
 msgid "Switch between library and device views"
@@ -15839,6 +15842,9 @@ msgid ""
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
 msgstr ""
+"Aggiungi/modifica ottimizzazioni per ogni plugin personalizzato installato. "
+"La documentazione per queste modifiche devono essere disponibili sul sito "
+"web dal quale i plugin sono stati scaricati."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:324
 msgid "Search for tweak"
@@ -16300,6 +16306,11 @@ msgid ""
 "conversion. However, before making a purchase double check the DRM status "
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
+"Questo libro risulta libero da restrizioni DRM. Il libro dovrebbe essere "
+"utilizzabile da qualunque dispositivo se il suo formato è tra quelli "
+"supportati da calibre per la conversione. Comunque, prima di effettuare "
+"l'acquisto, controlla attentamente lo stato DRM del libro sul negozio. "
+"Alcuni negozi non dichiarano apertamente l'uso del DRM."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:241
 msgid ""
@@ -16810,7 +16821,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Failed to start Content Server"
-msgstr ""
+msgstr "L'avvio del server dei contenuti non è riuscito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:377
 #, python-format
@@ -16819,6 +16830,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Impossibile avviare il server dei contenuti. Errore:\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:503
 #, python-format
@@ -17217,7 +17231,7 @@ msgstr "Cerca ne&l dizionario"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:550
 msgid "&Search for next occurrence"
-msgstr ""
+msgstr "Cerca l'occorrenza &successiva"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:555
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
@@ -18304,6 +18318,9 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
+"Avviso: valori incoerenti di Ordinamento autore per\n"
+"Autore '{0}':\n"
+"'{1}' <> '{2}'\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:1733
 msgid ""
@@ -18968,6 +18985,8 @@ msgid ""
 "The character to put around the category value in CSV mode. Default is "
 "quotes (\")."
 msgstr ""
+"Il carattere con il quale delimitare il valore della categoria in modalità "
+"CSV. In modo predefinito, sono utilizzati i doppi apici (\")."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1060
 msgid ""
@@ -19196,6 +19215,8 @@ msgid ""
 "The format in which to display dates. %(day)s - day, %(month)s - month, "
 "%(mn)s - month number, %(year)s - year. Default is: %(default)s"
 msgstr ""
+"Il formato di visualizzazione delle date. %(day)s - giorno, %(month)s - "
+"mese, %(mn)s - numero mese, %(year)s - anno. Predefinito: %(default)s"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:121
 msgid "Convert paths to lowercase."
@@ -19613,7 +19634,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:38
 msgid " near "
-msgstr ""
+msgstr " vicino a "
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter.py:44
 msgid "end of program"
@@ -20007,11 +20028,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:780
 msgid "uppercase(val) -- return value of the field in upper case"
-msgstr ""
+msgstr "uppercase(val) -- restituisce in maiuscolo il valore del campo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:789
 msgid "lowercase(val) -- return value of the field in lower case"
-msgstr ""
+msgstr "lowercase(val) -- restituisce in minuscolo il valore del campo"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:798
 msgid "titlecase(val) -- return value of the field in title case"
@@ -20020,10 +20041,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:807
 msgid "capitalize(val) -- return value of the field capitalized"
 msgstr ""
+"capitalize(val) -- restituisce il valore del campo con l'iniziale maiuscola"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:816
 msgid "booksize() -- return value of the size field"
-msgstr ""
+msgstr "booksize() -- restituisce il valore del campo dimensione"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:830
 msgid ""

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-06 07:42+0000\n"
-"PO-Revision-Date: 2012-01-01 08:15+0000\n"
-"Last-Translator: Ida Nielsen <Unknown>\n"
+"PO-Revision-Date: 2012-01-11 04:24+0000\n"
+"Last-Translator: Bent Stigsen <Unknown>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-07 05:01+0000\n"
+"X-Launchpad-Export-Date: 2012-01-11 04:38+0000\n"
 "X-Generator: Launchpad (build 14640)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1033,6 +1033,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"\"Kopier filer til iTunes Media folder %s\" er aktiveret i iTunes "
+"Indstillinger|Avanceret"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:127
 msgid ""
@@ -1068,6 +1070,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Ikke understøttet direkte forbindelses tilstand. Se "
+"http://www.mobileread.com/forums/showthread.php?t=118559 for instruktion i "
+"brugen af 'Forbind til iTunes'"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:376
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
@@ -1082,7 +1087,7 @@ msgstr "Opdaterer enhed metadata listen..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3202
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d af %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:503
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1137
