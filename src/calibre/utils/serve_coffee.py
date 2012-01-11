@@ -352,7 +352,7 @@ class Server(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer): # {{{
 def serve(resources={}, port=8000, host='0.0.0.0'):
     Handler.special_resources = resources
     httpd = Server((host, port), Handler)
-    print('serving at %s:%d with PID=%d'%(host, port, os.getpid()))
+    print('serving %s at %s:%d with PID=%d'%(os.getcwdu(), host, port, os.getpid()))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
