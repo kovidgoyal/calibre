@@ -95,11 +95,11 @@ class POCKETBOOK360(EB600):
 
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 
-    VENDOR_NAME = ['PHILIPS', '__POCKET']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['MASS_STORGE', 'BOOK_USB_STORAGE']
+    VENDOR_NAME = ['PHILIPS', '__POCKET', 'POCKETBO']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['MASS_STORGE', 'BOOK_USB_STORAGE',
+            'POCKET_611_61']
 
-    OSX_MAIN_MEM   = 'Philips Mass Storge Media'
-    OSX_CARD_A_MEM = 'Philips Mass Storge Media'
+    OSX_MAIN_MEM = OSX_CARD_A_MEM = 'Philips Mass Storge Media'
     OSX_MAIN_MEM_VOL_PAT = re.compile(r'/Pocket')
 
     @classmethod
