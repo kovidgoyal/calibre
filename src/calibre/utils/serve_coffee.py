@@ -53,8 +53,27 @@ def check_qt():
         raise RuntimeError('Cannot use Qt in non GUI thread')
 
 def fork_job(*args, **kwargs):
-    return import_from_calibre('calibre.utils.ipc.simple_worker').fork_job(*args,
+    try:
+        return import_from_calibre('calibre.utils.ipc.simple_worker').fork_job(*args,
             **kwargs)
+    except ImportError:
+        # We aren't running in calibre
+        import subprocess
+        raw, filename = kwargs['args']
+        cs = ''
+        try:
+            p = subprocess.Popen([sys.executable, __file__, 'compile', '-'],
+                    stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+            if isinstance(raw, unicode):
+                raw = raw.encode('utf-8')
+            stdout, stderr = p.communicate(raw)
+            cs = stdout.decode('utf-8')
+            errors = [stderr]
+        except:
+            errors = [traceback.format_exc()]
+
+        return cs, errors
 
 # }}}
 
@@ -244,6 +263,10 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler): # {{{
 # }}}
 
 class Handler(HTTPRequestHandler): # {{{
+    class NoCoffee(Exception):
+        def __init__(self, src):
+            Exception.__init__(self, src)
+            self.src = src
 
     '''Server that dynamically compiles coffeescript to javascript and that can
     handle aliased resources.'''
@@ -257,7 +280,12 @@ class Handler(HTTPRequestHandler): # {{{
         if path.endswith('.coffee'):
             path = path[1:] if path.startswith('/') else path
             path = self.special_resources.get(path, path)
-            raw, mtime = self.compile_coffeescript(path)
+            try:
+                raw, mtime = self.compile_coffeescript(path)
+            except Handler.NoCoffee as e:
+                self.send_error(404, "File not found: %s"%e.src)
+                return (None, 0, 0)
+
             return self.send_bytes(raw, 'text/javascript', mtime)
         if path == '/favicon.ico':
             return self.send_bytes(self.FAVICON, 'image/x-icon', 1000.0)
@@ -276,7 +304,10 @@ class Handler(HTTPRequestHandler): # {{{
             sstat = os.stat(src)
         except:
             time.sleep(0.01)
-            sstat = os.stat(src)
+            try:
+                sstat = os.stat(src)
+            except:
+                raise Handler.NoCoffee(src)
         return sstat.st_mtime > dest
 
     def compile_coffeescript(self, src):
