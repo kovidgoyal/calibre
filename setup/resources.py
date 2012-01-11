@@ -35,7 +35,7 @@ class Coffee(Command): # {{{
                 help='Display the generated javascript')
 
     def run(self, opts):
-        from calibre.utils.coffeescript import compile_coffeescript
+        from calibre.utils.serve_coffee import compile_coffeescript
         self.compiler = compile_coffeescript
         self.do_coffee_compile(opts)
         if opts.watch:
