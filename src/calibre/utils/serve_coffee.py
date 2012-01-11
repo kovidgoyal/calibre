@@ -73,7 +73,7 @@ def fork_job(*args, **kwargs):
         except:
             errors = [traceback.format_exc()]
 
-        return cs, errors
+        return {'result':(cs, errors)}
 
 # }}}
 
