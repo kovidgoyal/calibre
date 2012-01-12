@@ -31,7 +31,7 @@ if False:
     # Prevent pyflakes from complaining
     winutil, winutilerror, __appname__, islinux, __version__
     fcntl, win32event, isfrozen, __author__
-    winerror, win32api, isbsd
+    winerror, win32api, isbsd, config_dir
 
 _mt_inited = False
 def _init_mimetypes():
@@ -699,69 +699,6 @@ if isosx:
         traceback.print_exc()
 
 def ipython(user_ns=None):
-    old_argv = sys.argv
-    sys.argv = ['ipython']
-    if user_ns is None:
-        user_ns = locals()
-    ipydir = os.path.join(config_dir, ('_' if iswindows else '.')+'ipython')
-    os.environ['IPYTHONDIR'] = ipydir
-    if not os.path.exists(ipydir):
-        os.makedirs(ipydir)
-    for x in ('', '.ini'):
-        rc = os.path.join(ipydir, 'ipythonrc'+x)
-        if not os.path.exists(rc):
-            open(rc, 'wb').write(' ')
-    UC = '''
-import IPython.ipapi
-ip = IPython.ipapi.get()
-
-# You probably want to uncomment this if you did %upgrade -nolegacy
-import ipy_defaults
-
-import os, re, sys
-
-def main():
-    # Handy tab-completers for %cd, %run, import etc.
-    # Try commenting this out if you have completion problems/slowness
-    import ipy_stock_completers
-
-    # uncomment if you want to get ipython -p sh behaviour
-    # without having to use command line switches
-
-    import ipy_profile_sh
-
-
-    # Configure your favourite editor?
-    # Good idea e.g. for %edit os.path.isfile
-
-    import ipy_editors
-
-    # Choose one of these:
-
-    #ipy_editors.scite()
-    #ipy_editors.scite('c:/opt/scite/scite.exe')
-    #ipy_editors.komodo()
-    #ipy_editors.idle()
-    # ... or many others, try 'ipy_editors??' after import to see them
-
-    # Or roll your own:
-    #ipy_editors.install_editor("c:/opt/jed +$line $file")
-
-    ipy_editors.kate()
-
-    o = ip.options
-    # An example on how to set options
-    #o.autocall = 1
-    o.system_verbose = 0
-    o.confirm_exit = 0
-
-main()
-    '''
-    uc = os.path.join(ipydir, 'ipy_user_conf.py')
-    if not os.path.exists(uc):
-        open(uc, 'wb').write(UC)
-    from IPython.Shell import IPShellEmbed
-    ipshell = IPShellEmbed(user_ns=user_ns)
-    ipshell()
-    sys.argv = old_argv
+    from calibre.utils.ipython import ipython
+    ipython(user_ns=user_ns)
 

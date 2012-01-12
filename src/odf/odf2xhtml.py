@@ -1158,7 +1158,7 @@ ol, ul { padding-left: 2em; }
         """ Anchors start """
         self.writedata()
         href = attrs[(XLINKNS,"href")].split("|")[0]
-        if href[0] == "#":
+        if href[:1] == "#": # Changed by Kovid
             href = "#" + self.get_anchor(href[1:])
         self.opentag('a', {'href':href})
         self.purgedata()

@@ -466,7 +466,7 @@ class BooksModel(QAbstractTableModel): # {{{
                             if cpb:
                                 newmi = mi.deepcopy_metadata()
                                 newmi.template_to_attribute(mi, cpb)
-                        if newmi:
+                        if newmi is not None:
                             _set_metadata(pt, newmi, format)
                         else:
                             _set_metadata(pt, mi, format)

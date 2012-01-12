@@ -53,8 +53,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>524</width>
-        <height>504</height>
+        <width>518</width>
+        <height>498</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -317,13 +317,6 @@
           </size>
          </property>
         </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="download_button">
-         <property name="text">
-          <string>&amp;Download now</string>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>

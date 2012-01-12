@@ -66,9 +66,10 @@ class Worker(object):
         if isfrozen:
             return os.path.join(sys.executables_location, e)
 
-        c = os.path.join(sys.executables_location, e)
-        if os.access(c, os.X_OK):
-            return c
+        if hasattr(sys, 'executables_location'):
+            c = os.path.join(sys.executables_location, e)
+            if os.access(c, os.X_OK):
+                return c
         return e
 
 
