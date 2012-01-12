@@ -216,7 +216,6 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.detail_box.setVisible(False)
         self.download_button = self.buttonBox.addButton(_('&Download now'),
                 self.buttonBox.ActionRole)
-        self.download_button.setToolTip(_('Download this periodical now'))
         self.download_button.setIcon(QIcon(I('arrow-down.png')))
         self.download_button.setVisible(False)
         self.recipes.currentChanged = self.current_changed
@@ -375,7 +374,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         '''%dict(title=recipe.get('title'), cb=_('Created by: '),
             author=recipe.get('author', _('Unknown')),
             description=recipe.get('description', '')))
-
+        self.download_button.setToolTip(
+                _('Downlod %s now')%recipe.get('title'))
         scheduled = schedule_info is not None
         self.schedule.setChecked(scheduled)
         self.toggle_schedule_info()
