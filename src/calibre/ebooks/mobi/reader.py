@@ -245,7 +245,7 @@ class MetadataHeader(BookHeader):
 
 class MobiReader(object):
     PAGE_BREAK_PAT = re.compile(
-        r'<\s*mbp:pagebreak((?:\s+[^/>]*){0,1})/{0,1}\s*>\s*(?:<\s*/{0,1}\s*mbp:pagebreak\s*/{0,1}\s*>)*',
+        r'<\s*/{0,1}\s*mbp:pagebreak((?:\s+[^/>]*){0,1})/{0,1}\s*>\s*(?:<\s*/{0,1}\s*mbp:pagebreak\s*/{0,1}\s*>)*',
         re.IGNORECASE)
     IMAGE_ATTRS = ('lowrecindex', 'recindex', 'hirecindex')
 
@@ -1077,6 +1077,9 @@ def test_mbp_regex():
         '<mbp:pagebreak/>xxx':'xxx',
         '<mbp:pagebreak sdf/ >xxx':' sdfxxx',
         '<mbp:pagebreak / >':' ',
+        '</mbp:pagebreak>':'',
+        '</mbp:pagebreak sdf>':' sdf',
+        '</mbp:pagebreak><mbp:pagebreak></mbp:pagebreak>xxx':'xxx',
         }.iteritems():
         ans = MobiReader.PAGE_BREAK_PAT.sub(r'\1', raw)
         if ans != m:
