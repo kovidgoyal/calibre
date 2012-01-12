@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-06 07:42+0000\n"
-"PO-Revision-Date: 2011-12-25 10:57+0000\n"
+"PO-Revision-Date: 2012-01-12 05:31+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-07 05:17+0000\n"
+"X-Launchpad-Export-Date: 2012-01-12 05:39+0000\n"
 "X-Generator: Launchpad (build 14640)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1081,6 +1081,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Unsupported direct connect mode. See "
+"http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
+"using 'Connect to iTunes'"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:376
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
@@ -1468,7 +1471,7 @@ msgstr "<b>Location %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:288
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Communicate with the Kindle 2/3/4/Touch eBook reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
@@ -1550,10 +1553,13 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"A bug in an earlier version left non kepubs book records in the database.  "
+"With this option Calibre will show the expired records and allow you to "
+"delete them with the new delete logic."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
-msgstr ""
+msgstr "Show Previews"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid ""
@@ -1561,10 +1567,13 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
+"Kobo previews are included on the Touch and some other versions by default "
+"they are no longer displayed as there is no good reason to see them.  Enable "
+"if you wish to see/delete them."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Show Recommendations"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -1572,6 +1581,9 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo now shows recommendations on the device.  In some case these have files "
+"but in other cases they are just pointers to the web site to buy. Enable if "
+"you wish to see/delete them."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:381
@@ -3172,6 +3184,13 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
+"Specify the sectionization of elements. A value of \"nothing\" turns the "
+"book into a single section. A value of \"files\" turns each file into a "
+"separate section; use this if your device is having trouble. A value of "
+"\"Table of Contents\" turns the entries in the Table of Contents into titles "
+"and creates sections; if it fails, adjust the \"Structure Detection\" and/or "
+"\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
+"of Contents\")."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:158
 #, python-format
@@ -3214,6 +3233,10 @@ msgid ""
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 msgstr ""
+"Normally this input plugin re-arranges all the input files into a standard "
+"folder hierarchy. Only use this option if you know what you are doing as it "
+"can result in various nasty side effects in the rest of the conversion "
+"pipeline."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:32
 msgid "CSS file used for the output instead of the default file"
@@ -4450,6 +4473,8 @@ msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
+"The size of the paper. This size will be overridden when a non default "
+"output profile is used. Default is letter. Choices are %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:39
 msgid ""
@@ -4986,6 +5011,8 @@ msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
 msgstr ""
+"Are you sure you want to add the same files to all %d books? If the format "
+"already exists for a book, it will be replaced."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:98
 msgid "Select book files"
@@ -8007,7 +8034,7 @@ msgstr "Preserve &aspect ratio of cover"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:58
 msgid "&Custom size:"
-msgstr ""
+msgstr "&Custom size:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -8703,6 +8730,8 @@ msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device or reboot."
 msgstr ""
+"There was a temporary error talking to the device. Please unplug and "
+"reconnect the device or reboot."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:795
 msgid "Device: "
@@ -14860,7 +14889,7 @@ msgstr "Could not find any matching plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
 msgid "files"
-msgstr ""
+msgstr "files"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:277
 msgid "Add plugin"
@@ -16648,6 +16677,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Could not start the content server. Error:\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:503
 #, python-format
@@ -16895,17 +16927,19 @@ msgstr "Maximum &view width:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
 msgid "Font &magnification step size:"
-msgstr ""
+msgstr "Font &magnification step size:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
 msgid ""
 "The amount by which the font size is increased/decreased\n"
 " when you click the font size larger/smaller buttons"
 msgstr ""
+"The amount by which the font size is increased/decreased\n"
+" when you click the font size larger/smaller buttons"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:213
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
 msgid "&General"
@@ -16990,6 +17024,8 @@ msgid ""
 "The amount by which to change the font size when clicking the font "
 "larger/smaller buttons. Should be a number between 0 and 1."
 msgstr ""
+"The amount by which to change the font size when clicking the font "
+"larger/smaller buttons. Should be a number between 0 and 1."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:69
 msgid "Font options"

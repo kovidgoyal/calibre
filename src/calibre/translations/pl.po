@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-06 07:42+0000\n"
-"PO-Revision-Date: 2011-12-18 17:54+0000\n"
-"Last-Translator: Piotr Parafiniuk <Unknown>\n"
+"PO-Revision-Date: 2012-01-11 21:22+0000\n"
+"Last-Translator: Marcin Ostajewski (panszpik) <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-01-07 05:11+0000\n"
+"X-Launchpad-Export-Date: 2012-01-12 05:39+0000\n"
 "X-Generator: Launchpad (build 14640)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1479,7 +1479,7 @@ msgstr "<b>Lokacja %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:288
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Komunikacja z czytnikiem Kindle 2/3/4/Touch."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
@@ -1565,7 +1565,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
-msgstr ""
+msgstr "Pokaż podgląd"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid ""
@@ -1576,7 +1576,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Pokaż rekomendacje"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -4892,7 +4892,7 @@ msgstr "kategorie wyszukiwarki znaczników, które mają być pominięte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:280
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "Pokazuj to potwierdzenie ponownie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:529
 msgid "Choose Files"
@@ -8760,6 +8760,8 @@ msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device or reboot."
 msgstr ""
+"Wystąpił przejściowy błąd w kominukacji z urządzeniem. Odłącz i podłącz lub "
+"uruchom urządzenie ponownie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:795
 msgid "Device: "
@@ -17040,7 +17042,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:213
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:214
 msgid "&General"
@@ -22092,7 +22094,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:473
 msgid "Number of recently viewed books to show"
-msgstr ""
+msgstr "Pokazywana liczba ostatnio przeglądanych książek"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:474
 msgid ""
