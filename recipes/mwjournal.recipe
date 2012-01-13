@@ -20,7 +20,6 @@ You need to sign up (free) and get username/password.
 
 import re    # Import the regular expressions module.
 from calibre.ptempfile import TemporaryFile # we need this for saving to a temp file
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class MWJournal(BasicNewsRecipe):
@@ -93,11 +92,11 @@ class MWJournal(BasicNewsRecipe):
     # Select the feeds that you are interested.
     feeds          = [
                         (u'Current Issue', u'http://www.mwjournal.com/rss/Rss.asp?type=99'),
-                        #(u'Industry News', u'http://mwjournal.com/rss/Rss.asp?type=1'),
-                        #(u'Resources', u'http://mwjournal.com/rss/Rss.asp?type=3'),
-                        #(u'Buyer\'s Guide', u'http://mwjournal.com/rss/Rss.asp?type=5'),
-                        (u'Events', u'http://mwjournal.com/rss/Rss.asp?type=2'),
-                        #(u'All Updates', u'http://mwjournal.com/rss/Rss.asp?type=0'),
+                        (u'Industry News', u'http://www.mwjournal.com/rss/Rss.asp?type=1'),
+                        (u'Resources', u'http://www.mwjournal.com/rss/Rss.asp?type=3'),
+                        (u'Buyer\'s Guide', u'http://www.mwjournal.com/rss/Rss.asp?type=5'),
+                        (u'Events', u'http://www.mwjournal.com/rss/Rss.asp?type=2'),
+                        (u'All Updates', u'http://www.mwjournal.com/rss/Rss.asp?type=0'),
                     ]
 
     #  No magazine is complete without cover. Let's get it then!
