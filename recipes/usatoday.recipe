@@ -13,6 +13,7 @@ class USAToday(BasicNewsRecipe):
     title                  = 'USA Today'
     __author__             = 'Kovid Goyal'
     description            = 'newspaper'
+    cover_url = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg12/lg/USAT.jpg'
     encoding               = 'utf-8'
     publisher              = 'usatoday.com'
     category               = 'news, usa'
