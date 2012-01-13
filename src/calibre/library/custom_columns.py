@@ -297,10 +297,10 @@ class CustomColumns(object):
         books_affected = []
         if idx > -1:
             table, lt = self.custom_table_names(data['num'])
-            id_ = self.conn.get('SELECT id FROM %s where value = ?'%table,
+            id_ = self.conn.get('SELECT id FROM %s WHERE value = ?'%table,
                                 (existing_tags[idx],), all=False)
             if id_:
-                books = self.conn.get('SELECT book FROM %s where value = ?'%lt, (id_,))
+                books = self.conn.get('SELECT book FROM %s WHERE value = ?'%lt, (id_,))
                 if books:
                     books_affected = [b[0] for b in books]
                 self.conn.execute('DELETE FROM %s WHERE value=?'%lt, (id_,))
