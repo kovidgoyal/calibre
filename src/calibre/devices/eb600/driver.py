@@ -286,3 +286,21 @@ class POCKETBOOK701(USBMS):
             drives['carda'] = main
         return drives
 
+class PI2(EB600):
+
+    name           = 'Infibeam Pi2 Device Interface'
+    gui_name       = 'Infibeam Pi2'
+    author         = 'Michael Scalet'
+    description    = _('Communicate with the Infibeam Pi2 reader.')
+    version        = (1,0,1)
+
+    # Ordered list of supported formats
+    FORMATS     = ['epub', 'mobi', 'prc', 'html', 'htm', 'doc', 'pdf', 'rtf',
+            'txt']
+
+    VENDOR_NAME      = 'INFIBEAM'
+    WINDOWS_MAIN_MEM = 'INFIBEAM_PI'
+    WINDOWS_CARD_A_MEM = 'INFIBEAM_PI'
+
+    DELETE_EXTS = ['.rec']
+
