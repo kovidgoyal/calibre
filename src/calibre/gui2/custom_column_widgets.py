@@ -10,12 +10,13 @@ from functools import partial
 from PyQt4.Qt import QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit, \
         QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout, \
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, SIGNAL, \
-        QPushButton
+        QPushButton, QMessageBox, QToolButton
 
 from calibre.utils.date import qt_to_dt, now
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
+from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
@@ -226,18 +227,71 @@ class Comments(Base):
             val = None
         return val
 
+class MultipleWidget(QWidget):
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        layout = QHBoxLayout()
+        layout.setSpacing(5)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self.tags_box = MultiCompleteLineEdit(parent)
+        layout.addWidget(self.tags_box, stretch=1000)
+        self.editor_button = QToolButton(self)
+        self.editor_button.setToolTip(_('Open Item Editor'))
+        self.editor_button.setIcon(QIcon(I('chapters.png')))
+        layout.addWidget(self.editor_button)
+        self.setLayout(layout)
+
+    def get_editor_button(self):
+        return self.editor_button
+
+    def update_items_cache(self, values):
+        self.tags_box.update_items_cache(values)
+
+    def clear(self):
+        self.tags_box.clear()
+
+    def setEditText(self):
+        self.tags_box.setEditText()
+
+    def addItem(self, itm):
+        self.tags_box.addItem(itm)
+
+    def set_separator(self, sep):
+        self.tags_box.set_separator(sep)
+
+    def set_add_separator(self, sep):
+        self.tags_box.set_add_separator(sep)
+
+    def set_space_before_sep(self, v):
+        self.tags_box.set_space_before_sep(v)
+
+    def setSizePolicy(self, v1, v2):
+        self.tags_box.setSizePolicy(v1, v2)
+
+    def setText(self, v):
+        self.tags_box.setText(v)
+
+    def text(self):
+        return self.tags_box.text()
+
 class Text(Base):
 
     def setup_ui(self, parent):
         self.sep = self.col_metadata['multiple_seps']
+        self.key = self.db.field_metadata.label_to_key(self.col_metadata['label'],
+                                                       prefer_custom=True)
+        self.parent = parent
 
         if self.col_metadata['is_multiple']:
-            w = MultiCompleteLineEdit(parent)
+            w = MultipleWidget(parent)
             w.set_separator(self.sep['ui_to_list'])
             if self.sep['ui_to_list'] == '&':
                 w.set_space_before_sep(True)
                 w.set_add_separator(tweaks['authors_completer_append_separator'])
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            w.get_editor_button().clicked.connect(self.edit)
         else:
             w = MultiCompleteComboBox(parent)
             w.set_separator(None)
@@ -248,9 +302,12 @@ class Text(Base):
     def initialize(self, book_id):
         values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
+        self.book_id = book_id
         self.widgets[1].clear()
         self.widgets[1].update_items_cache(values)
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        if isinstance(val, list):
+            val.sort(key=sort_key)
         self.initial_val = val
         val = self.normalize_db_val(val)
 
@@ -283,6 +340,31 @@ class Text(Base):
         if not val:
             val = None
         return val
+
+    def _save_dialog(self, parent, title, msg, det_msg=''):
+        d = QMessageBox(parent)
+        d.setWindowTitle(title)
+        d.setText(msg)
+        d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+        return d.exec_()
+
+    def edit(self):
+        if self.getter() != self.initial_val:
+            d = self._save_dialog(self.parent, _('Values changed'),
+                    _('You have changed the values. In order to use this '
+                       'editor, you must either discard or apply these '
+                       'changes. Apply changes?'))
+            if d == QMessageBox.Cancel:
+                return
+            if d == QMessageBox.Yes:
+                self.commit(self.book_id)
+                self.db.commit()
+                self.initial_val = self.getter()
+            else:
+                self.setter(self.initial_val)
+        d = TagEditor(self.parent, self.db, self.book_id, self.key)
+        if d.exec_() == TagEditor.Accepted:
+            self.setter(d.tags)
 
 class Series(Base):
 
