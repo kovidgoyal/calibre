@@ -29,7 +29,8 @@ def login_to_google(username, password):
     if b'<title>Account overview - Account Settings</title>' not in raw:
         raise ValueError(('Failed to login to google with credentials: %s %s'
             '\nGoogle sometimes requires verification when logging in from a '
-            'new IP address. Use lynx to login and supply the verification.')
+            'new IP address. Use lynx to login and supply the verification, '
+            'at: lynx -accept_all_cookies https://accounts.google.com/ServiceLogin?service=code')
                 %(username, password))
     return br
 

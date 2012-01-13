@@ -19,6 +19,83 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.35
+  date: 2011-01-13
+
+  new features:
+    - title: "Metadata plugboards: Allow creation of plugboards for email delivery."
+      tickets: [914012]
+
+    - title: "Tweak EPUB: Also allow tweaking of HTMLZ files (when both EPUB and HTMLZ are present, EPUB is preferred, this can be changed via Preferences->Tweaks)."
+
+    - title: "TXT Input: Support direct conversion of files with extensions .md, .markdown and .textile." 
+      tickets: [912931]
+
+    - title: "E-book viewer: Speed up the optional hyphenation algorithm by upgrading the hyphenator library calibre uses"
+
+    - title: "Drivers for PocketBook 611, Motorola Razr Droid and Onyx Boox i62"
+ 
+  bug fixes:
+    - title: "MOBI Output: When converting a paragraph that contains only a non-breaking space into a line break, ignore paragraphs with height less than 2pt."
+      tickets: [915150]
+
+    - title: "MOBI Input: Handle MOBI files that specify anchor point exactly at pagebreaks. These are apparently produced by John Wiley and Sons."
+      tickets: [914036]
+
+    - title: "Fetch news dialog: The Download now button is no longer scrolled out of view on OS X for news sources that require credentials"
+
+    - title: "Fix commas being removed from author names when generating filenames in the calibre library"
+
+    - title: "ODT Input: Dont crash on empty links"
+
+    - title: "ebook-convert: Allow use of leading ./ when specifying output file names."
+      tickets: [913954] 
+
+    - title: "Fix deleting of hierarchical searches broken in Tag Browser"
+      tickets: [912345] 
+
+    - title: "Metadata search and replace: Fix rendering error when choosing {template}"
+      tickets: [913154]
+
+    - title: "Fix calibre not starting when stray .po files are present in the working directory"
+      tickets: [913054]
+
+    - title: "Do not error out when getting metadata for authors if the author name has either ::: or :#: in it."
+      tickets: [912713]
+
+  improved recipes:
+    - Pagina 12
+    - USA Today
+    - LWN Weekly
+    - Seattle Times
+    - San Jose Mercury
+    - Grantland.com
+
+  new recipes:
+    - title: Lega Nerd and Pambianco
+      author: faber1971
+
+    - title: Various Turkish news sources 
+      author: asalet_r
+
+    - title: Microwave Journal 
+      author: Kiavash
+
+    - title: OReilly Premium 
+      author: TechnoCat
+
+    - title: Hamilton Spectator and Tillsonburg/Norfolk County 
+      author: Eric Coolman
+
+    - title: Opinion Bolivia 
+      author: Piet van Oostrum
+
+    - title: ideal.es 
+      author: Josemi Liebana
+
+    - title: Novilist Portal
+      author: Darko Miletic
+
 - version: 0.8.34
   date: 2012-01-06
 

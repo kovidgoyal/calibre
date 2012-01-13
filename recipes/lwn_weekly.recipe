@@ -7,7 +7,6 @@ lwn.net
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 import re
 
 class WeeklyLWN(BasicNewsRecipe):
@@ -75,7 +74,6 @@ class WeeklyLWN(BasicNewsRecipe):
 
         articles = {}
         ans = []
-        old_section = None
         url_re = re.compile('^/Articles/')
 
         while True:
@@ -105,7 +103,7 @@ class WeeklyLWN(BasicNewsRecipe):
                 if tag_url == None:
                     break
                 body = tag_url
-                if tag_url.string == None:    
+                if tag_url.string == None:
                     continue
                 elif tag_url.string == 'Full Story':
                     break
@@ -116,7 +114,7 @@ class WeeklyLWN(BasicNewsRecipe):
 
             if tag_url == None:
                 break
-  
+
 
             article = dict(
                 title=self.tag_to_string(tag_title),
