@@ -1,0 +1,101 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+novine.novilist.hr
+'''
+
+import re
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class NoviList_hr(BasicNewsRecipe):
+    title                 = 'Novi List'
+    __author__            = 'Darko Miletic'
+    description           = 'Vijesti iz Hrvatske'
+    publisher             = 'NOVI LIST d.d.'
+    category              = 'Novi list, politika, hrvatski dnevnik, Novine, Hrvatska, Croatia, News, newspaper, Hrvatski,Primorje, dnevni list, Rijeka'
+    oldest_article        = 2
+    max_articles_per_feed = 200
+    no_stylesheets        = True
+    encoding              = 'cp1250'
+    use_embedded_content  = False
+    language              = 'hr'
+    remove_empty_feeds    = True
+    publication_type      = 'newspaper'
+    needs_subscription    = 'required'
+    masthead_url          = 'http://novine.novilist.hr/images/system/novilist-logo.jpg'
+    extra_css             = """
+                               body{font-family: Geneva,Arial,Helvetica,Swiss,sans-serif }
+                               img{display:block; margin-bottom: 0.4em; margin-top: 0.4em}
+                               .nadnaslov,.podnaslov{font-size: small; text-align: center}
+                               .naslov{font-size: x-large; color: maroon; font-weight: bold}
+                            """
+
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        , 'linearize_tables' : True
+                        }
+
+    keep_only_tags = [
+                       dict(name='td', attrs={'class':['nadnaslov', 'naslov', 'podnaslov']}),
+                       dict(name='font', attrs={'face':'Geneva,Arial,Helvetica,Swiss'})
+                     ]
+
+    remove_tags = [dict(name=['meta', 'link', 'iframe', 'embed', 'object'])]
+    remove_attributes=['border', 'lang']
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('http://novine.novilist.hr/loginnow.asp')
+            br.select_form(nr=0)
+            br['username'] = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
+
+    def parse_index(self):
+        articles = []
+        count = 0
+        soup = self.index_to_soup('http://novine.novilist.hr/')
+        #cover url
+        for alink in soup.findAll('a'):
+           if alink['href'].startswith('images/clanci/DOC_'):
+              self.cover_url = 'http://novine.novilist.hr/' + alink['href']
+        #feeds
+        for item in soup.findAll('td',attrs={'class':'tocrubrika'}):
+            count = count +1
+            if self.test and count > 2:
+               return articles
+            aitem = item.a
+            section  = self.tag_to_string(aitem)
+            feedlink = 'http://novine.novilist.hr/' + aitem['href']
+            feedpage = self.index_to_soup(feedlink)
+            self.report_progress(0, _('Fetching feed')+' %s...'%(section))
+            inarts   = []
+            for alink in feedpage.findAll('a',attrs={'class':'naslovlinkdesno'}):
+                url   = 'http://novine.novilist.hr/' + alink['href']
+                title = self.tag_to_string(alink)
+                date = strftime(self.timefmt)
+                description = ''
+                inarts.append({
+                                  'title'      :title
+                                 ,'date'       :date
+                                 ,'url'        :url
+                                 ,'description':description
+                                })
+            articles.append((section,inarts))
+        return articles
+
+    def print_version(self, url):
+        return url.replace('?WCI=Rubrike&','?WCI=Pretrazivac&')
+
+    def preprocess_html(self, soup):
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
