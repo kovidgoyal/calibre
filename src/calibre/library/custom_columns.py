@@ -279,12 +279,7 @@ class CustomColumns(object):
 
     def is_item_used_in_multiple(self, item, label=None, num=None):
         existing_tags = self.all_custom(label=label, num=num)
-        lt = [t.lower() for t in existing_tags]
-        try:
-            lt.index(item.lower())
-            return True
-        except ValueError:
-            return False
+        return item.lower() in {t.lower() for t in existing_tags}
 
     def delete_item_from_multiple(self, item, label=None, num=None):
         if label is not None:
@@ -302,10 +297,10 @@ class CustomColumns(object):
         books_affected = []
         if idx > -1:
             table, lt = self.custom_table_names(data['num'])
-            id_ = self.conn.get('SELECT id FROM %s where value = ?'%table,
+            id_ = self.conn.get('SELECT id FROM %s WHERE value = ?'%table,
                                 (existing_tags[idx],), all=False)
             if id_:
-                books = self.conn.get('SELECT book FROM %s where value = ?'%lt, (id_,))
+                books = self.conn.get('SELECT book FROM %s WHERE value = ?'%lt, (id_,))
                 if books:
                     books_affected = [b[0] for b in books]
                 self.conn.execute('DELETE FROM %s WHERE value=?'%lt, (id_,))

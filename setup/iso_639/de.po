@@ -6167,7 +6167,7 @@ msgstr ""
 
 #. name for deu
 msgid "German"
-msgstr ""
+msgstr "Deutsch"
 
 #. name for dev
 msgid "Domung"

@@ -557,6 +557,13 @@ class CanonicalFragmentIdentifier
         null
     # }}}
 
+    current_cfi: () -> # {{{
+        [winx, winy] = window_scroll_pos()
+        [winw, winh] = [window.innerWidth, window.innerHeight]
+        winw = max(winw, 400)
+        winh = max(winh, 600)
+    # }}}
+
 if window?
     window.cfi = new CanonicalFragmentIdentifier()
 else if process?

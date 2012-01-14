@@ -375,7 +375,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             author=recipe.get('author', _('Unknown')),
             description=recipe.get('description', '')))
         self.download_button.setToolTip(
-                _('Downlod %s now')%recipe.get('title'))
+                _('Download %s now')%recipe.get('title'))
         scheduled = schedule_info is not None
         self.schedule.setChecked(scheduled)
         self.toggle_schedule_info()

@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.8.35\n"
-"POT-Creation-Date: 2012-01-13 09:36+IST\n"
-"PO-Revision-Date: 2012-01-13 09:36+IST\n"
+"POT-Creation-Date: 2012-01-13 17:39+IST\n"
+"PO-Revision-Date: 2012-01-13 17:39+IST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: LANGUAGE\n"
 "MIME-Version: 1.0\n"
@@ -9012,7 +9012,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
 #, python-format
-msgid "Downlod %s now"
+msgid "Download %s now"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:382
