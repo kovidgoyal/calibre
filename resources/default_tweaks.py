@@ -196,7 +196,9 @@ title_series_sorting = 'library_order'
 # set to 'strictly_alphabetic', the series will be sent without change.
 # For example, if the tweak is set to library_order, "The Lord of the Rings"
 # will become "Lord of the Rings, The". If the tweak is set to
-# strictly_alphabetic, it would remain "The Lord of the Rings".
+# strictly_alphabetic, it would remain "The Lord of the Rings". Note that the
+# formatter function raw_field will return the base value for title and
+# series regardless of the setting of this tweak.
 save_template_title_series_sorting = 'library_order'
 
 #: Set the list of words considered to be "articles" for sort strings
