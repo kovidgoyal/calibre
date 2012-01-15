@@ -22,13 +22,16 @@ class NoviList_hr(BasicNewsRecipe):
     language              = 'hr'
     remove_empty_feeds    = True
     publication_type      = 'newspaper'
-    needs_subscription    = 'required'
+    needs_subscription    = True
     masthead_url          = 'http://novine.novilist.hr/images/system/novilist-logo.jpg'
+    index                 = 'http://novine.novilist.hr/'
     extra_css             = """
-                               body{font-family: Geneva,Arial,Helvetica,Swiss,sans-serif }
+                               @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
+                               body{font-family: Geneva,Arial,Helvetica,Swiss,sans1,sans-serif }
                                img{display:block; margin-bottom: 0.4em; margin-top: 0.4em}
-                               .nadnaslov,.podnaslov{font-size: small; text-align: center}
-                               .naslov{font-size: x-large; color: maroon; font-weight: bold}
+                               .nadnaslov,.podnaslov{font-size: small; display: block; margin-bottom: 1em}
+                               .naslov{font-size: x-large; color: maroon; font-weight: bold; display: block; margin-bottom: 1em;}
+                               p{display: block}
                             """
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
@@ -47,12 +50,12 @@ class NoviList_hr(BasicNewsRecipe):
                      ]
 
     remove_tags = [dict(name=['meta', 'link', 'iframe', 'embed', 'object'])]
-    remove_attributes=['border', 'lang']
+    remove_attributes=['border', 'lang', 'size', 'face', 'bgcolor']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
-            br.open('http://novine.novilist.hr/loginnow.asp')
+            br.open(self.index + 'loginnow.asp')
             br.select_form(nr=0)
             br['username'] = self.username
             br['password'] = self.password
@@ -62,11 +65,11 @@ class NoviList_hr(BasicNewsRecipe):
     def parse_index(self):
         articles = []
         count = 0
-        soup = self.index_to_soup('http://novine.novilist.hr/')
+        soup = self.index_to_soup(self.index)
         #cover url
         for alink in soup.findAll('a'):
            if alink['href'].startswith('images/clanci/DOC_'):
-              self.cover_url = 'http://novine.novilist.hr/' + alink['href']
+              self.cover_url = self.index + alink['href']
         #feeds
         for item in soup.findAll('td',attrs={'class':'tocrubrika'}):
             count = count +1
@@ -74,28 +77,24 @@ class NoviList_hr(BasicNewsRecipe):
                return articles
             aitem = item.a
             section  = self.tag_to_string(aitem)
-            feedlink = 'http://novine.novilist.hr/' + aitem['href']
+            feedlink = self.index + aitem['href']
             feedpage = self.index_to_soup(feedlink)
             self.report_progress(0, _('Fetching feed')+' %s...'%(section))
             inarts   = []
             for alink in feedpage.findAll('a',attrs={'class':'naslovlinkdesno'}):
-                url   = 'http://novine.novilist.hr/' + alink['href']
-                title = self.tag_to_string(alink)
-                date = strftime(self.timefmt)
-                description = ''
+                url   = self.index + alink['href']
                 inarts.append({
-                                  'title'      :title
-                                 ,'date'       :date
+                                  'title'      :self.tag_to_string(alink)
+                                 ,'date'       :strftime(self.timefmt)
                                  ,'url'        :url
-                                 ,'description':description
+                                 ,'description':''
                                 })
-            articles.append((section,inarts))
+            if self.remove_empty_feeds:
+                if inarts:
+                    articles.append((section,inarts))
+            else:
+                articles.append((section,inarts))
         return articles
 
     def print_version(self, url):
         return url.replace('?WCI=Rubrike&','?WCI=Pretrazivac&')
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
