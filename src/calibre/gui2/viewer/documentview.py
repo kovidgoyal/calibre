@@ -179,14 +179,16 @@ class Document(QWebPage): # {{{
             self.misc_config()
             self.after_load()
 
-    def __init__(self, shortcuts, parent=None, resize_callback=lambda: None):
+    def __init__(self, shortcuts, parent=None, resize_callback=lambda: None,
+            debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
-        self.debug_javascript = False
+        self.debug_javascript = debug_javascript
         self.resize_callback = resize_callback
         self.current_language = None
         self.loaded_javascript = False
-        self.js_loader = None
+        self.js_loader = JavaScriptLoader(
+                    dynamic_coffeescript=self.debug_javascript)
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
@@ -252,9 +254,6 @@ class Document(QWebPage): # {{{
                 window.py_bridge.window_resized();
             }
             ''')
-        if self.js_loader is None:
-            self.js_loader = JavaScriptLoader(
-                    dynamic_coffeescript=self.debug_javascript)
         self.loaded_lang = self.js_loader(self.mainFrame().evaluateJavaScript,
                 self.current_language, self.hyphenate_default_lang)
 
@@ -470,11 +469,10 @@ class DocumentView(QWebView): # {{{
     magnification_changed = pyqtSignal(object)
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
 
-    def __init__(self, *args):
-        QWebView.__init__(self, *args)
+    def initialize_view(self, debug_javascript=False):
         self.flipper = SlideFlip(self)
         self.is_auto_repeat_event = False
-        self.debug_javascript = False
+        self.debug_javascript = debug_javascript
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
         self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
                 re.IGNORECASE)
@@ -483,7 +481,8 @@ class DocumentView(QWebView): # {{{
         self.initial_pos = 0.0
         self.to_bottom = False
         self.document = Document(self.shortcuts, parent=self,
-                resize_callback=self.viewport_resized)
+                resize_callback=self.viewport_resized,
+                debug_javascript=debug_javascript)
         self.setPage(self.document)
         self.manager = None
         self._reference_mode = False
