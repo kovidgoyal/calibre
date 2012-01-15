@@ -87,17 +87,17 @@ window_scroll_pos = (win) -> # {{{
 # }}}
 
 viewport_to_document = (x, y, doc) -> # {{{
+    until doc == window.document
+        # We are in a frame
+        frame = doc.defaultView.frameElement
+        rect = frame.getBoundingClientRect()
+        x += rect.left
+        y += rect.top
+        doc = frame.ownerDocument
     win = doc.defaultView
     [wx, wy] = window_scroll_pos(win)
     x += wx
     y += wy
-    if doc != window.document
-        # We are in a frame
-        node = win.frameElement
-        rect = node.getBoundingClientRect()
-        [vx, vy] = viewport_to_document(rect.left, rect.top, node.ownerDocument)
-        x += vx
-        y += vy
     return [x, y]
 # }}}
 
