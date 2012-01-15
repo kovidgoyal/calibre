@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-13 12:24+0000\n"
-"PO-Revision-Date: 2012-01-12 05:41+0000\n"
+"PO-Revision-Date: 2012-01-14 10:07+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-14 05:07+0000\n"
+"X-Launchpad-Export-Date: 2012-01-15 05:18+0000\n"
 "X-Generator: Launchpad (build 14664)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -428,7 +428,7 @@ msgstr "Copy a book from one Calibre library to another"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
-msgstr ""
+msgstr "Make small tweaks to epub or htmlz files in your calibre library"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid ""
@@ -6261,11 +6261,11 @@ msgstr "About Get Books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Tweak Book"
-msgstr ""
+msgstr "Tweak Book"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:19
 msgid "Make small changes to ePub or HTMLZ format books"
-msgstr ""
+msgstr "Make small changes to ePub or HTMLZ format books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:20
 msgid "T"
@@ -6274,7 +6274,7 @@ msgstr "T"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:50
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "Cannot tweak Book"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:51
 msgid ""
@@ -6282,6 +6282,9 @@ msgid ""
 "\n"
 "First convert the book to ePub or HTMLZ."
 msgstr ""
+"The book must be in ePub or HTMLZ format to tweak.\n"
+"\n"
+"First convert the book to ePub or HTMLZ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -10181,6 +10184,8 @@ msgid ""
 "Enter what you are looking for, either plain text or a regular expression, "
 "depending on the mode"
 msgstr ""
+"Enter what you are looking for, either plain text or a regular expression, "
+"depending on the mode"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:626
 msgid ""
@@ -10935,7 +10940,7 @@ msgstr "Created by: "
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
 #, python-format
 msgid "Download %s now"
-msgstr ""
+msgstr "Download %s now"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:382
 msgid "Last downloaded: never"
@@ -11336,7 +11341,7 @@ msgstr "Add a new category"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to what is in the box"
-msgstr ""
+msgstr "Rename the current category to what is in the box"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
@@ -11477,7 +11482,7 @@ msgstr "Template value:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:114
 msgid "The value of the template using the current book in the library view"
-msgstr ""
+msgstr "The value of the template using the current book in the library view"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:115
 msgid "Function &name:"
@@ -11523,7 +11528,7 @@ msgstr "&Test"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:114
 #, python-format
 msgid "You must first explode the %s before previewing."
-msgstr ""
+msgstr "You must first explode the %s before previewing."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:116
 msgid "Cannot preview"
@@ -11531,7 +11536,7 @@ msgstr "Cannot preview"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 msgid "Tweak {0}"
-msgstr ""
+msgstr "Tweak {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -11541,15 +11546,20 @@ msgid ""
 "windows you used to edit files in the ePub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>Explode the {0} to display contents in a file browser window. To tweak "
+"individual files, right-click, then 'Open with...' your editor of choice. "
+"When tweaks are complete, close the file browser window <b>and the editor "
+"windows you used to edit files in the ePub</b>.</p><p>Rebuild the ePub, "
+"updating your calibre library.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:63
 msgid "Display contents of exploded {0}"
-msgstr ""
+msgstr "Display contents of exploded {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:64
 msgid "&Explode {0}"
-msgstr ""
+msgstr "&Explode {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:66
@@ -11559,15 +11569,15 @@ msgstr "Discard changes"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:69
 msgid "Rebuild {0} from exploded contents"
-msgstr ""
+msgstr "Rebuild {0} from exploded contents"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:70
 msgid "&Rebuild {0}"
-msgstr ""
+msgstr "&Rebuild {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:71
 msgid "&Preview {0}"
-msgstr ""
+msgstr "&Preview {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
@@ -15303,6 +15313,12 @@ msgid ""
 "Leave this blank if you intend to use the server with an\n"
 " Android phone or tablet."
 msgstr ""
+"<p>If you leave the password blank, anyone will be able to\n"
+" access your book collection using the web interface.\n"
+"<br>\n"
+"<p>Note that passwords do not work with Android devices. \n"
+"Leave this blank if you intend to use the server with an\n"
+" Android phone or tablet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:141
 msgid ""
@@ -15346,10 +15362,15 @@ msgid ""
 "<p>Do not set a password if you plan to use the server with an\n"
 " Android phone or tablet."
 msgstr ""
+"<p>Because of a bug in Google's Android, setting a password\n"
+" will prevent the server from working with Android devices.\n"
+"<br>\n"
+"<p>Do not set a password if you plan to use the server with an\n"
+" Android phone or tablet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Password incompatible with Android devices"
-msgstr ""
+msgstr "Password incompatible with Android devices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "&Start Server"
@@ -22037,7 +22058,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:478
 msgid "When using the 'Tweak Book' action, which format to prefer"
-msgstr ""
+msgstr "When using the 'Tweak Book' action, which format to prefer"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:479
 msgid ""
@@ -22045,3 +22066,6 @@ msgid ""
 "automatically. By default EPUB is preferred to HTMLZ. If you would like to\n"
 "prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'"
 msgstr ""
+"When tweaking a book that has multiple formats, calibre picks one\n"
+"automatically. By default EPUB is preferred to HTMLZ. If you would like to\n"
+"prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'"

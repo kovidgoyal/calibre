@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-01-13 05:00+0000\n"
+"PO-Revision-Date: 2012-01-15 03:17+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-01-14 05:10+0000\n"
+"X-Launchpad-Export-Date: 2012-01-15 05:19+0000\n"
 "X-Generator: Launchpad (build 14664)\n"
 
 #. name for aaa
@@ -2203,683 +2203,683 @@ msgstr "Bamali"
 
 #. name for bbr
 msgid "Girawa"
-msgstr ""
+msgstr "Girawa"
 
 #. name for bbs
 msgid "Bakpinka"
-msgstr ""
+msgstr "Bakpinka"
 
 #. name for bbt
 msgid "Mburku"
-msgstr ""
+msgstr "Mburku"
 
 #. name for bbu
 msgid "Kulung (Nigeria)"
-msgstr ""
+msgstr "Kulung (Nigeria)"
 
 #. name for bbv
 msgid "Karnai"
-msgstr ""
+msgstr "Karnai"
 
 #. name for bbw
 msgid "Baba"
-msgstr ""
+msgstr "Baba"
 
 #. name for bbx
 msgid "Bubia"
-msgstr ""
+msgstr "Bubia"
 
 #. name for bby
 msgid "Befang"
-msgstr ""
+msgstr "Befang"
 
 #. name for bbz
 msgid "Creole Arabic; Babalia"
-msgstr ""
+msgstr "Creole Arabic; Babalia"
 
 #. name for bca
 msgid "Bai; Central"
-msgstr ""
+msgstr "Bai; Central"
 
 #. name for bcb
 msgid "Bainouk-Samik"
-msgstr ""
+msgstr "Bainouk-Samik"
 
 #. name for bcc
 msgid "Balochi; Southern"
-msgstr ""
+msgstr "Balochi; Southern"
 
 #. name for bcd
 msgid "Babar; North"
-msgstr ""
+msgstr "Babar; North"
 
 #. name for bce
 msgid "Bamenyam"
-msgstr ""
+msgstr "Bamenyam"
 
 #. name for bcf
 msgid "Bamu"
-msgstr ""
+msgstr "Bamu"
 
 #. name for bcg
 msgid "Baga Binari"
-msgstr ""
+msgstr "Baga Binari"
 
 #. name for bch
 msgid "Bariai"
-msgstr ""
+msgstr "Bariai"
 
 #. name for bci
 msgid "Baoulé"
-msgstr ""
+msgstr "Baoulé"
 
 #. name for bcj
 msgid "Bardi"
-msgstr ""
+msgstr "Bardi"
 
 #. name for bck
 msgid "Bunaba"
-msgstr ""
+msgstr "Bunaba"
 
 #. name for bcl
 msgid "Bicolano; Central"
-msgstr ""
+msgstr "Bicolano; Central"
 
 #. name for bcm
 msgid "Bannoni"
-msgstr ""
+msgstr "Bannoni"
 
 #. name for bcn
 msgid "Bali (Nigeria)"
-msgstr ""
+msgstr "Bali (Nigeria)"
 
 #. name for bco
 msgid "Kaluli"
-msgstr ""
+msgstr "Kaluli"
 
 #. name for bcp
 msgid "Bali (Democratic Republic of Congo)"
-msgstr ""
+msgstr "Bali (Democratic Republic of Congo)"
 
 #. name for bcq
 msgid "Bench"
-msgstr ""
+msgstr "Bench"
 
 #. name for bcr
 msgid "Babine"
-msgstr ""
+msgstr "Babine"
 
 #. name for bcs
 msgid "Kohumono"
-msgstr ""
+msgstr "Kohumono"
 
 #. name for bct
 msgid "Bendi"
-msgstr ""
+msgstr "Bendi"
 
 #. name for bcu
 msgid "Awad Bing"
-msgstr ""
+msgstr "Awad Bing"
 
 #. name for bcv
 msgid "Shoo-Minda-Nye"
-msgstr ""
+msgstr "Shoo-Minda-Nye"
 
 #. name for bcw
 msgid "Bana"
-msgstr ""
+msgstr "Bana"
 
 #. name for bcy
 msgid "Bacama"
-msgstr ""
+msgstr "Bacama"
 
 #. name for bcz
 msgid "Bainouk-Gunyaamolo"
-msgstr ""
+msgstr "Bainouk-Gunyaamolo"
 
 #. name for bda
 msgid "Bayot"
-msgstr ""
+msgstr "Bayot"
 
 #. name for bdb
 msgid "Basap"
-msgstr ""
+msgstr "Basap"
 
 #. name for bdc
 msgid "Emberá-Baudó"
-msgstr ""
+msgstr "Emberá-Baudó"
 
 #. name for bdd
 msgid "Bunama"
-msgstr ""
+msgstr "Bunama"
 
 #. name for bde
 msgid "Bade"
-msgstr ""
+msgstr "Bade"
 
 #. name for bdf
 msgid "Biage"
-msgstr ""
+msgstr "Biage"
 
 #. name for bdg
 msgid "Bonggi"
-msgstr ""
+msgstr "Bonggi"
 
 #. name for bdh
 msgid "Baka (Sudan)"
-msgstr ""
+msgstr "Baka (Sudan)"
 
 #. name for bdi
 msgid "Burun"
-msgstr ""
+msgstr "Burun"
 
 #. name for bdj
 msgid "Bai"
-msgstr ""
+msgstr "Bai"
 
 #. name for bdk
 msgid "Budukh"
-msgstr ""
+msgstr "Budukh"
 
 #. name for bdl
 msgid "Bajau; Indonesian"
-msgstr ""
+msgstr "Bajau; Indonesian"
 
 #. name for bdm
 msgid "Buduma"
-msgstr ""
+msgstr "Buduma"
 
 #. name for bdn
 msgid "Baldemu"
-msgstr ""
+msgstr "Baldemu"
 
 #. name for bdo
 msgid "Morom"
-msgstr ""
+msgstr "Morom"
 
 #. name for bdp
 msgid "Bende"
-msgstr ""
+msgstr "Bende"
 
 #. name for bdq
 msgid "Bahnar"
-msgstr ""
+msgstr "Bahnar"
 
 #. name for bdr
 msgid "Bajau; West Coast"
-msgstr ""
+msgstr "Bajau; West Coast"
 
 #. name for bds
 msgid "Burunge"
-msgstr ""
+msgstr "Burunge"
 
 #. name for bdt
 msgid "Bokoto"
-msgstr ""
+msgstr "Bokoto"
 
 #. name for bdu
 msgid "Oroko"
-msgstr ""
+msgstr "Oroko"
 
 #. name for bdv
 msgid "Bodo Parja"
-msgstr ""
+msgstr "Bodo Parja"
 
 #. name for bdw
 msgid "Baham"
-msgstr ""
+msgstr "Baham"
 
 #. name for bdx
 msgid "Budong-Budong"
-msgstr ""
+msgstr "Budong-Budong"
 
 #. name for bdy
 msgid "Bandjalang"
-msgstr ""
+msgstr "Bandjalang"
 
 #. name for bdz
 msgid "Badeshi"
-msgstr ""
+msgstr "Badeshi"
 
 #. name for bea
 msgid "Beaver"
-msgstr ""
+msgstr "Beaver"
 
 #. name for beb
 msgid "Bebele"
-msgstr ""
+msgstr "Bebele"
 
 #. name for bec
 msgid "Iceve-Maci"
-msgstr ""
+msgstr "Iceve-Maci"
 
 #. name for bed
 msgid "Bedoanas"
-msgstr ""
+msgstr "Bedoanas"
 
 #. name for bee
 msgid "Byangsi"
-msgstr ""
+msgstr "Byangsi"
 
 #. name for bef
 msgid "Benabena"
-msgstr ""
+msgstr "Benabena"
 
 #. name for beg
 msgid "Belait"
-msgstr ""
+msgstr "Belait"
 
 #. name for beh
 msgid "Biali"
-msgstr ""
+msgstr "Biali"
 
 #. name for bei
 msgid "Bekati'"
-msgstr ""
+msgstr "Bekati'"
 
 #. name for bej
 msgid "Beja"
-msgstr ""
+msgstr "Beja"
 
 #. name for bek
 msgid "Bebeli"
-msgstr ""
+msgstr "Bebeli"
 
 #. name for bel
 msgid "Belarusian"
-msgstr ""
+msgstr "Belarusian"
 
 #. name for bem
 msgid "Bemba (Zambia)"
-msgstr ""
+msgstr "Bemba (Zambia)"
 
 #. name for ben
 msgid "Bengali"
-msgstr ""
+msgstr "Bengali"
 
 #. name for beo
 msgid "Beami"
-msgstr ""
+msgstr "Beami"
 
 #. name for bep
 msgid "Besoa"
-msgstr ""
+msgstr "Besoa"
 
 #. name for beq
 msgid "Beembe"
-msgstr ""
+msgstr "Beembe"
 
 #. name for bes
 msgid "Besme"
-msgstr ""
+msgstr "Besme"
 
 #. name for bet
 msgid "Béte; Guiberoua"
-msgstr ""
+msgstr "Béte; Guiberoua"
 
 #. name for beu
 msgid "Blagar"
-msgstr ""
+msgstr "Blagar"
 
 #. name for bev
 msgid "Bété; Daloa"
-msgstr ""
+msgstr "Bété; Daloa"
 
 #. name for bew
 msgid "Betawi"
-msgstr ""
+msgstr "Betawi"
 
 #. name for bex
 msgid "Jur Modo"
-msgstr ""
+msgstr "Jur Modo"
 
 #. name for bey
 msgid "Beli (Papua New Guinea)"
-msgstr ""
+msgstr "Beli (Papua New Guinea)"
 
 #. name for bez
 msgid "Bena (Tanzania)"
-msgstr ""
+msgstr "Bena (Tanzania)"
 
 #. name for bfa
 msgid "Bari"
-msgstr ""
+msgstr "Bari"
 
 #. name for bfb
 msgid "Bareli; Pauri"
-msgstr ""
+msgstr "Bareli; Pauri"
 
 #. name for bfc
 msgid "Bai; Northern"
-msgstr ""
+msgstr "Bai; Northern"
 
 #. name for bfd
 msgid "Bafut"
-msgstr ""
+msgstr "Bafut"
 
 #. name for bfe
 msgid "Betaf"
-msgstr ""
+msgstr "Betaf"
 
 #. name for bff
 msgid "Bofi"
-msgstr ""
+msgstr "Bofi"
 
 #. name for bfg
 msgid "Kayan; Busang"
-msgstr ""
+msgstr "Kayan; Busang"
 
 #. name for bfh
 msgid "Blafe"
-msgstr ""
+msgstr "Blafe"
 
 #. name for bfi
 msgid "British Sign Language"
-msgstr ""
+msgstr "British Sign Language"
 
 #. name for bfj
 msgid "Bafanji"
-msgstr ""
+msgstr "Bafanji"
 
 #. name for bfk
 msgid "Ban Khor Sign Language"
-msgstr ""
+msgstr "Ban Khor Sign Language"
 
 #. name for bfl
 msgid "Banda-Ndélé"
-msgstr ""
+msgstr "Banda-Ndélé"
 
 #. name for bfm
 msgid "Mmen"
-msgstr ""
+msgstr "Mmen"
 
 #. name for bfn
 msgid "Bunak"
-msgstr ""
+msgstr "Bunak"
 
 #. name for bfo
 msgid "Birifor; Malba"
-msgstr ""
+msgstr "Birifor; Malba"
 
 #. name for bfp
 msgid "Beba"
-msgstr ""
+msgstr "Beba"
 
 #. name for bfq
 msgid "Badaga"
-msgstr ""
+msgstr "Badaga"
 
 #. name for bfr
 msgid "Bazigar"
-msgstr ""
+msgstr "Bazigar"
 
 #. name for bfs
 msgid "Bai; Southern"
-msgstr ""
+msgstr "Bai; Southern"
 
 #. name for bft
 msgid "Balti"
-msgstr ""
+msgstr "Balti"
 
 #. name for bfu
 msgid "Gahri"
-msgstr ""
+msgstr "Gahri"
 
 #. name for bfw
 msgid "Bondo"
-msgstr ""
+msgstr "Bondo"
 
 #. name for bfx
 msgid "Bantayanon"
-msgstr ""
+msgstr "Bantayanon"
 
 #. name for bfy
 msgid "Bagheli"
-msgstr ""
+msgstr "Bagheli"
 
 #. name for bfz
 msgid "Pahari; Mahasu"
-msgstr ""
+msgstr "Pahari; Mahasu"
 
 #. name for bga
 msgid "Gwamhi-Wuri"
-msgstr ""
+msgstr "Gwamhi-Wuri"
 
 #. name for bgb
 msgid "Bobongko"
-msgstr ""
+msgstr "Bobongko"
 
 #. name for bgc
 msgid "Haryanvi"
-msgstr ""
+msgstr "Haryanvi"
 
 #. name for bgd
 msgid "Bareli; Rathwi"
-msgstr ""
+msgstr "Bareli; Rathwi"
 
 #. name for bge
 msgid "Bauria"
-msgstr ""
+msgstr "Bauria"
 
 #. name for bgf
 msgid "Bangandu"
-msgstr ""
+msgstr "Bangandu"
 
 #. name for bgg
 msgid "Bugun"
-msgstr ""
+msgstr "Bugun"
 
 #. name for bgi
 msgid "Giangan"
-msgstr ""
+msgstr "Giangan"
 
 #. name for bgj
 msgid "Bangolan"
-msgstr ""
+msgstr "Bangolan"
 
 #. name for bgk
 msgid "Bit"
-msgstr ""
+msgstr "Bit"
 
 #. name for bgl
 msgid "Bo (Laos)"
-msgstr ""
+msgstr "Bo (Laos)"
 
 #. name for bgm
 msgid "Baga Mboteni"
-msgstr ""
+msgstr "Baga Mboteni"
 
 #. name for bgn
 msgid "Balochi; Western"
-msgstr ""
+msgstr "Balochi; Western"
 
 #. name for bgo
 msgid "Baga Koga"
-msgstr ""
+msgstr "Baga Koga"
 
 #. name for bgp
 msgid "Balochi; Eastern"
-msgstr ""
+msgstr "Balochi; Eastern"
 
 #. name for bgq
 msgid "Bagri"
-msgstr ""
+msgstr "Bagri"
 
 #. name for bgr
 msgid "Chin; Bawm"
-msgstr ""
+msgstr "Chin; Bawm"
 
 #. name for bgs
 msgid "Tagabawa"
-msgstr ""
+msgstr "Tagabawa"
 
 #. name for bgt
 msgid "Bughotu"
-msgstr ""
+msgstr "Bughotu"
 
 #. name for bgu
 msgid "Mbongno"
-msgstr ""
+msgstr "Mbongno"
 
 #. name for bgv
 msgid "Warkay-Bipim"
-msgstr ""
+msgstr "Warkay-Bipim"
 
 #. name for bgw
 msgid "Bhatri"
-msgstr ""
+msgstr "Bhatri"
 
 #. name for bgx
 msgid "Turkish; Balkan Gagauz"
-msgstr ""
+msgstr "Turkish; Balkan Gagauz"
 
 #. name for bgy
 msgid "Benggoi"
-msgstr ""
+msgstr "Benggoi"
 
 #. name for bgz
 msgid "Banggai"
-msgstr ""
+msgstr "Banggai"
 
 #. name for bha
 msgid "Bharia"
-msgstr ""
+msgstr "Bharia"
 
 #. name for bhb
 msgid "Bhili"
-msgstr ""
+msgstr "Bhili"
 
 #. name for bhc
 msgid "Biga"
-msgstr ""
+msgstr "Biga"
 
 #. name for bhd
 msgid "Bhadrawahi"
-msgstr ""
+msgstr "Bhadrawahi"
 
 #. name for bhe
 msgid "Bhaya"
-msgstr ""
+msgstr "Bhaya"
 
 #. name for bhf
 msgid "Odiai"
-msgstr ""
+msgstr "Odiai"
 
 #. name for bhg
 msgid "Binandere"
-msgstr ""
+msgstr "Binandere"
 
 #. name for bhh
 msgid "Bukharic"
-msgstr ""
+msgstr "Bukharic"
 
 #. name for bhi
 msgid "Bhilali"
-msgstr ""
+msgstr "Bhilali"
 
 #. name for bhj
 msgid "Bahing"
-msgstr ""
+msgstr "Bahing"
 
 #. name for bhl
 msgid "Bimin"
-msgstr ""
+msgstr "Bimin"
 
 #. name for bhm
 msgid "Bathari"
-msgstr ""
+msgstr "Bathari"
 
 #. name for bhn
 msgid "Neo-Aramaic; Bohtan"
-msgstr ""
+msgstr "Neo-Aramaic; Bohtan"
 
 #. name for bho
 msgid "Bhojpuri"
-msgstr ""
+msgstr "Bhojpuri"
 
 #. name for bhp
 msgid "Bima"
-msgstr ""
+msgstr "Bima"
 
 #. name for bhq
 msgid "Tukang Besi South"
-msgstr ""
+msgstr "Tukang Besi South"
 
 #. name for bhr
 msgid "Malagasy; Bara"
-msgstr ""
+msgstr "Malagasy; Bara"
 
 #. name for bhs
 msgid "Buwal"
-msgstr ""
+msgstr "Buwal"
 
 #. name for bht
 msgid "Bhattiyali"
-msgstr ""
+msgstr "Bhattiyali"
 
 #. name for bhu
 msgid "Bhunjia"
-msgstr ""
+msgstr "Bhunjia"
 
 #. name for bhv
 msgid "Bahau"
-msgstr ""
+msgstr "Bahau"
 
 #. name for bhw
 msgid "Biak"
-msgstr ""
+msgstr "Biak"
 
 #. name for bhx
 msgid "Bhalay"
-msgstr ""
+msgstr "Bhalay"
 
 #. name for bhy
 msgid "Bhele"
-msgstr ""
+msgstr "Bhele"
 
 #. name for bhz
 msgid "Bada (Indonesia)"
-msgstr ""
+msgstr "Bada (Indonesia)"
 
 #. name for bia
 msgid "Badimaya"
-msgstr ""
+msgstr "Badimaya"
 
 #. name for bib
 msgid "Bissa"
-msgstr ""
+msgstr "Bissa"
 
 #. name for bic
 msgid "Bikaru"
-msgstr ""
+msgstr "Bikaru"
 
 #. name for bid
 msgid "Bidiyo"
-msgstr ""
+msgstr "Bidiyo"
 
 #. name for bie
 msgid "Bepour"
-msgstr ""
+msgstr "Bepour"
 
 #. name for bif
 msgid "Biafada"
-msgstr ""
+msgstr "Biafada"
 
 #. name for big
 msgid "Biangai"
-msgstr ""
+msgstr "Biangai"
 
 #. name for bij
 msgid "Vaghat-Ya-Bijim-Legeri"
-msgstr ""
+msgstr "Vaghat-Ya-Bijim-Legeri"
 
 #. name for bik
 msgid "Bikol"
-msgstr ""
+msgstr "Bikol"
 
 #. name for bil
 msgid "Bile"
-msgstr ""
+msgstr "Bile"
 
 #. name for bim
 msgid "Bimoba"

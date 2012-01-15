@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-13 12:24+0000\n"
-"PO-Revision-Date: 2011-08-05 16:01+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2012-01-14 10:44+0000\n"
+"Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: Hindi <hi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-14 04:54+0000\n"
+"X-Launchpad-Export-Date: 2012-01-15 05:17+0000\n"
 "X-Generator: Launchpad (build 14664)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -298,7 +298,7 @@ msgstr "कॉमिक फ़ाइल से मुखपृष्ठ निक�
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:386
 #, python-format
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "पाठ की प्रतिलिपि बनाएँ %s से पढ़ें मेटाडाटा फाइल है"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:323
 msgid "Read metadata from ebooks in RAR archives"
@@ -803,6 +803,8 @@ msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
+"यह प्रोफ़ाइल सोनी पीआरएस श्रंखला (500/505/700 आदि) में लैंडस्केप मोड के लिए "
+"है. मुख्यत: कॉमिक्स के लिए उपयोगी."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:635
 msgid "This profile is intended for the Amazon Kindle DX."
@@ -1213,7 +1215,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr ""
+msgstr "साइबुक जेन 3 / ओपस ईबुक रीडर से संपर्क करें"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
@@ -1323,7 +1325,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:43
 msgid "John Schember"
-msgstr ""
+msgstr "जॉन शेम्बर"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:57
 msgid "Cannot get files from this device"
@@ -2848,6 +2850,9 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
+"एक HTML फ़ाइल में सभी स्थानीय लिंक का पालन करें और एक ज़िप सब जुडी हुई फाइलॅ "
+"वाली फाइल को बना सकते हैं. यह है हर बार जब आप लायब्रेरी में कोई HTML फ़ाइल "
+"जोड़ रन प्लगइन."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:60
 msgid ""
