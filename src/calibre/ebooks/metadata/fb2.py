@@ -67,10 +67,10 @@ def get_metadata(stream):
         _parse_pubdate(root, mi)
     except:
         pass
-    try:
-        _parse_timestamp(root, mi)
-    except:
-        pass
+    #try:
+    #    _parse_timestamp(root, mi)
+    #except:
+    #    pass
 
     try:
         _parse_language(root, mi)

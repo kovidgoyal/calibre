@@ -546,7 +546,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
-        author = ascii_filename(authors.split(',')[0]
+        author = ascii_filename(authors.split(',')[0].replace('|', ',')
                     )[:self.PATH_LIMIT].decode('ascii', 'replace')
         title  = ascii_filename(self.title(id, index_is_id=True)
                     )[:self.PATH_LIMIT].decode('ascii', 'replace')
@@ -565,7 +565,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
-        author = ascii_filename(authors.split(',')[0]
+        author = ascii_filename(authors.split(',')[0].replace('|', ',')
                     )[:self.PATH_LIMIT].decode('ascii', 'replace')
         title  = ascii_filename(self.title(id, index_is_id=True)
                     )[:self.PATH_LIMIT].decode('ascii', 'replace')
@@ -3179,6 +3179,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def create_book_entry(self, mi, cover=None, add_duplicates=True,
             force_id=None):
+        if mi.tags:
+            mi.tags = list(mi.tags)
         self._add_newbook_tag(mi)
         if not add_duplicates and self.has_book(mi):
             return None

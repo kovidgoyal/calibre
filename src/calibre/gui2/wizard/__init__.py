@@ -122,7 +122,7 @@ class Sony505(Device):
     id = 'prs505'
 
 class Kobo(Device):
-    name = 'Kobo Reader'
+    name = 'Kobo and Kobo Touch Readers'
     manufacturer = 'Kobo'
     output_profile = 'kobo'
     output_format = 'EPUB'

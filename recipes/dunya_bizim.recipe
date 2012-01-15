@@ -1,0 +1,12 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BasicUserRecipe1324736687(BasicNewsRecipe):
+    title          = u'D\xfcnya Bizim'
+    language = 'tr'
+    __author__ = 'asalet_r'
+
+    oldest_article = 7
+    max_articles_per_feed = 10
+    auto_cleanup = True
+
+    feeds          = [(u'Aktif \u0130mamlar', u'http://dunyabizim.com/servisler/rss.php?kategoriID=31'), (u'Ayr\u0131nt\u0131 Defteri', u'http://dunyabizim.com/servisler/rss.php?kategoriID=58'), (u'Baba Kitaplar', u'http://dunyabizim.com/servisler/rss.php?kategoriID=4'), (u'Bu da Oldu', u'http://dunyabizim.com/servisler/rss.php?kategoriID=32'), (u'\xc7-al\u0131nt\u0131 Yaz\u0131lar', u'http://dunyabizim.com/servisler/rss.php?kategoriID=33'), (u'Dar\xfclmedya', u'http://dunyabizim.com/servisler/rss.php?kategoriID=49'), (u'Gidenler', u'http://dunyabizim.com/servisler/rss.php?kategoriID=59'), (u'G\xfczel Mekanlar', u'http://dunyabizim.com/servisler/rss.php?kategoriID=43'), (u'\u0130yi Haberler', u'http://dunyabizim.com/servisler/rss.php?kategoriID=18'), (u'\u0130yi M\xfczikler', u'http://dunyabizim.com/servisler/rss.php?kategoriID=2'), (u'Kalite Dergiler', u'http://dunyabizim.com/servisler/rss.php?kategoriID=3'), (u'Konu\u015fa Konu\u015fa', u'http://dunyabizim.com/servisler/rss.php?kategoriID=24'), (u'M\xfcstesta G\xfczeller', u'http://dunyabizim.com/servisler/rss.php?kategoriID=65'), (u'O \u015eimdi Nerede?', u'http://dunyabizim.com/servisler/rss.php?kategoriID=52'), (u'Olsa Ke\u015fke', u'http://dunyabizim.com/servisler/rss.php?kategoriID=34'), (u'Orada Ne Oldu?', u'http://dunyabizim.com/servisler/rss.php?kategoriID=38'), (u'\xd6nemli Adamlar', u'http://dunyabizim.com/servisler/rss.php?kategoriID=1'), (u'Polemik', u'http://dunyabizim.com/servisler/rss.php?kategoriID=39'), (u'Sinema', u'http://dunyabizim.com/servisler/rss.php?kategoriID=23'), (u'Yalan Haber', u'http://dunyabizim.com/servisler/rss.php?kategoriID=40'), (u'Yeni \u015eeyler', u'http://dunyabizim.com/servisler/rss.php?kategoriID=57'), (u'Zekeriya Sofras\u0131', u'http://dunyabizim.com/servisler/rss.php?kategoriID=60')]

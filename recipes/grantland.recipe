@@ -5,7 +5,7 @@ class GrantLand(BasicNewsRecipe):
 	title          = u"Grantland"
 	description    = 'Writings on Sports & Pop Culture'
 	language       = 'en'
-	__author__     = 'Barty'
+	__author__     = 'barty on mobileread.com forum'
 	max_articles_per_feed = 100
 	no_stylesheets = False
 	# auto_cleanup is too aggressive sometimes and we end up with blank articles
@@ -57,33 +57,43 @@ class GrantLand(BasicNewsRecipe):
 			headers = soup.findAll('h2' if tag=='' else 'h3')
 
 			for header in headers:
-				tag = header.find('a')
-				if tag is None or not hasattr(tag,'href'):
+				tag = header.find('a',href=True)
+				if tag is None:
 					continue
 				url = tag['href']
-				if url.startswith('/'):
-					url = self.INDEX + url
 				if url in seen_urls:
 					continue
-				seen_urls.add(url)
 				title = self.tag_to_string(tag)
 				if 'Podcast:' in title or 'In Case You Missed It' in title:
 					continue
 				desc = dt = ''
-				par = header.parent
-				#tag = par.find('cite')
-				#if tag is not None:
-				#	desc = '['+self.tag_to_string(tag) + '] '
-				tag = par.find('div')
-				if tag is not None:
-					desc = desc + self.tag_to_string(tag)
-					tag = tag.find('time')
-					if tag is not None:
-						dt = self.tag_to_string( tag)
+				# get at the div that contains description and other info
+				div = header.parent.find('div')
+				if div is not None:
+					desc = self.tag_to_string(div)
+					dt = div.find('time')
+					if dt is not None:
+						dt = self.tag_to_string( dt)
 
-				self.log('\tFound article:', title)
-				self.log('\t', url)
-				articles.append({'title':title,'url':url,'description':desc,'date':dt})
+				# if div contains the same url that is in h2/h3
+				# that means this is a series split into multiple articles
+				if div.find('a',href=url):
+					self.log('\tFound series:', title)
+					# grab all articles in series
+					for tag in div.findAll('a',href=True):
+						url = tag['href']
+						if url in seen_urls:
+							continue
+						self.log('\t', url)
+						seen_urls.add(url)
+						articles.append({'title':title+' - '+self.tag_to_string( tag),
+							'url':url,'description':desc,'date':dt})
+				else:
+					self.log('\tFound article:', title)
+					self.log('\t', url)
+					seen_urls.add(url)
+					articles.append({'title':title,'url':url,'description':desc,'date':dt})
+
 				if len(articles) >= max_articles:
 					break
 

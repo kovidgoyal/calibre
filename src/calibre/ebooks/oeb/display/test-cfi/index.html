@@ -9,9 +9,11 @@
                 font-family: sans-serif;
                 background-color: white;
             }
+            
+            h1, h2 { color: #005a9c }
 
             h2 {
-                border-top: solid 2px black;
+                border-top: solid 2px #005a9c;
                 margin-top: 4ex;
             }
 
@@ -39,6 +41,7 @@
                 color: blue;
                 text-decoration: none
             }
+            #reset:hover { color: red }
         </style>
     </head>
     <body>
@@ -46,7 +49,8 @@
             <h1 id="first-h1">Testing EPUB CFI</h1>
             <p><a id="reset" href="/">Reset CFI to None</a></p>
             <h2>A div with scrollbars</h2>
-            <p>Scroll down and click on some elements. Make sure to hit both bold and not bold text</p>
+            <p>Scroll down and click on some elements. Make sure to hit both
+            bold and not bold text as well as different points on the image</p>
             <div id="overflow">But I must explain to you how all this mistaken
                 idea of denouncing pleasure and praising pain was born and I
                 will give you a complete account of the system, and expound the
@@ -55,8 +59,8 @@
                 avoids pleasure itself, because it is pleasure, but because
                 those who do not know how to pursue pleasure rationally
                 encounter consequences that are extremely painful. Nor again is
-                there anyone who <b>loves</b> or pursues or desires to obtain pain of
-                itself, because it is pain, but because occasionally
+                there anyone who <b>loves or pursues or desires</b> to obtain
+                pain of itself, because it is pain, but because occasionally
                 circumstances occur in which toil and pain can procure him some
                 great pleasure. To take a trivial example, which of us ever
                 undertakes laborious physical exercise, except to obtain some
@@ -67,45 +71,69 @@
                 righteous indignation and dislike men who are so beguiled and
                 demoralized by the charms of pleasure of the moment, so blinded
                 by desire, that they cannot foresee
+                <img src="marker.png" width="150" height="200" alt="Test Image"
+                style="border: solid 1px black; display:block"/>
+
             </div>
             <h2>Some entities and comments</h2>
             <p>Entities: &amp; &copy; &sect; &gt; some text after entities</p>
             <p>An invisible Comment: <!-- aaaaaa --> followed by some text</p>
             <p>An invalid (in HTML) CDATA: <![CDATA[CDATA]]> followed by some text</p>
             <h2>Margins padding borders</h2>
-            <p>Try clicking in the margins, borders and padding. CFI calculation should fail.</p>
+            <p>Try clicking in the margins, borders and padding. CFI
+            calculation should fail.</p>
 
             <p id="whitespace">But I must explain to you how all this mistaken
-                idea of denouncing pleasure and praising pain was born and I
-                will give you a complete account of the system, and expound the
-                actual teachings of the great explorer of the truth, the
-                master-builder of human happiness. No one rejects, dislikes, or
-                avoids pleasure itself, because it is pleasure, but because
-                those who do not know how to pursue pleasure rationally
-                encounter consequences that are extremely painful. Nor again is
-                there anyone who <b>loves</b> or pursues or desires to obtain pain of
-                itself, because it is pain, but because occasionally
-                circumstances occur in which toil and pain can procure him some
-                great pleasure. To take a trivial example, which of us ever
-                undertakes laborious physical exercise, except to obtain some
-                advantage from it? But who has any right to find fault with a
-                man who chooses to enjoy a pleasure that has no annoying
-                consequences, or one who avoids a pain that produces no
-                resultant pleasure? On the other hand, we denounce with
-                righteous indignation and dislike men who are so beguiled and
-                demoralized by the charms of pleasure of the moment, so blinded
-                by desire, that they cannot foresee</p>
+            idea of denouncing pleasure and praising pain was born and I will
+            give you a complete account of the system, and expound the actual
+            teachings of the great explorer of the truth, the master-builder of
+            human happiness. No one rejects, dislikes, or avoids pleasure
+            itself, because it is pleasure, but because those who do not know
+            how to pursue pleasure rationally encounter consequences that are
+            extremely painful. Nor again is there anyone who <b>loves or
+                pursues or desires</b> to obtain pain of itself, because it is
+            pain, but because occasionally circumstances occur in which toil
+            and pain can procure him some great pleasure. To take a trivial
+            example, which of us ever undertakes laborious physical exercise,
+            except to obtain some advantage from it? But who has any right to
+            find fault with a man who chooses to enjoy a pleasure that has no
+            annoying consequences, or one who avoids a pain that produces no
+            resultant pleasure? On the other hand, we denounce with righteous
+            indignation and dislike men who are so beguiled and demoralized by
+            the charms of pleasure of the moment, so blinded by desire, that
+            they cannot foresee</p>
 
             <h2>Lots of collapsed whitespace</h2>
-            <p>Try clicking the A character after the colon:             A suffix</p>
+            <p>Try clicking the A character after the colon:             
+            A suffix</p>
 
-            <h2>Lots of nested tags</h2>
+            <h2>Lots of nested/sibling tags</h2>
             <p>A <span>bunch of <span>nested<span> and</span> <span>sibling</span>
                 tags, all </span> mixed together</span>. <span>Click all</span>
                 over this paragraph to test<span> things.</span></p>
 
+            <h2>Images</h2>
+            <p>Try clicking at different points along the image. Also try
+            changing the magnification and then hitting reload.</p>
+            <img src="marker.png" width="150" height="200" alt="Test Image"
+            style="border: solid 1px black"/>
+
+            <h2>Iframes</h2>
+            <p>Try clicking anywhere in the iframe below:</p>
+            <iframe src="iframe.html"></iframe>
+
+            <h2>Video</h2>
+            <p>Try clicking on this video while it is playing. The page should
+            reload with the video paused at the point it was at when you
+            clicked.  To play the video you should right click on it and select
+            play (otherwise the click will cause a reload). 
+            </p>
+            <video width="320" height="240" controls="controls" preload="auto"
+            src="birds.webm" type="video/webm"></video>
+
         </div>
-        <img id="marker" style="position: absolute; display:none; z-index:10" src="marker.png" alt="Marker" />
+        <img id="marker" style="position: absolute; display:none; z-index:10"
+        src="marker.png" alt="Marker" />
     </body>
 </html>
 

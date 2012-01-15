@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, math, re, glob, sys
+import os, math, re, glob, sys, zipfile
 from base64 import b64encode
 from functools import partial
 
@@ -23,11 +23,9 @@ from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.constants import iswindows
 from calibre import prints, guess_type
 from calibre.gui2.viewer.keys import SHORTCUTS
+from calibre.gui2.viewer.javascript import JavaScriptLoader
 
 # }}}
-
-bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = \
-        hyphenator = images = hyphen_pats = None
 
 def load_builtin_fonts():
     base = P('fonts/liberation/*.ttf')
@@ -103,9 +101,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.css.setPlainText(opts.user_css)
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
         self.max_view_width.setValue(opts.max_view_width)
-        pats = [os.path.basename(x).split('.')[0].replace('-', '_') for x in
-            glob.glob(P('viewer/hyphenate/patterns/*.js',
-                allow_user_override=False))]
+        with zipfile.ZipFile(P('viewer/hyphenate/patterns.zip',
+            allow_user_override=False), 'r') as zf:
+            pats = [x.split('.')[0].replace('-', '_') for x in zf.namelist()]
         names = list(map(get_language, pats))
         pmap = {}
         for i in range(len(pats)):
@@ -181,13 +179,16 @@ class Document(QWebPage): # {{{
             self.misc_config()
             self.after_load()
 
-    def __init__(self, shortcuts, parent=None, resize_callback=lambda: None):
+    def __init__(self, shortcuts, parent=None, resize_callback=lambda: None,
+            debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
-        self.debug_javascript = False
+        self.debug_javascript = debug_javascript
         self.resize_callback = resize_callback
         self.current_language = None
         self.loaded_javascript = False
+        self.js_loader = JavaScriptLoader(
+                    dynamic_coffeescript=self.debug_javascript)
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
@@ -244,8 +245,6 @@ class Document(QWebPage): # {{{
         self.loaded_javascript = False
 
     def load_javascript_libraries(self):
-        global bookmarks, referencing, hyphenation, jquery, jquery_scrollTo, \
-                hyphenator, images, hyphen_pats
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
@@ -255,48 +254,8 @@ class Document(QWebPage): # {{{
                 window.py_bridge.window_resized();
             }
             ''')
-        if jquery is None:
-            jquery = P('content_server/jquery.js', data=True)
-        self.javascript(jquery)
-        if jquery_scrollTo is None:
-            jquery_scrollTo = P('viewer/jquery_scrollTo.js', data=True)
-        self.javascript(jquery_scrollTo)
-        if bookmarks is None:
-            bookmarks = P('viewer/bookmarks.js', data=True)
-        self.javascript(bookmarks)
-        if referencing is None:
-            referencing = P('viewer/referencing.js', data=True)
-        self.javascript(referencing)
-        if images is None:
-            images = P('viewer/images.js', data=True)
-        self.javascript(images)
-        if hyphenation is None:
-            hyphenation = P('viewer/hyphenation.js', data=True)
-        self.javascript(hyphenation)
-        default_lang = self.hyphenate_default_lang
-        lang = self.current_language
-        if not lang:
-            lang = default_lang
-        def lang_name(l):
-            if l == 'en':
-                l = 'en-us'
-            return l.lower().replace('_', '-')
-        if hyphenator is None:
-            hyphenator = P('viewer/hyphenate/Hyphenator.js', data=True).decode('utf-8')
-        if hyphen_pats is None:
-            hyphen_pats = []
-            for x in glob.glob(P('viewer/hyphenate/patterns/*.js',
-                allow_user_override=False)):
-                with open(x, 'rb') as f:
-                    hyphen_pats.append(f.read().decode('utf-8'))
-            hyphen_pats = u'\n'.join(hyphen_pats)
-
-        self.javascript(hyphenator+hyphen_pats)
-        p = P('viewer/hyphenate/patterns/%s.js'%lang_name(lang))
-        if not os.path.exists(p):
-            lang = default_lang
-            p = P('viewer/hyphenate/patterns/%s.js'%lang_name(lang))
-        self.loaded_lang = lang_name(lang)
+        self.loaded_lang = self.js_loader(self.mainFrame().evaluateJavaScript,
+                self.current_language, self.hyphenate_default_lang)
 
     @pyqtSignature("")
     def animated_scroll_done(self):
@@ -510,11 +469,10 @@ class DocumentView(QWebView): # {{{
     magnification_changed = pyqtSignal(object)
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
 
-    def __init__(self, *args):
-        QWebView.__init__(self, *args)
+    def initialize_view(self, debug_javascript=False):
         self.flipper = SlideFlip(self)
         self.is_auto_repeat_event = False
-        self.debug_javascript = False
+        self.debug_javascript = debug_javascript
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
         self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
                 re.IGNORECASE)
@@ -523,7 +481,8 @@ class DocumentView(QWebView): # {{{
         self.initial_pos = 0.0
         self.to_bottom = False
         self.document = Document(self.shortcuts, parent=self,
-                resize_callback=self.viewport_resized)
+                resize_callback=self.viewport_resized,
+                debug_javascript=debug_javascript)
         self.setPage(self.document)
         self.manager = None
         self._reference_mode = False

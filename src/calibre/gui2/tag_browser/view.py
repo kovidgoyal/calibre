@@ -373,7 +373,7 @@ class TagsView(QTreeView): # {{{
                                     add_node_tree(tree_dict[k], tm, p)
                                 p.pop()
                         add_node_tree(nt, m, [])
-                    elif key == 'search':
+                    elif key == 'search' and tag.is_searchable:
                         self.context_menu.addAction(self.rename_icon,
                                                     _('Rename %s')%display_name(tag),
                             partial(self.context_menu_handler, action='edit_item',
@@ -381,7 +381,7 @@ class TagsView(QTreeView): # {{{
                         self.context_menu.addAction(self.delete_icon,
                                 _('Delete search %s')%display_name(tag),
                                 partial(self.context_menu_handler,
-                                        action='delete_search', key=tag.name))
+                                        action='delete_search', key=tag.original_name))
                     if key.startswith('@') and not item.is_gst:
                         self.context_menu.addAction(self.user_category_icon,
                                 _('Remove %(item)s from category %(cat)s')%
@@ -389,17 +389,18 @@ class TagsView(QTreeView): # {{{
                                 partial(self.context_menu_handler,
                                         action='delete_item_from_user_category',
                                         key = key, index = tag_item))
-                    # Add the search for value items. All leaf nodes are searchable
-                    self.context_menu.addAction(self.search_icon,
-                            _('Search for %s')%display_name(tag),
-                            partial(self.context_menu_handler, action='search',
-                                    search_state=TAG_SEARCH_STATES['mark_plus'],
-                                    index=index))
-                    self.context_menu.addAction(self.search_icon,
-                            _('Search for everything but %s')%display_name(tag),
-                            partial(self.context_menu_handler, action='search',
-                                    search_state=TAG_SEARCH_STATES['mark_minus'],
-                                    index=index))
+                    if tag.is_searchable:
+                        # Add the search for value items. All leaf nodes are searchable
+                        self.context_menu.addAction(self.search_icon,
+                                _('Search for %s')%display_name(tag),
+                                partial(self.context_menu_handler, action='search',
+                                        search_state=TAG_SEARCH_STATES['mark_plus'],
+                                        index=index))
+                        self.context_menu.addAction(self.search_icon,
+                                _('Search for everything but %s')%display_name(tag),
+                                partial(self.context_menu_handler, action='search',
+                                        search_state=TAG_SEARCH_STATES['mark_minus'],
+                                        index=index))
                     self.context_menu.addSeparator()
                 elif key.startswith('@') and not item.is_gst:
                     if item.can_be_edited:

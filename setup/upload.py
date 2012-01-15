@@ -77,7 +77,7 @@ def get_google_data():
         'path_map_location':'/var/www/status.calibre-ebook.com/googlepaths',
         # If you change this remember to change it in the
         # status.calibre-ebook.com server as well
-        'project':'calibre-ebook-ii'
+        'project':'calibre-ebook'
     }
 
 def get_sourceforge_data():

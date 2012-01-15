@@ -14,6 +14,7 @@ class TagesspiegelRSS(BasicNewsRecipe):
     language = 'de'
     oldest_article = 7
     max_articles_per_feed = 100
+    publication_type = 'newspaper'
 
     extra_css = '''
                 .hcf-overline{color:#990000; font-family:Arial,Helvetica,sans-serif;font-size:xx-small;display:block}
@@ -33,12 +34,15 @@ class TagesspiegelRSS(BasicNewsRecipe):
     no_javascript = True
     remove_empty_feeds = True
     encoding = 'utf-8'
-    remove_tags = [{'class':'hcf-header'}]
+    remove_tags = [{'class':'hcf-header'}, {'class':'hcf-atlas'}, {'class':'hcf-date hcf-separate'}]
 
     def print_version(self, url):
         url = url.split('/')
         url[-1] = 'v_print,%s?p='%url[-1]
         return '/'.join(url)
+
+    def get_masthead_url(self):
+        return 'http://www.tagesspiegel.de/images/tsp_logo/3114/6.png'
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.tagesspiegel.de/zeitung/')
@@ -51,7 +55,7 @@ class TagesspiegelRSS(BasicNewsRecipe):
         ans = []
         maincol = soup.find('div', attrs={'class':re.compile('hcf-main-col')})
 
-        for div in maincol.findAll(True, attrs={'class':['hcf-teaser', 'hcf-header', 'story headline']}):
+        for div in maincol.findAll(True, attrs={'class':['hcf-teaser', 'hcf-header', 'story headline', 'hcf-teaser hcf-last']}):
 
              if div['class'] == 'hcf-header':
                  try:
@@ -61,7 +65,7 @@ class TagesspiegelRSS(BasicNewsRecipe):
                  except:
                      continue
 
-             elif div['class'] == 'hcf-teaser' and getattr(div.contents[0],'name','') == 'h2':
+             elif div['class'] in ['hcf-teaser', 'hcf-teaser hcf-last'] and getattr(div.contents[0],'name','') == 'h2':
                  a = div.find('a', href=True)
                  if not a:
                      continue

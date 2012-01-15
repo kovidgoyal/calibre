@@ -61,7 +61,7 @@ class LIBREAIR(N516):
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf']
 
     BCD = [0x399]
-    VENDOR_NAME      = 'ALURATEK'
+    VENDOR_NAME      = ['ALURATEK', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
     EBOOK_DIR_MAIN = 'Books'
 

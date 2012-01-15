@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (0, 8, 34)
+numeric_version = (0, 8, 35)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -152,4 +152,13 @@ else:
                 pass
         atexit.register(cleanup_cdir)
 # }}}
+
+def get_version():
+    '''Return version string that indicates if we are running in a dev env'''
+    dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+    v = __version__
+    if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
+        v += '*'
+    return v
+
 

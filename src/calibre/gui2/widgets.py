@@ -660,7 +660,8 @@ class HistoryLineEdit(QComboBox): # {{{
 
     def focusOutEvent(self, e):
         QComboBox.focusOutEvent(self, e)
-        self.lost_focus.emit()
+        if not (self.hasFocus() or self.view().hasFocus()):
+            self.lost_focus.emit()
 
 # }}}
 

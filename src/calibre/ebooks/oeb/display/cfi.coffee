@@ -5,13 +5,19 @@
  Copyright 2011, Kovid Goyal <kovid@kovidgoyal.net>
  Released under the GPLv3 License
  Based on code originally written by Peter Sorotkin
- (http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js)
+ http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js
+
  Improvements with respect to that code:
- 1. Works on all browsers (WebKit, Firefox and IE >= 8)
- 2. Works for elements that are scrollable (i.e. have their own scrollbars)
+ 1. Works on all browsers (WebKit, Firefox and IE >= 9)
+ 2. Works for content in elements that are scrollable (i.e. have their own scrollbars)
+ 3. Much more comprehensive testing/error handling
+ 4. Properly encodes/decodes assertions
+ 5. Handles points in the padding of elements consistently
 
  To check if this script is compatible with the current browser, call
  window.cfi.is_compatible() it will throw an exception if not compatible.
+
+ Tested on: Firefox 9, IE 9, Chromium 16, Qt WebKit 2.1
 ###
 
 log = (error) -> # {{{
@@ -66,26 +72,32 @@ get_current_time = (target) -> # {{{
     fstr(ans)
 # }}}
 
-viewport_to_document = (x, y, doc) -> # {{{
-    win = doc.defaultView
+window_scroll_pos = (win) -> # {{{
     if typeof(win.pageXOffset) == 'number'
-        x += win.pageXOffset
-        y += win.pageYOffset
+        x = win.pageXOffset
+        y = win.pageYOffset
     else # IE < 9
         if document.body and ( document.body.scrollLeft or document.body.scrollTop )
-            x += document.body.scrollLeft
-            y += document.body.scrollTop
+            x = document.body.scrollLeft
+            y = document.body.scrollTop
         else if document.documentElement and ( document.documentElement.scrollLeft or document.documentElement.scrollTop)
-            y += document.documentElement.scrollTop
-            x += document.documentElement.scrollLeft
+            y = document.documentElement.scrollTop
+            x = document.documentElement.scrollLeft
+    return [x, y]
+# }}}
 
-    if doc != window.document
+viewport_to_document = (x, y, doc) -> # {{{
+    until doc == window.document
         # We are in a frame
-        node = win.frameElement
-        rect = node.getBoundingClientRect()
-        [vx, vy] = viewport_to_document(rect.left, rect.top, node.ownerDocument)
-        x += vx
-        y += vy
+        frame = doc.defaultView.frameElement
+        rect = frame.getBoundingClientRect()
+        x += rect.left
+        y += rect.top
+        doc = frame.ownerDocument
+    win = doc.defaultView
+    [wx, wy] = window_scroll_pos(win)
+    x += wx
+    y += wy
     return [x, y]
 # }}}
 
@@ -122,18 +134,14 @@ offset_in_text_node = (node, range, x, y) ->
 find_offset_for_point = (x, y, node, cdoc) ->
     range = cdoc.createRange()
     child = node.firstChild
-    last_child = null
     while child
         if child.nodeType in [3, 4, 5, 6] and child.nodeValue?.length
             range.setStart(child, 0)
             range.setEnd(child, child.nodeValue.length)
             if range_has_point(range, x, y)
                 return [child, offset_in_text_node(child, range, x, y)]
-            last_child = child
         child = child.nextSibling
 
-    if not last_child
-        throw "#{node} has no children"
     # The point must be after the last bit of text/in the padding/border, we dont know
     # how to get a good point in this case
     throw "Point (#{x}, #{y}) is in the padding/border of #{node}, so cannot calculate offset"
@@ -142,20 +150,22 @@ find_offset_for_point = (x, y, node, cdoc) ->
 
 class CanonicalFragmentIdentifier
 
-    # This class is a namespace to expose CFI functions via the window.cfi
-    # object. The three most important functions are:
-    #
-    # is_compatible(): Throws an error if the browser is not compatible with
-    #                  this script
-    #
-    # at(x, y): which maps a point to a CFI, if possible
-    #
-    # scroll_to(cfi): which scrolls the browser to a point corresponding to the
-    #                 given cfi, and returns the x and y co-ordinates of the point.
+    ###
+    This class is a namespace to expose CFI functions via the window.cfi
+    object. The three most important functions are:
+
+    is_compatible(): Throws an error if the browser is not compatible with
+                     this script
+
+    at(x, y): which maps a point to a CFI, if possible
+
+    scroll_to(cfi): which scrolls the browser to a point corresponding to the
+                    given cfi, and returns the x and y co-ordinates of the point.
+    ###
 
     constructor: () -> # {{{
         this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
-        this.IE_ERR = "Your browser is too old. You need Internet Explorer version 8 or newer."
+        this.IE_ERR = "Your browser is too old. You need Internet Explorer version 9 or newer."
         div = document.createElement('div')
         ver = 3
         while true
@@ -172,8 +182,8 @@ class CanonicalFragmentIdentifier
             throw this.CREATE_RANGE_ERR
         # Check if Internet Explorer >= 8 as getClientRects returns physical
         # rather than logical pixels on older IE
-        if this.isie and this.iever < 8
-            # We have IE < 8
+        if this.isie and this.iever < 9
+            # We have IE < 9
             throw this.IE_ERR
     # }}}
 
@@ -181,9 +191,9 @@ class CanonicalFragmentIdentifier
         if target.currentTime == undefined
             return
         if target.readyState == 4 or target.readyState == "complete"
-            target.currentTime = val
+            target.currentTime = val + 0
         else
-            fn = -> target.currentTime = val
+            fn = ()-> target.currentTime = val
             target.addEventListener("canplay", fn, false)
     #}}}
 
@@ -364,6 +374,7 @@ class CanonicalFragmentIdentifier
     # }}}
 
     at: (x, y, doc=window?.document) -> # {{{
+        # x, y are in viewport co-ordinates
         cdoc = doc
         target = null
         cwin = cdoc.defaultView
@@ -386,8 +397,11 @@ class CanonicalFragmentIdentifier
             if not cd
                 break
 
-            x = x + cwin.pageXOffset - target.offsetLeft
-            y = y + cwin.pageYOffset - target.offsetTop
+            # We have an embedded document, transforms x, y into the co-prd
+            # system of the embedded document's viewport
+            rect = target.getBoundingClientRect()
+            x -= rect.left
+            y -= rect.top
             cdoc = cd
             cwin = cdoc.defaultView
 
@@ -397,8 +411,9 @@ class CanonicalFragmentIdentifier
             tail = "~" + get_current_time(target)
 
         if name in ['img', 'video']
-            px = ((x + cwin.scrollX - target.offsetLeft)*100)/target.offsetWidth
-            py = ((y + cwin.scrollY - target.offsetTop)*100)/target.offsetHeight
+            rect = target.getBoundingClientRect()
+            px = ((x - rect.left)*100)/target.offsetWidth
+            py = ((y - rect.top)*100)/target.offsetHeight
             tail = "#{ tail }@#{ fstr px },#{ fstr py }"
         else if name != 'audio'
             # Get the text offset
@@ -493,6 +508,16 @@ class CanonicalFragmentIdentifier
             r.surroundContents(span)
             span.scrollIntoView()
             fn = ->
+                # Remove the span and get the new position now that scrolling
+                # has (hopefully) completed
+                #
+                # In WebKit, the boundingrect of the span is wrong in some
+                # situations, whereas in IE resetting the range causes it to
+                # loose bounding info. So we use the range's rects unless they
+                # are absent, in which case we use the span's rect
+                #
+                rect = span.getBoundingClientRect()
+
                 # Remove the span we inserted
                 p = span.parentNode
                 for node in span.childNodes
@@ -501,10 +526,13 @@ class CanonicalFragmentIdentifier
                 p.removeChild(span)
                 p.normalize()
 
-                # Reset the range to what it was before span
+                # Reset the range to what it was before the span was added
                 r.setStart(sc, so)
                 r.setEnd(ec, eo)
-                rect = r.getClientRects()[0]
+                rects = r.getClientRects()
+                if rects.length > 0
+                    rect = rects[0]
+
                 x = (point.a*rect.left + (1-point.a)*rect.right)
                 y = (rect.top + rect.bottom)/2
                 [x, y] = viewport_to_document(x, y, ndoc)
@@ -516,12 +544,12 @@ class CanonicalFragmentIdentifier
             node.scrollIntoView()
 
             fn = ->
-                rect = node.getBoundingClientRect()
-                [x, y] = viewport_to_document(rect.left, rect.top, node.ownerDocument)
+                r = node.getBoundingClientRect()
+                [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
                 if typeof(point.x) == 'number' and node.offsetWidth
-                    x += (r.x*node.offsetWidth)/100
+                    x += (point.x*node.offsetWidth)/100
                 if typeof(point.y) == 'number' and node.offsetHeight
-                    y += (r.y*node.offsetHeight)/100
+                    y += (point.y*node.offsetHeight)/100
                 scrollTo(x, y)
                 if callback
                     callback(x, y)
@@ -529,6 +557,13 @@ class CanonicalFragmentIdentifier
         setTimeout(fn, 10)
 
         null
+    # }}}
+
+    current_cfi: () -> # {{{
+        [winx, winy] = window_scroll_pos()
+        [winw, winh] = [window.innerWidth, window.innerHeight]
+        winw = max(winw, 400)
+        winh = max(winh, 600)
     # }}}
 
 if window?

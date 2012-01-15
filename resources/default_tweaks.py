@@ -196,7 +196,9 @@ title_series_sorting = 'library_order'
 # set to 'strictly_alphabetic', the series will be sent without change.
 # For example, if the tweak is set to library_order, "The Lord of the Rings"
 # will become "Lord of the Rings, The". If the tweak is set to
-# strictly_alphabetic, it would remain "The Lord of the Rings".
+# strictly_alphabetic, it would remain "The Lord of the Rings". Note that the
+# formatter function raw_field will return the base value for title and
+# series regardless of the setting of this tweak.
 save_template_title_series_sorting = 'library_order'
 
 #: Set the list of words considered to be "articles" for sort strings
@@ -475,4 +477,10 @@ save_original_format = True
 # Right-clicking the View button shows a list of recently viewed books. Control
 # how many should be shown, here.
 gui_view_history_size = 15
+
+#: When using the 'Tweak Book' action, which format to prefer
+# When tweaking a book that has multiple formats, calibre picks one
+# automatically. By default EPUB is preferred to HTMLZ. If you would like to
+# prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'
+tweak_book_prefer = 'epub'
 

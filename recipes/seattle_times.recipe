@@ -12,6 +12,7 @@ class SeattleTimes(BasicNewsRecipe):
     title                 = 'The Seattle Times'
     __author__            = 'Darko Miletic'
     description           = 'News from Seattle and USA'
+    cover_url = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg12/lg/WA_ST.jpg'
     publisher             = 'The Seattle Times'
     category              = 'news, politics, USA'
     oldest_article        = 2
