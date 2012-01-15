@@ -175,6 +175,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None):
         MainWindow.__init__(self, None)
         self.setupUi(self)
+        self.view.initialize_view(debug_javascript)
         self.view.magnification_changed.connect(self.magnification_changed)
         self.show_toc_on_open = False
         self.current_book_has_toc = False
@@ -215,7 +216,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.search.setMinimumWidth(200)
         self.tool_bar2.insertWidget(self.action_find_next, self.search)
         self.view.set_manager(self)
-        self.view.document.debug_javascript = debug_javascript
         self.pi = ProgressIndicator(self)
         self.toc.setVisible(False)
         self.action_quit = QAction(self)

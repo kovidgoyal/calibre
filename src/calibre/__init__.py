@@ -10,7 +10,10 @@ from math import floor
 from functools import partial
 
 warnings.simplefilter('ignore', DeprecationWarning)
-
+try:
+    os.getcwdu()
+except:
+    os.chdir(os.path.expanduser('~'))
 
 from calibre.constants import (iswindows, isosx, islinux, isfrozen,
         isbsd, preferred_encoding, __appname__, __version__, __author__,

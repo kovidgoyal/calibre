@@ -398,8 +398,8 @@ class CanonicalFragmentIdentifier
                 break
 
             rect = target.getBoundingClientRect()
-            x = x - rect.x
-            y = y - rect.y
+            x -= rect.left
+            y -= rect.top
             cdoc = cd
             cwin = cdoc.defaultView
 

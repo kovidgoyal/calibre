@@ -39,14 +39,14 @@ class JavaScriptLoader(object):
         self._cache = {}
         self._hp_cache = {}
 
-    def __getattr__(self, name):
+    def get(self, name):
         ans = self._cache.get(name, None)
         if ans is None:
             src = self.CS.get(name, None)
             if src is None:
                 src = self.JS.get(name, None)
                 if src is None:
-                    raise AttributeError('No such resource: %s'%name)
+                    raise KeyError('No such resource: %s'%name)
                 ans = P(src, data=True,
                         allow_user_override=False).decode('utf-8')
             else:
@@ -70,7 +70,7 @@ class JavaScriptLoader(object):
 
     def __call__(self, evaljs, lang, default_lang):
         for x in self.ORDER:
-            src = getattr(self, x)
+            src = self.get(x)
             evaljs(src)
 
         def lang_name(l):
