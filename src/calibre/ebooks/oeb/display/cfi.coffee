@@ -397,6 +397,8 @@ class CanonicalFragmentIdentifier
             if not cd
                 break
 
+            # We have an embedded document, transforms x, y into the co-prd
+            # system of the embedded document's viewport
             rect = target.getBoundingClientRect()
             x -= rect.left
             y -= rect.top
