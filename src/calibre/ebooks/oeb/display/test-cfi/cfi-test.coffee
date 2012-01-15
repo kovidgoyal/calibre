@@ -32,10 +32,12 @@ window_ypos = (pos=null) ->
 mark_and_reload = (evt) ->
     # Remove image in case the click was on the image itself, we want the cfi to
     # be on the underlying element
+    x = evt.clientX
+    y = evt.clientY
     if evt.button == 2
         return # Right mouse click, generated only in firefox
     reset = document.getElementById('reset')
-    if document.elementFromPoint(evt.clientX, evt.clientY) == reset
+    if document.elementFromPoint(x, y) == reset
         return
     ms = document.getElementById("marker")
     if ms
@@ -43,7 +45,7 @@ mark_and_reload = (evt) ->
 
     fn = () ->
         try
-            window.current_cfi = window.cfi.at(evt.clientX, evt.clientY)
+            window.current_cfi = window.cfi.at(x, y)
         catch err
             alert("Failed to calculate cfi: #{ err }")
             return
@@ -57,6 +59,28 @@ mark_and_reload = (evt) ->
     setTimeout(fn, 1)
     null
 
+window_scroll_pos = (win) ->
+    if typeof(win.pageXOffset) == 'number'
+        x = win.pageXOffset
+        y = win.pageYOffset
+    else # IE < 9
+        if document.body and ( document.body.scrollLeft or document.body.scrollTop )
+            x = document.body.scrollLeft
+            y = document.body.scrollTop
+        else if document.documentElement and ( document.documentElement.scrollLeft or document.documentElement.scrollTop)
+            y = document.documentElement.scrollTop
+            x = document.documentElement.scrollLeft
+    return [x, y]
+
+frame_clicked = (evt) ->
+    iframe = evt.target.ownerDocument.defaultView.frameElement
+    # We know that the offset parent of the iframe is body
+    # So we can easily calculate the event co-ords w.r.t. the browser window
+    [winx, winy] = window_scroll_pos(window)
+    x = evt.clientX + iframe.offsetLeft - winx
+    y = evt.clientY + iframe.offsetTop  - winy
+    mark_and_reload({'clientX':x, 'clientY':y, 'button':evt.button})
+
 window.onload = ->
     try
         window.cfi.is_compatible()
@@ -65,7 +89,7 @@ window.onload = ->
         return
     document.onclick = mark_and_reload
     for iframe in document.getElementsByTagName("iframe")
-        iframe.contentWindow.document.onclick = mark_and_reload
+        iframe.contentWindow.document.onclick = frame_clicked
 
     r = location.hash.match(/#(\d*)epubcfi\((.+)\)$/)
     if r
