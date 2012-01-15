@@ -64,6 +64,9 @@ window.onload = ->
         alert(error)
         return
     document.onclick = mark_and_reload
+    for iframe in document.getElementsByTagName("iframe")
+        iframe.contentWindow.document.onclick = mark_and_reload
+
     r = location.hash.match(/#(\d*)epubcfi\((.+)\)$/)
     if r
         window.current_cfi = r[2]
