@@ -362,7 +362,7 @@
      <item>
       <widget class="QLabel" name="label_7">
        <property name="text">
-        <string>&amp;Delete downloaded news older than:</string>
+        <string>Delete downloaded news &amp;older than:</string>
        </property>
        <property name="buddy">
         <cstring>old_news</cstring>

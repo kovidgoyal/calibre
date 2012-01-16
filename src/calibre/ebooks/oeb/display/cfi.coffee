@@ -72,7 +72,7 @@ get_current_time = (target) -> # {{{
     fstr(ans)
 # }}}
 
-window_scroll_pos = (win) -> # {{{
+window_scroll_pos = (win=window) -> # {{{
     if typeof(win.pageXOffset) == 'number'
         x = win.pageXOffset
         y = win.pageYOffset
@@ -157,7 +157,8 @@ class CanonicalFragmentIdentifier
     is_compatible(): Throws an error if the browser is not compatible with
                      this script
 
-    at(x, y): which maps a point to a CFI, if possible
+    at(x, y): Maps a point to a CFI, if possible
+    at_current(): Returns the CFI corresponding to the current viewport scroll location
 
     scroll_to(cfi): which scrolls the browser to a point corresponding to the
                     given cfi, and returns the x and y co-ordinates of the point.
@@ -559,11 +560,50 @@ class CanonicalFragmentIdentifier
         null
     # }}}
 
-    current_cfi: () -> # {{{
+    at_current: () -> # {{{
         [winx, winy] = window_scroll_pos()
         [winw, winh] = [window.innerWidth, window.innerHeight]
+        max = Math.max
         winw = max(winw, 400)
         winh = max(winh, 600)
+        deltay = Math.floor(winh/50)
+        deltax = Math.floor(winw/25)
+        miny = max(-winy, -winh)
+        maxy = winh
+        minx = max(-winx, -winw)
+        maxx = winw
+
+        get_cfi = (x, y) ->
+            try
+                cfi = this.at(x, y)
+            catch err
+                cfi = null
+            # TODO: calculate point and check that it is close to current pos
+            cfi
+
+        x_loop = (cury) ->
+            for direction in [-1, 1]
+                delta = deltax * direction
+                curx = 0
+                until (direction < 0 and curx < minx) or (direction > 0 and curx > maxx)
+                    cfi = get_cfi(curx, cury)
+                    if cfi
+                        return cfi
+                    curx += delta
+            null
+
+        for direction in [-1, 1]
+            delta = deltay * direction
+            cury = 0
+            until (direction < 0 and cury < miny) or (direction > 0 and cury > maxy)
+                cfi = x_loop(cury, -1)
+                if cfi
+                    return cfi
+                cury += delta
+
+        # TODO: Return the CFI corresponding to the <body> tag
+        null
+
     # }}}
 
 if window?
