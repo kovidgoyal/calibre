@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-13 12:24+0000\n"
-"PO-Revision-Date: 2012-01-13 07:53+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2012-01-15 12:24+0000\n"
+"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-14 04:54+0000\n"
+"X-Launchpad-Export-Date: 2012-01-16 05:17+0000\n"
 "X-Generator: Launchpad (build 14664)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -3208,6 +3208,16 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
+"A könyv részekre osztását szabályozza, vagyis hogyan legyen elosztva a "
+"tartalom a <section> XML tag-ek közé az FB2 könyvön belül. Ha az érték "
+"„nothing”, akkor az egész könyv egy részként lesz tárolva. Ha az érték "
+"„files”, akkor az egyes fájlok az FB2-n belül külön részként szerepelnek; "
+"ezt a beállítást használja, ha gondok vannak az eszközön történő olvasáskor. "
+"Ha az érték „toc” (Table of Contents), akkor a könyvet a program a "
+"Tartalomjegyzéknek megfelelően darabolja részekre; ha így nem sikerül a "
+"kívánt végeredményt elérni, akkor módosítsa a Struktúra felismerés és a "
+"Tartalomjegyzék beállításait(pl. kapcsolja be a „Mindenképpen az "
+"automatikusan generált Tartalomjegyzék használata” lehetőséget)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:158
 #, python-format
@@ -3250,6 +3260,9 @@ msgid ""
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 msgstr ""
+"Alapesetben ez a bemeneti bővítmény újrarendezi a bemeneti fájlokat egy "
+"mappaszerkezetbe. Óvatosan használja ezt a beállítást, mert nem várt "
+"eredményhez vezethet, befolyásolhatja a feldolgozás folyamatát."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:32
 msgid "CSS file used for the output instead of the default file"
@@ -5036,6 +5049,8 @@ msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
 msgstr ""
+"Biztos benne, hogy hozzáadja ugyanazt a fájlt mind a(z) %d  könyvhöz? Ha ez "
+"a formátum már létezik, felül lesz írva."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:98
 msgid "Select book files"
@@ -6292,11 +6307,11 @@ msgstr "A 'Könyv letöltése' menüről"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Tweak Book"
-msgstr ""
+msgstr "Könyv finomhangolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:19
 msgid "Make small changes to ePub or HTMLZ format books"
-msgstr ""
+msgstr "Kisebb módosítások végrehajtása ePub és HTMLZ formátumú könyveken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:20
 msgid "T"
@@ -6305,7 +6320,7 @@ msgstr "T"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:50
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "Nem lehet a könyvet szerkeszteni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:51
 msgid ""
@@ -6313,6 +6328,9 @@ msgid ""
 "\n"
 "First convert the book to ePub or HTMLZ."
 msgstr ""
+"A könyvnek a finomhangoláshoz ePub vagy HTMLZ formátumúnak kell lennie.\n"
+"\n"
+"Először konvertálja át ezen formátumok valamelyikébe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -10235,6 +10253,8 @@ msgid ""
 "Enter what you are looking for, either plain text or a regular expression, "
 "depending on the mode"
 msgstr ""
+"Adja meg a keresendő kifejezést. Ez lehet egyszerű szöveg, vagy reguláris "
+"kifejezés a beállított módtól függően"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:626
 msgid ""
@@ -11003,7 +11023,7 @@ msgstr "Készítette: "
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
 #, python-format
 msgid "Download %s now"
-msgstr ""
+msgstr "%s letöltése most"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:382
 msgid "Last downloaded: never"
@@ -11594,7 +11614,7 @@ msgstr "&Teszt"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:114
 #, python-format
 msgid "You must first explode the %s before previewing."
-msgstr ""
+msgstr "Előnézet előtt ki kell csomagolnia a(z) %s fált."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:116
 msgid "Cannot preview"
@@ -11602,7 +11622,7 @@ msgstr "Nem sikerült az előnézet megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 msgid "Tweak {0}"
-msgstr ""
+msgstr "{0} finomhangolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -11612,15 +11632,22 @@ msgid ""
 "windows you used to edit files in the ePub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>Megjeleníti a(z) {0} tartalmát egy külön ablakban. Ez egyes fájlokat a "
+"jobb egérgomb helyi menüjéből a „Megnyitás” (operációs rendszertől függően "
+"ez más is lehet) menüpontot kiválasztva szerkesztheti a kiválasztott "
+"szerkesztő programmal. Ha minden változtatást elvégzett, akkor zárja be a "
+"fájlokat tartalmazó mappa ablakát <b>és a szerkesztő program ablakát "
+"is.</b></p><p>Kattintson az ePub újraépítése gombra, hogy frissítse a könyv "
+"tartalmát.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:63
 msgid "Display contents of exploded {0}"
-msgstr ""
+msgstr "A kicsomagolt {0} tartalmának megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:64
 msgid "&Explode {0}"
-msgstr ""
+msgstr "{0} &kicsomagolása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:66
@@ -11630,15 +11657,15 @@ msgstr "Módosítások eldobása"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:69
 msgid "Rebuild {0} from exploded contents"
-msgstr ""
+msgstr "Újraépíti a kicsomagolt {0} fájlt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:70
 msgid "&Rebuild {0}"
-msgstr ""
+msgstr "{0} újraépítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:71
 msgid "&Preview {0}"
-msgstr ""
+msgstr "{0} &előnézete"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
@@ -15434,6 +15461,11 @@ msgid ""
 "Leave this blank if you intend to use the server with an\n"
 " Android phone or tablet."
 msgstr ""
+"<p>Ha üresen hagyja a jelszó mezőt, bárki hozzáférhet adatbázisához.\n"
+"<br>\n"
+"<p>Vegye figyelembe, hogy az Android eszközök nem tudják a jelszóval\n"
+" védett hálózatot elérni. Androidos telefon vagy táblagép használata estén\n"
+" hagyja üresen a jelszó mezőt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:141
 msgid ""
@@ -15477,10 +15509,15 @@ msgid ""
 "<p>Do not set a password if you plan to use the server with an\n"
 " Android phone or tablet."
 msgstr ""
+"<p> A Google Android operációs rendszer egyik hibájából adódóan\n"
+" ezek az eszközök nem tudják elérni a jelszóval védett hálózatokat.\n"
+"<br>\n"
+"<p>Ne adjon meg jelszót Androidos telefon vagy táblagép használata\n"
+" esetén."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Password incompatible with Android devices"
-msgstr ""
+msgstr "Androidos eszközöknél nem használható jelszó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "&Start Server"
@@ -18202,6 +18239,12 @@ msgid ""
 "this'. Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Olyan szavak vesszővel tagolt listája, ami alapján a könyv ki lesz hagyva a "
+"katalógusból. Például, ha a megadott szó „kihagy”, akkor a „kihagy "
+"mindenből” vagy a „kihagy hibás” címkéjű könyvek nem kerülnek bele a "
+"katalógusba.\n"
+"Alapértelmezett: „%default”\n"
+"Alkalmazható: ePub, MOBI kimeneti formátumoknál"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:677
 #, python-format
@@ -21104,6 +21147,12 @@ msgid ""
 "a link, it will be ignored. By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"Minden, erre a reguláris kifejezésre találatot adó link át lesz ugorva. Ezt "
+"az opciót többször is megadhatja, ebben az esetben bármelyik reguláris "
+"kifejezésre találatot kap a link, akkor az át lesz ugorva. Alapesetben "
+"egyetlen link sincs kihagyva. Ha mind a „filter” (szűrő), mind pedig a "
+"„match” (egyezési) reguláris kifejezés meg van adva, akkor a „filter” lesz "
+"először alkalmazva."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:502
 msgid "Do not download CSS stylesheets."
@@ -22277,10 +22326,15 @@ msgid ""
 "Control\n"
 "how many should be shown, here."
 msgstr ""
+"Az „Olvasás” ikonra jobb egérgombbal kattintva megjelenik a legutóbb "
+"olvasott\n"
+" könyvek listája. Itt beállíthatja, hány könyv szerepeljen a listán."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:478
 msgid "When using the 'Tweak Book' action, which format to prefer"
 msgstr ""
+"A „Könyv finomhangolása” menü használatakor melyik formátum legyen az "
+"elsődleges"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:479
 msgid ""
@@ -22288,3 +22342,8 @@ msgid ""
 "automatically. By default EPUB is preferred to HTMLZ. If you would like to\n"
 "prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'"
 msgstr ""
+"Ha finomhangoláskor a könyv több formátumban is létezik, a calibre\n"
+" automatikusan kiválaszt egyet. Alapesetben az EPUB formátum\n"
+" elsődlegességet élvez a HTMLZ formátummal szemben. Ha mégis a\n"
+" HTMLZ formátumot kívánja előtérbe helyezni, változtassa meg az értéket "
+"'htmlz'-re"
