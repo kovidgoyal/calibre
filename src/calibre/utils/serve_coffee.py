@@ -12,7 +12,7 @@ Utilities to help with developing coffeescript based apps.
 A coffeescript compiler and a simple web server that automatically serves
 coffeescript files as javascript.
 '''
-import sys, traceback, importlib, io
+import sys, traceback, io
 if sys.version_info.major > 2:
     print('This script is not Python 3 compatible. Run it with Python 2',
             file=sys.stderr)
@@ -22,125 +22,48 @@ import time, BaseHTTPServer, os, sys, re, SocketServer
 from threading import Lock
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-from PyQt4.QtWebKit import QWebPage
-from PyQt4.Qt import QThread, QApplication
+from PyQt4.Qt import QCoreApplication, QScriptEngine, QScriptValue
 
-# Infrastructure {{{
-def import_from_calibre(mod):
-    try:
-        return importlib.import_module(mod)
-    except ImportError:
-        import init_calibre
-        init_calibre
-        return importlib.import_module(mod)
-
-_store_app = gui_thread = None
-def check_qt():
-    global gui_thread, _store_app
-    _plat = sys.platform.lower()
-    iswindows = 'win32' in _plat or 'win64' in _plat
-    isosx     = 'darwin' in _plat
-    islinux = not (iswindows or isosx)
-
-    if islinux and ':' not in os.environ.get('DISPLAY', ''):
-        raise RuntimeError('X server required. If you are running on a'
-                ' headless machine, use xvfb')
-    if _store_app is None and QApplication.instance() is None:
-        _store_app = QApplication([])
-    if gui_thread is None:
-        gui_thread = QThread.currentThread()
-    if gui_thread is not QThread.currentThread():
-        raise RuntimeError('Cannot use Qt in non GUI thread')
-
-def fork_job(*args, **kwargs):
-    try:
-        return import_from_calibre('calibre.utils.ipc.simple_worker').fork_job(*args,
-            **kwargs)
-    except ImportError:
-        # We aren't running in calibre
-        import subprocess
-        raw, filename = kwargs['args']
-        cs = ''
-        try:
-            p = subprocess.Popen([sys.executable, __file__, 'compile', '-'],
-                    stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-            if isinstance(raw, unicode):
-                raw = raw.encode('utf-8')
-            stdout, stderr = p.communicate(raw)
-            cs = stdout.decode('utf-8')
-            errors = [stderr]
-        except:
-            errors = [traceback.format_exc()]
-
-        return {'result':(cs, errors)}
-
-# }}}
-
-class Compiler(QWebPage): # {{{
+class Compiler(QScriptEngine): # {{{
 
     '''
-    Never use this class in anything except the main thread. If you want to use
-    it from other threads, use the forked_compile method instead.
+    You can use this class in any thread, but make sure you instantiate it in
+    the main thread. Alternatively, construct a QCoreApplication in the main
+    thread, after which you can instantiate this class and use it in any
+    thread.
     '''
 
     def __init__(self):
-        check_qt()
-        QWebPage.__init__(self)
-        self.frame = self.mainFrame()
-        self.filename = self._src = ''
-        self.frame.evaluateJavaScript(CS_JS)
-        self.frame.addToJavaScriptWindowObject("cs_compiler", self)
-        self.errors = []
+        if QCoreApplication.instance() is None:
+            self.__app_ = QCoreApplication([])
 
-    def shouldInterruptJavaScript(self):
-        return True
-
-    def javaScriptConsoleMessage(self, msg, lineno, sourceid):
-        sourceid = sourceid or self.filename or '<script>'
-        self.errors.append('%s:%s'%(sourceid, msg))
-
-    def __evalcs(self, raw, filename):
-        # This method is NOT thread safe
-        self.filename = filename
-        self.setProperty('source', raw)
-        self.errors = []
-        res = self.frame.evaluateJavaScript('''
-            raw = document.getElementById("raw");
-            raw = cs_compiler.source;
-            CoffeeScript.compile(raw);
-        ''')
-        ans = ''
-        if res.type() == res.String:
-            ans = unicode(res.toString())
-        return ans, list(self.errors)
+        QScriptEngine.__init__(self)
+        res = self.evaluate(CS_JS, 'coffee-script.js')
+        if res.isError():
+            raise Exception('Failed to run the coffee script compiler: %s'%
+                    unicode(res.toString()))
+        self.lock = Lock()
 
     def __call__(self, raw, filename=None):
-        if not isinstance(raw, unicode):
-            raw = raw.decode('utf-8')
-        return self.__evalcs(raw, filename)
-
-def forked_compile(raw, fname):
-    # Entry point for the compile worker
-    try:
-        ans, errors = Compiler()(raw, fname)
-    except:
-        ans, errors = '', [traceback.format_exc()]
-    return ans, errors
+        with self.lock:
+            if not isinstance(raw, unicode):
+                raw = raw.decode('utf-8')
+            if not filename:
+                filename = '<string>'
+            go = self.globalObject()
+            go.setProperty('coffee_src', QScriptValue(raw),
+                    go.ReadOnly|go.Undeletable)
+            res = self.evaluate('this.CoffeeScript.compile(this.coffee_src)',
+                    filename)
+            if res.isError():
+                return '', [unicode(res.toString())]
+            return unicode(res.toString()), []
 
 
 # }}}
 
 def compile_coffeescript(raw, filename=None):
-    try:
-        cs, errors = fork_job('calibre.utils.serve_coffee',
-                'forked_compile', args=(raw, filename), timeout=5,
-                no_output=True)['result']
-    except Exception as e:
-        cs = None
-        errors = [getattr(e, 'orig_tb', traceback.format_exc())]
-
-    return cs, errors
+    return Compiler()(raw, filename)
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler): # {{{
     '''
@@ -317,7 +240,7 @@ class Handler(HTTPRequestHandler): # {{{
             mtime = time.time()
             with open(src, 'rb') as f:
                 raw = f.read()
-            cs, errors = compile_coffeescript(raw, src)
+            cs, errors = self.compiler(raw, src)
             for line in errors:
                 print(line, file=sys.stderr)
             if not cs:
@@ -351,6 +274,7 @@ class Server(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer): # {{{
 
 def serve(resources={}, port=8000, host='0.0.0.0'):
     Handler.special_resources = resources
+    Handler.compiler = Compiler()
     httpd = Server((host, port), Handler)
     print('serving %s at %s:%d with PID=%d'%(os.getcwdu(), host, port, os.getpid()))
     try:

@@ -59,26 +59,13 @@ mark_and_reload = (evt) ->
     setTimeout(fn, 1)
     null
 
-window_scroll_pos = (win) ->
-    if typeof(win.pageXOffset) == 'number'
-        x = win.pageXOffset
-        y = win.pageYOffset
-    else # IE < 9
-        if document.body and ( document.body.scrollLeft or document.body.scrollTop )
-            x = document.body.scrollLeft
-            y = document.body.scrollTop
-        else if document.documentElement and ( document.documentElement.scrollLeft or document.documentElement.scrollTop)
-            y = document.documentElement.scrollTop
-            x = document.documentElement.scrollLeft
-    return [x, y]
-
 frame_clicked = (evt) ->
     iframe = evt.target.ownerDocument.defaultView.frameElement
     # We know that the offset parent of the iframe is body
     # So we can easily calculate the event co-ords w.r.t. the browser window
-    [winx, winy] = window_scroll_pos(window)
-    x = evt.clientX + iframe.offsetLeft - winx
-    y = evt.clientY + iframe.offsetTop  - winy
+    rect = iframe.getBoundingClientRect()
+    x = evt.clientX + rect.left
+    y = evt.clientY + rect.top
     mark_and_reload({'clientX':x, 'clientY':y, 'button':evt.button})
 
 window.onload = ->
