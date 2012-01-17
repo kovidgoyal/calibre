@@ -1925,7 +1925,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     ############# End get_categories
 
-    def tags_older_than(self, tag, delta, must_have_tag=None):
+    def tags_older_than(self, tag, delta, must_have_tag=None,
+            must_have_authors=None):
         '''
         Return the ids of all books having the tag ``tag`` that are older than
         than the specified time. tag comparison is case insensitive.
@@ -1934,6 +1935,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         the tag are returned.
         :param must_have_tag: If not None the list of matches will be
         restricted to books that have this tag
+        :param must_have_authors: A list of authors. If not None the list of
+        matches will be restricted to books that have these authors (case
+        insensitive).
         '''
         tag = tag.lower().strip()
         mht = must_have_tag.lower().strip() if must_have_tag else None
@@ -1941,9 +1945,18 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         tindex = self.FIELD_MAP['timestamp']
         gindex = self.FIELD_MAP['tags']
         iindex = self.FIELD_MAP['id']
+        aindex = self.FIELD_MAP['authors']
+        mah = must_have_authors
+        if mah is not None:
+            mah = [x.replace(',', '|').lower() for x in mah]
+            mah = ','.join(mah)
         for r in self.data._data:
             if r is not None:
                 if delta is None or (now - r[tindex]) > delta:
+                    if mah:
+                        authors = r[aindex] or ''
+                        if authors.lower() != mah:
+                            continue
                     tags = r[gindex]
                     if tags:
                         tags = [x.strip() for x in tags.lower().split(',')]
@@ -3128,6 +3141,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         stream.seek(0)
         mi = get_metadata(stream, format, use_libprs_metadata=False,
                 force_read_metadata=True)
+        # Force the author to calibre as the auto delete of old news checks for
+        # both the author==calibre and the tag News
+        mi.authors = ['calibre']
         stream.seek(0)
         if mi.series_index is None:
             mi.series_index = self.get_next_series_num_for(mi.series)
