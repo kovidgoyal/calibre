@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, hashlib, copy
+        json, uuid, hashlib, copy, weakref
 from collections import defaultdict, MutableMapping, MutableSequence
 import threading, random
 from itertools import repeat
@@ -84,7 +84,7 @@ class Tag(object):
 class FormatMetadata(MutableMapping): # {{{
 
     def __init__(self, db, id_, formats):
-        self.db = db
+        self.dbwref = weakref.ref(db)
         self.id_ = id_
         self.formats = formats
         self._must_do = True
@@ -94,7 +94,7 @@ class FormatMetadata(MutableMapping): # {{{
         if self._must_do:
             for f in self.formats:
                 try:
-                    self.values[f] = self.db.format_metadata(self.id_, f)
+                    self.values[f] = self.dbwref().format_metadata(self.id_, f)
                 except:
                     pass
             self._must_do = False
