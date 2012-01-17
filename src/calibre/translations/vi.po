@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-13 12:24+0000\n"
-"PO-Revision-Date: 2011-11-21 06:12+0000\n"
+"PO-Revision-Date: 2012-01-16 09:10+0000\n"
 "Last-Translator: kronpas <Unknown>\n"
 "Language-Team: Vietnamese <vi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-01-14 05:05+0000\n"
-"X-Generator: Launchpad (build 14664)\n"
+"X-Launchpad-Export-Date: 2012-01-17 04:44+0000\n"
+"X-Generator: Launchpad (build 14676)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -5675,27 +5675,27 @@ msgstr "Sách có cùng thẻ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
-msgstr ""
+msgstr "Lấy sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:22
 msgid "Search for ebooks"
-msgstr ""
+msgstr "Tìm sách điện tử"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "author"
-msgstr ""
+msgstr "tác giả"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "title"
-msgstr ""
+msgstr "Tiêu đề"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "book"
-msgstr ""
+msgstr "Sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
@@ -5718,13 +5718,15 @@ msgstr "Chọn cửa hàng"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:106
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:115
 msgid "Cannot search"
-msgstr ""
+msgstr "Không tìm được"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:134
 msgid ""
 "Calibre helps you find the ebooks you want by searching the websites of "
 "various commercial and public domain book sources for you."
 msgstr ""
+"Calibre giúp bạn tìm sách mình muốn bằng cách tìm qua nhiều nguồn sách cả "
+"thương mại lẫn công cộng."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:138
 msgid ""
@@ -5734,7 +5736,7 @@ msgid ""
 msgstr ""
 "Dùng công cụ tìm kiếm, bạn có thể dễ dàng chọn sách cho mình với giá tốt "
 "nhất. Đồng thời bạn còn được biết thêm nhiều thông tin hữu ích khác (như "
-"tình trạng DRM của sách)."
+"tình trạng Bản quyền số  -DRM- của sách)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:142
 msgid ""
@@ -5745,10 +5747,15 @@ msgid ""
 "especially if the book you are buying has <a href=\"http://drmfree.calibre-"
 "ebook.com/about#drm\">DRM</a>."
 msgstr ""
+"Mọi giao dịch (trả hoặc khác) được xử lý giữa bạn và người bán sách. Calibre "
+"không phải một phần của quá trình này và mọi vấn đề phát sinh liên quan tới "
+"mua sách nên được chuyển đến trang web bạn đang mua sách. Kiểm tra kỹ để đảm "
+"bảo sách bạn mua dùng với máy đọc sách của bạn, đặc biệt nếu sách đó có kèm "
+"công cụ kiểm soát bản quyền số DRM)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:152
 msgid "Show this message again"
-msgstr ""
+msgstr "Hiển thị thông điệp này một lần nữa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:153
 msgid "About Get Books"
@@ -5756,7 +5763,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Tweak Book"
-msgstr ""
+msgstr "Chỉnh sửa sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:19
 msgid "Make small changes to ePub or HTMLZ format books"
@@ -5764,12 +5771,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:20
 msgid "T"
-msgstr ""
+msgstr "T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:50
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "Không thể chính sửa sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:51
 msgid ""
@@ -5777,6 +5784,9 @@ msgid ""
 "\n"
 "First convert the book to ePub or HTMLZ."
 msgstr ""
+"Sách phải ở dạng ePub hoặc TMLZ để chỉnh sửa\n"
+"\n"
+"Chuyển đổi định dạng sách sang ePub hoặc HTMLZ trước"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -5792,11 +5802,11 @@ msgstr "Xem định dạng cụ thể"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:50
 msgid "Read a random book"
-msgstr ""
+msgstr "Đọc ngẫu nheien một sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:55
 msgid "Clear recently viewed list"
-msgstr ""
+msgstr "Xoá danh sách xem gần đây"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:137
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:217
@@ -5807,11 +5817,11 @@ msgstr "Không thể xem"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:164
 msgid "Format unavailable"
-msgstr ""
+msgstr "Không có định dạng này"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:151
 msgid "Selected books have no formats"
-msgstr ""
+msgstr "Sách được chọn không có định dạng"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:153
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/regex_builder.py:128
@@ -5824,6 +5834,8 @@ msgid ""
 "Not all the selected books were available in the %s format. You should "
 "convert them first."
 msgstr ""
+"Không phải toàn bộ sách được chọn có định dạng %s. Bạn nên chuyển đổi định "
+"dạng trước."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:172
 msgid "Multiple Books Selected"
@@ -5847,7 +5859,7 @@ msgstr "Không thể mở thư mục"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:218
 msgid "This book no longer exists in your library"
-msgstr ""
+msgstr "Cuốn sách này không còn trong thư viện của bạn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:225
 #, python-format
@@ -5872,7 +5884,7 @@ msgstr "Đường dẫn có lỗi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:270
 msgid "The specified directory could not be processed."
-msgstr ""
+msgstr "Thư mục chỉ định không thể thực thi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:899
@@ -5886,13 +5898,15 @@ msgstr "Không có cuốn sách nào được tìm thấy"
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:288
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:806
 msgid "No permission"
-msgstr ""
+msgstr "Không đủ quyền hạn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:289
 msgid ""
 "Cannot add some files as you do not have  permission to access them. Click "
 "Show Details to see the list of such files."
 msgstr ""
+"Không thể bổ sung thêm một số file vì bạn không đủ quyền truy cập chúng. "
+"Nhấn vào \"Xem chi tiết\" để xem danh sách các file đó."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:357
 msgid "Added"
@@ -5913,17 +5927,18 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:386
 msgid "Duplicates found!"
-msgstr ""
+msgstr "Trùng lặp!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 msgid ""
 "Books with the same title as the following already exist in the database. "
 "Add them anyway?"
 msgstr ""
+"Sách cùng tiêu đề như sau đã có trong thư viện. Vẫn tiếp tục bổ sung?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:390
 msgid "Adding duplicates..."
-msgstr ""
+msgstr "Đang bổ sung các file trùng lắp..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:459
 msgid "Saving..."
@@ -5931,7 +5946,7 @@ msgstr "Đang lưu..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:466
 msgid "Collecting data, please wait..."
-msgstr ""
+msgstr "Đang thu thập dữ liệu, xin chờ trong giây lát ..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:538
 msgid "Saved"
@@ -5947,7 +5962,7 @@ msgstr "Đang tìm sách"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:73
 msgid "Looking for duplicates based on file hash"
-msgstr ""
+msgstr "Đang tìm cách file trùng lặp dựa trên tên hash của file"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/__init__.py:108
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:70
@@ -5973,7 +5988,7 @@ msgstr "Thêm sách vào calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:46
 msgid "WizardPage"
-msgstr ""
+msgstr "Trang Thuật sỹ giúp đỡ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:27
 msgid "Scanning root folder for books"
@@ -6002,6 +6017,14 @@ msgid ""
 "<p>Make sure that the folder you chose for your calibre library <b>is "
 "not</b> under the root folder you choose.</p>"
 msgstr ""
+"<p> Calibre có thể quét máy tính của bạn để tự động tìm các sách đã có. Các "
+"sách này sẽ được <b> lưu </b> vào thư viện của Calibre. Trình thuật sỹ này "
+"sẽ giúp bạn tuỳ biến quá trình quét và nhập dữ liệu vào bộ sưu tập sách của "
+"bạn.</p>\n"
+"<p>Chọn thư mục gốc. Sách sẽ được tìm trong thư mục này và bất kỳ thư mục "
+"nào dưới nó</p>\n"
+"<p>Đảm bảo rằng thư mục bạn chọn cho thư viện calibre <b>không</b> phải là "
+"thư mục con của thư mục gốc bạn vừa chọn.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/welcome_ui.py:68
 msgid "&Root folder:"
@@ -6103,7 +6126,7 @@ msgstr "Nhấn để mở"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:139
 msgid "Ids"
-msgstr ""
+msgstr "lds"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:177
 #, python-format
@@ -6113,7 +6136,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:192
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1068
 msgid "Collections"
-msgstr ""
+msgstr "Bộ sưu tầm"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:295
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:256
