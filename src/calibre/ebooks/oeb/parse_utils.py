@@ -103,7 +103,7 @@ def html5_parse(data, max_nesting_depth=100):
     xmlns_declaration = '{%s}'%XMLNS_NS
     non_html5_namespaces = {}
     seen_namespaces = set()
-    for elem in tuple(data.iter()):
+    for elem in tuple(data.iter(tag=etree.Element)):
         elem.attrib.pop('xmlns', None)
         namespaces = {}
         for x in tuple(elem.attrib):
