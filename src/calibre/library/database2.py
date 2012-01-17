@@ -7,8 +7,8 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, sys, shutil, cStringIO, glob, time, functools, traceback, re, \
-        json, uuid, hashlib, copy, weakref
-from collections import defaultdict, MutableMapping, MutableSequence
+        json, uuid, hashlib, copy
+from collections import defaultdict
 import threading, random
 from itertools import repeat
 from math import ceil
@@ -40,6 +40,7 @@ from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.errors import NoSuchFormat
+from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.utils.localization import (canonicalize_lang,
         calibre_langcode_to_name)
 
@@ -80,110 +81,6 @@ class Tag(object):
 
     def __repr__(self):
         return str(self)
-
-class MutablePrintMixin(object): # {{{
-    def __str__(self):
-        self._resolve()
-        return str(self.values)
-
-    def __repr__(self):
-        self._resolve()
-        return repr(self.values)
-
-    def __unicode__(self):
-        self._resolve()
-        return unicode(self.values)
-# }}}
-
-class FormatMetadata(MutableMapping, MutablePrintMixin): # {{{
-
-    def __init__(self, db, id_, formats):
-        self.dbwref = weakref.ref(db)
-        self.id_ = id_
-        self.formats = formats
-        self._must_do = True
-        self.values = {}
-
-    def _resolve(self):
-        if self._must_do:
-            self._must_do = False
-            db = self.dbwref()
-            for f in self.formats:
-                try:
-                    self.values[f] = db.format_metadata(self.id_, f)
-                except:
-                    pass
-
-    def __contains__(self, key):
-        self._resolve()
-        return key in self.values
-
-    def __getitem__(self, fmt):
-        self._resolve()
-        return self.values[fmt]
-
-    def __setitem__(self, key, val):
-        self._resolve()
-        self.values[key] = val
-
-    def __delitem__(self, key):
-        self._resolve()
-        self.values.__delitem__(key)
-
-    def __len__(self):
-        self._resolve()
-        return len(self.values)
-
-    def __iter__(self):
-        self._resolve()
-        return self.values.__iter__()
-
-
-class FormatsList(MutableSequence, MutablePrintMixin):
-
-    def __init__(self, formats, format_metadata):
-        self.formats = formats
-        self.format_metadata = format_metadata
-        self._must_do = True
-        self.values = []
-
-    def _resolve(self):
-        if self._must_do:
-            self._must_do = False
-            for f in self.formats:
-                try:
-                    if f in self.format_metadata:
-                        self.values.append(f)
-                except:
-                    pass
-
-    def __getitem__(self, dex):
-        self._resolve()
-        return self.values[dex]
-
-    def __setitem__(self, key, dex):
-        self._resolve()
-        self.values[key] = dex
-
-    def __delitem__(self, dex):
-        self._resolve()
-        self.values.__delitem__(dex)
-
-    def __len__(self):
-        self._resolve()
-        return len(self.values)
-
-    def __iter__(self):
-        self._resolve()
-        return self.values.__iter__()
-
-    def insert(self, idx, val):
-        self._resolve()
-        self.values.insert(idx, val)
-
-# }}}
-
-
 
 class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     '''
