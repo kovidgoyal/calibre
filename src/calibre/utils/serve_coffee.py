@@ -22,8 +22,7 @@ import time, BaseHTTPServer, os, sys, re, SocketServer
 from threading import Lock
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-from PyQt4.QtWebKit import QWebPage
-from PyQt4.Qt import QThread, QApplication
+from PyQt4.Qt import QCoreApplication, QScriptEngine, QScriptValue
 
 # Infrastructure {{{
 def import_from_calibre(mod):
@@ -35,23 +34,6 @@ def import_from_calibre(mod):
         return importlib.import_module(mod)
 
 _store_app = gui_thread = None
-def check_qt():
-    global gui_thread, _store_app
-    _plat = sys.platform.lower()
-    iswindows = 'win32' in _plat or 'win64' in _plat
-    isosx     = 'darwin' in _plat
-    islinux = not (iswindows or isosx)
-
-    if islinux and ':' not in os.environ.get('DISPLAY', ''):
-        raise RuntimeError('X server required. If you are running on a'
-                ' headless machine, use xvfb')
-    if _store_app is None and QApplication.instance() is None:
-        _store_app = QApplication([])
-    if gui_thread is None:
-        gui_thread = QThread.currentThread()
-    if gui_thread is not QThread.currentThread():
-        raise RuntimeError('Cannot use Qt in non GUI thread')
-
 def fork_job(*args, **kwargs):
     try:
         return import_from_calibre('calibre.utils.ipc.simple_worker').fork_job(*args,
@@ -77,48 +59,33 @@ def fork_job(*args, **kwargs):
 
 # }}}
 
-class Compiler(QWebPage): # {{{
-
-    '''
-    Never use this class in anything except the main thread. If you want to use
-    it from other threads, use the forked_compile method instead.
-    '''
+class Compiler(QScriptEngine): # {{{
 
     def __init__(self):
-        check_qt()
-        QWebPage.__init__(self)
-        self.frame = self.mainFrame()
-        self.filename = self._src = ''
-        self.frame.evaluateJavaScript(CS_JS)
-        self.frame.addToJavaScriptWindowObject("cs_compiler", self)
-        self.errors = []
+        if QCoreApplication.instance() is None:
+            self.__app_ = QCoreApplication([])
 
-    def shouldInterruptJavaScript(self):
-        return True
-
-    def javaScriptConsoleMessage(self, msg, lineno, sourceid):
-        sourceid = sourceid or self.filename or '<script>'
-        self.errors.append('%s:%s'%(sourceid, msg))
-
-    def __evalcs(self, raw, filename):
-        # This method is NOT thread safe
-        self.filename = filename
-        self.setProperty('source', raw)
-        self.errors = []
-        res = self.frame.evaluateJavaScript('''
-            raw = document.getElementById("raw");
-            raw = cs_compiler.source;
-            CoffeeScript.compile(raw);
-        ''')
-        ans = ''
-        if res.type() == res.String:
-            ans = unicode(res.toString())
-        return ans, list(self.errors)
+        QScriptEngine.__init__(self)
+        res = self.evaluate(CS_JS, 'coffee-script.js')
+        if res.isError():
+            raise Exception('Failed to run the coffee script compiler: %s'%
+                    unicode(res.toString()))
+        self.lock = Lock()
 
     def __call__(self, raw, filename=None):
-        if not isinstance(raw, unicode):
-            raw = raw.decode('utf-8')
-        return self.__evalcs(raw, filename)
+        with self.lock:
+            if not isinstance(raw, unicode):
+                raw = raw.decode('utf-8')
+            if not filename:
+                filename = '<string>'
+            go = self.globalObject()
+            go.setProperty('coffee_src', QScriptValue(raw),
+                    go.ReadOnly|go.Undeletable)
+            res = self.evaluate('this.CoffeeScript.compile(this.coffee_src)',
+                    filename)
+            if res.isError():
+                return '', [unicode(res.toString())]
+            return unicode(res.toString()), []
 
 def forked_compile(raw, fname):
     # Entry point for the compile worker
