@@ -13,6 +13,7 @@
  3. Much more comprehensive testing/error handling
  4. Properly encodes/decodes assertions
  5. Handles points in the padding of elements consistently
+ 6. Has a utility method to calculate the CFI for the current viewport position robustly
 
  To check if this script is compatible with the current browser, call
  window.cfi.is_compatible() it will throw an exception if not compatible.
@@ -86,7 +87,7 @@ window_scroll_pos = (win=window) -> # {{{
     return [x, y]
 # }}}
 
-viewport_to_document = (x, y, doc) -> # {{{
+viewport_to_document = (x, y, doc=window?.document) -> # {{{
     until doc == window.document
         # We are in a frame
         frame = doc.defaultView.frameElement
@@ -573,13 +574,36 @@ class CanonicalFragmentIdentifier
         minx = max(-winx, -winw)
         maxx = winw
 
-        get_cfi = (x, y) ->
+        dist = (p1, p2) ->
+            Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
+
+        get_cfi = (ox, oy) ->
             try
-                cfi = this.at(x, y)
+                cfi = this.at(ox, oy)
+                point = this.point(cfi)
             catch err
                 cfi = null
-            # TODO: calculate point and check that it is close to current pos
-            cfi
+
+            if point.range != null
+                r = point.range
+                rect = r.getClientRects()[0]
+
+                x = (point.a*rect.left + (1-point.a)*rect.right)
+                y = (rect.top + rect.bottom)/2
+                [x, y] = viewport_to_document(x, y, r.startContainer.ownerDocument)
+            else
+                node = point.node
+                r = node.getBoundingClientRect()
+                [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
+                if typeof(point.x) == 'number' and node.offsetWidth
+                    x += (point.x*node.offsetWidth)/100
+                if typeof(point.y) == 'number' and node.offsetHeight
+                    y += (point.y*node.offsetHeight)/100
+
+            if dist(viewport_to_document(ox, oy), [x, y]) > 50
+                cfi = null
+
+            return cfi
 
         x_loop = (cury) ->
             for direction in [-1, 1]
