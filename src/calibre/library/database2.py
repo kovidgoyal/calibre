@@ -315,7 +315,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.format_filename_cache = defaultdict(dict)
         for book_id, fmt, name in self.conn.get(
                 'SELECT book,format,name FROM data'):
-            self.format_filename_cache[book_id][fmt.upper()] = name
+            self.format_filename_cache[book_id][fmt.upper() if fmt else ''] = name
 
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
