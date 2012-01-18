@@ -170,6 +170,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         except:
             traceback.print_exc()
         self.field_metadata = FieldMetadata()
+        self.format_filename_cache = defaultdict(dict)
         self._library_id_ = None
         # Create the lock to be used to guard access to the metadata writer
         # queues. This must be an RLock, not a Lock
@@ -309,6 +310,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         if not self.is_second_db:
             load_user_template_functions(self.prefs.get('user_template_functions', []))
+
+        # Load the format filename cache
+        self.format_filename_cache = defaultdict(dict)
+        for book_id, fmt, name in self.conn.get(
+                'SELECT book,format,name FROM data'):
+            self.format_filename_cache[book_id][fmt.upper()] = name
 
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
@@ -599,7 +606,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         fname = self.construct_file_name(id)
         changed = False
         for format in formats:
-            name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
+            name = self.format_filename_cache[id].get(format.upper(), None)
             if name and name != fname:
                 changed = True
                 break
@@ -1139,12 +1146,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def format_files(self, index, index_is_id=False):
         id = index if index_is_id else self.id(index)
-        try:
-            formats = self.conn.get('SELECT name,format FROM data WHERE book=?', (id,))
-            formats = map(lambda x:(x[0], x[1]), formats)
-            return formats
-        except:
-            return []
+        return [(v, k) for k, v in self.format_filename_cache[id].iteritems()]
 
     def formats(self, index, index_is_id=False, verify_formats=True):
         ''' Return available formats as a comma separated list or None if there are no available formats '''
@@ -1230,7 +1232,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         '''
         id = index if index_is_id else self.id(index)
         try:
-            name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
+            name = self.format_filename_cache[id][format.upper()]
         except:
             return None
         if name:
@@ -1327,11 +1329,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def add_format(self, index, format, stream, index_is_id=False, path=None,
             notify=True, replace=True):
         id = index if index_is_id else self.id(index)
-        if format:
-            self.format_metadata_cache[id].pop(format.upper(), None)
+        if not format: format = ''
+        self.format_metadata_cache[id].pop(format.upper(), None)
+        name = self.format_filename_cache[id].get(format.upper(), None)
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
-        name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name and not replace:
             return False
         name = self.construct_file_name(id)
@@ -1349,6 +1351,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
         self.conn.commit()
+        self.format_filename_cache[id][format.upper()] = name
         self.refresh_ids([id])
         if notify:
             self.notify('metadata', [id])
@@ -1396,9 +1399,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def remove_format(self, index, format, index_is_id=False, notify=True,
                       commit=True, db_only=False):
         id = index if index_is_id else self.id(index)
-        if format:
-            self.format_metadata_cache[id].pop(format.upper(), None)
-        name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
+        if not format: format = ''
+        self.format_metadata_cache[id].pop(format.upper(), None)
+        name = self.format_filename_cache[id].pop(format.upper(), None)
         if name:
             if not db_only:
                 try:
