@@ -104,10 +104,10 @@ class CHMReader(CHMFile):
             codecs.lookup(x)
             enc = x
         except:
-            enc = None
+            enc = 'cp1252'
         for path in self.Contents():
             fpath = path
-            if not isinstance(path, unicode) and enc:
+            if not isinstance(path, unicode):
                 fpath = path.decode(enc)
             lpath = os.path.join(output_dir, fpath)
             self._ensure_dir(lpath)

@@ -21,73 +21,73 @@ def resolved(f):
     return wrapper
 
 class MutableBaseMixin(object): # {{{
+
     @resolved
     def __str__(self):
-        return str(self.values)
+        return str(self._values)
 
     @resolved
     def __repr__(self):
-        return repr(self.values)
+        return repr(self._values)
 
     @resolved
     def __unicode__(self):
-        return unicode(self.values)
+        return unicode(self._values)
 
     @resolved
     def __len__(self):
-        return len(self.values)
+        return len(self._values)
 
     @resolved
     def __iter__(self):
-        return iter(self.values)
+        return iter(self._values)
 
     @resolved
     def __contains__(self, key):
-        return key in self.values
+        return key in self._values
 
     @resolved
     def __getitem__(self, fmt):
-        return self.values[fmt]
+        return self._values[fmt]
 
     @resolved
     def __setitem__(self, key, val):
-        self.values[key] = val
+        self._values[key] = val
 
     @resolved
     def __delitem__(self, key):
-        del self.values[key]
+        del self._values[key]
 
 # }}}
 
 class FormatMetadata(MutableBaseMixin, MutableMapping): # {{{
 
     def __init__(self, db, id_, formats):
-        self.dbwref = weakref.ref(db)
-        self.id_ = id_
-        self.formats = formats
-        self.values = {}
+        self._dbwref = weakref.ref(db)
+        self._id = id_
+        self._formats = formats
 
     def _resolve(self):
-        db = self.dbwref()
-        for f in self.formats:
+        db = self._dbwref()
+        self._values = {}
+        for f in self._formats:
             try:
-                self.values[f] = db.format_metadata(self.id_, f)
+                self._values[f] = db.format_metadata(self._id, f)
             except:
                 pass
 
 class FormatsList(MutableBaseMixin, MutableSequence):
 
     def __init__(self, formats, format_metadata):
-        self.formats = formats
-        self.format_metadata = format_metadata
-        self.values = []
+        self._formats = formats
+        self._format_metadata = format_metadata
 
     def _resolve(self):
-        self.values = [f for f in self.formats if f in self.format_metadata]
+        self._values = [f for f in self._formats if f in self._format_metadata]
 
+    @resolved
     def insert(self, idx, val):
-        self._resolve()
-        self.values.insert(idx, val)
+        self._values.insert(idx, val)
 
 # }}}
 
