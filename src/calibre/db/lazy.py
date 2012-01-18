@@ -22,8 +22,8 @@ def resolved(f):
     @wraps(f)
     def wrapper(self, *args, **kwargs):
         if getattr(self, '_must_resolve', True):
-            self._must_resolve = False
             self._resolve()
+            self._must_resolve = False
         return f(self, *args, **kwargs)
     return wrapper
 
