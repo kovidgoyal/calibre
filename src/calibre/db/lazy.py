@@ -11,6 +11,13 @@ import weakref
 from functools import wraps
 from collections import MutableMapping, MutableSequence
 
+'''
+Avoid doing stats on all files in a book when getting metadata for that book.
+Speeds up calibre startup with large libraries/libraries on a network share,
+with a composite custom column.
+'''
+
+# Lazy format metadata retrieval {{{
 def resolved(f):
     @wraps(f)
     def wrapper(self, *args, **kwargs):
@@ -20,7 +27,7 @@ def resolved(f):
         return f(self, *args, **kwargs)
     return wrapper
 
-class MutableBaseMixin(object): # {{{
+class MutableBase(object):
 
     @resolved
     def __str__(self):
@@ -58,9 +65,8 @@ class MutableBaseMixin(object): # {{{
     def __delitem__(self, key):
         del self._values[key]
 
-# }}}
 
-class FormatMetadata(MutableBaseMixin, MutableMapping): # {{{
+class FormatMetadata(MutableBase, MutableMapping):
 
     def __init__(self, db, id_, formats):
         self._dbwref = weakref.ref(db)
@@ -76,7 +82,7 @@ class FormatMetadata(MutableBaseMixin, MutableMapping): # {{{
             except:
                 pass
 
-class FormatsList(MutableBaseMixin, MutableSequence):
+class FormatsList(MutableBase, MutableSequence):
 
     def __init__(self, formats, format_metadata):
         self._formats = formats
@@ -90,5 +96,4 @@ class FormatsList(MutableBaseMixin, MutableSequence):
         self._values.insert(idx, val)
 
 # }}}
-
 
