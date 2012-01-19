@@ -683,7 +683,7 @@ class DeviceMixin(object): # {{{
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
-                det_msg=autos
+                det_msg=autos, skip_dialog_name='auto_convert_before_send'
         )
 
     def set_default_thumbnail(self, height):
@@ -751,7 +751,7 @@ class DeviceMixin(object): # {{{
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
-                             'and or reboot.')).show()
+                             'or reboot.')).show()
                 return
         except:
             pass

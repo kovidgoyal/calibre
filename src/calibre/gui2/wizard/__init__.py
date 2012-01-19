@@ -80,7 +80,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle 1, 2, 3 or 4'
+    name = 'Kindle 1-4 and Touch'
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -122,7 +122,7 @@ class Sony505(Device):
     id = 'prs505'
 
 class Kobo(Device):
-    name = 'Kobo Reader'
+    name = 'Kobo and Kobo Touch Readers'
     manufacturer = 'Kobo'
     output_profile = 'kobo'
     output_format = 'EPUB'

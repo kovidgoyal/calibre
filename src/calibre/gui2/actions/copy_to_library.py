@@ -175,7 +175,6 @@ class CopyToLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('No library'),
                     _('No library found at %s')%loc, show=True)
 
-
         self.pd = ProgressDialog(_('Copying'), min=0, max=len(ids)-1,
                 parent=self.gui, cancelable=False)
 

@@ -244,7 +244,9 @@ class MetadataHeader(BookHeader):
 
 
 class MobiReader(object):
-    PAGE_BREAK_PAT = re.compile(r'(<[/]{0,1}mbp:pagebreak\s*[/]{0,1}>)+', re.IGNORECASE)
+    PAGE_BREAK_PAT = re.compile(
+        r'<\s*/{0,1}\s*mbp:pagebreak((?:\s+[^/>]*){0,1})/{0,1}\s*>\s*(?:<\s*/{0,1}\s*mbp:pagebreak\s*/{0,1}\s*>)*',
+        re.IGNORECASE)
     IMAGE_ATTRS = ('lowrecindex', 'recindex', 'hirecindex')
 
     def __init__(self, filename_or_stream, log, user_encoding=None, debug=None,
@@ -502,6 +504,7 @@ class MobiReader(object):
         self.processed_html = self.processed_html.replace('> <', '>\n<')
         self.processed_html = self.processed_html.replace('<mbp: ', '<mbp:')
         self.processed_html = re.sub(r'<\?xml[^>]*>', '', self.processed_html)
+        self.processed_html = re.sub(r'<\s*(/?)\s*o:p[^>]*>', r'', self.processed_html)
         # Swap inline and block level elements, and order block level elements according to priority
         # - lxml and beautifulsoup expect/assume a specific order based on xhtml spec
         self.processed_html = re.sub(r'(?i)(?P<styletags>(<(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})(?P<para><p[^>]*>)', '\g<para>'+'\g<styletags>', self.processed_html)
@@ -538,6 +541,9 @@ class MobiReader(object):
             x.getparent().remove(x)
         svg_tags = []
         forwardable_anchors = []
+        pagebreak_anchors = []
+        BLOCK_TAGS = {'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                                'div', 'p'}
         for i, tag in enumerate(root.iter(etree.Element)):
             tag.attrib.pop('xmlns', '')
             for x in tag.attrib:
@@ -656,6 +662,10 @@ class MobiReader(object):
                 if not tag.text:
                     tag.tag = 'div'
 
+            if (attrib.get('class', None) == 'mbp_pagebreak' and tag.tag ==
+                    'div' and 'filepos-id' in attrib):
+                pagebreak_anchors.append(tag)
+
             if 'filepos-id' in attrib:
                 attrib['id'] = attrib.pop('filepos-id')
                 if 'name' in attrib and attrib['name'] != attrib['id']:
@@ -669,8 +679,7 @@ class MobiReader(object):
             if (tag.tag == 'a' and attrib.get('id', '').startswith('filepos')
                     and not tag.text and (tag.tail is None or not
                         tag.tail.strip()) and getattr(tag.getnext(), 'tag',
-                            None) in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-                                'div', 'p')):
+                            None) in BLOCK_TAGS):
                 # This is an empty anchor immediately before a block tag, move
                 # the id onto the block tag instead
                 forwardable_anchors.append(tag)
@@ -702,6 +711,18 @@ class MobiReader(object):
 
             if hasattr(parent, 'remove'):
                 parent.remove(tag)
+
+        for tag in pagebreak_anchors:
+            anchor = tag.attrib['id']
+            del tag.attrib['id']
+            if 'name' in tag.attrib:
+                del tag.attrib['name']
+            p = tag.getparent()
+            a = p.makeelement('a')
+            a.attrib['id'] = anchor
+            p.insert(p.index(tag)+1, a)
+            if getattr(a.getnext(), 'tag', None) in BLOCK_TAGS:
+                forwardable_anchors.append(a)
 
         for tag in forwardable_anchors:
             block = tag.getnext()
@@ -918,7 +939,7 @@ class MobiReader(object):
 
     def replace_page_breaks(self):
         self.processed_html = self.PAGE_BREAK_PAT.sub(
-            '<div class="mbp_pagebreak" />',
+            r'<div \1 class="mbp_pagebreak" />',
             self.processed_html)
 
     def add_anchors(self):
@@ -973,12 +994,13 @@ class MobiReader(object):
                 continue
             processed_records.append(i)
             data  = self.sections[i][0]
+            image_index += 1
             if data[:4] in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n',
-                    b'RESC', b'BOUN', b'FDST', b'DATP'}:
-                # A FLIS, FCIS, SRCS or EOF record, ignore
+                    b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
+                # This record is a known non image type, not need to try to
+                # load the image
                 continue
             buf = cStringIO.StringIO(data)
-            image_index += 1
             try:
                 im = PILImage.open(buf)
                 im = im.convert('RGB')
@@ -1045,3 +1067,22 @@ def get_metadata(stream):
         im.convert('RGB').save(obuf, format='JPEG')
         mi.cover_data = ('jpg', obuf.getvalue())
     return mi
+
+def test_mbp_regex():
+    for raw, m in {
+        '<mbp:pagebreak></mbp:pagebreak>':'',
+        '<mbp:pagebreak xxx></mbp:pagebreak>yyy':' xxxyyy',
+        '<mbp:pagebreak> </mbp:pagebreak>':'',
+        '<mbp:pagebreak>xxx':'xxx',
+        '<mbp:pagebreak/>xxx':'xxx',
+        '<mbp:pagebreak sdf/ >xxx':' sdfxxx',
+        '<mbp:pagebreak / >':' ',
+        '</mbp:pagebreak>':'',
+        '</mbp:pagebreak sdf>':' sdf',
+        '</mbp:pagebreak><mbp:pagebreak></mbp:pagebreak>xxx':'xxx',
+        }.iteritems():
+        ans = MobiReader.PAGE_BREAK_PAT.sub(r'\1', raw)
+        if ans != m:
+            raise Exception('%r != %r for %r'%(ans, m, raw))
+
+

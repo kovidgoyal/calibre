@@ -7,6 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, shutil
+from itertools import repeat, izip
 from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
 from PyQt4.Qt import QDialog
@@ -30,9 +31,20 @@ class TweakEpub(QDialog, Ui_Dialog):
         self._epub = epub
         self._exploded = None
         self._output = None
+        self.ishtmlz = epub.lower().endswith('.htmlz')
+        self.rebuilt_name = 'rebuilt.' + ('htmlz' if self.ishtmlz else 'epub')
 
         # Run the dialog setup generated from tweak_epub.ui
         self.setupUi(self)
+        for x, props in [(self, ['windowTitle']), (self.label, ['text'])]+\
+                list(izip([self.cancel_button, self.explode_button,
+                    self.rebuild_button, self.preview_button],
+                    repeat(['text', 'statusTip', 'toolTip']))):
+            for prop in props:
+                val = unicode(getattr(x, prop)())
+                val = val.format('HTMLZ' if self.ishtmlz else 'ePub')
+                prop = 'set' + prop[0].upper() + prop[1:]
+                getattr(x, prop)(val)
 
         self.cancel_button.clicked.connect(self.reject)
         self.explode_button.clicked.connect(self.explode)
@@ -83,9 +95,11 @@ class TweakEpub(QDialog, Ui_Dialog):
     def do_rebuild(self, src):
         with ZipFile(src, 'w', compression=ZIP_DEFLATED) as zf:
             # Write mimetype
-            zf.write(os.path.join(self._exploded,'mimetype'), 'mimetype', compress_type=ZIP_STORED)
+            mt = os.path.join(self._exploded, 'mimetype')
+            if os.path.exists(mt):
+                zf.write(mt, 'mimetype', compress_type=ZIP_STORED)
             # Write everything else
-            exclude_files = ['.DS_Store','mimetype','iTunesMetadata.plist','rebuilt.epub']
+            exclude_files = ['.DS_Store','mimetype','iTunesMetadata.plist',self.rebuilt_name]
             for root, dirs, files in os.walk(self._exploded):
                 for fn in files:
                     if fn in exclude_files:
@@ -97,11 +111,11 @@ class TweakEpub(QDialog, Ui_Dialog):
 
     def preview(self):
         if not self._exploded:
-            return error_dialog(self, _('Cannot preview'),
-                    _('You must first explode the epub before previewing.'),
-                    show=True)
+            msg = _('You must first explode the %s before previewing.')
+            msg = msg%('HTMLZ' if self.ishtmlz else 'ePub')
+            return error_dialog(self, _('Cannot preview'), msg, show=True)
 
-        tf = PersistentTemporaryFile('.epub')
+        tf = PersistentTemporaryFile('.htmlz' if self.ishtmlz else '.epub')
         tf.close()
         self._preview_files.append(tf.name)
 
@@ -110,7 +124,7 @@ class TweakEpub(QDialog, Ui_Dialog):
         self.gui.iactions['View']._view_file(tf.name)
 
     def rebuild(self, *args):
-        self._output = os.path.join(self._exploded, 'rebuilt.epub')
+        self._output = os.path.join(self._exploded, self.rebuilt_name)
         self.do_rebuild(self._output)
         return QDialog.accept(self)
 

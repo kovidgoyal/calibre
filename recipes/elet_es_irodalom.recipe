@@ -1,0 +1,48 @@
+################################################################################
+#Description:	  http://es.hu/ RSS channel
+#Author: 	  Bigpapa (bigpapabig@hotmail.com)
+#Date:	  2010.12.01. - V1.0
+################################################################################
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class elet_es_irodalom(BasicNewsRecipe):
+    title                  = u'Elet es Irodalom'
+    __author__             = 'Bigpapa'
+    oldest_article         = 7
+    max_articles_per_feed  = 20	# Az adott e-bookban tarolt cikkek feedenkenti maximalis szamat adja meg.
+    no_stylesheets         = True
+    #delay                  = 1
+    use_embedded_content   = False
+    encoding               = 'iso-8859-2'
+    category               = 'Cikkek'
+    language               = 'hu'
+    publication_type       = 'newsportal'
+    extra_css              = '.doc_title { font: bold 30px } .doc_author {font: bold 14px} '
+
+    keep_only_tags    = [
+                       dict(name='div', attrs={'class':['doc_author', 'doc_title', 'doc']})
+                    
+                       	 ]
+
+    remove_tags = [
+	 dict(name='a', attrs={'target':['_TOP']}),
+	dict(name='div', attrs={'style':['float: right; margin-left: 5px; margin-bottom: 5px;', 'float: right; margin-left: 5px; margin-bottom: 5px;']}),
+	
+
+                      	  ]
+
+    
+
+    feeds          = [
+	(u'Publicisztika', 'http://www.feed43.com/4684235031168504.xml'), 
+	(u'Interj\xfa', 'http://www.feed43.com/4032465460040618.xml'), 
+	(u'Visszhang', 'http://www.feed43.com/3727375706873086.xml'), 
+	(u'P\xe1ratlan oldal', 'http://www.feed43.com/2525784782475057.xml'), 
+	(u'Feuilleton', 'http://www.feed43.com/7216025082703073.xml'), 
+	(u'Pr\xf3za', 'http://www.feed43.com/8760248802326384.xml'), 
+	(u'Vers', 'http://www.feed43.com/1737324675134275.xml'), 
+	(u'K\xf6nyvkritika', 'http://www.feed43.com/1281156550717082.xml'), 	
+	(u'M\u0171b\xedr\xe1lat', 'http://www.feed43.com/1851854623681044.xml')
+
+                   	 ]

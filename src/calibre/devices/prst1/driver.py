@@ -239,7 +239,7 @@ class PRST1(USBMS):
 
         if booklists[0] is not None:
             self.update_device_database(booklists[0], collections, None)
-        if booklists[1] is not None:
+        if len(booklists) > 1 and booklists[1] is not None:
             self.update_device_database(booklists[1], collections, 'carda')
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
@@ -266,12 +266,14 @@ class PRST1(USBMS):
         collections = booklist.get_collections(collections_attributes)
 
         with closing(sqlite.connect(dbpath)) as connection:
-            self.update_device_books(connection, booklist, source_id, plugboard)
+            self.update_device_books(connection, booklist, source_id,
+                    plugboard, dbpath)
             self.update_device_collections(connection, booklist, collections, source_id)
 
         debug_print('PRST1: finished update_device_database')
 
-    def update_device_books(self, connection, booklist, source_id, plugboard):
+    def update_device_books(self, connection, booklist, source_id, plugboard,
+            dbpath):
         opts = self.settings()
         upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
@@ -284,12 +286,15 @@ class PRST1(USBMS):
             query = 'SELECT file_path, _id FROM books'
             cursor.execute(query)
         except DatabaseError:
-            raise DeviceError('The SONY database is corrupted. '
+            import traceback
+            tb = traceback.format_exc()
+            raise DeviceError((('The SONY database is corrupted. '
                     ' Delete the file %s on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
-                    ' deleting this file may cause your reader to forget '
-                    ' any notes/highlights, etc.')
+                    ' deleting this file will cause your reader to forget '
+                    ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
+                    '\n'+tb)
 
         db_books = {}
         for i, row in enumerate(cursor):

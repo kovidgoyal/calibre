@@ -1,0 +1,12 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1325758162(BasicNewsRecipe):
+    title          = u'Wired'
+    language = 'it'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+    remove_tags_after = [dict(name='div', attrs={'class':'article_content'})]
+    feeds          = [(u'Wired', u'http://www.wired.it/rss.xml')]
+    __author__      = 'faber1971'
+    description = 'An American magazine that reports on how new technology affects culture, the economy, and politics'

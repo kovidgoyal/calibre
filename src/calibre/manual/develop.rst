@@ -65,7 +65,8 @@ to the latest code, use the command::
 
     bzr merge
 
-You can also download the source code as a tarball (archive) from `here <http://status.calibre-ebook.com/dist/src>`_.
+The calibre repository is huge so the branch operation above takes along time (about an hour). If you want to get the code faster, the sourcecode for the latest release is always available as an
+`archive <http://status.calibre-ebook.com/dist/src>`_.
 
 Submitting your changes to be included
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

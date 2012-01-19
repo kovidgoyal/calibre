@@ -26,7 +26,7 @@ from calibre.library.server.cache import Cache
 from calibre.library.server.browse import BrowseServer
 from calibre.library.server.ajax import AjaxServer
 from calibre.utils.search_query_parser import saved_searches
-from calibre import prints
+from calibre import prints, as_unicode
 
 
 class DispatchController(object): # {{{
@@ -112,6 +112,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         self.opts = opts
         self.embedded = embedded
         self.state_callback = None
+        self.start_failure_callback = None
         try:
             self.max_cover_width, self.max_cover_height = \
                         map(int, self.opts.max_cover.split('x'))
@@ -136,6 +137,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
             'engine.autoreload_on'   : getattr(opts,
                                         'auto_reload', False),
             'tools.log_headers.on'   : opts.develop,
+            'tools.encode.encoding'  : 'UTF-8',
             'checker.on'             : opts.develop,
             'request.show_tracebacks': show_tracebacks,
             'server.socket_host'     : listen_on,
@@ -168,7 +170,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
                 self.config['/'] = {
                         'tools.digest_auth.on'    : True,
                         'tools.digest_auth.realm' : (
-                            'Password to access your calibre library. Username is '
+                            'Your calibre library. Username: '
                             + opts.username.strip()),
                         'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
                 }
@@ -224,41 +226,57 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         h.setFormatter(cherrypy._cplogging.logfmt)
         log.access_log.addHandler(h)
 
+    def start_cherrypy(self):
+        try:
+            cherrypy.engine.start()
+        except:
+            ip = get_external_ip()
+            if not ip or ip.startswith('127.'):
+                raise
+            cherrypy.log('Trying to bind to single interface: '+ip)
+            # Change the host we listen on
+            cherrypy.config.update({'server.socket_host' : ip})
+            # This ensures that the change is actually applied
+            cherrypy.server.socket_host = ip
+            cherrypy.server.httpserver = cherrypy.server.instance = None
+
+            cherrypy.engine.start()
+
     def start(self):
         self.is_running = False
+        self.exception = None
         cherrypy.tree.mount(root=None, config=self.config)
         try:
-            try:
-                cherrypy.engine.start()
-            except:
-                ip = get_external_ip()
-                if not ip or ip.startswith('127.'):
-                    raise
-                cherrypy.log('Trying to bind to single interface: '+ip)
-                # Change the host we listen on
-                cherrypy.config.update({'server.socket_host' : ip})
-                # This ensures that the change is actually applied
-                cherrypy.server.socket_host = ip
-                cherrypy.server.httpserver = cherrypy.server.instance = None
-
-                cherrypy.engine.start()
-
-            self.is_running = True
-            #if hasattr(cherrypy.engine, 'signal_handler'):
-            #    cherrypy.engine.signal_handler.subscribe()
-
-            cherrypy.engine.block()
+            self.start_cherrypy()
         except Exception as e:
             self.exception = e
             import traceback
             traceback.print_exc()
+            if callable(self.start_failure_callback):
+                try:
+                    self.start_failure_callback(as_unicode(e))
+                except:
+                    pass
+            return
+
+        try:
+            self.is_running = True
+            self.notify_listener()
+            cherrypy.engine.block()
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self.exception = e
         finally:
             self.is_running = False
-            try:
-                if callable(self.state_callback):
-                    self.state_callback(self.is_running)
-            except:
-                pass
+            self.notify_listener()
+
+    def notify_listener(self):
+        try:
+            if callable(self.state_callback):
+                self.state_callback(self.is_running)
+        except:
+            pass
 
     def exit(self):
         try:
@@ -266,11 +284,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         finally:
             cherrypy.server.httpserver = None
             self.is_running = False
-            try:
-                if callable(self.state_callback):
-                    self.state_callback(self.is_running)
-            except:
-                pass
+            self.notify_listener()
 
     def threaded_exit(self):
         from threading import Thread

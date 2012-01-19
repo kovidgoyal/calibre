@@ -10,11 +10,11 @@ class Alternet(BasicNewsRecipe):
     category = 'News, Magazine'
     description = 'News magazine and online community'
     feeds          = [
-	(u'Front Page', u'http://feeds.feedblitz.com/alternet'),
-	(u'Breaking News', u'http://feeds.feedblitz.com/alternet_breaking_news'),
-	(u'Top Ten Campaigns', u'http://feeds.feedblitz.com/alternet_top_10_campaigns'),
-	(u'Special Coverage Areas', u'http://feeds.feedblitz.com/alternet_coverage')
-	]
+        (u'Front Page', u'http://feeds.feedblitz.com/alternet'),
+        (u'Breaking News', u'http://feeds.feedblitz.com/alternet_breaking_news'),
+        (u'Top Ten Campaigns', u'http://feeds.feedblitz.com/alternet_top_10_campaigns'),
+        (u'Special Coverage Areas', u'http://feeds.feedblitz.com/alternet_coverage')
+        ]
     remove_attributes = ['width', 'align','cellspacing']
     remove_javascript = True
     use_embedded_content   = False
@@ -36,3 +36,5 @@ class Alternet(BasicNewsRecipe):
         self.temp_files[-1].write(html)
         self.temp_files[-1].close()
         return self.temp_files[-1].name
+
+    conversion_options = {'linearize_tables': True}

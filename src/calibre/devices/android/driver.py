@@ -48,7 +48,9 @@ class ANDROID(USBMS):
                        0x41db : [0x216], 0x4285 : [0x216], 0x42a3 : [0x216],
                        0x4286 : [0x216], 0x42b3 : [0x216], 0x42b4 : [0x216],
                        0x7086 : [0x0226], 0x70a8: [0x9999], 0x42c4 : [0x216],
-                       0x70c6 : [0x226]
+                       0x70c6 : [0x226],
+                       0x4316 : [0x216],
+                       0x42d6 : [0x216],
                      },
             # Freescale
             0x15a2 : {
@@ -72,7 +74,7 @@ class ANDROID(USBMS):
                 0x0001 : [0x0223, 0x9999],
                 0x4e11 : [0x0100, 0x226, 0x227],
                 0x4e12 : [0x0100, 0x226, 0x227],
-                0x4e21 : [0x0100, 0x226, 0x227],
+                0x4e21 : [0x0100, 0x226, 0x227, 0x231],
                 0xb058 : [0x0222, 0x226, 0x227],
                 0x0ff9 : [0x0226],
             },
@@ -87,10 +89,12 @@ class ANDROID(USBMS):
                        0x6877 : [0x0400],
                        0x689e : [0x0400],
                        0xdeed : [0x0222],
+                       0x1234 : [0x0400],
                      },
 
             # Viewsonic/Vizio
             0x0489 : {
+                    0xc000 : [0x0226],
                     0xc001 : [0x0226],
                     0xc004 : [0x0226],
                     0x8801 : [0x0226, 0x0227],
@@ -135,7 +139,7 @@ class ANDROID(USBMS):
             0x5e3 : { 0x726 : [0x222] },
 
             # ZTE
-            0x19d2 : { 0x1353 : [0x226] },
+            0x19d2 : { 0x1353 : [0x226], 0x1351 : [0x227] },
 
             # Advent
             0x0955 : { 0x7100 : [0x9999] }, # This is the same as the Notion Ink Adam
@@ -170,13 +174,14 @@ class ANDROID(USBMS):
             'MB525', 'ANDROID2.3', 'SGH-I997', 'GT-I5800_CARD', 'MB612',
             'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
             'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI',
-            'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107']
+            'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107',
+            'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
             '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
             'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853',
-            'A1-07___C0541A4F']
+            'A1-07___C0541A4F', 'XT912']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 

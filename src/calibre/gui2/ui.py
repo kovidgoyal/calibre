@@ -368,9 +368,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.library_view.model().db, server_config().parse())
         self.content_server.state_callback = Dispatcher(
                 self.iactions['Connect Share'].content_server_state_changed)
-        self.content_server.state_callback(True)
         if check_started:
-            QTimer.singleShot(10000, self.test_server)
+            self.content_server.start_failure_callback = \
+                Dispatcher(self.content_server_start_failed)
+
+    def content_server_start_failed(self, msg):
+        error_dialog(self, _('Failed to start Content Server'),
+                _('Could not start the content server. Error:\n\n%s')%msg,
+                show=True)
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -407,11 +412,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         return getattr(self, '__systray_minimized', False)
 
     def ask_a_yes_no_question(self, title, msg, det_msg='',
-            show_copy_button=False, ans_when_user_unavailable=True):
+            show_copy_button=False, ans_when_user_unavailable=True,
+            skip_dialog_name=None, skipped_value=True):
         if self.is_minimized_to_tray:
             return ans_when_user_unavailable
         return question_dialog(self, title, msg, det_msg=det_msg,
-                show_copy_button=show_copy_button)
+                show_copy_button=show_copy_button,
+                skip_dialog_name=skip_dialog_name,
+                skip_dialog_skipped_value=skipped_value)
 
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():

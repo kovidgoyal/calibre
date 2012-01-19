@@ -11,8 +11,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class USAToday(BasicNewsRecipe):
 
     title                  = 'USA Today'
-    __author__             = 'calibre'
+    __author__             = 'Kovid Goyal'
     description            = 'newspaper'
+    cover_url = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg12/lg/USAT.jpg'
     encoding               = 'utf-8'
     publisher              = 'usatoday.com'
     category               = 'news, usa'
@@ -47,32 +48,7 @@ class USAToday(BasicNewsRecipe):
                 ('Offbeat News', 'http://rssfeeds.usatoday.com/UsatodaycomOffbeat-TopStories')
                 ]
 
-    keep_only_tags = [dict(attrs={'class':'story'})]
-
-    remove_tags = [
-            dict(attrs={'class':[
-                                'share',
-                                'reprints',
-                                'inline-h3',
-                                'info-extras rounded',
-                                'inset',
-                                'ppy-outer',
-                                'ppy-caption',
-                                'comments',
-                                'jump',
-                                'pagetools',
-                                'post-attributes',
-                                'tags',
-                                'bottom-tools',
-                                'sponsoredlinks',
-                                'corrections'
-                                ]}),
-            dict(name='ul', attrs={'class':'inside-copy'}),
-            dict(id=['pluck']),
-            dict(id=['updated']),
-            dict(id=['post-date-updated'])
-    ]
-
+    auto_cleanup = True
 
     def get_masthead_url(self):
         masthead = 'http://i.usatoday.net/mobile/_common/_images/565x73_usat_mobile.gif'

@@ -288,6 +288,7 @@ class LinuxFreeze(Command):
                 path=`readlink -f $0`
                 base=`dirname $path`
                 lib=$base/lib
+                export QT_ACCESSIBILITY=0 # qt-at-spi causes crashes and performance issues in various distros, so disable it
                 export LD_LIBRARY_PATH=$lib:$LD_LIBRARY_PATH
                 export MAGICK_HOME=$base
                 export MAGICK_CONFIGURE_PATH=$lib/{1}/config

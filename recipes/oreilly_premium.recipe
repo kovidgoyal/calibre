@@ -1,0 +1,196 @@
+# Talking Points is not grabbing everything.
+# The look is right, but only the last one added?
+import re
+import time
+from calibre.web.feeds.recipes import BasicNewsRecipe
+# Allows the Python soup converter, which makes parsing easier.
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+# strip ads and graphics
+# Current Column lacks a title.
+# Talking Points Memo - shorten title - Remove year and Bill's name
+# The News letter archive https://www.billoreilly.com/newsletterarchive is covered by other entries.
+# Newsletters: Talking Points Memos covered by cat12
+
+class OReillyPremium(BasicNewsRecipe):
+    title           = u'OReilly Premium'
+    __author__      = 'TMcN'
+    description     = 'Retrieves Premium and News Letter content from BillOReilly.com.  Requires a Bill OReilly Premium Membership.'
+    cover_url       = 'http://images.billoreilly.com/images/headers/billgray_header.png'
+    auto_cleanup    = True
+    encoding        = 'utf8'
+    needs_subscription = True
+    no_stylesheets  = True
+    oldest_article  = 20
+    remove_javascript = True
+    remove_tags     = [dict(name='img', attrs={})]
+    # Don't go down
+    recursions      = 0
+    max_articles_per_feed = 2000
+
+    debugMessages   = True
+
+    # Name, URL, Soup FindAll Attr if relevant (last two are special case), articleList
+    catList = [ ["TV Archives",         'https://www.billoreilly.com/show?action=tvShowArchive', 'a',    {'class':['showLinks','homeLinks']},                   []],
+                ["No Spin Archives",    'https://www.billoreilly.com/blog?categoryID=7',         True,   {'class':['blogBody'], 'style':['padding-top:10px;']}, []],
+                ["Daily Briefings",     'http://www.billoreilly.com/blog?categoryID=11',         True,   {'class':['defaultHeaderSmallLinks']},                 []],
+                ["Stratfor",            'http://www.billoreilly.com/blog?categoryID=5',          'a',    {'class':['blogLinks']},                               []],
+                ["Talking Points Memo", 'https://www.billoreilly.com/blog?categoryID=12',        'td',   {},                                                    []],
+                ["Current Column",      'https://www.billoreilly.com/currentcolumn',             'span', {'class':['defaultHeader']},                           []]
+              ]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser()
+        if self.username is not None and self.password is not None:
+            br.open('https://www.billoreilly.com/pg/jsp/member/membersignin.jsp')
+            br.select_form(name='login')
+            br['formEmailField']   = self.username
+            br['formPasswordField'] = self.password
+            br.submit()
+        return br
+
+    # Returns the best-guess print url.
+    # The second parameter (pageURL) is returned if nothing is found.
+    def extractPrintURL(self, baseURL, pageURL, printString):
+        tagURL = pageURL
+        soup = self.index_to_soup(pageURL)
+        if soup :
+            printText = soup.find('a', text=printString)
+        else :
+            print("Failed to find Print string "+printString+ " in "+pageURL)
+        if printText:
+            tag = printText.parent
+            tagURL = baseURL+tag['href']
+        return tagURL
+
+    def stripBadChars(self, inString) :
+        return inString.replace("\'", "")
+
+    def parseGeneric(self, baseURL):
+        # Does a generic parsing of the articles.  There are six categories (0-5)
+        # Name, URL, Soup FindAll Attr if relevant (last two are special case), articleList
+        # NoSpin and TV are generic
+        fullReturn = []
+        for i in range(len(self.catList)) :
+            articleList = []
+            soup = self.index_to_soup(self.catList[i][1])
+            # Set defaults
+            description = 'None'
+            pubdate = time.strftime('%a, %d %b')
+            # Problem: 0-2 create many in an array
+            # 3-5 create one.
+            # So no for-div for 3-5
+
+            if i < 3 :
+                for div in soup.findAll(self.catList[i][2], self.catList[i][3]):
+                     print(div)
+                     if i == 1:
+                        a = div.find('a', href=True)
+                     else :
+                        a = div
+                     print(a)
+                     summary = div.find(True, attrs={'class':'summary'})
+                     if summary:
+                         description = self.tag_to_string(summary, use_alt=False)
+                     if not a:
+                         continue
+                     # url = baseURL+re.sub(r'\?.*', '', a['href'])
+                     url = baseURL+a['href']
+                     if i < 2 :
+                        url = self.extractPrintURL(baseURL, url, "Print this entry")
+                        title = self.tag_to_string(a, use_alt=True).strip()
+                     elif i == 2 :
+                        # Daily Briefs
+                        url = self.extractPrintURL(baseURL, url, "Print this entry")
+                        title =  div.contents[0]
+                     if self.debugMessages :
+                        print(title+" @ "+url)
+                     articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
+
+            elif i == 3 :   # Stratfor
+                a = soup.find('a', self.catList[i][3])
+                if a is None :
+                    continue
+                url = baseURL+a['href']
+                title = self.tag_to_string(a, use_alt=True).strip()
+                # Get Stratfor contents so we can get the real title.
+                stratSoup = self.index_to_soup(url)
+                title = stratSoup.html.head.title.string
+                stratIndex = title.find('Stratfor.com:', 0)
+                if (stratIndex > -1) :
+                    title = title[stratIndex+14:-1]
+                # Look for first blogBody  <td class="blogBody"
+                # Changed 12 Jan 2012 - new page format
+                #stratBlogTable = stratSoup.find('td', {'class':['blogBody']}).findParent('table')
+                #stratBody = stratSoup.find('td', {'class':['blogBody']})
+            elif i == 4 :      # Talking Points
+                topDate =  soup.find("td", "blogBody")
+                if not topDate :
+                    print("Failed to find date in Talking Points")
+                # This page has the contents in double-wrapped tables!
+                myTable = topDate.findParents('table')[0]
+                if myTable is not None:
+                    upOneTable = myTable.findParents('table')[0]
+                    if upOneTable is not None:
+                        upTwo = upOneTable.findParents('table')[0]
+                if upTwo is None:
+                    continue
+                # Now navigate rows of upTwo
+                if self.debugMessages :
+                    print("Entering rows")
+                for rows in upTwo.findChildren("tr", recursive=False):
+                    # Inside top level table, each row is an article
+                    rowTable = rows.find("table")
+                    articleTable = rowTable.find("table")
+                    # This looks wrong.
+                    articleTable = rows.find("tr")
+                    # The middle table is just for formatting the article buffer... but this means we can skip the inner table.
+                    blogDate = articleTable.find("a","blogDate").contents[0]
+                    # Skip to second blogBody for this.
+                    blogTitle = articleTable.findAll("td", "blogBody")[1].contents[0]
+                    blogURL = articleTable.find("a", "homeBlogReadMore bold")['href']
+                    url = baseURL+re.sub(r'\?.*', '', blogURL)
+                    title = blogDate+": "+self.stripBadChars(blogTitle.replace("Bill O'Reilly: ", ""))
+                    if self.debugMessages :
+                        print("Talking Points Memo title "+title+" at url: "+url)
+                    pubdate = time.strftime('%a, %d %b')
+                    articleList.append(dict(title=title, url=url, date=pubdate, description='None', content=''))
+            else :       # Current Column
+                titleSpan = soup.find(self.catList[i][2], self.catList[i][3])
+                if titleSpan is None :
+                    continue
+                title = titleSpan.contents[0]
+                url = self.extractPrintURL(baseURL, self.catList[i][1], "Print This Article")
+            if i == 3 or i == 5 :
+                 if self.debugMessages :
+                    print(self.catList[i][0]+" Title:"+title+" at url: "+url)
+                 summary = div.find(True, attrs={'class':'summary'})
+                 if summary:
+                     description = self.tag_to_string(summary, use_alt=False)
+                 articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
+            self.catList[i][3] = articleList
+            fullReturn.append((self.catList[i][0], articleList))
+        return fullReturn
+
+    # calibre.web.feeds.news.BasicNewsRecipe.parse_index() fetches the list of articles.
+    # returns a list of tuple ('feed title', list of articles)
+    # {
+    # 'title'       : article title,
+    # 'url'         : URL of print version,
+    # 'date'        : The publication date of the article as a string,
+    # 'description' : A summary of the article
+    # 'content'     : The full article (can be an empty string). This is used by FullContentProfile
+    # }
+    # this is used instead of BasicNewsRecipe.parse_feeds().
+    def parse_index(self):
+        # Parse the page into Python Soup
+        baseURL = "https://www.billoreilly.com"
+        return self.parseGeneric(baseURL)
+
+    def preprocess_html(self, soup):
+        refresh = soup.find('meta', {'http-equiv':'refresh'})
+        if refresh is None:
+            return soup
+        content = refresh.get('content').partition('=')[2]
+        raw = self.browser.open('https://www.billoreilly.com'+content).read()
+        return BeautifulSoup(raw.decode('cp1252', 'replace'))
+

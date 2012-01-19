@@ -11,6 +11,7 @@ from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
+from calibre.constants import filesystem_encoding
 
 class CHMInput(InputFormatPlugin):
 
@@ -36,6 +37,8 @@ class CHMInput(InputFormatPlugin):
 
         log.debug('Processing CHM...')
         with TemporaryDirectory('_chm2oeb') as tdir:
+            if not isinstance(tdir, unicode):
+                tdir = tdir.decode(filesystem_encoding)
             html_input = plugin_for_input_format('html')
             for opt in html_input.options:
                 setattr(options, opt.option.name, opt.recommended_value)

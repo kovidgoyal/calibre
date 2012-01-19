@@ -8,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import os, locale, re, cStringIO, cPickle
 from gettext import GNUTranslations, NullTranslations
-from zipfile import ZipFile
 
 _available_translations = None
 
@@ -75,10 +74,17 @@ def set_translators():
         if mpath and os.access(mpath+'.po', os.R_OK):
             from calibre.translations.msgfmt import make
             buf = cStringIO.StringIO()
-            make(mpath+'.po', buf)
-            buf = cStringIO.StringIO(buf.getvalue())
+            try:
+                make(mpath+'.po', buf)
+            except:
+                print (('Failed to compile translations file: %s,'
+                        ' ignoring')%(mpath+'.po'))
+                buf = None
+            else:
+                buf = cStringIO.StringIO(buf.getvalue())
 
         if mpath is not None:
+            from zipfile import ZipFile
             with ZipFile(P('localization/locales.zip',
                 allow_user_override=False), 'r') as zf:
                 if buf is None:

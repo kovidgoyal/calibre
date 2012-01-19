@@ -5,9 +5,10 @@ __license__   = 'GPL v3'
 
 import os, shutil
 
-from PyQt4.Qt import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel, \
-            QPushButton, QDialogButtonBox, QApplication, QTreeWidgetItem, \
-            QLineEdit, Qt, QProgressBar, QSize, QTimer, QIcon, QTextEdit
+from PyQt4.Qt import (QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QLabel,
+            QPushButton, QDialogButtonBox, QApplication, QTreeWidgetItem,
+            QLineEdit, Qt, QProgressBar, QSize, QTimer, QIcon, QTextEdit,
+            QSplitter, QWidget)
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.check_library import CheckLibrary, CHECKS
@@ -149,11 +150,15 @@ class CheckLibraryDialog(QDialog):
         self.setWindowIcon(QIcon(I('debug.png')))
 
         self._tl = QHBoxLayout()
-        self._layout = QVBoxLayout()
         self.setLayout(self._tl)
-        self._tl.addLayout(self._layout)
+        self.splitter = QSplitter(self)
+        self.left = QWidget(self)
+        self.splitter.addWidget(self.left)
         self.helpw = QTextEdit(self)
-        self._tl.addWidget(self.helpw)
+        self.splitter.addWidget(self.helpw)
+        self._tl.addWidget(self.splitter)
+        self._layout = QVBoxLayout()
+        self.left.setLayout(self._layout)
         self.helpw.setReadOnly(True)
         self.helpw.setText(_('''\
         <h1>Help</h1>

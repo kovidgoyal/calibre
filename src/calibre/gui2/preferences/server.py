@@ -63,16 +63,21 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def start_server(self):
         ConfigWidgetBase.commit(self)
-        self.gui.start_content_server(check_started=False)
-        while not self.gui.content_server.is_running and self.gui.content_server.exception is None:
-            time.sleep(1)
-        if self.gui.content_server.exception is not None:
-            error_dialog(self, _('Failed to start content server'),
-                    as_unicode(self.gui.content_server.exception)).exec_()
-            return
-        self.start_button.setEnabled(False)
-        self.test_button.setEnabled(True)
-        self.stop_button.setEnabled(True)
+        self.setCursor(Qt.BusyCursor)
+        try:
+            self.gui.start_content_server(check_started=False)
+            while (not self.gui.content_server.is_running and
+                    self.gui.content_server.exception is None):
+                time.sleep(0.1)
+            if self.gui.content_server.exception is not None:
+                error_dialog(self, _('Failed to start content server'),
+                        as_unicode(self.gui.content_server.exception)).exec_()
+                return
+            self.start_button.setEnabled(False)
+            self.test_button.setEnabled(True)
+            self.stop_button.setEnabled(True)
+        finally:
+            self.unsetCursor()
 
     def stop_server(self):
         self.gui.content_server.threaded_exit()

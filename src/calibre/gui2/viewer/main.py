@@ -175,6 +175,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None):
         MainWindow.__init__(self, None)
         self.setupUi(self)
+        self.view.initialize_view(debug_javascript)
         self.view.magnification_changed.connect(self.magnification_changed)
         self.show_toc_on_open = False
         self.current_book_has_toc = False
@@ -215,7 +216,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.search.setMinimumWidth(200)
         self.tool_bar2.insertWidget(self.action_find_next, self.search)
         self.view.set_manager(self)
-        self.view.document.debug_javascript = debug_javascript
         self.pi = ProgressIndicator(self)
         self.toc.setVisible(False)
         self.action_quit = QAction(self)
@@ -243,10 +243,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_metadata, SIGNAL('triggered(bool)'), lambda x:self.metadata.setVisible(x))
         self.action_table_of_contents.toggled[bool].connect(self.set_toc_visible)
         self.connect(self.action_copy, SIGNAL('triggered(bool)'), self.copy)
-        self.connect(self.action_font_size_larger, SIGNAL('triggered(bool)'),
-                     self.font_size_larger)
-        self.connect(self.action_font_size_smaller, SIGNAL('triggered(bool)'),
-                     self.font_size_smaller)
+        self.action_font_size_larger.triggered.connect(self.font_size_larger)
+        self.action_font_size_smaller.triggered.connect(self.font_size_smaller)
         self.connect(self.action_open_ebook, SIGNAL('triggered(bool)'),
                      self.open_ebook)
         self.connect(self.action_next_page, SIGNAL('triggered(bool)'),
@@ -482,13 +480,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def open_recent(self, action):
         self.load_ebook(action.path)
 
-    def font_size_larger(self, checked):
+    def font_size_larger(self):
         frac = self.view.magnify_fonts()
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
         self.set_page_number(frac)
 
-    def font_size_smaller(self, checked):
+    def font_size_smaller(self):
         frac = self.view.shrink_fonts()
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)

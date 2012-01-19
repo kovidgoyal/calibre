@@ -1,0 +1,50 @@
+__license__   = 'GPL v3'
+__copyright__ = '2012 Levien van Zon <levien@zonnetjes.net>'
+
+'''
+Fetch Edge.org conversations
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class EdgeConversationRSS(BasicNewsRecipe):
+    title          = u'Edge.org Conversations'
+    __author__ = 'levien'
+    language = 'en'
+    description = '''Edge.org offers "open-minded, free ranging, intellectually
+    playful ... an unadorned pleasure in curiosity, a collective expression of
+    wonder at the living and inanimate world ... an ongoing and thrilling
+    colloquium.'''
+    oldest_article = 60
+    max_articles_per_feed = 100
+    no_stylesheets = True
+
+    keep_only_tags = [dict(name='div', attrs={'class':'HomeLeftPannel IMGCTRL'}) ]
+    remove_tags    = [
+        dict(name='div',attrs={'class':'Logo'})
+        ]
+
+    feeds          = [(u'Edge RSS', u'http://edge.org/feeds/')]
+
+    def print_version(self, url):
+        return url.replace('conversation/', 'conversation.php?cid=')
+
+    def parse_feeds(self):
+
+        # Call parent's method.
+        feeds = BasicNewsRecipe.parse_feeds(self)
+
+        # Loop through all feeds.
+        for feed in feeds:
+
+            # Loop through all articles in feed.
+            for article in feed.articles[:]:
+
+            # Remove anything that is not a conversation, and remove PDF files as well...
+
+                if not ('CONVERSATION' in article.title):
+                    feed.articles.remove(article)
+                elif 'pdf' in article.url:
+                    feed.articles.remove(article)
+
+        return feeds
+

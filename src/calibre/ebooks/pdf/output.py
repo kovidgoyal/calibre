@@ -25,31 +25,30 @@ class PDFOutput(OutputFormatPlugin):
     file_type = 'pdf'
 
     options = set([
-                    OptionRecommendation(name='unit', recommended_value='inch',
-                        level=OptionRecommendation.LOW, short_switch='u', choices=UNITS.keys(),
-                        help=_('The unit of measure. Default is inch. Choices '
-                        'are %s '
-                        'Note: This does not override the unit for margins!') % UNITS.keys()),
-                    OptionRecommendation(name='paper_size', recommended_value='letter',
-                        level=OptionRecommendation.LOW, choices=PAPER_SIZES.keys(),
-                        help=_('The size of the paper. This size will be overridden when an '
-                        'output profile is used. Default is letter. Choices '
-                        'are %s') % PAPER_SIZES.keys()),
-                    OptionRecommendation(name='custom_size', recommended_value=None,
-                        help=_('Custom size of the document. Use the form widthxheight '
-                        'EG. `123x321` to specify the width and height. '
-                        'This overrides any specified paper-size.')),
-                    OptionRecommendation(name='orientation', recommended_value='portrait',
-                        level=OptionRecommendation.LOW, choices=ORIENTATIONS.keys(),
-                        help=_('The orientation of the page. Default is portrait. Choices '
-                        'are %s') % ORIENTATIONS.keys()),
-                    OptionRecommendation(name='preserve_cover_aspect_ratio',
-                        recommended_value=False,
-                        help=_('Preserve the aspect ratio of the cover, instead'
-                            ' of stretching it to fill the full first page of the'
-                            ' generated pdf.')
-                        ),
-                 ])
+        OptionRecommendation(name='unit', recommended_value='inch',
+            level=OptionRecommendation.LOW, short_switch='u', choices=UNITS.keys(),
+            help=_('The unit of measure. Default is inch. Choices '
+            'are %s '
+            'Note: This does not override the unit for margins!') % UNITS.keys()),
+        OptionRecommendation(name='paper_size', recommended_value='letter',
+            level=OptionRecommendation.LOW, choices=PAPER_SIZES.keys(),
+            help=_('The size of the paper. This size will be overridden when a '
+            'non default output profile is used. Default is letter. Choices '
+            'are %s') % PAPER_SIZES.keys()),
+        OptionRecommendation(name='custom_size', recommended_value=None,
+            help=_('Custom size of the document. Use the form widthxheight '
+            'EG. `123x321` to specify the width and height. '
+            'This overrides any specified paper-size.')),
+        OptionRecommendation(name='orientation', recommended_value='portrait',
+            level=OptionRecommendation.LOW, choices=ORIENTATIONS.keys(),
+            help=_('The orientation of the page. Default is portrait. Choices '
+            'are %s') % ORIENTATIONS.keys()),
+        OptionRecommendation(name='preserve_cover_aspect_ratio',
+            recommended_value=False,
+            help=_('Preserve the aspect ratio of the cover, instead'
+                ' of stretching it to fill the full first page of the'
+                ' generated pdf.')),
+        ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         self.oeb = oeb_book

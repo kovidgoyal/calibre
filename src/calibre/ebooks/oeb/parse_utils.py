@@ -17,6 +17,7 @@ from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
 
 RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
+XMLNS_NS     = 'http://www.w3.org/2000/xmlns/'
 
 class NotHTML(Exception):
 
@@ -28,9 +29,7 @@ def barename(name):
     return name.rpartition('}')[-1]
 
 def namespace(name):
-    if '}' in name:
-        return name.split('}', 1)[0][1:]
-    return ''
+    return name.rpartition('}')[0][1:]
 
 def XHTML(name):
     return '{%s}%s' % (XHTML_NS, name)
@@ -60,26 +59,106 @@ def merge_multiple_html_heads_and_bodies(root, log=None):
         log.warn('Merging multiple <head> and <body> sections')
     return root
 
-def _html5_parse(data):
+def clone_element(elem, nsmap={}, in_context=True):
+    if in_context:
+        maker = elem.getroottree().getroot().makeelement
+    else:
+        maker = etree.Element
+    nelem = maker(elem.tag, attrib=elem.attrib,
+            nsmap=nsmap)
+    nelem.text, nelem.tail = elem.text, elem.tail
+    nelem.extend(elem)
+    return nelem
+
+def node_depth(node):
+    ans = 0
+    p = node.getparent()
+    while p is not None:
+        ans += 1
+        p = p.getparent()
+    return ans
+
+def html5_parse(data, max_nesting_depth=100):
     import html5lib
+    # html5lib bug: http://code.google.com/p/html5lib/issues/detail?id=195
+    data = re.sub(r'<\s*title\s*[^>]*/\s*>', '<title></title>', data)
+
     data = html5lib.parse(data, treebuilder='lxml').getroot()
-    html_ns = [ns for ns, val in data.nsmap.iteritems() if (val == XHTML_NS and
-            ns is not None)]
-    if html_ns:
-        # html5lib causes the XHTML namespace to not
-        # be set as the default namespace
-        nsmap = dict(data.nsmap)
-        nsmap[None] = XHTML_NS
-        for x in html_ns:
-            nsmap.pop(x)
-        nroot = etree.Element(data.tag, nsmap=nsmap,
-                attrib=dict(data.attrib))
-        nroot.text = data.text
-        nroot.tail = data.tail
-        for child in data:
-            nroot.append(child)
-        data = nroot
-    return data
+
+    # Check that the asinine HTML 5 algorithm did not result in a tree with
+    # insane nesting depths
+    for x in data.iterdescendants():
+        if isinstance(x.tag, basestring) and len(x) is 0: # Leaf node
+            depth = node_depth(x)
+            if depth > max_nesting_depth:
+                raise ValueError('html5lib resulted in a tree with nesting'
+                        ' depth > %d'%max_nesting_depth)
+    # Set lang correctly
+    xl = data.attrib.pop('xmlU0003Alang', None)
+    if xl is not None and 'lang' not in data.attrib:
+        data.attrib['lang'] = xl
+
+    # html5lib has the most inelegant handling of namespaces I have ever seen
+    # Try to reconstitute destroyed namespace info
+    xmlns_declaration = '{%s}'%XMLNS_NS
+    non_html5_namespaces = {}
+    seen_namespaces = set()
+    for elem in tuple(data.iter(tag=etree.Element)):
+        elem.attrib.pop('xmlns', None)
+        namespaces = {}
+        for x in tuple(elem.attrib):
+            if x.startswith('xmlnsU') or x.startswith(xmlns_declaration):
+                # A namespace declaration
+                val = elem.attrib.pop(x)
+                if x.startswith('xmlnsU0003A'):
+                    prefix = x[11:]
+                    namespaces[prefix] = val
+
+        if namespaces:
+            # Some destroyed namespace declarations were found
+            p = elem.getparent()
+            if p is None:
+                # We handle the root node later
+                non_html5_namespaces = namespaces
+            else:
+                idx = p.index(elem)
+                p.remove(elem)
+                elem = clone_element(elem, nsmap=namespaces)
+                p.insert(idx, elem)
+
+        b = barename(elem.tag)
+        idx = b.find('U0003A')
+        if idx > -1:
+            prefix, tag = b[:idx], b[idx+6:]
+            ns = elem.nsmap.get(prefix, None)
+            if ns is None:
+                ns = non_html5_namespaces.get(prefix, None)
+            if ns is not None:
+                elem.tag = '{%s}%s'%(ns, tag)
+
+        for b in tuple(elem.attrib):
+            idx = b.find('U0003A')
+            if idx > -1:
+                prefix, tag = b[:idx], b[idx+6:]
+                ns = elem.nsmap.get(prefix, None)
+                if ns is None:
+                    ns = non_html5_namespaces.get(prefix, None)
+                if ns is not None:
+                    elem.attrib['{%s}%s'%(ns, tag)] = elem.attrib.pop(b)
+
+        seen_namespaces |= set(elem.nsmap.itervalues())
+
+    nsmap = dict(html5lib.constants.namespaces)
+    nsmap[None] = nsmap.pop('html')
+    non_html5_namespaces.update(nsmap)
+    nsmap = non_html5_namespaces
+
+    data = clone_element(data, nsmap=nsmap, in_context=False)
+
+    # Remove unused namespace declarations
+    fnsmap = {k:v for k,v in nsmap.iteritems() if v in seen_namespaces and v !=
+            XMLNS_NS}
+    return clone_element(data, nsmap=fnsmap, in_context=False)
 
 def _html4_parse(data, prefer_soup=False):
     if prefer_soup:
@@ -177,7 +256,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         except etree.XMLSyntaxError:
             log.debug('Parsing %s as HTML' % filename)
             try:
-                data = _html5_parse(data)
+                data = html5_parse(data)
             except:
                 log.exception(
                     'HTML 5 parsing failed, falling back to older parsers')
@@ -260,6 +339,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
         for elem in data:
             nroot.append(elem)
         data = nroot
+
 
     data = merge_multiple_html_heads_and_bodies(data, log)
     # Ensure has a <head/>

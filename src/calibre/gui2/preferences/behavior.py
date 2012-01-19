@@ -162,6 +162,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for key in dynamic.keys():
             if key.endswith('_again') and dynamic[key] is False:
                 dynamic[key] = True
+        gprefs['questions_to_auto_skip'] = []
         info_dialog(self, _('Done'),
                 _('Confirmation dialogs have all been reset'), show=True)
 
