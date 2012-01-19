@@ -104,6 +104,12 @@ class TheIndependentNew(BasicNewsRecipe):
             url = None
         return url
 
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            picdiv = soup.find('img')
+            if picdiv is not None:
+                self.add_toc_thumbnail(article,picdiv['src'])
+
     def preprocess_html(self, soup):
 
         #remove 'advertorial articles'
@@ -266,12 +272,15 @@ class TheIndependentNew(BasicNewsRecipe):
 
 
     def _insertRatingStars(self,soup,item):
-        if item.contents is None:
+        if item.contents is None or len(item.contents) < 1:
             return
         rating = item.contents[0]
-        if not rating.isdigit():
-            return None
-        rating = int(item.contents[0])
+
+        try:
+            rating = float(item.contents[0])
+        except:
+            print 'Could not convert decimal rating to star: malformatted float.'
+            return
         for i in range(1,6):
             star = Tag(soup,'img')
             if i <= rating:

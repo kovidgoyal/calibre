@@ -16,7 +16,8 @@ from lxml.html import tostring
 
 from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
-from calibre.ebooks.metadata.sources.base import Source, Option
+from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
+        fixauthors)
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.book.base import Metadata
@@ -508,6 +509,15 @@ class Amazon(Source):
             domain = 'com'
 
         return domain
+
+    def clean_downloaded_metadata(self, mi):
+        if mi.title and self.domain in ('com', 'uk'):
+            mi.title = fixcase(mi.title)
+        mi.authors = fixauthors(mi.authors)
+        if self.domain in ('com', 'uk'):
+            mi.tags = list(map(fixcase, mi.tags))
+        mi.isbn = check_isbn(mi.isbn)
+
 
     def create_query(self, log, title=None, authors=None, identifiers={}, # {{{
             domain=None):

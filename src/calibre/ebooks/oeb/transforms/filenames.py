@@ -159,15 +159,18 @@ class FlatFilenames(object): # {{{
                 continue
 
             data = item.data
+            isp = item.spine_position
             nhref = oeb.manifest.generate(href=nhref)[1]
+            if isp is not None:
+                oeb.spine.remove(item)
+            oeb.manifest.remove(item)
+
             nitem = oeb.manifest.add(item.id, nhref, item.media_type, data=data,
                                      fallback=item.fallback)
             self.rename_map[item.href] = nhref
             self.renamed_items_map[nhref] = item
-            if item.spine_position is not None:
-                oeb.spine.insert(item.spine_position, nitem, item.linear)
-                oeb.spine.remove(item)
-            oeb.manifest.remove(item)
+            if isp is not None:
+                oeb.spine.insert(isp, nitem, item.linear)
 
         if self.rename_map:
             self.log('Found non-flat filenames, renaming to support broken'

@@ -347,7 +347,9 @@ class BIBTEX(CatalogPlugin): # {{{
 
             for field in fields:
                 if field.startswith('#'):
-                        item = db.get_field(entry['id'],field,index_is_id=True)
+                    item = db.get_field(entry['id'],field,index_is_id=True)
+                    if isinstance(item, (bool, float, int)):
+                        item = repr(item)
                 elif field == 'title_sort':
                     item = entry['sort']
                 else:
@@ -391,7 +393,7 @@ class BIBTEX(CatalogPlugin): # {{{
 
                 elif field == 'isbn' :
                     # Could be 9, 10 or 13 digits
-                    bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[\D]', u'', item))
+                    bibtex_entry.append(u'isbn = "%s"' % re.sub(u'[0-9xX]', u'', item))
 
                 elif field == 'formats' :
                     #Add file path if format is selected
@@ -413,7 +415,8 @@ class BIBTEX(CatalogPlugin): # {{{
                     bibtex_entry.append(u'month = "%s"' % bibtexdict.utf8ToBibtex(strftime("%b", item)))
 
                 elif field.startswith('#') :
-                    bibtex_entry.append(u'%s = "%s"' % (field[1:], bibtexdict.utf8ToBibtex(item)))
+                    bibtex_entry.append(u'custom_%s = "%s"' % (field[1:],
+                        bibtexdict.utf8ToBibtex(item)))
 
                 else:
                     # elif field in ['title', 'publisher', 'cover', 'uuid', 'ondevice',

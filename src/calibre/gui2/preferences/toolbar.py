@@ -28,11 +28,11 @@ class BaseModel(QAbstractListModel):
 
     def name_to_action(self, name, gui):
         if name == 'Donate':
-            return FakeAction(name, 'donate.png',
+            return FakeAction(_('Donate'), 'donate.png',
                     dont_add_to=frozenset(['context-menu',
                         'context-menu-device']))
         if name == 'Location Manager':
-            return FakeAction(name, None,
+            return FakeAction(_('Location Manager'), None,
                     _('Switch between library and device views'),
                     dont_add_to=frozenset(['menubar', 'toolbar',
                         'toolbar-child', 'context-menu',
