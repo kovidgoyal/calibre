@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-13 12:24+0000\n"
-"PO-Revision-Date: 2011-12-18 09:30+0000\n"
-"Last-Translator: Baharuddin Nur <Unknown>\n"
+"PO-Revision-Date: 2012-01-18 11:51+0000\n"
+"Last-Translator: Amri Ristadi <amristadi@gmail.com>\n"
 "Language-Team: Indonesian <id@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-01-14 04:55+0000\n"
-"X-Generator: Launchpad (build 14664)\n"
+"X-Launchpad-Export-Date: 2012-01-19 04:38+0000\n"
+"X-Generator: Launchpad (build 14692)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -200,35 +200,35 @@ msgstr "Tidak ada apa-apanya"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
 msgid "Unknown"
-msgstr ""
+msgstr "Tidak dikenal"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "Dasar"
+msgstr "Basis"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:397
 msgid "Customize"
-msgstr "Sesuaikan"
+msgstr "Ubahsuaikan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:57
 msgid "Cannot configure"
-msgstr "Tidak bisa ditata"
+msgstr "Tidak bisa diatur"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr "Bentuk berkas"
+msgstr "Jenis berkas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "Pembaca data-semu"
+msgstr "Pembaca metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "penulis data-semu"
+msgstr "Penulis metadata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
@@ -236,7 +236,7 @@ msgstr "Penyusun katalog"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
-msgstr "langkah lintas halaman pengguna"
+msgstr "Aksi antarmuka pengguna"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -246,16 +246,16 @@ msgstr "langkah lintas halaman pengguna"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "Preferensi"
+msgstr "Pengaturan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr "Pajang"
+msgstr "Simpan"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:617
 msgid "An ebook store."
-msgstr "Pajangan buku elektronik"
+msgstr "Toko e-buku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:20
 msgid ""
@@ -263,6 +263,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
+"Membuat arsip PMLZ berisi berkas PML dan semua gambar dalam direktori "
+"pmlname_img atau images. Plugin ini akan berjalan setiap kali anda menambah "
+"berkas PML ke pustaka."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:50
 msgid ""
@@ -276,7 +279,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
-msgstr "Mengekstraksi sampul dari berkas komik"
+msgstr "Ekstrak sampul dari berkas komik"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:164
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:175
@@ -301,15 +304,15 @@ msgstr "Mengekstraksi sampul dari berkas komik"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:386
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Baca data-bayangan atau data-semu dari berkas %s"
+msgstr "Baca metadata dari berkas %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:323
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Baca data-bayangan dari buku elektronik dalam bentuk RAR"
+msgstr "Baca metadata dari e-buku dalam bentuk arsip RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:397
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Baca data-bayangan dari buku elektronik dalam bentuk ZIP"
+msgstr "Baca metadata dari e-buku dalam bentuk arsip ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:410
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:431
@@ -319,30 +322,30 @@ msgstr "Baca data-bayangan dari buku elektronik dalam bentuk ZIP"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:484
 #, python-format
 msgid "Set metadata in %s files"
-msgstr "Buat data-bayangan dalam berkas %s"
+msgstr "Mengatur metadata dalam berkas %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:420
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:452
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:495
 #, python-format
 msgid "Set metadata from %s files"
-msgstr "Buat data-bayangan dari berkas %s"
+msgstr "Mengatur metadata dari berkas %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:729
 msgid "Add books to calibre or the connected device"
-msgstr "Tambahkan buku ke dalam calibre atau perangkat yang terhubung"
+msgstr "Menambah buku ke calibre atau perangkat yang terkoneksi"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:734
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr "Ambil annotasi dari Kindle (uji-coba)"
+msgstr "Ambil anotasi dari Kindle yang terkoneksi (eksperimental)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:739
 msgid "Generate a catalog of the books in your calibre library"
-msgstr "Buat katalog buku dal am library calibre anda"
+msgstr "Membuat katalog buku yang ada dalam pustaka calibre anda"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:744
 msgid "Convert books to various ebook formats"
-msgstr "Konversi buku ke dalam berbagai bentuk format buku elektronik"
+msgstr "Mengubah buku ke berbagai bentuk format e-buku"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:749
 msgid "Delete books from your calibre library or connected device"
@@ -19163,10 +19166,15 @@ msgid ""
 "used, regardless of what is displayed. Set this tweak to True to use only\n"
 "the fields that are being displayed."
 msgstr ""
+"Nilai tanggal berisi tanggal dan waktu. Ketika diurutkan, semua bidang\n"
+"digunakan, tanpa melihat apa yang ditampilkan. Atur tweak ini ke True untuk "
+"hanya menggunakan\n"
+"bidang yang ditampilkan saja."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:374
 msgid "Specify which font to use when generating a default cover"
 msgstr ""
+"Tentukan font apa yang akan digunakan ketika membuat sampul yang baku"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:375
 msgid ""
@@ -19178,7 +19186,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:381
 msgid "Control behavior of the book list"
-msgstr ""
+msgstr "Mengatur perilaku dari daftar buku"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:382
 msgid ""
@@ -19191,10 +19199,19 @@ msgid ""
 "You can also control whether the book list scrolls horizontal per column or\n"
 "per pixel. Default is per column."
 msgstr ""
+"Anda tidak dapat mengendalikan perilaku klik-ganda pada daftar buku\n"
+"Pilihan: open_viewer, do_nothing,\n"
+"edit_cell, edit_metadata. Memilih edit_metadata mengakibatkan\n"
+"tidak dapat menyunting sebuah bidang menggunakan klik tunggal.\n"
+"Baku: open_viewer.\n"
+"Contoh: doubleclick_on_library_view = 'do_nothing'\n"
+"Anda dapat juga mengatur apakah daftar buku bergulir horisontal tiap kolom "
+"atau\n"
+"tiap piksel. Yang baku adalah tiap kolom."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:393
 msgid "Language to use when sorting."
-msgstr ""
+msgstr "Bahasa yang digunakan ketika mengurutkan"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:394
 msgid ""
@@ -19213,6 +19230,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:405
 msgid "Number of columns for custom metadata in the edit metadata dialog"
 msgstr ""
+"Jumlah kolom metadata yang diatur sendiri  pada  dialog penyuntingan metadata"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:406
 msgid ""
@@ -19240,7 +19258,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:422
 msgid "The number of seconds to wait before sending emails"
-msgstr ""
+msgstr "Lama waktu dalam detik sebelum mengirimkan email"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:423
 msgid ""
@@ -19250,10 +19268,15 @@ msgid ""
 "making email sending fail. Changes will take effect only after a restart of\n"
 "calibre."
 msgstr ""
+"Lama waktu dalam detik sebelum mengirimkan email ketika menggunakan \n"
+"server email publik seperti gmail atau hotmail. Bakunya: 5 menit\n"
+"Jika diatur lebih rendah dapat mengaktifkan penolak SPAM dari server,\n"
+"sehingga email gagal terkirim. Perubahan diterapkan hanya setelah restrart\n"
+"calibre"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:430
 msgid "Remove the bright yellow lines at the edges of the book list"
-msgstr ""
+msgstr "Menghilangkan garis kuning terang pada pinggiran daftar buku"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:431
 msgid ""
@@ -19261,10 +19284,14 @@ msgid ""
 "when a section of the user interface is hidden. Changes will take effect\n"
 "after a restart of calibre."
 msgstr ""
+"Mengatur apakah garis kuning terang pada pinggiran daftar buku ditampilkan\n"
+"ketika bagian dari antarmuka pengguna disembunyikan. Perubahan diterapkan\n"
+"setelah restart calibre."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:436
 msgid "The maximum width and height for covers saved in the calibre library"
 msgstr ""
+"Lebar dan panjang maksimal dari sampul yang disimpan dalam pustaka calibre"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:437
 msgid ""
@@ -19272,10 +19299,14 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
+"Semua sampul dalam pustaka calibre akan disesuaikan ukurannya, dengan skala "
+"ukuran yang dipertahankan,\n"
+"supaya sesuai dengan ukuran ini. Ini untuk mencegah perlambatan akibat dari\n"
+"sampul yang terlalu besar"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:442
 msgid "Where to send downloaded news"
-msgstr ""
+msgstr "Ke mana mengirimkan koran yang diunduh"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:443
 msgid ""
@@ -19289,7 +19320,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:450
 msgid "What interfaces should the content server listen on"
-msgstr ""
+msgstr "Antarmuka apa yang harus diperhatikan oleh server konten"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:451
 msgid ""
@@ -19304,7 +19335,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:458
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Toolbar terpadu pada OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:459
 msgid ""
@@ -19321,6 +19352,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:466
 msgid "Save original file when converting from same format to same format"
 msgstr ""
+"Simpan berkas asli ketika mengkonversi dari format yang sama ke format yang "
+"sama"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:467
 msgid ""
@@ -19332,7 +19365,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:473
 msgid "Number of recently viewed books to show"
-msgstr ""
+msgstr "Berapa jumlah buku terakhir dilihat yang akan ditampilkan"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:474
 msgid ""
@@ -19351,3 +19384,8 @@ msgid ""
 "automatically. By default EPUB is preferred to HTMLZ. If you would like to\n"
 "prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'"
 msgstr ""
+"Ketika mengubah buku yang memiliki berbagai macam format, calibre memilih "
+"satu\n"
+"secara otomatis. Secara baku EPUB lebih dipilih daripada HTMLZ.  Jika anda "
+"lebih\n"
+"memilih HTMLZ, ganti ke pilihan 'htmlz'"

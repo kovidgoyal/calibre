@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-13 12:24+0000\n"
-"PO-Revision-Date: 2012-01-04 17:01+0000\n"
-"Last-Translator: Sasa Boskovic <Unknown>\n"
+"PO-Revision-Date: 2012-01-18 12:28+0000\n"
+"Last-Translator: Patrick Haake <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-14 04:52+0000\n"
-"X-Generator: Launchpad (build 14664)\n"
+"X-Launchpad-Export-Date: 2012-01-19 04:38+0000\n"
+"X-Generator: Launchpad (build 14692)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -435,6 +435,8 @@ msgstr "Ein Buch aus einer Calibre Bibliothek in eine andere kopieren"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:842
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Macht kleinere Optimierungen an epub- oder htmlz-Dateien in der calibre "
+"Bibliothek."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:847
 msgid ""
@@ -1105,6 +1107,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Nicht unterstützter Direktverbindungsmodus. Siehe "
+"http://www.mobileread.com/forums/showthread.php?t=118559 für Anweisungen zu "
+"\"Mit iTunes verbinden\"."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:376
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
@@ -1494,7 +1499,7 @@ msgstr "<b>Ort %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:288
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Kommuniziere mit dem Kindle 2/3/4/Touch eBook-Reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
@@ -1577,6 +1582,9 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Ein Fehler in einer vorherigen Version hat nicht-kepub Bucheinträge "
+"hinterlassen. Durch diese Option wird Calibre die abgelaufenen Einträge "
+"anzeigen und erlauben, sie mit Hilfe der neuen Lösch-Logik zu entfernen."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
@@ -1591,7 +1599,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Empfehlungen anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -3305,6 +3313,10 @@ msgid ""
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 msgstr ""
+"Normalerweise ordnet dieses Plugin alle eingegebenen Dateien in eine "
+"Standard Ordnerhierarchie an. Nutze diese Option nur, wenn du weißt, was du "
+"tust, da es zu verschiedenen Nebeneffekten in der restlichen Konvertierung "
+"kommen kann."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/output.py:32
 msgid "CSS file used for the output instead of the default file"
@@ -4572,6 +4584,8 @@ msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
+"Die Größe des Papiers. Die Größe wird überschrieben, wenn kein Standard-"
+"Ausgabeprofil benutzt wird. Standard ist letter. Auswahl ist %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:39
 msgid ""
@@ -4996,7 +5010,7 @@ msgstr "Schlagwort-Browser Kategorien nicht anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:280
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "Diese Bestätigung wieder anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:529
 msgid "Choose Files"
@@ -5133,6 +5147,8 @@ msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
 msgstr ""
+"Sind Sie sicher, dass die gleiche Datei zu allen %d Büchern hinzugefügt "
+"werden soll ? Falls das Format schon für ein Buch existiert, wird es ersetzt."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:98
 msgid "Select book files"
@@ -6408,11 +6424,11 @@ msgstr "Über Bücher erwerben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Tweak Book"
-msgstr ""
+msgstr "Buch Optimieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:19
 msgid "Make small changes to ePub or HTMLZ format books"
-msgstr ""
+msgstr "Kleine Änderungen an ePub oder HTMLZ formatierten Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:20
 msgid "T"
@@ -6421,7 +6437,7 @@ msgstr "T"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:50
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "Kann Buch nicht optimieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:51
 msgid ""
@@ -6429,6 +6445,10 @@ msgid ""
 "\n"
 "First convert the book to ePub or HTMLZ."
 msgstr ""
+"Das Buch muss in ePub oder HTMLZ-Format sein, um optimiert werden zu "
+"können.\n"
+"\n"
+"Konvertiere das Buch zuerst zu ePub oder HTMLZ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -7106,7 +7126,7 @@ msgstr "Beschreibungshinweis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:330
 msgid "Custom column source for note to include in Description header area"
-msgstr ""
+msgstr "Benutzerdefinierte Spaltenquelle für Notizen in der Beschreibung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:331
 msgid "&Merge with Comments"
@@ -7821,10 +7841,12 @@ msgid ""
 "Removes the margin CSS properties. Note that page margins are not affected "
 "by this setting."
 msgstr ""
+"Entfernt die Ränder-CSS-Eigenschaften. Seitenränder sind nicht von dieser "
+"Einstellung betroffen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:177
 msgid "&Margins"
-msgstr ""
+msgstr "&Margins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:181
 msgid "Removes the padding CSS properties"
@@ -7832,7 +7854,7 @@ msgstr "Entfern die CSS Eigenschaft padding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:182
 msgid "&Padding"
-msgstr ""
+msgstr "&Padding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:186
 msgid "Convert floating images/text into static images/text"
@@ -8196,7 +8218,7 @@ msgstr "Seitenverhältnis des Umschl&agbildes beibehalten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:58
 msgid "&Custom size:"
-msgstr ""
+msgstr "&Custom size:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -8897,6 +8919,8 @@ msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device or reboot."
 msgstr ""
+"Es gab einen temporären Fehler beim Kommunizieren mit dem Gerät. Bitte das "
+"Gerät neu verbinden oder neustarten."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:795
 msgid "Device: "
@@ -9066,7 +9090,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:79
 msgid "All invalid ISBNs"
-msgstr ""
+msgstr "Alle ungültigen ISBNs"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:80
 msgid "All the ISBNs you entered were invalid. No books can be added."
@@ -10393,6 +10417,8 @@ msgid ""
 "Enter what you are looking for, either plain text or a regular expression, "
 "depending on the mode"
 msgstr ""
+"Gib ein, wonach du suchst, entweder reinen Text oder einen regulären "
+"Ausdruck, abhängig vom Modus"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:626
 msgid ""
@@ -11171,7 +11197,7 @@ msgstr "Erstellt von: "
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
 #, python-format
 msgid "Download %s now"
-msgstr ""
+msgstr "Lade jetzt %s herunter"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:382
 msgid "Last downloaded: never"
@@ -11583,7 +11609,7 @@ msgstr "Neue Kategorie hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to what is in the box"
-msgstr ""
+msgstr "Bennene die aktuelle Kategorie, zu dem, was in der Box steht, um"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
@@ -15636,7 +15662,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Password incompatible with Android devices"
-msgstr ""
+msgstr "Passwort ist inkompatibel mit Android-Geräten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "&Start Server"
@@ -16936,7 +16962,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:376
 msgid "Failed to start Content Server"
-msgstr ""
+msgstr "Inhaltsserver konnte nicht gestartet werden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:377
 #, python-format
@@ -16945,6 +16971,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Inhaltsserver konnte nicht gestartet werden. Fehler:\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:503
 #, python-format
@@ -17292,6 +17321,9 @@ msgid ""
 "The amount by which to change the font size when clicking the font "
 "larger/smaller buttons. Should be a number between 0 and 1."
 msgstr ""
+"Der Wert, der genutzt wird, um die Schriftgröße anzupassen, wenn die "
+"größer/kleiner Buttons gedrückt werden. Sollte eine Nummer zwischen 0 und 1 "
+"sein."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:67
 msgid "Font options"
