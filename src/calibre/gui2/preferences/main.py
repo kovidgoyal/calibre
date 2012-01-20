@@ -338,7 +338,7 @@ class Preferences(QMainWindow):
 
             d = warning_dialog(self, _('Restart needed'), msg,
                     show_copy_button=False)
-            b = d.bb.addButton(_('Restart calibre'), d.bb.AcceptRole)
+            b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
             b.setIcon(QIcon(I('lt.png')))
             d.do_restart = False
             def rf():
