@@ -121,6 +121,7 @@ _extra_lang_codes = {
         'en_JP' : _('English (Japan)'),
         'en_DE' : _('English (Germany)'),
         'en_BG' : _('English (Bulgaria)'),
+        'en_EG' : _('English (Egypt)'),
         'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
         'en_GR' : _('English (Greece)'),
