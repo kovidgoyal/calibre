@@ -497,7 +497,8 @@ class BrowseServer(object):
                         xml(s, True),
                         xml(_('Loading, please wait'))+'&hellip;',
                         unicode(c),
-                        xml(u'/browse/category_group/%s/%s'%(category,
+                        xml(u'/browse/category_group/%s/%s'%(
+                            hexlify(category.encode('utf-8')),
                             hexlify(s.encode('utf-8'))), True),
                         self.opts.url_prefix)
                     for s, c in category_groups.items()]
@@ -531,6 +532,13 @@ class BrowseServer(object):
             sort = None
         if sort not in ('rating', 'name', 'popularity'):
             sort = 'name'
+        try:
+            category = unhexlify(category)
+            if isbytestring(category):
+                category = category.decode('utf-8')
+        except:
+            raise cherrypy.HTTPError(404, 'invalid category')
+
         categories = self.categories_cache()
         if category not in categories:
             raise cherrypy.HTTPError(404, 'category not found')

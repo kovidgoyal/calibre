@@ -462,7 +462,7 @@ class Scheduler(QObject):
             delta = timedelta(days=self.oldest)
             try:
                 ids = list(self.db.tags_older_than(_('News'),
-                    delta))
+                    delta, must_have_authors=['calibre']))
             except:
                 # Happens if library is being switched
                 ids = []

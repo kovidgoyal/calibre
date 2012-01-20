@@ -26,7 +26,11 @@ def login_to_google(username, password):
     br.form['Email'] = username
     br.form['Passwd'] = password
     raw = br.submit().read()
-    if b'<title>Account overview - Account Settings</title>' not in raw:
+    if re.search(br'<title>.*?Account Settings</title>', raw) is None:
+        x = re.search(br'(?is)<title>.*?</title>', raw)
+        if x is not None:
+            print ('Title of post login page: %s'%x.group())
+        #open('/tmp/goog.html', 'wb').write(raw)
         raise ValueError(('Failed to login to google with credentials: %s %s'
             '\nGoogle sometimes requires verification when logging in from a '
             'new IP address. Use lynx to login and supply the verification, '

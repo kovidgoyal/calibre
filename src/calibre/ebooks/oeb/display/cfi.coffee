@@ -13,6 +13,7 @@
  3. Much more comprehensive testing/error handling
  4. Properly encodes/decodes assertions
  5. Handles points in the padding of elements consistently
+ 6. Has a utility method to calculate the CFI for the current viewport position robustly
 
  To check if this script is compatible with the current browser, call
  window.cfi.is_compatible() it will throw an exception if not compatible.
@@ -72,7 +73,7 @@ get_current_time = (target) -> # {{{
     fstr(ans)
 # }}}
 
-window_scroll_pos = (win) -> # {{{
+window_scroll_pos = (win=window) -> # {{{
     if typeof(win.pageXOffset) == 'number'
         x = win.pageXOffset
         y = win.pageYOffset
@@ -86,7 +87,7 @@ window_scroll_pos = (win) -> # {{{
     return [x, y]
 # }}}
 
-viewport_to_document = (x, y, doc) -> # {{{
+viewport_to_document = (x, y, doc=window?.document) -> # {{{
     until doc == window.document
         # We are in a frame
         frame = doc.defaultView.frameElement
@@ -101,7 +102,7 @@ viewport_to_document = (x, y, doc) -> # {{{
     return [x, y]
 # }}}
 
-# Equivalent for caretRangeFromPoint for non WebKit browsers {{{
+# Convert point to character offset {{{
 range_has_point = (range, x, y) ->
     for rect in range.getClientRects()
         if (rect.left <= x <= rect.right) and (rect.top <= y <= rect.bottom)
@@ -157,7 +158,8 @@ class CanonicalFragmentIdentifier
     is_compatible(): Throws an error if the browser is not compatible with
                      this script
 
-    at(x, y): which maps a point to a CFI, if possible
+    at(x, y): Maps a point to a CFI, if possible
+    at_current(): Returns the CFI corresponding to the current viewport scroll location
 
     scroll_to(cfi): which scrolls the browser to a point corresponding to the
                     given cfi, and returns the x and y co-ordinates of the point.
@@ -559,11 +561,73 @@ class CanonicalFragmentIdentifier
         null
     # }}}
 
-    current_cfi: () -> # {{{
+    at_current: () -> # {{{
         [winx, winy] = window_scroll_pos()
         [winw, winh] = [window.innerWidth, window.innerHeight]
+        max = Math.max
         winw = max(winw, 400)
         winh = max(winh, 600)
+        deltay = Math.floor(winh/50)
+        deltax = Math.floor(winw/25)
+        miny = max(-winy, -winh)
+        maxy = winh
+        minx = max(-winx, -winw)
+        maxx = winw
+
+        dist = (p1, p2) ->
+            Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
+
+        get_cfi = (ox, oy) ->
+            try
+                cfi = this.at(ox, oy)
+                point = this.point(cfi)
+            catch err
+                cfi = null
+
+            if point.range != null
+                r = point.range
+                rect = r.getClientRects()[0]
+
+                x = (point.a*rect.left + (1-point.a)*rect.right)
+                y = (rect.top + rect.bottom)/2
+                [x, y] = viewport_to_document(x, y, r.startContainer.ownerDocument)
+            else
+                node = point.node
+                r = node.getBoundingClientRect()
+                [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
+                if typeof(point.x) == 'number' and node.offsetWidth
+                    x += (point.x*node.offsetWidth)/100
+                if typeof(point.y) == 'number' and node.offsetHeight
+                    y += (point.y*node.offsetHeight)/100
+
+            if dist(viewport_to_document(ox, oy), [x, y]) > 50
+                cfi = null
+
+            return cfi
+
+        x_loop = (cury) ->
+            for direction in [-1, 1]
+                delta = deltax * direction
+                curx = 0
+                until (direction < 0 and curx < minx) or (direction > 0 and curx > maxx)
+                    cfi = get_cfi(curx, cury)
+                    if cfi
+                        return cfi
+                    curx += delta
+            null
+
+        for direction in [-1, 1]
+            delta = deltay * direction
+            cury = 0
+            until (direction < 0 and cury < miny) or (direction > 0 and cury > maxy)
+                cfi = x_loop(cury, -1)
+                if cfi
+                    return cfi
+                cury += delta
+
+        # TODO: Return the CFI corresponding to the <body> tag
+        null
+
     # }}}
 
 if window?

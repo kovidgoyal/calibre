@@ -73,6 +73,9 @@ class JavaScriptLoader(object):
             src = self.get(x)
             evaljs(src)
 
+        if not lang:
+            lang = 'en'
+
         def lang_name(l):
             l = l.lower()
             l = lang_as_iso639_1(l)

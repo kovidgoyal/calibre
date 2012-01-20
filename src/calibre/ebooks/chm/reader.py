@@ -4,7 +4,7 @@ __license__ = 'GPL v3'
 __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
                  ' and Alex Bramley <a.bramley at gmail.com>.'
 
-import os, re
+import os, re, codecs
 
 from calibre import guess_type as guess_mimetype
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
@@ -99,8 +99,17 @@ class CHMReader(CHMFile):
 
     def ExtractFiles(self, output_dir=os.getcwdu(), debug_dump=False):
         html_files = set([])
+        try:
+            x = self.GetEncoding()
+            codecs.lookup(x)
+            enc = x
+        except:
+            enc = 'cp1252'
         for path in self.Contents():
-            lpath = os.path.join(output_dir, path)
+            fpath = path
+            if not isinstance(path, unicode):
+                fpath = path.decode(enc)
+            lpath = os.path.join(output_dir, fpath)
             self._ensure_dir(lpath)
             try:
                 data = self.GetFile(path)
@@ -123,6 +132,7 @@ class CHMReader(CHMFile):
                     self.log.warn('%r filename too long, skipping'%path)
                     continue
                 raise
+
         if debug_dump:
             import shutil
             shutil.copytree(output_dir, os.path.join(debug_dump, 'debug_dump'))

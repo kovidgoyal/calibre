@@ -1,8 +1,15 @@
+# Talking Points is not grabbing everything.
+# The look is right, but only the last one added?
 import re
 import time
 from calibre.web.feeds.recipes import BasicNewsRecipe
 # Allows the Python soup converter, which makes parsing easier.
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+# strip ads and graphics
+# Current Column lacks a title.
+# Talking Points Memo - shorten title - Remove year and Bill's name
+# The News letter archive https://www.billoreilly.com/newsletterarchive is covered by other entries.
+# Newsletters: Talking Points Memos covered by cat12
 
 class OReillyPremium(BasicNewsRecipe):
     title           = u'OReilly Premium'
@@ -19,7 +26,17 @@ class OReillyPremium(BasicNewsRecipe):
     # Don't go down
     recursions      = 0
     max_articles_per_feed = 2000
-    language = 'en'
+
+    debugMessages   = True
+
+    # Name, URL, Soup FindAll Attr if relevant (last two are special case), articleList
+    catList = [ ["TV Archives",         'https://www.billoreilly.com/show?action=tvShowArchive', 'a',    {'class':['showLinks','homeLinks']},                   []],
+                ["No Spin Archives",    'https://www.billoreilly.com/blog?categoryID=7',         True,   {'class':['blogBody'], 'style':['padding-top:10px;']}, []],
+                ["Daily Briefings",     'http://www.billoreilly.com/blog?categoryID=11',         True,   {'class':['defaultHeaderSmallLinks']},                 []],
+                ["Stratfor",            'http://www.billoreilly.com/blog?categoryID=5',          'a',    {'class':['blogLinks']},                               []],
+                ["Talking Points Memo", 'https://www.billoreilly.com/blog?categoryID=12',        'td',   {},                                                    []],
+                ["Current Column",      'https://www.billoreilly.com/currentcolumn',             'span', {'class':['defaultHeader']},                           []]
+              ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
@@ -31,6 +48,8 @@ class OReillyPremium(BasicNewsRecipe):
             br.submit()
         return br
 
+    # Returns the best-guess print url.
+    # The second parameter (pageURL) is returned if nothing is found.
     def extractPrintURL(self, baseURL, pageURL, printString):
         tagURL = pageURL
         soup = self.index_to_soup(pageURL)
@@ -38,7 +57,6 @@ class OReillyPremium(BasicNewsRecipe):
             printText = soup.find('a', text=printString)
         else :
             print("Failed to find Print string "+printString+ " in "+pageURL)
-
         if printText:
             tag = printText.parent
             tagURL = baseURL+tag['href']
@@ -47,177 +65,111 @@ class OReillyPremium(BasicNewsRecipe):
     def stripBadChars(self, inString) :
         return inString.replace("\'", "")
 
-
-    # returns a qualifying article list
-    def parseNoSpinArchives(self, baseURL, soupURL, debugMessages):
-        articleList = []
-        soup = self.index_to_soup(soupURL)
-        for div in soup.findAll(True, attrs={'class':['blogBody'], 'style':['padding-top:10px;']}):
-             a = div.find('a', href=True)
-             if not a:
-                 continue
-             # re == regex. [href] is the link
-             url = baseURL
-             url +=re.sub(r'\?.*', '', a['href'])
-             # Get print version
-             printURL = self.extractPrintURL(baseURL, url, "Print this entry")
-             if printURL:
-                url = printURL
-             title = self.tag_to_string(a, use_alt=True).strip()
-             if debugMessages :
-                print("No Spin Archive Title:"+title+" at url: "+url)
-             description = 'None'
-             pubdate = time.strftime('%a, %d %b')
-             summary = div.find(True, attrs={'class':'summary'})
-             if summary:
-                 description = self.tag_to_string(summary, use_alt=False)
-             articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
-        return articleList
-
-
-    def parseTVArchives(self, baseURL, soupURL, debugMessages):
-        # TV Archives page has some Ajax, so look for the static only.
-        articleList = []
-        soup = self.index_to_soup(soupURL)
-        if debugMessages :
-           print("In parseTVArchives")
-        for div in soup.findAll('a', {'class':['showLinks','homeLinks']}):
-             a = div
-             url = baseURL
-             url +=a['href']
-             printURL = self.extractPrintURL(baseURL, url, "Print this entry")
-             if printURL:
-                url = printURL
-             title = self.tag_to_string(a, use_alt=True).strip()
-             title = self.stripBadChars(title)
-             if debugMessages :
-                print("TV Archive "+title+" at url: "+url)
-             description = 'None'
-             pubdate = time.strftime('%a, %d %b')
-             summary = div.find(True, attrs={'class':'summary'})
-             if summary:
-                 description = self.tag_to_string(summary, use_alt=False)
-             articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
-        if debugMessages :
-            print("Leaving TV Parse ")
-        return articleList
-
-    # Get Daily Briefing Archives
-    def parseDailyBriefs(self, baseURL, soupURL, debugMessages) :
-        print("Starting daily briefs")
-        articleList = []
-        soup = self.index_to_soup(soupURL)
-        for div in soup.findAll(True, attrs={'class':['defaultHeaderSmallLinks']}):
-             # re == regex. [href] is the link
-             url = baseURL
-             url +=re.sub(r'\?.*', '', div['href'])
-             printURL = self.extractPrintURL(baseURL, url, "Print this entry")
-             if printURL:
-                url = printURL
-             title = div.contents[0]
-             if debugMessages :
-                print("Daily Brief - title:"+title+" at url: "+url)
-             description = 'None'
-             pubdate = time.strftime('%a, %d %b')
-             summary = div.find(True, attrs={'class':'summary'})
-             if summary:
-                 description = self.tag_to_string(summary, use_alt=False)
-             articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
-        print("Leaving daily briefs")
-        return articleList
-
-    # Get the weekly Stratfor intelligence report
-    def parseStratfor(self, baseURL, soupURL, debugMessages):
-        # http://www.billoreilly.com/blog?categoryID=5
-        articleList = []
-        soup = self.index_to_soup(soupURL)
-        if debugMessages :
-           print("In parseStratfor")
-        a = soup.find('a', {'class':['blogLinks']})
-        url = baseURL
-        url +=a['href']
-        title = self.tag_to_string(a, use_alt=True).strip()
-        if debugMessages :
-            print("url: "+url)
-            print("title:"+title)
-        # Get Stratfor contents so we can get the real title.
-        stratSoup = self.index_to_soup(url)
-        title = stratSoup.html.head.title.string
-        stratIndex = title.find('Stratfor.com:', 0)
-        if (stratIndex > -1) :
-            title = title[stratIndex+14:-1]
-        # Look for first blogBody  <td class="blogBody"
-        stratBody = stratSoup.find('td', {'class':['blogBody']})
-        if debugMessages :
-            print("Strat content title:"+title)
-            print("Strat body: "+ stratBody.contents[0])
-        description = 'None'
-        pubdate = time.strftime('%a, %d %b')
-        articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
-        if debugMessages :
-           print("Leaving Stratfor Parse ")
-        return articleList
-
-    def parseTalkingPoints(self, baseURL, soupURL, debugMessages) :
-        # Look for blogDate.  That's got the date...  Then the next blogBody has the title.  and then an anchor with class "homeBlogReadMore bold" has the URL.
-        articleList = []
-        soup = self.index_to_soup(soupURL)
-        if debugMessages :
-            print("Starting Talking Points")
-        topDate =  soup.find("td", "blogBody")
-        if not topDate :
-            print("Failed to find date in Talking Points")
-        # This page has the contents in double-wrapped tables!
-        # tableParent = topDate.parent.parent
-        myTable = topDate.findParents('table')[0]
-        upOneTable = myTable.findParents('table')[0]
-        upTwo = upOneTable.findParents('table')[0]
-        # Now navigate rows of upTwo
-        if debugMessages :
-            print("Entering rows")
-        for rows in upTwo.findChildren("tr", recursive=False):
-            # Inside top level table, each row is an article
-            rowTable = rows.find("table")
-            articleTable = rowTable.find("table")
-            articleTable = rows.find("tr")
-            # The middle table is just for formatting the article buffer... but this means we can skip the inner table.
-            blogDate = articleTable.find("a","blogDate").contents[0]
-            # Skip to second blogBody for this.
-            blogTitle = articleTable.findAll("td", "blogBody")[1].contents[0]
-            blogURL = articleTable.find("a", "homeBlogReadMore bold")['href']
-            # re == regex. [href] is the link
-            url = baseURL
-            url +=re.sub(r'\?.*', '', blogURL)
-            title = blogDate+": "+self.stripBadChars(blogTitle.replace("Bill O'Reilly: ", ""))
-            if debugMessages :
-                print("Talking Points Memo title "+title+" at url: "+url)
+    def parseGeneric(self, baseURL):
+        # Does a generic parsing of the articles.  There are six categories (0-5)
+        # Name, URL, Soup FindAll Attr if relevant (last two are special case), articleList
+        # NoSpin and TV are generic
+        fullReturn = []
+        for i in range(len(self.catList)) :
+            articleList = []
+            soup = self.index_to_soup(self.catList[i][1])
+            # Set defaults
             description = 'None'
             pubdate = time.strftime('%a, %d %b')
-            articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
-        print("Exiting parseTalkingPoints\n")
-        return articleList
+            # Problem: 0-2 create many in an array
+            # 3-5 create one.
+            # So no for-div for 3-5
 
-    def parseCurrentColumn(self, baseURL, soupURL, debugMessages) :
-        # Only needed to get the column title.  Otherwise it's all good already; there's only one column
-        articleList = []
-        soup = self.index_to_soup(soupURL)
-        titleSpan = soup.find('span', {'class':['defaultHeader']})
-        title = titleSpan.contents[0]
-        # Get Print URL since it's available
-        printURL = self.extractPrintURL(baseURL, soupURL, "Print This Article")
-        if printURL:
-            print("Found print URL")
-            url = printURL
-        if debugMessages :
-            print("url: "+url)
-            print("title:"+title)
-        description = 'None'
-        pubdate = time.strftime('%a, %d %b')
-        articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
-        if debugMessages :
-           print("Leaving Stratfor Parse ")
-        return articleList
+            if i < 3 :
+                for div in soup.findAll(self.catList[i][2], self.catList[i][3]):
+                     print(div)
+                     if i == 1:
+                        a = div.find('a', href=True)
+                     else :
+                        a = div
+                     print(a)
+                     summary = div.find(True, attrs={'class':'summary'})
+                     if summary:
+                         description = self.tag_to_string(summary, use_alt=False)
+                     if not a:
+                         continue
+                     # url = baseURL+re.sub(r'\?.*', '', a['href'])
+                     url = baseURL+a['href']
+                     if i < 2 :
+                        url = self.extractPrintURL(baseURL, url, "Print this entry")
+                        title = self.tag_to_string(a, use_alt=True).strip()
+                     elif i == 2 :
+                        # Daily Briefs
+                        url = self.extractPrintURL(baseURL, url, "Print this entry")
+                        title =  div.contents[0]
+                     if self.debugMessages :
+                        print(title+" @ "+url)
+                     articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
 
+            elif i == 3 :   # Stratfor
+                a = soup.find('a', self.catList[i][3])
+                if a is None :
+                    continue
+                url = baseURL+a['href']
+                title = self.tag_to_string(a, use_alt=True).strip()
+                # Get Stratfor contents so we can get the real title.
+                stratSoup = self.index_to_soup(url)
+                title = stratSoup.html.head.title.string
+                stratIndex = title.find('Stratfor.com:', 0)
+                if (stratIndex > -1) :
+                    title = title[stratIndex+14:-1]
+                # Look for first blogBody  <td class="blogBody"
+                # Changed 12 Jan 2012 - new page format
+                #stratBlogTable = stratSoup.find('td', {'class':['blogBody']}).findParent('table')
+                #stratBody = stratSoup.find('td', {'class':['blogBody']})
+            elif i == 4 :      # Talking Points
+                topDate =  soup.find("td", "blogBody")
+                if not topDate :
+                    print("Failed to find date in Talking Points")
+                # This page has the contents in double-wrapped tables!
+                myTable = topDate.findParents('table')[0]
+                if myTable is not None:
+                    upOneTable = myTable.findParents('table')[0]
+                    if upOneTable is not None:
+                        upTwo = upOneTable.findParents('table')[0]
+                if upTwo is None:
+                    continue
+                # Now navigate rows of upTwo
+                if self.debugMessages :
+                    print("Entering rows")
+                for rows in upTwo.findChildren("tr", recursive=False):
+                    # Inside top level table, each row is an article
+                    rowTable = rows.find("table")
+                    articleTable = rowTable.find("table")
+                    # This looks wrong.
+                    articleTable = rows.find("tr")
+                    # The middle table is just for formatting the article buffer... but this means we can skip the inner table.
+                    blogDate = articleTable.find("a","blogDate").contents[0]
+                    # Skip to second blogBody for this.
+                    blogTitle = articleTable.findAll("td", "blogBody")[1].contents[0]
+                    blogURL = articleTable.find("a", "homeBlogReadMore bold")['href']
+                    url = baseURL+re.sub(r'\?.*', '', blogURL)
+                    title = blogDate+": "+self.stripBadChars(blogTitle.replace("Bill O'Reilly: ", ""))
+                    if self.debugMessages :
+                        print("Talking Points Memo title "+title+" at url: "+url)
+                    pubdate = time.strftime('%a, %d %b')
+                    articleList.append(dict(title=title, url=url, date=pubdate, description='None', content=''))
+            else :       # Current Column
+                titleSpan = soup.find(self.catList[i][2], self.catList[i][3])
+                if titleSpan is None :
+                    continue
+                title = titleSpan.contents[0]
+                url = self.extractPrintURL(baseURL, self.catList[i][1], "Print This Article")
+            if i == 3 or i == 5 :
+                 if self.debugMessages :
+                    print(self.catList[i][0]+" Title:"+title+" at url: "+url)
+                 summary = div.find(True, attrs={'class':'summary'})
+                 if summary:
+                     description = self.tag_to_string(summary, use_alt=False)
+                 articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
+            self.catList[i][3] = articleList
+            fullReturn.append((self.catList[i][0], articleList))
+        return fullReturn
 
     # calibre.web.feeds.news.BasicNewsRecipe.parse_index() fetches the list of articles.
     # returns a list of tuple ('feed title', list of articles)
@@ -231,27 +183,8 @@ class OReillyPremium(BasicNewsRecipe):
     # this is used instead of BasicNewsRecipe.parse_feeds().
     def parse_index(self):
         # Parse the page into Python Soup
-        debugMessages = True
         baseURL = "https://www.billoreilly.com"
-        def feed_title(div):
-            return ''.join(div.findAll(text=True, recursive=False)).strip()
-        # [] is list, {} is empty mapping.
-        articleList = []
-        ans = []
-        showList = self.parseTVArchives(baseURL, 'https://www.billoreilly.com/show?action=tvShowArchive', debugMessages)
-        articleList = self.parseNoSpinArchives(baseURL, 'https://www.billoreilly.com/blog?categoryID=7', debugMessages)
-        stratList = self.parseStratfor(baseURL, 'http://www.billoreilly.com/blog?categoryID=5', debugMessages)
-        dailyBriefs = self.parseDailyBriefs(baseURL, 'http://www.billoreilly.com/blog?categoryID=11', debugMessages)
-        talkingPoints = self.parseTalkingPoints(baseURL, 'https://www.billoreilly.com/blog?categoryID=12', debugMessages)
-        currentColumn = self.parseCurrentColumn(baseURL, 'https://www.billoreilly.com/currentcolumn', debugMessages)
-        # Below, { x:y, a:b } creates a dictionary.   We return a tuple of a title and list of dict...
-        # Lists are constructed with square brackets, separating items with commas: [a, b, c].  Tuples are constructed by the comma operator (not within square brackets), with or without enclosing parentheses, but an empty tuple must have the enclosing parentheses, such as a, b, c or (). A single item tuple must have a trailing comma, such as (d,).
-        # Shows first two if talking points and no spin news.  Also if they are TV Shows ande Stratfor Weekly, also if Daily Briefing and Curren Column
-        # So all work individually.  No idea why only getting first two in TOC now.
-        ans = [("Talking Points Memos", talkingPoints),("No Spin News", articleList),("TV Shows", showList),("Stratfor Weekly",stratList), ("Daily Briefing", dailyBriefs),("Current Column", currentColumn)]
-        if debugMessages :
-            print ans
-        return ans
+        return self.parseGeneric(baseURL)
 
     def preprocess_html(self, soup):
         refresh = soup.find('meta', {'http-equiv':'refresh'})
