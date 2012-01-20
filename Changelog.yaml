@@ -5,7 +5,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2011-??-??
+#   date: 2012-??-??
 #
 #   new features:
 #     - title: 
@@ -19,8 +19,68 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.36
+  date: 2012-01-20
+
+  new features:
+    - title: "Decrease startup time for large libraries with at least one composite custom column by reading format info on demand"
+
+    - title: "When automatically deleting news older than x days, from the calibre library, only delete the book if it both has the tag News and the author calibre. This prevents accidental deletion of books tagged with News by the user."
+
+    - title: "Driver for Infibeam Pi 2"
+
+    - title: "Add a Tag Editor for tags like custom columns to the edit metadata dialog"
+ 
+  bug fixes:
+    - title: "E-book viewer: Fix regression in 0.8.35 that caused viewer to raise an error on books that did not define a language"
+
+    - title: "Content server: Fix grouping for categories based on custom columns."
+      tickets: [919011]
+
+    - title: "Edit metadata dialog: When setting the series from a format or via metadata download, ensure that the series index is not automatically changed, when closing the dialog."
+      tickets: [918751]
+
+    - title: "When reading metadata from Topaz (azw1) files, handle non ascii metadata correctly."
+      tickets: [917419]
+
+    - title: "CHM Input: Do not choke on CHM files with non ascii internal filenames on windows."
+      tickets: [917696]
+
+    - title: "Fix reading metadata from CHM files with non-ascii titles"
+
+    - title: "Fix HTML 5 parser choking on comments"
+
+    - title: "If calibre is started from a directory that does not exist, automatically use the home directory as the working directory, instead of crashing"
+
+    - title: "Fix iriver story HD Wi-Fi device and external SD card swapped"
+      tickets: [916364] 
+
+    - title: "Content server: Fix ugly URLs for specific format download in the book details and permalink panels"
+
+    - title: "When adding FB2 files do not set the date field from the metadata in the file"
+
+  improved recipes:
+    - OReilly Premuim
+    - Variety
+    - Blic
+    - New Journal of Physics
+    - Der Tagesspiegel
+
+  new recipes:
+    - title: Tweakers.net 
+      author: Roedi06
+
+    - title: Village Voice 
+      author: Barty
+
+    - title: Edge.org Conversations 
+      author: levien
+
+    - title: Novi list - printed edition
+      author: Darko Miletic
+
 - version: 0.8.35
-  date: 2011-01-13
+  date: 2012-01-13
 
   new features:
     - title: "Metadata plugboards: Allow creation of plugboards for email delivery."

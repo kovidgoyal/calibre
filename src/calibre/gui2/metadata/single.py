@@ -376,6 +376,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         if not mi.is_null('series') and mi.series.strip():
             self.series.current_val = mi.series
             if mi.series_index is not None:
+                self.series_index.reset_original()
                 self.series_index.current_val = float(mi.series_index)
         if not mi.is_null('languages'):
             langs = [canonicalize_lang(x) for x in mi.languages]

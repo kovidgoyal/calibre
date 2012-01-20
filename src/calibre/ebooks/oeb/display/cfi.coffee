@@ -102,7 +102,7 @@ viewport_to_document = (x, y, doc=window?.document) -> # {{{
     return [x, y]
 # }}}
 
-# Equivalent for caretRangeFromPoint for non WebKit browsers {{{
+# Convert point to character offset {{{
 range_has_point = (range, x, y) ->
     for rect in range.getClientRects()
         if (rect.left <= x <= rect.right) and (rect.top <= y <= rect.bottom)
