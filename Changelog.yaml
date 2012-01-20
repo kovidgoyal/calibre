@@ -20,7 +20,7 @@
 #     - title: 
 
 - version: 0.8.36
-  date: 2011-01-20
+  date: 2012-01-20
 
   new features:
     - title: "Decrease startup time for large libraries with at least one composite custom column by reading format info on demand"
@@ -80,7 +80,7 @@
       author: Darko Miletic
 
 - version: 0.8.35
-  date: 2011-01-13
+  date: 2012-01-13
 
   new features:
     - title: "Metadata plugboards: Allow creation of plugboards for email delivery."
