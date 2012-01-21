@@ -464,6 +464,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             self.library_view.model().refresh()
             self.library_view.model().research()
             self.tags_view.recount()
+            self.library_view.model().db.refresh_format_cache()
         elif msg.startswith('shutdown:'):
             self.quit(confirm_quit=False)
         else:

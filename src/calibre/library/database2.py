@@ -312,10 +312,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             load_user_template_functions(self.prefs.get('user_template_functions', []))
 
         # Load the format filename cache
-        self.format_filename_cache = defaultdict(dict)
-        for book_id, fmt, name in self.conn.get(
-                'SELECT book,format,name FROM data'):
-            self.format_filename_cache[book_id][fmt.upper() if fmt else ''] = name
+        self.refresh_format_cache()
 
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
@@ -528,6 +525,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ''' Return last modified time as a UTC datetime object'''
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
 
+    def refresh_format_cache(self):
+        self.format_filename_cache = defaultdict(dict)
+        for book_id, fmt, name in self.conn.get(
+                'SELECT book,format,name FROM data'):
+            self.format_filename_cache[book_id][fmt.upper() if fmt else ''] = name
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
