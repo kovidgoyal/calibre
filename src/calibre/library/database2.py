@@ -506,7 +506,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
         self.refresh()
         self.last_update_check = self.last_modified()
-        self.format_metadata_cache = defaultdict(dict)
 
     def break_cycles(self):
         self.data.break_cycles()
@@ -530,6 +529,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         for book_id, fmt, name in self.conn.get(
                 'SELECT book,format,name FROM data'):
             self.format_filename_cache[book_id][fmt.upper() if fmt else ''] = name
+        self.format_metadata_cache = defaultdict(dict)
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
