@@ -153,7 +153,7 @@ class CanonicalFragmentIdentifier
 
     ###
     This class is a namespace to expose CFI functions via the window.cfi
-    object. The three most important functions are:
+    object. The most important functions are:
 
     is_compatible(): Throws an error if the browser is not compatible with
                      this script
