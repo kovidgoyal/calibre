@@ -12,6 +12,7 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
     category              = 'News, China'
     remove_javascript = True
     use_embedded_content   = False
+    auto_cleanup = True
     no_stylesheets = True
     encoding               = 'GB2312'
     conversion_options = {'linearize_tables':True}
@@ -21,37 +22,5 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
        (u'\u7ecf\u6d4e\u65b0\u95fb', u'http://www.people.com.cn/rss/finance.xml'),
        (u'\u4f53\u80b2\u65b0\u95fb', u'http://www.people.com.cn/rss/sports.xml'),
        (u'\u53f0\u6e7e\u65b0\u95fb', u'http://www.people.com.cn/rss/haixia.xml')]
-    keep_only_tags = [
-                              dict(name='div', attrs={'class':'left_content'}),
-                               ]
-    remove_tags = [
-                    dict(name='table', attrs={'class':'title'}),
-                         ]
-    remove_tags_after = [
-                  dict(name='table', attrs={'class':'bianji'}),
-                         ]
-
-    def append_page(self, soup, appendtag, position):
-        pager = soup.find('img',attrs={'src':'/img/next_b.gif'})
-        if pager:
-           nexturl = self.INDEX + pager.a['href']
-           soup2 = self.index_to_soup(nexturl)
-           texttag = soup2.find('div', attrs={'class':'left_content'})
-           #for it in texttag.findAll(style=True):
-           #   del it['style']
-           newpos = len(texttag.contents)
-           self.append_page(soup2,texttag,newpos)
-           texttag.extract()
-           appendtag.insert(position,texttag)
 
 
-    def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="content-type" content="text/html;charset=GB2312" />\n<meta http-equiv="content-language" content="utf-8" />'
-        soup.head.insert(0,mtag)
-        for item in soup.findAll(style=True):
-            del item['form']
-        self.append_page(soup, soup.body, 3)
-        #pager = soup.find('a',attrs={'class':'ab12'})
-        #if pager:
-        #   pager.extract()
-        return soup
