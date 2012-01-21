@@ -1403,7 +1403,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = index if index_is_id else self.id(index)
         if not format: format = ''
         self.format_metadata_cache[id].pop(format.upper(), None)
-        name = self.format_filename_cache[id].pop(format.upper(), None)
+        name = self.format_filename_cache[id].get(format.upper(), None)
         if name:
             if not db_only:
                 try:
@@ -1412,6 +1412,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         delete_file(path)
                 except:
                     traceback.print_exc()
+            self.format_filename_cache[id].pop(format.upper(), None)
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             if commit:
                 self.conn.commit()
