@@ -425,15 +425,24 @@ class DirContainer(object):
                     self.opfname = path
                     return
 
+    def _unquote(self, path):
+        # urlunquote must run on a bytestring and will return a bytestring
+        # if it runs on a unicode object, it returns a double encoded unicode
+        # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
+        # and the latter is correct
+        if isinstance(path, unicode):
+            path = path.encode('utf-8')
+        return urlunquote(path).decode('utf-8')
+
     def read(self, path):
         if path is None:
             path = self.opfname
-        path = os.path.join(self.rootdir, path)
-        with open(urlunquote(path), 'rb') as f:
+        path = os.path.join(self.rootdir, self._unquote(path))
+        with open(path, 'rb') as f:
             return f.read()
 
     def write(self, path, data):
-        path = os.path.join(self.rootdir, urlunquote(path))
+        path = os.path.join(self.rootdir, self._unquote(path))
         dir = os.path.dirname(path)
         if not os.path.isdir(dir):
             os.makedirs(dir)
@@ -442,7 +451,7 @@ class DirContainer(object):
 
     def exists(self, path):
         try:
-            path = os.path.join(self.rootdir, urlunquote(path))
+            path = os.path.join(self.rootdir, self._unquote(path))
         except ValueError: #Happens if path contains quoted special chars
             return False
         return os.path.isfile(path)

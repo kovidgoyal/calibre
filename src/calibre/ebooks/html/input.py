@@ -475,7 +475,9 @@ class HTMLInput(InputFormatPlugin):
             # bhref refers to an already existing file. The read() method of
             # DirContainer will call unquote on it before trying to read the
             # file, therefore we quote it here.
-            item.html_input_href = quote(bhref)
+            if isinstance(bhref, unicode):
+                bhref = bhref.encode('utf-8')
+            item.html_input_href = quote(bhref).decode('utf-8')
             if guessed in self.OEB_STYLES:
                 item.override_css_fetch = partial(
                         self.css_import_handler, os.path.dirname(link))
