@@ -427,7 +427,7 @@ class DirContainer(object):
 
     def _unquote(self, path):
         # urlunquote must run on a bytestring and will return a bytestring
-        # if it runs on a unicode object, it returns a double encoded unicode
+        # If it runs on a unicode object, it returns a double encoded unicode
         # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
         # and the latter is correct
         if isinstance(path, unicode):
