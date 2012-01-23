@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-20 06:40+0000\n"
-"PO-Revision-Date: 2011-10-25 20:43+0000\n"
-"Last-Translator: Marek Sušický <Unknown>\n"
+"PO-Revision-Date: 2012-01-22 20:16+0000\n"
+"Last-Translator: Jan Kubík <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-01-21 05:23+0000\n"
+"X-Launchpad-Export-Date: 2012-01-23 05:19+0000\n"
 "X-Generator: Launchpad (build 14700)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -392,6 +392,8 @@ msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Odeslat knihy přes e-mail nebo web a spojit s iTunes nebo složkami ve vašem "
+"počítači jako by byly čtečkou"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -426,6 +428,7 @@ msgstr "Kopíruje knihu z jedné knihovny calibre do jiné"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Provádění malých vylepšení souborům epub nebo htmlz ve vaší knihovně calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid ""
@@ -844,7 +847,7 @@ msgstr "Tento profil je určený pro Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Tento profil je určen pro Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -857,7 +860,7 @@ msgstr "Tento profil je určený pro Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Tento profil je určen pro zařízení řady PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -997,10 +1000,20 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Pokud nechcete aby calibre rozeznávalo váš Apple iPřístroj pokaždé, když "
+"je připojen k vašemu počítači, klikněte na <b>Zablokovat ovladač "
+"Apple</b>.</p><p>K přenosu knih do vašeho iPřístroje, klikněte na "
+"<b>Zablokovat ovladač Apple</b>, po tém použijte metodu 'Připojit k iTunes' "
+"doporučenou v <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iPřístroje FAQ</a>, pomocí položky v menu "
+"<em>Připojit/sdílet</em>|<em>Připojit k iTunes</em>.</p><p>Povolit ovladač "
+"Apple pro přímé spojení s iPřístrojem je nepodporovaná funkce pro zkušené "
+"uživatele.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
-msgstr "Zablokovat Apple ovladač"
+msgstr "Zablokovat ovladač Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:69
 msgid "Enable Apple driver"
@@ -1259,7 +1272,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Spojeno s Blackberry playbook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1303,7 +1316,7 @@ msgstr "Komunikace s PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Spojeno se čtečkou Infibeam Pi2."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1377,7 +1390,7 @@ msgstr "Komunikace se čtečkou Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:171
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Spojeno se čtečkou Cybook Odyssey eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1457,7 +1470,7 @@ msgstr "<b>Místo %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:288
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Spojeno se čtečkou Kindle 2/3/4/Touch."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
@@ -1496,7 +1509,7 @@ msgstr "Komunikace se čtečkou Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:402
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Spojeno s Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -1520,6 +1533,9 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Běžně čtečky KOBO získávají obrázek obálky ze souboru eknihy. S touto volbou "
+"calibre odešle obrázek obálky zvlášť. Volba je užitečná, pokud jste "
+"modifikovali obálku."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
@@ -1527,7 +1543,7 @@ msgstr "Nahrát černobílé obálky"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "Ukaž knihy, které vypršely."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -1538,7 +1554,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
-msgstr ""
+msgstr "Ukaž náhledy"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid ""
@@ -1549,7 +1565,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Ukaž doporučení"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -1578,6 +1594,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Kniha naposledy čtena:</b> %(time)s<br /><b>Procent přečteno:</b> "
+"%(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1051
 #, python-format
@@ -11545,8 +11563,7 @@ msgstr "Automaticky konvertovat knihy před emailovým odesláním?"
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:261
 msgid ""
 "Could not email the following books as no suitable formats were found:"
-msgstr ""
-"Nemohu emailovat následující knihy, nebyl nalezen žádný vhodný formát:"
+msgstr "Nelze odeslat následující knihy, nebyl nalezen žádný vhodný formát:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/email.py:267
 msgid "Failed to email book"
@@ -15918,6 +15935,7 @@ msgid ""
 "Could not convert %(num)d of %(tot)d books, because no suitable source "
 "format was found."
 msgstr ""
+"Nelze převézt %(num)d z %(tot)d knih, protože nejsou ve vhodném formátu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:136
 msgid "Queueing books for bulk conversion"

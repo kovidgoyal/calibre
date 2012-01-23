@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-01-20 06:40+0000\n"
-"PO-Revision-Date: 2012-01-09 17:30+0000\n"
+"PO-Revision-Date: 2012-01-22 15:23+0000\n"
 "Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-21 05:23+0000\n"
+"X-Launchpad-Export-Date: 2012-01-23 05:19+0000\n"
 "X-Generator: Launchpad (build 14700)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -436,6 +436,7 @@ msgstr "Copia un llibre des d'una biblioteca del calibre a una altra"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Fes petits ajustaments al fitxers epub o htmlz de la biblioteca del calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid ""
@@ -1352,7 +1353,7 @@ msgstr "Comunica't amb el PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Comunica't amb un lector Infibeam Pi2"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -6389,11 +6390,11 @@ msgstr "Quant a Get Books"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Tweak Book"
-msgstr ""
+msgstr "Ajustaments per al llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:19
 msgid "Make small changes to ePub or HTMLZ format books"
-msgstr ""
+msgstr "Fes petits ajustaments al llibres en format epub o htmlz"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:20
 msgid "T"
@@ -6402,7 +6403,7 @@ msgstr "T"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:50
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "No es poden aplicar els ajustaments al llibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:51
 msgid ""
@@ -6410,6 +6411,9 @@ msgid ""
 "\n"
 "First convert the book to ePub or HTMLZ."
 msgstr ""
+"El llibre ha d'estar en format ePub o HTMLZ per fer-hi ajustaments\n"
+"\n"
+"Cal convertir-lo abans a ePub o HTMLZ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -8725,17 +8729,19 @@ msgstr "Suprimeix «%s»"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:241
 msgid "Open Item Editor"
-msgstr ""
+msgstr "Obre d'editor l'elements"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:353
 msgid "Values changed"
-msgstr ""
+msgstr "S'ha canviat els valors"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:354
 msgid ""
 "You have changed the values. In order to use this editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
+"Heu canviat els valors. Per utilitzar aquest editor heu de descartar o "
+"aplicar aquests canvis. S'apliquen els canvis?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:379
 msgid " index:"
@@ -10381,6 +10387,8 @@ msgid ""
 "Enter what you are looking for, either plain text or a regular expression, "
 "depending on the mode"
 msgstr ""
+"Introduïu el que esteu cercant en text simple o com a expressió regular, "
+"segons el mode"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:626
 msgid ""
@@ -11150,7 +11158,7 @@ msgstr "Creat per: "
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:378
 #, python-format
 msgid "Download %s now"
-msgstr ""
+msgstr "Baixa %s ara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:382
 msgid "Last downloaded: never"
@@ -11560,7 +11568,7 @@ msgstr "Afegeix una categoria nova"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to what is in the box"
-msgstr ""
+msgstr "Reanomena la categoria actual amb el que hi ha al quadre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
@@ -11704,6 +11712,8 @@ msgstr "Valor de la plantilla:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:114
 msgid "The value of the template using the current book in the library view"
 msgstr ""
+"El valor de la plantilla utilitzant el llibre actual de la vista de "
+"biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:115
 msgid "Function &name:"
@@ -11749,7 +11759,7 @@ msgstr "&Prova"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:114
 #, python-format
 msgid "You must first explode the %s before previewing."
-msgstr ""
+msgstr "Abans de visualitzar-lo heu d'expandir %s abans."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:116
 msgid "Cannot preview"
@@ -11757,7 +11767,7 @@ msgstr "No es pot previsualitzar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 msgid "Tweak {0}"
-msgstr ""
+msgstr "Ajusta {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -11767,15 +11777,21 @@ msgid ""
 "windows you used to edit files in the ePub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>Expandeix {0} per visualitzar els continguts en una finestra del gestor "
+"de fitxers. Per ajustar fitxers individuals feu clic dret i trieu «Obre "
+"amb...» l'editor que vulgueu. Quan hagueu acabat els ajustaments tanqueu la "
+"finestra del gestor de fitxers <b>i les finestres de l'editor que heu "
+"utilitzar per editar els fitxers de l'ePub</b>.</p><p>Reconstruïu l'ePubi "
+"s'actualitzarà la biblioteca del calibre.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:63
 msgid "Display contents of exploded {0}"
-msgstr ""
+msgstr "Mostra els continguts del {0} expandit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:64
 msgid "&Explode {0}"
-msgstr ""
+msgstr "&Expandeix {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:66
@@ -11785,15 +11801,15 @@ msgstr "Descarta els canvis"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:69
 msgid "Rebuild {0} from exploded contents"
-msgstr ""
+msgstr "Reconstrueix {0} amb els continguts expandits"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:70
 msgid "&Rebuild {0}"
-msgstr ""
+msgstr "&Reconstrueix {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:71
 msgid "&Preview {0}"
-msgstr ""
+msgstr "&Previsualitza {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
@@ -15647,7 +15663,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Password incompatible with Android devices"
-msgstr ""
+msgstr "Contrasenya incompatible amb dispositius Androis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "&Start Server"
@@ -21273,6 +21289,11 @@ msgid ""
 "a link, it will be ignored. By default, no links are ignored. If both filter "
 "regexp and match regexp are specified, then filter regexp is applied first."
 msgstr ""
+"S'ignorarà qualsevol enllaç que coincideixi amb aquesta expressió regular. "
+"Es pot especificar aquesta opció múltiples cops; en aquest cas s'ignorarà "
+"sempre que una expressió regular coincideixi amb un enllaç. Per defecte no "
+"s'ignora cap enllaç. Si s'especifiquen expressions regulars de filtre i de "
+"coincidència s'aplica primer l'expressió regular de filtre."
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:502
 msgid "Do not download CSS stylesheets."
@@ -22388,6 +22409,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:480
 msgid "When using the 'Tweak Book' action, which format to prefer"
 msgstr ""
+"Format que es prefeix en utilitzar l'acció «Ajustaments per al llibre»."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:481
 msgid ""
@@ -22395,3 +22417,6 @@ msgid ""
 "automatically. By default EPUB is preferred to HTMLZ. If you would like to\n"
 "prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'"
 msgstr ""
+"En ajustar un llibre que té múltiples formats el calibre n'agafa un\n"
+"automàticament. Per defecte es prefereix EPUB a HTMLZ. Si preferiu\n"
+"HTMLZ a EPUB per als ajustaments, canvieu aquest paràmetre a «htmlz»"
