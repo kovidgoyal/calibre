@@ -292,6 +292,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             self.library_view.model().books_added(1)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
+            if self.library_view.model().rowCount(None) < 3:
+                self.library_view.resizeColumnsToContents()
 
         self.library_view.model().count_changed()
         self.bars_manager.database_changed(self.library_view.model().db)
