@@ -27,7 +27,7 @@ def get_lang():
     from calibre.utils.config_base import prefs
     lang = prefs['language']
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
-    if lang is not None:
+    if lang:
         return lang
     try:
         lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
@@ -45,7 +45,7 @@ def get_lang():
             lang = match.group()
     if lang == 'zh':
         lang = 'zh_CN'
-    if lang is None:
+    if not lang:
         lang = 'en'
     return lang
 
@@ -68,6 +68,8 @@ def set_translators():
     # To test different translations invoke as
     # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
     lang = get_lang()
+    t = None
+
     if lang:
         buf = iso639 = None
         mpath = get_lc_messages_path(lang)
@@ -97,17 +99,16 @@ def set_translators():
                 except:
                     pass # No iso639 translations for this lang
 
-        t = None
         if buf is not None:
             t = GNUTranslations(buf)
             if iso639 is not None:
                 iso639 = GNUTranslations(iso639)
                 t.add_fallback(iso639)
 
-        if t is None:
-            t = NullTranslations()
+    if t is None:
+        t = NullTranslations()
 
-        t.install(unicode=True, names=('ngettext',))
+    t.install(unicode=True, names=('ngettext',))
 
 _iso639 = None
 _extra_lang_codes = {
