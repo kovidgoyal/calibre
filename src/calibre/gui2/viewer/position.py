@@ -38,7 +38,15 @@ class PagePosition(object):
         if cfi:
             cfi = json.dumps(cfi)
             self.document.mainFrame().evaluateJavaScript('''
-                    window.cfi.scroll_to(%s);
+                    function fix_scroll() {
+                        /* cfi.scroll_to() uses scrollIntoView() which can result
+                           in scrolling to scrolling along the x-axis. So we
+                           explicitly scroll to x=0.
+                        */
+                       scrollTo(0, window.pageYOffset)
+                    }
+
+                    window.cfi.scroll_to(%s, fix_scroll);
                 '''%cfi)
 
     @property
