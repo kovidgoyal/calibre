@@ -322,7 +322,7 @@ class CanonicalFragmentIdentifier
             point.time = r[1] - 0 # Coerce to number
             cfi = cfi.substr(r[0].length)
 
-        if (r = cfi.match(/^@(-?\d+(\.\d+)?),(-?\d+(\.\d+)?)/)) != null
+        if (r = cfi.match(/^@(-?\d+(\.\d+)?):(-?\d+(\.\d+)?)/)) != null
             # Spatial offset
             point.x = r[1] - 0 # Coerce to number
             point.y = r[3] - 0 # Coerce to number
@@ -416,7 +416,7 @@ class CanonicalFragmentIdentifier
             rect = target.getBoundingClientRect()
             px = ((x - rect.left)*100)/target.offsetWidth
             py = ((y - rect.top)*100)/target.offsetHeight
-            tail = "#{ tail }@#{ fstr px },#{ fstr py }"
+            tail = "#{ tail }@#{ fstr px }:#{ fstr py }"
         else if name != 'audio'
             # Get the text offset
             # We use a custom function instead of caretRangeFromPoint as
