@@ -172,6 +172,11 @@ def get_unicode_windows_env_var(name):
     return buf.value
 
 def get_windows_username():
+    '''
+    Return the user name of the currently loggen in user as a unicode string.
+    Note that usernames on windows are case insensitive, the acse of the value
+    returned depends on what the user typed into the login box at login time.
+    '''
     import ctypes
     try:
         advapi32 = ctypes.windll.advapi32
