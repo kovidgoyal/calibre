@@ -161,4 +161,27 @@ def get_version():
         v += '*'
     return v
 
+def get_unicode_windows_env_var(name):
+    import ctypes
+    name = unicode(name)
+    n = ctypes.windll.kernel32.GetEnvironmentVariableW(name, None, 0)
+    if n == 0:
+        return None
+    buf = ctypes.create_unicode_buffer(u'\0'*n)
+    ctypes.windll.kernel32.GetEnvironmentVariableW(name, buf, n)
+    return buf.value
 
+def get_windows_username():
+    import ctypes
+    try:
+        advapi32 = ctypes.windll.advapi32
+        GetUserName = getattr(advapi32, u'GetUserNameW')
+    except AttributeError:
+        pass
+    else:
+        buf = ctypes.create_unicode_buffer(257)
+        n = ctypes.c_int(257)
+        if GetUserName(buf, ctypes.byref(n)):
+            return buf.value
+
+    return get_unicode_windows_env_var(u'USERNAME')
