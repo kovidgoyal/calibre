@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, locale, re, cStringIO, cPickle
 from gettext import GNUTranslations, NullTranslations
+from calibre.ptempfile import PersistentTemporaryDirectory
 from zipfile import ZipFile
 
 _available_translations = None
@@ -277,4 +278,32 @@ def get_udc():
         _udc = Unihandecoder(lang=get_lang())
     return _udc
 
+def plugin_internationalize(plugin_zip, plugin_name):
+    from shutil import copyfileobj
+    lang = get_lang()
+    if lang:
+        temp_dir = PersistentTemporaryDirectory('_lang')
+        module_named = '.'.join(plugin_name.split('.')[:2])
+        with ZipFile(plugin_zip, 'r') as zf:
+            plugmo = 'lang/' + lang + '.mo'
+            try:
+                source = zf.open(plugmo)
+                target = file(os.path.join(temp_dir, lang + '/mes.mo'), "wb")
+                copyfileobj(source, target)
+            except:
+                plugmo = None # No translation for this lang
 
+        t = None
+        if plugmo is not None:
+            # import sys
+            # sys.stderr.write(repr(os.listdir(temp_dir)))
+            # localedir/language/LC_MESSAGES/domain.mo
+            import gettext
+            t = gettext.translation(plugin_name, temp_dir)
+            t.install()
+            # t.install(unicode=True, names=('ngettext',))
+            # _ = t.gettext
+            # t = GNUTranslations(plugmo)
+        # if t is None:
+            # t = NullTranslations()
+        # t.install(unicode=True, names=('ngettext',)) #A modifier
