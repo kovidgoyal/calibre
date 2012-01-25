@@ -626,8 +626,16 @@ class CanonicalFragmentIdentifier
                     return cfi
                 cury += delta
 
-        # TODO: Return the CFI corresponding to the <body> tag
-        null
+        # Use a spatial offset on the html element, since we could not find a
+        # normal CFI
+        [x, y] = window_scroll_pos()
+        de = document.documentElement
+        rect = de.getBoundingClientRect()
+        px = (x*100)/rect.width
+        py = (y*100)/rect.height
+        cfi = "/2@#{ fstr px }:#{ fstr py }"
+
+        return cfi
 
     # }}}
 
