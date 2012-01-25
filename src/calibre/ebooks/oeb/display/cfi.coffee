@@ -579,29 +579,30 @@ class CanonicalFragmentIdentifier
 
         get_cfi = (ox, oy) ->
             try
-                cfi = this.at(ox, oy)
-                point = this.point(cfi)
+                cfi = window.cfi.at(ox, oy)
+                point = window.cfi.point(cfi)
             catch err
                 cfi = null
 
-            if point.range != null
-                r = point.range
-                rect = r.getClientRects()[0]
+            if cfi
+                if point.range != null
+                    r = point.range
+                    rect = r.getClientRects()[0]
 
-                x = (point.a*rect.left + (1-point.a)*rect.right)
-                y = (rect.top + rect.bottom)/2
-                [x, y] = viewport_to_document(x, y, r.startContainer.ownerDocument)
-            else
-                node = point.node
-                r = node.getBoundingClientRect()
-                [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
-                if typeof(point.x) == 'number' and node.offsetWidth
-                    x += (point.x*node.offsetWidth)/100
-                if typeof(point.y) == 'number' and node.offsetHeight
-                    y += (point.y*node.offsetHeight)/100
+                    x = (point.a*rect.left + (1-point.a)*rect.right)
+                    y = (rect.top + rect.bottom)/2
+                    [x, y] = viewport_to_document(x, y, r.startContainer.ownerDocument)
+                else
+                    node = point.node
+                    r = node.getBoundingClientRect()
+                    [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
+                    if typeof(point.x) == 'number' and node.offsetWidth
+                        x += (point.x*node.offsetWidth)/100
+                    if typeof(point.y) == 'number' and node.offsetHeight
+                        y += (point.y*node.offsetHeight)/100
 
-            if dist(viewport_to_document(ox, oy), [x, y]) > 50
-                cfi = null
+                if dist(viewport_to_document(ox, oy), [x, y]) > 50
+                    cfi = null
 
             return cfi
 

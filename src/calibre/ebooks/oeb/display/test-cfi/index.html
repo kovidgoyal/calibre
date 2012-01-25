@@ -8,6 +8,7 @@
             body { 
                 font-family: sans-serif;
                 background-color: white;
+                padding-bottom: 500px;
             }
             
             h1, h2 { color: #005a9c }
@@ -48,7 +49,13 @@
         <div id="container">
             <h1 id="first-h1">Testing cfi.coffee</h1>
             <p>Click anywhere and the location will be marked with a marker, whose position is set via a CFI.</p>
-            <p><a id="reset" href="/">Reset CFI to None</a></p>
+            <p>
+                <a id="reset" href="/">Reset CFI to None</a>
+                &nbsp;
+                Test viewport location calculation:
+                <input type="checkbox" id="viewport_mode" title=
+                "Checking this will cause the window to scroll to a position based on a CFI calculated for the windows current position."/>
+            </p>
             <h2>A div with scrollbars</h2>
             <p>Scroll down and click on some elements. Make sure to hit both
             bold and not bold text as well as different points on the image</p>
