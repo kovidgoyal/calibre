@@ -166,6 +166,8 @@ class CanonicalFragmentIdentifier
     ###
 
     constructor: () -> # {{{
+        if not this instanceof arguments.callee
+            throw new Error('CFI constructor called as function')
         this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
         this.IE_ERR = "Your browser is too old. You need Internet Explorer version 9 or newer."
         div = document.createElement('div')
