@@ -174,7 +174,7 @@ def get_unicode_windows_env_var(name):
 def get_windows_username():
     '''
     Return the user name of the currently loggen in user as a unicode string.
-    Note that usernames on windows are case insensitive, the acse of the value
+    Note that usernames on windows are case insensitive, the case of the value
     returned depends on what the user typed into the login box at login time.
     '''
     import ctypes
