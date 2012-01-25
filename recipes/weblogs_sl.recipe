@@ -2,8 +2,8 @@
 __license__     = 'GPL v3'
 __copyright__   = '4 February 2011, desUBIKado'
 __author__      = 'desUBIKado'
-__version__     = 'v0.05'
-__date__        = '13, April 2011'
+__version__     = 'v0.07'
+__date__        = '13, November 2011'
 '''
 http://www.weblogssl.com/
 '''
@@ -33,6 +33,7 @@ class weblogssl(BasicNewsRecipe):
 
     feeds              = [
                           (u'Xataka', u'http://feeds.weblogssl.com/xataka2')
+                          ,(u'Xataka Mexico', u'http://feeds.weblogssl.com/xatakamx')
                           ,(u'Xataka M\xf3vil', u'http://feeds.weblogssl.com/xatakamovil')
                           ,(u'Xataka Android', u'http://feeds.weblogssl.com/xatakandroid')
                           ,(u'Xataka Foto', u'http://feeds.weblogssl.com/xatakafoto')
@@ -40,6 +41,7 @@ class weblogssl(BasicNewsRecipe):
                           ,(u'Xataka Ciencia', u'http://feeds.weblogssl.com/xatakaciencia')
                           ,(u'Genbeta', u'http://feeds.weblogssl.com/genbeta')
                           ,(u'Genbeta Dev', u'http://feeds.weblogssl.com/genbetadev')
+                          ,(u'Genbeta Social Media', u'http://feeds.weblogssl.com/genbetasocialmedia')
                           ,(u'Applesfera', u'http://feeds.weblogssl.com/applesfera')
                           ,(u'Vida Extra', u'http://feeds.weblogssl.com/vidaextra')
                           ,(u'Naci\xf3n Red', u'http://feeds.weblogssl.com/nacionred')
@@ -51,7 +53,6 @@ class weblogssl(BasicNewsRecipe):
                           ,(u'Pop rosa', u'http://feeds.weblogssl.com/poprosa')
                           ,(u'Zona FandoM', u'http://feeds.weblogssl.com/zonafandom')
                           ,(u'Fandemia', u'http://feeds.weblogssl.com/fandemia')
-                          ,(u'Noctamina', u'http://feeds.weblogssl.com/noctamina')
                           ,(u'Tendencias', u'http://feeds.weblogssl.com/trendencias')
                           ,(u'Beb\xe9s y m\xe1s', u'http://feeds.weblogssl.com/bebesymas')
                           ,(u'Directo al paladar', u'http://feeds.weblogssl.com/directoalpaladar')
@@ -60,8 +61,8 @@ class weblogssl(BasicNewsRecipe):
                           ,(u'Embelezzia', u'http://feeds.weblogssl.com/embelezzia')
                           ,(u'Vit\xf3nica', u'http://feeds.weblogssl.com/vitonica')
                           ,(u'Ambiente G', u'http://feeds.weblogssl.com/ambienteg')
-                          ,(u'Arrebatadora', u'http://feeds.weblogssl.com/arrebatadora')
-                          ,(u'Mensencia', u'http://feeds.weblogssl.com/mensencia')
+                          ,(u'Tendencias Belleza', u'http://feeds.weblogssl.com/trendenciasbelleza')
+                          ,(u'Tendencias Hombre', u'http://feeds.weblogssl.com/trendenciashombre')
                           ,(u'Peques y m\xe1s', u'http://feeds.weblogssl.com/pequesymas')
                           ,(u'Motorpasi\xf3n', u'http://feeds.weblogssl.com/motorpasion')
                           ,(u'Motorpasi\xf3n F1', u'http://feeds.weblogssl.com/motorpasionf1')
@@ -69,7 +70,6 @@ class weblogssl(BasicNewsRecipe):
                           ,(u'Motorpasi\xf3n Futuro', u'http://feeds.weblogssl.com/motorpasionfuturo')
                           ,(u'Notas de futbol', u'http://feeds.weblogssl.com/notasdefutbol')
                           ,(u'Fuera de l\xedmites', u'http://feeds.weblogssl.com/fueradelimites')
-                          ,(u'Salir a ganar', u'http://feeds.weblogssl.com/saliraganar')
                           ,(u'El blog salm\xf3n', u'http://feeds.weblogssl.com/elblogsalmon2')
                           ,(u'Pymes y aut\xf3nomos', u'http://feeds.weblogssl.com/pymesyautonomos')
                           ,(u'Tecnolog\xeda Pyme', u'http://feeds.weblogssl.com/tecnologiapyme')
@@ -104,4 +104,23 @@ class weblogssl(BasicNewsRecipe):
                video_yt['src'] = fuente3 + '/0.jpg'
 
         return soup
+
+    # Para obtener la url original del articulo a partir de la de "feedsportal"
+    # El siguiente código es gracias al usuario "bosplans" de www.mobileread.com
+    # http://www.mobileread.com/forums/showthread.php?t=130297
+
+    def get_article_url(self, article):
+       link = article.get('link', None)
+       if link is None:
+           return article
+       if link.split('/')[-1]=="story01.htm":
+           link=link.split('/')[-2]
+           a=['0B','0C','0D','0E','0F','0G','0N'  ,'0L0S','0A']
+           b=['.' ,'/' ,'?' ,'-' ,'=' ,'&' ,'.com','www.','0']
+           for i in range(0,len(a)):
+              link=link.replace(a[i],b[i])
+           link="http://"+link
+       return link
+
+
 

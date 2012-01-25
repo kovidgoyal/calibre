@@ -161,7 +161,7 @@ class MobiWriter(object):
         index = 1
 
         mh_href = None
-        if 'masthead' in oeb.guide:
+        if 'masthead' in oeb.guide and oeb.guide['masthead'].href:
             mh_href = oeb.guide['masthead'].href
             self.image_records.append(None)
             index += 1
@@ -302,7 +302,18 @@ class MobiWriter(object):
 
     def generate_record0(self): #  MOBI header {{{
         metadata = self.oeb.metadata
-        exth = self.build_exth()
+        bt = 0x002
+        if self.primary_index_record_idx is not None:
+            if False and self.indexer.is_flat_periodical:
+                # Disabled as setting this to 0x102 causes the Kindle to not
+                # auto archive the issues
+                bt = 0x102
+            elif self.indexer.is_periodical:
+                # If you change this, remember to change the cdetype in the EXTH
+                # header as well
+                bt = 0x103 if self.indexer.is_flat_periodical else 0x101
+
+        exth = self.build_exth(bt)
         first_image_record = None
         if self.image_records:
             first_image_record  = len(self.records)
@@ -350,17 +361,6 @@ class MobiWriter(object):
         # 0xC - 0xF   : Text encoding (65001 is utf-8)
         # 0x10 - 0x13 : UID
         # 0x14 - 0x17 : Generator version
-
-        bt = 0x002
-        if self.primary_index_record_idx is not None:
-            if False and self.indexer.is_flat_periodical:
-                # Disabled as setting this to 0x102 causes the Kindle to not
-                # auto archive the issues
-                bt = 0x102
-            elif self.indexer.is_periodical:
-                # If you change this, remember to change the cdetype in the EXTH
-                # header as well
-                bt = {'newspaper':0x101}.get(self.publication_type, 0x103)
 
         record0.write(pack(b'>IIIII',
             0xe8, bt, 65001, uid, 6))
@@ -479,7 +479,7 @@ class MobiWriter(object):
         self.records[0] = align_block(record0)
     # }}}
 
-    def build_exth(self): # EXTH Header {{{
+    def build_exth(self, mobi_doctype): # EXTH Header {{{
         oeb = self.oeb
         exth = StringIO()
         nrecs = 0
@@ -494,7 +494,9 @@ class MobiWriter(object):
                     creators = [normalize(unicode(c)) for c in items]
                 items = ['; '.join(creators)]
             for item in items:
-                data = self.COLLAPSE_RE.sub(' ', normalize(unicode(item)))
+                data = normalize(unicode(item))
+                if term != 'description':
+                    data = self.COLLAPSE_RE.sub(' ', data)
                 if term == 'identifier':
                     if data.lower().startswith('urn:isbn:'):
                         data = data[9:]
@@ -535,16 +537,17 @@ class MobiWriter(object):
             nrecs += 1
 
         # Write cdetype
-        if not self.is_periodical and not self.opts.share_not_sync:
-            exth.write(pack(b'>II', 501, 12))
-            exth.write(b'EBOK')
-            nrecs += 1
+        if not self.is_periodical:
+            if not self.opts.share_not_sync:
+                exth.write(pack(b'>II', 501, 12))
+                exth.write(b'EBOK')
+                nrecs += 1
         else:
-            # Should be b'NWPR' for doc type of 0x101 and b'MAGZ' for doctype
-            # of 0x103 but the old writer didn't write them, and I dont know
-            # what it should be for type 0x102 (b'BLOG'?) so write nothing
-            # instead
-            pass
+            ids = {0x101:b'NWPR', 0x103:b'MAGZ'}.get(mobi_doctype, None)
+            if ids:
+                exth.write(pack(b'>II', 501, 12))
+                exth.write(ids)
+                nrecs += 1
 
         # Add a publication date entry
         if oeb.metadata['date']:

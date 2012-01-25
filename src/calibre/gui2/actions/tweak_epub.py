@@ -10,12 +10,13 @@ import os
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.tweak_epub import TweakEpub
+from calibre.utils.config import tweaks
 
 class TweakEpubAction(InterfaceAction):
 
     name = 'Tweak ePub'
-    action_spec = (_('Tweak ePub'), 'trim.png',
-            _('Make small changes to ePub format books'),
+    action_spec = (_('Tweak Book'), 'trim.png',
+            _('Make small changes to ePub or HTMLZ format books'),
             _('T'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
@@ -26,33 +27,48 @@ class TweakEpubAction(InterfaceAction):
     def edit_epub_in_situ(self, *args):
         row = self.gui.library_view.currentIndex()
         if not row.isValid():
-            return error_dialog(self.gui, _('Cannot tweak ePub'),
+            return error_dialog(self.gui, _('Cannot tweak Book'),
                     _('No book selected'), show=True)
 
-        # Confirm 'EPUB' in formats
         book_id = self.gui.library_view.model().id(row)
+
+        # Confirm 'EPUB' in formats
         try:
             path_to_epub = self.gui.library_view.model().db.format(
                     book_id, 'EPUB', index_is_id=True, as_path=True)
         except:
             path_to_epub = None
 
-        if not path_to_epub:
-            return error_dialog(self.gui, _('Cannot tweak ePub'),
-                    _('No ePub available. First convert the book to ePub.'),
+        # Confirm 'HTMLZ' in formats
+        try:
+            path_to_htmlz = self.gui.library_view.model().db.format(
+                    book_id, 'HTMLZ', index_is_id=True, as_path=True)
+        except:
+            path_to_htmlz = None
+
+        if not path_to_epub and not path_to_htmlz:
+            return error_dialog(self.gui, _('Cannot tweak Book'),
+                    _('The book must be in ePub or HTMLZ format to tweak.'
+                        '\n\nFirst convert the book to ePub or HTMLZ.'),
                     show=True)
 
         # Launch modal dialog waiting for user to tweak or cancel
-        dlg = TweakEpub(self.gui, path_to_epub)
+        if tweaks['tweak_book_prefer'] == 'htmlz':
+            path_to_book = path_to_htmlz or path_to_epub
+        else:
+            path_to_book = path_to_epub or path_to_htmlz
+
+        dlg = TweakEpub(self.gui, path_to_book)
         if dlg.exec_() == dlg.Accepted:
             self.update_db(book_id, dlg._output)
         dlg.cleanup()
-        os.remove(path_to_epub)
+        os.remove(path_to_book)
 
     def update_db(self, book_id, rebuilt):
         '''
         Update the calibre db with the tweaked epub
         '''
-        self.gui.library_view.model().db.add_format(book_id, 'EPUB',
+        fmt = os.path.splitext(rebuilt)[1][1:].upper()
+        self.gui.library_view.model().db.add_format(book_id, fmt,
                 open(rebuilt, 'rb'), index_is_id=True)
 

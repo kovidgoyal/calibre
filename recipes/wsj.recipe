@@ -57,6 +57,12 @@ class WallStreetJournal(BasicNewsRecipe):
                         'username and password')
         return br
 
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            picdiv = soup.find('img')
+            if picdiv is not None:
+                self.add_toc_thumbnail(article,picdiv['src'])
+
     def postprocess_html(self, soup, first):
         for tag in soup.findAll(name=['table', 'tr', 'td']):
             tag.name = 'div'

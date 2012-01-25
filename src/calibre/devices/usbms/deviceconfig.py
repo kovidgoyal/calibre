@@ -28,6 +28,8 @@ class DeviceConfig(object):
     EXTRA_CUSTOMIZATION_DEFAULT = None
 
     SUPPORTS_SUB_DIRS = False
+    SUPPORTS_SUB_DIRS_FOR_SCAN = False # This setting is used when scanning for
+                                       # books when SUPPORTS_SUB_DIRS is False
     MUST_READ_METADATA = False
     SUPPORTS_USE_AUTHOR_SORT = False
 

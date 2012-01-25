@@ -9,12 +9,12 @@ from PyQt4.Qt import QThread, QObject, Qt, QProgressDialog, pyqtSignal, QTimer
 
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2 import (question_dialog, error_dialog, info_dialog, gprefs,
-        warning_dialog)
+        warning_dialog, available_width)
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata import MetaInformation
 from calibre.constants import preferred_encoding, filesystem_encoding, DEBUG
 from calibre.utils.config import prefs
-from calibre import prints
+from calibre import prints, force_unicode, as_unicode
 
 single_shot = partial(QTimer.singleShot, 75)
 
@@ -66,7 +66,8 @@ class RecursiveFind(QThread): # {{{
             if self.canceled:
                 return
             self.update.emit(
-                    _('Searching in')+' '+dirpath[0])
+                    _('Searching in')+' '+force_unicode(dirpath[0],
+                        filesystem_encoding))
             self.books += list(self.db.find_books_in_directory(dirpath[0],
                                             self.single_book_per_directory))
 
@@ -82,10 +83,7 @@ class RecursiveFind(QThread): # {{{
             except Exception as err:
                 import traceback
                 traceback.print_exc()
-                try:
-                    msg = unicode(err)
-                except:
-                    msg = repr(err)
+                msg = as_unicode(err)
                 self.found.emit(msg)
                 return
 
@@ -244,6 +242,7 @@ class Adder(QObject): # {{{
     def __init__(self, parent, db, callback, spare_server=None):
         QObject.__init__(self, parent)
         self.pd = ProgressDialog(_('Adding...'), parent=parent)
+        self.pd.setMaximumWidth(min(600, int(available_width()*0.75)))
         self.spare_server = spare_server
         self.db = db
         self.pd.setModal(True)

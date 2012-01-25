@@ -5,8 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, itertools, operator
 from functools import partial
+from future_builtins import map
 
 from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal,
     QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication,
@@ -50,8 +51,7 @@ class PreserveViewState(object): # {{{
             traceback.print_exc()
 
     def __exit__(self, *args):
-        current = self.view.get_selected_ids()
-        if not current and self.selected_ids:
+        if self.selected_ids:
             if self.current_id is not None:
                 self.view.current_id = self.current_id
             self.view.select_rows(self.selected_ids, using_ids=True,
@@ -363,14 +363,15 @@ class BooksView(QTableView): # {{{
                     history.append([col, order])
         return history
 
-    def apply_sort_history(self, saved_history):
+    def apply_sort_history(self, saved_history, max_sort_levels=3):
         if not saved_history:
             return
-        for col, order in reversed(self.cleanup_sort_history(saved_history)[:3]):
+        for col, order in reversed(self.cleanup_sort_history(
+                saved_history)[:max_sort_levels]):
             self.sortByColumn(self.column_map.index(col),
                               Qt.AscendingOrder if order else Qt.DescendingOrder)
 
-    def apply_state(self, state):
+    def apply_state(self, state, max_sort_levels=3):
         h = self.column_header
         cmap = {}
         hidden = state.get('hidden_columns', [])
@@ -399,7 +400,8 @@ class BooksView(QTableView): # {{{
                     sz = h.sectionSizeHint(cmap[col])
                 h.resizeSection(cmap[col], sz)
 
-        self.apply_sort_history(state.get('sort_history', None))
+        self.apply_sort_history(state.get('sort_history', None),
+                max_sort_levels=max_sort_levels)
 
         for col, alignment in state.get('column_alignment', {}).items():
             self._model.change_alignment(col, alignment)
@@ -474,6 +476,7 @@ class BooksView(QTableView): # {{{
         old_state = self.get_old_state()
         if old_state is None:
             old_state = self.get_default_state()
+        max_levels = 3
 
         if tweaks['sort_columns_at_startup'] is not None:
             sh = []
@@ -488,9 +491,10 @@ class BooksView(QTableView): # {{{
                 import traceback
                 traceback.print_exc()
             old_state['sort_history'] = sh
+            max_levels = max(3, len(sh))
 
         self.column_header.blockSignals(True)
-        self.apply_state(old_state)
+        self.apply_state(old_state, max_sort_levels=max_levels)
         self.column_header.blockSignals(False)
 
         # Resize all rows to have the correct height
@@ -793,8 +797,13 @@ class BooksView(QTableView): # {{{
         sel = QItemSelection()
         m = self.model()
         max_col = m.columnCount(QModelIndex()) - 1
-        for row in rows:
-            sel.select(m.index(row, 0), m.index(row, max_col))
+        # Create a range based selector for each set of contiguous rows
+        # as supplying selectors for each individual row causes very poor
+        # performance if a large number of rows has to be selected.
+        for k, g in itertools.groupby(enumerate(rows), lambda (i,x):i-x):
+            group = list(map(operator.itemgetter(1), g))
+            sel.merge(QItemSelection(m.index(min(group), 0),
+                m.index(max(group), max_col)), sm.Select)
         sm.select(sel, sm.ClearAndSelect)
 
     def get_selected_ids(self):

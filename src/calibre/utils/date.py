@@ -292,8 +292,9 @@ def clean_date_for_sort(dt, format):
         dt = datetime.combine(dt, time())
 
     if hasattr(dt, 'tzinfo'):
-        if dt.tzinfo is not None:
-            dt = as_utc(dt)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=_local_tz)
+        dt = as_local_time(dt)
 
     if format == 'iso':
         format = 'yyMdhms'
@@ -304,7 +305,8 @@ def clean_date_for_sort(dt, format):
 
     repl_func = partial(cd_repl_func, tt, dt)
     re.sub('(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, format)
-    return datetime(tt['year'], tt['mon'], tt['day'], tt['hour'], tt['min'], tt['sec'])
+    return dt.replace(year=tt['year'], month=tt['mon'], day=tt['day'], hour=tt['hour'],
+                      minute=tt['min'], second=tt['sec'], microsecond=0)
 
 def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date

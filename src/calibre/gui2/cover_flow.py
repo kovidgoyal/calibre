@@ -70,7 +70,7 @@ if pictureflow is not None:
                     ans = ''
             except:
                 ans = ''
-            return ans
+            return ans.replace('&', '&&')
 
         def subtitle(self, index):
             try:

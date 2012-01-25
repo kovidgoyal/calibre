@@ -172,9 +172,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
     STATE_VERSION = 1
 
-    def __init__(self, pathtoebook=None, debug_javascript=False):
+    def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None):
         MainWindow.__init__(self, None)
         self.setupUi(self)
+        self.view.initialize_view(debug_javascript)
         self.view.magnification_changed.connect(self.magnification_changed)
         self.show_toc_on_open = False
         self.current_book_has_toc = False
@@ -215,7 +216,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.search.setMinimumWidth(200)
         self.tool_bar2.insertWidget(self.action_find_next, self.search)
         self.view.set_manager(self)
-        self.view.document.debug_javascript = debug_javascript
         self.pi = ProgressIndicator(self)
         self.toc.setVisible(False)
         self.action_quit = QAction(self)
@@ -243,10 +243,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.connect(self.action_metadata, SIGNAL('triggered(bool)'), lambda x:self.metadata.setVisible(x))
         self.action_table_of_contents.toggled[bool].connect(self.set_toc_visible)
         self.connect(self.action_copy, SIGNAL('triggered(bool)'), self.copy)
-        self.connect(self.action_font_size_larger, SIGNAL('triggered(bool)'),
-                     self.font_size_larger)
-        self.connect(self.action_font_size_smaller, SIGNAL('triggered(bool)'),
-                     self.font_size_smaller)
+        self.action_font_size_larger.triggered.connect(self.font_size_larger)
+        self.action_font_size_smaller.triggered.connect(self.font_size_smaller)
         self.connect(self.action_open_ebook, SIGNAL('triggered(bool)'),
                      self.open_ebook)
         self.connect(self.action_next_page, SIGNAL('triggered(bool)'),
@@ -280,7 +278,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
 
 
         if pathtoebook is not None:
-            f = functools.partial(self.load_ebook, pathtoebook)
+            f = functools.partial(self.load_ebook, pathtoebook, open_at=open_at)
             QTimer.singleShot(50, f)
         self.view.setMinimumSize(100, 100)
         self.toc.setCursor(Qt.PointingHandCursor)
@@ -457,8 +455,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def goto_end(self):
         self.goto_page(self.pos.maximum())
 
-    def goto_page(self, new_page):
-        if self.current_page is not None:
+    def goto_page(self, new_page, loaded_check=True):
+        if self.current_page is not None or not loaded_check:
             for page in self.iterator.spine:
                 if new_page >= page.start_page and new_page <= page.max_page:
                     try:
@@ -482,17 +480,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
     def open_recent(self, action):
         self.load_ebook(action.path)
 
-    def font_size_larger(self, checked):
-        frac = self.view.magnify_fonts()
+    def font_size_larger(self):
+        self.view.magnify_fonts()
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
-        self.set_page_number(frac)
 
-    def font_size_smaller(self, checked):
-        frac = self.view.shrink_fonts()
+    def font_size_smaller(self):
+        self.view.shrink_fonts()
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
-        self.set_page_number(frac)
 
     def magnification_changed(self, val):
         tt = _('Make font size %(which)s\nCurrent magnification: %(mag).1f')
@@ -672,7 +668,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             except:
                 traceback.print_exc()
 
-    def load_ebook(self, pathtoebook):
+    def load_ebook(self, pathtoebook, open_at=None):
         if self.iterator is not None:
             self.save_current_position()
             self.iterator.__exit__()
@@ -731,10 +727,17 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.current_index = -1
             QApplication.instance().alert(self, 5000)
             previous = self.set_bookmarks(self.iterator.bookmarks)
-            if previous is not None:
+            if open_at is None and previous is not None:
                 self.goto_bookmark(previous)
             else:
-                self.next_document()
+                if open_at is None:
+                    self.next_document()
+                else:
+                    if open_at > self.pos.maximum():
+                        open_at = self.pos.maximum()
+                    if open_at < self.pos.minimum():
+                        open_at = self.pos.minimum()
+                    self.goto_page(open_at, loaded_check=False)
 
     def set_vscrollbar_value(self, pagenum):
         self.vertical_scrollbar.blockSignals(True)
@@ -751,11 +754,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.set_page_number(frac)
 
     def next_document(self):
-        if self.current_index < len(self.iterator.spine) - 1:
+        if (hasattr(self, 'current_index') and self.current_index <
+                len(self.iterator.spine) - 1):
             self.load_path(self.iterator.spine[self.current_index+1])
 
     def previous_document(self):
-        if self.current_index > 0:
+        if hasattr(self, 'current_index') and self.current_index > 0:
             self.load_path(self.iterator.spine[self.current_index-1], pos=1.0)
 
     def keyPressEvent(self, event):
@@ -804,6 +808,9 @@ def config(defaults=None):
         help=_('Remember last used window size'))
     c.add_opt('debug_javascript', ['--debug-javascript'], default=False,
         help=_('Print javascript alert and console messages to the console'))
+    c.add_opt('open_at', ['--open-at'], default=None,
+        help=_('The position at which to open the specified book. The position is '
+            'a location as displayed in the top left corner of the viewer.'))
 
     return c
 
@@ -823,13 +830,17 @@ def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     pid = os.fork() if False and (islinux or isbsd) else -1
+    try:
+        open_at = float(opts.open_at)
+    except:
+        open_at = None
     if pid <= 0:
         app = Application(args)
         app.setWindowIcon(QIcon(I('viewer.png')))
         QApplication.setOrganizationName(ORG_NAME)
         QApplication.setApplicationName(APP_UID)
         main = EbookViewer(args[1] if len(args) > 1 else None,
-                debug_javascript=opts.debug_javascript)
+                debug_javascript=opts.debug_javascript, open_at=open_at)
         sys.excepthook = main.unhandled_exception
         main.show()
         if opts.raise_window:

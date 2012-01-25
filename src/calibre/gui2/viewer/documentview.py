@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, math, re, glob, sys
+import os, math, re, glob, sys, zipfile
 from base64 import b64encode
 from functools import partial
 
@@ -12,23 +12,21 @@ from PyQt4.Qt import (QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer,
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog,
                      QColor, QPoint, QImage, QRegion, QVariant, QIcon,
                      QFont, pyqtSignature, QAction, QByteArray, QMenu,
-                     pyqtSignal)
+                     pyqtSignal, QSwipeGesture)
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.localization import get_language
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.flip import SlideFlip
-from calibre.gui2.viewer.gestures import Gestures
 from calibre.gui2.shortcuts import Shortcuts, ShortcutConfig
 from calibre.constants import iswindows
 from calibre import prints, guess_type
 from calibre.gui2.viewer.keys import SHORTCUTS
+from calibre.gui2.viewer.javascript import JavaScriptLoader
+from calibre.gui2.viewer.position import PagePosition
 
 # }}}
-
-bookmarks = referencing = hyphenation = jquery = jquery_scrollTo = \
-        hyphenator = images = hyphen_pats = None
 
 def load_builtin_fonts():
     base = P('fonts/liberation/*.ttf')
@@ -62,6 +60,10 @@ def config(defaults=None):
     c.add_opt('page_flip_duration', default=0.5,
             help=_('The time, in seconds, for the page flip animation. Default'
                 ' is half a second.'))
+    c.add_opt('font_magnification_step', default=0.2,
+            help=_('The amount by which to change the font size when clicking'
+                ' the font larger/smaller buttons. Should be a number between '
+                '0 and 1.'))
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -87,6 +89,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
         self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
         self.opt_page_flip_duration.setValue(opts.page_flip_duration)
+        fms = opts.font_magnification_step
+        if fms < 0.01 or fms > 1:
+            fms = 0.2
+        self.opt_font_mag_step.setValue(int(fms*100))
         self.serif_family.setCurrentFont(QFont(opts.serif_family))
         self.sans_family.setCurrentFont(QFont(opts.sans_family))
         self.mono_family.setCurrentFont(QFont(opts.mono_family))
@@ -96,9 +102,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.css.setPlainText(opts.user_css)
         self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
         self.max_view_width.setValue(opts.max_view_width)
-        pats = [os.path.basename(x).split('.')[0].replace('-', '_') for x in
-            glob.glob(P('viewer/hyphenate/patterns/*.js',
-                allow_user_override=False))]
+        with zipfile.ZipFile(P('viewer/hyphenate/patterns.zip',
+            allow_user_override=False), 'r') as zf:
+            pats = [x.split('.')[0].replace('-', '_') for x in zf.namelist()]
         names = list(map(get_language, pats))
         pmap = {}
         for i in range(len(pats)):
@@ -143,6 +149,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
         c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
         c.set('page_flip_duration', self.opt_page_flip_duration.value())
+        c.set('font_magnification_step',
+                float(self.opt_font_mag_step.value())/100.)
         idx = self.hyphenate_default_lang.currentIndex()
         c.set('hyphenate_default_lang',
                 str(self.hyphenate_default_lang.itemData(idx).toString()))
@@ -163,22 +171,27 @@ class Document(QWebPage): # {{{
         settings.setFontFamily(QWebSettings.SerifFont, opts.serif_family)
         settings.setFontFamily(QWebSettings.SansSerifFont, opts.sans_family)
         settings.setFontFamily(QWebSettings.FixedFont, opts.mono_family)
+        settings.setAttribute(QWebSettings.ZoomTextOnly, True)
 
     def do_config(self, parent=None):
         d = ConfigDialog(self.shortcuts, parent)
         if d.exec_() == QDialog.Accepted:
-            self.set_font_settings()
-            self.set_user_stylesheet()
-            self.misc_config()
-            self.after_load()
+            with self.page_position:
+                self.set_font_settings()
+                self.set_user_stylesheet()
+                self.misc_config()
+                self.after_load()
 
-    def __init__(self, shortcuts, parent=None, resize_callback=lambda: None):
+    def __init__(self, shortcuts, parent=None, resize_callback=lambda: None,
+            debug_javascript=False):
         QWebPage.__init__(self, parent)
         self.setObjectName("py_bridge")
-        self.debug_javascript = False
+        self.debug_javascript = debug_javascript
         self.resize_callback = resize_callback
         self.current_language = None
         self.loaded_javascript = False
+        self.js_loader = JavaScriptLoader(
+                    dynamic_coffeescript=self.debug_javascript)
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
@@ -186,6 +199,7 @@ class Document(QWebPage): # {{{
         pal = self.palette()
         pal.setBrush(QPalette.Background, QColor(0xee, 0xee, 0xee))
         self.setPalette(pal)
+        self.page_position = PagePosition(self)
 
         settings = self.settings()
 
@@ -223,6 +237,7 @@ class Document(QWebPage): # {{{
         self.do_fit_images = opts.fit_images
         self.page_flip_duration = opts.page_flip_duration
         self.enable_page_flip = self.page_flip_duration > 0.1
+        self.font_magnification_step = opts.font_magnification_step
         self.wheel_flips_pages = opts.wheel_flips_pages
 
     def fit_images(self):
@@ -234,8 +249,6 @@ class Document(QWebPage): # {{{
         self.loaded_javascript = False
 
     def load_javascript_libraries(self):
-        global bookmarks, referencing, hyphenation, jquery, jquery_scrollTo, \
-                hyphenator, images, hyphen_pats
         if self.loaded_javascript:
             return
         self.loaded_javascript = True
@@ -245,48 +258,8 @@ class Document(QWebPage): # {{{
                 window.py_bridge.window_resized();
             }
             ''')
-        if jquery is None:
-            jquery = P('content_server/jquery.js', data=True)
-        self.javascript(jquery)
-        if jquery_scrollTo is None:
-            jquery_scrollTo = P('viewer/jquery_scrollTo.js', data=True)
-        self.javascript(jquery_scrollTo)
-        if bookmarks is None:
-            bookmarks = P('viewer/bookmarks.js', data=True)
-        self.javascript(bookmarks)
-        if referencing is None:
-            referencing = P('viewer/referencing.js', data=True)
-        self.javascript(referencing)
-        if images is None:
-            images = P('viewer/images.js', data=True)
-        self.javascript(images)
-        if hyphenation is None:
-            hyphenation = P('viewer/hyphenation.js', data=True)
-        self.javascript(hyphenation)
-        default_lang = self.hyphenate_default_lang
-        lang = self.current_language
-        if not lang:
-            lang = default_lang
-        def lang_name(l):
-            if l == 'en':
-                l = 'en-us'
-            return l.lower().replace('_', '-')
-        if hyphenator is None:
-            hyphenator = P('viewer/hyphenate/Hyphenator.js', data=True).decode('utf-8')
-        if hyphen_pats is None:
-            hyphen_pats = []
-            for x in glob.glob(P('viewer/hyphenate/patterns/*.js',
-                allow_user_override=False)):
-                with open(x, 'rb') as f:
-                    hyphen_pats.append(f.read().decode('utf-8'))
-            hyphen_pats = u'\n'.join(hyphen_pats)
-
-        self.javascript(hyphenator+hyphen_pats)
-        p = P('viewer/hyphenate/patterns/%s.js'%lang_name(lang))
-        if not os.path.exists(p):
-            lang = default_lang
-            p = P('viewer/hyphenate/patterns/%s.js'%lang_name(lang))
-        self.loaded_lang = lang_name(lang)
+        self.loaded_lang = self.js_loader(self.mainFrame().evaluateJavaScript,
+                self.current_language, self.hyphenate_default_lang)
 
     @pyqtSignature("")
     def animated_scroll_done(self):
@@ -500,12 +473,10 @@ class DocumentView(QWebView): # {{{
     magnification_changed = pyqtSignal(object)
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
 
-    def __init__(self, *args):
-        QWebView.__init__(self, *args)
+    def initialize_view(self, debug_javascript=False):
         self.flipper = SlideFlip(self)
-        self.gestures = Gestures()
         self.is_auto_repeat_event = False
-        self.debug_javascript = False
+        self.debug_javascript = debug_javascript
         self.shortcuts =  Shortcuts(SHORTCUTS, 'shortcuts/viewer')
         self.self_closing_pat = re.compile(r'<([a-z1-6]+)\s+([^>]+)/>',
                 re.IGNORECASE)
@@ -514,7 +485,8 @@ class DocumentView(QWebView): # {{{
         self.initial_pos = 0.0
         self.to_bottom = False
         self.document = Document(self.shortcuts, parent=self,
-                resize_callback=self.viewport_resized)
+                resize_callback=self.viewport_resized,
+                debug_javascript=debug_javascript)
         self.setPage(self.document)
         self.manager = None
         self._reference_mode = False
@@ -537,6 +509,12 @@ class DocumentView(QWebView): # {{{
         self.dictionary_action.setShortcut(Qt.CTRL+Qt.Key_L)
         self.dictionary_action.triggered.connect(self.lookup)
         self.addAction(self.dictionary_action)
+        self.search_action = QAction(QIcon(I('dictionary.png')),
+                _('&Search for next occurrence'), self)
+        self.search_action.setShortcut(Qt.CTRL+Qt.Key_S)
+        self.search_action.triggered.connect(self.search_next)
+        self.addAction(self.search_action)
+
         self.goto_location_action = QAction(_('Go to...'), self)
         self.goto_location_menu = m = QMenu(self)
         self.goto_location_actions = a = {
@@ -565,6 +543,7 @@ class DocumentView(QWebView): # {{{
             else:
                 m.addAction(name, a[key], self.shortcuts.get_sequences(key)[0])
         self.goto_location_action.setMenu(self.goto_location_menu)
+        self.grabGesture(Qt.SwipeGesture)
 
     def goto_next_section(self, *args):
         if self.manager is not None:
@@ -620,6 +599,7 @@ class DocumentView(QWebView): # {{{
         text = unicode(self.selectedText())
         if text:
             menu.insertAction(list(menu.actions())[0], self.dictionary_action)
+            menu.insertAction(list(menu.actions())[0], self.search_action)
         menu.addSeparator()
         menu.addAction(self.goto_location_action)
         menu.exec_(ev.globalPos())
@@ -629,6 +609,12 @@ class DocumentView(QWebView): # {{{
             t = unicode(self.selectedText()).strip()
             if t:
                 self.manager.lookup(t.split()[0])
+
+    def search_next(self):
+        if self.manager is not None:
+            t = unicode(self.selectedText()).strip()
+            if t:
+                self.manager.search.set_search_string(t)
 
     def set_manager(self, manager):
         self.manager = manager
@@ -913,19 +899,25 @@ class DocumentView(QWebView): # {{{
     @dynamic_property
     def multiplier(self):
         def fget(self):
-            return self.document.mainFrame().textSizeMultiplier()
+            return self.zoomFactor()
         def fset(self, val):
-            self.document.mainFrame().setTextSizeMultiplier(val)
+            self.setZoomFactor(val)
             self.magnification_changed.emit(val)
         return property(fget=fget, fset=fset)
 
-    def magnify_fonts(self):
-        self.multiplier += 0.2
+    def magnify_fonts(self, amount=None):
+        if amount is None:
+            amount = self.document.font_magnification_step
+        with self.document.page_position:
+            self.multiplier += amount
         return self.document.scroll_fraction
 
-    def shrink_fonts(self):
-        if self.multiplier >= 0.2:
-            self.multiplier -= 0.2
+    def shrink_fonts(self, amount=None):
+        if amount is None:
+            amount = self.document.font_magnification_step
+        if self.multiplier >= amount:
+            with self.document.page_position:
+                self.multiplier -= amount
         return self.document.scroll_fraction
 
     def changeEvent(self, event):
@@ -943,6 +935,11 @@ class DocumentView(QWebView): # {{{
         painter.end()
 
     def wheelEvent(self, event):
+        mods = event.modifiers()
+        if mods & Qt.CTRL:
+            if self.manager is not None and event.delta() != 0:
+                (self.manager.font_size_larger if event.delta() > 0 else
+                        self.manager.font_size_smaller)()
         if event.delta() < -14:
             if self.document.wheel_flips_pages:
                 self.next_page()
@@ -1014,27 +1011,23 @@ class DocumentView(QWebView): # {{{
             self.manager.viewport_resized(self.scroll_fraction)
 
     def event(self, ev):
-        typ = ev.type()
-        if typ == ev.TouchBegin:
-            try:
-                self.gestures.start_gesture('touch', ev)
-            except:
-                import traceback
-                traceback.print_exc()
-        elif typ == ev.TouchEnd:
-            try:
-                gesture = self.gestures.end_gesture('touch', ev, self.rect())
-            except:
-                import traceback
-                traceback.print_exc()
-            if gesture is not None:
-                ev.accept()
-                if gesture == 'lineleft':
-                    self.next_page()
-                elif gesture == 'lineright':
-                    self.previous_page()
+        if ev.type() == ev.Gesture:
+            swipe = ev.gesture(Qt.SwipeGesture)
+            if swipe is not None:
+                self.handle_swipe(swipe)
                 return True
         return QWebView.event(self, ev)
+
+    def handle_swipe(self, swipe):
+        if swipe.state() == Qt.GestureFinished:
+            if swipe.horizontalDirection() == QSwipeGesture.Left:
+                self.previous_page()
+            elif swipe.horizontalDirection() == QSwipeGesture.Right:
+                self.next_page()
+            elif swipe.verticalDirection() == QSwipeGesture.Up:
+                self.goto_previous_section()
+            elif swipe.horizontalDirection() == QSwipeGesture.Down:
+                self.goto_next_section()
 
     def mouseReleaseEvent(self, ev):
         opos = self.document.ypos

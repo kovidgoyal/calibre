@@ -255,7 +255,7 @@ class LRXMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi', 'prc', 'azw', 'azw4'])
+    file_types  = set(['mobi', 'prc', 'azw', 'azw4', 'pobi'])
     description = _('Read metadata from %s files')%'MOBI'
 
     def get_metadata(self, stream, ftype):
@@ -545,16 +545,17 @@ from calibre.customize.profiles import input_profiles, output_profiles
 
 from calibre.devices.apple.driver import ITUNES
 from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
-from calibre.devices.blackberry.driver import BLACKBERRY
+from calibre.devices.blackberry.driver import BLACKBERRY, PLAYBOOK
 from calibre.devices.cybook.driver import CYBOOK, ORIZON
 from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
                 POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
                 BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
-                POCKETBOOK701, POCKETBOOK360P)
+                POCKETBOOK701, POCKETBOOK360P, PI2)
 from calibre.devices.iliad.driver import ILIAD
 from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
 from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
-from calibre.devices.kindle.driver import KINDLE, KINDLE2, KINDLE_DX
+from calibre.devices.kindle.driver import (KINDLE, KINDLE2, KINDLE_DX,
+        KINDLE_FIRE)
 from calibre.devices.nook.driver import NOOK, NOOK_COLOR
 from calibre.devices.prs505.driver import PRS505
 from calibre.devices.prst1.driver import PRST1
@@ -566,7 +567,7 @@ from calibre.devices.nuut2.driver import NUUT2
 from calibre.devices.iriver.driver import IRIVER_STORY
 from calibre.devices.binatone.driver import README
 from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
-        LIBREAIR)
+        LIBREAIR, ODYSSEY)
 from calibre.devices.edge.driver import EDGE
 from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
         SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
@@ -645,7 +646,7 @@ plugins += [
 plugins += [
     HANLINV3,
     HANLINV5,
-    BLACKBERRY,
+    BLACKBERRY, PLAYBOOK,
     CYBOOK,
     ORIZON,
     ILIAD,
@@ -656,9 +657,8 @@ plugins += [
     MIBUK,
     SHINEBOOK,
     POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701, POCKETBOOK360P,
-    KINDLE,
-    KINDLE2,
-    KINDLE_DX,
+    PI2,
+    KINDLE, KINDLE2, KINDLE_DX, KINDLE_FIRE,
     NOOK, NOOK_COLOR,
     PRS505, PRST1,
     ANDROID, S60, WEBOS,
@@ -690,7 +690,7 @@ plugins += [
     IPAPYRUS,
     EDGE,
     SNE,
-    ALEX,
+    ALEX, ODYSSEY,
     PALMPRE,
     KOBO,
     AZBOOKA,
@@ -840,7 +840,7 @@ class ActionCopyToLibrary(InterfaceActionBase):
 class ActionTweakEpub(InterfaceActionBase):
     name = 'Tweak ePub'
     actual_plugin = 'calibre.gui2.actions.tweak_epub:TweakEpubAction'
-    description = _('Make small tweaks to epub files in your calibre library')
+    description = _('Make small tweaks to epub or htmlz files in your calibre library')
 
 class ActionNextMatch(InterfaceActionBase):
     name = 'Next Match'
@@ -1156,6 +1156,26 @@ class StoreAmazonFRKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+class StoreAmazonITKindleStore(StoreBase):
+    name = 'Amazon IT Kindle'
+    author = 'Charles Haley'
+    description = u'eBook Kindle a prezzi incredibili'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_it_plugin:AmazonITKindleStore'
+
+    headquarters = 'IT'
+    formats = ['KINDLE']
+    affiliate = True
+
+class StoreAmazonESKindleStore(StoreBase):
+    name = 'Amazon ES Kindle'
+    author = 'Charles Haley'
+    description = u'eBook Kindle en España'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_es_plugin:AmazonESKindleStore'
+
+    headquarters = 'ES'
+    formats = ['KINDLE']
+    affiliate = True
+
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
     author = 'Charles Haley'
@@ -1384,6 +1404,17 @@ class StoreLibreDEStore(StoreBase):
     formats = ['EPUB', 'PDF']
     affiliate = True
 
+class StoreLitResStore(StoreBase):
+    name = 'LitRes'
+    description = u'ebooks from LitRes.ru'
+    actual_plugin = 'calibre.gui2.store.stores.litres_plugin:LitResStore'
+    author = 'Roman Mukhin'
+
+    drm_free_only = False
+    headquarters = 'RU'
+    formats = ['EPUB', 'TXT', 'RTF', 'HTML', 'FB2', 'LRF', 'PDF', 'MOBI', 'LIT', 'ISILO3', 'JAR', 'RB', 'PRC']
+    affiliate = True
+
 class StoreManyBooksStore(StoreBase):
     name = 'ManyBooks'
     description = u'Public domain and creative commons works from many sources.'
@@ -1477,6 +1508,7 @@ class StoreVirtualoStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'
@@ -1521,7 +1553,7 @@ class StoreWoblinkStore(StoreBase):
     actual_plugin = 'calibre.gui2.store.stores.woblink_plugin:WoblinkStore'
 
     headquarters = 'PL'
-    formats = ['EPUB']
+    formats = ['EPUB', 'PDF', 'WOBLINK']
 
 class XinXiiStore(StoreBase):
     name = 'XinXii'
@@ -1544,7 +1576,9 @@ plugins += [
     StoreArchiveOrgStore,
     StoreAmazonKindleStore,
     StoreAmazonDEKindleStore,
+    StoreAmazonESKindleStore,
     StoreAmazonFRKindleStore,
+    StoreAmazonITKindleStore,
     StoreAmazonUKKindleStore,
     StoreBaenWebScriptionStore,
     StoreBNStore,
@@ -1554,7 +1588,7 @@ plugins += [
     StoreChitankaStore,
     StoreDieselEbooksStore,
     StoreEbookNLStore,
-	StoreEbookpointStore,
+    StoreEbookpointStore,
     StoreEbookscomStore,
     StoreEBookShoppeUKStore,
     StoreEHarlequinStore,
@@ -1568,6 +1602,7 @@ plugins += [
     StoreKoboStore,
     StoreLegimiStore,
     StoreLibreDEStore,
+    StoreLitResStore,
     StoreManyBooksStore,
     StoreMobileReadStore,
     StoreNextoStore,

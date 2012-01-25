@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 
 import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
+
 from calibre.constants import __appname__, __version__, DEBUG
 from calibre import fit_image, confirm_config_name
 from calibre.constants import isosx, iswindows
@@ -207,6 +208,10 @@ class ITUNES(DriverBase):
     BACKLOADING_ERROR_MESSAGE = _(
         "Cannot copy books directly from iDevice. "
         "Drag from iTunes Library to desktop, then add to calibre's Library window.")
+    UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE = _(
+        "Unsupported direct connect mode. "
+        "See http://www.mobileread.com/forums/showthread.php?t=118559 "
+        "for instructions on using 'Connect to iTunes'")
 
     # Product IDs:
     #  0x1291   iPod Touch
@@ -217,6 +222,7 @@ class ITUNES(DriverBase):
     #  0x1297   iPhone 4
     #  0x129a   iPad
     #  0x129f   iPad2 (WiFi)
+    #  0x12a0   iPhone 4S
     #  0x12a2   iPad2 (GSM)
     #  0x12a3   iPad2 (CDMA)
     VENDOR_ID = [0x05ac]
@@ -805,9 +811,10 @@ class ITUNES(DriverBase):
         '''
         if DEBUG:
             self.log.info("ITUNES.get_file(): exporting '%s'" % path)
+
         outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
@@ -823,7 +830,7 @@ class ITUNES(DriverBase):
         '''
 
         if DEBUG:
-            self.log.info("ITUNES.open()")
+            self.log.info("ITUNES.open(connected_device: %s)" % repr(connected_device))
 
         # Display a dialog recommending using 'Connect to iTunes' if user hasn't
         # previously disabled the dialog
@@ -831,7 +838,7 @@ class ITUNES(DriverBase):
             raise AppleOpenFeedback(self)
         else:
             if DEBUG:
-                self.log.info(" advanced user mode, directly connecting to iDevice")
+                self.log.warning(" %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
@@ -1160,6 +1167,8 @@ class ITUNES(DriverBase):
                 added = pl.add(appscript.mactypes.File(fpath),to=pl)
                 if False:
                     self.log.info("  '%s' added to Device|Books" % metadata.title)
+
+                self._wait_for_writable_metadata(added)
                 return added
 
         elif iswindows:
@@ -1305,6 +1314,9 @@ class ITUNES(DriverBase):
         if DEBUG:
             self.log.info(" ITUNES._add_new_copy()")
 
+        if fpath.rpartition('.')[2].lower() == 'epub':
+            self._update_epub_metadata(fpath, metadata)
+
         db_added = None
         lb_added = None
 
@@ -1318,7 +1330,6 @@ class ITUNES(DriverBase):
             '''
             Unsupported direct-connect mode.
             '''
-            self.log.warning("  unsupported direct connect mode")
             db_added = self._add_device_book(fpath, metadata)
             lb_added = self._add_library_book(fpath, metadata)
             if not lb_added and DEBUG:
@@ -1386,16 +1397,17 @@ class ITUNES(DriverBase):
                         except:
                             if DEBUG:
                                 self.log.warning("  iTunes automation interface reported an error"
-                                                 " when adding artwork to '%s' in the iTunes Library" % metadata.title)
+                                                 " adding artwork to '%s' in the iTunes Library" % metadata.title)
                             pass
 
                     if db_added:
                         try:
                             db_added.artworks[1].data_.set(cover_data)
+                            self.log.info("   writing '%s' cover to iDevice" % metadata.title)
                         except:
                             if DEBUG:
                                 self.log.warning("  iTunes automation interface reported an error"
-                                                 " when adding artwork to '%s' on the iDevice" % metadata.title)
+                                                 " adding artwork to '%s' on the iDevice" % metadata.title)
                             #import traceback
                             #traceback.print_exc()
                             #from calibre import ipython
@@ -1409,10 +1421,16 @@ class ITUNES(DriverBase):
                         tmp_cover.write(cover_data)
 
                     if lb_added:
-                        if lb_added.Artwork.Count:
-                            lb_added.Artwork.Item(1).SetArtworkFromFile(tc)
-                        else:
-                            lb_added.AddArtworkFromFile(tc)
+                        try:
+                            if lb_added.Artwork.Count:
+                                lb_added.Artwork.Item(1).SetArtworkFromFile(tc)
+                            else:
+                                lb_added.AddArtworkFromFile(tc)
+                        except:
+                            if DEBUG:
+                                self.log.warning("  iTunes automation interface reported an error"
+                                                 " when adding artwork to '%s' in the iTunes Library" % metadata.title)
+                            pass
 
                     if db_added:
                         if db_added.Artwork.Count:
@@ -1935,7 +1953,7 @@ class ITUNES(DriverBase):
             return thumb_data
 
         if DEBUG:
-            self.log.info(" ITUNES._generate_thumbnail():")
+            self.log.info(" ITUNES._generate_thumbnail('%s'):" % title)
         if isosx:
 
             # Fetch the artwork from iTunes
@@ -2638,68 +2656,61 @@ class ITUNES(DriverBase):
 
         # Refresh epub metadata
         with open(fpath,'r+b') as zfo:
-            # Touch the OPF timestamp
-            try:
-                zf_opf = ZipFile(fpath,'r')
-                fnames = zf_opf.namelist()
-                opf = [x for x in fnames if '.opf' in x][0]
-            except:
-                raise UserFeedback("'%s' is not a valid EPUB" % metadata.title,
-                                   None,
-                                   level=UserFeedback.WARN)
+            if False:
+                try:
+                    zf_opf = ZipFile(fpath,'r')
+                    fnames = zf_opf.namelist()
+                    opf = [x for x in fnames if '.opf' in x][0]
+                except:
+                    raise UserFeedback("'%s' is not a valid EPUB" % metadata.title,
+                                       None,
+                                       level=UserFeedback.WARN)
 
-            opf_tree = etree.fromstring(zf_opf.read(opf))
-            md_els = opf_tree.xpath('.//*[local-name()="metadata"]')
-            if md_els:
-                ts = md_els[0].find('.//*[@name="calibre:timestamp"]')
-                if ts is not None:
-                    timestamp = ts.get('content')
-                    old_ts = parse_date(timestamp)
-                    metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
-                                               old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
-                    if DEBUG:
-                        self.log.info("   existing timestamp: %s" % metadata.timestamp)
+                #Touch the OPF timestamp
+                opf_tree = etree.fromstring(zf_opf.read(opf))
+                md_els = opf_tree.xpath('.//*[local-name()="metadata"]')
+                if md_els:
+                    ts = md_els[0].find('.//*[@name="calibre:timestamp"]')
+                    if ts is not None:
+                        timestamp = ts.get('content')
+                        old_ts = parse_date(timestamp)
+                        metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
+                                                   old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
+                        if DEBUG:
+                            self.log.info("   existing timestamp: %s" % metadata.timestamp)
+                    else:
+                        metadata.timestamp = now()
+                        if DEBUG:
+                            self.log.info("   add timestamp: %s" % metadata.timestamp)
+
                 else:
                     metadata.timestamp = now()
                     if DEBUG:
+                        self.log.warning("   missing <metadata> block in OPF file")
                         self.log.info("   add timestamp: %s" % metadata.timestamp)
-            else:
-                metadata.timestamp = now()
-                if DEBUG:
-                    self.log.warning("   missing <metadata> block in OPF file")
-                    self.log.info("   add timestamp: %s" % metadata.timestamp)
-            # Force the language declaration for iBooks 1.1
-            #metadata.language = get_lang().replace('_', '-')
 
-            # Updates from metadata plugboard (ignoring publisher)
-            metadata.language = metadata_x.language
-
-            if DEBUG:
-                if metadata.language != metadata_x.language:
-                    self.log.info("   rewriting language: <dc:language>%s</dc:language>" % metadata.language)
-
-            zf_opf.close()
+                zf_opf.close()
 
             # If 'News' in tags, tweak the title/author for friendlier display in iBooks
-            if _('News') in metadata.tags or \
-               _('Catalog') in metadata.tags:
-                if metadata.title.find('[') > 0:
-                    metadata.title = metadata.title[:metadata.title.find('[')-1]
+            if _('News') in metadata_x.tags or \
+               _('Catalog') in metadata_x.tags:
+                if metadata_x.title.find('[') > 0:
+                    metadata_x.title = metadata_x.title[:metadata_x.title.find('[')-1]
                 date_as_author = '%s, %s %s, %s' % (strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
-                metadata.author = metadata.authors = [date_as_author]
-                sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', metadata.title).rstrip()
-                metadata.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
+                metadata_x.author = metadata_x.authors = [date_as_author]
+                sort_author =  re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', metadata_x.title).rstrip()
+                metadata_x.author_sort = '%s %s' % (sort_author, strftime('%Y-%m-%d'))
 
             # Remove any non-alpha category tags
-            for tag in metadata.tags:
+            for tag in metadata_x.tags:
                 if not self._is_alpha(tag[0]):
-                    metadata.tags.remove(tag)
+                    metadata_x.tags.remove(tag)
 
             # If windows & series, nuke tags so series used as Category during _update_iTunes_metadata()
-            if iswindows and metadata.series:
-                metadata.tags = None
+            if iswindows and metadata_x.series:
+                metadata_x.tags = None
 
-            set_metadata(zfo, metadata, update_timestamp=True)
+            set_metadata(zfo, metadata_x, apply_null=True, update_timestamp=True)
 
     def _update_device(self, msg='', wait=True):
         '''
@@ -2759,6 +2770,7 @@ class ITUNES(DriverBase):
         # Update metadata from plugboard
         # If self.plugboard is None (no transforms), original metadata is returned intact
         metadata_x = self._xform_metadata_via_plugboard(metadata, this_book.format)
+
         if isosx:
             if lb_added:
                 lb_added.name.set(metadata_x.title)
@@ -2769,6 +2781,7 @@ class ITUNES(DriverBase):
                 lb_added.enabled.set(True)
                 lb_added.sort_artist.set(icu_title(metadata_x.author_sort))
                 lb_added.sort_name.set(metadata_x.title_sort)
+                lb_added.year.set(metadata_x.pubdate.year)
 
             if db_added:
                 db_added.name.set(metadata_x.title)
@@ -2779,6 +2792,7 @@ class ITUNES(DriverBase):
                 db_added.enabled.set(True)
                 db_added.sort_artist.set(icu_title(metadata_x.author_sort))
                 db_added.sort_name.set(metadata_x.title_sort)
+                db_added.year.set(metadata_x.pubdate.year)
 
             if metadata_x.comments:
                 if lb_added:
@@ -2826,6 +2840,8 @@ class ITUNES(DriverBase):
                                 break
 
                 if db_added:
+                    self.log.warning("  waiting for db_added to become writeable ")
+                    time.sleep(1.0)
                     # If no title_sort plugboard tweak, create sort_name from series/index
                     if metadata.title_sort == metadata_x.title_sort:
                         db_added.sort_name.set("%s %s" % (self.title_sorter(metadata_x.series), series_index))
@@ -2864,8 +2880,11 @@ class ITUNES(DriverBase):
                 lb_added.Enabled = True
                 lb_added.SortArtist = icu_title(metadata_x.author_sort)
                 lb_added.SortName = metadata_x.title_sort
+                lb_added.Year = metadata_x.pubdate.year
 
             if db_added:
+                self.log.warning("  waiting for db_added to become writeable ")
+                time.sleep(1.0)
                 db_added.Name = metadata_x.title
                 db_added.Album = metadata_x.title
                 db_added.Artist = authors_to_string(metadata_x.authors)
@@ -2874,6 +2893,7 @@ class ITUNES(DriverBase):
                 db_added.Enabled = True
                 db_added.SortArtist = icu_title(metadata_x.author_sort)
                 db_added.SortName = metadata_x.title_sort
+                db_added.Year = metadata_x.pubdate.year
 
             if metadata_x.comments:
                 if lb_added:
@@ -2971,6 +2991,32 @@ class ITUNES(DriverBase):
                         if db_added:
                             db_added.Genre = tag
                         break
+
+    def _wait_for_writable_metadata(self, db_added, delay=2.0):
+        '''
+        Ensure iDevice metadata is writable. Direct connect mode only
+        '''
+        if DEBUG:
+            self.log.info(" ITUNES._wait_for_writable_metadata()")
+            self.log.warning("  %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
+
+        attempts = 9
+        while attempts:
+            try:
+                if isosx:
+                    db_added.bpm.set(0)
+                elif iswindows:
+                    db_added.BPM = 0
+                break
+            except:
+                attempts -= 1
+                time.sleep(delay)
+                if DEBUG:
+                    self.log.warning("  waiting %.1f seconds for iDevice metadata to become writable (attempt #%d)" %
+                                     (delay, (10 - attempts)))
+        else:
+            if DEBUG:
+                self.log.error(" failed to write device metadata")
 
     def _xform_metadata_via_plugboard(self, book, format):
         ''' Transform book metadata from plugboard templates '''
@@ -3081,6 +3127,7 @@ class ITUNES_ASYNC(ITUNES):
                 for (i,book) in enumerate(library_books):
                     format = 'pdf' if library_books[book].kind().startswith('PDF') else 'epub'
                     this_book = Book(library_books[book].name(), library_books[book].artist())
+                    #this_book.path = library_books[book].location().path
                     this_book.path = self.path_template % (library_books[book].name(),
                                                            library_books[book].artist(),
                                                            format)
@@ -3215,7 +3262,7 @@ class ITUNES_ASYNC(ITUNES):
             only_presence=False):
         return self.connected, self
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
@@ -3230,7 +3277,7 @@ class ITUNES_ASYNC(ITUNES):
         we need to talk to iTunes to discover if there's a connected iPod
         '''
         if DEBUG:
-            self.log.info("ITUNES_ASYNC.open()")
+            self.log.info("ITUNES_ASYNC.open(connected_device: %s)" % repr(connected_device))
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):

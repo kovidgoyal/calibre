@@ -31,6 +31,7 @@ class Article(object):
         self._title = clean_ascii_chars(self._title)
         self.url = url
         self.author = author
+        self.toc_thumbnail = None
         if author and not isinstance(author, unicode):
             author = author.decode('utf-8', 'replace')
         self.summary = summary
@@ -88,8 +89,10 @@ URL         : %s
 Author      : %s
 Summary     : %s
 Date        : %s
+TOC thumb   : %s
 Has content : %s
-'''%(self.title, self.url, self.author, self.summary[:20]+'...', self.localtime.strftime('%a, %d %b, %Y %H:%M'),
+'''%(self.title, self.url, self.author, self.summary[:20]+'...',
+    self.toc_thumbnail, self.localtime.strftime('%a, %d %b, %Y %H:%M'),
      bool(self.content))).encode('utf-8')
 
     def __str__(self):

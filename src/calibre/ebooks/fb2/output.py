@@ -151,7 +151,7 @@ class FB2Output(OutputFormatPlugin):
                 'A value of "files" turns each file into a separate section; use this if your device is having trouble. '
                 'A value of "Table of Contents" turns the entries in the Table of Contents into titles and creates sections; '
                 'if it fails, adjust the "Structure Detection" and/or "Table of Contents" settings '
-                '(turn on "Force use of auto-generated Table of Contents).')),
+                '(turn on "Force use of auto-generated Table of Contents").')),
         OptionRecommendation(name='fb2_genre',
             recommended_value='antique', level=OptionRecommendation.LOW,
             choices=FB2_GENRES,

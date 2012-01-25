@@ -37,19 +37,20 @@ class Stage2(Command):
        if os.path.exists(build):
            shutil.rmtree(build)
 
-
-
 class Stage3(Command):
 
    description = 'Stage 3 of the publish process'
-   sub_commands = ['upload_user_manual', 'upload_demo', 'sdist',
-            'upload_to_sourceforge', 'upload_to_google_code',
-            'tag_release', 'upload_to_server',
-   ]
+   sub_commands = ['upload_user_manual', 'upload_demo', 'sdist']
 
 class Stage4(Command):
 
     description = 'Stage 4 of the publish process'
+    sub_commands = ['upload_installers']
+
+class Stage5(Command):
+
+    description = 'Stage 5 of the publish process'
+    sub_commands = ['tag_release', 'upload_to_server']
 
     def run(self, opts):
         subprocess.check_call('rm -rf build/* dist/*', shell=True)
@@ -57,7 +58,7 @@ class Stage4(Command):
 class Publish(Command):
 
     description = 'Publish a new calibre release'
-    sub_commands = ['stage1', 'stage2', 'stage3', 'stage4']
+    sub_commands = ['stage1', 'stage2', 'stage3', 'stage4', 'stage5', ]
 
 class Manual(Command):
 

@@ -42,9 +42,8 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
-    def search(self, query, max_results=10, timeout=60):
-        url = 'http://ebookpoint.pl/search.scgi?szukaj=' + urllib.quote(query) + '&serwisyall=0&x=0&y=0'
-        ebook_string = 'eBook.'
+    def search(self, query, max_results=25, timeout=60):
+        url = 'http://ebookpoint.pl/search.scgi?szukaj=' + urllib.quote_plus(query.decode('utf-8').encode('iso-8859-2')) + '&serwisyall=0&x=0&y=0'
 
         br = browser()
 
@@ -60,19 +59,19 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
                     continue
 
                 cover_url = ''.join(data.xpath('.//a[@class="cover"]/img/@src'))
-                title = ''.join(data.xpath('.//h3/a/text()'))
-                title = re.sub(ebook_string, '', title)
+                title = ''.join(data.xpath('.//h3/a/@title'))
+                title = re.sub('eBook.', '', title)
                 author = ''.join(data.xpath('.//p[@class="author"]/text()'))
                 price = ''.join(data.xpath('.//p[@class="price"]/ins/text()'))
 
                 with closing(br.open(id.strip(), timeout=timeout)) as nf:
                     idata = html.fromstring(nf.read())
-                    formats = ', '.join(idata.xpath('//div[@class="col-left"]/h2[contains(., "' + ebook_string + '")]/@class'))
+                    formats = ', '.join(idata.xpath('//dd[@class="radio-line"]/label/text()'))
 
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = 'http://ebookpoint.pl' + cover_url
+                s.cover_url = 'http://ebookpoint.pl' + re.sub('72x9', '65x8',cover_url)
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = re.sub(r'\.',',',price)

@@ -9,7 +9,8 @@ import os, shutil, time
 from functools import partial
 
 from calibre import isbytestring
-from calibre.constants import iswindows, isosx, plugins, filesystem_encoding
+from calibre.constants import (iswindows, isosx, plugins, filesystem_encoding,
+        islinux)
 
 recycle = None
 
@@ -19,10 +20,19 @@ if iswindows:
 elif isosx:
     u = plugins['usbobserver'][0]
     if hasattr(u, 'send2trash'):
-        def recycle(path):
+        def osx_recycle(path):
             if isbytestring(path):
                 path = path.decode(filesystem_encoding)
             u.send2trash(path)
+        recycle = osx_recycle
+elif islinux:
+    from calibre.utils.linux_trash import send2trash
+    def fdo_recycle(path):
+        if isbytestring(path):
+            path = path.decode(filesystem_encoding)
+        path = os.path.abspath(path)
+        send2trash(path)
+    recycle = fdo_recycle
 
 can_recycle = callable(recycle)
 

@@ -162,7 +162,7 @@ class DeviceManager(Thread): # {{{
             try:
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
-                dev.open(self.current_library_uuid)
+                dev.open(detected_device, self.current_library_uuid)
             except OpenFeedback as e:
                 if dev not in self.ejected_devices:
                     self.open_feedback_msg(dev.get_gui_name(), e)
@@ -206,6 +206,12 @@ class DeviceManager(Thread): # {{{
                 self.scanner.is_device_connected(self.connected_device,
                         only_presence=True)
             if not connected:
+                if DEBUG:
+                    # Allow the device subsystem to output debugging info about
+                    # why it thinks the device is not connected. Used, for e.g.
+                    # in the can_handle() method of the T1 driver
+                    self.scanner.is_device_connected(self.connected_device,
+                            only_presence=True, debug=True)
                 self.connected_device_removed()
         else:
             possibly_connected_devices = []
@@ -683,7 +689,7 @@ class DeviceMixin(object): # {{{
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
-                det_msg=autos
+                det_msg=autos, skip_dialog_name='auto_convert_before_send'
         )
 
     def set_default_thumbnail(self, height):
@@ -751,7 +757,7 @@ class DeviceMixin(object): # {{{
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
-                             'and or reboot.')).show()
+                             'or reboot.')).show()
                 return
         except:
             pass

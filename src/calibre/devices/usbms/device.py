@@ -591,26 +591,7 @@ class Device(DeviceConfig, DevicePlugin):
             mp = self.node_mountpoint(node)
             if mp is not None:
                 return mp, 0
-            if type == 'main':
-                label = self.MAIN_MEMORY_VOLUME_LABEL
-            if type == 'carda':
-                label = self.STORAGE_CARD_VOLUME_LABEL
-            if type == 'cardb':
-                label = self.STORAGE_CARD2_VOLUME_LABEL
-                if not label:
-                    label = self.STORAGE_CARD_VOLUME_LABEL + ' 2'
-            if not label:
-                label = 'E-book Reader (%s)'%type
-            extra = 0
-            while True:
-                q = ' (%d)'%extra if extra else ''
-                if not os.path.exists('/media/'+label+q):
-                    break
-                extra += 1
-            if extra:
-                label += ' (%d)'%extra
-
-            def do_mount(node, label):
+            def do_mount(node):
                 try:
                     from calibre.devices.udisks import mount
                     mount(node)
@@ -621,8 +602,7 @@ class Device(DeviceConfig, DevicePlugin):
                     traceback.print_exc()
                     return 1
 
-
-            ret = do_mount(node, label)
+            ret = do_mount(node)
             if ret != 0:
                 return None, ret
             return self.node_mountpoint(node)+'/', 0
@@ -847,38 +827,42 @@ class Device(DeviceConfig, DevicePlugin):
         self._card_b_prefix = None
 # ------------------------------------------------------
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         time.sleep(5)
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
-        if islinux:
-            try:
-                self.open_linux()
-            except DeviceError:
-                time.sleep(7)
-                self.open_linux()
-        if isfreebsd:
-            self._main_dev = self._card_a_dev = self._card_b_dev = None
-            try:
-                self.open_freebsd()
-            except DeviceError:
-                subprocess.Popen(["camcontrol", "rescan", "all"])
-                time.sleep(2)
-                self.open_freebsd()
-        if iswindows:
-            try:
-                self.open_windows()
-            except DeviceError:
-                time.sleep(7)
-                self.open_windows()
-        if isosx:
-            try:
-                self.open_osx()
-            except DeviceError:
-                time.sleep(7)
-                self.open_osx()
+        self.device_being_opened = connected_device
+        try:
+            if islinux:
+                try:
+                    self.open_linux()
+                except DeviceError:
+                    time.sleep(7)
+                    self.open_linux()
+            if isfreebsd:
+                self._main_dev = self._card_a_dev = self._card_b_dev = None
+                try:
+                    self.open_freebsd()
+                except DeviceError:
+                    subprocess.Popen(["camcontrol", "rescan", "all"])
+                    time.sleep(2)
+                    self.open_freebsd()
+            if iswindows:
+                try:
+                    self.open_windows()
+                except DeviceError:
+                    time.sleep(7)
+                    self.open_windows()
+            if isosx:
+                try:
+                    self.open_osx()
+                except DeviceError:
+                    time.sleep(7)
+                    self.open_osx()
 
-        self.current_library_uuid = library_uuid
-        self.post_open_callback()
+            self.current_library_uuid = library_uuid
+            self.post_open_callback()
+        finally:
+            self.device_being_opened = None
 
     def post_open_callback(self):
         pass

@@ -47,7 +47,7 @@ Overriding icons, templates, etcetera
 
 |app| allows you to override the static resources, like icons, templates, javascript, etc. with customized versions that you like.
 All static resources are stored in the resources sub-folder of the calibre install location. On Windows, this is usually
-:file:`C:\Program Files\Calibre2\resources`. On OS X, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On linux, if you are using the binary installer
+:file:`C:/Program Files/Calibre2/resources`. On OS X, :file:`/Applications/calibre.app/Contents/Resources/resources/`. On linux, if you are using the binary installer
 from the calibre website it will be :file:`/opt/calibre/resources`. These paths can change depending on where you choose to install |app|. 
 
 You should not change the files in this resources folder, as your changes will get overwritten the next time you update |app|. Instead, go to

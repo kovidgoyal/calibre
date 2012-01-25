@@ -44,6 +44,7 @@ class MessageBox(QDialog, Ui_Dialog): # {{{
         self.msg.setText(msg)
         self.det_msg.setPlainText(det_msg)
         self.det_msg.setVisible(False)
+        self.toggle_checkbox.setVisible(False)
 
         if show_copy_button:
             self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),

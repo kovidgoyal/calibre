@@ -11,9 +11,8 @@ import operator
 import math
 from collections import defaultdict
 from lxml import etree
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS
-from calibre.ebooks.oeb.base import CSS_MIME, OEB_STYLES
-from calibre.ebooks.oeb.base import namespace, barename
+from calibre.ebooks.oeb.base import (XHTML, XHTML_NS, CSS_MIME, OEB_STYLES,
+        namespace, barename, XPath)
 from calibre.ebooks.oeb.stylizer import Stylizer
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
@@ -232,7 +231,10 @@ class CSSFlattener(object):
                     cssdict['text-align'] = val
             del node.attrib['align']
         if node.tag == XHTML('font'):
-            node.tag = XHTML('span')
+            tags = ['descendant::h:%s'%x for x in ('p', 'div', 'table', 'h1',
+                'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'dl', 'blockquote')]
+            tag = 'div' if XPath('|'.join(tags))(node) else 'span'
+            node.tag = XHTML(tag)
             if 'size' in node.attrib:
                 def force_int(raw):
                     return int(re.search(r'([0-9+-]+)', raw).group(1))
@@ -281,7 +283,10 @@ class CSSFlattener(object):
                 psize = fsize
             elif 'font-size' in cssdict or tag == 'body':
                 fsize = self.fmap[font_size]
-                cssdict['font-size'] = "%0.5fem" % (fsize / psize)
+                try:
+                    cssdict['font-size'] = "%0.5fem" % (fsize / psize)
+                except ZeroDivisionError:
+                    cssdict['font-size'] = '%.1fpt'%fsize
                 psize = fsize
 
         try:

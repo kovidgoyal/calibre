@@ -14,6 +14,7 @@ from functools import wraps, partial
 from calibre.db.locking import create_locks, RecordLock
 from calibre.db.fields import create_field
 from calibre.db.tables import VirtualTable
+from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import now
 
@@ -127,14 +128,8 @@ class Cache(object):
         if not formats:
             good_formats = None
         else:
-            good_formats = []
-            for f in formats:
-                try:
-                    mi.format_metadata[f] = self._format_metadata(book_id, f)
-                except:
-                    pass
-                else:
-                    good_formats.append(f)
+            mi.format_metadata = FormatMetadata(self, id, formats)
+            good_formats = FormatsList(formats, mi.format_metadata)
         mi.formats = good_formats
         mi.has_cover = _('Yes') if self._field_for('cover', book_id,
                 default_value=False) else ''

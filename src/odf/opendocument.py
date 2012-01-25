@@ -232,7 +232,9 @@ class OpenDocument:
         """
         for e in top.childNodes:
             if e.nodeType == element.Node.ELEMENT_NODE:
-                for styleref in ( (DRAWNS,u'style-name'),
+                for styleref in (
+                        (CHARTNS,u'style-name'),
+                        (DRAWNS,u'style-name'),
                         (DRAWNS,u'text-style-name'),
                         (PRESENTATIONNS,u'style-name'),
                         (STYLENS,u'data-style-name'),

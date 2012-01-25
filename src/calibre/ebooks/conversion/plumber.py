@@ -276,11 +276,11 @@ OptionRecommendation(name='duplicate_links_in_toc',
 
 OptionRecommendation(name='chapter',
         recommended_value="//*[((name()='h1' or name()='h2') and "
-              r"re:test(., 'chapter|book|section|part|prologue|epilogue\s+', 'i')) or @class "
+              r"re:test(., '\s*((chapter|book|section|part)\s+)|((prolog|prologue|epilogue)(\s+|$))', 'i')) or @class "
               "= 'chapter']", level=OptionRecommendation.LOW,
             help=_('An XPath expression to detect chapter titles. The default '
                 'is to consider <h1> or <h2> tags that contain the words '
-                '"chapter","book","section" or "part" as chapter titles as '
+                '"chapter","book","section", "prologue", "epilogue", or "part" as chapter titles as '
                 'well as any tags that have class="chapter". The expression '
                 'used must evaluate to a list of elements. To disable chapter '
                 'detection, use the expression "/". See the XPath Tutorial '

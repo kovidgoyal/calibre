@@ -701,7 +701,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             'as a comma-separated list of items, where each item is a period-'
             'separated list. Returns a new list made by first finding all the '
             'period-separated items, then for each such item extracting the '
-            'start_index` to the `end_index` components, then combining '
+            '`start_index` to the `end_index` components, then combining '
             'the results back together. The first component in a period-'
             'separated list has an index of zero. If an index is negative, '
             'then it counts from the end of the list. As a special case, an '
@@ -712,20 +712,26 @@ class BuiltinSubitems(BuiltinFormatterFunction):
             'value of "A.B.C, D.E.F", {#genre:subitems(0,1)} returns "A, D". '
             '{#genre:subitems(0,2)} returns "A.B, D.E"')
 
+    period_pattern = re.compile(r'(?<=[^\.\s])\.(?=[^\.\s])', re.U)
+
     def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index):
         if not val:
             return ''
         si = int(start_index)
         ei = int(end_index)
+        has_periods = '.' in val
         items = [v.strip() for v in val.split(',')]
         rv = set()
         for item in items:
-            component = item.split('.')
+            if has_periods and '.' in item:
+                components = self.period_pattern.split(item)
+            else:
+                components = [item]
             try:
                 if ei == 0:
-                    rv.add('.'.join(component[si:]))
+                    rv.add('.'.join(components[si:]))
                 else:
-                    rv.add('.'.join(component[si:ei]))
+                    rv.add('.'.join(components[si:ei]))
             except:
                 pass
         return ', '.join(sorted(rv, key=sort_key))
@@ -847,7 +853,7 @@ class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
     category = 'Iterating over values'
     __doc__ = doc = _('first_non_empty(value, value, ...) -- '
             'returns the first value that is not empty. If all values are '
-            'empty, then the empty value is returned.'
+            'empty, then the empty value is returned. '
             'You can have as many values as you want.')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
@@ -917,14 +923,13 @@ class BuiltinListUnion(BuiltinFormatterFunction):
     aliases = ['merge_lists']
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
-        l1 = [l.strip() for l in list1.split(separator) if l.strip()]
+        res = [l.strip() for l in list1.split(separator) if l.strip()]
         l2 = [l.strip() for l in list2.split(separator) if l.strip()]
-        lcl1 = set([icu_lower(l) for l in l1])
+        lcl1 = set([icu_lower(l) for l in res])
 
-        res = set(l1)
         for i in l2:
-            if icu_lower(i) not in lcl1:
-                res.add(i)
+            if icu_lower(i) not in lcl1 and i not in res:
+                res.append(i)
         if separator == ',':
             return ', '.join(res)
         return separator.join(res)
@@ -944,7 +949,7 @@ class BuiltinListDifference(BuiltinFormatterFunction):
 
         res = []
         for i in l1:
-            if icu_lower(i) not in l2:
+            if icu_lower(i) not in l2 and i not in res:
                 res.append(i)
         if separator == ',':
             return ', '.join(res)
@@ -963,10 +968,10 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
         l2 = set([icu_lower(l.strip()) for l in list2.split(separator) if l.strip()])
 
-        res = set()
+        res = []
         for i in l1:
-            if icu_lower(i) in l2:
-                res.add(i)
+            if icu_lower(i) in l2 and i not in res:
+                res.append(i)
         if separator == ',':
             return ', '.join(res)
         return separator.join(res)
@@ -1017,13 +1022,14 @@ class BuiltinListRe(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, src_list, separator, search_re, opt_replace):
         l = [l.strip() for l in src_list.split(separator) if l.strip()]
-        res = set()
+        res = []
         for item in l:
             if re.search(search_re, item, flags=re.I) is not None:
                 if opt_replace:
                     item = re.sub(search_re, opt_replace, item)
                 for i in [l.strip() for l in item.split(',') if l.strip()]:
-                    res.add(i)
+                    if i not in res:
+                        res.append(i)
         if separator == ',':
             return ', '.join(res)
         return separator.join(res)

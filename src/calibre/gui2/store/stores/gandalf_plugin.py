@@ -54,12 +54,12 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                cover_url = ''.join(data.xpath('.//img/@src'))
+                cover_url = ''.join(data.xpath('.//div[@class="info"]/h3/a/@id'))
                 title = ''.join(data.xpath('.//div[@class="info"]/h3/a/@title'))
-                formats = title.split()
-                formats = formats[-1]
+                formats = ''.join(data.xpath('.//div[@class="info"]/p[1]/text()'))
+                formats = re.findall(r'\((.*?)\)',formats)[0]
                 author = ''.join(data.xpath('.//div[@class="info"]/h4/text() | .//div[@class="info"]/h4/span/text()'))
-                price = ''.join(data.xpath('.//h3[@class="promocja"]/text()'))
+                price = ''.join(data.xpath('.//div[@class="options"]/h3/text()'))
                 price = re.sub('PLN', 'zł', price)
                 price = re.sub('\.', ',', price)
                 drm = data.xpath('boolean(.//div[@class="info" and contains(., "Zabezpieczenie: DRM")])')
@@ -67,7 +67,7 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = cover_url
+                s.cover_url = 'http://imguser.gandalf.com.pl/' + re.sub('p', 'p_', cover_url) + '.jpg'
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price

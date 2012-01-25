@@ -1,0 +1,61 @@
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class TVXS(BasicNewsRecipe):
+    title                  = 'TVXS'
+    __author__             = 'hargikas'
+    description            = 'News from Greece'
+    max_articles_per_feed  = 100
+    oldest_article         = 3
+    simultaneous_downloads = 1
+    publisher              = 'TVXS'
+    category               = 'news, GR'
+    language               = 'el'
+    encoding               = None
+    use_embedded_content = False
+    remove_empty_feeds = True
+    #conversion_options     = { 'linearize_tables': True}
+    no_stylesheets         = True
+    remove_tags_before     = dict(name='h1',attrs={'class':'print-title'})
+    remove_tags_after      = dict(name='div',attrs={'class':'field field-type-relevant-content field-field-relevant-articles'})
+    remove_attributes      = ['width', 'src', 'header', 'footer']
+
+
+    feeds = [(u'Ελλάδα', 'http://tvxs.gr/feeds/2/feed.xml'),
+        (u'Κόσμος', 'http://tvxs.gr/feeds/5/feed.xml'),
+        (u'Τοπικά Νέα', 'http://tvxs.gr/feeds/5363/feed.xml'),
+        (u'Sci Tech', 'http://tvxs.gr/feeds/26/feed.xml'),
+        (u'Αθλητικά', 'http://tvxs.gr/feeds/243/feed.xml'),
+        (u'Internet & ΜΜΕ', 'http://tvxs.gr/feeds/32/feed.xml'),
+        (u'Καλά Νέα', 'http://tvxs.gr/feeds/914/feed.xml'),
+        (u'Απόψεις', 'http://tvxs.gr/feeds/1109/feed.xml'),
+        (u'Πολιτισμός', 'http://tvxs.gr/feeds/1317/feed.xml'),
+        (u'Greenlife', 'http://tvxs.gr/feeds/3/feed.xml'),
+        (u'Ιστορία', 'http://tvxs.gr/feeds/1573/feed.xml'),
+        (u'Χιούμορ', 'http://tvxs.gr/feeds/692/feed.xml')]
+
+
+    def print_version(self, url):
+        import urllib2, urlparse, StringIO, gzip
+
+        fp = urllib2.urlopen(url)
+        data = fp.read()
+        if fp.info()['content-encoding'] == 'gzip':
+            gzip_data = StringIO.StringIO(data)
+            gzipper = gzip.GzipFile(fileobj=gzip_data)
+            data = gzipper.read()
+        fp.close()
+
+        pos_1 = data.find('<a href="/print/')
+        if pos_1 == -1:
+            return url
+        pos_2 = data.find('">', pos_1)
+        if pos_2 == -1:
+            return url
+
+        pos_1 += len('<a href="')
+        new_url = data[pos_1:pos_2]
+
+        print_url = urlparse.urljoin(url, new_url)
+        return print_url

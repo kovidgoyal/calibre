@@ -77,7 +77,8 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
 
         result = False
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
+            raw = xml_to_unicode(f.read(), verbose=True)[0]
+            doc = html.fromstring(raw)
             
             # example where we are going to find formats
             # <div class="l">
@@ -88,7 +89,7 @@ class OzonRUStore(BasicStoreConfig, StorePlugin):
             # <div class="l">
             #     <p>.epub, .fb2.zip, .pdf</p>
             # </div>
-            xpt = u'normalize-space(//div[contains(@class, "product-detail")]//*[contains(normalize-space(text()), "Доступ")]/ancestor-or-self::div[1]/following-sibling::div[1]/*[1])'
+            xpt = u'normalize-space(//div[contains(@id, "saleBlock")]//*[contains(normalize-space(text()), "Доступ")]/ancestor-or-self::div[1]/following-sibling::div[1]/*[1])'
             formats = doc.xpath(xpt)
             if formats:
                 result = True

@@ -12,7 +12,7 @@ from PyQt4.Qt import QDialog, QApplication
 from calibre.gui2.dialogs.add_from_isbn_ui import Ui_Dialog
 from calibre.ebooks.metadata import check_isbn
 from calibre.constants import iswindows
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, question_dialog, error_dialog
 
 class AddFromISBN(QDialog, Ui_Dialog):
 
@@ -44,6 +44,7 @@ class AddFromISBN(QDialog, Ui_Dialog):
         tags = list(filter(None, [x.strip() for x in tags]))
         gprefs['add from ISBN tags'] = tags
         self.set_tags = tags
+        bad = set()
         for line in unicode(self.isbn_box.toPlainText()).strip().splitlines():
             line = line.strip()
             if not line:
@@ -64,5 +65,19 @@ class AddFromISBN(QDialog, Ui_Dialog):
                         os.access(parts[1], os.R_OK) and os.path.isfile(parts[1]):
                         book['path'] = parts[1]
                     self.books.append(book)
+            else:
+                bad.add(parts[0])
+        if bad:
+            if self.books:
+                if not question_dialog(self, _('Some invalid ISBNs'),
+                    _('Some of the ISBNs you entered were invalid. They will'
+                        ' be ignored. Click Show Details to see which ones.'
+                        ' Do you want to proceed?'), det_msg='\n'.join(bad),
+                    show_copy_button=True):
+                    return
+            else:
+                return error_dialog(self, _('All invalid ISBNs'),
+                        _('All the ISBNs you entered were invalid. No books'
+                            ' can be added.'), show=True)
         QDialog.accept(self, *args)
 

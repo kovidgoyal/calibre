@@ -109,6 +109,9 @@ class MetadataSingleDialogBase(ResizableDialog):
     def create_basic_metadata_widgets(self): # {{{
         self.basic_metadata_widgets = []
 
+        self.languages = LanguagesEdit(self)
+        self.basic_metadata_widgets.append(self.languages)
+
         self.title = TitleEdit(self)
         self.title.textChanged.connect(self.update_window_title)
         self.deduce_title_sort_button = QToolButton(self)
@@ -119,7 +122,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.deduce_title_sort_button.setWhatsThis(
                 self.deduce_title_sort_button.toolTip())
         self.title_sort = TitleSortEdit(self, self.title,
-                self.deduce_title_sort_button)
+                self.deduce_title_sort_button, self.languages)
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
         self.deduce_author_sort_button = b = QToolButton(self)
@@ -203,9 +206,6 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.publisher = PublisherEdit(self)
         self.basic_metadata_widgets.append(self.publisher)
 
-        self.languages = LanguagesEdit(self)
-        self.basic_metadata_widgets.append(self.languages)
-
         self.timestamp = DateEdit(self)
         self.pubdate = PubdateEdit(self)
         self.basic_metadata_widgets.extend([self.timestamp, self.pubdate])
@@ -281,7 +281,6 @@ class MetadataSingleDialogBase(ResizableDialog):
             self.set_current_callback(id_)
         # Commented out as it doesn't play nice with Next, Prev buttons
         #self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
-
 
     # Miscellaneous interaction methods {{{
     def update_window_title(self, *args):
@@ -377,6 +376,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         if not mi.is_null('series') and mi.series.strip():
             self.series.current_val = mi.series
             if mi.series_index is not None:
+                self.series_index.reset_original()
                 self.series_index.current_val = float(mi.series_index)
         if not mi.is_null('languages'):
             langs = [canonicalize_lang(x) for x in mi.languages]

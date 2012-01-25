@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import re
+
 from calibre.devices.usbms.driver import USBMS
 
 class IRIVER_STORY(USBMS):
@@ -25,7 +27,9 @@ class IRIVER_STORY(USBMS):
 
     VENDOR_NAME = 'IRIVER'
     WINDOWS_MAIN_MEM = ['STORY', 'STORY_EB05', 'STORY_WI-FI', 'STORY_EB07']
+    WINDOWS_MAIN_MEM = re.compile(r'(%s)&'%('|'.join(WINDOWS_MAIN_MEM)))
     WINDOWS_CARD_A_MEM = ['STORY', 'STORY_SD']
+    WINDOWS_CARD_A_MEM = re.compile(r'(%s)&'%('|'.join(WINDOWS_CARD_A_MEM)))
 
     #OSX_MAIN_MEM = 'Kindle Internal Storage Media'
     #OSX_CARD_A_MEM = 'Kindle Card Storage Media'

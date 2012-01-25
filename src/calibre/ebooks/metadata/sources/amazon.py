@@ -12,17 +12,19 @@ from urllib import urlencode
 from threading import Thread
 from Queue import Queue, Empty
 
-from lxml.html import soupparser, tostring
+from lxml.html import tostring
 
 from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
-from calibre.ebooks.metadata.sources.base import Source, Option
+from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
+        fixauthors)
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
 from calibre.utils.localization import canonicalize_lang
+from calibre.utils.soupparser import fromstring
 
 class Worker(Thread): # Get details {{{
 
@@ -199,7 +201,7 @@ class Worker(Thread): # Get details {{{
             return
 
         try:
-            root = soupparser.fromstring(clean_ascii_chars(raw))
+            root = fromstring(clean_ascii_chars(raw))
         except:
             msg = 'Failed to parse amazon details page: %r'%self.url
             self.log.exception(msg)
@@ -508,6 +510,15 @@ class Amazon(Source):
 
         return domain
 
+    def clean_downloaded_metadata(self, mi):
+        if mi.title and self.domain in ('com', 'uk'):
+            mi.title = fixcase(mi.title)
+        mi.authors = fixauthors(mi.authors)
+        if self.domain in ('com', 'uk'):
+            mi.tags = list(map(fixcase, mi.tags))
+        mi.isbn = check_isbn(mi.isbn)
+
+
     def create_query(self, log, title=None, authors=None, identifiers={}, # {{{
             domain=None):
         if domain is None:
@@ -623,7 +634,7 @@ class Amazon(Source):
 
         if found:
             try:
-                root = soupparser.fromstring(clean_ascii_chars(raw))
+                root = fromstring(clean_ascii_chars(raw))
             except:
                 msg = 'Failed to parse amazon page for query: %r'%query
                 log.exception(msg)
@@ -739,6 +750,14 @@ if __name__ == '__main__': # tests {{{
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
             isbn_test, title_test, authors_test)
     com_tests = [ # {{{
+
+            ( # # in title
+                {'title':'Expert C# 2008 Business Objects',
+                    'authors':['Lhotka']},
+                [title_test('Expert C# 2008 Business Objects', exact=True),
+                    authors_test(['Rockford Lhotka'])
+                    ]
+            ),
 
             (  # Description has links
                 {'identifiers':{'isbn': '9780671578275'}},

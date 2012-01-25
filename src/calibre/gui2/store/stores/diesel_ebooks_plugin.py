@@ -63,9 +63,6 @@ class DieselEbooksStore(BasicStoreConfig, StorePlugin):
                 a, b, id = id.partition('/item/')
 
                 cover_url = ''.join(data.xpath('div[@class="cover"]//img/@src'))
-                if cover_url.startswith('/'):
-                    cover_url = cover_url[1:]
-                cover_url = 'http://www.diesel-ebooks.com/' + cover_url
 
                 title = ''.join(data.xpath('.//div[@class="content"]//h2/text()'))
                 author = ''.join(data.xpath('//div[@class="content"]//div[@class="author"]/a/text()'))

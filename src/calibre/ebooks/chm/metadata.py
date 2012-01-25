@@ -6,13 +6,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re
+import re, codecs
 
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import string_to_authors, MetaInformation
 from calibre.utils.logging import default_log
 from calibre.ptempfile import TemporaryFile
+from calibre import force_unicode
 
 def _clean(s):
     return s.replace(u'\u00a0', u' ')
@@ -138,6 +139,13 @@ def get_metadata_from_reader(rdr):
         resolve_entities=True)[0])
 
     title = rdr.title
+    try:
+        x = rdr.GetEncoding()
+        codecs.lookup(x)
+        enc = x
+    except:
+        enc = 'cp1252'
+    title = force_unicode(title, enc)
     authors = _get_authors(home)
     mi = MetaInformation(title, authors)
     publisher = _get_publisher(home)

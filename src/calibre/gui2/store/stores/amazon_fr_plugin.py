@@ -38,7 +38,9 @@ class AmazonFRKindleStore(StorePlugin):
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
-            doc = html.fromstring(f.read().decode('latin-1', 'replace'))
+            # doc = html.fromstring(f.read().decode('latin-1', 'replace'))
+            # Apparently amazon.fr is responding in UTF-8 now
+            doc = html.fromstring(f.read())
 
             data_xpath = '//div[contains(@class, "result") and contains(@class, "product")]'
             format_xpath = './/span[@class="format"]/text()'

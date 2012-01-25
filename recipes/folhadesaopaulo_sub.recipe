@@ -8,31 +8,35 @@ class FSP(BasicNewsRecipe):
     __author__ = 'fluzao'
     description = u'Printed edition contents. UOL subscription required (Folha subscription currently not supported).' + \
                   u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes UOL.]'
-    INDEX = 'http://www1.folha.uol.com.br/fsp/indices/'
+
+    #found this to be the easiest place to find the index page (13-Nov-2011).
+    #  searching for the "Indice Geral" link
+    HOMEPAGE = 'http://www1.folha.uol.com.br/fsp/'
+    masthead_url = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
+
     language = 'pt'
     no_stylesheets = True
     max_articles_per_feed  = 40
     remove_javascript     = True
     needs_subscription = True
-    remove_tags_before = dict(name='b')
+
+    remove_tags_before = dict(name='p')
     remove_tags  = [dict(name='td', attrs={'align':'center'})]
     remove_attributes = ['height','width']
-    masthead_url = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
-
     # fixes the problem with the section names
     section_dict = {'cotidian' : 'cotidiano', 'ilustrad': 'ilustrada', \
                     'quadrin': 'quadrinhos' , 'opiniao' : u'opini\xE3o', \
                     'ciencia' : u'ci\xeancia' , 'saude' : u'sa\xfade', \
-                    'ribeirao' : u'ribeir\xE3o' , 'equilibrio' : u'equil\xedbrio'}
+                    'ribeirao' : u'ribeir\xE3o' , 'equilibrio' : u'equil\xedbrio', \
+                    'imoveis' : u'im\xf3veis', 'negocios' : u'neg\xf3cios', \
+                    'veiculos' : u've\xedculos', 'corrida' : 'folha corrida'}
 
     # this solves the problem with truncated content in Kindle
     conversion_options = {'linearize_tables' : True}
 
     # this bit removes the footer where there are links for Proximo Texto, Texto Anterior,
     #    Indice e Comunicar Erros
-    preprocess_regexps = [(re.compile(r'<BR><BR>Texto Anterior:.*<!--/NOTICIA-->',
-                                      re.DOTALL|re.IGNORECASE), lambda match: r''),
-                          (re.compile(r'<BR><BR>Pr&oacute;ximo Texto:.*<!--/NOTICIA-->',
+    preprocess_regexps = [(re.compile(r'<!--/NOTICIA-->.*Comunicar Erros</a>',
                                       re.DOTALL|re.IGNORECASE), lambda match: r'')]
 
     def get_browser(self):
@@ -49,7 +53,25 @@ class FSP(BasicNewsRecipe):
 
 
     def parse_index(self):
-        soup = self.index_to_soup(self.INDEX)
+        #Searching for the index page on the HOMEPAGE
+        hpsoup = self.index_to_soup(self.HOMEPAGE)
+        indexref = hpsoup.find('a', href=re.compile('^indices.*'))
+        self.log('--> tag containing the today s index: ', indexref)
+        INDEX = indexref['href']
+        INDEX = 'http://www1.folha.uol.com.br/fsp/'+INDEX
+        self.log('--> INDEX after extracting href and adding prefix: ', INDEX)
+        # ... and taking the opportunity to get the cover image link
+        coverurl = hpsoup.find('a', href=re.compile('^cp.*'))['href']
+        if coverurl:
+            self.log('--> tag containing the today s cover: ', coverurl)
+            coverurl = coverurl.replace('htm', 'jpg')
+            coverurl = 'http://www1.folha.uol.com.br/fsp/images/'+coverurl
+            self.log('--> coverurl after extracting href and adding prefix: ', coverurl)
+            self.cover_url = coverurl
+
+        #soup = self.index_to_soup(self.INDEX)
+        soup = self.index_to_soup(INDEX)
+
         feeds = []
         articles = []
         section_title = "Preambulo"
@@ -68,8 +90,12 @@ class FSP(BasicNewsRecipe):
                 self.log('--> new section title:   ', section_title)
             if strpost.startswith('<a href'):
                 url = post['href']
+                #this bit is kept if they ever go back to the old format (pre Nov-2011)
                 if url.startswith('/fsp'):
                     url = 'http://www1.folha.uol.com.br'+url
+                #
+                if url.startswith('http://www1.folha.uol.com.br/fsp'):
+                    #url = 'http://www1.folha.uol.com.br'+url
                     title = self.tag_to_string(post)
                     self.log()
                     self.log('--> post:  ', post)
@@ -82,15 +108,11 @@ class FSP(BasicNewsRecipe):
         # keeping the front page url
         minha_capa = feeds[0][1][1]['url']
 
-        # removing the 'Preambulo' section
+        # removing the first section (now called 'top')
         del feeds[0]
-
-        # creating the url for the cover image
-        coverurl = feeds[0][1][0]['url']
-        coverurl = coverurl.replace('/opiniao/fz', '/images/cp')
-        coverurl = coverurl.replace('01.htm', '.jpg')
-        self.cover_url = coverurl
 
         # inserting the cover page as the first article (nicer for kindle users)
         feeds.insert(0,(u'primeira p\xe1gina', [{'title':u'Primeira p\xe1gina' , 'url':minha_capa}]))
         return feeds
+
+

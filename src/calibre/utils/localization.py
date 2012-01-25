@@ -29,7 +29,7 @@ def get_lang():
     from calibre.utils.config_base import prefs
     lang = prefs['language']
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
-    if lang is not None:
+    if lang:
         return lang
     try:
         lang = locale.getdefaultlocale(['LANGUAGE', 'LC_ALL', 'LC_CTYPE',
@@ -47,7 +47,7 @@ def get_lang():
             lang = match.group()
     if lang == 'zh':
         lang = 'zh_CN'
-    if lang is None:
+    if not lang:
         lang = 'en'
     return lang
 
@@ -70,16 +70,25 @@ def set_translators():
     # To test different translations invoke as
     # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
     lang = get_lang()
+    t = None
+
     if lang:
         buf = iso639 = None
         mpath = get_lc_messages_path(lang)
         if mpath and os.access(mpath+'.po', os.R_OK):
             from calibre.translations.msgfmt import make
             buf = cStringIO.StringIO()
-            make(mpath+'.po', buf)
-            buf = cStringIO.StringIO(buf.getvalue())
+            try:
+                make(mpath+'.po', buf)
+            except:
+                print (('Failed to compile translations file: %s,'
+                        ' ignoring')%(mpath+'.po'))
+                buf = None
+            else:
+                buf = cStringIO.StringIO(buf.getvalue())
 
         if mpath is not None:
+            from zipfile import ZipFile
             with ZipFile(P('localization/locales.zip',
                 allow_user_override=False), 'r') as zf:
                 if buf is None:
@@ -92,17 +101,16 @@ def set_translators():
                 except:
                     pass # No iso639 translations for this lang
 
-        t = None
         if buf is not None:
             t = GNUTranslations(buf)
             if iso639 is not None:
                 iso639 = GNUTranslations(iso639)
                 t.add_fallback(iso639)
 
-        if t is None:
-            t = NullTranslations()
+    if t is None:
+        t = NullTranslations()
 
-        t.install(unicode=True, names=('ngettext',))
+    t.install(unicode=True, names=('ngettext',))
 
 _iso639 = None
 _extra_lang_codes = {
@@ -113,7 +121,10 @@ _extra_lang_codes = {
         'zh_TW' : _('Traditional Chinese'),
         'en'    : _('English'),
         'en_AU' : _('English (Australia)'),
+        'en_JP' : _('English (Japan)'),
+        'en_DE' : _('English (Germany)'),
         'en_BG' : _('English (Bulgaria)'),
+        'en_EG' : _('English (Egypt)'),
         'en_NZ' : _('English (New Zealand)'),
         'en_CA' : _('English (Canada)'),
         'en_GR' : _('English (Greece)'),

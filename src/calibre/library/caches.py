@@ -15,7 +15,8 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.date import parse_date, now, UNDEFINED_DATE, clean_date_for_sort
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.utils.localization import canonicalize_lang, lang_map
+from calibre.utils.localization import (canonicalize_lang, lang_map, get_udc,
+        get_lang)
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
@@ -215,8 +216,13 @@ class ResultCache(SearchQueryParser): # {{{
     '''
     def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
+        l = get_lang()
+        asciize_author_names = l and l.lower() in ('en', 'eng')
+        if not asciize_author_names:
+            self.ascii_name = lambda x: False
         self.db_prefs = db_prefs
         self.composites = {}
+        self.udc = get_udc()
         for key in field_metadata:
             if field_metadata[key]['datatype'] == 'composite':
                 self.composites[field_metadata[key]['rec_index']] = key
@@ -260,6 +266,15 @@ class ResultCache(SearchQueryParser): # {{{
             yield x[idx]
 
     # Search functions {{{
+
+    def ascii_name(self, name):
+        try:
+            ans = self.udc.decode(name)
+            if ans == name:
+                ans = False
+        except:
+            ans = False
+        return ans
 
     def universal_set(self):
         return set([i[0] for i in self._data if i is not None])
@@ -734,6 +749,8 @@ class ResultCache(SearchQueryParser): # {{{
                 else:
                     q = query
 
+                au_loc = self.FIELD_MAP['authors']
+
                 for id_ in candidates:
                     item = self._data[id_]
                     if item is None: continue
@@ -776,6 +793,9 @@ class ResultCache(SearchQueryParser): # {{{
                     if loc not in exclude_fields: # time for text matching
                         if is_multiple_cols[loc] is not None:
                             vals = [v.strip() for v in item[loc].split(is_multiple_cols[loc])]
+                            if loc == au_loc:
+                                vals += filter(None, map(self.ascii_name,
+                                    vals))
                         else:
                             vals = [item[loc]] ### make into list to make _match happy
                         if _match(q, vals, matchkind):

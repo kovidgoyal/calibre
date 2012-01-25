@@ -11,17 +11,16 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Salon_com(BasicNewsRecipe):
     title = 'Salon.com'
-    __author__ = 'cix3'
+    __author__ = 'Kovid Goyal'
     description = 'Salon.com - Breaking news, opinion, politics, entertainment, sports and culture.'
     timefmt = ' [%b %d, %Y]'
     language = 'en'
 
     oldest_article = 7
     max_articles_per_feed = 100
-
-    remove_tags = [dict(name='div', attrs={'class':['ad_content', 'clearfix']}), dict(name='hr'), dict(name='img')]
-
-    remove_tags_before = dict(name='h2')
+    auto_cleanup = True
+    auto_cleanup_keep = '//div[@class="art"]'
+    remove_empty_feeds = True
 
     feeds = [
         ('News & Politics', 'http://feeds.salon.com/salon/news'),
@@ -40,5 +39,5 @@ class Salon_com(BasicNewsRecipe):
             ]
 
     def print_version(self, url):
-        return url.replace('/index.html', '/print.html')
+        return url + '/print/'
 

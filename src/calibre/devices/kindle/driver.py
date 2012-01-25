@@ -284,11 +284,11 @@ class KINDLE(USBMS):
 
 class KINDLE2(KINDLE):
 
-    name           = 'Kindle 2/3 Device Interface'
-    description    = _('Communicate with the Kindle 2/3 eBook reader.')
+    name           = 'Kindle 2/3/4/Touch Device Interface'
+    description    = _('Communicate with the Kindle 2/3/4/Touch eBook reader.')
 
-    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4']
-    DELETE_EXTS    = KINDLE.DELETE_EXTS
+    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
+    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr']
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
@@ -347,6 +347,18 @@ class KINDLE2(KINDLE):
                 if h in path_map:
                     book.device_collections = list(sorted(path_map[h]))
 
+    # Detect if the product family needs .apnx files uploaded to sidecar folder
+    def post_open_callback(self):
+        product_id = self.device_being_opened[1]
+        self.sidecar_apnx = False
+        if product_id > 0x3:
+            # Check if we need to put the apnx into a sidecar dir
+            for _, dirnames, _ in os.walk(self._main_prefix):
+                for x in dirnames:
+                    if x.endswith('.sdr'):
+                        self.sidecar_apnx = True
+                        return
+
     def upload_cover(self, path, filename, metadata, filepath):
         '''
         Hijacking this function to write the apnx file.
@@ -357,6 +369,13 @@ class KINDLE2(KINDLE):
 
         if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi', '.prc'):
             return
+
+        # Create the sidecar folder if necessary
+        if (self.sidecar_apnx):
+            path = os.path.join(os.path.dirname(filepath), filename+".sdr")
+
+            if not os.path.exists(path):
+                os.makedirs(path)
 
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
@@ -376,4 +395,21 @@ class KINDLE_DX(KINDLE2):
 
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
+
+class KINDLE_FIRE(KINDLE2):
+
+    name = 'Kindle Fire Device Interface'
+    description = _('Communicate with the Kindle Fire')
+    gui_name = 'Fire'
+
+    PRODUCT_ID = [0x0006]
+    BCD = [0x216, 0x100]
+
+    EBOOK_DIR_MAIN = 'Documents'
+    SUPPORTS_SUB_DIRS = False
+    SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS_FOR_SCAN = True
+    VENDOR_NAME = 'AMAZON'
+    WINDOWS_MAIN_MEM = 'KINDLE'
+
 
