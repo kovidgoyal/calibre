@@ -40,7 +40,7 @@ class PagePosition(object):
             self.document.mainFrame().evaluateJavaScript('''
                     function fix_scroll() {
                         /* cfi.scroll_to() uses scrollIntoView() which can result
-                           in scrolling to scrolling along the x-axis. So we
+                           in scrolling along the x-axis. So we
                            explicitly scroll to x=0.
                         */
                        scrollTo(0, window.pageYOffset)
