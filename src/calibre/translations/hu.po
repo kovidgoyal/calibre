@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-20 06:40+0000\n"
-"PO-Revision-Date: 2012-01-20 09:31+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2012-01-25 20:06+0000\n"
+"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-21 05:27+0000\n"
-"X-Generator: Launchpad (build 14700)\n"
+"X-Launchpad-Export-Date: 2012-01-26 05:26+0000\n"
+"X-Generator: Launchpad (build 14719)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -8641,11 +8641,11 @@ msgstr "„%s” törlése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:241
 msgid "Open Item Editor"
-msgstr ""
+msgstr "Elemszerkesztő megnyitása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:353
 msgid "Values changed"
-msgstr ""
+msgstr "Az értékek megváltoztak"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:354
 msgid ""
@@ -17681,8 +17681,8 @@ msgid ""
 "<h2>Congratulations!</h2> You have successfully setup calibre. Press the %s "
 "button to apply your settings."
 msgstr ""
-"<h2>Gratulálunk!</h2> Sikeresen beállította a calibre-t. Nyomja meg a %s "
-"billentyűt a beállítások érvényesítéséhez."
+"<h2>Gratulálunk!</h2> Sikeresen beállította a calibre-t. Kattintson a %s "
+"gombra a beállítások érvényesítéséhez."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:50
 msgid ""

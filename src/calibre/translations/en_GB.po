@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-20 06:40+0000\n"
-"PO-Revision-Date: 2012-01-14 10:07+0000\n"
-"Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
+"PO-Revision-Date: 2012-01-26 03:36+0000\n"
+"Last-Translator: Anthony Harrington <untaintableangel@hotmail.co.uk>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-21 05:39+0000\n"
-"X-Generator: Launchpad (build 14700)\n"
+"X-Launchpad-Export-Date: 2012-01-26 05:27+0000\n"
+"X-Generator: Launchpad (build 14719)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -264,8 +264,8 @@ msgid ""
 "file to the library."
 msgstr ""
 "Create a PMLZ archive containing the PML file and all images in the "
-"directory pmlname_img or images. This plugin is run every time you add a PML "
-"file to the library."
+"directory pmlname_img or images. This plug-in is run every time you add a "
+"PML file to the library."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:50
 msgid ""
@@ -448,7 +448,7 @@ msgstr "Search for books from different book sellers"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:877
 msgid "Get new calibre plugins or update your existing ones"
-msgstr "Get new Calibre plugins or update your existing ones"
+msgstr "Get new Calibre plug-ins or update your existing ones"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:896
 msgid "Look and Feel"
@@ -634,7 +634,7 @@ msgstr "Control how Calibre downloads ebook metadata from the net"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1080
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:278
 msgid "Plugins"
-msgstr "Plugins"
+msgstr "Plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1086
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -690,8 +690,8 @@ msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"If specified, the output plugin will try to create output that is as humanly "
-"legible as possible. May not have any effect for some output plugins."
+"If specified, the output plug-in will try to create output that is as human-"
+"readable as possible. May not have any effect for some output plug-ins."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:264
 #, python-format
@@ -865,15 +865,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr "Installed plugins"
+msgstr "Installed plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
-msgstr "Mapping for filetype plugins"
+msgstr "Mapping for filetype plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Local plugin customization"
-msgstr "Local plugin customisation"
+msgstr "Local plug-in customisation"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
@@ -881,12 +881,12 @@ msgstr "Disabled plugins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr "Enabled plugins"
+msgstr "Enabled plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:493
 #, python-format
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Initialisation of plugin %s failed with traceback:"
+msgstr "Initialisation of plug-in %s failed with traceback:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:540
 msgid ""
@@ -897,36 +897,37 @@ msgid ""
 msgstr ""
 "    %prog options\n"
 "\n"
-"    Customise calibre by loading external plugins.\n"
+"    Customise calibre by loading external plug-ins.\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:546
 msgid "Add a plugin by specifying the path to the zip file containing it."
-msgstr "Add a plugin by specifying the path to the zip file containing it."
+msgstr "Add a plug-in by specifying the path to the zip file containing it."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:548
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
-msgstr "Remove a custom plugin by name. Has no effect on builtin plugins"
+msgstr ""
+"Remove a custom plug-in by name. (Has no effect on built-in plug-ins.)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:550
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
-"Customise plugin. Specify name of plugin and customisation string separated "
-"by a comma."
+"Customise plug-in. Specify name of plug-in and customisation string, "
+"separated by a comma."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:552
 msgid "List all installed plugins"
-msgstr "List all installed plugins"
+msgstr "List all installed plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:554
 msgid "Enable the named plugin"
-msgstr "Enable the named plugin"
+msgstr "Enable the named plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:556
 msgid "Disable the named plugin"
-msgstr "Disable the named plugin"
+msgstr "Disable the named plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:272
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:281
@@ -1321,7 +1322,7 @@ msgstr "Communicate with the PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Communicate with the Infibeam Pi2 reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -2297,12 +2298,12 @@ msgstr ""
 "hyphen. Finally, if output_file has no extension, then it is treated as a "
 "directory and an \"open ebook\" (OEB) consisting of HTML files is written to "
 "that directory. These files are the files that would normally have been "
-"passed to the output plugin.\n"
+"passed to the output plug-in.\n"
 "\n"
-"After specifying the input and output file you can customise the conversion "
+"After specifying the input and output file, you can customise the conversion "
 "by specifying various options. The available options depend on the input and "
-"output file types. To get help on them specify the input and output file and "
-"then use the -h option.\n"
+"output file types. To get help on them, specify the input and output file "
+"and then use the -h option.\n"
 "\n"
 "For full documentation of the conversion system see\n"
 
@@ -3188,7 +3189,7 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
-"Specify the sectionization of elements. A value of \"nothing\" turns the "
+"Specify the sectionisation of elements. A value of \"nothing\" turns the "
 "book into a single section. A value of \"files\" turns each file into a "
 "separate section; use this if your device is having trouble. A value of "
 "\"Table of Contents\" turns the entries in the Table of Contents into titles "
@@ -3237,8 +3238,8 @@ msgid ""
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 msgstr ""
-"Normally this input plugin re-arranges all the input files into a standard "
-"folder hierarchy. Only use this option if you know what you are doing as it "
+"Normally this input plug-in rearranges all the input files into a standard "
+"folder hierarchy. Only use this option if you know what you are doing, as it "
 "can result in various nasty side effects in the rest of the conversion "
 "pipeline."
 
@@ -3277,7 +3278,7 @@ msgid ""
 "library."
 msgstr ""
 "Follow all local links in an HTML file and create a ZIP file containing all "
-"linked files. This plugin is run every time you add an HTML file to the "
+"linked files. This plug-in is run every time you add an HTML file to the "
 "library."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:60
@@ -4038,7 +4039,7 @@ msgid ""
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 msgstr ""
-"Ignore margins in the input document. If False, then the MOBI output plugin "
+"Ignore margins in the input document. If False, then the MOBI output plug-in "
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 
@@ -6002,7 +6003,7 @@ msgstr "O"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/plugin_updates.py:18
 msgid "Plugin Updater"
-msgstr "Plugin Updater"
+msgstr "Plug-in Updater"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
 msgid "Ctrl+P"
@@ -6019,7 +6020,7 @@ msgstr "Run welcome wizard"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Get plugins to enhance calibre"
-msgstr "Get plugins to enhance Calibre"
+msgstr "Get plug-ins to enhance Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:35
 msgid "Restart in debug mode"
@@ -7695,11 +7696,11 @@ msgstr "F&loats"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:191
 msgid "Removes foreground and background colors"
-msgstr "Removes foreground and background colors"
+msgstr "Removes foreground and background colours"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:192
 msgid "&Colors"
-msgstr "&Colors"
+msgstr "&Colours"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
@@ -7711,7 +7712,7 @@ msgid ""
 "color, font-family"
 msgstr ""
 "Comma separated list of CSS properties to remove. For example: display, "
-"color, font-family"
+"colour, font-family"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
@@ -8584,17 +8585,19 @@ msgstr "Clear '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:241
 msgid "Open Item Editor"
-msgstr ""
+msgstr "Open Item Editor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:353
 msgid "Values changed"
-msgstr ""
+msgstr "Values changed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:354
 msgid ""
 "You have changed the values. In order to use this editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
+"You have changed the values. In order to use this editor, you must either "
+"discard or apply these changes. Apply changes?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:379
 msgid " index:"
@@ -9360,7 +9363,7 @@ msgid ""
 "You can also customise the plugin locations using <b>Preferences -> "
 "Customise the toolbar</b>"
 msgstr ""
-"You can also customise the plugin locations using <b>Preferences -> "
+"You can also customise the plug-in locations using <b>Preferences -> "
 "Customise the toolbar</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
@@ -10348,7 +10351,7 @@ msgstr "Restart required"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:123
 msgid "You must restart Calibre before using this plugin!"
-msgstr "You must restart Calibre before using this plugin!"
+msgstr "You must restart Calibre before using this plug-in!"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:164
 #, python-format
@@ -10378,7 +10381,7 @@ msgstr "Update available"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 msgid "Plugin Name"
-msgstr "Plugin Name"
+msgstr "Plug-in Name"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:68
@@ -10408,7 +10411,7 @@ msgid ""
 "\n"
 "Right-click and choose Donate to reward: "
 msgstr ""
-"This plugin is FREE but you can reward the developer for their effort\n"
+"This plug-in is FREE but you can reward the developer for their effort\n"
 "by donating to them via PayPal.\n"
 "\n"
 "Right-click and choose Donate to reward: "
@@ -10423,7 +10426,7 @@ msgstr "Calibre upgrade required"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:392
 msgid "Plugin deprecated"
-msgstr "Plugin deprecated"
+msgstr "Plug-in deprecated"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:394
 msgid "New version available"
@@ -10435,7 +10438,7 @@ msgstr "Latest version installed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:427
 msgid "This plugin has been deprecated and should be uninstalled"
-msgstr "This plugin has been deprecated and should be uninstalled"
+msgstr "This plug-in has been deprecated and should be uninstalled"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:428
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:432
@@ -10449,25 +10452,25 @@ msgstr "Right-click to see more options"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:430
 #, python-format
 msgid "This plugin can only be installed on: %s"
-msgstr "This plugin can only be installed on: %s"
+msgstr "This plug-in can only be installed on: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:434
 #, python-format
 msgid "You must upgrade to at least Calibre %s before installing this plugin"
 msgstr ""
-"You must upgrade to at least Calibre %s before installing this plugin"
+"You must upgrade to at least Calibre %s before installing this plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:439
 msgid "You can install this plugin"
-msgstr "You can install this plugin"
+msgstr "You can install this plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:442
 msgid "A new version of this plugin is available"
-msgstr "A new version of this plugin is available"
+msgstr "A newer version of this plug-in is available"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:444
 msgid "This plugin is installed and up-to-date"
-msgstr "This plugin is installed and up-to-date"
+msgstr "This plug-in is installed and up-to-date"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:473
 msgid "Update Check Failed"
@@ -10475,19 +10478,19 @@ msgstr "Update Check Failed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:474
 msgid "Unable to reach the MobileRead plugins forum index page."
-msgstr "Unable to reach the MobileRead plugins forum index page."
+msgstr "Unable to reach the MobileRead plug-ins forum index page."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:481
 msgid "User plugins"
-msgstr "User Plugins"
+msgstr "User Plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:486
 msgid "User Plugins"
-msgstr "User Plugins"
+msgstr "User Plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:494
 msgid "Filter list of plugins"
-msgstr "Filter list of plugins"
+msgstr "Filter list of plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:512
 msgid "Description"
@@ -10501,16 +10504,16 @@ msgstr "&Install"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:536
 msgid "Install the selected plugin"
-msgstr "Install the selected plugin"
+msgstr "Install the selected plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:527
 msgid "&Customize plugin "
-msgstr "&Customise plugin "
+msgstr "&Customise plug-in "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:528
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:580
 msgid "Customize the options for this plugin"
-msgstr "Customise the options for this plugin"
+msgstr "Customise the options for this plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:540
 msgid "Version &History"
@@ -10518,29 +10521,29 @@ msgstr "Version &History"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:541
 msgid "Show history of changes to this plugin"
-msgstr "Show history of changes to this plugin"
+msgstr "Show history of changes to this plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:545
 msgid "Plugin &Forum Thread"
-msgstr "Plugin &Forum Thread"
+msgstr "Plug-in &Forum Thread"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:554
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:109
 msgid "Enable/&Disable plugin"
-msgstr "Enable/&Disable plugin"
+msgstr "Enable/&Disable plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:555
 msgid "Enable or disable this plugin"
-msgstr "Enable or disable this plugin"
+msgstr "Enable or disable this plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:559
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:111
 msgid "&Remove plugin"
-msgstr "&Remove plugin"
+msgstr "&Remove plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:560
 msgid "Uninstall the selected plugin"
-msgstr "Uninstall the selected plugin"
+msgstr "Uninstall the selected plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:569
 msgid "Donate to developer"
@@ -10548,17 +10551,17 @@ msgstr "Donate to developer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:570
 msgid "Donate to the developer of this plugin"
-msgstr "Donate to the developer of this plugin"
+msgstr "Donate to the developer of this plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:579
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:110
 msgid "&Customize plugin"
-msgstr "&Customise plugin"
+msgstr "&Customise plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:675
 #, python-format
 msgid "Are you sure you want to uninstall the <b>%s</b> plugin?"
-msgstr "Are you sure you want to uninstall the <b>%s</b> plugin?"
+msgstr "Are you sure you want to uninstall the <b>%s</b> plug-in?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:687
 #, python-format
@@ -10572,7 +10575,7 @@ msgid ""
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 msgstr ""
-"Installing plugins is a <b>security risk</b>. Plugins can contain a "
+"Installing plug-ins is a <b>security risk</b>. Plug-ins can contain a "
 "virus/malware. Only install it if you got it from a trusted source. Are you "
 "sure you want to proceed?"
 
@@ -10584,27 +10587,27 @@ msgstr "Locating zip file for %(name)s: %(link)s"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:709
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:746
 msgid "Install Plugin Failed"
-msgstr "Plugin installation failed"
+msgstr "Plug-in installation failed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:710
 #, python-format
 msgid "Unable to locate a plugin zip file for <b>%s</b>"
-msgstr "Unable to locate a plugin zip file for <b>%s</b>"
+msgstr "Unable to locate a plug-in zip file for <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:715
 #, python-format
 msgid "Downloading plugin zip attachment: %s"
-msgstr "Downloading plugin zip attachment: %s"
+msgstr "Downloading plug-in zip attachment: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:720
 #, python-format
 msgid "Installing plugin: %s"
-msgstr "Unable to locate a plugin zip file for <b>%s</b>"
+msgstr "Unable to locate a plug-in zip file for <b>%s</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:732
 #, python-format
 msgid "Plugin installed: %s"
-msgstr "Plugin installed: %s"
+msgstr "Plug-in installed: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:734
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:301
@@ -10612,8 +10615,8 @@ msgid ""
 "Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
 "have to restart calibre for the plugin to take effect."
 msgstr ""
-"Plugin <b>{0}</b> successfully installed under <b> {1} plugins</b>. You may "
-"have to restart calibre for the plugin to take effect."
+"Plug-in <b>{0}</b> successfully installed under <b> {1} plug-ins</b>. You "
+"may have to restart calibre for the plug-in to take effect."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:747
 msgid ""
@@ -10621,9 +10624,9 @@ msgid ""
 "uninstalled. Please post the error message in details below into the forum "
 "thread for this plugin and restart Calibre."
 msgstr ""
-"A problem occurred while installing this plugin. This plugin will now be "
-"uninstalled. Please post the error message in details below into the forum "
-"thread for this plugin and restart Calibre."
+"A problem occurred while installing this plug-in. This plug-in will now be "
+"uninstalled. Please post the error message from the details below into the "
+"forum thread for this plug-in and restart Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:772
 msgid "Version history missing"
@@ -10637,13 +10640,13 @@ msgstr "Unable to find the version history for %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:780
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:336
 msgid "Plugin not customizable"
-msgstr "Plugin not customizable"
+msgstr "Plug-in isn't customisable"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:781
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:337
 #, python-format
 msgid "Plugin: %s does not need customization"
-msgstr "Plugin: %s does not need customization"
+msgstr "Plug-in: %s does not need customisation"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:785
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:343
@@ -10656,18 +10659,18 @@ msgstr "Must restart"
 msgid ""
 "You must restart calibre before you can configure the <b>%s</b> plugin"
 msgstr ""
-"You must restart calibre before you can configure the <b>%s</b> plugin"
+"You must restart calibre before you can configure the <b>%s</b> plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:794
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:325
 msgid "Plugin cannot be disabled"
-msgstr "Plugin cannot be disabled"
+msgstr "Plug-in cannot be disabled"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:795
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:326
 #, python-format
 msgid "The plugin: %s cannot be disabled"
-msgstr "The plugin: %s cannot be disabled"
+msgstr "The plug-in: %s cannot be disabled"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:66
 msgid "Aborting..."
@@ -10749,8 +10752,8 @@ msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details. %s"
 msgstr ""
-"Restoring the database succeeded with some warnings click Show details to "
-"see the details. %s"
+"Restoring the database succeeded with some warnings. Click \"Show details\" "
+"to see the details. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
 #, python-format
@@ -12508,8 +12511,8 @@ msgid ""
 "Ignore custom plugins, useful if you installed a plugin that is preventing "
 "calibre from starting"
 msgstr ""
-"Ignore custom plugins, useful if you installed a plugin that is preventing "
-"calibre from starting"
+"Ignore custom plug-ins (useful if you installed a plug-in that is preventing "
+"calibre from starting.)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:44
 msgid ""
@@ -14210,8 +14213,8 @@ msgid ""
 "put. You must restart calibre for your changes to take effect.\n"
 msgstr ""
 "Copy these values to the clipboard, paste them into an editor, then enter "
-"them into the USER_DEVICE by customising the device plugin in Preferences-"
-">Plugins. Remember to also enter the folders where you want the books to be "
+"them into the USER_DEVICE by customising the device plug-in in Preferences-"
+">Plug-ins. Remember to also enter the folders where you want the books to be "
 "put. You must restart Calibre for your changes to take effect.\n"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:66
@@ -14562,7 +14565,7 @@ msgid ""
 "This plugin is useful only for <b>Chinese</b> language books. It can return "
 "incorrect results for books in English. Are you sure you want to enable it?"
 msgstr ""
-"This plugin is useful only for <b>Chinese</b> language books. It can return "
+"This plug-in is useful only for <b>Chinese</b> language books. It can return "
 "incorrect results for books in English. Are you sure you want to enable it?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:158
@@ -14904,7 +14907,7 @@ msgstr "%(plugin_type)s %(plugins)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:184
 msgid "plugins"
-msgstr "plugins"
+msgstr "plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:193
 msgid ""
@@ -14916,11 +14919,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:224
 msgid "Search for plugin"
-msgstr "Search for plugin"
+msgstr "Search for plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:234
 msgid "Could not find any matching plugins"
-msgstr "Could not find any matching plugins"
+msgstr "Could not find any matching plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:276
 msgid "files"
@@ -14928,54 +14931,54 @@ msgstr "files"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:277
 msgid "Add plugin"
-msgstr "Add plugin"
+msgstr "Add plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:309
 msgid "No valid plugin path"
-msgstr "No valid plugin path"
+msgstr "No valid plug-in path"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:310
 #, python-format
 msgid "%s is not a valid plugin path"
-msgstr "%s is not a valid plugin path"
+msgstr "%s is not a valid plug-in path"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:319
 #, python-format
 msgid "Select an actual plugin under <b>%s</b> to customize"
-msgstr "Select an actual plugin under <b>%s</b> to customise"
+msgstr "Select an actual plug-in under <b>%s</b> to customise"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:349
 msgid "Plugin <b>{0}</b> successfully removed"
-msgstr "Plugin <b>{0}</b> successfully removed"
+msgstr "Plug-in <b>{0}</b> successfully removed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:357
 msgid "Cannot remove builtin plugin"
-msgstr "Cannot remove builtin plugin"
+msgstr "Cannot remove built-in plug-in"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:358
 msgid " cannot be removed. It is a builtin plugin. Try disabling it instead."
 msgstr ""
-" cannot be removed. It is a builtin plugin. Try disabling it instead."
+" cannot be removed. It is a built-in plug-in. Try disabling it instead."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:106
 msgid ""
 "Here you can customize the behavior of Calibre by controlling what plugins "
 "it uses."
 msgstr ""
-"Here you can customise the behavior of Calibre by controlling what plugins "
-"it uses."
+"Here you can customise the behaviour of Calibre, by controlling what plug-"
+"ins it uses."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Get &new plugins"
-msgstr "Get &new plugins"
+msgstr "Get &new plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Check for &updated plugins"
-msgstr "Check for &updated plugins"
+msgstr "Check for &updated plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:114
 msgid "&Load plugin from file"
-msgstr "&Load plugin from file"
+msgstr "&Load plug-in from file"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:34
 msgid "Any custom field"
@@ -15297,9 +15300,10 @@ msgid ""
 "Send to Device button. This setting can be overriden for individual devices "
 "by customizing the device interface plugins in Preferences->Advanced->Plugins"
 msgstr ""
-"Here you can control how calibre will save your books when you click the "
-"Send to Device button. This setting can be overriden for individual devices "
-"by customising the device interface plugins in Preferences->Advanced->Plugins"
+"Here you can control how calibre will save your books, when you click the "
+"\"Send to Device\" button. This setting can be overridden for individual "
+"devices by customising the device interface plug-ins in Preferences-"
+">Advanced->Plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:440
@@ -15687,7 +15691,7 @@ msgstr "The context menu for the cover browser"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:235
 msgid "Click to choose toolbar or menu to customize"
-msgstr "Click to choose toolbar or menu to customize"
+msgstr "Click to choose toolbar or menu to customise"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:271
 msgid "Cannot add"
@@ -15712,8 +15716,8 @@ msgid ""
 "<p>The toolbar in calibre is different depending on whether a device is "
 "connected or not. Choose <b>which toolbar</b> you would like to customize:"
 msgstr ""
-"<p>The toolbar in calibre is different depending on whether a device is "
-"connected or not. Choose <b>which toolbar</b> you would like to customize:"
+"<p>The toolbar in calibre is different, depending on whether a device is "
+"connected or not. Choose <b>which toolbar</b> you would like to customise:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
@@ -15757,9 +15761,9 @@ msgid ""
 "these tweaks should be available on the website from where you downloaded "
 "the plugins."
 msgstr ""
-"Add/edit tweaks for any custom plugins you have installed. Documentation for "
-"these tweaks should be available on the website from where you downloaded "
-"the plugins."
+"Add/edit tweaks for any custom plug-ins you have installed. Documentation "
+"for these tweaks should be available on the website from where you "
+"downloaded the plug-ins."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks.py:324
 msgid "Search for tweak"
@@ -15798,11 +15802,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:56
 msgid "Edit tweaks for any custom plugins you have installed"
-msgstr "Edit tweaks for any custom plugins you have installed"
+msgstr "Edit tweaks for any custom plug-ins you have installed"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:57
 msgid "&Plugin tweaks"
-msgstr "&Plugin tweaks"
+msgstr "&Plug-in tweaks"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:77
 msgid "Edit tweak"
@@ -16814,12 +16818,12 @@ msgstr "&Get update"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:94
 msgid "Update &plugins"
-msgstr "Update &plugins"
+msgstr "Update &plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:153
 #, python-format
 msgid " (%d plugin updates)"
-msgstr " (%d plugin updates)"
+msgstr " (%d plug-in updates)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:156
 msgid "Update found"
@@ -16827,21 +16831,21 @@ msgstr "Update found"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:159
 msgid "updated plugins"
-msgstr "Updated plugins"
+msgstr "Updated plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:185
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:190
 msgid "Plugin Updates"
-msgstr "Plugin Updates"
+msgstr "Plug-in Updates"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:188
 #, python-format
 msgid "There are %d plugin updates available"
-msgstr "There are %d plugin updates available"
+msgstr "There are %d plug-in updates available"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/update.py:192
 msgid "Install and configure user plugins"
-msgstr "Install and configure user plugins"
+msgstr "Install and configure user plug-ins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/bookmarkmanager.py:43
 msgid "Edit bookmark"
@@ -20166,22 +20170,22 @@ msgstr ""
 "format_date(val, format_string) -- format the value, which must be a date, "
 "using the format_string, returning a string. The formatting codes are: d    "
 ": the day as number without a leading zero (1 to 31) dd   : the day as "
-"number with a leading zero (01 to 31) ddd  : the abbreviated localized day "
-"name (e.g. \"Mon\" to \"Sun\"). dddd : the long localized day name (e.g. "
+"number with a leading zero (01 to 31) ddd  : the abbreviated localised day "
+"name (e.g. \"Mon\" to \"Sun\"). dddd : the long localised day name (e.g. "
 "\"Monday\" to \"Sunday\"). M    : the month as number without a leading zero "
 "(1 to 12). MM   : the month as number with a leading zero (01 to 12) MMM  : "
-"the abbreviated localized month name (e.g. \"Jan\" to \"Dec\"). MMMM : the "
-"long localized month name (e.g. \"January\" to \"December\"). yy   : the "
+"the abbreviated localised month name (e.g. \"Jan\" to \"Dec\"). MMMM : the "
+"long localised month name (e.g. \"January\" to \"December\"). yy   : the "
 "year as two digit number (00 to 99). yyyy : the year as four digit number. h "
 "   : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm) "
 "hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm) "
 "m    : the minutes without a leading 0 (0 to 59) mm   : the minutes with a "
 "leading 0 (00 to 59) s    : the seconds without a leading 0 (0 to 59) ss   : "
 "the seconds with a leading 0 (00 to 59) ap   : use a 12-hour clock instead "
-"of a 24-hour clock, with \"ap\" replaced by the localized string for am or "
+"of a 24-hour clock, with \"ap\" replaced by the localised string for am or "
 "pm AP   : use a 12-hour clock instead of a 24-hour clock, with \"AP\" "
-"replaced by the localized string for AM or PM iso  : the date with time and "
-"timezone. Must be the only format present"
+"replaced by the localised string for AM or PM iso  : the date with time and "
+"timezone. Must be the only format present."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:780
 msgid "uppercase(val) -- return value of the field in upper case"
@@ -21061,8 +21065,8 @@ msgid ""
 "from books and the import plugin produces a value, than that value will\n"
 "be used irrespective of the setting of the tweak."
 msgstr ""
-"The algorithm used to assign a book added to an existing series a series "
-"number.\n"
+"The algorithm used to assign a series number to a book added to an existing "
+"series.\n"
 "New series numbers assigned using this tweak are always integer values, "
 "except\n"
 "if a constant non-integer is specified.\n"
@@ -21086,15 +21090,15 @@ msgstr ""
 "Set the use_series_auto_increment_tweak_when_importing tweak to True to\n"
 "use the above values when importing/adding books. If this tweak is set to\n"
 "False (the default) then the series number will be set to 1 if it is not\n"
-"explicitly set to during the import. If set to True, then the\n"
+"explicitly set during the import. If set to True, then the\n"
 "series index will be set according to the series_index_auto_increment "
 "setting.\n"
 "Note that the use_series_auto_increment_tweak_when_importing tweak is used\n"
 "only when a value is not provided during import. If the importing regular\n"
 "expression produces a value for series_index, or if you are reading "
 "metadata\n"
-"from books and the import plugin produces a value, than that value will\n"
-"be used irrespective of the setting of the tweak."
+"from books and the import plug-in produces a value, then that value will\n"
+"be used, irrespective of the setting of the tweak."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:43
 msgid "Add separator after completing an author name"
@@ -21456,6 +21460,23 @@ msgid ""
 "formatter function raw_field will return the base value for title and\n"
 "series regardless of the setting of this tweak."
 msgstr ""
+"Control how title and series names are formatted when saving to "
+"disk/sending\n"
+"to device. The behaviour depends on the field being processed. If "
+"processing\n"
+"title, then if this tweak is set to 'library_order', the title will be\n"
+"replaced with title_sort. If it is set to 'strictly_alphabetic', then the\n"
+"title will not be changed. If processing series, then if set to\n"
+"'library_order', articles such as 'The' and 'An' will be moved to the end. "
+"If\n"
+"set to 'strictly_alphabetic', the series will be sent without change.\n"
+"For example, if the tweak is set to library_order, \"The Lord of the "
+"Rings\"\n"
+"will become \"Lord of the Rings, The\". If the tweak is set to\n"
+"strictly_alphabetic, it would remain \"The Lord of the Rings\". Note that "
+"the\n"
+"formatter function raw_field will return the base value for title and\n"
+"series regardless of the setting of this tweak."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:203
 msgid "Set the list of words considered to be \"articles\" for sort strings"
