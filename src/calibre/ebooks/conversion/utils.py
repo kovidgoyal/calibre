@@ -157,7 +157,7 @@ class HeuristicProcessor(object):
 
         ITALICIZE_STYLE_PATS = [
             ur'(?msu)(?<=[\s>"“\'‘])_(?P<words>[^_]+)_',
-            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*>]+)/',
+            ur'(?msu)(?<=[\s>"“\'‘])/(?P<words>[^/\*><]+)/',
             ur'(?msu)(?<=[\s>"“\'‘])~~(?P<words>[^~]+)~~',
             ur'(?msu)(?<=[\s>"“\'‘])\*(?P<words>[^\*]+)\*',
             ur'(?msu)(?<=[\s>"“\'‘])~(?P<words>[^~]+)~',
@@ -172,8 +172,11 @@ class HeuristicProcessor(object):
         for word in ITALICIZE_WORDS:
             html = re.sub(r'(?<=\s|>)' + re.escape(word) + r'(?=\s|<)', '<i>%s</i>' % word, html)
 
+        def sub(mo):
+            return '<i>%s</i>'%mo.group('words')
+
         for pat in ITALICIZE_STYLE_PATS:
-            html = re.sub(pat, lambda mo: '<i>%s</i>' % mo.group('words'), html)
+            html = re.sub(pat, sub, html)
 
         return html
 
