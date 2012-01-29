@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-27 07:21+0000\n"
-"PO-Revision-Date: 2011-11-16 22:40+0000\n"
-"Last-Translator: mascot4M <Unknown>\n"
+"PO-Revision-Date: 2012-01-28 17:18+0000\n"
+"Last-Translator: viktorc <dinalt@email.cz>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2012-01-28 04:56+0000\n"
+"X-Launchpad-Export-Date: 2012-01-29 05:20+0000\n"
 "X-Generator: Launchpad (build 14727)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -273,6 +273,8 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Ak importovaný súbor obsahuje odkazy Markdown alebo Textile na obrázky, "
+"vytvorí TXTZ archív, ktorý bude spolu s obrázkami obsahovať aj súbor TXT."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
@@ -334,7 +336,7 @@ msgstr "Pridať knihy do Calibre alebo pripojeného zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Preniesť poznámky z pripojeného Kindle (experimentálne)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Generate a catalog of the books in your calibre library"
@@ -406,7 +408,7 @@ msgstr "Jednoducho nájsť knihy podobné momentálne označenej knihe"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
-msgstr ""
+msgstr "Prepnúť sa medzi rôznymi knižnicami Calibre a vykonať na nich údržbu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Copy books from the devce to your calibre library"
@@ -414,7 +416,7 @@ msgstr "Kopírovať knihy zo zariadenia do vašej Calibre knižnici"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Upraviť zbierky, do ktorých sú knihy vo Vašej čítačke radené"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Copy a book from one calibre library to another"
@@ -423,6 +425,7 @@ msgstr "Kopírovať knihy z vašej Calibre knižnice to inej"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Urobiť malé vylepšenia súborov epub, alebo htmlz vo Vašej knižnici Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid ""
@@ -623,7 +626,7 @@ msgstr "Download metaúdajov"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1075
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Nastaviť, ako Calibre sťahuje metadáta kníh z internetu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1080
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
@@ -840,7 +843,7 @@ msgstr "Tento profil je určený pre zariadenie Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Tento profil je určený pre Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -853,7 +856,7 @@ msgstr "Tento profil je určený pre Sanda Bambook."
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Tento profil je určený pre zariadenia rady PocketBook Pro 900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
@@ -929,6 +932,7 @@ msgstr "Deaktivovať modul podľa mena"
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
+"Cesta k priečinku knižnice je príliš dlhá. Musí mať menej ako %d znakov."
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:649
@@ -949,13 +953,13 @@ msgstr "Základné"
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:72
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1135
 msgid "Card A"
-msgstr ""
+msgstr "Karta A"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1137
 msgid "Card B"
-msgstr ""
+msgstr "Karta B"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
@@ -975,11 +979,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:227
 msgid "Communicate with S60 phones."
-msgstr "Komunikácia s S60 telefónmi"
+msgstr "Komunikácia s telefónmi S60"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:246
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Komunikácia s tabletmi WebOS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:48
 msgid ""
@@ -992,6 +996,14 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Ak si neželáte, aby Calibre rozpoznávalo Vaše Apple iZariadenie vždy, keď "
+"ho pripojíte k počítaču, kliknite na <b>Zakázať ovládač Apple</b>.</p><p>Na "
+"prenos kníh do Vášho iZariadenia potom kliknite na <b>Zakázať ovládač "
+"Apple</b> a následne postupujte podľa metódy 'Connect to iTunes' v <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>, pomocou menu <em>Pripojiť/Zdieľať</em>|<em>Pripojiť k "
+"iTunes</em>.</p><p>Povolenie ovládača Apple pre priame pripojenie k "
+"iZariadeniu je nepodporovaná funkcia len pre skúsených užívateľov.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:65
 msgid "Disable Apple driver"
@@ -1007,7 +1019,7 @@ msgstr "Použiť Seriu ako Kategóriu v iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "Povoliť použitie názvu série ako žáner v iTunes a kategóriu v iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Cache covers from iTunes/iBooks"
@@ -1016,6 +1028,8 @@ msgstr "Načítať obálky z iTunes/iBooks"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
 msgid "Enable to cache and display covers from iTunes/iBooks"
 msgstr ""
+"Povoliť ukladanie obálok z iTunes/iBooks do vyrovnávacej pamäte a ich "
+"zobrazovanie"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:125
 #, python-format
@@ -1023,6 +1037,8 @@ msgid ""
 "\"Copy files to iTunes Media folder %s\" is enabled in iTunes "
 "Preferences|Advanced"
 msgstr ""
+"\"Kopírovanie súborov do priečinka iTunes Media %s\" je povolené v "
+"Nastavenie iTunes|Pokročilé"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:127
 msgid ""
@@ -1058,6 +1074,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Nepodporovaný režim priameho pripojenia. Viď. "
+"http://www.mobileread.com/forums/showthread.php?t=118559 pre inštrukcie na "
+"použitie 'Pripojiť k iTunes'"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:376
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
@@ -1072,7 +1091,7 @@ msgstr "Aktualizácia zoznamu metadát zariadenia.."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3202
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d z %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:503
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1137
@@ -1133,7 +1152,7 @@ msgstr "Komunikácia s iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr "Komunikovať s Sanda Bambook eBook čítačkou."
+msgstr "Komunikácia s čítačkou Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -1236,11 +1255,11 @@ msgstr "Bambook SDK nebol nainštalovaný"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr "Komunikácia s Binatone Readme eBook reader."
+msgstr "Komunikácia s čítačkou Binatone Readme."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr "Komunikácia s telefónmi Blackberry."
+msgstr "Komunikácia so smartfónom Blackberry."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
@@ -1252,27 +1271,27 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Komunikácia s playbook-om Blackberry."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr "Komunikovať s BOEYE BEX Serial eBook readers."
+msgstr "Komunikácia s čítačkou BOEYE BEX Serial."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr "Komunikovať s BOEYE BDX serial eBook readers."
+msgstr "Komunikácie s čítačkou BOEYE BDX serial."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr "Komunikácia s Cybook Gen 3 / Opus eBook reader."
+msgstr "Komunikácia s čítačkou Cybook Gen 3 / Opus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr "Komunikovať s Cybook Orizon eBook reader."
+msgstr "Komunikácia s čítačkou Cybook Orizon."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:25
 msgid "Communicate with the EB600 eBook reader."
-msgstr "Komunikácia so zariadením EB600."
+msgstr "Komunikácia s čítačkou EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
@@ -1280,23 +1299,23 @@ msgstr "Komunikácia s Astak Mentor EB600."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr "Komunikácia s PocketBook 301 reader."
+msgstr "Komunikácia s čítačkou PocketBook 301."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr "Komunikovať s PocketBook 602/603/902/903 reader."
+msgstr "Komunikácia s čítačkou PocketBook 602/603/902/903."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Komunikácia s čítačkou PocketBook 360+."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:263
 msgid "Communicate with the PocketBook 701"
-msgstr "Komunikovať s PocketBook 701"
+msgstr "Komunikácia s PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Komunikácia s čítačkou Infibeam Pi2."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1308,11 +1327,11 @@ msgstr "Komunikácia s Entourage Edge."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr "Komunikácia s ESlick eBook reader."
+msgstr "Komunikácia s čítačkou ESlick."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr "Komunikácia s Sigmatek eBook reader."
+msgstr "Komunikácia s čítačkou Sigmatek."
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:33
@@ -1326,15 +1345,15 @@ msgstr "Rozhranie zariadenia."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr "Komunikácia s Hanlin V3 eBook čítačkami."
+msgstr "Komunikácia s čítačkami Hanlin V3."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:96
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr "Komunikácia s Hanlin V5 eBook readers."
+msgstr "Komunikácia s čítačkami Hanlin V5."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:114
 msgid "Communicate with the BOOX eBook reader."
-msgstr "Komunikácia s BOOX eBook reader."
+msgstr "Komunikácia s čítačkou BOOX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:133
 msgid ""
@@ -1346,35 +1365,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:22
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr "Komunikácia s Hanvon N520 eBook reader."
+msgstr "Komunikácia s čítačkou Hanvon N520."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:47
 msgid "Communicate with The Book reader."
-msgstr "Komunikácia s Book reader."
+msgstr "Komunikácia s čítačkou The Book."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Komunikácia s čítačkou Libre Air."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:72
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr "Komunikácia s SpringDesign Alex eBook reader."
+msgstr "Komunikácia s čítačkou SpringDesign Alex."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:132
 msgid "Communicate with the Azbooka"
-msgstr "Komunikácia s Azbooka."
+msgstr "Komunikácia so zariadením Azbooka."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:151
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr "Komunikácia s Elonex EB 511 eBook reader."
+msgstr "Komunikácia s čítačkou Elonex EB 511."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:171
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Komunikácia s čítačkou Cybook Odyssey."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr "Komunikácia s IRex Iliad eBook reader."
+msgstr "Komunikácia s čítačkou IRex Iliad."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
@@ -1388,7 +1407,7 @@ msgstr "Nie je možné získať súbory z tohto zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr "Komunikácia so zariadením Irex Digital Reader 1000."
+msgstr "Komunikácia s čítačkou Irex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
@@ -1396,24 +1415,24 @@ msgstr "Komunikácia s IRex Digital Reader 800"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:17
 msgid "Communicate with the Iriver Story reader."
-msgstr "Komunikácia s Iriver Story reader."
+msgstr "Komunikácia s čítačkou Iriver Story."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:20
 msgid "Communicate with the JetBook eBook reader."
-msgstr "Komunikácia so zariadením JetBook."
+msgstr "Komunikácia s čítačkou JetBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr "Komunikácia s MiBuk Wolder reader."
+msgstr "Komunikácia s čítačkou MiBuk Wolder."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr "Komunikovať s JetBook Mini reader."
+msgstr "Komunikácia s čítačkou JetBook Mini."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 #, python-format
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Nie je platný súbor typu MOBI. Správa identity %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."
@@ -1421,36 +1440,36 @@ msgstr "Nie je možné vygenerovať mapovanie stránok"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:46
 msgid "Communicate with the Kindle eBook reader."
-msgstr "Komunikácia so zariadením Amazon Kindle."
+msgstr "Komunikácia s čítačkou Amazon Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:186
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Posledná čítaná strana: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:192
 #, python-format
 msgid "%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Posledná čítaná strana: pozícia %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:211
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
-msgstr ""
+msgstr "<b>Pozícia %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:220
 #, python-format
 msgid "<b>Page %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Strana %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:225
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Pozícia %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:288
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Komunikácia s čítačkou Kindle 2/3/4/Touch."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
@@ -1463,6 +1482,10 @@ msgid ""
 "the Kindle when uploading MOBI files by USB. Note that the page numbers do "
 "not correspond to any paper book."
 msgstr ""
+"Kindle 3 a novšie dokážu používať informácie o čísle strany v súboroch MOBI. "
+"S touto voľbou Calibre vypočíta a pošle čísla strán do Kindle pri nahrávaní "
+"súborov MOBI cez USB. Tieto čísla strán však nezodpovedajú číslam v "
+"papierových knihách."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:304
 msgid "Use slower but more accurate page number generation"
@@ -1481,11 +1504,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:393
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr "Komunikácia s Kindle DX eBook reader."
+msgstr "Komunikácia s čítačkou Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:402
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Komunikácia s čítačkou Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -1493,15 +1516,15 @@ msgstr "Komunikácia s Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "The Kobo supports several collections including "
-msgstr ""
+msgstr "Kobo podporuje niekoľko zbierok vrátane "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
 msgid "Create tags for automatic management"
-msgstr ""
+msgstr "Vytvoriť značky pre automatickú správu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:59
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Odoslať obálky pre knihy (novšie čítačky)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:60
 msgid ""
@@ -1509,14 +1532,17 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you have modified the cover."
 msgstr ""
+"Čítačky KOBO obvykle získavajú obrázok obálky zo súboru eknihy. S touto "
+"voľbou odošle Calibre obrázok obálky zvlášť. Je to užitočné vtedy, ak ste "
+"obálku upravili."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Odoslať čiernobiele obálky"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "Zobraz knihy, ktoré vypršaly"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -1524,10 +1550,13 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Chyba v predchozích verziách spôsobila, že v databáze zostali ne-kepubs "
+"záznamy o knihách. S touto voľbou zobrazí Calibre vypršané záznamy a umožní "
+"ich vymazať pomocou nového algoritmu."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
-msgstr ""
+msgstr "Zobraziť náhľady"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid ""
@@ -1535,10 +1564,13 @@ msgid ""
 "they are no longer displayed as there is no good reason to see them.  Enable "
 "if you wish to see/delete them."
 msgstr ""
+"Náhľady Kobo sú štandardne zahrnuté v Touch a v niektorých ďalších verziách. "
+"Už sa však nezobrazujú, keďže na to nie je dôvod. Povoľte, ak ich chcete "
+"vidiet, resp. vymazať."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Zobraz odporúčania"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -1546,6 +1578,9 @@ msgid ""
 "but in other cases they are just pointers to the web site to buy. Enable if "
 "you wish to see/delete them."
 msgstr ""
+"Kobo teraz zobrazuje odporúčania v zariadení.  Niekedy sú to súbory, inokedy "
+"len odkazy na web stránku s možnosťou nákupu. Povoľte, ak ich chcete vidieť, "
+"resp. zmazať."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:382
@@ -1567,6 +1602,8 @@ msgid ""
 "<hr /><b>Book Last Read:</b> %(time)s<br /><b>Percentage Read:</b> "
 "%(pr)d%%<hr />"
 msgstr ""
+"<hr /><b>Kniha naposledy čítaná:</b> %(time)s<br /><b>Percent prečítané:</b> "
+"%(pr)d%%<hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1051
 #, python-format
@@ -1575,6 +1612,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
 "/><hr />"
 msgstr ""
+"<b>Kapitola %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Priebeh kapitoly:</b> %(chapter_progress)s%%<br />%(annotation)s<br "
+"/><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1060
 #, python-format
@@ -1583,6 +1623,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><hr />"
 msgstr ""
+"<b>Kapitola %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Priebeh kapitoly:</b> %(chapter_progress)s%%<br /><b>Zvýraznenie:</b> "
+"%(text)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1069
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1079
@@ -1592,6 +1635,9 @@ msgid ""
 "/><b>Chapter Progress:</b> %(chapter_progress)s%%<br /><b>Highlight:</b> "
 "%(text)s<br /><b>Notes:</b> %(annotation)s<br /><hr />"
 msgstr ""
+"<b>Kapitola %(chapter)d:</b> %(chapter_title)s<br /><b>%(typ)s</b><br "
+"/><b>Priebeh kapitoly:</b> %(chapter_progress)s%%<br /><b>Zvýraznenie:</b> "
+"%(text)s<br /><b>Poznámky:</b> %(annotation)s<br /><hr />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
@@ -1632,39 +1678,39 @@ msgstr "Komunikácia s Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:242
 msgid "Communicate with the EEE Reader"
-msgstr "Komunikácia s EEE Reader"
+msgstr "Komunikácia s čítačkou EEE"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Komunikácia s tabletom Adam"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
-msgstr "Komunikácia s Nextbook Reader"
+msgstr "Komunikácia s čítačkou Nextbook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "Komunikácia s čítačkou Moovybook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "Komunikácia so zariadením COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Komunikácia so zariadením Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr "Komunikácia s Nokia 770 internet tablet."
+msgstr "Komunikácia s tabletom Nokia 770."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr "Komunikácia s Nokia 810/900 internet tablet."
+msgstr "Komunikácia s tabletom Nokia 810/900."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr "Komunikácia s Nokia E52"
+msgstr "Komunikácia so zariadením Nokia E52"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -1672,27 +1718,27 @@ msgstr "Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr "Komunikácia s Nook eBook reader."
+msgstr "Komunikácia s čítačkou Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Komunikácia s čítačkami Nook Color, TSR a Tablet."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr "Komunikácia s Nuut2 eBook reader."
+msgstr "Komunikácia s čítačkou Nuut2."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
-msgstr "Komunikácia so zariadením Sony PRS-500."
+msgstr "Komunikácia s čítačkou Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Komunikácia s čítačkou Sony, staršou ako PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
-msgstr ""
+msgstr "Komentáre boli odstránené, keďže čítačka SONY sa nimi zahlcuje"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid "All by title"
@@ -1718,10 +1764,13 @@ msgid ""
 "%(aba)s:%(abav)s. Add  these values to the list to enable them. The "
 "collections will be given the name provided after the \":\" character."
 msgstr ""
+". K dispozícii sú dve špeciálne zbierky: %(abt)s:%(abtv)s a "
+"%(aba)s:%(abav)s. Doplňte tieto hodnoty do zoznamu, aby ste ich "
+"sprístupnili. Zbierky budú pomenované podľa názvu za dvojbodkou."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:77
 msgid "Upload separate cover thumbnails for books (newer readers)"
-msgstr ""
+msgstr "Nahrať samostatné náhľady obálok kníh (novšie čítačky)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:78
 msgid ""
@@ -1731,11 +1780,17 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
+"Čítačky SONY obvykle získavajú obrázok obálky zo súboru eknihy. S touto "
+"voľbou odošle Calibre do čítačky samostatný obrázok obálky. Je to užitočné "
+"ak odosielate knihy s DRM v ktorých nemôžete zmeniť obálku. UPOZORNENIE: "
+"Táto voľba by mala byť použitá len s novšími čítačkami SONY: 350, 650, 950 a "
+"novšími."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:84
 msgid ""
 "Refresh separate covers when using automatic management (newer readers)"
 msgstr ""
+"Obnoviť samostatné obálky pri použití automatickej správy (novšie čítačky)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:86
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:80
@@ -1760,6 +1815,9 @@ msgid ""
 "ratio (width to height) as the cover. Unset it if you want the thumbnail to "
 "be the maximum size, ignoring aspect ratio."
 msgstr ""
+"Nastavte túto voľbu, ak chcete, aby mali náhľady obálok rovnaký pomer strán "
+"(šírka k výške) ako obálka. Zakážte túto voľbu ak chcete, aby mal náhľad "
+"maximálnu veľkosť, bez ohľadu na pomer strán."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:96
 msgid "Search for books in all folders"
@@ -1771,6 +1829,9 @@ msgid ""
 "device and its cards. This permits calibre to find books put on the device "
 "by other software and by wireless download."
 msgstr ""
+"Táto voľba umožní Calibre hľadať knihy vo všetkých priečinkoch v zariadení a "
+"v jeho pamäťových kartách. Takto Calibre nájde knihy uložené do zariadenia "
+"aj iným programom, alebo bezdrôtovým prenosom."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:190
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:69
@@ -1779,11 +1840,11 @@ msgstr "Bez mena"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:38
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Komunikácia s čítačkou Sony PRST1 alebo novšou"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:73
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Uložiť do zariadenia samostatné náhľady obálok kníh"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:74
 msgid ""
@@ -1791,14 +1852,17 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Čítačky SONY obvykle získavajú obrázok obálky zo súboru ebooku. S touto "
+"voľbou odošle Calibre do čítačky samostatný obrázok obálky. Je to užitočné, "
+"ak posielate knihy s DRM v ktorých nemôžete obálku meniť."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:78
 msgid "Refresh separate covers when using automatic management"
-msgstr ""
+msgstr "Obnoviť samostatné obálky pri použití automatickej správy"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Použiť formát autora SONY (len prvý autor)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:92
 msgid ""
@@ -1806,46 +1870,50 @@ msgid ""
 "the T1 sets it. This means it will only show the first author for books with "
 "multiple authors. Leave this disabled if you use Metadata Plugboards."
 msgstr ""
+"Použite túto voľbu ak chcete, aby bol autor na Sony zobrazený rovnakým "
+"spôsobom, ako ho nastavuje T1. To znamená, že pre knihy s viacerými autormi "
+"sa zobrazí len prvý autor. Nachajte to zakázané ak používate Metadata "
+"Plugboards."
 
 #: /home/kovid/work/calibre/src/calibre/devices/sne/driver.py:17
 msgid "Communicate with the Samsung SNE eBook reader."
-msgstr "Komunikácia s Samsung SNE eBook reader."
+msgstr "Komunikácia s čítačkou Samsung SNE."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
-msgstr "Komunikácia s Teclast K3/K5 reader."
+msgstr "Komunikácia s čítačkou Teclast K3/K5."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:37
 msgid "Communicate with the Newsmy reader."
-msgstr "Komunikácia s Newsmy reader."
+msgstr "Komunikácia s čítačkou Newsmy."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:48
 msgid "Communicate with the Archos reader."
-msgstr "Komunikovať s Archos reader."
+msgstr "Komunikácia s čítačkou Archos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:58
 msgid "Communicate with the Pico reader."
-msgstr "Komunikovať s Pico reader."
+msgstr "Komunikácia s čítačkou Pico."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:68
 msgid "Communicate with the iPapyrus reader."
-msgstr "Komunikácia s iPapyrus reader."
+msgstr "Komunikácia s čítačkou iPapyrus."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:79
 msgid "Communicate with the Sovos reader."
-msgstr "Komunikovať s Sovos reader."
+msgstr "Komunikácia s čítačkou Sovos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:89
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr "Komunikovať s Sunstech EB700 reader."
+msgstr "Komunikácia s čítačkou Sunstech EB700."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:100
 msgid "Communicate with the Stash W950 reader."
-msgstr "Komunikovať s Stash W950 reader."
+msgstr "Komunikácia s čítačkou Stash W950."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:112
 msgid "Communicate with the Wexler reader."
-msgstr "Komunikovať s Wexler reader."
+msgstr "Komunikácia s čítačkou Wexler."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #, python-format
@@ -1868,6 +1936,8 @@ msgid ""
 "Unable to detect the %s disk drive. Either the device has already been "
 "ejected, or your kernel is exporting a deprecated version of SYSFS."
 msgstr ""
+"Nepodarilo sa detekovať disk %s. Buď bolo zariadené už odpojené, alebo Váš "
+"kernel exportuje zastaralú verziu SYSFS."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:621
 #, python-format
@@ -1945,7 +2015,7 @@ msgstr "Extra nastavenia"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:42
 msgid "Communicate with an eBook reader."
-msgstr "Komunikácia s čítacím zariadením."
+msgstr "Komunikácia s čítačkou."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:94
 msgid "Get device information..."
@@ -1959,6 +2029,10 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Nepodarilo sa získať prístup k súborom v hlavnej pamäti Vášho zariadenia. "
+"Mali by ste kontaktovať technickú podporu výrobcu zariadenia. Obvyklé opravy "
+"sú: vyskúšajte iný USB kábel/port na Vašom počítači. Ak Vaše zariadenie "
+"umožňuje \"Resetovať na totvárne nastavenia\", urobte to. Základná chyba: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:113
 #, python-format
@@ -1969,6 +2043,11 @@ msgid ""
 "your SD card using the FAT32 filesystem. Also make sure there are not too "
 "many files in the root of your SD card. Underlying error: %s"
 msgstr ""
+"Prístup k súborom na SD karte Vášho zariadenia zlyhal. To môte mať niekoľko "
+"príčin. SD karta môže byť poškodená, môže mať príliš veľkú kapacitu pre Vaše "
+"zariadenie, môže byť chránená proti zápisu, atď. Skúste inú SD kartu, alebo "
+"sformátujte súčasnú na súborový systém FAT32. Uistite sa tiež, že v "
+"koreňovom priečinku SD karty nie je príliš veľa súborov. Základná chyba: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:68
@@ -1982,6 +2061,8 @@ msgid ""
 "Get this ID using Preferences -> Misc -> Get information to set up the user-"
 "defined device"
 msgstr ""
+"Získajte toto ID pomocou Nastavenia -> Rôzne -> Získať informácie na "
+"nastavenie užívateľského zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
@@ -1996,7 +2077,7 @@ msgstr "USB Revision ID (v hex)"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Výrobca v hlavnej pamäti Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -2006,21 +2087,23 @@ msgid ""
 "This field is used only on windows. Get this ID using Preferences -> Misc -> "
 "Get information to set up the user-defined device"
 msgstr ""
+"Toto pole sa používa len pod Windows. Získajte toto ID pomocou Nastavenia -> "
+"Rôzne -> Získať informácie na nastavenie užívateľského zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:51
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:81
 msgid "Windows main memory ID string"
-msgstr ""
+msgstr "ID v hlavnej pamäti Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:84
 msgid "Windows card A vendor string"
-msgstr ""
+msgstr "Výrobca na karte A Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:59
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:86
 msgid "Windows card A ID string"
-msgstr ""
+msgstr "ID na karte A Windows"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:63
 msgid "Main memory folder"
@@ -2032,10 +2115,12 @@ msgid ""
 "Enter the folder where the books are to be stored. This folder is prepended "
 "to any send_to_device template"
 msgstr ""
+"Zadajte priečinok, kam sa budú ukladať knihy. Tento adresár je predradený "
+"pred všetkými šablónami send_to_device"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:66
 msgid "Card A folder"
-msgstr ""
+msgstr "Priečinok karty A"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:211
 #, python-format
@@ -2160,6 +2245,8 @@ msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
 msgstr ""
+"Pri konverzii CBC nepridávať do obsahu odkazy na každú stránku.  Platí to "
+"len ak má obsah viac ako jednu sekciu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:471
 #: /home/kovid/work/calibre/src/calibre/ebooks/comic/input.py:483
@@ -2191,6 +2278,27 @@ msgid ""
 "\n"
 "For full documentation of the conversion system see\n"
 msgstr ""
+"vstupný_súbor výstupný_súbor [voľby]\n"
+"\n"
+"Skonvertuje eknihu z jedného formátu na iný.\n"
+"\n"
+"vstupný_súbor je vstup a výstupný_súbor je výstup. Oba musia byť "
+"špecifikované ako prvé dva argumenty príkazu.\n"
+"\n"
+"Výstupný formát eknihy je odhadnutý z prípony výstupného súboru. "
+"výstupný_súbor môže byť tiež zadaný len ako prípona (.EXT). V takom prípade "
+"sa názov výstupného súboru odvodí od vstupného súboru. Názvy súborov nesmú "
+"začínať pomlčkou. Ak názov výstupného súboru neobsahuje príponu, je "
+"považovaný za názov adresára a výstupný formát je \"otvorená ekniha\" (OEB) "
+"pozostávajúci z HTML súborov, ktoré sa v tomto adresári vytvoria. Tieto "
+"súbory by obvykle boli predané výstupnému zásuvnému modulu.\n"
+"\n"
+"Po špecifikácii vstupného a výstupného súboru môžete konverziu prispôsobiť "
+"zadaním rôznych prepínačov. Použiteľné prepínače závisia od typu vstupného a "
+"výstupného súboru. Nápovedu k nim získate zadaním vstupného a výstupného "
+"súboru nasledovaného prepínačom -h .\n"
+"\n"
+"Kompletnú dokumentáciu konverzného systému viď.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:109
 msgid "INPUT OPTIONS"
@@ -2221,6 +2329,9 @@ msgid ""
 "default. Use %(en)s to enable.  Individual actions can be disabled with the "
 "%(dis)s options."
 msgstr ""
+"Modifikovať text a štruktúru dokumentu pomocou spoločných znakov. Štandardne "
+"je vypnuté. Použite %(en)s na zapnutie. Jednotlivé akcie môžu byť zakázané "
+"pomocou voľby %(dis)s."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:16
@@ -2254,6 +2365,9 @@ msgid ""
 "List builtin recipe names. You can create an ebook from a builtin recipe "
 "like this: ebook-convert \"Recipe Name.recipe\" output.epub"
 msgstr ""
+"Zoznam zabudovaných názvov receptov. Eknihu môžete vytvoriť pomocou "
+"zabudovaného receptu napr. takto: ebook-convert \"Nazov_receptu.recipe\" "
+"vystup.epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:289
 msgid "Output saved to"
@@ -2269,6 +2383,8 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
+"Uložiť výstupu z rôznych fáz konverzie do zadaného adresára. Je to užitočné, "
+"ak si nie ste istí, v ktorej fáze konverzie nastáva chyba."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:121
 msgid ""
@@ -2333,6 +2449,12 @@ msgid ""
 "line height specification, unless you know what you are doing. For example, "
 "you can achieve \"double spaced\" text by setting this to 240."
 msgstr ""
+"Minimálna výška riadka ako percento vypočítanej veľkosti písma prvku. "
+"Calibre zaistí, že každý prvok bude mať aspoň túto výšku riadka bez ohľadu "
+"na špecifikáciu vstupného dokumentu. Nastavte nulu pro zakázanie. Východzia "
+"hodnota je 120%. Ak si nie ste istý, čo robíte, uprednostnite toto "
+"nastavenie pred priamym určením výšky riadka. Napríklad dvojnásobné "
+"riadkovanie môžete dosiahnuť nastavením hodnoty 240."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:187
 msgid ""
@@ -2341,6 +2463,10 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
+"Výška riadka v bodoch. Určuje medzery medzi susednými riadkami textu. "
+"Použije sa len na prvky, ktoré nemajú nastavenú vlastnú výšku riadka. Vo "
+"väčšine prípadov je užitočnejšia voľna minimálna výška riadka. Vo východzom "
+"stave sa nerobí žiadna úprava výšky riadkov."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:197
 msgid ""
@@ -2429,6 +2555,9 @@ msgid ""
 "entries, i.e. allow more than one entry with the same text, provided that "
 "they point to a different location."
 msgstr ""
+"Povoliť duplicitné položky pri vytváraní obsahu z odkazov vo vstupnom "
+"dokumente. Tzn. povoliť viac položiek s rovnakým názvom za predpokladu, že "
+"odkazujú na rozdielne miesta."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:281
 msgid ""
@@ -2544,6 +2673,10 @@ msgid ""
 "negative, then the indent specified in the input document is used, that is, "
 "calibre does not change the indentation."
 msgstr ""
+"Ak Calibre odstráni prázdne riadky medzi odstavcami, automaticky, pre ľahšie "
+"odlíšenie, text odsadí. Táto voľba určuje širku odsadenia (v jednotkách em). "
+"Pri nastavení zápornej hodnoty sa použije hodnota odsadenia uvedená vo "
+"vstupnom dokumente - Calibre odsadenie nezmení."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:388
 msgid ""
@@ -2564,6 +2697,8 @@ msgid ""
 "Set the height of the inserted blank lines (in em). The height of the lines "
 "between paragraphs will be twice the value set here."
 msgstr ""
+"Nastaví výšku vložených prázdnych riadkov (v jednotkách em). Výška riadkov "
+"medzi odstavcami bude dvojnásobkom tejto hodnoty."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:408
 msgid ""
@@ -2699,6 +2834,8 @@ msgid ""
 "Enable heuristic processing. This option must be set for any heuristic "
 "processing to take place."
 msgstr ""
+"Povoliť heuristické zpracovanie. Aby bolo umožnené akékoľvek heuristické "
+"spracovanie, musí byť táto voľba povolená."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:545
 msgid ""
@@ -13612,7 +13749,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:43
 msgid "Get information to setup the &user defined device"
-msgstr ""
+msgstr "Získať informácie na nastavenie &užívateľského zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:51
 msgid "Open calibre &configuration directory"

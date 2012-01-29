@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-27 07:21+0000\n"
-"PO-Revision-Date: 2012-01-25 20:06+0000\n"
-"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
+"PO-Revision-Date: 2012-01-28 09:25+0000\n"
+"Last-Translator: Devilinside <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-28 04:48+0000\n"
+"X-Launchpad-Export-Date: 2012-01-29 05:19+0000\n"
 "X-Generator: Launchpad (build 14727)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -4976,7 +4976,7 @@ msgstr "Archívumok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Wordprocessor files"
-msgstr ""
+msgstr "Szövegszerkesztő fájlok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
@@ -11176,7 +11176,7 @@ msgstr "&Haladó"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Delete downloaded news &older than:"
-msgstr ""
+msgstr "Az &ennél régebbi hírek törlése:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid ""
@@ -14685,7 +14685,7 @@ msgstr "Újraindítás szükséges"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:341
 msgid "Restart calibre now"
-msgstr ""
+msgstr "A calibre újraindítása"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
@@ -15117,11 +15117,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Show only those plugins that have been installed by you"
-msgstr ""
+msgstr "Csak az Ön által telepített bővítmények megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
-msgstr ""
+msgstr "Csak a felhasználói bővítmények"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:117
 msgid "Get &new plugins"
@@ -20688,7 +20688,7 @@ msgstr "angol (Bulgária)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Egypt)"
-msgstr ""
+msgstr "Angol (Egyiptom)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (New Zealand)"
@@ -21713,6 +21713,21 @@ msgid ""
 "formatter function raw_field will return the base value for title and\n"
 "series regardless of the setting of this tweak."
 msgstr ""
+"Ez szabályozza, hogyan lesznek formázva a címek és sorozatnevek lemezre "
+"mentéskor\n"
+"és eszközre való küldéskor, a feldolgozott mezőtől függően. Ha cím "
+"feldolgozásakor az\n"
+"érték 'library_order', akkor a cím helyett a rendezési forma szerepel, míg  "
+"'strictly_alphabetic'\n"
+"esetén az eredeti cím. Sorozatneveknél a 'library_order' azt jelenti, hogy a "
+"névelők a végére\n"
+"kerülnek, míg 'strictly_alphabetic' esetén változatlanul maradnak.\n"
+"Például, ha a könyv címe „The Lord of the Rings”, akkor\n"
+"'library_order' esetén „Lord of the Rings, The” lesz, míg\n"
+"'strictly_alphabetic' esetén „The Lord of the Rings” marad.\n"
+"Vegye figyelembe, hogy a „raw_field” formázó függvény a cím és a sorozat "
+"alapértékét adja vissza\n"
+"függetlenül ennek e finombeállítástól."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:203
 msgid "Set the list of words considered to be \"articles\" for sort strings"
