@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-27 07:21+0000\n"
-"PO-Revision-Date: 2012-01-16 03:17+0000\n"
+"PO-Revision-Date: 2012-01-30 01:59+0000\n"
 "Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-01-28 05:02+0000\n"
+"X-Launchpad-Export-Date: 2012-01-30 04:40+0000\n"
 "X-Generator: Launchpad (build 14727)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
@@ -1228,7 +1228,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "与 Blackberry playbook 通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1272,7 +1272,7 @@ msgstr "与 PocketBook 701 通信"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "与 Infibeam Pi2 电子阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1501,6 +1501,8 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"calibre 一个早期有问题的版本导致了在书库中残留了一些非 kepubs 格式的书籍记录。打开这个选项后，calibre "
+"会显示出这些无效的记录，以便您可以把它们删除。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
@@ -1515,7 +1517,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:74
 msgid "Show Recommendations"
-msgstr ""
+msgstr "显示推荐"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:75
 msgid ""
@@ -1756,7 +1758,7 @@ msgstr "未命名"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:38
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "与 PRST1 或其它较新的 SONY 电子阅读器通信。"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:73
 msgid "Upload separate cover thumbnails for books"
@@ -10362,7 +10364,7 @@ msgstr "高级(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Delete downloaded news &older than:"
-msgstr ""
+msgstr "删除指定天数前下载的新闻(&O)："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid ""

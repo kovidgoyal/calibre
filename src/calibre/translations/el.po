@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-27 07:21+0000\n"
-"PO-Revision-Date: 2011-12-07 00:13+0000\n"
-"Last-Translator: SteliosGero <Unknown>\n"
+"PO-Revision-Date: 2012-01-29 22:20+0000\n"
+"Last-Translator: Nikolaos Derziotis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-28 04:47+0000\n"
+"X-Launchpad-Export-Date: 2012-01-30 04:39+0000\n"
 "X-Generator: Launchpad (build 14727)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -264,7 +264,8 @@ msgid ""
 "file to the library."
 msgstr ""
 "Δημιουργία μιας αρχειοθήκης PMLZ που περιέχει το αρχείο PML και όλες τις "
-"εικόνες στον κατάλογο pmlname_img ή images"
+"εικόνες στον κατάλογο pmlname_img ή images. Αυτή η επέκταση εκτελείτε κάθε "
+"φορά που προστίθεται ένα αρχείο PML στην βιβλιοθήκη."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:50
 msgid ""
@@ -1199,7 +1200,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
@@ -1281,7 +1282,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Επικοινωνία με τον αναγνώστη Blackberry playbook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1317,15 +1318,15 @@ msgstr "Επικοινώνησε με την συσκευή ανάγνωσης P
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Επικοινωνία με τον αναγνώστη PocketBook 360+"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:263
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Επικοινωνία με τον αναγνώστη PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Επικοινωνία με τον αναγνώστη Infibeam Pi2"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1381,7 +1382,7 @@ msgstr "Επικοινωνία με το ηλ.αναγνωστήριο."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Επικοινωνία με τον αναγνώστη Libre Air"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:72
 msgid "Communicate with the SpringDesign Alex eBook reader."
@@ -1397,7 +1398,7 @@ msgstr "Επικοινωνία με το ηλ.αναγνωστήριο Elonex EB
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:171
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Επικοινωνία με τον αναγνώστη Cybook Odyssey"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1435,12 +1436,12 @@ msgstr "Επικοινωνία με το MiBuk Wolder reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr ""
+msgstr "Επικοινωνία με τον αναγνώστη JetBook Mini"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:28
 #, python-format
 msgid "Not a valid MOBI file. Reports identity of %s"
-msgstr ""
+msgstr "Μη έγκυρο αρχειο MOBI. Αναφέρει τον τυπο του ως %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:44
 msgid "Could not generate page mapping."

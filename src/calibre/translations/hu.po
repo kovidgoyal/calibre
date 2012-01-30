@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-27 07:21+0000\n"
-"PO-Revision-Date: 2012-01-28 09:25+0000\n"
-"Last-Translator: Devilinside <Unknown>\n"
+"PO-Revision-Date: 2012-01-29 21:26+0000\n"
+"Last-Translator: Richard Somlói <ricsipontaz@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-01-29 05:19+0000\n"
+"X-Launchpad-Export-Date: 2012-01-30 04:40+0000\n"
 "X-Generator: Launchpad (build 14727)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -381,7 +381,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Restart calibre"
-msgstr "calibre újraindítása"
+msgstr "Calibre újraindítása"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:790
 msgid "Open the folder that contains the book files in your calibre library"
@@ -396,8 +396,8 @@ msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
-"Könyveket e-mailben, vagy weben küldhet, de megnyithatja iTunes-on, vagy a "
-"számítógépén, mint olvasón is"
+"Könyveket e-mailben vagy weben keresztül küldhet, de megnyithatja iTunes-on, "
+"vagy a számítógépén, mint olvasón is"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:807
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -410,7 +410,7 @@ msgstr "A calibre testreszabása"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Easily find books similar to the currently selected one"
-msgstr "Könnyű a most kiválasztotthoz hasonló könyveket megtalálni"
+msgstr "A most kiválasztotthoz hasonló könyvek keresése egyszerűen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid ""
@@ -420,7 +420,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 msgid "Copy books from the devce to your calibre library"
-msgstr "Könyvek bemásolása a eszközről a calibre könyvtárba"
+msgstr "Könyvek bemásolása a eszközről a calibre könyvtárába"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Edit the collections in which books are placed on your device"
@@ -634,7 +634,7 @@ msgstr "Metaadatok letöltése"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1075
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr "A calibre e-book metaadatainak letöltésének beállításai"
+msgstr "A calibre e-book metaadatainak letöltési beállításai"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1080
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
@@ -826,7 +826,7 @@ msgstr "A profil a SONY PRS-300-ra vonatkozik."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr "Megfelelő használni bármilyen e-ink eszközzel"
+msgstr "Megfelelő lehet bármilyen e-ink eszközhöz"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
@@ -1800,9 +1800,9 @@ msgid ""
 "WARNING: This option should only be used with newer SONY readers: 350, 650, "
 "950 and newer."
 msgstr ""
-"Általában a SONY olvasói a borító képét magából az e-bookból veszi. Ha ezt "
-"az opciót engedélyezi, akkor a calibre külön borító képet küld az olvasónak. "
-"Ez akkor hasznos, ha DRM-es könyveket küld, ahol nem lehet megváltoztatni a "
+"Általában a SONY olvasói a borítóképét magából az e-bookból veszi. Ha ezt az "
+"opciót engedélyezi, akkor a calibre külön borító képet küld az olvasónak. Ez "
+"akkor hasznos, ha DRM-es könyveket küld, ahol nem lehet megváltoztatni a "
 "borítót. FIGYELEM: ezt a lehetőséget csak újabb SONY olvasóknál szabad "
 "használni: 350, 650, 950 és újabb."
 
@@ -3454,7 +3454,7 @@ msgstr "A táblázatban olyan cellák vannak, amelyek túl nagyok."
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1866
 #, python-format
 msgid "Could not read cover image: %s"
-msgstr "Nem tudtam a borító képet olvasni: %s"
+msgstr "A borítóképet nem sikerült beolvasni: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1869
 #, python-format
@@ -6121,7 +6121,7 @@ msgstr "Csak a(z) %s formátum mentése a lemezre"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:71
 #, python-format
 msgid "Save only %s format to disk in a single directory"
-msgstr "Csak az %s formátum mentése a lemezre egy mappába"
+msgstr "Csak a(z) %s formátum mentése a lemezre egy mappába"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:90
 msgid "Cannot save to disk"
@@ -6289,8 +6289,8 @@ msgid ""
 "information."
 msgstr ""
 "A beépített kereső segítségével könnyedén megtalálhatja, hogy melyik boltban "
-"van az Ön által keresett könyv, a legjobb áron. Egyúttal, más hasznos "
-"információk mellett, tájékozódhat arról is, hogy könyv DRM védett-e."
+"van az Ön által keresett könyv a legjobb áron. Egyúttal, más hasznos "
+"információk mellett, tájékozódhat arról is, hogy a könyv DRM védett-e."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:142
 msgid ""
@@ -6314,7 +6314,7 @@ msgstr "Üzenet ismételt megjelenítése"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:153
 msgid "About Get Books"
-msgstr "A 'Könyv letöltése' menüről"
+msgstr "A „Könyv letöltése” menü használata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Tweak Book"
@@ -7880,7 +7880,7 @@ msgstr "Könyvborító"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:160
 msgid "Change &cover image:"
-msgstr "Borító kép &cseréje:"
+msgstr "Borítókép &cseréje:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/metadata_ui.py:161
 msgid "Browse for an image to use as the cover of this book."
@@ -8239,9 +8239,8 @@ msgid ""
 msgstr ""
 "<p> A „Keresés és Csere” <i>reguláris kifejezéseket</i> használ. Bővebben a "
 "<a href=\"http://manual.calibre-ebook.com/regexp.html\">Reguláris "
-"kifejezések dokumentumban</a>-ban olvashat erről. A Varázsló gombokra "
-"kattintva tesztelheti a létrehozott kifejezést az aktuális bemeneti "
-"dokumentumon."
+"kifejezések dokumentum</a>ban olvashat erről. A Varázsló gombokra kattintva "
+"tesztelheti a létrehozott kifejezést az aktuális bemeneti dokumentumon."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/single.py:173
 msgid "Convert"
@@ -8656,6 +8655,9 @@ msgid ""
 "You have changed the values. In order to use this editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
+"Megváltoztatta az értékeket. Ahhoz, hogy használhassa ezt a szerkesztőt "
+"először alkalmaznia kell vagy el kell vetni ezeket. Alkalmazza a "
+"változásokat?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:379
 msgid " index:"
@@ -13293,7 +13295,7 @@ msgid ""
 msgstr ""
 "Nincs a keresési feltételeknek megfelelő könyv. Próbálja meg az adatokat "
 "<b>kevésbé pontosan</b> megadni. Például csak a szerző vezetéknevét és egy "
-"jellemző szót a címből adjon meg.<p>További információkért kattintson a "
+"jellemző szót adjon meg a címből.<p>További információkért kattintson a "
 "„Részletek” gombra."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:551
@@ -14213,7 +14215,7 @@ msgid ""
 msgstr ""
 "<p>Alapértelmezett: nem formázott. A formázási nyelvről bővebben a <a "
 "href=\"http://docs.python.org/library/string.html#format-string-"
-"syntax\">Python Dokumentációban</a> olvashat."
+"syntax\">Python Dokumentáció</a>ban olvashat."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:244
 msgid "Format for &dates"
@@ -16365,7 +16367,7 @@ msgid ""
 "verify this price is correct. This price often does not include promotions "
 "the store may be running."
 msgstr ""
-"Letöltött ár: %s. Vásárlás előtt ellenőrizze az árat a boltban, mert "
+"Megállapított ár: %s. Vásárlás előtt ellenőrizze az árat a boltban, mert "
 "előfordulhatnak aktuális kedvezmények és akciók is."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:237
@@ -16387,8 +16389,8 @@ msgid ""
 "with the store. The store may not be disclosing the use of DRM."
 msgstr ""
 "Ez a könyv DRM nélküli. Elméletileg minden olvasó eszközön használhatja "
-"ebben a formátumban, vagy eszköznek megfelelően átkonvertálva a calibre-rel. "
-"Mindenesetre a vásárlás előtt még egyszer ellenőrizze a könyv DRM "
+"ebben a formátumban, vagy eszközének megfelelően átkonvertálhatja a calibre-"
+"vel. Mindenesetre a vásárlás előtt még egyszer ellenőrizze a könyv DRM "
 "védettségét a boltban, mert a boltok fenntarthatják a változtatás jogát."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:241
@@ -17705,8 +17707,8 @@ msgid ""
 "<h2>Demo videos</h2>Videos demonstrating the various features of calibre are "
 "available <a href=\"http://calibre-ebook.com/demo\">online</a>."
 msgstr ""
-"<h2>Demó videó</h2>A calibre különböző funkcióról egy videóbemutató <a "
-"href=\"http://calibre-ebook.com/demo\">online</a> elérhető."
+"<h2>Bemutató videó</h2>A calibre funkcióról tekinthet meg egy videóbemutatót "
+"<a href=\"http://calibre-ebook.com/demo\">ezen</a> a hivatkozáson."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/finish_ui.py:51
 msgid ""
