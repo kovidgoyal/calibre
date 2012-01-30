@@ -1,0 +1,37 @@
+# -*- coding: utf-8 -*-
+__license__   = 'GPL v3'
+__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>, Armin Geller'
+
+'''
+Fetch High Country News
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+class HighCountryNews(BasicNewsRecipe):
+
+    title = u'High Country News'
+    description = u'News from the American West'
+    __author__ = 'Armin Geller' # 2012-01-28
+    publisher = 'High Country News'
+    timefmt  = ' [%a, %d %b %Y]'
+    language = 'en'
+    encoding = 'UTF-8'
+    publication_type      = 'newspaper'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    auto_cleanup = True
+    remove_javascript = True
+    use_embedded_content  = False
+
+
+    feeds = [
+              (u'Most recent', u'http://feeds.feedburner.com/hcn/most-recent'),
+              (u'Current Issue', u'http://feeds.feedburner.com/hcn/current-issue'),
+
+              (u'Writers on the Range', u'http://feeds.feedburner.com/hcn/wotr'),
+              (u'High Country Views', u'http://feeds.feedburner.com/hcn/HighCountryViews'),
+             ]
+
+    def print_version(self, url):
+          return url + '/print_view'
+
