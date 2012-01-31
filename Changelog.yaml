@@ -19,6 +19,72 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.37
+  date: 2012-01-27
+
+  new features:
+    - title: "Allow calibre to be run simultaneously in two different user accounts on windows."
+      tickets: [919856]
+
+    - title: "Driver for Motorola Photon and Point of View PlayTab"
+      tickets: [920582, 919080] 
+
+    - title: "Add a checkbox to preferences->plugins to show only user installed plugins"
+
+    - title: "Add a restart calibre button to the warning dialog that pops up after changing some preference that requires a restart"
+ 
+  bug fixes:
+    - title: "Fix regression in 0.8.36 that caused the remove format from book function to only delete the entry from the database and not delete the actual file from the disk"
+      tickets: [921721]
+
+    - title: "Fix regression in 0.8.36 that caused the calibredb command to not properly refresh the format information in the GUI"
+      tickets: [919494] 
+
+    - title: "E-book viewer: Preserve the current position more accurately when changing font size/other preferences."
+      tickets: [912406]
+
+    - title: "Conversion pipeline: Fix items in the <guide> that refer to files with URL unsafe filenames being ignored."
+      tickets: [920804]
+
+    - title: "Fix calibre not running on linux systems that set LANG to an empty string"
+
+    - title: "On first run of calibre, ensure the columns are sized appropriately"
+
+    - title: "MOBI Output: Do not collapse whitespace when setting the comments metadata in newly created MOBI files"
+
+    - title: "HTML Input: Fix handling of files with ä characters in their filenames."
+      tickets: [919931]
+
+    - title: "Fix the sort on startup tweak ignoring more than three levels"
+      tickets: [919584]
+
+    - title: "Edit metadata dialog: Fix a bug that broke adding of a file to the book that calibre did not previously know about in the books directory while simultaneously changing the author or title of the book."
+      tickets: [922003]
+
+  improved recipes:
+    - People's Daily
+    - Plus Info
+    - grantland.com
+    - Eret es irodalom 
+    - Sueddeutsche.de
+
+  new recipes:
+    - title: Mumbai Mirror 
+      author: Krittika Goyal
+
+    - title: Real Clear 
+      author: TMcN
+
+    - title: Gazeta Wyborcza 
+      author: ravcio
+
+    - title: The Daily News Egypt and al masry al youm 
+      author: Omm Mishmishah
+
+    - title: Klip.me 
+      author: Ken Sun
+
+
 - version: 0.8.36
   date: 2012-01-20
 

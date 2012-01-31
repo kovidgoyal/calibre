@@ -24,6 +24,7 @@ from calibre.constants import iswindows
 from calibre import prints, guess_type
 from calibre.gui2.viewer.keys import SHORTCUTS
 from calibre.gui2.viewer.javascript import JavaScriptLoader
+from calibre.gui2.viewer.position import PagePosition
 
 # }}}
 
@@ -170,14 +171,16 @@ class Document(QWebPage): # {{{
         settings.setFontFamily(QWebSettings.SerifFont, opts.serif_family)
         settings.setFontFamily(QWebSettings.SansSerifFont, opts.sans_family)
         settings.setFontFamily(QWebSettings.FixedFont, opts.mono_family)
+        settings.setAttribute(QWebSettings.ZoomTextOnly, True)
 
     def do_config(self, parent=None):
         d = ConfigDialog(self.shortcuts, parent)
         if d.exec_() == QDialog.Accepted:
-            self.set_font_settings()
-            self.set_user_stylesheet()
-            self.misc_config()
-            self.after_load()
+            with self.page_position:
+                self.set_font_settings()
+                self.set_user_stylesheet()
+                self.misc_config()
+                self.after_load()
 
     def __init__(self, shortcuts, parent=None, resize_callback=lambda: None,
             debug_javascript=False):
@@ -196,6 +199,7 @@ class Document(QWebPage): # {{{
         pal = self.palette()
         pal.setBrush(QPalette.Background, QColor(0xee, 0xee, 0xee))
         self.setPalette(pal)
+        self.page_position = PagePosition(self)
 
         settings = self.settings()
 
@@ -895,23 +899,25 @@ class DocumentView(QWebView): # {{{
     @dynamic_property
     def multiplier(self):
         def fget(self):
-            return self.document.mainFrame().textSizeMultiplier()
+            return self.zoomFactor()
         def fset(self, val):
-            self.document.mainFrame().setTextSizeMultiplier(val)
+            self.setZoomFactor(val)
             self.magnification_changed.emit(val)
         return property(fget=fget, fset=fset)
 
     def magnify_fonts(self, amount=None):
         if amount is None:
             amount = self.document.font_magnification_step
-        self.multiplier += amount
+        with self.document.page_position:
+            self.multiplier += amount
         return self.document.scroll_fraction
 
     def shrink_fonts(self, amount=None):
         if amount is None:
             amount = self.document.font_magnification_step
         if self.multiplier >= amount:
-            self.multiplier -= amount
+            with self.document.page_position:
+                self.multiplier -= amount
         return self.document.scroll_fraction
 
     def changeEvent(self, event):

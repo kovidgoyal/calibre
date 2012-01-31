@@ -29,14 +29,38 @@ class Extract(ODF2XHTML):
         root = etree.fromstring(html)
         self.epubify_markup(root, log)
         self.filter_css(root, log)
+        self.extract_css(root)
         html = etree.tostring(root, encoding='utf-8',
                 xml_declaration=True)
         return html
 
+    def extract_css(self, root):
+        ans = []
+        for s in root.xpath('//*[local-name() = "style" and @type="text/css"]'):
+            ans.append(s.text)
+            s.getparent().remove(s)
+
+        head = root.xpath('//*[local-name() = "head"]')
+        if head:
+            head = head[0]
+            ns = head.nsmap.get(None, '')
+            if ns:
+                ns = '{%s}'%ns
+            etree.SubElement(head, ns+'link', {'type':'text/css',
+                'rel':'stylesheet', 'href':'odfpy.css'})
+
+        with open('odfpy.css', 'wb') as f:
+            f.write((u'\n\n'.join(ans)).encode('utf-8'))
+
+
     def epubify_markup(self, root, log):
+        from calibre.ebooks.oeb.base import XPath, XHTML
+        # Fix empty title tags
+        for t in XPath('//h:title')(root):
+            if not t.text:
+                t.text = u' '
         # Fix <p><div> constructs as the asinine epubchecker complains
         # about them
-        from calibre.ebooks.oeb.base import XPath, XHTML
         pdiv = XPath('//h:p/h:div')
         for div in pdiv(root):
             div.getparent().tag = XHTML('div')
@@ -146,7 +170,8 @@ class Extract(ODF2XHTML):
             if not mi.authors:
                 mi.authors = [_('Unknown')]
             opf = OPFCreator(os.path.abspath(os.getcwdu()), mi)
-            opf.create_manifest([(os.path.abspath(f), None) for f in walk(os.getcwd())])
+            opf.create_manifest([(os.path.abspath(f), None) for f in
+                walk(os.getcwdu())])
             opf.create_spine([os.path.abspath('index.xhtml')])
             with open('metadata.opf', 'wb') as f:
                 opf.render(f)

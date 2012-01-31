@@ -481,16 +481,14 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.load_ebook(action.path)
 
     def font_size_larger(self):
-        frac = self.view.magnify_fonts()
+        self.view.magnify_fonts()
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
-        self.set_page_number(frac)
 
     def font_size_smaller(self):
-        frac = self.view.shrink_fonts()
+        self.view.shrink_fonts()
         self.action_font_size_larger.setEnabled(self.view.multiplier < 3)
         self.action_font_size_smaller.setEnabled(self.view.multiplier > 0.2)
-        self.set_page_number(frac)
 
     def magnification_changed(self, val):
         tt = _('Make font size %(which)s\nCurrent magnification: %(mag).1f')

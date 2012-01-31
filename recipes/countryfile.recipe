@@ -1,0 +1,25 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1325006965(BasicNewsRecipe):
+    title          = u'Countryfile.com'
+    cover_url = 'http://www.buysubscriptions.com/static_content/the-immediate/en/images/covers/CFIL_maxi.jpg'
+    __author__ = 'Dave Asbury'
+    description           = 'The official website of Countryfile Magazine'
+    # last updated 29/1/12
+    language = 'en_GB'
+    oldest_article = 30
+    max_articles_per_feed = 25
+    remove_empty_feeds = True
+    no_stylesheets = True
+    auto_cleanup = True
+    #articles_are_obfuscated = True
+
+    remove_tags    = [
+                             # dict(attrs={'class' : ['player']}),
+
+    ]
+    feeds          = [
+    (u'Homepage', u'http://www.countryfile.com/rss/home'),
+    (u'Country News', u'http://www.countryfile.com/rss/news'),
+            (u'Countryside', u'http://www.countryfile.com/rss/countryside'),
+            ]

@@ -591,26 +591,7 @@ class Device(DeviceConfig, DevicePlugin):
             mp = self.node_mountpoint(node)
             if mp is not None:
                 return mp, 0
-            if type == 'main':
-                label = self.MAIN_MEMORY_VOLUME_LABEL
-            if type == 'carda':
-                label = self.STORAGE_CARD_VOLUME_LABEL
-            if type == 'cardb':
-                label = self.STORAGE_CARD2_VOLUME_LABEL
-                if not label:
-                    label = self.STORAGE_CARD_VOLUME_LABEL + ' 2'
-            if not label:
-                label = 'E-book Reader (%s)'%type
-            extra = 0
-            while True:
-                q = ' (%d)'%extra if extra else ''
-                if not os.path.exists('/media/'+label+q):
-                    break
-                extra += 1
-            if extra:
-                label += ' (%d)'%extra
-
-            def do_mount(node, label):
+            def do_mount(node):
                 try:
                     from calibre.devices.udisks import mount
                     mount(node)
@@ -621,8 +602,7 @@ class Device(DeviceConfig, DevicePlugin):
                     traceback.print_exc()
                     return 1
 
-
-            ret = do_mount(node, label)
+            ret = do_mount(node)
             if ret != 0:
                 return None, ret
             return self.node_mountpoint(node)+'/', 0

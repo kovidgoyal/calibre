@@ -327,7 +327,7 @@ class OEBReader(object):
         manifest = self.oeb.manifest
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
             href = elem.get('href')
-            path = urldefrag(href)[0]
+            path = urlnormalize(urldefrag(href)[0])
             if path not in manifest.hrefs:
                 self.logger.warn(u'Guide reference %r not found' % href)
                 continue
