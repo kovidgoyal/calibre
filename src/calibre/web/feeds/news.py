@@ -545,8 +545,10 @@ class BasicNewsRecipe(Recipe):
         '''
         if re.match(r'\w+://', url_or_raw):
             # We may be called in a thread (in the skip_ad_pages method), so
-            # clone the browser to be safe
-            br = self.cloned_browser
+            # clone the browser to be safe. We cannot use self.cloned_browser
+            # as it may or may not actually clone the browser, depending on if
+            # the recipe implements get_browser() or not
+            br = self.clone_browser(self.browser)
             open_func = getattr(br, 'open_novisit', br.open)
             with closing(open_func(url_or_raw)) as f:
                 _raw = f.read()
