@@ -11,8 +11,8 @@ from Queue import Empty, Queue
 from contextlib import closing
 
 
-from PyQt4.Qt import QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel, \
-    QVariant, QItemSelectionModel, SIGNAL, QObject, QTimer
+from PyQt4.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
+    QVariant, QItemSelectionModel, SIGNAL, QObject, QTimer, pyqtSignal)
 from calibre import __appname__, patheq
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
@@ -613,6 +613,7 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
 class LibraryPage(QWizardPage, LibraryUI):
 
     ID = 1
+    retranslate = pyqtSignal()
 
     def __init__(self):
         QWizardPage.__init__(self)
@@ -620,8 +621,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.registerField('library_location', self.location)
         self.connect(self.button_change, SIGNAL('clicked()'), self.change)
         self.init_languages()
-        self.connect(self.language, SIGNAL('currentIndexChanged(int)'),
-                self.change_language)
+        self.language.currentIndexChanged[int].connect(self.change_language)
         self.connect(self.location, SIGNAL('textChanged(QString)'),
                 self.location_text_changed)
 
@@ -660,7 +660,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         from calibre.gui2 import qt_app
         set_translators()
         qt_app.load_translations()
-        self.emit(SIGNAL('retranslate()'))
+        self.retranslate.emit()
         self.init_languages()
         try:
             lang = prefs['language'].lower()[:2]
@@ -780,6 +780,22 @@ class FinishPage(QWizardPage, FinishUI):
 
 class Wizard(QWizard):
 
+    BUTTON_TEXTS = {
+            'Next': '&Next >',
+            'Back': '< &Back',
+            'Cancel': 'Cancel',
+            'Finish': '&Finish',
+            'Commit': 'Commit'
+    }
+    # The latter is simply to mark the texts for translation
+    if False:
+            _('&Next >')
+            _('< &Back')
+            _('Cancel')
+            _('&Finish')
+            _('Commit')
+
+
     def __init__(self, parent):
         QWizard.__init__(self, parent)
         self.setWindowTitle(__appname__+' '+_('welcome wizard'))
@@ -792,8 +808,7 @@ class Wizard(QWizard):
         self.setPixmap(self.BackgroundPixmap, QPixmap(I('wizard.png')))
         self.device_page = DevicePage()
         self.library_page = LibraryPage()
-        self.connect(self.library_page, SIGNAL('retranslate()'),
-                self.retranslate)
+        self.library_page.retranslate.connect(self.retranslate)
         self.finish_page = FinishPage()
         self.set_finish_text()
         self.kindle_page = KindlePage()
@@ -813,12 +828,18 @@ class Wizard(QWizard):
         nh = min(400, nh)
         nw = min(580, nw)
         self.resize(nw, nh)
+        self.set_button_texts()
+
+    def set_button_texts(self):
+        for but, text in self.BUTTON_TEXTS.iteritems():
+            self.setButtonText(getattr(self, but+'Button'), _(text))
 
     def retranslate(self):
         for pid in self.pageIds():
             page = self.page(pid)
             page.retranslateUi(page)
         self.set_finish_text()
+        self.set_button_texts()
 
     def accept(self):
         pages = map(self.page, self.visitedPages())
