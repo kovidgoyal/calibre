@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+
+import urlparse
+from collections import OrderedDict
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class StrangeHorizons(BasicNewsRecipe):
+
+	# Recipe metadata
+	# Any issue archive page is an acceptable index as well.
+	# However, reviews will not be included in older issues.
+	# (Using the reviews archive instead of the recent reviews page would fix.)
+	INDEX = 'http://www.strangehorizons.com/'
+	title = 'Strange Horizons'
+	description = 'A magazine of speculative fiction and related nonfiction. Best downloaded on weekends'
+	masthead_url = 'http://strangehorizons.com/images/sh_head.gif'
+	publication_type = 'magazine'
+	language = 'en'
+	__author__ = 'Jim DeVona'
+	__version__ = '1.0'
+
+	# Cruft filters
+	keep_only_tags = [dict(name='div', id='content')]
+	remove_tags = [dict(name='p', attrs={'class': 'forum-links'}), dict(name='p', attrs={'class': 'top-link'})]
+	remove_tags_after = [dict(name='p', attrs={'class': 'author-bio'})]
+
+	# Styles
+	no_stylesheets = True
+	extra_css = '''div.image-left { margin: 0.5em auto 1em auto; } div.image-right { margin: 0.5em auto 1em auto; } div.illustration { margin: 0.5em auto 1em auto; text-align: center; } p.image-caption { margin-top: 0.25em; margin-bottom: 1em; font-size: 75%; text-align: center; } h1 { font-size: 160%; } h2 { font-size: 110%; } h3 { font-size: 85%; } h4 { font-size: 80%; } p { font-size: 90%; margin: 1em 1em 1em 15px; } p.author-bio { font-size: 75%; font-style: italic; margin: 1em 1em 1em 15px; } p.author-bio i, p.author-bio cite, p.author-bio .foreign { font-style: normal; } p.author-copyright { font-size: 75%; text-align: center; margin: 3em 1em 1em 15px; } p.content-date { font-weight: bold; } p.dedication { font-style: italic; } div.stanza { margin-bottom: 1em; } div.stanza p { margin: 0px 1em 0px 15px; font-size: 90%; } p.verse-line { margin-bottom: 0px; margin-top: 0px; } p.verse-line-indent-1 { margin-bottom: 0px; margin-top: 0px; text-indent: 2em; } p.verse-line-indent-2 { margin-bottom: 0px; margin-top: 0px; text-indent: 4em; } p.verse-stanza-break { margin-bottom: 0px; margin-top: 0px; } .foreign { font-style: italic; } .thought { font-style: italic; } .thought cite { font-style: normal; } .thought em { font-style: normal; } blockquote { font-size: 90%; font-style: italic; } blockquote cite { font-style: normal; } blockquote em { font-style: normal; } blockquote .foreign { font-style: normal; } blockquote .thought { font-style: normal; } .speaker { font-weight: bold; } pre { margin-left: 15px; } div.screenplay { font-family: monospace; } blockquote.screenplay-dialogue { font-style: normal; font-size: 100%; } .screenplay p.dialogue-first { margin-top: 0; } .screenplay p.speaker { margin-bottom: 0; text-align: center; font-weight: normal; } blockquote.typed-letter { font-style: normal; font-size: 100%; font-family: monospace; } .no-italics { font-style: normal; }'''
+
+	def parse_index(self):
+
+		sections = OrderedDict()
+		strange_soup = self.index_to_soup(self.INDEX)
+
+		# Find the heading that marks the start of this issue.
+		issue_heading = strange_soup.find('h2')
+		issue_date = self.tag_to_string(issue_heading)
+		self.title = self.title + " - " + issue_date
+
+		# Examine subsequent headings for information about this issue.
+		heading_tag = issue_heading.findNextSibling(['h2','h3'])
+		while heading_tag != None:
+
+			# An h2 indicates the start of the next issue.
+			if heading_tag.name == 'h2':
+				break
+
+			# The heading begins with a word indicating the article category.
+			section = self.tag_to_string(heading_tag).split(':', 1)[0].title()
+
+			# Reviews aren't linked from the index, so we need to look them up
+			# separately. Currently using Recent Reviews page. The reviews
+			# archive page lists all reviews, but is >500k.
+			if section == 'Review':
+
+				# Get the list of recent reviews.
+				review_soup = self.index_to_soup('http://www.strangehorizons.com/reviews/')
+				review_titles = review_soup.findAll('p', attrs={'class': 'contents-title'})
+
+				# Get the list of reviews included in this issue. (Kludgey.)
+				reviews_summary = heading_tag.findNextSibling('p', attrs={'class': 'contents-pullquote'})
+				for br in reviews_summary.findAll('br'):
+					br.replaceWith('----')
+				review_summary_text = self.tag_to_string(reviews_summary)
+				review_lines = review_summary_text.split(' ----')
+
+				# Look for each of the needed reviews (there are 3, right?)...
+				for review_info in review_lines[0:3]:
+
+					# Get the review's release day (unused), title, and author.
+					day, tna = review_info.split(': ', 1)
+					article_title, article_author = tna.split(', reviewed by ')
+
+					# ... in the list of recent reviews.
+					for review_title_tag in review_titles:
+						review_title = self.tag_to_string(review_title_tag)
+						if review_title != article_title:
+							continue
+
+						# Extract review information from heading and surrounding text.
+						article_summary = self.tag_to_string(review_title_tag.findNextSibling('p', attrs={'class': 'contents-pullquote'}))
+						review_date = self.tag_to_string(review_title_tag.findNextSibling('p', attrs={'class': 'contents-date'}))
+						article_url = review_title_tag.find('a')['href']
+
+						# Add this review to the Review section.
+						if section not in sections:
+							sections[section] = []
+						sections[section].append({
+								'title': article_title,
+								'author': article_author,
+								'url': article_url,
+								'description': article_summary,
+								'date': review_date})
+
+						break
+
+					else:
+						# Try http://www.strangehorizons.com/reviews/archives.shtml
+						self.log("Review not found in Recent Reviews:", article_title)
+
+			else:
+
+				# Extract article information from the heading and surrounding text.
+				link = heading_tag.find('a')
+				article_title = self.tag_to_string(link)
+				article_url = urlparse.urljoin(self.INDEX, link['href'])
+				article_author = link.nextSibling.replace(', by ', '')
+				article_summary = self.tag_to_string(heading_tag.findNextSibling('p', attrs={'class':'contents-pullquote'}))
+
+				# Add article to the appropriate collection of sections.
+				if section not in sections:
+					sections[section] = []
+				sections[section].append({
+						'title': article_title,
+						'author': article_author,
+						'url': article_url,
+						'description': article_summary,
+						'date': issue_date})
+
+			heading_tag = heading_tag.findNextSibling(['h2','h3'])
+
+		# Manually insert standard info about the magazine.
+		sections['About'] = [{
+				'title': 'Strange Horizons',
+				'author': 'Niall Harrison, Editor-in-Chief',
+				'url': 'http://www.strangehorizons.com/AboutUs.shtml',
+				'description': 'Strange Horizons is a magazine of and about speculative fiction and related nonfiction. Speculative fiction includes science fiction, fantasy, horror, slipstream, and all other flavors of fantastika. Work published in Strange Horizons has been shortlisted for or won Hugo, Nebula, Rhysling, Theodore Sturgeon, James Tiptree Jr., and World Fantasy Awards.',
+				'date': ''}]
+
+		return sections.items()
+
