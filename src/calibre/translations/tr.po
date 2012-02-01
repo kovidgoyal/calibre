@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-01-27 07:21+0000\n"
-"PO-Revision-Date: 2011-10-24 13:59+0000\n"
-"Last-Translator: ismail yenigul <Unknown>\n"
+"PO-Revision-Date: 2012-01-31 22:32+0000\n"
+"Last-Translator: Yunus Kara <yyynns@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-01-28 04:58+0000\n"
-"X-Generator: Launchpad (build 14727)\n"
+"X-Launchpad-Export-Date: 2012-02-01 04:44+0000\n"
+"X-Generator: Launchpad (build 14734)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -428,6 +428,7 @@ msgstr "Bir Calibre kütüphanesinden diğerine kitap kopyalayın"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Calibre kütüphanenizde epub veya htmlz dosyalarına ufak ayarlar yapın"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid ""
@@ -845,7 +846,7 @@ msgstr "Bu profil Amazon Kindle DX'i hedefler."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Bu profil Amazon Kindle Fire için tasarlanmıştır."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -1085,6 +1086,8 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Desteklenmeyen doğrudan bağlantı modu. 'ITunes Connect' kullanma talimatları "
+"için bakınız. http://www.mobileread.com/forums/showthread.php?t=118559"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:376
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
@@ -1278,7 +1281,7 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "BlackBerry PlayBook ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
@@ -1322,7 +1325,7 @@ msgstr "PocketBook 701 ile iletişim kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Infibeam Pi2 okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -1397,7 +1400,7 @@ msgstr "Elonex EB 511 eBook reader ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:171
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Cybook Odyssey eKitap okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
@@ -1477,7 +1480,7 @@ msgstr "<b>Konum %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:288
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Kindle 2/3/4/Touch eKitap okuyucu ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:297
 msgid "Send page number information when sending books"
@@ -1516,7 +1519,7 @@ msgstr "Kindle DX eBook reader ile bağlantı kur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:402
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Kindle Fire ile iletişim kur."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:26
 msgid "Communicate with the Kobo Reader"
@@ -1550,7 +1553,7 @@ msgstr "Siyah ve beytaz kapaklar yükle"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:65
 msgid "Show expired books"
-msgstr ""
+msgstr "Tarihi geçmiş kitapları göster."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:66
 msgid ""
@@ -1558,10 +1561,13 @@ msgid ""
 "With this option Calibre will show the expired records and allow you to "
 "delete them with the new delete logic."
 msgstr ""
+"Önceki sürümlerdeki bir hata veritabanında kepubs olmayan kitap kaydı "
+"bıraktı.  Bu seçenekle Calibre tarihi geçmiş kayıtları gösterecek ve size "
+"yeni silme mantığı ile silme imkanı sunacak."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:70
 msgid "Show Previews"
-msgstr ""
+msgstr "Önizlemeleri Göster"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:71
 msgid ""
