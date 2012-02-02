@@ -1,5 +1,4 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class LiveMint(BasicNewsRecipe):
     title          = u'Live Mint'
@@ -15,13 +14,13 @@ class LiveMint(BasicNewsRecipe):
 
 
     feeds          = [
-('Latest News', 
+('Latest News',
  'http://www.livemint.com/StoryRss.aspx?LN=Latestnews'),
- ('Gallery', 
+ ('Gallery',
  'http://www.livemint.com/GalleryRssfeed.aspx'),
- ('Top Stories', 
+ ('Top Stories',
  'http://www.livemint.com/StoryRss.aspx?ts=Topstories'),
- ('Banking', 
+ ('Banking',
  'http://www.livemint.com/StoryRss.aspx?Id=104'),
 ]
 
