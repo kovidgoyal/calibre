@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-27 07:21+0000\n"
+"POT-Creation-Date: 2012-02-01 13:21+0000\n"
 "PO-Revision-Date: 2012-01-10 17:42+0000\n"
 "Last-Translator: Konstantin <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-01-28 04:55+0000\n"
-"X-Generator: Launchpad (build 14727)\n"
+"X-Launchpad-Export-Date: 2012-02-02 05:50+0000\n"
+"X-Generator: Launchpad (build 14738)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -31,8 +31,8 @@ msgstr "Ничего не делает"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:109
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:120
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:287
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:288
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:289
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:101
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -110,8 +110,8 @@ msgstr "Ничего не делает"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1031
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:299
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:145
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:147
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:169
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:171
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:827
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:353
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:357
@@ -144,8 +144,8 @@ msgstr "Ничего не делает"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:103
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:320
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:322
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:410
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:412
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:420
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:381
@@ -202,8 +202,8 @@ msgstr "Ничего не делает"
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:66
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:88
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:53
 msgid "Unknown"
 msgstr "Неизв."
 
@@ -981,7 +981,7 @@ msgstr "Журнал ошибок"
 msgid "Communicate with Android phones."
 msgstr "Соединиться с Android."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:156
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:157
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -989,11 +989,11 @@ msgstr ""
 "Разделённый запятаями список директории для отправки e-books на это "
 "устройство. Будет использовано первое в списке устройство"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:227
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:228
 msgid "Communicate with S60 phones."
 msgstr "Соединиться с телефоном S60"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:246
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:247
 msgid "Communicate with WebOS tablets."
 msgstr "Соединиться с WebOS планшетом"
 
@@ -1130,9 +1130,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:470
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:552
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:571
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1032
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1038
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1073
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1053
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1059
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1094
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:464
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1148
@@ -1939,30 +1939,26 @@ msgstr ""
 "Главная память %s только для чтения. Это обычно случается из-за ошибок "
 "файловой системы."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:758
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:801
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:811
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:821
-#, python-format
-msgid "Could not find mount helper: %s."
-msgstr "Не могу найти mount helper: %s."
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:809
+msgid "Unable to mount the device"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:959
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:961
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:982
 msgid "The reader has no storage card in this slot."
 msgstr "В устройство не вставлена карта памяти."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:963
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:984
 #, python-format
 msgid "Selected slot: %s is not supported."
 msgstr "Выбранный слот: %s не поддерживается."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:992
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1013
 msgid "There is insufficient free space in main memory"
 msgstr "Не хватает свободного места в основной памяти"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:994
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:996
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1015
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1017
 msgid "There is insufficient free space on the storage card"
 msgstr "Не хватает свободного места на карте памяти"
 
@@ -4780,11 +4776,19 @@ msgstr "Отключить анимацию пользовальского ин�
 msgid "tag browser categories not to display"
 msgstr "пометить категории просмотра для неотображения"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:280
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:260
+msgid "WARNING:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:270
+msgid "ERROR:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:282
 msgid "Show this confirmation again"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:531
 msgid "Choose Files"
 msgstr "Выберите файлы"
 
@@ -16835,7 +16839,28 @@ msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
 msgstr "Нужно выбрать пустую папку для библиотеки calibre. %s не пуста."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:785
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:792
+msgid "&Next >"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:793
+msgid "< &Back"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:794
+#: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
+msgid "Cancel"
+msgstr "Отменить"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:795
+msgid "&Finish"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:796
+msgid "Commit"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:801
 msgid "welcome wizard"
 msgstr "Мастер приветствия"
 
@@ -19633,106 +19658,106 @@ msgstr "Не загружать последнюю версию встроенн
 msgid "Unknown News Source"
 msgstr "Неизвестный новостной ресурс"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:750
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:752
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
 msgstr "Рецепт \"%s\" требует имя пользожателя и пароль"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:857
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:859
 msgid "Download finished"
 msgstr "Закачка завершена"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:859
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:861
 msgid "Failed to download the following articles:"
 msgstr "Неудачная загрузка следующих статей:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:865
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:867
 msgid "Failed to download parts of the following articles:"
 msgstr "Неудачная загрузка частей следующих статей:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:867
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid " from "
 msgstr " из "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:871
 msgid "\tFailed links:"
 msgstr "\tБитые ссылки:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:971
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:973
 msgid "Could not fetch article."
 msgstr "Не удалось получить статью."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:973
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:975
 msgid "The debug traceback is available earlier in this log"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:975
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:977
 msgid "Run with -vv to see the reason"
 msgstr "Запуск с-vv чтобы увидеть причину"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:998
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1000
 msgid "Fetching feeds..."
 msgstr "Вызываются заготовки..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1003
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1005
 msgid "Got feeds from index page"
 msgstr "Получить заготовки для оглавления"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1012
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1014
 msgid "Trying to download cover..."
 msgstr "Попытка скачать обложку..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1014
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1016
 msgid "Generating masthead..."
 msgstr "Создаем титульные данные..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1094
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1096
 #, python-format
 msgid "Starting download [%d thread(s)]..."
 msgstr "Начало загрузки [%d поток(и)]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1110
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1112
 #, python-format
 msgid "Feeds downloaded to %s"
 msgstr "Заготовки закачиватся в %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1119
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1121
 #, python-format
 msgid "Could not download cover: %s"
 msgstr "Невозможно скачать обложку: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1128
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1130
 #, python-format
 msgid "Downloading cover from %s"
 msgstr "Скачивается обложка из %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1174
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1176
 msgid "Masthead image downloaded"
 msgstr "Выходные данные изображения загрузили"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1255
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1257
 msgid "Articles in this issue: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1327
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1329
 msgid "Untitled Article"
 msgstr "Статья без названия"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1399
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1401
 #, python-format
 msgid "Article downloaded: %s"
 msgstr "Статья скачена: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1410
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1412
 #, python-format
 msgid "Article download failed: %s"
 msgstr "Ошибка загрузки статьи: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1427
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1429
 msgid "Fetching feed"
 msgstr "Доставляется материал"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1571
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1573
 msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
@@ -19740,7 +19765,7 @@ msgstr ""
 "Не удалось выполнить вход, проверьте свое имя пользователя и пароль для "
 "службы Периодических изданий Calibre."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1586
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1588
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
@@ -19748,7 +19773,7 @@ msgstr ""
 "У вас нет разрешения загрузить этот выпуск. Или ваша подписка истекла, или "
 "вы превысили максимальную позволенную загрузку на сегодня."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 msgid "You"
 msgstr "Вы"
 
@@ -19880,10 +19905,6 @@ msgstr "Сохранить"
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
 msgstr "Открыть"
-
-#: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
-msgid "Cancel"
-msgstr "Отменить"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"

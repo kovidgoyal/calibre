@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-01-27 07:21+0000\n"
+"POT-Creation-Date: 2012-02-01 13:21+0000\n"
 "PO-Revision-Date: 2012-01-30 01:59+0000\n"
 "Last-Translator: Li Fanxi <Unknown>\n"
 "Language-Team: Simplified Chinese <wanglihao@gmail.com>\n"
@@ -17,8 +17,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-01-31 04:59+0000\n"
-"X-Generator: Launchpad (build 14734)\n"
+"X-Launchpad-Export-Date: 2012-02-02 05:56+0000\n"
+"X-Generator: Launchpad (build 14738)\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-Language: Chinese\n"
 
@@ -30,8 +30,8 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:109
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:120
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:287
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:288
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:289
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:101
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -109,8 +109,8 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1031
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:299
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:145
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:147
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:169
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:171
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:827
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:353
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:357
@@ -143,8 +143,8 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:103
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:320
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:322
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:410
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:412
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:420
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:381
@@ -201,8 +201,8 @@ msgstr "不做任何处理"
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:66
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:88
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:53
 msgid "Unknown"
 msgstr "未知"
 
@@ -940,17 +940,17 @@ msgstr "调试日志"
 msgid "Communicate with Android phones."
 msgstr "与 Android 手机通信。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:156
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:157
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr "逗号间隔的电子书发送到设备目录的列表。将使用第一个存在的目录。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:227
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:228
 msgid "Communicate with S60 phones."
 msgstr "与 S60 手机通信。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:246
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:247
 msgid "Communicate with WebOS tablets."
 msgstr "与 WebOS 平板通信。"
 
@@ -1086,9 +1086,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:470
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:552
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:571
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1032
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1038
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1073
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1053
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1059
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1094
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:464
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1148
@@ -1860,30 +1860,26 @@ msgid ""
 "system errors."
 msgstr "%s 的主内存只读。可能是由于设备的文件系统出错引起。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:758
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:801
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:811
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:821
-#, python-format
-msgid "Could not find mount helper: %s."
-msgstr "无法找到装载帮助程序：%s。"
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:809
+msgid "Unable to mount the device"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:959
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:961
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:982
 msgid "The reader has no storage card in this slot."
 msgstr "插槽不含存储卡。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:963
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:984
 #, python-format
 msgid "Selected slot: %s is not supported."
 msgstr "选定的插槽：%s 未被支持。"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:992
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1013
 msgid "There is insufficient free space in main memory"
 msgstr "设备内置存储空间不足"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:994
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:996
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1015
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1017
 msgid "There is insufficient free space on the storage card"
 msgstr "存储卡空间不足"
 
@@ -4446,11 +4442,19 @@ msgstr "禁用界面动画"
 msgid "tag browser categories not to display"
 msgstr "标签浏览器分类无法显示"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:280
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:260
+msgid "WARNING:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:270
+msgid "ERROR:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:282
 msgid "Show this confirmation again"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:531
 msgid "Choose Files"
 msgstr "选择文件"
 
@@ -16413,7 +16417,28 @@ msgid ""
 "You must choose an empty folder for the calibre library. %s is not empty."
 msgstr "您必须为 calibre 书库选择空目录。%s 非空目录。"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:785
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:792
+msgid "&Next >"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:793
+msgid "< &Back"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:794
+#: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
+msgid "Cancel"
+msgstr "取消"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:795
+msgid "&Finish"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:796
+msgid "Commit"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:801
 msgid "welcome wizard"
 msgstr "欢迎向导"
 
@@ -19163,118 +19188,118 @@ msgstr "不从 calire 服务器下载最新订阅清单"
 msgid "Unknown News Source"
 msgstr "未知新闻来源"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:750
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:752
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
 msgstr "订阅清单 “%s” 需要用户名与密码。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:857
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:859
 msgid "Download finished"
 msgstr "下载完成"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:859
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:861
 msgid "Failed to download the following articles:"
 msgstr "下载下列文章失败："
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:865
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:867
 msgid "Failed to download parts of the following articles:"
 msgstr "下载下列文章的某些部分失败："
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:867
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid " from "
 msgstr " 自 "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:871
 msgid "\tFailed links:"
 msgstr "\t失败链接："
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:971
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:973
 msgid "Could not fetch article."
 msgstr "无法获取文章。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:973
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:975
 msgid "The debug traceback is available earlier in this log"
 msgstr "调试用信息出现在日志文件前部"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:975
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:977
 msgid "Run with -vv to see the reason"
 msgstr "以 -vv 参数运行，以便查看出错的原因"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:998
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1000
 msgid "Fetching feeds..."
 msgstr "正在抓取源..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1003
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1005
 msgid "Got feeds from index page"
 msgstr "从索引页面获取了源"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1012
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1014
 msgid "Trying to download cover..."
 msgstr "正在尝试下载封面..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1014
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1016
 msgid "Generating masthead..."
 msgstr "正在生成刊头..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1094
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1096
 #, python-format
 msgid "Starting download [%d thread(s)]..."
 msgstr "开始下载 [ %d 线程]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1110
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1112
 #, python-format
 msgid "Feeds downloaded to %s"
 msgstr "新闻源下载到 %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1119
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1121
 #, python-format
 msgid "Could not download cover: %s"
 msgstr "无法下载封面：%s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1128
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1130
 #, python-format
 msgid "Downloading cover from %s"
 msgstr "正在从 %s 下载封面"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1174
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1176
 msgid "Masthead image downloaded"
 msgstr "已下载刊头图像"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1255
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1257
 msgid "Articles in this issue: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1327
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1329
 msgid "Untitled Article"
 msgstr "无标题文章"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1399
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1401
 #, python-format
 msgid "Article downloaded: %s"
 msgstr "已下载文章：%s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1410
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1412
 #, python-format
 msgid "Article download failed: %s"
 msgstr "下载失败文章：%s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1427
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1429
 msgid "Fetching feed"
 msgstr "抓取源"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1571
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1573
 msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
 msgstr "登录失败，检查您 calibre 期刊服务的用户名密码。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1586
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1588
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
 msgstr "您无权下载此期。您的订阅已经过期或者超过了每日下载最大值。"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 msgid "You"
 msgstr "您"
 
@@ -19392,10 +19417,6 @@ msgstr "保存"
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
 msgstr "打开"
-
-#: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
-msgid "Cancel"
-msgstr "取消"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"

@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-01-27 07:21+0000\n"
-"PO-Revision-Date: 2011-11-29 09:51+0000\n"
-"Last-Translator: Lucian Martin <Unknown>\n"
+"POT-Creation-Date: 2012-02-01 13:21+0000\n"
+"PO-Revision-Date: 2012-02-01 10:38+0000\n"
+"Last-Translator: Cornel Ionescu <cornel.f.ionescu@gmail.com>\n"
 "Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2012-01-28 04:55+0000\n"
-"X-Generator: Launchpad (build 14727)\n"
+"X-Launchpad-Export-Date: 2012-02-02 05:49+0000\n"
+"X-Generator: Launchpad (build 14738)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -27,8 +27,8 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:109
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:120
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:287
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:288
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:289
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:101
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -106,8 +106,8 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:1031
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/utils.py:299
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:497
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:145
-#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:147
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:169
+#: /home/kovid/work/calibre/src/calibre/ebooks/odt/input.py:171
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:827
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:353
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/parse_utils.py:357
@@ -140,8 +140,8 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:103
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:320
 #: /home/kovid/work/calibre/src/calibre/ebooks/rtf/input.py:322
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:410
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:418
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:412
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:420
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:381
@@ -198,8 +198,8 @@ msgstr "Nu face absolut nimic"
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:66
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:88
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:54
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:53
 msgid "Unknown"
 msgstr "Necunoscut(ă)"
 
@@ -998,7 +998,7 @@ msgstr "Registrul pentru depanare"
 msgid "Communicate with Android phones."
 msgstr "Comunică cu telefoane Android."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:156
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:157
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -1006,11 +1006,11 @@ msgstr ""
 "Lista separată prin virgule a directoarelor ce vor fi trimise către "
 "dispozitiv. Va fi folosit primul dispozitiv identificat."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:227
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:228
 msgid "Communicate with S60 phones."
 msgstr "Comunică cu telefoanele S60."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:246
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:247
 msgid "Communicate with WebOS tablets."
 msgstr "Comunică cu tabletele WebOS."
 
@@ -1155,9 +1155,9 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:470
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:552
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:571
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1032
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1038
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1073
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1053
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1059
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1094
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:464
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1148
@@ -1984,30 +1984,26 @@ msgstr ""
 "Memoria principală a %s poate fi doar citită. Acest lucru se întâmplă de "
 "obicei din cauza unor erori din sistemul de fişiere."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:758
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:801
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:811
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:821
-#, python-format
-msgid "Could not find mount helper: %s."
-msgstr "Nu gasesc ajutorul de montare: %s."
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:809
+msgid "Unable to mount the device"
+msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:959
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:961
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:982
 msgid "The reader has no storage card in this slot."
 msgstr "Dispozitivul nu are card de memorie introdus."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:963
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:984
 #, python-format
 msgid "Selected slot: %s is not supported."
 msgstr "Cititorul selectat : %s nu este suportat."
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:992
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1013
 msgid "There is insufficient free space in main memory"
 msgstr "Nu există suficient spaţiu liber în memoria principală"
 
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:994
-#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:996
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1015
+#: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1017
 msgid "There is insufficient free space on the storage card"
 msgstr "Nu există suficient spaţiu liber pe cartela de stocare"
 
@@ -4096,7 +4092,8 @@ msgstr "Dezactivează comprimarea conţinutului dosarului"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
-msgstr "Eticheta ce marcheaza cartea sa fie depusa in Documente Personale"
+msgstr ""
+"Eticheta care marchează cartea ca să fie depusă în Documente Personale"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/output.py:44
 msgid ""
@@ -4219,7 +4216,7 @@ msgstr "%s formatul cărţilor nu este acceptat"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:973
 #, python-format
 msgid "Book %(sidx)s of %(series)s"
-msgstr "Carte %(sidx)s din %(series)s"
+msgstr "Cartea %(sidx)s din %(series)s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:55
 msgid "HTML TOC generation options."
@@ -4971,11 +4968,19 @@ msgstr "Dezactivează animaţiile UI"
 msgid "tag browser categories not to display"
 msgstr "categoriile etichete de browser nu au putut fi afişate"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:280
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:260
+msgid "WARNING:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:270
+msgid "ERROR:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:282
 msgid "Show this confirmation again"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:531
 msgid "Choose Files"
 msgstr "Alege fişiere"
 
@@ -17711,7 +17716,28 @@ msgstr ""
 "Trebuie să selectaţi un director gol pentru biblioteca dumneavoastră "
 "calibre. %s nu este gol."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:785
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:792
+msgid "&Next >"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:793
+msgid "< &Back"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:794
+#: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
+msgid "Cancel"
+msgstr "Anulează"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:795
+msgid "&Finish"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:796
+msgid "Commit"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:801
 msgid "welcome wizard"
 msgstr "welcome wizard"
 
@@ -20925,106 +20951,106 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr "Sursă de ştiri necunoscută"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:750
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:752
 #, python-format
 msgid "The \"%s\" recipe needs a username and password."
 msgstr "Reţeta \"%s\" necesită nume de utilizator şi parolă."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:857
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:859
 msgid "Download finished"
 msgstr "Descărcare finalizată"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:859
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:861
 msgid "Failed to download the following articles:"
 msgstr "Descărcarea următoarelor articole a eşuat:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:865
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:867
 msgid "Failed to download parts of the following articles:"
 msgstr "Descărcarea părţilor din următoarele articole a eşuat:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:867
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
 msgid " from "
 msgstr " de la "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:869
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:871
 msgid "\tFailed links:"
 msgstr "\tLink-uri greşite:"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:971
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:973
 msgid "Could not fetch article."
 msgstr "Nu s-a putut obţine articolul."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:973
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:975
 msgid "The debug traceback is available earlier in this log"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:975
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:977
 msgid "Run with -vv to see the reason"
 msgstr "Rulează cu -vv pentru a vedea motivul"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:998
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1000
 msgid "Fetching feeds..."
 msgstr "Se aduc fluxuri..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1003
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1005
 msgid "Got feeds from index page"
 msgstr "Fluxurile s-au obţinut din pagina de index"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1012
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1014
 msgid "Trying to download cover..."
 msgstr "Se încearcă descărcarea coperţii..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1014
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1016
 msgid "Generating masthead..."
 msgstr "Se generează detaliile editorului..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1094
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1096
 #, python-format
 msgid "Starting download [%d thread(s)]..."
 msgstr "Se porneşte descărcarea [%d thread(s)]..."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1110
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1112
 #, python-format
 msgid "Feeds downloaded to %s"
 msgstr "Fluxurile au fost descărcate în %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1119
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1121
 #, python-format
 msgid "Could not download cover: %s"
 msgstr "Coperta nu a putut fi descărcată: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1128
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1130
 #, python-format
 msgid "Downloading cover from %s"
 msgstr "Se descarcă coperta de la %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1174
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1176
 msgid "Masthead image downloaded"
 msgstr "Imaginea cu detaliile editorului a fost descărcată"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1255
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1257
 msgid "Articles in this issue: "
 msgstr "Articole în această ediţie: "
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1327
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1329
 msgid "Untitled Article"
 msgstr "Articol fără titlu"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1399
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1401
 #, python-format
 msgid "Article downloaded: %s"
 msgstr "Articolul a fost descărcat: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1410
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1412
 #, python-format
 msgid "Article download failed: %s"
 msgstr "Descărcarea articolului a eşuat: %s"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1427
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1429
 msgid "Fetching feed"
 msgstr "Se obţine fluxul"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1571
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1573
 msgid ""
 "Failed to log in, check your username and password for the calibre "
 "Periodicals service."
@@ -21032,7 +21058,7 @@ msgstr ""
 "Conectare nereuşităi, verificaţi numele de utilizator şi parola pentru "
 "serviciul Calibre Periodica."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1586
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:1588
 msgid ""
 "You do not have permission to download this issue. Either your subscription "
 "has expired or you have exceeded the maximum allowed downloads for today."
@@ -21040,7 +21066,7 @@ msgstr ""
 "Nu aveţi permisiunea de a descărca acest exemplar. Fie abonamentul v-a "
 "expirat, fie aţi depăşit numărul maxim de descărcări permise zilnic."
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:46
+#: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 msgid "You"
 msgstr "Tu"
 
@@ -21171,10 +21197,6 @@ msgstr "Salvează"
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:655
 msgid "Open"
 msgstr "Deschide"
-
-#: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
-msgid "Cancel"
-msgstr "Anulează"
 
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:661
 msgid "&Close"
