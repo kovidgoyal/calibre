@@ -77,8 +77,10 @@ class ChicagoTribune(BasicNewsRecipe):
 
 
     def get_article_url(self, article):
-        print article.get('feedburner_origlink', article.get('guid', article.get('link')))
-        return article.get('feedburner_origlink', article.get('guid', article.get('link')))
+        url = article.get('feedburner_origlink', article.get('guid', article.get('link')))
+        if url.endswith('?track=rss'):
+            url = url.partition('?')[0]
+        return url
 
     def postprocess_html(self, soup, first_fetch):
         # Remove the navigation bar. It was kept until now to be able to follow
