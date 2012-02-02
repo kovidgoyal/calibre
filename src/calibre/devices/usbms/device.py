@@ -700,9 +700,9 @@ class Device(DeviceConfig, DevicePlugin):
         if not d.serial:
             raise DeviceError("Device has no S/N.  Can't continue")
             return False
-        
+
         vols=[]
-        
+
         bus = dbus.SystemBus()
         manager = dbus.Interface(bus.get_object('org.freedesktop.Hal',
                       '/org/freedesktop/Hal/Manager'), 'org.freedesktop.Hal.Manager')
@@ -718,7 +718,7 @@ class Device(DeviceConfig, DevicePlugin):
                         d.serial == objif.GetProperty('usb.serial'):
                     dpaths = manager.FindDeviceStringMatch('storage.originating_device', path)
                     for dpath in dpaths:
-                        devif = dbus.Interface(bus.get_object('org.freedesktop.Hal', dpath), 'org.freedesktop.Hal.Device')
+                        #devif = dbus.Interface(bus.get_object('org.freedesktop.Hal', dpath), 'org.freedesktop.Hal.Device')
                         try:
                             vpaths = manager.FindDeviceStringMatch('block.storage_device', dpath)
                             for vpath in vpaths:
@@ -755,7 +755,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         if verbose:
             print "FBSD:	", vols
-        
+
         mtd=0
 
         for vol in vols:
@@ -763,8 +763,6 @@ class Device(DeviceConfig, DevicePlugin):
             if vol['dev'].GetProperty('volume.is_mounted'):
                 mp = vol['dev'].GetProperty('volume.mount_point')
             else:
-                if verbose:
-                    print "FBSD:	trying ", vol['label'], "on", 'Calibre-'+labels[i]
                 try:
                     vol['vol'].Mount('Calibre-'+vol['label'],
                             vol['dev'].GetProperty('volume.fstype'), [])

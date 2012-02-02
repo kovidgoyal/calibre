@@ -160,7 +160,6 @@ class FreeBSDScanner(object):
     def __call__(self):
         ans = set([])
         import dbus
-        devs = []
 
         try:
            bus = dbus.SystemBus()
@@ -170,7 +169,6 @@ class FreeBSDScanner(object):
            for path in paths:
               obj = bus.get_object('org.freedesktop.Hal', path)
               objif = dbus.Interface(obj, 'org.freedesktop.Hal.Device')
-              devif = objif
               parentdriver = None
               while parentdriver != 'umass':
                  try:
