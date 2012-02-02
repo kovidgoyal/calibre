@@ -41,6 +41,7 @@ from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.keyboard import Manager
+from calibre.gui2.auto_add import AutoAdder
 from calibre.library.sqlite import sqlite, DatabaseException
 
 class Listener(Thread): # {{{
@@ -349,6 +350,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.device_manager.set_current_library_uuid(db.library_id)
 
         self.keyboard.finalize()
+        self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
 
         # Collect cycles now
         gc.collect()
@@ -697,6 +699,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
+        self.auto_adder.stop()
         mb = self.library_view.model().metadata_backup
         if mb is not None:
             mb.stop()
