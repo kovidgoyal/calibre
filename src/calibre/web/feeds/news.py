@@ -1398,7 +1398,7 @@ class BasicNewsRecipe(Recipe):
         article.sub_pages  = result[1][1:]
         self.jobs_done += 1
         self.report_progress(float(self.jobs_done)/len(self.jobs),
-            _(u'Article downloaded: %s')%repr(article.title))
+            _(u'Article downloaded: %s')%force_unicode(article.title))
         if result[2]:
             self.partial_failures.append((request.feed.title, article.title, article.url, result[2]))
 
@@ -1409,7 +1409,7 @@ class BasicNewsRecipe(Recipe):
         self.log.debug(traceback)
         self.log.debug('\n')
         self.report_progress(float(self.jobs_done)/len(self.jobs),
-                _('Article download failed: %s')%repr(request.article.title))
+                _('Article download failed: %s')%force_unicode(request.article.title))
         self.failed_downloads.append((request.feed, request.article, traceback))
 
     def parse_feeds(self):
