@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-01 13:21+0000\n"
-"PO-Revision-Date: 2012-01-13 20:47+0000\n"
-"Last-Translator: Aleksi Kinnunen <Unknown>\n"
+"PO-Revision-Date: 2012-02-02 23:25+0000\n"
+"Last-Translator: Jaakko Perttilä <jormangeud@gmail.com>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-02 05:41+0000\n"
+"X-Launchpad-Export-Date: 2012-02-03 05:37+0000\n"
 "X-Generator: Launchpad (build 14738)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -236,7 +236,7 @@ msgstr "Katalogin luoja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
-msgstr ""
+msgstr "Käyttölittymän toiminto"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -273,6 +273,9 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Luo TXTZ-arkisto kun tuodussa TXT-tiedostossa on Markdown- tai Textile-"
+"viitteitä kuviin. Kuvat, joihin viitataan lisätään TXT-tiedoston lisäksi "
+"arkistoon."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:127
 msgid "Extract cover from comic files"
@@ -334,43 +337,43 @@ msgstr "Lisää kirjoja joko calibreen tai liitettyyn laitteeseen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:735
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Nouda sivuhuomautukset liitetystä Kindlestä (kokeellinen)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:740
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Luo luettelo calibren kirjaston kirjoista"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:745
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Muunna kirjoja eri e-kirjamuotoihin"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:750
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Poista kirjoja calibren kirjastosta tai liitetystä laitteesta"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:755
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Muokkaa calibren kirjaston kirjojen metatietoja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:760
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Lue calibren kirjastossa olevia kirjoja"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:765
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Lataa uutisia internetistä e-kirjamuodossa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:770
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Näytä nopeasti lista liittyvistä kirjoista"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:775
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Vie kirjoja calibren kirjastosta kiintolevylle"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:780
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Näytä kirjan tiedot erillisessä ponnahdusikkunassa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:785
 msgid "Restart calibre"
@@ -5412,7 +5415,7 @@ msgstr "Muuta calibren toimintaa"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:29
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:208
 msgid "Run welcome wizard"
-msgstr "Suorita ensimmäisen käynnistyskerran ohjelma"
+msgstr "Suorita ohjattu aloitustoiminto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:31
 msgid "Get plugins to enhance calibre"
@@ -15950,7 +15953,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:801
 msgid "welcome wizard"
-msgstr ""
+msgstr "ohjattu aloitustoiminto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/device_ui.py:55
@@ -18487,7 +18490,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
-msgstr ""
+msgstr "Tervetuloa"
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:41
 msgid " console "
