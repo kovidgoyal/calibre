@@ -1077,6 +1077,12 @@ class Manifest(object):
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
 
+    def remove_duplicate_item(self, item):
+        if item in self.ids:
+            item = self.ids[item]
+        del self.ids[item.id]
+        self.items.remove(item)
+
     def generate(self, id=None, href=None):
         """Generate a new unique identifier and/or internal path for use in
         creating a new manifest item, using the provided :param:`id` and/or
