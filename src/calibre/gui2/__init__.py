@@ -101,6 +101,7 @@ gprefs.defaults['preserve_date_on_ctl'] = True
 gprefs.defaults['cb_fullscreen'] = False
 gprefs.defaults['worker_max_time'] = 0
 gprefs.defaults['show_files_after_save'] = True
+gprefs.defaults['auto_add_path'] = None
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -257,7 +258,8 @@ def extension(path):
 def warning_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.WARNING, 'WARNING: '+title, msg, det_msg, parent=parent,
+    d = MessageBox(MessageBox.WARNING, _('WARNING:')+ ' ' +
+            title, msg, det_msg, parent=parent,
             show_copy_button=show_copy_button)
     if show:
         return d.exec_()
@@ -266,7 +268,8 @@ def warning_dialog(parent, title, msg, det_msg='', show=False,
 def error_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.ERROR, 'ERROR: '+title, msg, det_msg, parent=parent,
+    d = MessageBox(MessageBox.ERROR, _('ERROR:')+ ' ' +
+            title, msg, det_msg, parent=parent,
                     show_copy_button=show_copy_button)
     if show:
         return d.exec_()

@@ -14,6 +14,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 class OReillyPremium(BasicNewsRecipe):
     title           = u'OReilly Premium'
     __author__      = 'TMcN'
+    language = 'en'
     description     = 'Retrieves Premium and News Letter content from BillOReilly.com.  Requires a Bill OReilly Premium Membership.'
     cover_url       = 'http://images.billoreilly.com/images/headers/billgray_header.png'
     auto_cleanup    = True

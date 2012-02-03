@@ -285,7 +285,10 @@ class EmailMixin(object): # {{{
                 else []
         def get_fmts(fmts):
             files, auto = self.library_view.model().\
-                    get_preferred_formats_from_ids([id_], fmts)
+                    get_preferred_formats_from_ids([id_], fmts,
+                            set_metadata=True,
+                            use_plugboard=plugboard_email_value,
+                            plugboard_formats=plugboard_email_formats)
             return files
         sent_mails = email_news(mi, remove,
                 get_fmts, self.email_sent, self.job_manager)

@@ -1508,6 +1508,7 @@ class StoreVirtualoStore(StoreBase):
 
     headquarters = 'PL'
     formats = ['EPUB', 'MOBI', 'PDF']
+    affiliate = True
 
 class StoreWaterstonesUKStore(StoreBase):
     name = 'Waterstones UK'

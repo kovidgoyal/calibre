@@ -312,10 +312,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             load_user_template_functions(self.prefs.get('user_template_functions', []))
 
         # Load the format filename cache
-        self.format_filename_cache = defaultdict(dict)
-        for book_id, fmt, name in self.conn.get(
-                'SELECT book,format,name FROM data'):
-            self.format_filename_cache[book_id][fmt.upper() if fmt else ''] = name
+        self.refresh_format_cache()
 
         self.conn.executescript('''
         DROP TRIGGER IF EXISTS author_insert_trg;
@@ -509,7 +506,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.refresh_ondevice = functools.partial(self.data.refresh_ondevice, self)
         self.refresh()
         self.last_update_check = self.last_modified()
-        self.format_metadata_cache = defaultdict(dict)
 
     def break_cycles(self):
         self.data.break_cycles()
@@ -528,6 +524,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ''' Return last modified time as a UTC datetime object'''
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
 
+    def refresh_format_cache(self):
+        self.format_filename_cache = defaultdict(dict)
+        for book_id, fmt, name in self.conn.get(
+                'SELECT book,format,name FROM data'):
+            self.format_filename_cache[book_id][fmt.upper() if fmt else ''] = name
+        self.format_metadata_cache = defaultdict(dict)
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
@@ -1401,7 +1403,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         id = index if index_is_id else self.id(index)
         if not format: format = ''
         self.format_metadata_cache[id].pop(format.upper(), None)
-        name = self.format_filename_cache[id].pop(format.upper(), None)
+        name = self.format_filename_cache[id].get(format.upper(), None)
         if name:
             if not db_only:
                 try:
@@ -1410,6 +1412,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         delete_file(path)
                 except:
                     traceback.print_exc()
+            self.format_filename_cache[id].pop(format.upper(), None)
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             if commit:
                 self.conn.commit()

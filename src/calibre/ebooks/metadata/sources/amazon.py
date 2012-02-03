@@ -767,15 +767,6 @@ if __name__ == '__main__': # tests {{{
 
             ),
 
-            (  # This isbn not on amazon
-                {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
-                    'authors':['Lutz']},
-                [title_test('Learning Python, 3rd Edition',
-                    exact=True), authors_test(['Mark Lutz'])
-                 ]
-
-            ),
-
             ( # Sophisticated comment formatting
                 {'identifiers':{'isbn': '9781416580829'}},
                 [title_test('Angels & Demons - Movie Tie-In: A Novel',

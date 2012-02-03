@@ -24,10 +24,12 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class VirtualoStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://virtualo.pl/ebook/c2/'
+        pid = '12'
+        url = 'http://virtualo.pl/ebook/c2/?pr=' + pid
+        detail_url = detail_item + '&pr=' + pid if detail_item else url
 
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
+            open_url(QUrl(url_slash_cleaner(detail_url)))
         else:
             d = WebStoreDialog(self.gui, url, parent, detail_item)
             d.setWindowTitle(self.name)
@@ -54,11 +56,13 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 price = ''.join(data.xpath('.//span[@class="price"]/text() | .//span[@class="price abbr"]/text()'))
                 cover_url = ''.join(data.xpath('.//table/tr[1]/td[1]/a/img/@src'))
                 title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
+                title = re.sub(r'\ WM', '', title)
                 author = ', '.join(data.xpath('.//div[@class="authors"]/a/text()'))
                 formats = ', '.join(data.xpath('.//span[@class="format"]/a/text()'))
                 formats = re.sub(r'(, )?ONLINE(, )?', '', formats)
                 drm = drm_pattern.search(formats)
                 formats = re.sub(r'(, )?ADE(, )?', '', formats)
+                formats = re.sub(r'\ WM', '', formats)
 
                 counter -= 1
 

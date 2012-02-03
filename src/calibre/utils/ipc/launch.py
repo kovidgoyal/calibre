@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import subprocess, os, sys, time, binascii, cPickle
 from functools import partial
 
-from calibre.constants import iswindows, isosx, isfrozen
+from calibre.constants import iswindows, isosx, isfrozen, filesystem_encoding
 from calibre.utils.config import prefs
 from calibre.ptempfile import PersistentTemporaryFile, base_dir
 
@@ -87,12 +87,21 @@ class Worker(object):
         env = {}
         for key in os.environ:
             try:
-                env[key] = os.environ[key]
+                val = os.environ[key]
+                if isinstance(val, unicode):
+                    # On windows subprocess cannot handle unicode env vars
+                    try:
+                        val = val.encode(filesystem_encoding)
+                    except ValueError:
+                        val = val.encode('utf-8')
+                if isinstance(key, unicode):
+                    key = key.encode('ascii')
+                env[key] = val
             except:
                 pass
-        env['CALIBRE_WORKER'] = '1'
+        env[b'CALIBRE_WORKER'] = b'1'
         td = binascii.hexlify(cPickle.dumps(base_dir()))
-        env['CALIBRE_WORKER_TEMP_DIR'] = td
+        env[b'CALIBRE_WORKER_TEMP_DIR'] = bytes(td)
         env.update(self._env)
         return env
 
@@ -137,7 +146,19 @@ class Worker(object):
     def __init__(self, env, gui=False):
         self._env = {}
         self.gui = gui
-        self._env.update(env)
+        # Windows cannot handle unicode env vars
+        for k, v in env.iteritems():
+            try:
+                if isinstance(k, unicode):
+                    k = k.encode('ascii')
+                if isinstance(v, unicode):
+                    try:
+                        v = v.encode(filesystem_encoding)
+                    except:
+                        v = v.encode('utf-8')
+                self._env[k] = v
+            except:
+                pass
 
     def __call__(self, redirect_output=True, cwd=None, priority=None):
         '''

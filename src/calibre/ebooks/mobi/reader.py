@@ -363,6 +363,11 @@ class MobiReader(object):
                 self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
                 self.processed_html = self.remove_random_bytes(self.processed_html)
                 root = fromstring(self.processed_html)
+            if len(root.xpath('body/descendant::*')) < 1:
+                # There are probably stray </html>s in the markup
+                self.processed_html = self.processed_html.replace('</html>',
+                        '')
+                root = fromstring(self.processed_html)
 
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')

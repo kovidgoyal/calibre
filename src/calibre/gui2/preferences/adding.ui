@@ -7,75 +7,92 @@
     <x>0</x>
     <y>0</y>
     <width>753</width>
-    <height>339</height>
+    <height>547</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Here you can control how calibre will read metadata from the files you add to it. calibre can either read metadata from the contents of the file, or from the filename.</string>
+   <item row="0" column="0">
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QCheckBox" name="opt_read_file_metadata">
-     <property name="text">
-      <string>Read &amp;metadata from file contents rather than file name</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="opt_swap_author_names">
-       <property name="toolTip">
-        <string>Swap the firstname and lastname of the author. This affects only metadata read from file names.</string>
-       </property>
-       <property name="text">
-        <string>&amp;Swap author firstname and lastname</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="opt_add_formats_to_existing">
-     <property name="toolTip">
-      <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>The Add &amp;Process</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0" colspan="3">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Here you can control how calibre will read metadata from the files you add to it. calibre can either read metadata from the contents of the file, or from the filename.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="opt_read_file_metadata">
+         <property name="text">
+          <string>Read &amp;metadata from file contents rather than file name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="opt_swap_author_names">
+           <property name="toolTip">
+            <string>Swap the firstname and lastname of the author. This affects only metadata read from file names.</string>
+           </property>
+           <property name="text">
+            <string>&amp;Swap author firstname and lastname</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="2" column="0" colspan="3">
+        <widget class="QCheckBox" name="opt_preserve_date_on_ctl">
+         <property name="text">
+          <string>When using the  &quot;&amp;Copy to library&quot; action to copy books between libraries, preserve the date</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_add_formats_to_existing">
+         <property name="toolTip">
+          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
 existing book records. The box to the right controls what happens when an existing record already has
 the incoming format. Note that this option also affects the Copy to library action.
 
 Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
-     </property>
-     <property name="text">
-      <string>&amp;Automerge added books if they already exist in the calibre library:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QComboBox" name="opt_automerge">
-     <property name="toolTip">
-      <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
+         </property>
+         <property name="text">
+          <string>&amp;Automerge added books if they already exist in the calibre library:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QComboBox" name="opt_automerge">
+         <property name="toolTip">
+          <string>Automerge: If books with similar titles and authors found, merge the incoming formats automatically into
 existing book records. This box controls what happens when an existing record already has
 the incoming format: 
 
@@ -85,58 +102,119 @@ Create new record for each duplicate file - means that a new book entry will be 
 
 Title matching ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc.
 Author matching is exact.</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_230">
-     <property name="text">
-      <string>&amp;Tags to apply when adding a book:</string>
-     </property>
-     <property name="buddy">
-      <cstring>opt_new_book_tags</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="opt_new_book_tags">
-     <property name="toolTip">
-      <string>A comma-separated list of tags that will be applied to books added to the library</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="QGroupBox" name="metadata_box">
-     <property name="title">
-      <string>&amp;Configure metadata from file name</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>363</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="opt_preserve_date_on_ctl">
-     <property name="text">
-      <string>When using the  &quot;&amp;Copy to library&quot; action to copy books between libraries, preserve the date</string>
-     </property>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_230">
+         <property name="text">
+          <string>&amp;Tags to apply when adding a book:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_new_book_tags</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QLineEdit" name="opt_new_book_tags">
+         <property name="toolTip">
+          <string>A comma-separated list of tags that will be applied to books added to the library</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="3">
+        <widget class="QGroupBox" name="metadata_box">
+         <property name="title">
+          <string>&amp;Configure metadata from file name</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>363</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>&amp;Automatic Adding</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Specify a folder. Any files you put into this folder will be automatically added to calibre (restart required).</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="opt_auto_add_path">
+           <property name="placeholderText">
+            <string>Folder to auto-add files from</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="auto_add_browse_button">
+           <property name="toolTip">
+            <string>Browse for folder</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../work/calibre/resources/images.qrc">
+             <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>&lt;b&gt;WARNING:&lt;/b&gt; Files in the above folder will be deleted after being added to calibre.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../work/calibre/resources/images.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>opt_add_formats_to_existing</sender>

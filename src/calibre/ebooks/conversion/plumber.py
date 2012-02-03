@@ -706,8 +706,9 @@ OptionRecommendation(name='sr3_replace',
         files = [f if isinstance(f, unicode) else f.decode(filesystem_encoding)
                 for f in files]
         from calibre.customize.ui import available_input_formats
-        fmts = available_input_formats()
-        for x in ('htm', 'html', 'xhtm', 'xhtml'): fmts.remove(x)
+        fmts = set(available_input_formats())
+        fmts -= {'htm', 'html', 'xhtm', 'xhtml'}
+        fmts -= set(ARCHIVE_FMTS)
 
         for ext in fmts:
             for f in files:
