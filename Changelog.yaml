@@ -30,7 +30,7 @@
 
     - title: "Conversion: When automatically inserting page breaks, do not put a page break before a <h1> or <h2> tag if it is immediately preceded by another <h1> or <h2> tag."
 
-    - title: "Driver for EZReader T730 and Pint-of-View PlayTab Pro"
+    - title: "Driver for EZReader T730 and Point-of-View PlayTab Pro"
       tickets: [923283, 922969]
  
   bug fixes:
