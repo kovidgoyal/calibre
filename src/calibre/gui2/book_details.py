@@ -38,14 +38,23 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
                 ans = unicode(col.name())
         return ans
 
-    f = QFontInfo(QApplication.font(widget)).pixelSize()
+    fi = QFontInfo(QApplication.font(widget))
+    f = fi.pixelSize()+1
+    fam = unicode(fi.family()).strip()
+    if not fam:
+        fam = 'sans-serif'
     c = color_to_string(QApplication.palette().color(QPalette.Normal,
                     QPalette.WindowText))
     templ = u'''\
     <html>
         <head>
         <style type="text/css">
-            body, td {background-color: transparent; font-size: %dpx; color: %s }
+            body, td {
+                background-color: transparent;
+                font-size: %dpx;
+                font-family: "%s",sans-serif;
+                color: %s
+            }
         </style>
         <style type="text/css">
             %s
@@ -55,7 +64,7 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
         %%s
         </body>
     <html>
-    '''%(f, c, css)
+    '''%(f, fam, c, css)
     fm = getattr(mi, 'field_metadata', field_metadata)
     fl = dict(get_field_list(fm))
     show_comments = (all_fields or fl.get('comments', True))
