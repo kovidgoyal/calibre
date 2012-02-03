@@ -253,7 +253,7 @@ class EditorWidget(QWebView): # {{{
             self.setHtml(val)
             fi = QFontInfo(QApplication.font(self))
             f  = fi.pixelSize()+1
-            fam = unicode(fi.family()).strip()
+            fam = unicode(fi.family()).strip().replace('"', '')
             if not fam:
                 fam = 'sans-serif'
             style = 'font-size: %fpx; font-family:"%s",sans-serif;' % (f, fam)

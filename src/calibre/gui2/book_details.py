@@ -40,9 +40,10 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
 
     fi = QFontInfo(QApplication.font(widget))
     f = fi.pixelSize()+1
-    fam = unicode(fi.family()).strip()
+    fam = unicode(fi.family()).strip().replace('"', '')
     if not fam:
         fam = 'sans-serif'
+
     c = color_to_string(QApplication.palette().color(QPalette.Normal,
                     QPalette.WindowText))
     templ = u'''\
