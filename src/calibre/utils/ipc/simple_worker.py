@@ -19,7 +19,7 @@ from calibre.utils.ipc.launch import Worker
 class WorkerError(Exception):
     def __init__(self, msg, orig_tb=''):
         Exception.__init__(self, msg)
-        self.org_tb = orig_tb
+        self.orig_tb = orig_tb
 
 class ConnectedWorker(Thread):
 
