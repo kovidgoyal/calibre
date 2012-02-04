@@ -447,10 +447,10 @@ def plugin_for_catalog_format(fmt):
 
 # }}}
 
-def device_plugins(): # {{{
+def device_plugins(include_disabled=False): # {{{
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
-            if not is_disabled(plugin):
+            if include_disabled or not is_disabled(plugin):
                 if platform in plugin.supported_platforms:
                     yield plugin
 # }}}
