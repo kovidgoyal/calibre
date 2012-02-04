@@ -265,6 +265,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         ####################### Location Manager ########################
         self.location_manager.location_selected.connect(self.location_selected)
         self.location_manager.unmount_device.connect(self.device_manager.umount_device)
+        self.location_manager.configure_device.connect(self.configure_connected_device)
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         #################### Update notification ###################
