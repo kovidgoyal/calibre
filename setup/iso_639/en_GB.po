@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-01-28 05:12+0000\n"
+"PO-Revision-Date: 2012-02-04 01:26+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-01-29 05:21+0000\n"
-"X-Generator: Launchpad (build 14727)\n"
+"X-Launchpad-Export-Date: 2012-02-04 05:27+0000\n"
+"X-Generator: Launchpad (build 14738)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -7083,83 +7083,83 @@ msgstr "Ekari"
 
 #. name for eki
 msgid "Eki"
-msgstr ""
+msgstr "Eki"
 
 #. name for ekk
 msgid "Estonian; Standard"
-msgstr ""
+msgstr "Estonian; Standard"
 
 #. name for ekl
 msgid "Kol"
-msgstr ""
+msgstr "Kol"
 
 #. name for ekm
 msgid "Elip"
-msgstr ""
+msgstr "Elip"
 
 #. name for eko
 msgid "Koti"
-msgstr ""
+msgstr "Koti"
 
 #. name for ekp
 msgid "Ekpeye"
-msgstr ""
+msgstr "Ekpeye"
 
 #. name for ekr
 msgid "Yace"
-msgstr ""
+msgstr "Yace"
 
 #. name for eky
 msgid "Kayah; Eastern"
-msgstr ""
+msgstr "Kayah; Eastern"
 
 #. name for ele
 msgid "Elepi"
-msgstr ""
+msgstr "Elepi"
 
 #. name for elh
 msgid "El Hugeirat"
-msgstr ""
+msgstr "El Hugeirat"
 
 #. name for eli
 msgid "Nding"
-msgstr ""
+msgstr "Nding"
 
 #. name for elk
 msgid "Elkei"
-msgstr ""
+msgstr "Elkei"
 
 #. name for ell
 msgid "Greek; Modern (1453-)"
-msgstr ""
+msgstr "Greek; Modern (1453-)"
 
 #. name for elm
 msgid "Eleme"
-msgstr ""
+msgstr "Eleme"
 
 #. name for elo
 msgid "El Molo"
-msgstr ""
+msgstr "El Molo"
 
 #. name for elp
 msgid "Elpaputih"
-msgstr ""
+msgstr "Elpaputih"
 
 #. name for elu
 msgid "Elu"
-msgstr ""
+msgstr "Elu"
 
 #. name for elx
 msgid "Elamite"
-msgstr ""
+msgstr "Elamite"
 
 #. name for ema
 msgid "Emai-Iuleha-Ora"
-msgstr ""
+msgstr "Emai-Iuleha-Ora"
 
 #. name for emb
 msgid "Embaloh"
-msgstr ""
+msgstr "Embaloh"
 
 #. name for eme
 msgid "Emerillon"
