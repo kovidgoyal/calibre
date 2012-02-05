@@ -15,6 +15,7 @@ from PyQt4.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer)
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.gui2 import question_dialog, gprefs
 
 class Worker(Thread):
 
@@ -159,12 +160,11 @@ class AutoAdder(QObject):
         count = 0
 
         needs_rescan = False
+        duplicates = []
 
         for fname, tdir in data.iteritems():
             paths = [os.path.join(self.worker.path, fname)]
             sz = os.path.join(tdir, 'size.txt')
-            if not os.access(sz, os.R_OK):
-                continue
             try:
                 with open(sz, 'rb') as f:
                     sz = int(f.read())
@@ -173,6 +173,11 @@ class AutoAdder(QObject):
                             ' we tried to read metadata')
             except:
                 needs_rescan = True
+                try:
+                    self.worker.staging.remove(fname)
+                except KeyError:
+                    pass
+
                 continue
 
             mi = os.path.join(tdir, 'metadata.opf')
@@ -180,18 +185,45 @@ class AutoAdder(QObject):
                 continue
             mi = [OPF(open(mi, 'rb'), tdir,
                     populate_spine=False).to_book_metadata()]
-            m.add_books(paths, [os.path.splitext(fname)[1][1:].upper()], mi,
-                    add_duplicates=True)
+            dups, num = m.add_books(paths,
+                    [os.path.splitext(fname)[1][1:].upper()], mi,
+                    add_duplicates=not gprefs['auto_add_check_for_duplicates'])
+            if dups:
+                path = dups[0][0]
+                with open(os.path.join(tdir, 'dup_cache.'+dups[1][0].lower()),
+                        'wb') as dest, open(path, 'rb') as src:
+                    shutil.copyfileobj(src, dest)
+                    dups[0][0] = dest.name
+                duplicates.append(dups)
+
             try:
                 os.remove(paths[0])
-                try:
-                    self.worker.staging.remove(fname)
-                except KeyError:
-                    pass
+                self.worker.staging.remove(fname)
+            except:
+                pass
+            count += num
+
+        if duplicates:
+            paths, formats, metadata = [], [], []
+            for p, f, mis in duplicates:
+                paths.extend(p)
+                formats.extend(f)
+                metadata.extend(mis)
+            files = [_('%s by %s')%(mi.title, mi.format_field('authors')[1])
+                    for mi in metadata]
+            if question_dialog(self.parent(), _('Duplicates found!'),
+                        _('Books with the same title as the following already '
+                        'exist in the database. Add them anyway?'),
+                        '\n'.join(files)):
+             dups, num = m.add_books(paths, formats, metadata,
+                     add_duplicates=True)
+             count += num
+
+        for tdir in data.itervalues():
+            try:
                 shutil.rmtree(tdir)
             except:
                 pass
-            count += 1
 
         if count > 0:
             m.books_added(count)

@@ -32,6 +32,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('automerge', gprefs, choices=choices)
         r('new_book_tags', prefs, setting=CommaSeparatedList)
         r('auto_add_path', gprefs, restart_required=True)
+        r('auto_add_check_for_duplicates', gprefs)
 
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
