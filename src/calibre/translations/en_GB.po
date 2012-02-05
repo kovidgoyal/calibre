@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-03 07:01+0000\n"
-"PO-Revision-Date: 2012-02-01 22:04+0000\n"
+"PO-Revision-Date: 2012-02-04 16:58+0000\n"
 "Last-Translator: Anthony Harrington <untaintableangel@hotmail.co.uk>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-04 05:26+0000\n"
+"X-Launchpad-Export-Date: 2012-02-05 04:47+0000\n"
 "X-Generator: Launchpad (build 14738)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -6630,7 +6630,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:151
 #, python-format
 msgid "Added %d book(s) automatically from %s"
-msgstr ""
+msgstr "Added %d book(s) automatically from %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
@@ -13266,12 +13266,12 @@ msgstr "Create new record for each duplicate format"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:43
 msgid "Choose a folder"
-msgstr ""
+msgstr "Choose a folder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:71
 msgid "Invalid folder"
-msgstr ""
+msgstr "Invalid folder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:66
 #, python-format
@@ -13279,11 +13279,13 @@ msgid ""
 "You must specify an existing folder as your auto-add folder. %s does not "
 "exist."
 msgstr ""
+"You must specify an existing folder as your auto-add folder. %s does not "
+"exist."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:72
 #, python-format
 msgid "You do not have read/write permissions for the folder: %s"
-msgstr ""
+msgstr "You do not have read/write permissions for the folder: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:76
 #, python-format
@@ -13291,6 +13293,8 @@ msgid ""
 "<b>WARNING:</b> Any files you place in %s will be automatically deleted "
 "after being added to calibre. Are you sure?"
 msgstr ""
+"<b>WARNING:</b> Any files you place in %s will be automatically deleted "
+"after being added to calibre. Are you sure?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:103
 msgid ""
@@ -13406,31 +13410,35 @@ msgstr "&Configure metadata from file name"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:127
 msgid "The Add &Process"
-msgstr ""
+msgstr "The Add &Process"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:128
 msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
 msgstr ""
+"Specify a folder. Any files you put into this folder will be automatically "
+"added to calibre (restart required)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:129
 msgid "Folder to auto-add files from"
-msgstr ""
+msgstr "Folder to auto-add files from"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:130
 msgid "Browse for folder"
-msgstr ""
+msgstr "Browse for folder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:132
 msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
 msgstr ""
+"<b>WARNING:</b> Files in the above folder will be deleted after being added "
+"to calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:133
 msgid "&Automatic Adding"
-msgstr ""
+msgstr "&Automatic Adding"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159

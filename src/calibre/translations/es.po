@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-03 07:01+0000\n"
-"PO-Revision-Date: 2012-02-03 16:38+0000\n"
-"Last-Translator: Calabacin <Unknown>\n"
+"PO-Revision-Date: 2012-02-04 10:55+0000\n"
+"Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-04 05:22+0000\n"
+"X-Launchpad-Export-Date: 2012-02-05 04:46+0000\n"
 "X-Generator: Launchpad (build 14738)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -5018,7 +5018,7 @@ msgstr "Categorías del explorador de etiquetas que no se mostrarán"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:261
 msgid "WARNING:"
-msgstr "AVISO:"
+msgstr "ADVERTENCIA:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:271
 msgid "ERROR:"
@@ -9622,7 +9622,7 @@ msgstr "Biblioteca y Dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/confirm_delete_ui.py:55
 msgid "&Show this warning again"
-msgstr "&Mostrar este aviso otra vez"
+msgstr "&Mostrar esta advertencia otra vez"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/conversion_error_ui.py:47
 msgid "ERROR"
@@ -10953,7 +10953,7 @@ msgid ""
 "Restoring the database succeeded with some warnings click Show details to "
 "see the details. %s"
 msgstr ""
-"Se ha restaurado la base de datos con algunos avisos, pulse «Mostrar "
+"Se ha restaurado la base de datos con algunas advertencias, pulse «Mostrar "
 "detalles» para más información. %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/restore_library.py:89
@@ -13513,7 +13513,9 @@ msgstr "Carpeta incorrecta"
 msgid ""
 "You must specify an existing folder as your auto-add folder. %s does not "
 "exist."
-msgstr "La carpeta de auto-añadido debe existir. %s no existe."
+msgstr ""
+"Para añadir automáticamente debe especificar una carpeta existente. %s no "
+"existe."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:72
 #, python-format
@@ -13526,8 +13528,8 @@ msgid ""
 "<b>WARNING:</b> Any files you place in %s will be automatically deleted "
 "after being added to calibre. Are you sure?"
 msgstr ""
-"<b>AVISO</b> Los archivos que se metan en %s serán eliminados "
-"automáticamente tras ser añadidos a calibre. ¿Está seguro/a?"
+"<b>ADVERTENCIA:</b> Los archivos de %s se eliminarán automáticamente después "
+"de añadirse a calibre. ¿Está seguro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:103
 msgid ""
@@ -13646,19 +13648,19 @@ msgstr "&Configurar los metadatos a partir del nombre de fichero"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:127
 msgid "The Add &Process"
-msgstr ""
+msgstr "&Proceso de adición"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:128
 msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
 msgstr ""
-"Especifique una carpeta. Los archivos que copie a esta carpeta se añadirán "
-"automáticamente a calibre (requiere reiniciar)"
+"Especifique una carpeta. Los archivos que ponga en esta carpeta se añadirán "
+"automáticamente a calibre (requiere reinicio)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:129
 msgid "Folder to auto-add files from"
-msgstr "Carpeta de la que añadir automáticamente los archivos"
+msgstr "Carpeta de la que añadir automáticamente los ficheros"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:130
 msgid "Browse for folder"
@@ -13669,12 +13671,12 @@ msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
 msgstr ""
-"<b>AVISO:</b> Los archivos de la carpeta especificada se eliminarán tras ser "
-"añadidos a calibre."
+"<b>ADVERTENCIA:</b> Los archivos de la carpeta especificada se eliminarán "
+"después de añadirse a calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:133
 msgid "&Automatic Adding"
-msgstr ""
+msgstr "&Adición automática"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -18204,7 +18206,7 @@ msgstr "&SSL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:143
 msgid "WARNING: Using no encryption is highly insecure"
-msgstr "Aviso: no usar cifrado es muy inseguro"
+msgstr "ADVERTENCIA: no usar cifrado es muy inseguro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:144
 msgid "&None"
@@ -18709,7 +18711,7 @@ msgid ""
 "Author '{0}':\n"
 "'{1}' <> '{2}'\n"
 msgstr ""
-"Aviso: valores de orden de autor inconsistentes para\n"
+"Advertencia: valores de orden de autor inconsistentes para\n"
 "Autor «{0}»:\n"
 "«{1}» <> «{2}»\n"
 
@@ -19376,7 +19378,8 @@ msgstr ""
 "útil\n"
 "si su fichero metadata.db está corrupto.\n"
 "\n"
-"ATENCIÓN: Esta orden regenera completamente la base de datos. Se perderán\n"
+"ADVERTENCIA: Esta orden regenera completamente la base de datos. Se "
+"perderán\n"
 "todas las búsquedas guardadas, categorías de usuario, controles, ajustes de\n"
 "conversión guardados por libro y recetas personalizadas. Los metadatos\n"
 "recuperados serán tan precisos como lo sean los ficheros OPF.\n"
@@ -19654,9 +19657,9 @@ msgid ""
 "saving to supports unicode."
 msgstr ""
 "Normalmente calibre convertirá todos los caracteres no ASCII de los nombres "
-"de fichero en los equivalentes ASCII. AVISO: Si se desactiva esta opción, "
-"pueden ocasionarse errores al guardar, dependiendo del soporte para Unicode "
-"del sistema de ficheros donde se guarden los libros."
+"de fichero en los equivalentes ASCII. ADVERTENCIA: Si se desactiva esta "
+"opción, pueden ocasionarse errores al guardar, dependiendo del soporte para "
+"Unicode del sistema de ficheros donde se guarden los libros."
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:113
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:117

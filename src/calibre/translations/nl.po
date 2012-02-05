@@ -57,14 +57,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-03 07:01+0000\n"
-"PO-Revision-Date: 2012-02-01 20:05+0000\n"
+"PO-Revision-Date: 2012-02-04 19:58+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-04 05:10+0000\n"
+"X-Launchpad-Export-Date: 2012-02-05 04:45+0000\n"
 "X-Generator: Launchpad (build 14738)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
@@ -482,6 +482,8 @@ msgstr "Kopieer een boek van de ene calibre bibliotheek naar een andere"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Make kleine aanpassingen aan epub of htmlz bestanden in uw calibre "
+"bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid ""
@@ -1143,6 +1145,9 @@ msgid ""
 "http://www.mobileread.com/forums/showthread.php?t=118559 for instructions on "
 "using 'Connect to iTunes'"
 msgstr ""
+"Niet-ondersteunde directe-verbindings-modus. Zie "
+"http://www.mobileread.com/forums/showthread.php?t=118559 voor uitleg van het "
+"gebruik van 'Met iTunes verbinden'"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:376
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:379
@@ -1382,7 +1387,7 @@ msgstr "Communiceer met de PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Communiceer met de Infibeam Pi2 E-reader."
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -5061,7 +5066,7 @@ msgstr "Archieven"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Wordprocessor files"
-msgstr ""
+msgstr "Tekstverwerker-bestanden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
@@ -6768,7 +6773,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:151
 #, python-format
 msgid "Added %d book(s) automatically from %s"
-msgstr ""
+msgstr "%d boek(en) automatisch toegevoegd uit %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
@@ -8766,6 +8771,8 @@ msgid ""
 "You have changed the values. In order to use this editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
+"U heeft de waarden veranderd. Om deze editor te gebruiken, moet u deze "
+"wijzigingen annuleren of toepassen. Wijzigingen toepassen?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:379
 msgid " index:"
@@ -10401,6 +10408,8 @@ msgid ""
 "Enter what you are looking for, either plain text or a regular expression, "
 "depending on the mode"
 msgstr ""
+"Geef aan waar u naar zoekt, het zij in platte tekst of reguliere expressies, "
+"afhankelijk van de modus."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:626
 msgid ""
@@ -11708,6 +11717,8 @@ msgstr "Sjabloonwaarde:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:114
 msgid "The value of the template using the current book in the library view"
 msgstr ""
+"De waarde van het sjabloon op basis van het huidige boek in bibliotheek "
+"weergave"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:115
 msgid "Function &name:"
@@ -13466,12 +13477,12 @@ msgstr "Voor elk dubbel formaat een nieuw record aanmaken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:43
 msgid "Choose a folder"
-msgstr ""
+msgstr "Kies een map"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:71
 msgid "Invalid folder"
-msgstr ""
+msgstr "Ongeldige map"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:66
 #, python-format
@@ -13479,11 +13490,13 @@ msgid ""
 "You must specify an existing folder as your auto-add folder. %s does not "
 "exist."
 msgstr ""
+"U met een bestaande map specificeren als uw automatisch-toevoegen map. %s "
+"bestaat niet."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:72
 #, python-format
 msgid "You do not have read/write permissions for the folder: %s"
-msgstr ""
+msgstr "U heeft geen lees/schrijf rechten voor de map: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:76
 #, python-format
@@ -13491,6 +13504,8 @@ msgid ""
 "<b>WARNING:</b> Any files you place in %s will be automatically deleted "
 "after being added to calibre. Are you sure?"
 msgstr ""
+"<b>WAARSCHUWING:</b> Alle bestanden in %s zullen automatisch worden "
+"verwijderd nadat ze aan calibre zijn toegevoegd. Weet u het zeker?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:103
 msgid ""
@@ -13604,31 +13619,35 @@ msgstr "Metadata aan de hand van bestandsnaam &configureren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:127
 msgid "The Add &Process"
-msgstr ""
+msgstr "Het toevoegings&proces"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:128
 msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
 msgstr ""
+"Specificeer een map. alle bestanden in deze map zullen automatisch aan "
+"calibre worden toegevoegd (herstart nodig)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:129
 msgid "Folder to auto-add files from"
-msgstr ""
+msgstr "Map voor auto-toevoegen van bestanden uit"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:130
 msgid "Browse for folder"
-msgstr ""
+msgstr "Blader naar een map"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:132
 msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
 msgstr ""
+"<b>WAARSCHUWING:</b> Bestanden in de bovenstaande map zullen worden "
+"verwijderd nadat ze zijn toegevoegd aan calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:133
 msgid "&Automatic Adding"
-msgstr ""
+msgstr "&Automatisch toevoegen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -15262,11 +15281,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Show only those plugins that have been installed by you"
-msgstr ""
+msgstr "Toon enkel de invoegtoepassingen die u heeft geïnstalleerd"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
-msgstr ""
+msgstr "Toon enkel door &gebruiker toegevoegde plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:117
 msgid "Get &new plugins"
@@ -15683,7 +15702,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Password incompatible with Android devices"
-msgstr ""
+msgstr "Wachtwoord niet compatibel met Android apparaten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "&Start Server"
@@ -17056,6 +17075,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Kon de inhoudsserver niet starten. Fout:\n"
+"\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:508
 #, python-format
@@ -20594,6 +20616,9 @@ msgid ""
 "empty. If all values are empty, then the empty value is returned. You can "
 "have as many values as you want."
 msgstr ""
+"first_non_empty(waarde, waarde, ...) -- geeft de eerste waarde terug welke "
+"niet leeg is. Als alle waardes leeg zijn, zal een lege waarde worden terug "
+"gegeven. U kan zo veel waardes opgeven als u wilt."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:871
 msgid ""
@@ -21002,6 +21027,8 @@ msgid ""
 "Interpreter dies while executing a command. To see the command, click Show "
 "details"
 msgstr ""
+"Proces vastgelopen tijdens uitvoeren van commando. Om het commando te zien, "
+"klik Toon details."
 
 #: /home/kovid/work/calibre/src/calibre/utils/pyconsole/main.py:20
 msgid "Welcome to"
