@@ -5,11 +5,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, glob, functools, re
 from calibre import guess_type
-from calibre.customize import FileTypePlugin, MetadataReaderPlugin, \
-    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase
+from calibre.customize import (FileTypePlugin, MetadataReaderPlugin,
+    MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase)
 from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
-from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.html.to_zip import HTML2ZIP
 
 # To archive plugins {{{
@@ -86,6 +85,8 @@ class TXT2TXTZ(FileTypePlugin):
         return list(set(images))
 
     def run(self, path_to_ebook):
+        from calibre.ebooks.metadata.opf2 import metadata_to_opf
+
         with open(path_to_ebook, 'rb') as ebf:
             txt = ebf.read()
         base_dir = os.path.dirname(path_to_ebook)
