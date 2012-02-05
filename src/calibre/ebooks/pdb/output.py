@@ -8,7 +8,7 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.pdb import PDBError, get_writer, FORMAT_WRITERS
+from calibre.ebooks.pdb import PDBError, get_writer, ALL_FORMAT_WRITERS
 
 class PDBOutput(OutputFormatPlugin):
 
@@ -19,9 +19,9 @@ class PDBOutput(OutputFormatPlugin):
     options = set([
         OptionRecommendation(name='format', recommended_value='doc',
             level=OptionRecommendation.LOW,
-            short_switch='f', choices=FORMAT_WRITERS.keys(),
+            short_switch='f', choices=list(ALL_FORMAT_WRITERS),
             help=(_('Format to use inside the pdb container. Choices are:')+\
-            ' %s' % FORMAT_WRITERS.keys())),
+            ' %s' % list(ALL_FORMAT_WRITERS))),
         OptionRecommendation(name='pdb_output_encoding', recommended_value='cp1252',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
