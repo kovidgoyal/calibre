@@ -8,20 +8,28 @@ __docformat__ = 'restructuredtext en'
 import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
 
 from calibre.constants import __appname__, __version__, DEBUG
-from calibre import fit_image, confirm_config_name
+from calibre import fit_image, confirm_config_name, strftime as _strftime
 from calibre.constants import isosx, iswindows
 from calibre.devices.errors import OpenFeedback, UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata import authors_to_string, MetaInformation, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.epub import set_metadata
-from calibre.library.server.utils import strftime
 from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
 from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
+
+def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
+
+    if not hasattr(dt, 'timetuple'):
+        dt = now()
+    dt = dt.timetuple()
+    try:
+        return _strftime(fmt, dt)
+    except:
+        return _strftime(fmt, now().timetuple())
+
 
 
 class AppleOpenFeedback(OpenFeedback):
@@ -1675,6 +1683,8 @@ class ITUNES(DriverBase):
     def _dump_epub_metadata(self, fpath):
         '''
         '''
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
         self.log.info(" ITUNES.__get_epub_metadata()")
         title = None
         author = None
@@ -2648,6 +2658,8 @@ class ITUNES(DriverBase):
     def _update_epub_metadata(self, fpath, metadata):
         '''
         '''
+        from calibre.ebooks.metadata.epub import set_metadata
+
         if DEBUG:
             self.log.info(" ITUNES._update_epub_metadata()")
 
