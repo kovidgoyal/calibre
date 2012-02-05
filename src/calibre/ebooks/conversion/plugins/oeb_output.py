@@ -5,13 +5,10 @@ __docformat__ = 'restructuredtext en'
 
 import os, re
 
-from lxml import etree
 
-from calibre.customize.conversion import OutputFormatPlugin
+from calibre.customize.conversion import (OutputFormatPlugin,
+        OptionRecommendation)
 from calibre import CurrentDir
-from calibre.customize.conversion import OptionRecommendation
-
-from urllib import unquote
 
 class OEBOutput(OutputFormatPlugin):
 
@@ -23,6 +20,9 @@ class OEBOutput(OutputFormatPlugin):
 
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from urllib import unquote
+        from lxml import etree
+
         self.log, self.opts = log, opts
         if not os.path.exists(output_path):
             os.makedirs(output_path)

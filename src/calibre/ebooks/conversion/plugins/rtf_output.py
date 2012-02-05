@@ -6,22 +6,20 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
-from calibre.ebooks.rb.writer import RBWriter
+from calibre.customize.conversion import OutputFormatPlugin
 
-class RBOutput(OutputFormatPlugin):
+class RTFOutput(OutputFormatPlugin):
 
-    name = 'RB Output'
+    name = 'RTF Output'
     author = 'John Schember'
-    file_type = 'rb'
-
-    options = set([
-        OptionRecommendation(name='inline_toc',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Add Table of Contents to beginning of the book.')),
-    ])
+    file_type = 'rtf'
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.ebooks.rtf.rtfml import RTFMLizer
+
+        rtfmlitzer = RTFMLizer(log)
+        content = rtfmlitzer.extract_content(oeb_book, opts)
+
         close = False
         if not hasattr(output_path, 'write'):
             close = True
@@ -31,12 +29,9 @@ class RBOutput(OutputFormatPlugin):
         else:
             out_stream = output_path
 
-        writer = RBWriter(opts, log)
-
         out_stream.seek(0)
         out_stream.truncate()
-
-        writer.write_content(oeb_book, out_stream, oeb_book.metadata)
+        out_stream.write(content.encode('ascii', 'replace'))
 
         if close:
             out_stream.close()

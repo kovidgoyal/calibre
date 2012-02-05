@@ -523,23 +523,22 @@ from calibre.ebooks.conversion.plugins.lrf_input import LRFInput
 from calibre.ebooks.conversion.plugins.chm_input import CHMInput
 from calibre.ebooks.conversion.plugins.snb_input import SNBInput
 
-from calibre.ebooks.epub.output import EPUBOutput
-from calibre.ebooks.fb2.output import FB2Output
-from calibre.ebooks.lit.output import LITOutput
-from calibre.ebooks.lrf.output import LRFOutput
-from calibre.ebooks.mobi.output import MOBIOutput
-from calibre.ebooks.oeb.output import OEBOutput
-from calibre.ebooks.pdb.output import PDBOutput
-from calibre.ebooks.pdf.output import PDFOutput
-from calibre.ebooks.pml.output import PMLOutput
-from calibre.ebooks.rb.output import RBOutput
-from calibre.ebooks.rtf.output import RTFOutput
-from calibre.ebooks.tcr.output import TCROutput
-from calibre.ebooks.txt.output import TXTOutput
-from calibre.ebooks.txt.output import TXTZOutput
-from calibre.ebooks.html.output import HTMLOutput
-from calibre.ebooks.htmlz.output import HTMLZOutput
-from calibre.ebooks.snb.output import SNBOutput
+from calibre.ebooks.conversion.plugins.epub_output import EPUBOutput
+from calibre.ebooks.conversion.plugins.fb2_output import FB2Output
+from calibre.ebooks.conversion.plugins.lit_output import LITOutput
+from calibre.ebooks.conversion.plugins.lrf_output import LRFOutput
+from calibre.ebooks.conversion.plugins.mobi_output import MOBIOutput
+from calibre.ebooks.conversion.plugins.oeb_output import OEBOutput
+from calibre.ebooks.conversion.plugins.pdb_output import PDBOutput
+from calibre.ebooks.conversion.plugins.pdf_output import PDFOutput
+from calibre.ebooks.conversion.plugins.pml_output import PMLOutput
+from calibre.ebooks.conversion.plugins.rb_output import RBOutput
+from calibre.ebooks.conversion.plugins.rtf_output import RTFOutput
+from calibre.ebooks.conversion.plugins.tcr_output import TCROutput
+from calibre.ebooks.conversion.plugins.txt_output import TXTOutput, TXTZOutput
+from calibre.ebooks.conversion.plugins.html_output import HTMLOutput
+from calibre.ebooks.conversion.plugins.htmlz_output import HTMLZOutput
+from calibre.ebooks.conversion.plugins.snb_output import SNBOutput
 
 from calibre.customize.profiles import input_profiles, output_profiles
 

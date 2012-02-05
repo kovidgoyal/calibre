@@ -4,22 +4,11 @@ __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
 
 import os, re, shutil
-
-from calibre.utils import zipfile
-
 from os.path import dirname, abspath, relpath, exists, basename
-
-from lxml import etree
-from templite import Templite
 
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.zipfile import ZipFile
-
-from urllib import unquote
-
-from calibre.ebooks.html.meta import EasyMeta
 
 class HTMLOutput(OutputFormatPlugin):
 
@@ -50,6 +39,9 @@ class HTMLOutput(OutputFormatPlugin):
         '''
         Generate table of contents
         '''
+        from lxml import etree
+        from urllib import unquote
+
         from calibre.ebooks.oeb.base import element
         with CurrentDir(output_dir):
             def build_node(current_node, parent=None):
@@ -72,11 +64,18 @@ class HTMLOutput(OutputFormatPlugin):
             return wrap
 
     def generate_html_toc(self, oeb_book, ref_url, output_dir):
+        from lxml import etree
+
         root = self.generate_toc(oeb_book, ref_url, output_dir)
         return etree.tostring(root, pretty_print=True, encoding='utf-8',
                 xml_declaration=False)
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from lxml import etree
+        from calibre.utils import zipfile
+        from templite import Templite
+        from urllib import unquote
+        from calibre.ebooks.html.meta import EasyMeta
 
         # read template files
         if opts.template_html_index is not None:
@@ -192,7 +191,7 @@ class HTMLOutput(OutputFormatPlugin):
                     f.write(t)
                 item.unload_data_from_memory(memory=path)
 
-        zfile = ZipFile(output_path, "w")
+        zfile = zipfile.ZipFile(output_path, "w")
         zfile.add_dir(output_dir, basename(output_dir))
         zfile.write(output_file, basename(output_file), zipfile.ZIP_DEFLATED)
 

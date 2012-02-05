@@ -8,13 +8,11 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, re
 
-from calibre.customize.conversion import OutputFormatPlugin
+from calibre.customize.conversion import (OutputFormatPlugin,
+        OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
-from calibre.customize.conversion import OptionRecommendation
 from calibre.constants import filesystem_encoding
-
-from lxml import etree
 
 block_level_tags = (
       'address',
@@ -289,6 +287,7 @@ class EPUBOutput(OutputFormatPlugin):
     # }}}
 
     def condense_ncx(self, ncx_path):
+        from lxml import etree
         if not self.opts.pretty_print:
             tree = etree.parse(ncx_path)
             for tag in tree.getroot().iter(tag=etree.Element):

@@ -7,15 +7,12 @@ __docformat__ = 'restructuredtext en'
 import os
 import shutil
 
-from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.txt.txtml import TXTMLizer
-from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 from calibre.ptempfile import TemporaryDirectory, TemporaryFile
-from calibre.utils.cleantext import clean_ascii_chars
-from calibre.utils.zipfile import ZipFile
+
+NEWLINE_TYPES = ['system', 'unix', 'old_mac', 'windows']
 
 class TXTOutput(OutputFormatPlugin):
 
@@ -26,11 +23,11 @@ class TXTOutput(OutputFormatPlugin):
     options = set([
         OptionRecommendation(name='newline', recommended_value='system',
             level=OptionRecommendation.LOW,
-            short_switch='n', choices=TxtNewlines.NEWLINE_TYPES.keys(),
+            short_switch='n', choices=NEWLINE_TYPES,
             help=_('Type of newline to use. Options are %s. Default is \'system\'. '
                 'Use \'old_mac\' for compatibility with Mac OS 9 and earlier. '
                 'For Mac OS X use \'unix\'. \'system\' will default to the newline '
-                'type used by this OS.') % sorted(TxtNewlines.NEWLINE_TYPES.keys())),
+                'type used by this OS.') % sorted(NEWLINE_TYPES)),
         OptionRecommendation(name='txt_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
             help=_('Specify the character encoding of the output document. ' \
@@ -76,6 +73,11 @@ class TXTOutput(OutputFormatPlugin):
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.ebooks.txt.txtml import TXTMLizer
+        from calibre.utils.cleantext import clean_ascii_chars
+        from calibre.ebooks.txt.newlines import specified_newlines, TxtNewlines
+
+
         if opts.txt_output_formatting.lower() == 'markdown':
             from calibre.ebooks.txt.markdownml import MarkdownMLizer
             self.writer = MarkdownMLizer(log)
@@ -116,6 +118,9 @@ class TXTZOutput(TXTOutput):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.ebooks.oeb.base import OEB_IMAGES
+        from calibre.utils.zipfile import ZipFile
+        from lxml import etree
+
         with TemporaryDirectory('_txtz_output') as tdir:
             # TXT
             txt_name = 'index.txt'

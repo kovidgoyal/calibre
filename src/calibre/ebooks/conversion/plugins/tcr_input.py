@@ -29,7 +29,7 @@ class TCRInput(InputFormatPlugin):
         txt_plugin = plugin_for_input_format('txt')
         for opt in txt_plugin.options:
             if not hasattr(self.options, opt.option.name):
-                setattr(self.options, opt.option.name, opt.recommended_value)
+                setattr(options, opt.option.name, opt.recommended_value)
 
         stream.seek(0)
         return txt_plugin.convert(stream, options,

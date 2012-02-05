@@ -8,8 +8,6 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.txt.txtml import TXTMLizer
-from calibre.ebooks.compression.tcr import compress
 
 class TCROutput(OutputFormatPlugin):
 
@@ -25,6 +23,9 @@ class TCROutput(OutputFormatPlugin):
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.ebooks.txt.txtml import TXTMLizer
+        from calibre.ebooks.compression.tcr import compress
+
         close = False
         if not hasattr(output_path, 'write'):
             close = True

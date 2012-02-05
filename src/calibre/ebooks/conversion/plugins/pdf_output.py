@@ -13,10 +13,50 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.pdf.pageoptions import UNITS, PAPER_SIZES, \
-    ORIENTATIONS
+
+UNITS = [
+            'millimeter',
+            'point',
+            'inch' ,
+            'pica' ,
+            'didot',
+            'cicero',
+            'devicepixel',
+        ]
+
+PAPER_SIZES = ['b2',
+     'a9',
+     'executive',
+     'tabloid',
+     'b4',
+     'b5',
+     'b6',
+     'b7',
+     'b0',
+     'b1',
+     'letter',
+     'b3',
+     'a7',
+     'a8',
+     'b8',
+     'b9',
+     'a3',
+     'a1',
+     'folio',
+     'c5e',
+     'dle',
+     'a0',
+     'ledger',
+     'legal',
+     'a6',
+     'a2',
+     'b10',
+     'a5',
+     'comm10e',
+     'a4']
+
+ORIENTATIONS = ['portrait', 'landscape']
 
 class PDFOutput(OutputFormatPlugin):
 
@@ -26,23 +66,23 @@ class PDFOutput(OutputFormatPlugin):
 
     options = set([
         OptionRecommendation(name='unit', recommended_value='inch',
-            level=OptionRecommendation.LOW, short_switch='u', choices=UNITS.keys(),
+            level=OptionRecommendation.LOW, short_switch='u', choices=UNITS,
             help=_('The unit of measure. Default is inch. Choices '
             'are %s '
-            'Note: This does not override the unit for margins!') % UNITS.keys()),
+            'Note: This does not override the unit for margins!') % UNITS),
         OptionRecommendation(name='paper_size', recommended_value='letter',
-            level=OptionRecommendation.LOW, choices=PAPER_SIZES.keys(),
+            level=OptionRecommendation.LOW, choices=PAPER_SIZES,
             help=_('The size of the paper. This size will be overridden when a '
             'non default output profile is used. Default is letter. Choices '
-            'are %s') % PAPER_SIZES.keys()),
+            'are %s') % PAPER_SIZES),
         OptionRecommendation(name='custom_size', recommended_value=None,
             help=_('Custom size of the document. Use the form widthxheight '
             'EG. `123x321` to specify the width and height. '
             'This overrides any specified paper-size.')),
         OptionRecommendation(name='orientation', recommended_value='portrait',
-            level=OptionRecommendation.LOW, choices=ORIENTATIONS.keys(),
+            level=OptionRecommendation.LOW, choices=ORIENTATIONS,
             help=_('The orientation of the page. Default is portrait. Choices '
-            'are %s') % ORIENTATIONS.keys()),
+            'are %s') % ORIENTATIONS),
         OptionRecommendation(name='preserve_cover_aspect_ratio',
             recommended_value=False,
             help=_('Preserve the aspect ratio of the cover, instead'
@@ -105,6 +145,8 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.pdf.writer import PDFWriter
+        from calibre.ebooks.metadata.opf2 import OPF
+
         self.log.debug('Serializing oeb input to disk for processing...')
         self.get_cover_data()
 

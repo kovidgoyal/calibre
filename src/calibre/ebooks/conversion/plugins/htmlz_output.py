@@ -9,13 +9,10 @@ __docformat__ = 'restructuredtext en'
 import os
 from cStringIO import StringIO
 
-from lxml import etree
 
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
-from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.zipfile import ZipFile
 
 class HTMLZOutput(OutputFormatPlugin):
 
@@ -43,7 +40,10 @@ class HTMLZOutput(OutputFormatPlugin):
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from lxml import etree
         from calibre.ebooks.oeb.base import OEB_IMAGES, SVG_MIME
+        from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf
+        from calibre.utils.zipfile import ZipFile
 
         # HTML
         if opts.htmlz_css_type == 'inline':
@@ -81,7 +81,7 @@ class HTMLZOutput(OutputFormatPlugin):
                         fname = os.path.join(tdir, 'images', images[item.href])
                         with open(fname, 'wb') as img:
                             img.write(data)
-            
+
             # Cover
             cover_path = None
             try:

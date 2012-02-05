@@ -4,21 +4,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, cStringIO
 
-try:
-    from PIL import Image
-    Image
-except ImportError:
-    import Image
-
-import cStringIO
-
-from calibre.customize.conversion import OutputFormatPlugin
-from calibre.customize.conversion import OptionRecommendation
+from calibre.customize.conversion import (OutputFormatPlugin,
+        OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
-from calibre.utils.zipfile import ZipFile
-from calibre.ebooks.pml.pmlml import PMLMLizer
 
 class PMLOutput(OutputFormatPlugin):
 
@@ -43,6 +33,9 @@ class PMLOutput(OutputFormatPlugin):
     ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from calibre.ebooks.pml.pmlml import PMLMLizer
+        from calibre.utils.zipfile import ZipFile
+
         with TemporaryDirectory('_pmlz_output') as tdir:
             pmlmlizer = PMLMLizer(log)
             pml = unicode(pmlmlizer.extract_content(oeb_book, opts))
@@ -59,6 +52,13 @@ class PMLOutput(OutputFormatPlugin):
             pmlz.add_dir(tdir)
 
     def write_images(self, manifest, image_hrefs, out_dir, opts):
+        try:
+            from PIL import Image
+            Image
+        except ImportError:
+            import Image
+
+
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
         for item in manifest:
             if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():

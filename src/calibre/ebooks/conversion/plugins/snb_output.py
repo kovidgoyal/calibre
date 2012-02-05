@@ -6,12 +6,9 @@ __docformat__ = 'restructuredtext en'
 
 import os, string
 
-from lxml import etree
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
-from calibre.ebooks.snb.snbfile import SNBFile
-from calibre.ebooks.snb.snbml import SNBMLizer, ProcessFileName
 
 class SNBOutput(OutputFormatPlugin):
 
@@ -49,6 +46,11 @@ class SNBOutput(OutputFormatPlugin):
      ])
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
+        from lxml import etree
+        from calibre.ebooks.snb.snbfile import SNBFile
+        from calibre.ebooks.snb.snbml import SNBMLizer, ProcessFileName
+
+
         self.opts = opts
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
         try:
