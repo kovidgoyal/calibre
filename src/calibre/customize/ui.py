@@ -504,6 +504,7 @@ def initialize_plugins():
     for p in conflicts:
         remove_plugin(p)
     external_plugins = config['plugins']
+    ostdout, ostderr = sys.stdout, sys.stderr
     for zfp in list(external_plugins) + builtin_plugins:
         try:
             if not isinstance(zfp, type):
@@ -522,6 +523,9 @@ def initialize_plugins():
             print 'Failed to initialize plugin:', repr(zfp)
             if DEBUG:
                 traceback.print_exc()
+    # Prevent a custom plugin from overriding stdout/stderr as this breaks
+    # ipython
+    sys.stdout, sys.stderr = ostdout, ostderr
     _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()
