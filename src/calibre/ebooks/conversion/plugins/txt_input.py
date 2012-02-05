@@ -8,14 +8,6 @@ import os
 
 from calibre import _ent_pat, walk, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
-from calibre.ebooks.chardet import detect
-from calibre.ebooks.txt.processor import convert_basic, convert_markdown, \
-    separate_paragraphs_single_line, separate_paragraphs_print_formatted, \
-    preserve_spaces, detect_paragraph_type, detect_formatting_type, \
-    normalize_line_endings, convert_textile, remove_indents, block_to_single_line, \
-    separate_hard_scene_breaks
-from calibre.utils.zipfile import ZipFile
 
 class TXTInput(InputFormatPlugin):
 
@@ -61,6 +53,17 @@ class TXTInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        from calibre.ebooks.conversion.preprocess import DocAnalysis, Dehyphenator
+        from calibre.ebooks.chardet import detect
+        from calibre.utils.zipfile import ZipFile
+        from calibre.ebooks.txt.processor import (convert_basic,
+                convert_markdown, separate_paragraphs_single_line,
+                separate_paragraphs_print_formatted, preserve_spaces,
+                detect_paragraph_type, detect_formatting_type,
+                normalize_line_endings, convert_textile, remove_indents,
+                block_to_single_line, separate_hard_scene_breaks)
+
+
         self.log = log
         txt = ''
         log.debug('Reading text from file...')

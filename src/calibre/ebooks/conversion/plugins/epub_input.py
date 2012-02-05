@@ -3,10 +3,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, uuid
+import os
 from itertools import cycle
-
-from lxml import etree
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
@@ -30,6 +28,8 @@ class EPUBInput(InputFormatPlugin):
             f.write(raw[1024:])
 
     def process_encryption(self, encfile, opf, log):
+        from lxml import etree
+        import uuid
         key = None
         for item in opf.identifier_iter():
             scheme = None
@@ -65,6 +65,7 @@ class EPUBInput(InputFormatPlugin):
         return False
 
     def rationalize_cover(self, opf, log):
+        from lxml import etree
         guide_cover, guide_elem = None, None
         for guide_elem in opf.iterguide():
             if guide_elem.get('type', '').lower() == 'cover':
@@ -110,6 +111,7 @@ class EPUBInput(InputFormatPlugin):
                     renderer)
 
     def find_opf(self):
+        from lxml import etree
         def attr(n, attr):
             for k, v in n.attrib.items():
                 if k.endswith(attr):

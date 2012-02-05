@@ -501,27 +501,27 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
 
 # }}}
 
-from calibre.ebooks.comic.input import ComicInput
-from calibre.ebooks.djvu.input import DJVUInput
-from calibre.ebooks.epub.input import EPUBInput
-from calibre.ebooks.fb2.input import FB2Input
-from calibre.ebooks.html.input import HTMLInput
-from calibre.ebooks.htmlz.input import HTMLZInput
-from calibre.ebooks.lit.input import LITInput
-from calibre.ebooks.mobi.input import MOBIInput
-from calibre.ebooks.odt.input import ODTInput
-from calibre.ebooks.pdb.input import PDBInput
-from calibre.ebooks.azw4.input import AZW4Input
-from calibre.ebooks.pdf.input import PDFInput
-from calibre.ebooks.pml.input import PMLInput
-from calibre.ebooks.rb.input import RBInput
-from calibre.web.feeds.input import RecipeInput
-from calibre.ebooks.rtf.input import RTFInput
-from calibre.ebooks.tcr.input import TCRInput
-from calibre.ebooks.txt.input import TXTInput
-from calibre.ebooks.lrf.input import LRFInput
-from calibre.ebooks.chm.input import CHMInput
-from calibre.ebooks.snb.input import SNBInput
+from calibre.ebooks.conversion.plugins.comic_input import ComicInput
+from calibre.ebooks.conversion.plugins.djvu_input import DJVUInput
+from calibre.ebooks.conversion.plugins.epub_input import EPUBInput
+from calibre.ebooks.conversion.plugins.fb2_input import FB2Input
+from calibre.ebooks.conversion.plugins.html_input import HTMLInput
+from calibre.ebooks.conversion.plugins.htmlz_input import HTMLZInput
+from calibre.ebooks.conversion.plugins.lit_input import LITInput
+from calibre.ebooks.conversion.plugins.mobi_input import MOBIInput
+from calibre.ebooks.conversion.plugins.odt_input import ODTInput
+from calibre.ebooks.conversion.plugins.pdb_input import PDBInput
+from calibre.ebooks.conversion.plugins.azw4_input import AZW4Input
+from calibre.ebooks.conversion.plugins.pdf_input import PDFInput
+from calibre.ebooks.conversion.plugins.pml_input import PMLInput
+from calibre.ebooks.conversion.plugins.rb_input import RBInput
+from calibre.ebooks.conversion.plugins.recipe_input import RecipeInput
+from calibre.ebooks.conversion.plugins.rtf_input import RTFInput
+from calibre.ebooks.conversion.plugins.tcr_input import TCRInput
+from calibre.ebooks.conversion.plugins.txt_input import TXTInput
+from calibre.ebooks.conversion.plugins.lrf_input import LRFInput
+from calibre.ebooks.conversion.plugins.chm_input import CHMInput
+from calibre.ebooks.conversion.plugins.snb_input import SNBInput
 
 from calibre.ebooks.epub.output import EPUBOutput
 from calibre.ebooks.fb2.output import FB2Output

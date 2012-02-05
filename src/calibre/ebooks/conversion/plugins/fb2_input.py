@@ -6,7 +6,6 @@ Convert .fb2 files to .lrf
 """
 import os, re
 from base64 import b64decode
-from lxml import etree
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import guess_type
@@ -38,6 +37,7 @@ class FB2Input(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        from lxml import etree
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.ebooks.oeb.base import XLINK_NS, XHTML_NS, RECOVER_PARSER

@@ -10,9 +10,6 @@ import os
 
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.metadata.opf2 import OPF
-from calibre.utils.zipfile import ZipFile
 
 class HTMLZInput(InputFormatPlugin):
 
@@ -23,6 +20,10 @@ class HTMLZInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        from calibre.ebooks.chardet import xml_to_unicode
+        from calibre.ebooks.metadata.opf2 import OPF
+        from calibre.utils.zipfile import ZipFile
+
         self.log = log
         html = u''
         top_levels = []

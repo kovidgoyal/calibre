@@ -3,9 +3,7 @@ __license__ = 'GPL v3'
 __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
                  ' and Alex Bramley <a.bramley at gmail.com>.'
 
-import os, uuid
-
-from lxml import html
+import os
 
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
@@ -77,7 +75,7 @@ class CHMInput(InputFormatPlugin):
 
     def _create_oebbook_html(self, htmlpath, basedir, opts, log, mi):
         # use HTMLInput plugin to generate book
-        from calibre.ebooks.html.input import HTMLInput
+        from calibre.customize.builtins import HTMLInput
         opts.breadth_first = True
         htmlinput = HTMLInput(None)
         oeb = htmlinput.create_oebbook(htmlpath, basedir, opts, log, mi)
@@ -85,6 +83,8 @@ class CHMInput(InputFormatPlugin):
 
 
     def _create_oebbook(self, hhcpath, basedir, opts, log, mi):
+        import uuid
+        from lxml import html
         from calibre.ebooks.conversion.plumber import create_oebbook
         from calibre.ebooks.oeb.base import DirContainer
         oeb = create_oebbook(log, None, opts,
@@ -142,6 +142,7 @@ class CHMInput(InputFormatPlugin):
         return oeb
 
     def _create_html_root(self, hhcpath, log):
+        from lxml import html
         hhcdata = self._read_file(hhcpath)
         hhcroot = html.fromstring(hhcdata)
         chapters = self._process_nodes(hhcroot)

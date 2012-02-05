@@ -11,9 +11,6 @@ import shutil
 from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
-from calibre.ebooks.pml.pmlconverter import PML_HTMLizer
-from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata.opf2 import OPFCreator
 
 class PMLInput(InputFormatPlugin):
 
@@ -24,6 +21,8 @@ class PMLInput(InputFormatPlugin):
     file_types  = set(['pml', 'pmlz'])
 
     def process_pml(self, pml_path, html_path, close_all=False):
+        from calibre.ebooks.pml.pmlconverter import PML_HTMLizer
+
         pclose = False
         hclose = False
 
@@ -85,6 +84,9 @@ class PMLInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        from calibre.ebooks.metadata.toc import TOC
+        from calibre.ebooks.metadata.opf2 import OPFCreator
+
         self.options = options
         self.log = log
         pages, images = [], []

@@ -4,13 +4,11 @@ __license__ = 'GPL 3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, uuid
+import os
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.snb.snbfile import SNBFile
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import ascii_filename
-from lxml import etree
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
@@ -29,7 +27,12 @@ class SNBInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        import uuid
+        from lxml import etree
+
         from calibre.ebooks.oeb.base import DirContainer
+        from calibre.ebooks.snb.snbfile import SNBFile
+
         log.debug("Parsing SNB file...")
         snbFile = SNBFile()
         try:

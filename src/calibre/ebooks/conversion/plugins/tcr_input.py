@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 from cStringIO import StringIO
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.compression.tcr import decompress
 
 class TCRInput(InputFormatPlugin):
 
@@ -17,6 +16,8 @@ class TCRInput(InputFormatPlugin):
     file_types  = set(['tcr'])
 
     def convert(self, stream, options, file_ext, log, accelerators):
+        from calibre.ebooks.compression.tcr import decompress
+
         log.info('Decompressing text...')
         raw_txt = decompress(stream)
 

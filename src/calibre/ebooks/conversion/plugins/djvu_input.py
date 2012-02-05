@@ -12,7 +12,6 @@ from subprocess import Popen, PIPE
 from cStringIO import StringIO
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.ebooks.txt.processor import convert_basic
 
 class DJVUInput(InputFormatPlugin):
 
@@ -28,6 +27,8 @@ class DJVUInput(InputFormatPlugin):
     ])
 
     def convert(self, stream, options, file_ext, log, accelerators):
+        from calibre.ebooks.txt.processor import convert_basic
+
         stdout = StringIO()
         ppdjvu = True
         # using djvutxt is MUCH faster, should make it an option

@@ -7,8 +7,6 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.ebooks.pdf.pdftohtml import pdftohtml
-from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.constants import plugins
 pdfreflow, pdfreflow_err = plugins['pdfreflow']
 
@@ -43,6 +41,9 @@ class PDFInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        from calibre.ebooks.metadata.opf2 import OPFCreator
+        from calibre.ebooks.pdf.pdftohtml import pdftohtml
+
         log.debug('Converting file to html...')
         # The main html file will be named index.html
         self.opts, self.log = options, log

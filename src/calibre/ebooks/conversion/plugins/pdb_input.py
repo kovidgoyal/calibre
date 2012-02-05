@@ -7,8 +7,6 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ebooks.pdb.header import PdbHeaderReader
-from calibre.ebooks.pdb import PDBError, IDENTITY_TO_NAME, get_reader
 
 class PDBInput(InputFormatPlugin):
 
@@ -19,6 +17,9 @@ class PDBInput(InputFormatPlugin):
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
+        from calibre.ebooks.pdb.header import PdbHeaderReader
+        from calibre.ebooks.pdb import PDBError, IDENTITY_TO_NAME, get_reader
+
         header = PdbHeaderReader(stream)
         Reader = get_reader(header.ident)
 
