@@ -14,7 +14,6 @@ from calibre import strftime
 from calibre.constants import DEBUG
 from calibre.customize import CatalogPlugin
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
-from calibre.utils.logging import default_log as log
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
 
@@ -161,6 +160,8 @@ class EPUB_MOBI(CatalogPlugin):
 
     def run(self, path_to_output, opts, db, notification=DummyReporter()):
         from calibre.library.catalogs.epub_mobi_builder import CatalogBuilder
+        from calibre.utils.logging import default_log as log
+
         opts.log = log
         opts.fmt = self.fmt = path_to_output.rpartition('.')[2]
 

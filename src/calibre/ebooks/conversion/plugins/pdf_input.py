@@ -7,8 +7,6 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
-from calibre.constants import plugins
-pdfreflow, pdfreflow_err = plugins['pdfreflow']
 
 class PDFInput(InputFormatPlugin):
 
@@ -29,6 +27,9 @@ class PDFInput(InputFormatPlugin):
     ])
 
     def convert_new(self, stream, accelerators):
+        from calibre.constants import plugins
+        pdfreflow, pdfreflow_err = plugins['pdfreflow']
+
         from calibre.ebooks.pdf.reflow import PDFDocument
         from calibre.utils.cleantext import clean_ascii_chars
         if pdfreflow_err:

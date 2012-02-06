@@ -1645,3 +1645,33 @@ plugins += [
 
 # }}}
 
+if __name__ == '__main__':
+    # Test load speed
+    import subprocess, textwrap
+    try:
+        subprocess.check_call(['python', '-c', textwrap.dedent(
+        '''
+        from __future__ import print_function
+        import time, sys, init_calibre
+        st = time.time()
+        import calibre.customize.builtins
+        t = time.time() - st
+        ret = 0
+
+        for x in ('lxml', 'calibre.ebooks.BeautifulSoup', 'uuid',
+            'calibre.utils.terminfo', 'calibre.utils.magick', 'PIL', 'Image',
+            'sqlite3', 'mechanize', 'httplib', 'xml'):
+            if x in sys.modules:
+                ret = 1
+                print (x, 'has been loaded by a plugin')
+        if ret:
+            print ('\\nA good way to trackdown what is loading something is to run'
+            ' python -c "import init_calibre; import calibre.customize.builtins"')
+            print()
+        print ('Time taken to import all plugins: %.2f'%t)
+        sys.exit(ret)
+
+        ''')])
+    except subprocess.CalledProcessError:
+        raise SystemExit(1)
+

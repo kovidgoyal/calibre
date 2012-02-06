@@ -10,7 +10,6 @@ from collections import namedtuple
 
 from calibre.customize import CatalogPlugin
 from calibre.library.catalogs import FIELDS
-from calibre.utils.logging import default_log as log
 from calibre.customize.conversion import DummyReporter
 
 class CSV_XML(CatalogPlugin):
@@ -52,6 +51,7 @@ class CSV_XML(CatalogPlugin):
         from calibre.utils.date import isoformat
         from calibre.utils.html2text import html2text
         from lxml import etree
+        from calibre.utils.logging import default_log as log
 
         self.fmt = path_to_output.rpartition('.')[2]
         self.notification = notification

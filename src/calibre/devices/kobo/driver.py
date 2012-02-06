@@ -6,7 +6,6 @@ __copyright__ = '2010, Timothy Legge <timlegge@gmail.com> and Kovid Goyal <kovid
 __docformat__ = 'restructuredtext en'
 
 import os, time, calendar
-import sqlite3 as sqlite
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
 from calibre.devices.kobo.books import Book
@@ -16,7 +15,6 @@ from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.devices.usbms.books import CollectionsBookList
-from calibre.utils.magick.draw import save_cover_data_to
 from calibre.ptempfile import PersistentTemporaryFile
 
 class KOBO(USBMS):
@@ -230,6 +228,7 @@ class KOBO(USBMS):
                 traceback.print_exc()
             return changed
 
+        import sqlite3 as sqlite
         with closing(sqlite.connect(
             self.normalize_path(self._main_prefix +
                 '.kobo/KoboReader.sqlite'))) as connection:
@@ -344,6 +343,7 @@ class KOBO(USBMS):
         #    2) volume_shorcover
         #    2) content
 
+        import sqlite3 as sqlite
         debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType)
         with closing(sqlite.connect(self.normalize_path(self._main_prefix +
             '.kobo/KoboReader.sqlite'))) as connection:
@@ -739,6 +739,8 @@ class KOBO(USBMS):
         # Needs to be outside books collection as in the case of removing
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
+
+        import sqlite3 as sqlite
         with closing(sqlite.connect(self.normalize_path(self._main_prefix +
             '.kobo/KoboReader.sqlite'))) as connection:
 
@@ -850,6 +852,7 @@ class KOBO(USBMS):
             debug_print('FAILED to upload cover', filepath)
 
     def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale):
+        from calibre.utils.magick.draw import save_cover_data_to
         if metadata.cover:
             cover = self.normalize_path(metadata.cover.replace('/', os.sep))
 
@@ -859,6 +862,7 @@ class KOBO(USBMS):
                 ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(filepath)
                 ContentID = self.contentid_from_path(filepath, ContentType)
 
+                import sqlite3 as sqlite
                 with closing(sqlite.connect(self.normalize_path(self._main_prefix +
                     '.kobo/KoboReader.sqlite'))) as connection:
 

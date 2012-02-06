@@ -12,19 +12,14 @@ from urllib import urlencode
 from threading import Thread
 from Queue import Queue, Empty
 
-from lxml.html import tostring
 
 from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
         fixauthors)
-from calibre.utils.cleantext import clean_ascii_chars
-from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
 from calibre.utils.localization import canonicalize_lang
-from calibre.utils.soupparser import fromstring
 
 class Worker(Thread): # Get details {{{
 
@@ -43,6 +38,8 @@ class Worker(Thread): # Get details {{{
         self.browser = browser.clone_browser()
         self.cover_url = self.amazon_id = self.isbn = None
         self.domain = domain
+        from lxml.html import tostring
+        self.tostring = tostring
 
         months = {
                 'de': {
@@ -176,6 +173,10 @@ class Worker(Thread): # Get details {{{
             self.log.exception('get_details failed for url: %r'%self.url)
 
     def get_details(self):
+        from calibre.utils.cleantext import clean_ascii_chars
+        from calibre.utils.soupparser import fromstring
+        from calibre.ebooks.chardet import xml_to_unicode
+
         try:
             raw = self.browser.open_novisit(self.url, timeout=self.timeout).read().strip()
         except Exception as e:
@@ -210,7 +211,7 @@ class Worker(Thread): # Get details {{{
         errmsg = root.xpath('//*[@id="errorMessage"]')
         if errmsg:
             msg = 'Failed to parse amazon details page: %r'%self.url
-            msg += tostring(errmsg, method='text', encoding=unicode).strip()
+            msg += self.tostring(errmsg, method='text', encoding=unicode).strip()
             self.log.error(msg)
             return
 
@@ -322,10 +323,10 @@ class Worker(Thread): # Get details {{{
         tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')[0]
         actual_title = tdiv.xpath('descendant::*[@id="btAsinTitle"]')
         if actual_title:
-            title = tostring(actual_title[0], encoding=unicode,
+            title = self.tostring(actual_title[0], encoding=unicode,
                     method='text').strip()
         else:
-            title = tostring(tdiv, encoding=unicode, method='text').strip()
+            title = self.tostring(tdiv, encoding=unicode, method='text').strip()
         return re.sub(r'[(\[].*[)\]]', '', title).strip()
 
     def parse_authors(self, root):
@@ -337,7 +338,7 @@ class Worker(Thread): # Get details {{{
                     ''')
         for x in aname:
             x.tail = ''
-        authors = [tostring(x, encoding=unicode, method='text').strip() for x
+        authors = [self.tostring(x, encoding=unicode, method='text').strip() for x
                 in aname]
         authors = [a for a in authors if a]
         return authors
@@ -356,6 +357,8 @@ class Worker(Thread): # Get details {{{
                     return float(m.group(1))/float(m.group(3)) * 5
 
     def parse_comments(self, root):
+        from calibre.library.comments import sanitize_comments_html
+
         desc = root.xpath('//div[@id="productDescription"]/*[@class="content"]')
         if desc:
             desc = desc[0]
@@ -365,7 +368,7 @@ class Worker(Thread): # Get details {{{
             for a in desc.xpath('descendant::a[@href]'):
                 del a.attrib['href']
                 a.tag = 'span'
-            desc = tostring(desc, method='html', encoding=unicode).strip()
+            desc = self.tostring(desc, method='html', encoding=unicode).strip()
 
             # Encoding bug in Amazon data U+fffd (replacement char)
             # in some examples it is present in place of '
@@ -602,6 +605,11 @@ class Amazon(Source):
         Note this method will retry without identifiers automatically if no
         match is found with identifiers.
         '''
+        from lxml.html import tostring
+        from calibre.utils.cleantext import clean_ascii_chars
+        from calibre.utils.soupparser import fromstring
+        from calibre.ebooks.chardet import xml_to_unicode
+
         query, domain = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         if query is None:

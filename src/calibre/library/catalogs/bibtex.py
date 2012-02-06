@@ -12,7 +12,6 @@ from types import StringType, UnicodeType
 from calibre import (strftime)
 from calibre.customize import CatalogPlugin
 from calibre.library.catalogs import FIELDS, TEMPLATE_ALLOWED_FIELDS
-from calibre.utils.logging import default_log as log
 from calibre.customize.conversion import DummyReporter
 from calibre.constants import preferred_encoding
 
@@ -113,6 +112,7 @@ class BIBTEX(CatalogPlugin):
         from calibre.utils.bibtex import BibTeX
         from calibre.library.save_to_disk import preprocess_template
         from calibre.utils.date import now as nowf
+        from calibre.utils.logging import default_log as log
 
         def create_bibtex_entry(entry, fields, mode, template_citation,
                                     bibtexdict, db, citation_bibtex=True, calibre_files=True):
