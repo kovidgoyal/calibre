@@ -129,28 +129,9 @@ class OCFDirReader(OCFReader):
     def open(self, path, *args, **kwargs):
         return open(os.path.join(self.root, path), *args, **kwargs)
 
-def get_cover(opf, opf_path, stream, reader=None):
+def render_cover(opf, opf_path, zf, reader=None):
     from calibre.ebooks import render_html_svg_workaround
     from calibre.utils.logging import default_log
-    raster_cover = opf.raster_cover
-    stream.seek(0)
-    zf = ZipFile(stream)
-    if raster_cover:
-        base = posixpath.dirname(opf_path)
-        cpath = posixpath.normpath(posixpath.join(base, raster_cover))
-        if reader is not None and \
-            reader.encryption_meta.is_encrypted(cpath):
-                return
-        try:
-            member = zf.getinfo(cpath)
-        except:
-            pass
-        else:
-            f = zf.open(member)
-            data = f.read()
-            f.close()
-            zf.close()
-            return data
 
     cpage = opf.first_spine_item()
     if not cpage:
@@ -173,6 +154,29 @@ def get_cover(opf, opf_path, stream, reader=None):
             if not os.path.exists(cpage):
                 return
             return render_html_svg_workaround(cpage, default_log)
+
+def get_cover(opf, opf_path, stream, reader=None):
+    raster_cover = opf.raster_cover
+    stream.seek(0)
+    zf = ZipFile(stream)
+    if raster_cover:
+        base = posixpath.dirname(opf_path)
+        cpath = posixpath.normpath(posixpath.join(base, raster_cover))
+        if reader is not None and \
+            reader.encryption_meta.is_encrypted(cpath):
+                return
+        try:
+            member = zf.getinfo(cpath)
+        except:
+            pass
+        else:
+            f = zf.open(member)
+            data = f.read()
+            f.close()
+            zf.close()
+            return data
+
+    return render_cover(opf, opf_path, zf, reader=reader)
 
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a :class:`Metadata` object """
