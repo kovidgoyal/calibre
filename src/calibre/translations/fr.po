@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-03 07:01+0000\n"
-"PO-Revision-Date: 2012-01-28 23:09+0000\n"
-"Last-Translator: Tharos Stone <Tharos47@gmail.com>\n"
+"PO-Revision-Date: 2012-02-05 12:09+0000\n"
+"Last-Translator: sengian <Unknown>\n"
 "Language-Team: Français <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-02-04 05:12+0000\n"
-"X-Generator: Launchpad (build 14738)\n"
+"X-Launchpad-Export-Date: 2012-02-06 04:44+0000\n"
+"X-Generator: Launchpad (build 14747)\n"
 "X-Poedit-Bookmarks: 1177,1104,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -443,6 +443,8 @@ msgstr "Copier un livre depuis une librairie calibre vers une autre"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Effectuez de petites personnalisations sur les fichiers epub ou htmlz de "
+"votre bibliothèque Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:848
 msgid ""
@@ -1361,7 +1363,7 @@ msgstr "Communiquer avec le PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Communiquer avec le lecteur d'ebook Infibeam Pi2"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
@@ -2022,7 +2024,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "Impossible de monter l'appareil"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:978
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
@@ -2427,7 +2429,7 @@ msgid ""
 "automatically generated one."
 msgstr ""
 "Contrôler la génération automatique de la Table des Matières. Par défaut, si "
-"le fichier source a une Table des Matières, elle sera utilisé de préférence "
+"le fichier source a une Table des Matières, elle sera utilisée de préférence "
 "par rapport à celle qui est générée automatiquement."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:186
@@ -2574,7 +2576,7 @@ msgid ""
 msgstr ""
 "Expression XPath spécifiant toutes les étiquettes qui doivent être ajoutées "
 "au premier niveau de la table des matières. Si spécifiée, elle sera "
-"prioritaire par rapport aux autres formulaires d'auto-détection."
+"prioritaire par rapport aux autres formes d'auto-détection."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:216
 msgid ""
@@ -2640,7 +2642,7 @@ msgid ""
 msgstr ""
 "Supprime les entrées de la table des matières qui correspondent à "
 "l'expression régulière spécifiée. Les entrées correspondantes ainsi que "
-"leurs fils sont supprimés."
+"leurs enfants sont supprimés."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:270
 msgid ""
@@ -3302,7 +3304,7 @@ msgstr "Tous les articles"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/input.py:32
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr "Ne pas insérer une table des matières au début du livre."
+msgstr "Ne pas insérer une Table des Matières au début du livre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:149
 msgid ""
@@ -3314,6 +3316,11 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
+"Spécifie le découpage en sections. Une valeur de \"nothing\" transforme le "
+"livre en une seule section. Une valeur de \"files\" transforme chaque "
+"fichier en une section séparée; si ceci échoue, ajuster les paramètres "
+"\"Détection de Structure\" et/ou \"Table des Matières\" (active \"Forcer "
+"l'utilisation d'une Table des matières auto-générée\")."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/fb2/output.py:158
 #, python-format
@@ -4364,7 +4371,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/output.py:21
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:40
 msgid "Add Table of Contents to beginning of the book."
-msgstr "Ajouter la table des matières au début du livre."
+msgstr "Ajouter la Table des Matières au début du livre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/input.py:24
 msgid "Do not extract images from the document"
@@ -4826,7 +4833,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/input.py:59
 msgid "Do not insert a Table of Contents into the output text."
-msgstr "Ne pas insérer une table des matières dans le texte de sortie."
+msgstr "Ne pas insérer une Table des Matières dans le texte de sortie."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/output.py:30
 #, python-format
@@ -5057,11 +5064,11 @@ msgstr "catégories du navigateur d'étiquettes à ne pas afficher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:261
 msgid "WARNING:"
-msgstr ""
+msgstr "ATTENTION :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:271
 msgid "ERROR:"
-msgstr ""
+msgstr "ERREUR :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:283
 msgid "Show this confirmation again"
@@ -5122,7 +5129,7 @@ msgstr "Archives"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Wordprocessor files"
-msgstr ""
+msgstr "FIchers du traitement de texte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
@@ -6494,11 +6501,12 @@ msgstr "A propos d' Obtenir des Livres"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Tweak Book"
-msgstr ""
+msgstr "Personnaliser le livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:19
 msgid "Make small changes to ePub or HTMLZ format books"
 msgstr ""
+"Effectuer de petites modifications de fichiers au format ePub ou HTMLZ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:20
 msgid "T"
@@ -6507,7 +6515,7 @@ msgstr "T"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:50
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "Impossible de personnaliser le livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:51
 msgid ""
@@ -6515,6 +6523,9 @@ msgid ""
 "\n"
 "First convert the book to ePub or HTMLZ."
 msgstr ""
+"Le livre doit être au format ePub ou HTMLZ pour être personnalisé.\n"
+"\n"
+"Convertissez d'abord le livre en ePub ou HTMLZ."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/view.py:37
 msgid "V"
@@ -6848,7 +6859,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:151
 #, python-format
 msgid "Added %d book(s) automatically from %s"
-msgstr ""
+msgstr "%d livre(s) ajoutés automatiquement à partir de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
@@ -8179,7 +8190,7 @@ msgstr "Désactiver la compression du contenu du fichier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:44
 msgid "Do not add Table of Contents to book"
-msgstr "Ne pas ajouter la Table des Matières au livre"
+msgstr "Ne pas ajouter de Table des Matières au livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:48
 msgid "Kindle options"
@@ -8200,7 +8211,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Put generated Table of Contents at &start of book instead of end"
 msgstr ""
-"Insérer la Table des Matières générée au début du livre plutôt qu'à la fin"
+"Insérer la Table des Matière&s générée au début du livre plutôt qu'à la fin"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:76
 msgid "Ignore &margins"
@@ -8599,7 +8610,7 @@ msgstr "Seuil de chapi&tre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:74
 msgid "&Force use of auto-generated Table of Contents"
-msgstr "&Forcer l'utilisation d'une Table des matières auto-générée"
+msgstr "&Forcer l'utilisation d'une Table des Matières auto-générée"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/toc_ui.py:75
 msgid "TOC &Filter:"
@@ -8858,7 +8869,7 @@ msgstr "Effacer '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:241
 msgid "Open Item Editor"
-msgstr ""
+msgstr "Ouvrir un élément dans un éditeur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:353
 msgid "Values changed"
@@ -8869,6 +8880,8 @@ msgid ""
 "You have changed the values. In order to use this editor, you must either "
 "discard or apply these changes. Apply changes?"
 msgstr ""
+"Vous avez modifié les valeurs. Pour utiliser cet éditeur, vous devez soit "
+"annuler soit appliquer ces changements. Appliquer les changements ?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:379
 msgid " index:"
@@ -10522,6 +10535,8 @@ msgid ""
 "Enter what you are looking for, either plain text or a regular expression, "
 "depending on the mode"
 msgstr ""
+"Entrez votre recherche, soit du texte soit une expression régulière, en "
+"fonction du mode"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:626
 msgid ""
@@ -11426,7 +11441,7 @@ msgstr "&Avancé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Delete downloaded news &older than:"
-msgstr ""
+msgstr "Supprimer les news téléchargées plus &vieilles que :"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid ""
@@ -11707,7 +11722,7 @@ msgstr "Ajouter une nouvelle catégorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:174
 msgid "Rename the current category to what is in the box"
-msgstr ""
+msgstr "Renommer la catégorie actuelle avec le contenu de la boite"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories_ui.py:176
 msgid "Category filter: "
@@ -11852,6 +11867,7 @@ msgstr "Valeur modèle:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:114
 msgid "The value of the template using the current book in the library view"
 msgstr ""
+"La valeur du modèle utilisant le livre actuel dans la vue bibliothèque"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/template_dialog_ui.py:115
 msgid "Function &name:"
@@ -11897,7 +11913,7 @@ msgstr "&Test"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:114
 #, python-format
 msgid "You must first explode the %s before previewing."
-msgstr ""
+msgstr "Vous devez d'abord éclater %s avant de le prévisualiser."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:116
 msgid "Cannot preview"
@@ -11905,7 +11921,7 @@ msgstr "Impossible de générer l'aperçu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:60
 msgid "Tweak {0}"
-msgstr ""
+msgstr "Personnalisation {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:61
 msgid ""
@@ -11915,15 +11931,22 @@ msgid ""
 "windows you used to edit files in the ePub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>Éclate {0} pour afficher son contenu dans la fenêtre d'un explorateur de "
+"fichier. Pour des réglages individuels par fichiers, faites un clic-droit, "
+"puis 'Ouvrir avec...' votre éditeur de texte préféré. Quand les réglages "
+"sont finis, fermez la fenêtre de l'explorateur de fichiers <b>et les "
+"fenêtres que vous avez utilisé pour éditer les fichiers de "
+"l'ePub</b>.</p><p>Reconstruit l'ePub, avant de mettre à jour votre "
+"bibliothèque Calibre.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:63
 msgid "Display contents of exploded {0}"
-msgstr ""
+msgstr "Afficher le contenu de {0} éclaté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:64
 msgid "&Explode {0}"
-msgstr ""
+msgstr "&Eclater {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:66
@@ -11933,15 +11956,15 @@ msgstr "Abandonner les changements"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:69
 msgid "Rebuild {0} from exploded contents"
-msgstr ""
+msgstr "&Reconstruire {0} à partir du contenu éclaté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:70
 msgid "&Rebuild {0}"
-msgstr ""
+msgstr "&Reconstruire {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:71
 msgid "&Preview {0}"
-msgstr ""
+msgstr "&Prévisualiser {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
@@ -13634,12 +13657,12 @@ msgstr "Créer un nouvel enregistrement pour chaque format dupliqué"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:43
 msgid "Choose a folder"
-msgstr ""
+msgstr "Choisissez un dossier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:71
 msgid "Invalid folder"
-msgstr ""
+msgstr "Dossier non valide"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:66
 #, python-format
@@ -13647,11 +13670,13 @@ msgid ""
 "You must specify an existing folder as your auto-add folder. %s does not "
 "exist."
 msgstr ""
+"Vous devez utiliser un dossier existant en tant que dossier d'auto-addition. "
+"%s n'existe pas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:72
 #, python-format
 msgid "You do not have read/write permissions for the folder: %s"
-msgstr ""
+msgstr "Vous n'avez pas les droits de lecture/écriture pour le dossier : %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:76
 #, python-format
@@ -13659,6 +13684,8 @@ msgid ""
 "<b>WARNING:</b> Any files you place in %s will be automatically deleted "
 "after being added to calibre. Are you sure?"
 msgstr ""
+"<b>ATTENTION :</b> Tout fichier que vous placerez dans %s sera supprimé "
+"automatiquement après avoir été ajouté à Calibre. Êtes vous sûr?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:103
 msgid ""
@@ -13774,31 +13801,35 @@ msgstr "&Configurer les métadonnées à partir du nom de fichier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:127
 msgid "The Add &Process"
-msgstr ""
+msgstr "Le processus d'&Ajout"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:128
 msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
 msgstr ""
+"Spécifier un dossier. Tout fichier que vous mettrez dans ce dossier sera "
+"automatiquement ajouté à Calibre (redémarrage nécessaire)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:129
 msgid "Folder to auto-add files from"
-msgstr ""
+msgstr "Dossier à partir duquel auto-ajouter les fichiers"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:130
 msgid "Browse for folder"
-msgstr ""
+msgstr "Parcourir pour chercher un dossier"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:132
 msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
 msgstr ""
+"<b>ATTENTION :</b> Les fichiers du dossier ci-dessus seront supprimés après "
+"avoir été ajoutés à Calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:133
 msgid "&Automatic Adding"
-msgstr ""
+msgstr "&Ajout automatique"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -15483,7 +15514,7 @@ msgstr "Afficher uniquement les plugins que vous avez installés"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
-msgstr ""
+msgstr "Montrer seulement les plugins installés par l'utilisateur"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:117
 msgid "Get &new plugins"
@@ -15897,10 +15928,15 @@ msgid ""
 "<p>Do not set a password if you plan to use the server with an\n"
 " Android phone or tablet."
 msgstr ""
+"<p>A cause d'un bug d'Android, mettre un mot de passe\n"
+"empêchera le serveur de fonctionner avec les appareils Android.\n"
+"<br>\n"
+"<p>Ne mettez pas de mot de passe si vous envisagez d'utiliser\n"
+"le serveur avec un Androphone ou une tablette."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Password incompatible with Android devices"
-msgstr ""
+msgstr "Mot de passe incompatible avec les appareils Android"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "&Start Server"
@@ -18052,11 +18088,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:792
 msgid "&Next >"
-msgstr ""
+msgstr "&Suivant >"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:793
 msgid "< &Back"
-msgstr ""
+msgstr "< &Précédent"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:794
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
@@ -18065,11 +18101,11 @@ msgstr "Annuler"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:795
 msgid "&Finish"
-msgstr ""
+msgstr "&Terminer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:796
 msgid "Commit"
-msgstr ""
+msgstr "Envoyer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:801
 msgid "welcome wizard"
@@ -18807,7 +18843,7 @@ msgid ""
 msgstr ""
 "Spécifie le profil de sortie. Dans certains cas, un profil de sortie est "
 "requis pour optimiser le catalogue pour cet appareil. Par exemple, 'kindle' "
-"ou 'kindle_dx' créé une Tables des Matières structurée avec les Sections et "
+"ou 'kindle_dx' créé une Tables des Matières structurée avec des Sections et "
 "Articles.\n"
 "Par défaut : '%default'\n"
 "S'applique aux formats : ePub, MOBI"
@@ -20800,6 +20836,21 @@ msgid ""
 "\"B.C\". Assuming a #genre value of \"A.B.C, D.E.F\", {#genre:subitems(0,1)} "
 "returns \"A, D\". {#genre:subitems(0,2)} returns \"A.B, D.E\""
 msgstr ""
+"subitems(val, start_index, fin_index) -- Cette fonction est utilisée pour "
+"séparer des listes d'éléments comme les genres. Elle interprète la valeur "
+"comme une liste d'éléments séparés par des virgules, où chaque élément est "
+"une liste séparée par des points. Retourne une nouvelle liste composée en "
+"recherchant d'abord tous les éléments séparés par des points, puis pour "
+"chacun de ces  éléments en extrayant les composantes entre `start_index` et "
+"`fin_index` avant de les recombiner. Le premier élément dans une liste "
+"séparée par des points a un index de 0. Si un index est négatif, alors il "
+"part de la fin de la liste. Comme cas spécial, un fin_index de zéro est "
+"considéré comme étant la longueur de la liste. Des exemples utilisant le "
+"mode de modèle basique et supposant une valeur de #genre de \\\"A.B.C\\\" : "
+"{#genre:subitems(0,1)} retourne \\\"A\\\". {#genre:subitems(0,2)} retourne \\"
+"\"A.B\\\". {#genre:subitems(1,0)} retourne \\\"B.C\\\". Supposant une valeur "
+"de #genre de \\\"A.B.C, D.E.F\\\", {#genre:subitems(0,1)} retourne \\\"A, D\\"
+"\". {#genre:subitems(0,2)} retourne \\\"A.B, D.E\\\""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:743
 msgid ""
@@ -21107,7 +21158,7 @@ msgstr "Anglais (Bulgarie)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Egypt)"
-msgstr ""
+msgstr "Anglais (Égypte)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (New Zealand)"
@@ -22621,6 +22672,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:480
 msgid "When using the 'Tweak Book' action, which format to prefer"
 msgstr ""
+"Lors de l'utilisation de l'action 'Personnaliser le livre', quel format "
+"choisir préférentiellement"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:481
 msgid ""
@@ -22628,3 +22681,9 @@ msgid ""
 "automatically. By default EPUB is preferred to HTMLZ. If you would like to\n"
 "prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'"
 msgstr ""
+"Lorsque vous personnalisez un livre qui a plusieurs formats, Calibre en "
+"choisit un\n"
+"automatiquement. Par défaut, l'EPUB est préféré au HTMLZ. Si vous souhaitez\n"
+"préférer le format HTMLZ à l'EPUB lors de la personnalisation, changez ce "
+"paramètre\n"
+"à 'htmlz'"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-03 07:01+0000\n"
-"PO-Revision-Date: 2012-02-04 16:31+0000\n"
+"PO-Revision-Date: 2012-02-05 16:53+0000\n"
 "Last-Translator: viktorc <dinalt@email.cz>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2012-02-05 04:46+0000\n"
-"X-Generator: Launchpad (build 14738)\n"
+"X-Launchpad-Export-Date: 2012-02-06 04:45+0000\n"
+"X-Generator: Launchpad (build 14747)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -493,8 +493,8 @@ msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
-"Vlastné nastavenie panelov nástrojov a kontextových menu, meniace sa s "
-"dostupnými akciami k dispozícii."
+"Prispôsobiť panely nástrojov a kontextové menu, meniace sa podľa dostupných "
+"akcií"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:942
 msgid "Searching"
@@ -4050,6 +4050,8 @@ msgid ""
 "Could not find reasonable point at which to split: %(path)s Sub-tree size: "
 "%(size)d KB"
 msgstr ""
+"Nedokážem nájsť primerané miesto rozdelenia: %(path)s Veľkosť pod-stromu: "
+"%(size)d KB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/writer.py:32
 msgid "OPF/NCX/etc. generation options."
@@ -4315,12 +4317,16 @@ msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
+"Veľkosť papiera. Táto veľkosť bude nahradená pri použití neštandardného "
+"výstupného profilu. Štandardne je letter. Na výber sú %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:39
 msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
+"Vlastná veľkosť dokumentu. Šírku a výšku zadajte v tvare šírkaxvýška, napr. "
+"\"123x321\". Tento údaj má prednosť pred nastavenou veľkosťou papiera."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/output.py:44
 #, python-format
@@ -4350,6 +4356,9 @@ msgid ""
 "depth reduced by default to accommodate applications that can not convert "
 "images on their own such as Dropbook."
 msgstr ""
+"Neredukovať veľkosť, alebo farebnosť obrázkov. Štandardne sa veľkosť a "
+"farebnosť obrázkov prispôsobuje programom, ktoré samotné nedokážu obrázky "
+"konvertovať, napr. Dropbook."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/rb/rbml.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/txt/txtml.py:97
@@ -4406,7 +4415,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:48
 msgid "Resize all the images for full screen view. "
-msgstr ""
+msgstr "Prispôsobiť všetky obrázky pre zobrazenie na celú obrazovku. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/snb/output.py:125
 msgid "Start Page"
@@ -6987,7 +6996,7 @@ msgstr "Vypnúť konverziu obrázkov na čierno-&biele"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:117
 msgid "Override image  &size:"
-msgstr ""
+msgstr "Nahradiť veľko&sť obrázka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/comic_input_ui.py:118
 msgid "Don't add links to &pages to the Table of Contents for CBC files"
@@ -7131,12 +7140,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:114
 msgid "&Base font size:"
-msgstr ""
+msgstr "&Základná veľkosť písma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:42
 msgid "Font size &key:"
-msgstr ""
+msgstr "&Koeficient veľkosti písma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:115
@@ -7163,11 +7172,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:116
 msgid "&Font size: "
-msgstr ""
+msgstr "&Veľkosť písma: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:118
 msgid " will map to size: "
-msgstr ""
+msgstr " bude mapovaný na veľkosť: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/font_key_ui.py:119
 msgid "0.0 pt"
@@ -7317,7 +7326,7 @@ msgstr "Odstrániť &medzery medzi odstavcami"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:97
 msgid "&Indent size:"
-msgstr ""
+msgstr "Veľkosť &odsadenia:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:102
 msgid ""
@@ -7342,7 +7351,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:115
 msgid "&Line size:"
-msgstr ""
+msgstr "Výška &riadka:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:125
 msgid "Text &justification:"
@@ -7438,7 +7447,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:121
 msgid "Enable &autorotation of wide images"
-msgstr ""
+msgstr "Povoliť &automatické otočenie širokých obrázkov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:122
 msgid "&Wordspace:"
@@ -7454,7 +7463,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:127
 msgid "Text size multiplier for text in rendered tables:"
-msgstr ""
+msgstr "Koeficient veľkosti textu v tabuľkách:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/lrf_output_ui.py:128
 msgid "Add &header"
@@ -7739,7 +7748,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:55
 msgid "&Paper Size:"
-msgstr ""
+msgstr "Veľkosť &papiera:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:56
 msgid "&Orientation:"
@@ -7751,7 +7760,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:58
 msgid "&Custom size:"
-msgstr ""
+msgstr "V&lastná veľkosť:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -8943,18 +8952,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:23
 #, python-format
 msgid "Add \"%s\" to toolbars or menus"
-msgstr ""
+msgstr "Pridať \"%s\" do panelov nástrojov, alebo menu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:29
 #, python-format
 msgid "Select the toolbars and/or menus to add <b>%s</b> to:"
-msgstr ""
+msgstr "Vyberte panel nástrojov, a/alebo menu do ktorého pridať <b>%s</b>:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_plugin_toolbars.py:45
 msgid ""
 "You can also customise the plugin locations using <b>Preferences -> "
 "Customise the toolbar</b>"
 msgstr ""
+"Umiestnenie zásuvných modulov si môžete prispôsobiť v <b>Nastavenia -> Panel "
+"nástrojov</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:33
 msgid "Set defaults for conversion of comics (CBR/CBZ files)"
@@ -9157,36 +9168,36 @@ msgstr "Neboli nájdené žiadne výsledky"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:437
 msgid "Change Case"
-msgstr ""
+msgstr "Zmeniť veľké/malé písmená"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:161
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:296
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:438
 msgid "Upper Case"
-msgstr ""
+msgstr "Veľké písmená"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:162
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:295
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:439
 msgid "Lower Case"
-msgstr ""
+msgstr "Malé písmená"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:440
 msgid "Swap Case"
-msgstr ""
+msgstr "Vymeniť veľké/malé"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:297
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:441
 msgid "Title Case"
-msgstr ""
+msgstr "Stýl nadpisu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk.py:298
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:442
 msgid "Capitalize"
-msgstr ""
+msgstr "Veľké prvé písmená"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:181
 msgid "Copy to author sort"
@@ -9766,7 +9777,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:623
 msgid "Enter a template to be used as the source for the search/replace"
-msgstr ""
+msgstr "Zadajte šablónu, ktorá bude použitá ako zdroj pre hľadať/nahradiť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:625
 msgid ""
@@ -9779,6 +9790,8 @@ msgid ""
 "Check this box if the search string must match exactly upper and lower case. "
 "Uncheck it if case is to be ignored"
 msgstr ""
+"Označte túto voľbu, ak sa majú pri hľadaní dodržať veľké/malé písmená. "
+"Nechajte prázdne, ak na tom nezáleží"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:627
 msgid "Cas&e sensitive"
@@ -10480,7 +10493,7 @@ msgstr "Posledne prevzatý: nikdy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:383
 msgid "never"
-msgstr ""
+msgstr "nikdy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:389
 #, python-format
@@ -10611,7 +10624,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:229
 msgid "never delete"
-msgstr ""
+msgstr "nikdy nemazať"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:273
@@ -11793,7 +11806,7 @@ msgstr "Veľkosť (MB)"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:68
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:275
 msgid "Modified"
-msgstr ""
+msgstr "Zmenené"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:785
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1369
@@ -11835,7 +11848,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1067
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:345
 msgid "Size"
-msgstr ""
+msgstr "Veľkosť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:1351
 msgid "Marked for deletion"
@@ -11886,7 +11899,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:242
 msgid "Shrink column if it is too wide to fit"
-msgstr ""
+msgstr "Zúžiť príliš široký stĺpec"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:245
 msgid "Restore default layout"
@@ -12207,6 +12220,9 @@ msgid ""
 "\n"
 "Double click to view"
 msgstr ""
+"Naposledy zmenené: %s\n"
+"\n"
+"Zobrazíte dvojklikom"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/basic_widgets.py:628
 #, python-format
@@ -12817,6 +12833,8 @@ msgid ""
 "A comma-separated list of tags that will be applied to books added to the "
 "library"
 msgstr ""
+"Zoznam značiek, oddelených čiarkou, ktoré budú priradené knihám vloženým do "
+"knižnice"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:126
 msgid "&Configure metadata from file name"
@@ -13410,7 +13428,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:271
 msgid "You must enter a template for composite columns"
-msgstr ""
+msgstr "Musíte zadať šablónu pre zložené stĺpce"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:281
 msgid "You must enter at least one value for enumeration columns"
@@ -13447,6 +13465,7 @@ msgid ""
 "Used for searching the column. Must contain only digits and lower case "
 "letters."
 msgstr ""
+"Použité pri hľadaní v stĺpci. Môže obsahovať len čísla a malé písmená."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:223
 msgid ""
@@ -13554,7 +13573,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:253
 msgid "Show in tags browser"
-msgstr ""
+msgstr "Zobraziť v prehliadači značiek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:254
 msgid "Show as HTML in book details"
@@ -13571,10 +13590,13 @@ msgid ""
 "included, and is the default. For example, the list 'one,two,three' has\n"
 "four values, the first of them being the empty value."
 msgstr ""
+"Zoznam povolených hodnôt oddelených čiarkou. Prázdna hodnota je vždy\n"
+"zahrnutá a predvolená. Napr. zoznam 'jedna,dva,tri' obsahuje štyri hodnoty\n"
+"a prvá z nich je prázdna."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:259
 msgid "The empty string is always the first value"
-msgstr ""
+msgstr "Prvá hodnota je vždy prázdny reťazec"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:261
 msgid ""
@@ -13694,11 +13716,11 @@ msgstr "nová e-mailová adresa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Narrow"
-msgstr ""
+msgstr "Úzke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:103
 msgid "Wide"
-msgstr ""
+msgstr "Široké"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:134
 msgid "Off"
@@ -13718,15 +13740,15 @@ msgstr "Stredné"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:138
 msgid "Always"
-msgstr ""
+msgstr "Vždy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:138
 msgid "If there is enough room"
-msgstr ""
+msgstr "Ak je na to dosť miesta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:139
 msgid "Never"
-msgstr ""
+msgstr "Nikdy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:142
 msgid "By first letter"
@@ -13738,7 +13760,7 @@ msgstr "Vypnuté"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:143
 msgid "Partitioned"
-msgstr ""
+msgstr "Rozčlenený"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:175
 msgid "Column coloring"
@@ -13776,23 +13798,23 @@ msgstr "Vyp&núť upozornenia v systémovej lište"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:63
 msgid "Show &splash screen at startup"
-msgstr ""
+msgstr "Zobraziť štartovací obrázok"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:67
 msgid "&Toolbar"
-msgstr ""
+msgstr "&Panel nástrojov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:75
 msgid "&Icon size:"
-msgstr ""
+msgstr "Veľkosť &ikon:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:82
 msgid "Show &text under icons:"
-msgstr ""
+msgstr "Zobrazovať &text pod ikonami"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:89
 msgid "Interface font:"
-msgstr ""
+msgstr "Písmo rozhrania:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:98
 msgid "Change &font (needs restart)"
@@ -13800,19 +13822,19 @@ msgstr "Zmeniť &písmo (vyžaduje reštart)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:111
 msgid "Select displayed metadata"
-msgstr ""
+msgstr "Vyberte zobrazované metadáta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:120
 msgid "Move up"
-msgstr ""
+msgstr "Posunúť vyššie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:127
 msgid "Move down"
-msgstr ""
+msgstr "Posunúť nižšie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:139
 msgid "Default author link template:"
-msgstr ""
+msgstr "Štandardná šablóna odkazu autora:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:143
 msgid ""
@@ -13822,20 +13844,27 @@ msgid ""
 "Manage Authors. You can use the values {author} and \n"
 "{author_sort}, and any template function."
 msgstr ""
+"<p>Zadajte šablónu, pomocou ktorej sa vytvorí odkaz\n"
+"na autora v informačnom okne knihy. Šablóna sa použije\n"
+"ak odkaz na autora nie je dostupný v Správe autorov.\n"
+"Môžete použiť hodnoty {author}, {author_sort}\n"
+"a akékoľvek funkcie šablón."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
 msgid "Use &Roman numerals for series"
-msgstr ""
+msgstr "Číslovať série &rímskymi číslami"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:157
 msgid ""
 "Note that <b>comments</b> will always be displayed at the end, regardless of "
 "the position you assign here."
 msgstr ""
+"Uvedomte si, že <b>komentáre</b> budú zobrazené vždy na konci, nezávisle od "
+"pozície, ktorú tu nastavíte."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:169
 msgid "Tags browser category &partitioning method:"
-msgstr ""
+msgstr "Metóda &rozčlenenia kategórií v prehliadači značiek:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:173
 msgid ""
@@ -13845,10 +13874,16 @@ msgid ""
 "have a list of fixed-sized groups. Set to disabled\n"
 "if you never want subcategories"
 msgstr ""
+"Výber spôsobu rozčlenenia kategórií pri väčšom,\n"
+"ako nastavenom počte položiek.\n"
+"Pri nastavení podľa prvého písmena uvidíte zoznam A, B, C...\n"
+"Nastavením na rozčlenené sa zobrazí zoznam skupín\n"
+"s pevným počtom položiek.\n"
+"Nastavte vypnuté, ak nechcete členenie do podkategórií."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:181
 msgid "&Collapse when more items than:"
-msgstr ""
+msgstr "&Zoskupiť pri počte položiek nad:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:185
 msgid ""
@@ -13856,6 +13891,9 @@ msgid ""
 "up into sub-categories. If the partition method is set to disable, this "
 "value is ignored."
 msgstr ""
+"Ak kategória v prehliadači značiek má viac ako tu nastavený počet položiek, "
+"\n"
+"rozdelí sa do podkategórií. Ak je rozčlenenie vypnuté, hodnota sa ignoruje."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:191
 msgid "Show &average ratings in the tags browser"
@@ -13863,7 +13901,7 @@ msgstr "Zobr&aziť priemerné hodnotenia v prehliadači značiek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:196
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "Kategórie s &hiererchickými položkami:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:202
 msgid ""
@@ -13874,6 +13912,12 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"Zoznam stĺpcov oddelený čiarkami v ktorých sú položky s bodkou\n"
+"v prehliadači značiek zobrazené ako strom.\n"
+"Napr. ak toto pole bude obsahovať 'tags', potom značky 'Záhady.Slovensky'\n"
+"a Záhady.Thriller' budú zobrazené ako Slovensky a Thriller, obe pod Záhady.\n"
+"Ak v tomto poli nebude 'tags', potom budú značky zobrazené\n"
+"na samostatných riadkoch."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:218
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -13897,7 +13941,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:260
 msgid "Main Interface"
-msgstr ""
+msgstr "Hlavné rozhranie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:92
@@ -14134,7 +14178,7 @@ msgstr "Prerušiť konverzné úlohy trv&ajúce dlhšie ako:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:71
 msgid "Never abort"
-msgstr ""
+msgstr "Nikdy neprerušovať"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:72
 msgid " minutes"
@@ -14916,15 +14960,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:220
 msgid "The main toolbar"
-msgstr ""
+msgstr "Hlavný panel nástrojov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:221
 msgid "The main toolbar when a device is connected"
-msgstr "Hlavná nástrojová lišta pri pripojení zariadenia"
+msgstr "Hlavný panel nástrojov pri pripojení zariadenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:222
 msgid "The optional second toolbar"
-msgstr ""
+msgstr "Voliteľný ďalší panel nástrojov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:223
 msgid "The menubar"
@@ -14949,6 +14993,7 @@ msgstr "Kontextové menu pre prehliadač obálok"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:235
 msgid "Click to choose toolbar or menu to customize"
 msgstr ""
+"Kliknutím vyberte panel nástrojov, alebo menu, ktoré chcete prispôsobiť"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:271
 msgid "Cannot add"
@@ -14973,10 +15018,13 @@ msgid ""
 "<p>The toolbar in calibre is different depending on whether a device is "
 "connected or not. Choose <b>which toolbar</b> you would like to customize:"
 msgstr ""
+"<p>Panel nástrojov v Calibre je rozdielny podľa toho, či je zariadenie "
+"pripojené, alebo nie. Vyberte <b>ktorý panel nástrojov</b> chcete "
+"prispôsobiť:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:30
 msgid "Choose the toolbar to customize"
-msgstr ""
+msgstr "Vyberte panel nástrojov na prispôsobenie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:42
 msgid "A&vailable actions"
@@ -14984,11 +15032,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:62
 msgid "Add selected actions to toolbar"
-msgstr ""
+msgstr "Pridať vybrané akcie na panel nástrojov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:73
 msgid "Remove selected actions from toolbar"
-msgstr "Odstrániť vybrané akcie z nástrojovej lišty"
+msgstr "Odstrániť vybrané akcie z panela nástrojov"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:83
 msgid "&Current actions"
@@ -16156,7 +16204,7 @@ msgstr "Neproporcionálne"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:198
 msgid "Remember last used &window size"
-msgstr ""
+msgstr "Pamätať si poslednú veľkosť &okna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:199
 msgid "Remember the &current page when quitting"
@@ -16198,13 +16246,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
 msgid "Font &magnification step size:"
-msgstr ""
+msgstr "&Krok zväčšenia písma:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
 msgid ""
 "The amount by which the font size is increased/decreased\n"
 " when you click the font size larger/smaller buttons"
 msgstr ""
+"Veľkosť o akú sa zväčší/zmenší písmo\n"
+" po kliknutí na tlačidlá zväčšenia/zmenšenia"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:213
 msgid "%"
@@ -16244,7 +16294,7 @@ msgstr "Možnosti úpravy prehliadača elektronických kníh"
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:46
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:808
 msgid "Remember last used window size"
-msgstr ""
+msgstr "Pamätať poslednú veľkosť okna"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:48
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:103
@@ -16261,6 +16311,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:52
 msgid "Resize images larger than the viewer window to fit inside it"
 msgstr ""
+"Zmeniť veľkosť obrázkov väčších ako okno prehliadača, do ktorého majú pasovať"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:53
 msgid "Hyphenate text"
@@ -16288,6 +16339,8 @@ msgid ""
 "The amount by which to change the font size when clicking the font "
 "larger/smaller buttons. Should be a number between 0 and 1."
 msgstr ""
+"Veľkosť o akú sa zmení veľkosť písma po kliknutí na tlačidlo "
+"zväčšiť/zmenšiť. Malo by to byť číslo medzi 0 a 1."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:68
 msgid "Font options"
@@ -16457,6 +16510,8 @@ msgid ""
 "Make font size %(which)s\n"
 "Current magnification: %(mag).1f"
 msgstr ""
+"Nastaviť veľkosť písma %(which)s\n"
+"Aktuálne zväčšenie: %(mag).1f"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:496
 msgid "larger"
@@ -16613,7 +16668,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:994
 msgid "Drag to resize"
-msgstr ""
+msgstr "Zmeniť veľkosť potiahnutím"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:1029
 msgid "Show"
@@ -18028,6 +18083,8 @@ msgid ""
 "The label must contain only lower case letters, digits and underscores, and "
 "start with a letter"
 msgstr ""
+"Štítok musí začínať písmenom a môže obsahovať len malé písmená, čísla a "
+"podčiarky"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:69
 #, python-format
@@ -18127,7 +18184,7 @@ msgstr "Dátum vydania"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:46
 msgid "The date when the metadata for this book record was last modified"
-msgstr ""
+msgstr "Dátum poslednej zmeny metadát tejto knihy"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:48
 msgid "The calibre internal id"
@@ -18273,6 +18330,9 @@ msgid ""
 "more than this number of items. Default: %default. Set to a large number to "
 "disable grouping."
 msgstr ""
+"Ak je počet položiek v kategóriách (autori, značky, ...) väčší, ako tu "
+"nastavený, zoskupiť položky podľa prvého písmena. Štandardne: %default. "
+"Nastavenie dostatočne veľkého čísla zoskupovanie vypne."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/__init__.py:48
 msgid ""
@@ -19925,7 +19985,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:108
 msgid "Control partitioning of Tag Browser"
-msgstr "Ovládať rozloženie prehliadača značiek"
+msgstr "Ovládať rozčleňovanie prehliadača značiek"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:109
 msgid ""
@@ -20374,6 +20434,19 @@ msgid ""
 "Enter a comma-separated list of custom field lookup names, as in\n"
 "metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']"
 msgstr ""
+"Ovplyvňuje poradie, v akom budú užívateľské stĺpce zobrazené v okne úpravy "
+"metadát\n"
+"(jednotlivom, alebo hromadnom). Stĺpce zapísané vo vylepšení sa zobrazia "
+"prvé\n"
+"a v určenom poradí. Ostatné (nezapísané) stĺpce sa zobrazia v abecednom "
+"poradí\n"
+"až po nich.\n"
+"Uvedomte si, že toto vylepšenie nemení veľkosť vstupných polí.  Vloženie "
+"polí komentárov\n"
+"do zoznamu môže vo výsledku, pri zobrazení v dvoch stĺpcoch, spôsobiť "
+"podivné medzery.\n"
+"Zadajte zoznam názvov užívateľských polí tak, ako sú uvedené\n"
+"v metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:424
 msgid "The number of seconds to wait before sending emails"
@@ -20409,6 +20482,9 @@ msgid ""
 "to fit within this size. This is to prevent slowdowns caused by extremely\n"
 "large covers"
 msgstr ""
+"Všetky obálky v Calibre budú zmenšené pri zachovaní pomeru strán tak,\n"
+"aby sa vošli do tejto veľkosti. Predíde sa tým spomaleniu spôsobovanému\n"
+"nadmerne veľkými obálkami."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:444
 msgid "Where to send downloaded news"
@@ -20441,7 +20517,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:460
 msgid "Unified toolbar on OS X"
-msgstr ""
+msgstr "Zjednotený panel nástrojov v OS X"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:461
 msgid ""

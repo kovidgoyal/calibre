@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-03 07:01+0000\n"
-"PO-Revision-Date: 2012-02-03 23:21+0000\n"
-"Last-Translator: jepcastel <jepcastel@zoho.com>\n"
+"PO-Revision-Date: 2012-02-05 12:09+0000\n"
+"Last-Translator: Ferran Rius <frius64@hotmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-04 05:09+0000\n"
-"X-Generator: Launchpad (build 14738)\n"
+"X-Launchpad-Export-Date: 2012-02-06 04:44+0000\n"
+"X-Generator: Launchpad (build 14747)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -2004,7 +2004,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
 msgid "Unable to mount the device"
-msgstr "El dispositiu no s'ha pogut muntar"
+msgstr "No s'ha pogut muntar el dispositiu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:978
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
@@ -5050,7 +5050,7 @@ msgstr "Arxius"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Wordprocessor files"
-msgstr "Arxius de processador de texts"
+msgstr "Fitxers de processador de text"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
@@ -6755,7 +6755,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:151
 #, python-format
 msgid "Added %d book(s) automatically from %s"
-msgstr ""
+msgstr "S'ha afegit %d llibre(s) automàticament des de %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
@@ -11304,7 +11304,7 @@ msgstr "&Avançat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Delete downloaded news &older than:"
-msgstr ""
+msgstr "Suprimeix les notícies baixades més &antigues de:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid ""
@@ -13509,11 +13509,13 @@ msgid ""
 "You must specify an existing folder as your auto-add folder. %s does not "
 "exist."
 msgstr ""
+"Heu d'especificar una carpeta existent com a carpeta d'addició automàtica. "
+"%s no existeix."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:72
 #, python-format
 msgid "You do not have read/write permissions for the folder: %s"
-msgstr "No teniu permisos per llegir o escriure en la carpeta %s"
+msgstr "No teniu permisos de lectura/escriptura a la carpeta %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:76
 #, python-format
@@ -13521,8 +13523,8 @@ msgid ""
 "<b>WARNING:</b> Any files you place in %s will be automatically deleted "
 "after being added to calibre. Are you sure?"
 msgstr ""
-"<b>ATENCIÓ</b> Qualsevol arxiu que poseu a %s s'esborrarà després de ser "
-"afegit a calibre. Esteu segur de fer-ho?"
+"<b>AVÍS</b> Els fitxers que poseu a %s se suprimiran després d'afegir-los al "
+"calibre. N'esteu segur?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:103
 msgid ""
@@ -13644,31 +13646,35 @@ msgstr "&Configura les metadades a partir del nom de fitxer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:127
 msgid "The Add &Process"
-msgstr ""
+msgstr "Procés d'addició"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:128
 msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
 msgstr ""
+"Especifiqueu una carpeta. Els fitxers que hi poseu s'afegiran automàticament "
+"al calibre (cal reniciar)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:129
 msgid "Folder to auto-add files from"
-msgstr ""
+msgstr "Carpeta d'addició automàtica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:130
 msgid "Browse for folder"
-msgstr ""
+msgstr "Cerca la carpeta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:132
 msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
 msgstr ""
+"<b>AVÍS</b> Els fitxers de la carpeta de dalt se suprimiran després d'afegir-"
+"los al calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:133
 msgid "&Automatic Adding"
-msgstr ""
+msgstr "&Addició automàtica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -14880,7 +14886,7 @@ msgstr "Cal reiniciar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:341
 msgid "Restart calibre now"
-msgstr "Arrenqueu de nou calibre"
+msgstr "Reinicia el calibre ara"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
@@ -15316,11 +15322,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Show only those plugins that have been installed by you"
-msgstr "Només mostrar els connectors que heu instal·lat"
+msgstr "Mostra només els connectors que heu instal·lat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
-msgstr "Només mostrar els connectors instal·lats per &user"
+msgstr "Mostra només els connectors instal·lats per &user"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:117
 msgid "Get &new plugins"
@@ -15704,9 +15710,9 @@ msgstr ""
 "Si deixeu la contrasenya en blanc, qualsevol pot\n"
 " accedir a la vostra col·lecció de llibres des de la interfície web\n"
 "\n"
-"Tingueu en compte que la contrasenya no funciona en dispositius amb Adroid \n"
-"Deixeu-lo en blanc si voleu utilitzar el servidor amb un\n"
-" telèfon o  un tablet amb Android."
+"Tingueu en compte que la contrasenya no funciona en dispositius Android \n"
+"Deixeu-ho en blanc si voleu utilitzar el servidor en un\n"
+" telèfon o  una tauleta tàctil Android."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:141
 msgid ""
@@ -15751,6 +15757,11 @@ msgid ""
 "<p>Do not set a password if you plan to use the server with an\n"
 " Android phone or tablet."
 msgstr ""
+"<p>Hi ha un error a l'Android de Google que fa que en establir una\n"
+" contrasenya el servidor no funcionarà en dispositius Androis.\n"
+"<br>\n"
+"<p>No establiu una contrasenya si penseu utilitzar el servidor en\n"
+" un telèfon o tauleta tàctil Android."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Password incompatible with Android devices"
@@ -17891,11 +17902,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:792
 msgid "&Next >"
-msgstr ""
+msgstr "Següe&nt >"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:793
 msgid "< &Back"
-msgstr ""
+msgstr "< &Endarrere"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:794
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
@@ -17904,11 +17915,11 @@ msgstr "Canceŀla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:795
 msgid "&Finish"
-msgstr ""
+msgstr "&Acaba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:796
 msgid "Commit"
-msgstr ""
+msgstr "Valida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:801
 msgid "welcome wizard"
@@ -18535,6 +18546,10 @@ msgid ""
 "this'. Default: '%default'\n"
 "Applies to: ePub, MOBI output formats"
 msgstr ""
+"Llista separada per comes d'etiquetes que indiquen que el llibre s'ha "
+"d'excloure de la sortida. Per exemple: «salta» coincideix amb «salta aquest "
+"llibre» i «Salta els que siguin com aquest». Per defecte: «%default»\n"
+"S'aplica als formats de sortida ePub i MOBI"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalog.py:677
 #, python-format
@@ -20682,6 +20697,9 @@ msgid ""
 "empty. If all values are empty, then the empty value is returned. You can "
 "have as many values as you want."
 msgstr ""
+"first_non_empty(valor, valor, ...) -- s'obté el primer valor que no està "
+"buit. Si tots els valors estan buits, s'obté el valor buit. Es pot tenir "
+"tants valors com es vulgui."
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:871
 msgid ""
@@ -20901,7 +20919,7 @@ msgstr "Anglès (Bulgària)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:125
 msgid "English (Egypt)"
-msgstr ""
+msgstr "Anglès (Egipte)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:126
 msgid "English (New Zealand)"
@@ -22517,6 +22535,9 @@ msgid ""
 "Control\n"
 "how many should be shown, here."
 msgstr ""
+"En fer clic dret al botó «Mostra» es visualitza una llista dels llibres "
+"vistos recentment.\n"
+"Aquí es controla quants se'n mostraran."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:480
 msgid "When using the 'Tweak Book' action, which format to prefer"
