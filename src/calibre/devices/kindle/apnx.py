@@ -9,7 +9,6 @@ Generates and writes an APNX page mapping file.
 '''
 
 import struct
-import uuid
 
 from calibre.ebooks.mobi.reader import MobiReader
 from calibre.ebooks.pdb.header import PdbHeaderReader
@@ -51,6 +50,7 @@ class APNXBuilder(object):
             apnxf.write(apnx)
 
     def generate_apnx(self, pages):
+        import uuid
         apnx = ''
 
         content_vals = {

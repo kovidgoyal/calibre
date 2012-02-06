@@ -28,6 +28,7 @@ from calibre.gui2 import min_available_height, available_width
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import NONE, choose_dir, error_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
+from calibre.customize.ui import device_plugins
 
 # Devices {{{
 
@@ -251,14 +252,38 @@ class Android(Device):
     id = 'android'
     supports_color = True
 
-class AndroidTablet(Device):
+    @classmethod
+    def commit(cls):
+        super(Android, cls).commit()
+        for plugin in device_plugins(include_disabled=True):
+            if plugin.name == 'Android driver':
+                plugin.configure_for_generic_epub_app()
+
+class AndroidTablet(Android):
 
     name = 'Android tablet'
-    output_format = 'EPUB'
-    manufacturer = 'Android'
     id = 'android_tablet'
-    supports_color = True
     output_profile = 'tablet'
+
+class AndroidPhoneWithKindle(Android):
+
+    name = 'Android phone with Kindle reader'
+    output_format = 'MOBI'
+    id = 'android_phone_with_kindle'
+    output_profile = 'kindle'
+
+    @classmethod
+    def commit(cls):
+        super(Android, cls).commit()
+        for plugin in device_plugins(include_disabled=True):
+            if plugin.name == 'Android driver':
+                plugin.configure_for_kindle_app()
+
+class AndroidTabletWithKindle(AndroidPhoneWithKindle):
+
+    name = 'Android tablet with Kindle reader'
+    id = 'android_tablet_with_kindle'
+    output_profile = 'kindle_fire'
 
 class HanlinV3(Device):
 

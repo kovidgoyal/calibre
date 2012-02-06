@@ -194,6 +194,19 @@ Author matching is exact.</string>
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="opt_auto_add_check_for_duplicates">
+         <property name="toolTip">
+          <string>If set, this option will causes calibre to check if a file
+ being auto-added is already in the calibre library.
+ If it is, a meesage will pop up asking you whether
+ you want to add it anyway.</string>
+         </property>
+         <property name="text">
+          <string>Check for &amp;duplicates when auto-adding files</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

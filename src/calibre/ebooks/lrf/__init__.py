@@ -4,7 +4,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 This package contains logic to read and write LRF files.
 The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfFormat}.
 """
-from uuid import uuid4
 
 from calibre.ebooks.lrf.pylrs.pylrs import Book as _Book
 from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Header, \
@@ -60,6 +59,7 @@ def find_custom_fonts(options, logger):
 
 def Book(options, logger, font_delta=0, header=None,
          profile=PRS500_PROFILE, **settings):
+    from uuid import uuid4
     ps = {}
     ps['topmargin']      = options.top_margin
     ps['evensidemargin'] = options.left_margin

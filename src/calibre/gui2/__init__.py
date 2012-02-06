@@ -102,6 +102,7 @@ gprefs.defaults['cb_fullscreen'] = False
 gprefs.defaults['worker_max_time'] = 0
 gprefs.defaults['show_files_after_save'] = True
 gprefs.defaults['auto_add_path'] = None
+gprefs.defaults['auto_add_check_for_duplicates'] = False
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models

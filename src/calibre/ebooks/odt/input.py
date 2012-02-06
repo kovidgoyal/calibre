@@ -12,7 +12,6 @@ from lxml import etree
 from odf.odf2xhtml import ODF2XHTML
 
 from calibre import CurrentDir, walk
-from calibre.customize.conversion import InputFormatPlugin
 
 class Extract(ODF2XHTML):
 
@@ -177,17 +176,5 @@ class Extract(ODF2XHTML):
                 opf.render(f)
             return os.path.abspath('metadata.opf')
 
-
-class ODTInput(InputFormatPlugin):
-
-    name        = 'ODT Input'
-    author      = 'Kovid Goyal'
-    description = 'Convert ODT (OpenOffice) files to HTML'
-    file_types  = set(['odt'])
-
-
-    def convert(self, stream, options, file_ext, log,
-                accelerators):
-        return Extract()(stream, '.', log)
 
 

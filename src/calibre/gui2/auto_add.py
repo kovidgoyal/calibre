@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile, shutil
+import os, tempfile, shutil, time
 from threading import Thread, Event
 
 from PyQt4.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer)
@@ -15,6 +15,7 @@ from PyQt4.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer)
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.gui2 import question_dialog, gprefs
 
 class Worker(Thread):
 
@@ -41,24 +42,57 @@ class Worker(Thread):
                 traceback.print_exc()
 
     def auto_add(self):
-        from calibre.utils.ipc.simple_worker import fork_job
+        from calibre.utils.ipc.simple_worker import fork_job, WorkerError
         from calibre.ebooks.metadata.opf2 import metadata_to_opf
         from calibre.ebooks.metadata.meta import metadata_from_filename
 
-        files = [x for x in os.listdir(self.path) if x not in self.staging
-                and os.path.isfile(os.path.join(self.path, x)) and
-                os.access(os.path.join(self.path, x), os.R_OK|os.W_OK) and
-                os.path.splitext(x)[1][1:].lower() in self.be]
+        files = [x for x in os.listdir(self.path) if
+                    # Must not be in the process of being added to the db
+                    x not in self.staging
+                    # Firefox creates 0 byte placeholder files when downloading
+                    and os.stat(os.path.join(self.path, x)).st_size > 0
+                    # Must be a file
+                    and os.path.isfile(os.path.join(self.path, x))
+                    # Must have read and write permissions
+                    and os.access(os.path.join(self.path, x), os.R_OK|os.W_OK)
+                    # Must be a known ebook file type
+                    and os.path.splitext(x)[1][1:].lower() in self.be
+                ]
         data = {}
+        # Give any in progress copies time to complete
+        time.sleep(2)
+
         for fname in files:
             f = os.path.join(self.path, fname)
+
+            # Try opening the file for reading, if the OS prevents us, then at
+            # least on windows, it means the file is open in another
+            # application for writing. We will get notified by
+            # QFileSystemWatcher when writing is completed, so ignore for now.
+            try:
+                open(f, 'rb').close()
+            except:
+                continue
             tdir = tempfile.mkdtemp(dir=self.tdir)
             try:
                 fork_job('calibre.ebooks.metadata.meta',
                         'forked_read_metadata', (f, tdir), no_output=True)
+            except WorkerError as e:
+                prints('Failed to read metadata from:', fname)
+                prints(e.orig_tb)
             except:
                 import traceback
                 traceback.print_exc()
+
+            # Ensure that the pre-metadata file size is present. If it isn't,
+            # write 0 so that the file is rescanned
+            szpath = os.path.join(tdir, 'size.txt')
+            try:
+                with open(szpath, 'rb') as f:
+                    int(f.read())
+            except:
+                with open(szpath, 'wb') as f:
+                    f.write(b'0')
 
             opfpath = os.path.join(tdir, 'metadata.opf')
             try:
@@ -125,25 +159,71 @@ class AutoAdder(QObject):
         m = gui.library_view.model()
         count = 0
 
+        needs_rescan = False
+        duplicates = []
+
         for fname, tdir in data.iteritems():
             paths = [os.path.join(self.worker.path, fname)]
+            sz = os.path.join(tdir, 'size.txt')
+            try:
+                with open(sz, 'rb') as f:
+                    sz = int(f.read())
+                if sz != os.stat(paths[0]).st_size:
+                    raise Exception('Looks like the file was written to after'
+                            ' we tried to read metadata')
+            except:
+                needs_rescan = True
+                try:
+                    self.worker.staging.remove(fname)
+                except KeyError:
+                    pass
+
+                continue
+
             mi = os.path.join(tdir, 'metadata.opf')
             if not os.access(mi, os.R_OK):
                 continue
             mi = [OPF(open(mi, 'rb'), tdir,
                     populate_spine=False).to_book_metadata()]
-            m.add_books(paths, [os.path.splitext(fname)[1][1:].upper()], mi,
-                    add_duplicates=True)
+            dups, num = m.add_books(paths,
+                    [os.path.splitext(fname)[1][1:].upper()], mi,
+                    add_duplicates=not gprefs['auto_add_check_for_duplicates'])
+            if dups:
+                path = dups[0][0]
+                with open(os.path.join(tdir, 'dup_cache.'+dups[1][0].lower()),
+                        'wb') as dest, open(path, 'rb') as src:
+                    shutil.copyfileobj(src, dest)
+                    dups[0][0] = dest.name
+                duplicates.append(dups)
+
             try:
-                os.remove(os.path.join(self.worker.path, fname))
-                try:
-                    self.worker.staging.remove(fname)
-                except KeyError:
-                    pass
+                os.remove(paths[0])
+                self.worker.staging.remove(fname)
+            except:
+                pass
+            count += num
+
+        if duplicates:
+            paths, formats, metadata = [], [], []
+            for p, f, mis in duplicates:
+                paths.extend(p)
+                formats.extend(f)
+                metadata.extend(mis)
+            files = [_('%s by %s')%(mi.title, mi.format_field('authors')[1])
+                    for mi in metadata]
+            if question_dialog(self.parent(), _('Duplicates found!'),
+                        _('Books with the same title as the following already '
+                        'exist in the database. Add them anyway?'),
+                        '\n'.join(files)):
+             dups, num = m.add_books(paths, formats, metadata,
+                     add_duplicates=True)
+             count += num
+
+        for tdir in data.itervalues():
+            try:
                 shutil.rmtree(tdir)
             except:
                 pass
-            count += 1
 
         if count > 0:
             m.books_added(count)
@@ -152,5 +232,8 @@ class AutoAdder(QObject):
                 (count, self.worker.path), 2000)
             if hasattr(gui, 'db_images'):
                 gui.db_images.reset()
+
+        if needs_rescan:
+            QTimer.singleShot(2000, self.dir_changed)
 
 

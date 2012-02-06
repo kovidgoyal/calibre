@@ -221,6 +221,20 @@ class ANDROID(USBMS):
                 drives['main']  = letter_a
         return drives
 
+    @classmethod
+    def configure_for_kindle_app(cls):
+        proxy = cls._configProxy()
+        proxy['format_map'] = ['mobi', 'azw', 'azw1', 'azw4', 'pdf']
+        proxy['use_subdirs'] = False
+        proxy['extra_customization'] = ','.join(['kindle']+cls.EBOOK_DIR_MAIN)
+
+    @classmethod
+    def configure_for_generic_epub_app(cls):
+        proxy = cls._configProxy()
+        del proxy['format_map']
+        del proxy['use_subdirs']
+        del proxy['extra_customization']
+
 class S60(USBMS):
 
     name = 'S60 driver'

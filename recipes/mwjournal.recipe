@@ -1,58 +1,53 @@
+#!/usr/bin/env  python
 ##
-## Title:        Microwave Journal RSS recipe
+## Title:        Microwave Journal
 ## Contact:      Kiavash (use Mobile Read)
 ##
 ## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
 ## Copyright:    Kiavash
 ##
 ## Written:      Jan 2012
-## Last Edited:  Jan 2012
+## Last Edited:  Feb 2012
 ##
+
+# Feb 2012: New Recipe compatible with the MWJournal 2.0 website
 
 __license__   = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
 __copyright__   = 'Kiavash'
 __author__ = 'Kaivash'
 
 '''
-Microwave Journal Monthly Magazine
-You need to sign up (free) and get username/password.
+microwavejournal.com
 '''
 
-import re    # Import the regular expressions module.
-from calibre.ptempfile import TemporaryFile # we need this for saving to a temp file
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.magick import Image
 
 class MWJournal(BasicNewsRecipe):
-    # Title to use for the ebook.
-    title          = u'Microwave Journal'
-    __author__ = 'Kiavash'
-    language = 'en'
 
-    #A brief description for the ebook.
-    description = u'Microwave Journal web site ebook created using rss feeds.'
-
-    # Set publisher and publication type.
-    publisher = 'Horizon House'
+    title            = u'Microwave Journal'
+    description      = u'Microwave Journal Monthly Magazine'
+    publisher        = 'Horizon House'
     publication_type = 'magazine'
+    INDEX            = 'http://www.microwavejournal.com/publications/'
 
-    oldest_article = 31        # monthly published magazine. Some months are 31 days!
-    max_articles_per_feed = 100
-    remove_empty_feeds = True
-    auto_cleanup = True
-
-    # Disable stylesheets and javascript from site.
-    no_stylesheets = True
-    remove_javascript = True
-
-    asciiize = True    # Converts all none ascii characters to their ascii equivalents
-
-    needs_subscription = True    # oh yeah... we need to login btw.
-
-    # Timeout for fetching files from the server in seconds. The default of 120 seconds, seems somewhat excessive.
+    language = 'en'
     timeout = 30
 
-    # Specify extra CSS - overrides ALL other CSS (IE. Added last).
+    Convert_Grayscale = False # Convert images to gray scale or not
 
+    keep_only_tags = [dict(name='div', attrs={'class':'record'})]
+    no_stylesheets = True
+    remove_javascript = True
+    remove_tags    = [
+                        dict(name='font', attrs={'class':'footer'}),    # remove fonts
+                     ]
+
+    remove_attributes = [ 'border', 'cellspacing', 'align', 'cellpadding', 'colspan',
+                          'valign', 'vspace', 'hspace', 'alt', 'width', 'height' ]
+
+    # Specify extra CSS - overrides ALL other CSS (IE. Added last).
     extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
                  .introduction, .first { font-weight: bold; } \
                  .cross-head { font-weight: bold; font-size: 125%; } \
@@ -72,72 +67,75 @@ class MWJournal(BasicNewsRecipe):
                  h3 { font-size: 125%; font-weight: bold; } \
                  h4, h5, h6 { font-size: 100%; font-weight: bold; }'
 
-    remove_tags    = [
-                        dict(name='div', attrs={'class':'boxadzonearea350'}), # Removes banner ads
-                        dict(name='font', attrs={'class':'footer'}),    # remove fonts if you do like your fonts more! Comment out to use website's fonts
-                        dict(name='div', attrs={'class':'newsarticlead'})
-                     ]
-
-    # Remove various tag attributes to improve the look of the ebook pages.
-    remove_attributes = [ 'border', 'cellspacing', 'align', 'cellpadding', 'colspan',
-                          'valign', 'vspace', 'hspace', 'alt', 'width', 'height' ]
-
-    # Remove the line breaks as well as href links. Books don't have links generally speaking
+    # Remove the line breaks, href links and float left/right and picture width/height.
     preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
                               (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: ''),
                               (re.compile(r'<a.*?>'), lambda h1: ''),
-                              (re.compile(r'</a>'), lambda h2: '')
+                              (re.compile(r'</a>'), lambda h2: ''),
+                              (re.compile(r'float:.*?'), lambda h3: ''),
+                              (re.compile(r'width:.*?px'), lambda h4: ''),
+                              (re.compile(r'height:.*?px'), lambda h5: '')
                               ]
 
-    # Select the feeds that you are interested.
-    feeds          = [
-                        (u'Current Issue', u'http://www.mwjournal.com/rss/Rss.asp?type=99'),
-                        (u'Industry News', u'http://www.mwjournal.com/rss/Rss.asp?type=1'),
-                        (u'Resources', u'http://www.mwjournal.com/rss/Rss.asp?type=3'),
-                        (u'Buyer\'s Guide', u'http://www.mwjournal.com/rss/Rss.asp?type=5'),
-                        (u'Events', u'http://www.mwjournal.com/rss/Rss.asp?type=2'),
-                        (u'All Updates', u'http://www.mwjournal.com/rss/Rss.asp?type=0'),
-                    ]
-
-    #  No magazine is complete without cover. Let's get it then!
-    # The function is adapted from the Economist recipe
-    def get_cover_url(self):
-        cover_url = None
-        cover_page_location = 'http://www.mwjournal.com/Journal/'    # Cover image is located on this page
-        soup = self.index_to_soup(cover_page_location)
-        cover_item = soup.find('img',attrs={'src':lambda x: x and '/IssueImg/3_MWJ_CurrIss_CoverImg' in x})    # There are three files named cover, we want the highest resolution which is the 3rd image. So we look for the pattern. Remember that the name of the cover image changes every month so we cannot search for the complete name. Instead we are searching for the pattern
-        if cover_item:
-            cover_url = 'http://www.mwjournal.com' + cover_item['src'].strip()    # yeah! we found it. Let's fetch the image file and pass it as cover to calibre
-        return cover_url
 
     def print_version(self, url):
-        if url.find('/Journal/article.asp?HH_ID=') >= 0:
-            return self.browser.open_novisit(url).geturl().replace('/Journal/article.asp?HH_ID=', '/Journal/Print.asp?Id=')
-        elif  url.find('/News/article.asp?HH_ID=') >= 0:
-            return self.browser.open_novisit(url).geturl().replace('/News/article.asp?HH_ID=', '/Journal/Print.asp?Id=')
-        elif  url.find('/Resources/TechLib.asp?HH_ID=') >= 0:
-            return self.browser.open_novisit(url).geturl().replace('/Resources/TechLib.asp?HH_ID=', '/Resources/PrintRessource.asp?Id=')
+        return url.replace('/articles/', '/articles/print/')
 
-    def get_browser(self):
-        '''
-        Microwave Journal website, directs the login page to omeda.com once login info is submitted, omeda.com redirects to mwjournal.com with again the browser logs in into that site (hidden from the user). To overcome this obsticle, first login page is fetch and its output is stored to an HTML file. Then the HTML file is opened again and second login form is submitted (Many thanks to Barty which helped with second page login).
-        '''
-        br = BasicNewsRecipe.get_browser()
-        if self.username is not None and self.password is not None:
-            url = ('http://www.omeda.com/cgi-win/mwjreg.cgi?m=login') #  main login page.
-            br.open(url)    # fetch the 1st login page
-            br.select_form('login')        # finds the login form
-            br['EMAIL_ADDRESS']   = self.username    # fills the username
-            br['PASSWORD'] = self.password        # fills the password
-            raw = br.submit().read()        # submit the form and read the 2nd login form
-            # save it to an htm temp file (from ESPN recipe written by  Kovid Goyal kovid@kovidgoyal.net
-            with TemporaryFile(suffix='.htm') as fname:
-                with open(fname, 'wb') as f:
-                    f.write(raw)
-                br.open_local_file(fname)
-            br.select_form(nr=0)    # finds submit on the 2nd form
-            didwelogin = br.submit().read()        # submit it and read the return html
-            if 'Welcome ' not in didwelogin:    # did it login successfully? Is Username/password correct?
-                raise Exception('Failed to login, are you sure your username and password are correct?')
-            #login is done
-        return br
+    def parse_index(self):
+        articles = []
+
+        soup = self.index_to_soup(self.INDEX)
+        ts = soup.find('div', attrs={'class':'box1 article publications-show'})
+        ds = self.tag_to_string(ts.find('h2'))
+        self.log('Found Current Issue:', ds)
+        self.timefmt = ' [%s]'%ds
+
+        cover = ts.find('img', src=True)
+        if cover is not None:
+            self.cover_url = 'http://www.microwavejournal.com' + cover['src']
+            self.log('Found Cover image:', self.cover_url)
+
+        feeds = []
+        seen_titles = set([]) # This is used to remove duplicant articles
+        sections = soup.find('div', attrs={'class':'box2 publication'})
+        for section in sections.findAll('div', attrs={'class':'records'}):
+            section_title = self.tag_to_string(section.find('h3'))
+            self.log('Found section:', section_title)
+            articles = []
+            for post in section.findAll('div', attrs={'class':'record'}):
+                h = post.find('h2')
+                title = self.tag_to_string(h)
+                if title.find('The MWJ Puzzler') >=0: #Let's get rid of the useless Puzzler!
+                    continue
+                if title in seen_titles:
+                    continue
+                seen_titles.add(title)
+                a = post.find('a', href=True)
+                url = a['href']
+                if url.startswith('/'):
+                    url = 'http://www.microwavejournal.com'+url
+                abstract = post.find('div', attrs={'class':'abstract'})
+                p = abstract.find('p')
+                desc = None
+                self.log('\tFound article:', title, 'at', url)
+                if p is not None:
+                    desc = self.tag_to_string(p)
+                    self.log('\t\t', desc)
+                articles.append({'title':title, 'url':url, 'description':desc,
+                    'date':self.timefmt})
+            if articles:
+                feeds.append((section_title, articles))
+        return feeds
+
+    def postprocess_html(self, soup, first):
+        if self.Convert_Grayscale:
+            #process all the images
+            for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+                iurl = tag['src']
+                img = Image()
+                img.open(iurl)
+                if img < 0:
+                    raise RuntimeError('Out of memory')
+                img.type = "GrayscaleType"
+                img.save(iurl)
+        return soup
