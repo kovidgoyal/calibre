@@ -11,6 +11,8 @@ from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, get_cbz_metadata
 from calibre.ebooks.html.to_zip import HTML2ZIP
 
+plugins = []
+
 # To archive plugins {{{
 
 class PML2PMLZ(FileTypePlugin):
@@ -118,6 +120,7 @@ class TXT2TXTZ(FileTypePlugin):
             # No images so just import the TXT file.
             return path_to_ebook
 
+plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract,]
 # }}}
 
 # Metadata reader plugins {{{
@@ -400,6 +403,10 @@ class ZipMetadataReader(MetadataReaderPlugin):
     def get_metadata(self, stream, ftype):
         from calibre.ebooks.metadata.zip import get_metadata
         return get_metadata(stream)
+
+plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
+                                        x.__name__.endswith('MetadataReader')]
+
 # }}}
 
 # Metadata writer plugins {{{
@@ -500,8 +507,12 @@ class TXTZMetadataWriter(MetadataWriterPlugin):
         from calibre.ebooks.metadata.extz import set_metadata
         set_metadata(stream, mi)
 
+plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
+                                        x.__name__.endswith('MetadataWriter')]
+
 # }}}
 
+# Conversion plugins {{{
 from calibre.ebooks.conversion.plugins.comic_input import ComicInput
 from calibre.ebooks.conversion.plugins.djvu_input import DJVUInput
 from calibre.ebooks.conversion.plugins.epub_input import EPUBInput
@@ -540,65 +551,6 @@ from calibre.ebooks.conversion.plugins.txt_output import TXTOutput, TXTZOutput
 from calibre.ebooks.conversion.plugins.html_output import HTMLOutput
 from calibre.ebooks.conversion.plugins.htmlz_output import HTMLZOutput
 from calibre.ebooks.conversion.plugins.snb_output import SNBOutput
-
-from calibre.customize.profiles import input_profiles, output_profiles
-
-from calibre.devices.apple.driver import ITUNES
-from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
-from calibre.devices.blackberry.driver import BLACKBERRY, PLAYBOOK
-from calibre.devices.cybook.driver import CYBOOK, ORIZON
-from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
-                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
-                BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
-                POCKETBOOK701, POCKETBOOK360P, PI2)
-from calibre.devices.iliad.driver import ILIAD
-from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
-from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
-from calibre.devices.kindle.driver import (KINDLE, KINDLE2, KINDLE_DX,
-        KINDLE_FIRE)
-from calibre.devices.nook.driver import NOOK, NOOK_COLOR
-from calibre.devices.prs505.driver import PRS505
-from calibre.devices.prst1.driver import PRST1
-from calibre.devices.user_defined.driver import USER_DEFINED
-from calibre.devices.android.driver import ANDROID, S60, WEBOS
-from calibre.devices.nokia.driver import N770, N810, E71X, E52
-from calibre.devices.eslick.driver import ESLICK, EBK52
-from calibre.devices.nuut2.driver import NUUT2
-from calibre.devices.iriver.driver import IRIVER_STORY
-from calibre.devices.binatone.driver import README
-from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
-        LIBREAIR, ODYSSEY)
-from calibre.devices.edge.driver import EDGE
-from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
-        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
-from calibre.devices.sne.driver import SNE
-from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
-        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
-        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY, EX124G)
-from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
-from calibre.devices.kobo.driver import KOBO
-from calibre.devices.bambook.driver import BAMBOOK
-from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
-
-from calibre.library.catalog import CSV_XML, EPUB_MOBI, BIBTEX
-from calibre.ebooks.epub.fix.unmanifested import Unmanifested
-from calibre.ebooks.epub.fix.epubcheck import Epubcheck
-
-plugins = [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, CSV_XML, EPUB_MOBI, BIBTEX, Unmanifested,
-        Epubcheck, ]
-
-# New metadata download plugins {{{
-from calibre.ebooks.metadata.sources.google import GoogleBooks
-from calibre.ebooks.metadata.sources.amazon import Amazon
-from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
-from calibre.ebooks.metadata.sources.isbndb import ISBNDB
-from calibre.ebooks.metadata.sources.overdrive import OverDrive
-from calibre.ebooks.metadata.sources.douban import Douban
-from calibre.ebooks.metadata.sources.ozon import Ozon
-
-plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
-
-# }}}
 
 plugins += [
     ComicInput,
@@ -642,6 +594,66 @@ plugins += [
     HTMLZOutput,
     SNBOutput,
 ]
+# }}}
+
+# Catalog plugins {{{
+from calibre.library.catalogs.csv_xml import CSV_XML
+from calibre.library.catalogs.bibtex import BIBTEX
+from calibre.library.catalogs.epub_mobi import EPUB_MOBI
+plugins += [CSV_XML, BIBTEX, EPUB_MOBI]
+# }}}
+
+# EPUB Fix plugins {{{
+from calibre.ebooks.epub.fix.unmanifested import Unmanifested
+from calibre.ebooks.epub.fix.epubcheck import Epubcheck
+plugins += [Unmanifested, Epubcheck]
+# }}}
+
+# Profiles {{{
+from calibre.customize.profiles import input_profiles, output_profiles
+plugins += input_profiles + output_profiles
+# }}}
+
+# Device driver plugins {{{
+from calibre.devices.apple.driver import ITUNES
+from calibre.devices.hanlin.driver import HANLINV3, HANLINV5, BOOX, SPECTRA
+from calibre.devices.blackberry.driver import BLACKBERRY, PLAYBOOK
+from calibre.devices.cybook.driver import CYBOOK, ORIZON
+from calibre.devices.eb600.driver import (EB600, COOL_ER, SHINEBOOK,
+                POCKETBOOK360, GER2, ITALICA, ECLICTO, DBOOK, INVESBOOK,
+                BOOQ, ELONEX, POCKETBOOK301, MENTOR, POCKETBOOK602,
+                POCKETBOOK701, POCKETBOOK360P, PI2)
+from calibre.devices.iliad.driver import ILIAD
+from calibre.devices.irexdr.driver import IREXDR1000, IREXDR800
+from calibre.devices.jetbook.driver import JETBOOK, MIBUK, JETBOOK_MINI
+from calibre.devices.kindle.driver import (KINDLE, KINDLE2, KINDLE_DX,
+        KINDLE_FIRE)
+from calibre.devices.nook.driver import NOOK, NOOK_COLOR
+from calibre.devices.prs505.driver import PRS505
+from calibre.devices.prst1.driver import PRST1
+from calibre.devices.user_defined.driver import USER_DEFINED
+from calibre.devices.android.driver import ANDROID, S60, WEBOS
+from calibre.devices.nokia.driver import N770, N810, E71X, E52
+from calibre.devices.eslick.driver import ESLICK, EBK52
+from calibre.devices.nuut2.driver import NUUT2
+from calibre.devices.iriver.driver import IRIVER_STORY
+from calibre.devices.binatone.driver import README
+from calibre.devices.hanvon.driver import (N516, EB511, ALEX, AZBOOKA, THEBOOK,
+        LIBREAIR, ODYSSEY)
+from calibre.devices.edge.driver import EDGE
+from calibre.devices.teclast.driver import (TECLAST_K3, NEWSMY, IPAPYRUS,
+        SOVOS, PICO, SUNSTECH_EB700, ARCHOS7O, STASH, WEXLER)
+from calibre.devices.sne.driver import SNE
+from calibre.devices.misc import (PALMPRE, AVANT, SWEEX, PDNOVEL,
+        GEMEI, VELOCITYMICRO, PDNOVEL_KOBO, LUMIREAD, ALURATEK_COLOR,
+        TREKSTOR, EEEREADER, NEXTBOOK, ADAM, MOOVYBOOK, COBY, EX124G)
+from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
+from calibre.devices.kobo.driver import KOBO
+from calibre.devices.bambook.driver import BAMBOOK
+from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
+
+
+
 # Order here matters. The first matched device is the one used.
 plugins += [
     HANLINV3,
@@ -716,11 +728,20 @@ plugins += [
     BOEYE_BDX,
     USER_DEFINED,
 ]
-plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
-                                        x.__name__.endswith('MetadataReader')]
-plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
-                                        x.__name__.endswith('MetadataWriter')]
-plugins += input_profiles + output_profiles
+# }}}
+
+# New metadata download plugins {{{
+from calibre.ebooks.metadata.sources.google import GoogleBooks
+from calibre.ebooks.metadata.sources.amazon import Amazon
+from calibre.ebooks.metadata.sources.openlibrary import OpenLibrary
+from calibre.ebooks.metadata.sources.isbndb import ISBNDB
+from calibre.ebooks.metadata.sources.overdrive import OverDrive
+from calibre.ebooks.metadata.sources.douban import Douban
+from calibre.ebooks.metadata.sources.ozon import Ozon
+
+plugins += [GoogleBooks, Amazon, OpenLibrary, ISBNDB, OverDrive, Douban, Ozon]
+
+# }}}
 
 # Interface Actions {{{
 
@@ -1623,3 +1644,4 @@ plugins += [
 ]
 
 # }}}
+
