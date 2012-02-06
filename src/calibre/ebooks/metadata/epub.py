@@ -142,17 +142,40 @@ def render_cover(opf, opf_path, zf, reader=None):
     with TemporaryDirectory('_epub_meta') as tdir:
         with CurrentDir(tdir):
             zf.extractall()
-            if isosx:
-                # On OS X trying to render an HTML cover which uses embedded
-                # fonts more than once in the same process causes a crash in Qt
-                # so be safe and remove the fonts.
-                for f in walk('.'):
-                    if os.path.splitext(f)[1].lower() in ('.ttf', '.otf'):
-                        os.remove(f)
             opf_path = opf_path.replace('/', os.sep)
             cpage = os.path.join(tdir, os.path.dirname(opf_path), cpage)
             if not os.path.exists(cpage):
                 return
+
+            if isosx:
+                # On OS X trying to render a HTML cover which uses embedded
+                # fonts more than once in the same process causes a crash in Qt
+                # so be safe and remove the fonts as well as any @font-face
+                # rules
+                for f in walk('.'):
+                    if os.path.splitext(f)[1].lower() in ('.ttf', '.otf'):
+                        os.remove(f)
+                ffpat = re.compile(br'@font-face.*?{.*?}',
+                        re.DOTALL|re.IGNORECASE)
+                with open(cpage, 'r+b') as f:
+                    raw = f.read()
+                    f.truncate(0)
+                    raw = ffpat.sub(b'', raw)
+                    f.write(raw)
+                from calibre.ebooks.chardet import xml_to_unicode
+                raw = xml_to_unicode(raw,
+                        strip_encoding_pats=True, resolve_entities=True)[0]
+                from lxml import html
+                for link in html.fromstring(raw).xpath('//link'):
+                    href = link.get('href', '')
+                    if href:
+                        path = os.path.join(os.path.dirname(cpage), href)
+                        if os.path.exists(path):
+                            with open(path, 'r+b') as f:
+                                raw = f.read()
+                                f.truncate(0)
+                                raw = ffpat.sub(b'', raw)
+                                f.write(raw)
             return render_html_svg_workaround(cpage, default_log)
 
 def get_cover(opf, opf_path, stream, reader=None):
