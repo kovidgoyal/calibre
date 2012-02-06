@@ -97,8 +97,6 @@ class AppleOpenFeedback(OpenFeedback):
         return Dialog(parent, self)
 
 
-from PIL import Image as PILImage
-from lxml import etree
 
 if isosx:
     try:
@@ -1356,6 +1354,8 @@ class ITUNES(DriverBase):
         assumes pythoncom wrapper for db_added
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
+        from PIL import Image as PILImage
+
         if DEBUG:
             self.log.info(" ITUNES._cover_to_thumb()")
 
@@ -1936,6 +1936,7 @@ class ITUNES(DriverBase):
         cache_dir = os.path.join(config_dir, 'caches', 'itunes')
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
+        from PIL import Image as PILImage
 
         if not self.settings().extra_customization[self.CACHE_COVERS]:
             thumb_data = None
@@ -2659,6 +2660,7 @@ class ITUNES(DriverBase):
         '''
         '''
         from calibre.ebooks.metadata.epub import set_metadata
+        from lxml import etree
 
         if DEBUG:
             self.log.info(" ITUNES._update_epub_metadata()")
