@@ -176,6 +176,7 @@ def render_cover(opf, opf_path, zf, reader=None):
                                 f.truncate(0)
                                 raw = ffpat.sub(b'', raw)
                                 f.write(raw)
+
             return render_html_svg_workaround(cpage, default_log)
 
 def get_cover(opf, opf_path, stream, reader=None):
