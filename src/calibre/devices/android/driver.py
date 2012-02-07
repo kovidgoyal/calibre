@@ -53,6 +53,7 @@ class ANDROID(USBMS):
                        0x70c6 : [0x226],
                        0x4316 : [0x216],
                        0x42d6 : [0x216],
+                       0x42d7 : [0x216],
                      },
             # Freescale
             0x15a2 : {
@@ -177,13 +178,14 @@ class ANDROID(USBMS):
             'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
             'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI',
             'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107',
-            'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET', 'RK29_SDK', 'MB855']
+            'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET', 'RK29_SDK', 'MB855',
+            'XT910']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
             '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
             'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853',
-            'A1-07___C0541A4F', 'XT912', 'MB855']
+            'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
