@@ -323,14 +323,19 @@ class Comments(QWebView): # {{{
                     ans = unicode(col.name())
             return ans
 
-        f = QFontInfo(QApplication.font(self.parent())).pixelSize()
+        fi = QFontInfo(QApplication.font(self.parent()))
+        f = fi.pixelSize()+1
+        fam = unicode(fi.family()).strip().replace('"', '')
+        if not fam:
+            fam = 'sans-serif'
+
         c = color_to_string(QApplication.palette().color(QPalette.Normal,
                         QPalette.WindowText))
         templ = '''\
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: transparent; font-size: %dpx; color: %s }
+                body, td {background-color: transparent; font-family: %s; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
                 div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
                 table { margin-bottom: 0; padding-bottom: 0; }
@@ -342,7 +347,7 @@ class Comments(QWebView): # {{{
             </div>
             </body>
         <html>
-        '''%(f, c)
+        '''%(fam, f, c)
         self.setHtml(templ%html)
 # }}}
 

@@ -191,8 +191,14 @@ class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
             suffix = ''
         if dir is None:
             dir = base_dir()
-        tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size, suffix=suffix,
-                prefix=prefix, dir=dir, mode=mode, bufsize=bufsize)
+        tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size,
+                suffix=suffix, prefix=prefix, dir=dir, mode=mode,
+                bufsize=bufsize)
+
+    def truncate(self, *args):
+        # The stdlib SpooledTemporaryFile implementation of truncate() doesn't
+        # allow specifying a size.
+        self._file.truncate(*args)
 
 def better_mktemp(*args, **kwargs):
     fd, path = tempfile.mkstemp(*args, **kwargs)

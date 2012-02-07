@@ -199,8 +199,9 @@ class MenuBar(QMenuBar): # {{{
 
     def update_lm_actions(self):
         for ac in self.added_actions:
-            if ac in self.location_manager.all_actions:
-                ac.setVisible(ac in self.location_manager.available_actions)
+            clone = getattr(ac, 'clone', None)
+            if clone is not None and clone in self.location_manager.all_actions:
+                ac.setVisible(clone in self.location_manager.available_actions)
 
     def init_bar(self, actions):
         for ac in self.added_actions:

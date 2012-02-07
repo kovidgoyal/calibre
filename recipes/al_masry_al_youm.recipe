@@ -1,0 +1,50 @@
+__license__   = 'GPL v3'
+__copyright__ = '2011, Pat Stapleton <pat.stapleton at gmail.com>'
+'''
+abc.net.au/news
+'''
+import re
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class TheDailyNewsEG(BasicNewsRecipe):
+    title          	   = u'al-masry al-youm'
+    __author__             = 'Omm Mishmishah'
+    description            = 'Independent News from Egypt'
+    masthead_url           = 'http://www.almasryalyoum.com/sites/default/files/img/english_logo.png'
+    cover_url              = 'http://www.almasryalyoum.com/sites/default/files/img/english_logo.png'
+
+    auto_cleanup           = True
+    oldest_article         = 7
+    max_articles_per_feed  = 100
+    no_stylesheets         = False
+    #delay                  = 1
+    use_embedded_content   = False
+    encoding               = 'utf8'
+    publisher              = 'Independent News Egypt'
+    category               = 'News, Egypt, World'
+    language               = 'en_EG'
+    publication_type       = 'newsportal'
+#    preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+#Remove annoying map links (inline-caption class is also used for some image captions! hence regex to match maps.google)
+    preprocess_regexps     = [(re.compile(r'<a class="inline-caption" href="http://maps\.google\.com.*?/a>', re.DOTALL), lambda m: '')]
+    conversion_options = {
+                             'comments'        : description
+                            ,'tags'            : category
+                            ,'language'        : language
+                            ,'publisher'       : publisher
+                            ,'linearize_tables': False
+                         }
+
+    keep_only_tags = [dict(attrs={'class':['article section']})]
+
+    remove_tags = [dict(attrs={'class':['related', 'tags', 'tools', 'attached-content ready',
+        'inline-content story left', 'inline-content map left contracted', 'published',
+        'story-map', 'statepromo', 'topics', ]})]
+
+    remove_attributes = ['width','height']
+
+    feeds          = [(u'English News', u'http://www.almasryalyoum.com/en/rss_feed_term/113/rss.xml'),
+                      (u'News Features', u'http://www.almasryalyoum.com/en/rss_feed_term/115/rss.xml'),
+                      (u'Culture', u'http://www.almasryalyoum.com/en/rss_feed_term/133/rss.xml'),
+                      (u'Cinema', u'http://www.almasryalyoum.com/en/rss_feed_term/134/rss.xml')
+                     ]

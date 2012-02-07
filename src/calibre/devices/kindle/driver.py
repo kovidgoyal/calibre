@@ -10,10 +10,8 @@ Device driver for Amazon's Kindle
 
 import datetime, os, re, sys, json, hashlib
 
-from calibre.devices.kindle.apnx import APNXBuilder
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
-from calibre.ebooks.metadata import MetaInformation
 from calibre import strftime
 
 '''
@@ -152,6 +150,7 @@ class KINDLE(USBMS):
         path_map, book_ext = resolve_bookmark_paths(storage, path_map)
 
         bookmarked_books = {}
+
         for id in path_map:
             bookmark_ext = path_map[id].rpartition('.')[2]
             myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
@@ -236,6 +235,8 @@ class KINDLE(USBMS):
 
     def add_annotation_to_library(self, db, db_id, annotation):
         from calibre.ebooks.BeautifulSoup import Tag
+        from calibre.ebooks.metadata import MetaInformation
+
         bm = annotation
         ignore_tags = set(['Catalog', 'Clippings'])
 
@@ -363,6 +364,8 @@ class KINDLE2(KINDLE):
         '''
         Hijacking this function to write the apnx file.
         '''
+        from calibre.devices.kindle.apnx import APNXBuilder
+
         opts = self.settings()
         if not opts.extra_customization[self.OPT_APNX]:
             return

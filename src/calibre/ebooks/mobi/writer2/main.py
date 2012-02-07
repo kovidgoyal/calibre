@@ -494,7 +494,9 @@ class MobiWriter(object):
                     creators = [normalize(unicode(c)) for c in items]
                 items = ['; '.join(creators)]
             for item in items:
-                data = self.COLLAPSE_RE.sub(' ', normalize(unicode(item)))
+                data = normalize(unicode(item))
+                if term != 'description':
+                    data = self.COLLAPSE_RE.sub(' ', data)
                 if term == 'identifier':
                     if data.lower().startswith('urn:isbn:'):
                         data = data[9:]

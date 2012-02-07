@@ -102,7 +102,7 @@ viewport_to_document = (x, y, doc=window?.document) -> # {{{
     return [x, y]
 # }}}
 
-# Equivalent for caretRangeFromPoint for non WebKit browsers {{{
+# Convert point to character offset {{{
 range_has_point = (range, x, y) ->
     for rect in range.getClientRects()
         if (rect.left <= x <= rect.right) and (rect.top <= y <= rect.bottom)
@@ -153,7 +153,7 @@ class CanonicalFragmentIdentifier
 
     ###
     This class is a namespace to expose CFI functions via the window.cfi
-    object. The three most important functions are:
+    object. The most important functions are:
 
     is_compatible(): Throws an error if the browser is not compatible with
                      this script
@@ -166,6 +166,8 @@ class CanonicalFragmentIdentifier
     ###
 
     constructor: () -> # {{{
+        if not this instanceof arguments.callee
+            throw new Error('CFI constructor called as function')
         this.CREATE_RANGE_ERR = "Your browser does not support the createRange function. Update it to a newer version."
         this.IE_ERR = "Your browser is too old. You need Internet Explorer version 9 or newer."
         div = document.createElement('div')
@@ -322,7 +324,7 @@ class CanonicalFragmentIdentifier
             point.time = r[1] - 0 # Coerce to number
             cfi = cfi.substr(r[0].length)
 
-        if (r = cfi.match(/^@(-?\d+(\.\d+)?),(-?\d+(\.\d+)?)/)) != null
+        if (r = cfi.match(/^@(-?\d+(\.\d+)?):(-?\d+(\.\d+)?)/)) != null
             # Spatial offset
             point.x = r[1] - 0 # Coerce to number
             point.y = r[3] - 0 # Coerce to number
@@ -416,7 +418,7 @@ class CanonicalFragmentIdentifier
             rect = target.getBoundingClientRect()
             px = ((x - rect.left)*100)/target.offsetWidth
             py = ((y - rect.top)*100)/target.offsetHeight
-            tail = "#{ tail }@#{ fstr px },#{ fstr py }"
+            tail = "#{ tail }@#{ fstr px }:#{ fstr py }"
         else if name != 'audio'
             # Get the text offset
             # We use a custom function instead of caretRangeFromPoint as
@@ -579,29 +581,30 @@ class CanonicalFragmentIdentifier
 
         get_cfi = (ox, oy) ->
             try
-                cfi = this.at(ox, oy)
-                point = this.point(cfi)
+                cfi = window.cfi.at(ox, oy)
+                point = window.cfi.point(cfi)
             catch err
                 cfi = null
 
-            if point.range != null
-                r = point.range
-                rect = r.getClientRects()[0]
+            if cfi
+                if point.range != null
+                    r = point.range
+                    rect = r.getClientRects()[0]
 
-                x = (point.a*rect.left + (1-point.a)*rect.right)
-                y = (rect.top + rect.bottom)/2
-                [x, y] = viewport_to_document(x, y, r.startContainer.ownerDocument)
-            else
-                node = point.node
-                r = node.getBoundingClientRect()
-                [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
-                if typeof(point.x) == 'number' and node.offsetWidth
-                    x += (point.x*node.offsetWidth)/100
-                if typeof(point.y) == 'number' and node.offsetHeight
-                    y += (point.y*node.offsetHeight)/100
+                    x = (point.a*rect.left + (1-point.a)*rect.right)
+                    y = (rect.top + rect.bottom)/2
+                    [x, y] = viewport_to_document(x, y, r.startContainer.ownerDocument)
+                else
+                    node = point.node
+                    r = node.getBoundingClientRect()
+                    [x, y] = viewport_to_document(r.left, r.top, node.ownerDocument)
+                    if typeof(point.x) == 'number' and node.offsetWidth
+                        x += (point.x*node.offsetWidth)/100
+                    if typeof(point.y) == 'number' and node.offsetHeight
+                        y += (point.y*node.offsetHeight)/100
 
-            if dist(viewport_to_document(ox, oy), [x, y]) > 50
-                cfi = null
+                if dist(viewport_to_document(ox, oy), [x, y]) > 50
+                    cfi = null
 
             return cfi
 
@@ -625,8 +628,16 @@ class CanonicalFragmentIdentifier
                     return cfi
                 cury += delta
 
-        # TODO: Return the CFI corresponding to the <body> tag
-        null
+        # Use a spatial offset on the html element, since we could not find a
+        # normal CFI
+        [x, y] = window_scroll_pos()
+        de = document.documentElement
+        rect = de.getBoundingClientRect()
+        px = (x*100)/rect.width
+        py = (y*100)/rect.height
+        cfi = "/2@#{ fstr px }:#{ fstr py }"
+
+        return cfi
 
     # }}}
 

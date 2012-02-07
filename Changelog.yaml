@@ -5,7 +5,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2011-??-??
+#   date: 2012-??-??
 #
 #   new features:
 #     - title: 
@@ -19,8 +19,201 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.38
+  date: 2012-02-03
+
+  new features:
+    - title: "Implement the ability to automatically add books to calibre from a specified folder."
+      type: major
+      description: "calibre can now watch a folder on your computer and instantly add any files you put there to the calibre library as new books. You can tell calibre which folder to watch via Preferences->Adding Books->Automatic Adding."
+      tickets: [920249] 
+
+    - title: "Conversion: When automatically inserting page breaks, do not put a page break before a <h1> or <h2> tag if it is immediately preceded by another <h1> or <h2> tag."
+
+    - title: "Driver for EZReader T730 and Point-of-View PlayTab Pro"
+      tickets: [923283, 922969]
+ 
+  bug fixes:
+    - title: "Fix device entry not visible in menubar even when it has been added via Preferences->Toolbars."
+      tickets: [923175]
+
+    - title: "Fix metadata plugboards not applied when auto sending news by email"
+
+    - title: "Fix regression in 0.8.34 that broke recipes that used skip_ad_pages() but not get_browser(). "
+      tickets: [923724] 
+
+    - title: "Restore device support on FreeBSD, by using HAL"
+      tickets: [924503]
+
+    - title: "Get books: Show no more than 10 results from the Gandalf store"
+
+    - title: "Content server: Fix metadata not being updated when sending for some MOBI files."
+      tickets: [923130]
+
+    - title: "Heuristic processing: Fix the italicize common patterns algorithm breaking on some HTML markup."
+      tickets: [922317]
+
+    - title: "When trying to find an ebook inside a zip file, do not fail if the zip file itself contains other zip files."
+      tickets: [925670]
+
+    - title: "EPUB Input: Handle EPUBs with duplicate entries in the manifest."
+      tickets: [925831]
+
+    - title: "MOBI Input: Handle files that have extra </html> tags sprinkled through out their markup."
+      tickets: [925833]
+
+  improved recipes:
+    - Metro Nieuws NL
+    - FHM UK
+
+  new recipes:
+    - title: Strange Horizons 
+      author: Jim DeVona
+
+    - title: Telegraph India and Live Mint 
+      author: Krittika Goyal
+
+    - title: High Country News 
+      author: Armin Geller
+
+    - title: Countryfile
+      author: Dave Asbury
+
+    - title: Liberation (subscription version) 
+      author: Remi Vanicat
+
+    - title: Various Italian news sources 
+      author: faber1971
+
+
+- version: 0.8.37
+  date: 2012-01-27
+
+  new features:
+    - title: "Allow calibre to be run simultaneously in two different user accounts on windows."
+      tickets: [919856]
+
+    - title: "Driver for Motorola Photon and Point of View PlayTab"
+      tickets: [920582, 919080] 
+
+    - title: "Add a checkbox to preferences->plugins to show only user installed plugins"
+
+    - title: "Add a restart calibre button to the warning dialog that pops up after changing some preference that requires a restart"
+ 
+  bug fixes:
+    - title: "Fix regression in 0.8.36 that caused the remove format from book function to only delete the entry from the database and not delete the actual file from the disk"
+      tickets: [921721]
+
+    - title: "Fix regression in 0.8.36 that caused the calibredb command to not properly refresh the format information in the GUI"
+      tickets: [919494] 
+
+    - title: "E-book viewer: Preserve the current position more accurately when changing font size/other preferences."
+      tickets: [912406]
+
+    - title: "Conversion pipeline: Fix items in the <guide> that refer to files with URL unsafe filenames being ignored."
+      tickets: [920804]
+
+    - title: "Fix calibre not running on linux systems that set LANG to an empty string"
+
+    - title: "On first run of calibre, ensure the columns are sized appropriately"
+
+    - title: "MOBI Output: Do not collapse whitespace when setting the comments metadata in newly created MOBI files"
+
+    - title: "HTML Input: Fix handling of files with ä characters in their filenames."
+      tickets: [919931]
+
+    - title: "Fix the sort on startup tweak ignoring more than three levels"
+      tickets: [919584]
+
+    - title: "Edit metadata dialog: Fix a bug that broke adding of a file to the book that calibre did not previously know about in the books directory while simultaneously changing the author or title of the book."
+      tickets: [922003]
+
+  improved recipes:
+    - People's Daily
+    - Plus Info
+    - grantland.com
+    - Eret es irodalom 
+    - Sueddeutsche.de
+
+  new recipes:
+    - title: Mumbai Mirror 
+      author: Krittika Goyal
+
+    - title: Real Clear 
+      author: TMcN
+
+    - title: Gazeta Wyborcza 
+      author: ravcio
+
+    - title: The Daily News Egypt and al masry al youm 
+      author: Omm Mishmishah
+
+    - title: Klip.me 
+      author: Ken Sun
+
+
+- version: 0.8.36
+  date: 2012-01-20
+
+  new features:
+    - title: "Decrease startup time for large libraries with at least one composite custom column by reading format info on demand"
+
+    - title: "When automatically deleting news older than x days, from the calibre library, only delete the book if it both has the tag News and the author calibre. This prevents accidental deletion of books tagged with News by the user."
+
+    - title: "Driver for Infibeam Pi 2"
+
+    - title: "Add a Tag Editor for tags like custom columns to the edit metadata dialog"
+ 
+  bug fixes:
+    - title: "E-book viewer: Fix regression in 0.8.35 that caused viewer to raise an error on books that did not define a language"
+
+    - title: "Content server: Fix grouping for categories based on custom columns."
+      tickets: [919011]
+
+    - title: "Edit metadata dialog: When setting the series from a format or via metadata download, ensure that the series index is not automatically changed, when closing the dialog."
+      tickets: [918751]
+
+    - title: "When reading metadata from Topaz (azw1) files, handle non ascii metadata correctly."
+      tickets: [917419]
+
+    - title: "CHM Input: Do not choke on CHM files with non ascii internal filenames on windows."
+      tickets: [917696]
+
+    - title: "Fix reading metadata from CHM files with non-ascii titles"
+
+    - title: "Fix HTML 5 parser choking on comments"
+
+    - title: "If calibre is started from a directory that does not exist, automatically use the home directory as the working directory, instead of crashing"
+
+    - title: "Fix iriver story HD Wi-Fi device and external SD card swapped"
+      tickets: [916364] 
+
+    - title: "Content server: Fix ugly URLs for specific format download in the book details and permalink panels"
+
+    - title: "When adding FB2 files do not set the date field from the metadata in the file"
+
+  improved recipes:
+    - OReilly Premuim
+    - Variety
+    - Blic
+    - New Journal of Physics
+    - Der Tagesspiegel
+
+  new recipes:
+    - title: Tweakers.net 
+      author: Roedi06
+
+    - title: Village Voice 
+      author: Barty
+
+    - title: Edge.org Conversations 
+      author: levien
+
+    - title: Novi list - printed edition
+      author: Darko Miletic
+
 - version: 0.8.35
-  date: 2011-01-13
+  date: 2012-01-13
 
   new features:
     - title: "Metadata plugboards: Allow creation of plugboards for email delivery."

@@ -251,8 +251,12 @@ class EditorWidget(QWebView): # {{{
 
         def fset(self, val):
             self.setHtml(val)
-            f = QFontInfo(QApplication.font(self)).pixelSize()
-            style = 'font-size: %dpx;' % (f,)
+            fi = QFontInfo(QApplication.font(self))
+            f  = fi.pixelSize()+1
+            fam = unicode(fi.family()).strip().replace('"', '')
+            if not fam:
+                fam = 'sans-serif'
+            style = 'font-size: %fpx; font-family:"%s",sans-serif;' % (f, fam)
 
             # toList() is needed because PyQt on Debian is old/broken
             for body in self.page().mainFrame().documentElement().findAll('body').toList():

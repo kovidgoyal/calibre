@@ -38,6 +38,8 @@ class ANDROID(USBMS):
                        0xca4  : [0x100, 0x0227, 0x0226, 0x222],
                        0xca9  : [0x100, 0x0227, 0x0226, 0x222],
                        0xcac  : [0x100, 0x0227, 0x0226, 0x222],
+                       0xccf  : [0x100, 0x0227, 0x0226, 0x222],
+                       0x2910 : [0x222],
             },
 
             # Eken
@@ -51,6 +53,7 @@ class ANDROID(USBMS):
                        0x70c6 : [0x226],
                        0x4316 : [0x216],
                        0x42d6 : [0x216],
+                       0x42d7 : [0x216],
                      },
             # Freescale
             0x15a2 : {
@@ -162,7 +165,7 @@ class ANDROID(USBMS):
             'GT-I5700', 'SAMSUNG', 'DELL', 'LINUX', 'GOOGLE', 'ARCHOS',
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
             'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON',
-            'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO']
+            'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO', 'ROCKCHIP']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -175,13 +178,14 @@ class ANDROID(USBMS):
             'GT-S5830_CARD', 'GT-S5570_CARD', 'MB870', 'MID7015A',
             'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI',
             'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107',
-            'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET']
+            'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET', 'RK29_SDK', 'MB855',
+            'XT910']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
             '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
             'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853',
-            'A1-07___C0541A4F', 'XT912']
+            'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
@@ -219,6 +223,20 @@ class ANDROID(USBMS):
                 drives['carda'] = drives['main']
                 drives['main']  = letter_a
         return drives
+
+    @classmethod
+    def configure_for_kindle_app(cls):
+        proxy = cls._configProxy()
+        proxy['format_map'] = ['mobi', 'azw', 'azw1', 'azw4', 'pdf']
+        proxy['use_subdirs'] = False
+        proxy['extra_customization'] = ','.join(['kindle']+cls.EBOOK_DIR_MAIN)
+
+    @classmethod
+    def configure_for_generic_epub_app(cls):
+        proxy = cls._configProxy()
+        del proxy['format_map']
+        del proxy['use_subdirs']
+        del proxy['extra_customization']
 
 class S60(USBMS):
 

@@ -30,18 +30,23 @@ window_ypos = (pos=null) ->
     window.scrollTo(0, pos)
 
 mark_and_reload = (evt) ->
-    # Remove image in case the click was on the image itself, we want the cfi to
-    # be on the underlying element
     x = evt.clientX
     y = evt.clientY
     if evt.button == 2
         return # Right mouse click, generated only in firefox
-    reset = document.getElementById('reset')
-    if document.elementFromPoint(x, y) == reset
+
+    if document.elementFromPoint(x, y)?.getAttribute('id') in ['reset', 'viewport_mode']
         return
+
+    # Remove image in case the click was on the image itself, we want the cfi to
+    # be on the underlying element
     ms = document.getElementById("marker")
-    if ms
-        ms.parentNode?.removeChild(ms)
+    ms.style.display = 'none'
+
+    if document.getElementById('viewport_mode').checked
+        cfi = window.cfi.at_current()
+        window.cfi.scroll_to(cfi)
+        return
 
     fn = () ->
         try

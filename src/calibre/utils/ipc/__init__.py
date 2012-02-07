@@ -9,17 +9,32 @@ __docformat__ = 'restructuredtext en'
 import os
 from threading import Thread
 
-from calibre.constants import iswindows
+from calibre.constants import iswindows, get_windows_username
 
-if iswindows:
-    ADDRESS = r'\\.\pipe\CalibreGUI'
-else:
-    from tempfile import gettempdir
-    tmp = gettempdir()
-    user = os.environ.get('USER', '')
-    if not user:
-        user = os.path.basename(os.path.expanduser('~'))
-    ADDRESS = os.path.join(tmp, user+'-calibre-gui.socket')
+ADDRESS = None
+
+def gui_socket_address():
+    global ADDRESS
+    if ADDRESS is None:
+        if iswindows:
+            ADDRESS = r'\\.\pipe\CalibreGUI'
+            try:
+                user = get_windows_username()
+            except:
+                user = None
+            if user:
+                from calibre.utils.filenames import ascii_filename
+                user = ascii_filename(user).replace(' ', '_')
+                if user:
+                    ADDRESS += '-' + user[:100] + 'x'
+        else:
+            from tempfile import gettempdir
+            tmp = gettempdir()
+            user = os.environ.get('USER', '')
+            if not user:
+                user = os.path.basename(os.path.expanduser('~'))
+            ADDRESS = os.path.join(tmp, user+'-calibre-gui.socket')
+    return ADDRESS
 
 class RC(Thread):
 
@@ -32,7 +47,7 @@ class RC(Thread):
         from multiprocessing.connection import Client
         self.done = False
         try:
-            self.conn = Client(ADDRESS)
+            self.conn = Client(gui_socket_address())
             self.done = True
         except:
             if self.print_error:

@@ -37,6 +37,7 @@ def get_filters():
             (_('SNB Books'), ['snb']),
             (_('Comics'), ['cbz', 'cbr', 'cbc']),
             (_('Archives'), ['zip', 'rar']),
+            (_('Wordprocessor files'), ['odt', 'doc', 'docx']),
     ]
 
 

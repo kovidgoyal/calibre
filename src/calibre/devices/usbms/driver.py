@@ -10,7 +10,7 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os, re, time, json, uuid, functools, shutil
+import os, re, time, json, functools, shutil
 from itertools import cycle
 
 from calibre.constants import numeric_version
@@ -58,6 +58,7 @@ class USBMS(CLI, Device):
     SCAN_FROM_ROOT = False
 
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
+        import uuid
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:

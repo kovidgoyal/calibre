@@ -12,7 +12,6 @@ from future_builtins import map
 
 from calibre import browser, random_user_agent
 from calibre.customize import Plugin
-from calibre.utils.logging import ThreadSafeLog, FileStream
 from calibre.utils.config import JSONConfig
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import capitalize, lower, upper
@@ -34,6 +33,7 @@ msprefs.defaults['fewer_tags'] = True
 msprefs.defaults['cover_priorities'] = {'Google':2}
 
 def create_log(ostream=None):
+    from calibre.utils.logging import ThreadSafeLog, FileStream
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
     log.outputs = [FileStream(ostream)]
     return log
