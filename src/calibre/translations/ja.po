@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-03 07:01+0000\n"
-"PO-Revision-Date: 2012-01-28 18:18+0000\n"
-"Last-Translator: Shushi Kurose <md81bird@hitaki.net>\n"
+"PO-Revision-Date: 2012-02-06 17:08+0000\n"
+"Last-Translator: Ado Nishimura <Unknown>\n"
 "Language-Team: Japanese <ja@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-02-04 05:14+0000\n"
-"X-Generator: Launchpad (build 14738)\n"
+"X-Launchpad-Export-Date: 2012-02-07 04:50+0000\n"
+"X-Generator: Launchpad (build 14747)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -4542,11 +4542,11 @@ msgstr "タグブラウザーのカテゴリを表示しない。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:261
 msgid "WARNING:"
-msgstr ""
+msgstr "重要:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:271
 msgid "ERROR:"
-msgstr ""
+msgstr "エラー:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:283
 msgid "Show this confirmation again"

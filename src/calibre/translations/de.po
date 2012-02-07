@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-03 07:01+0000\n"
-"PO-Revision-Date: 2012-01-24 16:58+0000\n"
-"Last-Translator: Helge A Krohmer <Unknown>\n"
+"PO-Revision-Date: 2012-02-06 19:00+0000\n"
+"Last-Translator: Peter Gehring <pg-nbnet@gmx.de>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-04 05:12+0000\n"
-"X-Generator: Launchpad (build 14738)\n"
+"X-Launchpad-Export-Date: 2012-02-07 04:49+0000\n"
+"X-Generator: Launchpad (build 14747)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -426,7 +426,7 @@ msgstr "Bücher vom Gerät in die Calibre Bibliothek kopieren"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Edit the collections in which books are placed on your device"
 msgstr ""
-"Kollektionen, in denen die Bücher am Gerät gespeichert sind, bearbeiten"
+"Sammlungen, in denen die Bücher am Gerät gespeichert sind, bearbeiten"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Copy a book from one calibre library to another"
@@ -2004,7 +2004,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "Kann das Gerät nicht anbinden"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:978
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
@@ -5018,11 +5018,11 @@ msgstr "Schlagwort-Browser Kategorien nicht anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:261
 msgid "WARNING:"
-msgstr ""
+msgstr "Achtung:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:271
 msgid "ERROR:"
-msgstr ""
+msgstr "FEHLER:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:283
 msgid "Show this confirmation again"
@@ -6803,7 +6803,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:151
 #, python-format
 msgid "Added %d book(s) automatically from %s"
-msgstr ""
+msgstr "%d Bücher automatisch von %s hinzugefügt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
@@ -11886,7 +11886,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:71
 msgid "&Preview {0}"
-msgstr ""
+msgstr "&Vorschau {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:141
 msgid "No recipe selected"
@@ -13557,12 +13557,12 @@ msgstr "Neues Buch für jedes doppelt vorhandene Format erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:43
 msgid "Choose a folder"
-msgstr ""
+msgstr "Wählen Sie einen Ordner"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:71
 msgid "Invalid folder"
-msgstr ""
+msgstr "Ungültiges Verzeichnis"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:66
 #, python-format
@@ -13574,7 +13574,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:72
 #, python-format
 msgid "You do not have read/write permissions for the folder: %s"
-msgstr ""
+msgstr "Sie haben keine Schreib-/Leseberechtigung für den Ordner: %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:76
 #, python-format
@@ -13698,7 +13698,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:130
 msgid "Browse for folder"
-msgstr ""
+msgstr "Ordner auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:132
 msgid ""
@@ -14923,7 +14923,7 @@ msgstr "Neustart erforderlich"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:341
 msgid "Restart calibre now"
-msgstr ""
+msgstr "Starten Sie calibre jetzt neu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
@@ -15364,7 +15364,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
-msgstr ""
+msgstr "Zeige nur vom Ben&utzer installierte Plugins"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:117
 msgid "Get &new plugins"
@@ -17336,7 +17336,7 @@ msgstr "Maximal s&ichtbare Breite:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:210
 msgid "Font &magnification step size:"
-msgstr ""
+msgstr "Schrittweite der Schriftartvergrößerung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:211
 msgid ""
