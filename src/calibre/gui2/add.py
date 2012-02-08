@@ -382,8 +382,8 @@ class Adder(QObject): # {{{
         if not duplicates:
             return self.duplicates_processed()
         self.pd.hide()
-        files = [_('%s by %s')%(x[0].title, x[0].format_field('authors')[1])
-                for x in duplicates]
+        files = [_('%(title)s by %(author)s')%dict(title=x[0].title,
+            author=x[0].format_field('authors')[1]) for x in duplicates]
         if question_dialog(self._parent, _('Duplicates found!'),
                         _('Books with the same title as the following already '
                         'exist in the database. Add them anyway?'),
