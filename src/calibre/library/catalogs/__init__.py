@@ -11,7 +11,7 @@ __docformat__ = 'restructuredtext en'
 FIELDS = ['all', 'title', 'title_sort', 'author_sort', 'authors', 'comments',
           'cover', 'formats','id', 'isbn', 'ondevice', 'pubdate', 'publisher',
           'rating', 'series_index', 'series', 'size', 'tags', 'timestamp',
-          'uuid', 'languages']
+          'uuid', 'languages', 'identifiers']
 
 #Allowed fields for template
 TEMPLATE_ALLOWED_FIELDS = [ 'author_sort', 'authors', 'id', 'isbn', 'pubdate', 'title_sort',
