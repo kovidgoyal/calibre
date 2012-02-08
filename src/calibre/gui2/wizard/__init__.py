@@ -701,7 +701,10 @@ class LibraryPage(QWizardPage, LibraryUI):
             pass
 
     def is_library_dir_suitable(self, x):
-        return LibraryDatabase2.exists_at(x) or not os.listdir(x)
+        try:
+            return LibraryDatabase2.exists_at(x) or not os.listdir(x)
+        except:
+            return False
 
     def validatePage(self):
         newloc = unicode(self.location.text())
@@ -720,6 +723,13 @@ class LibraryPage(QWizardPage, LibraryUI):
                     _('Path to library too long. Must be less than'
                     ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
+            if not os.path.exists(x):
+                try:
+                    os.makedirs(x)
+                except:
+                    return error_dialog(self, _('Bad location'),
+                            _('Failed to create a folder at %s')%x,
+                            det_msg=traceback.format_exc(), show=True)
 
             if self.is_library_dir_suitable(x):
                 self.location.setText(x)
