@@ -80,7 +80,6 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
                 tags = []
                 for div in content.findAll('div', attrs = {'class': re.compile(r'view-row\s+views-row-[0-9]+\s+views-row-[odd|even].*')}):
                     tags.append(div)
-                ul = content.find('ul')
                 for li in content.findAll('li'):
                     tags.append(li)
 
