@@ -122,6 +122,8 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         path = P('content_server')
         self.build_time = fromtimestamp(os.stat(path).st_mtime)
         self.default_cover = open(P('content_server/default_cover.jpg'), 'rb').read()
+        if not opts.url_prefix:
+            opts.url_prefix = ''
 
         cherrypy.engine.bonjour.port = opts.port
         cherrypy.engine.bonjour.prefix = opts.url_prefix
