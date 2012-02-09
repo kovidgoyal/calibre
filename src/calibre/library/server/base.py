@@ -79,6 +79,8 @@ class BonJour(SimplePlugin): # {{{
         try:
             publish_zeroconf('Books in calibre', '_stanza._tcp',
                             self.port, {'path':self.prefix+'/stanza'})
+            publish_zeroconf('Books in calibre', '_calibre._tcp',
+                    self.port, {'path':self.prefix+'/opds'})
         except:
             import traceback
             cherrypy.log.error('Failed to start BonJour:')
