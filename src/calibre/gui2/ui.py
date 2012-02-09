@@ -102,10 +102,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         ):
     'The main GUI'
 
+    proceed_requested = pyqtSignal(object, object)
 
     def __init__(self, opts, parent=None, gui_debug=None):
         global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        self.proceed_requested.connect(self.do_proceed,
+                type=Qt.QueuedConnection)
         self.keyboard = Manager(self)
         _gui = self
         self.opts = opts
@@ -401,6 +404,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             return self.spare_servers.pop()
         except:
             pass
+
+    def do_proceed(self, func, payload):
+        if callable(func):
+            func(payload)
 
     def no_op(self, *args):
         pass

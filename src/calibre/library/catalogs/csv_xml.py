@@ -162,7 +162,7 @@ class CSV_XML(CatalogPlugin):
                         record.append(item)
 
                 for field in ('id', 'uuid', 'publisher', 'rating', 'size',
-                              'isbn','ondevice'):
+                              'isbn','ondevice', 'identifiers'):
                     if field in fields:
                         val = r[field]
                         if not val:
