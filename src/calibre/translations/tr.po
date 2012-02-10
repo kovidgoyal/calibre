@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-08 15:24+0000\n"
-"PO-Revision-Date: 2012-02-08 11:45+0000\n"
+"PO-Revision-Date: 2012-02-09 15:52+0000\n"
 "Last-Translator: thomass <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-02-09 05:41+0000\n"
-"X-Generator: Launchpad (build 14763)\n"
+"X-Launchpad-Export-Date: 2012-02-10 04:44+0000\n"
+"X-Generator: Launchpad (build 14771)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -2596,6 +2596,8 @@ msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
 msgstr ""
+"Başlığın formatını belirleyin. ifadenizdeki %a yazar ismiyle ve %t kitap "
+"başlığıyla değiştirilecek. Varsayılan format:  %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:104
 #, python-format
@@ -2680,6 +2682,9 @@ msgid ""
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 msgstr ""
+"Çevrilecek dökümandaki kenar boşluklarını(margin) yoksay. Eğer bu şeçenek "
+"işaretlenmezse \"MOBI output plugin\" eklentisi girdideki kenar boşluklarını "
+"belirlemeye çalışacak, işaretlenirse boşlukları dikkate almayacak."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:50
 msgid ""
@@ -2718,6 +2723,8 @@ msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
+"Çıktı için kullanılacak karakter kodlama türünü seçin.  Varsayılan ayar: "
+"cp1252 . Not: Bu ayar tüm formatları desteklemez."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdb_output.py:32
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:26
@@ -2754,6 +2761,9 @@ msgid ""
 "The size of the paper. This size will be overridden when a non default "
 "output profile is used. Default is letter. Choices are %s"
 msgstr ""
+"Kağıtın boyutu. Eğer varsayılan dışıında bir çıktı profili kullanırsanız bu "
+"ayar değiştirilecektir. Varsayılan boyut: mektup (letter) . Kullanılabilecek "
+"seçenekler şunlar: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:79
 msgid ""

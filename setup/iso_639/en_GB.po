@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-02-09 02:26+0000\n"
+"PO-Revision-Date: 2012-02-09 09:49+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-02-09 05:45+0000\n"
-"X-Generator: Launchpad (build 14763)\n"
+"X-Launchpad-Export-Date: 2012-02-10 04:45+0000\n"
+"X-Generator: Launchpad (build 14771)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -7403,43 +7403,43 @@ msgstr "Yekhee"
 
 #. name for ett
 msgid "Etruscan"
-msgstr ""
+msgstr "Etruscan"
 
 #. name for etu
 msgid "Ejagham"
-msgstr ""
+msgstr "Ejagham"
 
 #. name for etx
 msgid "Eten"
-msgstr ""
+msgstr "Eten"
 
 #. name for etz
 msgid "Semimi"
-msgstr ""
+msgstr "Semimi"
 
 #. name for eus
 msgid "Basque"
-msgstr ""
+msgstr "Basque"
 
 #. name for eve
 msgid "Even"
-msgstr ""
+msgstr "Even"
 
 #. name for evh
 msgid "Uvbie"
-msgstr ""
+msgstr "Uvbie"
 
 #. name for evn
 msgid "Evenki"
-msgstr ""
+msgstr "Evenki"
 
 #. name for ewe
 msgid "Ewe"
-msgstr ""
+msgstr "Ewe"
 
 #. name for ewo
 msgid "Ewondo"
-msgstr ""
+msgstr "Ewondo"
 
 #. name for ext
 msgid "Extremaduran"

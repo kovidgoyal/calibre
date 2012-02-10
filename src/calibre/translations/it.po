@@ -10,15 +10,15 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-08 15:24+0000\n"
-"PO-Revision-Date: 2012-02-05 15:18+0000\n"
+"PO-Revision-Date: 2012-02-09 10:22+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-09 05:32+0000\n"
-"X-Generator: Launchpad (build 14763)\n"
+"X-Launchpad-Export-Date: 2012-02-10 04:44+0000\n"
+"X-Generator: Launchpad (build 14771)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -6590,7 +6590,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:212
 #, python-format
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(title)s di %(author)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:214
@@ -6787,7 +6787,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:231
 #, python-format
 msgid "Added %(num)d book(s) automatically from %(src)s"
-msgstr ""
+msgstr "Aggiunti %(num)d libri automaticamente da %(src)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
@@ -8942,25 +8942,27 @@ msgstr "Selezionare la cartella da aprire come dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:725
 msgid "Running jobs"
-msgstr ""
+msgstr "Lavori in esecuzione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:726
 msgid "Cannot configure the device while there are running device jobs."
 msgstr ""
+"Impossibile configurare il dispositivo mentre ci sono lavori in esecuzione."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:731
 #, python-format
 msgid "Configure %s"
-msgstr ""
+msgstr "Configura %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:742
 msgid "Disconnect device"
-msgstr ""
+msgstr "Disconnetti il dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:743
 #, python-format
 msgid "Disconnect and re-connect the %s for your changes to be applied."
 msgstr ""
+"Disconnetti e riconnetti il %s affinché le modifiche siano applicate."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:783
 msgid "Error talking to device"
@@ -11810,7 +11812,7 @@ msgstr "&Test"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:114
 #, python-format
 msgid "You must first explode the %s before previewing."
-msgstr ""
+msgstr "Devi espandere il %s prima dell'anteprima."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub.py:116
 msgid "Cannot preview"
@@ -11832,11 +11834,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:63
 msgid "Display contents of exploded {0}"
-msgstr ""
+msgstr "Visualizza il contenuto di {0} espanso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:64
 msgid "&Explode {0}"
-msgstr ""
+msgstr "&Espandi {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:66
@@ -11846,11 +11848,11 @@ msgstr "Scarta le modifiche"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:69
 msgid "Rebuild {0} from exploded contents"
-msgstr ""
+msgstr "Ricostruisci {0} dal contenuto espanso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:70
 msgid "&Rebuild {0}"
-msgstr ""
+msgstr "&Ricostruisci {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:71
 msgid "&Preview {0}"
@@ -12194,7 +12196,7 @@ msgstr "Titolo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:138
 msgid "Regular expression (?P<title>)"
-msgstr ""
+msgstr "Espressione regolare (?P<title>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:142
@@ -12499,7 +12501,7 @@ msgstr "Espelli questo dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:61
 msgid "Configure this device"
-msgstr ""
+msgstr "Configura il dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 msgid "Show books in calibre library"
@@ -13534,6 +13536,8 @@ msgid ""
 "You must specify an existing folder as your auto-add folder. %s does not "
 "exist."
 msgstr ""
+"Devi specificare una cartella esistente per l'aggiunta automatica. %s non "
+"esiste."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding.py:73
 #, python-format
@@ -13645,6 +13649,8 @@ msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
 msgstr ""
+"Specifica una cartella. Qualsiasi file depositato in tale cartella sarà "
+"aggiunto automaticamente a calibre (è richiesto il riavvio)."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:132
 msgid "Folder to auto-add files from"
@@ -13671,6 +13677,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:140
 msgid "Check for &duplicates when auto-adding files"
 msgstr ""
+"Verifica la presenza di duplicati in fase di aggiunta automatica dei file"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:141
 msgid "&Automatic Adding"
@@ -14280,6 +14287,8 @@ msgstr ""
 msgid ""
 "The value \"{0}\" is in the list more than once, perhaps with different case"
 msgstr ""
+"Il valore \"{0}\" è presente più di una volta nell'elenco, forse con "
+"capitalizzazione diversa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:295
 msgid ""
@@ -14408,7 +14417,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:248
 msgid "Similar to save templates. For example, {title} {isbn}"
-msgstr ""
+msgstr "Simile ai modelli di salvataggio. Ad esempio, {title} {isbn}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column_ui.py:249
 msgid "Default: (nothing)"
@@ -14830,7 +14839,7 @@ msgstr "Riavvio richiesto"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:341
 msgid "Restart calibre now"
-msgstr ""
+msgstr "Riavvia calibre subito"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:48
 msgid "Source"
@@ -15259,7 +15268,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
-msgstr ""
+msgstr "Mostra solo i pl&ugin installati dall'utente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:117
 msgid "Get &new plugins"
@@ -15682,7 +15691,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Password incompatible with Android devices"
-msgstr ""
+msgstr "Password non compatibile con i dispositivi Android"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid "&Start Server"
@@ -17798,7 +17807,7 @@ msgstr "Selezionare un percorso per i libri"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:731
 #, python-format
 msgid "Failed to create a folder at %s"
-msgstr ""
+msgstr "Creazione di una cartella in %s non riuscita"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:746
 #, python-format
@@ -17810,11 +17819,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:827
 msgid "&Next >"
-msgstr ""
+msgstr "Ava&nti >"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:828
 msgid "< &Back"
-msgstr ""
+msgstr "< &Indietro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:829
 #: /usr/src/qt-everywhere-opensource-src-4.7.3/src/gui/widgets/qdialogbuttonbox.cpp:658
@@ -17823,11 +17832,11 @@ msgstr "Annulla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:830
 msgid "&Finish"
-msgstr ""
+msgstr "&Fine"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:831
 msgid "Commit"
-msgstr ""
+msgstr "Applica"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:836
 msgid "welcome wizard"
@@ -18030,6 +18039,8 @@ msgid ""
 "You must either set both the username <b>and</b> password for the mail "
 "server or no username and no password at all."
 msgstr ""
+"Devi inserire il nome utente <b>e</b> la password per il server di posta o "
+"nessuno dei due."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:238
 msgid "Please enter a username and password or set encryption to None "
