@@ -209,8 +209,8 @@ class AutoAdder(QObject):
                 paths.extend(p)
                 formats.extend(f)
                 metadata.extend(mis)
-            files = [_('%s by %s')%(mi.title, mi.format_field('authors')[1])
-                    for mi in metadata]
+            files = [_('%(title)s by %(author)s')%dict(title=mi.title,
+                author=mi.format_field('authors')[1]) for mi in metadata]
             if question_dialog(self.parent(), _('Duplicates found!'),
                         _('Books with the same title as the following already '
                         'exist in the database. Add them anyway?'),
@@ -228,8 +228,8 @@ class AutoAdder(QObject):
         if count > 0:
             m.books_added(count)
             gui.status_bar.show_message(_(
-                'Added %d book(s) automatically from %s') %
-                (count, self.worker.path), 2000)
+                'Added %(num)d book(s) automatically from %(src)s') %
+                dict(num=count, src=self.worker.path), 2000)
             if hasattr(gui, 'db_images'):
                 gui.db_images.reset()
 

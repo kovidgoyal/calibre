@@ -16,36 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_5">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_10">
-       <property name="text">
-        <string>Server &amp;port:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_port</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" colspan="2">
-      <widget class="QSpinBox" name="opt_port">
-       <property name="maximum">
-        <number>65535</number>
-       </property>
-       <property name="value">
-        <number>8080</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_11">
-       <property name="text">
-        <string>&amp;Username:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_username</cstring>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1" colspan="2">
       <widget class="QLineEdit" name="opt_username"/>
      </item>
@@ -88,6 +58,36 @@ Leave this blank if you intend to use the server with an
        </property>
        <property name="buddy">
         <cstring>opt_max_cover</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>Server &amp;port:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_port</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QSpinBox" name="opt_port">
+       <property name="maximum">
+        <number>65535</number>
+       </property>
+       <property name="value">
+        <number>8080</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>&amp;Username:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_username</cstring>
        </property>
       </widget>
      </item>
@@ -178,6 +178,23 @@ Leave this blank if you intend to use the server with an
        </property>
        <property name="text">
         <string>Password incompatible with Android devices</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>&amp;URL Prefix:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_url_prefix</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1" colspan="2">
+      <widget class="QLineEdit" name="opt_url_prefix">
+       <property name="toolTip">
+        <string>A prefix that is applied to all URLs in the content server. Useful only if you plan to put the server behind another server like Apache, with a reverse proxy.</string>
        </property>
       </widget>
      </item>

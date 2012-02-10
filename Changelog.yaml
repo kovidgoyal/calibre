@@ -19,6 +19,60 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.39
+  date: 2012-02-10
+
+  new features:
+    - title: "Auto-adding: Add an option to check for duplicates when auto adding."
+      tickets: [926962]
+
+    - title: "Content server: Export a second record via mDNS that points to the full OPDS feed in addition to the one pointing to the Stanza feed. The new record is of type _calibre._tcp."
+      tickets: [929304]
+
+    - title: "Allow specifying a set of categories that are not partitioned even if they contain a large number of items in the Tag Browser. Preference is available under Look & Feel->Tag Browser"
+
+    - title: "Allow setting a URL prefix for the content server that run embedded in the calibre GUI as well."
+      tickets: [928905] 
+
+    - title: "Allow output of identifiers data in CSV/XML/BiBTeX catalogs"
+      tickets: [927737] 
+
+    - title: "Driver for Motorola Droid XT910, Nokia E71 and HTC EVO 3D."
+      tickets: [928202, 927818, 929400]
+
+    - title: "Cut down the time taken to launch worker processes by 40%"
+
+    - title: "You can now configure the calibre settings for the currently connected device by right clicking on the device icon in the toolbar, instead of having to go through Preferences->Plugins"
+ 
+  bug fixes:
+    - title: "Auto-adding: Do not add incomplete files when files are downloaded directly into the auto add folder."
+      tickets: [926578]
+
+    - title: "When running multiple delete from device jobs, fix the device view sometimes marking the wrong books as being deleted, after the first delete job completes."
+      tickets: [927972]
+
+    - title: "MOBI Input: Handle files that have spurious closing </body> and/or </html> tags in their markup."
+      tickets: [925833]
+
+    - title: "RTF Input: Strip out false color specifications, as they cause artifacts when converted to MOBI"
+
+  improved recipes:
+    - Updated Postmedia publications
+    - Foreign Affairs
+    - Read It Later
+    - Microwave Journal
+    - taggeschau.de
+
+  new recipes:
+    - title: Vancouver Province and Windsor Star 
+      author: Nick Redding
+
+    - title: Onda Rock 
+      author: faber1971
+
+    - title: Il Manifesto 
+      author: Giacomo Lacava 
+
 - version: 0.8.38
   date: 2012-02-03
 

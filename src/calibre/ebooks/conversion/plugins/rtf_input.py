@@ -177,7 +177,7 @@ class RTFInput(InputFormatPlugin):
         font_size_classes = ['span.fs%d { font-size: %spt }'%(i, x) for i, x in
                 enumerate(ic.font_sizes)]
         color_classes = ['span.col%d { color: %s }'%(i, x) for i, x in
-                enumerate(ic.colors)]
+                enumerate(ic.colors) if x != 'false']
         css = textwrap.dedent('''
         span.none {
             text-decoration: none; font-weight: normal;

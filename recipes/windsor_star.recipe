@@ -15,10 +15,10 @@ from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 class CanWestPaper(BasicNewsRecipe):
 
     # un-comment the following four lines for the Victoria Times Colonist
-    title = u'Victoria Times Colonist'
-    url_prefix = 'http://www.timescolonist.com'
-    description = u'News from Victoria, BC'
-    fp_tag = 'CAN_TC'
+##    title = u'Victoria Times Colonist'
+##    url_prefix = 'http://www.timescolonist.com'
+##    description = u'News from Victoria, BC'
+##    fp_tag = 'CAN_TC'
 
     # un-comment the following four lines for the Vancouver Province
 ##    title = u'Vancouver Province'
@@ -57,10 +57,10 @@ class CanWestPaper(BasicNewsRecipe):
 ##    fp_tag = ''
 
     # un-comment the following four lines for the Windsor Star
-##    title = u'Windsor Star'
-##    url_prefix = 'http://www.windsorstar.com'
-##    description = u'News from Windsor, ON'
-##    fp_tag = 'CAN_'
+    title = u'Windsor Star'
+    url_prefix = 'http://www.windsorstar.com'
+    description = u'News from Windsor, ON'
+    fp_tag = 'CAN_'
 
     # un-comment the following four lines for the Ottawa Citizen
 ##    title = u'Ottawa Citizen'
@@ -95,6 +95,7 @@ class CanWestPaper(BasicNewsRecipe):
                    dict(name='div', attrs={'class':'story_tool'}),dict(name='div', attrs={'class':'copyright'}),
                    dict(name='div', attrs={'class':'rule_grey_solid'}),
                    dict(name='li', attrs={'class':'print'}),dict(name='li', attrs={'class':'share'}),dict(name='ul', attrs={'class':'bullet'})]
+
 
     def get_cover_url(self):
         from datetime import timedelta, date

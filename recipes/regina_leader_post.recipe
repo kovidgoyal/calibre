@@ -1,4 +1,5 @@
 #!/usr/bin/env  python
+# -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
 
@@ -6,35 +7,72 @@ __license__   = 'GPL v3'
 www.canada.com
 '''
 
-from calibre.web.feeds.recipes import BasicNewsRecipe
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 
 
 class CanWestPaper(BasicNewsRecipe):
 
-    # un-comment the following three lines for the Regina Leader-Post
+    # un-comment the following four lines for the Victoria Times Colonist
+##    title = u'Victoria Times Colonist'
+##    url_prefix = 'http://www.timescolonist.com'
+##    description = u'News from Victoria, BC'
+##    fp_tag = 'CAN_TC'
+
+    # un-comment the following four lines for the Vancouver Province
+##    title = u'Vancouver Province'
+##    url_prefix = 'http://www.theprovince.com'
+##    description = u'News from Vancouver, BC'
+##    fp_tag = 'CAN_VP'
+
+    # un-comment the following four lines for the Vancouver Sun
+##    title = u'Vancouver Sun'
+##    url_prefix = 'http://www.vancouversun.com'
+##    description = u'News from Vancouver, BC'
+##    fp_tag = 'CAN_VS'
+
+    # un-comment the following four lines for the Edmonton Journal
+##    title = u'Edmonton Journal'
+##    url_prefix = 'http://www.edmontonjournal.com'
+##    description = u'News from Edmonton, AB'
+##    fp_tag = 'CAN_EJ'
+
+    # un-comment the following four lines for the Calgary Herald
+##    title = u'Calgary Herald'
+##    url_prefix = 'http://www.calgaryherald.com'
+##    description = u'News from Calgary, AB'
+##    fp_tag = 'CAN_CH'
+
+    # un-comment the following four lines for the Regina Leader-Post
     title = u'Regina Leader-Post'
     url_prefix = 'http://www.leaderpost.com'
     description = u'News from Regina, SK'
+    fp_tag = ''
 
-    # un-comment the following three lines for the Saskatoon Star-Phoenix
-    #title = u'Saskatoon Star-Phoenix'
-    #url_prefix = 'http://www.thestarphoenix.com'
-    #description = u'News from Saskatoon, SK'
+    # un-comment the following four lines for the Saskatoon Star-Phoenix
+##    title = u'Saskatoon Star-Phoenix'
+##    url_prefix = 'http://www.thestarphoenix.com'
+##    description = u'News from Saskatoon, SK'
+##    fp_tag = ''
 
-    # un-comment the following three lines for the Windsor Star
-    #title = u'Windsor Star'
-    #url_prefix = 'http://www.windsorstar.com'
-    #description = u'News from Windsor, ON'
+    # un-comment the following four lines for the Windsor Star
+##    title = u'Windsor Star'
+##    url_prefix = 'http://www.windsorstar.com'
+##    description = u'News from Windsor, ON'
+##    fp_tag = 'CAN_'
 
-    # un-comment the following three lines for the Ottawa Citizen
-    #title = u'Ottawa Citizen'
-    #url_prefix = 'http://www.ottawacitizen.com'
-    #description = u'News from Ottawa, ON'
+    # un-comment the following four lines for the Ottawa Citizen
+##    title = u'Ottawa Citizen'
+##    url_prefix = 'http://www.ottawacitizen.com'
+##    description = u'News from Ottawa, ON'
+##    fp_tag = 'CAN_OC'
 
-    # un-comment the following three lines for the Montreal Gazette
-    #title = u'Montreal Gazette'
-    #url_prefix = 'http://www.montrealgazette.com'
-    #description = u'News from Montreal, QC'
+    # un-comment the following four lines for the Montreal Gazette
+##    title = u'Montreal Gazette'
+##    url_prefix = 'http://www.montrealgazette.com'
+##    description = u'News from Montreal, QC'
+##    fp_tag = 'CAN_MG'
 
 
     language = 'en_CA'
@@ -58,13 +96,79 @@ class CanWestPaper(BasicNewsRecipe):
                    dict(name='div', attrs={'class':'rule_grey_solid'}),
                    dict(name='li', attrs={'class':'print'}),dict(name='li', attrs={'class':'share'}),dict(name='ul', attrs={'class':'bullet'})]
 
-    def preprocess_html(self,soup):
-        #delete iempty id attributes--they screw up the TOC for unknow reasons
-        divtags = soup.findAll('div',attrs={'id':''})
-        if divtags:
-            for div in divtags:
-                del(div['id'])
+    def get_cover_url(self):
+        from datetime import timedelta, date
+        if self.fp_tag=='':
+            return None
+        cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str(date.today().day)+'/lg/'+self.fp_tag+'.jpg'
+        br = BasicNewsRecipe.get_browser()
+        daysback=1
+        try:
+            br.open(cover)
+        except:
+            while daysback<7:
+                cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str((date.today() - timedelta(days=daysback)).day)+'/lg/'+self.fp_tag+'.jpg'
+                br = BasicNewsRecipe.get_browser()
+                try:
+                    br.open(cover)
+                except:
+                    daysback = daysback+1
+                    continue
+                break
+        if daysback==7:
+            self.log("\nCover unavailable")
+            cover = None
+        return cover
+
+    def fixChars(self,string):
+        # Replace lsquo (\x91)
+        fixed = re.sub("\x91","‘",string)
+        # Replace rsquo (\x92)
+        fixed = re.sub("\x92","’",fixed)
+        # Replace ldquo (\x93)
+        fixed = re.sub("\x93","“",fixed)
+        # Replace rdquo (\x94)
+        fixed = re.sub("\x94","”",fixed)
+        # Replace ndash (\x96)
+        fixed = re.sub("\x96","–",fixed)
+        # Replace mdash (\x97)
+        fixed = re.sub("\x97","—",fixed)
+        fixed = re.sub("&#x2019;","’",fixed)
+        return fixed
+
+    def massageNCXText(self, description):
+        # Kindle TOC descriptions won't render certain characters
+        if description:
+            massaged = unicode(BeautifulStoneSoup(description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
+            # Replace '&' with '&'
+            massaged = re.sub("&","&", massaged)
+            return self.fixChars(massaged)
+        else:
+            return description
+
+    def populate_article_metadata(self, article, soup, first):
+        if first:
+            picdiv = soup.find('body').find('img')
+            if picdiv is not None:
+                self.add_toc_thumbnail(article,re.sub(r'links\\link\d+\\','',picdiv['src']))
+        xtitle = article.text_summary.strip()
+        if len(xtitle) == 0:
+            desc = soup.find('meta',attrs={'property':'og:description'})
+            if desc is not None:
+                article.summary = article.text_summary = desc['content']
+
+    def strip_anchors(self,soup):
+        paras = soup.findAll(True)
+        for para in paras:
+            aTags = para.findAll('a')
+            for a in aTags:
+                if a.img is None:
+                    a.replaceWith(a.renderContents().decode('cp1252','replace'))
         return soup
+
+    def preprocess_html(self, soup):
+        return self.strip_anchors(soup)
+
 
 
     def parse_index(self):

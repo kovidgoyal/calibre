@@ -15,16 +15,16 @@ from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 class CanWestPaper(BasicNewsRecipe):
 
     # un-comment the following four lines for the Victoria Times Colonist
-    title = u'Victoria Times Colonist'
-    url_prefix = 'http://www.timescolonist.com'
-    description = u'News from Victoria, BC'
-    fp_tag = 'CAN_TC'
+##    title = u'Victoria Times Colonist'
+##    url_prefix = 'http://www.timescolonist.com'
+##    description = u'News from Victoria, BC'
+##    fp_tag = 'CAN_TC'
 
     # un-comment the following four lines for the Vancouver Province
-##    title = u'Vancouver Province'
-##    url_prefix = 'http://www.theprovince.com'
-##    description = u'News from Vancouver, BC'
-##    fp_tag = 'CAN_VP'
+    title = u'Vancouver Province'
+    url_prefix = 'http://www.theprovince.com'
+    description = u'News from Vancouver, BC'
+    fp_tag = 'CAN_VP'
 
     # un-comment the following four lines for the Vancouver Sun
 ##    title = u'Vancouver Sun'
