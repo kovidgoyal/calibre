@@ -7,14 +7,9 @@ __license__   = 'GPL v3'
 www.canada.com
 '''
 
-import string, re
-from calibre import strftime
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
-
-import string, re
-from calibre import strftime
-from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 
 
 class CanWestPaper(BasicNewsRecipe):
@@ -101,16 +96,9 @@ class CanWestPaper(BasicNewsRecipe):
                    dict(name='div', attrs={'class':'rule_grey_solid'}),
                    dict(name='li', attrs={'class':'print'}),dict(name='li', attrs={'class':'share'}),dict(name='ul', attrs={'class':'bullet'})]
 
-    def preprocess_html(self,soup):
-        #delete iempty id attributes--they screw up the TOC for unknow reasons
-        divtags = soup.findAll('div',attrs={'id':''})
-        if divtags:
-            for div in divtags:
-                del(div['id'])
-        return soup
 
     def get_cover_url(self):
-        from datetime import timedelta, datetime, date
+        from datetime import timedelta, date
         if self.fp_tag=='':
             return None
         cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str(date.today().day)+'/lg/'+self.fp_tag+'.jpg'
