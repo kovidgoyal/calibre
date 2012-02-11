@@ -131,9 +131,16 @@ class Metadata(QLabel):
 
 class DoubleSpinBox(QDoubleSpinBox):
 
+    def __init__(self, *args, **kwargs):
+        QDoubleSpinBox.__init__(self, *args, **kwargs)
+        self.tt = _('Position in book')
+        self.setToolTip(self.tt)
+
     def set_value(self, val):
         self.blockSignals(True)
         self.setValue(val)
+        self.setToolTip(self.tt +
+                ' [{0:.0%}]'.format(float(val)/self.maximum()))
         self.blockSignals(False)
 
 class HelpfulLineEdit(QLineEdit):
@@ -197,7 +204,6 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.metadata = Metadata(self)
         self.pos = DoubleSpinBox()
         self.pos.setDecimals(1)
-        self.pos.setToolTip(_('Position in book'))
         self.pos.setSuffix('/'+_('Unknown')+'     ')
         self.pos.setMinimum(1.)
         self.pos.setMinimumWidth(150)
