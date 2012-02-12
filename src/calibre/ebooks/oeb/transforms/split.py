@@ -15,8 +15,8 @@ from lxml.etree import XPath as _XPath
 from lxml import etree
 from lxml.cssselect import CSSSelector
 
-from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP as NAMESPACES, \
-        urldefrag, rewrite_links, urlunquote, barename, XHTML
+from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
+        urldefrag, rewrite_links, urlunquote, barename, XHTML, urlnormalize)
 from calibre.ebooks.epub import rules
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
@@ -159,6 +159,7 @@ class Split(object):
         except ValueError:
             # Unparseable URL
             return url
+        href = urlnormalize(href)
         if href in self.map:
             anchor_map = self.map[href]
             nhref = anchor_map[frag if frag else None]
