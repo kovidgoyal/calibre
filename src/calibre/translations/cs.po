@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-10 07:01+0000\n"
-"PO-Revision-Date: 2012-01-22 20:16+0000\n"
-"Last-Translator: Jan Kubík <Unknown>\n"
+"PO-Revision-Date: 2012-02-11 21:21+0000\n"
+"Last-Translator: Marek Sušický <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-02-11 04:46+0000\n"
+"X-Launchpad-Export-Date: 2012-02-12 04:39+0000\n"
 "X-Generator: Launchpad (build 14771)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1823,7 +1823,7 @@ msgstr "Nepojmenovaný"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:36
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Komunikovat s PRST1 a novějšími Sony eBook čtečkami"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
@@ -1842,7 +1842,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Použij pro autory formát SONY (jen první autor)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid ""
@@ -1931,7 +1931,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "Nepodařilo se připojit zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:978
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
@@ -2037,7 +2037,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:40
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:70
 msgid "USB Product ID (in hex)"
-msgstr ""
+msgstr "USB Product ID (hexa)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:43
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:72
@@ -2047,7 +2047,7 @@ msgstr "USB ID revize (in hex)"
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:47
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/device_user_defined.py:79
 msgid "Windows main memory vendor string"
-msgstr ""
+msgstr "Windows main memory vendor string"
 
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:48
 #: /home/kovid/work/calibre/src/calibre/devices/user_defined/driver.py:52
@@ -4695,7 +4695,7 @@ msgstr "Odelsat stažené zpravy do zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:148
 msgid "Delete news books from library after uploading to device"
-msgstr ""
+msgstr "Smazat nové knihy z knihovny po nahrání do zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:150
 msgid ""
@@ -4773,15 +4773,15 @@ msgstr "kategorie, která se nebude zobrazovat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:263
 msgid "WARNING:"
-msgstr ""
+msgstr "VAROVÁNÍ:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:273
 msgid "ERROR:"
-msgstr ""
+msgstr "CHYBA:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:285
 msgid "Show this confirmation again"
-msgstr ""
+msgstr "Ukázat toto potvrzení znovu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:534
 msgid "Choose Files"
@@ -5020,7 +5020,7 @@ msgstr "Není podporováno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:108
 msgid "Fetching annotations is not supported for this device"
-msgstr ""
+msgstr "Stažení anotací není zařízením podporováno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:136
@@ -5038,7 +5038,7 @@ msgstr "Nevybrané žádné knihy pro načtení anotací"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Vyskytly se chyby"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
@@ -5296,7 +5296,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:389
 msgid "Starting library scan, this may take a while"
-msgstr ""
+msgstr "Startuji sken knihovny, bude to chvilku trvat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:395
 msgid "No problems found"
@@ -5397,7 +5397,7 @@ msgstr "Nelze kopírovat knihy: "
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:197
 #, python-format
 msgid "Copied %(num)d books to %(loc)s"
-msgstr ""
+msgstr "Zkopírováno %(num)d knih do %(loc)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/copy_to_library.py:212
 msgid ""
@@ -5810,7 +5810,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:473
 msgid "Applying changed metadata"
-msgstr ""
+msgstr "Použít změněná metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:546
 msgid "Some failures"
@@ -6027,7 +6027,7 @@ msgstr "Náhled není dostupný"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:32
 msgid "Quickview is not available for books on the device."
-msgstr ""
+msgstr "Náhled není dostupný pro knihy v zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:17
 msgid "Similar books..."
@@ -6153,7 +6153,7 @@ msgstr "O funkci získat knihy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Tweak Book"
-msgstr ""
+msgstr "Ladit knihu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:19
 msgid "Make small changes to ePub or HTMLZ format books"
@@ -6166,7 +6166,7 @@ msgstr "T"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:50
 msgid "Cannot tweak Book"
-msgstr ""
+msgstr "Nelze ladit knihu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:51
 msgid ""
@@ -7524,7 +7524,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
-msgstr ""
+msgstr "&Fonty"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:176
 msgid ""
@@ -7558,7 +7558,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:192
 msgid "&Colors"
-msgstr ""
+msgstr "&Barvy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
@@ -8433,11 +8433,11 @@ msgstr "Smazat '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:241
 msgid "Open Item Editor"
-msgstr ""
+msgstr "Otevřít editor položek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:353
 msgid "Values changed"
-msgstr ""
+msgstr "Hodnoty změněny"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:354
 msgid ""
@@ -8591,7 +8591,7 @@ msgstr "Označit složku a otevřít jako zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:725
 msgid "Running jobs"
-msgstr ""
+msgstr "Běžící úlohy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:726
 msgid "Cannot configure the device while there are running device jobs."
@@ -8600,11 +8600,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:731
 #, python-format
 msgid "Configure %s"
-msgstr ""
+msgstr "Konfigurovat %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:742
 msgid "Disconnect device"
-msgstr ""
+msgstr "Odpojit zařízení"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:743
 #, python-format
@@ -8780,7 +8780,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:79
 msgid "All invalid ISBNs"
-msgstr ""
+msgstr "Všechny nevalidní ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/add_from_isbn.py:80
 msgid "All the ISBNs you entered were invalid. No books can be added."
@@ -9042,7 +9042,7 @@ msgstr "&Hotovo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:240
 msgid "Delete &marked"
-msgstr ""
+msgstr "&Smazat označené"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:241
 msgid "Delete marked files (checked subitems)"
@@ -9050,7 +9050,7 @@ msgstr "Smazat označené soubory (zaškrtnuté podpoložky)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:244
 msgid "&Fix marked"
-msgstr ""
+msgstr "&Opravit označené"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/check_library.py:247
 msgid "Fix marked sections (checked fixable items)"
@@ -9465,7 +9465,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:184
 msgid "Copy to author"
-msgstr ""
+msgstr "Kopírovat k autorovi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:313
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:935
@@ -9531,11 +9531,11 @@ msgstr "Aktivní Joby"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:33
 msgid "Find next match"
-msgstr ""
+msgstr "Najít další shodu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:34
 msgid "&Search"
-msgstr ""
+msgstr "&Hledat"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Find previous match"
@@ -9555,7 +9555,7 @@ msgstr "Zobrazit &detaily úlohy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:66
 msgid "Show &all jobs"
-msgstr ""
+msgstr "&Ukázat všechny úlohy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:70
 msgid "Stop &all non device jobs"
@@ -9563,7 +9563,7 @@ msgstr "Zastavit &všechny úlohy nesouvisející se zařízením"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:74
 msgid "&Hide all jobs"
-msgstr ""
+msgstr "&Skrýt všechny úlohy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/message_box.py:50
 msgid "&Copy to clipboard"

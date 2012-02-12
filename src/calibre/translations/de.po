@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-10 07:01+0000\n"
-"PO-Revision-Date: 2012-02-09 14:00+0000\n"
-"Last-Translator: Mirko Russo <Unknown>\n"
+"PO-Revision-Date: 2012-02-11 14:32+0000\n"
+"Last-Translator: Klaus Thenmayer <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-11 04:48+0000\n"
+"X-Launchpad-Export-Date: 2012-02-12 04:40+0000\n"
 "X-Generator: Launchpad (build 14771)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -6474,7 +6474,7 @@ msgstr "Über Bücher erwerben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:18
 msgid "Tweak Book"
-msgstr "Buch Optimieren"
+msgstr "Buch optimieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:19
 msgid "Make small changes to ePub or HTMLZ format books"
@@ -11922,15 +11922,21 @@ msgid ""
 "windows you used to edit files in the ePub</b>.</p><p>Rebuild the ePub, "
 "updating your calibre library.</p>"
 msgstr ""
+"<p>Zerteile die {0} gezeigten Inhalte in einem Dateimanager. Um die "
+"einzelnen Dateien zu optimieren, mit der rechten Maustaste auf \"Öffnen "
+"mit...\" klicken und einen Editor wählen. Wenn die Verbesserungen "
+"fertiggestellt sind, schließe den Dateimanager und <b>den Editor, der zum "
+"Bearbeiten der Dateien in ePub</b> verwendet wurde.</p><p>Generiere das ePub "
+"und lade die Calibre Bibliothek neu."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:62
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:63
 msgid "Display contents of exploded {0}"
-msgstr ""
+msgstr "Zeige zerteilte Inhalte {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:64
 msgid "&Explode {0}"
-msgstr ""
+msgstr "&Zerteile {0}"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:66
@@ -11940,11 +11946,11 @@ msgstr "Änderungen verwerfen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:68
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:69
 msgid "Rebuild {0} from exploded contents"
-msgstr ""
+msgstr "Aus {0} zerteilten Inhalten neu erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:70
 msgid "&Rebuild {0}"
-msgstr ""
+msgstr "{0} &Neu erstellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tweak_epub_ui.py:71
 msgid "&Preview {0}"
@@ -14428,6 +14434,8 @@ msgstr "Sie müssen mindestens einen Wert für die Aufzählungsspalten angeben"
 msgid ""
 "The value \"{0}\" is in the list more than once, perhaps with different case"
 msgstr ""
+"Der Wert \"{0}\" ist mehrmals in der Liste enthalten, eventuell für "
+"verschiedene Zwecke"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:295
 msgid ""
@@ -22015,6 +22023,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:480
 msgid "When using the 'Tweak Book' action, which format to prefer"
 msgstr ""
+"Welches Format soll bei der Verwendung der \"Buch optimieren\" Funktion "
+"bevorzugt werden"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:481
 msgid ""

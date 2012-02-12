@@ -10,14 +10,14 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-10 07:01+0000\n"
-"PO-Revision-Date: 2012-02-09 10:22+0000\n"
+"PO-Revision-Date: 2012-02-11 09:51+0000\n"
 "Last-Translator: Vincenzo Reale <smart2128@baslug.org>\n"
 "Language-Team: Italian <kde-i18n-it@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-11 04:51+0000\n"
+"X-Launchpad-Export-Date: 2012-02-12 04:40+0000\n"
 "X-Generator: Launchpad (build 14771)\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,1105,-1,1312,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
@@ -8778,7 +8778,7 @@ msgstr "Cancella '%s'"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:241
 msgid "Open Item Editor"
-msgstr ""
+msgstr "Apri editore degli elementi"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:353
 msgid "Values changed"
@@ -13550,6 +13550,8 @@ msgid ""
 "<b>WARNING:</b> Any files you place in %s will be automatically deleted "
 "after being added to calibre. Are you sure?"
 msgstr ""
+"<b>AVVISO:</b> ogni file posizionato in %s sarà eliminato automaticamente "
+"una volta aggiunto a calibre. Sei sicuro?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:106
 msgid ""
@@ -13665,6 +13667,8 @@ msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
 msgstr ""
+"<b>AVVISO:</b> i file nella cartella suddetta saranno eliminati una volta "
+"aggiunti a calibre."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:136
 msgid ""
@@ -14757,7 +14761,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:257
 msgid "Categories not to partition:"
-msgstr ""
+msgstr "Categorie da non partizionare:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:258
 msgid ""
@@ -15100,6 +15104,8 @@ msgid ""
 "More specific device plugboards exist for that format. Are you sure you want "
 "to add the new plugboard?"
 msgstr ""
+"Controlli di dispositivo più specifici esistono già per tale formato. Sei "
+"sicuro di voler aggiungere il nuovo controllo?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:230
 msgid "Really add plugboard?"
@@ -15277,7 +15283,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:112
 msgid "Show only those plugins that have been installed by you"
-msgstr ""
+msgstr "Mostra solo i plugin installati da te"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins_ui.py:113
 msgid "Show only &user installed plugins"
@@ -15708,7 +15714,7 @@ msgstr "Password non compatibile con i dispositivi Android"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:161
 msgid "&URL Prefix:"
-msgstr ""
+msgstr "Prefisso &URL:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:162
 msgid ""
@@ -15716,6 +15722,9 @@ msgid ""
 "you plan to put the server behind another server like Apache, with a reverse "
 "proxy."
 msgstr ""
+"Un prefisso applicato a tutti gli URL nel server dei contenuti. Utile sole "
+"se pensi di mettere il server dietro un altro server come Apache, con un "
+"proxy inverso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:163
 msgid "&Start Server"
@@ -16981,7 +16990,7 @@ msgstr "Visualizza tutte le categorie"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:480
 msgid "Change sub-categorization scheme"
-msgstr ""
+msgstr "Cambia lo schema di sottocategorizzazione"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:500
 msgid "First letter is usable only when sorting by name"
@@ -18585,7 +18594,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:499
 msgid "No enabled genres found to catalog.\n"
-msgstr ""
+msgstr "Non è stato trovato alcun genere abilitato da catalogare.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi_builder.py:503
 msgid "No books available to catalog"
@@ -19246,6 +19255,8 @@ msgid ""
 "Really do the recovery. The command will not run unless this option is "
 "specified."
 msgstr ""
+"Effettua realmente il ripristino. Il comando non sarà eseguito a meno che "
+"questa opzione non sia specificata."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:1007
 #, python-format
@@ -19516,6 +19527,8 @@ msgstr "Sostituisci gli spazi con trattini bassi."
 msgid ""
 "Save into a single directory, ignoring the template directory structure"
 msgstr ""
+"Salva in una singola cartella, ignorando la struttura delle cartelle del "
+"modello"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:303
 #, python-format
@@ -19596,6 +19609,8 @@ msgid ""
 "Prefix to prepend to all URLs. Useful for reverseproxying to this server "
 "from Apache/nginx/etc."
 msgstr ""
+"Prefisso da anteporre agli URL. Utile in caso proxy inverso a questo server "
+"da Apache/nginx/ecc."
 
 #: /home/kovid/work/calibre/src/calibre/library/server/ajax.py:294
 #: /home/kovid/work/calibre/src/calibre/library/server/browse.py:342
@@ -19989,10 +20004,13 @@ msgid ""
 "strcat(a, b, ...) -- can take any number of arguments. Returns a string "
 "formed by concatenating all the arguments"
 msgstr ""
+"strcat(a, b, ...) -- accetta qualsiasi numero di argomenti. Restituisce una "
+"stringa formata concatenando tutti gli argomenti"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:154
 msgid "strlen(a) -- Returns the length of the string passed as the argument"
 msgstr ""
+"strlen(a) -- restituisce la lunghezza della stringa fornita come argomento"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:167
 msgid ""
@@ -20088,7 +20106,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:313
 msgid "lookup requires either 2 or an odd number of arguments"
-msgstr ""
+msgstr "lookup richiede  2 o un numero dispari di argomenti"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:326
 msgid ""
@@ -20116,7 +20134,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:363
 msgid "switch requires an odd number of arguments"
-msgstr ""
+msgstr "switch richiede un numero dispari di argomenti"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:376
 msgid ""
@@ -20130,11 +20148,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:386
 msgid "strcat_max requires 2 or more arguments"
-msgstr ""
+msgstr "strcat_max richiede 2 o più argomenti"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:388
 msgid "strcat_max requires an even number of arguments"
-msgstr ""
+msgstr "strcat_max richiede un numero pari di argomenti"
 
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:392
 msgid "first argument to strcat_max must be an integer"

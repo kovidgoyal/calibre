@@ -11,14 +11,14 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-10 07:01+0000\n"
-"PO-Revision-Date: 2012-02-04 10:55+0000\n"
+"PO-Revision-Date: 2012-02-11 10:21+0000\n"
 "Last-Translator: Jellby <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-11 04:59+0000\n"
+"X-Launchpad-Export-Date: 2012-02-12 04:40+0000\n"
 "X-Generator: Launchpad (build 14771)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
@@ -6633,7 +6633,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:212
 #, python-format
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(title)s por %(author)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:214
@@ -6830,7 +6830,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:231
 #, python-format
 msgid "Added %(num)d book(s) automatically from %(src)s"
-msgstr ""
+msgstr "%(num)d libro(s) añadido(s) automáticamente de %(src)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
@@ -8983,25 +8983,28 @@ msgstr "Seleccionar carpeta para abrir como un dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:725
 msgid "Running jobs"
-msgstr ""
+msgstr "Tareas en ejecución"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:726
 msgid "Cannot configure the device while there are running device jobs."
 msgstr ""
+"No se puede configurar el dispositivo mientras hay tareas del dispositivo "
+"ejecutándose."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:731
 #, python-format
 msgid "Configure %s"
-msgstr ""
+msgstr "Configurar %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:742
 msgid "Disconnect device"
-msgstr ""
+msgstr "Desconectar dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:743
 #, python-format
 msgid "Disconnect and re-connect the %s for your changes to be applied."
 msgstr ""
+"Desconecte y vuelva a conectar el %s para que los cambios tengan efecto."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:783
 msgid "Error talking to device"
@@ -12226,7 +12229,7 @@ msgstr "Título:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:138
 msgid "Regular expression (?P<title>)"
-msgstr ""
+msgstr "Expresión regular (?P<title>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:142
@@ -12533,7 +12536,7 @@ msgstr "Desconectar dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:61
 msgid "Configure this device"
-msgstr ""
+msgstr "Configurar este dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 msgid "Show books in calibre library"
@@ -13746,10 +13749,14 @@ msgid ""
 " If it is, a meesage will pop up asking you whether\n"
 " you want to add it anyway."
 msgstr ""
+"Si se activa, esta opción hace que calibre compruebe si un\n"
+"fichero que se añade automáticamente ya existe en la\n"
+"biblioteca de calibre. Si es así, aparecerá un mensaje\n"
+"preguntando si desea añadirlo de todas formas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:140
 msgid "Check for &duplicates when auto-adding files"
-msgstr ""
+msgstr "Buscar &duplicados al añadir ficheros automáticamente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:141
 msgid "&Automatic Adding"
@@ -14375,6 +14382,8 @@ msgstr "Debe introducir al menos un valor para las columnas de enumeración"
 msgid ""
 "The value \"{0}\" is in the list more than once, perhaps with different case"
 msgstr ""
+"El valor «{0}» aparece en la lista más de una vez, posiblemente con distinta "
+"combinación de mayúsculas y minúsculas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:295
 msgid ""
@@ -14821,6 +14830,11 @@ msgid ""
 "Manage Authors. You can use the values {author} and\n"
 "{author_sort}, and any template function."
 msgstr ""
+"<p>Introduzca una plantilla para usar al crear un enlace al autor en el "
+"cuadro de información del libro. Esta plantilla se usará cuando no se haya "
+"indicado un enlace para el autor usando la función «Administrar autores». "
+"Puede usar los valores «{author}» y «{author_sort}», y cualquier función de "
+"plantilla."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:245
 msgid "Use &Roman numerals for series"
@@ -14862,10 +14876,15 @@ msgid ""
 "up into subcategories. If the partition method is set to disable, this value "
 "is ignored."
 msgstr ""
+"Si una categoría del explorador de etiquetas tiene un número de elementos "
+"mayor\n"
+"que el indicado, se dividirá en subcategorías. Si el metodo de división está "
+"establecido\n"
+"en «disable», se ignora este valor."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:257
 msgid "Categories not to partition:"
-msgstr ""
+msgstr "Categorías que no se dividen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:258
 msgid ""
@@ -14875,6 +14894,11 @@ msgid ""
 "avoid collapsing hierarchical categories that have only\n"
 "a few top-level elements."
 msgstr ""
+"Una lista separada por comas de categorías que no se\n"
+"dividirán aunque el número de elementos sea mayor que\n"
+"el señalado arriba. Esta opción puede usarse para evitar\n"
+"colapsar categorías jerárquicas que tienen sólo unos pocos\n"
+"elementos de nivel superior."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:263
 msgid "Show &average ratings in the tags browser"
@@ -14893,6 +14917,13 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"Una lista separada por comas de categorías cuyos elementos que\n"
+"contienen puntos se mostrarán en el explorador de etiquetas.\n"
+"Por ejemplo, si este cuadro contiene «tags», entonces las etiquetas\n"
+"de la forma «Misterio.Inglés» y «Misterio.Suspense» se mostrarán\n"
+"con «Inglés» y «Suspense» dentro de la etiqueta «Misterio». Si «tags»\n"
+"no aparece en el cuadro, cada etiqueta se mostrará en una línea\n"
+"aparte."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:272
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -15845,7 +15876,7 @@ msgstr "La contraseña es incompatible con dispositivos Android"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:161
 msgid "&URL Prefix:"
-msgstr ""
+msgstr "Prefijo &URL:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:162
 msgid ""
@@ -15853,6 +15884,9 @@ msgid ""
 "you plan to put the server behind another server like Apache, with a reverse "
 "proxy."
 msgstr ""
+"Un prefijo que se añadirá a todas las URL del servidor de contenidos. Es "
+"útil si piensa poner el servidor detrás de otro servidor como Apache, con un "
+"proxy inverso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:163
 msgid "&Start Server"
@@ -16865,19 +16899,19 @@ msgstr "El nombre guardado buscado %s está en uso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:48
 msgid "Manage Authors"
-msgstr "Administrar Autores"
+msgstr "Administrar autores"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:50
 msgid "Manage Series"
-msgstr "Administrar Series"
+msgstr "Administrar series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:52
 msgid "Manage Publishers"
-msgstr "Administrar Editoriales"
+msgstr "Administrar editoriales"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:54
 msgid "Manage Tags"
-msgstr "Administrar Etiquetas"
+msgstr "Administrar etiquetas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:466
@@ -17006,7 +17040,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:382
 msgid "Manage authors, tags, etc"
-msgstr "Administrar autores, etiquetas, etc"
+msgstr "Administrar autores, etiquetas, etc."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:383
 msgid ""
@@ -17956,7 +17990,7 @@ msgstr "Seleccionar ubicación para los libros"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:731
 #, python-format
 msgid "Failed to create a folder at %s"
-msgstr ""
+msgstr "No se pudo crear una carpeta en %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:746
 #, python-format
