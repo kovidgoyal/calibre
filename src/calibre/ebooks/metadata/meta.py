@@ -233,7 +233,7 @@ def forked_read_metadata(path, tdir):
             f.write(mi.cover_data[1])
         mi.cover_data = (None, None)
         mi.cover = 'cover.jpg'
-    opf = metadata_to_opf(mi)
+    opf = metadata_to_opf(mi, default_lang='und')
     with open(os.path.join(tdir, 'metadata.opf'), 'wb') as f:
         f.write(opf)
 
