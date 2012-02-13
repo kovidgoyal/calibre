@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-10 07:01+0000\n"
-"PO-Revision-Date: 2012-01-04 04:43+0000\n"
+"PO-Revision-Date: 2012-02-13 04:34+0000\n"
 "Last-Translator: Chao-Hsiung Liao <j_h_liau@yahoo.com.tw>\n"
 "Language-Team: Chinese (traditional)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-02-11 05:04+0000\n"
-"X-Generator: Launchpad (build 14771)\n"
+"X-Launchpad-Export-Date: 2012-02-13 04:48+0000\n"
+"X-Generator: Launchpad (build 14781)\n"
 "Language: zh_TW\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -423,7 +423,7 @@ msgstr "從一個 calibre 書庫複製書籍到另一個書庫"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
-msgstr ""
+msgstr "對您的 calibre 書庫的 epub 或 htmlz 檔案進行一些微調"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid ""
@@ -2215,7 +2215,7 @@ msgstr "以 寬x長 像素指定圖片大小。通常，圖片大小會以輸出
 msgid ""
 "When converting a CBC do not add links to each page to the TOC. Note this "
 "only applies if the TOC has more than one section"
-msgstr ""
+msgstr "當轉換 CBC 時不要把每個頁面的連結加入目錄。注意這只有在目錄含有一個以上的章節時有用"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:213
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:225
@@ -4514,7 +4514,7 @@ msgstr "壓縮檔"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Wordprocessor files"
-msgstr ""
+msgstr "文書處理軟體檔案"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
@@ -4591,7 +4591,7 @@ msgstr "您確定"
 msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
-msgstr ""
+msgstr "您確定要將同樣的檔案加入全部 %d 書籍？如果那本書已經有這個格式，原有的格式會被取代。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:99
 msgid "Select book files"
@@ -6851,7 +6851,7 @@ msgstr "FB2 輸出"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:45
 msgid "Sectionize:"
-msgstr ""
+msgstr "分節："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/fb2_output_ui.py:46
 msgid "Genre"
@@ -7130,7 +7130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:171
 msgid "Removes the font-family CSS property"
-msgstr ""
+msgstr "移除 font-family CSS 屬性"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:172
 msgid "&Fonts"
@@ -7140,7 +7140,7 @@ msgstr ""
 msgid ""
 "Removes the margin CSS properties. Note that page margins are not affected "
 "by this setting."
-msgstr ""
+msgstr "移除邊界 CSS 屬性。注意頁面邊界不會被這個設定值影響。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:177
 msgid "&Margins"
@@ -7148,7 +7148,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:181
 msgid "Removes the padding CSS properties"
-msgstr ""
+msgstr "移除墊充 CSS 屬性"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:182
 msgid "&Padding"
@@ -7172,7 +7172,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:198
 msgid "&Other CSS Properties:"
-msgstr ""
+msgstr "其他的 CSS 屬性(&O):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:202
 msgid ""
@@ -7182,7 +7182,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:227
 msgid "&Extra CSS"
-msgstr ""
+msgstr "額外的 CSS (&E)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/look_and_feel_ui.py:228
 msgid "&Filter Style Information"
@@ -7395,7 +7395,7 @@ msgstr "個人文件標籤："
 msgid ""
 "Enable sharing of book content via Facebook, etc. WARNING: Disables last "
 "read syncing"
-msgstr ""
+msgstr "啟用透過 Facebook 分享書籍內容等。警告：會停用上次閱讀同步"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/mobi_output_ui.py:72
 msgid "Put generated Table of Contents at &start of book instead of end"
@@ -7502,7 +7502,7 @@ msgstr "保留封面長寬比(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pdf_output_ui.py:58
 msgid "&Custom size:"
-msgstr ""
+msgstr "自訂大小(&C):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/pml_output.py:14
 msgid "PMLZ Output"
@@ -10257,7 +10257,7 @@ msgstr "加入自訂新聞來源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:448
 msgid "Download all scheduled news sources"
-msgstr ""
+msgstr "下載所有已排程的新來源"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:204
 msgid "Go"
@@ -10338,7 +10338,7 @@ msgstr "進階(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:226
 msgid "Delete downloaded news &older than:"
-msgstr ""
+msgstr "刪除已下載新聞早於(&O):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:227
 msgid ""
@@ -12510,17 +12510,17 @@ msgstr "從檔案名稱設定元數據(&C)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:130
 msgid "The Add &Process"
-msgstr ""
+msgstr "加入程序(&P)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:131
 msgid ""
 "Specify a folder. Any files you put into this folder will be automatically "
 "added to calibre (restart required)."
-msgstr ""
+msgstr "指定一個資料夾。您放到這個資料夾的所有檔案都會自動加入到 calibre (需要重新啟動)。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:132
 msgid "Folder to auto-add files from"
-msgstr ""
+msgstr "要自動加入檔案的資料夾"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:133
 msgid "Browse for folder"
@@ -12530,7 +12530,7 @@ msgstr ""
 msgid ""
 "<b>WARNING:</b> Files in the above folder will be deleted after being added "
 "to calibre."
-msgstr ""
+msgstr "<b>警告：</b>上列資料夾中的檔案在加入 calibre 後都會被刪除。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:136
 msgid ""
@@ -12542,11 +12542,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:140
 msgid "Check for &duplicates when auto-adding files"
-msgstr ""
+msgstr "當自動加入檔案時檢查有無重複(&D)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:141
 msgid "&Automatic Adding"
-msgstr ""
+msgstr "自動加入(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior.py:34
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/behavior_ui.py:159
@@ -12779,7 +12779,7 @@ msgstr "到"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:266
 msgid "Only if the following conditions are all satisfied:"
-msgstr ""
+msgstr "只有在下列條件全部滿足時："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:276
 msgid "Add another condition"
@@ -12787,7 +12787,7 @@ msgstr "加入另一個條件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:280
 msgid "You can disable a condition by blanking all of its boxes"
-msgstr ""
+msgstr "您可以將所有方塊留空來停用條件"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/coloring.py:352
 msgid "Invalid condition"
@@ -13529,7 +13529,7 @@ msgstr "在系列編號中使用羅馬數字(&R)"
 msgid ""
 "Note that <b>comments</b> will always be displayed at the end, regardless of "
 "the position you assign here."
-msgstr ""
+msgstr "請注意 <b>評論</b> 永遠都會在最後才顯示，不論您在這裡指定了哪個位置。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:248
 msgid "Tags browser category &partitioning method:"
@@ -13557,7 +13557,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:257
 msgid "Categories not to partition:"
-msgstr ""
+msgstr "不要分割的分類："
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:258
 msgid ""
@@ -13574,7 +13574,7 @@ msgstr "在標籤瀏覽器中顯示平均評等(&A)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:264
 msgid "Categories with &hierarchical items:"
-msgstr ""
+msgstr "有階層項目的分類(&H):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:265
 msgid ""
@@ -13699,7 +13699,7 @@ msgstr ""
 msgid ""
 "Sources with a red X next to their names must be configured before they will "
 "be used. "
-msgstr ""
+msgstr "來源名稱旁有紅色 X 的代表在使用前必須先設定。 "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:53
 msgid "Configure selected source"
@@ -13984,7 +13984,7 @@ msgstr "找不到任何符合的外掛程式"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:290
 msgid "files"
-msgstr ""
+msgstr "檔案"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:291
 msgid "Add plugin"
@@ -14218,6 +14218,8 @@ msgid ""
 "you always use prefixes in your saved searches. For example, use "
 "\"series:Foundation\" rather than just \"Foundation\" in  a saved search"
 msgstr ""
+"請注意這個選項會影響所有搜尋，包含已儲存的搜尋和限制。因此，如果您使用這個選項，最好先確定您在儲存的搜尋中都有用到前綴。例如：使用「series:Foun"
+"dation」而不是只用「Foundation」"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:117
 msgid ""
@@ -14393,7 +14395,7 @@ msgid ""
 "A prefix that is applied to all URLs in the content server. Useful only if "
 "you plan to put the server behind another server like Apache, with a reverse "
 "proxy."
-msgstr ""
+msgstr "要附加到內容伺服器所有 URL 的前綴。只有在您計畫將伺服器放在其他伺服器如 Apache 後面使用反向代理伺服器時有用。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:163
 msgid "&Start Server"
@@ -14432,6 +14434,9 @@ msgid ""
 "on your iPhone. Here myhostname should be either the fully qualified "
 "hostname or the IP address of the computer calibre is running on."
 msgstr ""
+"<p>記得保持 calibre 執行，因為伺服器只有在 calibre 執行時才會啟動\n"
+"<p>要從您的裝置連線到 calibre 伺服器，您應該使用 URL 如 <b>http://myhostname:8080</b> 格式做為您的 "
+"iPhone 中 Stanza 閱讀程式的新分類。在這裡 myhostname 應為執行 calibre 的電腦的完整主機名稱或是 IP 位址。"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions.py:25
 msgid ""
