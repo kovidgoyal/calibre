@@ -34,6 +34,7 @@ def get_metadata_(src, encoding=None):
     # Title
     title = None
     pat = re.compile(r'<!--.*?TITLE=(?P<q>[\'"])(.+?)(?P=q).*?-->', re.DOTALL)
+    src = src[:150000] # Searching shouldn't take too long
     match = pat.search(src)
     if match:
         title = match.group(2)
