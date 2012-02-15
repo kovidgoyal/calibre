@@ -19,7 +19,7 @@ def get_metadata(stream):
     return get_metadata_(src)
 
 def get_meta_regexp_(name):
-    return re.compile('<meta name=[\'"]' + name + '[\'"] content=[\'"](.+?)[\'"]\s*/?>', re.IGNORECASE)
+    return re.compile('<meta name=[\'"]' + name + r'[\'"]\s+content=[\'"](.+?)[\'"]\s*/?>', re.IGNORECASE)
 
 def get_metadata_(src, encoding=None):
     if not isinstance(src, unicode):
