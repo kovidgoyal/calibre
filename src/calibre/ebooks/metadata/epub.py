@@ -160,6 +160,7 @@ def render_cover(opf, opf_path, zf, reader=None):
                 with open(cpage, 'r+b') as f:
                     raw = f.read()
                     f.truncate(0)
+                    f.seek(0)
                     raw = ffpat.sub(b'', raw)
                     f.write(raw)
                 from calibre.ebooks.chardet import xml_to_unicode
@@ -174,6 +175,7 @@ def render_cover(opf, opf_path, zf, reader=None):
                             with open(path, 'r+b') as f:
                                 raw = f.read()
                                 f.truncate(0)
+                                f.seek(0)
                                 raw = ffpat.sub(b'', raw)
                                 f.write(raw)
 
