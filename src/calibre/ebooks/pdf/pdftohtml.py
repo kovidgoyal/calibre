@@ -69,11 +69,12 @@ def pdftohtml(output_dir, pdf_path, no_images):
                     raise
         logf.flush()
         logf.close()
-        out = open(logf.name, 'rb').read()
+        out = open(logf.name, 'rb').read().strip()
         if ret != 0:
             raise ConversionError(out)
-        print "pdftohtml log:"
-        print out
+        if out:
+            print "pdftohtml log:"
+            print out
         if not os.path.exists(index) or os.stat(index).st_size < 100:
             raise DRMError()
 

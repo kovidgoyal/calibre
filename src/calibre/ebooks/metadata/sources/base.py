@@ -254,9 +254,15 @@ class Source(Plugin):
     # Browser {{{
 
     @property
+    def user_agent(self):
+        # Pass in an index to random_user_agent() to test with a particular
+        # user agent
+        return random_user_agent()
+
+    @property
     def browser(self):
         if self._browser is None:
-            self._browser = browser(user_agent=random_user_agent())
+            self._browser = browser(user_agent=self.user_agent)
             if self.supports_gzip_transfer_encoding:
                 self._browser.set_handle_gzip(True)
         return self._browser.clone_browser()

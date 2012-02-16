@@ -26,7 +26,7 @@ class Worker(Thread):
         self.wake_up = Event()
         self.path, self.callback = path, callback
         self.staging = set()
-        self.be = frozenset(BOOK_EXTENSIONS)
+        self.be = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}
 
     def run(self):
         self.tdir = PersistentTemporaryDirectory('_auto_adder')
