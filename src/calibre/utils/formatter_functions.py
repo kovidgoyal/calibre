@@ -1106,9 +1106,22 @@ class BuiltinLanguageCodes(BuiltinFormatterFunction):
                 pass
         return ', '.join(retval)
 
+class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
+    name = 'current_library_name'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('current_library_name() -- '
+            'return the last name on the path to the current calibre library. '
+            'This function can be called in template program mode using the '
+            'template "{:\'current_library_name()\'}".')
+    def evaluate(self, formatter, kwargs, mi, locals):
+        from calibre.library import current_library_name
+        return current_library_name()
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinAssign(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCmp(), BuiltinContains(), BuiltinCount(),
+    BuiltinCurrentLibraryName(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(),
     BuiltinFirstNonEmpty(), BuiltinField(), BuiltinFormatDate(),
     BuiltinFormatNumber(), BuiltinFormatsModtimes(), BuiltinFormatsSizes(),
