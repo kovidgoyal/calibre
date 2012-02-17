@@ -246,6 +246,19 @@ class WMF(object):
     def to_png(self):
         bmps = list(sorted(self.bitmaps, key=lambda x: len(x)))
         bmp = bmps[-1]
+
+        # ImageMagick does not convert some bmp files correctly, while Qt does,
+        # so try Qt first. See for instance:
+        # https://bugs.launchpad.net/calibre/+bug/934167
+        from PyQt4.Qt import QImage, QByteArray, QBuffer
+        i = QImage()
+        if i.loadFromData(bmp):
+            ba = QByteArray()
+            buf = QBuffer(ba)
+            buf.open(QBuffer.WriteOnly)
+            i.save(buf, 'png')
+            return bytes(ba.data())
+
         from calibre.utils.magick import Image
         img = Image()
         img.load(bmp)
