@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-10 07:01+0000\n"
-"PO-Revision-Date: 2012-02-08 18:17+0000\n"
+"PO-Revision-Date: 2012-02-16 14:24+0000\n"
 "Last-Translator: Anthony Harrington <untaintableangel@hotmail.co.uk>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-11 05:03+0000\n"
-"X-Generator: Launchpad (build 14771)\n"
+"X-Launchpad-Export-Date: 2012-02-17 04:56+0000\n"
+"X-Generator: Launchpad (build 14814)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -14565,6 +14565,11 @@ msgid ""
 "Manage Authors. You can use the values {author} and\n"
 "{author_sort}, and any template function."
 msgstr ""
+"<p>Enter a template to be used to create a link for\n"
+"an author in the books information dialogue. This template will\n"
+"be used when no link has been provided for the author using\n"
+"Manage Authors. You can use the values {author} and\n"
+"{author_sort}, and any template function."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:245
 msgid "Use &Roman numerals for series"
@@ -14606,10 +14611,13 @@ msgid ""
 "up into subcategories. If the partition method is set to disable, this value "
 "is ignored."
 msgstr ""
+"If a Tag Browser category has more than this number of items, it is divided\n"
+"up into subcategories. If the partition method is set to disable, this value "
+"is ignored."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:257
 msgid "Categories not to partition:"
-msgstr ""
+msgstr "Categories not to partition:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:258
 msgid ""
@@ -14619,6 +14627,11 @@ msgid ""
 "avoid collapsing hierarchical categories that have only\n"
 "a few top-level elements."
 msgstr ""
+"A comma-separated list of categories that are not to\n"
+"be partitioned, even if the number of items is larger than\n"
+"the value shown above. This option can be used to\n"
+"avoid collapsing hierarchical categories that only have \n"
+"a few top-level elements."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:263
 msgid "Show &average ratings in the tags browser"
@@ -14637,6 +14650,12 @@ msgid ""
 "both under 'Mystery'. If 'tags' is not in this box,\n"
 "then the tags will be displayed each on their own line."
 msgstr ""
+"A comma-separated list of categories in which items containing\n"
+"periods are displayed in the tag browser trees. For example, if\n"
+"this box contains 'tags' then tags of the form 'Mystery.English'\n"
+"and 'Mystery.Thriller' will be displayed with English and Thriller\n"
+"both under 'Mystery'. If 'tags' is not in this box,\n"
+"then the tags will be displayed each on their own line."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:272
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -15561,7 +15580,7 @@ msgstr "Password incompatible with Android devices"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:161
 msgid "&URL Prefix:"
-msgstr ""
+msgstr "&URL Prefix:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:162
 msgid ""
@@ -15569,6 +15588,9 @@ msgid ""
 "you plan to put the server behind another server like Apache, with a reverse "
 "proxy."
 msgstr ""
+"A prefix that is applied to all URLs in the content server. Useful only if "
+"you plan to put the server behind another server like Apache, with a reverse "
+"proxy."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:163
 msgid "&Start Server"

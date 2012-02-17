@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-10 07:01+0000\n"
-"PO-Revision-Date: 2012-01-30 20:10+0000\n"
-"Last-Translator: Rasmus Sørensen <rasmussch@gmail.com>\n"
+"PO-Revision-Date: 2012-02-16 16:39+0000\n"
+"Last-Translator: Mikkel Herold <mikkel@mzh.dk>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-11 04:46+0000\n"
-"X-Generator: Launchpad (build 14771)\n"
+"X-Launchpad-Export-Date: 2012-02-17 04:55+0000\n"
+"X-Generator: Launchpad (build 14814)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -428,7 +428,7 @@ msgstr "Kopiér en bog fra et calibre-bibliotek til et andet"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
-msgstr ""
+msgstr "Lav små ændringer i epub- eller htmlz-filer i dit calibre-bibliotek"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid ""
@@ -847,7 +847,7 @@ msgstr "Denne profil er beregnet til Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Denne profil er beregnet til Amazon Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
@@ -1005,6 +1005,15 @@ msgid ""
 "iTunes</em> menu item.</p><p>Enabling the Apple driver for direct connection "
 "to iDevices is an unsupported advanced user mode.</p><p></p>"
 msgstr ""
+"<p>Hvis du ikke vil have Calibre til at genkende din Apple iDevice, når den "
+"er tilsluttet din computer, så klik på <b>Deaktiver Apple "
+"Driver</b>.</p><p>For at overføre bøger til din iDevice, så klik på "
+"<b>Deaktiver Apple Driver</b>, og brug derefter 'Forbind til iTunes'-"
+"funktionen, som du kan læse om på <a "
+"href=\"http://www.mobileread.com/forums/showthread.php?t=118559\">Calibre + "
+"iDevices FAQ</a>, under menuen <em>Forbindelse/Deling</em>|<em>Forbind til "
+"iTunes</em>.</p><p>Aktivering af  Apple's driver for direkte forbindelse til "
+"iDevices er en avanceret bruger tilstand som ikke er understøttet.</p><p></p>"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Disable Apple driver"

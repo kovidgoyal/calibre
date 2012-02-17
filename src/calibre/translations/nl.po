@@ -57,15 +57,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-10 07:01+0000\n"
-"PO-Revision-Date: 2012-02-04 19:58+0000\n"
+"PO-Revision-Date: 2012-02-16 22:08+0000\n"
 "Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <ubuntu-l10n-nl@lists.ubuntu.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-11 04:46+0000\n"
-"X-Generator: Launchpad (build 14771)\n"
+"X-Launchpad-Export-Date: 2012-02-17 04:56+0000\n"
+"X-Generator: Launchpad (build 14814)\n"
 "X-Poedit-Country: NETHERLANDS\n"
 "X-Poedit-Language: Dutch\n"
 
@@ -1012,7 +1012,7 @@ msgstr "Ja"
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1133
 msgid "Main"
-msgstr "Algemeen"
+msgstr "Hoofdgeheugen"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
@@ -6611,7 +6611,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:212
 #, python-format
 msgid "%(title)s by %(author)s"
-msgstr ""
+msgstr "%(title)s door %(author)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add.py:387
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:214
@@ -6808,7 +6808,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/auto_add.py:231
 #, python-format
 msgid "Added %(num)d book(s) automatically from %(src)s"
-msgstr ""
+msgstr "%(num)d boek(en) automatisch toevoegen uit %(src)s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/bars.py:195
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
@@ -8959,7 +8959,7 @@ msgstr "Selecteer map om als apparaat te openen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:725
 msgid "Running jobs"
-msgstr ""
+msgstr "Actieve taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:726
 msgid "Cannot configure the device while there are running device jobs."
@@ -8968,11 +8968,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:731
 #, python-format
 msgid "Configure %s"
-msgstr ""
+msgstr "%s instellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:742
 msgid "Disconnect device"
-msgstr ""
+msgstr "Apparaat ontkoppelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:743
 #, python-format
@@ -12210,7 +12210,7 @@ msgstr "Titel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:138
 msgid "Regular expression (?P<title>)"
-msgstr ""
+msgstr "Reguliere expressie (?P<title>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:142
@@ -12514,7 +12514,7 @@ msgstr "Dit apparaat ontkoppelen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:61
 msgid "Configure this device"
-msgstr ""
+msgstr "Dit apparaat instellen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:74
 msgid "Show books in calibre library"
@@ -13718,6 +13718,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:140
 msgid "Check for &duplicates when auto-adding files"
 msgstr ""
+"Controleer op &duplicaten tijdens automatisch toevoegen van bestanden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:141
 msgid "&Automatic Adding"
@@ -17898,7 +17899,7 @@ msgstr "Selecteer de locatie voor boeken"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:731
 #, python-format
 msgid "Failed to create a folder at %s"
-msgstr ""
+msgstr "Aanmaken van map in %s mislukt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:746
 #, python-format
@@ -21920,9 +21921,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:203
 msgid "Set the list of words considered to be \"articles\" for sort strings"
-msgstr ""
-"Lijst van woorden die als ‘lidwoorden’ dienen tijdens sorteren van "
-"tekststrings"
+msgstr "Woorden als ‘lidwoorden’  beschouwen bij sorteren van tekststrings"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:204
 msgid ""
@@ -22101,9 +22100,8 @@ msgstr ""
 "metadatavelden waarvan collecties zijn gemaakt, gevolgd door de naam van "
 "het\n"
 "metadataveld waarop gesorteerd wordt.\n"
-"Voorbeeld: Het volgende geeft collecties dat gebaseerd op pubdate en tags\n"
-"worden gesorteerd op de waarde in de persoonlijke kolom '#mijndatum', "
-"collecties\n"
+"Het volgende voorbeeld sorteert collecties gebaseerd op pubdate en tags,\n"
+"op de waarde in de persoonlijke kolom '#mijndatum', collecties\n"
 "met 'series' moeten worden gesorteerd op 'series_index', en alle andere\n"
 "collecties worden gesorteerd op titel. Als een metadataveld voor een "
 "collectie  geen naam\n"
@@ -22223,7 +22221,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:376
 msgid "Specify which font to use when generating a default cover"
-msgstr "Lettertype te gebruiken bij het aanmaken van een standaardomslag"
+msgstr "Lettertype voor het aanmaken van een standaardomslag"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:377
 msgid ""
