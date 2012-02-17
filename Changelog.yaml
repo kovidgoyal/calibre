@@ -25,7 +25,7 @@
   new features:
     - title: "Amazon metadata download: Support the new 'Book Description' section that Amazon publishes for some books. Also workaround the amazon US servers occasionally returning broken markup leading to calibre not finding any matches for books on Amazon."
 
-    - title: "Kindle driver: Add an option to allow using page counts stored in a custom column. Go to Preferences->Plugins and customize the Kindle driver, to tell it to use a custom column to get page count data."
+    - title: "Kindle driver: Add an option to allow using page counts stored in a custom column. Go to Preferences->Plugins and customize the Kindle driver, to tell it to use a custom column to get page count data. See http://www.mobileread.com/forums/showpost.php?p=1963075&postcount=215 for details."
 
     - title: "Template language: Add a current_library_name() function that can be used to return the name of the currently opened library in calibre"
 
