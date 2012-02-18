@@ -250,6 +250,8 @@ class WMF(object):
         # ImageMagick does not convert some bmp files correctly, while Qt does,
         # so try Qt first. See for instance:
         # https://bugs.launchpad.net/calibre/+bug/934167
+        # ImageMagick bug report:
+        # http://www.imagemagick.org/discourse-server/viewtopic.php?f=3&t=20350
         from PyQt4.Qt import QImage, QByteArray, QBuffer
         i = QImage()
         if i.loadFromData(bmp):
