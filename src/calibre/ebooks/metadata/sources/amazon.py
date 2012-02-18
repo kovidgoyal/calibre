@@ -156,6 +156,16 @@ class Worker(Thread): # Get details {{{
             for name in names:
                 self.lang_map[name] = code
 
+        self.series_pat = re.compile(
+                r'''
+                \|\s*              # Prefix
+                (Series)\s*:\s*    # Series declaration
+                (?P<series>.+?)\s+  # The series name
+                \((Book)\s*    # Book declaration
+                (?P<index>[0-9.]+) # Series index
+                \s*\)
+                ''', re.X)
+
     def delocalize_datestr(self, raw):
         if not self.months:
             return raw
@@ -264,6 +274,15 @@ class Worker(Thread): # Get details {{{
             mi.comments = self.parse_comments(root)
         except:
             self.log.exception('Error parsing comments for url: %r'%self.url)
+
+        try:
+            series, series_index = self.parse_series(root)
+            if series:
+                mi.series, mi.series_index = series, series_index
+            elif self.testing:
+                mi.series, mi.series_index = 'Dummy series for testing', 1
+        except:
+            self.log.exception('Error parsing series for url: %r'%self.url)
 
         try:
             self.cover_url = self.parse_cover(root)
@@ -398,6 +417,20 @@ class Worker(Thread): # Get details {{{
             ans += self._render_comments(desc[0])
         return ans
 
+    def parse_series(self, root):
+        ans = (None, None)
+        desc = root.xpath('//div[@id="ps-content"]/div[@class="buying"]')
+        if desc:
+            raw = self.tostring(desc[0], method='text', encoding=unicode)
+            raw = re.sub(r'\s+', ' ', raw)
+            match = self.series_pat.search(raw)
+            if match is not None:
+                s, i = match.group('series'), float(match.group('index'))
+                if s:
+                    ans = (s, i)
+        return ans
+
+
     def parse_cover(self, root):
         imgs = root.xpath('//img[@id="prodImage" and @src]')
         if imgs:
@@ -457,7 +490,7 @@ class Amazon(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate',
-        'languages'])
+        'languages', 'series'])
     has_html_comments = True
     supports_gzip_transfer_encoding = True
 
@@ -685,13 +718,15 @@ class Amazon(Source):
         from lxml.html import tostring
         import html5lib
 
+        testing = getattr(self, 'running_a_test', False)
+
         query, domain = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         if query is None:
             log.error('Insufficient metadata to construct query')
             return
         br = self.browser
-        if getattr(self, 'running_a_test', False):
+        if testing:
             print ('Using user agent for amazon: %s'%self.user_agent)
         try:
             raw = br.open_novisit(query, timeout=timeout).read().strip()
@@ -714,7 +749,7 @@ class Amazon(Source):
         raw = clean_ascii_chars(xml_to_unicode(raw,
             strip_encoding_pats=True, resolve_entities=True)[0])
 
-        if getattr(self, 'running_a_test', False):
+        if testing:
             import tempfile
             with tempfile.NamedTemporaryFile(prefix='amazon_results_',
                     suffix='.html', delete=False) as f:
@@ -757,8 +792,7 @@ class Amazon(Source):
             return
 
         workers = [Worker(url, result_queue, br, log, i, domain, self,
-            testing=getattr(self, 'running_a_test', False)) for i, url in
-                enumerate(matches)]
+                            testing=testing) for i, url in enumerate(matches)]
 
         for w in workers:
             w.start()
@@ -820,8 +854,17 @@ if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            isbn_test, title_test, authors_test, comments_test)
+            isbn_test, title_test, authors_test, comments_test, series_test)
     com_tests = [ # {{{
+
+            ( # Series
+                {'identifiers':{'amazon':'0756407117'}},
+                [title_test(
+                "Throne of the Crescent Moon"
+                , exact=True), series_test('Crescent Moon Kingdoms', 1),
+                comments_test('Makhslood'),
+                ]
+            ),
 
             ( # Different comments markup, using Book Description section
                 {'identifiers':{'amazon':'0982514506'}},

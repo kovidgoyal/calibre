@@ -650,7 +650,7 @@ I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
  1. Create a patch by hacking on |app| and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
- 2. `Open a bug requesting the feature <http://calibre-ebook.com/bugs>`_ . Remember that |app| development is done by volunteers, so if you get no response to your feature request, it means no one feels like implementing it.
+ 2. `Open a bug requesting the feature <http://calibre-ebook.com/bugs>`_ . Remember that while you may think your feature request is extremely important/essential, |app| developers might not agree. Fortunately, |app| is open source, which means you always have the option of implementing your feature yourself, or hiring someone to do it for you. Furthermore, |app| has a comprehensive plugin architecture, so you might be able to develop your feature as a plugin, see :ref:`pluginstutorial`.
 
 Why doesn't |app| have an automatic update?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

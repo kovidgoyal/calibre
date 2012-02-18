@@ -64,7 +64,7 @@ class ReUpload(Command): # {{{
 
 # Data {{{
 def get_google_data():
-    with open(os.path.expanduser('~/.googlecodecalibre'), 'rb') as f:
+    with open(os.path.expanduser('~/work/kde/conf/googlecodecalibre'), 'rb') as f:
         gc_password, ga_un, pw = f.read().strip().split('|')
 
     return {
