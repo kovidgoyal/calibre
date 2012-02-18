@@ -12,8 +12,6 @@ Device driver for the SONY T1 devices
 '''
 
 import os, time, re
-import sqlite3 as sqlite
-from sqlite3 import DatabaseError
 from contextlib import closing
 from datetime import date
 
@@ -146,6 +144,8 @@ class PRST1(USBMS):
         return True
 
     def books(self, oncard=None, end_session=True):
+        import sqlite3 as sqlite
+
         dummy_bl = BookList(None, None, None)
 
         if (
@@ -239,13 +239,15 @@ class PRST1(USBMS):
 
         if booklists[0] is not None:
             self.update_device_database(booklists[0], collections, None)
-        if booklists[1] is not None:
+        if len(booklists) > 1 and booklists[1] is not None:
             self.update_device_database(booklists[1], collections, 'carda')
 
         USBMS.sync_booklists(self, booklists, end_session=end_session)
         debug_print('PRST1: finished sync_booklists')
 
     def update_device_database(self, booklist, collections_attributes, oncard):
+        import sqlite3 as sqlite
+
         debug_print('PRST1: starting update_device_database')
 
         plugboard = None
@@ -274,6 +276,8 @@ class PRST1(USBMS):
 
     def update_device_books(self, connection, booklist, source_id, plugboard,
             dbpath):
+        from sqlite3 import DatabaseError
+
         opts = self.settings()
         upload_covers = opts.extra_customization[self.OPT_UPLOAD_COVERS]
         refresh_covers = opts.extra_customization[self.OPT_REFRESH_COVERS]
@@ -489,6 +493,8 @@ class PRST1(USBMS):
         debug_print('PRS-T1: finished rebuild_collections')
 
     def upload_cover(self, path, filename, metadata, filepath):
+        import sqlite3 as sqlite
+
         debug_print('PRS-T1: uploading cover')
 
         if filepath.startswith(self._main_prefix):

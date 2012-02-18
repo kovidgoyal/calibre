@@ -6,15 +6,11 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib2
 import datetime
 from urllib import quote_plus
 from Queue import Queue, Empty
-from lxml import etree, html
+
 from calibre import as_unicode
-
-from calibre.ebooks.chardet import xml_to_unicode
-
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
@@ -43,6 +39,7 @@ class Ozon(Source):
     isbnRegex = re.compile(isbnPattern)
 
     def get_book_url(self, identifiers): # {{{
+        import urllib2
         ozon_id = identifiers.get('ozon', None)
         res = None
         if ozon_id:
@@ -81,6 +78,9 @@ class Ozon(Source):
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
             identifiers={}, timeout=30): # {{{
+        from lxml import etree
+        from calibre.ebooks.chardet import xml_to_unicode
+
         if not self.is_configured():
             return
         query = self.create_query(log, title=title, authors=authors, identifiers=identifiers)
@@ -283,6 +283,9 @@ class Ozon(Source):
     # }}}
 
     def get_book_details(self, log, metadata, timeout): # {{{
+        from lxml import html, etree
+        from calibre.ebooks.chardet import xml_to_unicode
+
         url = self.get_book_url(metadata.get_identifiers())[2]
 
         raw = self.browser.open_novisit(url, timeout=timeout).read()

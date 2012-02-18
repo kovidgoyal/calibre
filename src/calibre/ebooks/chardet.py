@@ -8,7 +8,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, codecs
-from chardet import detect
 
 ENCODING_PATS = [
                  re.compile(r'<\?[^<>]+encoding\s*=\s*[\'"](.*?)[\'"][^<>]*>',
@@ -34,8 +33,13 @@ def substitute_entites(raw):
 _CHARSET_ALIASES = { "macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis" }
 
+def detect(*args, **kwargs):
+    from chardet import detect
+    return detect(*args, **kwargs)
+
 def force_encoding(raw, verbose, assume_utf8=False):
     from calibre.constants import preferred_encoding
+
     try:
         chardet = detect(raw[:1024*50])
     except:

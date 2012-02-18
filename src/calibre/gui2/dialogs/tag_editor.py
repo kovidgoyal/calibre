@@ -10,19 +10,26 @@ from calibre.utils.icu import sort_key
 
 class TagEditor(QDialog, Ui_TagEditor):
 
-    def __init__(self, window, db, id_=None):
+    def __init__(self, window, db, id_=None, key=None):
         QDialog.__init__(self, window)
         Ui_TagEditor.__init__(self)
         self.setupUi(self)
 
         self.db = db
+        if key:
+            key = db.field_metadata.key_to_label(key)
+        self.key = key
         self.index = db.row(id_) if id_ is not None else None
         if self.index is not None:
-            tags = self.db.tags(self.index)
+            if key is None:
+                tags = self.db.tags(self.index)
+                if tags:
+                    tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
+            else:
+                tags = self.db.get_custom(self.index, label=key)
         else:
             tags = []
         if tags:
-            tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
             tags.sort(key=sort_key)
             for tag in tags:
                 self.applied_tags.addItem(tag)
@@ -31,7 +38,10 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         self.tags = tags
 
-        all_tags = [tag for tag in self.db.all_tags()]
+        if key:
+            all_tags = [tag for tag in self.db.all_custom(label=key)]
+        else:
+            all_tags = [tag for tag in self.db.all_tags()]
         all_tags = list(set(all_tags))
         all_tags.sort(key=sort_key)
         for tag in all_tags:
@@ -61,7 +71,10 @@ class TagEditor(QDialog, Ui_TagEditor):
             error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
             return
         for item in items:
-            if self.db.is_tag_used(unicode(item.text())):
+            used = self.db.is_tag_used(unicode(item.text())) \
+                if self.key is None else \
+                self.db.is_item_used_in_multiple(unicode(item.text()), label=self.key)
+            if used:
                 confirms.append(item)
             else:
                 deletes.append(item)
@@ -73,7 +86,12 @@ class TagEditor(QDialog, Ui_TagEditor):
                 deletes += confirms
 
         for item in deletes:
-            self.db.delete_tag(unicode(item.text()))
+            if self.key is None:
+                self.db.delete_tag(unicode(item.text()))
+            else:
+                bks = self.db.delete_item_from_multiple(unicode(item.text()),
+                                                        label=self.key)
+                self.db.refresh_ids(bks)
             self.available_tags.takeItem(self.available_tags.row(item))
 
 

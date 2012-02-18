@@ -10,7 +10,10 @@ from math import floor
 from functools import partial
 
 warnings.simplefilter('ignore', DeprecationWarning)
-
+try:
+    os.getcwdu()
+except:
+    os.chdir(os.path.expanduser('~'))
 
 from calibre.constants import (iswindows, isosx, islinux, isfrozen,
         isbsd, preferred_encoding, __appname__, __version__, __author__,
@@ -31,7 +34,7 @@ if False:
     # Prevent pyflakes from complaining
     winutil, winutilerror, __appname__, islinux, __version__
     fcntl, win32event, isfrozen, __author__
-    winerror, win32api, isbsd
+    winerror, win32api, isbsd, config_dir
 
 _mt_inited = False
 def _init_mimetypes():
@@ -347,20 +350,20 @@ def get_proxy_info(proxy_scheme, proxy_string):
 USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
 USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
 
-def random_user_agent():
+def random_user_agent(choose=None):
     choices = [
         'Mozilla/5.0 (Windows NT 5.2; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
         'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
-        'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19',
-        'Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.11) Gecko/20101012 Firefox/3.6.11',
+        'Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0',
+        'Mozilla/5.0 (Windows NT 6.2; rv:9.0.1) Gecko/20100101 Firefox/9.0.1',
         'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3',
         'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.78 Safari/532.5',
         'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)',
     ]
-    #return choices[-1]
-    return choices[random.randint(0, len(choices)-1)]
+    if choose is None:
+        choose = random.randint(0, len(choices)-1)
+    return choices[choose]
 
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None):
     '''
@@ -699,69 +702,6 @@ if isosx:
         traceback.print_exc()
 
 def ipython(user_ns=None):
-    old_argv = sys.argv
-    sys.argv = ['ipython']
-    if user_ns is None:
-        user_ns = locals()
-    ipydir = os.path.join(config_dir, ('_' if iswindows else '.')+'ipython')
-    os.environ['IPYTHONDIR'] = ipydir
-    if not os.path.exists(ipydir):
-        os.makedirs(ipydir)
-    for x in ('', '.ini'):
-        rc = os.path.join(ipydir, 'ipythonrc'+x)
-        if not os.path.exists(rc):
-            open(rc, 'wb').write(' ')
-    UC = '''
-import IPython.ipapi
-ip = IPython.ipapi.get()
-
-# You probably want to uncomment this if you did %upgrade -nolegacy
-import ipy_defaults
-
-import os, re, sys
-
-def main():
-    # Handy tab-completers for %cd, %run, import etc.
-    # Try commenting this out if you have completion problems/slowness
-    import ipy_stock_completers
-
-    # uncomment if you want to get ipython -p sh behaviour
-    # without having to use command line switches
-
-    import ipy_profile_sh
-
-
-    # Configure your favourite editor?
-    # Good idea e.g. for %edit os.path.isfile
-
-    import ipy_editors
-
-    # Choose one of these:
-
-    #ipy_editors.scite()
-    #ipy_editors.scite('c:/opt/scite/scite.exe')
-    #ipy_editors.komodo()
-    #ipy_editors.idle()
-    # ... or many others, try 'ipy_editors??' after import to see them
-
-    # Or roll your own:
-    #ipy_editors.install_editor("c:/opt/jed +$line $file")
-
-    ipy_editors.kate()
-
-    o = ip.options
-    # An example on how to set options
-    #o.autocall = 1
-    o.system_verbose = 0
-    o.confirm_exit = 0
-
-main()
-    '''
-    uc = os.path.join(ipydir, 'ipy_user_conf.py')
-    if not os.path.exists(uc):
-        open(uc, 'wb').write(UC)
-    from IPython.Shell import IPShellEmbed
-    ipshell = IPShellEmbed(user_ns=user_ns)
-    ipshell()
-    sys.argv = old_argv
+    from calibre.utils.ipython import ipython
+    ipython(user_ns=user_ns)
 

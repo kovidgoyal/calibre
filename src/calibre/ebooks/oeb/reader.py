@@ -175,13 +175,27 @@ class OEBReader(object):
         manifest = self.oeb.manifest
         known = set(manifest.hrefs)
         unchecked = set(manifest.values())
+        cdoc = OEB_DOCS|OEB_STYLES
+        invalid = set()
         while unchecked:
             new = set()
             for item in unchecked:
+                data = None
+                if (item.media_type in cdoc or
+                        item.media_type[-4:] in ('/xml', '+xml')):
+                    try:
+                        data = item.data
+                    except:
+                        self.oeb.log.exception(u'Failed to read from manifest '
+                                u'entry with id: %s, ignoring'%item.id)
+                        invalid.add(item)
+                        continue
+                if data is None:
+                    continue
+
                 if (item.media_type in OEB_DOCS or
-                    item.media_type[-4:] in ('/xml', '+xml')) and \
-                   item.data is not None:
-                    hrefs = [r[2] for r in iterlinks(item.data)]
+                        item.media_type[-4:] in ('/xml', '+xml')):
+                    hrefs = [r[2] for r in iterlinks(data)]
                     for href in hrefs:
                         href, _ = urldefrag(href)
                         if not href:
@@ -197,7 +211,7 @@ class OEBReader(object):
                             new.add(href)
                 elif item.media_type in OEB_STYLES:
                     try:
-                        urls = list(cssutils.getUrls(item.data))
+                        urls = list(cssutils.getUrls(data))
                     except:
                         urls = []
                     for url in urls:
@@ -230,6 +244,9 @@ class OEBReader(object):
                 media_type = guessed or BINARY_MIME
                 added = manifest.add(id, href, media_type)
                 unchecked.add(added)
+
+            for item in invalid:
+                self.oeb.manifest.remove(item)
 
     def _manifest_from_opf(self, opf):
         manifest = self.oeb.manifest
@@ -310,7 +327,7 @@ class OEBReader(object):
         manifest = self.oeb.manifest
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
             href = elem.get('href')
-            path = urldefrag(href)[0]
+            path = urlnormalize(urldefrag(href)[0])
             if path not in manifest.hrefs:
                 self.logger.warn(u'Guide reference %r not found' % href)
                 continue
@@ -610,11 +627,27 @@ class OEBReader(object):
             return
         self.oeb.metadata.add('cover', cover.id)
 
+    def _manifest_remove_duplicates(self):
+        seen = set()
+        dups = set()
+        for item in self.oeb.manifest:
+            if item.href in seen:
+                dups.add(item.href)
+            seen.add(item.href)
+
+        for href in dups:
+            items = [x for x in self.oeb.manifest if x.href == href]
+            for x in items:
+                if x not in self.oeb.spine:
+                    self.oeb.log.warn('Removing duplicate manifest item with id:', x.id)
+                    self.oeb.manifest.remove_duplicate_item(x)
+
     def _all_from_opf(self, opf):
         self.oeb.version = opf.get('version', '1.2')
         self._metadata_from_opf(opf)
         self._manifest_from_opf(opf)
         self._spine_from_opf(opf)
+        self._manifest_remove_duplicates()
         self._guide_from_opf(opf)
         item = self._find_ncx(opf)
         self._toc_from_opf(opf, item)

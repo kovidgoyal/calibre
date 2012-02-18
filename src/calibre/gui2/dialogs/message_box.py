@@ -180,7 +180,7 @@ class ProceedNotification(MessageBox): # {{{
         self.payload = payload
         self.html_log = html_log
         self.log_viewer_title = log_viewer_title
-        self.finished.connect(self.do_proceed, type=Qt.QueuedConnection)
+        self.finished.connect(self.do_proceed)
 
         self.vlb = self.bb.addButton(_('View log'), self.bb.ActionRole)
         self.vlb.setIcon(QIcon(I('debug.png')))
@@ -195,18 +195,17 @@ class ProceedNotification(MessageBox): # {{{
                 parent=self)
 
     def do_proceed(self, result):
-        try:
-            if result == self.Accepted:
-                self.callback(self.payload)
-            elif self.cancel_callback is not None:
-                self.cancel_callback(self.payload)
-        finally:
-            # Ensure this notification is garbage collected
-            self.callback = self.cancel_callback = None
-            self.setParent(None)
-            self.finished.disconnect()
-            self.vlb.clicked.disconnect()
-            _proceed_memory.remove(self)
+        from calibre.gui2.ui import get_gui
+        func = (self.callback if result == self.Accepted else
+                self.cancel_callback)
+        gui = get_gui()
+        gui.proceed_requested.emit(func, self.payload)
+        # Ensure this notification is garbage collected
+        self.callback = self.cancel_callback = self.payload = None
+        self.setParent(None)
+        self.finished.disconnect()
+        self.vlb.clicked.disconnect()
+        _proceed_memory.remove(self)
 # }}}
 
 class ErrorNotification(MessageBox): # {{{

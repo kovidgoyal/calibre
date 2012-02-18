@@ -10,7 +10,7 @@ from PyQt4.Qt import (QCoreApplication, QIcon, QObject, QTimer,
 from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG,
         filesystem_encoding)
-from calibre.utils.ipc import ADDRESS, RC
+from calibre.utils.ipc import gui_socket_address, RC
 from calibre.gui2 import (ORG_NAME, APP_UID, initialize_file_icon_provider,
     Application, choose_dir, error_dialog, question_dialog, gprefs)
 from calibre.gui2.main_window import option_parser as _option_parser
@@ -138,8 +138,8 @@ class GuiRunner(QObject):
         if self.splash_screen is not None:
             self.splash_screen.finish(main)
         if DEBUG:
-            prints('Started up in', time.time() - self.startup_time, 'with',
-                    len(db.data), 'books')
+            prints('Started up in %.2f seconds'%(time.time() -
+                self.startup_time), 'with', len(db.data), 'books')
         add_filesystem_book = partial(main.iactions['Add Books'].add_filesystem_book, allow_device=False)
         sys.excepthook = main.unhandled_exception
         if len(self.args) > 1:
@@ -304,7 +304,7 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
         if iswindows:
             what = _('try rebooting your computer.')
         else:
-            what = _('try deleting the file')+': '+ADDRESS
+            what = _('try deleting the file')+': '+ gui_socket_address()
 
     info = base%(where, msg, what)
     error_dialog(None, _('Cannot Start ')+__appname__,
@@ -345,14 +345,14 @@ def main(args=sys.argv):
         return 0
     if si:
         try:
-            listener = Listener(address=ADDRESS)
+            listener = Listener(address=gui_socket_address())
         except socket.error:
             if iswindows:
                 cant_start()
-            if os.path.exists(ADDRESS):
-                os.remove(ADDRESS)
+            if os.path.exists(gui_socket_address()):
+                os.remove(gui_socket_address())
             try:
-                listener = Listener(address=ADDRESS)
+                listener = Listener(address=gui_socket_address())
             except socket.error:
                 cant_start()
             else:
@@ -363,7 +363,7 @@ def main(args=sys.argv):
                     gui_debug=gui_debug)
     otherinstance = False
     try:
-        listener = Listener(address=ADDRESS)
+        listener = Listener(address=gui_socket_address())
     except socket.error: # Good si is correct (on UNIX)
         otherinstance = True
     else:

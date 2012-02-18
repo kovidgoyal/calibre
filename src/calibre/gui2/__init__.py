@@ -87,6 +87,7 @@ gprefs.defaults['toolbar_text'] = 'always'
 gprefs.defaults['font'] = None
 gprefs.defaults['tags_browser_partition_method'] = 'first letter'
 gprefs.defaults['tags_browser_collapse_at'] = 100
+gprefs.defaults['tag_browser_dont_collapse'] = []
 gprefs.defaults['edit_metadata_single_layout'] = 'default'
 gprefs.defaults['book_display_fields'] = [
         ('title', False), ('authors', True), ('formats', True),
@@ -101,6 +102,8 @@ gprefs.defaults['preserve_date_on_ctl'] = True
 gprefs.defaults['cb_fullscreen'] = False
 gprefs.defaults['worker_max_time'] = 0
 gprefs.defaults['show_files_after_save'] = True
+gprefs.defaults['auto_add_path'] = None
+gprefs.defaults['auto_add_check_for_duplicates'] = False
 # }}}
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -132,7 +135,7 @@ def _config(): # {{{
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF ebook viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
-        'MOBI', 'PRC', 'AZW', 'HTML', 'FB2', 'PDB', 'RB', 'SNB'],
+        'MOBI', 'PRC', 'AZW', 'HTML', 'FB2', 'PDB', 'RB', 'SNB', 'HTMLZ'],
               help=_('Formats that are viewed using the internal viewer'))
     c.add_opt('column_map', default=ALL_COLUMNS,
               help=_('Columns to be displayed in the book list'))
@@ -257,7 +260,8 @@ def extension(path):
 def warning_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.WARNING, 'WARNING: '+title, msg, det_msg, parent=parent,
+    d = MessageBox(MessageBox.WARNING, _('WARNING:')+ ' ' +
+            title, msg, det_msg, parent=parent,
             show_copy_button=show_copy_button)
     if show:
         return d.exec_()
@@ -266,7 +270,8 @@ def warning_dialog(parent, title, msg, det_msg='', show=False,
 def error_dialog(parent, title, msg, det_msg='', show=False,
         show_copy_button=True):
     from calibre.gui2.dialogs.message_box import MessageBox
-    d = MessageBox(MessageBox.ERROR, 'ERROR: '+title, msg, det_msg, parent=parent,
+    d = MessageBox(MessageBox.ERROR, _('ERROR:')+ ' ' +
+            title, msg, det_msg, parent=parent,
                     show_copy_button=show_copy_button)
     if show:
         return d.exec_()

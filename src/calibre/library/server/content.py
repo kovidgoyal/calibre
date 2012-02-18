@@ -44,6 +44,8 @@ class ContentServer(object):
                 conditions=dict(method=["GET", "HEAD"]))
         connect('static', '/static/{name:.*?}', self.static,
                 conditions=dict(method=["GET", "HEAD"]))
+        connect('favicon', '/favicon.png', self.favicon,
+                conditions=dict(method=["GET", "HEAD"]))
 
     # Utility methods {{{
     def last_modified(self, updated):
@@ -126,6 +128,13 @@ class ContentServer(object):
         if path.endswith('.css'):
             ans = ans.replace('/static/', self.opts.url_prefix + '/static/')
         return ans
+
+    def favicon(self):
+        data = I('lt.png', data=True)
+        cherrypy.response.headers['Content-Type'] = 'image/png'
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(
+                self.build_time)
+        return data
 
     def index(self, **kwargs):
         'The / URL'

@@ -1,38 +1,89 @@
+#!/usr/bin/env  python
+##
+## Title:        Common Dreams
+##
+## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
 
+# Feb 2012: Cleaned up the output to have only the main article
+
+__license__   = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+'''
+commondreams.org
+'''
+
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class CommonDreams(BasicNewsRecipe):
     # Identify the recipe
     
     title          = u'Common Dreams'
-    description    = u'Progressive news and views'
+    description    = u'Breaking News & Views for the Progressive Community.'
+    cover_url      = 'https://s3.amazonaws.com/s3.commondreams.org/images/common-dreams.png'
     __author__     = u'XanthanGum'
     language = 'en'
-    
-    # Format the text
-    
-    extra_css = '''
-                 body{font-family:verdana,arial,helvetica,geneva,sans-serif ;}
-                 h1{font-size: xx-large;}
-                 h2{font-size: large;}
-                '''
-
-    # Pick no article older than seven days and limit the number of articles per feed to 100
     
     oldest_article = 7
     max_articles_per_feed = 100
     
-    # Remove everything before the article
+    no_stylesheets = True
+    remove_javascript = True
+
+    # Flattens all the tables to make it compatible with Nook
+    conversion_options = {'linearize_tables' : True}
     
-    remove_tags_before = dict(name = 'div', attrs = {'id':'node-header'})
+    remove_attributes = [ 'border', 'cellspacing', 'align', 'cellpadding', 'colspan',
+                          'valign', 'vspace', 'hspace', 'alt', 'width', 'height' ]
     
-    # Remove everything after the article
+    # Specify extra CSS - overrides ALL other CSS (IE. Added last).
+    extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
+                 .introduction, .first { font-weight: bold; } \
+                 .cross-head { font-weight: bold; font-size: 125%; } \
+                 .cap, .caption { display: block; font-size: 80%; font-style: italic; } \
+                 .cap, .caption, .caption img, .caption span { display: block; margin: 5px auto; } \
+                 .byl, .byd, .byline img, .byline-name, .byline-title, .author-name, .author-position, \
+                    .correspondent-portrait img, .byline-lead-in, .name, .bbc-role { display: block; \
+                    font-size: 80%; font-style: italic; margin: 1px auto; } \
+                 .story-date, .published { font-size: 80%; } \
+                 table { width: 100%; } \
+                 td img { display: block; margin: 5px auto; } \
+                 ul { padding-top: 10px; } \
+                 ol { padding-top: 10px; } \
+                 li { padding-top: 5px; padding-bottom: 5px; } \
+                 h1 { font-size: 175%; font-weight: bold; } \
+                 h2 { font-size: 150%; font-weight: bold; } \
+                 h3 { font-size: 125%; font-weight: bold; } \
+                 h4, h5, h6 { font-size: 100%; font-weight: bold; }'
+                
+    # Remove the line breaks and float left/right and picture width/height.
+    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+                              (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: ''),
+                              (re.compile(r'float:.*?'), lambda m: ''),
+                              (re.compile(r'width:.*?px'), lambda m: ''),
+                              (re.compile(r'height:.*?px'), lambda m: ''),
+                              (re.compile(r'<a.*?>'), lambda m: ''),
+                              (re.compile(r'</a>'), lambda m: ''),
+                              ]
     
-    remove_tags_after = dict(name = 'div', attrs = {'class':'copyright-info'})
     
+    # Main article is inside this tag
+    keep_only_tags = [
+                        dict(name='div', attrs={'id':lambda x: x and 'node-' in x}),
+                     ]
+
+    remove_tags    = [
+                        dict(name='div', attrs={'class':'node-links clear-block'}),    # remove Share options
+                     ]
+
+
     # Identify the news feeds
     
-    feeds = [(u'Headlines', u'http://www.commondreams.org/feed/headlines_rss'),
-             (u'Further News Articles', u'http://www.commondreams.org/feed/further_rss'), 
-             (u'Views', u'http://www.commondreams.org/feed/views_rss'), 
-             (u'Progressive Newswire', u'http://www.commondreams.org/feed/newswire_rss')]
+    feeds = [(u'Headlines', u'https://www.commondreams.org/feed/headlines_rss'),
+             (u'Further News Articles', u'https://www.commondreams.org/feed/further_rss'), 
+             (u'Views', u'https://www.commondreams.org/feed/views_rss'), 
+             (u'Progressive Newswire', u'https://www.commondreams.org/feed/newswire_rss')]
+            
+
+    def print_version(self, url):
+        url = url + '?print'
+        return url

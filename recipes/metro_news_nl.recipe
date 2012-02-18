@@ -38,18 +38,23 @@ except:
     removed keep_only tags
  Version 1.8 26-11-2022
    added remove tag: article-slideshow
+ Version 1.9 31-1-2012
+   removed some left debug settings
+      extended timeout from 2 to 10
+      changed oldest article from 10 to 1.2
+      changed max articles from 15 to 25
 '''
 
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     title = u'Metro Nieuws NL'
-    oldest_article = 10
-    max_articles_per_feed = 15
+    oldest_article = 1.2
+    max_articles_per_feed = 25
     __author__     = u'DrMerry'
     description    = u'Metro Nederland'
     language       = u'nl'
-    simultaneous_downloads = 5
+    simultaneous_downloads = 3
     masthead_url = 'http://blog.metronieuws.nl/wp-content/themes/metro/images/header.gif'
-    timeout = 2
+    timeout = 10
     center_navbar  = True
     timefmt        = ' [%A, %d %b %Y]'
     no_stylesheets = True

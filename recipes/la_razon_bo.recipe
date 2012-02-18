@@ -25,6 +25,7 @@ class LaRazon_Bol(BasicNewsRecipe):
                                 img{margin-bottom: 0.4em; display: block}
                                 .meta{font-size: small; font-family: Arial,Helvetica,sans-serif}
                             """
+    INDEX = 'http://www.la-razon.com/'
 
     conversion_options = {
                           'comment'   : description
@@ -60,3 +61,10 @@ class LaRazon_Bol(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(self.INDEX)
+        lightbox = soup.find('div', attrs = {'class' : 'lightbox lightbox-frontpage'})
+        return lightbox.img['src']
+
+

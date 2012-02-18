@@ -5,7 +5,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from itertools import izip
-from xml.sax.saxutils import escape
 
 from calibre.customize import Plugin as _Plugin
 
@@ -268,6 +267,7 @@ class OutputProfile(Plugin):
 
     @classmethod
     def tags_to_string(cls, tags):
+        from xml.sax.saxutils import escape
         return escape(', '.join(tags))
 
 class iPadOutput(OutputProfile):

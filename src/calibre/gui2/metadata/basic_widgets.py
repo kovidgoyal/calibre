@@ -573,6 +573,9 @@ class SeriesIndexEdit(QDoubleSpinBox):
                 import traceback
                 traceback.print_exc()
 
+    def reset_original(self):
+        self.original_series_name = self.series_edit.current_val
+
     def break_cycles(self):
         try:
             self.series_edit.currentIndexChanged.disconnect()

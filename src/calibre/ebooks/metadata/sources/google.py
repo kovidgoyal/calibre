@@ -12,8 +12,6 @@ from urllib import urlencode
 from functools import partial
 from Queue import Queue, Empty
 
-from lxml import etree
-
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
@@ -29,23 +27,6 @@ NAMESPACES = {
               'dc'   : 'http://purl.org/dc/terms',
               'gd'   : 'http://schemas.google.com/g/2005'
             }
-XPath = partial(etree.XPath, namespaces=NAMESPACES)
-
-total_results  = XPath('//openSearch:totalResults')
-start_index    = XPath('//openSearch:startIndex')
-items_per_page = XPath('//openSearch:itemsPerPage')
-entry          = XPath('//atom:entry')
-entry_id       = XPath('descendant::atom:id')
-creator        = XPath('descendant::dc:creator')
-identifier     = XPath('descendant::dc:identifier')
-title          = XPath('descendant::dc:title')
-date           = XPath('descendant::dc:date')
-publisher      = XPath('descendant::dc:publisher')
-subject        = XPath('descendant::dc:subject')
-description    = XPath('descendant::dc:description')
-language       = XPath('descendant::dc:language')
-rating         = XPath('descendant::gd:rating[@average]')
-
 def get_details(browser, url, timeout): # {{{
     try:
         raw = browser.open_novisit(url, timeout=timeout).read()
@@ -61,6 +42,24 @@ def get_details(browser, url, timeout): # {{{
 # }}}
 
 def to_metadata(browser, log, entry_, timeout): # {{{
+    from lxml import etree
+    XPath = partial(etree.XPath, namespaces=NAMESPACES)
+
+    # total_results  = XPath('//openSearch:totalResults')
+    # start_index    = XPath('//openSearch:startIndex')
+    # items_per_page = XPath('//openSearch:itemsPerPage')
+    entry          = XPath('//atom:entry')
+    entry_id       = XPath('descendant::atom:id')
+    creator        = XPath('descendant::dc:creator')
+    identifier     = XPath('descendant::dc:identifier')
+    title          = XPath('descendant::dc:title')
+    date           = XPath('descendant::dc:date')
+    publisher      = XPath('descendant::dc:publisher')
+    subject        = XPath('descendant::dc:subject')
+    description    = XPath('descendant::dc:description')
+    language       = XPath('descendant::dc:language')
+    rating         = XPath('descendant::gd:rating[@average]')
+
 
     def get_text(extra, x):
         try:
@@ -266,6 +265,7 @@ class GoogleBooks(Source):
 
     def get_all_details(self, br, log, entries, abort, # {{{
             result_queue, timeout):
+        from lxml import etree
         for relevance, i in enumerate(entries):
             try:
                 ans = to_metadata(br, log, i, timeout)
@@ -289,6 +289,10 @@ class GoogleBooks(Source):
 
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
+        from lxml import etree
+        XPath = partial(etree.XPath, namespaces=NAMESPACES)
+        entry          = XPath('//atom:entry')
+
         query = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         if not query:
