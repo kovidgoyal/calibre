@@ -29,7 +29,7 @@ class TagBrowserMixin(object): # {{{
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
         self.tags_view.set_database(db, self.tag_match, self.sort_by)
         self.tags_view.tags_marked.connect(self.search.set_search_string)
-        self.tags_view.tag_list_edit.connect(self.do_tags_list_edit)
+        self.tags_view.tags_list_edit.connect(self.do_tags_list_edit)
         self.tags_view.edit_user_category.connect(self.do_edit_user_categories)
         self.tags_view.delete_user_category.connect(self.do_delete_user_category)
         self.tags_view.del_item_from_user_cat.connect(self.do_del_item_from_user_cat)
@@ -43,6 +43,7 @@ class TagBrowserMixin(object): # {{{
         self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
         self.tags_view.restriction_error.connect(self.do_restriction_error,
                                                  type=Qt.QueuedConnection)
+        self.tags_view.tag_item_delete.connect(self.do_tag_item_delete)
 
         for text, func, args, cat_name in (
              (_('Manage Authors'),
@@ -243,6 +244,38 @@ class TagBrowserMixin(object): # {{{
             # Clean up the library view
             self.do_tag_item_renamed()
             self.tags_view.recount()
+
+    def do_tag_item_delete(self, category, item_id, orig_name):
+        '''
+        Delete an item from some category.
+        '''
+        if not question_dialog(self.tags_view,
+                           title=_('Delete item'),
+                           msg=_('%s will be permanently deleted. Do you really '
+                                     'want to do this?')%orig_name,
+                           skip_dialog_name='tag_item_delete',
+                           skip_dialog_msg=_('Show this message again')):
+            return
+        return
+        db=self.library_view.model().db
+
+        if category == 'tags':
+            delete_func = db.delete_tag_using_id
+        elif category == 'series':
+            delete_func = db.delete_series_using_id
+        elif category == 'publisher':
+            delete_func = db.delete_publisher_using_id
+        else: # must be custom
+            cc_label = db.field_metadata[category]['label']
+            delete_func = partial(db.delete_custom_item_using_id, label=cc_label)
+        m = self.tags_view.model()
+        if delete_func:
+            delete_func(item_id)
+            m.delete_item_from_all_user_categories(orig_name, category)
+
+        # Clean up the library view
+        self.do_tag_item_renamed()
+        self.tags_view.recount()
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
