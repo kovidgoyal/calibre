@@ -377,13 +377,15 @@ class TagsModel(QAbstractItemModel): # {{{
                 collapse_model = 'partition'
                 collapse_template = tweaks['categories_collapsed_popularity_template']
 
-        def process_one_node(category, state_map): # {{{
+        def process_one_node(category, collapse_model, state_map): # {{{
             collapse_letter = None
             category_node = category
             key = category_node.category_key
             is_gst = category_node.is_gst
             if key not in data:
                 return
+            if key in gprefs['tag_browser_dont_collapse']:
+                collapse_model = 'disable'
             cat_len = len(data[key])
             if cat_len <= 0:
                 return
@@ -523,7 +525,8 @@ class TagsModel(QAbstractItemModel): # {{{
         # }}}
 
         for category in self.category_nodes:
-            process_one_node(category, state_map.get(category.category_key, {}))
+            process_one_node(category, collapse_model,
+                             state_map.get(category.category_key, {}))
 
     def get_category_editor_data(self, category):
         for cat in self.root_item.children:

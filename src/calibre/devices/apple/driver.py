@@ -8,27 +8,39 @@ __docformat__ = 'restructuredtext en'
 import cStringIO, ctypes, datetime, os, re, shutil, sys, tempfile, time
 
 from calibre.constants import __appname__, __version__, DEBUG
-from calibre import fit_image, confirm_config_name
+from calibre import fit_image, confirm_config_name, strftime as _strftime
 from calibre.constants import isosx, iswindows
 from calibre.devices.errors import OpenFeedback, UserFeedback
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.interface import DevicePlugin
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.metadata import authors_to_string, MetaInformation, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.epub import set_metadata
-from calibre.library.server.utils import strftime
 from calibre.utils.config import config_dir, dynamic, prefs
 from calibre.utils.date import now, parse_date
-from calibre.utils.logging import Log
 from calibre.utils.zipfile import ZipFile
 
+def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
+
+    if not hasattr(dt, 'timetuple'):
+        dt = now()
+    dt = dt.timetuple()
+    try:
+        return _strftime(fmt, dt)
+    except:
+        return _strftime(fmt, now().timetuple())
+
+_log = None
+def logger():
+    global _log
+    if _log is None:
+        from calibre.utils.logging import ThreadSafeLog
+        _log = ThreadSafeLog()
+    return _log
 
 class AppleOpenFeedback(OpenFeedback):
 
     def __init__(self, plugin):
         OpenFeedback.__init__(self, u'')
-        self.log = plugin.log
         self.plugin = plugin
 
     def custom_dialog(self, parent):
@@ -78,19 +90,18 @@ class AppleOpenFeedback(OpenFeedback):
                 self.finished.connect(self.do_it)
 
             def do_it(self, return_code):
+                from calibre.utils.logging import default_log
                 if return_code == self.Accepted:
-                    self.cd.log.info(" Apple driver ENABLED")
+                    default_log.info(" Apple driver ENABLED")
                     dynamic[confirm_config_name(self.cd.plugin.DISPLAY_DISABLE_DIALOG)] = False
                 else:
                     from calibre.customize.ui import disable_plugin
-                    self.cd.log.info(" Apple driver DISABLED")
+                    default_log.info(" Apple driver DISABLED")
                     disable_plugin(self.cd.plugin)
 
         return Dialog(parent, self)
 
 
-from PIL import Image as PILImage
-from lxml import etree
 
 if isosx:
     try:
@@ -297,7 +308,6 @@ class ITUNES(DriverBase):
     iTunes= None
     iTunes_local_storage = None
     library_orphans = None
-    log = Log()
     manual_sync_mode = False
     path_template = 'iTunes/%s - %s.%s'
     plugboards = None
@@ -323,7 +333,7 @@ class ITUNES(DriverBase):
                                 L{books}(oncard='cardb')).
         '''
         if DEBUG:
-            self.log.info("ITUNES.add_books_to_metadata()")
+            logger().info("ITUNES.add_books_to_metadata()")
 
         task_count = float(len(self.update_list))
 
@@ -337,10 +347,10 @@ class ITUNES(DriverBase):
             for (j,p_book) in enumerate(self.update_list):
                 if False:
                     if isosx:
-                        self.log.info("  looking for '%s' by %s uuid:%s" %
+                        logger().info("  looking for '%s' by %s uuid:%s" %
                             (p_book['title'],p_book['author'], p_book['uuid']))
                     elif iswindows:
-                        self.log.info(" looking for '%s' by %s (%s)" %
+                        logger().info(" looking for '%s' by %s (%s)" %
                                         (p_book['title'],p_book['author'], p_book['uuid']))
 
                 # Purge the booklist, self.cached_books
@@ -350,10 +360,10 @@ class ITUNES(DriverBase):
                         booklists[0].pop(i)
                         if False:
                             if isosx:
-                                self.log.info("  removing old %s %s from booklists[0]" %
+                                logger().info("  removing old %s %s from booklists[0]" %
                                     (p_book['title'], str(p_book['lib_book'])[-9:]))
                             elif iswindows:
-                                self.log.info(" removing old '%s' from booklists[0]" %
+                                logger().info(" removing old '%s' from booklists[0]" %
                                                 (p_book['title']))
 
                         # If >1 matching uuid, remove old title
@@ -383,7 +393,7 @@ class ITUNES(DriverBase):
         # for new_book in metadata[0]:
         for new_book in locations[0]:
             if DEBUG:
-                self.log.info("  adding '%s' by '%s' to booklists[0]" %
+                logger().info("  adding '%s' by '%s' to booklists[0]" %
                     (new_book.title, new_book.author))
             booklists[0].append(new_book)
 
@@ -408,15 +418,15 @@ class ITUNES(DriverBase):
         """
         if not oncard:
             if DEBUG:
-                self.log.info("ITUNES:books():")
+                logger().info("ITUNES:books():")
                 if self.settings().extra_customization[self.CACHE_COVERS]:
-                    self.log.info(" Cover fetching/caching enabled")
+                    logger().info(" Cover fetching/caching enabled")
                 else:
-                    self.log.info(" Cover fetching/caching disabled")
+                    logger().info(" Cover fetching/caching disabled")
 
             # Fetch a list of books from iPod device connected to iTunes
             if 'iPod' in self.sources:
-                booklist = BookList(self.log)
+                booklist = BookList(logger())
                 cached_books = {}
 
                 if isosx:
@@ -507,7 +517,7 @@ class ITUNES(DriverBase):
                     self._dump_cached_books('returning from books()',indent=2)
                 return booklist
         else:
-            return BookList(self.log)
+            return BookList(logger())
 
     def can_handle(self, device_info, debug=False):
         '''
@@ -544,7 +554,7 @@ class ITUNES(DriverBase):
             # We need to know if iTunes sees the iPad
             # It may have been ejected
             if DEBUG:
-                self.log.info("ITUNES.can_handle()")
+                logger().info("ITUNES.can_handle()")
 
             self._launch_iTunes()
             self.sources = self._get_sources()
@@ -557,15 +567,15 @@ class ITUNES(DriverBase):
                         attempts -= 1
                         time.sleep(0.5)
                         if DEBUG:
-                            self.log.warning(" waiting for connected iPad, attempt #%d" % (10 - attempts))
+                            logger().warning(" waiting for connected iPad, attempt #%d" % (10 - attempts))
                     else:
                         if DEBUG:
-                            self.log.info(' found connected iPad')
+                            logger().info(' found connected iPad')
                         break
                 else:
                     # iTunes running, but not connected iPad
                     if DEBUG:
-                        self.log.info(' self.ejected = True')
+                        logger().info(' self.ejected = True')
                     self.ejected = True
                     return False
 
@@ -599,26 +609,26 @@ class ITUNES(DriverBase):
                         sys.stdout.write('.')
                         sys.stdout.flush()
                     if DEBUG:
-                        self.log.info('ITUNES.can_handle_windows:\n confirming connected iPad')
+                        logger().info('ITUNES.can_handle_windows:\n confirming connected iPad')
                     self.ejected = False
                     self._discover_manual_sync_mode()
                     return True
                 else:
                     if DEBUG:
-                        self.log.info("ITUNES.can_handle_windows():\n device ejected")
+                        logger().info("ITUNES.can_handle_windows():\n device ejected")
                     self.ejected = True
                     return False
             except:
                 # iTunes connection failed, probably not running anymore
 
-                self.log.error("ITUNES.can_handle_windows():\n lost connection to iTunes")
+                logger().error("ITUNES.can_handle_windows():\n lost connection to iTunes")
                 return False
             finally:
                 pythoncom.CoUninitialize()
 
         else:
             if DEBUG:
-                self.log.info("ITUNES:can_handle_windows():\n Launching iTunes")
+                logger().info("ITUNES:can_handle_windows():\n Launching iTunes")
 
             try:
                 pythoncom.CoInitialize()
@@ -633,19 +643,19 @@ class ITUNES(DriverBase):
                             attempts -= 1
                             time.sleep(0.5)
                             if DEBUG:
-                                self.log.warning(" waiting for connected iPad, attempt #%d" % (10 - attempts))
+                                logger().warning(" waiting for connected iPad, attempt #%d" % (10 - attempts))
                         else:
                             if DEBUG:
-                                self.log.info(' found connected iPad in iTunes')
+                                logger().info(' found connected iPad in iTunes')
                             break
                     else:
                         # iTunes running, but not connected iPad
                         if DEBUG:
-                            self.log.info(' iDevice has been ejected')
+                            logger().info(' iDevice has been ejected')
                         self.ejected = True
                         return False
 
-                self.log.info(' found connected iPad in sources')
+                logger().info(' found connected iPad in sources')
                 self._discover_manual_sync_mode(wait=1.0)
 
             finally:
@@ -688,11 +698,11 @@ class ITUNES(DriverBase):
         self.problem_msg = _("Some books not found in iTunes database.\n"
                               "Delete using the iBooks app.\n"
                               "Click 'Show Details' for a list.")
-        self.log.info("ITUNES:delete_books()")
+        logger().info("ITUNES:delete_books()")
         for path in paths:
             if self.cached_books[path]['lib_book']:
                 if DEBUG:
-                    self.log.info(" Deleting '%s' from iTunes library" % (path))
+                    logger().info(" Deleting '%s' from iTunes library" % (path))
 
                 if isosx:
                     self._remove_from_iTunes(self.cached_books[path])
@@ -712,7 +722,7 @@ class ITUNES(DriverBase):
                     self.update_needed = True
                     self.update_msg = "Deleted books from device"
                 else:
-                    self.log.info(" skipping sync phase, manual_sync_mode: True")
+                    logger().info(" skipping sync phase, manual_sync_mode: True")
             else:
                 if self.manual_sync_mode:
                     metadata = MetaInformation(self.cached_books[path]['title'],
@@ -739,7 +749,7 @@ class ITUNES(DriverBase):
         are pending GUI jobs that need to communicate with the device.
         '''
         if DEBUG:
-            self.log.info("ITUNES:eject(): ejecting '%s'" % self.sources['iPod'])
+            logger().info("ITUNES:eject(): ejecting '%s'" % self.sources['iPod'])
         if isosx:
             self.iTunes.eject(self.sources['iPod'])
         elif iswindows:
@@ -768,7 +778,7 @@ class ITUNES(DriverBase):
         In Windows, a sync-in-progress blocks this call until sync is complete
         """
         if DEBUG:
-            self.log.info("ITUNES:free_space()")
+            logger().info("ITUNES:free_space()")
 
         free_space = 0
         if isosx:
@@ -790,7 +800,7 @@ class ITUNES(DriverBase):
                             pythoncom.CoUninitialize()
                             break
                     except:
-                        self.log.error(' waiting for free_space() call to go through')
+                        logger().error(' waiting for free_space() call to go through')
 
         return (free_space,-1,-1)
 
@@ -800,7 +810,7 @@ class ITUNES(DriverBase):
         @return: (device name, device version, software version on device, mime type)
         """
         if DEBUG:
-            self.log.info("ITUNES:get_device_information()")
+            logger().info("ITUNES:get_device_information()")
 
         return (self.sources['iPod'],'hw v1.0','sw v1.0', 'mime type normally goes here')
 
@@ -810,7 +820,7 @@ class ITUNES(DriverBase):
         @param outfile: file object like C{sys.stdout} or the result of an C{open} call
         '''
         if DEBUG:
-            self.log.info("ITUNES.get_file(): exporting '%s'" % path)
+            logger().info("ITUNES.get_file(): exporting '%s'" % path)
 
         outfile.write(open(self.cached_books[path]['lib_book'].location().path).read())
 
@@ -830,7 +840,7 @@ class ITUNES(DriverBase):
         '''
 
         if DEBUG:
-            self.log.info("ITUNES.open(connected_device: %s)" % repr(connected_device))
+            logger().info("ITUNES.open(connected_device: %s)" % repr(connected_device))
 
         # Display a dialog recommending using 'Connect to iTunes' if user hasn't
         # previously disabled the dialog
@@ -838,33 +848,33 @@ class ITUNES(DriverBase):
             raise AppleOpenFeedback(self)
         else:
             if DEBUG:
-                self.log.warning(" %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
+                logger().warning(" %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
             if DEBUG:
-                self.log.info(" creating thumb cache at '%s'" % self.cache_dir)
+                logger().info(" creating thumb cache at '%s'" % self.cache_dir)
             os.makedirs(self.cache_dir)
 
         if not os.path.exists(self.archive_path):
-            self.log.info(" creating zip archive")
+            logger().info(" creating zip archive")
             zfw = ZipFile(self.archive_path, mode='w')
             zfw.writestr("iTunes Thumbs Archive",'')
             zfw.close()
         else:
             if DEBUG:
-                self.log.info(" existing thumb cache at '%s'" % self.archive_path)
+                logger().info(" existing thumb cache at '%s'" % self.archive_path)
 
         # If enabled in config options, create/confirm an iTunes storage folder
         if not self.settings().extra_customization[self.USE_ITUNES_STORAGE]:
             self.iTunes_local_storage = os.path.join(config_dir,'iTunes storage')
             if not os.path.exists(self.iTunes_local_storage):
                 if DEBUG:
-                    self.log(" creating iTunes_local_storage at '%s'" % self.iTunes_local_storage)
+                    logger()(" creating iTunes_local_storage at '%s'" % self.iTunes_local_storage)
                 os.mkdir(self.iTunes_local_storage)
             else:
                 if DEBUG:
-                    self.log(" existing iTunes_local_storage at '%s'" % self.iTunes_local_storage)
+                    logger()(" existing iTunes_local_storage at '%s'" % self.iTunes_local_storage)
 
     def remove_books_from_metadata(self, paths, booklists):
         '''
@@ -879,11 +889,11 @@ class ITUNES(DriverBase):
             as uuids are different
         '''
         if DEBUG:
-            self.log.info("ITUNES.remove_books_from_metadata()")
+            logger().info("ITUNES.remove_books_from_metadata()")
         for path in paths:
             if DEBUG:
                 self._dump_cached_book(self.cached_books[path], indent=2)
-                self.log.info("  looking for '%s' by '%s' uuid:%s" %
+                logger().info("  looking for '%s' by '%s' uuid:%s" %
                                 (self.cached_books[path]['title'],
                                  self.cached_books[path]['author'],
                                  self.cached_books[path]['uuid']))
@@ -891,19 +901,19 @@ class ITUNES(DriverBase):
             # Purge the booklist, self.cached_books, thumb cache
             for i,bl_book in enumerate(booklists[0]):
                 if False:
-                    self.log.info(" evaluating '%s' by '%s' uuid:%s" %
+                    logger().info(" evaluating '%s' by '%s' uuid:%s" %
                                   (bl_book.title, bl_book.author,bl_book.uuid))
 
                 found = False
                 if bl_book.uuid == self.cached_books[path]['uuid']:
                     if False:
-                        self.log.info("  matched with uuid")
+                        logger().info("  matched with uuid")
                     booklists[0].pop(i)
                     found = True
                 elif bl_book.title == self.cached_books[path]['title'] and \
                      bl_book.author[0] == self.cached_books[path]['author']:
                     if False:
-                        self.log.info("  matched with title + author")
+                        logger().info("  matched with title + author")
                     booklists[0].pop(i)
                     found = True
 
@@ -924,17 +934,17 @@ class ITUNES(DriverBase):
                         thumb = None
                     if thumb:
                         if DEBUG:
-                            self.log.info("  deleting '%s' from cover cache" % (thumb_path))
+                            logger().info("  deleting '%s' from cover cache" % (thumb_path))
                             zf.delete(thumb_path)
                     else:
                         if DEBUG:
-                            self.log.info("  '%s' not found in cover cache" % thumb_path)
+                            logger().info("  '%s' not found in cover cache" % thumb_path)
                     zf.close()
 
                     break
             else:
                 if DEBUG:
-                    self.log.error("  unable to find '%s' by '%s' (%s)" %
+                    logger().error("  unable to find '%s' by '%s' (%s)" %
                                     (bl_book.title, bl_book.author,bl_book.uuid))
 
         if False:
@@ -953,7 +963,7 @@ class ITUNES(DriverBase):
         :detected_device: Device information from the device scanner
         """
         if DEBUG:
-            self.log.info("ITUNES.reset()")
+            logger().info("ITUNES.reset()")
         if report_progress:
             self.set_progress_reporter(report_progress)
 
@@ -965,7 +975,7 @@ class ITUNES(DriverBase):
                                 task does not have any progress information
         '''
         if DEBUG:
-            self.log.info("ITUNES.set_progress_reporter()")
+            logger().info("ITUNES.set_progress_reporter()")
 
         self.report_progress = report_progress
 
@@ -973,8 +983,8 @@ class ITUNES(DriverBase):
         # This method is called with the plugboard that matches the format
         # declared in use_plugboard_ext and a device name of ITUNES
         if DEBUG:
-            self.log.info("ITUNES.set_plugboard()")
-            #self.log.info('  plugboard: %s' % plugboards)
+            logger().info("ITUNES.set_plugboard()")
+            #logger().info('  plugboard: %s' % plugboards)
         self.plugboards = plugboards
         self.plugboard_func = pb_func
 
@@ -987,11 +997,11 @@ class ITUNES(DriverBase):
         '''
 
         if DEBUG:
-            self.log.info("ITUNES.sync_booklists()")
+            logger().info("ITUNES.sync_booklists()")
 
         if self.update_needed:
             if DEBUG:
-                self.log.info(' calling _update_device')
+                logger().info(' calling _update_device')
             self._update_device(msg=self.update_msg, wait=False)
             self.update_needed = False
 
@@ -1014,7 +1024,7 @@ class ITUNES(DriverBase):
         particular device doesn't have any of these locations it should return 0.
         """
         if DEBUG:
-            self.log.info("ITUNES:total_space()")
+            logger().info("ITUNES:total_space()")
         capacity = 0
         if isosx:
             if 'iPod' in self.sources:
@@ -1052,7 +1062,7 @@ class ITUNES(DriverBase):
                                      "Click 'Show Details' for a list.")
 
         if DEBUG:
-            self.log.info("ITUNES.upload_books()")
+            logger().info("ITUNES.upload_books()")
 
         if isosx:
             for (i,fpath) in enumerate(files):
@@ -1069,8 +1079,8 @@ class ITUNES(DriverBase):
 
                 # Add new_book to self.cached_books
                 if DEBUG:
-                    self.log.info("ITUNES.upload_books()")
-                    self.log.info(" adding '%s' by '%s' uuid:%s to self.cached_books" %
+                    logger().info("ITUNES.upload_books()")
+                    logger().info(" adding '%s' by '%s' uuid:%s to self.cached_books" %
                                   (metadata[i].title,
                                    authors_to_string(metadata[i].authors),
                                    metadata[i].uuid))
@@ -1113,8 +1123,8 @@ class ITUNES(DriverBase):
 
                     # Add new_book to self.cached_books
                     if DEBUG:
-                        self.log.info("ITUNES.upload_books()")
-                        self.log.info(" adding '%s' by '%s' uuid:%s to self.cached_books" %
+                        logger().info("ITUNES.upload_books()")
+                        logger().info(" adding '%s' by '%s' uuid:%s to self.cached_books" %
                                       (metadata[i].title,
                                        authors_to_string(metadata[i].authors),
                                        metadata[i].uuid))
@@ -1151,7 +1161,7 @@ class ITUNES(DriverBase):
         '''
         assumes pythoncom wrapper for windows
         '''
-        self.log.info(" ITUNES._add_device_book()")
+        logger().info(" ITUNES._add_device_book()")
         if isosx:
             if 'iPod' in self.sources:
                 connected_device = self.sources['iPod']
@@ -1161,12 +1171,12 @@ class ITUNES(DriverBase):
                         break
                 else:
                     if DEBUG:
-                        self.log.error("  Device|Books playlist not found")
+                        logger().error("  Device|Books playlist not found")
 
                 # Add the passed book to the Device|Books playlist
                 added = pl.add(appscript.mactypes.File(fpath),to=pl)
                 if False:
-                    self.log.info("  '%s' added to Device|Books" % metadata.title)
+                    logger().info("  '%s' added to Device|Books" % metadata.title)
 
                 self._wait_for_writable_metadata(added)
                 return added
@@ -1183,7 +1193,7 @@ class ITUNES(DriverBase):
                         break
                 else:
                     if DEBUG:
-                        self.log.info("  no Books playlist found")
+                        logger().info("  no Books playlist found")
 
                 # Add the passed book to the Device|Books playlist
                 if pl:
@@ -1245,7 +1255,7 @@ class ITUNES(DriverBase):
         windows assumes pythoncom wrapper
         '''
         if DEBUG:
-            self.log.info(" ITUNES._add_library_book()")
+            logger().info(" ITUNES._add_library_book()")
         if isosx:
             added = self.iTunes.add(appscript.mactypes.File(file))
 
@@ -1256,9 +1266,9 @@ class ITUNES(DriverBase):
             fa = FileArray(file_s)
             op_status = lib.AddFiles(fa)
             if DEBUG:
-                self.log.info("  file added to Library|Books")
+                logger().info("  file added to Library|Books")
 
-            self.log.info("  iTunes adding '%s'" % file)
+            logger().info("  iTunes adding '%s'" % file)
 
             if DEBUG:
                 sys.stdout.write("  iTunes copying '%s' ..." % metadata.title)
@@ -1312,7 +1322,7 @@ class ITUNES(DriverBase):
         fp = cached_book['lib_book'].Location
         '''
         if DEBUG:
-            self.log.info(" ITUNES._add_new_copy()")
+            logger().info(" ITUNES._add_new_copy()")
 
         if fpath.rpartition('.')[2].lower() == 'epub':
             self._update_epub_metadata(fpath, metadata)
@@ -1333,7 +1343,7 @@ class ITUNES(DriverBase):
             db_added = self._add_device_book(fpath, metadata)
             lb_added = self._add_library_book(fpath, metadata)
             if not lb_added and DEBUG:
-                self.log.warn("  failed to add '%s' to iTunes, iTunes Media folder inaccessible" % metadata.title)
+                logger().warn("  failed to add '%s' to iTunes, iTunes Media folder inaccessible" % metadata.title)
         else:
             lb_added = self._add_library_book(fpath, metadata)
             if not lb_added:
@@ -1348,8 +1358,10 @@ class ITUNES(DriverBase):
         assumes pythoncom wrapper for db_added
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
+        from PIL import Image as PILImage
+
         if DEBUG:
-            self.log.info(" ITUNES._cover_to_thumb()")
+            logger().info(" ITUNES._cover_to_thumb()")
 
         thumb = None
         if metadata.cover:
@@ -1366,7 +1378,7 @@ class ITUNES(DriverBase):
                     scaled, nwidth, nheight = fit_image(width, height, self.MAX_COVER_WIDTH, self.MAX_COVER_HEIGHT)
                     if scaled:
                         if DEBUG:
-                            self.log.info("   cover scaled from %sx%s to %sx%s" %
+                            logger().info("   cover scaled from %sx%s to %sx%s" %
                                           (width,height,nwidth,nheight))
                         img = img.resize((nwidth, nheight), PILImage.ANTIALIAS)
                         cd = cStringIO.StringIO()
@@ -1378,7 +1390,7 @@ class ITUNES(DriverBase):
                             cover_data = cd.read()
                 except:
                     self.problem_titles.append("'%s' by %s" % (metadata.title, authors_to_string(metadata.authors)))
-                    self.log.error("  error scaling '%s' for '%s'" % (metadata.cover,metadata.title))
+                    logger().error("  error scaling '%s' for '%s'" % (metadata.cover,metadata.title))
 
                     import traceback
                     traceback.print_exc()
@@ -1396,17 +1408,17 @@ class ITUNES(DriverBase):
                             lb_added.artworks[1].data_.set(cover_data)
                         except:
                             if DEBUG:
-                                self.log.warning("  iTunes automation interface reported an error"
+                                logger().warning("  iTunes automation interface reported an error"
                                                  " adding artwork to '%s' in the iTunes Library" % metadata.title)
                             pass
 
                     if db_added:
                         try:
                             db_added.artworks[1].data_.set(cover_data)
-                            self.log.info("   writing '%s' cover to iDevice" % metadata.title)
+                            logger().info("   writing '%s' cover to iDevice" % metadata.title)
                         except:
                             if DEBUG:
-                                self.log.warning("  iTunes automation interface reported an error"
+                                logger().warning("  iTunes automation interface reported an error"
                                                  " adding artwork to '%s' on the iDevice" % metadata.title)
                             #import traceback
                             #traceback.print_exc()
@@ -1428,7 +1440,7 @@ class ITUNES(DriverBase):
                                 lb_added.AddArtworkFromFile(tc)
                         except:
                             if DEBUG:
-                                self.log.warning("  iTunes automation interface reported an error"
+                                logger().warning("  iTunes automation interface reported an error"
                                                  " when adding artwork to '%s' in the iTunes Library" % metadata.title)
                             pass
 
@@ -1440,7 +1452,7 @@ class ITUNES(DriverBase):
 
             elif format == 'pdf':
                 if DEBUG:
-                    self.log.info("   unable to set PDF cover via automation interface")
+                    logger().info("   unable to set PDF cover via automation interface")
 
             try:
                 # Resize for thumb
@@ -1455,13 +1467,13 @@ class ITUNES(DriverBase):
 
                 # Refresh the thumbnail cache
                 if DEBUG:
-                    self.log.info( "   refreshing cached thumb for '%s'" % metadata.title)
+                    logger().info( "   refreshing cached thumb for '%s'" % metadata.title)
                 zfw = ZipFile(self.archive_path, mode='a')
                 thumb_path = path.rpartition('.')[0] + '.jpg'
                 zfw.writestr(thumb_path, thumb)
             except:
                 self.problem_titles.append("'%s' by %s" % (metadata.title, authors_to_string(metadata.authors)))
-                self.log.error("   error converting '%s' to thumb for '%s'" % (metadata.cover,metadata.title))
+                logger().error("   error converting '%s' to thumb for '%s'" % (metadata.cover,metadata.title))
             finally:
                 try:
                     zfw.close()
@@ -1469,14 +1481,14 @@ class ITUNES(DriverBase):
                     pass
         else:
             if DEBUG:
-                self.log.info("   no cover defined in metadata for '%s'" % metadata.title)
+                logger().info("   no cover defined in metadata for '%s'" % metadata.title)
         return thumb
 
     def _create_new_book(self,fpath, metadata, path, db_added, lb_added, thumb, format):
         '''
         '''
         if DEBUG:
-            self.log.info(" ITUNES._create_new_book()")
+            logger().info(" ITUNES._create_new_book()")
 
         this_book = Book(metadata.title, authors_to_string(metadata.authors))
         this_book.datetime = time.gmtime()
@@ -1525,7 +1537,7 @@ class ITUNES(DriverBase):
         wait is passed when launching iTunes, as it seems to need a moment to come to its senses
         '''
         if DEBUG:
-            self.log.info(" ITUNES._discover_manual_sync_mode()")
+            logger().info(" ITUNES._discover_manual_sync_mode()")
         if wait:
             time.sleep(wait)
         if isosx:
@@ -1537,12 +1549,12 @@ class ITUNES(DriverBase):
                     dev_books = pl.file_tracks()
                     break
             else:
-                self.log.error("   book_playlist not found")
+                logger().error("   book_playlist not found")
 
             if dev_books is not None and len(dev_books):
                 first_book = dev_books[0]
                 if False:
-                    self.log.info("  determing manual mode by modifying '%s' by %s" % (first_book.name(), first_book.artist()))
+                    logger().info("  determing manual mode by modifying '%s' by %s" % (first_book.name(), first_book.artist()))
                 try:
                     first_book.bpm.set(0)
                     self.manual_sync_mode = True
@@ -1550,7 +1562,7 @@ class ITUNES(DriverBase):
                     self.manual_sync_mode = False
             else:
                 if DEBUG:
-                    self.log.info("   adding tracer to empty Books|Playlist")
+                    logger().info("   adding tracer to empty Books|Playlist")
                 try:
                     added = pl.add(appscript.mactypes.File(P('tracer.epub')),to=pl)
                     time.sleep(0.5)
@@ -1573,7 +1585,7 @@ class ITUNES(DriverBase):
             if dev_books is not None and dev_books.Count:
                 first_book = dev_books.Item(1)
                 #if DEBUG:
-                    #self.log.info(" determing manual mode by modifying '%s' by %s" % (first_book.Name, first_book.Artist))
+                    #logger().info(" determing manual mode by modifying '%s' by %s" % (first_book.Name, first_book.Artist))
                 try:
                     first_book.BPM = 0
                     self.manual_sync_mode = True
@@ -1581,7 +1593,7 @@ class ITUNES(DriverBase):
                     self.manual_sync_mode = False
             else:
                 if DEBUG:
-                    self.log.info("   sending tracer to empty Books|Playlist")
+                    logger().info("   sending tracer to empty Books|Playlist")
                 fpath = P('tracer.epub')
                 mi = MetaInformation('Tracer',['calibre'])
                 try:
@@ -1592,24 +1604,24 @@ class ITUNES(DriverBase):
                 except:
                     self.manual_sync_mode = False
 
-        self.log.info("   iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
+        logger().info("   iTunes.manual_sync_mode: %s" % self.manual_sync_mode)
 
     def _dump_booklist(self, booklist, header=None,indent=0):
         '''
         '''
         if header:
             msg = '\n%sbooklist %s:' % (' '*indent,header)
-            self.log.info(msg)
-            self.log.info('%s%s' % (' '*indent,'-' * len(msg)))
+            logger().info(msg)
+            logger().info('%s%s' % (' '*indent,'-' * len(msg)))
 
         for book in booklist:
             if isosx:
-                self.log.info("%s%-40.40s %-30.30s %-10.10s %s" %
+                logger().info("%s%-40.40s %-30.30s %-10.10s %s" %
                  (' '*indent,book.title, book.author, str(book.library_id)[-9:], book.uuid))
             elif iswindows:
-                self.log.info("%s%-40.40s %-30.30s" %
+                logger().info("%s%-40.40s %-30.30s" %
                  (' '*indent,book.title, book.author))
-        self.log.info()
+        logger().info()
 
     def _dump_cached_book(self, cached_book, header=None,indent=0):
         '''
@@ -1617,16 +1629,16 @@ class ITUNES(DriverBase):
         if isosx:
             if header:
                 msg = '%s%s' % (' '*indent,header)
-                self.log.info(msg)
-                self.log.info( "%s%s" % (' '*indent, '-' * len(msg)))
-                self.log.info("%s%-40.40s %-30.30s %-10.10s %-10.10s %s" %
+                logger().info(msg)
+                logger().info( "%s%s" % (' '*indent, '-' * len(msg)))
+                logger().info("%s%-40.40s %-30.30s %-10.10s %-10.10s %s" %
                  (' '*indent,
                   'title',
                   'author',
                   'lib_book',
                   'dev_book',
                   'uuid'))
-            self.log.info("%s%-40.40s %-30.30s %-10.10s %-10.10s %s" %
+            logger().info("%s%-40.40s %-30.30s %-10.10s %-10.10s %s" %
              (' '*indent,
               cached_book['title'],
               cached_book['author'],
@@ -1636,10 +1648,10 @@ class ITUNES(DriverBase):
         elif iswindows:
             if header:
                 msg = '%s%s' % (' '*indent,header)
-                self.log.info(msg)
-                self.log.info( "%s%s" % (' '*indent, '-' * len(msg)))
+                logger().info(msg)
+                logger().info( "%s%s" % (' '*indent, '-' * len(msg)))
 
-            self.log.info("%s%-40.40s %-30.30s %s" %
+            logger().info("%s%-40.40s %-30.30s %s" %
              (' '*indent,
               cached_book['title'],
               cached_book['author'],
@@ -1650,11 +1662,11 @@ class ITUNES(DriverBase):
         '''
         if header:
             msg = '\n%sself.cached_books %s:' % (' '*indent,header)
-            self.log.info(msg)
-            self.log.info( "%s%s" % (' '*indent,'-' * len(msg)))
+            logger().info(msg)
+            logger().info( "%s%s" % (' '*indent,'-' * len(msg)))
         if isosx:
             for cb in self.cached_books.keys():
-                self.log.info("%s%-40.40s %-30.30s %-10.10s %-10.10s %s" %
+                logger().info("%s%-40.40s %-30.30s %-10.10s %-10.10s %s" %
                  (' '*indent,
                   self.cached_books[cb]['title'],
                   self.cached_books[cb]['author'],
@@ -1663,19 +1675,21 @@ class ITUNES(DriverBase):
                   self.cached_books[cb]['uuid']))
         elif iswindows:
             for cb in self.cached_books.keys():
-                self.log.info("%s%-40.40s %-30.30s %-4.4s %s" %
+                logger().info("%s%-40.40s %-30.30s %-4.4s %s" %
                  (' '*indent,
                   self.cached_books[cb]['title'],
                   self.cached_books[cb]['author'],
                   self.cached_books[cb]['format'],
                   self.cached_books[cb]['uuid']))
 
-        self.log.info()
+        logger().info()
 
     def _dump_epub_metadata(self, fpath):
         '''
         '''
-        self.log.info(" ITUNES.__get_epub_metadata()")
+        from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+        logger().info(" ITUNES.__get_epub_metadata()")
         title = None
         author = None
         timestamp = None
@@ -1695,11 +1709,11 @@ class ITUNES(DriverBase):
 
             if not title or not author:
                 if DEBUG:
-                    self.log.error("   couldn't extract title/author from %s in %s" % (opf,fpath))
-                    self.log.error("   title: %s  author: %s timestamp: %s" % (title, author, timestamp))
+                    logger().error("   couldn't extract title/author from %s in %s" % (opf,fpath))
+                    logger().error("   title: %s  author: %s timestamp: %s" % (title, author, timestamp))
         else:
             if DEBUG:
-                self.log.error("   can't find .opf in %s" % fpath)
+                logger().error("   can't find .opf in %s" % fpath)
         zf.close()
         return (title, author, timestamp)
 
@@ -1720,20 +1734,20 @@ class ITUNES(DriverBase):
         '''
         '''
         if DEBUG:
-            self.log.info("\n library_books:")
+            logger().info("\n library_books:")
         for book in library_books:
-            self.log.info("   %s" % book)
-        self.log.info()
+            logger().info("   %s" % book)
+        logger().info()
 
     def _dump_update_list(self,header=None,indent=0):
         if header and self.update_list:
             msg = '\n%sself.update_list %s' % (' '*indent,header)
-            self.log.info(msg)
-            self.log.info( "%s%s" % (' '*indent,'-' * len(msg)))
+            logger().info(msg)
+            logger().info( "%s%s" % (' '*indent,'-' * len(msg)))
 
         if isosx:
             for ub in self.update_list:
-                self.log.info("%s%-40.40s %-30.30s %-10.10s %s" %
+                logger().info("%s%-40.40s %-30.30s %-10.10s %s" %
                  (' '*indent,
                   ub['title'],
                   ub['author'],
@@ -1741,7 +1755,7 @@ class ITUNES(DriverBase):
                   ub['uuid']))
         elif iswindows:
             for ub in self.update_list:
-                self.log.info("%s%-40.40s %-30.30s" %
+                logger().info("%s%-40.40s %-30.30s" %
                  (' '*indent,
                   ub['title'],
                   ub['author']))
@@ -1753,42 +1767,42 @@ class ITUNES(DriverBase):
         if iswindows:
             dev_books = self._get_device_books_playlist()
             if DEBUG:
-                self.log.info(" ITUNES._find_device_book()")
-                self.log.info("  searching for '%s' by '%s' (%s)" %
+                logger().info(" ITUNES._find_device_book()")
+                logger().info("  searching for '%s' by '%s' (%s)" %
                               (search['title'], search['author'],search['uuid']))
             attempts = 9
             while attempts:
                 # Try by uuid - only one hit
                 if 'uuid' in search and search['uuid']:
                     if DEBUG:
-                        self.log.info("   searching by uuid '%s' ..." % search['uuid'])
+                        logger().info("   searching by uuid '%s' ..." % search['uuid'])
                     hits = dev_books.Search(search['uuid'],self.SearchField.index('All'))
                     if hits:
                         hit = hits[0]
-                        self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                        logger().info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                         return hit
 
                 # Try by author - there could be multiple hits
                 if search['author']:
                     if DEBUG:
-                        self.log.info("   searching by author '%s' ..." % search['author'])
+                        logger().info("   searching by author '%s' ..." % search['author'])
                     hits = dev_books.Search(search['author'],self.SearchField.index('Artists'))
                     if hits:
                         for hit in hits:
                             if hit.Name == search['title']:
                                 if DEBUG:
-                                    self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                                    logger().info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                                 return hit
 
                 # Search by title if no author available
                 if DEBUG:
-                    self.log.info("   searching by title '%s' ..." % search['title'])
+                    logger().info("   searching by title '%s' ..." % search['title'])
                 hits = dev_books.Search(search['title'],self.SearchField.index('All'))
                 if hits:
                     for hit in hits:
                         if hit.Name == search['title']:
                             if DEBUG:
-                                self.log.info("   found '%s'" % (hit.Name))
+                                logger().info("   found '%s'" % (hit.Name))
                             return hit
 
                 # PDF just sent, title not updated yet, look for export pattern
@@ -1797,24 +1811,24 @@ class ITUNES(DriverBase):
                     title = re.sub(r'[^0-9a-zA-Z ]', '_', search['title'])
                     author = re.sub(r'[^0-9a-zA-Z ]', '_', search['author'])
                     if DEBUG:
-                        self.log.info("   searching by name: '%s - %s'" % (title,author))
+                        logger().info("   searching by name: '%s - %s'" % (title,author))
                     hits = dev_books.Search('%s - %s' % (title,author),
                                              self.SearchField.index('All'))
                     if hits:
                         hit = hits[0]
-                        self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                        logger().info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                         return hit
                     else:
                         if DEBUG:
-                            self.log.info("   no PDF hits")
+                            logger().info("   no PDF hits")
 
                 attempts -= 1
                 time.sleep(0.5)
                 if DEBUG:
-                    self.log.warning("  attempt #%d" % (10 - attempts))
+                    logger().warning("  attempt #%d" % (10 - attempts))
 
             if DEBUG:
-                self.log.error("  no hits")
+                logger().error("  no hits")
             return None
 
     def _find_library_book(self, search):
@@ -1823,13 +1837,13 @@ class ITUNES(DriverBase):
         '''
         if iswindows:
             if DEBUG:
-                self.log.info(" ITUNES._find_library_book()")
+                logger().info(" ITUNES._find_library_book()")
                 '''
                 if 'uuid' in search:
-                    self.log.info("  looking for '%s' by %s (%s)" %
+                    logger().info("  looking for '%s' by %s (%s)" %
                                 (search['title'], search['author'], search['uuid']))
                 else:
-                    self.log.info("  looking for '%s' by %s" %
+                    logger().info("  looking for '%s' by %s" %
                                 (search['title'], search['author']))
                 '''
 
@@ -1837,11 +1851,11 @@ class ITUNES(DriverBase):
                 if source.Kind == self.Sources.index('Library'):
                     lib = source
                     if DEBUG:
-                        self.log.info("  Library source: '%s'  kind: %s" % (lib.Name, self.Sources[lib.Kind]))
+                        logger().info("  Library source: '%s'  kind: %s" % (lib.Name, self.Sources[lib.Kind]))
                     break
             else:
                 if DEBUG:
-                    self.log.info("  Library source not found")
+                    logger().info("  Library source not found")
 
             if lib is not None:
                 lib_books = None
@@ -1849,12 +1863,12 @@ class ITUNES(DriverBase):
                     if pl.Kind == self.PlaylistKind.index('User') and \
                        pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
                         if DEBUG:
-                            self.log.info("  Books playlist: '%s'" % (pl.Name))
+                            logger().info("  Books playlist: '%s'" % (pl.Name))
                         lib_books = pl
                         break
                 else:
                     if DEBUG:
-                        self.log.error("  no Books playlist found")
+                        logger().error("  no Books playlist found")
 
 
             attempts = 9
@@ -1862,35 +1876,35 @@ class ITUNES(DriverBase):
                 # Find book whose Album field = search['uuid']
                 if 'uuid' in search and search['uuid']:
                     if DEBUG:
-                        self.log.info("   searching by uuid '%s' ..." % search['uuid'])
+                        logger().info("   searching by uuid '%s' ..." % search['uuid'])
                     hits = lib_books.Search(search['uuid'],self.SearchField.index('All'))
                     if hits:
                         hit = hits[0]
                         if DEBUG:
-                            self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                            logger().info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                         return hit
 
                 # Search by author if known
                 if search['author']:
                     if DEBUG:
-                        self.log.info("   searching by author '%s' ..." % search['author'])
+                        logger().info("   searching by author '%s' ..." % search['author'])
                     hits = lib_books.Search(search['author'],self.SearchField.index('Artists'))
                     if hits:
                         for hit in hits:
                             if hit.Name == search['title']:
                                 if DEBUG:
-                                    self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                                    logger().info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                                 return hit
 
                 # Search by title if no author available
                 if DEBUG:
-                    self.log.info("   searching by title '%s' ..." % search['title'])
+                    logger().info("   searching by title '%s' ..." % search['title'])
                 hits = lib_books.Search(search['title'],self.SearchField.index('All'))
                 if hits:
                     for hit in hits:
                         if hit.Name == search['title']:
                             if DEBUG:
-                                self.log.info("   found '%s'" % (hit.Name))
+                                logger().info("   found '%s'" % (hit.Name))
                             return hit
 
                 # PDF just sent, title not updated yet, look for export pattern
@@ -1899,24 +1913,24 @@ class ITUNES(DriverBase):
                     title = re.sub(r'[^0-9a-zA-Z ]', '_', search['title'])
                     author = re.sub(r'[^0-9a-zA-Z ]', '_', search['author'])
                     if DEBUG:
-                        self.log.info("   searching by name: %s - %s" % (title,author))
+                        logger().info("   searching by name: %s - %s" % (title,author))
                     hits = lib_books.Search('%s - %s' % (title,author),
                                              self.SearchField.index('All'))
                     if hits:
                         hit = hits[0]
-                        self.log.info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
+                        logger().info("   found '%s' by %s (%s)" % (hit.Name, hit.Artist, hit.Composer))
                         return hit
                     else:
                         if DEBUG:
-                            self.log.info("   no PDF hits")
+                            logger().info("   no PDF hits")
 
                 attempts -= 1
                 time.sleep(0.5)
                 if DEBUG:
-                    self.log.warning("   attempt #%d" % (10 - attempts))
+                    logger().warning("   attempt #%d" % (10 - attempts))
 
             if DEBUG:
-                self.log.error("  search for '%s' yielded no hits" % search['title'])
+                logger().error("  search for '%s' yielded no hits" % search['title'])
             return None
 
     def _generate_thumbnail(self, book_path, book):
@@ -1926,6 +1940,7 @@ class ITUNES(DriverBase):
         cache_dir = os.path.join(config_dir, 'caches', 'itunes')
         as of iTunes 9.2, iBooks 1.1, can't set artwork for PDF files via automation
         '''
+        from PIL import Image as PILImage
 
         if not self.settings().extra_customization[self.CACHE_COVERS]:
             thumb_data = None
@@ -1942,18 +1957,18 @@ class ITUNES(DriverBase):
             thumb_data = zfr.read(thumb_path)
             if thumb_data == 'None':
                 if False:
-                    self.log.info(" ITUNES._generate_thumbnail()\n   returning None from cover cache for '%s'" % title)
+                    logger().info(" ITUNES._generate_thumbnail()\n   returning None from cover cache for '%s'" % title)
                 zfr.close()
                 return None
         except:
             zfw = ZipFile(self.archive_path, mode='a')
         else:
             if False:
-                self.log.info("   returning thumb from cache for '%s'" % title)
+                logger().info("   returning thumb from cache for '%s'" % title)
             return thumb_data
 
         if DEBUG:
-            self.log.info(" ITUNES._generate_thumbnail('%s'):" % title)
+            logger().info(" ITUNES._generate_thumbnail('%s'):" % title)
         if isosx:
 
             # Fetch the artwork from iTunes
@@ -1962,7 +1977,7 @@ class ITUNES(DriverBase):
             except:
                 # If no artwork, write an empty marker to cache
                 if DEBUG:
-                    self.log.error("  error fetching iTunes artwork for '%s'" % title)
+                    logger().error("  error fetching iTunes artwork for '%s'" % title)
                 zfw.writestr(thumb_path, 'None')
                 zfw.close()
                 return None
@@ -1979,12 +1994,12 @@ class ITUNES(DriverBase):
                 thumb_data = thumb.getvalue()
                 thumb.close()
                 if False:
-                    self.log.info("  generated thumb for '%s', caching" % title)
+                    logger().info("  generated thumb for '%s', caching" % title)
                 # Cache the tagged thumb
                 zfw.writestr(thumb_path, thumb_data)
             except:
                 if DEBUG:
-                    self.log.error("  error generating thumb for '%s', caching empty marker" % book.name())
+                    logger().error("  error generating thumb for '%s', caching empty marker" % book.name())
                     self._dump_hex(data[:32])
                 thumb_data = None
                 # Cache the empty cover
@@ -1999,7 +2014,7 @@ class ITUNES(DriverBase):
         elif iswindows:
             if not book.Artwork.Count:
                 if DEBUG:
-                    self.log.info("  no artwork available for '%s'" % book.Name)
+                    logger().info("  no artwork available for '%s'" % book.Name)
                 zfw.writestr(thumb_path, 'None')
                 zfw.close()
                 return None
@@ -2019,12 +2034,12 @@ class ITUNES(DriverBase):
                 os.remove(tmp_thumb)
                 thumb.close()
                 if False:
-                    self.log.info("  generated thumb for '%s', caching" % book.Name)
+                    logger().info("  generated thumb for '%s', caching" % book.Name)
                 # Cache the tagged thumb
                 zfw.writestr(thumb_path, thumb_data)
             except:
                 if DEBUG:
-                    self.log.error("  error generating thumb for '%s', caching empty marker" % book.Name)
+                    logger().error("  error generating thumb for '%s', caching empty marker" % book.Name)
                 thumb_data = None
                 # Cache the empty cover
                 zfw.writestr(thumb_path,'None')
@@ -2047,9 +2062,9 @@ class ITUNES(DriverBase):
             for file in myZipList:
                 exploded_file_size += file.file_size
             if False:
-                self.log.info(" ITUNES._get_device_book_size()")
-                self.log.info("  %d items in archive" % len(myZipList))
-                self.log.info("  compressed: %d  exploded: %d" % (compressed_size, exploded_file_size))
+                logger().info(" ITUNES._get_device_book_size()")
+                logger().info("  %d items in archive" % len(myZipList))
+                logger().info("  compressed: %d  exploded: %d" % (compressed_size, exploded_file_size))
             myZip.close()
         return exploded_file_size
 
@@ -2058,7 +2073,7 @@ class ITUNES(DriverBase):
         Assumes pythoncom wrapper for Windows
         '''
         if DEBUG:
-            self.log.info("\n ITUNES._get_device_books()")
+            logger().info("\n ITUNES._get_device_books()")
 
         device_books = []
         if isosx:
@@ -2069,24 +2084,24 @@ class ITUNES(DriverBase):
                 for pl in device.playlists():
                     if pl.special_kind() == appscript.k.Books:
                         if DEBUG:
-                            self.log.info("  Book playlist: '%s'" % (pl.name()))
+                            logger().info("  Book playlist: '%s'" % (pl.name()))
                         dev_books = pl.file_tracks()
                         break
                 else:
-                    self.log.error("  book_playlist not found")
+                    logger().error("  book_playlist not found")
 
                 for book in dev_books:
                     # This may need additional entries for international iTunes users
                     if book.kind() in self.Audiobooks:
                         if DEBUG:
-                            self.log.info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
+                            logger().info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
                     else:
                         if DEBUG:
-                            self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" %
+                            logger().info("   %-30.30s %-30.30s %-40.40s [%s]" %
                                           (book.name(), book.artist(), book.album(), book.kind()))
                         device_books.append(book)
                 if DEBUG:
-                    self.log.info()
+                    logger().info()
 
         elif iswindows:
             if 'iPod' in self.sources:
@@ -2100,24 +2115,24 @@ class ITUNES(DriverBase):
                         if pl.Kind == self.PlaylistKind.index('User') and \
                            pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
                             if DEBUG:
-                                self.log.info("  Books playlist: '%s'" % (pl.Name))
+                                logger().info("  Books playlist: '%s'" % (pl.Name))
                             dev_books = pl.Tracks
                             break
                     else:
                         if DEBUG:
-                            self.log.info("  no Books playlist found")
+                            logger().info("  no Books playlist found")
 
                     for book in dev_books:
                         # This may need additional entries for international iTunes users
                         if book.KindAsString in self.Audiobooks:
                             if DEBUG:
-                                self.log.info("   ignoring '%s' of type '%s'" % (book.Name, book.KindAsString))
+                                logger().info("   ignoring '%s' of type '%s'" % (book.Name, book.KindAsString))
                         else:
                             if DEBUG:
-                                self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" % (book.Name, book.Artist, book.Album, book.KindAsString))
+                                logger().info("   %-30.30s %-30.30s %-40.40s [%s]" % (book.Name, book.Artist, book.Album, book.KindAsString))
                             device_books.append(book)
                     if DEBUG:
-                        self.log.info()
+                        logger().info()
 
                 finally:
                     pythoncom.CoUninitialize()
@@ -2140,7 +2155,7 @@ class ITUNES(DriverBase):
                         break
                 else:
                     if DEBUG:
-                        self.log.error("  no iPad|Books playlist found")
+                        logger().error("  no iPad|Books playlist found")
                 return pl
 
     def _get_library_books(self):
@@ -2149,7 +2164,7 @@ class ITUNES(DriverBase):
         Windows assumes pythoncom wrapper
         '''
         if DEBUG:
-            self.log.info("\n ITUNES._get_library_books()")
+            logger().info("\n ITUNES._get_library_books()")
 
         library_books = {}
         library_orphans = {}
@@ -2160,11 +2175,11 @@ class ITUNES(DriverBase):
                 if source.kind() == appscript.k.library:
                     lib = source
                     if DEBUG:
-                        self.log.info("  Library source: '%s'" % (lib.name()))
+                        logger().info("  Library source: '%s'" % (lib.name()))
                     break
             else:
                 if DEBUG:
-                    self.log.error('  Library source not found')
+                    logger().error('  Library source not found')
 
             if lib is not None:
                 lib_books = None
@@ -2172,18 +2187,18 @@ class ITUNES(DriverBase):
                     for pl in lib.playlists():
                         if pl.special_kind() == appscript.k.Books:
                             if DEBUG:
-                                self.log.info("  Books playlist: '%s'" % (pl.name()))
+                                logger().info("  Books playlist: '%s'" % (pl.name()))
                             break
                     else:
                         if DEBUG:
-                            self.log.info("  no Library|Books playlist found")
+                            logger().info("  no Library|Books playlist found")
 
                     lib_books = pl.file_tracks()
                     for book in lib_books:
                         # This may need additional entries for international iTunes users
                         if book.kind() in self.Audiobooks:
                             if DEBUG:
-                                self.log.info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
+                                logger().info("   ignoring '%s' of type '%s'" % (book.name(), book.kind()))
                         else:
                             # Collect calibre orphans - remnants of recipe uploads
                             format = 'pdf' if book.kind().startswith('PDF') else 'epub'
@@ -2193,31 +2208,31 @@ class ITUNES(DriverBase):
                                     if book.location() == appscript.k.missing_value:
                                         library_orphans[path] = book
                                         if False:
-                                            self.log.info("   found iTunes PTF '%s' in Library|Books" % book.name())
+                                            logger().info("   found iTunes PTF '%s' in Library|Books" % book.name())
                                 except:
                                     if DEBUG:
-                                        self.log.error("   iTunes returned an error returning .location() with %s" % book.name())
+                                        logger().error("   iTunes returned an error returning .location() with %s" % book.name())
 
                             library_books[path] = book
                             if DEBUG:
-                                self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" %
+                                logger().info("   %-30.30s %-30.30s %-40.40s [%s]" %
                                               (book.name(), book.artist(), book.album(), book.kind()))
                 else:
                     if DEBUG:
-                        self.log.info('  no Library playlists')
+                        logger().info('  no Library playlists')
             else:
                 if DEBUG:
-                    self.log.info('  no Library found')
+                    logger().info('  no Library found')
 
         elif iswindows:
             lib = None
             for source in self.iTunes.sources:
                 if source.Kind == self.Sources.index('Library'):
                     lib = source
-                    self.log.info("  Library source: '%s' kind: %s" % (lib.Name, self.Sources[lib.Kind]))
+                    logger().info("  Library source: '%s' kind: %s" % (lib.Name, self.Sources[lib.Kind]))
                     break
             else:
-                self.log.error("  Library source not found")
+                logger().error("  Library source not found")
 
             if lib is not None:
                 lib_books = None
@@ -2226,22 +2241,22 @@ class ITUNES(DriverBase):
                         if pl.Kind == self.PlaylistKind.index('User') and \
                            pl.SpecialKind == self.PlaylistSpecialKind.index('Books'):
                             if DEBUG:
-                                self.log.info("  Books playlist: '%s'" % (pl.Name))
+                                logger().info("  Books playlist: '%s'" % (pl.Name))
                             lib_books = pl.Tracks
                             break
                     else:
                         if DEBUG:
-                            self.log.error("  no Library|Books playlist found")
+                            logger().error("  no Library|Books playlist found")
                 else:
                     if DEBUG:
-                        self.log.error("  no Library playlists found")
+                        logger().error("  no Library playlists found")
 
                 try:
                     for book in lib_books:
                         # This may need additional entries for international iTunes users
                         if book.KindAsString in self.Audiobooks:
                             if DEBUG:
-                                self.log.info("   ignoring %-30.30s of type '%s'" % (book.Name, book.KindAsString))
+                                logger().info("   ignoring %-30.30s of type '%s'" % (book.Name, book.KindAsString))
                         else:
                             format = 'pdf' if book.KindAsString.startswith('PDF') else 'epub'
                             path = self.path_template % (book.Name, book.Artist,format)
@@ -2251,14 +2266,14 @@ class ITUNES(DriverBase):
                                 if not book.Location:
                                     library_orphans[path] = book
                                     if False:
-                                        self.log.info("   found iTunes PTF '%s' in Library|Books" % book.Name)
+                                        logger().info("   found iTunes PTF '%s' in Library|Books" % book.Name)
 
                             library_books[path] = book
                             if DEBUG:
-                                self.log.info("   %-30.30s %-30.30s %-40.40s [%s]" % (book.Name, book.Artist, book.Album, book.KindAsString))
+                                logger().info("   %-30.30s %-30.30s %-40.40s [%s]" % (book.Name, book.Artist, book.Album, book.KindAsString))
                 except:
                     if DEBUG:
-                        self.log.info(" no books in library")
+                        logger().info(" no books in library")
         self.library_orphans = library_orphans
         return library_books
 
@@ -2303,7 +2318,7 @@ class ITUNES(DriverBase):
         # If more than one connected iDevice, remove all from list to prevent driver initialization
         if kinds.count('iPod') > 1:
             if DEBUG:
-                self.log.error("  %d connected iPod devices detected, calibre supports a single connected iDevice" % kinds.count('iPod'))
+                logger().error("  %d connected iPod devices detected, calibre supports a single connected iDevice" % kinds.count('iPod'))
             while kinds.count('iPod'):
                 index = kinds.index('iPod')
                 kinds.pop(index)
@@ -2323,7 +2338,7 @@ class ITUNES(DriverBase):
         '''
         '''
         if DEBUG:
-            self.log.info(" ITUNES:_launch_iTunes():\n  Instantiating iTunes")
+            logger().info(" ITUNES:_launch_iTunes():\n  Instantiating iTunes")
 
         if isosx:
             '''
@@ -2333,7 +2348,7 @@ class ITUNES(DriverBase):
             running_apps = appscript.app('System Events')
             if not 'iTunes' in running_apps.processes.name():
                 if DEBUG:
-                    self.log.info( "ITUNES:_launch_iTunes(): Launching iTunes" )
+                    logger().info( "ITUNES:_launch_iTunes(): Launching iTunes" )
                 try:
                     self.iTunes = iTunes= appscript.app('iTunes', hide=True)
                 except:
@@ -2355,16 +2370,16 @@ class ITUNES(DriverBase):
             if os.path.exists(media_dir):
                 self.iTunes_media = media_dir
             else:
-                self.log.error("  could not confirm valid iTunes.media_dir from %s" % 'com.apple.itunes')
-                self.log.error("  media_dir: %s" % media_dir)
+                logger().error("  could not confirm valid iTunes.media_dir from %s" % 'com.apple.itunes')
+                logger().error("  media_dir: %s" % media_dir)
             '''
 
             if DEBUG:
-                self.log.info("  %s %s" % (__appname__, __version__))
-                self.log.info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
+                logger().info("  %s %s" % (__appname__, __version__))
+                logger().info("  [OSX %s - %s (%s), driver version %d.%d.%d]" %
                  (self.iTunes.name(), self.iTunes.version(), self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
-                self.log.info("  calibre_library_path: %s" % self.calibre_library_path)
+                logger().info("  calibre_library_path: %s" % self.calibre_library_path)
 
         if iswindows:
             '''
@@ -2417,19 +2432,19 @@ class ITUNES(DriverBase):
                 if os.path.exists(media_dir):
                     self.iTunes_media = media_dir
                 elif hasattr(string,'parent'):
-                    self.log.error("  could not extract valid iTunes.media_dir from %s" % self.iTunes.LibraryXMLPath)
-                    self.log.error("  %s" % string.parent.prettify())
-                    self.log.error("  '%s' not found" % media_dir)
+                    logger().error("  could not extract valid iTunes.media_dir from %s" % self.iTunes.LibraryXMLPath)
+                    logger().error("  %s" % string.parent.prettify())
+                    logger().error("  '%s' not found" % media_dir)
                 else:
-                    self.log.error("  no media dir found: string: %s" % string)
+                    logger().error("  no media dir found: string: %s" % string)
             '''
 
             if DEBUG:
-                self.log.info("  %s %s" % (__appname__, __version__))
-                self.log.info("  [Windows %s - %s (%s), driver version %d.%d.%d]" %
+                logger().info("  %s %s" % (__appname__, __version__))
+                logger().info("  [Windows %s - %s (%s), driver version %d.%d.%d]" %
                  (self.iTunes.Windows[0].name, self.iTunes.Version, self.initial_status,
                   self.version[0],self.version[1],self.version[2]))
-                self.log.info("  calibre_library_path: %s" % self.calibre_library_path)
+                logger().info("  calibre_library_path: %s" % self.calibre_library_path)
 
     def _purge_orphans(self,library_books, cached_books):
         '''
@@ -2438,16 +2453,16 @@ class ITUNES(DriverBase):
         This occurs when the user deletes a book in iBooks while disconnected
         '''
         if DEBUG:
-            self.log.info(" ITUNES._purge_orphans()")
+            logger().info(" ITUNES._purge_orphans()")
             #self._dump_library_books(library_books)
-            #self.log.info("  cached_books:\n   %s" % "\n   ".join(cached_books.keys()))
+            #logger().info("  cached_books:\n   %s" % "\n   ".join(cached_books.keys()))
 
         for book in library_books:
             if isosx:
                 if book not in cached_books and \
                    str(library_books[book].description()).startswith(self.description_prefix):
                     if DEBUG:
-                        self.log.info("  '%s' not found on iDevice, removing from iTunes" % book)
+                        logger().info("  '%s' not found on iDevice, removing from iTunes" % book)
                     btr = {   'title':library_books[book].name(),
                              'author':library_books[book].artist(),
                            'lib_book':library_books[book]}
@@ -2456,19 +2471,19 @@ class ITUNES(DriverBase):
                 if book not in cached_books and \
                    library_books[book].Description.startswith(self.description_prefix):
                     if DEBUG:
-                        self.log.info("  '%s' not found on iDevice, removing from iTunes" % book)
+                        logger().info("  '%s' not found on iDevice, removing from iTunes" % book)
                     btr = {   'title':library_books[book].Name,
                              'author':library_books[book].Artist,
                            'lib_book':library_books[book]}
                     self._remove_from_iTunes(btr)
         if DEBUG:
-            self.log.info()
+            logger().info()
 
     def _remove_existing_copy(self, path, metadata):
         '''
         '''
         if DEBUG:
-            self.log.info(" ITUNES._remove_existing_copy()")
+            logger().info(" ITUNES._remove_existing_copy()")
 
         if self.manual_sync_mode:
             # Delete existing from Device|Books, add to self.update_list
@@ -2480,16 +2495,16 @@ class ITUNES(DriverBase):
                     self.update_list.append(self.cached_books[book])
 
                     if DEBUG:
-                        self.log.info( "  deleting device book '%s'" % (metadata.title))
+                        logger().info( "  deleting device book '%s'" % (metadata.title))
                     self._remove_from_device(self.cached_books[book])
 
                     if DEBUG:
-                        self.log.info("  deleting library book '%s'" % metadata.title)
+                        logger().info("  deleting library book '%s'" % metadata.title)
                     self._remove_from_iTunes(self.cached_books[book])
                     break
             else:
                 if DEBUG:
-                    self.log.info("  '%s' not in cached_books" % metadata.title)
+                    logger().info("  '%s' not in cached_books" % metadata.title)
         else:
             # Delete existing from Library|Books, add to self.update_list
             # for deletion from booklist[0] during add_books_to_metadata
@@ -2499,35 +2514,35 @@ class ITUNES(DriverBase):
                     self.cached_books[book]['author'] == authors_to_string(metadata.authors)):
                     self.update_list.append(self.cached_books[book])
                     if DEBUG:
-                        self.log.info( "  deleting library book '%s'" %  metadata.title)
+                        logger().info( "  deleting library book '%s'" %  metadata.title)
                     self._remove_from_iTunes(self.cached_books[book])
                     break
             else:
                 if DEBUG:
-                    self.log.info("  '%s' not found in cached_books" % metadata.title)
+                    logger().info("  '%s' not found in cached_books" % metadata.title)
 
     def _remove_from_device(self, cached_book):
         '''
         Windows assumes pythoncom wrapper
         '''
         if DEBUG:
-            self.log.info(" ITUNES._remove_from_device()")
+            logger().info(" ITUNES._remove_from_device()")
         if isosx:
             if DEBUG:
-                self.log.info("  deleting '%s' from iDevice" % cached_book['title'])
+                logger().info("  deleting '%s' from iDevice" % cached_book['title'])
             try:
                 cached_book['dev_book'].delete()
             except:
-                self.log.error("  error deleting '%s'" % cached_book['title'])
+                logger().error("  error deleting '%s'" % cached_book['title'])
         elif iswindows:
             hit = self._find_device_book(cached_book)
             if hit:
                 if DEBUG:
-                    self.log.info("  deleting '%s' from iDevice" % cached_book['title'])
+                    logger().info("  deleting '%s' from iDevice" % cached_book['title'])
                 hit.Delete()
             else:
                 if DEBUG:
-                    self.log.warning("   unable to remove '%s' by '%s' (%s) from device" %
+                    logger().warning("   unable to remove '%s' by '%s' (%s) from device" %
                                      (cached_book['title'],cached_book['author'],cached_book['uuid']))
 
     def _remove_from_iTunes(self, cached_book):
@@ -2535,34 +2550,34 @@ class ITUNES(DriverBase):
         iTunes does not delete books from storage when removing from database via automation
         '''
         if DEBUG:
-            self.log.info(" ITUNES._remove_from_iTunes():")
+            logger().info(" ITUNES._remove_from_iTunes():")
 
         if isosx:
             ''' Manually remove the book from iTunes storage '''
             try:
                 fp = cached_book['lib_book'].location().path
                 if DEBUG:
-                    self.log.info("  processing %s" % fp)
+                    logger().info("  processing %s" % fp)
                 if fp.startswith(prefs['library_path']):
-                    self.log.info("  '%s' stored in calibre database, not removed" % cached_book['title'])
+                    logger().info("  '%s' stored in calibre database, not removed" % cached_book['title'])
                 elif not self.settings().extra_customization[self.USE_ITUNES_STORAGE] and \
                   fp.startswith(self.iTunes_local_storage) and \
                   os.path.exists(fp):
                     # Delete the copy in iTunes_local_storage
                     os.remove(fp)
                     if DEBUG:
-                        self.log("   removing from iTunes_local_storage")
+                        logger()("   removing from iTunes_local_storage")
                 else:
                     # Delete from iTunes Media folder
                     if os.path.exists(fp):
                         os.remove(fp)
                         if DEBUG:
-                            self.log.info("   deleting from iTunes storage")
+                            logger().info("   deleting from iTunes storage")
                         author_storage_path = os.path.split(fp)[0]
                         try:
                             os.rmdir(author_storage_path)
                             if DEBUG:
-                                self.log.info("   removing empty author directory")
+                                logger().info("   removing empty author directory")
                         except:
                             author_files = os.listdir(author_storage_path)
                             if '.DS_Store' in author_files:
@@ -2570,23 +2585,23 @@ class ITUNES(DriverBase):
                             if not author_files:
                                 os.rmdir(author_storage_path)
                                 if DEBUG:
-                                    self.log.info("   removing empty author directory")
+                                    logger().info("   removing empty author directory")
                     else:
-                        self.log.info("   '%s' does not exist at storage location" % cached_book['title'])
+                        logger().info("   '%s' does not exist at storage location" % cached_book['title'])
 
             except:
                 # We get here if there was an error with .location().path
                 if DEBUG:
-                    self.log.info("   '%s' not found in iTunes storage" % cached_book['title'])
+                    logger().info("   '%s' not found in iTunes storage" % cached_book['title'])
 
             # Delete the book from the iTunes database
             try:
                 self.iTunes.delete(cached_book['lib_book'])
                 if DEBUG:
-                    self.log.info("   removing from iTunes database")
+                    logger().info("   removing from iTunes database")
             except:
                 if DEBUG:
-                    self.log.info("   unable to remove from iTunes database")
+                    logger().info("   unable to remove from iTunes database")
 
         elif iswindows:
             '''
@@ -2604,43 +2619,43 @@ class ITUNES(DriverBase):
 
             if book:
                 if DEBUG:
-                    self.log.info("  processing %s" % fp)
+                    logger().info("  processing %s" % fp)
                 if fp.startswith(prefs['library_path']):
-                    self.log.info("  '%s' stored in calibre database, not removed" % cached_book['title'])
+                    logger().info("  '%s' stored in calibre database, not removed" % cached_book['title'])
                 elif not self.settings().extra_customization[self.USE_ITUNES_STORAGE] and \
                   fp.startswith(self.iTunes_local_storage) and \
                   os.path.exists(fp):
                     # Delete the copy in iTunes_local_storage
                     os.remove(fp)
                     if DEBUG:
-                        self.log("   removing from iTunes_local_storage")
+                        logger()("   removing from iTunes_local_storage")
                 else:
                     # Delete from iTunes Media folder
                     if os.path.exists(fp):
                         os.remove(fp)
                         if DEBUG:
-                            self.log.info("   deleting from iTunes storage")
+                            logger().info("   deleting from iTunes storage")
                         author_storage_path = os.path.split(fp)[0]
                         try:
                             os.rmdir(author_storage_path)
                             if DEBUG:
-                                self.log.info("   removing empty author directory")
+                                logger().info("   removing empty author directory")
                         except:
                             pass
                     else:
-                        self.log.info("   '%s' does not exist at storage location" % cached_book['title'])
+                        logger().info("   '%s' does not exist at storage location" % cached_book['title'])
             else:
                 if DEBUG:
-                    self.log.info("   '%s' not found in iTunes storage" % cached_book['title'])
+                    logger().info("   '%s' not found in iTunes storage" % cached_book['title'])
 
             # Delete the book from the iTunes database
             try:
                 book.Delete()
                 if DEBUG:
-                    self.log.info("   removing from iTunes database")
+                    logger().info("   removing from iTunes database")
             except:
                 if DEBUG:
-                    self.log.info("   unable to remove from iTunes database")
+                    logger().info("   unable to remove from iTunes database")
 
     def title_sorter(self, title):
         return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', title).rstrip()
@@ -2648,8 +2663,11 @@ class ITUNES(DriverBase):
     def _update_epub_metadata(self, fpath, metadata):
         '''
         '''
+        from calibre.ebooks.metadata.epub import set_metadata
+        from lxml import etree
+
         if DEBUG:
-            self.log.info(" ITUNES._update_epub_metadata()")
+            logger().info(" ITUNES._update_epub_metadata()")
 
         # Fetch plugboard updates
         metadata_x = self._xform_metadata_via_plugboard(metadata, 'epub')
@@ -2677,17 +2695,17 @@ class ITUNES(DriverBase):
                         metadata.timestamp = datetime.datetime(old_ts.year, old_ts.month, old_ts.day, old_ts.hour,
                                                    old_ts.minute, old_ts.second, old_ts.microsecond+1, old_ts.tzinfo)
                         if DEBUG:
-                            self.log.info("   existing timestamp: %s" % metadata.timestamp)
+                            logger().info("   existing timestamp: %s" % metadata.timestamp)
                     else:
                         metadata.timestamp = now()
                         if DEBUG:
-                            self.log.info("   add timestamp: %s" % metadata.timestamp)
+                            logger().info("   add timestamp: %s" % metadata.timestamp)
 
                 else:
                     metadata.timestamp = now()
                     if DEBUG:
-                        self.log.warning("   missing <metadata> block in OPF file")
-                        self.log.info("   add timestamp: %s" % metadata.timestamp)
+                        logger().warning("   missing <metadata> block in OPF file")
+                        logger().info("   add timestamp: %s" % metadata.timestamp)
 
                 zf_opf.close()
 
@@ -2717,7 +2735,7 @@ class ITUNES(DriverBase):
         Trigger a sync, wait for completion
         '''
         if DEBUG:
-            self.log.info(" ITUNES:_update_device():\n %s" % msg)
+            logger().info(" ITUNES:_update_device():\n %s" % msg)
 
         if isosx:
             self.iTunes.update()
@@ -2763,7 +2781,7 @@ class ITUNES(DriverBase):
         '''
         '''
         if DEBUG:
-            self.log.info(" ITUNES._update_iTunes_metadata()")
+            logger().info(" ITUNES._update_iTunes_metadata()")
 
         STRIP_TAGS = re.compile(r'<[^<]*?/?>')
 
@@ -2815,8 +2833,8 @@ class ITUNES(DriverBase):
             # If title_sort applied in plugboard, that overrides using series/index as title_sort
             if metadata_x.series and self.settings().extra_customization[self.USE_SERIES_AS_CATEGORY]:
                 if DEBUG:
-                    self.log.info(" ITUNES._update_iTunes_metadata()")
-                    self.log.info("   using Series name '%s' as Genre" % metadata_x.series)
+                    logger().info(" ITUNES._update_iTunes_metadata()")
+                    logger().info("   using Series name '%s' as Genre" % metadata_x.series)
 
                 # Format the index as a sort key
                 index = metadata_x.series_index
@@ -2840,7 +2858,7 @@ class ITUNES(DriverBase):
                                 break
 
                 if db_added:
-                    self.log.warning("  waiting for db_added to become writeable ")
+                    logger().warning("  waiting for db_added to become writeable ")
                     time.sleep(1.0)
                     # If no title_sort plugboard tweak, create sort_name from series/index
                     if metadata.title_sort == metadata_x.title_sort:
@@ -2860,7 +2878,7 @@ class ITUNES(DriverBase):
 
             elif metadata_x.tags is not None:
                 if DEBUG:
-                    self.log.info("   %susing Tag as Genre" %
+                    logger().info("   %susing Tag as Genre" %
                      "no Series name available, " if self.settings().extra_customization[self.USE_SERIES_AS_CATEGORY] else '')
                 for tag in metadata_x.tags:
                     if self._is_alpha(tag[0]):
@@ -2883,7 +2901,7 @@ class ITUNES(DriverBase):
                 lb_added.Year = metadata_x.pubdate.year
 
             if db_added:
-                self.log.warning("  waiting for db_added to become writeable ")
+                logger().warning("  waiting for db_added to become writeable ")
                 time.sleep(1.0)
                 db_added.Name = metadata_x.title
                 db_added.Album = metadata_x.title
@@ -2910,7 +2928,7 @@ class ITUNES(DriverBase):
                         db_added.AlbumRating = (metadata_x.rating*10)
                 except:
                     if DEBUG:
-                        self.log.warning("  iTunes automation interface reported an error"
+                        logger().warning("  iTunes automation interface reported an error"
                                          " setting AlbumRating on iDevice")
 
             # Set Genre from first alpha tag, overwrite with series if available
@@ -2919,7 +2937,7 @@ class ITUNES(DriverBase):
 
             if metadata_x.series and self.settings().extra_customization[self.USE_SERIES_AS_CATEGORY]:
                 if DEBUG:
-                    self.log.info("   using Series name as Genre")
+                    logger().info("   using Series name as Genre")
                 # Format the index as a sort key
                 index = metadata_x.series_index
                 integer = int(index)
@@ -2935,13 +2953,13 @@ class ITUNES(DriverBase):
                         lb_added.TrackNumber = metadata_x.series_index
                     except:
                         if DEBUG:
-                            self.log.warning("  iTunes automation interface reported an error"
+                            logger().warning("  iTunes automation interface reported an error"
                                              " setting TrackNumber in iTunes")
                     try:
                         lb_added.EpisodeNumber = metadata_x.series_index
                     except:
                         if DEBUG:
-                            self.log.warning("  iTunes automation interface reported an error"
+                            logger().warning("  iTunes automation interface reported an error"
                                              " setting EpisodeNumber in iTunes")
 
                     # If no plugboard transform applied to tags, change the Genre/Category to Series
@@ -2963,13 +2981,13 @@ class ITUNES(DriverBase):
                         db_added.TrackNumber = metadata_x.series_index
                     except:
                         if DEBUG:
-                            self.log.warning("  iTunes automation interface reported an error"
+                            logger().warning("  iTunes automation interface reported an error"
                                              " setting TrackNumber on iDevice")
                     try:
                         db_added.EpisodeNumber = metadata_x.series_index
                     except:
                         if DEBUG:
-                            self.log.warning("  iTunes automation interface reported an error"
+                            logger().warning("  iTunes automation interface reported an error"
                                              " setting EpisodeNumber on iDevice")
 
                     # If no plugboard transform applied to tags, change the Genre/Category to Series
@@ -2983,7 +3001,7 @@ class ITUNES(DriverBase):
 
             elif metadata_x.tags is not None:
                 if DEBUG:
-                    self.log.info("   using Tag as Genre")
+                    logger().info("   using Tag as Genre")
                 for tag in metadata_x.tags:
                     if self._is_alpha(tag[0]):
                         if lb_added:
@@ -2997,8 +3015,8 @@ class ITUNES(DriverBase):
         Ensure iDevice metadata is writable. Direct connect mode only
         '''
         if DEBUG:
-            self.log.info(" ITUNES._wait_for_writable_metadata()")
-            self.log.warning("  %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
+            logger().info(" ITUNES._wait_for_writable_metadata()")
+            logger().warning("  %s" % self.UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE)
 
         attempts = 9
         while attempts:
@@ -3012,40 +3030,40 @@ class ITUNES(DriverBase):
                 attempts -= 1
                 time.sleep(delay)
                 if DEBUG:
-                    self.log.warning("  waiting %.1f seconds for iDevice metadata to become writable (attempt #%d)" %
+                    logger().warning("  waiting %.1f seconds for iDevice metadata to become writable (attempt #%d)" %
                                      (delay, (10 - attempts)))
         else:
             if DEBUG:
-                self.log.error(" failed to write device metadata")
+                logger().error(" failed to write device metadata")
 
     def _xform_metadata_via_plugboard(self, book, format):
         ''' Transform book metadata from plugboard templates '''
         if DEBUG:
-            self.log.info(" ITUNES._xform_metadata_via_plugboard()")
+            logger().info(" ITUNES._xform_metadata_via_plugboard()")
 
         if self.plugboard_func:
             pb = self.plugboard_func(self.DEVICE_PLUGBOARD_NAME, format, self.plugboards)
             newmi = book.deepcopy_metadata()
             newmi.template_to_attribute(book, pb)
             if pb is not None and DEBUG:
-                #self.log.info(" transforming %s using %s:" % (format, pb))
-                self.log.info("       title: '%s' %s" % (book.title, ">>> '%s'" %
+                #logger().info(" transforming %s using %s:" % (format, pb))
+                logger().info("       title: '%s' %s" % (book.title, ">>> '%s'" %
                                            newmi.title if book.title != newmi.title else ''))
-                self.log.info("  title_sort: %s %s" % (book.title_sort, ">>> %s" %
+                logger().info("  title_sort: %s %s" % (book.title_sort, ">>> %s" %
                                            newmi.title_sort if book.title_sort != newmi.title_sort else ''))
-                self.log.info("     authors: %s %s" % (book.authors, ">>> %s" %
+                logger().info("     authors: %s %s" % (book.authors, ">>> %s" %
                                            newmi.authors if book.authors != newmi.authors else ''))
-                self.log.info(" author_sort: %s %s" % (book.author_sort, ">>> %s" %
+                logger().info(" author_sort: %s %s" % (book.author_sort, ">>> %s" %
                                            newmi.author_sort if book.author_sort != newmi.author_sort else ''))
-                self.log.info("    language: %s %s" % (book.language, ">>> %s" %
+                logger().info("    language: %s %s" % (book.language, ">>> %s" %
                                            newmi.language if book.language != newmi.language else ''))
-                self.log.info("   publisher: %s %s" % (book.publisher, ">>> %s" %
+                logger().info("   publisher: %s %s" % (book.publisher, ">>> %s" %
                                            newmi.publisher if book.publisher != newmi.publisher else ''))
-                self.log.info("        tags: %s %s" % (book.tags, ">>> %s" %
+                logger().info("        tags: %s %s" % (book.tags, ">>> %s" %
                                            newmi.tags if book.tags != newmi.tags else ''))
             else:
                 if DEBUG:
-                    self.log("  matching plugboard not found")
+                    logger()("  matching plugboard not found")
 
         else:
             newmi = book
@@ -3068,7 +3086,7 @@ class ITUNES_ASYNC(ITUNES):
 
     def __init__(self,path):
         if DEBUG:
-            self.log.info("ITUNES_ASYNC:__init__()")
+            logger().info("ITUNES_ASYNC:__init__()")
 
         if isosx and appscript is None:
             self.connected = False
@@ -3110,15 +3128,15 @@ class ITUNES_ASYNC(ITUNES):
         """
         if not oncard:
             if DEBUG:
-                self.log.info("ITUNES_ASYNC:books()")
+                logger().info("ITUNES_ASYNC:books()")
                 if self.settings().extra_customization[self.CACHE_COVERS]:
-                    self.log.info(" Cover fetching/caching enabled")
+                    logger().info(" Cover fetching/caching enabled")
                 else:
-                    self.log.info(" Cover fetching/caching disabled")
+                    logger().info(" Cover fetching/caching disabled")
 
             # Fetch a list of books from iTunes
 
-            booklist = BookList(self.log)
+            booklist = BookList(logger())
             cached_books = {}
 
             if isosx:
@@ -3214,7 +3232,7 @@ class ITUNES_ASYNC(ITUNES):
             return booklist
 
         else:
-            return BookList(self.log)
+            return BookList(logger())
 
     def eject(self):
         '''
@@ -3222,7 +3240,7 @@ class ITUNES_ASYNC(ITUNES):
         are pending GUI jobs that need to communicate with the device.
         '''
         if DEBUG:
-            self.log.info("ITUNES_ASYNC:eject()")
+            logger().info("ITUNES_ASYNC:eject()")
         self.iTunes = None
         self.connected = False
 
@@ -3237,7 +3255,7 @@ class ITUNES_ASYNC(ITUNES):
         particular device doesn't have any of these locations it should return -1.
         """
         if DEBUG:
-            self.log.info("ITUNES_ASYNC:free_space()")
+            logger().info("ITUNES_ASYNC:free_space()")
         free_space = 0
         if isosx:
             s = os.statvfs(os.sep)
@@ -3254,7 +3272,7 @@ class ITUNES_ASYNC(ITUNES):
         @return: (device name, device version, software version on device, mime type)
         """
         if DEBUG:
-            self.log.info("ITUNES_ASYNC:get_device_information()")
+            logger().info("ITUNES_ASYNC:get_device_information()")
 
         return ('iTunes','hw v1.0','sw v1.0', 'mime type normally goes here')
 
@@ -3277,33 +3295,33 @@ class ITUNES_ASYNC(ITUNES):
         we need to talk to iTunes to discover if there's a connected iPod
         '''
         if DEBUG:
-            self.log.info("ITUNES_ASYNC.open(connected_device: %s)" % repr(connected_device))
+            logger().info("ITUNES_ASYNC.open(connected_device: %s)" % repr(connected_device))
 
         # Confirm/create thumbs archive
         if not os.path.exists(self.cache_dir):
             if DEBUG:
-                self.log.info(" creating thumb cache '%s'" % self.cache_dir)
+                logger().info(" creating thumb cache '%s'" % self.cache_dir)
             os.makedirs(self.cache_dir)
 
         if not os.path.exists(self.archive_path):
-            self.log.info(" creating zip archive")
+            logger().info(" creating zip archive")
             zfw = ZipFile(self.archive_path, mode='w')
             zfw.writestr("iTunes Thumbs Archive",'')
             zfw.close()
         else:
             if DEBUG:
-                self.log.info(" existing thumb cache at '%s'" % self.archive_path)
+                logger().info(" existing thumb cache at '%s'" % self.archive_path)
 
         # If enabled in config options, create/confirm an iTunes storage folder
         if not self.settings().extra_customization[self.USE_ITUNES_STORAGE]:
             self.iTunes_local_storage = os.path.join(config_dir,'iTunes storage')
             if not os.path.exists(self.iTunes_local_storage):
                 if DEBUG:
-                    self.log(" creating iTunes_local_storage at '%s'" % self.iTunes_local_storage)
+                    logger()(" creating iTunes_local_storage at '%s'" % self.iTunes_local_storage)
                 os.mkdir(self.iTunes_local_storage)
             else:
                 if DEBUG:
-                    self.log(" existing iTunes_local_storage at '%s'" % self.iTunes_local_storage)
+                    logger()(" existing iTunes_local_storage at '%s'" % self.iTunes_local_storage)
 
     def sync_booklists(self, booklists, end_session=True):
         '''
@@ -3314,7 +3332,7 @@ class ITUNES_ASYNC(ITUNES):
         '''
 
         if DEBUG:
-            self.log.info("ITUNES_ASYNC.sync_booklists()")
+            logger().info("ITUNES_ASYNC.sync_booklists()")
 
         # Inform user of any problem books
         if self.problem_titles:
@@ -3328,7 +3346,7 @@ class ITUNES_ASYNC(ITUNES):
         '''
         '''
         if DEBUG:
-            self.log.info("ITUNES_ASYNC:unmount_device()")
+            logger().info("ITUNES_ASYNC:unmount_device()")
         self.connected = False
 
 class BookList(list):

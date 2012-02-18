@@ -144,6 +144,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tags_browser_partition_method', gprefs, choices=choices)
         r('tags_browser_collapse_at', gprefs)
         r('default_author_link', gprefs)
+        r('tag_browser_dont_collapse', gprefs, setting=CommaSeparatedList)
 
         choices = set([k for k in db.field_metadata.all_field_keys()
                 if (db.field_metadata[k]['is_category'] and

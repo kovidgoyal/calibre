@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-01-19 00:12+0000\n"
+"PO-Revision-Date: 2012-02-15 11:31+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-01-20 04:38+0000\n"
-"X-Generator: Launchpad (build 14700)\n"
+"X-Launchpad-Export-Date: 2012-02-16 05:03+0000\n"
+"X-Generator: Launchpad (build 14781)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -7003,883 +7003,883 @@ msgstr "Ebrié"
 
 #. name for ebu
 msgid "Embu"
-msgstr ""
+msgstr "Embu"
 
 #. name for ecr
 msgid "Eteocretan"
-msgstr ""
+msgstr "Eteocretan"
 
 #. name for ecs
 msgid "Ecuadorian Sign Language"
-msgstr ""
+msgstr "Ecuadorian Sign Language"
 
 #. name for ecy
 msgid "Eteocypriot"
-msgstr ""
+msgstr "Eteocypriot"
 
 #. name for eee
 msgid "E"
-msgstr ""
+msgstr "E"
 
 #. name for efa
 msgid "Efai"
-msgstr ""
+msgstr "Efai"
 
 #. name for efe
 msgid "Efe"
-msgstr ""
+msgstr "Efe"
 
 #. name for efi
 msgid "Efik"
-msgstr ""
+msgstr "Efik"
 
 #. name for ega
 msgid "Ega"
-msgstr ""
+msgstr "Ega"
 
 #. name for egl
 msgid "Emilian"
-msgstr ""
+msgstr "Emilian"
 
 #. name for ego
 msgid "Eggon"
-msgstr ""
+msgstr "Eggon"
 
 #. name for egy
 msgid "Egyptian (Ancient)"
-msgstr ""
+msgstr "Egyptian (Ancient)"
 
 #. name for ehu
 msgid "Ehueun"
-msgstr ""
+msgstr "Ehueun"
 
 #. name for eip
 msgid "Eipomek"
-msgstr ""
+msgstr "Eipomek"
 
 #. name for eit
 msgid "Eitiep"
-msgstr ""
+msgstr "Eitiep"
 
 #. name for eiv
 msgid "Askopan"
-msgstr ""
+msgstr "Askopan"
 
 #. name for eja
 msgid "Ejamat"
-msgstr ""
+msgstr "Ejamat"
 
 #. name for eka
 msgid "Ekajuk"
-msgstr ""
+msgstr "Ekajuk"
 
 #. name for eke
 msgid "Ekit"
-msgstr ""
+msgstr "Ekit"
 
 #. name for ekg
 msgid "Ekari"
-msgstr ""
+msgstr "Ekari"
 
 #. name for eki
 msgid "Eki"
-msgstr ""
+msgstr "Eki"
 
 #. name for ekk
 msgid "Estonian; Standard"
-msgstr ""
+msgstr "Estonian; Standard"
 
 #. name for ekl
 msgid "Kol"
-msgstr ""
+msgstr "Kol"
 
 #. name for ekm
 msgid "Elip"
-msgstr ""
+msgstr "Elip"
 
 #. name for eko
 msgid "Koti"
-msgstr ""
+msgstr "Koti"
 
 #. name for ekp
 msgid "Ekpeye"
-msgstr ""
+msgstr "Ekpeye"
 
 #. name for ekr
 msgid "Yace"
-msgstr ""
+msgstr "Yace"
 
 #. name for eky
 msgid "Kayah; Eastern"
-msgstr ""
+msgstr "Kayah; Eastern"
 
 #. name for ele
 msgid "Elepi"
-msgstr ""
+msgstr "Elepi"
 
 #. name for elh
 msgid "El Hugeirat"
-msgstr ""
+msgstr "El Hugeirat"
 
 #. name for eli
 msgid "Nding"
-msgstr ""
+msgstr "Nding"
 
 #. name for elk
 msgid "Elkei"
-msgstr ""
+msgstr "Elkei"
 
 #. name for ell
 msgid "Greek; Modern (1453-)"
-msgstr ""
+msgstr "Greek; Modern (1453-)"
 
 #. name for elm
 msgid "Eleme"
-msgstr ""
+msgstr "Eleme"
 
 #. name for elo
 msgid "El Molo"
-msgstr ""
+msgstr "El Molo"
 
 #. name for elp
 msgid "Elpaputih"
-msgstr ""
+msgstr "Elpaputih"
 
 #. name for elu
 msgid "Elu"
-msgstr ""
+msgstr "Elu"
 
 #. name for elx
 msgid "Elamite"
-msgstr ""
+msgstr "Elamite"
 
 #. name for ema
 msgid "Emai-Iuleha-Ora"
-msgstr ""
+msgstr "Emai-Iuleha-Ora"
 
 #. name for emb
 msgid "Embaloh"
-msgstr ""
+msgstr "Embaloh"
 
 #. name for eme
 msgid "Emerillon"
-msgstr ""
+msgstr "Emerillon"
 
 #. name for emg
 msgid "Meohang; Eastern"
-msgstr ""
+msgstr "Meohang; Eastern"
 
 #. name for emi
 msgid "Mussau-Emira"
-msgstr ""
+msgstr "Mussau-Emira"
 
 #. name for emk
 msgid "Maninkakan; Eastern"
-msgstr ""
+msgstr "Maninkakan; Eastern"
 
 #. name for emm
 msgid "Mamulique"
-msgstr ""
+msgstr "Mamulique"
 
 #. name for emn
 msgid "Eman"
-msgstr ""
+msgstr "Eman"
 
 #. name for emo
 msgid "Emok"
-msgstr ""
+msgstr "Emok"
 
 #. name for emp
 msgid "Emberá; Northern"
-msgstr ""
+msgstr "Emberá; Northern"
 
 #. name for ems
 msgid "Yupik; Pacific Gulf"
-msgstr ""
+msgstr "Yupik; Pacific Gulf"
 
 #. name for emu
 msgid "Muria; Eastern"
-msgstr ""
+msgstr "Muria; Eastern"
 
 #. name for emw
 msgid "Emplawas"
-msgstr ""
+msgstr "Emplawas"
 
 #. name for emx
 msgid "Erromintxela"
-msgstr ""
+msgstr "Erromintxela"
 
 #. name for emy
 msgid "Mayan; Epigraphic"
-msgstr ""
+msgstr "Mayan; Epigraphic"
 
 #. name for ena
 msgid "Apali"
-msgstr ""
+msgstr "Apali"
 
 #. name for enb
 msgid "Markweeta"
-msgstr ""
+msgstr "Markweeta"
 
 #. name for enc
 msgid "En"
-msgstr ""
+msgstr "En"
 
 #. name for end
 msgid "Ende"
-msgstr ""
+msgstr "Ende"
 
 #. name for enf
 msgid "Enets; Forest"
-msgstr ""
+msgstr "Enets; Forest"
 
 #. name for eng
 msgid "English"
-msgstr ""
+msgstr "English"
 
 #. name for enh
 msgid "Enets; Tundra"
-msgstr ""
+msgstr "Enets; Tundra"
 
 #. name for enm
 msgid "English; Middle (1100-1500)"
-msgstr ""
+msgstr "English; Middle (1100-1500)"
 
 #. name for enn
 msgid "Engenni"
-msgstr ""
+msgstr "Engenni"
 
 #. name for eno
 msgid "Enggano"
-msgstr ""
+msgstr "Enggano"
 
 #. name for enq
 msgid "Enga"
-msgstr ""
+msgstr "Enga"
 
 #. name for enr
 msgid "Emumu"
-msgstr ""
+msgstr "Emumu"
 
 #. name for enu
 msgid "Enu"
-msgstr ""
+msgstr "Enu"
 
 #. name for env
 msgid "Enwan (Edu State)"
-msgstr ""
+msgstr "Enwan (Edu State)"
 
 #. name for enw
 msgid "Enwan (Akwa Ibom State)"
-msgstr ""
+msgstr "Enwan (Akwa Ibom State)"
 
 #. name for eot
 msgid "Beti (Côte d'Ivoire)"
-msgstr ""
+msgstr "Beti (Côte d'Ivoire)"
 
 #. name for epi
 msgid "Epie"
-msgstr ""
+msgstr "Epie"
 
 #. name for epo
 msgid "Esperanto"
-msgstr ""
+msgstr "Esperanto"
 
 #. name for era
 msgid "Eravallan"
-msgstr ""
+msgstr "Eravallan"
 
 #. name for erg
 msgid "Sie"
-msgstr ""
+msgstr "Sie"
 
 #. name for erh
 msgid "Eruwa"
-msgstr ""
+msgstr "Eruwa"
 
 #. name for eri
 msgid "Ogea"
-msgstr ""
+msgstr "Ogea"
 
 #. name for erk
 msgid "Efate; South"
-msgstr ""
+msgstr "Efate; South"
 
 #. name for ero
 msgid "Horpa"
-msgstr ""
+msgstr "Horpa"
 
 #. name for err
 msgid "Erre"
-msgstr ""
+msgstr "Erre"
 
 #. name for ers
 msgid "Ersu"
-msgstr ""
+msgstr "Ersu"
 
 #. name for ert
 msgid "Eritai"
-msgstr ""
+msgstr "Eritai"
 
 #. name for erw
 msgid "Erokwanas"
-msgstr ""
+msgstr "Erokwanas"
 
 #. name for ese
 msgid "Ese Ejja"
-msgstr ""
+msgstr "Ese Ejja"
 
 #. name for esh
 msgid "Eshtehardi"
-msgstr ""
+msgstr "Eshtehardi"
 
 #. name for esi
 msgid "Inupiatun; North Alaskan"
-msgstr ""
+msgstr "Inupiatun; North Alaskan"
 
 #. name for esk
 msgid "Inupiatun; Northwest Alaska"
-msgstr ""
+msgstr "Inupiatun; Northwest Alaska"
 
 #. name for esl
 msgid "Egypt Sign Language"
-msgstr ""
+msgstr "Egypt Sign Language"
 
 #. name for esm
 msgid "Esuma"
-msgstr ""
+msgstr "Esuma"
 
 #. name for esn
 msgid "Salvadoran Sign Language"
-msgstr ""
+msgstr "Salvadoran Sign Language"
 
 #. name for eso
 msgid "Estonian Sign Language"
-msgstr ""
+msgstr "Estonian Sign Language"
 
 #. name for esq
 msgid "Esselen"
-msgstr ""
+msgstr "Esselen"
 
 #. name for ess
 msgid "Yupik; Central Siberian"
-msgstr ""
+msgstr "Yupik; Central Siberian"
 
 #. name for est
 msgid "Estonian"
-msgstr ""
+msgstr "Estonian"
 
 #. name for esu
 msgid "Yupik; Central"
-msgstr ""
+msgstr "Yupik; Central"
 
 #. name for etb
 msgid "Etebi"
-msgstr ""
+msgstr "Etebi"
 
 #. name for etc
 msgid "Etchemin"
-msgstr ""
+msgstr "Etchemin"
 
 #. name for eth
 msgid "Ethiopian Sign Language"
-msgstr ""
+msgstr "Ethiopian Sign Language"
 
 #. name for etn
 msgid "Eton (Vanuatu)"
-msgstr ""
+msgstr "Eton (Vanuatu)"
 
 #. name for eto
 msgid "Eton (Cameroon)"
-msgstr ""
+msgstr "Eton (Cameroon)"
 
 #. name for etr
 msgid "Edolo"
-msgstr ""
+msgstr "Edolo"
 
 #. name for ets
 msgid "Yekhee"
-msgstr ""
+msgstr "Yekhee"
 
 #. name for ett
 msgid "Etruscan"
-msgstr ""
+msgstr "Etruscan"
 
 #. name for etu
 msgid "Ejagham"
-msgstr ""
+msgstr "Ejagham"
 
 #. name for etx
 msgid "Eten"
-msgstr ""
+msgstr "Eten"
 
 #. name for etz
 msgid "Semimi"
-msgstr ""
+msgstr "Semimi"
 
 #. name for eus
 msgid "Basque"
-msgstr ""
+msgstr "Basque"
 
 #. name for eve
 msgid "Even"
-msgstr ""
+msgstr "Even"
 
 #. name for evh
 msgid "Uvbie"
-msgstr ""
+msgstr "Uvbie"
 
 #. name for evn
 msgid "Evenki"
-msgstr ""
+msgstr "Evenki"
 
 #. name for ewe
 msgid "Ewe"
-msgstr ""
+msgstr "Ewe"
 
 #. name for ewo
 msgid "Ewondo"
-msgstr ""
+msgstr "Ewondo"
 
 #. name for ext
 msgid "Extremaduran"
-msgstr ""
+msgstr "Extremaduran"
 
 #. name for eya
 msgid "Eyak"
-msgstr ""
+msgstr "Eyak"
 
 #. name for eyo
 msgid "Keiyo"
-msgstr ""
+msgstr "Keiyo"
 
 #. name for eze
 msgid "Uzekwe"
-msgstr ""
+msgstr "Uzekwe"
 
 #. name for faa
 msgid "Fasu"
-msgstr ""
+msgstr "Fasu"
 
 #. name for fab
 msgid "Fa D'ambu"
-msgstr ""
+msgstr "Fa D'ambu"
 
 #. name for fad
 msgid "Wagi"
-msgstr ""
+msgstr "Wagi"
 
 #. name for faf
 msgid "Fagani"
-msgstr ""
+msgstr "Fagani"
 
 #. name for fag
 msgid "Finongan"
-msgstr ""
+msgstr "Finongan"
 
 #. name for fah
 msgid "Fali; Baissa"
-msgstr ""
+msgstr "Fali; Baissa"
 
 #. name for fai
 msgid "Faiwol"
-msgstr ""
+msgstr "Faiwol"
 
 #. name for faj
 msgid "Faita"
-msgstr ""
+msgstr "Faita"
 
 #. name for fak
 msgid "Fang (Cameroon)"
-msgstr ""
+msgstr "Fang (Cameroon)"
 
 #. name for fal
 msgid "Fali; South"
-msgstr ""
+msgstr "Fali; South"
 
 #. name for fam
 msgid "Fam"
-msgstr ""
+msgstr "Fam"
 
 #. name for fan
 msgid "Fang (Equatorial Guinea)"
-msgstr ""
+msgstr "Fang (Equatorial Guinea)"
 
 #. name for fao
 msgid "Faroese"
-msgstr ""
+msgstr "Faroese"
 
 #. name for fap
 msgid "Palor"
-msgstr ""
+msgstr "Palor"
 
 #. name for far
 msgid "Fataleka"
-msgstr ""
+msgstr "Fataleka"
 
 #. name for fas
 msgid "Persian"
-msgstr ""
+msgstr "Persian"
 
 #. name for fat
 msgid "Fanti"
-msgstr ""
+msgstr "Fanti"
 
 #. name for fau
 msgid "Fayu"
-msgstr ""
+msgstr "Fayu"
 
 #. name for fax
 msgid "Fala"
-msgstr ""
+msgstr "Fala"
 
 #. name for fay
 msgid "Fars; Southwestern"
-msgstr ""
+msgstr "Fars; Southwestern"
 
 #. name for faz
 msgid "Fars; Northwestern"
-msgstr ""
+msgstr "Fars; Northwestern"
 
 #. name for fbl
 msgid "Bikol; West Albay"
-msgstr ""
+msgstr "Bikol; West Albay"
 
 #. name for fcs
 msgid "Quebec Sign Language"
-msgstr ""
+msgstr "Quebec Sign Language"
 
 #. name for fer
 msgid "Feroge"
-msgstr ""
+msgstr "Feroge"
 
 #. name for ffi
 msgid "Foia Foia"
-msgstr ""
+msgstr "Foia Foia"
 
 #. name for ffm
 msgid "Fulfulde; Maasina"
-msgstr ""
+msgstr "Fulfulde; Maasina"
 
 #. name for fgr
 msgid "Fongoro"
-msgstr ""
+msgstr "Fongoro"
 
 #. name for fia
 msgid "Nobiin"
-msgstr ""
+msgstr "Nobiin"
 
 #. name for fie
 msgid "Fyer"
-msgstr ""
+msgstr "Fyer"
 
 #. name for fij
 msgid "Fijian"
-msgstr ""
+msgstr "Fijian"
 
 #. name for fil
 msgid "Filipino"
-msgstr ""
+msgstr "Filipino"
 
 #. name for fin
 msgid "Finnish"
-msgstr ""
+msgstr "Finnish"
 
 #. name for fip
 msgid "Fipa"
-msgstr ""
+msgstr "Fipa"
 
 #. name for fir
 msgid "Firan"
-msgstr ""
+msgstr "Firan"
 
 #. name for fit
 msgid "Finnish; Tornedalen"
-msgstr ""
+msgstr "Finnish; Tornedalen"
 
 #. name for fiw
 msgid "Fiwaga"
-msgstr ""
+msgstr "Fiwaga"
 
 #. name for fkv
 msgid "Finnish; Kven"
-msgstr ""
+msgstr "Finnish; Kven"
 
 #. name for fla
 msgid "Kalispel-Pend d'Oreille"
-msgstr ""
+msgstr "Kalispel-Pend d'Oreille"
 
 #. name for flh
 msgid "Foau"
-msgstr ""
+msgstr "Foau"
 
 #. name for fli
 msgid "Fali"
-msgstr ""
+msgstr "Fali"
 
 #. name for fll
 msgid "Fali; North"
-msgstr ""
+msgstr "Fali; North"
 
 #. name for fln
 msgid "Flinders Island"
-msgstr ""
+msgstr "Flinders Island"
 
 #. name for flr
 msgid "Fuliiru"
-msgstr ""
+msgstr "Fuliiru"
 
 #. name for fly
 msgid "Tsotsitaal"
-msgstr ""
+msgstr "Tsotsitaal"
 
 #. name for fmp
 msgid "Fe'fe'"
-msgstr ""
+msgstr "Fe'fe'"
 
 #. name for fmu
 msgid "Muria; Far Western"
-msgstr ""
+msgstr "Muria; Far Western"
 
 #. name for fng
 msgid "Fanagalo"
-msgstr ""
+msgstr "Fanagalo"
 
 #. name for fni
 msgid "Fania"
-msgstr ""
+msgstr "Fania"
 
 #. name for fod
 msgid "Foodo"
-msgstr ""
+msgstr "Foodo"
 
 #. name for foi
 msgid "Foi"
-msgstr ""
+msgstr "Foi"
 
 #. name for fom
 msgid "Foma"
-msgstr ""
+msgstr "Foma"
 
 #. name for fon
 msgid "Fon"
-msgstr ""
+msgstr "Fon"
 
 #. name for for
 msgid "Fore"
-msgstr ""
+msgstr "Fore"
 
 #. name for fos
 msgid "Siraya"
-msgstr ""
+msgstr "Siraya"
 
 #. name for fpe
 msgid "Creole English; Fernando Po"
-msgstr ""
+msgstr "Creole English; Fernando Po"
 
 #. name for fqs
 msgid "Fas"
-msgstr ""
+msgstr "Fas"
 
 #. name for fra
 msgid "French"
-msgstr ""
+msgstr "French"
 
 #. name for frc
 msgid "French; Cajun"
-msgstr ""
+msgstr "French; Cajun"
 
 #. name for frd
 msgid "Fordata"
-msgstr ""
+msgstr "Fordata"
 
 #. name for frk
 msgid "Frankish"
-msgstr ""
+msgstr "Frankish"
 
 #. name for frm
 msgid "French; Middle (ca. 1400-1600)"
-msgstr ""
+msgstr "French; Middle (ca. 1400-1600)"
 
 #. name for fro
 msgid "French; Old (842-ca. 1400)"
-msgstr ""
+msgstr "French; Old (842-ca. 1400)"
 
 #. name for frp
 msgid "Arpitan"
-msgstr ""
+msgstr "Arpitan"
 
 #. name for frq
 msgid "Forak"
-msgstr ""
+msgstr "Forak"
 
 #. name for frr
 msgid "Frisian; Northern"
-msgstr ""
+msgstr "Frisian; Northern"
 
 #. name for frs
 msgid "Frisian; Eastern"
-msgstr ""
+msgstr "Frisian; Eastern"
 
 #. name for frt
 msgid "Fortsenal"
-msgstr ""
+msgstr "Fortsenal"
 
 #. name for fry
 msgid "Frisian; Western"
-msgstr ""
+msgstr "Frisian; Western"
 
 #. name for fse
 msgid "Finnish Sign Language"
-msgstr ""
+msgstr "Finnish Sign Language"
 
 #. name for fsl
 msgid "French Sign Language"
-msgstr ""
+msgstr "French Sign Language"
 
 #. name for fss
 msgid "Finland-Swedish Sign Language"
-msgstr ""
+msgstr "Finland-Swedish Sign Language"
 
 #. name for fub
 msgid "Fulfulde; Adamawa"
-msgstr ""
+msgstr "Fulfulde; Adamawa"
 
 #. name for fuc
 msgid "Pulaar"
-msgstr ""
+msgstr "Pulaar"
 
 #. name for fud
 msgid "Futuna; East"
-msgstr ""
+msgstr "Futuna; East"
 
 #. name for fue
 msgid "Fulfulde; Borgu"
-msgstr ""
+msgstr "Fulfulde; Borgu"
 
 #. name for fuf
 msgid "Pular"
-msgstr ""
+msgstr "Pular"
 
 #. name for fuh
 msgid "Fulfulde; Western Niger"
-msgstr ""
+msgstr "Fulfulde; Western Niger"
 
 #. name for fui
 msgid "Fulfulde; Bagirmi"
-msgstr ""
+msgstr "Fulfulde; Bagirmi"
 
 #. name for fuj
 msgid "Ko"
-msgstr ""
+msgstr "Ko"
 
 #. name for ful
 msgid "Fulah"
-msgstr ""
+msgstr "Fulah"
 
 #. name for fum
 msgid "Fum"
-msgstr ""
+msgstr "Fum"
 
 #. name for fun
 msgid "Fulniô"
-msgstr ""
+msgstr "Fulniô"
 
 #. name for fuq
 msgid "Fulfulde; Central-Eastern Niger"
-msgstr ""
+msgstr "Fulfulde; Central-Eastern Niger"
 
 #. name for fur
 msgid "Friulian"
-msgstr ""
+msgstr "Friulian"
 
 #. name for fut
 msgid "Futuna-Aniwa"
-msgstr ""
+msgstr "Futuna-Aniwa"
 
 #. name for fuu
 msgid "Furu"
-msgstr ""
+msgstr "Furu"
 
 #. name for fuv
 msgid "Fulfulde; Nigerian"
-msgstr ""
+msgstr "Fulfulde; Nigerian"
 
 #. name for fuy
 msgid "Fuyug"
-msgstr ""
+msgstr "Fuyug"
 
 #. name for fvr
 msgid "Fur"
-msgstr ""
+msgstr "Fur"
 
 #. name for fwa
 msgid "Fwâi"
-msgstr ""
+msgstr "Fwâi"
 
 #. name for fwe
 msgid "Fwe"
-msgstr ""
+msgstr "Fwe"
 
 #. name for gaa
 msgid "Ga"
-msgstr ""
+msgstr "Ga"
 
 #. name for gab
 msgid "Gabri"
-msgstr ""
+msgstr "Gabri"
 
 #. name for gac
 msgid "Great Andamanese; Mixed"
-msgstr ""
+msgstr "Great Andamanese; Mixed"
 
 #. name for gad
 msgid "Gaddang"
-msgstr ""
+msgstr "Gaddang"
 
 #. name for gae
 msgid "Guarequena"
-msgstr ""
+msgstr "Guarequena"
 
 #. name for gaf
 msgid "Gende"
-msgstr ""
+msgstr "Gende"
 
 #. name for gag
 msgid "Gagauz"
-msgstr ""
+msgstr "Gagauz"
 
 #. name for gah
 msgid "Alekano"
-msgstr ""
+msgstr "Alekano"
 
 #. name for gai
 msgid "Borei"
-msgstr ""
+msgstr "Borei"
 
 #. name for gaj
 msgid "Gadsup"
-msgstr ""
+msgstr "Gadsup"
 
 #. name for gak
 msgid "Gamkonora"
-msgstr ""
+msgstr "Gamkonora"
 
 #. name for gal
 msgid "Galoli"
-msgstr ""
+msgstr "Galoli"
 
 #. name for gam
 msgid "Kandawo"
-msgstr ""
+msgstr "Kandawo"
 
 #. name for gan
 msgid "Chinese; Gan"
-msgstr ""
+msgstr "Chinese; Gan"
 
 #. name for gao
 msgid "Gants"
-msgstr ""
+msgstr "Gants"
 
 #. name for gap
 msgid "Gal"

@@ -363,6 +363,11 @@ class MobiReader(object):
                 self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
                 self.processed_html = self.remove_random_bytes(self.processed_html)
                 root = fromstring(self.processed_html)
+            if len(root.xpath('body/descendant::*')) < 1:
+                # There are probably stray </html>s in the markup
+                self.processed_html = self.processed_html.replace('</html>',
+                        '')
+                root = fromstring(self.processed_html)
 
         if root.tag != 'html':
             self.log.warn('File does not have opening <html> tag')
@@ -511,6 +516,17 @@ class MobiReader(object):
         self.processed_html = re.sub(r'(?i)(?P<para></p[^>]*>)\s*(?P<styletags>(</(h\d+|i|b|u|em|small|big|strong|tt)>\s*){1,})', '\g<styletags>'+'\g<para>', self.processed_html)
         self.processed_html = re.sub(r'(?i)(?P<blockquote>(</(blockquote|div)[^>]*>\s*){1,})(?P<para></p[^>]*>)', '\g<para>'+'\g<blockquote>', self.processed_html)
         self.processed_html = re.sub(r'(?i)(?P<para><p[^>]*>)\s*(?P<blockquote>(<(blockquote|div)[^>]*>\s*){1,})', '\g<blockquote>'+'\g<para>', self.processed_html)
+        bods = htmls = 0
+        for x in re.finditer(ur'</body>|</html>', self.processed_html):
+            if x == '</body>': bods +=1
+            else: htmls += 1
+            if bods > 1 and htmls > 1:
+                break
+        if bods > 1:
+            self.processed_html = self.processed_html.replace('</body>', '')
+        if htmls > 1:
+            self.processed_html = self.processed_html.replace('</html>', '')
+
 
 
     def remove_random_bytes(self, html):

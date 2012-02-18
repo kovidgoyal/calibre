@@ -171,7 +171,7 @@ class Preferences(QMainWindow):
         self.committed = False
         self.close_after_initial = close_after_initial
 
-        self.resize(900, 720)
+        self.resize(930, 720)
         nh, nw = min_available_height()-25, available_width()-10
         if nh < 0:
             nh = 800

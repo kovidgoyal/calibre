@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, subprocess, hashlib, shutil, glob, stat, sys, time
+import os, subprocess, hashlib, shutil, glob, stat, sys, time
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp
 from zipfile import ZipFile
@@ -64,15 +64,11 @@ class ReUpload(Command): # {{{
 
 # Data {{{
 def get_google_data():
-    PASSWORD_FILE = os.path.expanduser('~/.googlecodecalibre')
-    OFFLINEIMAP   = os.path.expanduser('~/work/kde/conf/offlineimap/rc')
+    with open(os.path.expanduser('~/work/kde/conf/googlecodecalibre'), 'rb') as f:
+        gc_password, ga_un, pw = f.read().strip().split('|')
 
-    gc_password = open(PASSWORD_FILE).read().strip()
-    raw = open(OFFLINEIMAP).read()
-    pw = re.search(r'(?s)remoteuser = .*@gmail.com.*?remotepass = (\S+)',
-            raw).group(1).strip()
     return {
-        'username':'kovidgoyal@gmail.com', 'password':pw, 'gc_password':gc_password,
+        'username':ga_un, 'password':pw, 'gc_password':gc_password,
         'path_map_server':'root@kovidgoyal.net',
         'path_map_location':'/var/www/status.calibre-ebook.com/googlepaths',
         # If you change this remember to change it in the

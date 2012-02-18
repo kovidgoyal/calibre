@@ -25,6 +25,7 @@ class LocationManager(QObject): # {{{
     locations_changed = pyqtSignal()
     unmount_device = pyqtSignal()
     location_selected = pyqtSignal(object)
+    configure_device = pyqtSignal()
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -57,6 +58,10 @@ class LocationManager(QObject): # {{{
                 a = m.addAction(QIcon(I('eject.png')), _('Eject this device'))
                 a.triggered.connect(self._eject_requested)
                 self._mem.append(a)
+                a = m.addAction(QIcon(I('config.png')), _('Configure this device'))
+                a.triggered.connect(self._configure_requested)
+                self._mem.append(a)
+
             else:
                 ac.setToolTip(tooltip)
             ac.setMenu(m)
@@ -108,6 +113,9 @@ class LocationManager(QObject): # {{{
 
     def _eject_requested(self, *args):
         self.unmount_device.emit()
+
+    def _configure_requested(self):
+        self.configure_device.emit()
 
     def update_devices(self, cp=(None, None), fs=[-1, -1, -1], icon=None):
         if icon is None:
