@@ -349,9 +349,11 @@ class TagsView(QTreeView): # {{{
                                                     _('Rename %s')%display_name(tag),
                             partial(self.context_menu_handler, action='edit_item',
                                     index=index))
-                        self.context_menu.addAction(self.delete_icon,
+                        if key in ('tags', 'series', 'publisher') or \
+                                self._model.db.field_metadata.is_custom_field(key):
+                            self.context_menu.addAction(self.delete_icon,
                                                     _('Delete %s')%display_name(tag),
-                            partial(self.context_menu_handler, action='delete_item',
+                                partial(self.context_menu_handler, action='delete_item',
                                     key=key, index=tag))
                         if key == 'authors':
                             self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
