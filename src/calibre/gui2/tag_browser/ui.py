@@ -250,14 +250,14 @@ class TagBrowserMixin(object): # {{{
         Delete an item from some category.
         '''
         if not question_dialog(self.tags_view,
-                           title=_('Delete item'),
-                           msg=_('%s will be permanently deleted. Do you really '
-                                     'want to do this?')%orig_name,
-                           skip_dialog_name='tag_item_delete',
-                           skip_dialog_msg=_('Show this message again')):
+                    title=_('Delete item'),
+                    msg='<p>'+
+                    _('%s will be deleted from all books. Are you sure?')
+                                %orig_name,
+                    skip_dialog_name='tag_item_delete',
+                    skip_dialog_msg=_('Show this confirmation again')):
             return
-        return
-        db=self.library_view.model().db
+        db = self.current_db
 
         if category == 'tags':
             delete_func = db.delete_tag_using_id
