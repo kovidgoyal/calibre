@@ -534,6 +534,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:
             self.refresh()
+            self.refresh_format_cache()
         self.last_update_check = utcnow()
 
     def path(self, index, index_is_id=False):

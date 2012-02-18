@@ -408,6 +408,8 @@ def cli_parser():
             epilog=epilog)
     sf = subparsers.add_parser('sourceforge', help='Upload to sourceforge',
             epilog=epilog)
+    cron = subparsers.add_parser('cron', help='Call script from cron')
+
     a = gc.add_argument
 
     a('project',
@@ -433,18 +435,25 @@ def cli_parser():
     a('username',
             help='Sourceforge username')
 
+    a = cron.add_argument
+    a('username',
+            help='Username to log into your google account')
+    a('password',
+            help='Password to log into your google account')
+
     return p
 
 def main(args=None):
     cli = cli_parser()
     args = cli.parse_args(args)
     files = {}
-    with args.file_map as f:
-        for line in f:
-            fname, _, desc = line.partition(':')
-            fname, desc = fname.strip(), desc.strip()
-            if fname and desc:
-                files[fname] = desc
+    if args.service != 'cron':
+        with args.file_map as f:
+            for line in f:
+                fname, _, desc = line.partition(':')
+                fname, desc = fname.strip(), desc.strip()
+                if fname and desc:
+                    files[fname] = desc
 
     ofiles = OrderedDict()
     for x in sorted(files, key=lambda x:os.stat(x).st_size, reverse=True):
@@ -460,6 +469,8 @@ def main(args=None):
         sf = SourceForge(ofiles, args.project, args.version, args.username,
                 replace=args.replace)
         sf()
+    elif args.service == 'cron':
+        login_to_google(args.username, args.password)
 
 if __name__ == '__main__':
     main()

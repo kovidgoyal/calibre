@@ -82,6 +82,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         self.opt_extra_customization.append(QLineEdit(self))
                         l = QLabel(label_text)
                         l.setToolTip(tt)
+                        self.opt_extra_customization[i].setToolTip(tt)
                         l.setBuddy(self.opt_extra_customization[i])
                         l.setWordWrap(True)
                         self.opt_extra_customization[i].setText(settings.extra_customization[i])

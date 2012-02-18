@@ -19,6 +19,58 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.40
+  date: 2012-02-17
+
+  new features:
+    - title: "Amazon metadata download: Support the new 'Book Description' section that Amazon publishes for some books. Also workaround the amazon US servers occasionally returning broken markup leading to calibre not finding any matches for books on Amazon."
+
+    - title: "Kindle driver: Add an option to allow using page counts stored in a custom column. Go to Preferences->Plugins and customize the Kindle driver, to tell it to use a custom column to get page count data. See http://www.mobileread.com/forums/showpost.php?p=1963075&postcount=215 for details."
+
+    - title: "Template language: Add a current_library_name() function that can be used to return the name of the currently opened library in calibre"
+
+    - title: "Driver for Xperia Neo and PocketBook A10"
+      tickets: [930788] 
+ 
+  bug fixes:
+    - title: "Fix regression in 0.8.36 that caused the calibredb command to not properly refresh format information in standalone calibre-server processes"
+
+    - title: "Fix regression in 0.8.39 that broke getting covers from some epub files on OS X."
+      tickets: [932507]
+
+    - title: "Reading metadata from HTML files: Do not take a very long time for very large HTML files. Also fix reading metadata from meta tags with multiple spaces before the content attribute."
+      tickets: [932262] 
+
+    - title: "EPUB Output: Fix splitting breaking internal links in the epub, if the links pointed to files with URL unsafe characters in their file names."
+      tickets: [929966]
+
+    - title: "Fix auto adding not leaving languages field blank when book has no defined laguage"
+      tickets: [930648] 
+
+  improved recipes:
+    - Samanyolu Haber
+    - Kurier
+    - Le devoir
+    - Daily Mirror
+    - Common Dreams
+    - Pescanik
+
+  new recipes:
+    - title: Asian Review of Books 
+      author: Darko Miletic
+
+    - title: Albert Mohler, Desiring God, Living Stones and Resurgence 
+      author: Peter Grungi
+
+    - title: Novinite BG 
+      author: M3 Web
+
+    - title: Catholic Daily Readings 
+      author: adoucette
+
+    - title: Consortium News and Microwave and RF magazine
+      author: kiavash
+
 - version: 0.8.39
   date: 2012-02-10
 

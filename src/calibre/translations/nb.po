@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-02-08 15:24+0000\n"
+"POT-Creation-Date: 2012-02-10 07:01+0000\n"
 "PO-Revision-Date: 2011-12-28 08:19+0000\n"
 "Last-Translator: Øyvind Øritsland <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-09 05:35+0000\n"
-"X-Generator: Launchpad (build 14763)\n"
+"X-Launchpad-Export-Date: 2012-02-11 04:55+0000\n"
+"X-Generator: Launchpad (build 14771)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -139,8 +139,8 @@ msgstr "Gjør absolutt ingenting"
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/split.py:82
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:102
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/writer.py:103
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:414
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:422
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:415
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:423
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:158
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:378
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:381
@@ -1140,8 +1140,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:1092
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/fetch_news.py:73
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:464
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1148
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1150
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1151
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1153
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:345
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:358
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3150
@@ -4650,90 +4650,90 @@ msgstr ""
 msgid "Table of Contents:"
 msgstr "Innholdsfortegnelse"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:117
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:118
 msgid "Send file to storage card instead of main memory by default"
 msgstr ""
 "Send en fil til et lagringskort i stedet for hovedminnet som standard"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:119
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:120
 msgid "Confirm before deleting"
 msgstr "Bekreft før sletting"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:121
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:122
 msgid "Main window geometry"
 msgstr "Hovedvindus geometri"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:123
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:124
 msgid "Notify when a new version is available"
 msgstr "Varsle dersom en ny versjon er tilgjengelig"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:125
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:126
 msgid "Use Roman numerals for series number"
 msgstr "Bruk romerske tall for serienummer"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:128
 msgid "Sort tags list by name, popularity, or rating"
 msgstr "Sorter emneord listet ved navn, popularitet eller bedømning"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:129
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:130
 msgid "Match tags by any or all."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:132
 msgid "Number of covers to show in the cover browsing mode"
 msgstr "Antall omslag som skal vises ved omslagsvisningsmodus"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:134
 msgid "Defaults for conversion to LRF"
 msgstr "Standarder for konvertering til LRF"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:136
 msgid "Options for the LRF ebook viewer"
 msgstr "Valgmuligheter for LRF e-bokleser"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:138
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:139
 msgid "Formats that are viewed using the internal viewer"
 msgstr "Formater som er vist ved bruk av intern leser"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:140
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:141
 msgid "Columns to be displayed in the book list"
 msgstr "Kolonner som skal vises i e-boklisten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:142
 msgid "Automatically launch content server on application startup"
 msgstr "Start innholdsserver automatisk ved programstart"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:143
 msgid "Oldest news kept in database"
 msgstr "Eldste nyheter i databasen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:144
 msgid "Show system tray icon"
 msgstr "Vis systemikon"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:145
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:146
 msgid "Upload downloaded news to device"
 msgstr "Legg inn nedlastede nyheter til enheten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:148
 msgid "Delete news books from library after uploading to device"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:149
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:150
 msgid ""
 "Show the cover flow in a separate window instead of in the main calibre "
 "window"
 msgstr "Vis omslaget i et eget vindu istedet for i calibres hovedvindu"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:151
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:152
 msgid "Disable notifications from the system tray icon"
 msgstr "Slå av varsler fra systemikonet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:154
 msgid "Default action to perform when send to device button is clicked"
 msgstr "Standard oppgaver som gjøres når send til enhet-knappen er klikket"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:159
 msgid ""
 "Start searching as you type. If this is disabled then search will only take "
 "place when the Enter or Return key is pressed."
@@ -4741,7 +4741,7 @@ msgstr ""
 "Start søk ettersom du skriver. Dersom dette valget er slått av, vil søk kun "
 "finne sted etter at Enter eller Tilbaketasten har blitt trykket ned."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:162
 msgid ""
 "When searching, show all books with search results highlighted instead of "
 "showing only the matches. You can use the N or F3 keys to go to the next "
@@ -4750,60 +4750,60 @@ msgstr ""
 "Ved søk, vis alle bøker med søkeresultat fremhevet fremfor å kun vise treff. "
 "Du kan benytte N eller F3 tastene for å gå til neste treff."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:187
 msgid ""
 "Maximum number of simultaneous conversion/news download jobs. This number is "
 "twice the actual value for historical reasons."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:189
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:190
 msgid "Download social metadata (tags/rating/etc.)"
 msgstr "Last ned sosiale metadata (emneord/bedømmelser/osv.)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:192
 msgid "Overwrite author and title with new metadata"
 msgstr "Overskriv forfatter og tittel med nye metadata"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:194
 msgid "Automatically download the cover, if available"
 msgstr "Last ned omslag automatisk om dette er tilgjengelig"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:196
 msgid "Limit max simultaneous jobs to number of CPUs"
 msgstr "Begrense maksimalt antall samtidige oppgaver til antallet av CPUer"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:198
 msgid ""
 "The layout of the user interface. Wide has the book details panel on the "
 "right and narrow has it at the bottom."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:202
 msgid "Show the average rating per item indication in the tag browser"
 msgstr ""
 "Vis den gjennomsnittlige bedømningen pr enhetsindikasjon i emneordsøket"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:204
 msgid "Disable UI animations"
 msgstr "Slå av UI animeringer"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:209
 msgid "tag browser categories not to display"
 msgstr "Merk browser-kategorier som ikke skal vises"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:262
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:263
 msgid "WARNING:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:272
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:273
 msgid "ERROR:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:284
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:285
 msgid "Show this confirmation again"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:533
+#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:534
 msgid "Choose Files"
 msgstr "Velg filer"
 
@@ -5626,12 +5626,12 @@ msgid "Connect/share"
 msgstr "Koble/del"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:191
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:84
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
 msgid "Stopping"
 msgstr "Stopper"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:192
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:86
 msgid "Stopping server, this could take upto a minute, please wait..."
 msgstr "Stopper serveren. Dette kan ta flere minutter, vennligst vent..."
 
@@ -6648,7 +6648,7 @@ msgstr "utdata"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/conversion_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/custom_columns_ui.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/email_ui.py:65
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:21
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:222
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/misc_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard_ui.py:113
@@ -6657,7 +6657,7 @@ msgstr "utdata"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/saving_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/search_ui.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/sending_ui.py:21
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:131
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:138
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/template_functions_ui.py:95
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar_ui.py:21
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/tweaks_ui.py:21
@@ -9257,13 +9257,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:186
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:882
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:885
 msgid "Item is blank"
 msgstr "Inneholder ingenting"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/device_category_editor.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_list_editor.py:187
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:883
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:886
 msgid "An item cannot be set to nothing. Delete it instead."
 msgstr ""
 "Innholdet kan ikke stilles inn for å gjøre ingenting. Slett det istedet."
@@ -9394,12 +9394,12 @@ msgid "Copy to author"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:313
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:932
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:935
 msgid "Invalid author name"
 msgstr "Feil ved forfatternavn"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:314
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:933
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:936
 msgid "Author names cannot contain & characters."
 msgstr "Forfatternavn kan ikke inneholde & tegn"
 
@@ -10094,21 +10094,21 @@ msgstr "Passord kreves"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:211
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:149
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:133
 msgid "&Username:"
 msgstr "&Brukernavn:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:64
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:212
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:134
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:139
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email_ui.py:135
 msgid "&Password:"
 msgstr "&Passord:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:213
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/send_email.py:81
 msgid "&Show password"
 msgstr "&Vis passord"
@@ -11694,7 +11694,7 @@ msgid "Regular expression (?P<published>)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:108
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:263
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:276
 msgid "Cover Browser"
 msgstr "Omslagssøker"
 
@@ -11703,7 +11703,7 @@ msgid "Shift+Alt+B"
 msgstr "Shift+Alt+B"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:127
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:262
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:271
 msgid "Tag Browser"
 msgstr "Emneordspanel"
 
@@ -11727,7 +11727,7 @@ msgstr "Tilkoblet "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:215
 #: /home/kovid/work/calibre/src/calibre/gui2/init.py:226
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:261
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:247
 msgid "Book Details"
 msgstr "Bokdetaljer"
 
@@ -13960,105 +13960,109 @@ msgstr "Deaktivert"
 msgid "Partitioned"
 msgstr "Partisjonert"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:175
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:176
 msgid "Column coloring"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel.py:182
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/shortcuts.py:223
 msgid " or "
 msgstr " eller "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:31
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:223
 msgid "User Interface &layout (needs restart):"
 msgstr "Brukergrensesnitt-&visning (krever omstart):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:41
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:224
 msgid "Choose &language (requires restart):"
 msgstr "Velg &språk (krever omstart):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:50
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:225
 msgid "Enable system &tray icon (needs restart)"
 msgstr "Slå på oppgave&panelikonet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:54
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:226
 msgid "Disable all animations. Useful if you have a slow/old computer."
 msgstr ""
 "Slå av alle animeringer. Nyttig dersom du har en svak/eldre datamaskin."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:227
 msgid "Disable &animations"
 msgstr "Slå av &animeringer"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:228
 msgid "Disable &notifications in system tray"
 msgstr "Deaktivering og varsler i systemstatusfeltet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:63
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:229
 msgid "Show &splash screen at startup"
 msgstr "Vis &splash bilde når enheten starter"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:67
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:230
 msgid "&Toolbar"
 msgstr "&Verktøylinje"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:75
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:231
 msgid "&Icon size:"
 msgstr "&Ikonstørrelse:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:82
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:232
 msgid "Show &text under icons:"
 msgstr "Vis &tekst under ikoner:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:89
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:233
 msgid "Interface font:"
 msgstr "Tegnsett for grensesnitt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:98
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:234
 msgid "Change &font (needs restart)"
 msgstr "Endre &tegnsett (krever omstart)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:111
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:235
+msgid "Main Interface"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
 msgid "Select displayed metadata"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:120
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:237
 msgid "Move up"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:127
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:238
 msgid "Move down"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:139
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:239
 msgid "Default author link template:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:143
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:240
 msgid ""
 "<p>Enter a template to be used to create a link for\n"
-"an author in the books information dialog. This template will \n"
-"be used when no link has been provided for the author using \n"
-"Manage Authors. You can use the values {author} and \n"
+"an author in the books information dialog. This template will\n"
+"be used when no link has been provided for the author using\n"
+"Manage Authors. You can use the values {author} and\n"
 "{author_sort}, and any template function."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:152
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:245
 msgid "Use &Roman numerals for series"
 msgstr "Bruk &romerske tall for serier"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:246
 msgid ""
 "Note that <b>comments</b> will always be displayed at the end, regardless of "
 "the position you assign here."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:169
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:248
 msgid "Tags browser category &partitioning method:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:173
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:249
 msgid ""
 "Choose how tag browser subcategories are displayed when\n"
 "there are more items than the limit. Select by first\n"
@@ -14072,28 +14076,41 @@ msgstr ""
 "å få en liste av faste størrelsegrupper. Velg deaktivert\n"
 "dersom du aldri ønsker underkategorier"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:181
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:254
 msgid "&Collapse when more items than:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:185
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:255
 msgid ""
 "If a Tag Browser category has more than this number of items, it is divided\n"
-"up into sub-categories. If the partition method is set to disable, this "
-"value is ignored."
+"up into subcategories. If the partition method is set to disable, this value "
+"is ignored."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:191
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:257
+msgid "Categories not to partition:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:258
+msgid ""
+"A comma-separated list of categories that are not to\n"
+"be partitioned even if the number of items is larger than\n"
+"the value shown above. This option can be used to\n"
+"avoid collapsing hierarchical categories that have only\n"
+"a few top-level elements."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:263
 msgid "Show &average ratings in the tags browser"
 msgstr "Vis &gjennomsnittsvurdering i emneordspanelet"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:264
 msgid "Categories with &hierarchical items:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:202
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:265
 msgid ""
-"A comma-separated list of columns in which items containing\n"
+"A comma-separated list of categories in which items containing\n"
 "periods are displayed in the tag browser trees. For example, if\n"
 "this box contains 'tags' then tags of the form 'Mystery.English'\n"
 "and 'Mystery.Thriller' will be displayed with English and Thriller\n"
@@ -14101,25 +14118,21 @@ msgid ""
 "then the tags will be displayed each on their own line."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:218
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:272
 msgid "Show cover &browser in a separate window (needs restart)"
 msgstr "Vis omslag &søk i eget vindu (krever omstart)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:273
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr "&Antall omslag som skal vises i søkemodus (krever omstart):"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:231
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:274
 msgid "When showing cover browser in separate window, show it &fullscreen"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:236
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:275
 #, python-format
 msgid "You can press the %s keys to toggle full screen mode."
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/look_feel_ui.py:260
-msgid "Main Interface"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:230
@@ -14161,7 +14174,7 @@ msgstr ""
 "blitt gjennomført."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:339
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:132
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:134
 msgid "Restart needed"
 msgstr "Gjennomfør omstart"
 
@@ -14874,28 +14887,24 @@ msgstr ""
 "individuelle enheter ved å tilpasse enhetens tilleggsprogramvare (plugins) i "
 "preferanser->Avansert->Plugins"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:73
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:74
 #: /home/kovid/work/calibre/src/calibre/gui2/ui.py:452
 msgid "Failed to start content server"
 msgstr "Kunne ikke starte innholdsserveren"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:111
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:113
 msgid "Error log:"
 msgstr "Feil-logg:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:118
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:120
 msgid "Access log:"
 msgstr "tilgangslogg:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:133
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:135
 msgid "You need to restart the server for changes to take effect"
 msgstr "Du må omstarte serveren for at endringer skal kunne taes ibruk."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:132
-msgid "Server &port:"
-msgstr "Server &port:"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:135
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:140
 msgid ""
 "<p>If you leave the password blank, anyone will be able to\n"
 " access your book collection using the web interface.\n"
@@ -14905,7 +14914,7 @@ msgid ""
 " Android phone or tablet."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:146
 msgid ""
 "The maximum size (widthxheight) for displayed covers. Larger covers are "
 "resized. "
@@ -14913,23 +14922,27 @@ msgstr ""
 "Maksimal størrelse (breddexhøyde) for å vise omslag. Større omslag vil bli "
 "re-dimensjonert. "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:142
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:147
 msgid "Max. &cover size:"
 msgstr "Maks. &omslagsstørrelse:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:144
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:148
+msgid "Server &port:"
+msgstr "Server &port:"
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:151
 msgid "Max. &OPDS items per query:"
 msgstr "Maksimum &OPDS enheter per spørring:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:145
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:152
 msgid "Max. OPDS &ungrouped items:"
 msgstr "Maks OPDS &undergruppert innhold"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:146
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
 msgid "Restriction (saved search) to apply:"
 msgstr "Restriksjoner (lagrede søk) som skal brukes:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:147
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
 msgid ""
 "This restriction (based on a saved search) will restrict the books the "
 "content server makes available to those matching the search. This setting is "
@@ -14940,7 +14953,7 @@ msgstr ""
 "innstillingen gjelder for hvert bibliotek (f.eks. du kan ha forskjellige "
 "restriksjoner for hvert bibliotek)."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:148
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
 msgid ""
 "<p>Because of a bug in Google's Android, setting a password\n"
 " will prevent the server from working with Android devices.\n"
@@ -14949,23 +14962,34 @@ msgid ""
 " Android phone or tablet."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:153
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:160
 msgid "Password incompatible with Android devices"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:154
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:161
+msgid "&URL Prefix:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:162
+msgid ""
+"A prefix that is applied to all URLs in the content server. Useful only if "
+"you plan to put the server behind another server like Apache, with a reverse "
+"proxy."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:163
 msgid "&Start Server"
 msgstr "&Start server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:155
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:164
 msgid "St&op Server"
 msgstr "St&op server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:156
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:165
 msgid "&Test Server"
 msgstr "&Test server"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:157
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:166
 msgid ""
 "calibre contains a network server that allows you to access your book "
 "collection using a browser from anywhere in the world. Any changes to the "
@@ -14975,15 +14999,15 @@ msgstr ""
 "ved å benytte en nettleser fra hvilket som helst sted i verden. Enhver "
 "forandring av innstillingene vil taes ibruk etter en omstart av serveren."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:158
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:167
 msgid "Run server &automatically when calibre starts"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:159
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:168
 msgid "View &server logs"
 msgstr "Vis &serverlogger"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:160
+#: /home/kovid/work/calibre/src/calibre/gui2/preferences/server_ui.py:169
 msgid ""
 "<p>Remember to leave calibre running as the server only runs as long as "
 "calibre is running.\n"
@@ -15807,42 +15831,42 @@ msgstr ""
 msgid "The grouped search term name is \"{0}\""
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:731
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:734
 msgid ""
 "Changing the authors for several books can take a while. Are you sure?"
 msgstr "Å endre forfattere for mange bøker kan ta tid. Er du sikker?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:736
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:739
 msgid ""
 "Changing the metadata for that many books can take a while. Are you sure?"
 msgstr "Endring av metadata for mange bøker kan ta tid. Er du sikker?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:823
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:826
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:466
 msgid "Searches"
 msgstr "Søk"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:888
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:908
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:917
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:891
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:911
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:920
 msgid "Rename user category"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:889
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:892
 msgid "You cannot use periods in the name when renaming user categories"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:909
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:918
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:912
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:921
 #, python-format
 msgid "The name %s is already used"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:937
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:940
 msgid "Duplicate search name"
 msgstr "Dupliser søkenavn"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:938
+#: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:941
 #, python-format
 msgid "The saved search name %s is already used."
 msgstr "Det lagrede søkenavnet %s er allerede benyttet."

@@ -302,19 +302,28 @@ class KINDLE2(KINDLE):
               ' this information to the Kindle when uploading MOBI files by'
               ' USB. Note that the page numbers do not correspond to any paper'
               ' book.'),
-        _('Use slower but more accurate page number generation') +
+        _('Use slower but more accurate page number calculation') +
             ':::' +
             _('There are two ways to generate the page number information. Using the more accurate '
               'generator will produce pages that correspond better to a printed book. '
               'However, this method is slower and will slow down sending files '
               'to the Kindle.'),
+        _('Custom column name to retrieve page counts from') +
+            ':::' +
+            _('If you have a custom column in your library that you use to '
+              'store the page count of books, you can have calibre use that '
+              'information, instead of calculating a page count. Specify the '
+              'name of the custom column here, for example, #pages. '),
+
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
         True,
         False,
+        '',
     ]
     OPT_APNX           = 0
     OPT_APNX_ACCURATE  = 1
+    OPT_APNX_CUST_COL  = 2
 
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
@@ -380,10 +389,20 @@ class KINDLE2(KINDLE):
             if not os.path.exists(path):
                 os.makedirs(path)
 
+        cust_col_name = opts.extra_customization[self.OPT_APNX_CUST_COL]
+        custom_page_count = 0
+        if cust_col_name:
+            try:
+                custom_page_count = int(metadata.get(cust_col_name, 0))
+            except:
+                pass
+
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
         try:
-            apnx_builder.write_apnx(filepath, apnx_path, accurate=opts.extra_customization[self.OPT_APNX_ACCURATE])
+            apnx_builder.write_apnx(filepath, apnx_path,
+                                    accurate=opts.extra_customization[self.OPT_APNX_ACCURATE],
+                                    page_count=custom_page_count)
         except:
             print 'Failed to generate APNX'
             import traceback
