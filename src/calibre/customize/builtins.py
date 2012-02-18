@@ -1217,7 +1217,7 @@ class StoreArchiveOrgStore(StoreBase):
     formats = ['DAISY', 'DJVU', 'EPUB', 'MOBI', 'PDF', 'TXT']
 
 class StoreBaenWebScriptionStore(StoreBase):
-    name = 'Baen WebScription'
+    name = 'Baen Ebooks'
     description = u'Sci-Fi & Fantasy brought to you by Jim Baen.'
     actual_plugin = 'calibre.gui2.store.stores.baen_webscription_plugin:BaenWebScriptionStore'
 
