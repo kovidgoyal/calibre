@@ -26,9 +26,6 @@ class OReillyStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         url = 'http://oreilly.com/ebooks/'
 
-        if detail_item:
-            detail_item = 'https://epoch.oreilly.com/shop/cart.orm?prod=%s.EBOOK&p=CALIBRE' % detail_item
-
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
@@ -49,11 +46,11 @@ class OReillyStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                full_id = ''.join(data.xpath('./div[@class="book_text"]//p[@class="title"]/a/@href'))
-                mo = re.search('\d+', full_id)
-                if not mo:
+                ebook = ' '.join(data.xpath('.//p[@class="note"]/text()'))
+                if 'ebook' not in ebook.lower():
                     continue
-                id = mo.group()
+                
+                id = ''.join(data.xpath('./div[@class="book_text"]//p[@class="title"]/a/@href'))
 
                 cover_url = ''.join(data.xpath('./a/img[1]/@src'))
 
@@ -62,16 +59,14 @@ class OReillyStore(BasicStoreConfig, StorePlugin):
                 author = author.split('By ')[-1].strip()
 
                 # Get the detail here because we need to get the ebook id for the detail_item.
-                with closing(br.open(full_id, timeout=timeout)) as nf:
+                with closing(br.open(id, timeout=timeout)) as nf:
                     idoc = html.fromstring(nf.read())
                     
-                    price = ''.join(idoc.xpath('(//span[@class="price"])[1]/span//text()'))
-                    formats = ', '.join(idoc.xpath('//div[@class="ebook_formats"]//a/text()'))
-                    
-                    eid = ''.join(idoc.xpath('(//a[@class="product_buy_link" and contains(@href, ".EBOOK")])[1]/@href')).strip()
-                    mo = re.search('\d+', eid)
-                    if mo:
-                        id = mo.group()
+                    for td in idoc.xpath('//td[@class="optionsTd"]'):
+                        if 'ebook' in ''.join(td.xpath('.//text()')).lower():
+                            price = ''.join(td.xpath('.//span[@class="price"]/text()')).strip()
+                            formats = ''.join(td.xpath('.//a[@id="availableFormats"]/text()')).strip()
+                            break
 
                 counter -= 1
                 
