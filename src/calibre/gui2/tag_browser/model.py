@@ -836,7 +836,7 @@ class TagsModel(QAbstractItemModel): # {{{
         deforder = y.get('*', 100)
         order = defaultdict(lambda : deforder)
         order.update(y)
-        tb_keys = sorted(tb_categories.iterkeys(), key=lambda x: order[x])
+        tb_keys = sorted(tb_categories.iterkeys(), key=order.get)
         for category in tb_keys:
             if category in data: # The search category can come and go
                 self.row_map.append(category)
