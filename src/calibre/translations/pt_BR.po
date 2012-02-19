@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-17 06:42+0000\n"
-"PO-Revision-Date: 2012-02-18 00:38+0000\n"
-"Last-Translator: Fabrício Massuia <Unknown>\n"
+"PO-Revision-Date: 2012-02-18 23:37+0000\n"
+"Last-Translator: Thiago Robis <thiagorobis@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-02-18 04:55+0000\n"
+"X-Launchpad-Export-Date: 2012-02-19 05:41+0000\n"
 "X-Generator: Launchpad (build 14814)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -1547,7 +1547,7 @@ msgstr "Comunica-se com o leitor Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:424
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Comunicar com Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:24
 msgid "Communicate with the Kobo Reader"
@@ -1563,7 +1563,7 @@ msgstr "Criar palavras-chave para manejamento automático"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:57
 msgid "Upload covers for books (newer readers)"
-msgstr ""
+msgstr "Enviar capa para livros (novos leitores)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:58
 msgid ""
@@ -1574,11 +1574,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:62
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Enviar capa Preto & Branco"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:63
 msgid "Show expired books"
-msgstr ""
+msgstr "Mostrar livros expirados"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:64
 msgid ""
@@ -1589,7 +1589,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:68
 msgid "Show Previews"
-msgstr ""
+msgstr "Mostrar Pré-visualizações"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:69
 msgid ""
@@ -1877,7 +1877,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:88
 msgid "Use SONY Author Format (First Author Only)"
-msgstr ""
+msgstr "Usar formato de autor Sony (Primeiro autor apenas)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:90
 msgid ""
@@ -1967,7 +1967,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:807
 msgid "Unable to mount the device"
-msgstr ""
+msgstr "Incapaz de montar o dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:978
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:980
@@ -2847,7 +2847,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:127
 msgid "Start Page"
-msgstr ""
+msgstr "Página inicial"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:139
