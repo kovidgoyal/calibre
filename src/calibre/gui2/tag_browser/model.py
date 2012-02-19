@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import traceback, cPickle, copy
 from itertools import repeat
+from collections import defaultdict
 
 from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
@@ -831,10 +832,11 @@ class TagsModel(QAbstractItemModel): # {{{
                         if lower(t.name).find(self.filter_categories_by) >= 0]
 
         tb_categories = self.db.field_metadata
-        tb_keys = tb_categories.keys()
-        tb_keys.sort(key=lambda x,
-                                y=tweaks['tag_browser_category_order']:
-                                    y[x] if x in y else y['*'] if '*' in y else 100)
+        y = tweaks['tag_browser_category_order']
+        deforder = y.get('*', 100)
+        order = defaultdict(lambda : deforder)
+        order.update(y)
+        tb_keys = sorted(tb_categories.iterkeys(), key=order.get)
         for category in tb_keys:
             if category in data: # The search category can come and go
                 self.row_map.append(category)
