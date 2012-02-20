@@ -302,13 +302,13 @@ class HanlinV5(HanlinV3):
 class BeBook(HanlinV3):
 
     name = 'BeBook'
-    manufacturer = 'Endless Ideas'
+    manufacturer = 'BeBook'
     id = 'bebook'
 
 class BeBookMini(HanlinV5):
 
     name = 'BeBook Mini'
-    manufacturer = 'Endless Ideas'
+    manufacturer = 'BeBook'
     id = 'bebook_mini'
 
 class EZReader(HanlinV3):
