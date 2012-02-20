@@ -10,8 +10,6 @@ __docformat__ = 'restructuredtext en'
 
 import traceback, cPickle, copy
 from itertools import repeat
-from collections import defaultdict
-from functools import partial
 
 from PyQt4.Qt import (QAbstractItemModel, QIcon, QVariant, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
