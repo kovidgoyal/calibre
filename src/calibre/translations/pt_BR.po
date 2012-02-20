@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-17 06:42+0000\n"
-"PO-Revision-Date: 2012-02-18 23:37+0000\n"
+"PO-Revision-Date: 2012-02-20 03:00+0000\n"
 "Last-Translator: Thiago Robis <thiagorobis@gmail.com>\n"
 "Language-Team: American English <kde-i18n-doc@kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-02-19 05:41+0000\n"
-"X-Generator: Launchpad (build 14814)\n"
+"X-Launchpad-Export-Date: 2012-02-20 05:39+0000\n"
+"X-Generator: Launchpad (build 14833)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -3942,15 +3942,14 @@ msgstr "Tags"
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:140
 msgid "Series"
 msgid_plural "Series"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Séries"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:760
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Idiomas"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:762
 msgid "Timestamp"
@@ -4096,35 +4095,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:465
 msgid "US"
-msgstr ""
+msgstr "EUA"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:466
 msgid "France"
-msgstr ""
+msgstr "França"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:467
 msgid "Germany"
-msgstr ""
+msgstr "Alemanha"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:468
 msgid "UK"
-msgstr ""
+msgstr "Reino Unido"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:469
 msgid "Italy"
-msgstr ""
+msgstr "Itália"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:470
 msgid "Japan"
-msgstr ""
+msgstr "Japão"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:471
 msgid "Spain"
-msgstr ""
+msgstr "Espanha"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:475
 msgid "Amazon website to use:"
-msgstr ""
+msgstr "Site da Amazon para se usar:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:476
 msgid ""
@@ -4137,7 +4136,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:177
 msgid "Metadata source"
-msgstr ""
+msgstr "Fonte de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:155
 msgid ""
@@ -4205,7 +4204,7 @@ msgstr "Este é um livro Amazon Topaz. Ele não pode ser processado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer2/indexer.py:498
 msgid "No details available"
-msgstr ""
+msgstr "Detalhes não disponíveis"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/base.py:1260
 msgid "Title Page"
@@ -4687,11 +4686,11 @@ msgstr "categorias que não devem ser exibidas no navegador de tags"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:263
 msgid "WARNING:"
-msgstr ""
+msgstr "AVISO:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:273
 msgid "ERROR:"
-msgstr ""
+msgstr "ERRO:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:285
 msgid "Show this confirmation again"
@@ -4807,7 +4806,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:72
 msgid "Shift+A"
-msgstr ""
+msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -4844,7 +4843,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
 msgid "Adding"
-msgstr ""
+msgstr "Adicionando"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:171
 msgid "Creating book records from ISBNs"
@@ -4930,7 +4929,7 @@ msgstr "Obter anotações (experimental)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:107
 msgid "Not supported"
-msgstr ""
+msgstr "Não há suporte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:108
 msgid "Fetching annotations is not supported for this device"
@@ -4962,7 +4961,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
-msgstr ""
+msgstr "Criar catálogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:38
 msgid "No books selected for catalog generation"
@@ -5004,11 +5003,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:106
 msgid "Library moved"
-msgstr ""
+msgstr "Biblioteca movida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:108
 msgid "Forget library"
-msgstr ""
+msgstr "Esquecer biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:117
 msgid "New library location"
@@ -5021,7 +5020,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:140
 msgid "Choose Library"
-msgstr ""
+msgstr "Escolher biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:141
 msgid "Choose calibre library to work with"
@@ -5076,7 +5075,7 @@ msgstr "Verificar biblioteca"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:202
 msgid "Restore database"
-msgstr ""
+msgstr "Restaurar base de dados"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:274
 msgid "Rename"
@@ -5108,7 +5107,7 @@ msgstr "A pasta %s já existe. Delete-a primeiro."
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/choose_library.py:69
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/__init__.py:722
 msgid "Too long"
-msgstr ""
+msgstr "Muito longo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:296
 msgid "Rename failed"
@@ -5125,7 +5124,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:311
 msgid "Library removed"
-msgstr ""
+msgstr "Biblioteca removida"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:312
 #, python-format
@@ -5172,7 +5171,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:314
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:368
 msgid "Success"
-msgstr ""
+msgstr "Sucesso"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:379
 msgid ""
@@ -5201,7 +5200,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:395
 msgid "No problems found"
-msgstr ""
+msgstr "Nenhum problema encontrado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/choose_library.py:396
 msgid "The files in your library match the information in the database."
@@ -5335,7 +5334,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:65
 msgid "Deleted"
-msgstr ""
+msgstr "Excluído"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/delete.py:77
 msgid "Failed to delete"
@@ -5510,7 +5509,7 @@ msgstr "Conectar/compartilhar"
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:191
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:85
 msgid "Stopping"
-msgstr ""
+msgstr "Parando"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/device.py:192
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/server.py:86
@@ -5578,7 +5577,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:483
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:746
 msgid "Download failed"
-msgstr ""
+msgstr "Falha ao baixar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:91
 #, python-format
@@ -5605,7 +5604,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:110
 msgid "Download complete"
-msgstr ""
+msgstr "Transferência concluída"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/edit_metadata.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:808
@@ -5748,7 +5747,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:26
 msgid "Shift+N"
-msgstr ""
+msgstr "Shift+N"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/next_match.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:213
@@ -5803,7 +5802,7 @@ msgstr "Ctrl+R"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/restart.py:14
 msgid "Restart"
-msgstr ""
+msgstr "Reiniciar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/save_to_disk.py:24
 msgid "Save single format to disk..."
@@ -5888,7 +5887,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Q"
-msgstr ""
+msgstr "Q"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/show_quickview.py:16
 msgid "Show quickview"
@@ -5940,7 +5939,7 @@ msgstr "Livros com as mesmas tags"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:20
 msgid "Get books"
@@ -5952,15 +5951,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "author"
-msgstr ""
+msgstr "autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:28
 msgid "title"
-msgstr ""
+msgstr "título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:29
 msgid "book"
-msgstr ""
+msgstr "livro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:32
 #, python-format
@@ -5971,7 +5970,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/search_ui.py:55
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search_ui.py:110
 msgid "Stores"
-msgstr ""
+msgstr "Lojas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/store.py:38
 #: /home/kovid/work/calibre/src/calibre/gui2/store/config/chooser/chooser_dialog.py:18
@@ -6026,7 +6025,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:20
 msgid "T"
-msgstr ""
+msgstr "T"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:30
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/tweak_epub.py:50
@@ -6245,7 +6244,7 @@ msgstr "Adicionar livros ao calibre"
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/library_ui.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/wizard/stanza_ui.py:46
 msgid "WizardPage"
-msgstr ""
+msgstr "Página do Assistente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/add_wizard/scan_ui.py:27
 msgid "Scanning root folder for books"
@@ -6379,7 +6378,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/plugin_updater.py:302
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/toolbar.py:31
 msgid "Donate"
-msgstr ""
+msgstr "Faça uma doação"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:134
 msgid "Click to open"
@@ -6411,7 +6410,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:307
 msgid "Remove Cover"
-msgstr ""
+msgstr "Remover capa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/book_details.py:349
 msgid "Double-click to open Book Details window"
@@ -6678,7 +6677,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:323
 msgid "Other options"
-msgstr ""
+msgstr "Outras opções"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi_ui.py:324
 msgid "&Wishlist tag"
