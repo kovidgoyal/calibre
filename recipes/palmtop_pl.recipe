@@ -1,0 +1,14 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class palmtop_pl(BasicNewsRecipe):
+    title          = u'Palmtop.pl'
+    __author__        = 'fenuks'
+    description   = 'wortal technologii mobilnych'
+    category       = 'mobile'
+    language       = 'pl'
+    cover_url='http://cdn.g-point.biz/wp-content/themes/palmtop-new/images/header_palmtop_logo.png'
+    masthead_url='http://cdn.g-point.biz/wp-content/themes/palmtop-new/images/header_palmtop_logo.png'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+
+    feeds          = [(u'Newsy', u'http://palmtop.pl/feed/atom/')]
