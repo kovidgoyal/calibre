@@ -1,4 +1,5 @@
 __license__   = 'GPL v3'
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1327062445(BasicNewsRecipe):
@@ -7,10 +8,13 @@ class AdvancedUserRecipe1327062445(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup = True
     remove_javascript = True
-    masthead_url            = 'http://www.simrendeogun.com/wp-content/uploads/2011/06/New-Marketing-Magazine-Logo.jpg'
-    feeds          = [(u'My Marketing', u'http://feed43.com/0537744466058428.xml'), (u'My Marketing_', u'http://feed43.com/8126723074604845.xml'), (u'Venturini', u'http://robertoventurini.blogspot.com/feeds/posts/default?alt=rss'), (u'Ninja Marketing', u'http://feeds.feedburner.com/NinjaMarketing'), (u'Comunitàzione', u'http://www.comunitazione.it/feed/novita.asp'), (u'Brandforum news', u'http://www.brandforum.it/rss/news'), (u'Brandforum papers', u'http://www.brandforum.it/rss/papers'), (u'Disambiguando', u'http://giovannacosenza.wordpress.com/feed/')]
+    no_stylesheets = True
     __author__    = 'faber1971'
-    description   = 'Collection of Italian marketing websites - v1.00 (28, January 2012)'
+    description   = 'Collection of Italian marketing websites - v1.01 (19, February 2012)'
     language = 'it'
 
-
+    remove_tags = [
+                     dict(name='ul', attrs={'id':'ads0'})
+                  ]
+    masthead_url            = 'http://www.simrendeogun.com/wp-content/uploads/2011/06/New-Marketing-Magazine-Logo.jpg'
+    feeds          = [(u'My Marketing', u'http://feed43.com/0537744466058428.xml'), (u'My Marketing_', u'http://feed43.com/8126723074604845.xml'), (u'Venturini', u'http://robertoventurini.blogspot.com/feeds/posts/default?alt=rss'), (u'Ninja Marketing', u'http://feeds.feedburner.com/NinjaMarketing'), (u'Comunitàzione', u'http://www.comunitazione.it/feed/novita.asp'), (u'Brandforum news', u'http://www.brandforum.it/rss/news'), (u'Brandforum papers', u'http://www.brandforum.it/rss/papers'), (u'Disambiguando', u'http://giovannacosenza.wordpress.com/feed/')]
