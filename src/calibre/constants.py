@@ -190,3 +190,16 @@ def get_windows_username():
             return buf.value
 
     return get_unicode_windows_env_var(u'USERNAME')
+
+def get_windows_temp_path():
+    import ctypes
+    n = ctypes.windll.kernel32.GetTempPathW(0, None)
+    if n == 0:
+        return None
+    buf = ctypes.create_unicode_buffer(u'\0'*n)
+    ctypes.windll.kernel32.GetTempPathW(n, buf)
+    ans = buf.value
+    if ans[-1] == u'\\':
+        ans = ans[:-1]
+    return ans if ans else None
+
