@@ -5,15 +5,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>, ' \
                 '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import errno
-import os
-import sys
-import subprocess
+import errno, os, sys, subprocess, shutil
 from functools import partial
 
 from calibre.ebooks import ConversionError, DRMError
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.constants import isosx, iswindows, islinux, isbsd
+from calibre.constants import (isosx, iswindows, islinux, isbsd,
+            filesystem_encoding)
 from calibre import CurrentDir
 
 PDFTOHTML = 'pdftohtml'
@@ -30,31 +28,45 @@ def pdftohtml(output_dir, pdf_path, no_images):
     '''
     Convert the pdf into html using the pdftohtml app.
     This will write the html as index.html into output_dir.
-    It will also wirte all extracted images to the output_dir
+    It will also write all extracted images to the output_dir
     '''
 
-    if isinstance(pdf_path, unicode):
-        pdf_path = pdf_path.encode(sys.getfilesystemencoding())
-    if not os.access(pdf_path, os.R_OK):
-        raise ConversionError('Cannot read from ' + pdf_path)
+    pdfsrc = os.path.join(output_dir, u'src.pdf')
+    index = os.path.join(output_dir, u'index.html')
+
+    with open(pdf_path, 'rb') as src, open(pdfsrc, 'wb') as dest:
+        shutil.copyfileobj(src, dest)
 
     with CurrentDir(output_dir):
-        index = os.path.join(os.getcwdu(), 'index.html')
-        # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
-        pdf_path = os.path.abspath(pdf_path)
-        cmd = [PDFTOHTML, '-enc', 'UTF-8', '-noframes', '-p', '-nomerge', '-nodrm', '-q', pdf_path, os.path.basename(index)]
-        if isbsd:
-            cmd.remove('-nodrm')
-        if no_images:
-            cmd.append('-i')
+        # This is necessary as pdftohtml doesn't always (linux) respect
+        # absolute paths. Also, it allows us to safely pass only bytestring
+        # arguments to subprocess on widows
 
-        logf = PersistentTemporaryFile('pdftohtml_log')
+        # subprocess in python 2 cannot handle unicode arguments on windows
+        # that cannot be encoded with mbcs. Ensure all args are
+        # bytestrings.
+        def a(x):
+            return os.path.basename(x).encode('ascii')
+
+        exe = PDFTOHTML.encode(filesystem_encoding) if isinstance(PDFTOHTML,
+                unicode) else PDFTOHTML
+
+        cmd = [exe, b'-enc', b'UTF-8', b'-noframes', b'-p', b'-nomerge',
+                b'-nodrm', b'-q', a(pdfsrc), a(index)]
+
+        if isbsd:
+            cmd.remove(b'-nodrm')
+        if no_images:
+            cmd.append(b'-i')
+
+        logf = PersistentTemporaryFile(u'pdftohtml_log')
         try:
             p = popen(cmd, stderr=logf._fd, stdout=logf._fd,
                     stdin=subprocess.PIPE)
         except OSError as err:
             if err.errno == errno.ENOENT:
-                raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'))
+                raise ConversionError(
+                    _('Could not find pdftohtml, check it is in your PATH'))
             else:
                 raise
 
@@ -70,6 +82,10 @@ def pdftohtml(output_dir, pdf_path, no_images):
         logf.flush()
         logf.close()
         out = open(logf.name, 'rb').read().strip()
+        try:
+            os.remove(pdfsrc)
+        except:
+            pass
         if ret != 0:
             raise ConversionError(out)
         if out:
@@ -84,3 +100,4 @@ def pdftohtml(output_dir, pdf_path, no_images):
             i.seek(0)
             i.truncate()
             i.write(raw)
+
