@@ -4,10 +4,12 @@ class Ubuntu_pl(BasicNewsRecipe):
     title          = u'UBUNTU.pl'
     __author__        = 'fenuks'
     description   = 'UBUNTU.pl - polish ubuntu community site'
+    masthead_url= 'http://ubuntu.pl/img/logo.jpg'
     cover_url      = 'http://ubuntu.pl/img/logo.jpg'
     category       = 'linux, IT'
     language       = 'pl'
     no_stylesheets = True
+    remove_empty_feeds = True
     oldest_article = 8
     max_articles_per_feed = 100
     extra_css      = '#main {text-align:left;}'

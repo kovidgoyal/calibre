@@ -1,8 +1,9 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-
+import re
 class naczytniki(BasicNewsRecipe):
     title          = u'naczytniki.pl'
     __author__        = 'fenuks'
+    masthead_url= 'http://naczytniki.pl/wp-content/uploads/2010/08/logo_nc28.png'
     cover_url      = 'http://naczytniki.pl/wp-content/uploads/2010/08/logo_nc28.png'
     language       = 'pl'
     description ='everything about e-readers'
@@ -10,6 +11,7 @@ class naczytniki(BasicNewsRecipe):
     no_stylesheets=True
     oldest_article = 7
     max_articles_per_feed = 100
+    preprocess_regexps = [(re.compile(ur'<p><br><b>Zobacz także:</b></p>.*?</body>', re.DOTALL), lambda match: '</body>') ]
     remove_tags_after= dict(name='div', attrs={'class':'sociable'})
     keep_only_tags=[dict(name='div', attrs={'class':'post'})]
     remove_tags=[dict(name='span', attrs={'class':'comments'}), dict(name='div', attrs={'class':'sociable'})]

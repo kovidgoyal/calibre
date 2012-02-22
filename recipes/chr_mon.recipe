@@ -33,6 +33,32 @@ class ChristianScienceMonitor(BasicNewsRecipe):
 
     remove_javascript     = True
     no_stylesheets = True
+    requires_version = (0, 8, 39)
+
+    def preprocess_raw_html(self, raw, url):
+        try:
+            from html5lib import parse
+            root = parse(raw, namespaceHTMLElements=False,
+                    treebuilder='lxml').getroot()
+            from lxml import etree
+            for tag in root.xpath(
+                    '//script|//style|//noscript|//meta|//link|//object'):
+                tag.getparent().remove(tag)
+            for elem in list(root.iterdescendants(tag=etree.Comment)):
+                elem.getparent().remove(elem)
+            ans = etree.tostring(root, encoding=unicode)
+            ans = re.sub('.*<html', '<html', ans, flags=re.DOTALL)
+            return ans
+        except:
+            import traceback
+            traceback.print_exc()
+            raise
+
+    def index_to_soup(self, url):
+        raw = BasicNewsRecipe.index_to_soup(self, url,
+                raw=True).decode('utf-8')
+        raw = self.preprocess_raw_html(raw, url)
+        return BasicNewsRecipe.index_to_soup(self, raw)
 
     def append_page(self, soup, appendtag, position):
         nav = soup.find('div',attrs={'class':'navigation'})
@@ -78,14 +104,6 @@ class ChristianScienceMonitor(BasicNewsRecipe):
             print_soup = soup
         return print_soup
 
-    preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
-        [
-            (r'<!--.*?-->', lambda match : ''),
-        (r'<body.*?<div id="story"', lambda match : '<body><div id="story"'),
-        (r'<div class="pubdate">.*?</div>', lambda m: ''),
-        (r'Full HTML version of this story which may include photos, graphics, and related links.*</body>',
-              lambda match : '</body>'),
-        ]]
     extra_css      = '''
                         h1{ color:#000000;font-family: Georgia,Times,"Times New Roman",serif; font-size: large}
                         .sub{ color:#000000;font-family: Georgia,Times,"Times New Roman",serif; font-size: small;}

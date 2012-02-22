@@ -7,7 +7,8 @@ being closed.
 """
 import tempfile, os, atexit, binascii, cPickle
 
-from calibre.constants import __version__, __appname__
+from calibre.constants import (__version__, __appname__,
+        get_unicode_windows_env_var, iswindows, get_windows_temp_path)
 
 def cleanup(path):
     try:
@@ -47,7 +48,18 @@ def base_dir():
             _base_dir = td
         else:
             base = os.environ.get('CALIBRE_TEMP_DIR', None)
+            if base is not None and iswindows:
+                base = get_unicode_windows_env_var('CALIBRE_TEMP_DIR')
             prefix = app_prefix(u'tmp_')
+            if base is None and iswindows:
+                # On windows always use a unicode temp path, as for some
+                # localized (east asian) windows builds, there's no reliable
+                # way to escalate to unicode only when needed. See
+                # https://bugs.launchpad.net/bugs/937389 Hopefully, by now, the
+                # rest of calibre can deal with unicode temp paths. We'll leave
+                # temp paths as bytestring on Unix, as the temp dir on unix is
+                # very rarely non ascii anyway.
+                base = get_windows_temp_path()
             try:
                 # First try an ascii path as that is what was done historically
                 # and we dont want to break working code
@@ -66,7 +78,9 @@ def base_dir():
 def _make_file(suffix, prefix, base):
     try:
         fd, name = tempfile.mkstemp(suffix, prefix, dir=base)
-    except UnicodeDecodeError:
+    except (UnicodeDecodeError, OSError):
+        # On some windows systems, we get an OSError because base is not
+        # unicode and windows cannot find the path pointed to by base
         global _base_dir
         from calibre.constants import filesystem_encoding
         base_dir()
@@ -79,7 +93,9 @@ def _make_file(suffix, prefix, base):
 def _make_dir(suffix, prefix, base):
     try:
         tdir = tempfile.mkdtemp(suffix, prefix, base)
-    except ValueError:
+    except (ValueError, OSError):
+        # On some windows systems, we get an OSError because base is not
+        # unicode and windows cannot find the path pointed to by base
         global _base_dir
         from calibre.constants import filesystem_encoding
         base_dir()
