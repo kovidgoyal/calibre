@@ -1066,7 +1066,7 @@ class ZipFile:
             member = self.getinfo(member)
 
         if path is None:
-            path = os.getcwd()
+            path = os.getcwdu()
 
         return self._extract_member(member, path, pwd)
 
@@ -1298,7 +1298,7 @@ class ZipFile:
         '''
         if prefix:
             self.writestr(prefix+'/', '', 0755)
-        cwd = os.path.abspath(os.getcwd())
+        cwd = os.path.abspath(os.getcwdu())
         try:
             os.chdir(path)
             fp = (prefix + ('/' if prefix else '')).replace('//', '/')

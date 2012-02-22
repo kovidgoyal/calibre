@@ -29,9 +29,9 @@ C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
 
 class TOC(list):
 
-    def __init__(self, href=None, fragment=None, text=None, parent=None, play_order=0,
-                 base_path=os.getcwd(), type='unknown', author=None,
-                 description=None, toc_thumbnail=None):
+    def __init__(self, href=None, fragment=None, text=None, parent=None,
+            play_order=0, base_path=os.getcwdu(), type='unknown', author=None,
+            description=None, toc_thumbnail=None):
         self.href = href
         self.fragment = fragment
         if not self.fragment:
@@ -272,7 +272,7 @@ class TOC(list):
                 elem.append(C.meta(desc, name='description'))
             idx = getattr(np, 'toc_thumbnail', None)
             if idx:
-                elem.append(C.meta(idx, name='toc_thumbnail'))   
+                elem.append(C.meta(idx, name='toc_thumbnail'))
             parent.append(elem)
             for np2 in np:
                 navpoint(elem, np2)

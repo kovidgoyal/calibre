@@ -419,7 +419,7 @@ class CurrentDir(object):
         self.cwd = None
 
     def __enter__(self, *args):
-        self.cwd = os.getcwd()
+        self.cwd = os.getcwdu()
         os.chdir(self.path)
         return self.cwd
 

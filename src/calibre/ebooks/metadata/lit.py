@@ -14,7 +14,7 @@ def get_metadata(stream):
     litfile = LitContainer(stream, Log())
     src = litfile.get_metadata().encode('utf-8')
     litfile = litfile._litfile
-    opf = OPF(cStringIO.StringIO(src), os.getcwd())
+    opf = OPF(cStringIO.StringIO(src), os.getcwdu())
     mi = opf.to_book_metadata()
     covers = []
     for item in opf.iterguide():

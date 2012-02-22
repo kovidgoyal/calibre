@@ -785,11 +785,11 @@ class MobiReader(object):
             mi = MetaInformation(self.book_header.title, [_('Unknown')])
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
-            opf.cover = 'images/%05d.jpg' % (self.book_header.exth.cover_offset + 1)
+            opf.cover = u'images/%05d.jpg' % (self.book_header.exth.cover_offset + 1)
         elif mi.cover is not None:
             opf.cover = mi.cover
         else:
-            opf.cover = 'images/%05d.jpg' % 1
+            opf.cover = u'images/%05d.jpg' % 1
             if not os.path.exists(os.path.join(os.path.dirname(htmlfile),
                 * opf.cover.split('/'))):
                 opf.cover = None
@@ -799,7 +799,7 @@ class MobiReader(object):
         if cover is not None:
             cover = cover.replace('/', os.sep)
             if os.path.exists(cover):
-                ncover = 'images'+os.sep+'calibre_cover.jpg'
+                ncover = u'images'+os.sep+u'calibre_cover.jpg'
                 if os.path.exists(ncover):
                     os.remove(ncover)
                 shutil.copyfile(cover, ncover)
@@ -807,7 +807,7 @@ class MobiReader(object):
                 opf.cover = ncover.replace(os.sep, '/')
 
         manifest = [(htmlfile, 'application/xhtml+xml'),
-            (os.path.abspath('styles.css'), 'text/css')]
+            (os.path.abspath(u'styles.css'), 'text/css')]
         bp = os.path.dirname(htmlfile)
         added = set([])
         for i in getattr(self, 'image_names', []):

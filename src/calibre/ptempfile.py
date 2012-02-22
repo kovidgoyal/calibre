@@ -67,7 +67,7 @@ def base_dir():
 
         # Tell the tempfile module to in future always use our temp dir
         # This also means that it will return unicode paths, instead of
-        # bytestrings
+        # bytestrings. This is particularly important on windows.
         tempfile.tempdir = _base_dir
 
     return _base_dir

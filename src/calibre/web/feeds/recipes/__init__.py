@@ -42,7 +42,7 @@ def compile_recipe(src):
             'AutomaticNewsRecipe':AutomaticNewsRecipe,
             'time':time, 're':re,
             'BeautifulSoup':BeautifulSoup
-        }
+    }
     exec src in namespace
 
     for x in namespace.itervalues():

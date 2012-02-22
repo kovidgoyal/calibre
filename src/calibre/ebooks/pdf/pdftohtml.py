@@ -39,7 +39,7 @@ def pdftohtml(output_dir, pdf_path, no_images):
         raise ConversionError('Cannot read from ' + pdf_path)
 
     with CurrentDir(output_dir):
-        index = os.path.join(os.getcwd(), 'index.html')
+        index = os.path.join(os.getcwdu(), 'index.html')
         # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
         pdf_path = os.path.abspath(pdf_path)
         cmd = [PDFTOHTML, '-enc', 'UTF-8', '-noframes', '-p', '-nomerge', '-nodrm', '-q', pdf_path, os.path.basename(index)]
