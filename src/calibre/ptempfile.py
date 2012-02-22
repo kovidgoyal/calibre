@@ -5,9 +5,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Provides platform independent temporary files that persist even after
 being closed.
 """
-import tempfile, os, atexit, binascii, cPickle
+import tempfile, os, atexit
+from future_builtins import map
 
-from calibre.constants import (__version__, __appname__,
+from calibre.constants import (__version__, __appname__, filesystem_encoding,
         get_unicode_windows_env_var, iswindows, get_windows_temp_path)
 
 def cleanup(path):
@@ -40,6 +41,7 @@ def base_dir():
     if _base_dir is None:
         td = os.environ.get('CALIBRE_WORKER_TEMP_DIR', None)
         if td is not None:
+            import cPickle, binascii
             try:
                 td = cPickle.loads(binascii.unhexlify(td))
             except:
@@ -52,58 +54,38 @@ def base_dir():
                 base = get_unicode_windows_env_var('CALIBRE_TEMP_DIR')
             prefix = app_prefix(u'tmp_')
             if base is None and iswindows:
-                # On windows always use a unicode temp path, as for some
-                # localized (east asian) windows builds, there's no reliable
-                # way to escalate to unicode only when needed. See
-                # https://bugs.launchpad.net/bugs/937389 Hopefully, by now, the
-                # rest of calibre can deal with unicode temp paths. We'll leave
-                # temp paths as bytestring on Unix, as the temp dir on unix is
-                # very rarely non ascii anyway.
+                # On windows, if the TMP env var points to a path that
+                # cannot be encoded using the mbcs encoding, then the
+                # python 2 tempfile algorithm for getting the temporary
+                # directory breaks. So we use the win32 api to get a
+                # unicode temp path instead. See
+                # https://bugs.launchpad.net/bugs/937389
                 base = get_windows_temp_path()
-            try:
-                # First try an ascii path as that is what was done historically
-                # and we dont want to break working code
-                # _base_dir will be a bytestring
-                _base_dir = tempfile.mkdtemp(prefix=prefix.encode('ascii'), dir=base)
-            except:
-                # Failed to create tempdir (probably localized windows)
-                # Try unicode. This means that all temp paths created by this
-                # module will be unicode, this may cause problems elsewhere, if
-                # so, hopefully people will open tickets and they can be fixed.
-                _base_dir = tempfile.mkdtemp(prefix=prefix, dir=base)
 
+            _base_dir = tempfile.mkdtemp(prefix=prefix, dir=base)
             atexit.register(remove_dir, _base_dir)
+
+        # Tell the tempfile module to in future always use our temp dir
+        # This also means that it will return unicode paths, instead of
+        # bytestrings
+        tempfile.tempdir = _base_dir
+
     return _base_dir
 
+def force_unicode(x):
+    # Cannot use the implementation in calibre.__init__ as it causes a circular
+    # dependency
+    if isinstance(x, bytes):
+        x = x.decode(filesystem_encoding)
+    return x
+
 def _make_file(suffix, prefix, base):
-    try:
-        fd, name = tempfile.mkstemp(suffix, prefix, dir=base)
-    except (UnicodeDecodeError, OSError):
-        # On some windows systems, we get an OSError because base is not
-        # unicode and windows cannot find the path pointed to by base
-        global _base_dir
-        from calibre.constants import filesystem_encoding
-        base_dir()
-        if not isinstance(_base_dir, unicode):
-            _base_dir = _base_dir.decode(filesystem_encoding)
-        base = base.decode(filesystem_encoding)
-        fd, name = tempfile.mkstemp(suffix, prefix, dir=dir)
-    return fd, name
+    suffix, prefix = map(force_unicode, (suffix, prefix))
+    return tempfile.mkstemp(suffix, prefix, dir=base)
 
 def _make_dir(suffix, prefix, base):
-    try:
-        tdir = tempfile.mkdtemp(suffix, prefix, base)
-    except (ValueError, OSError):
-        # On some windows systems, we get an OSError because base is not
-        # unicode and windows cannot find the path pointed to by base
-        global _base_dir
-        from calibre.constants import filesystem_encoding
-        base_dir()
-        if not isinstance(_base_dir, unicode):
-            _base_dir = _base_dir.decode(filesystem_encoding)
-        base = base.decode(filesystem_encoding)
-        tdir = tempfile.mkdtemp(suffix, prefix, base)
-    return tdir
+    suffix, prefix = map(force_unicode, (suffix, prefix))
+    return tempfile.mkdtemp(suffix, prefix, base)
 
 class PersistentTemporaryFile(object):
     """
