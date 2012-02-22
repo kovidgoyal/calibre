@@ -65,10 +65,12 @@ def base_dir():
             _base_dir = tempfile.mkdtemp(prefix=prefix, dir=base)
             atexit.register(remove_dir, _base_dir)
 
-        # Tell the tempfile module to in future always use our temp dir
-        # This also means that it will return unicode paths, instead of
-        # bytestrings. This is particularly important on windows.
-        tempfile.tempdir = _base_dir
+        try:
+            tempfile.gettempdir()
+        except:
+            # Widows temp vars set to a path not encodable in mbcs
+            # Use our temp dir
+            tempfile.tempdir = _base_dir
 
     return _base_dir
 
