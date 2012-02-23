@@ -674,7 +674,7 @@ class LitWriter(object):
                 dchunk = StringIO()
                 dcount = 0
                 quickref = []
-                name = entry.name
+                name = en
             if (dcount % qrn) == 0:
                 quickref.append(dchunk.tell())
             dchunk.write(next)
