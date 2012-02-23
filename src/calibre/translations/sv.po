@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-02-10 07:01+0000\n"
+"POT-Creation-Date: 2012-02-17 06:42+0000\n"
 "PO-Revision-Date: 2011-12-04 19:49+0000\n"
 "Last-Translator: Merarom <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-11 04:59+0000\n"
-"X-Generator: Launchpad (build 14771)\n"
+"X-Launchpad-Export-Date: 2012-02-18 04:52+0000\n"
+"X-Generator: Launchpad (build 14814)\n"
 "X-Poedit-Country: SWEDEN\n"
 "X-Poedit-Language: Swedish\n"
 
@@ -28,8 +28,8 @@ msgstr "Gör absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:109
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:120
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:305
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:306
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:311
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:312
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:100
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:101
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:74
@@ -89,7 +89,7 @@ msgstr "Gör absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/rtf.py:101
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/snb.py:16
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:49
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:318
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/base.py:324
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/covers.py:79
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/covers.py:81
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/douban.py:79
@@ -178,24 +178,24 @@ msgstr "Gör absolut ingenting"
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:166
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:204
 #: /home/kovid/work/calibre/src/calibre/gui2/store/stores/google_books_plugin.py:110
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:207
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:233
 #: /home/kovid/work/calibre/src/calibre/library/database.py:914
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:557
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:565
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:576
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2077
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:2231
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3291
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3293
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3430
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:558
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:566
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:577
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2078
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:2232
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3292
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3294
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3431
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:240
 #: /home/kovid/work/calibre/src/calibre/library/server/content.py:241
 #: /home/kovid/work/calibre/src/calibre/library/server/mobile.py:245
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:156
 #: /home/kovid/work/calibre/src/calibre/library/server/opds.py:159
 #: /home/kovid/work/calibre/src/calibre/library/server/xml.py:79
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:161
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:162
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:46
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:66
 #: /home/kovid/work/calibre/src/calibre/utils/podofo/__init__.py:88
@@ -946,26 +946,26 @@ msgstr "Sökväg till biblioteket för lång. Måste vara mindre än tecken %d."
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:649
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:67
 #: /home/kovid/work/calibre/src/calibre/gui2/custom_column_widgets.py:682
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1005
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1006
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:835
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:847
 msgid "Yes"
 msgstr "Ja"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1133
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1134
 msgid "Main"
 msgstr "Allmänt"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1135
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1136
 msgid "Card A"
 msgstr "Kort A"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:1137
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:1138
 msgid "Card B"
 msgstr "Kort B"
 
@@ -977,7 +977,7 @@ msgstr "Felsökningslogg"
 msgid "Communicate with Android phones."
 msgstr "Kommunicera med Android-telefoner."
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:159
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:163
 msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
@@ -985,11 +985,11 @@ msgstr ""
 "Kommaseparerad lista av kataloger på enheten dit e-böckerna skall skickas. "
 "Den första katalog som finns kommer att användas"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:245
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:251
 msgid "Communicate with S60 phones."
 msgstr "Kommunicera med S60-telefoner"
 
-#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:264
+#: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:270
 msgid "Communicate with WebOS tablets."
 msgstr "Kommunicera med WebOS-surfplattor."
 
@@ -1143,7 +1143,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/model.py:1153
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:345
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:358
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3150
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3151
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
 msgstr "Nyheter"
@@ -1151,8 +1151,8 @@ msgstr "Nyheter"
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2714
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
 #: /home/kovid/work/calibre/src/calibre/library/catalogs/epub_mobi.py:65
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3106
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3124
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3107
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3125
 msgid "Catalog"
 msgstr "Katalog"
 
@@ -1439,12 +1439,12 @@ msgstr "Kommunicera med läsplattan MiBuk Wolder"
 msgid "Communicate with the JetBook Mini reader."
 msgstr "Kommunicera med jetBook Mini läsaren."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:27
+#: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
 msgid "Not a valid MOBI file. Reports identity of %s"
 msgstr "Inte en giltig MOBI fil. Rapporter identiteten för %s"
 
-#: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:43
+#: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:51
 msgid "Could not generate page mapping."
 msgstr "Kunde inte generera sidaplan"
 
@@ -1498,8 +1498,8 @@ msgstr ""
 "inte motsvarar någon pappersbok."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:305
-msgid "Use slower but more accurate page number generation"
-msgstr "Använd långsammare men mer exakt generation av sidnummer"
+msgid "Use slower but more accurate page number calculation"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:307
 msgid ""
@@ -1513,11 +1513,23 @@ msgstr ""
 "bok. Men denna metod är långsammare och kommer att bromsa överföring av "
 "filer till Kindle."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:396
+#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:311
+msgid "Custom column name to retrieve page counts from"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:313
+msgid ""
+"If you have a custom column in your library that you use to store the page "
+"count of books, you can have calibre use that information, instead of "
+"calculating a page count. Specify the name of the custom column here, for "
+"example, #pages. "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:415
 msgid "Communicate with the Kindle DX eBook reader."
 msgstr "Kommunicera med läsplattan Kindle DX."
 
-#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:405
+#: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:424
 msgid "Communicate with the Kindle Fire"
 msgstr "Kommunicera med Kindle Fire"
 
@@ -4237,49 +4249,49 @@ msgstr ""
 msgid "Cover"
 msgstr "Omslag"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:441
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:455
 msgid "Downloads metadata and covers from Amazon"
 msgstr "Nedladdningar metadata och omslag från Amazon"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:451
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:465
 msgid "US"
 msgstr "USA"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:452
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:466
 msgid "France"
 msgstr "Frankrike"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:453
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:467
 msgid "Germany"
 msgstr "Tyskland"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:454
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:468
 msgid "UK"
 msgstr "Storbritannien"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:455
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:469
 msgid "Italy"
 msgstr "Italien"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:456
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:470
 msgid "Japan"
 msgstr "Japan"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:457
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:471
 msgid "Spain"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:461
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:475
 msgid "Amazon website to use:"
 msgstr "Amazon webbplats som ska användas:"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:462
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:476
 msgid ""
 "Metadata from Amazon will be fetched using this country's Amazon website."
 msgstr ""
 "Metadata från Amazon att hämtas med hjälp av detta lands Amazon hemsida."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:629
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:706
 msgid "Amazon timed out. Try again later."
 msgstr "Amazon tidsbegränsning löpte ut. Försök igen senare."
 
@@ -8886,11 +8898,11 @@ msgid ""
 msgstr ""
 "<p>Kan inte skicka böcker till enheten finns det inte något ledigt utrymme "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:136
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:137
 msgid "Unknown formats"
 msgstr "Okänt format"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:137
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:138
 msgid ""
 "You have enabled the <b>{0}</b> formats for your {1}. The {1} may not "
 "support them. If you send these formats to your {1} they may not work. Are "
@@ -8899,14 +8911,14 @@ msgstr ""
 "Du har aktiverat <b> {0} </b> format för din {1}. {1} kan inte stödja dem. "
 "Om du skickar dessa format till din {1} de kanske inte fungerar. Är du säker?"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:149
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:150
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:484
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:279
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:70
 msgid "Invalid template"
 msgstr "Ogiltig mall"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:150
+#: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget.py:151
 #: /home/kovid/work/calibre/src/calibre/gui2/library/delegates.py:485
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugboard.py:280
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/save_template.py:71
@@ -9616,7 +9628,7 @@ msgstr "Länk"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/edit_authors_dialog.py:122
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:160
 #: /home/kovid/work/calibre/src/calibre/gui2/metadata/single_download.py:492
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:519
 msgid "No matches found"
 msgstr "Inga träffar hittades"
 
@@ -17166,7 +17178,7 @@ msgid "Options to customize the ebook viewer"
 msgstr "Alternativ för att anpassa läsplattan"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:46
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:808
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:814
 msgid "Remember last used window size"
 msgstr "Kom ihåg senast använd fönsterstorlek"
 
@@ -17267,7 +17279,7 @@ msgid "&Search for next occurrence"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:518
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:141
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:148
 msgid "Go to..."
 msgstr "Gå till..."
 
@@ -17347,40 +17359,40 @@ msgstr "Rulla åt höger"
 msgid "Book format"
 msgstr "Bokformat"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:200
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:136
 msgid "Position in book"
 msgstr "Plats i bok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:213
 msgid "Go to a reference. To get reference numbers, use the reference mode."
 msgstr "Gå till en referens. För att få referensnummer, använd referensläge."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:215
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:221
 msgid "Search for text in book"
 msgstr "Sök text i bok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:291
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:297
 msgid "Print Preview"
 msgstr "Förhandsgranska"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:302
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:308
 msgid "Clear list of recently opened books"
 msgstr "Tydlig lista över nyligen öppnade böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:367
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:373
 #, python-format
 msgid "Connecting to dict.org to lookup: <b>%s</b>&hellip;"
 msgstr "Ansluter till dict.org att slå upp: <b>%s</b>&hellip;"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:473
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:479
 msgid "Choose ebook"
 msgstr "Välj e-bok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:474
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:480
 msgid "Ebooks"
 msgstr "E-böcker"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:500
 #, python-format
 msgid ""
 "Make font size %(which)s\n"
@@ -17389,80 +17401,80 @@ msgstr ""
 "Använd fontstorlek %(which)s\n"
 "Nuvarande förstoring: %(mag).1f"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:496
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:502
 msgid "larger"
 msgstr "Större"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:498
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:504
 msgid "smaller"
 msgstr "mindre"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:514
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:520
 #, python-format
 msgid "No matches found for: %s"
 msgstr "Inga träffar hittades för: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:557
 msgid "Loading flow..."
 msgstr "Laddar flöde..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:589
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:595
 #, python-format
 msgid "Laying out %s"
 msgstr "Formaterar %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:620
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:626
 #, python-format
 msgid "Bookmark #%d"
 msgstr "Bokmärk #%d"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:624
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:630
 msgid "Add bookmark"
 msgstr "Lägg till bokmärke"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:625
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:631
 msgid "Enter title for bookmark:"
 msgstr "Ange titel för bokmärke:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:641
 msgid "Manage Bookmarks"
 msgstr "Hantera bokmärken"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:676
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:682
 msgid "Loading ebook..."
 msgstr "Laddar e-bok...."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:688
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:694
 msgid "Could not open ebook"
 msgstr "Kunde inte öppna e-bok"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:795
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:801
 msgid "Options to control the ebook viewer"
 msgstr "Alternativ för att styra läsplattan"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:802
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:808
 msgid ""
 "If specified, viewer window will try to come to the front when started."
 msgstr ""
 "Om angivet, kommer läsfönstret att försöka lägga sig överst vid start."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:805
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:811
 msgid ""
 "If specified, viewer window will try to open full screen when started."
 msgstr ""
 "Om vald kommer visningsfönstret försöker öppna helskärm när den startas."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:810
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:816
 msgid "Print javascript alert and console messages to the console"
 msgstr "Skriv javaskriptnotifieringar och konsolmeddelanden till konsolen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:812
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:818
 msgid ""
 "The position at which to open the specified book. The position is a location "
 "as displayed in the top left corner of the viewer."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:819
+#: /home/kovid/work/calibre/src/calibre/gui2/viewer/main.py:825
 msgid ""
 "%prog [options] file\n"
 "\n"
@@ -19178,17 +19190,17 @@ msgstr ""
 msgid "%(tt)sAverage rating is %(rating)3.1f"
 msgstr "%(tt)sMedelbetyg är %(rating)3.1f"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3456
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3457
 #, python-format
 msgid "<p>Migrating old database to ebook library in %s<br><center>"
 msgstr "<p>Migrera den gamla databasen till e-bokbibliotek i %s <br><center>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3485
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3486
 #, python-format
 msgid "Copying <b>%s</b>"
 msgstr "Kopierar <b>%s</b>"
 
-#: /home/kovid/work/calibre/src/calibre/library/database2.py:3502
+#: /home/kovid/work/calibre/src/calibre/library/database2.py:3503
 msgid "Compacting database"
 msgstr "Komprimerar databas"
 
@@ -20484,6 +20496,13 @@ msgid ""
 "locale. Lang_strings is a comma-separated list."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:1113
+msgid ""
+"current_library_name() -- return the last name on the path to the current "
+"calibre library. This function can be called in template program mode using "
+"the template \"{:'current_library_name()'}\"."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
 msgstr "Väntar..."
@@ -20593,118 +20612,122 @@ msgid "English (Croatia)"
 msgstr "Engelska (Kroatien)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
+msgid "English (Hong Kong)"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "English (Indonesia)"
 msgstr "Engelska (Indonesien)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
 msgid "English (Israel)"
 msgstr "Engelska (Israel)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:139
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
 msgid "English (Russia)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:140
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
 msgid "English (Singapore)"
 msgstr "Engelska (Singapore)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:141
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
 msgid "English (Yemen)"
 msgstr "Engelska (Jemen)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:142
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
 msgid "English (Ireland)"
 msgstr "Engelska (Irland)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:143
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
 msgid "English (China)"
 msgstr "Engelska (Kina)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:144
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
 msgid "English (South Africa)"
 msgstr "Engelska (Sydafrika)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:145
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
 msgid "Spanish (Paraguay)"
 msgstr "Spanska (Paraguay)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:146
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
 msgid "Spanish (Uruguay)"
 msgstr "Spanska (Uruguay)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:147
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
 msgid "Spanish (Argentina)"
 msgstr "Spanska (Argentina)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:148
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
 msgid "Spanish (Mexico)"
 msgstr "Spanska (Mexiko)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:149
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
 msgid "Spanish (Cuba)"
 msgstr "Spanska (Kuba)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:150
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:151
 msgid "Spanish (Chile)"
 msgstr "Spanska (Chile)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:151
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:152
 msgid "Spanish (Ecuador)"
 msgstr "Spanska (Ecuador)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:152
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:153
 msgid "Spanish (Honduras)"
 msgstr "Spanska (Honduras)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:153
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:154
 msgid "Spanish (Venezuela)"
 msgstr "Spanska (Venezuela)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:154
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:155
 msgid "Spanish (Bolivia)"
 msgstr "Spanska (Bolivia)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:155
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:156
 msgid "Spanish (Nicaragua)"
 msgstr "Spanska (Nicaragua)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:156
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:157
 msgid "Spanish (Colombia)"
 msgstr "Spanska (Colombia)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:157
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
 msgid "German (AT)"
 msgstr "Tyska (Österrike)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:158
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:159
 msgid "French (BE)"
 msgstr "Franska (BE)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:159
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
 msgid "Dutch (NL)"
 msgstr "Holländska (Nederländerna)"
 
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:160
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:161
 msgid "Dutch (BE)"
 msgstr "Holländska (Belgien)"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 AM)
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:168
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:169
 msgid "AM"
 msgstr "AM"
 
 #. NOTE: Post Meridian (i.e. like 10:00 PM)
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:170
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:171
 msgid "PM"
 msgstr "PM"
 
 #. NOTE: Ante Meridian (i.e. like 10:00 am)
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:172
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:173
 msgid "am"
 msgstr "am"
 
 #. NOTE: Post Meridian (i.e. like 10:00 pm)
-#: /home/kovid/work/calibre/src/calibre/utils/localization.py:174
+#: /home/kovid/work/calibre/src/calibre/utils/localization.py:175
 msgid "pm"
 msgstr "pm"
 
