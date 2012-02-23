@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-17 06:42+0000\n"
-"PO-Revision-Date: 2012-02-11 14:32+0000\n"
-"Last-Translator: Klaus Thenmayer <Unknown>\n"
+"PO-Revision-Date: 2012-02-22 20:59+0000\n"
+"Last-Translator: Raymond Fürst <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-18 04:41+0000\n"
-"X-Generator: Launchpad (build 14814)\n"
+"X-Launchpad-Export-Date: 2012-02-23 04:36+0000\n"
+"X-Generator: Launchpad (build 14855)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -3629,7 +3629,7 @@ msgstr "Geben Sie die Beschreibung des E-Books an."
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:500
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:56
 msgid "Set the ebook publisher."
-msgstr "Geben Sie den Herausgeber des E-Books an"
+msgstr "Geben Sie den Verlag des E-Books an."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:504
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:60
@@ -4122,7 +4122,7 @@ msgstr "Thumbnail von LRF-Datei extrahieren"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:608
 msgid "Set the publisher"
-msgstr "Geben Sie den Herausgeber an"
+msgstr "Geben Sie den Verlag an"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
 msgid "Set the book classification"
@@ -4197,7 +4197,7 @@ msgstr "Autor(en)"
 #: /home/kovid/work/calibre/src/calibre/gui2/library/models.py:65
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:159
 msgid "Publisher"
-msgstr "Herausgeber"
+msgstr "Verlag"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:754
 #: /home/kovid/work/calibre/src/calibre/ebooks/pdf/manipulate/info.py:49
@@ -6384,7 +6384,7 @@ msgstr "Alt+P"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:28
 msgid "Books by this publisher"
-msgstr "Bücher dieses Herausgebers"
+msgstr "Bücher dieses Verlages"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/similar_books.py:29
 msgid "Alt+T"
@@ -11656,7 +11656,7 @@ msgstr "Formate auswählen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:60
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:164
 msgid "Publishers"
-msgstr "Herausgeber"
+msgstr "Verlage"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/tag_categories.py:143
 msgid " (not on any book)"
@@ -12352,7 +12352,7 @@ msgstr "Regulärer Ausdruck (?P<isbn>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:152
 msgid "Publisher:"
-msgstr "Verleger:"
+msgstr "Verlag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:153
 msgid "Regular expression (?P<publisher>)"
@@ -19602,7 +19602,7 @@ msgstr "Die ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:43
 msgid "The publisher"
-msgstr "Der Herausgeber"
+msgstr "Der Verlag"
 
 #: /home/kovid/work/calibre/src/calibre/library/save_to_disk.py:44
 msgid "The date"

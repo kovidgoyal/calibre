@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-25 14:01+0000\n"
-"PO-Revision-Date: 2012-02-16 16:12+0000\n"
+"PO-Revision-Date: 2012-02-22 10:57+0000\n"
 "Last-Translator: Vibhav Pant <vibhavp@gmail.com>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-02-17 04:57+0000\n"
-"X-Generator: Launchpad (build 14814)\n"
+"X-Launchpad-Export-Date: 2012-02-23 04:37+0000\n"
+"X-Generator: Launchpad (build 14855)\n"
 
 #. name for aaa
 msgid "Ghotuo"
@@ -7923,483 +7923,483 @@ msgstr "Oromo; West Central"
 
 #. name for gba
 msgid "Gbaya (Central African Republic)"
-msgstr ""
+msgstr "Gbaya (Central African Republic)"
 
 #. name for gbb
 msgid "Kaytetye"
-msgstr ""
+msgstr "Kaytetye"
 
 #. name for gbc
 msgid "Garawa"
-msgstr ""
+msgstr "Garawa"
 
 #. name for gbd
 msgid "Karadjeri"
-msgstr ""
+msgstr "Karadjeri"
 
 #. name for gbe
 msgid "Niksek"
-msgstr ""
+msgstr "Niksek"
 
 #. name for gbf
 msgid "Gaikundi"
-msgstr ""
+msgstr "Gaikundi"
 
 #. name for gbg
 msgid "Gbanziri"
-msgstr ""
+msgstr "Gbanziri"
 
 #. name for gbh
 msgid "Gbe; Defi"
-msgstr ""
+msgstr "Gbe; Defi"
 
 #. name for gbi
 msgid "Galela"
-msgstr ""
+msgstr "Galela"
 
 #. name for gbj
 msgid "Gadaba; Bodo"
-msgstr ""
+msgstr "Gadaba; Bodo"
 
 #. name for gbk
 msgid "Gaddi"
-msgstr ""
+msgstr "Gaddi"
 
 #. name for gbl
 msgid "Gamit"
-msgstr ""
+msgstr "Gamit"
 
 #. name for gbm
 msgid "Garhwali"
-msgstr ""
+msgstr "Garhwali"
 
 #. name for gbn
 msgid "Mo'da"
-msgstr ""
+msgstr "Mo'da"
 
 #. name for gbo
 msgid "Grebo; Northern"
-msgstr ""
+msgstr "Grebo; Northern"
 
 #. name for gbp
 msgid "Gbaya-Bossangoa"
-msgstr ""
+msgstr "Gbaya-Bossangoa"
 
 #. name for gbq
 msgid "Gbaya-Bozoum"
-msgstr ""
+msgstr "Gbaya-Bozoum"
 
 #. name for gbr
 msgid "Gbagyi"
-msgstr ""
+msgstr "Gbagyi"
 
 #. name for gbs
 msgid "Gbe; Gbesi"
-msgstr ""
+msgstr "Gbe; Gbesi"
 
 #. name for gbu
 msgid "Gagadu"
-msgstr ""
+msgstr "Gagadu"
 
 #. name for gbv
 msgid "Gbanu"
-msgstr ""
+msgstr "Gbanu"
 
 #. name for gbx
 msgid "Gbe; Eastern Xwla"
-msgstr ""
+msgstr "Gbe; Eastern Xwla"
 
 #. name for gby
 msgid "Gbari"
-msgstr ""
+msgstr "Gbari"
 
 #. name for gbz
 msgid "Dari; Zoroastrian"
-msgstr ""
+msgstr "Dari; Zoroastrian"
 
 #. name for gcc
 msgid "Mali"
-msgstr ""
+msgstr "Mali"
 
 #. name for gcd
 msgid "Ganggalida"
-msgstr ""
+msgstr "Ganggalida"
 
 #. name for gce
 msgid "Galice"
-msgstr ""
+msgstr "Galice"
 
 #. name for gcf
 msgid "Creole French; Guadeloupean"
-msgstr ""
+msgstr "Creole French; Guadeloupean"
 
 #. name for gcl
 msgid "Creole English; Grenadian"
-msgstr ""
+msgstr "Creole English; Grenadian"
 
 #. name for gcn
 msgid "Gaina"
-msgstr ""
+msgstr "Gaina"
 
 #. name for gcr
 msgid "Creole French; Guianese"
-msgstr ""
+msgstr "Creole French; Guianese"
 
 #. name for gct
 msgid "German; Colonia Tovar"
-msgstr ""
+msgstr "German; Colonia Tovar"
 
 #. name for gda
 msgid "Lohar; Gade"
-msgstr ""
+msgstr "Lohar; Gade"
 
 #. name for gdb
 msgid "Gadaba; Pottangi Ollar"
-msgstr ""
+msgstr "Gadaba; Pottangi Ollar"
 
 #. name for gdc
 msgid "Gugu Badhun"
-msgstr ""
+msgstr "Gugu Badhun"
 
 #. name for gdd
 msgid "Gedaged"
-msgstr ""
+msgstr "Gedaged"
 
 #. name for gde
 msgid "Gude"
-msgstr ""
+msgstr "Gude"
 
 #. name for gdf
 msgid "Guduf-Gava"
-msgstr ""
+msgstr "Guduf-Gava"
 
 #. name for gdg
 msgid "Ga'dang"
-msgstr ""
+msgstr "Ga'dang"
 
 #. name for gdh
 msgid "Gadjerawang"
-msgstr ""
+msgstr "Gadjerawang"
 
 #. name for gdi
 msgid "Gundi"
-msgstr ""
+msgstr "Gundi"
 
 #. name for gdj
 msgid "Gurdjar"
-msgstr ""
+msgstr "Gurdjar"
 
 #. name for gdk
 msgid "Gadang"
-msgstr ""
+msgstr "Gadang"
 
 #. name for gdl
 msgid "Dirasha"
-msgstr ""
+msgstr "Dirasha"
 
 #. name for gdm
 msgid "Laal"
-msgstr ""
+msgstr "Laal"
 
 #. name for gdn
 msgid "Umanakaina"
-msgstr ""
+msgstr "Umanakaina"
 
 #. name for gdo
 msgid "Ghodoberi"
-msgstr ""
+msgstr "Ghodoberi"
 
 #. name for gdq
 msgid "Mehri"
-msgstr ""
+msgstr "Mehri"
 
 #. name for gdr
 msgid "Wipi"
-msgstr ""
+msgstr "Wipi"
 
 #. name for gdu
 msgid "Gudu"
-msgstr ""
+msgstr "Gudu"
 
 #. name for gdx
 msgid "Godwari"
-msgstr ""
+msgstr "Godwari"
 
 #. name for gea
 msgid "Geruma"
-msgstr ""
+msgstr "Geruma"
 
 #. name for geb
 msgid "Kire"
-msgstr ""
+msgstr "Kire"
 
 #. name for gec
 msgid "Grebo; Gboloo"
-msgstr ""
+msgstr "Grebo; Gboloo"
 
 #. name for ged
 msgid "Gade"
-msgstr ""
+msgstr "Gade"
 
 #. name for geg
 msgid "Gengle"
-msgstr ""
+msgstr "Gengle"
 
 #. name for geh
 msgid "German; Hutterite"
-msgstr ""
+msgstr "German; Hutterite"
 
 #. name for gei
 msgid "Gebe"
-msgstr ""
+msgstr "Gebe"
 
 #. name for gej
 msgid "Gen"
-msgstr ""
+msgstr "Gen"
 
 #. name for gek
 msgid "Yiwom"
-msgstr ""
+msgstr "Yiwom"
 
 #. name for gel
 msgid "ut-Ma'in"
-msgstr ""
+msgstr "ut-Ma'in"
 
 #. name for geq
 msgid "Geme"
-msgstr ""
+msgstr "Geme"
 
 #. name for ges
 msgid "Geser-Gorom"
-msgstr ""
+msgstr "Geser-Gorom"
 
 #. name for gew
 msgid "Gera"
-msgstr ""
+msgstr "Gera"
 
 #. name for gex
 msgid "Garre"
-msgstr ""
+msgstr "Garre"
 
 #. name for gey
 msgid "Enya"
-msgstr ""
+msgstr "Enya"
 
 #. name for gez
 msgid "Geez"
-msgstr ""
+msgstr "Geez"
 
 #. name for gfk
 msgid "Patpatar"
-msgstr ""
+msgstr "Patpatar"
 
 #. name for gft
 msgid "Gafat"
-msgstr ""
+msgstr "Gafat"
 
 #. name for gga
 msgid "Gao"
-msgstr ""
+msgstr "Gao"
 
 #. name for ggb
 msgid "Gbii"
-msgstr ""
+msgstr "Gbii"
 
 #. name for ggd
 msgid "Gugadj"
-msgstr ""
+msgstr "Gugadj"
 
 #. name for gge
 msgid "Guragone"
-msgstr ""
+msgstr "Guragone"
 
 #. name for ggg
 msgid "Gurgula"
-msgstr ""
+msgstr "Gurgula"
 
 #. name for ggk
 msgid "Kungarakany"
-msgstr ""
+msgstr "Kungarakany"
 
 #. name for ggl
 msgid "Ganglau"
-msgstr ""
+msgstr "Ganglau"
 
 #. name for ggn
 msgid "Gurung; Eastern"
-msgstr ""
+msgstr "Gurung; Eastern"
 
 #. name for ggo
 msgid "Gondi; Southern"
-msgstr ""
+msgstr "Gondi; Southern"
 
 #. name for ggr
 msgid "Aghu Tharnggalu"
-msgstr ""
+msgstr "Aghu Tharnggalu"
 
 #. name for ggt
 msgid "Gitua"
-msgstr ""
+msgstr "Gitua"
 
 #. name for ggu
 msgid "Gagu"
-msgstr ""
+msgstr "Gagu"
 
 #. name for ggw
 msgid "Gogodala"
-msgstr ""
+msgstr "Gogodala"
 
 #. name for gha
 msgid "Ghadamès"
-msgstr ""
+msgstr "Ghadamès"
 
 #. name for ghc
 msgid "Gaelic; Hiberno-Scottish"
-msgstr ""
+msgstr "Gaelic; Hiberno-Scottish"
 
 #. name for ghe
 msgid "Ghale; Southern"
-msgstr ""
+msgstr "Ghale; Southern"
 
 #. name for ghh
 msgid "Ghale; Northern"
-msgstr ""
+msgstr "Ghale; Northern"
 
 #. name for ghk
 msgid "Karen; Geko"
-msgstr ""
+msgstr "Karen; Geko"
 
 #. name for ghl
 msgid "Ghulfan"
-msgstr ""
+msgstr "Ghulfan"
 
 #. name for ghn
 msgid "Ghanongga"
-msgstr ""
+msgstr "Ghanongga"
 
 #. name for gho
 msgid "Ghomara"
-msgstr ""
+msgstr "Ghomara"
 
 #. name for ghr
 msgid "Ghera"
-msgstr ""
+msgstr "Ghera"
 
 #. name for ghs
 msgid "Guhu-Samane"
-msgstr ""
+msgstr "Guhu-Samane"
 
 #. name for ght
 msgid "Ghale; Kutang"
-msgstr ""
+msgstr "Ghale; Kutang"
 
 #. name for gia
 msgid "Kitja"
-msgstr ""
+msgstr "Kitja"
 
 #. name for gib
 msgid "Gibanawa"
-msgstr ""
+msgstr "Gibanawa"
 
 #. name for gic
 msgid "Gail"
-msgstr ""
+msgstr "Gail"
 
 #. name for gid
 msgid "Gidar"
-msgstr ""
+msgstr "Gidar"
 
 #. name for gig
 msgid "Goaria"
-msgstr ""
+msgstr "Goaria"
 
 #. name for gil
 msgid "Gilbertese"
-msgstr ""
+msgstr "Gilbertese"
 
 #. name for gim
 msgid "Gimi (Eastern Highlands)"
-msgstr ""
+msgstr "Gimi (Eastern Highlands)"
 
 #. name for gin
 msgid "Hinukh"
-msgstr ""
+msgstr "Hinukh"
 
 #. name for gio
 msgid "Gelao"
-msgstr ""
+msgstr "Gelao"
 
 #. name for gip
 msgid "Gimi (West New Britain)"
-msgstr ""
+msgstr "Gimi (West New Britain)"
 
 #. name for giq
 msgid "Gelao; Green"
-msgstr ""
+msgstr "Gelao; Green"
 
 #. name for gir
 msgid "Gelao; Red"
-msgstr ""
+msgstr "Gelao; Red"
 
 #. name for gis
 msgid "Giziga; North"
-msgstr ""
+msgstr "Giziga; North"
 
 #. name for git
 msgid "Gitxsan"
-msgstr ""
+msgstr "Gitxsan"
 
 #. name for giw
 msgid "Gelao; White"
-msgstr ""
+msgstr "Gelao; White"
 
 #. name for gix
 msgid "Gilima"
-msgstr ""
+msgstr "Gilima"
 
 #. name for giy
 msgid "Giyug"
-msgstr ""
+msgstr "Giyug"
 
 #. name for giz
 msgid "Giziga; South"
-msgstr ""
+msgstr "Giziga; South"
 
 #. name for gji
 msgid "Geji"
-msgstr ""
+msgstr "Geji"
 
 #. name for gjk
 msgid "Koli; Kachi"
-msgstr ""
+msgstr "Koli; Kachi"
 
 #. name for gjn
 msgid "Gonja"
-msgstr ""
+msgstr "Gonja"
 
 #. name for gju
 msgid "Gujari"
-msgstr ""
+msgstr "Gujari"
 
 #. name for gka
 msgid "Guya"
-msgstr ""
+msgstr "Guya"
 
 #. name for gke
 msgid "Ndai"
-msgstr ""
+msgstr "Ndai"
 
 #. name for gkn
 msgid "Gokana"
-msgstr ""
+msgstr "Gokana"
 
 #. name for gkp
 msgid "Kpelle; Guinea"
-msgstr ""
+msgstr "Kpelle; Guinea"
 
 #. name for gla
 msgid "Gaelic; Scottish"
-msgstr ""
+msgstr "Gaelic; Scottish"
 
 #. name for glc
 msgid "Bon Gula"
