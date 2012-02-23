@@ -385,10 +385,11 @@ maximum_resort_levels = 5
 # the fields that are being displayed.
 sort_dates_using_visible_fields = False
 
-#: Specify which font to use when generating a default cover
+#: Specify which font to use when generating a default cover or masthead
 # Absolute path to .ttf font files to use as the fonts for the title, author
-# and footer when generating a default cover. Useful if the default font (Liberation
-# Serif) does not contain glyphs for the language of the books in your library.
+# and footer when generating a default cover or masthead image. Useful if the
+# default font (Liberation Serif) does not contain glyphs for the language of
+# the books in your library.
 generate_cover_title_font = None
 generate_cover_foot_font = None
 
