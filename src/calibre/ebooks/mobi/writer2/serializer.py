@@ -306,7 +306,9 @@ class Serializer(object):
         if id_:
             href = '#'.join((item.href, id_))
             offset = self.anchor_offset or buf.tell()
-            self.id_offsets[urlnormalize(href)] = offset
+            key = urlnormalize(href)
+            # Only set this id_offset if it wasn't previously seen
+            self.id_offsets[key] = self.id_offsets.get(key, offset)
         if self.anchor_offset is not None and \
             tag == 'a' and not elem.attrib and \
             not len(elem) and not elem.text:

@@ -34,6 +34,11 @@ if not _run_once:
             sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
 
     ################################################################################
+    # Ensure that all temp files/dirs are created under a calibre tmp dir
+    from calibre.ptempfile import base_dir
+    base_dir()
+
+    ################################################################################
     # Convert command line arguments to unicode
     enc = preferred_encoding
     if isosx:

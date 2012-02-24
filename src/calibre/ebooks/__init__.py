@@ -215,7 +215,11 @@ def unit_convert(value, base, font, dpi):
 def generate_masthead(title, output_path=None, width=600, height=60):
     from calibre.ebooks.conversion.config import load_defaults
     from calibre.utils.fonts import fontconfig
-    font_path = default_font = P('fonts/liberation/LiberationSerif-Bold.ttf')
+    from calibre.utils.config import tweaks
+    fp = tweaks['generate_cover_title_font']
+    if not fp:
+        fp = P('fonts/liberation/LiberationSerif-Bold.ttf')
+    font_path = default_font = fp
     recs = load_defaults('mobi_output')
     masthead_font_family = recs.get('masthead_font', 'Default')
 

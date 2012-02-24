@@ -117,8 +117,8 @@ class Server(Thread):
         with self._worker_launch_lock:
             self.launched_worker_count += 1
             id = self.launched_worker_count
-        fd, rfile = tempfile.mkstemp(prefix='ipc_result_%d_%d_'%(self.id, id),
-                dir=base_dir(), suffix='.pickle')
+        fd, rfile = tempfile.mkstemp(prefix=u'ipc_result_%d_%d_'%(self.id, id),
+                dir=base_dir(), suffix=u'.pickle')
         os.close(fd)
         if redirect_output is None:
             redirect_output = not gui
@@ -127,7 +127,7 @@ class Server(Thread):
                 'CALIBRE_WORKER_ADDRESS' :
                     hexlify(cPickle.dumps(self.listener.address, -1)),
                 'CALIBRE_WORKER_KEY' : hexlify(self.auth_key),
-                'CALIBRE_WORKER_RESULT' : hexlify(rfile),
+                'CALIBRE_WORKER_RESULT' : hexlify(rfile.encode('utf-8')),
               }
         for i in range(2):
             # Try launch twice as occasionally on OS X

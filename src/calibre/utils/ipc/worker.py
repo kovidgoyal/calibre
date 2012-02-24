@@ -176,7 +176,7 @@ def main():
         return
     address = cPickle.loads(unhexlify(os.environ['CALIBRE_WORKER_ADDRESS']))
     key     = unhexlify(os.environ['CALIBRE_WORKER_KEY'])
-    resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT'])
+    resultf = unhexlify(os.environ['CALIBRE_WORKER_RESULT']).decode('utf-8')
     with closing(Client(address, authkey=key)) as conn:
         name, args, kwargs, desc = conn.recv()
         if desc:

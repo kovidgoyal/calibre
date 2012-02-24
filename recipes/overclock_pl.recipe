@@ -1,0 +1,37 @@
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+class Overclock_pl(BasicNewsRecipe):
+    title          = u'Overclock.pl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__        = 'fenuks'
+    description   = u'Vortal poświęcony tematyce hardware, kładący największy nacisk na podkręcanie / overclocking (włącznie z extreme) i chłodzenie / cooling (air cooling, water cooling, freon cooling, dry ice, liquid nitrogen).'
+    category       = 'IT'
+    language       = 'pl'
+    masthead_url='http://www.overclock.pl/gfx/logo_m.png'
+    cover_url='http://www.overclock.pl/gfx/logo_m.png'
+    no_stylesheets = True
+    remove_empty_feeds = True
+    preprocess_regexps = [(re.compile(ur'<b>Komentarze do aktualności:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(ur'<h3>Nawigacja</h3>', re.DOTALL), lambda match: '') ]
+    keep_only_tags=[dict(name='div', attrs={'class':'news'}), dict(id='articleContent')]
+    remove_tags=[dict(name='span', attrs={'class':'info'}), dict(attrs={'class':'shareit'})]
+    feeds          = [(u'Aktualno\u015bci', u'http://www.overclock.pl/rss.news.xml'), (u'Testy i recenzje', u'http://www.overclock.pl/rss.articles.xml')]
+
+
+    def append_page(self, soup, appendtag):
+        tag=soup.find(id='navigation')
+        if tag:
+            nexturl=tag.findAll('option')
+            tag.extract()
+            for nextpage in nexturl[2:]:
+               soup2 = self.index_to_soup(nextpage['value'])
+               pagetext = soup2.find(id='content')
+               pos = len(appendtag.contents)
+               appendtag.insert(pos, pagetext)
+            rem=appendtag.find(attrs={'alt':'Pierwsza'})
+            if rem:
+                rem.parent.extract()
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup

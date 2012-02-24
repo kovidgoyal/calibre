@@ -19,6 +19,68 @@
 #   new recipes:
 #     - title: 
 
+- version: 0.8.41
+  date: 2012-02-24
+
+  new features:
+    - title: "Driver for Sony Experia Play 4G"
+      tickets: [938831]
+
+    - title: "News download system: Allow use of __future__ in recipes, and do not change line numbers of code in the recipe when compiling it"
+
+    - title: "Use the My Documents folder as the default location for the Calibre Library folder on first start in windows"
+      tickets: [934840] 
+
+    - title: "Add a tweak to Preferences->Tweaks to control the order in which categories appear in the Tag Browser"
+
+    - title: "Tag Browser: Add an entry to the right click menu to quickly delete tags"
+      tickets: [934509] 
+
+    - title: "Amazon metadata download: Try to scrape series information from the amazon details page. Note that currently very few books have series info available. Often the page for hardcover will have series, but the Kindle edition will not. In such cases calibre may or may not find the series, depending on which page it ends up using."
+
+    - title: "Content server: Add favicon to OPDS feeds."
+      tickets: [934731]
+ 
+  bug fixes:
+    - title: "RTF Input: Fix some WMF images embedded in RTF files being distorted on conversion."
+      tickets: [934167]
+
+    - title: "Fix long standing bug preventing calibre from working on east asian windows installs when the user name in windows has non-ascii characters"
+      tickets: [937389]
+
+    - title: "Get Books: Fix Baen Webscription and O'Reilly stores. Fix price detection for Google Books"
+
+    - title: "MOBI Output: When the same anchor is present more than once in the input document, use the first occurrence rather than the last one."
+      tickets: [934031]
+
+    - title: "Use the 'default cover font' tweak when generating default masthead images as well"
+      tickets: [939256] 
+
+    - title: "Fix content server does not correctly display custom field of type 'rating'"
+      tickets: [938303] 
+
+    - title: "Fix welcome wizard does not save send-from email info unless send-to field is filled"
+      tickets: [937087] 
+
+    - title: "When reading metadata from odt files, use initial-creator in preference to creator for setting the author field"
+      tickets: [934564] 
+
+    - title: "Fix conversion erroring out when the input document has very long and thin images"
+      tickets: [935234]
+
+  improved recipes:
+    - The Sun
+    - Various Polish news sources
+    - Mediapart
+
+  new recipes:
+    - title: La pausa caffe 
+      author: faber1971
+
+    - title: Various Polish news sources 
+      author: fenuks
+
+
 - version: 0.8.40
   date: 2012-02-17
 

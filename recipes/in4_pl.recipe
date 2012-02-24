@@ -1,0 +1,44 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+class in4(BasicNewsRecipe):
+    title          = u'IN4.pl'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__        = 'fenuks'
+    description   = u'Serwis Informacyjny - Aktualnosci, recenzje'
+    category       = 'IT'
+    language       = 'pl'
+    #cover_url= 'http://www.in4.pl/recenzje/337/in4pl.jpg'
+    no_stylesheets = True
+    remove_empty_feeds = True
+    preprocess_regexps = [(re.compile(ur'<a title="translate into.*?</a>', re.DOTALL), lambda match: '') ]
+    keep_only_tags=[dict(name='div', attrs={'class':'left_alone'})]
+    remove_tags_after=dict(name='img', attrs={'title':'komentarze'})
+    remove_tags=[dict(name='img', attrs={'title':'komentarze'})]
+    feeds          = [(u'Wiadomo\u015bci', u'http://www.in4.pl/rss.php'), (u'Recenzje', u'http://www.in4.pl/rss_recenzje.php'), (u'Mini recenzje', u'http://www.in4.pl/rss_mini.php')]
+
+    def append_page(self, soup, appendtag):
+        a=soup.findAll('a')
+        nexturl=None
+        for i in a:
+            if i.string and 'następna str' in i.string:
+                nexturl='http://www.in4.pl/' + i['href']
+                i.extract()
+        while nexturl:
+                    soup2 = self.index_to_soup(nexturl)
+                    pagetext = soup2.find(id='news')
+                    pos = len(appendtag.contents)
+                    appendtag.insert(pos, pagetext)
+                    nexturl=None
+                    tag=soup2.findAll('a')
+                    for z in tag:
+                        if z.string and u'następna str' in z.string:
+                            nexturl='http://www.in4.pl/' + z['href']
+                            break
+                    
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup
+   
+        

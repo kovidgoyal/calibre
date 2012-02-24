@@ -14,6 +14,7 @@ from PIL import Image
 from cStringIO import StringIO
 
 from calibre import browser, relpath, unicode_path
+from calibre.constants import filesystem_encoding
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
@@ -101,7 +102,11 @@ class RecursiveFetcher(object):
     default_timeout = socket.getdefaulttimeout() # Needed here as it is used in __del__
 
     def __init__(self, options, log, image_map={}, css_map={}, job_info=None):
-        self.base_dir = os.path.abspath(os.path.expanduser(options.dir))
+        bd = options.dir
+        if not isinstance(bd, unicode):
+            bd = bd.decode(filesystem_encoding)
+
+        self.base_dir = os.path.abspath(os.path.expanduser(bd))
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)
         self.log = log
@@ -196,6 +201,24 @@ class RecursiveFetcher(object):
     def fetch_url(self, url):
         data = None
         self.log.debug('Fetching', url)
+
+        # Check for a URL pointing to the local filesystem and special case it
+        # for efficiency and robustness. Bypasses delay checking as it does not
+        # apply to local fetches. Ensures that unicode paths that are not
+        # representable in the filesystem_encoding work.
+        is_local = 0
+        if url.startswith('file://'):
+            is_local = 7
+        elif url.startswith('file:'):
+            is_local = 5
+        if is_local > 0:
+            url = url[is_local:]
+            with open(url, 'rb') as f:
+                data = response(f.read())
+                data.newurl = 'file:'+url # This is what mechanize does for
+                                          # local URLs
+            return data
+
         delta = time.time() - self.last_fetch_at
         if delta < self.delay:
             time.sleep(self.delay - delta)

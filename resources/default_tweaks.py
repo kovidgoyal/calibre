@@ -128,6 +128,17 @@ categories_collapsed_name_template = r'{first.sort:shorten(4,,0)} - {last.sort:s
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
+#: Control order of categories in the tag browser
+# Change the following dict to change the order that categories are displayed in
+# the tag browser. Items are named using their lookup name, and will be sorted
+# using the number supplied. The lookup name '*' stands for all names that
+# otherwise do not appear. Two names with the same value will be sorted
+# according to the default order; the one used when the dict is empty.
+# Example: tag_browser_category_order = {'series':1, 'tags':2, '*':3}
+# resulting in the order series, tags, then everything else in default order.
+tag_browser_category_order = {'*':1}
+
+
 #: Specify columns to sort the booklist by on startup
 # Provide a set of columns to be sorted on when calibre starts
 #  The argument is None if saved sort history is to be used
@@ -374,10 +385,11 @@ maximum_resort_levels = 5
 # the fields that are being displayed.
 sort_dates_using_visible_fields = False
 
-#: Specify which font to use when generating a default cover
+#: Specify which font to use when generating a default cover or masthead
 # Absolute path to .ttf font files to use as the fonts for the title, author
-# and footer when generating a default cover. Useful if the default font (Liberation
-# Serif) does not contain glyphs for the language of the books in your library.
+# and footer when generating a default cover or masthead image. Useful if the
+# default font (Liberation Serif) does not contain glyphs for the language of
+# the books in your library.
 generate_cover_title_font = None
 generate_cover_foot_font = None
 
