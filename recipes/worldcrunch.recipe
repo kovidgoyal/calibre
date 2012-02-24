@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Worldcrunch(BasicNewsRecipe):
     title          = u'Worldcrunch'
     __author__     = 'Krittika Goyal'
-    oldest_article = 1 #days
+    oldest_article = 2 #days
     max_articles_per_feed = 25
     use_embedded_content = False
 
