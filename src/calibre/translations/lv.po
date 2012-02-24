@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-17 06:42+0000\n"
-"PO-Revision-Date: 2012-02-22 16:39+0000\n"
+"PO-Revision-Date: 2012-02-23 09:37+0000\n"
 "Last-Translator: PiRX <Unknown>\n"
 "Language-Team: Latvian <ivars.arins@dotnet.lv>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-02-23 04:37+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-02-24 04:46+0000\n"
+"X-Generator: Launchpad (build 14860)\n"
 "X-Poedit-Country: LATVIA\n"
 "Language: lv\n"
 "X-Poedit-Language: Latvian\n"
@@ -890,6 +890,10 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
+"    %prog opcijas\n"
+"\n"
+"    Pielāgo calibre, ielādējot papildus spraudņus.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:564
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -1429,7 +1433,7 @@ msgstr "Nederīgs MOBI fails. Identificējas kā %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:51
 msgid "Could not generate page mapping."
-msgstr ""
+msgstr "Nevarēja savietot lappuses."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
@@ -1581,13 +1585,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:382
 msgid "Not Implemented"
-msgstr ""
+msgstr "Netiek atbalstīts"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:597
 msgid ""
 "\".kobo\" files do not exist on the device as books instead, they are rows "
 "in the sqlite database. Currently they cannot be exported or viewed."
 msgstr ""
+"\".kobo\" faili ierīcē atrodas kā sqlite datubāzes ieraksti, nevis kā "
+"grāmatas. Šobrīd nav iespējams tos eksportēt vai atvērt lasītājā."
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1031
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:1037
@@ -1817,7 +1823,7 @@ msgstr "Komunicē ar PRST1 un jaunākiem SONY e-grāmatu lasītājiem."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
-msgstr ""
+msgstr "Sūtīt atsevišķus grāmatu vāku sīktēlus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:72
 msgid ""
@@ -1825,6 +1831,10 @@ msgid ""
 "With this option, calibre will send a separate cover image to the reader, "
 "useful if you are sending DRMed books in which you cannot change the cover."
 msgstr ""
+"Parasti SONY lasītāji izmanto vāka attēlu no e-grāmatas faila. Ar šo "
+"iestatījumu calibre lasītājam sūtīs atsevišķu vāka attēlu, kas noder "
+"gadījumos, kad sūta DRM aizsrgātas grāmatas, kurām nav iepējams mainīt vāka "
+"attēlu"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:76
 msgid "Refresh separate covers when using automatic management"
@@ -1952,7 +1962,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:61
 msgid "Place files in sub directories if the device supports them"
-msgstr ""
+msgstr "Failus novietot apakšmapēs, ja ierīce to atļauj."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:63
 #: /home/kovid/work/calibre/src/calibre/gui2/device_drivers/configwidget_ui.py:81
@@ -1961,11 +1971,11 @@ msgstr "Lasīt metdatus no ierīcē esošajiem failiem"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:65
 msgid "Use author sort instead of author"
-msgstr ""
+msgstr "Autora vietā izmantot kārtošanas autoru"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:67
 msgid "Template to control how books are saved"
-msgstr ""
+msgstr "Šablons, kas nosaka kā grāmatas tiks saglabātas"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/deviceconfig.py:70
 msgid "Extra customization"
@@ -1987,6 +1997,11 @@ msgid ""
 "cable/USB port on your computer. If you device has a \"Reset to factory "
 "defaults\" type of setting somewhere, use it. Underlying error: %s"
 msgstr ""
+"Neizdevās piekļūt failiem ierīces pamatatmiņā. Lai risinātu šo problēmu "
+"sazinieties ar ierīces ražotāju. Biežāk izplatītie risinājumi: izmēģiniet "
+"citu USB vadu/datora USB portu. Ja ierīcei atbilsta iespēju \"Atjaunot "
+"rūpnīcas iestatījumus\" vai ko līdzīgu, izmēģiniet to. Informācija par "
+"kļūdu: %s"
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:114
 #, python-format
@@ -2146,6 +2161,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/convert/search_and_replace.py:16
 msgid "Modify the document text and structure using user defined patterns."
 msgstr ""
+"Izmaina dokumenta tekstu un struktūru, izmantojot lietotāja definētus "
+"šablonus."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:166
 msgid "Control auto-detection of document structure."
@@ -2160,11 +2177,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:186
 msgid "Options to set metadata in the output"
-msgstr ""
+msgstr "Uzstādījumi metadatu norādīšanai rezultātā"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:189
 msgid "Options to help with debugging the conversion"
-msgstr ""
+msgstr "Iestatījumi, kas palīdz atkļūdot pārveidošanu"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:217
 msgid ""
@@ -2174,7 +2191,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/cli.py:289
 msgid "Output saved to"
-msgstr ""
+msgstr "Rezultāts saglabāts"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/comic_input.py:27
 #, python-format
@@ -2276,6 +2293,8 @@ msgid ""
 "Extract the contents of the generated EPUB file to the specified directory. "
 "The contents of the directory are first deleted, so be careful."
 msgstr ""
+"Izvelk ģenerētā EPUB saturu norādītajā mapē. Uzmanieties, jo mapes saturs "
+"sākumā tiek izdzēsts."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/epub_output.py:60
 msgid ""
@@ -2332,7 +2351,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_input.py:31
 msgid "Do not insert a Table of Contents at the beginning of the book."
-msgstr ""
+msgstr "Neievietot satura rādītāju grāmatas sākumā."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_output.py:148
 msgid ""
@@ -2496,7 +2515,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:22
 msgid "Modify images to meet Palm device size limitations."
-msgstr ""
+msgstr "Pielāgot bildes atbilstoši Palm ierīču izmēru ierobežojumiem."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:26
 msgid "When present, use author sort field as author."
@@ -2507,6 +2526,8 @@ msgid ""
 "Don't add Table of Contents to the book. Useful if the book has its own "
 "table of contents."
 msgstr ""
+"Grāmatā nepievienot satura rādītāju. Noder, ja grāmata jau satur satura "
+"rādītāju."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:57
@@ -2561,6 +2582,8 @@ msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
+"Norāda rezultāta rekstzīmju kodējumu (pēc noklusējuma ir cp1252). Piezīme: "
+"Ne visi formāti ievēro šo iestatījumu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdb_output.py:32
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:26
@@ -2571,7 +2594,7 @@ msgstr "Pievienot satura rādītāju grāmatas sākumā."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_input.py:20
 msgid "Do not extract images from the document"
-msgstr ""
+msgstr "Neizvilkt attēlus no dokumenta"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_input.py:22
 msgid ""
@@ -2620,7 +2643,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
-msgstr ""
+msgstr "Norāda rezultāta rakstzīmju kodējum. Pēc noklusējuma ir cp1252."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:29
 msgid ""
@@ -2642,10 +2665,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:40
 msgid "Username for sites that require a login to access content."
 msgstr ""
+"Lietotāja vārds vietnēm, kur nepieciešams autentificēties, lai piekļūtu "
+"saturam."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:43
 msgid "Password for sites that require a login to access content."
 msgstr ""
+"Parole vietnēm, kur nepieciešams autentificēties, lai piekļūtu saturam."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:47
 msgid ""
@@ -2665,7 +2691,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:33
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
-msgstr ""
+msgstr "Norāda rezultāta rakstzīmju kodējumu. Pēc noklusējuma ir utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:40
@@ -2679,13 +2705,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:33
 msgid ""
 "Specify whether or not to insert an empty line between two paragraphs."
-msgstr ""
+msgstr "Norāda ievietot vai neievietot tukšu rindu starp divām rindkopām."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:37
 msgid ""
 "Specify whether or not to insert two space characters to indent the first "
 "line of each paragraph."
 msgstr ""
+"Norāda vai ievietot vai neievietot divus atstarpes simbolus kā atkāpi "
+"rindkopas pirmajā rindā."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:41
 msgid ""
@@ -2758,7 +2786,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:51
 msgid "Do not insert a Table of Contents into the output text."
-msgstr ""
+msgstr "Neievietot satura rādītāju rezultāta tekstā."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:27
 #, python-format
@@ -3525,6 +3553,11 @@ msgid ""
 "Show/edit the metadata in an LRF file.\n"
 "\n"
 msgstr ""
+"%prog [opcijas] gramata.lrf\n"
+"\n"
+"\n"
+"Apskatīt/labot LRF faila metadatus.\n"
+"\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 msgid "Set the book title"
@@ -3722,6 +3755,8 @@ msgid ""
 "Set the authors. Multiple authors should be separated by the & character. "
 "Author names should be in the order Firstname Lastname."
 msgstr ""
+"Norāda autorus. Ja autori ir vairāki, tie jāatdala ar & simbolu. Autoru "
+"vārdiem vēlams izmantot formātu \"Vārds Uzvārds\"."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:44
 msgid ""
@@ -3756,6 +3791,7 @@ msgid ""
 "Specify the name of an OPF file. The metadata will be written to the OPF "
 "file."
 msgstr ""
+"Norāda OPF faila nosaukumu. Norādītajā OPF failā tiks ierakstīti metadati."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:83
 msgid ""
@@ -3763,6 +3799,9 @@ msgid ""
 "ebook. Metadata specified on the command line will override metadata read "
 "from the OPF file"
 msgstr ""
+"Nolasa metadatus no norādītā OPF faila un izmanto tos lai norādītu metadatus "
+"grāmatā. Komandrindā norādītie metadati pārrakstīs metadatus, kas nolasīti "
+"no OPF faila"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/cli.py:88
 msgid "Set the BookID in LRF files"
