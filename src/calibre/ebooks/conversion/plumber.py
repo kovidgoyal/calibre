@@ -208,6 +208,7 @@ OptionRecommendation(name='level1_toc',
             'should be added to the Table of Contents at level one. If '
             'this is specified, it takes precedence over other forms '
             'of auto-detection.'
+            ' See the XPath Tutorial in the calibre User Manual for examples.'
                 )
         ),
 
@@ -216,6 +217,7 @@ OptionRecommendation(name='level2_toc',
             help=_('XPath expression that specifies all tags that should be '
             'added to the Table of Contents at level two. Each entry is added '
             'under the previous level one entry.'
+            ' See the XPath Tutorial in the calibre User Manual for examples.'
                 )
         ),
 
@@ -224,6 +226,7 @@ OptionRecommendation(name='level3_toc',
             help=_('XPath expression that specifies all tags that should be '
                 'added to the Table of Contents at level three. Each entry '
                 'is added under the previous level two entry.'
+            ' See the XPath Tutorial in the calibre User Manual for examples.'
                 )
         ),
 

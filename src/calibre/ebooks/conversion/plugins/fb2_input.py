@@ -33,8 +33,6 @@ class FB2Input(InputFormatPlugin):
         ),
     ])
 
-
-
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         from lxml import etree
@@ -92,8 +90,8 @@ class FB2Input(InputFormatPlugin):
             src = img.get('src')
             img.set('src', self.binary_map.get(src, src))
         index = transform.tostring(result)
-        open('index.xhtml', 'wb').write(index)
-        open('inline-styles.css', 'wb').write(css)
+        open(u'index.xhtml', 'wb').write(index)
+        open(u'inline-styles.css', 'wb').write(css)
         stream.seek(0)
         mi = get_metadata(stream, 'fb2')
         if not mi.title:
@@ -102,9 +100,9 @@ class FB2Input(InputFormatPlugin):
             mi.authors = [_('Unknown')]
         cpath = None
         if mi.cover_data and mi.cover_data[1]:
-            with open('fb2_cover_calibre_mi.jpg', 'wb') as f:
+            with open(u'fb2_cover_calibre_mi.jpg', 'wb') as f:
                 f.write(mi.cover_data[1])
-            cpath = os.path.abspath('fb2_cover_calibre_mi.jpg')
+            cpath = os.path.abspath(u'fb2_cover_calibre_mi.jpg')
         else:
             for img in doc.xpath('//f:coverpage/f:image', namespaces=NAMESPACES):
                 href = img.get('{%s}href'%XLINK_NS, img.get('href', None))
@@ -115,14 +113,14 @@ class FB2Input(InputFormatPlugin):
                     break
 
         opf = OPFCreator(os.getcwdu(), mi)
-        entries = [(f, guess_type(f)[0]) for f in os.listdir('.')]
+        entries = [(f, guess_type(f)[0]) for f in os.listdir(u'.')]
         opf.create_manifest(entries)
-        opf.create_spine(['index.xhtml'])
+        opf.create_spine([u'index.xhtml'])
         if cpath:
             opf.guide.set_cover(cpath)
-        with open('metadata.opf', 'wb') as f:
+        with open(u'metadata.opf', 'wb') as f:
             opf.render(f)
-        return os.path.join(os.getcwd(), 'metadata.opf')
+        return os.path.join(os.getcwdu(), u'metadata.opf')
 
     def extract_embedded_content(self, doc):
         self.binary_map = {}

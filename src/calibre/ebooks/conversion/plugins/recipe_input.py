@@ -58,7 +58,7 @@ class RecipeInput(InputFormatPlugin):
             zf = ZipFile(recipe_or_file, 'r')
             zf.extractall()
             zf.close()
-            self.recipe_source = open('download.recipe', 'rb').read()
+            self.recipe_source = open(u'download.recipe', 'rb').read()
             recipe = compile_recipe(self.recipe_source)
             recipe.needs_subscription = False
             self.recipe_object = recipe(opts, log, self.report_progress)
@@ -108,11 +108,11 @@ class RecipeInput(InputFormatPlugin):
         for key, val in self.recipe_object.conversion_options.items():
             setattr(opts, key, val)
 
-        for f in os.listdir('.'):
+        for f in os.listdir(u'.'):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 
-        for f in walk('.'):
+        for f in walk(u'.'):
             if f.endswith('.opf'):
                 return os.path.abspath(f)
 

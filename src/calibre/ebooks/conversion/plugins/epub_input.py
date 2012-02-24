@@ -138,7 +138,7 @@ class EPUBInput(InputFormatPlugin):
         from calibre.ebooks import DRMError
         from calibre.ebooks.metadata.opf2 import OPF
         zf = ZipFile(stream)
-        zf.extractall(os.getcwd())
+        zf.extractall(os.getcwdu())
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = self.find_opf()
         if opf is None:
@@ -150,7 +150,7 @@ class EPUBInput(InputFormatPlugin):
         path = getattr(stream, 'name', 'stream')
 
         if opf is None:
-            raise ValueError('%s is not a valid EPUB file'%path)
+            raise ValueError('%s is not a valid EPUB file (could not find opf)'%path)
 
         opf = os.path.relpath(opf, os.getcwdu())
         parts = os.path.split(opf)
@@ -197,4 +197,4 @@ class EPUBInput(InputFormatPlugin):
         with open('content.opf', 'wb') as nopf:
             nopf.write(opf.render())
 
-        return os.path.abspath('content.opf')
+        return os.path.abspath(u'content.opf')
