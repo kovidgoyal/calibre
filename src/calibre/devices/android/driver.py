@@ -171,7 +171,7 @@ class ANDROID(USBMS):
             'TELECHIP', 'HUAWEI', 'T-MOBILE', 'SEMC', 'LGE', 'NVIDIA',
             'GENERIC-', 'ZTE', 'MID', 'QUALCOMM', 'PANDIGIT', 'HYSTON',
             'VIZIO', 'GOOGLE', 'FREESCAL', 'KOBO_INC', 'LENOVO', 'ROCKCHIP',
-            'POCKET', 'ONDA_MID']
+            'POCKET', 'ONDA_MID', 'ZENITHIN']
     WINDOWS_MAIN_MEM = ['ANDROID_PHONE', 'A855', 'A853', 'INC.NEXUS_ONE',
             '__UMS_COMPOSITE', '_MB200', 'MASS_STORAGE', '_-_CARD', 'SGH-I897',
             'GT-I9000', 'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID',
@@ -185,14 +185,15 @@ class ANDROID(USBMS):
             'ALPANDIGITAL', 'ANDROID_MID', 'VTAB1008', 'EMX51_BBG_ANDROI',
             'UMS', '.K080', 'P990', 'LTE', 'MB853', 'GT-S5660_CARD', 'A107',
             'GT-I9003_CARD', 'XT912', 'FILE-CD_GADGET', 'RK29_SDK', 'MB855',
-            'XT910', 'BOOK_A10', 'USB_2.0_DRIVER', 'I9100T', 'P999DW']
+            'XT910', 'BOOK_A10', 'USB_2.0_DRIVER', 'I9100T', 'P999DW',
+            'KTABLET_PC']
     WINDOWS_CARD_A_MEM = ['ANDROID_PHONE', 'GT-I9000_CARD', 'SGH-I897',
             'FILE-STOR_GADGET', 'SGH-T959', 'SAMSUNG_ANDROID', 'GT-P1000_CARD',
             'A70S', 'A101IT', '7', 'INCREDIBLE', 'A7EB', 'SGH-T849_CARD',
             '__UMS_COMPOSITE', 'SGH-I997_CARD', 'MB870', 'ALPANDIGITAL',
             'ANDROID_MID', 'P990_SD_CARD', '.K080', 'LTE_CARD', 'MB853',
             'A1-07___C0541A4F', 'XT912', 'MB855', 'XT910', 'BOOK_A10_CARD',
-            'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD']
+            'USB_2.0_DRIVER', 'I9100T', 'P999DW_SD_CARD', 'KTABLET_PC']
 
     OSX_MAIN_MEM = 'Android Device Main Memory'
 
