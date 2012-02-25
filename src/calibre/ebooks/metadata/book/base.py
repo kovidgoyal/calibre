@@ -537,7 +537,12 @@ class Metadata(object):
                         if meta['datatype'] == 'text' and meta['is_multiple']:
                             # Case-insensitive but case preserving merging
                             lotags = [t.lower() for t in other_tags]
-                            lstags = [t.lower() for t in self_tags]
+                            try:
+                                lstags = [t.lower() for t in self_tags]
+                            except TypeError:
+                                # Happens if x is not a text, is_multiple field
+                                # on self
+                                lstags = []
                             ot, st = map(frozenset, (lotags, lstags))
                             for t in st.intersection(ot):
                                 sidx = lstags.index(t)
