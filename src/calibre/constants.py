@@ -199,7 +199,5 @@ def get_windows_temp_path():
     buf = ctypes.create_unicode_buffer(u'\0'*n)
     ctypes.windll.kernel32.GetTempPathW(n, buf)
     ans = buf.value
-    if ans[-1] == u'\\':
-        ans = ans[:-1]
     return ans if ans else None
 
