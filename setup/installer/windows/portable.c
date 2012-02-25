@@ -53,7 +53,7 @@ void show_last_error(LPCTSTR preamble) {
         NULL,
         dw,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        &msg,
+        (LPTSTR)&msg,
         0, NULL );
 
     show_detailed_error(preamble, msg, (int)dw);
@@ -136,7 +136,7 @@ void launch_calibre(LPCTSTR exe, LPCTSTR config_dir, LPCTSTR library_dir) {
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
-    LPTSTR app_dir, config_dir, exe, library_dir;
+    LPTSTR app_dir, config_dir, exe, library_dir, too_long;
 
     app_dir = get_app_dir();
     config_dir = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
@@ -147,7 +147,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     _sntprintf_s(exe, BUFSIZE, _TRUNCATE, _T("%sCalibre\\calibre.exe"), app_dir);
     _sntprintf_s(library_dir, BUFSIZE, _TRUNCATE, _T("%sCalibre Library"), app_dir);
 
-    launch_calibre(exe, config_dir, library_dir);
+    if ( _tcscnlen(library_dir, BUFSIZE) <= 74 ) {
+        launch_calibre(exe, config_dir, library_dir);
+    } else {
+        too_long = (LPTSTR)calloc(BUFSIZE+300, sizeof(TCHAR));
+        _sntprintf_s(too_long, BUFSIZE+300, _TRUNCATE, 
+                _T("Path to Calibre Portable (%s) too long. Must be less than 59 characters."), app_dir);
+
+        show_error(too_long);
+    }
 
     free(app_dir); free(config_dir); free(exe); free(library_dir);
 
