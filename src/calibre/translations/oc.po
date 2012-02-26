@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2012-02-24 15:27+0000\n"
+"PO-Revision-Date: 2012-02-25 20:17+0000\n"
 "Last-Translator: Cédric VALMARY (Tot en òc) <cvalmary@yahoo.fr>\n"
 "Language-Team: Occitan (post 1500) <oc@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-02-25 05:00+0000\n"
+"X-Launchpad-Export-Date: 2012-02-26 04:53+0000\n"
 "X-Generator: Launchpad (build 14860)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -536,10 +536,12 @@ msgstr "Importar/Exportar"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1013
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
+"Definir cossí las metadonadas son legidas per Calibre al moment de l'apondon "
+"de libres"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Salvar los libres sul disc"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1025
 msgid ""
@@ -549,7 +551,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1031
 msgid "Sending books to devices"
-msgstr ""
+msgstr "Mandar los libres als aparelhs"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1037
 msgid "Control how calibre transfers files to your ebook reader"
@@ -557,7 +559,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1043
 msgid "Metadata plugboards"
-msgstr ""
+msgstr "Tablèu de connexions de metadonadas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1049
 msgid "Change metadata fields before saving/sending"
@@ -565,7 +567,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1054
 msgid "Template Functions"
-msgstr ""
+msgstr "Modèls de foncions"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1056
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
@@ -573,21 +575,21 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1126
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1137
 msgid "Advanced"
-msgstr ""
+msgstr "Detalhs avançat"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1060
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Crear vòstre pròpri modèl de foncion"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1065
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Partejar de libres per corrièl"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1067
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1079
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1092
 msgid "Sharing"
-msgstr ""
+msgstr "Partiment"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1071
 msgid ""
@@ -597,7 +599,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1077
 msgid "Sharing over the net"
-msgstr ""
+msgstr "Partejar a travèrs la ret"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1083
 msgid ""
@@ -607,7 +609,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1090
 msgid "Metadata download"
-msgstr ""
+msgstr "Telecargar las metadonadas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1096
 msgid "Control how calibre downloads ebook metadata from the net"
@@ -616,7 +618,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1101
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
 msgid "Plugins"
-msgstr ""
+msgstr "Moduls extèrnes"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1107
 msgid "Add/remove/customize various bits of calibre functionality"
@@ -624,7 +626,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 msgid "Tweaks"
-msgstr ""
+msgstr "Ajustaments"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Fine tune how calibre behaves in various contexts"
@@ -632,7 +634,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Keyboard"
-msgstr ""
+msgstr "Clavièr"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1130
 msgid "Customize the keyboard shortcuts used by calibre"
@@ -641,7 +643,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1135
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Divèrs"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1141
 msgid "Miscellaneous advanced configuration"
@@ -692,32 +694,32 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:71
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "Aqueste perfil es previst pel SONY PRS 300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:493
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "Aqueste perfil es previst pel SONY PRS-900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:88
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:538
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "Aqueste perfil es previst pel lector Microsoft."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:99
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:549
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "Aqueste perfil es previst pels libres Mobipocket."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:112
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:562
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "Aqueste perfil es previst pel Handlin V3 e sos clòns."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:124
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:574
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "Aqueste perfil es previst pel Hanlin V5 e sos clòns."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:134
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:582
@@ -782,7 +784,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "Aqueste perfil es previst pel lector Kobo"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the SONY PRS-300."
@@ -790,7 +792,7 @@ msgstr "Aqueste perfil es previst pel SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Conven per una utilizacion amb los aparelhs e-ink"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
@@ -798,7 +800,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr ""
+msgstr "Aqueste perfil es previst pel JetBook de 5 poces."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
 msgid ""
@@ -812,32 +814,33 @@ msgstr "Aqueste perfil es previst pel Kindle DX d'Amazon."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Aqueste perfil es previst pel Kindle Fire d'Amazon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Aqueste perfil es previst pel B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:733
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Aqueste perfil es previst pel Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
 msgstr ""
+"Aqueste perfil es previst per la gama dels aparelhs PocketBook Pro 900"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr ""
+msgstr "Extensions installadas"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
-msgstr ""
+msgstr "Ligasons pels plugins d'impòrt/expòrt"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Local plugin customization"
-msgstr ""
+msgstr "Personalizacion dels plugins locals"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
@@ -845,7 +848,7 @@ msgstr "Moduls extèrnes desactivats"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr ""
+msgstr "Moduls extèrnes activats"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:496
 #, python-format
@@ -876,7 +879,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:570
 msgid "List all installed plugins"
-msgstr ""
+msgstr "Far la lista de totes los moduls extèrnes installats"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:572
 msgid "Enable the named plugin"
@@ -905,24 +908,24 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:835
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:847
 msgid "Yes"
-msgstr ""
+msgstr "Òc"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1134
 msgid "Main"
-msgstr ""
+msgstr "General"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1136
 msgid "Card A"
-msgstr ""
+msgstr "Carta A"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1138
 msgid "Card B"
-msgstr ""
+msgstr "Carta B"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
