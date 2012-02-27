@@ -4,6 +4,8 @@ class AdvancedUserRecipe(BasicNewsRecipe):
     title = 'Heise-online'
     description = 'News vom Heise-Verlag'
     __author__ = 'schuster'
+    masthead_url = 'http://www.heise.de/icons/ho/heise_online_logo.gif'
+    publisher   = 'Heise Zeitschriften Verlag GmbH & Co. KG'
     use_embedded_content   = False
     language = 'de'
     oldest_article = 2
@@ -25,7 +27,11 @@ class AdvancedUserRecipe(BasicNewsRecipe):
                             dict(id='content_foren'),
                             dict(id='seiten_navi'),
                             dict(id='adbottom'),
-                            dict(id='sitemap')]
+                            dict(id='sitemap'),
+                            dict(name='div', attrs={'id':'sitemap'}),
+                            dict(name='ul', attrs={'class':'erste_zeile'}),
+                            dict(name='ul', attrs={'class':'zweite_zeile'}),
+                            dict(name='div', attrs={'class':'navi_top_container'})]
 
     feeds =  [
                    ('Newsticker', 'http://www.heise.de/newsticker/heise.rdf'),
@@ -44,9 +50,9 @@ class AdvancedUserRecipe(BasicNewsRecipe):
                    ('Blog: Der Dotnet-Doktor', 'http://www.heise.de/developer/rss/dotnet-doktor/blog.rdf'),
                    ('Blog: Bernds Management-Welt', 'http://www.heise.de/developer/rss/bernds-management-welt/blog.rdf'),
                    ('Blog: IT conversation', 'http://www.heise.de/developer/rss/world-of-it/blog.rdf'),
-                   ('Blog: Kais bewegtes Web', 'http://www.heise.de/developer/rss/kais-bewegtes-web/blog.rdf')
-]
+                   ('Blog: Kais bewegtes Web', 'http://www.heise.de/developer/rss/kais-bewegtes-web/blog.rdf')]
 
     def print_version(self, url):
         return url + '?view=print'
+
 

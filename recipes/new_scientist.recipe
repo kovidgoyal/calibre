@@ -1,16 +1,35 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008-2010, AprilHare, Darko Miletic <darko.miletic at gmail.com>'
+##
+## Title:        Microwave Journal RSS recipe
+## Contact:      AprilHare, Darko Miletic <darko.miletic at gmail.com>
+##
+## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+## Copyright:    2008-2010, AprilHare, Darko Miletic <darko.miletic at gmail.com>
+##
+## Written:      2008
+## Last Edited:  Jan 2012
+##
+
+'''
+01-19-2012: Added GrayScale Image conversion and Duplicant article removals
+'''
+
+__license__   = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__copyright__ = '2008-2012, AprilHare, Darko Miletic <darko.miletic at gmail.com>'
+__version__     = 'v0.5.0'
+__date__        = '2012-01-19'
+__author__      = 'Darko Miletic'
+
 '''
 newscientist.com
 '''
 
 import re
 import urllib
+from calibre.utils.magick import Image
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class NewScientist(BasicNewsRecipe):
     title                 = 'New Scientist - Online News w. subscription'
-    __author__            = 'Darko Miletic'
     description           = 'Science news and science articles from New Scientist.'
     language              = 'en'
     publisher             = 'Reed Business Information Ltd.'
@@ -39,10 +58,19 @@ class NewScientist(BasicNewsRecipe):
 
     keep_only_tags = [dict(name='div', attrs={'id':['pgtop','maincol','blgmaincol','nsblgposts','hldgalcols']})]
 
+    # Whether to omit duplicates of articles (typically arsing when articles are indexed in
+    # more than one section). If True, only the first occurance will be downloaded.
+    filterDuplicates = True
+
+    # Whether to convert images to grayscale for eInk readers.
+    Convert_Grayscale = False
+
+    url_list = []   # This list is used to check if an article had already been included.
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         br.open('http://www.newscientist.com/')
-        if self.username is not None and self.password is not None:        
+        if self.username is not None and self.password is not None:
             br.open('https://www.newscientist.com/user/login')
             data = urllib.urlencode({ 'source':'form'
                                      ,'redirectURL':''
@@ -80,6 +108,10 @@ class NewScientist(BasicNewsRecipe):
         return article.get('guid',  None)
 
     def print_version(self, url):
+        if self.filterDuplicates:
+            if url in self.url_list:
+                return
+        self.url_list.append(url)
         return url + '?full=true&print=true'
 
     def preprocess_html(self, soup):
@@ -91,7 +123,7 @@ class NewScientist(BasicNewsRecipe):
             item.name='p'
         for item in soup.findAll(['xref','figref']):
             tstr = item.string
-            item.replaceWith(tstr)            
+            item.replaceWith(tstr)
         for tg in soup.findAll('a'):
             if tg.string == 'Home':
                 tg.parent.extract()
@@ -101,3 +133,16 @@ class NewScientist(BasicNewsRecipe):
                    tg.replaceWith(tstr)
         return soup
 
+    # Converts images to Gray Scale
+    def postprocess_html(self, soup, first):
+        if self.Convert_Grayscale:
+            #process all the images
+            for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
+                iurl = tag['src']
+                img = Image()
+                img.open(iurl)
+                if img < 0:
+                    raise RuntimeError('Out of memory')
+                img.type = "GrayscaleType"
+                img.save(iurl)
+        return soup

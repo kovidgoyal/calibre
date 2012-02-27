@@ -4,7 +4,7 @@ __license__ = 'GPL v3'
 __copyright__  = '2008, Kovid Goyal <kovid at kovidgoyal.net>,' \
                  ' and Alex Bramley <a.bramley at gmail.com>.'
 
-import os, re
+import os, re, codecs
 
 from calibre import guess_type as guess_mimetype
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
@@ -40,14 +40,14 @@ class CHMError(Exception):
     pass
 
 class CHMReader(CHMFile):
-    def __init__(self, input, log, opts):
+    def __init__(self, input, log, input_encoding=None):
         CHMFile.__init__(self)
         if isinstance(input, unicode):
             input = input.encode(filesystem_encoding)
         if not self.LoadCHM(input):
             raise CHMError("Unable to open CHM file '%s'"%(input,))
         self.log = log
-        self.opts = opts
+        self.input_encoding = input_encoding
         self._sourcechm = input
         self._contents = None
         self._playorder = 0
@@ -99,8 +99,17 @@ class CHMReader(CHMFile):
 
     def ExtractFiles(self, output_dir=os.getcwdu(), debug_dump=False):
         html_files = set([])
+        try:
+            x = self.GetEncoding()
+            codecs.lookup(x)
+            enc = x
+        except:
+            enc = 'cp1252'
         for path in self.Contents():
-            lpath = os.path.join(output_dir, path)
+            fpath = path
+            if not isinstance(path, unicode):
+                fpath = path.decode(enc)
+            lpath = os.path.join(output_dir, fpath)
             self._ensure_dir(lpath)
             try:
                 data = self.GetFile(path)
@@ -123,6 +132,7 @@ class CHMReader(CHMFile):
                     self.log.warn('%r filename too long, skipping'%path)
                     continue
                 raise
+
         if debug_dump:
             import shutil
             shutil.copytree(output_dir, os.path.join(debug_dump, 'debug_dump'))
@@ -156,8 +166,8 @@ class CHMReader(CHMFile):
                     break
 
     def _reformat(self, data, htmlpath):
-        if self.opts.input_encoding:
-            data = data.decode(self.opts.input_encoding)
+        if self.input_encoding:
+            data = data.decode(self.input_encoding)
         try:
             data = xml_to_unicode(data, strip_encoding_pats=True)[0]
             soup = BeautifulSoup(data)

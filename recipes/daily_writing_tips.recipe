@@ -1,0 +1,18 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DailyWritingTips(BasicNewsRecipe):
+    title          = u'Daily Writing Tips'
+    language       = 'en_GB'
+    __author__ = 'NotTaken'
+    oldest_article = 7 #days
+    max_articles_per_feed = 40
+    use_embedded_content = True
+    no_stylesheets = True
+    auto_cleanup = False
+    encoding = 'utf-8'
+
+
+    feeds          = [
+('Latest tips',
+ 'http://feeds2.feedburner.com/DailyWritingTips'),
+]

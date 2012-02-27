@@ -178,7 +178,11 @@ class Serializer(object):
         at the end.
         '''
         hrefs = self.oeb.manifest.hrefs
-        path, frag = urldefrag(urlnormalize(href))
+        try:
+            path, frag = urldefrag(urlnormalize(href))
+        except ValueError:
+            # Unparseable URL
+            return False
         if path and base:
             path = base.abshref(path)
         if path and path not in hrefs:
@@ -212,7 +216,11 @@ class Serializer(object):
             if tocref.klass == "periodical":
                 buf.write('<div> <div height="1em"></div>')
             else:
-                buf.write('<div></div> <div> <h2 height="1em"><font size="+2"><b>'+tocref.title+'</b></font></h2> <div height="1em"></div>')
+                t = tocref.title
+                if isinstance(t, unicode):
+                    t = t.encode('utf-8')
+                buf.write('<div></div> <div> <h2 height="1em"><font size="+2"><b>'
+                        +t+'</b></font></h2> <div height="1em"></div>')
 
             buf.write('<ul>')
 
@@ -221,14 +229,17 @@ class Serializer(object):
                 itemhref = tocitem.href
                 if tocref.klass == 'periodical':
                     # This is a section node.
-                    # For periodical toca, the section urls are like r'feed_\d+/index.html'
+                    # For periodical tocs, the section urls are like r'feed_\d+/index.html'
                     # We dont want to point to the start of the first article
                     # so we change the href.
                     itemhref = re.sub(r'article_\d+/', '', itemhref)
                 self.href_offsets[itemhref].append(buf.tell())
                 buf.write('0000000000')
                 buf.write(' ><font size="+1" color="blue"><b><u>')
-                buf.write(tocitem.title)
+                t = tocitem.title
+                if isinstance(t, unicode):
+                    t = t.encode('utf-8')
+                buf.write(t)
                 buf.write('</u></b></font></a></li>')
 
             buf.write('</ul><div height="1em"></div></div><mbp:pagebreak />')
@@ -295,7 +306,9 @@ class Serializer(object):
         if id_:
             href = '#'.join((item.href, id_))
             offset = self.anchor_offset or buf.tell()
-            self.id_offsets[urlnormalize(href)] = offset
+            key = urlnormalize(href)
+            # Only set this id_offset if it wasn't previously seen
+            self.id_offsets[key] = self.id_offsets.get(key, offset)
         if self.anchor_offset is not None and \
             tag == 'a' and not elem.attrib and \
             not len(elem) and not elem.text:

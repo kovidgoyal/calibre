@@ -7,9 +7,6 @@ Contains the logic for parsing feeds.
 '''
 import time, traceback, copy, re
 
-from lxml import html
-
-from calibre.web.feeds.feedparser import parse
 from calibre.utils.logging import default_log
 from calibre import entity_to_unicode, strftime
 from calibre.utils.date import dt_factory, utcnow, local_tz
@@ -18,6 +15,7 @@ from calibre.utils.cleantext import clean_ascii_chars
 class Article(object):
 
     def __init__(self, id, title, url, author, summary, published, content):
+        from lxml import html
         self.downloaded = False
         self.id = id
         self._title = title.strip() if title else title
@@ -31,6 +29,7 @@ class Article(object):
         self._title = clean_ascii_chars(self._title)
         self.url = url
         self.author = author
+        self.toc_thumbnail = None
         if author and not isinstance(author, unicode):
             author = author.decode('utf-8', 'replace')
         self.summary = summary
@@ -88,8 +87,10 @@ URL         : %s
 Author      : %s
 Summary     : %s
 Date        : %s
+TOC thumb   : %s
 Has content : %s
-'''%(self.title, self.url, self.author, self.summary[:20]+'...', self.localtime.strftime('%a, %d %b, %Y %H:%M'),
+'''%(self.title, self.url, self.author, self.summary[:20]+'...',
+    self.toc_thumbnail, self.localtime.strftime('%a, %d %b, %Y %H:%M'),
      bool(self.content))).encode('utf-8')
 
     def __str__(self):
@@ -317,6 +318,7 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
                   max_articles_per_feed=100,
                   get_article_url=lambda item: item.get('link', None),
                   log=default_log):
+    from calibre.web.feeds.feedparser import parse
     # Handle unclosed escaped entities. They trip up feedparser and HBR for one
     # generates them
     raw_xml = re.sub(r'(&amp;#\d+)([^0-9;])', r'\1;\2', raw_xml)

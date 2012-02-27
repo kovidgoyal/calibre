@@ -9,7 +9,8 @@ import os
 from functools import partial
 
 from PyQt4.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
-        QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize)
+        QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
+        QCoreApplication)
 
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding, iswindows
@@ -384,11 +385,18 @@ class ChooseLibraryAction(InterfaceAction):
                     _('Database integrity check failed, click Show details'
                         ' for details.'), show=True, det_msg=d.error[1])
 
-        d = CheckLibraryDialog(self.gui, m.db)
-        if not d.do_exec():
-            info_dialog(self.gui, _('No problems found'),
-                    _('The files in your library match the information '
-                      'in the database.'), show=True)
+        self.gui.status_bar.show_message(
+                _('Starting library scan, this may take a while'))
+        try:
+            QCoreApplication.processEvents()
+            d = CheckLibraryDialog(self.gui, m.db)
+
+            if not d.do_exec():
+                info_dialog(self.gui, _('No problems found'),
+                        _('The files in your library match the information '
+                        'in the database.'), show=True)
+        finally:
+            self.gui.status_bar.clear_message()
 
     def switch_requested(self, location):
         if not self.change_library_allowed():

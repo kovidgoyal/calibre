@@ -20,17 +20,23 @@ for x in [
     EXCLUDES.extend(['--exclude', x])
 SAFE_EXCLUDES = ['"%s"'%x if '*' in x else x for x in EXCLUDES]
 
+def get_rsync_pw():
+    return open('/home/kovid/work/kde/conf/buildbot').read().partition(
+                ':')[-1].strip()
+
 class Rsync(Command):
 
     description = 'Sync source tree from development machine'
 
     SYNC_CMD = ' '.join(BASE_RSYNC+SAFE_EXCLUDES+
-            ['rsync://{host}/work/{project}', '..'])
+            ['rsync://buildbot@{host}/work/{project}', '..'])
 
     def run(self, opts):
         cmd = self.SYNC_CMD.format(host=HOST, project=PROJECT)
+        env = dict(os.environ)
+        env['RSYNC_PASSWORD'] = get_rsync_pw()
         self.info(cmd)
-        subprocess.check_call(cmd, shell=True)
+        subprocess.check_call(cmd, shell=True, env=env)
 
 
 class Push(Command):
@@ -42,7 +48,7 @@ class Push(Command):
         threads = []
         for host in (
             r'Owner@winxp:/cygdrive/c/Documents\ and\ Settings/Owner/calibre',
-            'kovid@ox:calibre',
+            'kovid@leopard_test:calibre',
             r'kovid@win7:/cygdrive/c/Users/kovid/calibre',
             ):
             rcmd = BASE_RSYNC + EXCLUDES + ['.', host]
@@ -81,7 +87,8 @@ class VMInstaller(Command):
 
 
     def get_build_script(self):
-        ans = '\n'.join(self.BUILD_PREFIX)+'\n\n'
+        rs = ['export RSYNC_PASSWORD=%s'%get_rsync_pw()]
+        ans = '\n'.join(self.BUILD_PREFIX + rs)+'\n\n'
         ans += ' && \\\n'.join(self.BUILD_RSYNC) + ' && \\\n'
         ans += ' && \\\n'.join(self.BUILD_CLEAN) + ' && \\\n'
         ans += ' && \\\n'.join(self.BUILD_BUILD) + ' && \\\n'

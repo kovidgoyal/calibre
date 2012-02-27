@@ -3,7 +3,7 @@
 from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
-__copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2012, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -35,47 +35,48 @@ class GandalfStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.gandalf.com.pl/s/'
-        values={
-            'search': query.decode('utf-8').encode('iso8859_2'),
-            'dzialx':'11'
-            }
+        counter = max_results
+        page = 1
+        url = 'http://www.gandalf.com.pl/we/' + urllib.quote_plus(query.decode('utf-8').encode('iso8859_2')) + '/bdb'
 
         br = browser()
 
-        counter = max_results
-        with closing(br.open(url, data=urllib.urlencode(values), timeout=timeout)) as f:
-            doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="box"]'):
-                if counter <= 0:
+        while counter:
+            with closing(br.open((url + str(page-1) + '/#s') if (page-1) else (url + '/#s'), timeout=timeout)) as f:
+                doc = html.fromstring(f.read())
+                for data in doc.xpath('//div[@class="box"]'):
+                    if counter <= 0:
+                        break
+
+                    id = ''.join(data.xpath('.//div[@class="info"]/h3/a/@href'))
+                    if not id:
+                        continue
+
+                    cover_url = ''.join(data.xpath('.//div[@class="info"]/h3/a/@id'))
+                    title = ''.join(data.xpath('.//div[@class="info"]/h3/a/@title'))
+                    formats = ''.join(data.xpath('.//div[@class="info"]/p[1]/text()'))
+                    formats = re.findall(r'\((.*?)\)',formats)[0]
+                    author = ''.join(data.xpath('.//div[@class="info"]/h4/text() | .//div[@class="info"]/h4/span/text()'))
+                    price = ''.join(data.xpath('.//div[@class="options"]/h3/text()'))
+                    price = re.sub('PLN', 'zł', price)
+                    price = re.sub('\.', ',', price)
+                    drm = data.xpath('boolean(.//div[@class="info" and contains(., "Zabezpieczenie: DRM")])')
+
+                    counter -= 1
+
+                    s = SearchResult()
+                    s.cover_url = 'http://imguser.gandalf.com.pl/' + re.sub('p', 'p_', cover_url) + '.jpg'
+                    s.title = title.strip()
+                    s.author = author.strip()
+                    s.price = price
+                    s.detail_item = id.strip()
+                    if drm:
+                        s.drm = SearchResult.DRM_LOCKED
+                    else:
+                        s.drm = SearchResult.DRM_UNLOCKED
+                    s.formats = formats.upper().strip()
+
+                    yield s
+                if not doc.xpath('boolean(//div[@class="wyszukiwanie_podstawowe_header"]//div[@class="box"])'):
                     break
-
-                id = ''.join(data.xpath('.//div[@class="info"]/h3/a/@href'))
-                if not id:
-                    continue
-
-                cover_url = ''.join(data.xpath('.//img/@src'))
-                title = ''.join(data.xpath('.//div[@class="info"]/h3/a/@title'))
-                formats = title.split()
-                formats = formats[-1]
-                author = ''.join(data.xpath('.//div[@class="info"]/h4/text() | .//div[@class="info"]/h4/span/text()'))
-                price = ''.join(data.xpath('.//h3[@class="promocja"]/text()'))
-                price = re.sub('PLN', 'zł', price)
-                price = re.sub('\.', ',', price)
-                drm = data.xpath('boolean(.//div[@class="info" and contains(., "Zabezpieczenie: DRM")])')
-
-                counter -= 1
-
-                s = SearchResult()
-                s.cover_url = cover_url
-                s.title = title.strip()
-                s.author = author.strip()
-                s.price = price
-                s.detail_item = id.strip()
-                if drm:
-                    s.drm = SearchResult.DRM_LOCKED
-                else:
-                    s.drm = SearchResult.DRM_UNLOCKED
-                s.formats = formats.upper().strip()
-
-                yield s
+                page+=1

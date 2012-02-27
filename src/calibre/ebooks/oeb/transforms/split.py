@@ -15,8 +15,8 @@ from lxml.etree import XPath as _XPath
 from lxml import etree
 from lxml.cssselect import CSSSelector
 
-from calibre.ebooks.oeb.base import OEB_STYLES, XPNSMAP as NAMESPACES, \
-        urldefrag, rewrite_links, urlunquote, barename, XHTML
+from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
+        urldefrag, rewrite_links, urlunquote, barename, XHTML, urlnormalize)
 from calibre.ebooks.epub import rules
 
 XPath = functools.partial(_XPath, namespaces=NAMESPACES)
@@ -154,7 +154,12 @@ class Split(object):
 
     def rewrite_links(self, url):
         href, frag = urldefrag(url)
-        href = self.current_item.abshref(href)
+        try:
+            href = self.current_item.abshref(href)
+        except ValueError:
+            # Unparseable URL
+            return url
+        href = urlnormalize(href)
         if href in self.map:
             anchor_map = self.map[href]
             nhref = anchor_map[frag if frag else None]
@@ -183,7 +188,7 @@ class FlowSplitter(object):
         self.csp_counter    = 0
 
         base, ext = os.path.splitext(self.base)
-        self.base = base.replace('%', '%%')+'_split_%.3d'+ext
+        self.base = base.replace('%', '%%')+u'_split_%.3d'+ext
 
         self.trees = [self.item.data.getroottree()]
         self.splitting_on_page_breaks = True

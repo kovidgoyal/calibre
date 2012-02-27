@@ -1,0 +1,110 @@
+from calibre import strftime
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+MANIFESTO_BASEURL = 'http://www.ilmanifesto.it/'
+
+class IlManifesto(BasicNewsRecipe):
+  title          = 'Il Manifesto'
+  __author__ = 'Giacomo Lacava'
+  description = 'quotidiano comunista - ultima edizione html disponibile'
+  publication_type = 'newspaper'
+  publisher = 'il manifesto coop. editrice a r.l.'
+  language = 'it'
+
+  oldest_article = 2
+  max_articles_per_feed = 100
+  delay = 1
+  no_stylesheets = True
+  simultaneous_downloads = 5
+  timeout = 30
+  auto_cleanup = True
+  remove_tags = [dict(name='div', attrs={'class':'column_1 float_left'})]
+  remove_tags_before = dict(name='div',attrs={'class':'column_2 float_right'})
+  remove_tags_after = dict(id='myPrintArea')
+
+  manifesto_index = None
+  manifesto_datestr = None
+
+  def _set_manifesto_index(self):
+    if self.manifesto_index == None:
+      startUrl = MANIFESTO_BASEURL  + 'area-abbonati/in-edicola/'
+      startSoup = self.index_to_soup(startUrl)
+      lastEdition = startSoup.findAll('div',id='accordion_inedicola')[1].find('a')['href']
+      del(startSoup)
+      self.manifesto_index = MANIFESTO_BASEURL + lastEdition
+      urlsplit = lastEdition.split('/')
+      self.manifesto_datestr = urlsplit[-1]
+      if urlsplit[-1] == '':
+        self.manifesto_datestr = urlsplit[-2]
+
+
+
+  def get_cover_url(self):
+    self._set_manifesto_index()
+    url = MANIFESTO_BASEURL + 'fileadmin/archivi/in_edicola/%sprimapagina.gif' % self.manifesto_datestr
+    return url
+
+  def parse_index(self):
+    self._set_manifesto_index()
+    soup = self.index_to_soup(self.manifesto_index)
+    feedLinks =  soup.find('div',id='accordion_inedicola').findAll('a')
+    result = []
+    for feed in feedLinks:
+      articles = []
+      feedName = feed.find('h2').string
+      feedUrl = MANIFESTO_BASEURL  + feed['href']
+      feedSoup = self.index_to_soup(feedUrl)
+      indexRoot = feedSoup.find('div',attrs={'class':'column1'})
+      for div in indexRoot.findAll('div',attrs={'class':'strumenti1_inedicola'}):
+        artLink =  div.find('a')
+        if artLink is None: continue # empty div
+        title = artLink.string
+        url = MANIFESTO_BASEURL  + artLink['href']
+
+        description = ''
+        descNode = div.find('div',attrs={'class':'text_12'})
+        if descNode is not None:
+          description = descNode.string
+
+        author = ''
+        authNode = div.find('div',attrs={'class':'firma'})
+        if authNode is not None:
+          author = authNode.string
+
+        articleText = ''
+        article = {
+          'title':title,
+          'url':url,
+          'date': strftime('%d %B %Y'),
+          'description': description,
+          'content': articleText,
+          'author': author
+          }
+        articles.append(article)
+      result.append((feedName,articles))
+    return result
+
+
+  def extract_readable_article(self, html, url):
+
+    bs = BeautifulSoup(html)
+    col1 = bs.find('div',attrs={'class':'column1'})
+
+    content = col1.find('div',attrs={'class':'bodytext'})
+    title = bs.find(id='titolo_articolo').string
+    author = col1.find('span',attrs={'class':'firma'})
+    subtitle = ''
+    subNode = col1.findPrevious('div',attrs={'class':'occhiello_rosso'})
+    if subNode is not None:
+      subtitle = subNode
+    summary = ''
+    sommNode = bs.find('div',attrs={'class':'sommario'})
+    if sommNode is not None:
+      summary = sommNode
+
+    template = "<html><head><title>%(title)s</title></head><body><h1>%(title)s</h1><h2>%(subtitle)s</h2><h3>%(author)s</h3><div style='font-size: x-large;'>%(summary)s</div><div>%(content)s</div></body></html>"
+    del(bs)
+    return template % dict(title=title,subtitle=subtitle,author=author,summary=summary,content=content)
+
+

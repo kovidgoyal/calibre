@@ -16,37 +16,7 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_5">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_10">
-       <property name="text">
-        <string>Server &amp;port:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_port</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QSpinBox" name="opt_port">
-       <property name="maximum">
-        <number>65535</number>
-       </property>
-       <property name="value">
-        <number>8080</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_11">
-       <property name="text">
-        <string>&amp;Username:</string>
-       </property>
-       <property name="buddy">
-        <cstring>opt_username</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
+     <item row="1" column="1" colspan="2">
       <widget class="QLineEdit" name="opt_username"/>
      </item>
      <item row="2" column="0">
@@ -62,11 +32,16 @@
      <item row="2" column="1">
       <widget class="QLineEdit" name="opt_password">
        <property name="toolTip">
-        <string>If you leave the password blank, anyone will be able to access your book collection using the web interface.</string>
+        <string>&lt;p&gt;If you leave the password blank, anyone will be able to
+ access your book collection using the web interface.
+&lt;br&gt;
+&lt;p&gt;Note that passwords do not work with Android devices. 
+Leave this blank if you intend to use the server with an
+ Android phone or tablet.</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="4" column="1" colspan="2">
       <widget class="QLineEdit" name="opt_max_cover">
        <property name="toolTip">
         <string>The maximum size (widthxheight) for displayed covers. Larger covers are resized. </string>
@@ -86,7 +61,37 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>Server &amp;port:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_port</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QSpinBox" name="opt_port">
+       <property name="maximum">
+        <number>65535</number>
+       </property>
+       <property name="value">
+        <number>8080</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>&amp;Username:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_username</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
       <widget class="QCheckBox" name="show_server_password">
        <property name="text">
         <string>&amp;Show password</string>
@@ -103,7 +108,7 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
+     <item row="5" column="1" colspan="2">
       <widget class="QSpinBox" name="opt_max_opds_items">
        <property name="minimum">
         <number>10</number>
@@ -113,7 +118,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="6" column="1" colspan="2">
       <widget class="QSpinBox" name="opt_max_opds_ungrouped_items">
        <property name="minimum">
         <number>25</number>
@@ -140,7 +145,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="7" column="1" colspan="2">
       <widget class="QComboBox" name="opt_cs_restriction">
        <property name="toolTip">
         <string>This restriction (based on a saved search) will restrict the books the content server makes available to those matching the search. This setting is per library (i.e. you can have a different restriction per library).</string>
@@ -150,6 +155,46 @@
        </property>
        <property name="minimumContentsLength">
         <number>20</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="label">
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>&lt;p&gt;Because of a bug in Google's Android, setting a password
+ will prevent the server from working with Android devices.
+&lt;br&gt;
+&lt;p&gt;Do not set a password if you plan to use the server with an
+ Android phone or tablet.</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLabel {color:red}</string>
+       </property>
+       <property name="text">
+        <string>Password incompatible with Android devices</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>&amp;URL Prefix:</string>
+       </property>
+       <property name="buddy">
+        <cstring>opt_url_prefix</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1" colspan="2">
+      <widget class="QLineEdit" name="opt_url_prefix">
+       <property name="toolTip">
+        <string>A prefix that is applied to all URLs in the content server. Useful only if you plan to put the server behind another server like Apache, with a reverse proxy.</string>
        </property>
       </widget>
      </item>
@@ -206,7 +251,7 @@
    <item>
     <widget class="QCheckBox" name="opt_autolaunch_server">
      <property name="text">
-      <string>Run server &amp;automatically on startup</string>
+      <string>Run server &amp;automatically when calibre starts</string>
      </property>
     </widget>
    </item>

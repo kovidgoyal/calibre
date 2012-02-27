@@ -1,0 +1,51 @@
+
+__license__   = 'GPL v3'
+__copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.asianreviewofbooks.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AsianReviewOfBooks(BasicNewsRecipe):
+    title                 = 'The Asian Review of Books'
+    __author__            = 'Darko Miletic'
+    description           = 'In addition to reviewing books about or of relevance to Asia, the Asian Review of Books also features long-format essays by leading Asian writers and thinkers, to providing an unparalleled forum for discussion of key contemporary issues by Asians for Asia and a vehicle of intellectual depth and breadth where leading thinkers can write on the books, arts and ideas of the day. Widely quoted and referenced, with an archive of more than one thousand book reviews, it is the only web resource dedicated to Asian books. And now, with the addition of the new premium content, the Asian Review of Books, is a must-read publication.'
+    publisher             = 'The Asian Review of Books'
+    category              = 'literature, books, reviews, Asia'
+    oldest_article        = 30
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'cp1252'
+    language              = 'en_HK'
+    publication_type      = 'magazine'
+    masthead_url          = 'http://www.asianreviewofbooks.com/new/images/mob_arb.png'
+    extra_css             = """
+                               body{font-family: serif}
+                               .big {font-size: xx-large}
+                               .bold {font-weight: bold}
+                               .italic {font-style: italic}
+                               .small {font-size: small}
+                               img {display: block}
+                            """
+
+    conversion_options = {
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
+                        }
+
+
+    remove_tags       = [dict(name=['object','script','iframe','embed'])]
+    remove_attributes = ['style', 'onclick']
+    feeds             = [(u'Articles' , u'http://www.asianreviewofbooks.com/new/rss.php')]
+
+    def print_version(self, url):
+        root, sep, artid = url.rpartition('?ID=')
+        return root + 'getarticle.php?articleID=' + artid + '&stats=web'
+        
+    def preprocess_raw_html(self, raw, url):
+       return '<html><head><title>title</title></head><body>' + raw + '</body></html>'
+       

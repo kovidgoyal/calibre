@@ -55,8 +55,8 @@ class EPUBHelpBuilder(EpubBuilder):
         open(opf, 'wb').write(raw)
 
     def build_epub(self, outdir, *args, **kwargs):
-        if self.config.epub_cover:
-            self.add_cover(outdir, self.config.epub_cover)
+        if self.config.kovid_epub_cover:
+            self.add_cover(outdir, self.config.kovid_epub_cover)
         self.fix_duplication_bugs(outdir)
         EpubBuilder.build_epub(self, outdir, *args, **kwargs)
 

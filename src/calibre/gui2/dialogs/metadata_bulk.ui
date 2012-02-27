@@ -44,8 +44,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>954</width>
-        <height>584</height>
+        <width>950</width>
+        <height>576</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -366,7 +366,7 @@ from the value in the box</string>
            <item row="9" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <item>
-              <widget class="QDateEdit" name="adddate">
+              <widget class="QDateTimeEdit" name="adddate">
                <property name="displayFormat">
                 <string>d MMM yyyy</string>
                </property>
@@ -411,7 +411,7 @@ from the value in the box</string>
            <item row="10" column="1">
             <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QDateEdit" name="pubdate">
+              <widget class="QDateTimeEdit" name="pubdate">
                <property name="displayFormat">
                 <string>MMM yyyy</string>
                </property>
@@ -443,7 +443,30 @@ from the value in the box</string>
              </property>
             </widget>
            </item>
-           <item row="13" column="0">
+           <item row="11" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>&amp;Languages:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>languages</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="11" column="1">
+            <widget class="LanguagesEdit" name="languages"/>
+           </item>
+           <item row="11" column="2">
+            <widget class="QCheckBox" name="clear_languages">
+             <property name="text">
+              <string>Remove &amp;all</string>
+             </property>
+            </widget>
+           </item>
+           <item row="12" column="0">
             <widget class="QLabel" name="label_5">
              <property name="text">
               <string>Remove &amp;format:</string>
@@ -453,17 +476,44 @@ from the value in the box</string>
              </property>
             </widget>
            </item>
-           <item row="13" column="1">
-            <widget class="QComboBox" name="remove_format">
-             <property name="maximumSize">
-              <size>
-               <width>120</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
+           <item row="12" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QComboBox" name="remove_format">
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_4">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="restore_original">
+               <property name="toolTip">
+                <string>When doing a same format to same format conversion, for e.g., EPUB to EPUB, calibre saves the original EPUB as ORIGINAL_EPUB. This option tells calibre to restore the EPUB from ORIGINAL_EPUB. Useful if you did a bulk conversion of a large number of books and something went wrong.</string>
+               </property>
+               <property name="text">
+                <string>Restore pre conversion &amp;originals, if available</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
-           <item row="14" column="0">
+           <item row="13" column="0">
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -479,7 +529,7 @@ from the value in the box</string>
              </property>
             </spacer>
            </item>
-           <item row="15" column="0" colspan="3">
+           <item row="14" column="0" colspan="2">
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
               <widget class="QCheckBox" name="change_title_to_title_case">
@@ -529,7 +579,7 @@ Future conversion of these books will use the default settings.</string>
              </item>
             </layout>
            </item>
-           <item row="16" column="0" colspan="3">
+           <item row="15" column="0" colspan="2">
             <widget class="QGroupBox" name="groupBox">
              <property name="title">
               <string>Change &amp;cover</string>
@@ -559,7 +609,7 @@ Future conversion of these books will use the default settings.</string>
              </layout>
             </widget>
            </item>
-           <item row="17" column="0">
+           <item row="16" column="0">
             <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -571,29 +621,6 @@ Future conversion of these books will use the default settings.</string>
               </size>
              </property>
             </spacer>
-           </item>
-           <item row="11" column="0">
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>&amp;Languages:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
-             <property name="buddy">
-              <cstring>languages</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="11" column="1">
-            <widget class="LanguagesEdit" name="languages"/>
-           </item>
-           <item row="11" column="2">
-            <widget class="QCheckBox" name="clear_languages">
-             <property name="text">
-              <string>Remove &amp;all</string>
-             </property>
-            </widget>
            </item>
           </layout>
          </widget>
@@ -820,7 +847,7 @@ Future conversion of these books will use the default settings.</string>
               </sizepolicy>
              </property>
              <property name="toolTip">
-              <string>Enter the what you are looking for, either plain text or a regular expression, depending on the mode</string>
+              <string>Enter what you are looking for, either plain text or a regular expression, depending on the mode</string>
              </property>
             </widget>
            </item>
@@ -1078,8 +1105,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>197</width>
-                <height>60</height>
+                <width>205</width>
+                <height>66</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">
@@ -1177,6 +1204,7 @@ not multiple and the destination field is multiple</string>
  <tabstops>
   <tabstop>authors</tabstop>
   <tabstop>auto_author_sort</tabstop>
+  <tabstop>swap_title_and_author</tabstop>
   <tabstop>author_sort</tabstop>
   <tabstop>rating</tabstop>
   <tabstop>publisher</tabstop>
@@ -1185,47 +1213,50 @@ not multiple and the destination field is multiple</string>
   <tabstop>remove_tags</tabstop>
   <tabstop>remove_all_tags</tabstop>
   <tabstop>series</tabstop>
+  <tabstop>clear_series</tabstop>
   <tabstop>autonumber_series</tabstop>
   <tabstop>series_numbering_restarts</tabstop>
   <tabstop>series_start_number</tabstop>
-  <tabstop>button_box</tabstop>
-  <tabstop>query_field</tabstop>
-  <tabstop>save_button</tabstop>
-  <tabstop>remove_button</tabstop>
-  <tabstop>search_field</tabstop>
-  <tabstop>search_mode</tabstop>
-  <tabstop>s_r_src_ident</tabstop>
-  <tabstop>s_r_template</tabstop>
-  <tabstop>search_for</tabstop>
-  <tabstop>case_sensitive</tabstop>
-  <tabstop>replace_with</tabstop>
-  <tabstop>replace_func</tabstop>
-  <tabstop>destination_field</tabstop>
-  <tabstop>replace_mode</tabstop>
-  <tabstop>comma_separated</tabstop>
-  <tabstop>s_r_dst_ident</tabstop>
-  <tabstop>results_count</tabstop>
-  <tabstop>starting_from</tabstop>
-  <tabstop>multiple_separator</tabstop>
-  <tabstop>test_text</tabstop>
-  <tabstop>test_result</tabstop>
-  <tabstop>scrollArea</tabstop>
-  <tabstop>central_widget</tabstop>
-  <tabstop>swap_title_and_author</tabstop>
-  <tabstop>clear_series</tabstop>
   <tabstop>adddate</tabstop>
   <tabstop>clear_adddate_button</tabstop>
   <tabstop>apply_adddate</tabstop>
   <tabstop>pubdate</tabstop>
   <tabstop>clear_pubdate_button</tabstop>
   <tabstop>apply_pubdate</tabstop>
+  <tabstop>languages</tabstop>
+  <tabstop>clear_languages</tabstop>
   <tabstop>remove_format</tabstop>
+  <tabstop>restore_original</tabstop>
   <tabstop>change_title_to_title_case</tabstop>
+  <tabstop>update_title_sort</tabstop>
   <tabstop>remove_conversion_settings</tabstop>
   <tabstop>cover_generate</tabstop>
   <tabstop>cover_remove</tabstop>
   <tabstop>cover_from_fmt</tabstop>
+  <tabstop>multiple_separator</tabstop>
+  <tabstop>test_text</tabstop>
+  <tabstop>test_result</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>central_widget</tabstop>
+  <tabstop>query_field</tabstop>
+  <tabstop>button_box</tabstop>
+  <tabstop>save_button</tabstop>
+  <tabstop>remove_button</tabstop>
+  <tabstop>search_field</tabstop>
+  <tabstop>search_mode</tabstop>
+  <tabstop>s_r_src_ident</tabstop>
+  <tabstop>s_r_template</tabstop>
+  <tabstop>replace_with</tabstop>
+  <tabstop>replace_func</tabstop>
+  <tabstop>replace_mode</tabstop>
+  <tabstop>comma_separated</tabstop>
+  <tabstop>s_r_dst_ident</tabstop>
+  <tabstop>results_count</tabstop>
   <tabstop>scrollArea11</tabstop>
+  <tabstop>destination_field</tabstop>
+  <tabstop>search_for</tabstop>
+  <tabstop>case_sensitive</tabstop>
+  <tabstop>starting_from</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../resources/images.qrc"/>

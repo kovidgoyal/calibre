@@ -14,25 +14,30 @@ from PyQt4.Qt import (QAbstractTableModel, QVariant, QModelIndex, Qt,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,
     QSize, QStyleOptionProgressBarV2, QString, QStyle, QToolTip, QFrame,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction,
-    QByteArray)
+    QByteArray, QSortFilterProxyModel)
 
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
-from calibre.gui2 import Dispatcher, error_dialog, question_dialog, NONE, config, gprefs
+from calibre.gui2 import (Dispatcher, error_dialog, question_dialog, NONE,
+        config, gprefs)
 from calibre.gui2.device import DeviceJob
 from calibre.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from calibre import __appname__, as_unicode
 from calibre.gui2.dialogs.job_view_ui import Ui_Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
+from calibre.utils.search_query_parser import SearchQueryParser, ParseException
+from calibre.utils.icu import lower
 
-class JobManager(QAbstractTableModel): # {{{
+class JobManager(QAbstractTableModel, SearchQueryParser): # {{{
 
     job_added = pyqtSignal(int)
     job_done  = pyqtSignal(int)
 
     def __init__(self):
         QAbstractTableModel.__init__(self)
+        SearchQueryParser.__init__(self, ['all'])
+
         self.wait_icon     = QVariant(QIcon(I('jobs.png')))
         self.running_icon  = QVariant(QIcon(I('exec.png')))
         self.error_icon    = QVariant(QIcon(I('dialog_error.png')))
@@ -251,6 +256,18 @@ class JobManager(QAbstractTableModel): # {{{
         else:
             job.kill_on_start = True
 
+    def hide_jobs(self, rows):
+        for r in rows:
+            self.jobs[r].hidden_in_gui = True
+        for r in rows:
+            self.dataChanged.emit(self.index(r, 0), self.index(r, 0))
+
+    def show_hidden_jobs(self):
+        for j in self.jobs:
+            j.hidden_in_gui = False
+        for r in xrange(len(self.jobs)):
+            self.dataChanged.emit(self.index(r, 0), self.index(r, 0))
+
     def kill_job(self, row, view):
         job = self.jobs[row]
         if isinstance(job, DeviceJob):
@@ -299,6 +316,62 @@ class JobManager(QAbstractTableModel): # {{{
                 continue
             if not isinstance(job, ParallelJob):
                 self._kill_job(job)
+
+    def universal_set(self):
+        return set([i for i, j in enumerate(self.jobs) if not getattr(j,
+            'hidden_in_gui', False)])
+
+    def get_matches(self, location, query, candidates=None):
+        if candidates is None:
+            candidates = self.universal_set()
+        ans = set()
+        if not query:
+            return ans
+        query = lower(query)
+        for j in candidates:
+            job = self.jobs[j]
+            if job.description and query in lower(job.description):
+                ans.add(j)
+        return ans
+
+    def find(self, query):
+        query = query.strip()
+        rows = self.parse(query)
+        return rows
+
+# }}}
+
+class FilterModel(QSortFilterProxyModel): # {{{
+
+    search_done = pyqtSignal(object)
+
+    def __init__(self, parent):
+        QSortFilterProxyModel.__init__(self, parent)
+        self.search_filter = None
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        if (self.search_filter is not None and source_row not in
+                self.search_filter):
+            return False
+        m = self.sourceModel()
+        try:
+            job = m.row_to_job(source_row)
+        except:
+            return False
+        return not getattr(job, 'hidden_in_gui', False)
+
+    def find(self, query):
+        ok = True
+        val = None
+        if query:
+            try:
+                val = self.sourceModel().parse(query)
+            except ParseException:
+                ok = False
+        self.search_filter = val
+        self.search_done.emit(ok)
+        self.reset()
+
 # }}}
 
 # Jobs UI {{{
@@ -339,7 +412,8 @@ class DetailView(QDialog, Ui_Dialog): # {{{
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update)
         self.timer.start(1000)
-
+        v = self.log.verticalScrollBar()
+        v.setValue(v.maximum())
 
     def update(self):
         if self.html_view:
@@ -450,8 +524,11 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         QDialog.__init__(self, window)
         Ui_JobsDialog.__init__(self)
         self.setupUi(self)
-        self.jobs_view.setModel(model)
         self.model = model
+        self.proxy_model = FilterModel(self)
+        self.proxy_model.setSourceModel(self.model)
+        self.proxy_model.search_done.connect(self.search.search_done)
+        self.jobs_view.setModel(self.proxy_model)
         self.setWindowModality(Qt.NonModal)
         self.setWindowTitle(__appname__ + _(' - Jobs'))
         self.details_button.clicked.connect(self.show_details)
@@ -461,6 +538,15 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
         self.jobs_view.doubleClicked.connect(self.show_job_details)
         self.jobs_view.horizontalHeader().setMovable(True)
+        self.hide_button.clicked.connect(self.hide_selected)
+        self.hide_all_button.clicked.connect(self.hide_all)
+        self.show_button.clicked.connect(self.show_hidden)
+        self.search.initialize('jobs_search_history',
+                help_text=_('Search for a job by name'))
+        self.search.search.connect(self.find)
+        self.search_button.clicked.connect(lambda :
+                self.find(self.search.current_text))
+        self.clear_button.clicked.connect(lambda : self.search.clear())
         self.restore_state()
 
     def restore_state(self):
@@ -486,11 +572,13 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             pass
 
     def show_job_details(self, index):
-        row = index.row()
-        job = self.jobs_view.model().row_to_job(row)
-        d = DetailView(self, job)
-        d.exec_()
-        d.timer.stop()
+        index = self.proxy_model.mapToSource(index)
+        if index.isValid():
+            row = index.row()
+            job = self.model.row_to_job(row)
+            d = DetailView(self, job)
+            d.exec_()
+            d.timer.stop()
 
     def show_details(self, *args):
         index = self.jobs_view.currentIndex()
@@ -498,9 +586,12 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             self.show_job_details(index)
 
     def kill_job(self, *args):
-        rows = [index.row() for index in
+        indices = [self.proxy_model.mapToSource(index) for index in
                 self.jobs_view.selectionModel().selectedRows()]
-        return error_dialog(self, _('No job'),
+        indices = [i for i in indices if i.isValid()]
+        rows = [index.row() for index in indices]
+        if not rows:
+            return error_dialog(self, _('No job'),
                 _('No job selected'), show=True)
         if question_dialog(self, _('Are you sure?'),
                 ngettext('Do you really want to stop the selected job?',
@@ -516,6 +607,26 @@ class JobsDialog(QDialog, Ui_JobsDialog):
                 _('Do you really want to stop all non-device jobs?')):
             self.model.kill_all_jobs()
 
+    def hide_selected(self, *args):
+        indices = [self.proxy_model.mapToSource(index) for index in
+                self.jobs_view.selectionModel().selectedRows()]
+        indices = [i for i in indices if i.isValid()]
+        rows = [index.row() for index in indices]
+        if not rows:
+            return error_dialog(self, _('No job'),
+                _('No job selected'), show=True)
+        self.model.hide_jobs(rows)
+        self.proxy_model.reset()
+
+    def hide_all(self, *args):
+        self.model.hide_jobs(list(xrange(0,
+            self.model.rowCount(QModelIndex()))))
+        self.proxy_model.reset()
+
+    def show_hidden(self, *args):
+        self.model.show_hidden_jobs()
+        self.find(self.search.current_text)
+
     def closeEvent(self, e):
         self.save_state()
         return QDialog.closeEvent(self, e)
@@ -527,5 +638,9 @@ class JobsDialog(QDialog, Ui_JobsDialog):
     def hide(self, *args):
         self.save_state()
         return QDialog.hide(self, *args)
+
+    def find(self, query):
+        self.proxy_model.find(query)
+
 # }}}
 

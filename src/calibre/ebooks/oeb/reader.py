@@ -19,16 +19,15 @@ from calibre.ebooks.oeb.base import OPF1_NS, OPF2_NS, OPF2_NSMAP, DC11_NS, \
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_IMAGES, \
     PAGE_MAP_MIME, JPEG_MIME, NCX_MIME, SVG_MIME
 from calibre.ebooks.oeb.base import XMLDECL_RE, COLLAPSE_RE, \
-    ENTITY_RE, MS_COVER_TYPE, iterlinks
+    MS_COVER_TYPE, iterlinks
 from calibre.ebooks.oeb.base import namespace, barename, XPath, xpath, \
                                     urlnormalize, BINARY_MIME, \
                                     OEBError, OEBBook, DirContainer
 from calibre.ebooks.oeb.writer import OEBWriter
-from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 from calibre.utils.localization import get_lang
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
-from calibre import guess_type
+from calibre import guess_type, xml_replace_entities
 
 __all__ = ['OEBReader']
 
@@ -107,8 +106,7 @@ class OEBReader(object):
         try:
             opf = etree.fromstring(data)
         except etree.XMLSyntaxError:
-            repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
-            data = ENTITY_RE.sub(repl, data)
+            data = xml_replace_entities(data, encoding=None)
             try:
                 opf = etree.fromstring(data)
                 self.logger.warn('OPF contains invalid HTML named entities')
@@ -177,13 +175,27 @@ class OEBReader(object):
         manifest = self.oeb.manifest
         known = set(manifest.hrefs)
         unchecked = set(manifest.values())
+        cdoc = OEB_DOCS|OEB_STYLES
+        invalid = set()
         while unchecked:
             new = set()
             for item in unchecked:
+                data = None
+                if (item.media_type in cdoc or
+                        item.media_type[-4:] in ('/xml', '+xml')):
+                    try:
+                        data = item.data
+                    except:
+                        self.oeb.log.exception(u'Failed to read from manifest '
+                                u'entry with id: %s, ignoring'%item.id)
+                        invalid.add(item)
+                        continue
+                if data is None:
+                    continue
+
                 if (item.media_type in OEB_DOCS or
-                    item.media_type[-4:] in ('/xml', '+xml')) and \
-                   item.data is not None:
-                    hrefs = [r[2] for r in iterlinks(item.data)]
+                        item.media_type[-4:] in ('/xml', '+xml')):
+                    hrefs = [r[2] for r in iterlinks(data)]
                     for href in hrefs:
                         href, _ = urldefrag(href)
                         if not href:
@@ -199,7 +211,7 @@ class OEBReader(object):
                             new.add(href)
                 elif item.media_type in OEB_STYLES:
                     try:
-                        urls = list(cssutils.getUrls(item.data))
+                        urls = list(cssutils.getUrls(data))
                     except:
                         urls = []
                     for url in urls:
@@ -232,6 +244,9 @@ class OEBReader(object):
                 media_type = guessed or BINARY_MIME
                 added = manifest.add(id, href, media_type)
                 unchecked.add(added)
+
+            for item in invalid:
+                self.oeb.manifest.remove(item)
 
     def _manifest_from_opf(self, opf):
         manifest = self.oeb.manifest
@@ -312,7 +327,7 @@ class OEBReader(object):
         manifest = self.oeb.manifest
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
             href = elem.get('href')
-            path = urldefrag(href)[0]
+            path = urlnormalize(urldefrag(href)[0])
             if path not in manifest.hrefs:
                 self.logger.warn(u'Guide reference %r not found' % href)
                 continue
@@ -371,8 +386,15 @@ class OEBReader(object):
             else :
                 description = None
 
+            index_image = xpath(child,
+                    'descendant::calibre:meta[@name = "toc_thumbnail"]')
+            toc_thumbnail = (index_image[0].text if index_image else None)
+            if not toc_thumbnail or not toc_thumbnail.strip():
+                toc_thumbnail = None
+
             node = toc.add(title, href, id=id, klass=klass,
-                    play_order=po, description=description, author=author)
+                    play_order=po, description=description, author=author,
+                           toc_thumbnail=toc_thumbnail)
 
             self._toc_from_navpoint(item, node, child)
 
@@ -605,11 +627,27 @@ class OEBReader(object):
             return
         self.oeb.metadata.add('cover', cover.id)
 
+    def _manifest_remove_duplicates(self):
+        seen = set()
+        dups = set()
+        for item in self.oeb.manifest:
+            if item.href in seen:
+                dups.add(item.href)
+            seen.add(item.href)
+
+        for href in dups:
+            items = [x for x in self.oeb.manifest if x.href == href]
+            for x in items:
+                if x not in self.oeb.spine:
+                    self.oeb.log.warn('Removing duplicate manifest item with id:', x.id)
+                    self.oeb.manifest.remove_duplicate_item(x)
+
     def _all_from_opf(self, opf):
         self.oeb.version = opf.get('version', '1.2')
         self._metadata_from_opf(opf)
         self._manifest_from_opf(opf)
         self._spine_from_opf(opf)
+        self._manifest_remove_duplicates()
         self._guide_from_opf(opf)
         item = self._find_ncx(opf)
         self._toc_from_opf(opf, item)

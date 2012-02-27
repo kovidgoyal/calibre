@@ -8,12 +8,13 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from lxml.etree import tostring as _tostring
 
 def tostring(root, strip_comments=False, pretty_print=False):
     '''
     Serialize processed XHTML.
     '''
+    from lxml.etree import tostring as _tostring
+
     root.set('xmlns', 'http://www.w3.org/1999/xhtml')
     root.set('{http://www.w3.org/1999/xhtml}xlink', 'http://www.w3.org/1999/xlink')
     for x in root.iter():

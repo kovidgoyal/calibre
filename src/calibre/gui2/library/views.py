@@ -5,8 +5,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, itertools, operator
 from functools import partial
+from future_builtins import map
 
 from PyQt4.Qt import (QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal,
     QModelIndex, QIcon, QItemSelection, QMimeData, QDrag, QApplication,
@@ -23,24 +24,42 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 
-class PreserveSelection(object): # {{{
+class PreserveViewState(object): # {{{
 
     '''
     Save the set of selected books at enter time. If at exit time there are no
-    selected books, restore the previous selection.
+    selected books, restore the previous selection, the previous current index
+    and dont affect the scroll position.
     '''
 
-    def __init__(self, view):
+    def __init__(self, view, preserve_hpos=True, preserve_vpos=True):
         self.view = view
-        self.selected_ids = []
+        self.selected_ids = set()
+        self.current_id = None
+        self.preserve_hpos = preserve_hpos
+        self.preserve_vpos = preserve_vpos
+        self.vscroll = self.hscroll = 0
 
     def __enter__(self):
-        self.selected_ids = self.view.get_selected_ids()
+        try:
+            self.selected_ids = self.view.get_selected_ids()
+            self.current_id = self.view.current_id
+            self.vscroll = self.view.verticalScrollBar().value()
+            self.hscroll = self.view.horizontalScrollBar().value()
+        except:
+            import traceback
+            traceback.print_exc()
 
     def __exit__(self, *args):
-        current = self.view.get_selected_ids()
-        if not current:
-            self.view.select_rows(self.selected_ids, using_ids=True)
+        if self.selected_ids:
+            if self.current_id is not None:
+                self.view.current_id = self.current_id
+            self.view.select_rows(self.selected_ids, using_ids=True,
+                    scroll=False, change_current=self.current_id is None)
+            if self.preserve_vpos:
+                self.view.verticalScrollBar().setValue(self.vscroll)
+            if self.preserve_hpos:
+                self.view.horizontalScrollBar().setValue(self.hscroll)
 # }}}
 
 class BooksView(QTableView): # {{{
@@ -104,7 +123,7 @@ class BooksView(QTableView): # {{{
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
-        self.preserve_selected_books = PreserveSelection(self)
+        self.preserve_state = partial(PreserveViewState, self)
 
         # {{{ Column Header setup
         self.can_add_columns = True
@@ -181,10 +200,10 @@ class BooksView(QTableView): # {{{
                 ac = a if self._model.sorted_on[1] else d
                 ac.setCheckable(True)
                 ac.setChecked(True)
-            if col not in ('ondevice', 'rating', 'inlibrary') and \
+            if col not in ('ondevice', 'inlibrary') and \
                     (not self.model().is_custom_column(col) or \
                     self.model().custom_columns[col]['datatype'] not in ('bool',
-                        'rating')):
+                        )):
                 m = self.column_header_context_menu.addMenu(
                         _('Change text alignment for %s') % name)
                 al = self._model.alignment_map.get(col, 'left')
@@ -344,14 +363,15 @@ class BooksView(QTableView): # {{{
                     history.append([col, order])
         return history
 
-    def apply_sort_history(self, saved_history):
+    def apply_sort_history(self, saved_history, max_sort_levels=3):
         if not saved_history:
             return
-        for col, order in reversed(self.cleanup_sort_history(saved_history)[:3]):
+        for col, order in reversed(self.cleanup_sort_history(
+                saved_history)[:max_sort_levels]):
             self.sortByColumn(self.column_map.index(col),
                               Qt.AscendingOrder if order else Qt.DescendingOrder)
 
-    def apply_state(self, state):
+    def apply_state(self, state, max_sort_levels=3):
         h = self.column_header
         cmap = {}
         hidden = state.get('hidden_columns', [])
@@ -380,7 +400,8 @@ class BooksView(QTableView): # {{{
                     sz = h.sectionSizeHint(cmap[col])
                 h.resizeSection(cmap[col], sz)
 
-        self.apply_sort_history(state.get('sort_history', None))
+        self.apply_sort_history(state.get('sort_history', None),
+                max_sort_levels=max_sort_levels)
 
         for col, alignment in state.get('column_alignment', {}).items():
             self._model.change_alignment(col, alignment)
@@ -455,6 +476,7 @@ class BooksView(QTableView): # {{{
         old_state = self.get_old_state()
         if old_state is None:
             old_state = self.get_default_state()
+        max_levels = 3
 
         if tweaks['sort_columns_at_startup'] is not None:
             sh = []
@@ -469,9 +491,10 @@ class BooksView(QTableView): # {{{
                 import traceback
                 traceback.print_exc()
             old_state['sort_history'] = sh
+            max_levels = max(3, len(sh))
 
         self.column_header.blockSignals(True)
-        self.apply_state(old_state)
+        self.apply_state(old_state, max_sort_levels=max_levels)
         self.column_header.blockSignals(False)
 
         # Resize all rows to have the correct height
@@ -774,8 +797,13 @@ class BooksView(QTableView): # {{{
         sel = QItemSelection()
         m = self.model()
         max_col = m.columnCount(QModelIndex()) - 1
-        for row in rows:
-            sel.select(m.index(row, 0), m.index(row, max_col))
+        # Create a range based selector for each set of contiguous rows
+        # as supplying selectors for each individual row causes very poor
+        # performance if a large number of rows has to be selected.
+        for k, g in itertools.groupby(enumerate(rows), lambda (i,x):i-x):
+            group = list(map(operator.itemgetter(1), g))
+            sel.merge(QItemSelection(m.index(min(group), 0),
+                m.index(max(group), max_col)), sm.Select)
         sm.select(sel, sm.ClearAndSelect)
 
     def get_selected_ids(self):
@@ -787,6 +815,23 @@ class BooksView(QTableView): # {{{
             if i not in ans:
                 ans.append(i)
         return ans
+
+    @dynamic_property
+    def current_id(self):
+        def fget(self):
+            try:
+                return self.model().id(self.currentIndex())
+            except:
+                pass
+            return None
+        def fset(self, val):
+            if val is None: return
+            m = self.model()
+            for row in xrange(m.rowCount(QModelIndex())):
+                if m.id(row) == val:
+                    self.set_current_row(row, select=False)
+                    break
+        return property(fget=fget, fset=fset)
 
     def close(self):
         self._model.close()

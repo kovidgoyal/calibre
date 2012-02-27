@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import dbus, os
+import os, dbus
 
 def node_mountpoint(node):
 
@@ -23,8 +23,6 @@ def node_mountpoint(node):
 class UDisks(object):
 
     def __init__(self):
-        if os.environ.get('CALIBRE_DISABLE_UDISKS', False):
-            raise Exception('User has aborted use of UDISKS')
         self.bus = dbus.SystemBus()
         self.main = dbus.Interface(self.bus.get_object('org.freedesktop.UDisks',
                         '/org/freedesktop/UDisks'), 'org.freedesktop.UDisks')
@@ -39,7 +37,7 @@ class UDisks(object):
         try:
             return unicode(d.FilesystemMount('',
                 ['auth_no_user_interaction', 'rw', 'noexec', 'nosuid',
-                'sync', 'nodev', 'uid=1000', 'gid=1000']))
+                'sync', 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]))
         except:
             # May be already mounted, check
             mp = node_mountpoint(str(device_node_path))

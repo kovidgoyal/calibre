@@ -22,7 +22,7 @@ class LosTiempos_Bol(BasicNewsRecipe):
     publication_type      = 'newspaper'
     delay                 = 1
     remove_empty_feeds    = True
-    cover_url             = strftime('http://www.lostiempos.com/media_recortes/%Y/%m/%d/portada_md_1.jpg')
+    cover_url             = strftime('http://www.lostiempos.com/media_recortes/%Y/%m/%d/portada_gd_1.jpg')
     masthead_url          = 'http://www.lostiempos.com/img_stat/logo_tiempos_sin_beta.jpg'
     extra_css             = """ body{font-family: Arial,Helvetica,sans-serif }
                                 img{margin-bottom: 0.4em}
@@ -41,7 +41,7 @@ class LosTiempos_Bol(BasicNewsRecipe):
     keep_only_tags    = [dict(name='div', attrs={'id':'articulo'})]
     remove_tags       = [
                           dict(name=['meta','link','form','iframe','embed','object','hr'])
-                         ,dict(attrs={'class':['caja_fonts sin_border_bot','pub']})
+                         ,dict(attrs={'class':['caja_fonts sin_border_bot','pub','twitter-share-button']})
                         ]
     remove_attributes = ['width','height']
 

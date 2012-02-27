@@ -39,7 +39,8 @@ class Controller(QThread):
                 authkey=self.auth_key, backlog=4)
 
         self.env = {
-            'CALIBRE_LAUNCH_INTERPRETER': '1',
+            'CALIBRE_SIMPLE_WORKER':
+                'calibre.utils.pyconsole.interpreter:main',
             'CALIBRE_WORKER_ADDRESS':
                     hexlify(cPickle.dumps(self.listener.address, -1)),
             'CALIBRE_WORKER_KEY': hexlify(self.auth_key)

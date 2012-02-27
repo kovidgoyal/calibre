@@ -170,7 +170,7 @@ def extract(path, dir):
     """
     open_archive_data = RAROpenArchiveDataEx(ArcName=path, OpenMode=RAR_OM_EXTRACT, CmtBuf=None)
     arc_data = _libunrar.RAROpenArchiveEx(byref(open_archive_data))
-    cwd = os.getcwd()
+    cwd = os.getcwdu()
     if not os.path.isdir( dir ):
         os.mkdir( dir )
     os.chdir( dir )

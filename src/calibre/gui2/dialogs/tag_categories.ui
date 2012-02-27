@@ -118,7 +118,7 @@
    <item row="0" column="3">
     <widget class="QToolButton" name="rename_category_button">
      <property name="toolTip">
-      <string>Rename the current category to the what is in the box</string>
+      <string>Rename the current category to what is in the box</string>
      </property>
      <property name="text">
       <string>...</string>

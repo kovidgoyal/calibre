@@ -109,6 +109,9 @@ class MetadataSingleDialogBase(ResizableDialog):
     def create_basic_metadata_widgets(self): # {{{
         self.basic_metadata_widgets = []
 
+        self.languages = LanguagesEdit(self)
+        self.basic_metadata_widgets.append(self.languages)
+
         self.title = TitleEdit(self)
         self.title.textChanged.connect(self.update_window_title)
         self.deduce_title_sort_button = QToolButton(self)
@@ -119,7 +122,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.deduce_title_sort_button.setWhatsThis(
                 self.deduce_title_sort_button.toolTip())
         self.title_sort = TitleSortEdit(self, self.title,
-                self.deduce_title_sort_button)
+                self.deduce_title_sort_button, self.languages)
         self.basic_metadata_widgets.extend([self.title, self.title_sort])
 
         self.deduce_author_sort_button = b = QToolButton(self)
@@ -166,7 +169,10 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.basic_metadata_widgets.extend([self.series, self.series_index])
 
         self.formats_manager = FormatsManager(self, self.copy_fmt)
-        self.basic_metadata_widgets.append(self.formats_manager)
+        # We want formats changes to be committed before title/author, as
+        # otherwise we could have data loss if the title/author changed and the
+        # user was trying to add an extra file from the old books directory.
+        self.basic_metadata_widgets.insert(0, self.formats_manager)
         self.formats_manager.metadata_from_format_button.clicked.connect(
                 self.metadata_from_format)
         self.formats_manager.cover_from_format_button.clicked.connect(
@@ -202,9 +208,6 @@ class MetadataSingleDialogBase(ResizableDialog):
 
         self.publisher = PublisherEdit(self)
         self.basic_metadata_widgets.append(self.publisher)
-
-        self.languages = LanguagesEdit(self)
-        self.basic_metadata_widgets.append(self.languages)
 
         self.timestamp = DateEdit(self)
         self.pubdate = PubdateEdit(self)
@@ -281,7 +284,6 @@ class MetadataSingleDialogBase(ResizableDialog):
             self.set_current_callback(id_)
         # Commented out as it doesn't play nice with Next, Prev buttons
         #self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
-
 
     # Miscellaneous interaction methods {{{
     def update_window_title(self, *args):
@@ -377,6 +379,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         if not mi.is_null('series') and mi.series.strip():
             self.series.current_val = mi.series
             if mi.series_index is not None:
+                self.series_index.reset_original()
                 self.series_index.current_val = float(mi.series_index)
         if not mi.is_null('languages'):
             langs = [canonicalize_lang(x) for x in mi.languages]
@@ -440,8 +443,8 @@ class MetadataSingleDialogBase(ResizableDialog):
                     return False
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh',
                         set([]))
-            except IOError as err:
-                if err.errno == errno.EACCES: # Permission denied
+            except (IOError, OSError) as err:
+                if getattr(err, 'errno', None) == errno.EACCES: # Permission denied
                     import traceback
                     fname = err.filename if err.filename else 'file'
                     error_dialog(self, _('Permission denied'),

@@ -82,8 +82,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             traceback.print_exc()
             self.builtin_source_dict = {}
 
-        self.funcs = formatter_functions.get_functions()
-        self.builtins = formatter_functions.get_builtins_and_aliases()
+        self.funcs = formatter_functions().get_functions()
+        self.builtins = formatter_functions().get_builtins_and_aliases()
 
         self.build_function_names_box()
         self.function_name.currentIndexChanged[str].connect(self.function_index_changed)
@@ -217,13 +217,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         pass
 
     def commit(self):
-        formatter_functions.reset_to_builtins()
+        formatter_functions().reset_to_builtins()
         pref_value = []
         for f in self.funcs:
             if f in self.builtins:
                 continue
             func = self.funcs[f]
-            formatter_functions.register_function(func)
+            formatter_functions().register_function(func)
             pref_value.append((func.name, func.doc, func.arg_count, func.program_text))
         self.db.prefs.set('user_template_functions', pref_value)
 

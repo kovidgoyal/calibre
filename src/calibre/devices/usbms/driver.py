@@ -10,7 +10,7 @@ driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
 '''
 
-import os, re, time, json, uuid, functools
+import os, re, time, json, functools, shutil
 from itertools import cycle
 
 from calibre.constants import numeric_version
@@ -58,6 +58,7 @@ class USBMS(CLI, Device):
     SCAN_FROM_ROOT = False
 
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
+        import uuid
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
@@ -202,7 +203,7 @@ class USBMS(CLI, Device):
             debug_print('USBMS: scan from root', self.SCAN_FROM_ROOT, ebook_dir)
             if not os.path.exists(ebook_dir): continue
             # Get all books in the ebook_dir directory
-            if self.SUPPORTS_SUB_DIRS:
+            if self.SUPPORTS_SUB_DIRS or self.SUPPORTS_SUB_DIRS_FOR_SCAN:
                 # build a list of files to check, so we can accurately report progress
                 flist = []
                 for path, dirs, files in os.walk(ebook_dir):
@@ -339,10 +340,13 @@ class USBMS(CLI, Device):
 
                 filepath = os.path.splitext(path)[0]
                 for ext in self.DELETE_EXTS:
-                    if os.path.exists(filepath + ext):
-                        os.unlink(filepath + ext)
-                    if os.path.exists(path + ext):
-                        os.unlink(path + ext)
+                    for x in (filepath, path):
+                        x += ext
+                        if os.path.exists(x):
+                            if os.path.isdir(x):
+                                shutil.rmtree(x, ignore_errors=True)
+                            else:
+                                os.unlink(x)
 
                 if self.SUPPORTS_SUB_DIRS:
                     try:

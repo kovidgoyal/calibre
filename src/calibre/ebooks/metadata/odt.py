@@ -153,7 +153,9 @@ def get_metadata(stream):
     mi = MetaInformation(None, [])
     if data.has_key('title'):
         mi.title = data['title']
-    if data.has_key('creator'):
+    if data.get('initial-creator', '').strip():
+        mi.authors = string_to_authors(data['initial-creator'])
+    elif data.has_key('creator'):
         mi.authors = string_to_authors(data['creator'])
     if data.has_key('description'):
         mi.comments = data['description']

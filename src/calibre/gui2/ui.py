@@ -41,6 +41,7 @@ from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.keyboard import Manager
+from calibre.gui2.auto_add import AutoAdder
 from calibre.library.sqlite import sqlite, DatabaseException
 
 class Listener(Thread): # {{{
@@ -101,10 +102,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         ):
     'The main GUI'
 
+    proceed_requested = pyqtSignal(object, object)
 
     def __init__(self, opts, parent=None, gui_debug=None):
         global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
+        self.proceed_requested.connect(self.do_proceed,
+                type=Qt.QueuedConnection)
         self.keyboard = Manager(self)
         _gui = self
         self.opts = opts
@@ -195,7 +199,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
 
         for ac in self.iactions.values():
             ac.do_genesis()
-        self.donate_action = QAction(QIcon(I('donate.png')), _('&Donate to support calibre'), self)
+        self.donate_action = QAction(QIcon(I('donate.png')),
+                _('&Donate to support calibre'), self)
         for st in self.istores.values():
             st.do_genesis()
         MainWindowMixin.__init__(self, db)
@@ -263,6 +268,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         ####################### Location Manager ########################
         self.location_manager.location_selected.connect(self.location_selected)
         self.location_manager.unmount_device.connect(self.device_manager.umount_device)
+        self.location_manager.configure_device.connect(self.configure_connected_device)
         self.eject_action.triggered.connect(self.device_manager.umount_device)
 
         #################### Update notification ###################
@@ -291,6 +297,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             self.library_view.model().books_added(1)
             if hasattr(self, 'db_images'):
                 self.db_images.reset()
+            if self.library_view.model().rowCount(None) < 3:
+                self.library_view.resizeColumnsToContents()
 
         self.library_view.model().count_changed()
         self.bars_manager.database_changed(self.library_view.model().db)
@@ -346,6 +354,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.device_manager.set_current_library_uuid(db.library_id)
 
         self.keyboard.finalize()
+        self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
 
         # Collect cycles now
         gc.collect()
@@ -358,7 +367,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                         'log will be displayed automatically.')%self.gui_debug, show=True)
 
     def esc(self, *args):
-        self.search.clear()
+        self.clear_button.click()
 
     def start_content_server(self, check_started=True):
         from calibre.library.server.main import start_threaded_server
@@ -367,9 +376,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
                 self.library_view.model().db, server_config().parse())
         self.content_server.state_callback = Dispatcher(
                 self.iactions['Connect Share'].content_server_state_changed)
-        self.content_server.state_callback(True)
         if check_started:
-            QTimer.singleShot(10000, self.test_server)
+            self.content_server.start_failure_callback = \
+                Dispatcher(self.content_server_start_failed)
+
+    def content_server_start_failed(self, msg):
+        error_dialog(self, _('Failed to start Content Server'),
+                _('Could not start the content server. Error:\n\n%s')%msg,
+                show=True)
 
     def resizeEvent(self, ev):
         MainWindow.resizeEvent(self, ev)
@@ -391,6 +405,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         except:
             pass
 
+    def do_proceed(self, func, payload):
+        if callable(func):
+            func(payload)
+
     def no_op(self, *args):
         pass
 
@@ -406,11 +424,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         return getattr(self, '__systray_minimized', False)
 
     def ask_a_yes_no_question(self, title, msg, det_msg='',
-            show_copy_button=False, ans_when_user_unavailable=True):
+            show_copy_button=False, ans_when_user_unavailable=True,
+            skip_dialog_name=None, skipped_value=True):
         if self.is_minimized_to_tray:
             return ans_when_user_unavailable
         return question_dialog(self, title, msg, det_msg=det_msg,
-                show_copy_button=show_copy_button)
+                show_copy_button=show_copy_button,
+                skip_dialog_name=skip_dialog_name,
+                skip_dialog_skipped_value=skipped_value)
 
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():
@@ -455,6 +476,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
             self.library_view.model().refresh()
             self.library_view.model().research()
             self.tags_view.recount()
+            self.library_view.model().db.refresh_format_cache()
         elif msg.startswith('shutdown:'):
             self.quit(confirm_quit=False)
         else:
@@ -685,6 +707,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         while self.spare_servers:
             self.spare_servers.pop().close()
         self.device_manager.keep_going = False
+        self.auto_adder.stop()
         mb = self.library_view.model().metadata_backup
         if mb is not None:
             mb.stop()
@@ -722,10 +745,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin, # {{{
         self.write_settings()
         if self.system_tray_icon.isVisible():
             if not dynamic['systray_msg'] and not isosx:
-                info_dialog(self, 'calibre', 'calibre '+\
+                info_dialog(self, 'calibre', 'calibre '+ \
                         _('will keep running in the system tray. To close it, '
                         'choose <b>Quit</b> in the context menu of the '
-                        'system tray.')).exec_()
+                        'system tray.'), show_copy_button=False).exec_()
                 dynamic['systray_msg'] = True
             self.hide_windows()
             e.ignore()

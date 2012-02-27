@@ -84,6 +84,16 @@ def series_test(series, series_index):
 
     return test
 
+def comments_test(sentinel):
+
+    def test(mi):
+        comm = mi.comments.lower() if mi.comments else ''
+        if sentinel and sentinel.lower() in comm:
+            return True
+        prints('comments test failed. %s not in comments'%sentinel)
+        return False
+    return test
+
 def init_test(tdir_name):
     tdir = tempfile.gettempdir()
     lf = os.path.join(tdir, tdir_name.replace(' ', '')+'_identify_test.txt')
@@ -157,7 +167,7 @@ def test_identify(tests): # {{{
 
 # }}}
 
-def test_identify_plugin(name, tests): # {{{
+def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None): # {{{
     '''
     :param name: Plugin name
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
@@ -171,6 +181,7 @@ def test_identify_plugin(name, tests): # {{{
         if x.name == name:
             plugin = x
             break
+    modify_plugin(plugin)
     prints('Testing the identify function of', plugin.name)
     prints('Using extra headers:', plugin.browser.addheaders)
 
@@ -183,7 +194,11 @@ def test_identify_plugin(name, tests): # {{{
         rq = Queue()
         args = (log, rq, abort)
         start_time = time.time()
-        err = plugin.identify(*args, **kwargs)
+        plugin.running_a_test = True
+        try:
+            err = plugin.identify(*args, **kwargs)
+        finally:
+            plugin.running_a_test = False
         total_time = time.time() - start_time
         times.append(total_time)
         if err is not None:

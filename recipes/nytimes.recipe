@@ -1,5 +1,5 @@
 #!/usr/bin/env  python
-
+# -*- coding: utf-8 -*-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -325,7 +325,8 @@ class NYTimes(BasicNewsRecipe):
         '''
         def get_the_soup(docEncoding, url_or_raw, raw=False) :
             if re.match(r'\w+://', url_or_raw):
-                f = self.browser.open(url_or_raw)
+                br = self.clone_browser(self.browser)
+                f = br.open_novisit(url_or_raw)
                 _raw = f.read()
                 f.close()
                 if not _raw:
@@ -707,6 +708,16 @@ class NYTimes(BasicNewsRecipe):
 		return soup
 
     def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            idxdiv = soup.find('div',attrs={'class':'articleSpanImage'})
+            if idxdiv is not None:
+                if idxdiv.img:
+                    self.add_toc_thumbnail(article, idxdiv.img['src'])
+            else:
+                img = soup.find('img')
+                if img is not None:
+                    self.add_toc_thumbnail(article, img['src'])
+
         shortparagraph = ""
         try:
             if len(article.text_summary.strip()) == 0:

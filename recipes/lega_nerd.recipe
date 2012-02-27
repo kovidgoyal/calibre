@@ -1,0 +1,14 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1326135232(BasicNewsRecipe):
+    title          = u'Lega Nerd'
+    description = 'nerd / geek culture, pc, comics, music, culture'
+    language = 'it'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+
+    feeds          = [(u'Lega Nerd', u'http://feeds.feedburner.com/LegaNerd')]
+    __author__      = 'faber1971'
+__version__     = 'v1.0'
+__date__        = '9, January 2011'

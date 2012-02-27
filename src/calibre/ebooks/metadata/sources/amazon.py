@@ -12,15 +12,12 @@ from urllib import urlencode
 from threading import Thread
 from Queue import Queue, Empty
 
-from lxml.html import soupparser, tostring
 
-from calibre import as_unicode
+from calibre import as_unicode, random_user_agent
 from calibre.ebooks.metadata import check_isbn
-from calibre.ebooks.metadata.sources.base import Source, Option
-from calibre.utils.cleantext import clean_ascii_chars
-from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
+        fixauthors)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.library.comments import sanitize_comments_html
 from calibre.utils.date import parse_date
 from calibre.utils.localization import canonicalize_lang
 
@@ -30,15 +27,19 @@ class Worker(Thread): # Get details {{{
     Get book details from amazons book page in a separate thread
     '''
 
-    def __init__(self, url, result_queue, browser, log, relevance, domain, plugin, timeout=20):
+    def __init__(self, url, result_queue, browser, log, relevance, domain,
+            plugin, timeout=20, testing=False):
         Thread.__init__(self)
         self.daemon = True
+        self.testing = testing
         self.url, self.result_queue = url, result_queue
         self.log, self.timeout = log, timeout
         self.relevance, self.plugin = relevance, plugin
         self.browser = browser.clone_browser()
         self.cover_url = self.amazon_id = self.isbn = None
         self.domain = domain
+        from lxml.html import tostring
+        self.tostring = tostring
 
         months = {
                 'de': {
@@ -155,6 +156,16 @@ class Worker(Thread): # Get details {{{
             for name in names:
                 self.lang_map[name] = code
 
+        self.series_pat = re.compile(
+                r'''
+                \|\s*              # Prefix
+                (Series)\s*:\s*    # Series declaration
+                (?P<series>.+?)\s+  # The series name
+                \((Book)\s*    # Book declaration
+                (?P<index>[0-9.]+) # Series index
+                \s*\)
+                ''', re.X)
+
     def delocalize_datestr(self, raw):
         if not self.months:
             return raw
@@ -172,6 +183,10 @@ class Worker(Thread): # Get details {{{
             self.log.exception('get_details failed for url: %r'%self.url)
 
     def get_details(self):
+        from calibre.utils.cleantext import clean_ascii_chars
+        from calibre.ebooks.chardet import xml_to_unicode
+        import html5lib
+
         try:
             raw = self.browser.open_novisit(self.url, timeout=self.timeout).read().strip()
         except Exception as e:
@@ -189,16 +204,16 @@ class Worker(Thread): # Get details {{{
                 self.log.exception(msg)
             return
 
+        oraw = raw
         raw = xml_to_unicode(raw, strip_encoding_pats=True,
                 resolve_entities=True)[0]
-        #open('/t/t.html', 'wb').write(raw)
-
         if '<title>404 - ' in raw:
             self.log.error('URL malformed: %r'%self.url)
             return
 
         try:
-            root = soupparser.fromstring(clean_ascii_chars(raw))
+            root = html5lib.parse(clean_ascii_chars(raw), treebuilder='lxml',
+                    namespaceHTMLElements=False)
         except:
             msg = 'Failed to parse amazon details page: %r'%self.url
             self.log.exception(msg)
@@ -207,18 +222,24 @@ class Worker(Thread): # Get details {{{
         errmsg = root.xpath('//*[@id="errorMessage"]')
         if errmsg:
             msg = 'Failed to parse amazon details page: %r'%self.url
-            msg += tostring(errmsg, method='text', encoding=unicode).strip()
+            msg += self.tostring(errmsg, method='text', encoding=unicode).strip()
             self.log.error(msg)
             return
 
-        self.parse_details(root)
+        self.parse_details(oraw, root)
 
-    def parse_details(self, root):
+    def parse_details(self, raw, root):
         try:
             asin = self.parse_asin(root)
         except:
             self.log.exception('Error parsing asin for url: %r'%self.url)
             asin = None
+        if self.testing:
+            import tempfile
+            with tempfile.NamedTemporaryFile(prefix=asin + '_',
+                    suffix='.html', delete=False) as f:
+                f.write(raw)
+            print ('Downloaded html for', asin, 'saved in', f.name)
 
         try:
             title = self.parse_title(root)
@@ -253,6 +274,15 @@ class Worker(Thread): # Get details {{{
             mi.comments = self.parse_comments(root)
         except:
             self.log.exception('Error parsing comments for url: %r'%self.url)
+
+        try:
+            series, series_index = self.parse_series(root)
+            if series:
+                mi.series, mi.series_index = series, series_index
+            elif self.testing:
+                mi.series, mi.series_index = 'Dummy series for testing', 1
+        except:
+            self.log.exception('Error parsing series for url: %r'%self.url)
 
         try:
             self.cover_url = self.parse_cover(root)
@@ -310,35 +340,35 @@ class Worker(Thread): # Get details {{{
             return l.get('href').rpartition('/')[-1]
 
     def parse_title(self, root):
-        tdiv = root.xpath('//h1[@class="parseasinTitle"]')[0]
+        tdiv = root.xpath('//h1[contains(@class, "parseasinTitle")]')[0]
         actual_title = tdiv.xpath('descendant::*[@id="btAsinTitle"]')
         if actual_title:
-            title = tostring(actual_title[0], encoding=unicode,
+            title = self.tostring(actual_title[0], encoding=unicode,
                     method='text').strip()
         else:
-            title = tostring(tdiv, encoding=unicode, method='text').strip()
+            title = self.tostring(tdiv, encoding=unicode, method='text').strip()
         return re.sub(r'[(\[].*[)\]]', '', title).strip()
 
     def parse_authors(self, root):
-        x = '//h1[@class="parseasinTitle"]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
+        x = '//h1[contains(@class, "parseasinTitle")]/following-sibling::span/*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]'
         aname = root.xpath(x)
         if not aname:
             aname = root.xpath('''
-            //h1[@class="parseasinTitle"]/following-sibling::*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]
+            //h1[contains(@class, "parseasinTitle")]/following-sibling::*[(name()="a" and @href) or (name()="span" and @class="contributorNameTrigger")]
                     ''')
         for x in aname:
             x.tail = ''
-        authors = [tostring(x, encoding=unicode, method='text').strip() for x
+        authors = [self.tostring(x, encoding=unicode, method='text').strip() for x
                 in aname]
         authors = [a for a in authors if a]
         return authors
 
     def parse_rating(self, root):
-        ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[@class="asinReviewsSummary"]')
+        ratings = root.xpath('//div[@class="jumpBar"]/descendant::span[contains(@class,"asinReviewsSummary")]')
         if not ratings:
-            ratings = root.xpath('//div[@class="buying"]/descendant::span[@class="asinReviewsSummary"]')
+            ratings = root.xpath('//div[@class="buying"]/descendant::span[contains(@class,"asinReviewsSummary")]')
         if not ratings:
-            ratings = root.xpath('//span[@class="crAvgStars"]/descendant::span[@class="asinReviewsSummary"]')
+            ratings = root.xpath('//span[@class="crAvgStars"]/descendant::span[contains(@class,"asinReviewsSummary")]')
         if ratings:
             for elem in ratings[0].xpath('descendant::*[@title]'):
                 t = elem.get('title').strip()
@@ -346,31 +376,60 @@ class Worker(Thread): # Get details {{{
                 if m is not None:
                     return float(m.group(1))/float(m.group(3)) * 5
 
+    def _render_comments(self, desc):
+        from calibre.library.comments import sanitize_comments_html
+
+        for c in desc.xpath('descendant::noscript'):
+            c.getparent().remove(c)
+        for c in desc.xpath('descendant::*[@class="seeAll" or'
+                ' @class="emptyClear" or @id="collapsePS" or'
+                ' @id="expandPS"]'):
+            c.getparent().remove(c)
+
+        for a in desc.xpath('descendant::a[@href]'):
+            del a.attrib['href']
+            a.tag = 'span'
+        desc = self.tostring(desc, method='html', encoding=unicode).strip()
+
+        # Encoding bug in Amazon data U+fffd (replacement char)
+        # in some examples it is present in place of '
+        desc = desc.replace('\ufffd', "'")
+        # remove all attributes from tags
+        desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
+        # Collapse whitespace
+        #desc = re.sub('\n+', '\n', desc)
+        #desc = re.sub(' +', ' ', desc)
+        # Remove the notice about text referring to out of print editions
+        desc = re.sub(r'(?s)<em>--This text ref.*?</em>', '', desc)
+        # Remove comments
+        desc = re.sub(r'(?s)<!--.*?-->', '', desc)
+        return sanitize_comments_html(desc)
+
+
     def parse_comments(self, root):
+        ans = ''
+        desc = root.xpath('//div[@id="ps-content"]/div[@class="content"]')
+        if desc:
+            ans = self._render_comments(desc[0])
+
         desc = root.xpath('//div[@id="productDescription"]/*[@class="content"]')
         if desc:
-            desc = desc[0]
-            for c in desc.xpath('descendant::*[@class="seeAll" or'
-                    ' @class="emptyClear"]'):
-                c.getparent().remove(c)
-            for a in desc.xpath('descendant::a[@href]'):
-                del a.attrib['href']
-                a.tag = 'span'
-            desc = tostring(desc, method='html', encoding=unicode).strip()
+            ans += self._render_comments(desc[0])
+        return ans
 
-            # Encoding bug in Amazon data U+fffd (replacement char)
-            # in some examples it is present in place of '
-            desc = desc.replace('\ufffd', "'")
-            # remove all attributes from tags
-            desc = re.sub(r'<([a-zA-Z0-9]+)\s[^>]+>', r'<\1>', desc)
-            # Collapse whitespace
-            #desc = re.sub('\n+', '\n', desc)
-            #desc = re.sub(' +', ' ', desc)
-            # Remove the notice about text referring to out of print editions
-            desc = re.sub(r'(?s)<em>--This text ref.*?</em>', '', desc)
-            # Remove comments
-            desc = re.sub(r'(?s)<!--.*?-->', '', desc)
-            return sanitize_comments_html(desc)
+    def parse_series(self, root):
+        ans = (None, None)
+        desc = root.xpath('//div[@id="ps-content"]/div[@class="buying"]')
+        if desc:
+            raw = self.tostring(desc[0], method='text', encoding=unicode)
+            raw = re.sub(r'\s+', ' ', raw)
+            match = self.series_pat.search(raw)
+            if match is not None:
+                s, i = match.group('series'), float(match.group('index'))
+                if s:
+                    ans = (s, i)
+        return ans
+
 
     def parse_cover(self, root):
         imgs = root.xpath('//img[@id="prodImage" and @src]')
@@ -431,7 +490,7 @@ class Amazon(Source):
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset(['title', 'authors', 'identifier:amazon',
         'identifier:isbn', 'rating', 'comments', 'publisher', 'pubdate',
-        'languages'])
+        'languages', 'series'])
     has_html_comments = True
     supports_gzip_transfer_encoding = True
 
@@ -454,6 +513,28 @@ class Amazon(Source):
     def __init__(self, *args, **kwargs):
         Source.__init__(self, *args, **kwargs)
         self.set_amazon_id_touched_fields()
+
+    def test_fields(self, mi):
+        '''
+        Return the first field from self.touched_fields that is null on the
+        mi object
+        '''
+        for key in self.touched_fields:
+            if key.startswith('identifier:'):
+                key = key.partition(':')[-1]
+                if key == 'amazon':
+                    if self.domain != 'com':
+                        key += '_' + self.domain
+                if not mi.has_identifier(key):
+                    return 'identifier: ' + key
+            elif mi.is_null(key):
+                return key
+
+    @property
+    def user_agent(self):
+        # Pass in an index to random_user_agent() to test with a particular
+        # user agent
+        return random_user_agent()
 
     def save_settings(self, *args, **kwargs):
         Source.save_settings(self, *args, **kwargs)
@@ -495,11 +576,23 @@ class Amazon(Source):
 
     @property
     def domain(self):
+        x = getattr(self, 'testing_domain', None)
+        if x is not None:
+            return x
         domain = self.prefs['domain']
         if domain not in self.AMAZON_DOMAINS:
             domain = 'com'
 
         return domain
+
+    def clean_downloaded_metadata(self, mi):
+        if mi.title and self.domain in ('com', 'uk'):
+            mi.title = fixcase(mi.title)
+        mi.authors = fixauthors(mi.authors)
+        if self.domain in ('com', 'uk'):
+            mi.tags = list(map(fixcase, mi.tags))
+        mi.isbn = check_isbn(mi.isbn)
+
 
     def create_query(self, log, title=None, authors=None, identifiers={}, # {{{
             domain=None):
@@ -578,18 +671,63 @@ class Amazon(Source):
         return url
     # }}}
 
+    def parse_results_page(self, root): # {{{
+        from lxml.html import tostring
+
+        matches = []
+
+        def title_ok(title):
+            title = title.lower()
+            for x in ('bulk pack', '[audiobook]', '[audio cd]'):
+                if x in title:
+                    return False
+            return True
+
+        for div in root.xpath(r'//div[starts-with(@id, "result_")]'):
+            for a in div.xpath(r'descendant::a[@class="title" and @href]'):
+                title = tostring(a, method='text', encoding=unicode)
+                if title_ok(title):
+                    matches.append(a.get('href'))
+                break
+
+        if not matches:
+            # This can happen for some user agents that Amazon thinks are
+            # mobile/less capable
+            for td in root.xpath(
+                r'//div[@id="Results"]/descendant::td[starts-with(@id, "search:Td:")]'):
+                for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
+                    title = tostring(a, method='text', encoding=unicode)
+                    if title_ok(title):
+                        matches.append(a.get('href'))
+                    break
+
+
+        # Keep only the top 5 matches as the matches are sorted by relevance by
+        # Amazon so lower matches are not likely to be very relevant
+        return matches[:5]
+    # }}}
+
     def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
             identifiers={}, timeout=30):
         '''
         Note this method will retry without identifiers automatically if no
         match is found with identifiers.
         '''
+        from calibre.utils.cleantext import clean_ascii_chars
+        from calibre.ebooks.chardet import xml_to_unicode
+        from lxml.html import tostring
+        import html5lib
+
+        testing = getattr(self, 'running_a_test', False)
+
         query, domain = self.create_query(log, title=title, authors=authors,
                 identifiers=identifiers)
         if query is None:
             log.error('Insufficient metadata to construct query')
             return
         br = self.browser
+        if testing:
+            print ('Using user agent for amazon: %s'%self.user_agent)
         try:
             raw = br.open_novisit(query, timeout=timeout).read().strip()
         except Exception as e:
@@ -608,15 +746,23 @@ class Amazon(Source):
             return as_unicode(msg)
 
 
-        raw = xml_to_unicode(raw, strip_encoding_pats=True,
-                resolve_entities=True)[0]
+        raw = clean_ascii_chars(xml_to_unicode(raw,
+            strip_encoding_pats=True, resolve_entities=True)[0])
+
+        if testing:
+            import tempfile
+            with tempfile.NamedTemporaryFile(prefix='amazon_results_',
+                    suffix='.html', delete=False) as f:
+                f.write(raw.encode('utf-8'))
+            print ('Downloaded html for results page saved in', f.name)
 
         matches = []
         found = '<title>404 - ' not in raw
 
         if found:
             try:
-                root = soupparser.fromstring(clean_ascii_chars(raw))
+                root = html5lib.parse(raw, treebuilder='lxml',
+                        namespaceHTMLElements=False)
             except:
                 msg = 'Failed to parse amazon page for query: %r'%query
                 log.exception(msg)
@@ -629,30 +775,9 @@ class Amazon(Source):
                     # The error is almost always a not found error
                     found = False
 
+
         if found:
-            for div in root.xpath(r'//div[starts-with(@id, "result_")]'):
-                for a in div.xpath(r'descendant::a[@class="title" and @href]'):
-                    title = tostring(a, method='text', encoding=unicode).lower()
-                    if 'bulk pack' not in title:
-                        matches.append(a.get('href'))
-                    break
-            if not matches:
-                # This can happen for some user agents that Amazon thinks are
-                # mobile/less capable
-                log('Trying alternate results page markup')
-                for td in root.xpath(
-                    r'//div[@id="Results"]/descendant::td[starts-with(@id, "search:Td:")]'):
-                    for a in td.xpath(r'descendant::td[@class="dataColumn"]/descendant::a[@href]/span[@class="srTitle"]/..'):
-                        title = tostring(a, method='text', encoding=unicode).lower()
-                        if ('bulk pack' not in title and '[audiobook]' not in
-                                title and '[audio cd]' not in title):
-                            matches.append(a.get('href'))
-                        break
-
-
-        # Keep only the top 5 matches as the matches are sorted by relevance by
-        # Amazon so lower matches are not likely to be very relevant
-        matches = matches[:5]
+            matches = self.parse_results_page(root)
 
         if abort.is_set():
             return
@@ -660,14 +785,14 @@ class Amazon(Source):
         if not matches:
             if identifiers and title and authors:
                 log('No matches found with identifiers, retrying using only'
-                        ' title and authors')
+                        ' title and authors. Query: %r'%query)
                 return self.identify(log, result_queue, abort, title=title,
                         authors=authors, timeout=timeout)
             log.error('No matches found with query: %r'%query)
             return
 
-        workers = [Worker(url, result_queue, br, log, i, domain, self) for i, url in
-                enumerate(matches)]
+        workers = [Worker(url, result_queue, br, log, i, domain, self,
+                            testing=testing) for i, url in enumerate(matches)]
 
         for w in workers:
             w.start()
@@ -729,32 +854,39 @@ if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            isbn_test, title_test, authors_test)
+            isbn_test, title_test, authors_test, comments_test, series_test)
     com_tests = [ # {{{
+
+            ( # Series
+                {'identifiers':{'amazon':'0756407117'}},
+                [title_test(
+                "Throne of the Crescent Moon"
+                , exact=True), series_test('Crescent Moon Kingdoms', 1),
+                comments_test('Makhslood'),
+                ]
+            ),
+
+            ( # Different comments markup, using Book Description section
+                {'identifiers':{'amazon':'0982514506'}},
+                [title_test(
+                "Griffin's Destiny: Book Three: The Griffin's Daughter Trilogy"
+                , exact=True),
+                comments_test('Jelena'), comments_test('Leslie'),
+                ]
+            ),
+
+            ( # # in title
+                {'title':'Expert C# 2008 Business Objects',
+                    'authors':['Lhotka']},
+                [title_test('Expert C# 2008 Business Objects', exact=True),
+                    authors_test(['Rockford Lhotka'])
+                    ]
+            ),
 
             (  # Description has links
                 {'identifiers':{'isbn': '9780671578275'}},
                 [title_test('A Civil Campaign: A Comedy of Biology and Manners',
                     exact=True), authors_test(['Lois McMaster Bujold'])
-                 ]
-
-            ),
-
-            ( # An e-book ISBN not on Amazon, the title/author search matches
-              # the Kindle edition, which has different markup for ratings and
-              # isbn
-                {'identifiers':{'isbn': '9780307459671'},
-                    'title':'Invisible Gorilla', 'authors':['Christopher Chabris']},
-                [title_test('The Invisible Gorilla: And Other Ways Our Intuitions Deceive Us',
-                    exact=True), authors_test(['Christopher Chabris', 'Daniel Simons'])]
-
-            ),
-
-            (  # This isbn not on amazon
-                {'identifiers':{'isbn': '8324616489'}, 'title':'Learning Python',
-                    'authors':['Lutz']},
-                [title_test('Learning Python, 3rd Edition',
-                    exact=True), authors_test(['Mark Lutz'])
                  ]
 
             ),
@@ -783,7 +915,7 @@ if __name__ == '__main__': # tests {{{
     de_tests = [ # {{{
             (
                 {'identifiers':{'isbn': '3548283519'}},
-                [title_test('Wer Wind sät',
+                [title_test('Wer Wind Sät: Der Fünfte Fall Für Bodenstein Und Kirchhoff',
                     exact=True), authors_test(['Nele Neuhaus'])
                  ]
 
@@ -834,7 +966,17 @@ if __name__ == '__main__': # tests {{{
             ),
     ] # }}}
 
-    test_identify_plugin(Amazon.name, com_tests)
-    #test_identify_plugin(Amazon.name, es_tests)
+    def do_test(domain, start=0, stop=None):
+        tests = globals().get(domain+'_tests')
+        if stop is None:
+            stop = len(tests)
+        tests = tests[start:stop]
+        test_identify_plugin(Amazon.name, tests, modify_plugin=lambda
+                p:setattr(p, 'testing_domain', domain))
+
+    do_test('com')
+
+    #do_test('de')
+
 # }}}
 

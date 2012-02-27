@@ -50,7 +50,8 @@ class THEBOOK(N516):
     BCD = [0x399]
     MAIN_MEMORY_VOLUME_LABEL  = 'The Book Main Memory'
     EBOOK_DIR_MAIN = 'My books'
-    WINDOWS_CARD_A_MEM = '_FILE-STOR_GADGE'
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_FILE-STOR_GADGE',
+            'FILE-STOR_GADGET']
 
 class LIBREAIR(N516):
     name = 'Libre Air Driver'
@@ -60,7 +61,7 @@ class LIBREAIR(N516):
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf']
 
     BCD = [0x399]
-    VENDOR_NAME      = 'ALURATEK'
+    VENDOR_NAME      = ['ALURATEK', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
     EBOOK_DIR_MAIN = 'Books'
 
@@ -164,4 +165,21 @@ class EB511(USBMS):
 
     OSX_MAIN_MEM_VOL_PAT = re.compile(r'/eReader')
 
+class ODYSSEY(N516):
+    name  = 'Cybook Odyssey driver'
+    gui_name       = 'Odyssey'
+    description    = _('Communicate with the Cybook Odyssey eBook reader.')
+
+    BCD = [0x316]
+    VENDOR_NAME      = ['LINUX', 'BOOKEEN']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['FILE-STOR_GADGET', 'FLASH_DISK']
+
+    FORMATS     = ['epub', 'fb2', 'html', 'pdf', 'txt']
+
+    EBOOK_DIR_MAIN = 'Digital Editions'
+
+    def get_main_ebook_dir(self, for_upload=False):
+        if for_upload:
+            return self.EBOOK_DIR_MAIN
+        return ''
 

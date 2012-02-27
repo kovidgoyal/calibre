@@ -1066,7 +1066,7 @@ class ZipFile:
             member = self.getinfo(member)
 
         if path is None:
-            path = os.getcwd()
+            path = os.getcwdu()
 
         return self._extract_member(member, path, pwd)
 
@@ -1297,10 +1297,8 @@ class ZipFile:
         Add a directory recursively to the zip file with an optional prefix.
         '''
         if prefix:
-            zi = ZipInfo(prefix+'/')
-            zi.external_attr = 16
-            self.writestr(zi, '')
-        cwd = os.path.abspath(os.getcwd())
+            self.writestr(prefix+'/', '', 0755)
+        cwd = os.path.abspath(os.getcwdu())
         try:
             os.chdir(path)
             fp = (prefix + ('/' if prefix else '')).replace('//', '/')

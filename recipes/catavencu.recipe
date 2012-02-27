@@ -4,16 +4,16 @@
 __license__   = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
 '''
-catavencu.ro
+academiacatavencu.info
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class Catavencu(BasicNewsRecipe):
+class AcademiaCatavencu(BasicNewsRecipe):
     title                 = u'Academia Ca\u0163avencu'
     __author__            = u'Silviu Cotoar\u0103'
     description           = 'Tagma cum laude'
-    publisher             = 'Catavencu'
+    publisher             = u'Ca\u0163avencu'
     oldest_article        = 5
     language              = 'ro'
     max_articles_per_feed = 100
@@ -21,32 +21,31 @@ class Catavencu(BasicNewsRecipe):
     use_embedded_content  = False
     category              = 'Ziare'
     encoding              = 'utf-8'
-    cover_url         = 'http://upload.wikimedia.org/wikipedia/en/1/1e/Academia_Catavencu.jpg'
+    cover_url         = 'http://www.academiacatavencu.info/images/logo.png'
 
     conversion_options = {
                              'comments'   : description
                             ,'tags'       : category
                             ,'language'   : language
-                ,'publisher'  : publisher
+							,'publisher'  : publisher
                          }
 
     keep_only_tags = [
-            dict(name='ul', attrs={'class':'articles'})
+            dict(name='h1', attrs={'class':'art_title'}),
+			dict(name='div', attrs={'class':'art_text'})
                      ]
 
     remove_tags = [
-             dict(name='div', attrs={'class':['tools']})
-           , dict(name='div', attrs={'class':['share']})
-           , dict(name='div', attrs={'class':['category']})
-           , dict(name='div', attrs={'id':['comments']})
+             dict(name='div', attrs={'class':['desp_m']})
+           , dict(name='div', attrs={'id':['tags']})          
                   ]
 
     remove_tags_after = [
-              dict(name='div', attrs={'id':'comments'})
+              dict(name='div', attrs={'class':['desp_m']})
             ]
 
     feeds          = [
-            (u'Feeds', u'http://catavencu.ro/feed/rss')
+            (u'Feeds', u'http://www.academiacatavencu.info/rss.xml')
                  ]
 
     def preprocess_html(self, soup):

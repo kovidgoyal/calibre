@@ -34,7 +34,7 @@
     <widget class="QComboBox" name="language"/>
    </item>
    <item row="2" column="0" colspan="3">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="libloc_label1">
      <property name="text">
       <string>&lt;p&gt;Choose a location for your books. When you add books to calibre, they will be copied here. Use an &lt;b&gt;empty folder&lt;/b&gt; for a new calibre library:</string>
      </property>
@@ -58,7 +58,7 @@
     </widget>
    </item>
    <item row="4" column="0" colspan="3">
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="libloc_label2">
      <property name="text">
       <string>If you have an existing calibre library, it will be copied to the new location. If a calibre library already exists at the new location, calibre will switch to using it.</string>
      </property>

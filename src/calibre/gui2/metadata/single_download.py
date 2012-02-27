@@ -27,8 +27,9 @@ from calibre.utils.logging import GUILog as Log
 from calibre.ebooks.metadata.sources.identify import (identify,
         urls_from_identifiers)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.gui2 import error_dialog, NONE
-from calibre.utils.date import utcnow, fromordinal, format_date
+from calibre.gui2 import error_dialog, NONE, rating_font
+from calibre.utils.date import (utcnow, fromordinal, format_date,
+        UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
 # }}}
@@ -201,7 +202,12 @@ class ResultsModel(QAbstractTableModel): # {{{
         elif col == 1:
             key = attrgetter('title')
         elif col == 2:
-            key = attrgetter('pubdate')
+            def dategetter(x):
+                x = getattr(x, 'pubdate', None)
+                if x is None:
+                    x = UNDEFINED_DATE
+                return as_utc(x)
+            key = dategetter
         elif col == 3:
             key = attrgetter('has_cached_cover_url')
         elif key == 4:
@@ -248,6 +254,7 @@ class ResultsView(QTableView): # {{{
         return ret
 
     def show_details(self, index):
+        f = rating_font()
         book = self.model().data(index, Qt.UserRole)
         parts = [
             '<center>',
@@ -259,7 +266,8 @@ class ResultsView(QTableView): # {{{
             if series[1]:
                 parts.append('<div>%s: %s</div>'%series)
         if not book.is_null('rating'):
-            parts.append('<div>%s</div>'%('\u2605'*int(book.rating)))
+            style = 'style=\'font-family:"%s"\''%f
+            parts.append('<div %s>%s</div>'%(style, '\u2605'*int(book.rating)))
         parts.append('</center>')
         if book.identifiers:
             urls = urls_from_identifiers(book.identifiers)
@@ -317,14 +325,19 @@ class Comments(QWebView): # {{{
                     ans = unicode(col.name())
             return ans
 
-        f = QFontInfo(QApplication.font(self.parent())).pixelSize()
+        fi = QFontInfo(QApplication.font(self.parent()))
+        f = fi.pixelSize()+1
+        fam = unicode(fi.family()).strip().replace('"', '')
+        if not fam:
+            fam = 'sans-serif'
+
         c = color_to_string(QApplication.palette().color(QPalette.Normal,
                         QPalette.WindowText))
         templ = '''\
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: transparent; font-size: %dpx; color: %s }
+                body, td {background-color: transparent; font-family: %s; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
                 div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
                 table { margin-bottom: 0; padding-bottom: 0; }
@@ -336,7 +349,7 @@ class Comments(QWebView): # {{{
             </div>
             </body>
         <html>
-        '''%(f, c)
+        '''%(fam, f, c)
         self.setHtml(templ%html)
 # }}}
 
@@ -538,13 +551,19 @@ class CoversModel(QAbstractListModel): # {{{
             current_cover = QPixmap(I('default_cover.png'))
 
         self.blank = QPixmap(I('blank.png')).scaled(150, 200)
+        self.cc = current_cover
+        self.reset_covers(do_reset=False)
 
-        self.covers = [self.get_item(_('Current cover'), current_cover)]
+    def reset_covers(self, do_reset=True):
+        self.covers = [self.get_item(_('Current cover'), self.cc)]
         self.plugin_map = {}
         for i, plugin in enumerate(metadata_plugins(['cover'])):
             self.covers.append((plugin.name+'\n'+_('Searching...'),
                 QVariant(self.blank), None, True))
             self.plugin_map[plugin] = i+1
+
+        if do_reset:
+            self.reset()
 
     def get_item(self, src, pmap, waiting=False):
         sz = '%dx%d'%(pmap.width(), pmap.height())
@@ -580,7 +599,6 @@ class CoversModel(QAbstractListModel): # {{{
         if pmap is None:
             return 1
         return pmap.width()*pmap.height()
-
 
     def clear_failed(self):
         good = []
@@ -654,6 +672,9 @@ class CoversView(QListView): # {{{
         self.select(0)
         self.delegate.start_animation()
 
+    def reset_covers(self):
+        self.m.reset_covers()
+
     def clear_failed(self):
         plugin = self.m.plugin_for_index(self.currentIndex())
         self.m.clear_failed()
@@ -683,12 +704,18 @@ class CoversWidget(QWidget): # {{{
         l.addWidget(self.covers_view, 1, 0)
         self.continue_processing = True
 
+    def reset_covers(self):
+        self.covers_view.reset_covers()
+
     def start(self, book, current_cover, title, authors):
+        self.continue_processing = True
+        self.abort.clear()
         self.book, self.current_cover = book, current_cover
         self.title, self.authors = title, authors
         self.log('Starting cover download for:', book.title)
         self.log('Query:', title, authors, self.book.identifiers)
-        self.msg.setText('<p>'+_('Downloading covers for <b>%s</b>, please wait...')%book.title)
+        self.msg.setText('<p>'+
+            _('Downloading covers for <b>%s</b>, please wait...')%book.title)
         self.covers_view.start()
 
         self.worker = CoverWorker(self.log, self.abort, self.title,
@@ -714,7 +741,8 @@ class CoversWidget(QWidget): # {{{
             except Empty:
                 break
 
-        self.covers_view.clear_failed()
+        if self.continue_processing:
+            self.covers_view.clear_failed()
 
         if self.worker.error is not None:
             error_dialog(self, _('Download failed'),
@@ -726,8 +754,9 @@ class CoversWidget(QWidget): # {{{
         if num < 2:
             txt = _('Could not find any covers for <b>%s</b>')%self.book.title
         else:
-            txt = _('Found <b>%(num)d</b> covers of %(title)s. Pick the one you like'
-                    ' best.')%dict(num=num-1, title=self.title)
+            txt = _('Found <b>%(num)d</b> covers of %(title)s. '
+                    'Pick the one you like best.')%dict(num=num-1,
+                            title=self.title)
         self.msg.setText(txt)
 
         self.finished.emit()
@@ -743,7 +772,7 @@ class CoversWidget(QWidget): # {{{
         self.continue_processing = False
 
     def cancel(self):
-        self.continue_processing = False
+        self.cleanup()
         self.abort.set()
 
     def cover_pixmap(self):
@@ -832,10 +861,14 @@ class FullFetch(QDialog): # {{{
         self.next_button.clicked.connect(self.next_clicked)
         self.ok_button = self.bb.button(self.bb.Ok)
         self.ok_button.clicked.connect(self.ok_clicked)
+        self.prev_button = self.bb.addButton(_('Back'), self.bb.ActionRole)
+        self.prev_button.setIcon(QIcon(I('back.png')))
+        self.prev_button.clicked.connect(self.back_clicked)
         self.log_button = self.bb.addButton(_('View log'), self.bb.ActionRole)
         self.log_button.clicked.connect(self.view_log)
         self.log_button.setIcon(QIcon(I('debug.png')))
         self.ok_button.setVisible(False)
+        self.prev_button.setVisible(False)
 
         self.identify_widget = IdentifyWidget(self.log, self)
         self.identify_widget.rejected.connect(self.reject)
@@ -857,11 +890,20 @@ class FullFetch(QDialog): # {{{
     def book_selected(self, book):
         self.next_button.setVisible(False)
         self.ok_button.setVisible(True)
+        self.prev_button.setVisible(True)
         self.book = book
         self.stack.setCurrentIndex(1)
         self.log('\n\n')
         self.covers_widget.start(book, self.current_cover,
                 self.title, self.authors)
+
+    def back_clicked(self):
+        self.next_button.setVisible(True)
+        self.ok_button.setVisible(False)
+        self.prev_button.setVisible(False)
+        self.stack.setCurrentIndex(0)
+        self.covers_widget.cancel()
+        self.covers_widget.reset_covers()
 
     def accept(self):
         # Prevent the usual dialog accept mechanisms from working

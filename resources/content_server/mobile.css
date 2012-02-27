@@ -14,7 +14,7 @@
 
 .button a, .button:visited a {
     padding: 0.5em;
-    font-size: 1.25em;
+    font-size: larger;
     border: 1px solid black;
     text-color: black;
     text-decoration: none;

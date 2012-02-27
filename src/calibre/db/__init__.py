@@ -66,4 +66,6 @@ Various things that require other things before they can be migrated:
                     functionality.
     2. Catching DatabaseException and sqlite.Error when creating new
     libraries/switching/on calibre startup.
+    3. From refresh in the legacy interface: Rember to flush the composite
+    column template cache.
 '''

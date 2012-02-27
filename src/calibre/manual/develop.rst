@@ -65,7 +65,8 @@ to the latest code, use the command::
 
     bzr merge
 
-You can also download the source code as a tarball (archive) from `here <http://status.calibre-ebook.com/dist/src>`_.
+The calibre repository is huge so the branch operation above takes along time (about an hour). If you want to get the code faster, the sourcecode for the latest release is always available as an
+`archive <http://status.calibre-ebook.com/dist/src>`_.
 
 Submitting your changes to be included
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -136,7 +137,7 @@ the previously checked out |app| code directory, for example::
 
     cd /Users/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub-directories. Ensure you have installed the |app| commandline tools via :guilabel:Preferences->Advanced->Miscellaneous in the |app| GUI.
+calibre is the directory that contains the src and resources sub-directories. Ensure you have installed the |app| commandline tools via :guilabel:`Preferences->Advanced->Miscellaneous` in the |app| GUI.
 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
 So, following the example above, it would be ``/Users/kovid/work/calibre/src``. Apple 

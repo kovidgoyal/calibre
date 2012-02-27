@@ -104,7 +104,7 @@ class CoverManager(object):
             img_data = calibre_cover(title, authors_to_string(authors),
                     series_string=series_string)
             id, href = self.oeb.manifest.generate('cover',
-                    'cover_image.jpg')
+                    u'cover_image.jpg')
             item = self.oeb.manifest.add(id, href, guess_type('t.jpg')[0],
                         data=img_data)
             m.clear('cover')
@@ -154,7 +154,7 @@ class CoverManager(object):
                 templ = self.non_svg_template if self.no_svg_cover \
                         else self.svg_template
                 tp = templ%unquote(href)
-                id, href = m.generate('titlepage', 'titlepage.xhtml')
+                id, href = m.generate('titlepage', u'titlepage.xhtml')
                 item = m.add(id, href, guess_type('t.xhtml')[0],
                         data=etree.fromstring(tp))
         else:

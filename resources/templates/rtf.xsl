@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
     xmlns:rtf="http://rtf2xml.sourceforge.net/"
     xmlns:c="calibre"
     extension-element-prefixes="c"
@@ -63,11 +63,16 @@
     </xsl:template>
 
     <xsl:template name = "para">
-        <xsl:if test = "normalize-space(.) or child::*">
-            <xsl:element name = "p">
-                <xsl:call-template name = "para-content"/>
-            </xsl:element>
-        </xsl:if>
+        <xsl:element name = "p">
+            <xsl:choose>
+                <xsl:when test = "normalize-space(.) or child::*">
+                    <xsl:call-template name = "para-content"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:text>&#160;</xsl:text>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:element>
     </xsl:template>
 
     <xsl:template name = "para_off">
@@ -149,7 +154,7 @@
     <xsl:template match="rtf:doc-information" mode="header">
           <link rel="stylesheet" type="text/css" href="styles.css"/>
           <xsl:if test="not(rtf:title)">
-              <title>unamed</title>
+              <title>unnamed</title>
           </xsl:if>
         <xsl:apply-templates/>
     </xsl:template>
@@ -445,7 +450,10 @@
 
     <xsl:template match = "rtf:field[@type='hyperlink']">
         <xsl:element name ="a">
-            <xsl:attribute name = "href"><xsl:if test="not(contains(@link, '/'))">#</xsl:if><xsl:value-of select = "@link"/></xsl:attribute>
+            <xsl:attribute name = "href">
+                <xsl:if test = "not(contains(@link, '/'))">#</xsl:if>
+                <xsl:value-of select = "@link"/>
+            </xsl:attribute>
             <xsl:apply-templates/>
         </xsl:element>
     </xsl:template>

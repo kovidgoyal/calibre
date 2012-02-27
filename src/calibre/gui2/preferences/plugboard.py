@@ -21,6 +21,7 @@ from calibre.library.save_to_disk import plugboard_any_format_value, \
                     find_plugboard
 from calibre.library.server.content import plugboard_content_server_value, \
                                         plugboard_content_server_formats
+from calibre.gui2.email import plugboard_email_value, plugboard_email_formats
 from calibre.utils.formatter import validation_formatter
 
 
@@ -58,7 +59,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.device_to_formats_map = {}
         for device in device_plugins():
             n = device_name_for_plugboards(device)
-            self.device_to_formats_map[n] = set(device.FORMATS)
+            self.device_to_formats_map[n] = set(device.settings().format_map)
             if getattr(device, 'CAN_DO_DEVICE_DB_PLUGBOARD', False):
                 self.device_to_formats_map[n].add('device_db')
             if n not in self.devices:
@@ -68,6 +69,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.devices.insert(1, plugboard_content_server_value)
         self.device_to_formats_map[plugboard_content_server_value] = \
                         plugboard_content_server_formats
+        self.devices.insert(1, plugboard_email_value)
+        self.device_to_formats_map[plugboard_email_value] = \
+                        plugboard_email_formats
         self.devices.insert(1, plugboard_any_device_value)
         self.new_device.addItems(self.devices)
 
@@ -321,8 +325,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.clear_fields(new_boxes=True)
         self.edit_format.clear()
         self.edit_format.addItem('')
-        for format in self.current_plugboards:
-            self.edit_format.addItem(format)
+        for format_ in self.current_plugboards:
+            self.edit_format.addItem(format_)
         self.edit_format.setCurrentIndex(0)
         self.edit_device.clear()
         self.ok_button.setEnabled(False)

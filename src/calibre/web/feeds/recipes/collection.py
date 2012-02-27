@@ -13,7 +13,7 @@ from datetime import timedelta
 from lxml import etree
 from lxml.builder import ElementMaker
 
-from calibre import browser
+from calibre import browser, force_unicode
 from calibre.utils.date import parse_date, now as nowf, utcnow, tzlocal, \
         isoformat, fromordinal
 
@@ -21,8 +21,7 @@ NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
 
 def iterate_over_builtin_recipe_files():
-    exclude = ['craigslist', 'iht', 'toronto_sun',
-            'livemint']
+    exclude = ['craigslist', 'toronto_sun']
     d = os.path.dirname
     base = os.path.join(d(d(d(d(d(d(os.path.abspath(__file__))))))), 'recipes')
     for f in os.listdir(base):
@@ -66,8 +65,9 @@ def serialize_collection(mapping_of_recipe_classes):
             x.title.decode('ascii')
     '''
     for urn in sorted(mapping_of_recipe_classes.keys(),
-            key=lambda key: getattr(mapping_of_recipe_classes[key], 'title',
-                'zzz')):
+            key=lambda key: force_unicode(
+                getattr(mapping_of_recipe_classes[key], 'title', 'zzz'),
+                'utf-8')):
         recipe = serialize_recipe(urn, mapping_of_recipe_classes[urn])
         collection.append(recipe)
     collection.set('count', str(len(collection)))
@@ -78,7 +78,12 @@ def serialize_builtin_recipes():
     from calibre.web.feeds.recipes import compile_recipe
     recipe_mapping = {}
     for rid, f in iterate_over_builtin_recipe_files():
-        recipe_class = compile_recipe(open(f, 'rb').read())
+        with open(f, 'rb') as stream:
+            try:
+                recipe_class = compile_recipe(stream.read())
+            except:
+                print ('Failed to compile: %s'%f)
+                raise
         if recipe_class is not None:
             recipe_mapping['builtin:'+rid] = recipe_class
 

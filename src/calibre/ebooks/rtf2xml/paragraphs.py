@@ -10,8 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile
+import sys, os
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
+
 class Paragraphs:
     """
 =================
@@ -57,7 +59,7 @@ section. (How about the end of a section or the end of a field-block?)
         self.__copy = copy
         self.__write_empty_para = write_empty_para
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
     def __initiate_values(self):
         """
         Initiate all values.

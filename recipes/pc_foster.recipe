@@ -1,0 +1,35 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+class PC_Foster(BasicNewsRecipe):
+    title          = u'PC Foster'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    __author__        = 'fenuks'
+    description   = u'Vortal technologiczny: testy, recenzje sprzętu komputerowego i telefonów, nowinki hardware, programy i gry dla Windows. Podkręcanie, modding i Overclocking.'
+    category       = 'IT'
+    language       = 'pl'
+    masthead_url='http://pcfoster.pl/public/images/logo.png'
+    cover_url= 'http://pcfoster.pl/public/images/logo.png'
+    no_stylesheets= True
+    remove_empty_feeds= True
+    keep_only_tags= [dict(id=['news_details', 'review_details']), dict(attrs={'class':'pager more_top'})]
+    remove_tags=[dict(name='p', attrs={'class':'right'})]
+    feeds          = [(u'G\u0142\xf3wny', u'http://pcfoster.pl/public/rss/main.xml')]
+
+
+    def append_page(self, soup, appendtag):
+        nexturl= appendtag.find(attrs={'alt':u'Następna strona'})
+        if nexturl:
+            appendtag.find(attrs={'class':'pager more_top'}).extract()
+            while nexturl:
+                nexturl='http://pcfoster.pl' + nexturl.parent['href']
+                soup2 = self.index_to_soup(nexturl)
+                nexturl=soup2.find(attrs={'alt':u'Następna strona'})
+                pagetext = soup2.find(attrs={'class':'content'})
+                pos = len(appendtag.contents)
+                appendtag.insert(pos, pagetext)
+            for r in appendtag.findAll(attrs={'class':'review_content double'}):
+                r.extract()
+
+    def preprocess_html(self, soup):
+        self.append_page(soup, soup.body)
+        return soup

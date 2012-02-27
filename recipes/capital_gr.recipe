@@ -1,0 +1,35 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class Capital(BasicNewsRecipe):
+    title                  = 'Capital.gr'
+    __author__             ='Stelios'
+    description            = 'Financial News from Greece'
+    #max_articles_per_feed  = 100
+    oldest_article         = 3
+    publisher              = 'Capital.gr'
+    category               = 'news, GR'
+    language               = 'el'
+    encoding               = 'windows-1253'
+    cover_url             = 'http://files.capital.gr/images/caplogo.gif'
+    no_stylesheets         = True
+    use_embedded_content  = False
+    remove_empty_feeds    = True
+    keep_only_tags = [
+  dict(name='h1'),
+  dict(name='p'),
+  dict(name='span', attrs={'id' : ["textbody"]})
+                        ]
+
+#3 posts seemed to have utf8 encoding
+    feeds          = [
+                     (u'\u039F\u039B\u0395\u03A3 \u039F\u0399 \u0395\u0399\u0394\u0397\u03A3\u0395\u0399\u03A3', 'http://www.capital.gr/news/newsrss.asp?s=-1'),
+	(u'\u0395\u03A0\u0399\u03A7\u0395\u0399\u03A1\u0397\u03A3\u0395\u0399\u03A3', 'http://www.capital.gr/news/newsrss.asp?s=-2'),
+	(u'\u0391\u0393\u039F\u03A1\u0395\u03A3', 'http://www.capital.gr/news/newsrss.asp?s=-3'),
+	(u'\u039F\u0399\u039A\u039F\u039D\u039F\u039C\u0399\u0391', 'http://www.capital.gr/news/newsrss.asp?s=-4'),
+	(u'\u03A7\u03A1\u0397\u039C. \u0391\u039D\u0391\u039A\u039F\u0399\u039D\u03A9\u03A3\u0395\u0399\u03A3', 'http://www.capital.gr/news/newsrss.asp?s=-6'),
+	(u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u039C\u0395 \u0391\u03A0\u039F\u03A8\u0397', 'http://www.capital.gr/articles/articlesrss.asp?catid=4'),
+	(u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u03A3\u0399\u03A9\u03A0\u0397\u03A4\u0397\u03A1\u0399\u039F', 'http://www.capital.gr/articles/articlesrss.asp?catid=6'),
+	(u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u03A0\u0399\u03A3\u03A9 \u0391\u03A0\u039F \u03A4\u0399\u03A3 \u0393\u03A1\u0391\u039C\u039C\u0395\u03A3', 'http://www.capital.gr/articles/articlesrss.asp?catid=8'),
+	#(u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u03A4\u0395\u03A7\u039D\u039F\u039B\u039F\u0393\u0399\u0391', 'http://www.capital.gr/news/newsrss.asp?s=-8') not working for now
+]
+

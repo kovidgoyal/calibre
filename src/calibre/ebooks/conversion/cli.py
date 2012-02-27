@@ -68,8 +68,8 @@ def check_command_line_options(parser, args, log):
         raise SystemExit(1)
 
     output = args[2]
-    if output.startswith('.') and (output != '.' and not
-            output.startswith('..')):
+    if (output.startswith('.') and output[:2] not in {'..', '.'} and '/' not in
+            output and '\\' not in output):
         output = os.path.splitext(os.path.basename(input))[0]+output
     output = os.path.abspath(output)
 
@@ -134,14 +134,14 @@ def add_pipeline_options(parser, plumber):
                       'font_size_mapping',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
-                      'extra_css',
+                      'extra_css', 'filter_css',
                       'smarten_punctuation', 'unsmarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
                       'insert_blank_line', 'insert_blank_line_size',
                       'remove_paragraph_spacing',
                       'remove_paragraph_spacing_indent_size',
-                      'asciiize',
+                      'asciiize', 'keep_ligatures',
                   ]
                   ),
 

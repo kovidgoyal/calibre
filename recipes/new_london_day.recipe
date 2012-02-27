@@ -8,7 +8,7 @@ class AdvancedUserRecipe1294342201(BasicNewsRecipe):
     title          = u'New London Day'
     __author__  = 'Being'
     description = 'State, local and business news from New London, CT'
-    language = 'en_GB'
+    language = 'en'
     oldest_article = 1
     max_articles_per_feed = 200
 

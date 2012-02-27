@@ -29,9 +29,9 @@ C = ElementMaker(namespace=CALIBRE_NS, nsmap=NSMAP)
 
 class TOC(list):
 
-    def __init__(self, href=None, fragment=None, text=None, parent=None, play_order=0,
-                 base_path=os.getcwd(), type='unknown', author=None,
-                 description=None):
+    def __init__(self, href=None, fragment=None, text=None, parent=None,
+            play_order=0, base_path=os.getcwdu(), type='unknown', author=None,
+            description=None, toc_thumbnail=None):
         self.href = href
         self.fragment = fragment
         if not self.fragment:
@@ -43,6 +43,7 @@ class TOC(list):
         self.type = type
         self.author = author
         self.description = description
+        self.toc_thumbnail = toc_thumbnail
 
     def __str__(self):
         lines = ['TOC: %s#%s'%(self.href, self.fragment)]
@@ -72,12 +73,12 @@ class TOC(list):
         entry.parent = None
 
     def add_item(self, href, fragment, text, play_order=None, type='unknown',
-            author=None, description=None):
+            author=None, description=None, toc_thumbnail=None):
         if play_order is None:
             play_order = (self[-1].play_order if len(self) else self.play_order) + 1
         self.append(TOC(href=href, fragment=fragment, text=text, parent=self,
                         base_path=self.base_path, play_order=play_order,
-                        type=type, author=author, description=description))
+                        type=type, author=author, description=description, toc_thumbnail=toc_thumbnail))
         return self[-1]
 
     def top_level_items(self):
@@ -269,6 +270,9 @@ class TOC(list):
             if desc:
                 desc = re.sub(r'\s+', ' ', desc)
                 elem.append(C.meta(desc, name='description'))
+            idx = getattr(np, 'toc_thumbnail', None)
+            if idx:
+                elem.append(C.meta(idx, name='toc_thumbnail'))
             parent.append(elem)
             for np2 in np:
                 navpoint(elem, np2)

@@ -92,6 +92,7 @@ Q_OBJECT
 
   Q_PROPERTY(int currentSlide READ currentSlide WRITE setCurrentSlide)
   Q_PROPERTY(QSize slideSize READ slideSize WRITE setSlideSize)
+  Q_PROPERTY(QFont subtitleFont READ subtitleFont WRITE setSubtitleFont)
 
 public:
   /*!
@@ -119,6 +120,17 @@ public:
     instead use resize which automatically sets an appropriate slide size.
   */  
   void setSlideSize(QSize size);
+
+  /*!
+    Returns the font used to render subtitles
+  */  
+  QFont subtitleFont() const;
+
+  /*!
+    Sets the font used to render subtitles
+  */  
+  void setSubtitleFont(QFont font);
+
 
   /*!
     Clears any caches held to free up memory
