@@ -20,7 +20,7 @@ from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html
 from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
-        gprefs)
+        gprefs, rating_font)
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
@@ -116,6 +116,14 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 val = force_unicode(val)
                 ans.append((field,
                     u'<td class="comments" colspan="2">%s</td>'%comments_to_html(val)))
+        elif metadata['datatype'] == 'rating':
+            val = getattr(mi, field)
+            if val:
+                val = val/2.0
+                ans.append((field,
+                    u'<td class="title">%s</td><td class="rating" '
+                    'style=\'font-family:"%s"\'>%s</td>'%(
+                        name, rating_font(), u'\u2605'*int(val))))
         elif metadata['datatype'] == 'composite' and \
                             metadata['display'].get('contains_html', False):
             val = getattr(mi, field)
