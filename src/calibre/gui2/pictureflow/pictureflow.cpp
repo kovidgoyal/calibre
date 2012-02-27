@@ -687,6 +687,7 @@ void PictureFlowPrivate::render_text(QPainter *painter, int index) {
 
     // So that if there is no subtitle, the caption is not flush with the bottom
     if (brect2.height() < fontSize) brect2.setHeight(fontSize);
+    brect2.setHeight(brect2.height()+5); // A bit of buffer
 
     // So that the text does not occupy more than the lower half of the buffer
     if (brect.height() > ((int)(buffer.height()/3.0)) - fontSize*2)
