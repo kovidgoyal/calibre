@@ -1081,6 +1081,15 @@ class OPF(object): # {{{
         return elem
 
     def render(self, encoding='utf-8'):
+        for meta in self.raster_cover_path(self.metadata):
+            # Ensure that the name attribute occurs before the content
+            # attribute. Needed for Nooks.
+            a = meta.attrib
+            c = a.get('content', None)
+            if c is not None:
+                del a['content']
+                a['content'] = c
+
         self.write_user_metadata()
         raw = etree.tostring(self.root, encoding=encoding, pretty_print=True)
         if not raw.lstrip().startswith('<?xml '):
