@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2012-02-26 18:42+0000\n"
+"PO-Revision-Date: 2012-02-27 07:13+0000\n"
 "Last-Translator: Cédric VALMARY (Tot en òc) <cvalmary@yahoo.fr>\n"
 "Language-Team: Occitan (post 1500) <oc@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-02-27 04:50+0000\n"
-"X-Generator: Launchpad (build 14868)\n"
+"X-Launchpad-Export-Date: 2012-02-28 05:45+0000\n"
+"X-Generator: Launchpad (build 14874)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1558,76 +1558,76 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
-msgstr ""
+msgstr "Comunicar amb lo Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Comunicar amb lo Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Comunicar amb lo Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
 msgid "Communicate with the Pandigital Novel"
-msgstr ""
+msgstr "Comunicar amb lo Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:127
 msgid "Communicate with the VelocityMicro"
-msgstr ""
+msgstr "Comunicar amb lo VelocityMicro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:145
 msgid "Communicate with the GM2000"
-msgstr ""
+msgstr "Comunicar amb lo GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:165
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Comunicar amb l'Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:199
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Comunicar amb lo Aluratek Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:219
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Comunicar amb lo Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:242
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Comunicar amb lo lector EEE"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Comunicar amb la tableta adam"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Comunicar amb lo lector Nextbook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "Comunicar amb lo lector Moovybook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "Comunicar amb lo COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Comunicar amb lo Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Comunicar amb la tableta internet Nokia 770."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Comunicar amb la tableta internet Nokia 810/900."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr ""
+msgstr "Comunicar amb lo Nokia E52"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
@@ -1639,7 +1639,7 @@ msgstr "Comunica amb lo lector d'ebook Nook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Comunicar amb los lectors Nook Color, TSR et Tablet"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
@@ -1651,7 +1651,7 @@ msgstr "Comunica amb lo lector d'ebook Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Comunicar amb los lectors d'ebook Sony precedent lo PRST1"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1659,11 +1659,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid "All by title"
-msgstr ""
+msgstr "Totes per títol"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:67
 msgid "All by author"
-msgstr ""
+msgstr "Totes per autor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:68
@@ -1733,7 +1733,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:191
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:81
 msgid "Unnamed"
-msgstr ""
+msgstr "Sens nom"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:36
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
@@ -1771,39 +1771,39 @@ msgstr "Comunica amb lo lector d'eBook Samsung SNE."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:11
 msgid "Communicate with the Teclast K3/K5 reader."
-msgstr ""
+msgstr "Comunicar amb lo lector Teclast K3/K5"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:37
 msgid "Communicate with the Newsmy reader."
-msgstr ""
+msgstr "Comunicar amb lo lector Newsmy"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:48
 msgid "Communicate with the Archos reader."
-msgstr ""
+msgstr "Comunicar amb lo lector Archos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:58
 msgid "Communicate with the Pico reader."
-msgstr ""
+msgstr "Comunicar amb lo lector Pico."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:68
 msgid "Communicate with the iPapyrus reader."
-msgstr ""
+msgstr "Comunicar amb lo lector iPapyrus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:79
 msgid "Communicate with the Sovos reader."
-msgstr ""
+msgstr "Comunicar amb lo lector Sovos."
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:89
 msgid "Communicate with the Sunstech EB700 reader."
-msgstr ""
+msgstr "Comunicar amb lo lector Sunstech EB700"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:100
 msgid "Communicate with the Stash W950 reader."
-msgstr ""
+msgstr "Comunicar amb lo lector Stash W950"
 
 #: /home/kovid/work/calibre/src/calibre/devices/teclast/driver.py:112
 msgid "Communicate with the Wexler reader."
-msgstr ""
+msgstr "Comunicar amb lo lector Wexler."
 
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/device.py:285
 #, python-format
