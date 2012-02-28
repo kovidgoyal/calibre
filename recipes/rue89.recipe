@@ -6,8 +6,6 @@ Rue89
 
 __author__ = '2010-2012, Louis Gesbert <meta at antislash dot info>'
 
-import re
-from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Rue89(BasicNewsRecipe):

@@ -6,7 +6,6 @@ Mediapart
 
 __author__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>; 2010-2012, Louis Gesbert <meta at antislash dot info>'
 
-import re
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
