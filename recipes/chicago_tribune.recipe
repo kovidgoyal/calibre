@@ -85,6 +85,8 @@ class ChicagoTribune(BasicNewsRecipe):
                 re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
         except:
             pass
+        if ans is None:
+            ans = article.get('feedburner_origlink', article.get('guid', article.get('link')))
         if ans is not None:
             return ans.replace('?track=rss', '')
 
