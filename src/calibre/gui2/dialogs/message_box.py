@@ -172,7 +172,7 @@ class ProceedNotification(MessageBox): # {{{
         :param payload: Arbitrary object, passed to callback
         :param html_log: An HTML or plain text log
         :param log_viewer_title: The title for the log viewer window
-        :param title: The title fo rthis popup
+        :param title: The title for this popup
         :param msg: The msg to display
         :param det_msg: Detailed message
         '''
@@ -182,7 +182,6 @@ class ProceedNotification(MessageBox): # {{{
         self.payload = payload
         self.html_log = html_log
         self.log_viewer_title = log_viewer_title
-        self.finished.connect(self.do_proceed)
 
         self.vlb = self.bb.addButton(_('View log'), self.bb.ActionRole)
         self.vlb.setIcon(QIcon(I('debug.png')))
@@ -205,9 +204,13 @@ class ProceedNotification(MessageBox): # {{{
         # Ensure this notification is garbage collected
         self.callback = self.cancel_callback = self.payload = None
         self.setParent(None)
-        self.finished.disconnect()
         self.vlb.clicked.disconnect()
         _proceed_memory.remove(self)
+
+    def done(self, r):
+        self.do_proceed(r)
+        return MessageBox.done(self, r)
+
 # }}}
 
 class ErrorNotification(MessageBox): # {{{
