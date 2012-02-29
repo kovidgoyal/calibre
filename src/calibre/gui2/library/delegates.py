@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-
 from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
         QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument,
         QAbstractTextDocumentLayout, QFont)
@@ -28,6 +27,7 @@ class RatingDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, *args, **kwargs)
         self.rf = QFont(rating_font())
         self.em = Qt.ElideMiddle
+        self.rf.setPointSize(QApplication.font().pointSize())
 
     def createEditor(self, parent, option, index):
         sb = QStyledItemDelegate.createEditor(self, parent, option, index)
