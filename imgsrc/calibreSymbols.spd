@@ -35,7 +35,6 @@ HheadAscent: 0
 HheadAOffset: 1
 HheadDescent: 0
 HheadDOffset: 1
-OS2Vendor: 'PfEd'
 MarkAttachClasses: 1
 DEI: 91125
 Encoding: UnicodeFull
@@ -54,7 +53,7 @@ StartChar: uni2605
 Encoding: 9733 9733 0
 Width: 979
 VWidth: -26
-Flags: HW
+Flags: W
 LayerCount: 2
 Fore
 SplineSet
@@ -92,6 +91,7 @@ SplineSet
  485.545 635.457 493.518 604.173 506.689 547.357 c 2
  551.923 352.862 l 1
 EndSplineSet
+Validated: 524289
 EndChar
 
 StartChar: zero
