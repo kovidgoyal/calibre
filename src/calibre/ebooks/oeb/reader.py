@@ -318,15 +318,15 @@ class OEBReader(object):
                 continue
             item = manifest.ids[idref]
             spine.add(item, elem.get('linear'))
-        if len(spine) == 0:
-            raise OEBError("Spine is empty")
-        self._spine_add_extra()
         for item in spine:
             if item.media_type.lower() not in OEB_DOCS:
                 if not hasattr(item.data, 'xpath'):
                     self.oeb.log.warn('The item %s is not a XML document.'
                             ' Removing it from spine.'%item.href)
                     spine.remove(item)
+        if len(spine) == 0:
+            raise OEBError("Spine is empty")
+        self._spine_add_extra()
 
     def _guide_from_opf(self, opf):
         guide = self.oeb.guide
