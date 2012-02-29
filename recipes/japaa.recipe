@@ -1,3 +1,4 @@
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1330393641(BasicNewsRecipe):
@@ -7,6 +8,15 @@ class AdvancedUserRecipe1330393641(BasicNewsRecipe):
      oldest_article = 30
      max_articles_per_feed = 100
      auto_cleanup = True
+
+     def get_cover_url(self):
+         cover_url = None
+         soup = self.index_to_soup('http://www.jaapa.com')
+         cover_item = soup.find('img', src=re.compile(r'\w*?cover\w{1,22}\.jpg'))
+         if cover_item:
+             cover_url = cover_item['src']
+         return cover_url
+
      feeds          = [
              (u'CME Articles',
                  u'http://feeds.feedburner.com/jaapacmearticles'),
