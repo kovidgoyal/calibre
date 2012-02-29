@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2012-02-23 08:11+0000\n"
-"Last-Translator: Raymond Fürst <Unknown>\n"
+"PO-Revision-Date: 2012-02-28 13:35+0000\n"
+"Last-Translator: Daniel Dietrich <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-25 04:52+0000\n"
-"X-Generator: Launchpad (build 14860)\n"
+"X-Launchpad-Export-Date: 2012-02-29 04:40+0000\n"
+"X-Generator: Launchpad (build 14874)\n"
 "X-Poedit-Bookmarks: 3327,-1,-1,-1,-1,-1,-1,-1,-1,-1\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1541,7 +1541,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:311
 msgid "Custom column name to retrieve page counts from"
-msgstr ""
+msgstr "Benutzerdefinierte Spalte zum Abruf von Seitenzahlen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:313
 msgid ""
@@ -1550,6 +1550,10 @@ msgid ""
 "calculating a page count. Specify the name of the custom column here, for "
 "example, #pages. "
 msgstr ""
+"Wenn Sie in Ihrer Bibliothek eine benutzerdefinierte Spalte für die Anzahl "
+"der Seiten eines Buches haben, dann können Sie Calibre anweisen, Werte aus "
+"dieser Spalte zu nehmen anstatt die Anzahl der Seiten zu berechnen. Geben "
+"Sie hier den Namen der benutzerdefinierten Spalte ein (z.B. #Seiten). "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:415
 msgid "Communicate with the Kindle DX eBook reader."
@@ -2557,6 +2561,14 @@ msgid ""
 "\"Table of Contents\" settings (turn on \"Force use of auto-generated Table "
 "of Contents\")."
 msgstr ""
+"Bestimmen Sie eine Methode zur Bildung von Abschnitten. 'Keine' behandelt "
+"das ganze Buch als einen einzigen Abschnitt. 'Dateien' erstellt aus jeder "
+"Datei einen einzelnen Abschnitt; dies kann Probleme bei bestimmten Geräten "
+"vermeiden. 'Inhaltsverzeichnis' verwandelt jeden Eintrag im "
+"Inhaltsverzeichnis in einen eigenen Abschnitt mit Titel; falls dies nicht "
+"klappt, ändern Sie die Einstellungen zur 'Strukturerkennung' bzw. zum "
+"'Inhaltsverzeichnis' (aktivieren Sie 'Automatisches Inhaltsverzeichnis "
+"erzwingen')."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/fb2_output.py:157
 #, python-format
@@ -13748,6 +13760,22 @@ msgid ""
 "punctuation, case, etc.\n"
 "Author matching is exact."
 msgstr ""
+"Automatisches Zusammenführen: Wenn Bücher mit gleichem Titel und Autor "
+"gefunden wurden, werden\n"
+"importierte Formate automatisch in bereits bestehende Einträge "
+"zusammengeführt. Diese Einstellung bestimmt,\n"
+"was mit Einträgen passiert, die das importierte Format bereits enthalten: \n"
+"\n"
+"Eingefügte doppelte Datei ignorieren - bedeutet, dass existierende Dateien "
+"in der Calibre Bibliothek nicht ersetzt werden.\n"
+"Eingefügte doppelte Datei überschreiben - bedeutet, das existierende Dateien "
+"in der Calibre Bibliothek ersetzt werden\n"
+"Neuen Eintrag für doppelte Datei erstellen - bedeutet, dass ein neuer "
+"Eintrag erstellt wird\n"
+"\n"
+"Beim Vergleich der Titel werden führende Artikel (\"Ein\", \"Der\", "
+"\"Die\"), Satzzeichen, Groß-/Kleinschreibung usw. ignoriert.\n"
+"Beim Vergleich der Autoren muss beides exakt übereinstimmen."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/adding_ui.py:127
 msgid "&Tags to apply when adding a book:"
@@ -16924,12 +16952,12 @@ msgstr "Eine Benutzerkategorie %s existiert nicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:253
 msgid "Delete item"
-msgstr ""
+msgstr "Element löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:255
 #, python-format
 msgid "%s will be deleted from all books. Are you sure?"
-msgstr ""
+msgstr "%s wird aus allen Büchern gelöscht. Sind Sie sicher?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:333
 msgid "Find item in tag browser"
@@ -17025,7 +17053,7 @@ msgstr "%s umbenennen"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:355
 #, python-format
 msgid "Delete %s"
-msgstr ""
+msgstr "%s löschen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:359
 #, python-format
