@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
         QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument,
-        QAbstractTextDocumentLayout, QFont)
+        QAbstractTextDocumentLayout, QFont, QFontInfo)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.gui2.widgets import EnLineEdit
@@ -27,7 +27,7 @@ class RatingDelegate(QStyledItemDelegate): # {{{
         QStyledItemDelegate.__init__(self, *args, **kwargs)
         self.rf = QFont(rating_font())
         self.em = Qt.ElideMiddle
-        self.rf.setPointSize(QApplication.font().pointSize())
+        self.rf.setPointSize(QFontInfo(QApplication.font()).pointSize())
 
     def createEditor(self, parent, option, index):
         sb = QStyledItemDelegate.createEditor(self, parent, option, index)
