@@ -259,6 +259,7 @@ class JobError(QDialog): # {{{
 
     def __init__(self, gui):
         QDialog.__init__(self, gui)
+        self.setAttribute(Qt.WA_DeleteOnClose, False)
         self.gui = gui
         self.queue = []
 
