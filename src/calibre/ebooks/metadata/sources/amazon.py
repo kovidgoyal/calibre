@@ -466,7 +466,7 @@ class Worker(Thread): # Get details {{{
         for x in reversed(pd.xpath(self.publisher_xpath)):
             if x.tail:
                 ans = x.tail
-                date = ans.partition('(')[-1].replace(')', '').strip()
+                date = ans.rpartition('(')[-1].replace(')', '').strip()
                 date = self.delocalize_datestr(date)
                 return parse_date(date, assume_utc=True)
 
