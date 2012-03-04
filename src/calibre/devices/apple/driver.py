@@ -594,8 +594,9 @@ class ITUNES(DriverBase):
         iPad, as we have to return True if we can handle device interaction, or False if not.
 
         '''
+        import pythoncom
+
         if self.iTunes:
-            import pythoncom
             # We've previously run, so the user probably ejected the device
             try:
                 pythoncom.CoInitialize()
