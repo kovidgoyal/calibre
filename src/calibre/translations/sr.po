@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2012-03-01 09:20+0000\n"
+"PO-Revision-Date: 2012-03-04 16:05+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,12 +16,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-02 04:35+0000\n"
-"X-Generator: Launchpad (build 14886)\n"
+"X-Launchpad-Export-Date: 2012-03-05 04:41+0000\n"
+"X-Generator: Launchpad (build 14900)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "Ne radi baš ništa"
+msgstr "Не ради баш ништа"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
@@ -201,43 +201,43 @@ msgstr "Ne radi baš ništa"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:53
 msgid "Unknown"
-msgstr "Nepoznato"
+msgstr "Непознато"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "Osnova"
+msgstr "Основа"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:397
 msgid "Customize"
-msgstr "Podesi"
+msgstr "Прилагоди"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:57
 msgid "Cannot configure"
-msgstr "Ne mogu da podesim"
+msgstr "Није могуће подесити"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr "Vrsta fajla"
+msgstr "Врста датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr "Čitač metapodataka"
+msgstr "Читач мета података"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr "Pisač metapodataka"
+msgstr "Писар мета података"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "Generator kataloga"
+msgstr "Генератор каталога"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
-msgstr "Akcije korisničkog interfejsa"
+msgstr "Акција корисничког сучеља"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:561
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:20
@@ -247,7 +247,7 @@ msgstr "Akcije korisničkog interfejsa"
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr "Podešavanja"
+msgstr "Поставке"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
@@ -256,7 +256,7 @@ msgstr "Складиштe"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:617
 msgid "An ebook store."
-msgstr ""
+msgstr "Продавница  е-књига."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
 msgid ""
@@ -264,9 +264,9 @@ msgid ""
 "directory pmlname_img or images. This plugin is run every time you add a PML "
 "file to the library."
 msgstr ""
-"Napravi PMLZ arhivu koja sadrži PML fajl i sve slike u direktorijumima "
-"plmname_img i images. Ovaj dodatak se pokreće svaki put kada dodate PML fajl "
-"u biblioteku."
+"Направи PMLZ архиву која садржи PML датотеку и све слике у фасцикли "
+"plmname_img или слике. Овај додатак се покреће сваки пут када додате PML "
+"датотеку у библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:51
 msgid ""
@@ -274,10 +274,13 @@ msgid ""
 "Textile references to images. The referenced images as well as the TXT file "
 "are added to the archive."
 msgstr ""
+"Направи архиву TXTZ приликом увоза TXT датотека, која садржи Markdown или "
+"Textile поменуте слике. Поменуте слике, као и TXT датотеке су додате у "
+"архиву."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
-msgstr "Uzmi omot iz fajla sa stripom"
+msgstr "Издвоји корице из стрипа"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:179
@@ -302,15 +305,15 @@ msgstr "Uzmi omot iz fajla sa stripom"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:390
 #, python-format
 msgid "Read metadata from %s files"
-msgstr "Čitaj metapodatke iz %s fajlova"
+msgstr "Прочитај метаподатке из %s датотека"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:327
 msgid "Read metadata from ebooks in RAR archives"
-msgstr "Čitaj metapodatke iz e-knjiga u RAR arhivama"
+msgstr "Прочитај метаподатке из е-књига у  RAR архивама"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:401
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr "Čitaj metapodatke iz e-knjiga u ZIP arhivama"
+msgstr "Прочитај метаподатке из е-књига у ZIP архивама"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:418
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:439
@@ -320,81 +323,83 @@ msgstr "Čitaj metapodatke iz e-knjiga u ZIP arhivama"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:492
 #, python-format
 msgid "Set metadata in %s files"
-msgstr "Upiši metapodatke u %s fajlova"
+msgstr "Упиши метаподатке у %s датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:428
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:460
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:503
 #, python-format
 msgid "Set metadata from %s files"
-msgstr "Učitaj metapodatke iz %s fajlova"
+msgstr "Учитај метаподатке из %s датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Додај књиге у calibre или повезани уређај"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Fetch annotations from a connected Kindle (experimental)"
-msgstr ""
+msgstr "Узми напомене од повезаног Kindle (експериментално)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:761
 msgid "Generate a catalog of the books in your calibre library"
-msgstr ""
+msgstr "Направите каталог књига у библиотеци calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:766
 msgid "Convert books to various ebook formats"
-msgstr ""
+msgstr "Претварање књига у различите формате е-књига"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:771
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Избриши  књиге из ваше calibre библиотеке или повезаног уређаја"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:776
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Уреди метаподатке књига у библиотеци calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Прочитај књиге у библиотеци calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Преузми вести са интернета у форми е-књиге"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Прикажи брзо списак сродних књига"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Export books from your calibre library to the hard disk"
-msgstr ""
+msgstr "Извоз књига из библиотеке calibre на чврсти диск"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:801
 msgid "Show book details in a separate popup"
-msgstr ""
+msgstr "Прикажи детаље књига у посебном искачућем прозору"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Restart calibre"
-msgstr ""
+msgstr "Поново покрени calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
 msgid "Open the folder that contains the book files in your calibre library"
-msgstr ""
+msgstr "Отворите фасциклу која садржи датотеке књига у библиотеци calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Пошаљи књиге у повезани уређај"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Делите књигу путем е-поште или интернетом, такође повезивање са iTunes или "
+"фасциклама на вашем рачунару као да су уређаји."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
 msgid "Browse the calibre User Manual"
-msgstr "Otvorite calibre Korisničko uputstvo"
+msgstr "Отвори calibre корисничко упутство"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Customize calibre"
@@ -402,24 +407,25 @@ msgstr "Прилагоди calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Пронађи књиге сличне као тренутно одабрану"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid ""
 "Switch between different calibre libraries and perform maintenance on them"
 msgstr ""
+"Пребацивање између различитих calibre библиотека и вршимо одржавање истих"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Копирај књигe из уређаја у calibre библиотеку"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:854
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Уредите колекције у којој се књига налазе на уређају"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Копирање књиге из једне calibre библиотеке у другу"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
@@ -430,22 +436,24 @@ msgid ""
 "Find the next or previous match when searching in your calibre library in "
 "highlight mode"
 msgstr ""
+"Пронађи следећу или претходну одговарајућу при претраживању у calibre "
+"библиотеци у истакнутом режиму"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:875
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Изаберите насумичну књигу из  библиотеке calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:882
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Трагање за књигама од различитих продаваца књига"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:898
 msgid "Get new calibre plugins or update your existing ones"
-msgstr ""
+msgstr "Преузмите нове додатке calibre или ажурирате постојеће"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:917
 msgid "Look and Feel"
-msgstr "Izgled i ponašanje"
+msgstr "Изглед и понашање"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:919
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:931
@@ -453,7 +461,7 @@ msgstr "Izgled i ponašanje"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:953
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:965
 msgid "Interface"
-msgstr "Interfejs"
+msgstr "Сучеље"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:923
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
