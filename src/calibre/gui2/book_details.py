@@ -25,6 +25,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
 from calibre.utils.localization import calibre_langcode_to_name
+from calibre.utils.config import tweaks
 
 def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     table = render_data(mi, all_fields=all_fields,
@@ -39,7 +40,7 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
         return ans
 
     fi = QFontInfo(QApplication.font(widget))
-    f = fi.pixelSize()+1
+    f = fi.pixelSize() + tweaks['change_book_details_font_size_by']
     fam = unicode(fi.family()).strip().replace('"', '')
     if not fam:
         fam = 'sans-serif'

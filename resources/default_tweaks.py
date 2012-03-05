@@ -496,3 +496,10 @@ gui_view_history_size = 15
 # prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'
 tweak_book_prefer = 'epub'
 
+#: Increase or decrease the font size in book details and book comments
+# Controls the increase or decrease of the font size in the book details panel and the book
+# comments. The font size will be increased by the specified numbers of pixels, a negative
+# number will decrease the font size.
+# The default value since version 0.8.39 is 1. For the old behavior set this to 0.
+change_book_details_font_size_by = 1
+
