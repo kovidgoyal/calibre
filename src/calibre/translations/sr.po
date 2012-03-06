@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2012-03-04 16:05+0000\n"
+"PO-Revision-Date: 2012-03-05 19:48+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-05 04:41+0000\n"
+"X-Launchpad-Export-Date: 2012-03-06 04:47+0000\n"
 "X-Generator: Launchpad (build 14900)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -465,36 +465,36 @@ msgstr "Сучеље"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:923
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr "Prilagodite izgled i ponašanje calibrea da odgovara vašem ukusu"
+msgstr "Прилагодите изглед и понашање calibre-а да одговара вашем укусу"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Behavior"
-msgstr "Ponašanje"
+msgstr "Понашање"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:935
 msgid "Change the way calibre behaves"
-msgstr "Promenite način ponašanja calibrea"
+msgstr "Промените начин понашања calibre-а"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:940
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:252
 msgid "Add your own columns"
-msgstr "Dodajte sopstvene kolone"
+msgstr "Додај своје колоне"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:946
 msgid "Add/remove your own columns to the calibre book list"
-msgstr "Dodajte/uklonite sopstvene kolone za calibre spisak knjiga"
+msgstr "Додајте/уклоните сопствене колоне за calibre списак књига"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:951
 msgid "Toolbar"
-msgstr "Traka sa alatkama"
+msgstr "Алатна трака"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:957
 msgid ""
 "Customize the toolbars and context menus, changing which actions are "
 "available in each"
 msgstr ""
-"Prilagodite traku sa alatima i kontekstno osetljive menije menjajući akcije "
-"koje su na raspolaganju u svakom od njih"
+"Прилагодите алатну траку и контекстни меније мењајући акције које су на "
+"располагању у сваком од њих"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:963
 msgid "Searching"
@@ -502,85 +502,87 @@ msgstr "Претраживање"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:969
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Подесите свој начин проналажења књиге у calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:974
 msgid "Input Options"
-msgstr "Ulazna podešavanja"
+msgstr "Могућности уноса"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:976
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:987
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:998
 msgid "Conversion"
-msgstr "Konverzija"
+msgstr "Претварање"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:980
 msgid "Set conversion options specific to each input format"
-msgstr "Postavite opcije za konverziju za svaki od ulaznih formata"
+msgstr ""
+"Подесите могућности претварања које су специфичне за сваки улазни формат"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:985
 msgid "Common Options"
-msgstr "Uobičajene opcije"
+msgstr "Уобичајене могућности"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:991
 msgid "Set conversion options common to all formats"
-msgstr "Postavite opcije za konverziju za sve formate"
+msgstr "Поставите могућности за претварање за све формате"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:996
 msgid "Output Options"
-msgstr "Izlazne opcije"
+msgstr "Излазне могућности"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1002
 msgid "Set conversion options specific to each output format"
-msgstr "Postavite opcije za konverziju specifične za svaki izlazni format"
+msgstr ""
+"Поставите могућности за претварање специфичне за сваки излазни формат"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1007
 msgid "Adding books"
-msgstr "Dodajem knjige"
+msgstr "Додавање књига"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1009
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1021
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1033
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1045
 msgid "Import/Export"
-msgstr "Uvoz/izvoz"
+msgstr "Увоз/Извоз"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1013
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
-"Kontrolišite kako calibre čita metapodatke iz fajlova kada dodaje knjige"
+"Регулишите како calibre чита метаподатке из датотека приликом додавања књига"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Saving books to disk"
-msgstr "Snimam kjige na disk"
+msgstr "Чување књига на диск"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1025
 msgid ""
 "Control how calibre exports files from its database to disk when using Save "
 "to disk"
 msgstr ""
-"Kontrolišite kako calibre izvozi fajlove iz baze podataka na disk kada se "
-"koristi opcija Snimi na disk"
+"Регулишете како calibre извози датотеке из  базе података на диск приликом "
+"коришћења Сачувај на диску"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1031
 msgid "Sending books to devices"
-msgstr "Šaljem knjige na uređaj"
+msgstr "Слање књига на уређаје"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1037
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr "Kontrolišite kako calibre šalje fajlove na vaš čitač"
+msgstr "Регулишете како calibre преноси датотеке на ваш читач"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1043
 msgid "Metadata plugboards"
-msgstr "Priključci za metapodatke"
+msgstr "Прикључци за метаподатке"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1049
 msgid "Change metadata fields before saving/sending"
-msgstr "Izmeni metapodatke pre snimanja/slanja"
+msgstr "Измени поља метаподатака пре чувања/слања"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1054
 msgid "Template Functions"
-msgstr "Šablonske funkcije"
+msgstr "Шаблонске функције"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1056
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
@@ -588,66 +590,66 @@ msgstr "Šablonske funkcije"
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1126
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1137
 msgid "Advanced"
-msgstr "Napredno"
+msgstr "Напредно"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1060
 msgid "Create your own template functions"
-msgstr "Napravite sopstvene šablonske funkcije"
+msgstr "Направите сопствене функције шаблона"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1065
 msgid "Sharing books by email"
-msgstr "Šaljem knjige elektronskom poštom"
+msgstr "Дељење књига  е-поштом"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1067
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1079
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1092
 msgid "Sharing"
-msgstr "Razmena"
+msgstr "Размена"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1071
 msgid ""
 "Setup sharing of books via email. Can be used for automatic sending of "
 "downloaded news to your devices"
 msgstr ""
-"Podesite razmenu knjiga elektronskom poštom. Ovo se može koristiti i za "
-"automatsko slanje preuzetih vesti na vaš uređaj"
+"Подесите дељење књига путем е-поште. Може се користити за аутоматско слање "
+"преузетих вести на ваш уређај"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1077
 msgid "Sharing over the net"
-msgstr "Razmena preko Interneta"
+msgstr "Размена преко мреже"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1083
 msgid ""
 "Setup the calibre Content Server which will give you access to your calibre "
 "library from anywhere, on any device, over the internet"
 msgstr ""
-"Podesite calibre server sadržaja koji će omogućiti pristup vašoj calibre "
-"biblioteci s bilo koje lokacije, bilo kog uređaja, a preko Interneta"
+"Подесите  calibre сервер садржаја који ће вам дати приступ вашој библиотеци  "
+"са било ког места, на било ком уређају, преко интернета"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1090
 msgid "Metadata download"
-msgstr "Preuzimanje metapodataka"
+msgstr "Преузми метаподатке"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1096
 msgid "Control how calibre downloads ebook metadata from the net"
-msgstr ""
+msgstr "Регулишите параметре преузимања метаподатака са интернета"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1101
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
 msgid "Plugins"
-msgstr "Dodaci"
+msgstr "Додаци"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1107
 msgid "Add/remove/customize various bits of calibre functionality"
-msgstr "Dodaj/ukloni/podesi različite elemente ponašanja calibrea"
+msgstr "Додавај /уклони/ прилагоди разне елементе понашања calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 msgid "Tweaks"
-msgstr "Fina podešavanja"
+msgstr "Фино подешавање"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Fine tune how calibre behaves in various contexts"
-msgstr "Fino podesite kako se calibre ponaša u različitim situacijama"
+msgstr "Фино подесите како да се calibre понаша у различитим ситуацијама"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Keyboard"
@@ -655,20 +657,20 @@ msgstr "Тастатура"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1130
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Подесите пречице на тастатури које користи calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1135
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
 msgid "Miscellaneous"
-msgstr "Razno"
+msgstr "Разно"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1141
 msgid "Miscellaneous advanced configuration"
-msgstr "Razna napredna podešavanja"
+msgstr "Разна напредна подешавања"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr "Ulaz za konverziju"
+msgstr "Улазни претварач"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:134
 msgid ""
@@ -677,39 +679,39 @@ msgid ""
 "useful for documents that do not declare an encoding or that have erroneous "
 "encoding declarations."
 msgstr ""
-"Izaberite kodni raspored ulaznog dokumenta. Ako je omogućena, ova opcija će "
-"zameniti sve kodne rasporede označene u samom dokumentu. Ovo je posebno "
-"korisno za dokumente koji u sebi ne sadrže nijedan kodni raspored, ili u "
-"kojima su naznake kodnog rasporeda neispravne."
+"Одредите кодни распоред улазног документа. Ако је подешена ова могућност ће "
+"заменити све кодне распореде означене у самом документу. Ово је посебно "
+"корисно за документе који у себи не садрже ниједан кодни распоред, или у "
+"којима су назнаке кодног распореда неисправне"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:238
 msgid "Conversion Output"
-msgstr "Rezultat konverzije"
+msgstr "Исход претварања"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:252
 msgid ""
 "If specified, the output plugin will try to create output that is as human "
 "readable as possible. May not have any effect for some output plugins."
 msgstr ""
-"Ako je izabrano, dodatak će pokušati da napravi što čitljiviji izlaz za "
-"korisnika. Ovo ne mora da ima uticaj na sve izabrane dodatke."
+"Ако је изабрано, додатак ће покушати да направи што читљивији излаз за "
+"корисника. Ово не мора да има утицај на све изабране додатке."
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:268
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Претвори у формат књиге %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:47
 msgid "Input profile"
-msgstr "Ulazni profil"
+msgstr "Улазни профил"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:51
 msgid ""
 "This profile tries to provide sane defaults and is useful if you know "
 "nothing about the input document."
 msgstr ""
-"Ovaj profil pokušava da obezbedi razumne podrazumevane vrednosti, a koristan "
-"je ako ne znate ništa o ulaznom dokumentu."
+"Овај профил покушава да обезбеди разумне подразумеване вредности, а користан "
+"је ако не знате ништа о улазном документу."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:59
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:453
