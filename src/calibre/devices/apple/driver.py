@@ -103,17 +103,6 @@ class AppleOpenFeedback(OpenFeedback):
 
 
 
-if isosx:
-    try:
-        import appscript
-        appscript
-    except:
-        # appscript fails to load on 10.4
-        appscript = None
-
-if iswindows:
-    import pythoncom, win32com.client
-
 class DriverBase(DeviceConfig, DevicePlugin):
     # Needed for config_widget to work
     FORMATS = ['epub', 'pdf']
@@ -467,6 +456,7 @@ class ITUNES(DriverBase):
                     self._purge_orphans(library_books, cached_books)
 
                 elif iswindows:
+                    import pythoncom, win32com.client
                     try:
                         pythoncom.CoInitialize()
                         self.iTunes = win32com.client.Dispatch("iTunes.Application")
@@ -533,6 +523,11 @@ class ITUNES(DriverBase):
         instantiate iTunes if necessary
         This gets called ~1x/second while device fingerprint is sensed
         '''
+        try:
+            import appscript
+            appscript
+        except:
+            appscript = None
         if appscript is None:
             return False
 
@@ -599,6 +594,8 @@ class ITUNES(DriverBase):
         iPad, as we have to return True if we can handle device interaction, or False if not.
 
         '''
+        import pythoncom
+
         if self.iTunes:
             # We've previously run, so the user probably ejected the device
             try:
@@ -709,6 +706,7 @@ class ITUNES(DriverBase):
                     if self.manual_sync_mode:
                         self._remove_from_device(self.cached_books[path])
                 elif iswindows:
+                    import pythoncom, win32com.client
                     try:
                         pythoncom.CoInitialize()
                         self.iTunes = win32com.client.Dispatch("iTunes.Application")
@@ -754,6 +752,8 @@ class ITUNES(DriverBase):
             self.iTunes.eject(self.sources['iPod'])
         elif iswindows:
             if 'iPod' in self.sources:
+                import pythoncom, win32com.client
+
                 try:
                     pythoncom.CoInitialize()
                     self.iTunes = win32com.client.Dispatch("iTunes.Application")
@@ -788,6 +788,7 @@ class ITUNES(DriverBase):
 
         elif iswindows:
             if 'iPod' in self.sources:
+                import pythoncom, win32com.client
 
                 while True:
                     try:
@@ -1098,6 +1099,8 @@ class ITUNES(DriverBase):
                         _('%(num)d of %(tot)d') % dict(num=i+1, tot=file_count))
 
         elif iswindows:
+            import pythoncom, win32com.client
+
             try:
                 pythoncom.CoInitialize()
                 self.iTunes = win32com.client.Dispatch("iTunes.Application")
@@ -1163,6 +1166,7 @@ class ITUNES(DriverBase):
         '''
         logger().info(" ITUNES._add_device_book()")
         if isosx:
+            import appscript
             if 'iPod' in self.sources:
                 connected_device = self.sources['iPod']
                 device = self.iTunes.sources[connected_device]
@@ -1257,6 +1261,7 @@ class ITUNES(DriverBase):
         if DEBUG:
             logger().info(" ITUNES._add_library_book()")
         if isosx:
+            import appscript
             added = self.iTunes.add(appscript.mactypes.File(file))
 
         elif iswindows:
@@ -1541,6 +1546,7 @@ class ITUNES(DriverBase):
         if wait:
             time.sleep(wait)
         if isosx:
+            import appscript
             connected_device = self.sources['iPod']
             dev_books = None
             device = self.iTunes.sources[connected_device]
@@ -2077,6 +2083,7 @@ class ITUNES(DriverBase):
 
         device_books = []
         if isosx:
+            import appscript
             if 'iPod' in self.sources:
                 connected_device = self.sources['iPod']
                 device = self.iTunes.sources[connected_device]
@@ -2104,6 +2111,8 @@ class ITUNES(DriverBase):
                     logger().info()
 
         elif iswindows:
+            import pythoncom
+
             if 'iPod' in self.sources:
                 try:
                     pythoncom.CoInitialize()
@@ -2171,6 +2180,7 @@ class ITUNES(DriverBase):
         lib = None
 
         if isosx:
+            import appscript
             for source in self.iTunes.sources():
                 if source.kind() == appscript.k.library:
                     lib = source
@@ -2341,6 +2351,7 @@ class ITUNES(DriverBase):
             logger().info(" ITUNES:_launch_iTunes():\n  Instantiating iTunes")
 
         if isosx:
+            import appscript
             '''
             Launch iTunes if not already running
             '''
@@ -2382,6 +2393,8 @@ class ITUNES(DriverBase):
                 logger().info("  calibre_library_path: %s" % self.calibre_library_path)
 
         if iswindows:
+            import win32com.client
+
             '''
             Launch iTunes if not already running
             Assumes pythoncom wrapper
@@ -2752,6 +2765,8 @@ class ITUNES(DriverBase):
                     time.sleep(2)
                 print
         elif iswindows:
+            import pythoncom, win32com.client
+
             try:
                 pythoncom.CoInitialize()
                 self.iTunes = win32com.client.Dispatch("iTunes.Application")
@@ -3088,6 +3103,12 @@ class ITUNES_ASYNC(ITUNES):
         if DEBUG:
             logger().info("ITUNES_ASYNC:__init__()")
 
+        try:
+            import appscript
+            appscript
+        except:
+            appscript = None
+
         if isosx and appscript is None:
             self.connected = False
             raise UserFeedback('OSX 10.5 or later required', details=None, level=UserFeedback.WARN)
@@ -3099,6 +3120,8 @@ class ITUNES_ASYNC(ITUNES):
             self._launch_iTunes()
 
         if iswindows:
+            import pythoncom
+
             try:
                 pythoncom.CoInitialize()
                 self._launch_iTunes()
@@ -3180,6 +3203,8 @@ class ITUNES_ASYNC(ITUNES):
                                 _('%(num)d of %(tot)d') % dict(num=i+1, tot=book_count))
 
             elif iswindows:
+                import pythoncom, win32com.client
+
                 try:
                     pythoncom.CoInitialize()
                     self.iTunes = win32com.client.Dispatch("iTunes.Application")

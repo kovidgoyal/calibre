@@ -79,7 +79,7 @@ class Reader(object):
             count = self.read_i32()
             self.read_i32() # Uncompressed size.
             chunck_sizes = []
-            for i in range(count):
+            for i in xrange(count):
                 chunck_sizes.append(self.read_i32())
 
             for size in chunck_sizes:

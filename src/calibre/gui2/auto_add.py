@@ -17,6 +17,8 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import question_dialog, gprefs
 
+AUTO_ADDED = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}
+
 class Worker(Thread):
 
     def __init__(self, path, callback):
@@ -26,7 +28,7 @@ class Worker(Thread):
         self.wake_up = Event()
         self.path, self.callback = path, callback
         self.staging = set()
-        self.be = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}
+        self.allowed = AUTO_ADDED - frozenset(gprefs['blocked_auto_formats'])
 
     def run(self):
         self.tdir = PersistentTemporaryDirectory('_auto_adder')
@@ -56,7 +58,7 @@ class Worker(Thread):
                     # Must have read and write permissions
                     and os.access(os.path.join(self.path, x), os.R_OK|os.W_OK)
                     # Must be a known ebook file type
-                    and os.path.splitext(x)[1][1:].lower() in self.be
+                    and os.path.splitext(x)[1][1:].lower() in self.allowed
                 ]
         data = {}
         # Give any in progress copies time to complete

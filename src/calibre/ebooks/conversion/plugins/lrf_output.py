@@ -182,7 +182,7 @@ class LRFOutput(OutputFormatPlugin):
         self.flatten_toc()
 
         from calibre.ptempfile import TemporaryDirectory
-        with TemporaryDirectory('_lrf_output') as tdir:
+        with TemporaryDirectory(u'_lrf_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)

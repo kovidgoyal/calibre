@@ -1,8 +1,9 @@
+#v2 2011-07-25
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1299694372(BasicNewsRecipe):
     title                             = u'Instapaper'
-    __author__                  = 'Darko Miletic'
+    __author__                  = 'Darko Miletic, Stanislav Khromov'
     publisher                     = 'Instapaper.com'
     category                      = 'info, custom, Instapaper'
     oldest_article               = 365
@@ -15,6 +16,8 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
 	,dict(name='div', attrs={'id':'text_controls'})
 	,dict(name='div', attrs={'id':'editing_controls'})
 	,dict(name='div', attrs={'class':'bar bottom'})
+    ,dict(name='div', attrs={'id':'controlbar_container'})
+    ,dict(name='div', attrs={'id':'footer'})
 	 ]
     use_embedded_content  = False
     needs_subscription    = True

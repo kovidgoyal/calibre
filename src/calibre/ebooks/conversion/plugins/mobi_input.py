@@ -20,17 +20,17 @@ class MOBIInput(InputFormatPlugin):
         try:
             mr = MobiReader(stream, log, options.input_encoding,
                         options.debug_pipeline)
-            mr.extract_content('.', parse_cache)
+            mr.extract_content(u'.', parse_cache)
         except:
             mr = MobiReader(stream, log, options.input_encoding,
                         options.debug_pipeline, try_extra_data_fix=True)
-            mr.extract_content('.', parse_cache)
+            mr.extract_content(u'.', parse_cache)
 
         raw = parse_cache.pop('calibre_raw_mobi_markup', False)
         if raw:
             if isinstance(raw, unicode):
                 raw = raw.encode('utf-8')
-            open('debug-raw.html', 'wb').write(raw)
+            open(u'debug-raw.html', 'wb').write(raw)
         for f, root in parse_cache.items():
             with open(f, 'wb') as q:
                 q.write(html.tostring(root, encoding='utf-8', method='xml',

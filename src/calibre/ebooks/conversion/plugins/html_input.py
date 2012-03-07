@@ -57,7 +57,7 @@ class HTMLInput(InputFormatPlugin):
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
         self._is_case_sensitive = None
-        basedir = os.getcwd()
+        basedir = os.getcwdu()
         self.opts = opts
 
         fname = None

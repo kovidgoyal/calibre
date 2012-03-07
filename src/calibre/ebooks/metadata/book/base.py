@@ -537,7 +537,12 @@ class Metadata(object):
                         if meta['datatype'] == 'text' and meta['is_multiple']:
                             # Case-insensitive but case preserving merging
                             lotags = [t.lower() for t in other_tags]
-                            lstags = [t.lower() for t in self_tags]
+                            try:
+                                lstags = [t.lower() for t in self_tags]
+                            except TypeError:
+                                # Happens if x is not a text, is_multiple field
+                                # on self
+                                lstags = []
                             ot, st = map(frozenset, (lotags, lstags))
                             for t in st.intersection(ot):
                                 sidx = lstags.index(t)
@@ -648,7 +653,7 @@ class Metadata(object):
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
             elif datatype == 'rating':
-                res = res/2.0
+                res = u'%.2g'%(res/2.0)
             elif datatype in ['int', 'float']:
                 try:
                     fmt = cmeta['display'].get('number_format', None)
@@ -688,7 +693,7 @@ class Metadata(object):
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'rating':
-                res = res/2.0
+                res = u'%.2g'%(res/2.0)
             elif key == 'size':
                 res = human_readable(res)
             return (name, unicode(res), orig_res, fmeta)
@@ -723,7 +728,8 @@ class Metadata(object):
         if not self.is_null('languages'):
             fmt('Languages', ', '.join(self.languages))
         if self.rating is not None:
-            fmt('Rating', self.rating)
+            fmt('Rating', (u'%.2g'%(float(self.rating)/2.0)) if self.rating
+                    else u'')
         if self.timestamp is not None:
             fmt('Timestamp', isoformat(self.timestamp))
         if self.pubdate is not None:

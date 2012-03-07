@@ -10,10 +10,11 @@ class Biolog_pl(BasicNewsRecipe):
     description   = u'Przyrodnicze aktualności ze świata nauki (codziennie aktualizowane), kurs biologii, testy i sprawdziany, forum dyskusyjne.'
     category       = 'biology'
     language       = 'pl'
+    masthead_url= 'http://www.biolog.pl/naukowy,portal,biolog.png'
     cover_url='http://www.biolog.pl/naukowy,portal,biolog.png'
     no_stylesheets = True
     #keeps_only_tags=[dict(id='main')]
     remove_tags_before=dict(id='main')
     remove_tags_after=dict(name='a', attrs={'name':'komentarze'})
-    remove_tags=[dict(name='img', attrs={'alt':'Komentarze'})]
+    remove_tags=[dict(name='img', attrs={'alt':'Komentarze'}), dict(name='span', attrs={'class':'menu_odsylacze'})]
     feeds          = [(u'Wszystkie', u'http://www.biolog.pl/backend.php'), (u'Medycyna', u'http://www.biolog.pl/medycyna-rss.php'), (u'Ekologia', u'http://www.biolog.pl/rss-ekologia.php'), (u'Genetyka i biotechnologia', u'http://www.biolog.pl/rss-biotechnologia.php'), (u'Botanika', u'http://www.biolog.pl/rss-botanika.php'), (u'Le\u015bnictwo', u'http://www.biolog.pl/rss-lesnictwo.php'), (u'Zoologia', u'http://www.biolog.pl/rss-zoologia.php')]

@@ -196,7 +196,7 @@ class EPUBOutput(OutputFormatPlugin):
             uuid = str(uuid4())
             oeb.metadata.add('identifier', uuid, scheme='uuid', id=uuid)
 
-        with TemporaryDirectory('_epub_output') as tdir:
+        with TemporaryDirectory(u'_epub_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
             metadata_xml = None
             extra_entries = []
@@ -204,7 +204,7 @@ class EPUBOutput(OutputFormatPlugin):
                 if self.opts.output_profile.epub_periodical_format == 'sony':
                     from calibre.ebooks.epub.periodical import sony_metadata
                     metadata_xml, atom_xml = sony_metadata(oeb)
-                    extra_entries = [('atom.xml', 'application/atom+xml', atom_xml)]
+                    extra_entries = [(u'atom.xml', 'application/atom+xml', atom_xml)]
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]

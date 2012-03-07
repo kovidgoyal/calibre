@@ -774,6 +774,8 @@ class Manifest(object):
 
         def __init__(self, oeb, id, href, media_type,
                      fallback=None, loader=str, data=None):
+            if href:
+                href = unicode(href)
             self.oeb = oeb
             self.id = id
             self.href = self.path = urlnormalize(href)
@@ -1106,7 +1108,7 @@ class Manifest(object):
             while href.lower() in lhrefs:
                 href = base + str(index) + ext
                 index += 1
-        return id, href
+        return id, unicode(href)
 
     def __iter__(self):
         for item in self.items:
@@ -1320,6 +1322,8 @@ class Guide(object):
 
     def add(self, type, title, href):
         """Add a new reference to the `Guide`."""
+        if href:
+            href = unicode(href)
         ref = self.Reference(self.oeb, type, title, href)
         self.refs[type] = ref
         return ref

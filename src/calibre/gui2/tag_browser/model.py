@@ -831,7 +831,10 @@ class TagsModel(QAbstractItemModel): # {{{
                         if lower(t.name).find(self.filter_categories_by) >= 0]
 
         tb_categories = self.db.field_metadata
-        for category in tb_categories:
+        order = tweaks['tag_browser_category_order']
+        defvalue = order.get('*', 100)
+        tb_keys = sorted(tb_categories.keys(), key=lambda x: order.get(x, defvalue))
+        for category in tb_keys:
             if category in data: # The search category can come and go
                 self.row_map.append(category)
                 self.categories[category] = tb_categories[category]['name']

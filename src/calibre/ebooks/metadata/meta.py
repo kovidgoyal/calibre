@@ -199,7 +199,7 @@ def metadata_from_filename(name, pat=None):
 def opf_metadata(opfpath):
     if hasattr(opfpath, 'read'):
         f = opfpath
-        opfpath = getattr(f, 'name', os.getcwd())
+        opfpath = getattr(f, 'name', os.getcwdu())
     else:
         f = open(opfpath, 'rb')
     try:

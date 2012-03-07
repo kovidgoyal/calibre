@@ -47,12 +47,12 @@ class RTFInput(InputFormatPlugin):
 
     def generate_xml(self, stream):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
-        ofile = 'dataxml.xml'
+        ofile = u'dataxml.xml'
         run_lev, debug_dir, indent_out = 1, None, 0
         if getattr(self.opts, 'debug_pipeline', None) is not None:
             try:
-                os.mkdir('rtfdebug')
-                debug_dir = 'rtfdebug'
+                os.mkdir(u'rtfdebug')
+                debug_dir = u'rtfdebug'
                 run_lev = 4
                 indent_out = 1
                 self.log('Running RTFParser in debug mode')
@@ -124,7 +124,7 @@ class RTFInput(InputFormatPlugin):
             if fmt is None:
                 fmt = 'wmf'
             count += 1
-            name = '%04d.%s' % (count, fmt)
+            name = u'%04d.%s' % (count, fmt)
             with open(name, 'wb') as f:
                 f.write(data)
             imap[count] = name
@@ -201,7 +201,7 @@ class RTFInput(InputFormatPlugin):
         for cls, val in border_styles.iteritems():
             css += '\n\n.%s {\n%s\n}'%(cls, val)
 
-        with open('styles.css', 'ab') as f:
+        with open(u'styles.css', 'ab') as f:
             f.write(css)
 
     def convert_borders(self, doc):
@@ -271,7 +271,7 @@ class RTFInput(InputFormatPlugin):
         extensions = { ('calibre', 'inline-class') : inline_class }
         transform = etree.XSLT(styledoc, extensions=extensions)
         result = transform(doc)
-        html = 'index.xhtml'
+        html = u'index.xhtml'
         with open(html, 'wb') as f:
             res = transform.tostring(result)
             # res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
@@ -289,10 +289,10 @@ class RTFInput(InputFormatPlugin):
             mi.title = _('Unknown')
         if not mi.authors:
             mi.authors = [_('Unknown')]
-        opf = OPFCreator(os.getcwd(), mi)
-        opf.create_manifest([('index.xhtml', None)])
-        opf.create_spine(['index.xhtml'])
-        opf.render(open('metadata.opf', 'wb'))
-        return os.path.abspath('metadata.opf')
+        opf = OPFCreator(os.getcwdu(), mi)
+        opf.create_manifest([(u'index.xhtml', None)])
+        opf.create_spine([u'index.xhtml'])
+        opf.render(open(u'metadata.opf', 'wb'))
+        return os.path.abspath(u'metadata.opf')
 
 
