@@ -32,6 +32,8 @@ from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
+from calibre.utils.config import tweaks
+
 # }}}
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
@@ -326,7 +328,7 @@ class Comments(QWebView): # {{{
             return ans
 
         fi = QFontInfo(QApplication.font(self.parent()))
-        f = fi.pixelSize()+1
+        f = fi.pixelSize()+1+int(tweaks['change_book_details_font_size_by'])
         fam = unicode(fi.family()).strip().replace('"', '')
         if not fam:
             fam = 'sans-serif'
