@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2012-03-05 19:48+0000\n"
+"PO-Revision-Date: 2012-03-06 15:29+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-06 04:47+0000\n"
-"X-Generator: Launchpad (build 14900)\n"
+"X-Launchpad-Export-Date: 2012-03-07 05:12+0000\n"
+"X-Generator: Launchpad (build 14907)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -718,71 +718,71 @@ msgstr ""
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
-"Ovaj profil je namenjen za SONY PRS čitače, kao što su 500/505/600/700 itd."
+"Овај профил је намењен за линију SONY PRS, као што су 500/505/600/700 итд."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:71
 msgid "This profile is intended for the SONY PRS 300."
-msgstr "Ovaj profil je namenjen za SONY PRS 300 čitače."
+msgstr "Овај профил је намењен за SONY PRS 300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:493
 msgid "This profile is intended for the SONY PRS-900."
-msgstr "Ovaj profil je namenjen za SONY PRS-900 čitače."
+msgstr "Овај профил је намењен за SONY PRS-900."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:88
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:538
 msgid "This profile is intended for the Microsoft Reader."
-msgstr "Ovaj profil je namenjen za Microsoft Reader."
+msgstr "Овај профил је намењен за Microsoft Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:99
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:549
 msgid "This profile is intended for the Mobipocket books."
-msgstr "Ovaj profil je namenjen za Mobipocket knjige."
+msgstr "Овај профил је намењен за Mobipocket књиге"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:112
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:562
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr "Ovaj profil je namenjen za Hanlin V3 čitače i klonove."
+msgstr "Овај профил је намењен за Hanlin V3  и његове клонове."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:124
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:574
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr "Ovaj profil je namenjen za Hanlin V5 čitače i klonove."
+msgstr "Овај профил је намењен за Hanlin V5  и његове клонове."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:134
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:582
 msgid "This profile is intended for the Cybook G3."
-msgstr "Ovaj profil je namenjen za Cybook G3 čitače."
+msgstr "Овај профил је намењен за Cybook G3."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:147
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:596
 msgid "This profile is intended for the Cybook Opus."
-msgstr "Ovaj profil je namenjen za Cybook Opus čitače."
+msgstr "Овај профил је намењен за Cybook Opus."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:159
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:609
 msgid "This profile is intended for the Amazon Kindle."
-msgstr "Ovaj profil je namenjen za Amazon Kindle čitače."
+msgstr "Овај профил је намењен за Amazon Kindle."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:171
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:669
 msgid "This profile is intended for the Irex Illiad."
-msgstr "Ovaj profil je namenjen za Irex Illiad čitače."
+msgstr "Овај профил је намењен за Irex Illiad."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:183
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:682
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr "Ovaj profil je namenjen za IRex Digital Reader 1000 čitače."
+msgstr "Овај профил је намењен за IRex Digital Reader 1000."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:196
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:696
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr "Ovaj profil je namenjen za IRex Digital Reader 800 čitače."
+msgstr "Овај профил је намењен за IRex Digital Reader 800."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:208
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:710
 msgid "This profile is intended for the B&N Nook."
-msgstr "Ovaj profil je namenjen za B&N Nook čitače."
+msgstr "Овај профил је намењен за B&N Nook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:230
 msgid "Output profile"
@@ -794,99 +794,99 @@ msgid ""
 "produce a document intended to be read at a computer or on a range of "
 "devices."
 msgstr ""
-"Ovaj profil pokušava da obezbedi razumne podrazumevane vrednosti, a koristan "
-"je ako želite da proizvedete dokument koji može da se čita kako na računaru, "
-"tako i na raznim drugim uređajima."
+"Овај профил покушава да обезбеди разумне подразумеване вредности, а користан "
+"је ако желите да произведете документ који може да се чита како на рачунару, "
+"тако и на разним другим уређајима."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:277
 msgid ""
 "Intended for the iPad and similar devices with a resolution of 768x1024"
-msgstr "Namenjeno za iPad i slične uređaje s rezolucijom 768x1024"
+msgstr "Намењено за iPad и сличне уређаје с резолуцијом 768x1024"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:437
 msgid "Intended for generic tablet devices, does no resizing of images"
-msgstr "Namenjeno generičkim tablet uređajima, ne menja veličinu slika"
+msgstr "Намењен за таблет уређаје, величина слике се не мења"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:445
 msgid ""
 "Intended for the Samsung Galaxy and similar tablet devices with a resolution "
 "of 600x1280"
 msgstr ""
-"Namenjeno Samsung Galaxy i sličnim uređajima s rezolucijom od 600x1280"
+"Намењено Samsung Galaxy и сличним уређајима с резолуцијом од 600x1280"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
-msgstr "Ovaj profil je namenjen za Kobo čitače"
+msgstr "Овај профил је намењен за the Kobo Reader."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the SONY PRS-300."
-msgstr "Ovaj profil je namenjen za SONY PRS-300 čitače."
+msgstr "Овај профил је намењен за SONY PRS-300."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Погодан за коришћење са било којим e-ink уређајем"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
-msgstr ""
+msgstr "Погодан за употребу на било ком e-ink уређају са великим екраном"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr "Ovaj profil je namenjen za 5-inčne JetBook čitače."
+msgstr "Овај профил је намењен за 5-инчне JetBook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/700 etc, in "
 "landscape mode. Mainly useful for comics."
 msgstr ""
-"Ovaj profil je namenjen SONY PRS liniji čitača, za modele 500/505/700 itd, u "
-"horizontalnom položaju. Uglavnom je koristan za stripove."
+"Овај профил је намењен за SONY PRS линије 500/505/700 итд, у положеном "
+"положају. Углавном је користан за стрипове."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:635
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr "Ovaj profil je namenjen za Amazon Kindle DX čitače."
+msgstr "Овај профил је намењен за  Amazon Kindle DX."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Овај профил је намењен за  Amazon Kindle Fire."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
-msgstr "Ovaj profil je namenjen B&N Nook Color čitaču."
+msgstr "Овај профил је намењен за  B&N Nook Color."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:733
 msgid "This profile is intended for the Sanda Bambook."
-msgstr "Ovaj profil je namenjen Sanda Bambook čitaču."
+msgstr "Овај профил је намењен за  Sanda Bambook."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
 "This profile is intended for the PocketBook Pro 900 series of devices."
-msgstr ""
+msgstr "Овај профил је намењен за серију уређаја  PocketBook Pro 900 ."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Installed plugins"
-msgstr "Instalirani dodaci"
+msgstr "Инсталирани додаци"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:32
 msgid "Mapping for filetype plugins"
-msgstr "Mapiranje dodataka za različite vrste datoteka"
+msgstr "Мапирање додатака за различите врсте датотека"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:33
 msgid "Local plugin customization"
-msgstr "Podešavanja lokalnih podataka"
+msgstr "Подешавања локалних података"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:34
 msgid "Disabled plugins"
-msgstr "Isključeni dodaci"
+msgstr "Искључени додаци"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:35
 msgid "Enabled plugins"
-msgstr "Uključeni dodaci"
+msgstr "Укључени додаци"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:496
 #, python-format
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr "Pokretanje dodatka %s nije uspelo. Poruka o grešci je:"
+msgstr "Покретање додатка %s није успело. Порука о грешци је:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:558
 msgid ""
@@ -895,38 +895,39 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
-"    %prog opcije\n"
+"    Могућности %prog \n"
 "\n"
-"    Podesi calibre učitavanjem spoljnih dodataka.\n"
+"    Подеси calibre учитавањем спољних додатака\n"
 "    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:564
 msgid "Add a plugin by specifying the path to the zip file containing it."
-msgstr "Instalirajte dodatak navođenjem putanje ka ZIP fajlu koji ga sadrži."
+msgstr "Додај додатак навођењем путање ка ЗИП датотеки која га садржи."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:566
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
-msgstr "Uklonite dodatak po imenu. Ovo nema uticaja na ugrađene dodatke."
+msgstr ""
+"Уклони жељене додатак по имену. Ово нема утицаја на уграђене додатке."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:568
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
-"Podesite dodatak. Navedite ime dodatka i naredbu za podešavanje rastavljene "
-"zarezom."
+"Подесите додатак. Наведите име додатка и наредбу за подешавање растављене "
+"зарезом."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:570
 msgid "List all installed plugins"
-msgstr "Prikaži sve instalirane dodatke"
+msgstr "Излистај све инсталиране додатке"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:572
 msgid "Enable the named plugin"
-msgstr "Uključi navedeni dodatak"
+msgstr "Укључи наведени додатак."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:574
 msgid "Disable the named plugin"
-msgstr "Isključi navedeni dodatak"
+msgstr "Искључи наведени додатак"
 
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:272
 #: /home/kovid/work/calibre/src/calibre/db/backend.py:281
@@ -938,6 +939,7 @@ msgstr "Isključi navedeni dodatak"
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
+"Путања до библиотеке је предуга.  Она мора да садржи мање од %d знакова."
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:649
@@ -947,32 +949,32 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:835
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:847
 msgid "Yes"
-msgstr "Da"
+msgstr "Да"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1134
 msgid "Main"
-msgstr "Osnovna"
+msgstr "Основна"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1136
 msgid "Card A"
-msgstr "Kartica A"
+msgstr "Картица A"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1138
 msgid "Card B"
-msgstr "Kartica B"
+msgstr "Картица B"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
-msgstr "Izveštaj o radu"
+msgstr "Евиденција отклоњених грешака"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:17
 msgid "Communicate with Android phones."
-msgstr "Uspastavi vezu sa Android telefonima."
+msgstr "Успастави везу са Android телефонима."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:164
 msgid ""
