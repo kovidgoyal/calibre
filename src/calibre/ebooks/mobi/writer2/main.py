@@ -489,7 +489,8 @@ class MobiWriter(object):
             items = oeb.metadata[term]
             if term == 'creator':
                 if self.prefer_author_sort:
-                    creators = [normalize(unicode(c.file_as or c)) for c in items]
+                    creators = [normalize(unicode(c.file_as or c)) for c in
+                            items][:1]
                 else:
                     creators = [normalize(unicode(c)) for c in items]
                 items = ['; '.join(creators)]
