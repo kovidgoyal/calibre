@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2012-03-06 15:29+0000\n"
+"PO-Revision-Date: 2012-03-07 19:05+0000\n"
 "Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-07 05:12+0000\n"
-"X-Generator: Launchpad (build 14907)\n"
+"X-Launchpad-Export-Date: 2012-03-08 04:43+0000\n"
+"X-Generator: Launchpad (build 14914)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -554,7 +554,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Saving books to disk"
-msgstr "Чување књига на диск"
+msgstr "Чување књига на диску"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1025
 msgid ""
@@ -981,16 +981,16 @@ msgid ""
 "Comma separated list of directories to send e-books to on the device. The "
 "first one that exists will be used"
 msgstr ""
-"Zarezima razdvojen spisak direktorijuma na uređaju u koje će se slati "
-"knjige. Koristiće se prvi postojeći."
+"Зарезима раздвојен списак директоријума на уређају у које ће се слати књиге. "
+"Користиће се први постојећи."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:252
 msgid "Communicate with S60 phones."
-msgstr "Uspostavi vezu sa S60 telefonima."
+msgstr "Повежи се са S60 телефонима."
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:271
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Повежи се са WebOS таблетаима."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:60
 msgid ""
@@ -1006,27 +1006,27 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:77
 msgid "Disable Apple driver"
-msgstr ""
+msgstr "Онемогући Apple управљач"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:81
 msgid "Enable Apple driver"
-msgstr ""
+msgstr "Омогући Apple управљач"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:119
 msgid "Use Series as Category in iTunes/iBooks"
-msgstr "Koristi seriju kao kategoriju u iTunes/iBooks."
+msgstr "Користи серију као категорију у iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:120
 msgid "Enable to use the series name as the iTunes Genre, iBooks Category"
-msgstr ""
+msgstr "Користи назив серије као жанр iTunes, категорије iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:122
 msgid "Cache covers from iTunes/iBooks"
-msgstr "Zapamti omote iz iTunes/iBooks."
+msgstr "Запамти омоте из iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:124
 msgid "Enable to cache and display covers from iTunes/iBooks"
-msgstr ""
+msgstr "Омогући чување и приказивање омота из iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:125
 #, python-format
@@ -1045,23 +1045,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:191
 msgid "Apple device"
-msgstr "Apple uređaj"
+msgstr "Apple уређај"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:193
 msgid "Communicate with iTunes/iBooks."
-msgstr "Uspastavi vezu sa iTunes/iBooks."
+msgstr "Успастави везу са iTunes/iBooks."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:207
 msgid "Apple device detected, launching iTunes, please wait ..."
-msgstr "Pronađen je Apple uređaj. Pokrećem iTunes. Molim sačekajte..."
+msgstr "Пронађен је Apple уређај. покређем iTunes, молим сачекајте..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:209
 msgid ""
 "Cannot copy books directly from iDevice. Drag from iTunes Library to "
 "desktop, then add to calibre's Library window."
 msgstr ""
-"Ne mogu da kopiram knjige direktno s iUređaja. Prevucite ih iz iTunesa na "
-"desktop, a odatle u prozor calibre biblioteke."
+"Није могуће копирати књиге с iDevice. Превуците их из iTunesa на радну "
+"површину, а одатле у прозор calibre библиотеке."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:212
 msgid ""
@@ -1073,7 +1073,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:375
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:378
 msgid "Updating device metadata listing..."
-msgstr "Ažuriranje spiska metapodataka na uređaju..."
+msgstr "Ажурирање списка метаподатака на уређају..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:455
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:495
@@ -1083,14 +1083,14 @@ msgstr "Ažuriranje spiska metapodataka na uređaju..."
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3244
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d из%(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:503
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1149
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3251
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:110
 msgid "finished"
-msgstr "završeno"
+msgstr "завршено"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:694
 msgid ""
@@ -1098,17 +1098,17 @@ msgid ""
 "Delete using the iBooks app.\n"
 "Click 'Show Details' for a list."
 msgstr ""
-"Neke knjige nisu pronađene u iTunes bazi podataka.\n"
-"Izbrišite ih koristeći iBooks program.\n"
-"Kliknite na 'Prikaži detalje' za spisak."
+"Неке књиге нису пронађене у iTunes бази података.\n"
+"Избришите их користећи iBooks програм.\n"
+"Кликните на 'Прикажи детаље' за списак."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1061
 msgid ""
 "Some cover art could not be converted.\n"
 "Click 'Show Details' for a list."
 msgstr ""
-"Neki omoti nisu mogli da budu konvertovani.\n"
-"Kliknite na 'Prikaži detalje' za spisak."
+"Неки омоти нису могли да буду претворени.\n"
+"Кликните на 'Прикажи детаље' за списак."
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2725
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:102
@@ -1128,7 +1128,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3151
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
-msgstr "Vesti"
+msgstr "Вести"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2726
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
@@ -1136,15 +1136,15 @@ msgstr "Vesti"
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3107
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3125
 msgid "Catalog"
-msgstr "Katalog"
+msgstr "Каталог"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3094
 msgid "Communicate with iTunes."
-msgstr "Uspostavi vezu sa iTunes."
+msgstr "Успостави везу са iTunes."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr "Uspostavi vezu sa Sanda Bambook čitačem"
+msgstr "Успостави везу са Sanda Bambook читачем"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
@@ -1152,22 +1152,22 @@ msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr "IP adresa uređaja (posle promene ponovo pokrenite calibre)"
+msgstr "ИП адреса уређаја (после промене поново покрените calibre)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:48
 msgid ""
 "Unable to add book to library directly from Bambook. Please save the book to "
 "disk and add the file to library from disk."
 msgstr ""
-"Nisam uspeo da dodam knjigu u biblioteku direktno s Bambook čitača. Molim "
-"vas da je prvo snimite na disk, a zatimodatle dodate u biblioteku."
+"Немогуће је додати књигу у библиотеку директно с Bambook читача. Молим вас "
+"да је прво сачувате на диску, а затим одатле додате у библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:67
 msgid ""
 "Unable to connect to Bambook, you need to install Bambook library first."
 msgstr ""
-"Nisam uspeo da se povežem s Bambook čitačem. Moraćete prvo da instalirate "
-"Bambook biblioteku."
+"Нисам успео да се повежем с Bambook читачем, мораћете прво да инсталирате "
+"Bambook библиотеку."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:75
 msgid ""
@@ -1175,9 +1175,9 @@ msgid ""
 "If you are trying to connect via Wi-Fi, please make sure the IP address of "
 "Bambook has been correctly configured."
 msgstr ""
-"Nisam uspeo da se povežem s Bambook čitačem. \n"
-"Ako pokušavate da se povežete preko WiFi, molim vas da proverite da li je "
-"Bambook IP adresa ispravno unešena."
+"Нисам успео да се повежем с Bambook читачем. \n"
+"Ако покушавате да се повежете преко WiFi, молим вас да проверите да ли је "
+"Bambook ИП адреса исправно унешена."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
@@ -1197,7 +1197,7 @@ msgstr "Bambook"
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:222
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:245
 msgid "Getting list of books on device..."
-msgstr "Preuzimam spisak knjiga sa uređaja..."
+msgstr "Преузимам списак књига са уређаја..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:264
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:268
@@ -1205,7 +1205,7 @@ msgstr "Preuzimam spisak knjiga sa uređaja..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:274
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:276
 msgid "Transferring books to device..."
-msgstr "Šaljem knjige na uređaj..."
+msgstr "Пренос књига на уређај..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:330
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:344
@@ -1214,7 +1214,7 @@ msgstr "Šaljem knjige na uređaj..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:298
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:329
 msgid "Adding books to device metadata listing..."
-msgstr "Dodajem knjige na spisak metapodataka na uređaju..."
+msgstr "Додајем књиге на списак метаподатака на уређају..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:352
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:354
@@ -1225,7 +1225,7 @@ msgstr "Dodajem knjige na spisak metapodataka na uređaju..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:335
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:356
 msgid "Removing books from device..."
-msgstr "Uklanjam knjige sa uređaja..."
+msgstr "Уклањам књиге са уређаја..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:369
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:374
@@ -1234,24 +1234,24 @@ msgstr "Uklanjam knjige sa uređaja..."
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:363
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:368
 msgid "Removing books from device metadata listing..."
-msgstr "Uklanjam knjiga sa spiska metapodataka na uređaju..."
+msgstr "Уклањам књиге са списка метаподатака на уређају..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:442
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:398
 msgid "Sending metadata to device..."
-msgstr "Šaljem metapodatke na uređaj..."
+msgstr "Шаљем метаподатке на уређај..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:129
 msgid "Bambook SDK has not been installed."
-msgstr "Bambook SDK nije instalirana."
+msgstr "Bambook SDK није инсталиран."
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr "Uspostavi vezu s Binatone Readme čitačem."
+msgstr "Успостави везу с Binatone Readme читачем."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr "Uspostavi vezu s Blackberry telefonom."
+msgstr "Успостави везу с Blackberry паметним телефоном."
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
@@ -1263,35 +1263,35 @@ msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
-msgstr ""
+msgstr "Успостави везу с Blackberry playbook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Успостави везу с BOEYE BEX Serial eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Успостави везу с BOEYE BDX serial eBook."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr "Uspostavi vezu s Cybook Gen 3/Opus čitačem."
+msgstr "Успостави везу с Cybook Gen 3 / Opus eBoo читачемk."
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr "Uspostavi vezu s Cybook Orizon čitačem"
+msgstr "Успостави везу с Cybook Orizon читачем"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:25
 msgid "Communicate with the EB600 eBook reader."
-msgstr "Uspostavi vezu sa EB600 čitačem."
+msgstr "Успостави везу са EB600 читачем."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr "Uspostavi vezu sa Astak Mentor EB600 čitačem."
+msgstr "Успостави везу са Astak Mentor EB600 читачем."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr "Uspstavi vezu s PocketBook 301 čitačem."
+msgstr "Успстави везу с PocketBook 301 читачем."
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
