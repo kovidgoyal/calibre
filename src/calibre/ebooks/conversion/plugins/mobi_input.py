@@ -6,7 +6,6 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.customize.conversion import InputFormatPlugin
-from calibre.ptempfile import PersistentTemporaryDirectory
 
 class MOBIInput(InputFormatPlugin):
 
@@ -19,6 +18,7 @@ class MOBIInput(InputFormatPlugin):
                 accelerators):
 
         if os.environ.get('USE_MOBIUNPACK', None) is not None:
+            from calibre.ptempfile import PersistentTemporaryDirectory
             try:
                 from mobiunpack.mobi_unpack import Mobi8Reader
                 from calibre.customize.ui import plugin_for_input_format
