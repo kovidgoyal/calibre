@@ -832,22 +832,8 @@ class Manifest(object):
 
 
         def _parse_css(self, data):
-            from cssutils.css import CSSRule
-            from cssutils import CSSParser, log
+            from cssutils import CSSParser, log, resolveImports
             log.setLevel(logging.WARN)
-            def get_style_rules_from_import(import_rule):
-                ans = []
-                if not import_rule.styleSheet:
-                    return ans
-                rules = import_rule.styleSheet.cssRules
-                for rule in rules:
-                    if rule.type == CSSRule.IMPORT_RULE:
-                        ans.extend(get_style_rules_from_import(rule))
-                    elif rule.type in (CSSRule.FONT_FACE_RULE,
-                            CSSRule.STYLE_RULE):
-                        ans.append(rule)
-                return ans
-
             self.oeb.log.debug('Parsing', self.href, '...')
             data = self.oeb.decode(data)
             data = self.oeb.css_preprocessor(data, add_namespace=True)
@@ -855,19 +841,8 @@ class Manifest(object):
                                fetcher=self.override_css_fetch or self._fetch_css,
                                log=_css_logger)
             data = parser.parseString(data, href=self.href)
+            data = resolveImports(data)
             data.namespaces['h'] = XHTML_NS
-            import_rules = list(data.cssRules.rulesOfType(CSSRule.IMPORT_RULE))
-            rules_to_append = []
-            insert_index = None
-            for r in data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
-                insert_index = data.cssRules.index(r)
-                break
-            for rule in import_rules:
-                rules_to_append.extend(get_style_rules_from_import(rule))
-            for r in reversed(rules_to_append):
-                data.insertRule(r, index=insert_index)
-            for rule in import_rules:
-                data.deleteRule(rule)
             return data
 
         def _fetch_css(self, path):
@@ -880,7 +855,8 @@ class Manifest(object):
                 self.oeb.logger.warn('CSS import of non-CSS file %r' % path)
                 return (None, None)
             data = item.data.cssText
-            return ('utf-8', data)
+            enc = None if isinstance(data, unicode) else 'utf-8'
+            return (enc, data)
 
         # }}}
 
