@@ -245,14 +245,14 @@ def insert_images_into_markup(parts, resource_map, log):
         parts[i] = part
 
 def upshift_markup(parts):
-    tag_pattern = re.compile(r'''(<(svg)[^>]*>)''', re.IGNORECASE)
+    tag_pattern = re.compile(r'''(<(?:svg)[^>]*>)''', re.IGNORECASE)
 
     for i in xrange(len(parts)):
         part = parts[i]
 
         # tag pattern
         srcpieces = re.split(tag_pattern, part)
-        for j in range(1, len(srcpieces),2):
+        for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
             if tag[:4].lower() == '<svg':
                 tag = tag.replace('preserveaspectratio','preserveAspectRatio')
