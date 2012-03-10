@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2012-02-28 21:36+0000\n"
-"Last-Translator: Piotr Parafiniuk <Unknown>\n"
+"PO-Revision-Date: 2012-03-09 13:46+0000\n"
+"Last-Translator: Nightelf <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-02-29 04:40+0000\n"
-"X-Generator: Launchpad (build 14874)\n"
+"X-Launchpad-Export-Date: 2012-03-10 04:45+0000\n"
+"X-Generator: Launchpad (build 14914)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -5001,7 +5001,7 @@ msgstr "Archiwa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:40
 msgid "Wordprocessor files"
-msgstr ""
+msgstr "Pliki edytora tekstu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:47
 msgid "Add books"
@@ -5084,6 +5084,8 @@ msgid ""
 "Are you sure you want to add the same files to all %d books? If the format "
 "already exists for a book, it will be replaced."
 msgstr ""
+"Czy jesteś pewien, że chcesz dodać te same pliki do %d książek? Jeśli plik o "
+"tym rozszerzeniu już istnieje dla danej książki, zostanie zastąpiony."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:99
 msgid "Select book files"
@@ -14220,6 +14222,8 @@ msgstr ""
 msgid ""
 "The value \"{0}\" is in the list more than once, perhaps with different case"
 msgstr ""
+"Wartość \"{0}\" występuje na liście więcej niż raz, być może przy użyciu "
+"innej wielkości liter."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/create_custom_column.py:295
 msgid ""
@@ -17297,6 +17301,8 @@ msgid ""
 "The amount by which the font size is increased/decreased\n"
 " when you click the font size larger/smaller buttons"
 msgstr ""
+"Wielość o którą czcionka zostanie zwiększona/zmniejszona\n"
+" kiedy naciśniesz przycisk mniejsza/większa czcionka"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/config_ui.py:213
 msgid "%"
@@ -17388,6 +17394,8 @@ msgid ""
 "The amount by which to change the font size when clicking the font "
 "larger/smaller buttons. Should be a number between 0 and 1."
 msgstr ""
+"Wielość o którą zmieni się czcionka po naciśnięciu przycisku "
+"mniejsza/większa czcionka. Powinna być liczbą pomiędzy 0 a 1."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/documentview.py:68
 msgid "Font options"
@@ -22127,6 +22135,8 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:387
 msgid "Specify which font to use when generating a default cover or masthead"
 msgstr ""
+"Wybierz czcionkę która ma być użyta podczas generowania domyślnej okładki "
+"lub nagłówku"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:388
 msgid ""
