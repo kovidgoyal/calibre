@@ -945,7 +945,7 @@ ol, ul { padding-left: 2em; }
                 names and 'margin-right' in names and 'margin-bottom' in
                 names):
             # These come from XML and we cannot preserve XML attribute order so
-            # we assume that margin is to be overriden
+            # we assume that margin is to be overridden
             # See https://bugs.launchpad.net/calibre/+bug/941134
             ignore_keys.add(names['margin'])
 
