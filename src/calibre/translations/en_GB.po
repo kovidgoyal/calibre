@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2012-02-16 14:24+0000\n"
+"PO-Revision-Date: 2012-03-10 20:02+0000\n"
 "Last-Translator: Anthony Harrington <untaintableangel@hotmail.co.uk>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-25 05:09+0000\n"
-"X-Generator: Launchpad (build 14860)\n"
+"X-Launchpad-Export-Date: 2012-03-11 04:44+0000\n"
+"X-Generator: Launchpad (build 14914)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
@@ -1496,7 +1496,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:305
 msgid "Use slower but more accurate page number calculation"
-msgstr ""
+msgstr "Use slower but more accurate page number calculation"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:307
 msgid ""
@@ -1512,7 +1512,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:311
 msgid "Custom column name to retrieve page counts from"
-msgstr ""
+msgstr "Custom column name to retrieve page counts from"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:313
 msgid ""
@@ -1521,6 +1521,10 @@ msgid ""
 "calculating a page count. Specify the name of the custom column here, for "
 "example, #pages. "
 msgstr ""
+"If you have a custom column in your library that you use to store the page "
+"count of books, you can have calibre use that information, instead of "
+"calculating a page count. Specify the name of the custom column here, for "
+"example, #pages. "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:415
 msgid "Communicate with the Kindle DX eBook reader."
@@ -3191,6 +3195,10 @@ msgid ""
 "other forms of auto-detection. See the XPath Tutorial in the calibre User "
 "Manual for examples."
 msgstr ""
+"XPath expression that specifies all tags that should be added to the Table "
+"of Contents at level one. If this is specified, it takes precedence over "
+"other forms of auto-detection. See the XPath Tutorial in the calibre User "
+"Manual for examples."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:217
 msgid ""
@@ -3198,6 +3206,9 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry. See the XPath Tutorial in the calibre User Manual for examples."
 msgstr ""
+"XPath expression that specifies all tags that should be added to the Table "
+"of Contents at level two. Each entry is added under the previous level one "
+"entry. See the XPath Tutorial in the calibre User Manual for examples."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:226
 msgid ""
@@ -3205,6 +3216,9 @@ msgid ""
 "of Contents at level three. Each entry is added under the previous level two "
 "entry. See the XPath Tutorial in the calibre User Manual for examples."
 msgstr ""
+"XPath expression that specifies all tags that should be added to the Table "
+"of Contents at level three. Each entry is added under the previous level two "
+"entry. See the XPath Tutorial in the calibre User Manual for examples."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:235
 msgid ""
@@ -16679,12 +16693,12 @@ msgstr "A user category %s does not exist"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:253
 msgid "Delete item"
-msgstr ""
+msgstr "Delete item"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:255
 #, python-format
 msgid "%s will be deleted from all books. Are you sure?"
-msgstr ""
+msgstr "%s will be deleted from all books. Are you sure?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:333
 msgid "Find item in tag browser"
@@ -16774,7 +16788,7 @@ msgstr "Rename %s"
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:355
 #, python-format
 msgid "Delete %s"
-msgstr ""
+msgstr "Delete %s"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/view.py:359
 #, python-format
@@ -20634,6 +20648,9 @@ msgid ""
 "calibre library. This function can be called in template program mode using "
 "the template \"{:'current_library_name()'}\"."
 msgstr ""
+"current_library_name() -- return the last name on the path to the current "
+"calibre library. This function can be called in template program mode using "
+"the template \"{:'current_library_name()'}\"."
 
 #: /home/kovid/work/calibre/src/calibre/utils/ipc/job.py:43
 msgid "Waiting..."
@@ -20745,7 +20762,7 @@ msgstr "English (Croatia)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:137
 msgid "English (Hong Kong)"
-msgstr ""
+msgstr "English (Hong Kong)"
 
 #: /home/kovid/work/calibre/src/calibre/utils/localization.py:138
 msgid "English (Indonesia)"
@@ -21535,7 +21552,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:130
 msgid "Control order of categories in the tag browser"
-msgstr ""
+msgstr "Control order of categories in the tag browser"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:131
 msgid ""
@@ -21549,6 +21566,15 @@ msgid ""
 "Example: tag_browser_category_order = {'series':1, 'tags':2, '*':3}\n"
 "resulting in the order series, tags, then everything else in default order."
 msgstr ""
+"Change the following dict to change the order that categories are displayed "
+"in\n"
+"the tag browser. Items are named using their lookup name, and will be "
+"sorted\n"
+"using the number supplied. The lookup name '*' stands for all names that\n"
+"otherwise do not appear. Two names with the same value will be sorted\n"
+"using the default order; the one used when the dict is empty.\n"
+"Example: tag_browser_category_order = {'series':1, 'tags':2, '*':3}\n"
+"resulting in the order series, tags, then everything else in default order."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:141
 msgid "Specify columns to sort the booklist by on startup"
@@ -22081,6 +22107,7 @@ msgstr ""
 #: /home/kovid/work/calibre/resources/default_tweaks.py:387
 msgid "Specify which font to use when generating a default cover or masthead"
 msgstr ""
+"Specify which font to use when generating a default cover or masthead"
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:388
 msgid ""
@@ -22089,6 +22116,10 @@ msgid ""
 "default font (Liberation Serif) does not contain glyphs for the language of\n"
 "the books in your library."
 msgstr ""
+"Absolute path to .ttf font files to use as the fonts for the title, author\n"
+"and footer when generating a default cover or masthead image. Useful if the\n"
+"default font (Liberation Serif) does not contain glyphs for the language of\n"
+"the books in your library."
 
 #: /home/kovid/work/calibre/resources/default_tweaks.py:395
 msgid "Control behavior of the book list"
