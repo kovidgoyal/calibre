@@ -1,26 +1,27 @@
-# Macedonian translation for calibre
-# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
+# Welsh translation for calibre
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
 # This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-02-24 13:42+0000\n"
-"PO-Revision-Date: 2011-11-26 20:57+0000\n"
-"Last-Translator: ScHRiLL <Unknown>\n"
-"Language-Team: Macedonian <mk@li.org>\n"
+"PO-Revision-Date: 2012-02-26 20:21+0000\n"
+"Last-Translator: Rachael Munns <vashtijoy@gmail.com>\n"
+"Language-Team: Welsh <cy@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : 1;\n"
-"X-Launchpad-Export-Date: 2012-02-25 04:58+0000\n"
-"X-Generator: Launchpad (build 14860)\n"
+"Plural-Forms: nplurals=4; plural=n==1 ? 0 : n==2 ? 1 : (n != 8 && n != 11) ? "
+"2 : 3;\n"
+"X-Launchpad-Export-Date: 2012-02-27 04:50+0000\n"
+"X-Generator: Launchpad (build 14868)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
 msgid "Does absolutely nothing"
-msgstr "Неправи апсолутно ништо"
+msgstr "Dim yn gwneud dim byd"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:59
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:106
@@ -200,39 +201,39 @@ msgstr "Неправи апсолутно ништо"
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:45
 #: /home/kovid/work/calibre/src/calibre/web/feeds/recipes/collection.py:53
 msgid "Unknown"
-msgstr "непознато"
+msgstr "Dieithr"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:77
 msgid "Base"
-msgstr "Основа"
+msgstr "Sail"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 #: /home/kovid/work/calibre/src/calibre/ebooks/html/to_zip.py:81
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:397
 msgid "Customize"
-msgstr "Прилагоди"
+msgstr "Addasu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:156
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:52
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/preferences.py:57
 msgid "Cannot configure"
-msgstr "Неможе да се прилагоди"
+msgstr "Methu ffurfweddu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:318
 msgid "File type"
-msgstr "Тип на датотека"
+msgstr "Math o ffeil"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:354
 msgid "Metadata reader"
-msgstr ""
+msgstr "Porïwr uwchddata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:384
 msgid "Metadata writer"
-msgstr ""
+msgstr "Golygydd uwchddata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:414
 msgid "Catalog generator"
-msgstr "Каталог генератор"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:527
 msgid "User Interface Action"
@@ -246,16 +247,16 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/main.py:309
 #: /home/kovid/work/calibre/src/calibre/gui2/viewer/main_ui.py:206
 msgid "Preferences"
-msgstr ""
+msgstr "Hoffterau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:613
 #: /home/kovid/work/calibre/src/calibre/gui2/store/search/models.py:41
 msgid "Store"
-msgstr ""
+msgstr "Storfa"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:617
 msgid "An ebook store."
-msgstr ""
+msgstr "Siop e-lyfrau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:21
 msgid ""
@@ -273,7 +274,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:131
 msgid "Extract cover from comic files"
-msgstr ""
+msgstr "Tynnwch clawr o ffeiliau comig"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:168
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:179
@@ -298,15 +299,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:390
 #, python-format
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "Darllenwch uwchddata o'r ffeiliau %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:327
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "Darllenwch uwchddata o e-lyfrau yn archifau RAR"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:401
 msgid "Read metadata from ebooks in ZIP archives"
-msgstr ""
+msgstr "Darllenwch uwchddata o e-lyfrau yn archifau ZIP"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:418
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:439
@@ -316,18 +317,18 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:492
 #, python-format
 msgid "Set metadata in %s files"
-msgstr ""
+msgstr "Gosodwch uwchddata yn ffeiliau %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:428
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:460
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:503
 #, python-format
 msgid "Set metadata from %s files"
-msgstr ""
+msgstr "Gosodwch uwchddata o ffeiliau %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:751
 msgid "Add books to calibre or the connected device"
-msgstr ""
+msgstr "Ychwanegwch llyfrau i Calibre neu i ddyfais cysylltiedig"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:756
 msgid "Fetch annotations from a connected Kindle (experimental)"
@@ -343,23 +344,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:771
 msgid "Delete books from your calibre library or connected device"
-msgstr ""
+msgstr "Diléuwch lyfrau o'ch llyfrgell Calibre neu'ch dyfais cysylltiedig"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:776
 msgid "Edit the metadata of books in your calibre library"
-msgstr ""
+msgstr "Golygwch yr uwchddata o lyfrau yn eich llyfrgell Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:781
 msgid "Read books in your calibre library"
-msgstr ""
+msgstr "Darllenwch lyfrau yn eich llyfrgell Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:786
 msgid "Download news from the internet in ebook form"
-msgstr ""
+msgstr "Lawrlwythwch newyddion o'r rhyngrwyd yn ffurf e-lyfr"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:791
 msgid "Show a list of related books quickly"
-msgstr ""
+msgstr "Dangoswch rhestr o lyfrau cytras"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:796
 msgid "Export books from your calibre library to the hard disk"
@@ -371,21 +372,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:806
 msgid "Restart calibre"
-msgstr ""
+msgstr "Ail-ddechreuwch Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:811
 msgid "Open the folder that contains the book files in your calibre library"
 msgstr ""
+"Agorwch y ffolder sy'n cynnwys ffeiliau lyfr yn eich llyfrgell Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:817
 msgid "Send books to the connected device"
-msgstr ""
+msgstr "Anfonwch lyfrau i'r ddyfais cysylltiedig"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:822
 msgid ""
 "Send books via email or the web also connect to iTunes or folders on your "
 "computer as if they are devices"
 msgstr ""
+"Anfonwch llyfrau gyda e-bost neu'r we. Ymgysylltwch hefyd gyda iTunes, neu i "
+"ffolderau ar eich cyfrifriadur fel eu bod nhw'n ddyfeisiau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:828
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/help.py:16
@@ -394,11 +398,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:833
 msgid "Customize calibre"
-msgstr ""
+msgstr "Addaswch Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:838
 msgid "Easily find books similar to the currently selected one"
-msgstr ""
+msgstr "Chwiliwch am lyfrau sy'n debyg i'r lyfr ddewisiedig"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:843
 msgid ""
@@ -407,19 +411,20 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:849
 msgid "Copy books from the devce to your calibre library"
-msgstr ""
+msgstr "Copïwch lyfrau o'r ddyfais i'ch llyfrgell Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:854
 msgid "Edit the collections in which books are placed on your device"
-msgstr ""
+msgstr "Golygwch y casgliadau sy'n cynnwys llyfrau ar eich ddyfais"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:859
 msgid "Copy a book from one calibre library to another"
-msgstr ""
+msgstr "Copïwch lyfr o un llyfrgell Calibre i'r llall"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:864
 msgid "Make small tweaks to epub or htmlz files in your calibre library"
 msgstr ""
+"Gwnewch newidiadau bach i ffeiliau EPUB neu HTMLZ yn eich llyfrgell Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:869
 msgid ""
@@ -429,11 +434,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:875
 msgid "Choose a random book from your calibre library"
-msgstr ""
+msgstr "Dewiswch lyfr ar hâp o'ch llyfrgell Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:882
 msgid "Search for books from different book sellers"
-msgstr ""
+msgstr "Chwiliwch am lyfrau o siopau lyfrau gwahanol"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:898
 msgid "Get new calibre plugins or update your existing ones"
@@ -441,7 +446,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:917
 msgid "Look and Feel"
-msgstr ""
+msgstr "Golwg a Theimlad"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:919
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:931
@@ -449,32 +454,32 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:953
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:965
 msgid "Interface"
-msgstr ""
+msgstr "Rhyngwyneb"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:923
 msgid "Adjust the look and feel of the calibre interface to suit your tastes"
-msgstr ""
+msgstr "Addaswch golwg a theimlad o'r rhyngwyneb Calibre i'ch ddant"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:929
 msgid "Behavior"
-msgstr ""
+msgstr "Ymddygiad"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:935
 msgid "Change the way calibre behaves"
-msgstr ""
+msgstr "Addaswch ymddygiad Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:940
 #: /home/kovid/work/calibre/src/calibre/gui2/library/views.py:252
 msgid "Add your own columns"
-msgstr ""
+msgstr "Ychwanegwch eich colofnau dy hun"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:946
 msgid "Add/remove your own columns to the calibre book list"
-msgstr ""
+msgstr "Ychwanegwch/tynnwch eich colofnau eich hun i restr lyfrau Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:951
 msgid "Toolbar"
-msgstr ""
+msgstr "Bar Offer"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:957
 msgid ""
@@ -484,21 +489,21 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:963
 msgid "Searching"
-msgstr ""
+msgstr "Wrthi'n chwilio"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:969
 msgid "Customize the way searching for books works in calibre"
-msgstr ""
+msgstr "Addaswch sut mai chwilio am lyfrau yn gweithio mewn Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:974
 msgid "Input Options"
-msgstr ""
+msgstr "Hoffterau mewnbwn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:976
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:987
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:998
 msgid "Conversion"
-msgstr ""
+msgstr "Trosiad"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:980
 msgid "Set conversion options specific to each input format"
@@ -506,7 +511,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:985
 msgid "Common Options"
-msgstr ""
+msgstr "Hoffterau Cyffredin"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:991
 msgid "Set conversion options common to all formats"
@@ -514,7 +519,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:996
 msgid "Output Options"
-msgstr ""
+msgstr "Hoffterau Allbwn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1002
 msgid "Set conversion options specific to each output format"
@@ -522,22 +527,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1007
 msgid "Adding books"
-msgstr ""
+msgstr "Wrthi'n ychwanegu llyfrau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1009
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1021
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1033
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1045
 msgid "Import/Export"
-msgstr ""
+msgstr "Mewnbwn/Allbwn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1013
 msgid "Control how calibre reads metadata from files when adding books"
 msgstr ""
+"Dewiswch sut mai Calibre yn darllen uwchddata o ffeiliau tra ychwanegu "
+"llyfrau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1019
 msgid "Saving books to disk"
-msgstr ""
+msgstr "Wrthi'n cadw lyfrau ar y ddisg"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1025
 msgid ""
@@ -547,11 +554,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1031
 msgid "Sending books to devices"
-msgstr ""
+msgstr "Wrthi'n danfon lyfrau i'r ddyfeisiau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1037
 msgid "Control how calibre transfers files to your ebook reader"
-msgstr ""
+msgstr "Dewiswch sut mai Calibre yn anfon ffeiliau i'ch porïwr e-lyfrau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1043
 msgid "Metadata plugboards"
@@ -559,11 +566,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1049
 msgid "Change metadata fields before saving/sending"
-msgstr ""
+msgstr "Newidwch meysydd uwchddata cyn cadw neu anfon"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1054
 msgid "Template Functions"
-msgstr ""
+msgstr "Ffwythiannau Patrymlun"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1056
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1103
@@ -571,21 +578,21 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1126
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1137
 msgid "Advanced"
-msgstr ""
+msgstr "Pellach"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1060
 msgid "Create your own template functions"
-msgstr ""
+msgstr "Crëwch eich ffwythiannau patrymlun eich hun"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1065
 msgid "Sharing books by email"
-msgstr ""
+msgstr "Wrthi'n rhannu lyfrau gyda e-bost"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1067
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1079
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1092
 msgid "Sharing"
-msgstr ""
+msgstr "Wrthi'n rhannu"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1071
 msgid ""
@@ -595,7 +602,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1077
 msgid "Sharing over the net"
-msgstr ""
+msgstr "Wrthi'n rhannu dros y rhyngrwyd"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1083
 msgid ""
@@ -605,24 +612,26 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1090
 msgid "Metadata download"
-msgstr ""
+msgstr "Lawrlwythwch uwchddata"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1096
 msgid "Control how calibre downloads ebook metadata from the net"
 msgstr ""
+"Dewiswch sut mai Calibre yn lawrlwytho uwchddata e-lyfrau o'r rhyngrwyd"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1101
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/plugins.py:292
 msgid "Plugins"
-msgstr ""
+msgstr "Ategion"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1107
 msgid "Add/remove/customize various bits of calibre functionality"
 msgstr ""
+"Ychwanegwch/dileuwch/addaswch darnau gwahanol o peirianweithau Calibre"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1113
 msgid "Tweaks"
-msgstr ""
+msgstr "Newidiadau bach"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1119
 msgid "Fine tune how calibre behaves in various contexts"
@@ -630,24 +639,24 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1124
 msgid "Keyboard"
-msgstr ""
+msgstr "Allweddell"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1130
 msgid "Customize the keyboard shortcuts used by calibre"
-msgstr ""
+msgstr "Addaswch y byrlwybrau allweddell y mae Calibre yn ddefnyddio"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1135
 #: /home/kovid/work/calibre/src/calibre/gui2/keyboard.py:110
 msgid "Miscellaneous"
-msgstr ""
+msgstr "Amrywiol"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:1141
 msgid "Miscellaneous advanced configuration"
-msgstr ""
+msgstr "Ffurfweddiad pellach amrywiol"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:102
 msgid "Conversion Input"
-msgstr ""
+msgstr "Mewnbwn trawsnewidiadau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:134
 msgid ""
@@ -659,7 +668,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:238
 msgid "Conversion Output"
-msgstr ""
+msgstr "Allbwn trawsnewidiadau"
 
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:252
 msgid ""
@@ -670,11 +679,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/conversion.py:268
 #, python-format
 msgid "Convert ebooks to the %s format"
-msgstr ""
+msgstr "Trawsnewidwch e-lyfrau i'r fformat %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:47
 msgid "Input profile"
-msgstr ""
+msgstr "Proffeil mewnbwn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:51
 msgid ""
@@ -687,74 +696,75 @@ msgstr ""
 msgid ""
 "This profile is intended for the SONY PRS line. The 500/505/600/700 etc."
 msgstr ""
+"Am y ddyfeisiau SONY PRS y mae'r proffeil yma. Y 500/505/600/700 ayyb."
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:71
 msgid "This profile is intended for the SONY PRS 300."
-msgstr ""
+msgstr "Am y SONY PRS 300 y mae'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:80
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:493
 msgid "This profile is intended for the SONY PRS-900."
-msgstr ""
+msgstr "Am y SONY PRS-900 y mae'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:88
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:538
 msgid "This profile is intended for the Microsoft Reader."
-msgstr ""
+msgstr "Am y Microsoft Reader y mae'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:99
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:549
 msgid "This profile is intended for the Mobipocket books."
-msgstr ""
+msgstr "Am lyfrau Mobipocket y mae'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:112
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:562
 msgid "This profile is intended for the Hanlin V3 and its clones."
-msgstr ""
+msgstr "Am y Hanlin V3 a'i chlonau y mae'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:124
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:574
 msgid "This profile is intended for the Hanlin V5 and its clones."
-msgstr ""
+msgstr "Am y Hanlin V5 a'i chlonau y mae'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:134
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:582
 msgid "This profile is intended for the Cybook G3."
-msgstr ""
+msgstr "Am y Cybook G3 y mae'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:147
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:596
 msgid "This profile is intended for the Cybook Opus."
-msgstr ""
+msgstr "Am y Cybook Opus ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:159
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:609
 msgid "This profile is intended for the Amazon Kindle."
-msgstr ""
+msgstr "Am yr Amazon Kindle ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:171
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:669
 msgid "This profile is intended for the Irex Illiad."
-msgstr ""
+msgstr "Am yr IRex ILiad ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:183
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:682
 msgid "This profile is intended for the IRex Digital Reader 1000."
-msgstr ""
+msgstr "Am yr IRex Digital Reader 1000 ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:196
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:696
 msgid "This profile is intended for the IRex Digital Reader 800."
-msgstr ""
+msgstr "Am yr IRex Digital Reader 800 ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:208
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:710
 msgid "This profile is intended for the B&N Nook."
-msgstr ""
+msgstr "Am y B&N Nook ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:230
 msgid "Output profile"
-msgstr ""
+msgstr "Proffeil allbwn"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:234
 msgid ""
@@ -780,15 +790,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:471
 msgid "This profile is intended for the Kobo Reader."
-msgstr ""
+msgstr "Am y Kobo Reader ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:484
 msgid "This profile is intended for the SONY PRS-300."
-msgstr ""
+msgstr "Am y SONY PRS-300 ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:502
 msgid "Suitable for use with any e-ink device"
-msgstr ""
+msgstr "Yn addas am bob ddyfais e-inc"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:509
 msgid "Suitable for use with any large screen e-ink device"
@@ -796,7 +806,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:518
 msgid "This profile is intended for the 5-inch JetBook."
-msgstr ""
+msgstr "Am y 5-modfedd JetBook ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:527
 msgid ""
@@ -806,19 +816,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:635
 msgid "This profile is intended for the Amazon Kindle DX."
-msgstr ""
+msgstr "Am yr Amazon Kindle DX ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:659
 msgid "This profile is intended for the Amazon Kindle Fire."
-msgstr ""
+msgstr "Am yr Amazon Kindle Fire ydy'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:722
 msgid "This profile is intended for the B&N Nook Color."
-msgstr ""
+msgstr "Am y B&N Nook Color y mae'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:733
 msgid "This profile is intended for the Sanda Bambook."
-msgstr ""
+msgstr "Am y Sanda Bambook y mae'r proffeil yma"
 
 #: /home/kovid/work/calibre/src/calibre/customize/profiles.py:748
 msgid ""
@@ -894,6 +904,7 @@ msgstr ""
 #, python-format
 msgid "Path to library too long. Must be less than %d characters."
 msgstr ""
+"Rhy hir ydy'r llwybr i'r llyfrgell. Mae rhaid fod yn llai na %d cymeriad."
 
 #: /home/kovid/work/calibre/src/calibre/db/cache.py:134
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:649
@@ -903,32 +914,32 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:835
 #: /home/kovid/work/calibre/src/calibre/utils/formatter_functions.py:847
 msgid "Yes"
-msgstr ""
+msgstr "Iawn"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:163
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1134
 msgid "Main"
-msgstr ""
+msgstr "Sail"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:165
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:77
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1136
 msgid "Card A"
-msgstr ""
+msgstr "Cerdyn A"
 
 #: /home/kovid/work/calibre/src/calibre/db/fields.py:167
 #: /home/kovid/work/calibre/src/calibre/gui2/layout.py:79
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1138
 msgid "Card B"
-msgstr ""
+msgstr "Cerdyn B"
 
 #: /home/kovid/work/calibre/src/calibre/debug.py:154
 msgid "Debug log"
-msgstr ""
+msgstr "Cofnodydd dadfygio"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:17
 msgid "Communicate with Android phones."
-msgstr ""
+msgstr "Cyfathrebwch gyda ffoniau Android"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:164
 msgid ""
@@ -938,11 +949,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:252
 msgid "Communicate with S60 phones."
-msgstr ""
+msgstr "Cyfathrebwch gyda ffoniau S60"
 
 #: /home/kovid/work/calibre/src/calibre/devices/android/driver.py:271
 msgid "Communicate with WebOS tablets."
-msgstr ""
+msgstr "Cyfathrebwch gyda tabledau WebOS"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:60
 msgid ""
@@ -997,11 +1008,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:191
 msgid "Apple device"
-msgstr ""
+msgstr "Dyfais Apple"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:193
 msgid "Communicate with iTunes/iBooks."
-msgstr ""
+msgstr "Cyfathrebwch gyda iTunes/iBooks"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:207
 msgid "Apple device detected, launching iTunes, please wait ..."
@@ -1033,14 +1044,14 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3244
 #, python-format
 msgid "%(num)d of %(tot)d"
-msgstr ""
+msgstr "%(num)d o %(tot)d"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:503
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:1149
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3251
 #: /home/kovid/work/calibre/src/calibre/gui2/ebook_download.py:110
 msgid "finished"
-msgstr ""
+msgstr "wedi gorffen"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:694
 msgid ""
@@ -1073,7 +1084,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3151
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:187
 msgid "News"
-msgstr ""
+msgstr "Newyddion"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:2726
 #: /home/kovid/work/calibre/src/calibre/gui2/catalog/catalog_epub_mobi.py:65
@@ -1081,23 +1092,23 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3107
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:3125
 msgid "Catalog"
-msgstr ""
+msgstr "Catalog"
 
 #: /home/kovid/work/calibre/src/calibre/devices/apple/driver.py:3094
 msgid "Communicate with iTunes."
-msgstr ""
+msgstr "Cyfathrebwch gyda iTunes"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:24
 msgid "Communicate with the Sanda Bambook eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau Sanda Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:25
 msgid "Li Fanxi"
-msgstr ""
+msgstr "Li Fanxi"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:42
 msgid "Device IP Address (restart calibre after changing)"
-msgstr ""
+msgstr "Cyferiad IP y ddyfais (ail-ddechreuwch Calibre ar ôl newid)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:48
 msgid ""
@@ -1119,7 +1130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:112
 msgid "Bambook"
-msgstr ""
+msgstr "Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:218
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:234
@@ -1135,7 +1146,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:222
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:245
 msgid "Getting list of books on device..."
-msgstr ""
+msgstr "Wrthi'n adalw rhestr o lyfrau ar y ddyfais..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:264
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:268
@@ -1143,7 +1154,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:274
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:276
 msgid "Transferring books to device..."
-msgstr ""
+msgstr "Wrthi'n anfon lyfrau i'r ddyfais..."
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:330
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:344
@@ -1152,7 +1163,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:298
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:329
 msgid "Adding books to device metadata listing..."
-msgstr ""
+msgstr "Wrthi'n ychwanegu lyfrau i restr uwchddata y dyfais"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:352
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:354
@@ -1163,7 +1174,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:335
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:356
 msgid "Removing books from device..."
-msgstr ""
+msgstr "Wrthi'n dileu lyfrau o'r ddyfais"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:369
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:374
@@ -1172,24 +1183,24 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:363
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:368
 msgid "Removing books from device metadata listing..."
-msgstr ""
+msgstr "Wrthi'n dileu lyfrau o restr uwchddata y dyfais"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/driver.py:442
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:398
 msgid "Sending metadata to device..."
-msgstr ""
+msgstr "Wrthi'n anfon uwchddata i'r dyfais"
 
 #: /home/kovid/work/calibre/src/calibre/devices/bambook/libbambookcore.py:129
 msgid "Bambook SDK has not been installed."
-msgstr ""
+msgstr "Ni ddarparwyd yr SDK Bambook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/binatone/driver.py:17
 msgid "Communicate with the Binatone Readme eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda porïwr e-lyfr Binatone Readme"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:13
 msgid "Communicate with the Blackberry smart phone."
-msgstr ""
+msgstr "Cyfathrebwch gyda ffônau clyfar Blackberry"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:14
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:37
@@ -1197,7 +1208,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:90
 msgid "Kovid Goyal"
-msgstr ""
+msgstr "Kovid Goyal"
 
 #: /home/kovid/work/calibre/src/calibre/devices/blackberry/driver.py:36
 msgid "Communicate with the Blackberry playbook."
@@ -1205,85 +1216,85 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:14
 msgid "Communicate with BOEYE BEX Serial eBook readers."
-msgstr ""
+msgstr "Cyfathrebwch gyda porwyr e-lyfr cyfresol BOEYE BEX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/boeye/driver.py:35
 msgid "Communicate with BOEYE BDX serial eBook readers."
-msgstr ""
+msgstr "Cyfathrebwch gyda porwyr e-lyfr cyfresol BOEYE BDX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:22
 msgid "Communicate with the Cybook Gen 3 / Opus eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau Cybook Gen 3 / Opus"
 
 #: /home/kovid/work/calibre/src/calibre/devices/cybook/driver.py:64
 msgid "Communicate with the Cybook Orizon eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda porïwr e-lyfr Cybook Orizon"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:25
 msgid "Communicate with the EB600 eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda porïwr e-lyfr EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:193
 msgid "Communicate with the Astak Mentor EB600"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Astak Mentor EB600"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:216
 msgid "Communicate with the PocketBook 301 reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr PocketBook 301"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:233
 msgid "Communicate with the PocketBook 602/603/902/903 reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr PocketBook 602/603/902/903"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:253
 msgid "Communicate with the PocketBook 360+ reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr PocketBook 360+"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:263
 msgid "Communicate with the PocketBook 701"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r PocketBook 701"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eb600/driver.py:294
 msgid "Communicate with the Infibeam Pi2 reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr Infibeam Pi2"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:17
 msgid "Entourage Edge"
-msgstr ""
+msgstr "Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/edge/driver.py:18
 msgid "Communicate with the Entourage Edge."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Entourage Edge"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:16
 msgid "Communicate with the ESlick eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau ESlick"
 
 #: /home/kovid/work/calibre/src/calibre/devices/eslick/driver.py:49
 msgid "Communicate with the Sigmatek eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau Sigmatek"
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:33
 msgid "Use an arbitrary folder as a device."
-msgstr ""
+msgstr "Defnyddiwch ffolder fel ddyfais"
 
 #: /home/kovid/work/calibre/src/calibre/devices/folder_device/driver.py:29
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:14
 msgid "Device Interface"
-msgstr ""
+msgstr "Rhyngwyneb Dyfais"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:19
 msgid "Communicate with Hanlin V3 eBook readers."
-msgstr ""
+msgstr "Cyfathrebwch gyda porwyr e-lyfr Hanlin V3"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:96
 msgid "Communicate with Hanlin V5 eBook readers."
-msgstr ""
+msgstr "Cyfathrebwch gyda porwyr e-lyfr Hanlin V5"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:114
 msgid "Communicate with the BOOX eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda porïwr e-lyfrau BOOX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanlin/driver.py:133
 msgid ""
@@ -1293,69 +1304,69 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:22
 msgid "Communicate with the Hanvon N520 eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda porïwr e-lyfrau Hanvon N520"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:47
 msgid "Communicate with The Book reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda porïwr The Book"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:59
 msgid "Communicate with the Libre Air reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda porïwr Libre Air"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:72
 msgid "Communicate with the SpringDesign Alex eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau SpringDesign Alex"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:132
 msgid "Communicate with the Azbooka"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Azbooka"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:151
 msgid "Communicate with the Elonex EB 511 eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyfa'r porïwr e-lyfrau Elonex EB 511"
 
 #: /home/kovid/work/calibre/src/calibre/devices/hanvon/driver.py:171
 msgid "Communicate with the Cybook Odyssey eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau Cybook Odyssey"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:16
 msgid "Communicate with the IRex Iliad eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau IRex Iliad"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iliad/driver.py:17
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:18
 #: /home/kovid/work/calibre/src/calibre/devices/usbms/driver.py:43
 msgid "John Schember"
-msgstr ""
+msgstr "John Schember"
 
 #: /home/kovid/work/calibre/src/calibre/devices/interface.py:57
 msgid "Cannot get files from this device"
-msgstr ""
+msgstr "Methwyd i adalw ffeiliau o'r ddyfais hwn"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:16
 msgid "Communicate with the IRex Digital Reader 1000 eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau IRex Digital Reader 1000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/irexdr/driver.py:42
 msgid "Communicate with the IRex Digital Reader 800"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r IRex Digital Reader 800"
 
 #: /home/kovid/work/calibre/src/calibre/devices/iriver/driver.py:17
 msgid "Communicate with the Iriver Story reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr Iriver Story"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:20
 msgid "Communicate with the JetBook eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau JetBook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:88
 msgid "Communicate with the MiBuk Wolder reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr MiBuk Wolder"
 
 #: /home/kovid/work/calibre/src/calibre/devices/jetbook/driver.py:116
 msgid "Communicate with the JetBook Mini reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr JetBook Mini"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/apnx.py:32
 #, python-format
@@ -1368,40 +1379,41 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:44
 msgid "Communicate with the Kindle eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfr Kindle"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:185
 #, python-format
 msgid "%(time)s<br />Last Page Read: %(loc)d (%(pr)d%%)"
-msgstr ""
+msgstr "%(time)s<br />Tudalen olaf â ddarllenwyd: %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:191
 #, python-format
 msgid "%(time)s<br />Last Page Read: Location %(loc)d (%(pr)d%%)"
 msgstr ""
+"%(time)s<br />Tudalen olaf â ddarllenwyd: Lleoliad %(loc)d (%(pr)d%%)"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:210
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
-msgstr ""
+msgstr "<b>Lleoliad %(dl)d &bull; %(typ)s</b><br />%(text)s<br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:219
 #, python-format
 msgid "<b>Page %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Tudalen %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:224
 #, python-format
 msgid "<b>Location %(dl)d &bull; %(typ)s</b><br />"
-msgstr ""
+msgstr "<b>Tudalen %(dl)d &bull; %(typ)s</b><br />"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:289
 msgid "Communicate with the Kindle 2/3/4/Touch eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda porwyr e-lyfr Kindle 2/3/4/Touch"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:298
 msgid "Send page number information when sending books"
-msgstr ""
+msgstr "Tra anfon lyfrau, anfonwch gwybodaeth am rhifau tudalen hefyd"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:300
 msgid ""
@@ -1437,19 +1449,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:415
 msgid "Communicate with the Kindle DX eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau Kindle DX"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kindle/driver.py:424
 msgid "Communicate with the Kindle Fire"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Kindle Fire"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:24
 msgid "Communicate with the Kobo Reader"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Kobo Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:54
 msgid "The Kobo supports several collections including "
-msgstr ""
+msgstr "Mae'r Kobo yn cynnal sawl casgliad yn cynnwys "
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:56
 msgid "Create tags for automatic management"
@@ -1468,7 +1480,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:62
 msgid "Upload Black and White Covers"
-msgstr ""
+msgstr "Llwythwch clawriau Du a Gwyn i fyny"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:63
 msgid "Show expired books"
@@ -1494,7 +1506,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:72
 msgid "Show Recommendations"
-msgstr ""
+msgstr "Dangoswch Argymhelliadau"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:73
 msgid ""
@@ -1506,7 +1518,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:596
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:382
 msgid "Not Implemented"
-msgstr ""
+msgstr "Ni chynnalwyd"
 
 #: /home/kovid/work/calibre/src/calibre/devices/kobo/driver.py:597
 msgid ""
@@ -1549,100 +1561,100 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:19
 msgid "Communicate with the Palm Pre"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Palm Pre"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:39
 msgid "Communicate with the Bq Avant"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Bq Avant"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:60
 msgid "Communicate with the Sweex/Kogan/Q600/Wink"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Sweex/Kogan/Q600/Wink"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:81
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:108
 msgid "Communicate with the Pandigital Novel"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Pandigital Novel"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:127
 msgid "Communicate with the VelocityMicro"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r VelocityMicro"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:145
 msgid "Communicate with the GM2000"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r GM2000"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:165
 msgid "Communicate with the Acer Lumiread"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Acer Lumiread"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:199
 msgid "Communicate with the Aluratek Color"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Aluratek Color"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:219
 msgid "Communicate with the Trekstor"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Trekstor"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:242
 msgid "Communicate with the EEE Reader"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r EEE Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:263
 msgid "Communicate with the Adam tablet"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r tabled Adam"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:284
 msgid "Communicate with the Nextbook Reader"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Nextbook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:336
 msgid "Communicate with the Moovybook Reader"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Moovybook Reader"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:358
 msgid "Communicate with the COBY"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r COBY"
 
 #: /home/kovid/work/calibre/src/calibre/devices/misc.py:384
 msgid "Communicate with the Ex124G"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Ex124G"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:17
 msgid "Communicate with the Nokia 770 internet tablet."
-msgstr ""
+msgstr "Cyfathrebwich gyda'r tabled rhyngrwyd Nokia 770"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:40
 msgid "Communicate with the Nokia 810/900 internet tablet."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r tabled rhyngrwyd Nokia 810/900"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nokia/driver.py:74
 msgid "Communicate with the Nokia E52"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r Nokia E52"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:20
 msgid "The Nook"
-msgstr ""
+msgstr "Y Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:21
 msgid "Communicate with the Nook eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfr Nook"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nook/driver.py:84
 msgid "Communicate with the Nook Color, TSR and Tablet eBook readers."
-msgstr ""
+msgstr "Cyfathrebwch gyda porwyr e-lyfr Nook Color, TSR a Tablet"
 
 #: /home/kovid/work/calibre/src/calibre/devices/nuut2/driver.py:17
 msgid "Communicate with the Nuut2 eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau Nuut2."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs500/driver.py:89
 msgid "Communicate with the Sony PRS-500 eBook reader."
-msgstr ""
+msgstr "Cyfathrebwch gyda'r porïwr e-lyfrau Sony PRS-500."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:22
 msgid "Communicate with Sony eBook readers older than the PRST1."
-msgstr ""
+msgstr "Cyfathrebwch gyda porwyr e-lyfr Sony sy'n hynach na'r PRST1."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:60
 msgid "Comments have been removed as the SONY reader chokes on them"
@@ -1650,11 +1662,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:66
 msgid "All by title"
-msgstr ""
+msgstr "Y cyfan, trefnwyd gan y teitl"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:67
 msgid "All by author"
-msgstr ""
+msgstr "Y cyfan, trefnwyd gan yr awdur"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:70
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:68
@@ -1712,7 +1724,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:96
 msgid "Search for books in all folders"
-msgstr ""
+msgstr "Chwiliwch am lyfrau ymhob ffolder"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:98
 msgid ""
@@ -1724,11 +1736,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/sony_cache.py:191
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/structure.py:81
 msgid "Unnamed"
-msgstr ""
+msgstr "Di-enw"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:36
 msgid "Communicate with the PRST1 and newer SONY eBook readers"
-msgstr ""
+msgstr "Cyfathrebwch gyda'r PRST1 a phorwyr e-lyfr SONY sy'n newyddach"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prst1/driver.py:71
 msgid "Upload separate cover thumbnails for books"
