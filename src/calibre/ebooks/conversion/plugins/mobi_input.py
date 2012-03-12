@@ -52,6 +52,7 @@ class MOBIInput(InputFormatPlugin):
                 mr.extract_content(u'.', parse_cache)
 
         if mr.kf8_type is not None:
+            log('Found KF8 MOBI')
             from calibre.ebooks.mobi.reader.mobi8 import Mobi8Reader
             return os.path.abspath(Mobi8Reader(mr, log)())
 
