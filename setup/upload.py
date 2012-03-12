@@ -132,12 +132,15 @@ class UploadInstallers(Command): # {{{
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
             for f, desc in files.iteritems():
                 fo.write('%s: %s\n'%(f, desc))
-        try:
-            send_data(tdir)
-        except:
-            print('\nUpload to staging failed, retrying in a minute')
-            time.sleep(60)
-            send_data(tdir)
+
+        while True:
+            try:
+                send_data(tdir)
+            except:
+                print('\nUpload to staging failed, retrying in a minute')
+                time.sleep(60)
+            else:
+                break
 
     def upload_to_google(self, replace):
         gdata = get_google_data()
