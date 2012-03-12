@@ -8,7 +8,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 from calibre.ebooks.oeb.base import XML, XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import XHTML_MIME, CSS_MIME
-from calibre.ebooks.oeb.base import element
+from calibre.ebooks.oeb.base import element, XPath
 
 __all__ = ['HTMLTOCAdder']
 
@@ -62,18 +62,24 @@ class HTMLTOCAdder(object):
         return cls(title=opts.toc_title)
 
     def __call__(self, oeb, context):
+        has_toc = getattr(getattr(oeb, 'toc', False), 'nodes', False)
+
         if 'toc' in oeb.guide:
             # Ensure toc pointed to in <guide> is in spine
             from calibre.ebooks.oeb.base import urlnormalize
             href = urlnormalize(oeb.guide['toc'].href)
             if href in oeb.manifest.hrefs:
                 item = oeb.manifest.hrefs[href]
-                if oeb.spine.index(item) < 0:
-                    oeb.spine.add(item, linear=False)
-                return
+                if (hasattr(item.data, 'xpath') and
+                    XPath('//h:a[@href]')(item.data)):
+                    if oeb.spine.index(item) < 0:
+                        oeb.spine.add(item, linear=False)
+                    return
+                elif has_toc:
+                    oeb.guide.remove('toc')
             else:
                 oeb.guide.remove('toc')
-        if not getattr(getattr(oeb, 'toc', False), 'nodes', False):
+        if not has_toc:
             return
         oeb.logger.info('Generating in-line TOC...')
         title = self.title or oeb.translate(DEFAULT_TITLE)

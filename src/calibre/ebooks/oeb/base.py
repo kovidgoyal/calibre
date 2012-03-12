@@ -1463,9 +1463,17 @@ class TOC(object):
         except ValueError:
             return 1
 
-    def __str__(self):
-        return 'TOC: %s --> %s'%(self.title, self.href)
+    def get_lines(self, lvl=0):
+        ans = [(u'\t'*lvl) + u'TOC: %s --> %s'%(self.title, self.href)]
+        for child in self:
+            ans.extend(child.get_lines(lvl+1))
+        return ans
 
+    def __str__(self):
+        return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
+
+    def __unicode__(self):
+        return u'\n'.join(self.get_lines())
 
     def to_opf1(self, tour):
         for node in self.nodes:
