@@ -16,7 +16,8 @@ from PyQt4.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
 from calibre import __appname__, patheq
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
-from calibre.constants import filesystem_encoding, iswindows, plugins
+from calibre.constants import (filesystem_encoding, iswindows, plugins,
+        isportable)
 from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.device_ui import Ui_WizardPage as DeviceUI
 from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
@@ -769,6 +770,10 @@ class LibraryPage(QWizardPage, LibraryUI):
                     traceback.print_exc()
                     lp = os.path.expanduser(u'~')
         self.location.setText(lp)
+        # Hide the library location settings if we are a portable install
+        for x in ('location', 'button_change', 'libloc_label1',
+                'libloc_label2'):
+            getattr(self, x).setVisible(not isportable)
 
     def isComplete(self):
         try:

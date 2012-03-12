@@ -133,7 +133,7 @@ categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 # the tag browser. Items are named using their lookup name, and will be sorted
 # using the number supplied. The lookup name '*' stands for all names that
 # otherwise do not appear. Two names with the same value will be sorted
-# according to the default order; the one used when the dict is empty.
+# using the default order; the one used when the dict is empty.
 # Example: tag_browser_category_order = {'series':1, 'tags':2, '*':3}
 # resulting in the order series, tags, then everything else in default order.
 tag_browser_category_order = {'*':1}
@@ -495,4 +495,10 @@ gui_view_history_size = 15
 # automatically. By default EPUB is preferred to HTMLZ. If you would like to
 # prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'
 tweak_book_prefer = 'epub'
+
+#: Change the font size of book details in the interface
+# Change the font size at which book details are rendered in the side panel and
+# comments are rendered in the metadata edit dialog. Set it to a positive or
+# negative number to increase or decrease the font size.
+change_book_details_font_size_by = 0
 

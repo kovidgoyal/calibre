@@ -150,8 +150,8 @@ Author matching is exact.</string>
       <attribute name="title">
        <string>&amp;Automatic Adding</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0" colspan="2">
         <widget class="QLabel" name="label">
          <property name="text">
           <string>Specify a folder. Any files you put into this folder will be automatically added to calibre (restart required).</string>
@@ -161,7 +161,46 @@ Author matching is exact.</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>&lt;b&gt;WARNING:&lt;/b&gt; Files in the above folder will be deleted after being added to calibre.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Ignore files with the following extensions when automatically adding </string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QListWidget" name="opt_blocked_auto_formats">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::NoSelection</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <spacer name="horizontalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>272</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLineEdit" name="opt_auto_add_path">
@@ -179,21 +218,14 @@ Author matching is exact.</string>
             <string>...</string>
            </property>
            <property name="icon">
-            <iconset resource="../../../work/calibre/resources/images.qrc">
+            <iconset resource="../../../../resources/images.qrc">
              <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
            </property>
           </widget>
          </item>
         </layout>
        </item>
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>&lt;b&gt;WARNING:&lt;/b&gt; Files in the above folder will be deleted after being added to calibre.</string>
-         </property>
-        </widget>
-       </item>
-       <item>
+       <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_auto_add_check_for_duplicates">
          <property name="toolTip">
           <string>If set, this option will causes calibre to check if a file
@@ -206,19 +238,6 @@ Author matching is exact.</string>
          </property>
         </widget>
        </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
       </layout>
      </widget>
     </widget>
@@ -226,7 +245,7 @@ Author matching is exact.</string>
   </layout>
  </widget>
  <resources>
-  <include location="../../../work/calibre/resources/images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

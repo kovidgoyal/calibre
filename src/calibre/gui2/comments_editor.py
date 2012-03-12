@@ -19,6 +19,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities
 from calibre.gui2 import open_url
 from calibre.utils.soupparser import fromstring
+from calibre.utils.config import tweaks
 
 class PageAction(QAction): # {{{
 
@@ -252,7 +253,7 @@ class EditorWidget(QWebView): # {{{
         def fset(self, val):
             self.setHtml(val)
             fi = QFontInfo(QApplication.font(self))
-            f  = fi.pixelSize()+1
+            f  = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
             fam = unicode(fi.family()).strip().replace('"', '')
             if not fam:
                 fam = 'sans-serif'

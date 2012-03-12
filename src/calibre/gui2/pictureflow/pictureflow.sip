@@ -41,6 +41,10 @@ public :
 
   void setSlideSize(QSize size);
 
+  QFont subtitleFont() const;
+
+  void setSubtitleFont(QFont font);
+
   void clearCaches();
 
   virtual QImage slide(int index) const;

@@ -22,7 +22,8 @@ import time, BaseHTTPServer, os, sys, re, SocketServer
 from threading import Lock
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-from PyQt4.Qt import QCoreApplication, QScriptEngine, QScriptValue
+from PyQt4.Qt import QCoreApplication
+from PyQt4.QtScript import QScriptEngine, QScriptValue
 
 class Compiler(QScriptEngine): # {{{
 

@@ -1,10 +1,12 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-'''
-Read data from .mobi files
-'''
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (absolute_import, print_function)
 
-import shutil, os, re, struct, textwrap, cStringIO, sys
+__license__   = 'GPL v3'
+__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
+
+import shutil, os, re, struct, textwrap, cStringIO
 
 try:
     from PIL import Image as PILImage
@@ -14,234 +16,21 @@ except ImportError:
 
 from lxml import html, etree
 
-from calibre import xml_entity_to_unicode, CurrentDir, entity_to_unicode, \
-    replace_entities
+from calibre import (xml_entity_to_unicode, entity_to_unicode)
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.date import parse_date
 from calibre.utils.cleantext import clean_ascii_chars
-from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks import DRMError, unit_convert
 from calibre.ebooks.chardet import ENCODING_PATS
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
-from calibre.ebooks.mobi.langcodes import main_language, sub_language, mobi2iana
 from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
+from calibre.ebooks.mobi.reader.headers import BookHeader
 
 class TopazError(ValueError):
     pass
-
-class EXTHHeader(object):
-
-    def __init__(self, raw, codec, title):
-        self.doctype = raw[:4]
-        self.length, self.num_items = struct.unpack('>LL', raw[4:12])
-        raw = raw[12:]
-        pos = 0
-        self.mi = MetaInformation(_('Unknown'), [_('Unknown')])
-        self.has_fake_cover = True
-        left = self.num_items
-
-        while left > 0:
-            left -= 1
-            id, size = struct.unpack('>LL', raw[pos:pos + 8])
-            content = raw[pos + 8:pos + size]
-            pos += size
-            if id >= 100 and id < 200:
-                self.process_metadata(id, content, codec)
-            elif id == 203:
-                self.has_fake_cover = bool(struct.unpack('>L', content)[0])
-            elif id == 201:
-                co, = struct.unpack('>L', content)
-                if co < 1e7:
-                    self.cover_offset = co
-            elif id == 202:
-                self.thumbnail_offset, = struct.unpack('>L', content)
-            elif id == 501:
-                # cdetype
-                pass
-            elif id == 502:
-                # last update time
-                pass
-            elif id == 503: # Long title
-                # Amazon seems to regard this as the definitive book title
-                # rather than the title from the PDB header. In fact when
-                # sending MOBI files through Amazon's email service if the
-                # title contains non ASCII chars or non filename safe chars
-                # they are messed up in the PDB header
-                try:
-                    title = content.decode(codec)
-                except:
-                    pass
-            #else:
-            #    print 'unknown record', id, repr(content)
-        if title:
-            self.mi.title = replace_entities(title)
-
-    def process_metadata(self, id, content, codec):
-        if id == 100:
-            if self.mi.authors == [_('Unknown')]:
-                self.mi.authors = []
-            au = content.decode(codec, 'ignore').strip()
-            self.mi.authors.append(au)
-            if re.match(r'\S+?\s*,\s+\S+', au.strip()):
-                self.mi.author_sort = au.strip()
-        elif id == 101:
-            self.mi.publisher = content.decode(codec, 'ignore').strip()
-        elif id == 103:
-            self.mi.comments  = content.decode(codec, 'ignore')
-        elif id == 104:
-            self.mi.isbn      = content.decode(codec, 'ignore').strip().replace('-', '')
-        elif id == 105:
-            if not self.mi.tags:
-                self.mi.tags = []
-            self.mi.tags.extend([x.strip() for x in content.decode(codec,
-                'ignore').split(';')])
-            self.mi.tags = list(set(self.mi.tags))
-        elif id == 106:
-            try:
-                self.mi.pubdate = parse_date(content, as_utc=False)
-            except:
-                pass
-        elif id == 108:
-            pass # Producer
-        elif id == 113:
-            pass # ASIN or UUID
-        #else:
-        #    print 'unhandled metadata record', id, repr(content)
-
-
-class BookHeader(object):
-
-    def __init__(self, raw, ident, user_encoding, log, try_extra_data_fix=False):
-        self.log = log
-        self.compression_type = raw[:2]
-        self.records, self.records_size = struct.unpack('>HH', raw[8:12])
-        self.encryption_type, = struct.unpack('>H', raw[12:14])
-        if ident == 'TEXTREAD':
-            self.codepage = 1252
-        if len(raw) <= 16:
-            self.codec = 'cp1252'
-            self.extra_flags = 0
-            self.title = _('Unknown')
-            self.language = 'ENGLISH'
-            self.sublanguage = 'NEUTRAL'
-            self.exth_flag, self.exth = 0, None
-            self.ancient = True
-            self.first_image_index = -1
-            self.mobi_version = 1
-        else:
-            self.ancient = False
-            self.doctype = raw[16:20]
-            self.length, self.type, self.codepage, self.unique_id, \
-                self.version = struct.unpack('>LLLLL', raw[20:40])
-
-            try:
-                self.codec = {
-                    1252: 'cp1252',
-                    65001: 'utf-8',
-                    }[self.codepage]
-            except (IndexError, KeyError):
-                self.codec = 'cp1252' if not user_encoding else user_encoding
-                log.warn('Unknown codepage %d. Assuming %s' % (self.codepage,
-                    self.codec))
-            # There exists some broken DRM removal tool that removes DRM but
-            # leaves the DRM fields in the header yielding a header size of
-            # 0xF8. The actual value of max_header_length should be 0xE8 but
-            # it's changed to accommodate this silly tool. Hopefully that will
-            # not break anything else.
-            max_header_length = 0xF8
-
-            if (ident == 'TEXTREAD' or self.length < 0xE4 or
-                    self.length > max_header_length or
-                    (try_extra_data_fix and self.length == 0xE4)):
-                self.extra_flags = 0
-            else:
-                self.extra_flags, = struct.unpack('>H', raw[0xF2:0xF4])
-
-            if self.compression_type == 'DH':
-                self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78])
-
-            toff, tlen = struct.unpack('>II', raw[0x54:0x5c])
-            tend = toff + tlen
-            self.title = raw[toff:tend] if tend < len(raw) else _('Unknown')
-            langcode  = struct.unpack('!L', raw[0x5C:0x60])[0]
-            langid    = langcode & 0xFF
-            sublangid = (langcode >> 10) & 0xFF
-            self.language = main_language.get(langid, 'ENGLISH')
-            self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
-            self.mobi_version = struct.unpack('>I', raw[0x68:0x6c])[0]
-            self.first_image_index = struct.unpack('>L', raw[0x6c:0x6c + 4])[0]
-
-            self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
-            self.exth = None
-            if not isinstance(self.title, unicode):
-                self.title = self.title.decode(self.codec, 'replace')
-            if self.exth_flag & 0x40:
-                try:
-                    self.exth = EXTHHeader(raw[16 + self.length:], self.codec, self.title)
-                    self.exth.mi.uid = self.unique_id
-                    try:
-                        self.exth.mi.language = mobi2iana(langid, sublangid)
-                    except:
-                        self.log.exception('Unknown language code')
-                except:
-                    self.log.exception('Invalid EXTH header')
-                    self.exth_flag = 0
-
-
-class MetadataHeader(BookHeader):
-    def __init__(self, stream, log):
-        self.stream = stream
-        self.ident = self.identity()
-        self.num_sections = self.section_count()
-        if self.num_sections >= 2:
-            header = self.header()
-            BookHeader.__init__(self, header, self.ident, None, log)
-        else:
-            self.exth = None
-
-    def identity(self):
-        self.stream.seek(60)
-        ident = self.stream.read(8).upper()
-        if ident not in ['BOOKMOBI', 'TEXTREAD']:
-            raise MobiError('Unknown book type: %s' % ident)
-        return ident
-
-    def section_count(self):
-        self.stream.seek(76)
-        return struct.unpack('>H', self.stream.read(2))[0]
-
-    def section_offset(self, number):
-        self.stream.seek(78 + number * 8)
-        return struct.unpack('>LBBBB', self.stream.read(8))[0]
-
-    def header(self):
-        section_headers = []
-        # First section with the metadata
-        section_headers.append(self.section_offset(0))
-        # Second section used to get the lengh of the first
-        section_headers.append(self.section_offset(1))
-
-        end_off = section_headers[1]
-        off = section_headers[0]
-        self.stream.seek(off)
-        return self.stream.read(end_off - off)
-
-    def section_data(self, number):
-        start = self.section_offset(number)
-        if number == self.num_sections -1:
-            end = os.stat(self.stream.name).st_size
-        else:
-            end = self.section_offset(number + 1)
-        self.stream.seek(start)
-        try:
-            return self.stream.read(end - start)
-        except OverflowError:
-            return self.stream.read(os.stat(self.stream.name).st_size - start)
-
 
 class MobiReader(object):
     PAGE_BREAK_PAT = re.compile(
@@ -312,15 +101,47 @@ class MobiReader(object):
             self.sections.append((section(i), self.section_headers[i]))
 
 
-        self.book_header = BookHeader(self.sections[0][0], self.ident,
+        self.book_header = bh = BookHeader(self.sections[0][0], self.ident,
             user_encoding, self.log, try_extra_data_fix=try_extra_data_fix)
         self.name = self.name.decode(self.book_header.codec, 'replace')
+        self.kf8_type = None
+        is_kf8 = self.book_header.mobi_version == 8
+        if is_kf8:
+            self.kf8_type = 'standalone'
+        else: # Check for joint mobi 6 and kf 8 file
+            KF8_BOUNDARY = b'BOUNDARY'
+            for i, x in enumerate(self.sections[:-1]):
+                sec = x[0]
+                if (len(sec) == len(KF8_BOUNDARY) and sec ==
+                        KF8_BOUNDARY):
+                    try:
+                        self.book_header = BookHeader(self.sections[i+1][0],
+                                self.ident, user_encoding, self.log)
+                        # The following are only correct in the Mobi 6
+                        # header not the Mobi 8 header
+                        for x in ('first_image_index',):
+                            setattr(self.book_header, x, getattr(bh, x))
+                        if hasattr(self.book_header, 'huff_offset'):
+                            self.book_header.huff_offset += i + 1
+                        self.kf8_type = 'joint'
+                        self.kf8_boundary = i
+                    except:
+                        self.book_header = bh
+                    break
+
+    def check_for_drm(self):
+        if self.book_header.encryption_type != 0:
+            try:
+                name = self.book_header.exth.mi.title
+            except:
+                name = self.name
+            if not name:
+                name = self.name
+            raise DRMError(name)
 
     def extract_content(self, output_dir, parse_cache):
         output_dir = os.path.abspath(output_dir)
-        if self.book_header.encryption_type != 0:
-            raise DRMError(self.name)
-
+        self.check_for_drm()
         processed_records = self.extract_text()
         if self.debug is not None:
             parse_cache['calibre_raw_mobi_markup'] = self.mobi_html
@@ -916,11 +737,12 @@ class MobiReader(object):
         trail_size = self.sizeof_trailing_entries(data)
         return data[:len(data)-trail_size]
 
-    def extract_text(self):
+    def extract_text(self, offset=1):
         self.log.debug('Extracting text...')
-        text_sections = [self.text_section(i) for i in range(1,
-            min(self.book_header.records + 1, len(self.sections)))]
-        processed_records = list(range(0, self.book_header.records + 1))
+        text_sections = [self.text_section(i) for i in xrange(offset,
+            min(self.book_header.records + offset, len(self.sections)))]
+        processed_records = list(range(offset-1, self.book_header.records +
+            offset))
 
         self.mobi_html = ''
 
@@ -1026,63 +848,6 @@ class MobiReader(object):
             path = os.path.join(output_dir, '%05d.jpg' % image_index)
             self.image_names.append(os.path.basename(path))
             im.save(open(path, 'wb'), format='JPEG')
-
-def get_metadata(stream):
-    stream.seek(0)
-    try:
-        raw = stream.read(3)
-    except:
-        raw = ''
-    stream.seek(0)
-    if raw == 'TPZ':
-        from calibre.ebooks.metadata.topaz import get_metadata
-        return get_metadata(stream)
-    from calibre.utils.logging import Log
-    log = Log()
-    try:
-        mi = MetaInformation(os.path.basename(stream.name), [_('Unknown')])
-    except:
-        mi = MetaInformation(_('Unknown'), [_('Unknown')])
-    mh = MetadataHeader(stream, log)
-    if mh.title and mh.title != _('Unknown'):
-        mi.title = mh.title
-
-    if mh.exth is not None:
-        if mh.exth.mi is not None:
-            mi = mh.exth.mi
-    else:
-        size = sys.maxint
-        if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
-            pos = stream.tell()
-            stream.seek(0, 2)
-            size = stream.tell()
-            stream.seek(pos)
-        if size < 4*1024*1024:
-            with TemporaryDirectory('_mobi_meta_reader') as tdir:
-                with CurrentDir(tdir):
-                    mr = MobiReader(stream, log)
-                    parse_cache = {}
-                    mr.extract_content(tdir, parse_cache)
-                    if mr.embedded_mi is not None:
-                        mi = mr.embedded_mi
-    if hasattr(mh.exth, 'cover_offset'):
-        cover_index = mh.first_image_index + mh.exth.cover_offset
-        data  = mh.section_data(int(cover_index))
-    else:
-        try:
-            data  = mh.section_data(mh.first_image_index)
-        except:
-            data = ''
-    buf = cStringIO.StringIO(data)
-    try:
-        im = PILImage.open(buf)
-    except:
-        log.exception('Failed to read MOBI cover')
-    else:
-        obuf = cStringIO.StringIO()
-        im.convert('RGB').save(obuf, format='JPEG')
-        mi.cover_data = ('jpg', obuf.getvalue())
-    return mi
 
 def test_mbp_regex():
     for raw, m in {

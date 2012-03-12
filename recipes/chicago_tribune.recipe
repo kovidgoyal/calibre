@@ -3,6 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import urllib, re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ChicagoTribune(BasicNewsRecipe):
@@ -77,10 +78,17 @@ class ChicagoTribune(BasicNewsRecipe):
 
 
     def get_article_url(self, article):
-        url = article.get('feedburner_origlink', article.get('guid', article.get('link')))
-        if url.endswith('?track=rss'):
-            url = url.partition('?')[0]
-        return url
+        ans = None
+        try:
+            s = article.summary
+            ans = urllib.unquote(
+                re.search(r'href=".+?bookmark.cfm.+?link=(.+?)"', s).group(1))
+        except:
+            pass
+        if ans is None:
+            ans = article.get('feedburner_origlink', article.get('guid', article.get('link')))
+        if ans is not None:
+            return ans.replace('?track=rss', '')
 
     def skip_ad_pages(self, soup):
         text = soup.find(text='click here to continue to article')
