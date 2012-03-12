@@ -121,11 +121,12 @@ class MobiReader(object):
                         # header not the Mobi 8 header
                         for x in ('first_image_index',):
                             setattr(self.book_header, x, getattr(bh, x))
-                        self.book_header.huff_offset += i + 1
+                        if hasattr(self.book_header, 'huff_offset'):
+                            self.book_header.huff_offset += i + 1
                         self.kf8_type = 'joint'
                         self.kf8_boundary = i
                     except:
-                        pass
+                        self.book_header = bh
                     break
 
     def check_for_drm(self):
