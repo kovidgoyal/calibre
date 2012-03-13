@@ -10,9 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile, re
+import sys, os, re
 
 from calibre.ebooks.rtf2xml import field_strings, copy
+from calibre.ptempfile import better_mktemp
 
 class FieldsSmall:
     """
@@ -50,7 +51,7 @@ file.
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__run_level = run_level
 
     def __initiate_values(self):

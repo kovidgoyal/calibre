@@ -90,6 +90,10 @@ class USER_DEFINED(USBMS):
     OPT_CARD_A_FOLDER           = 9
 
     def initialize(self):
+        self.plugin_needs_delayed_initialization = True
+        USBMS.initialize(self)
+
+    def do_delayed_plugin_initialization(self):
         try:
             e = self.settings().extra_customization
             self.VENDOR_ID          = int(e[self.OPT_USB_VENDOR_ID], 16)
@@ -107,4 +111,6 @@ class USER_DEFINED(USBMS):
         except:
             import traceback
             traceback.print_exc()
-        USBMS.initialize(self)
+        self.plugin_needs_delayed_initialization = False
+
+

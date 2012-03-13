@@ -7,7 +7,8 @@ import os, traceback, Queue, time, cStringIO, re, sys
 from threading import Thread
 
 from PyQt4.Qt import (QMenu, QAction, QActionGroup, QIcon, SIGNAL,
-                     Qt, pyqtSignal, QDialog, QObject)
+                     Qt, pyqtSignal, QDialog, QObject, QVBoxLayout,
+                     QDialogButtonBox)
 
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins)
@@ -162,7 +163,7 @@ class DeviceManager(Thread): # {{{
             try:
                 dev.reset(detected_device=detected_device,
                     report_progress=self.report_progress)
-                dev.open(self.current_library_uuid)
+                dev.open(detected_device, self.current_library_uuid)
             except OpenFeedback as e:
                 if dev not in self.ejected_devices:
                     self.open_feedback_msg(dev.get_gui_name(), e)
@@ -206,6 +207,12 @@ class DeviceManager(Thread): # {{{
                 self.scanner.is_device_connected(self.connected_device,
                         only_presence=True)
             if not connected:
+                if DEBUG:
+                    # Allow the device subsystem to output debugging info about
+                    # why it thinks the device is not connected. Used, for e.g.
+                    # in the can_handle() method of the T1 driver
+                    self.scanner.is_device_connected(self.connected_device,
+                            only_presence=True, debug=True)
                 self.connected_device_removed()
         else:
             possibly_connected_devices = []
@@ -683,7 +690,7 @@ class DeviceMixin(object): # {{{
         return self.ask_a_yes_no_question(
                 _('No suitable formats'), msg,
                 ans_when_user_unavailable=True,
-                det_msg=autos
+                det_msg=autos, skip_dialog_name='auto_convert_before_send'
         )
 
     def set_default_thumbnail(self, height):
@@ -711,6 +718,31 @@ class DeviceMixin(object): # {{{
     # disconnect from both folder and itunes devices
     def disconnect_mounted_device(self):
         self.device_manager.umount_device()
+
+    def configure_connected_device(self):
+        if not self.device_manager.is_device_connected: return
+        if self.job_manager.has_device_jobs(queued_also=True):
+            return error_dialog(self, _('Running jobs'),
+                    _('Cannot configure the device while there are running'
+                        ' device jobs.'), show=True)
+        dev = self.device_manager.connected_device
+        cw = dev.config_widget()
+        d = QDialog(self)
+        d.setWindowTitle(_('Configure %s')%dev.get_gui_name())
+        d.setWindowIcon(QIcon(I('config.png')))
+        l = QVBoxLayout(d)
+        d.setLayout(l)
+        bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb.accepted.connect(d.accept)
+        bb.rejected.connect(d.reject)
+        l.addWidget(cw)
+        l.addWidget(bb)
+        if d.exec_() == d.Accepted:
+            dev.save_settings(cw)
+            warning_dialog(self, _('Disconnect device'),
+                    _('Disconnect and re-connect the %s for your changes to'
+                        ' be applied.')%dev.get_gui_name(), show=True,
+                    show_copy_button=False)
 
     def _sync_action_triggered(self, *args):
         m = getattr(self, '_sync_menu', None)
@@ -751,7 +783,7 @@ class DeviceMixin(object): # {{{
                 error_dialog(self, _('Error talking to device'),
                              _('There was a temporary error talking to the '
                              'device. Please unplug and reconnect the device '
-                             'and or reboot.')).show()
+                             'or reboot.')).show()
                 return
         except:
             pass

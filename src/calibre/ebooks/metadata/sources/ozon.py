@@ -6,15 +6,11 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib2
 import datetime
 from urllib import quote_plus
 from Queue import Queue, Empty
-from lxml import etree, html
+
 from calibre import as_unicode
-
-from calibre.ebooks.chardet import xml_to_unicode
-
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
@@ -43,6 +39,7 @@ class Ozon(Source):
     isbnRegex = re.compile(isbnPattern)
 
     def get_book_url(self, identifiers): # {{{
+        import urllib2
         ozon_id = identifiers.get('ozon', None)
         res = None
         if ozon_id:
@@ -55,6 +52,7 @@ class Ozon(Source):
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/webservice/webservice.asmx/SearchWebService?searchContext=div_book&searchText='
 
+        # for ozon.ru search we have to format ISBN with '-'
         isbn = _format_isbn(log, identifiers.get('isbn', None))
         # TODO: format isbn!
         qItems = set([isbn, title])
@@ -64,7 +62,7 @@ class Ozon(Source):
         qItems.discard('')
         qItems = map(_quoteString, qItems)
 
-        q = ' '.join(qItems).strip()
+        q = u' '.join(qItems).strip()
         log.info(u'search string: ' + q)
 
         if isinstance(q, unicode):
@@ -78,13 +76,16 @@ class Ozon(Source):
         return search_url
     # }}}
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
-            identifiers={}, timeout=30):
+    def identify(self, log, result_queue, abort, title=None, authors=None,
+            identifiers={}, timeout=30): # {{{
+        from lxml import etree
+        from calibre.ebooks.chardet import xml_to_unicode
+
         if not self.is_configured():
             return
         query = self.create_query(log, title=title, authors=authors, identifiers=identifiers)
         if not query:
-            err = 'Insufficient metadata to construct query'
+            err = u'Insufficient metadata to construct query'
             log.error(err)
             return err
 
@@ -109,15 +110,15 @@ class Ozon(Source):
     # }}}
 
     def get_metadata(self, log, entries, title, authors, identifiers): # {{{
-        # some book titles have extra charactes like this
+        # some book titles have extra characters like this
         # TODO: make a twick
-        reRemoveFromTitle = None 
+        reRemoveFromTitle = None
         #reRemoveFromTitle = re.compile(r'[?!:.,;+-/&%"\'=]')
-        
+
         title = unicode(title).upper() if title else ''
         if reRemoveFromTitle:
-            title = reRemoveFromTitle.sub('', title) 
-        authors = map(_normalizeAuthorNameWithInitials, 
+            title = reRemoveFromTitle.sub('', title)
+        authors = map(_normalizeAuthorNameWithInitials,
                       map(unicode.upper, map(unicode, authors))) if authors else None
         ozon_id = identifiers.get('ozon', None)
 
@@ -160,7 +161,7 @@ class Ozon(Source):
             mi.source_relevance = i
             if ensure_metadata_match(mi):
                 metadata.append(mi)
-                # log.debug(u'added metadata %s %s. '%(mi.title, mi.authors))
+                #log.debug(u'added metadata %s %s.'%(mi.title,  mi.authors))
             else:
                 log.debug(u'skipped metadata %s %s. (does not match the query)'%(mi.title, mi.authors))
         return metadata
@@ -282,15 +283,18 @@ class Ozon(Source):
     # }}}
 
     def get_book_details(self, log, metadata, timeout): # {{{
+        from lxml import html, etree
+        from calibre.ebooks.chardet import xml_to_unicode
+
         url = self.get_book_url(metadata.get_identifiers())[2]
 
         raw = self.browser.open_novisit(url, timeout=timeout).read()
-        doc = html.fromstring(raw)
+        doc = html.fromstring(xml_to_unicode(raw, verbose=True)[0])
 
         xpt_prod_det_at = u'string(//div[contains(@class, "product-detail")]//*[contains(normalize-space(text()), "%s")]/a[1]/@title)'
         xpt_prod_det_tx = u'substring-after(//div[contains(@class, "product-detail")]//text()[contains(., "%s")], ":")'
 
-        # series
+        # series Серия/Серии
         xpt = xpt_prod_det_at % u'Сери'
         # % u'Серия:'
         series = doc.xpath(xpt)
@@ -300,7 +304,7 @@ class Ozon(Source):
         xpt = u'normalize-space(substring-after(//meta[@name="description"]/@content, "ISBN"))'
         isbn_str = doc.xpath(xpt)
         if isbn_str:
-            all_isbns = [check_isbn(isbn) for isbn in self.isbnRegex.findall(isbn_str) if check_isbn(isbn)]
+            all_isbns = [check_isbn(isbn) for isbn in self.isbnRegex.findall(isbn_str) if _verifyISBNIntegrity(log, isbn)]
             if all_isbns:
                 metadata.all_isbns = all_isbns
                 metadata.isbn = all_isbns[0]
@@ -319,7 +323,7 @@ class Ozon(Source):
                 displ_lang = lng_splt[0].strip()
         metadata.language = _translageLanguageToCode(displ_lang)
         #log.debug(u'language: %s'%displ_lang)
-        
+
         # can be set before from xml search responce
         if not metadata.pubdate:
             xpt = u'normalize-space(//div[@class="product-misc"]//text()[contains(., "г.")])'
@@ -333,10 +337,10 @@ class Ozon(Source):
         xpt = u'//table[@id="detail_description"]//tr/td'
         comment_elem = doc.xpath(xpt)
         if comment_elem:
-            comments = unicode(etree.tostring(comment_elem[0]))
+            comments = unicode(etree.tostring(comment_elem[0], encoding=unicode))
             if comments:
                 # cleanup root tag, TODO: remove tags like object/embeded
-                comments = re.sub(r'\A.*?<td.*?>|</td>.*\Z', u'', comments.strip(), re.MULTILINE).strip()
+                comments = re.sub(ur'\A.*?<td.*?>|</td>.*\Z', u'', comments.strip(), re.MULTILINE).strip()
                 if comments and (not metadata.comments or len(comments) > len(metadata.comments)):
                     metadata.comments = comments
                 else:
@@ -345,8 +349,16 @@ class Ozon(Source):
             log.debug('No book description found in HTML')
     # }}}
 
-def _quoteString(str): # {{{
-    return '"' + str + '"' if str and str.find(' ') != -1 else str
+def _quoteString(strToQuote): # {{{
+    return '"' + strToQuote + '"' if strToQuote and strToQuote.find(' ') != -1 else strToQuote
+# }}}
+
+def _verifyISBNIntegrity(log, isbn): # {{{
+    # Online ISBN-Check http://www.isbn-check.de/
+    res = check_isbn(isbn)
+    if not res:
+        log.error(u'ISBN integrity check failed for "%s"'%isbn)
+    return res is not None
 # }}}
 
 # TODO: make customizable
@@ -425,20 +437,20 @@ def _translageLanguageToCode(displayLang): # {{{
 # [В.П. Колесников | Колесников В.П.]-> В. П. BКолесников
 def _normalizeAuthorNameWithInitials(name): # {{{
     res = name
-    if name: 
-        re1 = u'^(?P<lname>\S+)\s+(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?$' 
+    if name:
+        re1 = u'^(?P<lname>\S+)\s+(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?$'
         re2 = u'^(?P<fname>[^\d\W]\.)(?:\s*(?P<mname>[^\d\W]\.))?\s+(?P<lname>\S+)$'
         matcher = re.match(re1, unicode(name), re.UNICODE)
         if not matcher:
             matcher = re.match(re2, unicode(name), re.UNICODE)
-            
+
         if matcher:
             d = matcher.groupdict()
             res = ' '.join(x for x in (d['fname'], d['mname'], d['lname']) if x)
     return res
 # }}}
 
-def toPubdate(log, yearAsString):
+def toPubdate(log, yearAsString): # {{{
     res = None
     if yearAsString:
         try:
@@ -448,7 +460,11 @@ def toPubdate(log, yearAsString):
         except:
             log.error('cannot parse to date %s'%yearAsString)
     return res
+# }}}
 
+def _listToUnicodePrintStr(lst): # {{{
+    return u'[' + u', '.join(unicode(x) for x in lst) + u']'
+# }}}
 
 if __name__ == '__main__': # tests {{{
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/ozon.py

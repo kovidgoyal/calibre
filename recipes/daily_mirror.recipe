@@ -1,10 +1,11 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-
+import re
 class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     title          = u'The Daily Mirror'
     description = 'News as provide by The Daily Mirror -UK'
 
     __author__ = 'Dave Asbury'
+    # last updated 11/2/12
     language = 'en_GB'
 
     cover_url = 'http://yookeo.com/screens/m/i/mirror.co.uk.jpg'
@@ -13,40 +14,64 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
 
 
     oldest_article = 1
-    max_articles_per_feed = 100
+    max_articles_per_feed = 5
     remove_empty_feeds = True
     remove_javascript     = True
     no_stylesheets = True
-
-    keep_only_tags = [
-    dict(name='h1'),
-    dict(attrs={'class':['article-attr']}),
-    dict(name='div', attrs={'class' : [ 'article-body', 'crosshead']})
+    auto_cleanup = True
+    #conversion_options = { 'linearize_tables' : True }
 
 
-    ]
+    #keep_only_tags = [
+      #     dict(name='h1'),
+      # dict(name='div',attrs={'id' : 'body-content'}),
+       #dict(name='div',atts={'class' : 'article-body'}),
+       #dict(attrs={'class' : ['article-attr','byline append-1','published']}),
+       #dict(name='p'),
+       # ]
+
+    #remove_tags_after = [dict (name='div',attrs={'class' : 'related'})]
 
     remove_tags = [
-           dict(name='div', attrs={'class' : ['caption', 'article-resize']}),
-           dict( attrs={'class':'append-html'})
-           ]
+           dict(name='title'),
+           dict(name='div',attrs={'class' : ['inline-ad span-16 last','caption']}),
+          # dict(name='div',attrs={'id' : ['sidebar','menu','search-box','roffers-top']}),
+           #dict(name='div',attrs={'class' :['inline-ad span-16 last','article-resize','related','list teasers']}),
+           #dict(attrs={'class' : ['channellink','article-tags','replace','append-html']}),
+          ]
 
+   # preprocess_regexps = [
+    #(re.compile(r'<dl class="q-search">.*?</dl>', re.IGNORECASE | re.DOTALL), lambda match: '')]
+    preprocess_regexps = [
+    (re.compile(r'- mirror.co.uk', re.IGNORECASE | re.DOTALL), lambda match: '')]
 
+    preprocess_regexps = [
+    (re.compile(r'Advertisement >>', re.IGNORECASE | re.DOTALL), lambda match: '')]
 
+    #preprocess_regexps = [
+    #(re.compile(r'Sponsored Links', re.IGNORECASE | re.DOTALL), lambda match: '')]
 
     feeds          = [
 
-        (u'News', u'http://www.mirror.co.uk/news/rss.xml')
-        ,(u'Tech News', u'http://www.mirror.co.uk/news/technology/rss.xml')
-        ,(u'Weird World','http://www.mirror.co.uk/news/weird-world/rss.xml')
-        ,(u'Film Gossip','http://www.mirror.co.uk/celebs/film/rss.xml')
-        ,(u'Music News','http://www.mirror.co.uk/celebs/music/rss.xml')
-        ,(u'Celebs and Tv Gossip','http://www.mirror.co.uk/celebs/tv/rss.xml')
-        ,(u'Sport','http://www.mirror.co.uk/sport/rss.xml')
-         ,(u'Life Style','http://www.mirror.co.uk/life-style/rss.xml')
-         ,(u'Advice','http://www.mirror.co.uk/advice/rss.xml')
-             ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
+        (u'UK News', u'http://feed43.com/0287771688643868.xml')
+        ,(u'Tech News', u'http://feed43.com/2455520588350501.xml')
+        ,(u'Weird World','http://feed43.com/0863800333634654.xml')
+        ,(u'Sport','http://feed43.com/7713243036546130.xml')
+        ,(u'Sport : Boxing ','http://feed43.com/0414732220804255.xml')
+        ,(u'Sport : Rugby Union','http://feed43.com/4710138762362383.xml')
+        ,(u'Sport : Other','http://feed43.com/4501416886323415.xml')
+        ,(u'TV and Film','http://feed43.com/5238302853765104.xml')
+        ,(u'Celebs','http://feed43.com/8770061048844683.xml')
+        ,(u'Life Style : Family','http://feed43.com/4356170742410338.xml')
+         ,(u'Travel','http://feed43.com/1436576006476607.xml')
+
+
 
            # example of commented out feed not needed ,(u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml')
   ]
+    extra_css  = '''
+	body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
+                    h1{ font-size:18px;}
+                    img { display:block}
+                	 '''
 

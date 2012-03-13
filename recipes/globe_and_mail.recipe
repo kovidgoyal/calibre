@@ -51,6 +51,13 @@ class AdvancedUserRecipe1287083651(BasicNewsRecipe):
             {'class':['articleTools', 'pagination', 'Ads', 'topad',
                 'breadcrumbs', 'footerNav', 'footerUtil', 'downloadlinks']}]
 
+    def populate_article_metadata(self, article, soup, first):
+        if first and hasattr(self, 'add_toc_thumbnail'):
+            picdiv = soup.find('img')
+            if picdiv is not None:
+                self.add_toc_thumbnail(article,picdiv['src'])
+
+
     #Use the mobile version rather than the web version
     def print_version(self, url):
         return url.rpartition('?')[0] + '?service=mobile'

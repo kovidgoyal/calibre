@@ -937,8 +937,21 @@ ol, ul { padding-left: 2em; }
         """
         if self.currentstyle is None: # Added by Kovid
             return
+
+        # Added by Kovid
+        names = {x[1]:x for x in attrs.iterkeys()}
+        ignore_keys = set()
+        if ('margin' in names and 'margin-top' in names and 'margin-left' in
+                names and 'margin-right' in names and 'margin-bottom' in
+                names):
+            # These come from XML and we cannot preserve XML attribute order so
+            # we assume that margin is to be overridden
+            # See https://bugs.launchpad.net/calibre/+bug/941134
+            ignore_keys.add(names['margin'])
+
         for key,attr in attrs.items():
-            self.styledict[self.currentstyle][key] = attr
+            if key not in ignore_keys:
+                self.styledict[self.currentstyle][key] = attr
 
 
     familymap = {'frame':'frame', 'paragraph':'p', 'presentation':'presentation',
@@ -1158,7 +1171,7 @@ ol, ul { padding-left: 2em; }
         """ Anchors start """
         self.writedata()
         href = attrs[(XLINKNS,"href")].split("|")[0]
-        if href[0] == "#":
+        if href[:1] == "#": # Changed by Kovid
             href = "#" + self.get_anchor(href[1:])
         self.opentag('a', {'href':href})
         self.purgedata()

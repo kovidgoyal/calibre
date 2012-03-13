@@ -93,16 +93,13 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
             search_result.cover_url = ''.join(doc.xpath('//div[@class="sidebarcover"]//img/@src'))
             
             # Try to get the set price.
-            price = ''.join(doc.xpath('//div[@class="buy-price-container"]/span[contains(@class, "buy-price")]/text()'))
-            # Try to get the price inside of a buy button.
-            if not price.strip():
-                price = ''.join(doc.xpath('//div[@class="buy-container"]/a/text()'))
-                price = price.split('-')[-1]
-            if 'view' in price.lower():
+            price = ''.join(doc.xpath('//div[@id="gb-get-book-container"]//a/text()'))
+            if 'read' in price.lower():
                 price = 'Unknown'
-            # No price set for this book.
-            if not price.strip():
+            elif 'free' in price.lower() or not price.strip():
                 price = '$0.00'
+            elif '-' in price:
+                a, b, price = price.partition(' - ')
             search_result.price = price.strip()
             
             search_result.formats = ', '.join(doc.xpath('//div[contains(@class, "download-panel-div")]//a/text()')).upper()

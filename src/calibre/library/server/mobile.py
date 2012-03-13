@@ -117,6 +117,8 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
 
         data = TD()
         for fmt in book['formats'].split(','):
+            if not fmt or fmt.lower().startswith('original_'):
+                continue
             a = quote(ascii_filename(book['authors']))
             t = quote(ascii_filename(book['title']))
             s = SPAN(
@@ -156,7 +158,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
     body.append(HR())
     body.append(DIV(
         A(_('Switch to the full interface (non-mobile interface)'),
-            href="/browse",
+            href=prefix+"/browse",
             style="text-decoration: none; color: blue",
             title=_('The full interface gives you many more features, '
                 'but it may not work well on a small screen')),

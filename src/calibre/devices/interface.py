@@ -133,8 +133,14 @@ class DevicePlugin(Plugin):
                        if debug:
                            self.print_usb_device_info(device_id)
                        if only_presence or self.can_handle_windows(device_id, debug=debug):
-                           return True
-        return False
+                           try:
+                               bcd = int(device_id.rpartition(
+                                   'rev_')[-1].replace(':', 'a'), 16)
+                           except:
+                               bcd = None
+                           return True, (vendor_id, product_id, bcd, None,
+                                   None, None)
+        return False, None
 
     def test_bcd(self, bcdDevice, bcd):
         if bcd is None or len(bcd) == 0:
@@ -154,7 +160,7 @@ class DevicePlugin(Plugin):
         '''
         if iswindows:
             return self.is_usb_connected_windows(devices_on_system,
-                    debug=debug, only_presence=only_presence), None
+                    debug=debug, only_presence=only_presence)
 
         vendors_on_system = set([x[0] for x in devices_on_system])
         vendors = self.VENDOR_ID if hasattr(self.VENDOR_ID, '__len__') else [self.VENDOR_ID]
@@ -224,7 +230,7 @@ class DevicePlugin(Plugin):
 
         return True
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         '''
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
@@ -238,6 +244,17 @@ class DevicePlugin(Plugin):
 
         This method can raise an OpenFeedback exception to display a message to
         the user.
+
+        :param connected_device: The device that we are trying to open. It is
+            a tuple of (vendor id, product id, bcd, manufacturer name, product
+            name, device serial number). However, some devices have no serial
+            number and on windows only the first three fields are present, the
+            rest are None.
+
+        :param library_uuid: The UUID of the current calibre library. Can be
+            None if there is no library (for example when used from the command
+            line).
+
         '''
         raise NotImplementedError()
 
@@ -256,6 +273,8 @@ class DevicePlugin(Plugin):
 
     def set_progress_reporter(self, report_progress):
         '''
+        Set a function to report progress information.
+
         :param report_progress: Function that is called with a % progress
                                 (number between 0 and 100) for various tasks
                                 If it is called with -1 that means that the

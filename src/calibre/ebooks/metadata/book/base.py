@@ -32,6 +32,7 @@ NULL_VALUES = {
                 'device_collections': [],
                 'author_sort_map': {},
                 'authors'      : [_('Unknown')],
+                'author_sort'  : _('Unknown'),
                 'title'        : _('Unknown'),
                 'user_categories' : {},
                 'author_link_map' : {},
@@ -45,9 +46,9 @@ class SafeFormat(TemplateFormatter):
     def get_value(self, orig_key, args, kwargs):
         if not orig_key:
             return ''
-        orig_key = orig_key.lower()
-        key = orig_key
-        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS:
+        key = orig_key = orig_key.lower()
+        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and \
+                key not in ALL_METADATA_FIELDS:
             key = field_metadata.search_term_to_field_key(key)
             if key is None or (self.book and
                                 key not in self.book.all_field_keys()):
@@ -59,9 +60,8 @@ class SafeFormat(TemplateFormatter):
             b = self.book.get_user_metadata(key, False)
         except:
             b = None
-        if b and b['datatype'] == 'int' and self.book.get(key, 0) == 0:
-            v = ''
-        elif b and b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0:
+        if b and ((b['datatype'] == 'int' and self.book.get(key, 0) == 0) or
+                  (b['datatype'] == 'float' and self.book.get(key, 0.0) == 0.0)):
             v = ''
         else:
             v = self.book.format_field(key, series_with_index=False)[1]
@@ -95,7 +95,7 @@ class Metadata(object):
     becomes a reserved field name.
     '''
 
-    def __init__(self, title, authors=(_('Unknown'),), other=None):
+    def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None):
         '''
         @param title: title or ``_('Unknown')``
         @param authors: List of strings or []
@@ -114,6 +114,7 @@ class Metadata(object):
                 self.author = list(authors) if authors else []# Needed for backward compatibility
                 self.authors = list(authors) if authors else []
         self.formatter = SafeFormat()
+        self.template_cache = template_cache
 
     def is_null(self, field):
         '''
@@ -159,7 +160,8 @@ class Metadata(object):
                                             d['display']['composite_template'],
                                             self,
                                             _('TEMPLATE ERROR'),
-                                            self).strip()
+                                            self, column_name=field,
+                                            template_cache=self.template_cache).strip()
             return val
         if field.startswith('#') and field.endswith('_index'):
             try:
@@ -535,7 +537,12 @@ class Metadata(object):
                         if meta['datatype'] == 'text' and meta['is_multiple']:
                             # Case-insensitive but case preserving merging
                             lotags = [t.lower() for t in other_tags]
-                            lstags = [t.lower() for t in self_tags]
+                            try:
+                                lstags = [t.lower() for t in self_tags]
+                            except TypeError:
+                                # Happens if x is not a text, is_multiple field
+                                # on self
+                                lstags = []
                             ot, st = map(frozenset, (lotags, lstags))
                             for t in st.intersection(ot):
                                 sidx = lstags.index(t)
@@ -646,7 +653,7 @@ class Metadata(object):
             elif datatype == 'bool':
                 res = _('Yes') if res else _('No')
             elif datatype == 'rating':
-                res = res/2.0
+                res = u'%.2g'%(res/2.0)
             elif datatype in ['int', 'float']:
                 try:
                     fmt = cmeta['display'].get('number_format', None)
@@ -686,7 +693,7 @@ class Metadata(object):
             elif datatype == 'datetime':
                 res = format_date(res, fmeta['display'].get('date_format','dd MMM yyyy'))
             elif datatype == 'rating':
-                res = res/2.0
+                res = u'%.2g'%(res/2.0)
             elif key == 'size':
                 res = human_readable(res)
             return (name, unicode(res), orig_res, fmeta)
@@ -708,7 +715,8 @@ class Metadata(object):
             fmt('Title sort', self.title_sort)
         if self.authors:
             fmt('Author(s)',  authors_to_string(self.authors) + \
-               ((' [' + self.author_sort + ']') if self.author_sort else ''))
+               ((' [' + self.author_sort + ']')
+                if self.author_sort and self.author_sort != _('Unknown') else ''))
         if self.publisher:
             fmt('Publisher', self.publisher)
         if getattr(self, 'book_producer', False):
@@ -720,7 +728,8 @@ class Metadata(object):
         if not self.is_null('languages'):
             fmt('Languages', ', '.join(self.languages))
         if self.rating is not None:
-            fmt('Rating', self.rating)
+            fmt('Rating', (u'%.2g'%(float(self.rating)/2.0)) if self.rating
+                    else u'')
         if self.timestamp is not None:
             fmt('Timestamp', isoformat(self.timestamp))
         if self.pubdate is not None:

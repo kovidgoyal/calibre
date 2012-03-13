@@ -12,6 +12,7 @@ class MercuryNews(BasicNewsRecipe):
     title                 = 'San Jose Mercury News'
     __author__            = 'Darko Miletic'
     description           = 'News from San Jose'
+    cover_url = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg12/lg/CA_SJMN.jpg'
     publisher             = 'San Jose Mercury News'
     category              = 'news, politics, USA, San Jose, California'
     oldest_article        = 2

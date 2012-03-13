@@ -128,6 +128,17 @@ categories_collapsed_name_template = r'{first.sort:shorten(4,,0)} - {last.sort:s
 categories_collapsed_rating_template = r'{first.avg_rating:4.2f:ifempty(0)} - {last.avg_rating:4.2f:ifempty(0)}'
 categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 
+#: Control order of categories in the tag browser
+# Change the following dict to change the order that categories are displayed in
+# the tag browser. Items are named using their lookup name, and will be sorted
+# using the number supplied. The lookup name '*' stands for all names that
+# otherwise do not appear. Two names with the same value will be sorted
+# using the default order; the one used when the dict is empty.
+# Example: tag_browser_category_order = {'series':1, 'tags':2, '*':3}
+# resulting in the order series, tags, then everything else in default order.
+tag_browser_category_order = {'*':1}
+
+
 #: Specify columns to sort the booklist by on startup
 # Provide a set of columns to be sorted on when calibre starts
 #  The argument is None if saved sort history is to be used
@@ -141,21 +152,33 @@ sort_columns_at_startup = None
 #: Control how dates are displayed
 # Format to be used for publication date and the timestamp (date).
 #  A string controlling how the publication date is displayed in the GUI
-#  d    the day as number without a leading zero (1 to 31)
+#  d     the day as number without a leading zero (1 to 31)
 #  dd    the day as number with a leading zero (01 to 31)
-#  ddd    the abbreviated localized day name (e.g. 'Mon' to 'Sun').
-#  dddd    the long localized day name (e.g. 'Monday' to 'Qt::Sunday').
-#  M    the month as number without a leading zero (1-12)
+#  ddd   the abbreviated localized day name (e.g. 'Mon' to 'Sun').
+#  dddd  the long localized day name (e.g. 'Monday' to 'Qt::Sunday').
+#  M     the month as number without a leading zero (1-12)
 #  MM    the month as number with a leading zero (01-12)
-#  MMM    the abbreviated localized month name (e.g. 'Jan' to 'Dec').
-#  MMMM    the long localized month name (e.g. 'January' to 'December').
+#  MMM   the abbreviated localized month name (e.g. 'Jan' to 'Dec').
+#  MMMM  the long localized month name (e.g. 'January' to 'December').
 #  yy    the year as two digit number (00-99)
-#  yyyy    the year as four digit number
+#  yyyy  the year as four digit number
+#  h     the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm) '
+#  hh    the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm) '
+#  m     the minutes without a leading 0 (0 to 59) '
+#  mm    the minutes with a leading 0 (00 to 59) '
+#  s     the seconds without a leading 0 (0 to 59) '
+#  ss    the seconds with a leading 0 (00 to 59) '
+#  ap    use a 12-hour clock instead of a 24-hour clock, with "ap"
+#        replaced by the localized string for am or pm '
+#  AP    use a 12-hour clock instead of a 24-hour clock, with "AP"
+#        replaced by the localized string for AM or PM '
+#  iso   the date with time and timezone. Must be the only format present
 #  For example, given the date of 9 Jan 2010, the following formats show
 #  MMM yyyy ==> Jan 2010    yyyy ==> 2010       dd MMM yyyy ==> 09 Jan 2010
 #  MM/yyyy ==> 01/2010      d/M/yy ==> 9/1/10   yy ==> 10
 # publication default if not set: MMM yyyy
 # timestamp default if not set: dd MMM yyyy
+# last_modified_display_format if not set: dd MMM yyyy
 gui_pubdate_display_format = 'MMM yyyy'
 gui_timestamp_display_format = 'dd MMM yyyy'
 gui_last_modified_display_format = 'dd MMM yyyy'
@@ -184,20 +207,61 @@ title_series_sorting = 'library_order'
 # set to 'strictly_alphabetic', the series will be sent without change.
 # For example, if the tweak is set to library_order, "The Lord of the Rings"
 # will become "Lord of the Rings, The". If the tweak is set to
-# strictly_alphabetic, it would remain "The Lord of the Rings".
+# strictly_alphabetic, it would remain "The Lord of the Rings". Note that the
+# formatter function raw_field will return the base value for title and
+# series regardless of the setting of this tweak.
 save_template_title_series_sorting = 'library_order'
 
 #: Set the list of words considered to be "articles" for sort strings
 # Set the list of words that are to be considered 'articles' when computing the
-# title sort strings. The list is a regular expression, with the articles
-# separated by 'or' bars. Comparisons are case insensitive, and that cannot be
-# changed. Changes to this tweak won't have an effect until the book is modified
-# in some way. If you enter an invalid pattern, it is silently ignored.
-# To disable use the expression: '^$'
-# This expression is designed for articles that are followed by spaces. If you
-# also need to match articles that are followed by other characters, for example L'
-# in French, use: "^(A\s+|The\s+|An\s+|L')" instead.
-# Default: '^(A|The|An)\s+'
+# title sort strings. The articles differ by language. By default, calibre uses
+# a combination of articles from English and whatever language the calibre user
+# interface is set to. In addition, in some contexts where the book language is
+# available, the language of the book is used. You can change the list of
+# articles for a given language or add a new language by editing
+# per_language_title_sort_articles. To tell calibre to use a language other
+# than the user interface language, set, default_language_for_title_sort. For
+# example, to use German, set it to 'deu'. A value of None means the user
+# interface language is used. The setting title_sort_articles is ignored
+# (present only for legacy reasons).
+per_language_title_sort_articles = {
+        # English
+        'eng'  : (r'A\s+', r'The\s+', r'An\s+'),
+        # Spanish
+        'spa'  : (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+',
+                  r'Una\s+', r'Unos\s+', r'Unas\s+'),
+        # French
+        'fra'  : (r'Le\s+', r'La\s+', r"L'", r'Les\s+', r'Un\s+', r'Une\s+',
+                  r'Des\s+', r'De\s+La\s+', r'De\s+', r"D'"),
+        # Italian
+        'ita'  : (r'Lo\s+', r'Il\s+', r"L'", r'La\s+', r'Gli\s+', r'I\s+',
+                  r'Le\s+', ),
+        # Portuguese
+        'por'  : (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
+                  r'Uma\s+', r'Umas\s+', ),
+        # Romanian
+        'ron'  : (r'Un\s+', r'O\s+', r'Nişte\s+', ),
+        # German
+        'deu'  : (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
+                  r'Eine\s+', r'Einen\s+', r'Dem\s+', r'Des\s+', r'Einem\s+',
+                  r'Eines\s+'),
+        # Dutch
+        'nld'  : (r'De\s+', r'Het\s+', r'Een\s+', r"'n\s+", r"'s\s+", r'Ene\s+',
+                  r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+',
+                  r"'t\s+"),
+        # Swedish
+        'swe'  : (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+', ),
+        # Turkish
+        'tur'  : (r'Bir\s+', ),
+        # Afrikaans
+        'afr'  : (r"'n\s+", r'Die\s+', ),
+        # Greek
+        'ell'  : (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+',
+                  r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+", ),
+        # Hungarian
+        'hun'  : (r'A\s+', 'Az\s+', 'Egy\s+',),
+}
+default_language_for_title_sort = None
 title_sort_articles=r'^(A|The|An)\s+'
 
 #: Specify a folder calibre should connect to at startup
@@ -240,7 +304,7 @@ auto_connect_to_folder = ''
 # how the value and category are combined together to make the collection name.
 # The only two fields available are {category} and {value}. The {value} field is
 # never empty. The {category} field can be empty. The default is to put the
-# value first, then the category enclosed in parentheses, it is isn't empty:
+# value first, then the category enclosed in parentheses, it isn't empty:
 # '{value} {category:|(|)}'
 # Examples: The first three examples assume that the second tweak
 # has not been changed.
@@ -315,10 +379,17 @@ content_server_wont_display = []
 # level sorts, and if you are seeing a slowdown, reduce the value of this tweak.
 maximum_resort_levels = 5
 
-#: Specify which font to use when generating a default cover
+#: Choose whether dates are sorted using visible fields
+# Date values contain both a date and a time. When sorted, all the fields are
+# used, regardless of what is displayed. Set this tweak to True to use only
+# the fields that are being displayed.
+sort_dates_using_visible_fields = False
+
+#: Specify which font to use when generating a default cover or masthead
 # Absolute path to .ttf font files to use as the fonts for the title, author
-# and footer when generating a default cover. Useful if the default font (Liberation
-# Serif) does not contain glyphs for the language of the books in your library.
+# and footer when generating a default cover or masthead image. Useful if the
+# default font (Liberation Serif) does not contain glyphs for the language of
+# the books in your library.
 generate_cover_title_font = None
 generate_cover_foot_font = None
 
@@ -351,6 +422,17 @@ locale_for_sorting =  ''
 # metadata  one book at a time. If True, then the fields are laid out using two
 # columns. If False, one column is used.
 metadata_single_use_2_cols_for_custom_fields = True
+
+#: Order of custom column(s) in edit metadata
+# Controls the order that custom columns are listed in edit metadata single
+# and bulk. The columns listed in the tweak are displayed first and in the
+# order provided. Any columns not listed are dislayed after the listed ones,
+# in alphabetical order. Do note that this tweak does not change the size of
+# the edit widgets. Putting comments widgets in this list may result in some
+# odd widget spacing when using two-column mode.
+# Enter a comma-separated list of custom field lookup names, as in
+# metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']
+metadata_edit_custom_column_order = []
 
 #: The number of seconds to wait before sending emails
 # The number of seconds to wait before sending emails when using a
@@ -402,4 +484,21 @@ unified_title_toolbar_on_osx = False
 # conversion is poor, you can tweak the settings and run it again. By setting
 # this to False you can prevent calibre from saving the original file.
 save_original_format = True
+
+#: Number of recently viewed books to show
+# Right-clicking the View button shows a list of recently viewed books. Control
+# how many should be shown, here.
+gui_view_history_size = 15
+
+#: When using the 'Tweak Book' action, which format to prefer
+# When tweaking a book that has multiple formats, calibre picks one
+# automatically. By default EPUB is preferred to HTMLZ. If you would like to
+# prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'
+tweak_book_prefer = 'epub'
+
+#: Change the font size of book details in the interface
+# Change the font size at which book details are rendered in the side panel and
+# comments are rendered in the metadata edit dialog. Set it to a positive or
+# negative number to increase or decrease the font size.
+change_book_details_font_size_by = 0
 

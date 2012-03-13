@@ -66,6 +66,16 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="user_installed_plugins">
+     <property name="toolTip">
+      <string>Show only those plugins that have been installed by you</string>
+     </property>
+     <property name="text">
+      <string>Show only &amp;user installed plugins</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QTreeView" name="plugin_view">
      <property name="alternatingRowColors">
       <bool>true</bool>

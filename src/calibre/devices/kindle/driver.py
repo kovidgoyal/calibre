@@ -10,10 +10,8 @@ Device driver for Amazon's Kindle
 
 import datetime, os, re, sys, json, hashlib
 
-from calibre.devices.kindle.apnx import APNXBuilder
 from calibre.devices.kindle.bookmark import Bookmark
 from calibre.devices.usbms.driver import USBMS
-from calibre.ebooks.metadata import MetaInformation
 from calibre import strftime
 
 '''
@@ -152,6 +150,7 @@ class KINDLE(USBMS):
         path_map, book_ext = resolve_bookmark_paths(storage, path_map)
 
         bookmarked_books = {}
+
         for id in path_map:
             bookmark_ext = path_map[id].rpartition('.')[2]
             myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
@@ -236,6 +235,8 @@ class KINDLE(USBMS):
 
     def add_annotation_to_library(self, db, db_id, annotation):
         from calibre.ebooks.BeautifulSoup import Tag
+        from calibre.ebooks.metadata import MetaInformation
+
         bm = annotation
         ignore_tags = set(['Catalog', 'Clippings'])
 
@@ -284,11 +285,11 @@ class KINDLE(USBMS):
 
 class KINDLE2(KINDLE):
 
-    name           = 'Kindle 2/3 Device Interface'
-    description    = _('Communicate with the Kindle 2/3 eBook reader.')
+    name           = 'Kindle 2/3/4/Touch Device Interface'
+    description    = _('Communicate with the Kindle 2/3/4/Touch eBook reader.')
 
-    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4']
-    DELETE_EXTS    = KINDLE.DELETE_EXTS
+    FORMATS        = KINDLE.FORMATS + ['pdf', 'azw4', 'pobi']
+    DELETE_EXTS    = KINDLE.DELETE_EXTS + ['.mbp1', '.mbs', '.sdr']
 
     PRODUCT_ID = [0x0002, 0x0004]
     BCD        = [0x0100]
@@ -301,19 +302,28 @@ class KINDLE2(KINDLE):
               ' this information to the Kindle when uploading MOBI files by'
               ' USB. Note that the page numbers do not correspond to any paper'
               ' book.'),
-        _('Use slower but more accurate page number generation') +
+        _('Use slower but more accurate page number calculation') +
             ':::' +
             _('There are two ways to generate the page number information. Using the more accurate '
               'generator will produce pages that correspond better to a printed book. '
               'However, this method is slower and will slow down sending files '
               'to the Kindle.'),
+        _('Custom column name to retrieve page counts from') +
+            ':::' +
+            _('If you have a custom column in your library that you use to '
+              'store the page count of books, you can have calibre use that '
+              'information, instead of calculating a page count. Specify the '
+              'name of the custom column here, for example, #pages. '),
+
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
         True,
         False,
+        '',
     ]
     OPT_APNX           = 0
     OPT_APNX_ACCURATE  = 1
+    OPT_APNX_CUST_COL  = 2
 
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
@@ -347,10 +357,24 @@ class KINDLE2(KINDLE):
                 if h in path_map:
                     book.device_collections = list(sorted(path_map[h]))
 
+    # Detect if the product family needs .apnx files uploaded to sidecar folder
+    def post_open_callback(self):
+        product_id = self.device_being_opened[1]
+        self.sidecar_apnx = False
+        if product_id > 0x3:
+            # Check if we need to put the apnx into a sidecar dir
+            for _, dirnames, _ in os.walk(self._main_prefix):
+                for x in dirnames:
+                    if x.endswith('.sdr'):
+                        self.sidecar_apnx = True
+                        return
+
     def upload_cover(self, path, filename, metadata, filepath):
         '''
         Hijacking this function to write the apnx file.
         '''
+        from calibre.devices.kindle.apnx import APNXBuilder
+
         opts = self.settings()
         if not opts.extra_customization[self.OPT_APNX]:
             return
@@ -358,10 +382,27 @@ class KINDLE2(KINDLE):
         if os.path.splitext(filepath.lower())[1] not in ('.azw', '.mobi', '.prc'):
             return
 
+        # Create the sidecar folder if necessary
+        if (self.sidecar_apnx):
+            path = os.path.join(os.path.dirname(filepath), filename+".sdr")
+
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+        cust_col_name = opts.extra_customization[self.OPT_APNX_CUST_COL]
+        custom_page_count = 0
+        if cust_col_name:
+            try:
+                custom_page_count = int(metadata.get(cust_col_name, 0))
+            except:
+                pass
+
         apnx_path = '%s.apnx' % os.path.join(path, filename)
         apnx_builder = APNXBuilder()
         try:
-            apnx_builder.write_apnx(filepath, apnx_path, accurate=opts.extra_customization[self.OPT_APNX_ACCURATE])
+            apnx_builder.write_apnx(filepath, apnx_path,
+                                    accurate=opts.extra_customization[self.OPT_APNX_ACCURATE],
+                                    page_count=custom_page_count)
         except:
             print 'Failed to generate APNX'
             import traceback
@@ -376,4 +417,21 @@ class KINDLE_DX(KINDLE2):
 
     PRODUCT_ID = [0x0003]
     BCD        = [0x0100]
+
+class KINDLE_FIRE(KINDLE2):
+
+    name = 'Kindle Fire Device Interface'
+    description = _('Communicate with the Kindle Fire')
+    gui_name = 'Fire'
+
+    PRODUCT_ID = [0x0006]
+    BCD = [0x216, 0x100]
+
+    EBOOK_DIR_MAIN = 'Documents'
+    SUPPORTS_SUB_DIRS = False
+    SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS_FOR_SCAN = True
+    VENDOR_NAME = 'AMAZON'
+    WINDOWS_MAIN_MEM = 'KINDLE'
+
 

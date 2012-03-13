@@ -374,13 +374,12 @@ class HTMLConverter(object):
             else:
                 self.css[selector] = self.override_css[selector]
 
-        upath = path.encode(sys.getfilesystemencoding()) if isinstance(path, unicode) else path
-        self.file_name = os.path.basename(upath.decode(sys.getfilesystemencoding()))
-        self.log.info(_('Processing %s')%( repr(upath) if self.verbose else repr(self.file_name)))
+        self.file_name = os.path.basename(path)
+        self.log.info(_('Processing %s')%( path if self.verbose else self.file_name))
 
-        if not os.path.exists(upath):
-            upath = upath.replace('&', '%26') #convertlit replaces & with %26 in file names
-        f = open(upath, 'rb')
+        if not os.path.exists(path):
+            path = path.replace('&', '%26') #convertlit replaces & with %26 in file names
+        f = open(path, 'rb')
         raw = f.read()
         if self.pdftohtml: # Bug in pdftohtml that causes it to output invalid UTF-8 files
             raw = raw.decode('utf-8', 'ignore')
@@ -1938,7 +1937,7 @@ def process_file(path, options, logger):
     if not oname:
         suffix = '.lrs' if options.lrs else '.lrf'
         name = os.path.splitext(os.path.basename(path))[0] + suffix
-        oname = os.path.join(os.getcwd(), name)
+        oname = os.path.join(os.getcwdu(), name)
     oname = os.path.abspath(os.path.expanduser(oname))
     conv.writeto(oname, lrs=options.lrs)
     conv.cleanup()

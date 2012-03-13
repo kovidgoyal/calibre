@@ -6,8 +6,6 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from PyQt4.Qt import QLineEdit, QTextEdit
-
 from calibre.gui2.convert.search_and_replace_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog
@@ -18,6 +16,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     HELP  = _('Modify the document text and structure using user defined patterns.')
     COMMIT_NAME = 'search_and_replace'
     ICON = I('search.png')
+    STRIP_TEXT_FIELDS = False
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
@@ -74,13 +73,5 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                              _('Invalid regular expression: %s')%err, show=True)
                 return False
         return True
-    
-    def get_vaule(self, g):
-        if isinstance(g, (QLineEdit, QTextEdit)):
-            func = getattr(g, 'toPlainText', getattr(g, 'text', None))()
-            ans = unicode(func)
-            if not ans:
-                ans = None
-            return ans
-        else:
-            return Widget.get_value(self, g)
+
+

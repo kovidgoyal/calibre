@@ -11,15 +11,15 @@ msgstr ""
 "Project-Id-Version: iso_639_3\n"
 "Report-Msgid-Bugs-To: Debian iso-codes team <pkg-isocodes-"
 "devel@lists.alioth.debian.org>\n"
-"POT-Creation-Date: 2011-09-27 14:31+0000\n"
-"PO-Revision-Date: 2011-09-27 16:17+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"POT-Creation-Date: 2011-11-25 14:01+0000\n"
+"PO-Revision-Date: 2012-02-01 20:12+0000\n"
+"Last-Translator: drMerry <Unknown>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-28 04:42+0000\n"
-"X-Generator: Launchpad (build 14049)\n"
+"X-Launchpad-Export-Date: 2012-02-02 05:57+0000\n"
+"X-Generator: Launchpad (build 14738)\n"
 "Language: nl\n"
 
 #. name for aaa
@@ -17955,8 +17955,8 @@ msgid "Ndoola"
 msgstr ""
 
 #. name for nds
-msgid "Saxon; Low"
-msgstr "Saksisch; laag"
+msgid "German; Low"
+msgstr "Duits; Laag"
 
 #. name for ndt
 msgid "Ndunga"
@@ -23624,7 +23624,7 @@ msgstr ""
 
 #. name for som
 msgid "Somali"
-msgstr "Somali"
+msgstr "Somalisch"
 
 #. name for soo
 msgid "Songo"
@@ -24504,7 +24504,7 @@ msgstr ""
 
 #. name for tat
 msgid "Tatar"
-msgstr "Tatar"
+msgstr "Tataars"
 
 #. name for tau
 msgid "Tanana; Upper"
@@ -30424,7 +30424,7 @@ msgstr ""
 
 #. name for zlm
 msgid "Malay (individual language)"
-msgstr ""
+msgstr "Maleis (aparte taal)"
 
 #. name for zln
 msgid "Zhuang; Lianshan"

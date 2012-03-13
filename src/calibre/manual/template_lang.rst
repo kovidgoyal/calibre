@@ -112,7 +112,7 @@ Functions are always applied before format specifications. See further down for 
 
 The syntax for using functions is ``{field:function(arguments)}``, or ``{field:function(arguments)|prefix|suffix}``. Arguments are separated by commas. Commas inside arguments must be preceeded by a backslash ( '\\' ). The last (or only) argument cannot contain a closing parenthesis ( ')' ). Functions return the value of the field used in the template, suitably modified.
 
-If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. Use :ref:`template program mode <template_mode>` and :ref:`general program mode <general_mode>` to avoid these differences.
+If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. **Do not use subtemplates (`{ ... }`) as function arguments.** Instead, use :ref:`template program mode <template_mode>` and :ref:`general program mode <general_mode>`.
 
 Many functions use regular expressions. In all cases, regular expression matching is case-insensitive.
 
@@ -242,6 +242,7 @@ The following functions are available in addition to those described in single-f
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
     * ``booksize()`` -- returns the value of the |app| 'size' field. Returns '' if there are no formats.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
+    * ``current_library_name() -- `` return the last name on the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_name()'}``.
     * ``days_between(date1, date2)`` -- return the number of days between ``date1`` and ``date2``. The number is positive if ``date1`` is greater than ``date2``, otherwise negative. If either ``date1`` or ``date2`` are not dates, the function returns the empty string.
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``field(name)`` -- returns the metadata field named by ``name``.
@@ -258,6 +259,14 @@ The following functions are available in addition to those described in single-f
         MMMM : the long localized month name (e.g. "January" to "December"). 
         yy   : the year as two digit number (00 to 99). 
         yyyy : the year as four digit number.
+        h    : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm)
+        hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm)
+        m    : the minutes without a leading 0 (0 to 59)
+        mm   : the minutes with a leading 0 (00 to 59)
+        s    : the seconds without a leading 0 (0 to 59)
+        ss   : the seconds with a leading 0 (00 to 59)
+        ap   : use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the localized string for am or pm.
+        AP   : use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
         iso  : the date with time and timezone. Must be the only format present.
     
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables.

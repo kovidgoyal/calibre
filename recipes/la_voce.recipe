@@ -1,0 +1,15 @@
+__license__   = 'GPL v3'
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class AdvancedUserRecipe1324114228(BasicNewsRecipe):
+    title          = u'La Voce'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+    masthead_url            = 'http://www.lavoce.info/binary/la_voce/testata/lavoce.1184661635.gif'
+    feeds          = [(u'La Voce', u'http://www.lavoce.info/feed_rss.php?id_feed=1')]
+    __author__    = 'faber1971'
+    description   = 'Italian website on Economy - v1.01 (17, December 2011)'
+    language = 'it'
+
+

@@ -36,6 +36,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('max_cover', self.proxy)
         r('max_opds_items', self.proxy)
         r('max_opds_ungrouped_items', self.proxy)
+        r('url_prefix', self.proxy)
 
         self.show_server_password.stateChanged[int].connect(
                      lambda s: self.opt_password.setEchoMode(
@@ -63,16 +64,21 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def start_server(self):
         ConfigWidgetBase.commit(self)
-        self.gui.start_content_server(check_started=False)
-        while not self.gui.content_server.is_running and self.gui.content_server.exception is None:
-            time.sleep(1)
-        if self.gui.content_server.exception is not None:
-            error_dialog(self, _('Failed to start content server'),
-                    as_unicode(self.gui.content_server.exception)).exec_()
-            return
-        self.start_button.setEnabled(False)
-        self.test_button.setEnabled(True)
-        self.stop_button.setEnabled(True)
+        self.setCursor(Qt.BusyCursor)
+        try:
+            self.gui.start_content_server(check_started=False)
+            while (not self.gui.content_server.is_running and
+                    self.gui.content_server.exception is None):
+                time.sleep(0.1)
+            if self.gui.content_server.exception is not None:
+                error_dialog(self, _('Failed to start content server'),
+                        as_unicode(self.gui.content_server.exception)).exec_()
+                return
+            self.start_button.setEnabled(False)
+            self.test_button.setEnabled(True)
+            self.stop_button.setEnabled(True)
+        finally:
+            self.unsetCursor()
 
     def stop_server(self):
         self.gui.content_server.threaded_exit()
@@ -95,7 +101,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.stopping_msg.accept()
 
     def test_server(self):
-        open_url(QUrl('http://127.0.0.1:'+str(self.opt_port.value())))
+        prefix = unicode(self.opt_url_prefix.text()).strip()
+        open_url(QUrl('http://127.0.0.1:'+str(self.opt_port.value())+prefix))
 
     def view_server_logs(self):
         from calibre.library.server import log_access_file, log_error_file

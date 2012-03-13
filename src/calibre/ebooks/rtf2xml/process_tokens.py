@@ -10,9 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import os, re, tempfile
+import os, re
 
 from calibre.ebooks.rtf2xml import copy, check_brackets
+from calibre.ptempfile import better_mktemp
 
 class ProcessTokens:
     """
@@ -31,7 +32,7 @@ class ProcessTokens:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__run_level = run_level
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.initiate_token_dict()
         ##self.initiate_token_actions()
         self.compile_expressions()

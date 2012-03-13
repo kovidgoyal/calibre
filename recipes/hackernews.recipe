@@ -9,9 +9,9 @@ from calibre.ptempfile import PersistentTemporaryFile
 from urlparse import urlparse
 import re
 
-class HackerNews(BasicNewsRecipe):
-    title                 = 'Hacker News'
-    __author__            = 'Tom Scholl'
+class HNWithCommentsLink(BasicNewsRecipe):
+    title                 = 'HN With Comments Link'
+    __author__            = 'Tom Scholl & David Kerschner'
     description           = u'Hacker News, run by Y Combinator. Anything that good hackers would find interesting, with a focus on programming and startups.'
     publisher             = 'Y Combinator'
     category              = 'news, programming, it, technology'
@@ -80,6 +80,11 @@ class HackerNews(BasicNewsRecipe):
         body = body + comments
         return u'<html><title>' + title + u'</title><body>' + body + '</body></html>'
 
+    def parse_feeds(self):
+        a = super(HNWithCommentsLink, self).parse_feeds()
+        self.hn_articles = a[0].articles
+        return a
+
     def get_obfuscated_article(self, url):
         if url.startswith('http://news.ycombinator.com'):
             content = self.get_hn_content(url)
@@ -96,6 +101,13 @@ class HackerNews(BasicNewsRecipe):
                 content = u'<html><body><img src="' + url + u'"></body></html>'
             else:
                 content = self.get_readable_content(url)
+
+            article = 0
+            for a in self.hn_articles:
+                if a.url == url:
+                    article = a
+
+        content = re.sub(r'</body>\s*</html>\s*$', '', content) + article.summary + '</body></html>'
 
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
         self.temp_files[-1].write(content)

@@ -5,19 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from math import cos, sin, pi
+from PyQt4.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox,
+        QVariant, QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument,
+        QAbstractTextDocumentLayout, QFont, QFontInfo)
 
-from PyQt4.Qt import (QColor, Qt, QModelIndex, QSize, QApplication,
-                     QPainterPath, QLinearGradient, QBrush,
-                     QPen, QStyle, QPainter, QStyleOptionViewItemV4,
-                     QIcon,  QDoubleSpinBox, QVariant, QSpinBox,
-                     QStyledItemDelegate, QComboBox, QTextDocument,
-                     QAbstractTextDocumentLayout)
-
-from calibre.gui2 import UNDEFINED_QDATE, error_dialog
+from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2.complete import MultiCompleteLineEdit, MultiCompleteComboBox
-from calibre.utils.date import now, format_date
+from calibre.utils.date import now, format_date, qt_to_dt
 from calibre.utils.config import tweaks
 from calibre.utils.formatter import validation_formatter
 from calibre.utils.icu import sort_key
@@ -27,105 +22,58 @@ from calibre.gui2.languages import LanguagesEdit
 
 
 class RatingDelegate(QStyledItemDelegate): # {{{
-    COLOR    = QColor("blue")
-    SIZE     = 16
 
-    def __init__(self, parent):
-        QStyledItemDelegate.__init__(self, parent)
-        self._parent = parent
-        self.dummy = QModelIndex()
-        self.star_path = QPainterPath()
-        self.star_path.moveTo(90, 50)
-        for i in range(1, 5):
-            self.star_path.lineTo(50 + 40 * cos(0.8 * i * pi), \
-                                  50 + 40 * sin(0.8 * i * pi))
-        self.star_path.closeSubpath()
-        self.star_path.setFillRule(Qt.WindingFill)
-        self.gradient = QLinearGradient(0, 0, 0, 100)
-        self.factor = self.SIZE/100.
-
-    def sizeHint(self, option, index):
-        #num = index.model().data(index, Qt.DisplayRole).toInt()[0]
-        return QSize(5*(self.SIZE), self.SIZE+4)
-
-    def paint(self, painter, option, index):
-        style = self._parent.style()
-        option = QStyleOptionViewItemV4(option)
-        self.initStyleOption(option, index)
-        option.text = u''
-        num = index.model().data(index, Qt.DisplayRole).toInt()[0]
-        def draw_star():
-            painter.save()
-            painter.scale(self.factor, self.factor)
-            painter.translate(50.0, 50.0)
-            painter.rotate(-20)
-            painter.translate(-50.0, -50.0)
-            painter.drawPath(self.star_path)
-            painter.restore()
-
-        painter.save()
-        if hasattr(QStyle, 'CE_ItemViewItem'):
-            style.drawControl(QStyle.CE_ItemViewItem, option,
-                    painter, self._parent)
-        elif option.state & QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
-        else:
-            painter.fillRect(option.rect, option.backgroundBrush)
-
-        try:
-            painter.setRenderHint(QPainter.Antialiasing)
-            painter.setClipRect(option.rect)
-            y = option.rect.center().y()-self.SIZE/2.
-            x = option.rect.left()
-            color = index.data(Qt.ForegroundRole)
-            if color.isNull() or not color.isValid():
-                color = self.COLOR
-            else:
-                color = QColor(color)
-            painter.setPen(QPen(color,  1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-            self.gradient.setColorAt(0.0, color)
-            self.gradient.setColorAt(1.0, color)
-            painter.setBrush(QBrush(self.gradient))
-            painter.translate(x, y)
-            i = 0
-            while i < num:
-                draw_star()
-                painter.translate(self.SIZE, 0)
-                i += 1
-        except:
-            import traceback
-            traceback.print_exc()
-        painter.restore()
+    def __init__(self, *args, **kwargs):
+        QStyledItemDelegate.__init__(self, *args, **kwargs)
+        self.rf = QFont(rating_font())
+        self.em = Qt.ElideMiddle
+        self.rf.setPointSize(QFontInfo(QApplication.font()).pointSize())
 
     def createEditor(self, parent, option, index):
         sb = QStyledItemDelegate.createEditor(self, parent, option, index)
         sb.setMinimum(0)
         sb.setMaximum(5)
+        sb.setSuffix(' ' + _('stars'))
         return sb
+
+    def displayText(self, value, locale):
+        r = value.toInt()[0]
+        if r < 0 or r > 5:
+            r = 0
+        return u'\u2605'*r
+
+    def sizeHint(self, option, index):
+        option.font = self.rf
+        option.textElideMode = self.em
+        return QStyledItemDelegate.sizeHint(self, option, index)
+
+    def paint(self, painter, option, index):
+        option.font = self.rf
+        option.textElideMode = self.em
+        return QStyledItemDelegate.paint(self, painter, option, index)
+
 # }}}
 
 class DateDelegate(QStyledItemDelegate): # {{{
 
     def __init__(self, parent, tweak_name='gui_timestamp_display_format',
-            default_format='dd MMM yyyy', editor_format='dd MMM yyyy'):
+            default_format='dd MMM yyyy'):
         QStyledItemDelegate.__init__(self, parent)
         self.tweak_name = tweak_name
-        self.default_format = default_format
-        self.editor_format = editor_format
+        self.format = tweaks[self.tweak_name]
+        if self.format is None:
+            self.format = default_format
 
     def displayText(self, val, locale):
-        d = val.toDate()
-        if d <= UNDEFINED_QDATE:
+        d = val.toDateTime()
+        if d <= UNDEFINED_QDATETIME:
             return ''
-        format = tweaks[self.tweak_name]
-        if format is None:
-            format = self.default_format
-        return format_date(d.toPyDate(), format)
+        return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat(self.editor_format)
-        qde.setMinimumDate(UNDEFINED_QDATE)
+        qde.setDisplayFormat(self.format)
+        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
@@ -134,18 +82,18 @@ class DateDelegate(QStyledItemDelegate): # {{{
 class PubDateDelegate(QStyledItemDelegate): # {{{
 
     def displayText(self, val, locale):
-        d = val.toDate()
-        if d <= UNDEFINED_QDATE:
+        d = val.toDateTime()
+        if d <= UNDEFINED_QDATETIME:
             return ''
-        format = tweaks['gui_pubdate_display_format']
-        if format is None:
-            format = 'MMM yyyy'
-        return format_date(d.toPyDate(), format)
+        self.format = tweaks['gui_pubdate_display_format']
+        if self.format is None:
+            self.format = 'MMM yyyy'
+        return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
-        qde.setDisplayFormat('MM yyyy')
-        qde.setMinimumDate(UNDEFINED_QDATE)
+        qde.setDisplayFormat(self.format)
+        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
@@ -259,15 +207,15 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
             self.format = format
 
     def displayText(self, val, locale):
-        d = val.toDate()
-        if d <= UNDEFINED_QDATE:
+        d = val.toDateTime()
+        if d <= UNDEFINED_QDATETIME:
             return ''
-        return format_date(d.toPyDate(), self.format)
+        return format_date(qt_to_dt(d, as_utc=False), self.format)
 
     def createEditor(self, parent, option, index):
         qde = QStyledItemDelegate.createEditor(self, parent, option, index)
         qde.setDisplayFormat(self.format)
-        qde.setMinimumDate(UNDEFINED_QDATE)
+        qde.setMinimumDateTime(UNDEFINED_QDATETIME)
         qde.setSpecialValueText(_('Undefined'))
         qde.setCalendarPopup(True)
         return qde
@@ -279,11 +227,11 @@ class CcDateDelegate(QStyledItemDelegate): # {{{
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if val is None:
             val = now()
-        editor.setDate(val)
+        editor.setDateTime(val)
 
     def setModelData(self, editor, model, index):
-        val = editor.date()
-        if val <= UNDEFINED_QDATE:
+        val = editor.dateTime()
+        if val <= UNDEFINED_QDATETIME:
             val = None
         model.setData(index, QVariant(val), Qt.EditRole)
 

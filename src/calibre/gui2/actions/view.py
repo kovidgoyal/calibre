@@ -14,7 +14,7 @@ from calibre.constants import isosx
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog, config, \
         open_local_file, info_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.actions import InterfaceAction
 
@@ -239,6 +239,7 @@ class ViewAction(InterfaceAction):
 
     def update_history(self, views, remove=frozenset()):
         db = self.gui.current_db
+        vh = tweaks['gui_view_history_size']
         if views:
             seen = set()
             history = []
@@ -247,12 +248,12 @@ class ViewAction(InterfaceAction):
                     seen.add(title)
                     history.append((id_, title))
 
-            db.prefs['gui_view_history'] = history[:10]
+            db.prefs['gui_view_history'] = history[:vh]
             self.build_menus(db)
         if remove:
             history = db.prefs.get('gui_view_history', [])
             history = [x for x in history if x[0] not in remove]
-            db.prefs['gui_view_history'] = history[:10]
+            db.prefs['gui_view_history'] = history[:vh]
             self.build_menus(db)
 
     def _view_books(self, rows):

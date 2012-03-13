@@ -53,8 +53,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>524</width>
-        <height>504</height>
+        <width>518</width>
+        <height>498</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -318,13 +318,6 @@
          </property>
         </spacer>
        </item>
-       <item>
-        <widget class="QPushButton" name="download_button">
-         <property name="text">
-          <string>&amp;Download now</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </widget>
@@ -369,7 +362,7 @@
      <item>
       <widget class="QLabel" name="label_7">
        <property name="text">
-        <string>&amp;Delete downloaded news older than:</string>
+        <string>Delete downloaded news &amp;older than:</string>
        </property>
        <property name="buddy">
         <cstring>old_news</cstring>

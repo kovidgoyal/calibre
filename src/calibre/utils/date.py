@@ -7,10 +7,9 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
-from datetime import datetime
+from datetime import datetime, time
 from functools import partial
 
-from dateutil.parser import parse
 from dateutil.tz import tzlocal, tzutc
 
 from calibre import strftime
@@ -71,6 +70,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     :param default: Missing fields are filled in from default. If None, the
     current date is used.
     '''
+    from dateutil.parser import parse
     if not date_string:
         return UNDEFINED_DATE
     if default is None:
@@ -156,10 +156,73 @@ def utcfromtimestamp(stamp):
         traceback.print_exc()
         return utcnow()
 
+#### Format date functions
+
+def fd_format_hour(dt, strf, ampm, hr):
+    l = len(hr)
+    h = dt.hour
+    if ampm:
+        h = h%12
+    if l == 1: return '%d'%h
+    return '%02d'%h
+
+def fd_format_minute(dt, strf, ampm, min):
+    l = len(min)
+    if l == 1: return '%d'%dt.minute
+    return '%02d'%dt.minute
+
+def fd_format_second(dt, strf, ampm, sec):
+    l = len(sec)
+    if l == 1: return '%d'%dt.second
+    return '%02d'%dt.second
+
+def fd_format_ampm(dt, strf, ampm, ap):
+    res = strf('%p')
+    if ap == 'AP':
+        return res
+    return res.lower()
+
+def fd_format_day(dt, strf, ampm, dy):
+    l = len(dy)
+    if l == 1: return '%d'%dt.day
+    if l == 2: return '%02d'%dt.day
+    if l == 3: return strf('%a')
+    return strf('%A')
+
+def fd_format_month(dt, strf, ampm, mo):
+    l = len(mo)
+    if l == 1: return '%d'%dt.month
+    if l == 2: return '%02d'%dt.month
+    if l == 3: return strf('%b')
+    return strf('%B')
+
+def fd_format_year(dt, strf, ampm, yr):
+    if len(yr) == 2: return '%02d'%(dt.year % 100)
+    return '%04d'%dt.year
+
+fd_function_index = {
+        'd': fd_format_day,
+        'M': fd_format_month,
+        'y': fd_format_year,
+        'h': fd_format_hour,
+        'm': fd_format_minute,
+        's': fd_format_second,
+        'a': fd_format_ampm,
+        'A': fd_format_ampm,
+    }
+def fd_repl_func(dt, strf, ampm, mo):
+    s = mo.group(0)
+    if not s:
+        return ''
+    return fd_function_index[s[0]](dt, strf, ampm, s)
+
 def format_date(dt, format, assume_utc=False, as_utc=False):
     ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
     if not format:
         format = 'dd MMM yyyy'
+
+    if not isinstance(dt, datetime):
+        dt = datetime.combine(dt, time())
 
     if hasattr(dt, 'tzinfo'):
         if dt.tzinfo is None:
@@ -174,36 +237,76 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
         return ''
 
     strf = partial(strftime, t=dt.timetuple())
+    repl_func = partial(fd_repl_func, dt, strf, 'ap' in format.lower())
+    return re.sub(
+        '(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
+        repl_func, format)
 
-    def format_day(dy):
-        l = len(dy)
-        if l == 1: return '%d'%dt.day
-        if l == 2: return '%02d'%dt.day
-        if l == 3: return strf('%a')
-        return strf('%A')
+#### Clean date functions
 
-    def format_month(mo):
-        l = len(mo)
-        if l == 1: return '%d'%dt.month
-        if l == 2: return '%02d'%dt.month
-        if l == 3: return strf('%b')
-        return strf('%B')
+def cd_has_hour(tt, dt):
+    tt['hour'] = dt.hour
+    return ''
 
-    def format_year(yr):
-        if len(yr) == 2: return '%02d'%(dt.year % 100)
-        return '%04d'%dt.year
+def cd_has_minute(tt, dt):
+    tt['min'] = dt.minute
+    return ''
 
-    def repl_func(mo):
-        s = mo.group(0)
-        if s is None:
-            return ''
-        if s[0] == 'd':
-            return format_day(s)
-        if s[0] == 'M':
-            return format_month(s)
-        return format_year(s)
+def cd_has_second(tt, dt):
+    tt['sec'] = dt.second
+    return ''
 
-    return re.sub('(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, format)
+def cd_has_day(tt, dt):
+    tt['day'] = dt.day
+    return ''
+
+def cd_has_month(tt, dt):
+    tt['mon'] = dt.month
+    return ''
+
+def cd_has_year(tt, dt):
+    tt['year'] = dt.year
+    return ''
+
+cd_function_index = {
+        'd': cd_has_day,
+        'M': cd_has_month,
+        'y': cd_has_year,
+        'h': cd_has_hour,
+        'm': cd_has_minute,
+        's': cd_has_second
+    }
+
+def cd_repl_func(tt, dt, match_object):
+    s = match_object.group(0)
+    if not s:
+        return ''
+    return cd_function_index[s[0]](tt, dt)
+
+def clean_date_for_sort(dt, format):
+    ''' Return dt with fields not in shown in format set to a default '''
+    if not format:
+        format = 'yyMd'
+
+    if not isinstance(dt, datetime):
+        dt = datetime.combine(dt, time())
+
+    if hasattr(dt, 'tzinfo'):
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=_local_tz)
+        dt = as_local_time(dt)
+
+    if format == 'iso':
+        format = 'yyMdhms'
+
+    tt = {'year':UNDEFINED_DATE.year, 'mon':UNDEFINED_DATE.month,
+          'day':UNDEFINED_DATE.day, 'hour':UNDEFINED_DATE.hour,
+          'min':UNDEFINED_DATE.minute, 'sec':UNDEFINED_DATE.second}
+
+    repl_func = partial(cd_repl_func, tt, dt)
+    re.sub('(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, format)
+    return dt.replace(year=tt['year'], month=tt['mon'], day=tt['day'], hour=tt['hour'],
+                      minute=tt['min'], second=tt['sec'], microsecond=0)
 
 def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date

@@ -5,7 +5,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from itertools import izip
-from xml.sax.saxutils import escape
 
 from calibre.customize import Plugin as _Plugin
 
@@ -268,6 +267,7 @@ class OutputProfile(Plugin):
 
     @classmethod
     def tags_to_string(cls, tags):
+        from xml.sax.saxutils import escape
         return escape(', '.join(tags))
 
 class iPadOutput(OutputProfile):
@@ -652,6 +652,15 @@ class KindleDXOutput(OutputProfile):
         return u'%s <br/><span style="color: white">%s</span>' % (', '.join(tags),
                 'ttt '.join(tags)+'ttt ')
 
+class KindleFireOutput(KindleDXOutput):
+
+    name = 'Kindle Fire'
+    short_name = 'kindle_fire'
+    description = _('This profile is intended for the Amazon Kindle Fire.')
+
+    screen_size               = (570, 1016)
+    dpi                       = 169.0
+    comic_screen_size = (570, 1016)
 
 class IlliadOutput(OutputProfile):
 
@@ -748,6 +757,7 @@ output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
         iPadOutput, KoboReaderOutput, TabletOutput, SamsungGalaxy,
         SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput,
         IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, NookColorOutput, PocketBook900Output, GenericEink, GenericEinkLarge]
+        BambookOutput, NookColorOutput, PocketBook900Output, GenericEink,
+        GenericEinkLarge, KindleFireOutput]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))

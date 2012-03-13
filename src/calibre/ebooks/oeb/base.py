@@ -16,15 +16,13 @@ from urllib import unquote as urlunquote
 from lxml import etree, html
 from calibre.constants import filesystem_encoding, __version__
 from calibre.translations.dynamic import translate
-from calibre.ebooks.chardet import xml_to_unicode, strip_encoding_declarations
-from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
-from calibre import isbytestring, as_unicode, get_types_map
-
-RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
+from calibre import (isbytestring, as_unicode, get_types_map)
+from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
+        namespace, XHTML, parse_html, NotHTML)
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
-XHTML_NS     = 'http://www.w3.org/1999/xhtml'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
 OPF1_NS      = 'http://openebook.org/namespaces/oeb-package/1.0/'
 OPF2_NS      = 'http://www.idpf.org/2007/opf'
@@ -54,9 +52,6 @@ OPF2_NSMAP   = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
 
 def XML(name):
     return '{%s}%s' % (XML_NS, name)
-
-def XHTML(name):
-    return '{%s}%s' % (XHTML_NS, name)
 
 def OPF(name):
     return '{%s}%s' % (OPF2_NS, name)
@@ -279,21 +274,10 @@ PREFIXNAME_RE = re.compile(r'^[^:]+[:][^:]+')
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 CSSURL_RE     = re.compile(r'''url[(](?P<q>["']?)(?P<url>[^)]+)(?P=q)[)]''')
 
-
 def element(parent, *args, **kwargs):
     if parent is not None:
         return etree.SubElement(parent, *args, **kwargs)
     return etree.Element(*args, **kwargs)
-
-def namespace(name):
-    if '}' in name:
-        return name.split('}', 1)[0][1:]
-    return ''
-
-def barename(name):
-    if '}' in name:
-        return name.split('}', 1)[1]
-    return name
 
 def prefixname(name, nsrmap):
     if not isqname(name):
@@ -373,25 +357,6 @@ def urlnormalize(href):
     parts = (urlquote(part) for part in parts)
     return urlunparse(parts)
 
-def merge_multiple_html_heads_and_bodies(root, log=None):
-    heads, bodies = xpath(root, '//h:head'), xpath(root, '//h:body')
-    if not (len(heads) > 1 or len(bodies) > 1): return root
-    for child in root: root.remove(child)
-    head = root.makeelement(XHTML('head'))
-    body = root.makeelement(XHTML('body'))
-    for h in heads:
-        for x in h:
-            head.append(x)
-    for b in bodies:
-        for x in b:
-            body.append(x)
-    map(root.append, (head, body))
-    if log is not None:
-        log.warn('Merging multiple <head> and <body> sections')
-    return root
-
-
-
 
 
 class DummyHandler(logging.Handler):
@@ -416,10 +381,6 @@ _css_logger.addHandler(_css_log_handler)
 
 class OEBError(Exception):
     """Generic OEB-processing error."""
-    pass
-
-class NotHTML(OEBError):
-    '''Raised when a file that should be HTML (as per manifest) is not'''
     pass
 
 class NullContainer(object):
@@ -464,15 +425,24 @@ class DirContainer(object):
                     self.opfname = path
                     return
 
+    def _unquote(self, path):
+        # urlunquote must run on a bytestring and will return a bytestring
+        # If it runs on a unicode object, it returns a double encoded unicode
+        # string: unquote(u'%C3%A4') != unquote(b'%C3%A4').decode('utf-8')
+        # and the latter is correct
+        if isinstance(path, unicode):
+            path = path.encode('utf-8')
+        return urlunquote(path).decode('utf-8')
+
     def read(self, path):
         if path is None:
             path = self.opfname
-        path = os.path.join(self.rootdir, path)
-        with open(urlunquote(path), 'rb') as f:
+        path = os.path.join(self.rootdir, self._unquote(path))
+        with open(path, 'rb') as f:
             return f.read()
 
     def write(self, path, data):
-        path = os.path.join(self.rootdir, urlunquote(path))
+        path = os.path.join(self.rootdir, self._unquote(path))
         dir = os.path.dirname(path)
         if not os.path.isdir(dir):
             os.makedirs(dir)
@@ -481,7 +451,7 @@ class DirContainer(object):
 
     def exists(self, path):
         try:
-            path = os.path.join(self.rootdir, urlunquote(path))
+            path = os.path.join(self.rootdir, self._unquote(path))
         except ValueError: #Happens if path contains quoted special chars
             return False
         return os.path.isfile(path)
@@ -801,10 +771,11 @@ class Manifest(object):
         """
 
         NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
-        META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
 
         def __init__(self, oeb, id, href, media_type,
                      fallback=None, loader=str, data=None):
+            if href:
+                href = unicode(href)
             self.oeb = oeb
             self.id = id
             self.href = self.path = urlnormalize(href)
@@ -830,238 +801,17 @@ class Manifest(object):
                 return None
             return etree.fromstring(data, parser=RECOVER_PARSER)
 
-        def clean_word_doc(self, data):
-            prefixes = []
-            for match in re.finditer(r'xmlns:(\S+?)=".*?microsoft.*?"', data):
-                prefixes.append(match.group(1))
-            if prefixes:
-                self.oeb.log.warn('Found microsoft markup, cleaning...')
-                # Remove empty tags as they are not rendered by browsers
-                # but can become renderable HTML tags like <p/> if the
-                # document is parsed by an HTML parser
-                pat = re.compile(
-                        r'<(%s):([a-zA-Z0-9]+)[^>/]*?></\1:\2>'%('|'.join(prefixes)),
-                        re.DOTALL)
-                data = pat.sub('', data)
-                pat = re.compile(
-                        r'<(%s):([a-zA-Z0-9]+)[^>/]*?/>'%('|'.join(prefixes)))
-                data = pat.sub('', data)
-            return data
-
         def _parse_xhtml(self, data):
             orig_data = data
-            self.oeb.log.debug('Parsing', self.href, '...')
-            # Convert to Unicode and normalize line endings
-            data = self.oeb.decode(data)
-            data = strip_encoding_declarations(data)
-            data = self.oeb.html_preprocessor(data)
-            # There could be null bytes in data if it had &#0; entities in it
-            data = data.replace('\0', '')
-
-            # Remove DOCTYPE declaration as it messes up parsing
-            # In particular, it causes tostring to insert xmlns
-            # declarations, which messes up the coercing logic
-            idx = data.find('<html')
-            if idx == -1:
-                idx = data.find('<HTML')
-            if idx > -1:
-                pre = data[:idx]
-                data = data[idx:]
-                if '<!DOCTYPE' in pre:
-                    user_entities = {}
-                    for match in re.finditer(r'<!ENTITY\s+(\S+)\s+([^>]+)', pre):
-                        val = match.group(2)
-                        if val.startswith('"') and val.endswith('"'):
-                            val = val[1:-1]
-                        user_entities[match.group(1)] = val
-                    if user_entities:
-                        pat = re.compile(r'&(%s);'%('|'.join(user_entities.keys())))
-                        data = pat.sub(lambda m:user_entities[m.group(1)], data)
-
-            # Setting huge_tree=True causes crashes in windows with large files
-            parser = etree.XMLParser(no_network=True)
-            # Try with more & more drastic measures to parse
-            def first_pass(data):
-                try:
-                    data = etree.fromstring(data, parser=parser)
-                except etree.XMLSyntaxError as err:
-                    self.oeb.log.debug('Initial parse failed, using more'
-                            ' forgiving parsers')
-                    repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
-                    data = ENTITY_RE.sub(repl, data)
-                    try:
-                        data = etree.fromstring(data, parser=parser)
-                    except etree.XMLSyntaxError as err:
-                        self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
-                        if err.args and err.args[0].startswith('Excessive depth'):
-                            from lxml.html import soupparser
-                            data = soupparser.fromstring(data)
-                        else:
-                            data = html.fromstring(data)
-                        data.attrib.pop('xmlns', None)
-                        for elem in data.iter(tag=etree.Comment):
-                            if elem.text:
-                                elem.text = elem.text.strip('-')
-                        data = etree.tostring(data, encoding=unicode)
-                        try:
-                            data = etree.fromstring(data, parser=parser)
-                        except etree.XMLSyntaxError:
-                            data = etree.fromstring(data, parser=RECOVER_PARSER)
-                return data
+            fname = urlunquote(self.href)
+            self.oeb.log.debug('Parsing', fname, '...')
             try:
-                data = self.clean_word_doc(data)
-            except:
-                pass
-            data = first_pass(data)
-
-            if data.tag == 'HTML':
-                # Lower case all tag and attribute names
-                data.tag = data.tag.lower()
-                for x in data.iterdescendants():
-                    try:
-                        x.tag = x.tag.lower()
-                        for key, val in list(x.attrib.iteritems()):
-                            del x.attrib[key]
-                            key = key.lower()
-                            x.attrib[key] = val
-                    except:
-                        pass
-
-            # Handle weird (non-HTML/fragment) files
-            if barename(data.tag) != 'html':
-                if barename(data.tag) == 'ncx':
-                    return self._parse_xml(orig_data)
-                self.oeb.log.warn('File %r does not appear to be (X)HTML'%self.href)
-                nroot = etree.fromstring('<html></html>')
-                has_body = False
-                for child in list(data):
-                    if isinstance(child.tag, (unicode, str)) and barename(child.tag) == 'body':
-                        has_body = True
-                        break
-                parent = nroot
-                if not has_body:
-                    self.oeb.log.warn('File %r appears to be a HTML fragment'%self.href)
-                    nroot = etree.fromstring('<html><body/></html>')
-                    parent = nroot[0]
-                for child in list(data.iter()):
-                    oparent = child.getparent()
-                    if oparent is not None:
-                        oparent.remove(child)
-                    parent.append(child)
-                data = nroot
-
-
-            # Force into the XHTML namespace
-            if not namespace(data.tag):
-                self.oeb.log.warn('Forcing', self.href, 'into XHTML namespace')
-                data.attrib['xmlns'] = XHTML_NS
-                data = etree.tostring(data, encoding=unicode)
-
-                try:
-                    data = etree.fromstring(data, parser=parser)
-                except:
-                    data = data.replace(':=', '=').replace(':>', '>')
-                    data = data.replace('<http:/>', '')
-                    try:
-                        data = etree.fromstring(data, parser=parser)
-                    except etree.XMLSyntaxError:
-                        self.oeb.logger.warn('Stripping comments and meta tags from %s'%
-                                self.href)
-                        data = re.compile(r'<!--.*?-->', re.DOTALL).sub('',
-                                data)
-                        data = re.sub(r'<meta\s+[^>]+?>', '', data)
-                        data = data.replace(
-                                "<?xml version='1.0' encoding='utf-8'?><o:p></o:p>",
-                                '')
-                        data = data.replace("<?xml version='1.0' encoding='utf-8'??>", '')
-                        data = etree.fromstring(data, parser=RECOVER_PARSER)
-            elif namespace(data.tag) != XHTML_NS:
-                # OEB_DOC_NS, but possibly others
-                ns = namespace(data.tag)
-                attrib = dict(data.attrib)
-                nroot = etree.Element(XHTML('html'),
-                    nsmap={None: XHTML_NS}, attrib=attrib)
-                for elem in data.iterdescendants():
-                    if isinstance(elem.tag, basestring) and \
-                       namespace(elem.tag) == ns:
-                        elem.tag = XHTML(barename(elem.tag))
-                for elem in data:
-                    nroot.append(elem)
-                data = nroot
-
-            data = merge_multiple_html_heads_and_bodies(data, self.oeb.logger)
-            # Ensure has a <head/>
-            head = xpath(data, '/h:html/h:head')
-            head = head[0] if head else None
-            if head is None:
-                self.oeb.logger.warn(
-                    'File %r missing <head/> element' % self.href)
-                head = etree.Element(XHTML('head'))
-                data.insert(0, head)
-                title = etree.SubElement(head, XHTML('title'))
-                title.text = self.oeb.translate(__('Unknown'))
-            elif not xpath(data, '/h:html/h:head/h:title'):
-                self.oeb.logger.warn(
-                    'File %r missing <title/> element' % self.href)
-                title = etree.SubElement(head, XHTML('title'))
-                title.text = self.oeb.translate(__('Unknown'))
-            # Remove any encoding-specifying <meta/> elements
-            for meta in self.META_XP(data):
-                meta.getparent().remove(meta)
-            etree.SubElement(head, XHTML('meta'),
-                attrib={'http-equiv': 'Content-Type',
-                        'content': '%s; charset=utf-8' % XHTML_NS})
-            # Ensure has a <body/>
-            if not xpath(data, '/h:html/h:body'):
-                body = xpath(data, '//h:body')
-                if body:
-                    body = body[0]
-                    body.getparent().remove(body)
-                    data.append(body)
-                else:
-                    self.oeb.logger.warn(
-                        'File %r missing <body/> element' % self.href)
-                    etree.SubElement(data, XHTML('body'))
-
-            # Remove microsoft office markup
-            r = [x for x in data.iterdescendants(etree.Element) if 'microsoft-com' in x.tag]
-            for x in r:
-                x.tag = XHTML('span')
-
-            # Remove lang redefinition inserted by the amazing Microsoft Word!
-            body = xpath(data, '/h:html/h:body')[0]
-            for key in list(body.attrib.keys()):
-                if key == 'lang' or key.endswith('}lang'):
-                    body.attrib.pop(key)
-
-            def remove_elem(a):
-                p = a.getparent()
-                idx = p.index(a) -1
-                p.remove(a)
-                if a.tail:
-                    if idx <= 0:
-                        if p.text is None:
-                            p.text = ''
-                        p.text += a.tail
-                    else:
-                        if p[idx].tail is None:
-                            p[idx].tail = ''
-                        p[idx].tail += a.tail
-
-            # Remove hyperlinks with no content as they cause rendering
-            # artifacts in browser based renderers
-            # Also remove empty <b>, <u> and <i> tags
-            for a in xpath(data, '//h:a[@href]|//h:i|//h:b|//h:u'):
-                if a.get('id', None) is None and a.get('name', None) is None \
-                        and len(a) == 0 and not a.text:
-                    remove_elem(a)
-
-            # Convert <br>s with content into paragraphs as ADE can't handle
-            # them
-            for br in xpath(data, '//h:br'):
-                if len(br) > 0 or br.text:
-                    br.tag = XHTML('div')
-
+                data = parse_html(data, log=self.oeb.log,
+                        decoder=self.oeb.decode,
+                        preprocessor=self.oeb.html_preprocessor,
+                        filename=fname, non_html_file_tags={'ncx'})
+            except NotHTML:
+                return self._parse_xml(orig_data)
             return data
 
         def _parse_txt(self, data):
@@ -1082,22 +832,8 @@ class Manifest(object):
 
 
         def _parse_css(self, data):
-            from cssutils.css import CSSRule
-            from cssutils import CSSParser, log
+            from cssutils import CSSParser, log, resolveImports
             log.setLevel(logging.WARN)
-            def get_style_rules_from_import(import_rule):
-                ans = []
-                if not import_rule.styleSheet:
-                    return ans
-                rules = import_rule.styleSheet.cssRules
-                for rule in rules:
-                    if rule.type == CSSRule.IMPORT_RULE:
-                        ans.extend(get_style_rules_from_import(rule))
-                    elif rule.type in (CSSRule.FONT_FACE_RULE,
-                            CSSRule.STYLE_RULE):
-                        ans.append(rule)
-                return ans
-
             self.oeb.log.debug('Parsing', self.href, '...')
             data = self.oeb.decode(data)
             data = self.oeb.css_preprocessor(data, add_namespace=True)
@@ -1105,19 +841,8 @@ class Manifest(object):
                                fetcher=self.override_css_fetch or self._fetch_css,
                                log=_css_logger)
             data = parser.parseString(data, href=self.href)
+            data = resolveImports(data)
             data.namespaces['h'] = XHTML_NS
-            import_rules = list(data.cssRules.rulesOfType(CSSRule.IMPORT_RULE))
-            rules_to_append = []
-            insert_index = None
-            for r in data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
-                insert_index = data.cssRules.index(r)
-                break
-            for rule in import_rules:
-                rules_to_append.extend(get_style_rules_from_import(rule))
-            for r in reversed(rules_to_append):
-                data.insertRule(r, index=insert_index)
-            for rule in import_rules:
-                data.deleteRule(rule)
             return data
 
         def _fetch_css(self, path):
@@ -1130,7 +855,8 @@ class Manifest(object):
                 self.oeb.logger.warn('CSS import of non-CSS file %r' % path)
                 return (None, None)
             data = item.data.cssText
-            return ('utf-8', data)
+            enc = None if isinstance(data, unicode) else 'utf-8'
+            return (enc, data)
 
         # }}}
 
@@ -1203,7 +929,13 @@ class Manifest(object):
             if isinstance(data, etree._Element):
                 ans = xml2str(data, pretty_print=self.oeb.pretty_print)
                 if self.media_type in OEB_DOCS:
-                    ans = re.sub(r'<(div|a|span)([^>]*)/>', r'<\1\2></\1>', ans)
+                    # Convert self closing div|span|a|video|audio|iframe tags
+                    # to normally closed ones, as they are interpreted
+                    # incorrectly by some browser based renderers
+                    ans = re.sub(
+                        # tag name followed by either a space or a /
+                        r'<(?P<tag>div|a|span|video|audio|iframe)(?=[\s/])(?P<arg>[^>]*)/>',
+                        r'<\g<tag>\g<arg>></\g<tag>>', ans)
                 return ans
             if isinstance(data, unicode):
                 return data.encode('utf-8')
@@ -1323,6 +1055,12 @@ class Manifest(object):
         if item in self.oeb.spine:
             self.oeb.spine.remove(item)
 
+    def remove_duplicate_item(self, item):
+        if item in self.ids:
+            item = self.ids[item]
+        del self.ids[item.id]
+        self.items.remove(item)
+
     def generate(self, id=None, href=None):
         """Generate a new unique identifier and/or internal path for use in
         creating a new manifest item, using the provided :param:`id` and/or
@@ -1346,7 +1084,7 @@ class Manifest(object):
             while href.lower() in lhrefs:
                 href = base + str(index) + ext
                 index += 1
-        return id, href
+        return id, unicode(href)
 
     def __iter__(self):
         for item in self.items:
@@ -1560,6 +1298,8 @@ class Guide(object):
 
     def add(self, type, title, href):
         """Add a new reference to the `Guide`."""
+        if href:
+            href = unicode(href)
         ref = self.Reference(self.oeb, type, title, href)
         self.refs[type] = ref
         return ref
@@ -1623,9 +1363,10 @@ class TOC(object):
     :attr:`id`: Option unique identifier for this node.
     :attr:`author`: Optional author attribution for periodicals <mbp:>
     :attr:`description`: Optional description attribute for periodicals <mbp:>
+    :attr:`toc_thumbnail`: Optional toc thumbnail image
     """
     def __init__(self, title=None, href=None, klass=None, id=None,
-            play_order=None, author=None, description=None):
+            play_order=None, author=None, description=None, toc_thumbnail=None):
         self.title = title
         self.href = urlnormalize(href) if href else href
         self.klass = klass
@@ -1637,10 +1378,11 @@ class TOC(object):
         self.play_order = play_order
         self.author = author
         self.description = description
+        self.toc_thumbnail = toc_thumbnail
 
-    def add(self, title, href, klass=None, id=None, play_order=0, author=None, description=None):
+    def add(self, title, href, klass=None, id=None, play_order=0, author=None, description=None, toc_thumbnail=None):
         """Create and return a new sub-node of this node."""
-        node = TOC(title, href, klass, id, play_order, author, description)
+        node = TOC(title, href, klass, id, play_order, author, description, toc_thumbnail)
         self.nodes.append(node)
         return node
 
@@ -1721,9 +1463,17 @@ class TOC(object):
         except ValueError:
             return 1
 
-    def __str__(self):
-        return 'TOC: %s --> %s'%(self.title, self.href)
+    def get_lines(self, lvl=0):
+        ans = [(u'\t'*lvl) + u'TOC: %s --> %s'%(self.title, self.href)]
+        for child in self:
+            ans.extend(child.get_lines(lvl+1))
+        return ans
 
+    def __str__(self):
+        return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
+
+    def __unicode__(self):
+        return u'\n'.join(self.get_lines())
 
     def to_opf1(self, tour):
         for node in self.nodes:

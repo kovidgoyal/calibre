@@ -79,7 +79,7 @@ class FOLDER_DEVICE(USBMS):
             only_presence=False):
         return self.is_connected, self
 
-    def open(self, library_uuid):
+    def open(self, connected_device, library_uuid):
         self.current_library_uuid = library_uuid
         if not self._main_prefix:
             return False
@@ -97,3 +97,13 @@ class FOLDER_DEVICE(USBMS):
     @classmethod
     def settings(self):
         return FOLDER_DEVICE_FOR_CONFIG._config().parse()
+
+    @classmethod
+    def config_widget(cls):
+        return FOLDER_DEVICE_FOR_CONFIG.config_widget()
+
+    @classmethod
+    def save_settings(cls, config_widget):
+        return FOLDER_DEVICE_FOR_CONFIG.save_settings(config_widget)
+
+

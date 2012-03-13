@@ -11,12 +11,13 @@ from Queue import Empty, Queue
 from contextlib import closing
 
 
-from PyQt4.Qt import QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel, \
-    QVariant, QItemSelectionModel, SIGNAL, QObject, QTimer
+from PyQt4.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
+    QVariant, QItemSelectionModel, SIGNAL, QObject, QTimer, pyqtSignal)
 from calibre import __appname__, patheq
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.move import MoveLibrary
-from calibre.constants import filesystem_encoding, iswindows
+from calibre.constants import (filesystem_encoding, iswindows, plugins,
+        isportable)
 from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.device_ui import Ui_WizardPage as DeviceUI
 from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
@@ -28,6 +29,10 @@ from calibre.gui2 import min_available_height, available_width
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import NONE, choose_dir, error_dialog
 from calibre.gui2.dialogs.progress import ProgressDialog
+from calibre.customize.ui import device_plugins
+
+if iswindows:
+    winutil = plugins['winutil'][0]
 
 # Devices {{{
 
@@ -80,7 +85,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = 'Kindle 1, 2, 3 or 4'
+    name = 'Kindle 1-4 and Touch'
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -107,6 +112,12 @@ class KindleDX(Kindle):
     name = 'Kindle DX'
     id = 'kindledx'
 
+class KindleFire(KindleDX):
+    name = 'Kindle Fire'
+    id = 'kindle_fire'
+    output_profile = 'kindle_fire'
+    supports_color = True
+
 class Sony505(Device):
 
     output_profile = 'sony'
@@ -116,11 +127,16 @@ class Sony505(Device):
     id = 'prs505'
 
 class Kobo(Device):
-    name = 'Kobo Reader'
+    name = 'Kobo and Kobo Touch Readers'
     manufacturer = 'Kobo'
     output_profile = 'kobo'
     output_format = 'EPUB'
     id = 'kobo'
+
+class KoboVox(Kobo):
+    name = 'Kobo Vox'
+    output_profile = 'tablet'
+    id = 'kobo_vox'
 
 class Booq(Device):
     name = 'bq Classic'
@@ -174,6 +190,10 @@ class NookColor(Nook):
     output_profile = 'nook_color'
     supports_color = True
 
+class NookTablet(NookColor):
+    id = 'nook_tablet'
+    name = 'Nook Tablet'
+
 class CybookG3(Device):
 
     name = 'Cybook Gen 3'
@@ -193,6 +213,12 @@ class CybookOrizon(CybookOpus):
 
     name = 'Cybook Orizon'
     id = 'cybook_orizon'
+
+class CybookOdyssey(CybookOpus):
+
+    name = 'Cybook Odyssey'
+    id = 'cybook_odyssey'
+
 
 class PocketBook360(CybookOpus):
 
@@ -230,14 +256,38 @@ class Android(Device):
     id = 'android'
     supports_color = True
 
-class AndroidTablet(Device):
+    @classmethod
+    def commit(cls):
+        super(Android, cls).commit()
+        for plugin in device_plugins(include_disabled=True):
+            if plugin.name == 'Android driver':
+                plugin.configure_for_generic_epub_app()
+
+class AndroidTablet(Android):
 
     name = 'Android tablet'
-    output_format = 'EPUB'
-    manufacturer = 'Android'
     id = 'android_tablet'
-    supports_color = True
     output_profile = 'tablet'
+
+class AndroidPhoneWithKindle(Android):
+
+    name = 'Android phone with Kindle reader'
+    output_format = 'MOBI'
+    id = 'android_phone_with_kindle'
+    output_profile = 'kindle'
+
+    @classmethod
+    def commit(cls):
+        super(Android, cls).commit()
+        for plugin in device_plugins(include_disabled=True):
+            if plugin.name == 'Android driver':
+                plugin.configure_for_kindle_app()
+
+class AndroidTabletWithKindle(AndroidPhoneWithKindle):
+
+    name = 'Android tablet with Kindle reader'
+    id = 'android_tablet_with_kindle'
+    output_profile = 'kindle_fire'
 
 class HanlinV3(Device):
 
@@ -256,13 +306,13 @@ class HanlinV5(HanlinV3):
 class BeBook(HanlinV3):
 
     name = 'BeBook'
-    manufacturer = 'Endless Ideas'
+    manufacturer = 'BeBook'
     id = 'bebook'
 
 class BeBookMini(HanlinV5):
 
     name = 'BeBook Mini'
-    manufacturer = 'Endless Ideas'
+    manufacturer = 'BeBook'
     id = 'bebook_mini'
 
 class EZReader(HanlinV3):
@@ -374,9 +424,9 @@ class KindlePage(QWizardPage, KindleUI):
     def commit(self):
         x = unicode(self.to_address.text()).strip()
         parts = x.split('@')
-        if len(parts) < 2 or not parts[0]: return
 
-        if self.send_email_widget.set_email_settings(True):
+        if (self.send_email_widget.set_email_settings(True) and len(parts) >= 2
+                and parts[0]):
             conf = smtp_prefs()
             accounts = conf.parse().accounts
             if not accounts: accounts = {}
@@ -592,6 +642,7 @@ def move_library(oldloc, newloc, parent, callback_on_complete):
 class LibraryPage(QWizardPage, LibraryUI):
 
     ID = 1
+    retranslate = pyqtSignal()
 
     def __init__(self):
         QWizardPage.__init__(self)
@@ -599,8 +650,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.registerField('library_location', self.location)
         self.connect(self.button_change, SIGNAL('clicked()'), self.change)
         self.init_languages()
-        self.connect(self.language, SIGNAL('currentIndexChanged(int)'),
-                self.change_language)
+        self.language.currentIndexChanged[int].connect(self.change_language)
         self.connect(self.location, SIGNAL('textChanged(QString)'),
                 self.location_text_changed)
 
@@ -639,7 +689,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         from calibre.gui2 import qt_app
         set_translators()
         qt_app.load_translations()
-        self.emit(SIGNAL('retranslate()'))
+        self.retranslate.emit()
         self.init_languages()
         try:
             lang = prefs['language'].lower()[:2]
@@ -655,7 +705,10 @@ class LibraryPage(QWizardPage, LibraryUI):
             pass
 
     def is_library_dir_suitable(self, x):
-        return LibraryDatabase2.exists_at(x) or not os.listdir(x)
+        try:
+            return LibraryDatabase2.exists_at(x) or not os.listdir(x)
+        except:
+            return False
 
     def validatePage(self):
         newloc = unicode(self.location.text())
@@ -674,6 +727,13 @@ class LibraryPage(QWizardPage, LibraryUI):
                     _('Path to library too long. Must be less than'
                     ' %d characters.')%LibraryDatabase2.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
+            if not os.path.exists(x):
+                try:
+                    os.makedirs(x)
+                except:
+                    return error_dialog(self, _('Bad location'),
+                            _('Failed to create a folder at %s')%x,
+                            det_msg=traceback.format_exc(), show=True)
 
             if self.is_library_dir_suitable(x):
                 self.location.setText(x)
@@ -695,20 +755,25 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.default_library_name = None
         if not lp:
             fname = _('Calibre Library')
-            if isinstance(fname, unicode):
-                try:
-                    fname = fname.encode(filesystem_encoding)
-                except:
-                    fname = 'Calibre Library'
-            lp = os.path.expanduser('~'+os.sep+fname)
+            base = os.path.expanduser(u'~')
+            if iswindows:
+                x = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
+                if x and os.access(x, os.W_OK):
+                    base = x
+
+            lp = os.path.join(base, fname)
             self.default_library_name = lp
             if not os.path.exists(lp):
                 try:
                     os.makedirs(lp)
                 except:
                     traceback.print_exc()
-                    lp = os.path.expanduser('~')
+                    lp = os.path.expanduser(u'~')
         self.location.setText(lp)
+        # Hide the library location settings if we are a portable install
+        for x in ('location', 'button_change', 'libloc_label1',
+                'libloc_label2'):
+            getattr(self, x).setVisible(not isportable)
 
     def isComplete(self):
         try:
@@ -723,12 +788,10 @@ class LibraryPage(QWizardPage, LibraryUI):
         oldloc = prefs['library_path']
         newloc = unicode(self.location.text())
         try:
-            newloce = newloc.encode(filesystem_encoding)
-            if self.default_library_name is not None and \
-                os.path.exists(self.default_library_name) and \
-                not os.listdir(self.default_library_name) and \
-                newloce != self.default_library_name:
-                    os.rmdir(self.default_library_name)
+            dln = self.default_library_name
+            if (dln and os.path.exists(dln) and not os.listdir(dln) and newloc
+                    != dln):
+                os.rmdir(dln)
         except:
             pass
         if not os.path.exists(newloc):
@@ -759,6 +822,22 @@ class FinishPage(QWizardPage, FinishUI):
 
 class Wizard(QWizard):
 
+    BUTTON_TEXTS = {
+            'Next': '&Next >',
+            'Back': '< &Back',
+            'Cancel': 'Cancel',
+            'Finish': '&Finish',
+            'Commit': 'Commit'
+    }
+    # The latter is simply to mark the texts for translation
+    if False:
+            _('&Next >')
+            _('< &Back')
+            _('Cancel')
+            _('&Finish')
+            _('Commit')
+
+
     def __init__(self, parent):
         QWizard.__init__(self, parent)
         self.setWindowTitle(__appname__+' '+_('welcome wizard'))
@@ -771,8 +850,7 @@ class Wizard(QWizard):
         self.setPixmap(self.BackgroundPixmap, QPixmap(I('wizard.png')))
         self.device_page = DevicePage()
         self.library_page = LibraryPage()
-        self.connect(self.library_page, SIGNAL('retranslate()'),
-                self.retranslate)
+        self.library_page.retranslate.connect(self.retranslate)
         self.finish_page = FinishPage()
         self.set_finish_text()
         self.kindle_page = KindlePage()
@@ -792,12 +870,18 @@ class Wizard(QWizard):
         nh = min(400, nh)
         nw = min(580, nw)
         self.resize(nw, nh)
+        self.set_button_texts()
+
+    def set_button_texts(self):
+        for but, text in self.BUTTON_TEXTS.iteritems():
+            self.setButtonText(getattr(self, but+'Button'), _(text))
 
     def retranslate(self):
         for pid in self.pageIds():
             page = self.page(pid)
             page.retranslateUi(page)
         self.set_finish_text()
+        self.set_button_texts()
 
     def accept(self):
         pages = map(self.page, self.visitedPages())

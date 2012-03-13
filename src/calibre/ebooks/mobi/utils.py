@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct
+import struct, string
 from collections import OrderedDict
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
@@ -340,4 +340,26 @@ def detect_periodical(toc, log=None):
             return False
     return True
 
+def count_set_bits(num):
+    if num < 0:
+        num = -num
+    ans = 0
+    while num > 0:
+        ans += (num & 0b1)
+        num >>= 1
+    return ans
+
+def to_base(num, base=32):
+    digits = string.digits + string.ascii_uppercase
+    sign = 1 if num >= 0 else -1
+    if num == 0: return '0'
+    num *= sign
+    ans = []
+    while num:
+        ans.append(digits[(num % base)])
+        num //= base
+    if sign < 0:
+        ans.append('-')
+    ans.reverse()
+    return ''.join(ans)
 

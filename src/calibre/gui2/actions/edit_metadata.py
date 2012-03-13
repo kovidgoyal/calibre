@@ -66,7 +66,7 @@ class EditMetadataAction(InterfaceAction):
         self.action_merge.setEnabled(enabled)
 
     # Download metadata {{{
-    def download_metadata(self, ids=None):
+    def download_metadata(self, ids=None, ensure_fields=None):
         if ids is None:
             rows = self.gui.library_view.selectionModel().selectedRows()
             if not rows or len(rows) == 0:
@@ -76,7 +76,8 @@ class EditMetadataAction(InterfaceAction):
             ids = [db.id(row.row()) for row in rows]
         from calibre.gui2.metadata.bulk_download import start_download
         start_download(self.gui, ids,
-                Dispatcher(self.metadata_downloaded))
+                Dispatcher(self.metadata_downloaded),
+                ensure_fields=ensure_fields)
 
     def metadata_downloaded(self, job):
         if job.failed:

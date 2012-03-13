@@ -48,7 +48,7 @@ def get_pdf_printer(opts, for_comic=False):
     custom_size = get_custom_size(opts)
 
     if opts.output_profile.short_name == 'default' or \
-            opts.output_profile.width > 10000:
+            opts.output_profile.width > 9999:
         if custom_size is None:
             printer.setPaperSize(paper_size(opts.paper_size))
         else:
@@ -126,7 +126,7 @@ class PDFWriter(QObject): # {{{
                 type=Qt.QueuedConnection)
         self.render_queue = []
         self.combine_queue = []
-        self.tmp_path = PersistentTemporaryDirectory('_pdf_output_parts')
+        self.tmp_path = PersistentTemporaryDirectory(u'_pdf_output_parts')
 
         self.opts = opts
         self.size = get_printer_page_size(opts)
@@ -152,7 +152,7 @@ class PDFWriter(QObject): # {{{
             self._render_next()
 
     def _render_next(self):
-        item = str(self.render_queue.pop(0))
+        item = unicode(self.render_queue.pop(0))
         self.combine_queue.append(os.path.join(self.tmp_path, '%i.pdf' % (len(self.combine_queue) + 1)))
 
         self.logger.debug('Processing %s...' % item)

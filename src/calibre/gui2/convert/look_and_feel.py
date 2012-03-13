@@ -18,6 +18,16 @@ class LookAndFeelWidget(Widget, Ui_Form):
     HELP  = _('Control the look and feel of the output')
     COMMIT_NAME = 'look_and_feel'
 
+    FILTER_CSS = {
+            'fonts': {'font-family'},
+            'margins': {'margin', 'margin-left', 'margin-right', 'margin-top',
+                'margin-bottom'},
+            'padding':  {'padding', 'padding-left', 'padding-right', 'padding-top',
+                'padding-bottom'},
+            'floats': {'float'},
+            'colors': {'color', 'background', 'background-color'},
+    }
+
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent,
                 ['change_justification', 'extra_css', 'base_font_size',
@@ -27,7 +37,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     'remove_paragraph_spacing',
                     'remove_paragraph_spacing_indent_size',
                     'insert_blank_line_size',
-                    'input_encoding',
+                    'input_encoding', 'filter_css',
                     'asciiize', 'keep_ligatures',
                     'linearize_tables']
                 )
@@ -56,6 +66,15 @@ class LookAndFeelWidget(Widget, Ui_Form):
         if g is self.opt_change_justification:
             ans = unicode(g.itemData(g.currentIndex()).toString())
             return ans
+        if g is self.opt_filter_css:
+            ans = set()
+            for key, item in self.FILTER_CSS.iteritems():
+                w = getattr(self, 'filter_css_%s'%key)
+                if w.isChecked():
+                    ans = ans.union(item)
+            ans = ans.union(set([x.strip().lower() for x in
+                unicode(self.filter_css_others.text()).split(',')]))
+            return ','.join(ans) if ans else None
         return Widget.get_value_handler(self, g)
 
     def set_value_handler(self, g, val):
@@ -66,6 +85,27 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     g.setCurrentIndex(i)
                     break
             return True
+        if g is self.opt_filter_css:
+            if not val: val = ''
+            items = frozenset([x.strip().lower() for x in val.split(',')])
+            for key, vals in self.FILTER_CSS.iteritems():
+                w = getattr(self, 'filter_css_%s'%key)
+                if not vals - items:
+                    items = items - vals
+                    w.setChecked(True)
+                else:
+                    w.setChecked(False)
+            self.filter_css_others.setText(', '.join(items))
+            return True
+
+    def connect_gui_obj_handler(self, gui_obj, slot):
+        if gui_obj is self.opt_filter_css:
+            for key in self.FILTER_CSS:
+                w = getattr(self, 'filter_css_%s'%key)
+                w.stateChanged.connect(slot)
+            self.filter_css_others.textChanged.connect(slot)
+            return
+        raise NotImplementedError()
 
     def font_key_wizard(self):
         from calibre.gui2.convert.font_key import FontKeyChooser

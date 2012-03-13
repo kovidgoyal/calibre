@@ -280,14 +280,12 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             if not unicode(self.enum_box.text()).strip():
                 return self.simple_error('', _('You must enter at least one'
                     ' value for enumeration columns'))
-            l = [v.strip() for v in unicode(self.enum_box.text()).split(',')]
-            if '' in l:
-                return self.simple_error('', _('You cannot provide the empty '
-                    'value, as it is included by default'))
-            for i in range(0, len(l)-1):
-                if l[i] in l[i+1:]:
+            l = [v.strip() for v in unicode(self.enum_box.text()).split(',') if v.strip()]
+            l_lower = [v.lower() for v in l]
+            for i,v in enumerate(l_lower):
+                if v in l_lower[i+1:]:
                     return self.simple_error('', _('The value "{0}" is in the '
-                    'list more than once').format(l[i]))
+                    'list more than once, perhaps with different case').format(l[i]))
             c = unicode(self.enum_colors.text())
             if c:
                 c = [v.strip() for v in unicode(self.enum_colors.text()).split(',')]

@@ -6,7 +6,6 @@ __copyright__ = '2010, Timothy Legge <timlegge@gmail.com> and Kovid Goyal <kovid
 __docformat__ = 'restructuredtext en'
 
 import os, time, calendar
-import sqlite3 as sqlite
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
 from calibre.devices.kobo.books import Book
@@ -16,7 +15,6 @@ from calibre.devices.mime import mime_type_ext
 from calibre.devices.usbms.driver import USBMS, debug_print
 from calibre import prints
 from calibre.devices.usbms.books import CollectionsBookList
-from calibre.utils.magick.draw import save_cover_data_to
 from calibre.ptempfile import PersistentTemporaryFile
 
 class KOBO(USBMS):
@@ -25,7 +23,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge'
-    version = (1, 0, 11)
+    version = (1, 0, 12)
 
     dbversion = 0
     fwversion = 0
@@ -40,7 +38,7 @@ class KOBO(USBMS):
     CAN_SET_METADATA = ['collections']
 
     VENDOR_ID   = [0x2237]
-    PRODUCT_ID  = [0x4161, 0x4163]
+    PRODUCT_ID  = [0x4161, 0x4163, 0x4165]
     BCD         = [0x0110, 0x0323, 0x0326]
 
     VENDOR_NAME = ['KOBO_INC', 'KOBO']
@@ -61,18 +59,37 @@ class KOBO(USBMS):
                 ' ebook file itself. With this option, calibre will send a '
                 'separate cover image to the reader, useful if you '
                 'have modified the cover.'),
-            _('Upload Black and White Covers')
+            _('Upload Black and White Covers'),
+            _('Show expired books') +
+            ':::'+_('A bug in an earlier version left non kepubs book records'
+                ' in the database.  With this option Calibre will show the '
+                'expired records and allow you to delete them with '
+                'the new delete logic.'),
+            _('Show Previews') +
+            ':::'+_('Kobo previews are included on the Touch and some other versions'
+                ' by default they are no longer displayed as there is no good reason to '
+                'see them.  Enable if you wish to see/delete them.'),
+            _('Show Recommendations') +
+            ':::'+_('Kobo now shows recommendations on the device.  In some case these have '
+                'files but in other cases they are just pointers to the web site to buy. '
+                'Enable if you wish to see/delete them.'),
             ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = [
             ', '.join(['tags']),
             True,
-            True
+            True,
+            True,
+            False,
+            False
             ]
 
     OPT_COLLECTIONS    = 0
     OPT_UPLOAD_COVERS  = 1
     OPT_UPLOAD_GRAYSCALE_COVERS  = 2
+    OPT_SHOW_EXPIRED_BOOK_RECORDS = 3
+    OPT_SHOW_PREVIEWS = 4
+    OPT_SHOW_RECOMMENDATIONS = 5
 
     def initialize(self):
         USBMS.initialize(self)
@@ -154,6 +171,8 @@ class KOBO(USBMS):
                 # Label Previews
                 if accessibility == 6:
                     playlist_map[lpath].append('Preview')
+                elif accessibility == 4:
+                    playlist_map[lpath].append('Recommendation')
 
                 path = self.normalize_path(path)
                 # print "Normalized FileName: " + path
@@ -209,6 +228,7 @@ class KOBO(USBMS):
                 traceback.print_exc()
             return changed
 
+        import sqlite3 as sqlite
         with closing(sqlite.connect(
             self.normalize_path(self._main_prefix +
                 '.kobo/KoboReader.sqlite'))) as connection:
@@ -232,28 +252,42 @@ class KOBO(USBMS):
             self.dbversion = result[0]
 
             debug_print("Database Version: ", self.dbversion)
-            if self.dbversion >= 16:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility from content where ' \
-                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+
+            opts = self.settings()
+            if self.dbversion >= 33:
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, IsDownloaded from content where ' \
+                    'BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')', \
+                    previews=' and Accessibility <> 6' \
+                    if opts.extra_customization[self.OPT_SHOW_PREVIEWS] == False else '', \
+                    recomendations=' and IsDownloaded in (\'true\', 1)' \
+                    if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] == False else '')
+            elif self.dbversion >= 16 and self.dbversion < 33:
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, "1" as IsDownloaded from content where ' \
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             elif self.dbversion < 16 and self.dbversion >= 14:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility  from content where ' \
-                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where ' \
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             elif self.dbversion < 14 and self.dbversion >= 8:
-                query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility  from content where ' \
-                    'BookID is Null  and  ( ___ExpirationStatus <> "3" or ___ExpirationStatus is Null)'
+                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
+                    'ImageID, ReadStatus, ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where ' \
+                    'BookID is Null and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)' \
+                    if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')')
             else:
                 query= 'select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ' \
-                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility from content where BookID is Null'
+                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded from content where BookID is Null'
 
             try:
                 cursor.execute (query)
             except Exception as e:
                 err = str(e)
                 if not ('___ExpirationStatus' in err or 'FavouritesIndex' in err or
-                        'Accessibility' in err):
+                        'Accessibility' in err or 'IsDownloaded' in err):
                     raise
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                     'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as '
@@ -309,6 +343,7 @@ class KOBO(USBMS):
         #    2) volume_shorcover
         #    2) content
 
+        import sqlite3 as sqlite
         debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType)
         with closing(sqlite.connect(self.normalize_path(self._main_prefix +
             '.kobo/KoboReader.sqlite'))) as connection:
@@ -343,21 +378,23 @@ class KOBO(USBMS):
             # Kobo does not delete the Book row (ie the row where the BookID is Null)
             # The next server sync should remove the row
             cursor.execute('delete from content where BookID = ?', t)
-            try:
-                cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
-                    'where BookID is Null and ContentID =?',t)
-            except Exception as e:
-                if 'no such column' not in str(e):
-                    raise
+            if ContentType == 6:
                 try:
-                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0, ___ExpirationStatus=3 ' \
                         'where BookID is Null and ContentID =?',t)
                 except Exception as e:
                     if 'no such column' not in str(e):
                         raise
-                    cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' ' \
-                        'where BookID is Null and ContentID =?',t)
-
+                    try:
+                        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\', ___PercentRead=0 ' \
+                            'where BookID is Null and ContentID =?',t)
+                    except Exception as e:
+                        if 'no such column' not in str(e):
+                            raise
+                        cursor.execute('update content set ReadStatus=0, FirstTimeReading = \'true\' ' \
+                            'where BookID is Null and ContentID =?',t)
+            else:
+                cursor.execute('delete from content where BookID is Null and ContentID =?',t)
 
             connection.commit()
 
@@ -687,6 +724,7 @@ class KOBO(USBMS):
 
         accessibilitylist = {
             "Preview":6,
+            "Recommendation":4,
        }
 #        debug_print('Starting update_device_database_collections', collections_attributes)
 
@@ -701,6 +739,8 @@ class KOBO(USBMS):
         # Needs to be outside books collection as in the case of removing
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
+
+        import sqlite3 as sqlite
         with closing(sqlite.connect(self.normalize_path(self._main_prefix +
             '.kobo/KoboReader.sqlite'))) as connection:
 
@@ -812,6 +852,7 @@ class KOBO(USBMS):
             debug_print('FAILED to upload cover', filepath)
 
     def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale):
+        from calibre.utils.magick.draw import save_cover_data_to
         if metadata.cover:
             cover = self.normalize_path(metadata.cover.replace('/', os.sep))
 
@@ -821,6 +862,7 @@ class KOBO(USBMS):
                 ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(filepath)
                 ContentID = self.contentid_from_path(filepath, ContentType)
 
+                import sqlite3 as sqlite
                 with closing(sqlite.connect(self.normalize_path(self._main_prefix +
                     '.kobo/KoboReader.sqlite'))) as connection:
 

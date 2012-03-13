@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010, Dean Cording'
+__copyright__ = '2011, Pat Stapleton <pat.stapleton at gmail.com>'
 '''
 abc.net.au/news
 '''
@@ -8,7 +8,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class ABCNews(BasicNewsRecipe):
     title                  = 'ABC News'
-    __author__             = 'Dean Cording'
+    __author__             = 'Pat Stapleton, Dean Cording'
     description            = 'News from Australia'
     masthead_url           = 'http://www.abc.net.au/news/assets/v5/images/common/logo-news.png'
     cover_url              = 'http://www.abc.net.au/news/assets/v5/images/common/logo-news.png'
@@ -23,7 +23,9 @@ class ABCNews(BasicNewsRecipe):
     category               = 'News, Australia, World'
     language               = 'en_AU'
     publication_type       = 'newsportal'
-    preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+#    preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
+#Remove annoying map links (inline-caption class is also used for some image captions! hence regex to match maps.google)
+    preprocess_regexps     = [(re.compile(r'<a class="inline-caption" href="http://maps\.google\.com.*?/a>', re.DOTALL), lambda m: '')]
     conversion_options = {
                              'comments'        : description
                             ,'tags'            : category
@@ -32,23 +34,23 @@ class ABCNews(BasicNewsRecipe):
                             ,'linearize_tables': False
                          }
 
-    keep_only_tags    =  dict(id='article')
+    keep_only_tags = [dict(attrs={'class':['article section']})]
 
-    remove_tags = [dict(attrs={'class':['related', 'tags']}),
-                     dict(id='statepromo')
-                        ]
+    remove_tags = [dict(attrs={'class':['related', 'tags', 'tools', 'attached-content ready',
+        'inline-content story left', 'inline-content map left contracted', 'published',
+        'story-map', 'statepromo', 'topics', ]})]
 
     remove_attributes = ['width','height']
 
     feeds          = [
-                      ('Top Stories', 'http://www.abc.net.au/news/syndicate/topstoriesrss.xml'),
-                      ('Canberra', 'http://www.abc.net.au/news/indexes/idx-act/rss.xml'),
-                      ('Sydney', 'http://www.abc.net.au/news/indexes/sydney/rss.xml'),
-                      ('Melbourne', 'http://www.abc.net.au/news/indexes/melbourne/rss.xml'),
-                      ('Brisbane', 'http://www.abc.net.au/news/indexes/brisbane/rss.xml'),
-                      ('Perth', 'http://www.abc.net.au/news/indexes/perth/rss.xml'),
-                      ('Australia', 'http://www.abc.net.au/news/indexes/idx-australia/rss.xml'),
-                      ('World', 'http://www.abc.net.au/news/indexes/world/rss.xml'),
-                      ('Business', 'http://www.abc.net.au/news/indexes/business/rss.xml'),
-                      ('Science and Technology', 'http://www.abc.net.au/news/tag/science-and-technology/rss.xml'),
+                      ('Top Stories', 'http://www.abc.net.au/news/feed/45910/rss.xml'),
+                      ('Canberra', 'http://www.abc.net.au/news/feed/6910/rss.xml'),
+                      ('Sydney', 'http://www.abc.net.au/news/feed/10232/rss.xml'),
+                      ('Melbourne', 'http://www.abc.net.au/news/feed/21708/rss.xml'),
+                      ('Brisbane', 'http://www.abc.net.au/news/feed/12858/rss.xml'),
+                      ('Perth', 'feed://www.abc.net.au/news/feed/24886/rss.xml'),
+                      ('Australia', 'http://www.abc.net.au/news/feed/46182/rss.xml'),
+                      ('World', 'http://www.abc.net.au/news/feed/52278/rss.xml'),
+                      ('Business', 'http://www.abc.net.au/news/feed/51892/rss.xml'),
+                      ('Science and Technology', 'http://www.abc.net.au/news/feed/2298/rss.xml'),
                     ]

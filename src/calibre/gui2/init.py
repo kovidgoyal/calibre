@@ -5,14 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, sys, os
+import functools
 
 from PyQt4.Qt import Qt, QStackedWidget, QMenu, \
         QSize, QSizePolicy, QStatusBar, QLabel, QFont
 
 from calibre.utils.config import prefs
-from calibre.constants import isosx, __appname__, preferred_encoding, \
-    __version__
+from calibre.constants import (isosx, __appname__, preferred_encoding,
+    get_version)
 from calibre.gui2 import config, is_widescreen, gprefs
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.widgets import Splitter
@@ -187,11 +187,7 @@ class StatusBar(QStatusBar): # {{{
         self.clearMessage()
 
     def get_version(self):
-        dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-        v = __version__
-        if getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path:
-            v += '*'
-        return v
+        return get_version()
 
     def show_message(self, msg, timeout=0):
         self.showMessage(msg, timeout)

@@ -192,9 +192,13 @@ class InputFormatPlugin(Plugin):
 
     def __call__(self, stream, options, file_ext, log,
                  accelerators, output_dir):
-        log('InputFormatPlugin: %s running'%self.name)
-        if hasattr(stream, 'name'):
-            log('on', stream.name)
+        try:
+            log('InputFormatPlugin: %s running'%self.name)
+            if hasattr(stream, 'name'):
+                log('on', stream.name)
+        except:
+            # In case stdout is broken
+            pass
 
         with CurrentDir(output_dir):
             for x in os.listdir('.'):

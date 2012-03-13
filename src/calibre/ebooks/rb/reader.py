@@ -65,7 +65,7 @@ class Reader(object):
             name = urlunquote(self.stream.read(32).strip('\x00'))
             size, offset, flags = self.read_i32(), self.read_i32(), self.read_i32()
             toc.append(RBToc.Item(name=name, size=size, offset=offset, flags=flags))
-        
+
         return toc
 
     def get_text(self, toc_item, output_dir):
@@ -79,7 +79,7 @@ class Reader(object):
             count = self.read_i32()
             self.read_i32() # Uncompressed size.
             chunck_sizes = []
-            for i in range(count):
+            for i in xrange(count):
                 chunck_sizes.append(self.read_i32())
 
             for size in chunck_sizes:
@@ -89,7 +89,7 @@ class Reader(object):
             output += self.stream.read(toc_item.size).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
         with open(os.path.join(output_dir, toc_item.name), 'wb') as html:
-            html.write(output.encode('utf-8'))
+            html.write(output.replace('<TITLE>', '<TITLE> ').encode('utf-8'))
 
     def get_image(self, toc_item, output_dir):
         if toc_item.flags != 0:
@@ -105,7 +105,7 @@ class Reader(object):
         self.log.debug('Extracting content from file...')
         html = []
         images = []
-        
+
         for item in self.toc:
             if item.name.lower().endswith('html'):
                 self.log.debug('HTML item %s found...' % item.name)

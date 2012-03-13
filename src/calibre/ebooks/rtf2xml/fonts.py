@@ -10,9 +10,10 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-import sys, os, tempfile
+import sys, os
 
 from calibre.ebooks.rtf2xml import copy
+from calibre.ptempfile import better_mktemp
 
 class Fonts:
     """
@@ -40,7 +41,7 @@ class Fonts:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__default_font_num = default_font_num
-        self.__write_to = tempfile.mktemp()
+        self.__write_to = better_mktemp()
         self.__run_level = run_level
 
     def __initiate_values(self):

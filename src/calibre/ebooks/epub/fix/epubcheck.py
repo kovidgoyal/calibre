@@ -6,7 +6,6 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.epub.fix import ePubFixer, InvalidEpub
-from calibre.utils.date import parse_date, strptime
 
 
 class Epubcheck(ePubFixer):
@@ -35,6 +34,8 @@ class Epubcheck(ePubFixer):
         return 'epubcheck'
 
     def fix_pubdates(self):
+        from calibre.utils.date import parse_date, strptime
+
         dirtied = False
         opf = self.container.opf
         for dcdate in opf.xpath('//dc:date',

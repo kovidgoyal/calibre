@@ -20,53 +20,84 @@ class _Parser(object):
     LEX_NUM = 4
     LEX_EOF = 5
 
+    LEX_CONSTANTS = frozenset([LEX_STR, LEX_NUM])
+
     def __init__(self, val, prog, parent):
         self.lex_pos = 0
         self.prog = prog[0]
+        self.prog_len = len(self.prog)
         if prog[1] != '':
             self.error(_('failed to scan program. Invalid input {0}').format(prog[1]))
         self.parent = parent
-        self.parent.locals = {'$':val}
+        parent.locals = {'$':val}
+        self.parent_kwargs = parent.kwargs
+        self.parent_book = parent.book
+        self.parent_locals = parent.locals
 
     def error(self, message):
         m = 'Formatter: ' + message + _(' near ')
         if self.lex_pos > 0:
             m = '{0} {1}'.format(m, self.prog[self.lex_pos-1][1])
-        elif self.lex_pos < len(self.prog):
+        elif self.lex_pos < self.prog_len:
             m = '{0} {1}'.format(m, self.prog[self.lex_pos+1][1])
         else:
             m = '{0} {1}'.format(m, _('end of program'))
         raise ValueError(m)
 
     def token(self):
-        if self.lex_pos >= len(self.prog):
+        if self.lex_pos >= self.prog_len:
             return None
-        token = self.prog[self.lex_pos]
+        token = self.prog[self.lex_pos][1]
         self.lex_pos += 1
-        return token[1]
-
-    def lookahead(self):
-        if self.lex_pos >= len(self.prog):
-            return (self.LEX_EOF, '')
-        return self.prog[self.lex_pos]
+        return token
 
     def consume(self):
         self.lex_pos += 1
 
-    def token_op_is_a(self, val):
-        token = self.lookahead()
-        return token[0] == self.LEX_OP and token[1] == val
+    def token_op_is_a_equals(self):
+        if self.lex_pos >= self.prog_len:
+            return False
+        token = self.prog[self.lex_pos]
+        return token[0] == self.LEX_OP and token[1] == '='
+
+    def token_op_is_a_lparen(self):
+        if self.lex_pos >= self.prog_len:
+            return False
+        token = self.prog[self.lex_pos]
+        return token[0] == self.LEX_OP and token[1] == '('
+
+    def token_op_is_a_rparen(self):
+        if self.lex_pos >= self.prog_len:
+            return False
+        token = self.prog[self.lex_pos]
+        return token[0] == self.LEX_OP and token[1] == ')'
+
+    def token_op_is_a_comma(self):
+        if self.lex_pos >= self.prog_len:
+            return False
+        token = self.prog[self.lex_pos]
+        return token[0] == self.LEX_OP and token[1] == ','
+
+    def token_op_is_a_semicolon(self):
+        if self.lex_pos >= self.prog_len:
+            return False
+        token = self.prog[self.lex_pos]
+        return token[0] == self.LEX_OP and token[1] == ';'
 
     def token_is_id(self):
-        token = self.lookahead()
-        return token[0] == self.LEX_ID
+        if self.lex_pos >= self.prog_len:
+            return False
+        return self.prog[self.lex_pos][0] == self.LEX_ID
 
     def token_is_constant(self):
-        token = self.lookahead()
-        return token[0] == self.LEX_STR or token[0] == self.LEX_NUM
+        if self.lex_pos >= self.prog_len:
+            return False
+        return self.prog[self.lex_pos][0] in self.LEX_CONSTANTS
 
     def token_is_eof(self):
-        token = self.lookahead()
+        if self.lex_pos >= self.prog_len:
+            return True
+        token = self.prog[self.lex_pos]
         return token[0] == self.LEX_EOF
 
     def program(self):
@@ -80,7 +111,7 @@ class _Parser(object):
             val = self.expr()
             if self.token_is_eof():
                 return val
-            if not self.token_op_is_a(';'):
+            if not self.token_op_is_a_semicolon():
                 return val
             self.consume()
             if self.token_is_eof():
@@ -91,13 +122,13 @@ class _Parser(object):
             funcs = formatter_functions().get_functions()
             # We have an identifier. Determine if it is a function
             id = self.token()
-            if not self.token_op_is_a('('):
-                if self.token_op_is_a('='):
+            if not self.token_op_is_a_lparen():
+                if self.token_op_is_a_equals():
                     # classic assignment statement
                     self.consume()
                     cls = funcs['assign']
-                    return cls.eval_(self.parent, self.parent.kwargs,
-                                    self.parent.book, self.parent.locals, id, self.expr())
+                    return cls.eval_(self.parent, self.parent_kwargs,
+                                    self.parent_book, self.parent_locals, id, self.expr())
                 val = self.parent.locals.get(id, None)
                 if val is None:
                     self.error(_('Unknown identifier ') + id)
@@ -105,13 +136,13 @@ class _Parser(object):
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
-
             if id not in funcs:
                 self.error(_('unknown function {0}').format(id))
+
             # Eat the paren
             self.consume()
             args = list()
-            while not self.token_op_is_a(')'):
+            while not self.token_op_is_a_rparen():
                 if id == 'assign' and len(args) == 0:
                     # Must handle the lvalue semantics of the assign function.
                     # The first argument is the name of the destination, not
@@ -122,25 +153,18 @@ class _Parser(object):
                 else:
                     # evaluate the argument (recursive call)
                     args.append(self.statement())
-                if not self.token_op_is_a(','):
+                if not self.token_op_is_a_comma():
                     break
                 self.consume()
             if self.token() != ')':
                 self.error(_('missing closing parenthesis'))
 
             # Evaluate the function
-            if id in funcs:
-                cls = funcs[id]
-                if cls.arg_count != -1 and len(args) != cls.arg_count:
-                    self.error('incorrect number of arguments for function {}'.format(id))
-                return cls.eval_(self.parent, self.parent.kwargs,
-                                self.parent.book, self.parent.locals, *args)
-            else:
-                f = self.parent.functions[id]
-                if f[0] != -1 and len(args) != f[0]+1:
-                    self.error('incorrect number of arguments for function {}'.format(id))
-                return f[1](self.parent, *args)
-            # can't get here
+            cls = funcs[id]
+            if cls.arg_count != -1 and len(args) != cls.arg_count:
+                self.error('incorrect number of arguments for function {}'.format(id))
+            return cls.eval_(self.parent, self.parent_kwargs,
+                            self.parent_book, self.parent_locals, *args)
         elif self.token_is_constant():
             # String or number
             return self.token()
@@ -163,7 +187,6 @@ class TemplateFormatter(string.Formatter):
         string.Formatter.__init__(self)
         self.book = None
         self.kwargs = None
-        self.program_cache = {}
         self.locals = {}
 
     def _do_format(self, val, fmt):
@@ -222,14 +245,17 @@ class TemplateFormatter(string.Formatter):
                 (r'\s',                 None)
         ], flags=re.DOTALL)
 
-    def _eval_program(self, val, prog):
+    def _eval_program(self, val, prog, column_name):
         # keep a cache of the lex'ed program under the theory that re-lexing
         # is much more expensive than the cache lookup. This is certainly true
         # for more than a few tokens, but it isn't clear for simple programs.
-        lprog = self.program_cache.get(prog, None)
-        if not lprog:
-            lprog = self.lex_scanner.scan(prog)
-            self.program_cache[prog] = lprog
+        if column_name is not None and self.template_cache is not None:
+            lprog = self.template_cache.get(column_name, None)
+            if not lprog:
+                lprog = self.lex_scanner.scan(prog)
+                self.template_cache[column_name] = lprog
+        else:
+                lprog = self.lex_scanner.scan(prog)
         parser = _Parser(val, lprog, self)
         return parser.program()
 
@@ -257,7 +283,7 @@ class TemplateFormatter(string.Formatter):
             if p >= 0:
                 p += 1
         if p >= 0 and fmt[-1] == '\'':
-            val = self._eval_program(val, fmt[p+1:-1])
+            val = self._eval_program(val, fmt[p+1:-1], None)
             colon = fmt[0:p].find(':')
             if colon < 0:
                 dispfmt = ''
@@ -303,31 +329,35 @@ class TemplateFormatter(string.Formatter):
             return ''
         return prefix + val + suffix
 
-    def vformat(self, fmt, args, kwargs):
+    def evaluate(self, fmt, args, kwargs):
         if fmt.startswith('program:'):
-            ans = self._eval_program(None, fmt[8:])
+            ans = self._eval_program(None, fmt[8:], self.column_name)
         else:
-            ans = string.Formatter.vformat(self, fmt, args, kwargs)
+            ans = self.vformat(fmt, args, kwargs)
         return self.compress_spaces.sub(' ', ans).strip()
 
     ########## a formatter that throws exceptions ############
 
     def unsafe_format(self, fmt, kwargs, book):
+        self.column_name = self.template_cache = None
         self.kwargs = kwargs
         self.book = book
         self.composite_values = {}
         self.locals = {}
-        return self.vformat(fmt, [], kwargs).strip()
+        return self.evaluate(fmt, [], kwargs).strip()
 
     ########## a formatter guaranteed not to throw an exception ############
 
-    def safe_format(self, fmt, kwargs, error_value, book):
+    def safe_format(self, fmt, kwargs, error_value, book,
+                    column_name=None, template_cache=None):
+        self.column_name = column_name
+        self.template_cache = template_cache
         self.kwargs = kwargs
         self.book = book
         self.composite_values = {}
         self.locals = {}
         try:
-            ans = self.vformat(fmt, [], kwargs).strip()
+            ans = self.evaluate(fmt, [], kwargs).strip()
         except Exception as e:
 #            if DEBUG:
 #                traceback.print_exc()

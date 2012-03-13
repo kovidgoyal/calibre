@@ -27,10 +27,13 @@ from calibre.utils.logging import GUILog as Log
 from calibre.ebooks.metadata.sources.identify import (identify,
         urls_from_identifiers)
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.gui2 import error_dialog, NONE
-from calibre.utils.date import utcnow, fromordinal, format_date
+from calibre.gui2 import error_dialog, NONE, rating_font
+from calibre.utils.date import (utcnow, fromordinal, format_date,
+        UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
 from calibre import force_unicode
+from calibre.utils.config import tweaks
+
 # }}}
 
 class RichTextDelegate(QStyledItemDelegate): # {{{
@@ -201,7 +204,12 @@ class ResultsModel(QAbstractTableModel): # {{{
         elif col == 1:
             key = attrgetter('title')
         elif col == 2:
-            key = attrgetter('pubdate')
+            def dategetter(x):
+                x = getattr(x, 'pubdate', None)
+                if x is None:
+                    x = UNDEFINED_DATE
+                return as_utc(x)
+            key = dategetter
         elif col == 3:
             key = attrgetter('has_cached_cover_url')
         elif key == 4:
@@ -248,6 +256,7 @@ class ResultsView(QTableView): # {{{
         return ret
 
     def show_details(self, index):
+        f = rating_font()
         book = self.model().data(index, Qt.UserRole)
         parts = [
             '<center>',
@@ -259,7 +268,8 @@ class ResultsView(QTableView): # {{{
             if series[1]:
                 parts.append('<div>%s: %s</div>'%series)
         if not book.is_null('rating'):
-            parts.append('<div>%s</div>'%('\u2605'*int(book.rating)))
+            style = 'style=\'font-family:"%s"\''%f
+            parts.append('<div %s>%s</div>'%(style, '\u2605'*int(book.rating)))
         parts.append('</center>')
         if book.identifiers:
             urls = urls_from_identifiers(book.identifiers)
@@ -317,14 +327,19 @@ class Comments(QWebView): # {{{
                     ans = unicode(col.name())
             return ans
 
-        f = QFontInfo(QApplication.font(self.parent())).pixelSize()
+        fi = QFontInfo(QApplication.font(self.parent()))
+        f = fi.pixelSize()+1+int(tweaks['change_book_details_font_size_by'])
+        fam = unicode(fi.family()).strip().replace('"', '')
+        if not fam:
+            fam = 'sans-serif'
+
         c = color_to_string(QApplication.palette().color(QPalette.Normal,
                         QPalette.WindowText))
         templ = '''\
         <html>
             <head>
             <style type="text/css">
-                body, td {background-color: transparent; font-size: %dpx; color: %s }
+                body, td {background-color: transparent; font-family: %s; font-size: %dpx; color: %s }
                 a { text-decoration: none; color: blue }
                 div.description { margin-top: 0; padding-top: 0; text-indent: 0 }
                 table { margin-bottom: 0; padding-bottom: 0; }
@@ -336,7 +351,7 @@ class Comments(QWebView): # {{{
             </div>
             </body>
         <html>
-        '''%(f, c)
+        '''%(fam, f, c)
         self.setHtml(templ%html)
 # }}}
 
@@ -587,7 +602,6 @@ class CoversModel(QAbstractListModel): # {{{
             return 1
         return pmap.width()*pmap.height()
 
-
     def clear_failed(self):
         good = []
         pmap = {}
@@ -729,7 +743,8 @@ class CoversWidget(QWidget): # {{{
             except Empty:
                 break
 
-        self.covers_view.clear_failed()
+        if self.continue_processing:
+            self.covers_view.clear_failed()
 
         if self.worker.error is not None:
             error_dialog(self, _('Download failed'),
@@ -759,7 +774,7 @@ class CoversWidget(QWidget): # {{{
         self.continue_processing = False
 
     def cancel(self):
-        self.continue_processing = False
+        self.cleanup()
         self.abort.set()
 
     def cover_pixmap(self):

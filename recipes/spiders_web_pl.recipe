@@ -1,0 +1,15 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class SpidersWeb(BasicNewsRecipe):
+    title          = u"Spider's Web"
+    oldest_article = 7
+    __author__        = 'fenuks'
+    description   = u''
+    cover_url      = 'http://www.spidersweb.pl/wp-content/themes/spiderweb/img/Logo.jpg'
+    category       = 'IT, WEB'
+    language       = 'pl'
+    no_stylesheers=True
+    max_articles_per_feed = 100
+    keep_only_tags=[dict(id='Post')]
+    remove_tags=[dict(name='div', attrs={'class':['Comments', 'Shows', 'Post-Tags']})]
+    feeds          = [(u'Wpisy', u'http://www.spidersweb.pl/feed')]

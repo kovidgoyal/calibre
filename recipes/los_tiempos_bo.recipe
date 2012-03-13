@@ -41,7 +41,7 @@ class LosTiempos_Bol(BasicNewsRecipe):
     keep_only_tags    = [dict(name='div', attrs={'id':'articulo'})]
     remove_tags       = [
                           dict(name=['meta','link','form','iframe','embed','object','hr'])
-                         ,dict(attrs={'class':['caja_fonts sin_border_bot','pub']})
+                         ,dict(attrs={'class':['caja_fonts sin_border_bot','pub','twitter-share-button']})
                         ]
     remove_attributes = ['width','height']
 

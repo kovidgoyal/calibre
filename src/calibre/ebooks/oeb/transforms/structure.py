@@ -12,7 +12,7 @@ from lxml import etree
 from urlparse import urlparse
 from collections import OrderedDict
 
-from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text
+from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename
 from calibre.ebooks import ConversionError
 
 def XPath(x):
@@ -59,6 +59,18 @@ class DetectStructure(object):
             pb_xpath = XPath(opts.page_breaks_before)
             for item in oeb.spine:
                 for elem in pb_xpath(item.data):
+                    try:
+                        prev = elem.itersiblings(tag=etree.Element,
+                                preceding=True).next()
+                        if (barename(elem.tag) in {'h1', 'h2'} and barename(
+                                prev.tag) in {'h1', 'h2'} and (not prev.tail or
+                                    not prev.tail.split())):
+                            # We have two adjacent headings, do not put a page
+                            # break on the second one
+                            continue
+                    except StopIteration:
+                        pass
+
                     style = elem.get('style', '')
                     if style:
                         style += '; '

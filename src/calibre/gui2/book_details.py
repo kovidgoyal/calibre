@@ -20,11 +20,12 @@ from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html
 from calibre.gui2 import (config, open_local_file, open_url, pixmap_to_data,
-        gprefs)
+        gprefs, rating_font)
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
 from calibre.utils.localization import calibre_langcode_to_name
+from calibre.utils.config import tweaks
 
 def render_html(mi, css, vertical, widget, all_fields=False): # {{{
     table = render_data(mi, all_fields=all_fields,
@@ -38,14 +39,24 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
                 ans = unicode(col.name())
         return ans
 
-    f = QFontInfo(QApplication.font(widget)).pixelSize()
+    fi = QFontInfo(QApplication.font(widget))
+    f = fi.pixelSize() + 1 + int(tweaks['change_book_details_font_size_by'])
+    fam = unicode(fi.family()).strip().replace('"', '')
+    if not fam:
+        fam = 'sans-serif'
+
     c = color_to_string(QApplication.palette().color(QPalette.Normal,
                     QPalette.WindowText))
     templ = u'''\
     <html>
         <head>
         <style type="text/css">
-            body, td {background-color: transparent; font-size: %dpx; color: %s }
+            body, td {
+                background-color: transparent;
+                font-size: %dpx;
+                font-family: "%s",sans-serif;
+                color: %s
+            }
         </style>
         <style type="text/css">
             %s
@@ -55,9 +66,12 @@ def render_html(mi, css, vertical, widget, all_fields=False): # {{{
         %%s
         </body>
     <html>
-    '''%(f, c, css)
+    '''%(f, fam, c, css)
+    fm = getattr(mi, 'field_metadata', field_metadata)
+    fl = dict(get_field_list(fm))
+    show_comments = (all_fields or fl.get('comments', True))
     comments = u''
-    if mi.comments:
+    if mi.comments and show_comments:
         comments = comments_to_html(force_unicode(mi.comments))
     right_pane = u'<div id="comments" class="comments">%s</div>'%comments
 
@@ -76,7 +90,8 @@ def get_field_list(fm, use_defaults=False):
     for field in fm.displayable_field_keys():
         if field not in names:
             fieldlist.append((field, True))
-    return fieldlist
+    available = frozenset(fm.displayable_field_keys())
+    return [(f, d) for f, d in fieldlist if f in available]
 
 def render_data(mi, use_roman_numbers=True, all_fields=False):
     ans = []
@@ -102,6 +117,14 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                 val = force_unicode(val)
                 ans.append((field,
                     u'<td class="comments" colspan="2">%s</td>'%comments_to_html(val)))
+        elif metadata['datatype'] == 'rating':
+            val = getattr(mi, field)
+            if val:
+                val = val/2.0
+                ans.append((field,
+                    u'<td class="title">%s</td><td class="rating" '
+                    'style=\'font-family:"%s"\'>%s</td>'%(
+                        name, rating_font(), u'\u2605'*int(val))))
         elif metadata['datatype'] == 'composite' and \
                             metadata['display'].get('contains_html', False):
             val = getattr(mi, field)
