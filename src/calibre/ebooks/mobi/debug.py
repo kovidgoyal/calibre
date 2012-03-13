@@ -1164,6 +1164,10 @@ class FontRecord(object): # {{{
             hdr = self.payload[:4]
             if hdr in {b'\0\1\0\0', b'true', b'ttcf'}:
                 self.ext = 'ttf'
+            if self.uncompressed_size != len(self.payload):
+                raise ValueError('Font record uncompressed size mismatch',
+                        ' expected: %d actual: %d'%(self.uncompressed_size,
+                            len(self.payload)))
         else:
             print ('Unknown font record with fields: %s' %
                     [self.uncompressed_size, self.unknown1, self.unknown2])
