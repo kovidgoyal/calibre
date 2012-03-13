@@ -1171,6 +1171,8 @@ class FontRecord(object): # {{{
         else:
             print ('Unknown font record with fields: %s' %
                     [self.uncompressed_size, self.unknown1, self.unknown2])
+            print ('\tAdditional fields: %s'%((
+                struct.unpack_from(b'>LL', self.raw, 16),)))
         self.name = '%s.%s'%(name, self.ext)
 
     def dump(self, folder):
