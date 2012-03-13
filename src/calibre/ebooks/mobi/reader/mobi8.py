@@ -348,10 +348,10 @@ class Mobi8Reader(object):
                 # bytes 16 - 23:  ?? typically all 0x00 ??  Are these compression flags from zlib?
                 # The compressed data begins with 2 bytes of header and has 4 bytes of checksum at the end
                 try:
-                    fields = struct.unpack_from(b'>LLLL', data, 4)
+                    fields = struct.unpack_from(b'>LLLLL', data, 4)
                 except:
                     fields = None
-                #self.log.debug('Font record fields: %s'%(fields,))
+                # self.log.debug('Font record fields: %s'%(fields,))
                 cdata = data[26:-4]
                 ext = 'dat'
                 try:
@@ -361,11 +361,13 @@ class Mobi8Reader(object):
                             'Fields: %s' % (fname_idx, fields,))
                     uncompressed_data = data[4:]
                     ext = 'failed'
-                hdr = uncompressed_data[0:4]
                 if len(uncompressed_data) < 200:
-                    self.log.warn('Corrupted font record: %d'%fname_idx)
+                    self.log.warn('Failed to uncompress embedded font %d: '
+                            'Fields: %s' % (fname_idx, fields,))
+                    uncompressed_data = data[4:]
                     ext = 'failed'
-                if hdr == b'\0\1\0\0' or hdr == b'true' or hdr == b'ttcf':
+                hdr = uncompressed_data[:4]
+                if ext != 'failed' and hdr in {b'\0\1\0\0', b'true', b'ttcf'}:
                     ext = 'ttf'
                 href = "fonts/%05d.%s" % (fname_idx, ext)
                 with open(href.replace('/', os.sep), 'wb') as f:
