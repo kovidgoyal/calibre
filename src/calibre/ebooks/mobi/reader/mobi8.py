@@ -348,7 +348,7 @@ class Mobi8Reader(object):
                 # bytes 16 - 23:  ?? typically all 0x00 ??  Are these compression flags from zlib?
                 # The compressed data begins with 2 bytes of header and has 4 bytes of checksum at the end
                 try:
-                    fields = struct.unpack_from(b'>LLLL', data, 4)
+                    fields = struct.unpack_from(b'>LLLLL', data, 4)
                 except:
                     fields = None
                 # self.log.debug('Font record fields: %s'%(fields,))
