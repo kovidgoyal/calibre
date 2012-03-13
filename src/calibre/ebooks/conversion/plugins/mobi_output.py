@@ -56,7 +56,16 @@ class MOBIOutput(OutputFormatPlugin):
             help=_('Enable sharing of book content via Facebook etc. '
                 ' on the Kindle. WARNING: Using this feature means that '
                 ' the book will not auto sync its last read position '
-                ' on multiple devices. Complain to Amazon.'))
+                ' on multiple devices. Complain to Amazon.')
+        ),
+        OptionRecommendation(name='mobi_keep_original_images',
+            recommended_value=False,
+            help=_('By default calibre converts all images to JPEG format '
+                'in the output MOBI file. This is for maximum compatibility '
+                'as some older MOBI viewers have problems with other image '
+                'formats. This option tells calibre not to do this. '
+                'Useful if your document contains lots of GIF/PNG images that '
+                'become very large when converted to JPEG.')),
     ])
 
     def check_for_periodical(self):

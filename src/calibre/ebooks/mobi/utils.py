@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, string
+import struct, string, imghdr
 from collections import OrderedDict
 
 from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
@@ -362,4 +362,15 @@ def to_base(num, base=32):
         ans.append('-')
     ans.reverse()
     return ''.join(ans)
+
+def mobify_image(data):
+    'Convert PNG images to GIF as the idiotic Kindle cannot display some PNG'
+    what = imghdr.what(None, data)
+
+    if what == 'png':
+        im = Image()
+        im.load(data)
+        data = im.export('gif')
+    return data
+
 

@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="7" column="0" colspan="2">
+   <item row="8" column="0" colspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Kindle options</string>
@@ -57,7 +57,7 @@
      </layout>
     </widget>
    </item>
-   <item row="8" column="0">
+   <item row="9" column="0">
     <spacer name="verticalSpacer_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -104,7 +104,7 @@
    <item row="1" column="1">
     <widget class="QLineEdit" name="opt_toc_title"/>
    </item>
-   <item row="5" column="0">
+   <item row="6" column="0">
     <widget class="QCheckBox" name="opt_dont_compress">
      <property name="text">
       <string>Disable compression of the file contents</string>
@@ -115,6 +115,13 @@
     <widget class="QCheckBox" name="opt_no_inline_toc">
      <property name="text">
       <string>Do not add Table of Contents to book</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_mobi_keep_original_images">
+     <property name="text">
+      <string>Do not convert all images to &amp;JPEG (may result in images not working in older viewers)</string>
      </property>
     </widget>
    </item>
