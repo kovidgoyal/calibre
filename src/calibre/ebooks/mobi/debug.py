@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, datetime, sys, os, shutil
+import struct, datetime, sys, os, shutil, zlib
 from collections import OrderedDict, defaultdict
 
 from lxml import html
@@ -1149,6 +1149,32 @@ class BinaryRecord(object): # {{{
 
 # }}}
 
+class FontRecord(object): # {{{
+
+    def __init__(self, idx, record):
+        self.raw = record.raw
+        name = '%06d'%idx
+        (self.uncompressed_size, self.unknown1, self.unknown2) = \
+                struct.unpack_from(b'>LLL', self.raw, 4)
+        self.payload = self.raw[4:]
+        self.ext = 'unknown'
+        if self.unknown1 == 1:
+            self.zlib_header = self.raw[self.unknown2:self.unknown2+2]
+            self.payload = zlib.decompress(self.raw[self.unknown2+2:-4], -15)
+            hdr = self.payload[:4]
+            if hdr in {b'\0\1\0\0', b'true', b'ttcf'}:
+                self.ext = 'ttf'
+        else:
+            print ('Unknown font record with fields: %s' %
+                    [self.uncompressed_size, self.unknown1, self.unknown2])
+        self.name = '%s.%s'%(name, self.ext)
+
+    def dump(self, folder):
+        with open(os.path.join(folder, self.name), 'wb') as f:
+            f.write(self.payload)
+
+# }}}
+
 class TBSIndexing(object): # {{{
 
     def __init__(self, text_records, indices, doc_type):
@@ -1410,6 +1436,7 @@ class MOBIFile(object): # {{{
             self.mobi_header.extra_data_flags, decompress) for r in xrange(1,
             min(len(self.records), ntr+1))]
         self.image_records, self.binary_records = [], []
+        self.font_records = []
         image_index = 0
         for i in xrange(fntbr, len(self.records)):
             if i in self.indexing_record_nums or i in self.huffman_record_nums:
@@ -1419,13 +1446,15 @@ class MOBIFile(object): # {{{
             fmt = None
             if i >= fii and r.raw[:4] not in {b'FLIS', b'FCIS', b'SRCS',
                     b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
-                    b'AUDI', b'VIDE'}:
+                    b'AUDI', b'VIDE', b'FONT'}:
                 try:
                     width, height, fmt = identify_data(r.raw)
                 except:
                     pass
             if fmt is not None:
                 self.image_records.append(ImageRecord(image_index, r, fmt))
+            elif r.raw[:4] == b'FONT':
+                self.font_records.append(FontRecord(i, r))
             else:
                 self.binary_records.append(BinaryRecord(i, r))
 
@@ -1465,10 +1494,11 @@ def inspect_mobi(path_or_stream, ddir=None): # {{{
             of.write(rec.raw)
             alltext += rec.raw
         of.seek(0)
-    root = html.fromstring(alltext.decode('utf-8'))
-    with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
-        of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
-            include_meta_content_type=True))
+    if f.mobi_header.file_version < 8:
+        root = html.fromstring(alltext.decode('utf-8'))
+        with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
+            of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
+                include_meta_content_type=True))
 
 
     if f.index_header is not None:
@@ -1490,7 +1520,7 @@ def inspect_mobi(path_or_stream, ddir=None): # {{{
         f.tbs_indexing.dump(ddir)
 
     for tdir, attr in [('text', 'text_records'), ('images', 'image_records'),
-            ('binary', 'binary_records')]:
+            ('binary', 'binary_records'), ('font', 'font_records')]:
         tdir = os.path.join(ddir, tdir)
         os.mkdir(tdir)
         for rec in getattr(f, attr):
