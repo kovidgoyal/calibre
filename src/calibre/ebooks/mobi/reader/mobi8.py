@@ -347,8 +347,18 @@ class Mobi8Reader(object):
                 # bytes 12 - 15:  ?? offset to start of compressed data ?? (typically 0x00000018 = 24)
                 # bytes 16 - 23:  ?? typically all 0x00 ??  Are these compression flags from zlib?
                 # The compressed data begins with 2 bytes of header and has 4 bytes of checksum at the end
-                data = data[26:-4]
-                uncompressed_data = zlib.decompress(data, -15)
+                try:
+                    fields = struct.unpack_from(b'>LLLL', data, 4)
+                except:
+                    fields = None
+                #self.log.debug('Font record fields: %s'%(fields,))
+                cdata = data[26:-4]
+                try:
+                    uncompressed_data = zlib.decompress(cdata, -15)
+                except:
+                    self.log.warn('Failed to uncompress embedded font %d: '
+                            'Fields: %s' % (fname_idx, fields,))
+                    uncompressed_data = data[4:]
                 hdr = uncompressed_data[0:4]
                 ext = 'dat'
                 if hdr == b'\0\1\0\0' or hdr == b'true' or hdr == b'ttcf':
@@ -379,7 +389,11 @@ class Mobi8Reader(object):
 
         opf = OPFCreator(os.getcwdu(), mi)
         opf.guide = guide
-        opf.create_manifest_from_files_in([os.getcwdu()])
+
+        def exclude(path):
+            return os.path.basename(path) == 'debug-raw.html'
+
+        opf.create_manifest_from_files_in([os.getcwdu()], exclude=exclude)
         opf.create_spine(spine)
         opf.set_toc(toc)
 
