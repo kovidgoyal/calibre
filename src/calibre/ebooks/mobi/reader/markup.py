@@ -154,8 +154,8 @@ def update_flow_links(mobi8_reader, resource_map, log):
                     'valid font in %s' % (num, tag))
                 else:
                     replacement = '"%s"'%('../'+ href)
-                    if href.endswith('.dat'):
-                        replacement = 'unable-to-extract.ttf'
+                    if href.endswith('.failed'):
+                        replacement = '"%s"'%('failed-'+href)
                     tag = font_index_pattern.sub(replacement, tag, 1)
 
             # process links to other css pieces

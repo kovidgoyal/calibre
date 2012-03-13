@@ -353,14 +353,18 @@ class Mobi8Reader(object):
                     fields = None
                 #self.log.debug('Font record fields: %s'%(fields,))
                 cdata = data[26:-4]
+                ext = 'dat'
                 try:
                     uncompressed_data = zlib.decompress(cdata, -15)
                 except:
                     self.log.warn('Failed to uncompress embedded font %d: '
                             'Fields: %s' % (fname_idx, fields,))
                     uncompressed_data = data[4:]
+                    ext = 'failed'
                 hdr = uncompressed_data[0:4]
-                ext = 'dat'
+                if len(uncompressed_data) < 200:
+                    self.log.warn('Corrupted font record: %d'%fname_idx)
+                    ext = 'failed'
                 if hdr == b'\0\1\0\0' or hdr == b'true' or hdr == b'ttcf':
                     ext = 'ttf'
                 href = "fonts/%05d.%s" % (fname_idx, ext)
