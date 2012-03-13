@@ -21,6 +21,7 @@ from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED, RECORD_SIZE)
 from calibre.ebooks.mobi.utils import (rescale_image, encint,
         encode_trailing_data, align_block, detect_periodical)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
+from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
 
 EXTH_CODES = {
     'creator': 100,
@@ -45,9 +46,6 @@ EXTH_CODES = {
 
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False
-
-MAX_THUMB_SIZE = 16 * 1024
-MAX_THUMB_DIMEN = (180, 240)
 
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
