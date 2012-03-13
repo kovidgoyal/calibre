@@ -7,6 +7,22 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin
 
+def run_mobi_unpack(stream, options, log, accelerators):
+    from mobiunpack.mobi_unpack import Mobi8Reader
+    from calibre.customize.ui import plugin_for_input_format
+    from calibre.ptempfile import PersistentTemporaryDirectory
+
+    wdir = PersistentTemporaryDirectory('_unpack_space')
+    m8r = Mobi8Reader(stream, wdir)
+    if m8r.isK8():
+        epub_path = m8r.processMobi8()
+        epub_input = plugin_for_input_format('epub')
+        for opt in epub_input.options:
+            setattr(options, opt.option.name, opt.recommended_value)
+        options.input_encoding = m8r.getCodec()
+        return epub_input.convert(open(epub_path,'rb'), options,
+                'epub', log, accelerators)
+
 class MOBIInput(InputFormatPlugin):
 
     name        = 'MOBI Input'
@@ -18,21 +34,8 @@ class MOBIInput(InputFormatPlugin):
                 accelerators):
 
         if os.environ.get('USE_MOBIUNPACK', None) is not None:
-            from calibre.ptempfile import PersistentTemporaryDirectory
             try:
-                from mobiunpack.mobi_unpack import Mobi8Reader
-                from calibre.customize.ui import plugin_for_input_format
-
-                wdir = PersistentTemporaryDirectory('_unpack_space')
-                m8r = Mobi8Reader(stream, wdir)
-                if m8r.isK8():
-                    epub_path = m8r.processMobi8()
-                    epub_input = plugin_for_input_format('epub')
-                    for opt in epub_input.options:
-                        setattr(options, opt.option.name, opt.recommended_value)
-                    options.input_encoding = m8r.getCodec()
-                    return epub_input.convert(open(epub_path,'rb'), options,
-                            'epub', log, accelerators)
+                return run_mobi_unpack(stream, options, log, accelerators)
             except Exception:
                 log.exception('mobi_unpack code not working')
 
