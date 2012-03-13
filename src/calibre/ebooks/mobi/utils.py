@@ -366,8 +366,11 @@ def to_base(num, base=32):
 def mobify_image(data):
     'Convert PNG images to GIF as the idiotic Kindle cannot display some PNG'
     what = imghdr.what(None, data)
+
     if what == 'png':
-        data = save_cover_data_to(data, 'img.gif', return_data=True)
+        im = Image()
+        im.load(data)
+        data = im.export('gif')
     return data
 
 
