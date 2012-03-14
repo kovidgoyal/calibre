@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, datetime, sys, os, shutil, zlib
+import struct, datetime, sys, os, shutil
 from collections import OrderedDict, defaultdict
 
 from lxml import html
@@ -15,7 +15,7 @@ from lxml import html
 from calibre.utils.date import utc_tz
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
-        get_trailing_data, decode_tbs)
+        get_trailing_data, decode_tbs, read_font_record)
 from calibre.utils.magick.draw import identify_data
 
 def format_bytes(byts):
@@ -1154,26 +1154,13 @@ class FontRecord(object): # {{{
     def __init__(self, idx, record):
         self.raw = record.raw
         name = '%06d'%idx
-        (self.uncompressed_size, self.unknown1, self.unknown2) = \
-                struct.unpack_from(b'>LLL', self.raw, 4)
-        self.payload = self.raw[4:]
-        self.ext = 'unknown'
-        if self.unknown1 == 1:
-            self.zlib_header = self.raw[self.unknown2:self.unknown2+2]
-            self.payload = zlib.decompress(self.raw[self.unknown2+2:-4], -15)
-            hdr = self.payload[:4]
-            if hdr in {b'\0\1\0\0', b'true', b'ttcf'}:
-                self.ext = 'ttf'
-            if self.uncompressed_size != len(self.payload):
-                raise ValueError('Font record uncompressed size mismatch',
-                        ' expected: %d actual: %d'%(self.uncompressed_size,
-                            len(self.payload)))
-        else:
-            print ('Unknown font record with fields: %s' %
-                    [self.uncompressed_size, self.unknown1, self.unknown2])
-            print ('\tAdditional fields: %s'%((
-                struct.unpack_from(b'>LL', self.raw, 16),)))
-        self.name = '%s.%s'%(name, self.ext)
+        self.font = read_font_record(self.raw)
+        if self.font['err']:
+            raise ValueError('Failed to read font record: %s Headers: %s'%(
+                self.font['err'], self.font['headers']))
+        self.payload = (self.font['font_data'] if self.font['font_data'] else
+                self.font['raw_data'])
+        self.name = '%s.%s'%(name, self.font['ext'])
 
     def dump(self, folder):
         with open(os.path.join(folder, self.name), 'wb') as f:

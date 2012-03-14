@@ -34,10 +34,12 @@ class MOBIInput(InputFormatPlugin):
                 accelerators):
 
         if os.environ.get('USE_MOBIUNPACK', None) is not None:
+            pos = stream.tell()
             try:
                 return run_mobi_unpack(stream, options, log, accelerators)
             except Exception:
                 log.exception('mobi_unpack code not working')
+            stream.seek(pos)
 
         from calibre.ebooks.mobi.reader.mobi6 import MobiReader
         from lxml import html

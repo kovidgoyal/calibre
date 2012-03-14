@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import struct, re, os, zlib, imghdr
+import struct, re, os, imghdr
 from collections import namedtuple
 from itertools import repeat
 
@@ -16,6 +16,7 @@ from calibre.ebooks.mobi.reader.index import read_index
 from calibre.ebooks.mobi.reader.ncx import read_ncx, build_toc
 from calibre.ebooks.mobi.reader.markup import expand_mobi8_markup
 from calibre.ebooks.metadata.opf2 import Guide, OPFCreator
+from calibre.ebooks.mobi.utils import read_font_record
 
 Part = namedtuple('Part',
     'num type filename start end aid')
@@ -339,39 +340,16 @@ class Mobi8Reader(object):
                     b'RESC', b'BOUN', b'FDST', b'DATP', b'AUDI', b'VIDE'}:
                 pass # Ignore these records
             elif typ == b'FONT':
-                # fonts only exist in K8 ebooks
-                # Format:
-                # bytes  0 -  3:  'FONT'
-                # bytes  4 -  7:  ?? Expanded size in bytes ??
-                # bytes  8 - 11:  ?? number of files ??
-                # bytes 12 - 15:  ?? offset to start of compressed data ?? (typically 0x00000018 = 24)
-                # bytes 16 - 23:  ?? typically all 0x00 ??  Are these compression flags from zlib?
-                # The compressed data begins with 2 bytes of header and has 4 bytes of checksum at the end
-                try:
-                    fields = struct.unpack_from(b'>LLLLL', data, 4)
-                except:
-                    fields = None
-                # self.log.debug('Font record fields: %s'%(fields,))
-                cdata = data[26:-4]
-                ext = 'dat'
-                try:
-                    uncompressed_data = zlib.decompress(cdata, -15)
-                except:
-                    self.log.warn('Failed to uncompress embedded font %d: '
-                            'Fields: %s' % (fname_idx, fields,))
-                    uncompressed_data = data[4:]
-                    ext = 'failed'
-                if len(uncompressed_data) < 200:
-                    self.log.warn('Failed to uncompress embedded font %d: '
-                            'Fields: %s' % (fname_idx, fields,))
-                    uncompressed_data = data[4:]
-                    ext = 'failed'
-                hdr = uncompressed_data[:4]
-                if ext != 'failed' and hdr in {b'\0\1\0\0', b'true', b'ttcf'}:
-                    ext = 'ttf'
-                href = "fonts/%05d.%s" % (fname_idx, ext)
+                font = read_font_record(data)
+                href = "fonts/%05d.%s" % (fname_idx, font['ext'])
+                if font['err']:
+                    self.log.warn('Reading font record %d failed: %s'%(
+                        fname_idx, font['err']))
+                    if font['headers']:
+                        self.log.debug('Font record headers: %s'%font['headers'])
                 with open(href.replace('/', os.sep), 'wb') as f:
-                    f.write(uncompressed_data)
+                    f.write(font['font_data'] if font['font_data'] else
+                            font['raw_data'])
             else:
                 imgtype = imghdr.what(None, data)
                 if imgtype is None:
