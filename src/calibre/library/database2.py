@@ -909,7 +909,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
         '''
-        row = self.data._data[idx] if index_is_id else self.data[idx]
+        idx = idx if index_is_id else self.id(idx)
+        row = self.data._data[idx]
         fm = self.FIELD_MAP
         mi = Metadata(None, template_cache=self.formatter_template_cache)
 
@@ -947,7 +948,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.book_size   = row[fm['size']]
         mi.ondevice_col= row[fm['ondevice']]
         mi.last_modified = row[fm['last_modified']]
-        id = idx if index_is_id else self.id(idx)
+        id = idx
         formats = row[fm['formats']]
         mi.format_metadata = {}
         if not formats:
@@ -971,15 +972,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         mi.application_id = id
         mi.id = id
 
+        mi.set_all_user_metadata(self.field_metadata.custom_field_metadata())
         for key, meta in self.field_metadata.custom_iteritems():
-            mi.set_user_metadata(key, meta)
             if meta['datatype'] == 'composite':
                 mi.set(key, val=row[meta['rec_index']])
             else:
-                mi.set(key, val=self.get_custom(idx, label=meta['label'],
-                                            index_is_id=index_is_id),
-                        extra=self.get_custom_extra(idx, label=meta['label'],
-                                                    index_is_id=index_is_id))
+                val, extra = self.get_custom_and_extra(idx, label=meta['label'],
+                                                       index_is_id=True)
+                mi.set(key, val=val, extra=extra)
 
         user_cats = self.prefs['user_categories']
         user_cat_vals = {}

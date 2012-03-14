@@ -496,3 +496,13 @@ gui_view_history_size = 15
 # prefer HTMLZ to EPUB for tweaking, change this to 'htmlz'
 tweak_book_prefer = 'epub'
 
+#: Compile General Program Mode templates to Python
+
+# Compiled general program mode templates are significantly faster than
+# interpreted templates. Setting this tweak to True causes calibre to compile
+# (in most cases) general program mode templates. Setting it to False causes
+# calibre to use the old behavior -- interpreting the templates. Set the tweak
+# to False if some compiled templates produce incorrect values.
+# Default:    compile_gpm_templates = True
+# No compile: compile_gpm_templates = False
+compile_gpm_templates = True
