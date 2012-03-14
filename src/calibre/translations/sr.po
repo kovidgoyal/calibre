@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-03-12 08:12+0000\n"
-"PO-Revision-Date: 2012-03-12 10:37+0000\n"
-"Last-Translator: Иван Старчевић <ivanstar61@gmail.com>\n"
+"PO-Revision-Date: 2012-03-13 16:19+0000\n"
+"Last-Translator: Radan Putnik <srastral@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-03-13 05:00+0000\n"
+"X-Launchpad-Export-Date: 2012-03-14 04:42+0000\n"
 "X-Generator: Launchpad (build 14933)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:56
@@ -2431,7 +2431,7 @@ msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first."
 msgstr ""
-"Prati sve HTML veze prvo po širini. Obično se veze prate prvo po dubini."
+"Прати све HTML везе прво по ширини. Обично се везе прате прво по дубини."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_input.py:39
 #, python-format
@@ -2440,9 +2440,9 @@ msgid ""
 "negative. 0 implies that no links in the root HTML file are followed. "
 "Default is %default."
 msgstr ""
-"Najveća dubina rekurzije kada se prate veze u HTML fajlu. Mora biti "
-"nenegativna. Vrednost 0 sprečava praćenje bilo koje veze iz osnovnog HTML "
-"fajla. Podrazumeva se %default."
+"Највећа дубина рекурзије када се прате везе у HTML датотеци. Мора бити не-"
+"негативна. Вредност 0 спречава праћење било које везе из основне HTML "
+"датотеке. Подразумева се %default."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_input.py:48
 msgid ""
@@ -2454,29 +2454,30 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:21
 msgid "CSS file used for the output instead of the default file"
-msgstr "Korišćen je CSS umesto podrazumevanog fajla za kreiranje izlaza"
+msgstr "CSS датотека се користи за излаз уместо подразумеване датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:24
 msgid ""
 "Template used for generation of the html index file instead of the default "
 "file"
 msgstr ""
-"Korišćen je šablon umesto podrazumevanog fajla za kreiranje HTML indeksa"
+"Шаблон се користи за стварање html индексне датотеке, уместо подразумеване"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:27
 msgid ""
 "Template used for the generation of the html contents of the book instead of "
 "the default file"
 msgstr ""
-"Korišćen je šablon umesto podrazumevanog fajla za kreiranje HTML sadržaja"
+"Шаблон се користи за стварање html садржаја књиге уместо подразумеване "
+"датотеке"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/html_output.py:30
 msgid ""
 "Extract the contents of the generated ZIP file to the specified directory. "
 "WARNING: The contents of the directory will be deleted."
 msgstr ""
-"Raširi sadržaj kreiranog ZIP fajla u navedeni direktorijum. UPOZORENJE: "
-"Sadržaj ovog direktorijuma će prethodno biti obrisan."
+"Издвоји садржај генерисане ЗИП датотеке у одређени директоријум. УПОЗОРЕЊЕ: "
+"Садржај директоријума ће бити обрисан."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_input.py:63
 #, python-format
@@ -2485,12 +2486,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_input.py:69
 msgid "No top level HTML file found."
-msgstr ""
+msgstr "Не постоји  HTML датотека врхунског нивоа."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_input.py:72
 #, python-format
 msgid "Top level HTML file %s is empty"
-msgstr ""
+msgstr "Највиши ниво HTML датотеке %s је празан"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/htmlz_output.py:27
 msgid ""
@@ -2510,31 +2511,31 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:90
 msgid "Enable autorotation of images that are wider than the screen width."
-msgstr "Omogući automatsko okretanje slika koje su šire od ekrana."
+msgstr "Омогући аутоматско окретање слика које су шире од екрана."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:94
 #, python-format
 msgid "Set the space between words in pts. Default is %default"
 msgstr ""
-"Postavi razmak između reči u štamparksim tačkama. Podrazumeva se %default"
+"Постави размак између речи у штампарским тачкама. Подразумева се %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:97
 msgid "Add a header to all the pages with title and author."
-msgstr "Dodaj zaglavlje sa naslovom i imenom autora na sve strane."
+msgstr "Додај заглавље на свим страницама са насловом и аутором."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:100
 msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
 msgstr ""
-"Postavi format za zaglavlje. %a će biti zamenjeno imenom autora, a %t "
-"naslovom. Podrazumeva se %default"
+"Постави формат за заглавље. %a ће бити замењено именом аутора, а %t "
+"насловом. Подразумева се %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:104
 #, python-format
 msgid "Add extra spacing below the header. Default is %default pt."
 msgstr ""
-"Dodaj razmak ispod zaglavlja. Podrazumeva se %default štamparskih tačaka."
+"Додај размак испод заглавља. Подразумева се %default штампарских тачака."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:107
 #, python-format
@@ -2542,7 +2543,7 @@ msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
 msgstr ""
-"Minimalno uvlačenje prvog reda pasusa u štamparskim tačkama. Podrazumeva se: "
+"Најмање увлачење првог реда пасуса у штампарским тачкама. Подразумева се: "
 "%default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:112
@@ -2550,8 +2551,8 @@ msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
 msgstr ""
-"Predstavi HTML tabele kao slike (korisno ako dokument ima velike ili "
-"komplikovane tabele)"
+"Представи HTML табеле као слике (корисно ако документ има велике или "
+"компликоване табеле)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:117
 #, python-format
@@ -2559,33 +2560,32 @@ msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
 msgstr ""
-"Pomnoži veličinu teksta u obrađenim tabelama ovim faktorom. Podrazumeva se "
+"Помножи величину текста у обрађеним табелама овим фактором. Подразумева се "
 "%default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:121
 msgid "The serif family of fonts to embed"
-msgstr "Porodica serifnih slova za ugnežđivanje"
+msgstr "Породица serif слова за уградњу"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:124
 msgid "The sans-serif family of fonts to embed"
-msgstr "Porodica bez-serifnih slova za ugnežđivanje"
+msgstr "Породица sans-serif слова за уградњу"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:127
 msgid "The monospace family of fonts to embed"
-msgstr "Porodica štampanih slova za ugnežđivanje"
+msgstr "Породица штампаних слова за уградњу"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/lrf_output.py:152
 msgid "Comic"
-msgstr "Strip"
+msgstr "Стрип"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:22
 msgid "Modify images to meet Palm device size limitations."
-msgstr "Obradi slike tako da odgovaraju ograničenjima veličine Palm uređaja."
+msgstr "Измени слике тако да одговарају ограничењима величине Palm уређаја."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:26
 msgid "When present, use author sort field as author."
-msgstr ""
-"Kada postoji, koristi polje za sortiranje po imenu autora kao ime autora."
+msgstr "Када постоји, користи поље за разврставање по имену аутора"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:30
 msgid ""
@@ -2596,16 +2596,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:33
 #: /home/kovid/work/calibre/src/calibre/ebooks/oeb/transforms/htmltoc.py:57
 msgid "Title for any generated in-line table of contents."
-msgstr "Naslov za automatski generisan Sadržaj."
+msgstr "Наслов за аутоматски направљен садржај."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:37
 msgid "Disable compression of the file contents."
-msgstr "Onemogući komprimovanje sadržaja fajla."
+msgstr "Онемогући сажимање  садржаја датотека."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:40
 msgid "Tag marking book to be filed with Personal Docs"
-msgstr ""
-"Etiketa koja označava da će knjiga biti smeštena u Privatna dokumenta"
+msgstr "Етикета која означава да ће књига бити смештена у приватна документа"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:44
 msgid ""
@@ -2613,9 +2612,9 @@ msgid ""
 "will try to convert margins specified in the input document, otherwise it "
 "will ignore them."
 msgstr ""
-"Ignoriši margine u ulaznom dokumentu. Ako je postavljeno na Netačno, izlazni "
-"modul za MOBI će pokušati da obradi margine u ulaznom dokumentu, a inače će "
-"ih ignorisati."
+"Занемари ивице у улазном документу. Ако је постављено на Нетачно, излазни "
+"модул за MOBI ће покушати да обради ивице у улазном документу, а иначе ће их "
+"занемарити."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:50
 msgid ""
@@ -2639,30 +2638,30 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/mobi_output.py:108
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/periodical.py:125
 msgid "All articles"
-msgstr "Svi članci"
+msgstr "Сви чланци"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdb_output.py:23
 msgid "Format to use inside the pdb container. Choices are:"
-msgstr "Format koji će se koristiti unutar pdb kontejnera. Izbor je:"
+msgstr "Формат који ће се користити унутар pdb спремника. Избор је:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdb_output.py:27
 msgid ""
 "Specify the character encoding of the output document. The default is "
 "cp1252. Note: This option is not honored by all formats."
 msgstr ""
-"Navedi kodni raspored za izlazni dokument. Podrazumeva se cp1252. NB: Ova "
-"opcija nije podržana u svim formatima."
+"Наведи кодни распоред за излазни документ. Подразумева се cp1252. Белешка: "
+"Ова могућност није подржана у свим форматима."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdb_output.py:32
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/rb_output.py:20
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:37
 msgid "Add Table of Contents to beginning of the book."
-msgstr "Dodaj Sadržaj na početak knjige."
+msgstr "Додај садржај на почетак књиге."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_input.py:20
 msgid "Do not extract images from the document"
-msgstr "Ne uzimaj slike iz dokumenta."
+msgstr "Не издвајај слике из документа"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_input.py:22
 msgid ""
@@ -2670,13 +2669,13 @@ msgid ""
 "Valid values are a decimal between 0 and 1. The default is 0.45, just below "
 "the median line length."
 msgstr ""
-"Razmera koja određuje mesto na kome že redovi biti spojeni ako je omogućeno "
-"pertprocesiranje. Dozvoljene vrednosti su decimalne, između 0 i 1. "
-"Podrazumevana vrednost je 0.45, tik ispod medijane za dužinu reda."
+"Размера се користи да одреди дужину на којој би требало да буде не "
+"преломљени ред. Дозвољене вредности су децимале, између 0 и 1. Подразумевана "
+"вредност је 0.45, тик испод средине за дужину реда."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_input.py:26
 msgid "Use the new PDF conversion engine."
-msgstr "Koristi novi mehanizam za PDF konverziju."
+msgstr "Користите нови механизам за ПДФ претварање."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:70
 #, python-format
@@ -2684,8 +2683,8 @@ msgid ""
 "The unit of measure. Default is inch. Choices are %s Note: This does not "
 "override the unit for margins!"
 msgstr ""
-"Jedinice mere. Podrazumevaju se inči. Izbor je: %s NB: Ovo ne utiče na "
-"jedinice koje se koriste za margine!"
+"Јединице мере. Подразумевано су инчи. Избор је: %s NB: Ово не утиче на "
+"јединице које се користе за ивице!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:75
 #, python-format
@@ -2699,14 +2698,14 @@ msgid ""
 "Custom size of the document. Use the form widthxheight EG. `123x321` to "
 "specify the width and height. This overrides any specified paper-size."
 msgstr ""
-"Nova veličina dokumenta. Koristite oblik širinaxvisina, na primer, "
-"`123x123`, da biste odredili širinu i visinu. Ova opcija će se koristiti "
-"umesto veličine papira, čak i ako je ova prethodno zadata."
+"Нова величина документа. Користите облик ширина x висина, на пример, "
+"`123x123`, да бисте одредили ширину и висину. Ова могућност ће се користити "
+"уместо величине папира, чак и ако је ова претходно задата."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:84
 #, python-format
 msgid "The orientation of the page. Default is portrait. Choices are %s"
-msgstr "Orijentacija strane. Podrazumeva se vertikalna. Izbor je: %s"
+msgstr "Оријентација стране. Подразумева се усправно. Избор је: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pdf_output.py:88
 msgid ""
@@ -2717,7 +2716,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:22
 msgid ""
 "Specify the character encoding of the output document. The default is cp1252."
-msgstr "Navedi kodni raspored za izlazni dokument. Podrazumeva se cp1252."
+msgstr "Одреди кодни распоред за излазни документ. Подразумева се cp1252."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/pml_output.py:29
 msgid ""
@@ -2725,36 +2724,36 @@ msgid ""
 "depth reduced by default to accommodate applications that can not convert "
 "images on their own such as Dropbook."
 msgstr ""
-"Ne smanjuj broj boja na slikama. Veličina i broj boja će biti automatski "
-"smanjeni da se prilagode programima koji ne mogu sami da konvertuju slike, "
-"kao na primer Dropbook."
+"Не смањуј број боја на сликама. Величина и број боја ће бити аутоматски "
+"смањени да се прилагоде програмима који не могу сами да претворе слике, као "
+"на пример Dropbook."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:22
 msgid "Download periodical content from the internet"
-msgstr "Preuzmi periodiku sa Interneta"
+msgstr "Преузми периодични садржаја са интернета"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:37
 msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
-"Korisno za razvoj recepata. Postavlja max_articles_per_feed na 2 i preuzima "
-"najviše 2 izvora."
+"Корисно за развој рецепата. Поставља max_articles_per_feed на 2 и преузима "
+"највише 2 извора."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:40
 msgid "Username for sites that require a login to access content."
 msgstr ""
-"Korisničko ime za Internet strane koje zahtevaju korisnički nalog za pristup "
-"sadržaju."
+"Корисничко име за сајтове који захтевају пријављивање за приступ садржају."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:43
 msgid "Password for sites that require a login to access content."
-msgstr "Lozinka za sajtove koji imaju kontrolu pristupa sadržaju."
+msgstr "Лозинка за сајтове који захтевају приступ садржају."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/recipe_input.py:47
 msgid ""
 "Do not download latest version of builtin recipes from the calibre server"
-msgstr "Ne preuzimaj najnoviju verziju ugrađenih recepata sa calibre servera"
+msgstr ""
+"Не преузимај најновије издање уграђених рецепата са calibre послужитеља"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/rtf_input.py:246
 #, python-format
@@ -2763,7 +2762,7 @@ msgid ""
 "first and then try it.\n"
 "%s"
 msgstr ""
-"Calibre ne podržava ovaj RTF fajl. Konvertujte ga u HTML i probajte ponovo.\n"
+"Calibre не подржава ову RTF датотеку. Пребаци га у HTML и пробајте поново.\n"
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:22
@@ -2771,7 +2770,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:33
 msgid ""
 "Specify the character encoding of the output document. The default is utf-8."
-msgstr "Navedi kodni raspored za izlazni dokument. Podrazumeva se utf-8."
+msgstr "Одреди кодни распоред за излазни документ. Подразумева се utf-8."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:26
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:40
@@ -2781,47 +2780,47 @@ msgid ""
 "the space after and will exceed the specified value. Also, there is a "
 "minimum of 25 characters. Use 0 to disable line splitting."
 msgstr ""
-"Maksimalni broj znakova u redu. Red će biti prelomljen kod prvog razmaka pre "
-"navedene vrednosti. Ako nije pronađen nijedan razmak, red će biti prelomljen "
-"na mestu prvog razmaka posle navedene vrednosti i biće duži od nje. Takođe, "
-"podrazumevani minimum je 25 znakova. Navedite 0 da sprečite prelom redova."
+"Највећи број знакова у реду. Ред ће бити преломљен код првог размака пре "
+"наведене вредности. Ако није пронађен ниједан размак, ред ће бити преломљен "
+"на месту првог размака после наведене вредности и биће дужи од ње. Такође, "
+"подразумевани минимум је 25 знакова. Наведите 0 да спречите прелом редова."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:33
 msgid ""
 "Specify whether or not to insert an empty line between two paragraphs."
-msgstr "Navedite da li će se dodavati prazan red između pasusa."
+msgstr "Наведите да ли ће се додавати празан ред између пасуса."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:37
 msgid ""
 "Specify whether or not to insert two space characters to indent the first "
 "line of each paragraph."
-msgstr "Navedite da li da se prvi red pasusa uvuče sa dva razmaka."
+msgstr "Наведите да ли да се први ред пасуса увуче са два размака."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:41
 msgid ""
 "Specify whether or not to hide the chapter title for each chapter. Useful "
 "for image-only output (eg. comics)."
 msgstr ""
-"Navedite da li da se sakrije naziv poglavlja. Ovo je korisno ako su izlaz "
-"samo slike (npr. za stripove)."
+"Одреди да ли да се сакрије назив поглавља. Ово је корисно ако су излаз само "
+"слике (нпр. за стрипове)."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:45
 msgid "Resize all the images for full screen view. "
-msgstr "Promeni veličinu svih slika za prikaz na celom ekranu. "
+msgstr "Промени величину свих слика за приказ на целом екрану. "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:127
 msgid "Start Page"
-msgstr "Početna stranica"
+msgstr "Почетна страница"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:137
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:139
 msgid "Cover Pages"
-msgstr "Naslovne strane"
+msgstr "Насловне странице"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:152
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/snb_output.py:155
 msgid " (Preface)"
-msgstr " (Predgovor)"
+msgstr " (Предговор)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:22
 msgid ""
@@ -2857,8 +2856,8 @@ msgid ""
 "Normally extra spaces are condensed into a single space. With this option "
 "all spaces will be displayed."
 msgstr ""
-"Obično se višestruki razmaci sažmu u samo jedan. Ova opcija omogućava "
-"prikazivanje svih razmaka."
+"Обично се вишеструки размаци сажму у само један. Ово омогућава приказивање "
+"свих размака."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:48
 msgid ""
@@ -2868,7 +2867,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_input.py:51
 msgid "Do not insert a Table of Contents into the output text."
-msgstr "Nemoj da dodaješ Sadržaj u izlazni tekst."
+msgstr "Немој додавати садржај у излазни текст."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:27
 #, python-format
@@ -2877,18 +2876,18 @@ msgid ""
 "for compatibility with Mac OS 9 and earlier. For Mac OS X use 'unix'. "
 "'system' will default to the newline type used by this OS."
 msgstr ""
-"Koja vrsta znaka za novi red će biti korišćena. Opcije su %s. Podrazumeva se "
-"'system'. Navedite 'old_mac' za Mac OS 9 i ranije. Za Mac OS X navedite "
-"'unix'. Navođenje 'system' će koristiti znak za novi red u zavisnosti od "
-"operativnog sistema."
+"Која врста знака за нови ред ће бити коришћена. Могућности су %s. "
+"Подразумева се 'system'. Наведите 'old_mac' за Mac OS 9 и раније. За Mac OS "
+"X наведите 'unix'. Навођење 'system' ће користити знак за нови ред у "
+"зависности од оперативног система."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:47
 msgid ""
 "Force splitting on the max-line-length value when no space is present. Also "
 "allows max-line-length to be below the minimum"
 msgstr ""
-"Forsiraj prelom reda na mestu zadate maksimalne dužine čak i ako nema "
-"razmaka. Takođe omogućava da dužina reda bude ispod podrazumevane minimalne."
+"Форсирај прелом реда на месту задате највеће дужине чак и ако нема размака. "
+"Такође омогућава да дужина реда буде испод подразумеване минималне."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plugins/txt_output.py:52
 msgid ""
@@ -2924,8 +2923,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:105
 msgid "Level of verbosity. Specify multiple times for greater verbosity."
 msgstr ""
-"Količina izlaznih poruka. Za veću količinu poruka ovu opciju navedite više "
-"puta."
+"Количина излазних порука. За већу количину порука ову могућност наведите "
+"више пута."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:112
 msgid ""
@@ -2933,8 +2932,8 @@ msgid ""
 "specified directory. Useful if you are unsure at which stage of the "
 "conversion process a bug is occurring."
 msgstr ""
-"Sačuvaj izlaz različitih koraka konverzije u navedeni direktorijum. Korisno "
-"ako niste sigurni u kom koraku je došlo do greške u konverziji."
+"Сачувај излаз различитих корака претварања у наведени директоријум. Корисно "
+"ако нисте сигурни у ком кораку је дошло до грешке у претварању."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:121
 msgid ""
@@ -2943,10 +2942,10 @@ msgid ""
 "For example resolution dependent lengths (i.e. lengths in pixels). Choices "
 "are:"
 msgstr ""
-"Izaberite ulazni profil. Ulazni profil daje infromacije sistemu za "
-"konverziju o tome kako da interpretira različite informacije u ulaznom "
-"dokumentu. Na primer, dužine koje zavise od rezolucije (t.j. dužine u "
-"pikselima). Mogući izbori su:"
+"Изаберите улазни профил. Улазни профил даје инфромације систему за "
+"претварање о томе како да интерпретира различите информације у улазном "
+"документу. На пример, дужине које зависе од резолуције (т.ј. дужине у "
+"пикселима). Могући избори су:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:132
 msgid ""
@@ -2955,11 +2954,11 @@ msgid ""
 "cases, an output profile is required to produce documents that will work on "
 "a device. For example EPUB on the SONY reader. Choices are:"
 msgstr ""
-"Izaberite izlazni profil. Izlazni profil govori sistemu za konverziju kako "
-"da optimizuje kreirani dokument za izabrani uređaj. U nekim slučajevima "
-"izlazni profil je neophodan da bi se proizveo dokument koji je čitljiv na "
-"izabranom uređaju. Na primer, dokument u EPUB formatu na SONY čitaču. Mogući "
-"izbori su:"
+"Изаберите излазни профил. Излазни профил говори систему за претварање како "
+"да оптимизује створени документ за изабрани уређај. У неким случајевима "
+"излазни профил је неопходан да би се произвео документ који је читљив на "
+"изабраном уређају. На пример, документ у EPUB формату на SONY читачу. Могући "
+"избори су:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:143
 msgid ""
@@ -2968,10 +2967,10 @@ msgid ""
 "fonts in the output bigger and vice versa. By default, the base font size is "
 "chosen based on the output profile you chose."
 msgstr ""
-"Veličina osnovnog tipa slova u štamparskim tačkama (pts, punkt). Sve ostale "
-"veličine slova će biti promenjene srazmerno ovoj veličini. Biranjem većih "
-"slova ovde možete povećati slova u izlaznom dokumentu, i obrnuto. "
-"Podrazumevana veličina je ona navedena u izabranom izlaznom profilu."
+"Величина основног типа слова у штампарским тачкама. Све остале величине "
+"слова ће бити промењене сразмерно овој величини. Бирањем већих слова овде "
+"можете повећати слова у излазном документу, и обрнуто. Подразумевана "
+"величина је она наведена у изабраном излазном профилу."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:153
 msgid ""
@@ -2981,16 +2980,16 @@ msgid ""
 "algorithm uses these sizes to intelligently rescale fonts. The default is to "
 "use a mapping based on the output profile you chose."
 msgstr ""
-"Veza između naziva tipova slova u CSS opisu i veličine slova u štamparskim "
-"tačkama (pts, punkt). Na primer, 12,12,14,16,18,20,22,24. Ovo povezuje "
-"veličine slova od xx-small do xx-large, gde se ova poslednja veličina "
-"koristi za najveća slova. Algoritam za promenu veličine slova koristi ove "
-"veličine da bi konveziju učinio što \"pametnijom\". Podrazumevana veza je "
-"ona navedena u izabranom izlaznom profilu."
+"Веза између назива типова слова у CSS опису и величине слова у штампарским "
+"тачкама . На пример, 12,12,14,16,18,20,22,24. Ово повезује величине слова од "
+"xx-small до xx-large, где се ова последња величина користи за највећа слова. "
+"Алгоритам за промену величине слова користи ове величине да би претварање "
+"учинио што \"паметнијом\". Подразумевана веза је она наведена у изабраном "
+"излазном профилу."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:165
 msgid "Disable all rescaling of font sizes."
-msgstr "Onemogući bilo kakvu promenu veličine slova."
+msgstr "Онемогући било какву промену величине слова."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:172
 msgid ""
@@ -3001,12 +3000,12 @@ msgid ""
 "line height specification, unless you know what you are doing. For example, "
 "you can achieve \"double spaced\" text by setting this to 240."
 msgstr ""
-"Minimalna visina reda, data kao procenat od izračunate veličine slova. "
-"calibre će obezbediti da svaki element ima najmanje ovoliku visinu reda, bez "
-"obzira na to šta je navedeno u ulaznom dokumentu. Postavite na nulu da biste "
-"onemogućili. Koristite ovo podešavanje pre nego da postavite apsolutnu "
-"visinu reda, ukoliko ne znate tačno šta radite. Na primer, dvostruku visinu "
-"ćete postići ako ovde navedete 240."
+"Минимална висина реда, дата као проценат од израчунате величине слова. "
+"calibre ће обезбедити да сваки елемент има најмање оволику висину реда, без "
+"обзира на то шта је наведено у улазном документу. Поставите на нулу да бисте "
+"онемогућили. Користите ово подешавање пре него да поставите апсолутну висину "
+"реда, уколико не знате тачно шта радите. На пример, двоструку висину ћете "
+"постићи ако овде наведете 240."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:187
 msgid ""
@@ -3015,10 +3014,10 @@ msgid ""
 "cases, the minimum line height option is more useful. By default no line "
 "height manipulation is performed."
 msgstr ""
-"Visina reda u štamparksim tačkama. Kontroliše razmak između redova. Odnosi "
-"se samo na elemente koji ne zadaju sopstvenu visinu reda. U većini slučajeva "
-"podešavanje minimalne visine reda je mnogo korisnije. Podrazumeva se da neće "
-"biti izmene visine reda."
+"Висина реда у штампарским тачкама. Контролише размак између редова. Односи "
+"се само на елементе који не задају сопствену висину реда. У већини случајева "
+"подешавање минималне висине реда је много корисније. Подразумева се да неће "
+"бити измене висине реда."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:197
 msgid ""
@@ -3027,11 +3026,11 @@ msgid ""
 "page and other artifacts. This option will extract the content from the "
 "tables and present it in a linear fashion."
 msgstr ""
-"Neki loše kreirani dokumenti koriste tabele da bi odredili izgled teksta na "
-"strani. Posle konverzije ovakvih dokumenata tekst često izlazi van granica "
-"strane, a mogući su i drugi vizuelni problemi. Izborom ove opcije sadržina "
-"tabela će biti predstavljena linearno kako bi se izbegli gore navedeni "
-"problemi."
+"Неки лоше створени документи користе табеле да би одредили изглед текста на "
+"страни. После претварања оваквих докумената текст често излази ван граница "
+"стране, а могући су и други визуелни проблеми. Избором ове могућности "
+"садржина табела ће бити представљена линеарно како би се избегли горе "
+"наведени проблеми."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:207
 msgid ""
@@ -3061,13 +3060,13 @@ msgid ""
 "preference to the auto-generated one. With this option, the auto-generated "
 "one is always used."
 msgstr ""
-"Obično, ako ulazni fajl već ima Sadržaj, on će biti korišćen umesto "
-"automatski generisanog. Izborom ove opcije možete da učinite da se uvek "
-"koristi automatski genenerisan Sadržaj."
+"Обично, ако улазна датотека већ има садржај, он ће бити коришћен уместо "
+"аутоматски направљеног. Избором ове могућности можете да учините да се увек "
+"користи аутоматски направљен садржај."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:243
 msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr "Nemoj dodavati automatski otkrivena poglavlja u Sadržaj."
+msgstr "Немој додавати аутоматски откривена поглавља у садржају."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:251
 #, python-format
@@ -3075,8 +3074,8 @@ msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
 msgstr ""
-"Ako se otkrije manje od ovog broja poglavlja, ona će biti dodata u Sadržaj. "
-"Podrazumeva se: %default"
+"Ако се открије мање од овог броја поглавља, она ће бити додата у садржај. "
+"Подразумева се: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:257
 #, python-format
@@ -3085,18 +3084,18 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the threshold "
 "number of chapters were detected."
 msgstr ""
-"Najveći broj odrednica koje će biti dodate u Sadržaj. Postavi na 0 da "
-"onemogućiš ovu opciju. Podrazumeva se: %default. Odrednice se dodaju u "
-"Sadržaj samo ako je broj otkrivenih poglavlja manji od zadatog."
+"Највећи број одредница које ће бити додате у садржај. Постави на 0 да "
+"онемогућиш ову могућност. Подразумева се: %default. Одреднице се додају у "
+"садржај само ако је број откривених поглавља мањи од задатог."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:265
 msgid ""
 "Remove entries from the Table of Contents whose titles match the specified "
 "regular expression. Matching entries and all their children are removed."
 msgstr ""
-"Isključi odrednice iz Sadržaja ako njihovi naslovi odgovaraju zadatom "
-"regularnom izrazu. Biće uklonjene sve takve odrednice, kao i one koje su "
-"ispod njih u hijerarhiji."
+"Искључи одреднице из садржаја ако њихови наслови одговарају задатом "
+"регуларном изразу. Биће уклоњене све такве одреднице, као и оне које су "
+"испод њих у хијерархији."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:273
 msgid ""
@@ -3123,11 +3122,10 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
-"Navedite kako će se označiti otkrivena poglavlja. Navođenje \"pagebreak\" "
-"dovodi do dodavanja znaka za novi red pre svakog poglavlja. Vrednost "
-"\"rule\" dodaje horizontalnu liniju. Vrednost \"none\" isključuje posebno "
-"označavanje poglavlja, a vrednost \"both\" dodaje i novi red i horizontalnu "
-"liniju."
+"Наведите како ће се означити откривена поглавља. Навођење \"pagebreak\" "
+"доводи до додавања знака за нови ред пре сваког поглавља. Вредност \"rule\" "
+"додаје хоризонталну линију. Вредност \"none\" искључује посебно означавање "
+"поглавља, а вредност \"both\" додаје и нови ред и водоравну линију."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:308
 msgid ""
@@ -3135,9 +3133,9 @@ msgid ""
 "the style rules from the source file, so it can be used to override those "
 "rules."
 msgstr ""
-"Putanja do fajla sa CSS opisom, ili sam CSS opis. Ovaj CSS opis će biti "
-"dodat na stilska pravila koja se već nalaze u izvornom fajlu te se stoga "
-"može koristiti i da ih promeni."
+"Путања до датотеке са CSS описом, или сам CSS опис. Овај CSS опис ће бити "
+"додат у стилска правила која се већ налазе у изворној датотеци те се стога "
+"може користити и да их промени."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:316
 msgid ""
@@ -3151,7 +3149,7 @@ msgstr ""
 msgid ""
 "An XPath expression. Page breaks are inserted before the specified elements."
 msgstr ""
-"XPath izraz. Znaci za novi red će biti dodati pre navedenih elemenata."
+"XPath израз. Знаци за нови ред ће бити додати пре наведених елемената."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:333
 msgid ""
@@ -3166,8 +3164,8 @@ msgstr ""
 msgid ""
 "Set the top margin in pts. Default is %default. Note: 72 pts equals 1 inch"
 msgstr ""
-"Postavi gornju marginu u štamparskim tačkama (pts, punkt). Podrazumeva se: "
-"%default. NB: 72 tačke čine 1 inč."
+"Постави горњу ивицу у штампарским тачкама. Подразумева се: %default. NB: 72 "
+"тачке чине 1 инч."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/conversion/plumber.py:349
 #, python-format
@@ -3841,7 +3839,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:58
 msgid "Value: unknown field "
-msgstr ""
+msgstr "Вредност:непознато поље "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:162
 msgid "TEMPLATE ERROR"
@@ -3922,7 +3920,7 @@ msgstr[1] ""
 #: /home/kovid/work/calibre/src/calibre/gui2/preferences/metadata_sources.py:164
 #: /home/kovid/work/calibre/src/calibre/library/field_metadata.py:127
 msgid "Languages"
-msgstr ""
+msgstr "Језици"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/book/base.py:768
 msgid "Timestamp"
@@ -4070,7 +4068,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:498
 msgid "US"
-msgstr ""
+msgstr "US"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:499
 msgid "France"
@@ -4078,23 +4076,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:500
 msgid "Germany"
-msgstr ""
+msgstr "Немачка"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:501
 msgid "UK"
-msgstr ""
+msgstr "UK"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:502
 msgid "Italy"
-msgstr ""
+msgstr "Италија"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:503
 msgid "Japan"
-msgstr ""
+msgstr "Јапан"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:504
 msgid "Spain"
-msgstr ""
+msgstr "Шпанија"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/sources/amazon.py:508
 msgid "Amazon website to use:"
@@ -4685,11 +4683,11 @@ msgstr "kategorije koje ne treba prikazati u izlogu etiketa"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:264
 msgid "WARNING:"
-msgstr ""
+msgstr "УПОЗОРЕЊЕ:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:274
 msgid "ERROR:"
-msgstr ""
+msgstr "ГРЕШКА:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:286
 #: /home/kovid/work/calibre/src/calibre/gui2/tag_browser/ui.py:258
@@ -4804,7 +4802,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:72
 msgid "Shift+A"
-msgstr ""
+msgstr "Shift+A"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:87
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:120
@@ -4841,7 +4839,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:170
 msgid "Adding"
-msgstr ""
+msgstr "Додавање"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:171
 msgid "Creating book records from ISBNs"
@@ -4858,7 +4856,7 @@ msgstr "Podržane knjige"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:285
 msgid "Select books"
-msgstr ""
+msgstr "Изабери књиге"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/add.py:323
 msgid "Merged some books"
@@ -4924,7 +4922,7 @@ msgstr "Preuzmi beleške (eksperimentalno)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:107
 msgid "Not supported"
-msgstr ""
+msgstr "Није подржано"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:108
 msgid "Fetching annotations is not supported for this device"
@@ -4946,7 +4944,7 @@ msgstr "Nije izabrana nijedna knjiga za preuzimanje beleški"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:156
 msgid "Some errors"
-msgstr ""
+msgstr "Неке грешке"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/annotate.py:157
 msgid ""
@@ -4956,7 +4954,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:20
 msgid "Create catalog"
-msgstr ""
+msgstr "Направи каталог"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/actions/catalog.py:38
 msgid "No books selected for catalog generation"
