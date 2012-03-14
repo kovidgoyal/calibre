@@ -511,3 +511,4 @@ change_book_details_font_size_by = 0
 # Default:    compile_gpm_templates = True
 # No compile: compile_gpm_templates = False
 compile_gpm_templates = True
+
